@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractGrid.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkExtractStructuredGridHelper
  * @brief   helper for extracting/sub-sampling
@@ -25,7 +13,7 @@
  *
  * @sa
  * vtkExtractGrid vtkExtractVOI vtkExtractRectilinearGrid
-*/
+ */
 
 #ifndef vtkExtractStructuredGridHelper_h
 #define vtkExtractStructuredGridHelper_h
@@ -34,40 +22,43 @@
 #include "vtkObject.h"
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkPointData;
 class vtkPoints;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct vtkIndexMap;
 
+VTK_ABI_NAMESPACE_END
 } // END namespace detail
 } // END namespace vtk
 
-class VTKCOMMONDATAMODEL_EXPORT vtkExtractStructuredGridHelper :
-  public vtkObject
+VTK_ABI_NAMESPACE_BEGIN
+class VTKCOMMONDATAMODEL_EXPORT vtkExtractStructuredGridHelper : public vtkObject
 {
 public:
-  static vtkExtractStructuredGridHelper *New();
-  vtkTypeMacro(vtkExtractStructuredGridHelper,vtkObject);
+  static vtkExtractStructuredGridHelper* New();
+  vtkTypeMacro(vtkExtractStructuredGridHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Get & Set Macros
-  vtkGetVector6Macro(OutputWholeExtent,int);
+  vtkGetVector6Macro(OutputWholeExtent, int);
 
   /**
    * \brief Initializes the index map.
    * \param voi the extent of the volume of interest
    * \param wholeExt the whole extent of the domain
-   * \param smapleRate the sampling rate
+   * \param sampleRate the sampling rate
    * \param includeBoundary indicates whether to include the boundary or not.
    */
-  void Initialize(int voi[6], int wholeExt[6], int sampleRate[3],
-                  bool includeBoundary);
+  void Initialize(int voi[6], int wholeExt[6], int sampleRate[3], bool includeBoundary);
 
   /**
    * Returns true if the helper is properly initialized.
@@ -79,7 +70,7 @@ public:
    * \param dim the dimension in query
    * \pre dim >= 0 && dim < 3
    */
-  int GetSize(const int dim);
+  int GetSize(int dim);
 
   /**
    * \brief Given a dimension and output index, return the corresponding
@@ -158,9 +149,8 @@ public:
    * \pre pd != nullptr.
    * \pre outPD != nullptr.
    */
-  void CopyPointsAndPointData( int inExt[6], int outExt[6],
-                    vtkPointData* pd, vtkPoints* inpnts,
-                    vtkPointData* outPD, vtkPoints* outpnts);
+  void CopyPointsAndPointData(int inExt[6], int outExt[6], vtkPointData* pd, vtkPoints* inpnts,
+    vtkPointData* outPD, vtkPoints* outpnts);
 
   /**
    * \brief Copies the cell data to the output.
@@ -171,8 +161,7 @@ public:
    * \pre cd != nullptr.
    * \pre outCD != nullptr.
    */
-  void CopyCellData(int inExt[6], int outExt[6],
-                    vtkCellData* cd, vtkCellData* outCD);
+  void CopyCellData(int inExt[6], int outExt[6], vtkCellData* cd, vtkCellData* outCD);
 
   /**
    * Calculate the VOI for a partitioned structured dataset. This method sets
@@ -187,11 +176,8 @@ public:
    * \param partitionedVOI The extent of the process's partitioned dataset that
    * should be extracted by a serial extraction filter.
    */
-  static void GetPartitionedVOI(const int globalVOI[6],
-                                const int partitionedExtent[6],
-                                const int sampleRate[3],
-                                bool includeBoundary,
-                                int partitionedVOI[6]);
+  static void GetPartitionedVOI(const int globalVOI[6], const int partitionedExtent[6],
+    const int sampleRate[3], bool includeBoundary, int partitionedVOI[6]);
   /**
    * Calculate the partitioned output extent for a partitioned structured
    * dataset. This method sets \a partitionedOutputExtent to the correct extent
@@ -207,12 +193,9 @@ public:
    * \param partitionedOutputExtent The correct output extent of the extracted
    * dataset.
    */
-  static void GetPartitionedOutputExtent(const int globalVOI[6],
-                                         const int partitionedVOI[6],
-                                         const int outputWholeExtent[6],
-                                         const int sampleRate[3],
-                                         bool includeBoundary,
-                                         int partitionedOutputExtent[6]);
+  static void GetPartitionedOutputExtent(const int globalVOI[6], const int partitionedVOI[6],
+    const int outputWholeExtent[6], const int sampleRate[3], bool includeBoundary,
+    int partitionedOutputExtent[6]);
 
 protected:
   vtkExtractStructuredGridHelper();
@@ -237,4 +220,5 @@ private:
   void operator=(const vtkExtractStructuredGridHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTKEXTRACTSTRUCTUREDGRIDHELPER_H_ */

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLabelHierarchyCompositeIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkLabelHierarchyCompositeIterator
  * @brief   Iterator over sub-iterators
@@ -32,15 +16,15 @@
  * it->AddIterator(B, 3);
  * </pre>
  * The order of iterators will be A,B,B,B,A,B,B,B,...
-*/
+ */
 
 #ifndef vtkLabelHierarchyCompositeIterator_h
 #define vtkLabelHierarchyCompositeIterator_h
 
-
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabelHierarchyIterator.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkLabelHierarchy;
 class vtkPolyData;
@@ -57,8 +41,7 @@ public:
    * The second optional argument is the number of times to repeat the iterator
    * before moving to the next one round-robin style. Default is 1.
    */
-  virtual void AddIterator(vtkLabelHierarchyIterator* it)
-    { this->AddIterator(it, 1); }
+  virtual void AddIterator(vtkLabelHierarchyIterator* it) { this->AddIterator(it, 1); }
   virtual void AddIterator(vtkLabelHierarchyIterator* it, int count);
 
   /**
@@ -72,7 +55,7 @@ public:
    * This could include labels placed during a previous rendering or
    * a label located under the mouse pointer. You may pass a null pointer.
    */
-  void Begin( vtkIdTypeArray* ) override;
+  void Begin(vtkIdTypeArray*) override;
 
   /**
    * Advance the iterator.
@@ -100,17 +83,17 @@ public:
    * Nodes are n-cubes, so the size is the length of any edge of the cube.
    * This is used by BoxNode().
    */
-  void GetNodeGeometry( double ctr[3], double& size ) override;
+  void GetNodeGeometry(double ctr[3], double& size) override;
 
   /**
    * Not implemented.
    */
-  void BoxNode() override { }
+  void BoxNode() override {}
 
   /**
    * Not implemented.
    */
-  void BoxAllNodes( vtkPolyData* ) override { }
+  void BoxAllNodes(vtkPolyData*) override {}
 
 protected:
   vtkLabelHierarchyCompositeIterator();
@@ -120,8 +103,9 @@ protected:
   Internal* Implementation;
 
 private:
-  vtkLabelHierarchyCompositeIterator( const vtkLabelHierarchyCompositeIterator& ) = delete;
-  void operator = ( const vtkLabelHierarchyCompositeIterator& ) = delete;
+  vtkLabelHierarchyCompositeIterator(const vtkLabelHierarchyCompositeIterator&) = delete;
+  void operator=(const vtkLabelHierarchyCompositeIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLabelHierarchyCompositeIterator_h

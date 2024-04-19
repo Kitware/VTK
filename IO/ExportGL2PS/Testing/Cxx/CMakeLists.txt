@@ -27,7 +27,10 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
     ${GL2PSTests}
     ${GL2PSTestsPDF}
     )
-  vtk_test_cxx_executable(vtkIOExportGL2PSCxxTests tests RENDERING_FACTORY)
+  vtk_test_cxx_executable(vtkIOExportGL2PSCxxTests tests
+    DISABLE_FLOATING_POINT_EXCEPTIONS
+    RENDERING_FACTORY
+    )
 
   set(TestGL2PSExporterVolumeRasterError 50)
 

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBezierContourLineInterpolator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBezierContourLineInterpolator
  * @brief   Interpolates supplied nodes with bezier line segments
@@ -22,37 +10,35 @@
  *
  * @sa
  * vtkContourLineInterpolator
-*/
+ */
 
 #ifndef vtkBezierContourLineInterpolator_h
 #define vtkBezierContourLineInterpolator_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONWIDGETS_EXPORT vtkBezierContourLineInterpolator
-                          : public vtkContourLineInterpolator
+  : public vtkContourLineInterpolator
 {
 public:
-
   /**
    * Instantiate this class.
    */
-  static vtkBezierContourLineInterpolator *New();
+  static vtkBezierContourLineInterpolator* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkBezierContourLineInterpolator, vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  int InterpolateLine( vtkRenderer *ren,
-                               vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) override;
+  int InterpolateLine(vtkRenderer* ren, vtkContourRepresentation* rep, int idx1, int idx2) override;
 
-  //@{
+  ///@{
   /**
    * The difference between a line segment connecting two points and the curve
    * connecting the same points. In the limit of the length of the curve
@@ -61,16 +47,16 @@ public:
    */
   vtkSetClampMacro(MaximumCurveError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(MaximumCurveError, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Maximum number of bezier line segments between two nodes. Larger values
    * create a finer interpolation. Default is 100.
    */
   vtkSetClampMacro(MaximumCurveLineSegments, int, 1, 1000);
   vtkGetMacro(MaximumCurveLineSegments, int);
-  //@}
+  ///@}
 
   /**
    * Span of the interpolator, i.e. the number of control points it's supposed
@@ -85,8 +71,7 @@ public:
    * The node span is returned in a vtkIntArray. The node span returned by
    * this interpolator will be a 2-tuple with a span of 4.
    */
-  void GetSpan(int nodeIndex, vtkIntArray *nodeIndices,
-                        vtkContourRepresentation *rep) override;
+  void GetSpan(int nodeIndex, vtkIntArray* nodeIndices, vtkContourRepresentation* rep) override;
 
 protected:
   vtkBezierContourLineInterpolator();
@@ -94,17 +79,18 @@ protected:
 
   void ComputeMidpoint(double p1[3], double p2[3], double mid[3])
   {
-      mid[0] = (p1[0] + p2[0])/2;
-      mid[1] = (p1[1] + p2[1])/2;
-      mid[2] = (p1[2] + p2[2])/2;
+    mid[0] = (p1[0] + p2[0]) / 2;
+    mid[1] = (p1[1] + p2[1]) / 2;
+    mid[2] = (p1[2] + p2[2]) / 2;
   }
 
   double MaximumCurveError;
-  int    MaximumCurveLineSegments;
+  int MaximumCurveLineSegments;
 
 private:
   vtkBezierContourLineInterpolator(const vtkBezierContourLineInterpolator&) = delete;
   void operator=(const vtkBezierContourLineInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

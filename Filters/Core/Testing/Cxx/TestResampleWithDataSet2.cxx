@@ -1,23 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestResampleWithDataset2.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkResampleWithDataSet.h"
 
 #include "vtkActor.h"
 #include "vtkArrayCalculator.h"
 #include "vtkCamera.h"
+#include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkDataSet.h"
 #include "vtkExodusIIReader.h"
@@ -25,11 +14,10 @@
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-
 
 enum
 {
@@ -37,20 +25,20 @@ enum
   TEST_FAILED_RETVAL = 1
 };
 
-int TestResampleWithDataSet2(int argc, char *argv[])
+int TestResampleWithDataSet2(int argc, char* argv[])
 {
   vtkNew<vtkExodusIIReader> reader;
-  char *fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");
   reader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   reader->UpdateInformation();
   reader->SetObjectArrayStatus(vtkExodusIIReader::NODAL, "VEL", 1);
   reader->Update();
 
   // based on can.ex2 bounds
-  double origin[3] = {-7.8, -1.0, -15};
-  double spacing[3] = {0.127, 0.072, 0.084};
+  double origin[3] = { -7.8, -1.0, -15 };
+  double spacing[3] = { 0.127, 0.072, 0.084 };
   int dims[3] = { 128, 128, 128 };
 
   vtkNew<vtkImageData> input;
@@ -63,15 +51,16 @@ int TestResampleWithDataSet2(int argc, char *argv[])
   resample->SetSourceConnection(reader->GetOutputPort());
   resample->UpdateTimeStep(0.00199999);
 
-  vtkDataSet *result = static_cast<vtkDataSet*>(resample->GetOutput());
-
+  auto result = vtkImageData::SafeDownCast(resample->GetOutput());
+  // remove ghost array since we want to preserve the ghosts
+  result->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+  result->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
 
   // Render
   vtkNew<vtkContourFilter> toPoly;
   toPoly->SetInputData(result);
-  toPoly->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                                 "vtkValidPointMask");
-  toPoly->SetValue(0, 0.5);
+  toPoly->SetInputArray("vtkValidPointMask");
+  toPoly->SetContourValues({ 0.5 });
 
   vtkNew<vtkArrayCalculator> calculator;
   calculator->SetInputConnection(toPoly->GetOutputPort());
@@ -80,9 +69,11 @@ int TestResampleWithDataSet2(int argc, char *argv[])
   calculator->SetResultArrayName("VEL_MAG");
   calculator->Update();
 
-
   double range[2];
-  vtkDataSet::SafeDownCast(calculator->GetOutput())->GetPointData()->GetArray("VEL_MAG")->GetRange(range);
+  vtkDataSet::SafeDownCast(calculator->GetOutput())
+    ->GetPointData()
+    ->GetArray("VEL_MAG")
+    ->GetRange(range);
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(calculator->GetOutputPort());

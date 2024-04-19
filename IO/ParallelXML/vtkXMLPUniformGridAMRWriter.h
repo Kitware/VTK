@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPUniformGridAMRWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPUniformGridAMRWriter
  * @brief   parallel writer for
@@ -24,7 +12,7 @@
  * vtkXMLUniformGridAMRWriter to communicate information about data blocks
  * to the root node so that the root node can write the XML file describing the
  * structure correctly.
-*/
+ */
 
 #ifndef vtkXMLPUniformGridAMRWriter_h
 #define vtkXMLPUniformGridAMRWriter_h
@@ -32,6 +20,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLUniformGridAMRWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPUniformGridAMRWriter : public vtkXMLUniformGridAMRWriter
@@ -41,7 +30,7 @@ public:
   vtkTypeMacro(vtkXMLPUniformGridAMRWriter, vtkXMLUniformGridAMRWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Controller used to communicate data type of blocks.
    * By default, the global controller is used. If you want another
@@ -51,7 +40,7 @@ public:
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   /**
    * Set whether this instance will write the meta-file. WriteMetaFile
@@ -70,10 +59,11 @@ protected:
   void FillDataTypes(vtkCompositeDataSet*) override;
 
   vtkMultiProcessController* Controller;
+
 private:
   vtkXMLPUniformGridAMRWriter(const vtkXMLPUniformGridAMRWriter&) = delete;
   void operator=(const vtkXMLPUniformGridAMRWriter&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

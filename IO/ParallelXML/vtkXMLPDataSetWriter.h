@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPDataSetWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPDataSetWriter
  * @brief   Write any type of PVTK XML file.
@@ -24,7 +12,7 @@
  * vtkXMLPImageDataWriter vtkXMLPStructuredGridWriter
  * vtkXMLPRectilinearGridWriter vtkXMLPPolyDataWriter
  * vtkXMLPUnstructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLPDataSetWriter_h
 #define vtkXMLPDataSetWriter_h
@@ -32,10 +20,11 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOPARALLELXML_EXPORT vtkXMLPDataSetWriter : public vtkXMLPDataWriter
 {
 public:
-  vtkTypeMacro(vtkXMLPDataSetWriter,vtkXMLPDataWriter);
+  vtkTypeMacro(vtkXMLPDataSetWriter, vtkXMLPDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPDataSetWriter* New();
 
@@ -64,4 +53,5 @@ private:
   void operator=(const vtkXMLPDataSetWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

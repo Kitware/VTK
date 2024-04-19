@@ -5,7 +5,6 @@
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -49,6 +48,7 @@
 /*
 Define a simple #ifdef test for the version of H5FD_class_t we are using 
 */
+
 #if H5_VERS_MAJOR == 1
 #if H5_VERS_MINOR < 10
 #define H5FDCLASS1 1
@@ -69,6 +69,7 @@ Define a simple #ifdef test for the version of H5FD_class_t we are using
 
 #include "netcdf.h"
 #include "ncbytes.h"
+#include "nclist.h"
 #include "nchttp.h"
 
 #include "H5FDhttp.h"
@@ -103,8 +104,8 @@ typedef struct H5FD_http_t {
     haddr_t     eof;            /* end of file; current file size   */
     haddr_t     pos;            /* current file I/O position        */
     unsigned    write_access;   /* Flag to indicate the file was opened with write access */
-    H5FD_http_file_op op;		/* last operation */
-    CURL*           curl;       /* Curl handle */
+    H5FD_http_file_op op;	/* last operation */
+    NC_HTTP_STATE*  state;       /* Curl handle + extra */
     char*           url;        /* The URL (minus any fragment) for the dataset */ 
 } H5FD_http_t;
 
@@ -161,40 +162,54 @@ static herr_t H5FD_http_unlock(H5FD_t *_file);
 
 /* Beware, not same as H5FD_HTTP_g */
 static const H5FD_class_t H5FD_http_g = {
-    "http",                     /* name         */
-    MAXADDR,                    /* maxaddr      */
-    H5F_CLOSE_WEAK,             /* fc_degree    */
-#ifndef H5FDCLASS1
-    H5FD_http_term,             /* terminate    */
+#if H5_VERSION_GE(1,13,2)
+    H5FD_CLASS_VERSION,		/* struct version  */
+    H5_VFD_HTTP,		/* value           */
 #endif
-    NULL,                       /* sb_size      */
-    NULL,                       /* sb_encode    */
-    NULL,                       /* sb_decode    */
-    0,                          /* fapl_size    */
-    NULL,                       /* fapl_get     */
-    NULL,                       /* fapl_copy    */
-    NULL,                       /* fapl_free    */
-    0,                          /* dxpl_size    */
-    NULL,                       /* dxpl_copy    */
-    NULL,                       /* dxpl_free    */
-    H5FD_http_open,            /* open         */
-    H5FD_http_close,           /* close        */
-    H5FD_http_cmp,             /* cmp          */
-    H5FD_http_query,           /* query        */
-    NULL,                       /* get_type_map */
-    H5FD_http_alloc,           /* alloc        */
-    NULL,                       /* free         */
-    H5FD_http_get_eoa,         /* get_eoa      */
-    H5FD_http_set_eoa,         /* set_eoa      */
-    H5FD_http_get_eof,         /* get_eof      */
-    H5FD_http_get_handle,      /* get_handle   */
-    H5FD_http_read,            /* read         */
-    H5FD_http_write,           /* write        */
-    H5FD_http_flush,           /* flush        */
-    NULL, 		       /* truncate     */
-    H5FD_http_lock,            /* lock         */
-    H5FD_http_unlock,          /* unlock       */
-    H5FD_FLMAP_DICHOTOMY       /* fl_map       */
+    "http",			/* name         */
+    MAXADDR,			/* maxaddr      */
+    H5F_CLOSE_WEAK,		/* fc_degree    */
+#ifndef H5FDCLASS1
+    H5FD_http_term,		/* terminate    */
+#endif
+    NULL,			/* sb_size      */
+    NULL,			/* sb_encode    */
+    NULL,			/* sb_decode    */
+    0,				/* fapl_size    */
+    NULL,			/* fapl_get     */
+    NULL,			/* fapl_copy    */
+    NULL,			/* fapl_free    */
+    0,				/* dxpl_size    */
+    NULL,			/* dxpl_copy    */
+    NULL,			/* dxpl_free    */
+    H5FD_http_open,		/* open         */
+    H5FD_http_close,		/* close        */
+    H5FD_http_cmp,		/* cmp          */
+    H5FD_http_query,		/* query        */
+    NULL,			/* get_type_map */
+    H5FD_http_alloc,		/* alloc        */
+    NULL,			/* free         */
+    H5FD_http_get_eoa,		/* get_eoa      */
+    H5FD_http_set_eoa,		/* set_eoa      */
+    H5FD_http_get_eof,		/* get_eof      */
+    H5FD_http_get_handle,	/* get_handle   */
+    H5FD_http_read,		/* read         */
+    H5FD_http_write,		/* write        */
+#if H5_VERSION_GE(1,13,2)
+    NULL,			/* read_vector     */
+    NULL,			/* write_vector    */
+    NULL,			/* read_selection  */
+    NULL,			/* write_selection */
+#endif
+    H5FD_http_flush,		/* flush        */
+    NULL,			/* truncate     */
+    H5FD_http_lock,		/* lock         */
+    H5FD_http_unlock,		/* unlock       */
+#if H5_VERSION_GE(1,13,2)
+    NULL,			/* del          */
+    NULL,			/* ctl	        */
+#endif
+    H5FD_FLMAP_DICHOTOMY	/* fl_map       */
 };
 
 
@@ -274,7 +289,7 @@ H5Pset_fapl_http(hid_t fapl_id)
     H5Eclear2(H5E_DEFAULT);
 
     if(0 == H5Pisa_class(fapl_id, H5P_FILE_ACCESS))
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADTYPE, "not a file access property list", -1)
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADTYPE, "not a file access property list", -1);
 
     return H5Pset_driver(fapl_id, H5FD_HTTP, NULL);
 } /* end H5Pset_fapl_http() */
@@ -305,11 +320,11 @@ H5FD_http_open( const char *name, unsigned flags, hid_t /*UNUSED*/ fapl_id,
     haddr_t maxaddr)
 {
     unsigned            write_access = 0;           /* File opened with write access? */
-    H5FD_http_t        *file = NULL;
+    H5FD_http_t *file = NULL;
     static const char   *func = "H5FD_http_open";  /* Function Name for error reporting */
-    CURL* curl = NULL;
     long long len = -1;
     int ncstat = NC_NOERR;
+    NC_HTTP_STATE* state = NULL;
 
     /* Sanity check on file offsets */
     assert(sizeof(file_offset_t) >= sizeof(size_t));
@@ -322,24 +337,27 @@ H5FD_http_open( const char *name, unsigned flags, hid_t /*UNUSED*/ fapl_id,
 
     /* Check arguments */
     if (!name || !*name)
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_ARGS, H5E_BADVALUE, "invalid URL", NULL)
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_ARGS, H5E_BADVALUE, "invalid URL", NULL);
     if (0 == maxaddr || HADDR_UNDEF == maxaddr)
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_ARGS, H5E_BADRANGE, "bogus maxaddr", NULL)
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_ARGS, H5E_BADRANGE, "bogus maxaddr", NULL);
     if (ADDR_OVERFLOW(maxaddr))
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_ARGS, H5E_OVERFLOW, "maxaddr too large", NULL)
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_ARGS, H5E_OVERFLOW, "maxaddr too large", NULL);
 
     /* Always read-only */
     write_access = 0;
 
-    /* Open file in read-only mode, to check for existence  and get length */
-    if((ncstat = nc_http_open(name,&curl,&len))) {
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_CANTOPENFILE, "cannot access object", NULL)
+   /* Open file in read-only mode, to check for existence  and get length */
+    if((ncstat = nc_http_init(&state))) {
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_CANTOPENFILE, "cannot access object", NULL);
+    }
+    if((ncstat = nc_http_size(state,name,&len))) {
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_CANTOPENFILE, "cannot access object", NULL);
     }
 
     /* Build the return value */
     if(NULL == (file = (H5FD_http_t *)H5allocate_memory(sizeof(H5FD_http_t),0))) {
-	nc_http_close(curl);
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed", NULL)
+	nc_http_close(state);
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed", NULL);
     } /* end if */
     memset(file,0,sizeof(H5FD_http_t));
 
@@ -347,11 +365,11 @@ H5FD_http_open( const char *name, unsigned flags, hid_t /*UNUSED*/ fapl_id,
     file->pos = HADDR_UNDEF;
     file->write_access = write_access;    /* Note the write_access for later */
     file->eof = (haddr_t)len;
-    file->curl = curl; curl = NULL;
-    file->url = H5allocate_memory(strlen(name+1),0);
+    file->state = state; state = NULL;
+    file->url = H5allocate_memory(strlen(name)+1,0);
     if(file->url == NULL) {
-	nc_http_close(curl);
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed", NULL)
+	nc_http_close(state);
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed", NULL);
     }
     memcpy(file->url,name,strlen(name)+1);
 
@@ -385,7 +403,7 @@ H5FD_http_close(H5FD_t *_file)
     H5Eclear2(H5E_DEFAULT);
 
     /* Close the underlying curl handle*/
-    if(file->curl) nc_http_close(file->curl);
+    if(file->state) nc_http_close(file->state);
     if(file->url) H5free_memory(file->url);
 
     H5free_memory(file);
@@ -634,9 +652,9 @@ H5FD_http_get_handle(H5FD_t *_file, hid_t /*UNUSED*/ fapl, void **file_handle)
     /* Clear the error stack */
     H5Eclear2(H5E_DEFAULT);
 
-    *file_handle = file->curl;
+    *file_handle = file->state;
     if(*file_handle == NULL)
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_WRITEERROR, "get handle failed", -1)
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_WRITEERROR, "get handle failed", -1);
 
     return 0;
 } /* end H5FD_http_get_handle() */
@@ -677,9 +695,9 @@ H5FD_http_read(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxpl_
 
     /* Check for overflow */
     if (HADDR_UNDEF==addr)
-        H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_OVERFLOW, "file address overflowed", -1)
+        H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_OVERFLOW, "file address overflowed", -1);
     if (REGION_OVERFLOW(addr, size))
-        H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_OVERFLOW, "file address overflowed", -1)
+        H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_OVERFLOW, "file address overflowed", -1);
 
     /* Check easy cases */
     if (0 == size)
@@ -696,7 +714,7 @@ H5FD_http_read(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxpl_
         if (file_fseek(file->fp, (file_offset_t)addr, SEEK_SET) < 0) {
             file->op = H5FD_HTTP_OP_UNKNOWN;
             file->pos = HADDR_UNDEF;
-            H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_SEEKERROR, "fseek failed", -1)
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_SEEKERROR, "fseek failed", -1);
         }
 #endif
         file->pos = addr;
@@ -711,17 +729,17 @@ H5FD_http_read(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxpl_
 
     {
 	NCbytes* bbuf = ncbytesnew();
-        if((ncstat = nc_http_read(file->curl,file->url,addr,size,bbuf))) {
+        if((ncstat = nc_http_read(file->state,file->url,addr,size,bbuf))) {
             file->op = H5FD_HTTP_OP_UNKNOWN;
             file->pos = HADDR_UNDEF;
 	    ncbytesfree(bbuf); bbuf = NULL;
-            H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_READERROR, "HTTP byte-range read failed", -1)
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_READERROR, "HTTP byte-range read failed", -1);
         } /* end if */
 
 	/* Check that proper number of bytes was read */
 	if(ncbyteslength(bbuf) != size) {
 	    ncbytesfree(bbuf); bbuf = NULL;
-            H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_READERROR, "HTTP byte-range read mismatch ", -1)
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_READERROR, "HTTP byte-range read mismatch ", -1);
 	}	
 
 	/* Extract the data from buf */
@@ -767,7 +785,7 @@ H5FD_http_write(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxpl
     H5Eclear2(H5E_DEFAULT);
 
     /* Always Fails */
-    H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_WRITEERROR, "file is read-only", -1)
+    H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_WRITEERROR, "file is read-only", -1);
 
     return 0;
 }

@@ -1,30 +1,23 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkContourFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkContourFilter.h"
 
 #include "vtkCallbackCommand.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkContour3DLinearGrid.h"
 #include "vtkContourGrid.h"
+#include "vtkContourHelper.h"
 #include "vtkContourValues.h"
 #include "vtkCutter.h"
+#include "vtkFlyingEdges2D.h"
+#include "vtkFlyingEdges3D.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkImageData.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
@@ -40,23 +33,20 @@
 #include "vtkStructuredGrid.h"
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkSynchronizedTemplates3D.h"
-#include "vtkTimerLog.h"
 #include "vtkUniformGrid.h"
-#include "vtkIncrementalPointLocator.h"
-#include "vtkContourHelper.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <cmath>
 
-vtkStandardNewMacro(vtkContourFilter);
-vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
+VTK_ABI_NAMESPACE_BEGIN
+vtkObjectFactoryNewMacro(vtkContourFilter);
+vtkCxxSetObjectMacro(vtkContourFilter, ScalarTree, vtkScalarTree);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
 vtkContourFilter::vtkContourFilter()
 {
-  this->ContourValues = vtkContourValues::New();
-
   // -1 == uninitialized. This is so we know if ComputeNormals has been set
   // by the user, so that we can preserve old (broken) behavior that ignored
   // this setting for certain dataset types.
@@ -72,90 +62,89 @@ vtkContourFilter::vtkContourFilter()
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   this->GenerateTriangles = 1;
+  this->ArrayComponent = 0;
+  this->FastMode = false;
 
-  this->SynchronizedTemplates2D = vtkSynchronizedTemplates2D::New();
-  this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
-  this->GridSynchronizedTemplates = vtkGridSynchronizedTemplates3D::New();
-  this->RectilinearSynchronizedTemplates = vtkRectilinearSynchronizedTemplates::New();
+  this->ContourGrid->SetContainerAlgorithm(this);
+  this->Contour3DLinearGrid->SetContainerAlgorithm(this);
+  this->FlyingEdges2D->SetContainerAlgorithm(this);
+  this->FlyingEdges3D->SetContainerAlgorithm(this);
+  this->GridSynchronizedTemplates->SetContainerAlgorithm(this);
+  this->RectilinearSynchronizedTemplates->SetContainerAlgorithm(this);
+  this->SynchronizedTemplates2D->SetContainerAlgorithm(this);
+  this->SynchronizedTemplates3D->SetContainerAlgorithm(this);
 
-  this->InternalProgressCallbackCommand = vtkCallbackCommand::New();
   this->InternalProgressCallbackCommand->SetCallback(
     &vtkContourFilter::InternalProgressCallbackFunction);
   this->InternalProgressCallbackCommand->SetClientData(this);
 
-  this->SynchronizedTemplates2D->AddObserver(vtkCommand::ProgressEvent,
-                                             this->InternalProgressCallbackCommand);
-  this->SynchronizedTemplates3D->AddObserver(vtkCommand::ProgressEvent,
-                                             this->InternalProgressCallbackCommand);
-  this->GridSynchronizedTemplates->AddObserver(vtkCommand::ProgressEvent,
-                                               this->InternalProgressCallbackCommand);
-  this->RectilinearSynchronizedTemplates->AddObserver(vtkCommand::ProgressEvent,
-                                                      this->InternalProgressCallbackCommand);
+  this->ContourGrid->AddObserver(vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
+  this->Contour3DLinearGrid->AddObserver(
+    vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
+  this->FlyingEdges2D->AddObserver(
+    vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
+  this->FlyingEdges3D->AddObserver(
+    vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
+  this->GridSynchronizedTemplates->AddObserver(
+    vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
+  this->RectilinearSynchronizedTemplates->AddObserver(
+    vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
+  this->SynchronizedTemplates2D->AddObserver(
+    vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
+  this->SynchronizedTemplates3D->AddObserver(
+    vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
 
   // by default process active point scalars
-  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                               vtkDataSetAttributes::SCALARS);
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkContourFilter::~vtkContourFilter()
 {
-  this->ContourValues->Delete();
-  if ( this->Locator )
+  if (this->Locator)
   {
     this->Locator->UnRegister(this);
     this->Locator = nullptr;
   }
-  if ( this->ScalarTree )
+  if (this->ScalarTree)
   {
     this->ScalarTree->Delete();
     this->ScalarTree = nullptr;
   }
-  this->SynchronizedTemplates2D->Delete();
-  this->SynchronizedTemplates3D->Delete();
-  this->GridSynchronizedTemplates->Delete();
-  this->RectilinearSynchronizedTemplates->Delete();
-  this->InternalProgressCallbackCommand->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
 vtkMTimeType vtkContourFilter::GetMTime()
 {
-  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
   if (this->ContourValues)
   {
     time = this->ContourValues->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
   if (this->Locator)
   {
     time = this->Locator->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
   return mTime;
 }
 
-//-----------------------------------------------------------------------------
-int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
-                                          vtkInformationVector** inputVector,
-                                          vtkInformationVector* outputVector)
+//------------------------------------------------------------------------------
+int vtkContourFilter::RequestUpdateExtent(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkDataSet *input =
-    vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
-  double *values=this->ContourValues->GetValues();
-
-  vtkInformation *fInfo =
-    vtkDataObject::GetActiveFieldInformation(inInfo,
-                                             vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                                             vtkDataSetAttributes::SCALARS);
+  vtkInformation* fInfo = vtkDataObject::GetActiveFieldInformation(
+    inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   int sType = VTK_DOUBLE;
   if (fInfo)
   {
@@ -163,12 +152,10 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
   }
 
   // handle 2D images
-  int i;
-  if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT &&
-      !vtkUniformGrid::SafeDownCast(input))
+  if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT && !vtkUniformGrid::SafeDownCast(input))
   {
     int dim = 3;
-    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     if (uExt[0] == uExt[1])
     {
       --dim;
@@ -182,104 +169,92 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
       --dim;
     }
 
-    if ( dim == 2 )
+    if (dim == 2)
     {
-      this->SynchronizedTemplates2D->SetNumberOfContours(numContours);
-      for (i=0; i < numContours; i++)
+      if (this->FastMode)
       {
-        this->SynchronizedTemplates2D->SetValue(i,values[i]);
+        return this->FlyingEdges2D->ProcessRequest(request, inputVector, outputVector);
       }
-      this->SynchronizedTemplates2D->SetComputeScalars(this->ComputeScalars);
-      return this->SynchronizedTemplates2D->
-        ProcessRequest(request,inputVector,outputVector);
+      else
+      {
+        return this->SynchronizedTemplates2D->ProcessRequest(request, inputVector, outputVector);
+      }
     }
     else if (dim == 3)
     {
-      this->SynchronizedTemplates3D->SetNumberOfContours(numContours);
-      for (i=0; i < numContours; i++)
+      if (this->FastMode && this->GenerateTriangles)
       {
-        this->SynchronizedTemplates3D->SetValue(i,values[i]);
+        this->FlyingEdges3D->SetComputeNormals(this->ComputeNormals);
+        this->FlyingEdges3D->SetComputeGradients(this->ComputeGradients);
+        return this->FlyingEdges3D->ProcessRequest(request, inputVector, outputVector);
       }
-      this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
-      this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
-      this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);
-      this->SynchronizedTemplates3D->SetGenerateTriangles(this->GenerateTriangles);
-      return this->SynchronizedTemplates3D->
-        ProcessRequest(request,inputVector,outputVector);
+      else
+      {
+        this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
+        this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
+        return this->SynchronizedTemplates3D->ProcessRequest(request, inputVector, outputVector);
+      }
     }
-  } //if image data
+  } // if image data
 
   // handle 3D RGrids
   if (vtkRectilinearGrid::SafeDownCast(input) && sType != VTK_BIT)
   {
-    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     // if 3D
     if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
     {
-      this->RectilinearSynchronizedTemplates->SetNumberOfContours(numContours);
-      for (i=0; i < numContours; i++)
-      {
-        this->RectilinearSynchronizedTemplates->SetValue(i,values[i]);
-      }
       this->RectilinearSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
       this->RectilinearSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
-      this->RectilinearSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
-      this->RectilinearSynchronizedTemplates->SetGenerateTriangles(this->GenerateTriangles);
-      return this->RectilinearSynchronizedTemplates->
-        ProcessRequest(request,inputVector,outputVector);
+      return this->RectilinearSynchronizedTemplates->ProcessRequest(
+        request, inputVector, outputVector);
     }
-  } //if 3D RGrid
+  } // if 3D RGrid
 
   // handle 3D SGrids
   if (vtkStructuredGrid::SafeDownCast(input) && sType != VTK_BIT)
   {
-    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     // if 3D
     if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
     {
-      this->GridSynchronizedTemplates->SetNumberOfContours(numContours);
-      for (i=0; i < numContours; i++)
-      {
-        this->GridSynchronizedTemplates->SetValue(i,values[i]);
-      }
       this->GridSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
       this->GridSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
-      this->GridSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
-      this->GridSynchronizedTemplates->SetOutputPointsPrecision(this->OutputPointsPrecision);
-      this->GridSynchronizedTemplates->SetGenerateTriangles(this->GenerateTriangles);
-      return this->GridSynchronizedTemplates->
-        ProcessRequest(request,inputVector,outputVector);
+      return this->GridSynchronizedTemplates->ProcessRequest(request, inputVector, outputVector);
     }
-  } //if 3D SGrid
+  } // if 3D SGrid
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // General contouring filter.  Handles arbitrary input.
 //
 int vtkContourFilter::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the input
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
+  vtkPolyData* output = vtkPolyData::GetData(outputVector);
   if (!input)
+  {
+    return 0;
+  }
+  if (!output)
   {
     return 0;
   }
 
   // get the contours
-  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
-  double *values = this->ContourValues->GetValues();
-  int i;
+  const int numContours = this->ContourValues->GetNumberOfContours();
+  double* values = this->ContourValues->GetValues();
 
   // is there data to process?
-  vtkDataArray *inScalars = this->GetInputArrayToProcess(0, inputVector);
+  vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
   if (!inScalars)
   {
     return 1;
@@ -288,11 +263,11 @@ int vtkContourFilter::RequestData(
   int sType = inScalars->GetDataType();
 
   // handle 2D images
-  if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT &&
-      !vtkUniformGrid::SafeDownCast(input))
+  auto uG = vtkUniformGrid::SafeDownCast(input);
+  if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT && (!uG || uG->GetDataDimension() == 3))
   {
     int dim = 3;
-    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     if (uExt[0] == uExt[1])
     {
       --dim;
@@ -306,179 +281,198 @@ int vtkContourFilter::RequestData(
       --dim;
     }
 
-    if ( dim == 2 )
+    if (dim == 2)
     {
-      this->SynchronizedTemplates2D->SetNumberOfContours(numContours);
-      for (i=0; i < numContours; i++)
+      if (this->FastMode)
       {
-        this->SynchronizedTemplates2D->SetValue(i,values[i]);
+        this->FlyingEdges2D->SetNumberOfContours(numContours);
+        std::copy_n(values, numContours, this->FlyingEdges2D->GetValues());
+        this->FlyingEdges2D->SetArrayComponent(this->ArrayComponent);
+        this->FlyingEdges2D->SetComputeScalars(this->ComputeScalars);
+        this->FlyingEdges2D->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
+        return this->FlyingEdges2D->ProcessRequest(request, inputVector, outputVector);
       }
-      this->SynchronizedTemplates2D->
-        SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
-      return
-        this->SynchronizedTemplates2D->ProcessRequest(request,inputVector,outputVector);
+      else
+      {
+        this->SynchronizedTemplates2D->SetNumberOfContours(numContours);
+        std::copy_n(values, numContours, this->SynchronizedTemplates2D->GetValues());
+        this->SynchronizedTemplates2D->SetArrayComponent(this->ArrayComponent);
+        this->SynchronizedTemplates2D->SetComputeScalars(this->ComputeScalars);
+        this->SynchronizedTemplates2D->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
+        return this->SynchronizedTemplates2D->ProcessRequest(request, inputVector, outputVector);
+      }
     }
-    else if ( dim == 3 )
+    else if (dim == 3)
     {
-      this->SynchronizedTemplates3D->SetNumberOfContours(numContours);
-      for (i=0; i < numContours; i++)
+      int retVal = 1;
+      if (this->FastMode && this->GenerateTriangles)
       {
-        this->SynchronizedTemplates3D->SetValue(i,values[i]);
+        this->FlyingEdges3D->SetNumberOfContours(numContours);
+        std::copy_n(values, numContours, this->FlyingEdges3D->GetValues());
+        this->FlyingEdges3D->SetArrayComponent(this->ArrayComponent);
+        this->FlyingEdges3D->SetComputeNormals(this->ComputeNormals);
+        this->FlyingEdges3D->SetComputeGradients(this->ComputeGradients);
+        this->FlyingEdges3D->SetComputeScalars(this->ComputeScalars);
+        this->FlyingEdges3D->SetInterpolateAttributes(true);
+        this->FlyingEdges3D->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
+        retVal = this->FlyingEdges3D->ProcessRequest(request, inputVector, outputVector);
       }
-      this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
-      this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
-      this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);
-      this->SynchronizedTemplates3D->SetGenerateTriangles(this->GenerateTriangles);
-      this->SynchronizedTemplates3D->
-        SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
-
-      return this->SynchronizedTemplates3D->ProcessRequest(request,inputVector,outputVector);
+      else
+      {
+        this->SynchronizedTemplates3D->SetNumberOfContours(numContours);
+        std::copy_n(values, numContours, this->SynchronizedTemplates3D->GetValues());
+        this->SynchronizedTemplates3D->SetArrayComponent(this->ArrayComponent);
+        this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
+        this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
+        this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);
+        this->SynchronizedTemplates3D->SetGenerateTriangles(this->GenerateTriangles);
+        this->SynchronizedTemplates3D->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
+        retVal = this->SynchronizedTemplates3D->ProcessRequest(request, inputVector, outputVector);
+      }
+      output = vtkPolyData::GetData(outputVector);
+      if (output->GetCellGhostArray())
+      {
+        output->RemoveGhostCells();
+      }
+      return retVal;
     }
-  } //if image data
+  } // if image data
 
   // handle 3D RGrids
   if (vtkRectilinearGrid::SafeDownCast(input) && sType != VTK_BIT)
   {
-    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     // if 3D
     if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
     {
       this->RectilinearSynchronizedTemplates->SetNumberOfContours(numContours);
-      for (i=0; i < numContours; i++)
-      {
-        this->RectilinearSynchronizedTemplates->SetValue(i,values[i]);
-      }
+      std::copy_n(values, numContours, this->RectilinearSynchronizedTemplates->GetValues());
+      this->RectilinearSynchronizedTemplates->SetArrayComponent(this->ArrayComponent);
       this->RectilinearSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
       this->RectilinearSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
       this->RectilinearSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
       this->RectilinearSynchronizedTemplates->SetGenerateTriangles(this->GenerateTriangles);
-      this->RectilinearSynchronizedTemplates->
-        SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
-      return this->RectilinearSynchronizedTemplates->
-        ProcessRequest(request,inputVector,outputVector);
+      this->RectilinearSynchronizedTemplates->SetInputArrayToProcess(
+        0, this->GetInputArrayInformation(0));
+      return this->RectilinearSynchronizedTemplates->ProcessRequest(
+        request, inputVector, outputVector);
     }
   } // if 3D Rgrid
 
   // handle 3D SGrids
   if (vtkStructuredGrid::SafeDownCast(input) && sType != VTK_BIT)
   {
-    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     // if 3D
     if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
     {
       this->GridSynchronizedTemplates->SetNumberOfContours(numContours);
-      for (i=0; i < numContours; i++)
-      {
-        this->GridSynchronizedTemplates->SetValue(i,values[i]);
-      }
+      std::copy_n(values, numContours, this->GridSynchronizedTemplates->GetValues());
       this->GridSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
       this->GridSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
       this->GridSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
       this->GridSynchronizedTemplates->SetOutputPointsPrecision(this->OutputPointsPrecision);
       this->GridSynchronizedTemplates->SetGenerateTriangles(this->GenerateTriangles);
-      this->GridSynchronizedTemplates->
-        SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
-      return this->GridSynchronizedTemplates->
-        ProcessRequest(request,inputVector,outputVector);
+      this->GridSynchronizedTemplates->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
+      return this->GridSynchronizedTemplates->ProcessRequest(request, inputVector, outputVector);
     }
-  } //if 3D SGrid
+  } // if 3D SGrid
 
-  vtkIdType cellId;
-  int abortExecute=0;
-  vtkIdList *cellPts;
-  vtkCellArray *newVerts, *newLines, *newPolys;
-  vtkPoints *newPts;
-  vtkIdType numCells, estimatedSize;
-  vtkDataArray *cellScalars;
+  this->CreateDefaultLocator();
 
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    info->Get(vtkDataObject::DATA_OBJECT()));
-  if (!output) {return 0;}
-
-  vtkPointData *inPdOriginal = input->GetPointData();
-
-  // We don't want to change the active scalars in the input, but we
-  // need to set the active scalars to match the input array to
-  // process so that the point data copying works as expected. Create
-  // a shallow copy of point data so that we can do this without
-  // changing the input.
-  vtkSmartPointer<vtkPointData> inPd = vtkSmartPointer<vtkPointData>::New();
-  inPd->ShallowCopy(inPdOriginal);
-
-  // Keep track of the old active scalars because when we set the new
-  // scalars, the old scalars are removed from the point data entirely
-  // and we have to add them back.
-  vtkAbstractArray* oldScalars = inPd->GetScalars();
-  inPd->SetScalars(inScalars);
-  if (oldScalars)
+  if (auto ugridBase = vtkUnstructuredGridBase::SafeDownCast(input))
   {
-    inPd->AddArray(oldScalars);
-  }
-  vtkPointData *outPd = output->GetPointData();
-
-  vtkCellData *inCd = input->GetCellData();
-  vtkCellData *outCd = output->GetCellData();
-
-  vtkDebugMacro(<< "Executing contour filter");
-  if (input->IsA("vtkUnstructuredGridBase"))
-  {
-    vtkDebugMacro(<< "Processing unstructured grid");
-    vtkContourGrid *cgrid;
-
-    cgrid = vtkContourGrid::New();
-    cgrid->SetInputData(input);
-    // currently vtkContourGrid has a ComputeGradients option
-    // but this doesn't do anything and will soon be deprecated.
-    cgrid->SetComputeNormals(this->ComputeNormals);
-    cgrid->SetComputeScalars(this->ComputeScalars);
-    cgrid->SetOutputPointsPrecision(this->OutputPointsPrecision);
-    cgrid->SetGenerateTriangles(this->GenerateTriangles);
-    cgrid->SetUseScalarTree(this->UseScalarTree);
-    if ( this->UseScalarTree ) //special treatment to reuse it
+    auto ugrid = vtkUnstructuredGrid::SafeDownCast(ugridBase);
+    if (ugrid && this->GenerateTriangles && sType != VTK_BIT &&
+      vtkContour3DLinearGrid::CanFullyProcessDataObject(ugrid, inScalars->GetName()))
     {
-      if ( this->ScalarTree == nullptr )
+      this->Contour3DLinearGrid->SetNumberOfContours(numContours);
+      std::copy_n(values, numContours, this->Contour3DLinearGrid->GetValues());
+      this->Contour3DLinearGrid->SetInterpolateAttributes(true);
+      this->Contour3DLinearGrid->SetComputeNormals(this->ComputeNormals);
+      this->Contour3DLinearGrid->SetComputeScalars(this->ComputeScalars);
+      this->Contour3DLinearGrid->SetOutputPointsPrecision(this->OutputPointsPrecision);
+      this->Contour3DLinearGrid->SetUseScalarTree(this->UseScalarTree);
+      this->ContourGrid->SetScalarTree(this->ScalarTree);
+
+      bool mergePoints = !this->GetLocator()->IsA("vtkNonMergingPointLocator");
+      this->Contour3DLinearGrid->SetMergePoints(mergePoints);
+      this->Contour3DLinearGrid->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
+      return this->Contour3DLinearGrid->ProcessRequest(request, inputVector, outputVector);
+    }
+    else
+    {
+      this->ContourGrid->SetNumberOfContours(numContours);
+      std::copy_n(values, numContours, this->ContourGrid->GetValues());
+      this->ContourGrid->SetComputeNormals(this->ComputeNormals);
+      this->ContourGrid->SetComputeScalars(this->ComputeScalars);
+      this->ContourGrid->SetOutputPointsPrecision(this->OutputPointsPrecision);
+      this->ContourGrid->SetGenerateTriangles(this->GenerateTriangles);
+      this->ContourGrid->SetUseScalarTree(this->UseScalarTree);
+      if (this->UseScalarTree) // special treatment to reuse it
       {
-        this->ScalarTree = vtkSpanSpace::New();
+        if (this->ScalarTree == nullptr)
+        {
+          this->ScalarTree = vtkSpanSpace::New();
+        }
+        this->ScalarTree->SetDataSet(input);
+        this->ContourGrid->SetScalarTree(this->ScalarTree);
       }
-      this->ScalarTree->SetDataSet(input);
-      cgrid->SetScalarTree(this->ScalarTree);
+      if (this->Locator)
+      {
+        this->ContourGrid->SetLocator(this->Locator);
+      }
+      this->ContourGrid->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
+      return this->ContourGrid->ProcessRequest(request, inputVector, outputVector);
     }
-    if ( this->Locator )
-    {
-      cgrid->SetLocator( this->Locator );
-    }
-
-    for (i = 0; i < numContours; i++)
-    {
-      cgrid->SetValue(i, values[i]);
-    }
-    cgrid->SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
-    cgrid->UpdatePiece(
-      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
-      info->Get(vtkStreamingDemandDrivenPipeline:: UPDATE_NUMBER_OF_PIECES()),
-      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-
-    output->ShallowCopy(cgrid->GetOutput());
-    cgrid->Delete();
-  } //if type VTK_UNSTRUCTURED_GRID
+  } // if type VTK_UNSTRUCTURED_GRID
   else
   {
-    numCells = input->GetNumberOfCells();
-    inScalars = this->GetInputArrayToProcess(0,inputVector);
-    if ( ! inScalars || numCells < 1 )
+    vtkDebugMacro(<< "Executing contour filter");
+    vtkIdType cellId;
+    bool abortExecute = false;
+    vtkIdList* cellPts;
+    vtkCellArray *newVerts, *newLines, *newPolys;
+    vtkPoints* newPts;
+    vtkIdType numCells, estimatedSize;
+    vtkDataArray* cellScalars;
+
+    // We don't want to change the active scalars in the input, but we
+    // need to set the active scalars to match the input array to
+    // process so that the point data copying works as expected. Create
+    // a shallow copy of point data so that we can do this without
+    // changing the input.
+    vtkNew<vtkPointData> inPD;
+    inPD->ShallowCopy(input->GetPointData());
+
+    // Keep track of the old active scalars because when we set the new
+    // scalars, the old scalars are removed from the point data entirely
+    // and we have to add them back.
+    vtkAbstractArray* oldScalars = inPD->GetScalars();
+    inPD->SetScalars(inScalars);
+    if (oldScalars)
     {
-      vtkDebugMacro(<<"No data to contour");
+      inPD->AddArray(oldScalars);
+    }
+    vtkPointData* outPd = output->GetPointData();
+
+    vtkCellData* inCd = input->GetCellData();
+    vtkCellData* outCd = output->GetCellData();
+
+    numCells = input->GetNumberOfCells();
+    inScalars = this->GetInputArrayToProcess(0, inputVector);
+    if (!inScalars || numCells < 1)
+    {
+      vtkDebugMacro(<< "No data to contour");
       return 1;
     }
 
     // Create objects to hold output of contour operation. First estimate
     // allocation size.
     //
-    estimatedSize=
-      static_cast<vtkIdType>(pow(static_cast<double>(numCells),.75));
+    estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>(numCells), .75));
     estimatedSize *= numContours;
-    estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+    estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
     if (estimatedSize < 1024)
     {
       estimatedSize = 1024;
@@ -486,10 +480,10 @@ int vtkContourFilter::RequestData(
 
     newPts = vtkPoints::New();
     // set precision for the points in the output
-    if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+    if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
     {
-      vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
-      if(inputPointSet)
+      vtkPointSet* inputPointSet = vtkPointSet::SafeDownCast(input);
+      if (inputPointSet)
       {
         newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
       }
@@ -498,15 +492,15 @@ int vtkContourFilter::RequestData(
         newPts->SetDataType(VTK_FLOAT);
       }
     }
-    else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+    else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
     {
       newPts->SetDataType(VTK_FLOAT);
     }
-    else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+    else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
     {
       newPts->SetDataType(VTK_DOUBLE);
     }
-    newPts->Allocate(estimatedSize,estimatedSize);
+    newPts->Allocate(estimatedSize, estimatedSize);
     newVerts = vtkCellArray::New();
     newVerts->AllocateEstimate(estimatedSize, 1);
     newLines = vtkCellArray::New();
@@ -515,16 +509,10 @@ int vtkContourFilter::RequestData(
     newPolys->AllocateEstimate(estimatedSize, 4);
     cellScalars = inScalars->NewInstance();
     cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-    cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
+    cellScalars->Allocate(cellScalars->GetNumberOfComponents() * VTK_CELL_SIZE);
 
     // locator used to merge potentially duplicate points
-    if ( this->Locator == nullptr )
-    {
-      this->CreateDefaultLocator();
-    }
-    this->Locator->InitPointInsertion (newPts,
-                                       input->GetBounds(),
-                                       input->GetNumberOfPoints());
+    this->Locator->InitPointInsertion(newPts, input->GetBounds(), input->GetNumberOfPoints());
 
     // interpolate data along edge
     // if we did not ask for scalars to be computed, don't copy them
@@ -532,15 +520,16 @@ int vtkContourFilter::RequestData(
     {
       outPd->CopyScalarsOff();
     }
-    outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
-    outCd->CopyAllocate(inCd,estimatedSize,estimatedSize);
+    outPd->InterpolateAllocate(inPD, estimatedSize, estimatedSize);
+    outCd->CopyAllocate(inCd, estimatedSize, estimatedSize);
 
-    vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys, inPd, inCd, outPd,outCd, estimatedSize, this->GenerateTriangles!=0);
+    vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys, inPD, inCd, outPd, outCd,
+      estimatedSize, this->GenerateTriangles != 0);
     // If enabled, build a scalar tree to accelerate search
     //
-    if ( !this->UseScalarTree )
+    if (!this->UseScalarTree)
     {
-      vtkGenericCell *cell = vtkGenericCell::New();
+      vtkNew<vtkGenericCell> cell;
       // Three passes over the cells to process lower dimensional cells first.
       // For poly data output cells need to be added in the order:
       // verts, lines and then polys, or cell data gets mixed up.
@@ -564,7 +553,7 @@ int vtkContourFilter::RequestData(
         // Loop over all cells; get scalar values for all cell points
         // and process each cell.
         //
-        for (cellId=0; cellId < numCells && !abortExecute; cellId++)
+        for (cellId = 0; cellId < numCells && !abortExecute; cellId++)
         {
           // I assume that "GetCellType" is fast.
           cellType = input->GetCellType(cellId);
@@ -577,34 +566,38 @@ int vtkContourFilter::RequestData(
           {
             continue;
           }
-          input->GetCell(cellId,cell);
+          input->GetCell(cellId, cell);
           cellPts = cell->GetPointIds();
-          if (cellScalars->GetSize()/cellScalars->GetNumberOfComponents() <
+          if (cellScalars->GetSize() / cellScalars->GetNumberOfComponents() <
             cellPts->GetNumberOfIds())
           {
-            cellScalars->Allocate(
-              cellScalars->GetNumberOfComponents()*cellPts->GetNumberOfIds());
+            cellScalars->Allocate(cellScalars->GetNumberOfComponents() * cellPts->GetNumberOfIds());
           }
-          inScalars->GetTuples(cellPts,cellScalars);
+          inScalars->GetTuples(cellPts, cellScalars);
 
-          if (dimensionality == 3 &&  ! (cellId % 5000) )
+          if (dimensionality == 3 && !(cellId % 5000))
           {
-            vtkDebugMacro(<<"Contouring #" << cellId);
-            this->UpdateProgress (static_cast<double>(cellId)/numCells);
-            abortExecute = this->GetAbortExecute();
+            vtkDebugMacro(<< "Contouring #" << cellId);
+            this->UpdateProgress(static_cast<double>(cellId) / numCells);
+            abortExecute = this->CheckAbort();
           }
 
-          for (i=0; i < numContours; i++)
+          for (int i = 0; i < numContours; i++)
           {
-            helper.Contour(cell,values[i],cellScalars,cellId);
+            helper.Contour(cell, values[i], cellScalars, cellId);
           } // for all contour values
-        } // for all cells
-      } // for all dimensions
-      cell->Delete();
-    } //if using scalar tree
+        }   // for all cells
+      }     // for all dimensions
+    }       // if using scalar tree
     else
     {
-      vtkCell *cell;
+      if (this->ScalarTree == nullptr)
+      {
+        this->ScalarTree = vtkSpanSpace::New();
+      }
+      this->ScalarTree->SetDataSet(input);
+
+      vtkCell* cell;
       // Note: This will have problems when input contains 2D and 3D cells.
       // CellData will get scrabled because of the implicit ordering of
       // verts, lines and polys in vtkPolyData.  The solution
@@ -613,21 +606,30 @@ int vtkContourFilter::RequestData(
       // Loop over all contour values.  Then for each contour value,
       // loop over all cells.
       //
-      for (i=0; i < numContours; i++)
+      int progressCounter = 0;
+      int checkAbortInterval = 0;
+      for (int i = 0; i < numContours && !abortExecute; i++)
       {
-        for ( this->ScalarTree->InitTraversal(values[i]);
-              (cell=this->ScalarTree->GetNextCell(cellId,cellPts,cellScalars)) != nullptr; )
+        progressCounter = 0;
+        checkAbortInterval =
+          std::min(this->ScalarTree->GetNumberOfCellBatches(values[i]), (vtkIdType)1000);
+        for (this->ScalarTree->InitTraversal(values[i]);
+             (cell = this->ScalarTree->GetNextCell(cellId, cellPts, cellScalars)) != nullptr;)
         {
-          helper.Contour(cell,values[i],cellScalars,cellId);
-        } //for all cells
-      } //for all contour values
-    } //using scalar tree
+          if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
+          {
+            abortExecute = true;
+            break;
+          }
+          progressCounter++;
+          helper.Contour(cell, values[i], cellScalars, cellId);
+        } // for all cells
+      }   // for all contour values
+    }     // using scalar tree
 
-    vtkDebugMacro(<<"Created: "
-                  << newPts->GetNumberOfPoints() << " points, "
-                  << newVerts->GetNumberOfCells() << " verts, "
-                  << newLines->GetNumberOfCells() << " lines, "
-                  << newPolys->GetNumberOfCells() << " triangles");
+    vtkDebugMacro(<< "Created: " << newPts->GetNumberOfPoints() << " points, "
+                  << newVerts->GetNumberOfCells() << " verts, " << newLines->GetNumberOfCells()
+                  << " lines, " << newPolys->GetNumberOfCells() << " triangles");
 
     // Update ourselves.  Because we don't know up front how many verts, lines,
     // polys we've created, take care to reclaim memory.
@@ -660,41 +662,41 @@ int vtkContourFilter::RequestData(
     if (this->ComputeNormals != 0 && this->ComputeNormals != -1)
     {
       vtkNew<vtkPolyDataNormals> normalsFilter;
+      normalsFilter->SetContainerAlgorithm(this);
       normalsFilter->SetOutputPointsPrecision(this->OutputPointsPrecision);
       vtkNew<vtkPolyData> tempInput;
       tempInput->ShallowCopy(output);
       normalsFilter->SetInputData(tempInput);
       normalsFilter->SetFeatureAngle(180.);
       normalsFilter->UpdatePiece(
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()),
-        info->Get(vtkStreamingDemandDrivenPipeline::
-                  UPDATE_NUMBER_OF_GHOST_LEVELS()));
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
       output->ShallowCopy(normalsFilter->GetOutput());
     }
 
-    this->Locator->Initialize();//releases leftover memory
+    this->Locator->Initialize(); // releases leftover memory
     output->Squeeze();
-  } //else if not vtkUnstructuredGrid
+  } // else if not vtkUnstructuredGrid
 
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
-void vtkContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
+void vtkContourFilter::SetLocator(vtkIncrementalPointLocator* locator)
 {
-  if ( this->Locator == locator )
+  if (this->Locator == locator)
   {
     return;
   }
-  if ( this->Locator )
+  if (this->Locator)
   {
     this->Locator->UnRegister(this);
     this->Locator = nullptr;
   }
-  if ( locator )
+  if (locator)
   {
     locator->Register(this);
   }
@@ -702,10 +704,10 @@ void vtkContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == nullptr )
+  if (this->Locator == nullptr)
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);
@@ -713,56 +715,26 @@ void vtkContourFilter::CreateDefaultLocator()
   }
 }
 
-//-----------------------------------------------------------------------------
-void vtkContourFilter::SetArrayComponent( int comp )
-{
-  this->SynchronizedTemplates2D->SetArrayComponent( comp );
-  this->SynchronizedTemplates3D->SetArrayComponent( comp );
-  this->RectilinearSynchronizedTemplates->SetArrayComponent( comp );
-}
-
-//-----------------------------------------------------------------------------
-int vtkContourFilter::GetArrayComponent()
-{
-  return( this->SynchronizedTemplates2D->GetArrayComponent() );
-}
-
-//-----------------------------------------------------------------------------
-void vtkContourFilter::SetOutputPointsPrecision(int precision)
-{
-  this->OutputPointsPrecision = precision;
-  this->Modified();
-}
-
-//-----------------------------------------------------------------------------
-int vtkContourFilter::GetOutputPointsPrecision() const
-{
-  return this->OutputPointsPrecision;
-}
-
-//-----------------------------------------------------------------------------
-int vtkContourFilter::FillInputPortInformation(int, vtkInformation *info)
+//------------------------------------------------------------------------------
+int vtkContourFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//------------------------------------------------------------------------------
 void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Compute Gradients: "
-     << (this->ComputeGradients ? "On\n" : "Off\n");
-  os << indent << "Compute Normals: "
-     << (this->ComputeNormals ? "On\n" : "Off\n");
-  os << indent << "Compute Scalars: "
-     << (this->ComputeScalars ? "On\n" : "Off\n");
+  os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
+  os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
+  os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
 
-  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
+  this->ContourValues->PrintSelf(os, indent.GetNextIndent());
 
-  os << indent << "Use Scalar Tree: "
-     << (this->UseScalarTree ? "On\n" : "Off\n");
-  if ( this->ScalarTree )
+  os << indent << "Use Scalar Tree: " << (this->UseScalarTree ? "On\n" : "Off\n");
+  if (this->ScalarTree)
   {
     os << indent << "Scalar Tree: " << this->ScalarTree << "\n";
   }
@@ -771,7 +743,7 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Scalar Tree: (none)\n";
   }
 
-  if ( this->Locator )
+  if (this->Locator)
   {
     os << indent << "Locator: " << this->Locator << "\n";
   }
@@ -780,11 +752,12 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 
-  os << indent << "Precision of the output points: "
-     << this->OutputPointsPrecision << "\n";
+  os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
+  os << indent << "ArrayComponent: " << this->ArrayComponent << "\n";
+  os << indent << "Fast Mode: " << (this->FastMode ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkContourFilter::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
@@ -793,13 +766,12 @@ void vtkContourFilter::ReportReferences(vtkGarbageCollector* collector)
   vtkGarbageCollectorReport(collector, this->ScalarTree, "ScalarTree");
 }
 
-//----------------------------------------------------------------------------
-void vtkContourFilter::InternalProgressCallbackFunction(vtkObject *vtkNotUsed(caller),
-                                                        unsigned long vtkNotUsed(eid),
-                                                        void *clientData,
-                                                        void *callData)
+//------------------------------------------------------------------------------
+void vtkContourFilter::InternalProgressCallbackFunction(
+  vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eid), void* clientData, void* callData)
 {
-  vtkContourFilter *contourFilter = static_cast<vtkContourFilter *>(clientData);
-  double progress = *static_cast<double *>(callData);
+  vtkContourFilter* contourFilter = static_cast<vtkContourFilter*>(clientData);
+  double progress = *static_cast<double*>(callData);
   contourFilter->UpdateProgress(progress);
 }
+VTK_ABI_NAMESPACE_END

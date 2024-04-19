@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSampleImplicitFunctionFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSampleImplicitFunctionFilter
  * @brief   sample an implicit function over a dataset,
@@ -30,63 +18,64 @@
  *
  * @sa
  * vtkSampleFunction vtkImplicitModeller
-*/
+ */
 
 #ifndef vtkSampleImplicitFunctionFilter_h
 #define vtkSampleImplicitFunctionFilter_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 class vtkDataArray;
 
 class VTKFILTERSGENERAL_EXPORT vtkSampleImplicitFunctionFilter : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard instantiation, type information, and print methods.
    */
-  static vtkSampleImplicitFunctionFilter *New();
-  vtkTypeMacro(vtkSampleImplicitFunctionFilter,vtkDataSetAlgorithm);
+  static vtkSampleImplicitFunctionFilter* New();
+  vtkTypeMacro(vtkSampleImplicitFunctionFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function to use to generate data.
    */
   virtual void SetImplicitFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
-  //@}
+  vtkGetObjectMacro(ImplicitFunction, vtkImplicitFunction);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of gradients.
    */
-  vtkSetMacro(ComputeGradients,vtkTypeBool);
-  vtkGetMacro(ComputeGradients,vtkTypeBool);
-  vtkBooleanMacro(ComputeGradients,vtkTypeBool);
-  //@}
+  vtkSetMacro(ComputeGradients, vtkTypeBool);
+  vtkGetMacro(ComputeGradients, vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the scalar array name for this data set. The initial value is
    * "Implicit scalars".
    */
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the gradient array name for this data set. The initial value is
    * "Implicit gradients".
    */
   vtkSetStringMacro(GradientArrayName);
   vtkGetStringMacro(GradientArrayName);
-  //@}
+  ///@}
 
   /**
    * Return the MTime also taking into account the implicit function.
@@ -97,21 +86,20 @@ protected:
   vtkSampleImplicitFunctionFilter();
   ~vtkSampleImplicitFunctionFilter() override;
 
-  vtkImplicitFunction *ImplicitFunction;
+  vtkImplicitFunction* ImplicitFunction;
   vtkTypeBool ComputeGradients;
-  char *ScalarArrayName;
-  char *GradientArrayName;
+  char* ScalarArrayName;
+  char* GradientArrayName;
 
   void ReportReferences(vtkGarbageCollector*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkSampleImplicitFunctionFilter(const vtkSampleImplicitFunctionFilter&) = delete;
   void operator=(const vtkSampleImplicitFunctionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

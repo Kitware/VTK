@@ -26,13 +26,6 @@ except ImportError:
     vtkMultiProcessController = None
     vtkMPI4PyCommunicator = None
 
-if sys.hexversion < 0x03000000:
-    izip = itertools.izip
-    def next(itr):
-        return itr.next()
-else:
-    izip = zip
-
 def _apply_func2(func, array, args):
     """Apply a function to each member of a VTKCompositeDataArray.
     Returns a list of arrays.
@@ -56,15 +49,15 @@ def apply_ufunc(func, array, args=()):
     elif type(array) == dsa.VTKCompositeDataArray:
         return dsa.VTKCompositeDataArray(_apply_func2(func, array, args), dataset = array.DataSet)
     else:
-        return func(array)
+        return func(array, *args)
 
 def _make_ufunc(ufunc):
     """ Given a ufunc, creates a closure that applies it to each member
     of a VTKCompositeDataArray.
 
     Note that this function is mainly for internal use by this module."""
-    def new_ufunc(array):
-        return apply_ufunc(ufunc, array, ())
+    def new_ufunc(array, *args):
+        return apply_ufunc(ufunc, array, args)
     return new_ufunc
 
 def apply_dfunc(dfunc, array1, val2):
@@ -75,7 +68,7 @@ def apply_dfunc(dfunc, array1, val2):
     VTKArray and numpy arrays are also supported."""
     if type(array1) == dsa.VTKCompositeDataArray and type(val2) == dsa.VTKCompositeDataArray:
         res = []
-        for a1, a2 in izip(array1.Arrays, val2.Arrays):
+        for a1, a2 in zip(array1.Arrays, val2.Arrays):
             if a1 is dsa.NoneArray or a2 is dsa.NoneArray:
                 res.append(dsa.NoneArray)
             else:
@@ -93,6 +86,8 @@ def apply_dfunc(dfunc, array1, val2):
         return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
     elif array1 is dsa.NoneArray:
         return dsa.NoneArray
+    elif isinstance(val2, numpy.ndarray):
+        return dfunc(array1, val2)
     else:
         l = dsa.reshape_append_ones(array1, val2)
         return dfunc(l[0], l[1])
@@ -142,7 +137,7 @@ def _make_dsfunc2(dsfunc):
 
 def _lookup_mpi_type(ntype):
     from mpi4py import MPI
-    if ntype == numpy.bool:
+    if ntype == bool:
         typecode = 'b'
     else:
         typecode = numpy.dtype(ntype).char
@@ -206,7 +201,7 @@ def _global_func(impl, array, axis, controller):
                 return dsa.NoneArray;
 
             if res is dsa.NoneArray:
-                if max_dims is 1:
+                if numpy.isscalar(max_dims):
                     # Weird trick to make the array look like a scalar
                     max_dims = ()
                 res = numpy.empty(max_dims)
@@ -227,7 +222,7 @@ def bitwise_or(array1, array2):
     that is not NoneArray, treating NoneArray as 0 in the or operation."""
     if type(array1) == dsa.VTKCompositeDataArray and type(array2) == dsa.VTKCompositeDataArray:
         res = []
-        for a1, a2 in izip(array1.Arrays, array2.Arrays):
+        for a1, a2 in zip(array1.Arrays, array2.Arrays):
             l = dsa.reshape_append_ones(a1, a2)
             res.append(bitwise_or(l[0], l[1]))
         return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
@@ -486,7 +481,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
 
         # Just get non-empty ids. Doing this again in case
         # the traversal above results in a different order.
-        # We need the same order since we'll use izip below.
+        # We need the same order since we'll use zip below.
         if dataset is not None:
             it = dataset.NewIterator()
             it.UnRegister(None)
@@ -496,7 +491,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
                 it.GoToNextItem()
 
         # Fill the local array with available values.
-        for _id, _res in izip(ids, results):
+        for _id, _res in zip(ids, results):
             success = True
             try:
                 loc = reduce_ids.index(_id)
@@ -708,7 +703,7 @@ def all(array, axis=None, controller=None):
             return algs.all(clean_list, axis=0)
 
         def default(self, max_comps):
-            return numpy.ones(max_comps, dtype=numpy.bool)
+            return numpy.ones(max_comps, dtype=bool)
 
     return _global_func(MinImpl(), array, axis, controller)
 
@@ -845,13 +840,13 @@ def make_vector(arrayx, arrayy, arrayz=None):
     if type(arrayx) == dsa.VTKCompositeDataArray and type(arrayy) == dsa.VTKCompositeDataArray and (type(arrayz) == dsa.VTKCompositeDataArray or arrayz is None):
         res = []
         if arrayz is None:
-            for ax, ay in izip(arrayx.Arrays, arrayy.Arrays):
+            for ax, ay in zip(arrayx.Arrays, arrayy.Arrays):
                 if ax is not dsa.NoneArray and ay is not dsa.NoneArray:
                     res.append(algs.make_vector(ax, ay))
                 else:
                     res.append(dsa.NoneArray)
         else:
-            for ax, ay, az in izip(arrayx.Arrays, arrayy.Arrays, arrayz.Arrays):
+            for ax, ay, az in zip(arrayx.Arrays, arrayy.Arrays, arrayz.Arrays):
                 if ax is not dsa.NoneArray and ay is not dsa.NoneArray and az is not dsa.NoneArray:
                     res.append(algs.make_vector(ax, ay, az))
                 else:
@@ -985,6 +980,9 @@ def unstructured_from_composite_arrays(points, arrays, controller=None):
                 da.SetName(name)
                 ugrid.GetPointData().AddArray(da)
     return ugrid
+
+in1d = _make_ufunc(numpy.in1d)
+in1d.__doc__ = "Test whether each element of a 1-D array is also present in a second array."
 
 isnan = _make_ufunc(numpy.isnan)
 isnan.__doc__ = "Returns a bool array, true if values is nan."
@@ -1181,6 +1179,9 @@ max_angle.__doc__ = "Returns the maximum angle of each cell in a dataset. See Ve
 
 mag = _make_ufunc(algs.mag)
 mag.__doc__ = "Returns the magnitude of vectors."
+
+matmul = _make_dfunc(algs.matmul)
+matmul.__doc__ = "Return the product of the inputs. Inputs can be vectors/tensors."
 
 min_angle = _make_dsfunc2(algs.min_angle)
 min_angle.__doc__ = "Returns the minimum angle of each cell in a dataset."

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSkybox.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkSkybox
  * @brief Renders a skybox environment
@@ -22,24 +10,25 @@
 #ifndef vtkSkybox_h
 #define vtkSkybox_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
-class VTKRENDERINGCORE_EXPORT vtkSkybox: public vtkActor
+VTK_ABI_NAMESPACE_BEGIN
+class VTKRENDERINGCORE_EXPORT vtkSkybox : public vtkActor
 {
 public:
   static vtkSkybox* New();
-  vtkTypeMacro(vtkSkybox, vtkActor)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkSkybox, vtkActor);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
   using Superclass::GetBounds;
-  double *GetBounds() override;
+  double* GetBounds() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the projection to be used
    */
@@ -53,12 +42,12 @@ public:
   vtkGetMacro(Projection, int);
   vtkSetMacro(Projection, int);
   void SetProjectionToCube() { this->SetProjection(vtkSkybox::Cube); }
-  void SetProjectionToSphere() {this->SetProjection(vtkSkybox::Sphere); }
-  void SetProjectionToStereoSphere() {this->SetProjection(vtkSkybox::StereoSphere); }
-  void SetProjectionToFloor() {this->SetProjection(vtkSkybox::Floor); }
-  //@}
+  void SetProjectionToSphere() { this->SetProjection(vtkSkybox::Sphere); }
+  void SetProjectionToStereoSphere() { this->SetProjection(vtkSkybox::StereoSphere); }
+  void SetProjectionToFloor() { this->SetProjection(vtkSkybox::Floor); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the plane equation for the floor.
    */
@@ -66,7 +55,18 @@ public:
   vtkGetVector4Macro(FloorPlane, float);
   vtkSetVector3Macro(FloorRight, float);
   vtkGetVector3Macro(FloorRight, float);
-  //@}
+  ///@}
+
+  ///@{
+  /**
+   * Define if the colors should be gamma corrected.
+   * This is generally required if the input texture is in linear color space.
+   * Default is off.
+   */
+  vtkGetMacro(GammaCorrect, bool);
+  vtkSetMacro(GammaCorrect, bool);
+  vtkBooleanMacro(GammaCorrect, bool);
+  ///@}
 
 protected:
   vtkSkybox();
@@ -76,9 +76,12 @@ protected:
   float FloorPlane[4];
   float FloorRight[3];
 
+  bool GammaCorrect = false;
+
 private:
   vtkSkybox(const vtkSkybox&) = delete;
   void operator=(const vtkSkybox&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSkybox_h

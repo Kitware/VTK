@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDynamic2DLabelMapper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkDynamic2DLabelMapper
  * @brief   draw text labels at 2D dataset points
@@ -48,26 +32,27 @@
  * This algorithm was developed in the paper
  * Ken Been and Chee Yap. Dynamic Map Labeling. IEEE Transactions on
  * Visualization and Computer Graphics, Vol. 12, No. 5, 2006. pp. 773-780.
-*/
+ */
 
 #ifndef vtkDynamic2DLabelMapper_h
 #define vtkDynamic2DLabelMapper_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGLABEL_EXPORT vtkDynamic2DLabelMapper : public vtkLabeledDataMapper
 {
 public:
-  //@{
+  ///@{
   /**
    * Instantiate object with %%-#6.3g label format. By default, point ids
    * are labeled.
    */
-  static vtkDynamic2DLabelMapper *New();
+  static vtkDynamic2DLabelMapper* New();
   vtkTypeMacro(vtkDynamic2DLabelMapper, vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Set the points array name to use to give priority to labels.
@@ -75,7 +60,7 @@ public:
    */
   void SetPriorityArrayName(const char* name);
 
-  //@{
+  ///@{
   /**
    * Whether to reverse the priority order (i.e. low values have high priority).
    * Default is off.
@@ -83,9 +68,9 @@ public:
   vtkSetMacro(ReversePriority, bool);
   vtkGetMacro(ReversePriority, bool);
   vtkBooleanMacro(ReversePriority, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the label height padding as a percentage. The percentage
    * is a percentage of your label height.
@@ -93,9 +78,9 @@ public:
    */
   vtkSetMacro(LabelHeightPadding, float);
   vtkGetMacro(LabelHeightPadding, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the label width padding as a percentage. The percentage
    * is a percentage of your label ^height^ (yes, not a typo).
@@ -103,15 +88,15 @@ public:
    */
   vtkSetMacro(LabelWidthPadding, float);
   vtkGetMacro(LabelWidthPadding, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Draw non-overlapping labels to the screen.
    */
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) override;
-  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) override;
-  //@}
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
+  ///@}
 
 protected:
   vtkDynamic2DLabelMapper();
@@ -120,7 +105,7 @@ protected:
   /**
    * Calculate the current zoom scale of the viewport.
    */
-  double GetCurrentScale(vtkViewport *viewport);
+  double GetCurrentScale(vtkViewport* viewport);
 
   float* LabelWidth;
   float* LabelHeight;
@@ -136,5 +121,5 @@ private:
   void operator=(const vtkDynamic2DLabelMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

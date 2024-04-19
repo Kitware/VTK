@@ -1,42 +1,29 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestButtonWidget.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Test vtkProp3DButtonRepresentation
 
-#include "vtkObjectFactory.h"
 #include "vtkButtonWidget.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkProp3DButtonRepresentation.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestUnMapped();
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestProp3DButtonRepresentation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkObjectFactory::SetAllEnableFlags(
-    false, "vtkRenderWindowInteractor", "vtkTestingInteractor");
+  vtkObjectFactory::SetAllEnableFlags(false, "vtkRenderWindowInteractor", "vtkTestingInteractor");
   bool res = true;
   res = TestUnMapped() && res;
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool TestUnMapped()
 {
   vtkNew<vtkRenderWindow> renderWindow;

@@ -9,58 +9,71 @@ endif ()
 set(sources
   vtkParse.tab.c
   vtkParseData.c
+  vtkParseDepends.c
   vtkParseExtras.c
   vtkParseHierarchy.c
   vtkParseMain.c
   vtkParseMangle.c
   vtkParseMerge.c
   vtkParsePreprocess.c
+  vtkParseProperties.c
   vtkParseString.c
+  vtkParseSystem.c
   vtkWrap.c
   vtkWrapText.c)
 
 set(headers
   vtkParse.h
+  vtkParseAttributes.h
   vtkParseData.h
+  vtkParseDepends.h
   vtkParseExtras.h
   vtkParseHierarchy.h
   vtkParseMain.h
   vtkParseMangle.h
   vtkParseMerge.h
   vtkParsePreprocess.h
+  vtkParseProperties.h
   vtkParseString.h
+  vtkParseSystem.h
   vtkParseType.h
-  vtkWrap.h)
+  vtkWrap.h
+  vtkWrapText.h)
 
 set_property(SOURCE vtkParseMain.c
   PROPERTY
     COMPILE_DEFINITIONS "VTK_PARSE_VERSION=\"${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}\"")
 
+# Disable abi mangling in this module
+set(_vtk_module_no_namespace_abi_mangling ON)
+
 vtk_module_add_module("${ns}::WrappingTools"
   SOURCES ${sources}
   HEADERS ${headers})
 
-set(vtk_wrapping_tools_no_install)
-if (NOT _vtk_build_INSTALL_HEADERS)
-  set(vtk_wrapping_tools_no_install
-    NO_INSTALL)
-endif ()
-
 if (NOT TARGET "${ns}::WrapHierarchy")
   vtk_module_add_executable(WrapHierarchy
-    ${vtk_wrapping_tools_no_install}
+    DEVELOPMENT
     BASENAME vtkWrapHierarchy
     vtkWrapHierarchy.c)
   target_link_libraries(WrapHierarchy
     PRIVATE
       "${ns}::WrappingTools")
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # allows vtkWrapHierarchy to access host file system for headers, generated sources, etc.
+    # permit memory growth to generate arbitrary sized hierarchy files.
+    target_link_options(WrapHierarchy
+      PRIVATE
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s NODERAWFS=1")
+  endif ()
   add_executable("${ns}::WrapHierarchy" ALIAS
     WrapHierarchy)
 endif ()
 
 if (NOT TARGET WrapPython)
   vtk_module_add_executable(WrapPython
-    ${vtk_wrapping_tools_no_install}
+    DEVELOPMENT
     BASENAME vtkWrapPython
     vtkWrapPython.c
     vtkWrapPythonClass.c
@@ -79,16 +92,19 @@ if (NOT TARGET WrapPython)
     WrapPython)
 
   vtk_module_add_executable(WrapPythonInit
-    ${vtk_wrapping_tools_no_install}
+    DEVELOPMENT
     BASENAME vtkWrapPythonInit
     vtkWrapPythonInit.c)
+  target_link_libraries(WrapPythonInit
+    PRIVATE
+      "${ns}::WrappingTools")
   add_executable("${ns}::WrapPythonInit" ALIAS
     WrapPythonInit)
 endif ()
 
 if (NOT TARGET WrapJava)
   vtk_module_add_executable(ParseJava
-    ${vtk_wrapping_tools_no_install}
+    DEVELOPMENT
     BASENAME vtkParseJava
     vtkParseJava.c)
   target_link_libraries(ParseJava
@@ -98,7 +114,7 @@ if (NOT TARGET WrapJava)
     ParseJava)
 
   vtk_module_add_executable(WrapJava
-    ${vtk_wrapping_tools_no_install}
+    DEVELOPMENT
     BASENAME vtkWrapJava
     vtkWrapJava.c)
   target_link_libraries(WrapJava
@@ -106,4 +122,27 @@ if (NOT TARGET WrapJava)
       "${ns}::WrappingTools")
   add_executable("${ns}::WrapJava" ALIAS
     WrapJava)
+endif ()
+
+if (NOT TARGET WrapSerDes)
+  vtk_module_add_executable(WrapSerDes
+    DEVELOPMENT
+    BASENAME vtkWrapSerDes
+    vtkWrapSerDes.c
+    vtkWrapSerDesClass.c
+    vtkWrapSerDesProperty.c)
+  target_link_libraries(WrapSerDes
+    PRIVATE
+      "${ns}::WrappingTools")
+  
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # allows WrapSerDes to access host file system for headers, generated sources, etc.
+    # permit memory growth to generate arbitrary sized vtkClassNameSerDes.cxx files
+    target_link_options(WrapSerDes
+      PRIVATE
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s NODERAWFS=1")
+  endif ()
+  add_executable("${ns}::WrapSerDes" ALIAS
+    WrapSerDes)
 endif ()

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestImageDAtaToUniformGrid.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME TestImageDAtaToUniformGrid.cxx --Test vtkImageDataToUniformGrid
 //
 // .SECTION Description
@@ -21,8 +9,8 @@
 #include <vtkDataSet.h>
 #include <vtkElevationFilter.h>
 #include <vtkImageDataToUniformGrid.h>
-#include <vtkMultiBlockDataSet.h>
 #include <vtkMultiBlockDataGroupFilter.h>
+#include <vtkMultiBlockDataSet.h>
 #include <vtkNew.h>
 #include <vtkPointDataToCellData.h>
 #include <vtkRTAnalyticSource.h>
@@ -52,12 +40,9 @@ int TestSingleGridBlanking(bool pointBlanking, bool reverse, int expectedNumberO
   pointDataToCellData->Update();
 
   vtkNew<vtkImageDataToUniformGrid> imageDataToUniformGrid;
-  if(reverse)
-  {
-    imageDataToUniformGrid->ReverseOn();
-  }
   imageDataToUniformGrid->SetInputConnection(pointDataToCellData->GetOutputPort());
-  if(pointBlanking)
+  imageDataToUniformGrid->SetReverse(reverse);
+  if (pointBlanking)
   {
     imageDataToUniformGrid->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Elevation");
@@ -74,19 +59,20 @@ int TestSingleGridBlanking(bool pointBlanking, bool reverse, int expectedNumberO
   // the only cells that aren't outputted from the threshold filter
   // are the blanked cells.
   vtkNew<vtkThreshold> threshold;
-  threshold->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                                     "RTData");
-  threshold->ThresholdBetween(-1000, 1000);
+  threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
+  threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  threshold->SetLowerThreshold(-1000.0);
+  threshold->SetUpperThreshold(1000.0);
   threshold->SetInputConnection(imageDataToUniformGrid->GetOutputPort());
   threshold->Update();
   vtkUnstructuredGrid* outputGrid = threshold->GetOutput();
 
-  if(outputGrid->GetNumberOfCells() == expectedNumberOfCells)
+  if (outputGrid->GetNumberOfCells() == expectedNumberOfCells)
   {
     return 0;
   }
-  vtkGenericWarningMacro("Expecting " << expectedNumberOfCells << " but getting "
-                         << outputGrid->GetNumberOfCells());
+  vtkGenericWarningMacro(
+    "Expecting " << expectedNumberOfCells << " but getting " << outputGrid->GetNumberOfCells());
   return 1;
 }
 
@@ -118,28 +104,28 @@ int TestMultiBlockBlanking(int expectedNumberOfCells)
     vtkMultiBlockDataSet::SafeDownCast(imageDataToUniformGrid->GetOutput());
 
   vtkNew<vtkThreshold> threshold;
-  threshold->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                                     "RTData");
-  threshold->ThresholdBetween(50, 150);
+  threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
+  threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  threshold->SetLowerThreshold(50.0);
+  threshold->SetUpperThreshold(150.0);
   threshold->SetInputData(output->GetBlock(0));
   threshold->Update();
   vtkUnstructuredGrid* outputGrid = threshold->GetOutput();
 
-  if(outputGrid->GetNumberOfCells() == expectedNumberOfCells)
+  if (outputGrid->GetNumberOfCells() == expectedNumberOfCells)
   {
     return 0;
   }
-  vtkGenericWarningMacro("Expecting " << expectedNumberOfCells << " but getting "
-                         << outputGrid->GetNumberOfCells());
+  vtkGenericWarningMacro(
+    "Expecting " << expectedNumberOfCells << " but getting " << outputGrid->GetNumberOfCells());
   return 1;
 }
 
 } // end anonymous namespace
 
-
 //------------------------------------------------------------------------------
 // Program main
-int TestImageDataToUniformGrid( int, char* [] )
+int TestImageDataToUniformGrid(int, char*[])
 {
   int rc = TestSingleGridBlanking(true, false, 5200);
   rc += TestSingleGridBlanking(false, false, 5200);

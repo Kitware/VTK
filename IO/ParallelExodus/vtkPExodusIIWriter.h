@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExodusIIWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkPExodusIIWriter
@@ -63,19 +48,20 @@
  * @warning
  *     We use the terms "point" and "node" interchangeably.
  *     Also, we use the terms "element" and "cell" interchangeably.
-*/
+ */
 
 #ifndef vtkPExodusIIWriter_h
 #define vtkPExodusIIWriter_h
 
-#include "vtkIOParallelExodusModule.h" // For export macro
-#include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkExodusIIWriter.h"
+#include "vtkIOParallelExodusModule.h" // For export macro
+#include "vtkSmartPointer.h"           // For vtkSmartPointer
 
-#include <vector> // STL Header
 #include <map>    // STL Header
 #include <string> // STL Header
+#include <vector> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkModelMetadata;
 class vtkDoubleArray;
 class vtkIntArray;
@@ -84,30 +70,30 @@ class vtkUnstructuredGrid;
 class VTKIOPARALLELEXODUS_EXPORT vtkPExodusIIWriter : public vtkExodusIIWriter
 {
 public:
-  static vtkPExodusIIWriter *New ();
-  vtkTypeMacro(vtkPExodusIIWriter,vtkExodusIIWriter);
-  void PrintSelf (ostream& os, vtkIndent indent) override;
+  static vtkPExodusIIWriter* New();
+  vtkTypeMacro(vtkPExodusIIWriter, vtkExodusIIWriter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkPExodusIIWriter ();
-  ~vtkPExodusIIWriter () override;
-  int CheckParameters () override;
+  vtkPExodusIIWriter();
+  ~vtkPExodusIIWriter() override;
+  int CheckParameters() override;
   void CheckBlockInfoMap() override;
 
-  int RequestUpdateExtent (vtkInformation* request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector) override;
+  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   int GlobalContinueExecuting(int localContinue) override;
 
   /**
    * Get the maximum length name in the input data set. If it is smaller
    * than 32 characters long we just return the ExodusII default of 32.
    */
-  virtual unsigned int GetMaxNameLength() override;
+  unsigned int GetMaxNameLength() override;
 
 private:
-  vtkPExodusIIWriter (const vtkPExodusIIWriter&) = delete;
-  void operator= (const vtkPExodusIIWriter&) = delete;
+  vtkPExodusIIWriter(const vtkPExodusIIWriter&) = delete;
+  void operator=(const vtkPExodusIIWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

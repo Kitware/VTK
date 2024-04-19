@@ -32,9 +32,9 @@ The V2 API is tested in test directory nctest.
 
 /** The subroutines in error.c emit no messages unless NC_VERBOSE bit
  * is on.  They call exit() when NC_FATAL bit is on. */
-int ncopts = (NC_FATAL | NC_VERBOSE) ;
+MSC_EXTRA int ncopts = (NC_FATAL | NC_VERBOSE) ;
 
-int ncerr = NC_NOERR ; /**< V2 API error code. */
+MSC_EXTRA int ncerr = NC_NOERR ; /**< V2 API error code. */
 
 #if SIZEOF_LONG == SIZEOF_SIZE_T
 /*

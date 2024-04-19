@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTrivialProducer.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTrivialProducer
  * @brief   Producer for stand-alone data objects.
@@ -21,21 +9,23 @@
  * pipeline involving vtkAlgorithm must have a producer.  This trivial
  * producer allows data objects that are hand-constructed in a program
  * without another vtk producer to be connected.
-*/
+ */
 
 #ifndef vtkTrivialProducer_h
 #define vtkTrivialProducer_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTrivialProducer : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkTrivialProducer : public vtkAlgorithm
 {
 public:
-  static vtkTrivialProducer *New();
-  vtkTypeMacro(vtkTrivialProducer,vtkAlgorithm);
+  static vtkTrivialProducer* New();
+  vtkTypeMacro(vtkTrivialProducer, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -43,14 +33,14 @@ public:
    * output data object is never modified, but it is queried to
    * fulfill requests.
    */
-  vtkTypeBool ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Set the data object that is "produced" by this producer.  It is
    * never really modified.
    */
+  VTK_MARSHALSETTER(OutputDataObject)
   virtual void SetOutput(vtkDataObject* output);
 
   /**
@@ -59,7 +49,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set the whole extent to use for the data this producer is producing.
    * This may be different than the extent of the output data when
@@ -67,15 +57,14 @@ public:
    */
   vtkSetVector6Macro(WholeExtent, int);
   vtkGetVector6Macro(WholeExtent, int);
-  //@}
+  ///@}
 
   /**
    * This method can be used to copy meta-data from an existing data
    * object to an information object. For example, whole extent,
    * image data spacing, origin etc.
    */
-  static void FillOutputDataInformation(vtkDataObject* output,
-                                        vtkInformation* outInfo);
+  static void FillOutputDataInformation(vtkDataObject* output, vtkInformation* outInfo);
 
 protected:
   vtkTrivialProducer();
@@ -91,9 +80,11 @@ protected:
   int WholeExtent[6];
 
   void ReportReferences(vtkGarbageCollector*) override;
+
 private:
   vtkTrivialProducer(const vtkTrivialProducer&) = delete;
   void operator=(const vtkTrivialProducer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

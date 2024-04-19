@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkForceDirectedLayoutStrategy.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkForceDirectedLayoutStrategy.h"
 
@@ -25,9 +9,9 @@
 #include "vtkDataArray.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkFloatArray.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutEdgeIterator.h"
 #include "vtkPointData.h"
@@ -35,13 +19,14 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkForceDirectedLayoutStrategy);
 
 vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
 {
   this->RandomSeed = 123;
   this->GraphBounds[0] = this->GraphBounds[2] = this->GraphBounds[4] = -0.5;
-  this->GraphBounds[1] = this->GraphBounds[3] = this->GraphBounds[5] =  0.5;
+  this->GraphBounds[1] = this->GraphBounds[3] = this->GraphBounds[5] = 0.5;
   this->MaxNumberOfIterations = 50;
   this->IterationsPerLayout = 50;
   this->InitialTemperature = 10.0;
@@ -60,12 +45,12 @@ vtkForceDirectedLayoutStrategy::~vtkForceDirectedLayoutStrategy()
   delete[] this->e;
 }
 
-
 // Cool-down function.
 static inline double CoolDown(double t, double r)
 {
-  if (t<.01) return .01;
-  return t-(t/r);
+  if (t < .01)
+    return .01;
+  return t - (t / r);
 }
 
 static inline double forceAttract(double x, double k)
@@ -85,7 +70,6 @@ static inline double forceRepulse(double x, double k)
   }
 }
 
-
 // In the future this method should setup data
 // structures, etc... so that Layout doesn't have to
 // do that every time it's called
@@ -97,16 +81,16 @@ void vtkForceDirectedLayoutStrategy::Initialize()
 
   // Generate bounds automatically if necessary. It's the same
   // as the input bounds.
-  if ( this->AutomaticBoundsComputation )
+  if (this->AutomaticBoundsComputation)
   {
     pts->GetBounds(this->GraphBounds);
   }
 
   for (int i = 0; i < 3; i++)
   {
-    if ( this->GraphBounds[2*i+1] <= this->GraphBounds[2*i] )
+    if (this->GraphBounds[2 * i + 1] <= this->GraphBounds[2 * i])
     {
-      this->GraphBounds[2*i+1] = this->GraphBounds[2*i] + 1;
+      this->GraphBounds[2 * i + 1] = this->GraphBounds[2 * i] + 1;
     }
   }
 
@@ -127,7 +111,8 @@ void vtkForceDirectedLayoutStrategy::Initialize()
       for (int j = 0; j < maxCoord; j++)
       {
         double r = vtkMath::Random();
-        v[i].x[j] = (this->GraphBounds[2*j+1] - this->GraphBounds[2*j])*r + this->GraphBounds[2*j];
+        v[i].x[j] =
+          (this->GraphBounds[2 * j + 1] - this->GraphBounds[2 * j]) * r + this->GraphBounds[2 * j];
       }
       if (!this->ThreeDimensionalLayout)
       {
@@ -148,21 +133,20 @@ void vtkForceDirectedLayoutStrategy::Initialize()
   }
 
   // Get the edges
-  vtkSmartPointer<vtkEdgeListIterator> edges =
-    vtkSmartPointer<vtkEdgeListIterator>::New();
+  vtkSmartPointer<vtkEdgeListIterator> edges = vtkSmartPointer<vtkEdgeListIterator>::New();
   this->Graph->GetEdges(edges);
   while (edges->HasNext())
   {
     vtkEdgeType edge = edges->Next();
-    //cerr << edge.Id << ": " << edge.Source << "," << edge.Target << endl;
+    // cerr << edge.Id << ": " << edge.Source << "," << edge.Target << endl;
     e[edge.Id].t = edge.Source;
     e[edge.Id].u = edge.Target;
   }
 
-  //cerr << endl << endl;
-  //vtkSmartPointer<vtkOutEdgeIterator> it =
+  // cerr << endl << endl;
+  // vtkSmartPointer<vtkOutEdgeIterator> it =
   //  vtkSmartPointer<vtkOutEdgeIterator>::New();
-  //for (vtkIdType i = 0; i < this->Graph->GetNumberOfVertices(); ++i)
+  // for (vtkIdType i = 0; i < this->Graph->GetNumberOfVertices(); ++i)
   //  {
   //  this->Graph->GetOutEdges(i, it);
   //  cerr << i << ": ";
@@ -176,15 +160,12 @@ void vtkForceDirectedLayoutStrategy::Initialize()
 
   // More variable definitions
   double volume = (this->GraphBounds[1] - this->GraphBounds[0]) *
-    (this->GraphBounds[3] - this->GraphBounds[2]) *
-    (this->GraphBounds[5] - this->GraphBounds[4]);
+    (this->GraphBounds[3] - this->GraphBounds[2]) * (this->GraphBounds[5] - this->GraphBounds[4]);
 
-  this->Temp = sqrt( (this->GraphBounds[1]-this->GraphBounds[0])*
-                     (this->GraphBounds[1]-this->GraphBounds[0]) +
-                     (this->GraphBounds[3]-this->GraphBounds[2])*
-                     (this->GraphBounds[3]-this->GraphBounds[2]) +
-                     (this->GraphBounds[5]-this->GraphBounds[4])*
-                     (this->GraphBounds[5]-this->GraphBounds[4]) );
+  this->Temp = sqrt(
+    (this->GraphBounds[1] - this->GraphBounds[0]) * (this->GraphBounds[1] - this->GraphBounds[0]) +
+    (this->GraphBounds[3] - this->GraphBounds[2]) * (this->GraphBounds[3] - this->GraphBounds[2]) +
+    (this->GraphBounds[5] - this->GraphBounds[4]) * (this->GraphBounds[5] - this->GraphBounds[4]));
   if (this->InitialTemperature > 0)
   {
     this->Temp = this->InitialTemperature;
@@ -195,8 +176,7 @@ void vtkForceDirectedLayoutStrategy::Initialize()
   // Set some vars
   this->TotalIterations = 0;
   this->LayoutComplete = 0;
-
-};
+}
 
 // ForceDirected graph layout method
 void vtkForceDirectedLayoutStrategy::Layout()
@@ -205,19 +185,18 @@ void vtkForceDirectedLayoutStrategy::Layout()
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
 
-
   // Begin iterations.
   double norm, fr, fa, minimum;
   double diff[3];
-  for(int i = 0; i < this->IterationsPerLayout; i++)
+  for (int i = 0; i < this->IterationsPerLayout; i++)
   {
     // Calculate the repulsive forces.
-    for(vtkIdType j = 0; j < numVertices; j++)
+    for (vtkIdType j = 0; j < numVertices; j++)
     {
       v[j].d[0] = 0.0;
       v[j].d[1] = 0.0;
       v[j].d[2] = 0.0;
-      for(vtkIdType l = 0; l < numVertices; l++)
+      for (vtkIdType l = 0; l < numVertices; l++)
       {
         if (j != l)
         {
@@ -225,13 +204,13 @@ void vtkForceDirectedLayoutStrategy::Layout()
           diff[1] = v[j].x[1] - v[l].x[1];
           diff[2] = v[j].x[2] - v[l].x[2];
           norm = vtkMath::Normalize(diff);
-          if (norm > 2*optDist)
+          if (norm > 2 * optDist)
           {
             fr = 0;
           }
           else
           {
-            fr = forceRepulse(norm,optDist);
+            fr = forceRepulse(norm, optDist);
           }
           v[j].d[0] += diff[0] * fr;
           v[j].d[1] += diff[1] * fr;
@@ -247,7 +226,7 @@ void vtkForceDirectedLayoutStrategy::Layout()
       diff[1] = v[e[j].u].x[1] - v[e[j].t].x[1];
       diff[2] = v[e[j].u].x[2] - v[e[j].t].x[2];
       norm = vtkMath::Normalize(diff);
-      fa = forceAttract(norm,optDist);
+      fa = forceAttract(norm, optDist);
       v[e[j].u].d[0] -= diff[0] * fa;
       v[e[j].u].d[1] -= diff[1] * fa;
       v[e[j].u].d[2] -= diff[2] * fa;
@@ -272,7 +251,7 @@ void vtkForceDirectedLayoutStrategy::Layout()
 
   // Get the bounds of the graph and scale and translate to
   // bring them within the bounds specified.
-  vtkPoints *newPts = vtkPoints::New();
+  vtkPoints* newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numVertices);
   for (vtkIdType i = 0; i < numVertices; i++)
   {
@@ -284,13 +263,13 @@ void vtkForceDirectedLayoutStrategy::Layout()
   newPts->GetBounds(bounds);
   for (int i = 0; i < 3; i++)
   {
-    if ( (len=(bounds[2*i+1] - bounds[2*i])) == 0.0 )
+    if ((len = (bounds[2 * i + 1] - bounds[2 * i])) == 0.0)
     {
       len = 1.0;
     }
-    sf[i] = (this->GraphBounds[2*i+1] - this->GraphBounds[2*i]) / len;
-    center[i] = (bounds[2*i+1] + bounds[2*i])/2.0;
-    graphCenter[i] = (this->GraphBounds[2*i+1] + this->GraphBounds[2*i])/2.0;
+    sf[i] = (this->GraphBounds[2 * i + 1] - this->GraphBounds[2 * i]) / len;
+    center[i] = (bounds[2 * i + 1] + bounds[2 * i]) / 2.0;
+    graphCenter[i] = (this->GraphBounds[2 * i + 1] + this->GraphBounds[2 * i]) / 2.0;
   }
 
   double scale = sf[0];
@@ -302,7 +281,7 @@ void vtkForceDirectedLayoutStrategy::Layout()
     newPts->GetPoint(i, x);
     for (int j = 0; j < 3; j++)
     {
-      xNew[j] = graphCenter[j] + scale*(x[j] - center[j]);
+      xNew[j] = graphCenter[j] + scale * (x[j] - center[j]);
     }
     newPts->SetPoint(i, xNew);
   }
@@ -312,7 +291,6 @@ void vtkForceDirectedLayoutStrategy::Layout()
 
   // Clean up.
   newPts->Delete();
-
 
   // Check for completion of layout
   this->TotalIterations += this->IterationsPerLayout;
@@ -325,23 +303,19 @@ void vtkForceDirectedLayoutStrategy::Layout()
 
 void vtkForceDirectedLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "RandomSeed: " << this->RandomSeed << endl;
-  os << indent << "AutomaticBoundsComputation: "
-     << (this->AutomaticBoundsComputation ? "On\n" : "Off\n");
+  os << indent
+     << "AutomaticBoundsComputation: " << (this->AutomaticBoundsComputation ? "On\n" : "Off\n");
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
   os << indent << "GraphBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->GraphBounds[0] << ", "
-     << this->GraphBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->GraphBounds[2] << ", "
-     << this->GraphBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->GraphBounds[4] << ", "
-     << this->GraphBounds[5] << ")\n";
+  os << indent << "  Xmin,Xmax: (" << this->GraphBounds[0] << ", " << this->GraphBounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->GraphBounds[2] << ", " << this->GraphBounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->GraphBounds[4] << ", " << this->GraphBounds[5] << ")\n";
   os << indent << "InitialTemperature: " << this->InitialTemperature << endl;
   os << indent << "IterationsPerLayout: " << this->IterationsPerLayout << endl;
   os << indent << "MaxNumberOfIterations: " << this->MaxNumberOfIterations << endl;
-  os << indent << "RandomInitialPoints: "
-     << (this->RandomInitialPoints ? "On\n" : "Off\n");
-  os << indent << "Three Dimensional Layout: "
-     << (this->ThreeDimensionalLayout ? "On\n" : "Off\n");
+  os << indent << "RandomInitialPoints: " << (this->RandomInitialPoints ? "On\n" : "Off\n");
+  os << indent << "Three Dimensional Layout: " << (this->ThreeDimensionalLayout ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

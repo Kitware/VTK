@@ -6,6 +6,7 @@ vtk_module_test_data(
   Data/beach.ascii
   Data/beach.ascii.nhdr
   Data/beach.nrrd
+  Data/beach_gzip.nrrd
   Data/dicom/collection/,REGEX:.*
   Data/filtered_func_data.nii.gz
   Data/minimal.hdr.gz
@@ -14,9 +15,12 @@ vtk_module_test_data(
   Data/nifti_rgb.nii.gz
   Data/planar_rgb.nii.gz
   Data/small.H
-  Data/small.H@)
+  Data/small.H@
+  Data/vtk.tga)
 
-add_subdirectory(Cxx)
+if (NOT vtk_testing_cxx_disabled)
+  add_subdirectory(Cxx)
+endif ()
 
 if (VTK_WRAP_PYTHON)
   vtk_module_test_data(

@@ -1,18 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    EasyView.h
-  Language:  C++
-
-  Copyright 2007 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-  license for use of this work by or on behalf of the
-  U.S. Government. Redistribution and use in source and binary forms, with
-  or without modification, are permitted provided that this Notice and any
-  statement of authorship are reproduced on all copies.
-
-=========================================================================*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2007 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 // .NAME EasyView - Shows regular way of for linking multiple views.
 //
 // .SECTION Description
@@ -26,58 +14,54 @@
 // .SECTION See Also
 // CustomLinkView.
 
-
 #ifndef EasyView_H
 #define EasyView_H
 
-#include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
+#include "vtkSmartPointer.h" // Required for smart pointer internal ivars.
 
 #include <QMainWindow>
 
 // Forward Qt class declarations
 class Ui_EasyView;
 
+VTK_ABI_NAMESPACE_BEGIN
 // Forward VTK class declarations
 class vtkXMLTreeReader;
 class vtkGraphLayoutView;
 class vtkQtTableView;
 class vtkQtTreeView;
-
+VTK_ABI_NAMESPACE_END
 
 class EasyView : public QMainWindow
 {
   Q_OBJECT
 
 public:
-
   // Constructor/Destructor
   EasyView();
   ~EasyView() override;
 
-public slots:
+public Q_SLOTS:
 
   virtual void slotOpenXMLFile();
   virtual void slotExit();
 
 protected:
-
-protected slots:
+protected Q_SLOTS:
 
 private:
-
   // Methods
   void SetupAnnotationLink();
 
-
   // Members
-  vtkSmartPointer<vtkXMLTreeReader>       XMLReader;
-  vtkSmartPointer<vtkGraphLayoutView>     GraphView;
-  vtkSmartPointer<vtkQtTreeView>          TreeView;
-  vtkSmartPointer<vtkQtTableView>         TableView;
-  vtkSmartPointer<vtkQtTreeView>          ColumnView;
+  vtkSmartPointer<vtkXMLTreeReader> XMLReader;
+  vtkSmartPointer<vtkGraphLayoutView> GraphView;
+  vtkSmartPointer<vtkQtTreeView> TreeView;
+  vtkSmartPointer<vtkQtTableView> TableView;
+  vtkSmartPointer<vtkQtTreeView> ColumnView;
 
   // Designer form
-  Ui_EasyView *ui;
+  Ui_EasyView* ui;
 };
 
 #endif // EasyView_H

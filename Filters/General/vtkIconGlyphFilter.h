@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkIconGlyphFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkIconGlyphFilter
  * @brief   Filter that generates a polydata consisting of
@@ -34,7 +22,7 @@
  *
  * @sa
  * vtkPolyDataAlgorithm vtkGlyph3D vtkGlyph2D
-*/
+ */
 
 #ifndef vtkIconGlyphFilter_h
 #define vtkIconGlyphFilter_h
@@ -42,49 +30,49 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-#define VTK_ICON_GRAVITY_TOP_RIGHT     1
-#define VTK_ICON_GRAVITY_TOP_CENTER    2
-#define VTK_ICON_GRAVITY_TOP_LEFT      3
-#define VTK_ICON_GRAVITY_CENTER_RIGHT  4
+#define VTK_ICON_GRAVITY_TOP_RIGHT 1
+#define VTK_ICON_GRAVITY_TOP_CENTER 2
+#define VTK_ICON_GRAVITY_TOP_LEFT 3
+#define VTK_ICON_GRAVITY_CENTER_RIGHT 4
 #define VTK_ICON_GRAVITY_CENTER_CENTER 5
-#define VTK_ICON_GRAVITY_CENTER_LEFT   6
-#define VTK_ICON_GRAVITY_BOTTOM_RIGHT  7
+#define VTK_ICON_GRAVITY_CENTER_LEFT 6
+#define VTK_ICON_GRAVITY_BOTTOM_RIGHT 7
 #define VTK_ICON_GRAVITY_BOTTOM_CENTER 8
-#define VTK_ICON_GRAVITY_BOTTOM_LEFT   9
+#define VTK_ICON_GRAVITY_BOTTOM_LEFT 9
 
 #define VTK_ICON_SCALING_OFF 0
 #define VTK_ICON_SCALING_USE_SCALING_ARRAY 1
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkIconGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
-  static vtkIconGlyphFilter *New();
-  vtkTypeMacro(vtkIconGlyphFilter,vtkPolyDataAlgorithm);
+  static vtkIconGlyphFilter* New();
+  vtkTypeMacro(vtkIconGlyphFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Width and Height, in pixels, of an icon in the icon sheet.
    */
-  vtkSetVector2Macro(IconSize,int);
-  vtkGetVectorMacro(IconSize,int,2);
-  //@}
+  vtkSetVector2Macro(IconSize, int);
+  vtkGetVectorMacro(IconSize, int, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Width and Height, in pixels, of an icon in the icon sheet.
    */
-  vtkSetVector2Macro(IconSheetSize,int);
-  vtkGetVectorMacro(IconSheetSize,int,2);
-  //@}
+  vtkSetVector2Macro(IconSheetSize, int);
+  vtkGetVectorMacro(IconSheetSize, int, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Width and Height, in pixels, of the size of the icon when it
    * is rendered. By default, the IconSize is used to set the display size
@@ -92,46 +80,45 @@ public:
    * IconScaling is disabled, or if enabled, the scale of a particular icon
    * is 1.
    */
-  vtkSetVector2Macro(DisplaySize,int);
-  vtkGetVectorMacro(DisplaySize,int,2);
-  //@}
+  vtkSetVector2Macro(DisplaySize, int);
+  vtkGetVectorMacro(DisplaySize, int, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether the Quad generated to place the icon on will be either
    * the dimensions specified by IconSize or the DisplaySize.
    */
-  vtkSetMacro(UseIconSize,bool);
-  vtkGetMacro(UseIconSize,bool);
+  vtkSetMacro(UseIconSize, bool);
+  vtkGetMacro(UseIconSize, bool);
   vtkBooleanMacro(UseIconSize, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify how to specify individual icons. By default, icon scaling
    * is off, but if it is on, then the filter looks for an array named
    * "IconScale" to control individual icon size.
    */
-  vtkSetMacro(IconScaling,int);
-  vtkGetMacro(IconScaling,int);
-  void SetIconScalingToScalingOff() {this->SetIconScaling(VTK_ICON_SCALING_OFF);}
-  void SetIconScalingToScalingArray()
-    {this->SetIconScaling(VTK_ICON_SCALING_USE_SCALING_ARRAY);}
-  //@}
+  vtkSetMacro(IconScaling, int);
+  vtkGetMacro(IconScaling, int);
+  void SetIconScalingToScalingOff() { this->SetIconScaling(VTK_ICON_SCALING_OFF); }
+  void SetIconScalingToScalingArray() { this->SetIconScaling(VTK_ICON_SCALING_USE_SCALING_ARRAY); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to pass the scalar icon index to the output. By
    * default this is not passed since it can affect color during the
    * rendering process. Note that all other point data is passed to
    * the output regardless of the value of this flag.
    */
-  vtkSetMacro(PassScalars,bool);
-  vtkGetMacro(PassScalars,bool);
-  vtkBooleanMacro(PassScalars,bool);
-  //@}
+  vtkSetMacro(PassScalars, bool);
+  vtkGetMacro(PassScalars, bool);
+  vtkBooleanMacro(PassScalars, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify if the input points define the center of the icon quad or one of
    * top right corner, top center, top left corner, center right, center, center
@@ -139,41 +126,39 @@ public:
    */
   vtkSetMacro(Gravity, int);
   vtkGetMacro(Gravity, int);
-  void SetGravityToTopRight() {this->SetGravity(VTK_ICON_GRAVITY_TOP_RIGHT);};
-  void SetGravityToTopCenter() {this->SetGravity(VTK_ICON_GRAVITY_TOP_CENTER);};
-  void SetGravityToTopLeft() {this->SetGravity(VTK_ICON_GRAVITY_TOP_LEFT);};
-  void SetGravityToCenterRight() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_RIGHT);};
-  void SetGravityToCenterCenter() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_CENTER);};
-  void SetGravityToCenterLeft() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_LEFT);};
-  void SetGravityToBottomRight() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_RIGHT);};
-  void SetGravityToBottomCenter() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_CENTER);};
-  void SetGravityToBottomLeft() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_LEFT);};
-  //@}
+  void SetGravityToTopRight() { this->SetGravity(VTK_ICON_GRAVITY_TOP_RIGHT); }
+  void SetGravityToTopCenter() { this->SetGravity(VTK_ICON_GRAVITY_TOP_CENTER); }
+  void SetGravityToTopLeft() { this->SetGravity(VTK_ICON_GRAVITY_TOP_LEFT); }
+  void SetGravityToCenterRight() { this->SetGravity(VTK_ICON_GRAVITY_CENTER_RIGHT); }
+  void SetGravityToCenterCenter() { this->SetGravity(VTK_ICON_GRAVITY_CENTER_CENTER); }
+  void SetGravityToCenterLeft() { this->SetGravity(VTK_ICON_GRAVITY_CENTER_LEFT); }
+  void SetGravityToBottomRight() { this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_RIGHT); }
+  void SetGravityToBottomCenter() { this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_CENTER); }
+  void SetGravityToBottomLeft() { this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_LEFT); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an offset (in pixels or display coordinates) that offsets the icons
    * from their generating points.
    */
-  vtkSetVector2Macro(Offset,int);
-  vtkGetVectorMacro(Offset,int,2);
-  //@}
+  vtkSetVector2Macro(Offset, int);
+  vtkGetVectorMacro(Offset, int, 2);
+  ///@}
 
 protected:
   vtkIconGlyphFilter();
   ~vtkIconGlyphFilter() override;
 
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int IconSize[2]; // Size in pixels of an icon in an icon sheet
+  int IconSize[2];      // Size in pixels of an icon in an icon sheet
   int IconSheetSize[2]; // Size in pixels of the icon sheet
-  int DisplaySize[2]; // Size in pixels of the icon when displayed
+  int DisplaySize[2];   // Size in pixels of the icon when displayed
 
-  int  Gravity;
+  int Gravity;
   bool UseIconSize;
-  int  IconScaling;
+  int IconScaling;
   bool PassScalars;
   int Offset[2];
 
@@ -181,16 +166,17 @@ private:
   vtkIconGlyphFilter(const vtkIconGlyphFilter&) = delete;
   void operator=(const vtkIconGlyphFilter&) = delete;
 
-  void IconConvertIndex(int id, int & j, int & k);
+  void IconConvertIndex(int id, int& j, int& k);
 };
 
-inline void vtkIconGlyphFilter::IconConvertIndex(int id, int & j, int & k)
+inline void vtkIconGlyphFilter::IconConvertIndex(int id, int& j, int& k)
 {
-  int dimX = this->IconSheetSize[0]/this->IconSize[0];
-  int dimY = this->IconSheetSize[1]/this->IconSize[1];
+  int dimX = this->IconSheetSize[0] / this->IconSize[0];
+  int dimY = this->IconSheetSize[1] / this->IconSize[1];
 
-  j = id - dimX * static_cast<int>(id/dimX);
-  k = dimY - static_cast<int>(id/dimX) - 1;
+  j = id - dimX * static_cast<int>(id / dimX);
+  k = dimY - static_cast<int>(id / dimX) - 1;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

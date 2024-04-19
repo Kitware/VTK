@@ -1,4 +1,5 @@
-vtk_module_find_package(PACKAGE libLAS)
+vtk_module_find_package(PRIVATE_IF_SHARED
+  PACKAGE libLAS)
 
 set(classes
   vtkLASReader)
@@ -8,7 +9,8 @@ vtk_module_add_module(VTK::IOLAS
 
 set(liblas_boost_dependencies)
 if (libLAS_VERSION VERSION_LESS "1.8.2")
-  vtk_module_find_package(PACKAGE Boost
+  vtk_module_find_package(PRIVATE_IF_SHARED
+    PACKAGE Boost
     COMPONENTS program_options thread system iostreams filesystem
     FORWARD_VERSION_REQ EXACT
     VERSION_VAR         "@Boost_MAJOR_VERSION@.@Boost_MINOR_VERSION@.@Boost_SUBMINOR_VERSION@")
@@ -32,3 +34,4 @@ vtk_module_link(VTK::IOLAS
 vtk_module_include(VTK::IOLAS
   PRIVATE
     ${libLAS_INCLUDE_DIRS})
+vtk_add_test_mangling(VTK::IOLAS)

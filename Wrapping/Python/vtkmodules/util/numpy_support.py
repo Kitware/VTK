@@ -49,12 +49,11 @@ elif VTK_LONG_TYPE_SIZE == 8:
 def get_vtk_array_type(numpy_array_type):
     """Returns a VTK typecode given a numpy array."""
     # This is a Mapping from numpy array types to VTK array types.
-    _np_vtk = {numpy.character:vtkConstants.VTK_UNSIGNED_CHAR,
-                numpy.uint8:vtkConstants.VTK_UNSIGNED_CHAR,
+    _np_vtk = {numpy.uint8:vtkConstants.VTK_UNSIGNED_CHAR,
                 numpy.uint16:vtkConstants.VTK_UNSIGNED_SHORT,
                 numpy.uint32:vtkConstants.VTK_UNSIGNED_INT,
                 numpy.uint64:vtkConstants.VTK_UNSIGNED_LONG_LONG,
-                numpy.int8:vtkConstants.VTK_CHAR,
+                numpy.int8:vtkConstants.VTK_SIGNED_CHAR,
                 numpy.int16:vtkConstants.VTK_SHORT,
                 numpy.int32:vtkConstants.VTK_INT,
                 numpy.int64:vtkConstants.VTK_LONG_LONG,
@@ -72,7 +71,7 @@ def get_vtk_array_type(numpy_array_type):
 
 def get_vtk_to_numpy_typemap():
     """Returns the VTK array type to numpy array type mapping."""
-    _vtk_np = {vtkConstants.VTK_BIT:numpy.bool,
+    _vtk_np = {vtkConstants.VTK_BIT:numpy.uint8, # conversion not implemented
                 vtkConstants.VTK_CHAR:numpy.int8,
                 vtkConstants.VTK_SIGNED_CHAR:numpy.int8,
                 vtkConstants.VTK_UNSIGNED_CHAR:numpy.uint8,

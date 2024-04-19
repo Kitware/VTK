@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_ANALYSIS_GENERIC_HPP
@@ -7,7 +7,6 @@
 #include "../config.hpp"
 
 #include "grammar_info.hpp"
-#include "insert_rules.hpp"
 #include "rule_type.hpp"
 
 namespace tao
@@ -24,7 +23,12 @@ namespace tao
             {
                const auto r = g.insert< Name >( Type );
                if( r.second ) {
-                  insert_rules< Rules... >::insert( g, r.first->second );
+#ifdef __cpp_fold_expressions
+                  ( r.first->second.rules.push_back( Rules::analyze_t::template insert< Rules >( g ) ), ... );
+#else
+                  using swallow = bool[];
+                  (void)swallow{ ( r.first->second.rules.push_back( Rules::analyze_t::template insert< Rules >( g ) ), true )..., true };
+#endif
                }
                return r.first->first;
             }

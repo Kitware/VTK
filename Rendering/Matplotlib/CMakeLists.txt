@@ -17,3 +17,4 @@ vtk_module_add_module(VTK::RenderingMatplotlib
 set_property(GLOBAL APPEND
   PROPERTY
     vtk_required_python_modules "matplotlib>=2.0.0")
+vtk_add_test_mangling(VTK::RenderingMatplotlib)

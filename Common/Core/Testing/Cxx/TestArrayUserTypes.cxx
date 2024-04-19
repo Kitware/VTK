@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    ArrayUserTypes.cxx
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include <vtkDenseArray.h>
 #include <vtkSmartPointer.h>
@@ -27,59 +10,58 @@
 #include <sstream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-  { \
-    std::ostringstream buffer; \
-    buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw std::runtime_error(buffer.str()); \
-  } \
-}
+#define test_expression(expression)                                                                \
+  do                                                                                               \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+    {                                                                                              \
+      std::ostringstream buffer;                                                                   \
+      buffer << "Expression failed at line " << __LINE__ << ": " << #expression;                   \
+      throw std::runtime_error(buffer.str());                                                      \
+    }                                                                                              \
+  } while (false)
 
 class UserType
 {
 public:
-  UserType() :
-    Value("")
+  UserType() = default;
+
+  UserType(const std::string& value)
+    : Value(value)
   {
   }
 
-  UserType(const vtkStdString& value) :
-    Value(value)
-  {
-  }
+  bool operator==(const UserType& other) const { return this->Value == other.Value; }
 
-  bool operator==(const UserType& other) const
-  {
-    return this->Value == other.Value;
-  }
-
-  vtkStdString Value;
+  std::string Value;
 };
 
-template<>
+VTK_ABI_NAMESPACE_BEGIN
+
+template <>
 inline UserType vtkVariantCast<UserType>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
+  if (valid)
     *valid = true;
   return UserType(value.ToString());
 }
 
-template<>
+template <>
 inline vtkVariant vtkVariantCreate<UserType>(const UserType& value)
 {
   return vtkVariant(value.Value);
 }
+VTK_ABI_NAMESPACE_END
 
-int TestArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayUserTypes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
-    vtkSmartPointer<vtkDenseArray<UserType> > dense = vtkSmartPointer<vtkDenseArray<UserType> >::New();
+    vtkSmartPointer<vtkDenseArray<UserType>> dense =
+      vtkSmartPointer<vtkDenseArray<UserType>>::New();
     dense->Resize(3, 4);
     dense->Fill(UserType("red"));
-    for(vtkArray::SizeT n = 0; n != dense->GetNonNullSize(); ++n)
+    for (vtkArray::SizeT n = 0; n != dense->GetNonNullSize(); ++n)
     {
       test_expression(dense->GetValueN(n) == UserType("red"));
     }
@@ -91,7 +73,8 @@ int TestArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(dense->GetValue(1, 2) == UserType("puce"));
     test_expression(dense->GetVariantValue(1, 2) == vtkVariant("puce"));
 
-    vtkSmartPointer<vtkSparseArray<UserType> > sparse = vtkSmartPointer<vtkSparseArray<UserType> >::New();
+    vtkSmartPointer<vtkSparseArray<UserType>> sparse =
+      vtkSmartPointer<vtkSparseArray<UserType>>::New();
     sparse->Resize(3, 4);
     sparse->SetNullValue(UserType("blue"));
     test_expression(sparse->GetNullValue() == UserType("blue"));
@@ -109,7 +92,7 @@ int TestArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;

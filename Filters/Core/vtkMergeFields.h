@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMergeFields.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMergeFields
  * @brief   Merge multiple fields into one.
@@ -32,27 +20,28 @@
  * vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
  * vtkDataSetAttributes vtkDataArray vtkRearrangeFields
  * vtkSplitField vtkAssignAttribute
-*/
+ */
 
 #ifndef vtkMergeFields_h
 #define vtkMergeFields_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkFieldData;
 
 class VTKFILTERSCORE_EXPORT vtkMergeFields : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkMergeFields,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkMergeFields, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkMergeFields.
    */
-  static vtkMergeFields *New();
+  static vtkMergeFields* New();
 
   /**
    * The output field will have the given name and it will be in
@@ -72,20 +61,20 @@ public:
    */
   void Merge(int component, const char* arrayName, int sourceComp);
 
-  //@{
+  ///@{
   /**
    * Set the number of the components in the output field.
    * This has to be set before execution. Default value is 0.
    */
   vtkSetMacro(NumberOfComponents, int);
   vtkGetMacro(NumberOfComponents, int);
-  //@}
+  ///@}
 
   enum FieldLocations
   {
-    DATA_OBJECT=0,
-    POINT_DATA=1,
-    CELL_DATA=2
+    DATA_OBJECT = 0,
+    POINT_DATA = 1,
+    CELL_DATA = 2
   };
 
   struct Component
@@ -93,28 +82,27 @@ public:
     int Index;
     int SourceIndex;
     char* FieldName;
-    Component* Next;   // linked list
+    Component* Next; // linked list
     void SetName(const char* name)
     {
-        delete[] this->FieldName;
-        this->FieldName = nullptr;
-        if (name)
-        {
-          size_t len = strlen(name)+1;
-          this->FieldName = new char[len];
+      delete[] this->FieldName;
+      this->FieldName = nullptr;
+      if (name)
+      {
+        size_t len = strlen(name) + 1;
+        this->FieldName = new char[len];
 #ifdef _MSC_VER
-          strncpy_s(this->FieldName, len, name, len - 1);
+        strncpy_s(this->FieldName, len, name, len - 1);
 #else
-          strncpy(this->FieldName, name, len);
+        strncpy(this->FieldName, name, len);
 #endif
-        }
+      }
     }
     Component() { FieldName = nullptr; }
     ~Component() { delete[] FieldName; }
   };
 
 protected:
-
   enum FieldType
   {
     NAME,
@@ -124,7 +112,7 @@ protected:
   vtkMergeFields();
   ~vtkMergeFields() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* FieldName;
   int FieldLocation;
@@ -133,7 +121,6 @@ protected:
 
   static char FieldLocationNames[3][12];
 
-
   int MergeArray(vtkDataArray* in, vtkDataArray* out, int inComp, int outComp);
 
   // Components are stored as a linked list.
@@ -141,21 +128,19 @@ protected:
   Component* Tail;
 
   // Methods to browse/modify the linked list.
-  Component* GetNextComponent(Component* op)
-    { return op->Next; }
-  Component* GetFirst()
-    { return this->Head; }
+  Component* GetNextComponent(Component* op) { return op->Next; }
+  Component* GetFirst() { return this->Head; }
   void AddComponent(Component* op);
   Component* FindComponent(int index);
   void DeleteAllComponents();
 
   void PrintComponent(Component* op, ostream& os, vtkIndent indent);
   void PrintAllComponents(ostream& os, vtkIndent indent);
+
 private:
   vtkMergeFields(const vtkMergeFields&) = delete;
   void operator=(const vtkMergeFields&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

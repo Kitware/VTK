@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeDifferenceFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkTreeDifferenceFilter.h"
 
@@ -25,9 +13,10 @@
 #include "vtkStringArray.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeDifferenceFilter);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeDifferenceFilter::vtkTreeDifferenceFilter()
 {
   this->SetNumberOfInputPorts(2);
@@ -39,7 +28,7 @@ vtkTreeDifferenceFilter::vtkTreeDifferenceFilter()
   this->ComparisonArrayIsVertexData = false;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeDifferenceFilter::~vtkTreeDifferenceFilter()
 {
   // release memory
@@ -48,14 +37,14 @@ vtkTreeDifferenceFilter::~vtkTreeDifferenceFilter()
   this->SetOutputArrayName(nullptr);
 }
 
-//---------------------------------------------------------------------------
-int vtkTreeDifferenceFilter::FillInputPortInformation(int port, vtkInformation *info)
+//------------------------------------------------------------------------------
+int vtkTreeDifferenceFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if(port == 0)
+  if (port == 0)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTree");
   }
-  else if(port == 1)
+  else if (port == 1)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTree");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
@@ -64,29 +53,25 @@ int vtkTreeDifferenceFilter::FillInputPortInformation(int port, vtkInformation *
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTreeDifferenceFilter::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* tree1_info = inputVector[0]->GetInformationObject(0);
-  vtkTree* tree1 = vtkTree::SafeDownCast(
-    tree1_info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* tree1 = vtkTree::SafeDownCast(tree1_info->Get(vtkDataObject::DATA_OBJECT()));
 
   // Copy the structure into the output.
   vtkTree* outputTree = vtkTree::GetData(outputVector);
 
   vtkInformation* tree2_info = inputVector[1]->GetInformationObject(0);
-  if(!tree2_info)
+  if (!tree2_info)
   {
     // If no second tree provided, we're done
     outputTree->CheckedShallowCopy(tree1);
     return 0;
   }
 
-  vtkTree* tree2 = vtkTree::SafeDownCast(
-    tree2_info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* tree2 = vtkTree::SafeDownCast(tree2_info->Get(vtkDataObject::DATA_OBJECT()));
 
   if (this->IdArrayName != nullptr)
   {
@@ -110,12 +95,11 @@ int vtkTreeDifferenceFilter::RequestData(
     }
   }
 
-  vtkSmartPointer<vtkDoubleArray> resultArray =
-    this->ComputeDifference(tree1, tree2);
+  vtkSmartPointer<vtkDoubleArray> resultArray = this->ComputeDifference(tree1, tree2);
 
   if (!outputTree->CheckedShallowCopy(tree1))
   {
-    vtkErrorMacro(<<"Invalid tree structure.");
+    vtkErrorMacro(<< "Invalid tree structure.");
     return 0;
   }
 
@@ -131,8 +115,8 @@ int vtkTreeDifferenceFilter::RequestData(
   return 1;
 }
 
-//---------------------------------------------------------------------------
-bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree *tree1, vtkTree *tree2)
+//------------------------------------------------------------------------------
+bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree* tree1, vtkTree* tree2)
 {
   this->VertexMap.clear();
   this->VertexMap.assign(tree1->GetNumberOfVertices(), -1);
@@ -140,21 +124,21 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree *tree1, vtkTree *tree2)
   this->EdgeMap.clear();
   this->EdgeMap.assign(tree1->GetNumberOfEdges(), -1);
 
-  vtkStringArray *nodeNames1 = vtkArrayDownCast<vtkStringArray>(
-    tree1->GetVertexData()->GetAbstractArray(this->IdArrayName));
+  vtkStringArray* nodeNames1 =
+    vtkArrayDownCast<vtkStringArray>(tree1->GetVertexData()->GetAbstractArray(this->IdArrayName));
   if (nodeNames1 == nullptr)
   {
-    vtkErrorMacro("tree #1's VertexData does not have a vtkStringArray named "
-      << this->IdArrayName);
+    vtkErrorMacro(
+      "tree #1's VertexData does not have a vtkStringArray named " << this->IdArrayName);
     return false;
   }
 
-  vtkStringArray *nodeNames2 = vtkArrayDownCast<vtkStringArray>(
-    tree2->GetVertexData()->GetAbstractArray(this->IdArrayName));
+  vtkStringArray* nodeNames2 =
+    vtkArrayDownCast<vtkStringArray>(tree2->GetVertexData()->GetAbstractArray(this->IdArrayName));
   if (nodeNames2 == nullptr)
   {
-    vtkErrorMacro("tree #2's VertexData does not have a vtkStringArray named "
-      << this->IdArrayName);
+    vtkErrorMacro(
+      "tree #2's VertexData does not have a vtkStringArray named " << this->IdArrayName);
     return false;
   }
 
@@ -167,12 +151,11 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree *tree1, vtkTree *tree2)
 
   // iterate over the vertex names for tree #1, finding the corresponding
   // vertex in tree #2.
-  for (vtkIdType vertexItr = 0; vertexItr < nodeNames1->GetNumberOfTuples();
-       ++vertexItr)
+  for (vtkIdType vertexItr = 0; vertexItr < nodeNames1->GetNumberOfTuples(); ++vertexItr)
   {
     vtkIdType vertexId1 = vertexItr;
-    std::string nodeName = nodeNames1->GetValue(vertexId1);
-    if (nodeName.compare("") == 0)
+    vtkStdString nodeName = nodeNames1->GetValue(vertexId1);
+    if (nodeName.empty())
     {
       continue;
     }
@@ -197,8 +180,7 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree *tree1, vtkTree *tree2)
 
     // ascend the tree until we reach the root, mapping parent vertices to
     // each other along the way.
-    while (tree1->GetParent(vertexId1) != root1 &&
-           tree2->GetParent(vertexId2) != root2)
+    while (tree1->GetParent(vertexId1) != root1 && tree2->GetParent(vertexId2) != root2)
     {
       vertexId1 = tree1->GetParent(vertexId1);
       vertexId2 = tree2->GetParent(vertexId2);
@@ -215,9 +197,9 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree *tree1, vtkTree *tree2)
   return true;
 }
 
-//---------------------------------------------------------------------------
-vtkSmartPointer<vtkDoubleArray>
-vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDoubleArray> vtkTreeDifferenceFilter::ComputeDifference(
+  vtkTree* tree1, vtkTree* tree2)
 {
   if (this->ComparisonArrayName == nullptr)
   {
@@ -226,7 +208,7 @@ vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
   }
 
   vtkDataSetAttributes *treeData1, *treeData2;
-  const char *dataName;
+  const char* dataName;
   if (this->ComparisonArrayIsVertexData)
   {
     treeData1 = tree1->GetVertexData();
@@ -240,26 +222,23 @@ vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
     dataName = "EdgeData";
   }
 
-  vtkDataArray *arrayToCompare1 =
-    treeData1->GetArray(this->ComparisonArrayName);
+  vtkDataArray* arrayToCompare1 = treeData1->GetArray(this->ComparisonArrayName);
   if (arrayToCompare1 == nullptr)
   {
-    vtkErrorMacro("tree #1's " << dataName <<
-      " does not have a vtkDoubleArray named " << this->ComparisonArrayName);
+    vtkErrorMacro("tree #1's " << dataName << " does not have a vtkDoubleArray named "
+                               << this->ComparisonArrayName);
     return nullptr;
   }
 
-  vtkDataArray *arrayToCompare2 =
-    treeData2->GetArray(this->ComparisonArrayName);
+  vtkDataArray* arrayToCompare2 = treeData2->GetArray(this->ComparisonArrayName);
   if (arrayToCompare2 == nullptr)
   {
-    vtkErrorMacro("tree #2's " << dataName <<
-      " does not have a vtkDoubleArray named " << this->ComparisonArrayName);
+    vtkErrorMacro("tree #2's " << dataName << " does not have a vtkDoubleArray named "
+                               << this->ComparisonArrayName);
     return nullptr;
   }
 
-  vtkSmartPointer<vtkDoubleArray> resultArray =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> resultArray = vtkSmartPointer<vtkDoubleArray>::New();
   resultArray->SetNumberOfValues(arrayToCompare1->GetNumberOfTuples());
   resultArray->FillComponent(0, vtkMath::Nan());
 
@@ -273,8 +252,7 @@ vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
   }
 
   vtkIdType treeId2;
-  for (vtkIdType treeId1 = 0; treeId1 < arrayToCompare1->GetNumberOfTuples();
-       ++treeId1)
+  for (vtkIdType treeId1 = 0; treeId1 < arrayToCompare1->GetNumberOfTuples(); ++treeId1)
   {
     if (this->ComparisonArrayIsVertexData)
     {
@@ -284,22 +262,20 @@ vtkTreeDifferenceFilter::ComputeDifference(vtkTree *tree1, vtkTree *tree2)
     {
       treeId2 = this->EdgeMap[treeId1];
     }
-    double result =
-      arrayToCompare1->GetTuple1(treeId1) - arrayToCompare2->GetTuple1(treeId2);
+    double result = arrayToCompare1->GetTuple1(treeId1) - arrayToCompare2->GetTuple1(treeId2);
     resultArray->SetValue(treeId1, result);
   }
 
   return resultArray;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeDifferenceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   if (this->IdArrayName)
   {
-    os << indent << "IdArrayName: "
-       << this->IdArrayName << std::endl;
+    os << indent << "IdArrayName: " << this->IdArrayName << std::endl;
   }
   else
   {
@@ -308,8 +284,7 @@ void vtkTreeDifferenceFilter::PrintSelf(ostream& os, vtkIndent indent)
   }
   if (this->ComparisonArrayName)
   {
-    os << indent << "ComparisonArrayName: "
-       << this->ComparisonArrayName << std::endl;
+    os << indent << "ComparisonArrayName: " << this->ComparisonArrayName << std::endl;
   }
   else
   {
@@ -318,14 +293,13 @@ void vtkTreeDifferenceFilter::PrintSelf(ostream& os, vtkIndent indent)
   }
   if (this->OutputArrayName)
   {
-    os << indent << "OutputArrayName: "
-       << this->OutputArrayName << std::endl;
+    os << indent << "OutputArrayName: " << this->OutputArrayName << std::endl;
   }
   else
   {
     os << indent << "OutputArrayName: "
        << "(None)" << std::endl;
   }
-  os << indent << "ComparisonArrayIsVertexData: "
-     << this->ComparisonArrayIsVertexData << std::endl;
+  os << indent << "ComparisonArrayIsVertexData: " << this->ComparisonArrayIsVertexData << std::endl;
 }
+VTK_ABI_NAMESPACE_END

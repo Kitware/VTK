@@ -4,6 +4,10 @@ LIBRARY_NAME
   vtkDomainsMicroscopy
 DESCRIPTION
   File readers for microscopy file formats
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::IOImage
 PRIVATE_DEPENDS

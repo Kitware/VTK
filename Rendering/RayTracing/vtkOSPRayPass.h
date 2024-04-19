@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOSPRayPass.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOSPRayPass
  * @brief   a render pass that uses OSPRay instead of GL
@@ -32,16 +20,17 @@
  *    from source.
  *    'mpirun -ppn 1 -hosts localhost VTKOSPRAY_ARGS="-osp:mpi"
  *      ./paraview : -hosts n1, n2 ./ospray_mpi_worker -osp:mpi'
-*/
+ */
 
 #ifndef vtkOSPRayPass_h
 #define vtkOSPRayPass_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingRayTracingModule.h" // For export macro
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraPass;
 class vtkLightsPass;
 class vtkOSPRayPassInternals;
@@ -54,44 +43,49 @@ class vtkVolumetricPass;
 class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayPass : public vtkRenderPass
 {
 public:
-  static vtkOSPRayPass *New();
-  vtkTypeMacro(vtkOSPRayPass,vtkRenderPass);
+  static vtkOSPRayPass* New();
+  vtkTypeMacro(vtkOSPRayPass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state s.
    */
-  virtual void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
-  //@{
+  ///@{
   /**
    * Tells the pass what it will render.
    */
-  void SetSceneGraph(vtkOSPRayRendererNode *);
+  void SetSceneGraph(vtkOSPRayRendererNode*);
   vtkGetObjectMacro(SceneGraph, vtkOSPRayRendererNode);
-  //@}
+  ///@}
 
   /**
    * Called by the internals of this class
    */
-  virtual void RenderInternal(const vtkRenderState *s);
+  virtual void RenderInternal(const vtkRenderState* s);
 
-  //@{
+  ///@{
   /**
    * Wrapper around ospray's init and shutdown that protect
    * with a reference count.
    */
-  //@}
+  ///@}
   static void RTInit();
   static void RTShutdown();
+
+  /**
+   * A run time query to see if OSPRay can possibly work.
+   */
+  static bool IsSupported();
 
   /**
    * A run time query to see if a particular backend is available.
    * Eg. "OSPRay raycaster", "OSPRay pathtracer" or "OptiX pathtracer".
    */
-  static bool IsBackendAvailable(const char *name);
+  static bool IsBackendAvailable(const char* name);
 
- protected:
+protected:
   /**
    * Default constructor.
    */
@@ -100,23 +94,24 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkOSPRayPass();
+  ~vtkOSPRayPass() override;
 
-  vtkOSPRayRendererNode *SceneGraph;
-  vtkCameraPass *CameraPass;
-  vtkLightsPass *LightsPass;
-  vtkOverlayPass *OverlayPass;
-  vtkVolumetricPass *VolumetricPass;
-  vtkSequencePass *SequencePass;
-  vtkRenderPassCollection *RenderPassCollection;
+  vtkOSPRayRendererNode* SceneGraph;
+  vtkCameraPass* CameraPass;
+  vtkLightsPass* LightsPass;
+  vtkOverlayPass* OverlayPass;
+  vtkVolumetricPass* VolumetricPass;
+  vtkSequencePass* SequencePass;
+  vtkRenderPassCollection* RenderPassCollection;
 
- private:
+private:
   vtkOSPRayPass(const vtkOSPRayPass&) = delete;
   void operator=(const vtkOSPRayPass&) = delete;
 
-  vtkOSPRayPassInternals *Internal;
+  vtkOSPRayPassInternals* Internal;
   std::string PreviousType;
   static int RTDeviceRefCount;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

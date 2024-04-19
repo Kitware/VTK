@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWin32ProcessOutputWindow.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWin32ProcessOutputWindow
  * @brief   Win32-specific output window class
@@ -20,7 +8,7 @@
  * to its standard input pipe.  This is useful to have a separate
  * process display VTK errors so that if a VTK application crashes,
  * the error messages are still available.
-*/
+ */
 
 #ifndef vtkWin32ProcessOutputWindow_h
 #define vtkWin32ProcessOutputWindow_h
@@ -28,10 +16,11 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkWin32ProcessOutputWindow : public vtkOutputWindow
 {
 public:
-  vtkTypeMacro(vtkWin32ProcessOutputWindow,vtkOutputWindow);
+  vtkTypeMacro(vtkWin32ProcessOutputWindow, vtkOutputWindow);
   static vtkWin32ProcessOutputWindow* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -55,9 +44,11 @@ protected:
 
   // Count the number of times a new child has been initialized.
   unsigned int Count;
+
 private:
   vtkWin32ProcessOutputWindow(const vtkWin32ProcessOutputWindow&) = delete;
   void operator=(const vtkWin32ProcessOutputWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

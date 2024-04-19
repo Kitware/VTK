@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridEntry.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHyperTreeGridEntry
  * @brief   Entries are cache data for cursors
@@ -64,10 +52,9 @@
 #ifndef vtkHyperTreeGridEntry_h
 #define vtkHyperTreeGridEntry_h
 
-#ifndef __VTK_WRAP__
-
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 
@@ -77,26 +64,25 @@ public:
   /**
    * Display info about the entry
    */
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
    * Dump information
    */
-  void Dump( ostream& os );
+  void Dump(ostream& os);
 
   /**
    * Constructor
    */
-  vtkHyperTreeGridEntry() {
-    this->Index = 0;
-  }
+  vtkHyperTreeGridEntry() { this->Index = 0; }
+
+  vtkHyperTreeGridEntry(vtkHyperTreeGridEntry const&) = default;
+  vtkHyperTreeGridEntry& operator=(vtkHyperTreeGridEntry const&) = default;
 
   /**
    * Constructor
    */
-  vtkHyperTreeGridEntry( vtkIdType index ) {
-    this->Index = index;
-  }
+  vtkHyperTreeGridEntry(vtkIdType index) { this->Index = index; }
 
   /**
    * Destructor
@@ -106,77 +92,59 @@ public:
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  vtkHyperTree* Initialize(
-    vtkHyperTreeGrid* grid,
-    vtkIdType treeIndex,
-    bool create = false
-  );
+  vtkHyperTree* Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false);
 
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize( vtkIdType index ) {
-    this->Index = index;
-  }
+  void Initialize(vtkIdType index) { this->Index = index; }
 
   /**
    * Copy function
    */
-  void Copy( const vtkHyperTreeGridEntry* entry) {
-    this->Index = entry->Index;
-  }
+  void Copy(const vtkHyperTreeGridEntry* entry) { this->Index = entry->Index; }
 
   /**
    * Return the index of the current vertex in the tree.
    */
-  vtkIdType GetVertexId() const {
-    return this->Index;
-  }
+  vtkIdType GetVertexId() const { return this->Index; }
 
   /**
    * Return the global index for the current cell (cf. vtkHyperTree).
    * \pre not_tree: tree
    */
-  vtkIdType GetGlobalNodeIndex( const vtkHyperTree* tree ) const;
+  vtkIdType GetGlobalNodeIndex(const vtkHyperTree* tree) const;
 
   /**
    * Set the global index for the root cell of the HyperTree.
    * \pre not_tree: tree
    */
-  void SetGlobalIndexStart( vtkHyperTree* tree, vtkIdType index );
+  void SetGlobalIndexStart(vtkHyperTree* tree, vtkIdType index);
 
   /**
    * Set the global index for the current cell of the HyperTree.
    * \pre not_tree: tree
    */
-  void SetGlobalIndexFromLocal( vtkHyperTree* tree, vtkIdType index );
+  void SetGlobalIndexFromLocal(vtkHyperTree* tree, vtkIdType index);
 
   /**
    * Set the blanking mask is empty or not
    * \pre not_tree: tree
    */
-  void SetMask(
-    const vtkHyperTreeGrid* grid,
-    const vtkHyperTree* tree,
-    bool state );
+  void SetMask(const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, bool state);
 
   /**
    * Determine whether blanking mask is empty or not
    * \pre not_tree: tree
    */
-  bool IsMasked(
-    const vtkHyperTreeGrid* grid,
-    const vtkHyperTree* tree ) const;
+  bool IsMasked(const vtkHyperTreeGrid* grid, const vtkHyperTree* tree) const;
 
   /**
    * Is the cursor pointing to a leaf?
    * \pre not_tree: tree
    * Return true if level == grid->GetDepthLimiter()
    */
-  bool IsLeaf(
-      const vtkHyperTreeGrid* grid,
-      const vtkHyperTree* tree,
-      unsigned int level ) const;
+  bool IsLeaf(const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level) const;
 
   /**
    * Change the current cell's status: if leaf then becomes coarse and
@@ -185,26 +153,19 @@ public:
    * \pre depth_limiter: level == grid->GetDepthLimiter()
    * \pre is_masked: IsMasked
    */
-  void SubdivideLeaf(
-      const vtkHyperTreeGrid* grid,
-      vtkHyperTree* tree,
-      unsigned int level );
+  void SubdivideLeaf(const vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level);
 
   /**
-   * Is the cursor pointing to a coarse with all childrens being leaves?
+   * Is the cursor pointing to a coarse with all children being leaves?
    * \pre not_tree: tree
    */
   bool IsTerminalNode(
-    const vtkHyperTreeGrid* grid,
-    const vtkHyperTree* tree,
-    unsigned int level ) const;
+    const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level) const;
 
   /**
    * Is the cursor at HyperTree root?
    */
-  bool IsRoot() const {
-    return ( this->Index == 0 );
-  }
+  bool IsRoot() const { return (this->Index == 0); }
 
   /**
    * Move the cursor to i-th child of the current cell.
@@ -214,22 +175,16 @@ public:
    * \pre depth_limiter: level == grid->GetDepthLimiter()
    * \pre is_masked: !IsMasked()
    */
-  void ToChild(
-    const vtkHyperTreeGrid* grid,
-    const vtkHyperTree* tree,
-    unsigned int level,
-    unsigned char ichild
-  );
+  void ToChild(const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level,
+    unsigned char ichild);
 
 protected:
-
   /**
    * index of the current cell in the HyperTree.
    */
   vtkIdType Index;
 };
 
-#endif// __VTK_WRAP__
-
-#endif// vtkHyperTreeGridEntry_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkHyperTreeGridEntry_h
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridEntry.h

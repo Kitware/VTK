@@ -1,25 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXdmf3SILBuilder.cxx
-  Language:  C++
-
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkXdmf3SILBuilder.h"
 
 #include "vtkDataSetAttributes.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkMutableDirectedGraph.h"
 
 // As soon as num-grids (sub-grids and all) grows beyond this number, we assume
 // that the grids are too numerous for the user to select individually and
@@ -27,6 +14,7 @@
 #define MAX_COLLECTABLE_NUMBER_OF_GRIDS 1000
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXdmf3SILBuilder::vtkXdmf3SILBuilder()
 {
   this->SIL = nullptr;
@@ -139,3 +127,4 @@ bool vtkXdmf3SILBuilder::IsMaxedOut()
 {
   return (this->VertexCount >= MAX_COLLECTABLE_NUMBER_OF_GRIDS);
 }
+VTK_ABI_NAMESPACE_END

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLabelHierarchyCompositeIterator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkLabelHierarchyCompositeIterator.h"
 
@@ -26,12 +10,13 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLabelHierarchyCompositeIterator);
 
 class vtkLabelHierarchyCompositeIterator::Internal
 {
 public:
-  typedef std::vector<std::pair<vtkSmartPointer<vtkLabelHierarchyIterator>, int> > IteratorVector;
+  typedef std::vector<std::pair<vtkSmartPointer<vtkLabelHierarchyIterator>, int>> IteratorVector;
   IteratorVector Iterators;
   IteratorVector::size_type CurrentIterator;
   IteratorVector::size_type InitialTraversal;
@@ -53,8 +38,8 @@ vtkLabelHierarchyCompositeIterator::~vtkLabelHierarchyCompositeIterator()
 
 void vtkLabelHierarchyCompositeIterator::AddIterator(vtkLabelHierarchyIterator* it, int count)
 {
-  this->Implementation->Iterators.push_back(
-    std::make_pair(vtkSmartPointer<vtkLabelHierarchyIterator>(it), count));
+  this->Implementation->Iterators.emplace_back(
+    vtkSmartPointer<vtkLabelHierarchyIterator>(it), count);
 }
 
 void vtkLabelHierarchyCompositeIterator::ClearIterators()
@@ -87,7 +72,7 @@ void vtkLabelHierarchyCompositeIterator::Begin(vtkIdTypeArray* list)
   // Find a non-empty iterator to start at if it exists.
   // If not, CurrentIterator will be past the end of the array, signaling IsAtEnd.
   while (this->Implementation->CurrentIterator < this->Implementation->Iterators.size() &&
-         this->Implementation->Iterators[this->Implementation->CurrentIterator].first->IsAtEnd())
+    this->Implementation->Iterators[this->Implementation->CurrentIterator].first->IsAtEnd())
   {
     this->Implementation->CurrentIterator++;
   }
@@ -97,12 +82,15 @@ void vtkLabelHierarchyCompositeIterator::Next()
 {
   Internal::IteratorVector::size_type numIterators = this->Implementation->Iterators.size();
   Internal::IteratorVector::size_type numTried = 0;
-  vtkLabelHierarchyIterator* iter = this->Implementation->Iterators[this->Implementation->CurrentIterator].first;
+  vtkLabelHierarchyIterator* iter =
+    this->Implementation->Iterators[this->Implementation->CurrentIterator].first;
   int count = this->Implementation->Iterators[this->Implementation->CurrentIterator].second;
-  while (numTried <= numIterators && (iter->IsAtEnd() || this->Implementation->CurrentCount >= count))
+  while (
+    numTried <= numIterators && (iter->IsAtEnd() || this->Implementation->CurrentCount >= count))
   {
     this->Implementation->CurrentCount = 0;
-    this->Implementation->CurrentIterator = (this->Implementation->CurrentIterator + 1) % numIterators;
+    this->Implementation->CurrentIterator =
+      (this->Implementation->CurrentIterator + 1) % numIterators;
     iter = this->Implementation->Iterators[this->Implementation->CurrentIterator].first;
     count = this->Implementation->Iterators[this->Implementation->CurrentIterator].second;
     if (!iter->IsAtEnd())
@@ -136,7 +124,8 @@ vtkIdType vtkLabelHierarchyCompositeIterator::GetLabelId()
 {
   if (this->Implementation->CurrentIterator < this->Implementation->Iterators.size())
   {
-    return this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetLabelId();
+    return this->Implementation->Iterators[this->Implementation->CurrentIterator]
+      .first->GetLabelId();
   }
   return -1;
 }
@@ -145,7 +134,8 @@ vtkLabelHierarchy* vtkLabelHierarchyCompositeIterator::GetHierarchy()
 {
   if (this->Implementation->CurrentIterator < this->Implementation->Iterators.size())
   {
-    return this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetHierarchy();
+    return this->Implementation->Iterators[this->Implementation->CurrentIterator]
+      .first->GetHierarchy();
   }
   return nullptr;
 }
@@ -154,11 +144,13 @@ void vtkLabelHierarchyCompositeIterator::GetNodeGeometry(double ctr[3], double& 
 {
   if (this->Implementation->CurrentIterator < this->Implementation->Iterators.size())
   {
-    this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetNodeGeometry(ctr, size);
+    this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetNodeGeometry(
+      ctr, size);
   }
 }
 
-void vtkLabelHierarchyCompositeIterator::PrintSelf( ostream& os, vtkIndent indent )
+void vtkLabelHierarchyCompositeIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

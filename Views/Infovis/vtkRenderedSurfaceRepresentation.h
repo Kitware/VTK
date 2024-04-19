@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderedSurfaceRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkRenderedSurfaceRepresentation
  * @brief   Displays a geometric dataset as a surface.
@@ -26,14 +10,15 @@
  * The representation uses a vtkGeometryFilter to convert the dataset to
  * polygonal data (e.g. volumetric data is converted to its external surface).
  * The representation may then be added to vtkRenderView.
-*/
+ */
 
 #ifndef vtkRenderedSurfaceRepresentation_h
 #define vtkRenderedSurfaceRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkAlgorithmOutput;
 class vtkApplyColors;
@@ -49,7 +34,7 @@ class vtkView;
 class VTKVIEWSINFOVIS_EXPORT vtkRenderedSurfaceRepresentation : public vtkRenderedRepresentation
 {
 public:
-  static vtkRenderedSurfaceRepresentation *New();
+  static vtkRenderedSurfaceRepresentation* New();
   vtkTypeMacro(vtkRenderedSurfaceRepresentation, vtkRenderedRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -57,8 +42,7 @@ public:
    * Sets the color array name
    */
   virtual void SetCellColorArrayName(const char* arrayName);
-  virtual const char* GetCellColorArrayName()
-    { return this->GetCellColorArrayNameInternal(); }
+  virtual const char* GetCellColorArrayName() { return this->GetCellColorArrayNameInternal(); }
 
   /**
    * Apply a theme to this representation.
@@ -72,9 +56,7 @@ protected:
   /**
    * Sets the input pipeline connection to this representation.
    */
-  int RequestData(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   /**
@@ -101,16 +83,16 @@ protected:
    */
   vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection) override;
 
-  //@{
+  ///@{
   /**
    * Internal pipeline objects.
    */
-  vtkTransformFilter*   TransformFilter;
-  vtkApplyColors*       ApplyColors;
-  vtkGeometryFilter*    GeometryFilter;
-  vtkPolyDataMapper*    Mapper;
-  vtkActor*             Actor;
-  //@}
+  vtkTransformFilter* TransformFilter;
+  vtkApplyColors* ApplyColors;
+  vtkGeometryFilter* GeometryFilter;
+  vtkPolyDataMapper* Mapper;
+  vtkActor* Actor;
+  ///@}
 
   vtkGetStringMacro(CellColorArrayNameInternal);
   vtkSetStringMacro(CellColorArrayNameInternal);
@@ -121,4 +103,5 @@ private:
   void operator=(const vtkRenderedSurfaceRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

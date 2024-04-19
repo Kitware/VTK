@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProbabilisticVoronoiKernel.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkProbabilisticVoronoiKernel
  * @brief   interpolate from the weighted closest point
@@ -31,7 +19,7 @@
  *
  * @sa
  * vtkInterpolationKernel vtkGeneralizedKernel vtkVoronoiKernel
-*/
+ */
 
 #ifndef vtkProbabilisticVoronoiKernel_h
 #define vtkProbabilisticVoronoiKernel_h
@@ -39,21 +27,21 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkGeneralizedKernel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
-
 
 class VTKFILTERSPOINTS_EXPORT vtkProbabilisticVoronoiKernel : public vtkGeneralizedKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkProbabilisticVoronoiKernel *New();
-  vtkTypeMacro(vtkProbabilisticVoronoiKernel,vtkGeneralizedKernel);
+  static vtkProbabilisticVoronoiKernel* New();
+  vtkTypeMacro(vtkProbabilisticVoronoiKernel, vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   // Re-use any superclass signatures that we don't override.
   using vtkGeneralizedKernel::ComputeWeights;
@@ -72,8 +60,8 @@ public:
    * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
-  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
+  vtkIdType ComputeWeights(
+    double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights) override;
 
 protected:
   vtkProbabilisticVoronoiKernel();
@@ -84,4 +72,5 @@ private:
   void operator=(const vtkProbabilisticVoronoiKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

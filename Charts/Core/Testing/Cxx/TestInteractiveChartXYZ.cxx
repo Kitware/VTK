@@ -1,34 +1,22 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestChartXYZ.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkChartXYZ.h"
 #include "vtkContextMouseEvent.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
 #include "vtkPlotPoints3D.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTable.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 
-int TestInteractiveChartXYZ(int , char * [])
+int TestInteractiveChartXYZ(int, char*[])
 {
   // Now the chart
   vtkNew<vtkChartXYZ> chart;
@@ -54,7 +42,7 @@ int TestInteractiveChartXYZ(int , char * [])
   table->AddColumn(arrColor);
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -75,39 +63,39 @@ int TestInteractiveChartXYZ(int , char * [])
 
   vtkContextMouseEvent mouseEvent;
   mouseEvent.SetInteractor(view->GetInteractor());
-  vtkVector2i pos;
-  vtkVector2i lastPos;
+  vtkVector2f pos;
+  vtkVector2f lastPos;
 
   // rotate
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
   lastPos.Set(114, 55);
-  mouseEvent.SetLastScreenPos(lastPos);
+  mouseEvent.SetLastScenePos(lastPos);
   pos.Set(174, 121);
-  mouseEvent.SetScreenPos(pos);
+  mouseEvent.SetScenePos(pos);
 
   vtkVector2d sP(pos.Cast<double>().GetData());
   vtkVector2d lSP(lastPos.Cast<double>().GetData());
 
-  vtkVector2d screenPos(mouseEvent.GetScreenPos().Cast<double>().GetData());
-  vtkVector2d lastScreenPos(mouseEvent.GetLastScreenPos().Cast<double>().GetData());
+  vtkVector2d scenePos(mouseEvent.GetScenePos().Cast<double>().GetData());
+  vtkVector2d lastScenePos(mouseEvent.GetLastScenePos().Cast<double>().GetData());
   chart->MouseMoveEvent(mouseEvent);
 
   // spin
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
   mouseEvent.GetInteractor()->SetShiftKey(1);
   lastPos.Set(0, 0);
-  mouseEvent.SetLastScreenPos(lastPos);
+  mouseEvent.SetLastScenePos(lastPos);
   pos.Set(10, 10);
-  mouseEvent.SetScreenPos(pos);
+  mouseEvent.SetScenePos(pos);
   chart->MouseMoveEvent(mouseEvent);
 
   // zoom
   mouseEvent.SetButton(vtkContextMouseEvent::RIGHT_BUTTON);
   mouseEvent.GetInteractor()->SetShiftKey(0);
   lastPos.Set(0, 0);
-  mouseEvent.SetLastScreenPos(lastPos);
+  mouseEvent.SetLastScenePos(lastPos);
   pos.Set(0, 10);
-  mouseEvent.SetScreenPos(pos);
+  mouseEvent.SetScenePos(pos);
   chart->MouseMoveEvent(mouseEvent);
 
   // mouse wheel zoom
@@ -117,9 +105,9 @@ int TestInteractiveChartXYZ(int , char * [])
   mouseEvent.SetButton(vtkContextMouseEvent::RIGHT_BUTTON);
   mouseEvent.GetInteractor()->SetShiftKey(1);
   lastPos.Set(10, 10);
-  mouseEvent.SetLastScreenPos(lastPos);
+  mouseEvent.SetLastScenePos(lastPos);
   pos.Set(0, 0);
-  mouseEvent.SetScreenPos(pos);
+  mouseEvent.SetScenePos(pos);
   chart->MouseMoveEvent(mouseEvent);
 
   // remove colors

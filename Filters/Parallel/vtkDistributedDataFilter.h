@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDistributedDataFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkDistributedDataFilter
@@ -30,37 +15,37 @@
  * builds.
  *
  * @sa vtkPDistributedDataFilter
-*/
+ */
 
 #ifndef vtkDistributedDataFilter_h
 #define vtkDistributedDataFilter_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 #include <vector> // for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBSPCuts;
 class vtkMultiProcessController;
 class vtkPKdTree;
 
-class VTKFILTERSPARALLEL_EXPORT vtkDistributedDataFilter: public vtkDataObjectAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkDistributedDataFilter : public vtkDataObjectAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDistributedDataFilter,
-    vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkDistributedDataFilter, vtkDataObjectAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkDistributedDataFilter *New();
+  static vtkDistributedDataFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the communicator object
    */
-  void SetController(vtkMultiProcessController *c);
+  void SetController(vtkMultiProcessController* c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   /**
    * Get a pointer to the parallel k-d tree object.  Required for changing
@@ -72,7 +57,7 @@ public:
    * you want it to re-execute.
    */
 
-  vtkPKdTree *GetKdtree();
+  vtkPKdTree* GetKdtree();
 
   /**
    * When this filter executes, it creates a vtkPKdTree (K-d tree)
@@ -120,32 +105,37 @@ public:
   vtkGetMacro(ClipCells, int);
   vtkSetMacro(ClipCells, int);
 
-  enum BoundaryModes {
-    ASSIGN_TO_ONE_REGION=0,
-    ASSIGN_TO_ALL_INTERSECTING_REGIONS=1,
-    SPLIT_BOUNDARY_CELLS=2
+  enum BoundaryModes
+  {
+    ASSIGN_TO_ONE_REGION = 0,
+    ASSIGN_TO_ALL_INTERSECTING_REGIONS = 1,
+    SPLIT_BOUNDARY_CELLS = 2
   };
 
-  //@{
+  ///@{
   /**
    * Handling of ClipCells and IncludeAllIntersectingCells.
    */
   void SetBoundaryMode(int mode);
   void SetBoundaryModeToAssignToOneRegion()
-    { this->SetBoundaryMode(vtkDistributedDataFilter::ASSIGN_TO_ONE_REGION); }
+  {
+    this->SetBoundaryMode(vtkDistributedDataFilter::ASSIGN_TO_ONE_REGION);
+  }
   void SetBoundaryModeToAssignToAllIntersectingRegions()
-  { this->SetBoundaryMode(
-      vtkDistributedDataFilter::ASSIGN_TO_ALL_INTERSECTING_REGIONS);
+  {
+    this->SetBoundaryMode(vtkDistributedDataFilter::ASSIGN_TO_ALL_INTERSECTING_REGIONS);
   }
   void SetBoundaryModeToSplitBoundaryCells()
-    { this->SetBoundaryMode(vtkDistributedDataFilter::SPLIT_BOUNDARY_CELLS); }
+  {
+    this->SetBoundaryMode(vtkDistributedDataFilter::SPLIT_BOUNDARY_CELLS);
+  }
   int GetBoundaryMode();
-  //@}
+  ///@}
 
   /**
    * Ensure previous filters don't send up ghost cells
    */
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * This class does a great deal of all-to-all communication
@@ -165,8 +155,8 @@ public:
    * The minimum number of ghost levels to add to each processor's output. If
    * the pipeline also requests ghost levels, the larger value will be used.
    */
-  vtkGetMacro(MinimumGhostLevel, int)
-  vtkSetMacro(MinimumGhostLevel, int)
+  vtkGetMacro(MinimumGhostLevel, int);
+  vtkSetMacro(MinimumGhostLevel, int);
 
   /**
    * Turn on collection of timing data
@@ -188,7 +178,7 @@ public:
 
    * D3Object2->SetCuts(cuts)
    */
-  vtkBSPCuts* GetCuts() {return this->UserCuts;}
+  vtkBSPCuts* GetCuts() { return this->UserCuts; }
   void SetCuts(vtkBSPCuts* cuts);
 
   /**
@@ -200,7 +190,7 @@ public:
    * the arguments. Calling SetUserRegionAssignments(nullptr, 0) will revert to
    * default behavior i.e. letting the KdTree come up with the assignments.
    */
-  void SetUserRegionAssignments(const int *map, int numRegions);
+  void SetUserRegionAssignments(const int* map, int numRegions);
 
 protected:
   vtkDistributedDataFilter();
@@ -209,32 +199,28 @@ protected:
   /**
    * Build a vtkUnstructuredGrid to store the input.
    */
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  virtual int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Overridden to create the correct type of data output. If input is dataset,
    * output is vtkUnstructuredGrid. If input is composite dataset, output is
    * vtkMultiBlockDataSet.
    */
-  virtual int RequestDataObject(vtkInformation*,
-                                vtkInformationVector**,
-                                vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkPKdTree *Kdtree;
-  vtkMultiProcessController *Controller;
+  vtkPKdTree* Kdtree;
+  vtkMultiProcessController* Controller;
 
   int NumProcesses;
   int MyId;
 
-  int *Target;
-  int *Source;
+  int* Target;
+  int* Source;
 
   int NumConvexSubRegions;
-  double *ConvexSubRegionBounds;
+  double* ConvexSubRegionBounds;
 
   // User-adjustable minimum number of ghost levels.
   int MinimumGhostLevel;
@@ -261,4 +247,5 @@ private:
   vtkDistributedDataFilter(const vtkDistributedDataFilter&) = delete;
   void operator=(const vtkDistributedDataFilter&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

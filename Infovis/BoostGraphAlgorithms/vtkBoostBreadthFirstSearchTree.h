@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBoostBreadthFirstSearchTree.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkBoostBreadthFirstSearchTree
  * @brief   Constructs a BFS tree from a graph
@@ -31,21 +15,22 @@
  *
  * @sa
  * vtkGraph vtkBoostGraphAdapter
-*/
+ */
 
 #ifndef vtkBoostBreadthFirstSearchTree_h
 #define vtkBoostBreadthFirstSearchTree_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
-#include "vtkStdString.h" // For string type
-#include "vtkVariant.h" // For variant type
+#include "vtkStdString.h"                         // For string type
+#include "vtkVariant.h"                           // For variant type
 
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBreadthFirstSearchTree : public vtkTreeAlgorithm
 {
 public:
-  static vtkBoostBreadthFirstSearchTree *New();
+  static vtkBoostBreadthFirstSearchTree* New();
   vtkTypeMacro(vtkBoostBreadthFirstSearchTree, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -64,7 +49,7 @@ public:
    */
   void SetOriginVertex(vtkStdString arrayName, vtkVariant value);
 
-  //@{
+  ///@{
   /**
    * Stores the graph vertex ids for the tree vertices in an array
    * named "GraphVertexId".  Default is off.
@@ -72,27 +57,26 @@ public:
   vtkSetMacro(CreateGraphVertexIdArray, bool);
   vtkGetMacro(CreateGraphVertexIdArray, bool);
   vtkBooleanMacro(CreateGraphVertexIdArray, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on this option to reverse the edges in the graph.
    */
   vtkSetMacro(ReverseEdges, bool);
   vtkGetMacro(ReverseEdges, bool);
   vtkBooleanMacro(ReverseEdges, bool);
-  //@}
+  ///@}
 
 protected:
   vtkBoostBreadthFirstSearchTree();
-  ~vtkBoostBreadthFirstSearchTree();
+  ~vtkBoostBreadthFirstSearchTree() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-
   vtkIdType OriginVertexIndex;
   char* ArrayName;
   vtkVariant OriginValue;
@@ -100,22 +84,22 @@ private:
   bool CreateGraphVertexIdArray;
   bool ReverseEdges;
 
-  //@{
+  ///@{
   /**
    * Using the convenience function for set strings internally
    */
   vtkSetStringMacro(ArrayName);
-  //@}
+  ///@}
 
   /**
    * This method is basically a helper function to find
    * the index of a specific value within a specific array
    */
-  vtkIdType GetVertexIndex(
-    vtkAbstractArray *abstract,vtkVariant value);
+  vtkIdType GetVertexIndex(vtkAbstractArray* abstract, vtkVariant value);
 
   vtkBoostBreadthFirstSearchTree(const vtkBoostBreadthFirstSearchTree&) = delete;
   void operator=(const vtkBoostBreadthFirstSearchTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

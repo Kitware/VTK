@@ -5,9 +5,9 @@
 #ifndef _H5PART_TYPES_H_
 #define _H5PART_TYPES_H_
 
-#ifdef   WIN32
+#ifdef   _WIN32
 typedef __int64			int64_t;
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
 typedef int64_t			h5part_int64_t;
 typedef int			h5part_int32_t;
@@ -19,8 +19,10 @@ __attribute__ ((format (printf, 3, 4)))
 #endif
  ;
 
-#ifndef PARALLEL_IO
-typedef unsigned long		MPI_Comm;
+#if defined(PARALLEL_IO) || defined(H5_HAVE_PARALLEL)
+typedef MPI_Comm		H5_Comm;
+#else
+typedef unsigned long		H5_Comm;
 #endif
 
 #define H5PART_STEPNAME_LEN	64
@@ -36,8 +38,7 @@ struct H5BlockFile;
    It is created by H5PartOpenFile<xx>() and destroyed by
    H5PartCloseFile().  
 */
-VTKH5PART_EXPORT
-struct H5PartFile {
+struct VTKH5PART_EXPORT H5PartFile {
 	hid_t	file;
 	char	groupname_step[H5PART_STEPNAME_LEN];
 	int	stepno_width;
@@ -87,7 +88,7 @@ struct H5PartFile {
 	/**
 	   MPI communicator
 	*/
-	MPI_Comm comm;
+	H5_Comm comm;
 
 	int throttle;
 

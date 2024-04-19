@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2016-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_BUFFER_INPUT_HPP
@@ -157,7 +157,7 @@ namespace tao
             if( m_current.data + amount > m_buffer.get() + m_maximum ) {
                throw std::overflow_error( "require beyond end of buffer" );
             }
-            if( const auto r = m_reader( m_end, ( std::min )( buffer_free_after_end(), ( std::max )( amount, Chunk ) ) ) ) {
+            if( const auto r = m_reader( m_end, ( std::min )( buffer_free_after_end(), ( std::max )( amount - buffer_occupied(), Chunk ) ) ) ) {
                m_end += r;
             }
          }

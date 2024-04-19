@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMatrixToLinearTransform.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkMatrixToLinearTransform
@@ -24,7 +12,7 @@
  * the output of the filter.
  * @sa
  * vtkTransform vtkMatrix4x4 vtkMatrixToHomogeneousTransform
-*/
+ */
 
 #ifndef vtkMatrixToLinearTransform_h
 #define vtkMatrixToLinearTransform_h
@@ -32,23 +20,24 @@
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkLinearTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 
 class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
 {
- public:
-  static vtkMatrixToLinearTransform *New();
-  vtkTypeMacro(vtkMatrixToLinearTransform,vtkLinearTransform);
-  void PrintSelf (ostream& os, vtkIndent indent) override;
+public:
+  static vtkMatrixToLinearTransform* New();
+  vtkTypeMacro(vtkMatrixToLinearTransform, vtkLinearTransform);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the input matrix.  Any modifications to the matrix will be
    * reflected in the transformation.
    */
   virtual void SetInput(vtkMatrix4x4*);
-  vtkGetObjectMacro(Input,vtkMatrix4x4);
-  //@}
+  vtkGetObjectMacro(Input, vtkMatrix4x4);
+  ///@}
 
   /**
    * The input matrix is left as-is, but the transformation matrix
@@ -64,20 +53,22 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToLinearTransform : public vtkLinearTr
   /**
    * Make a new transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() override;
+  vtkAbstractTransform* MakeTransform() override;
 
 protected:
   vtkMatrixToLinearTransform();
   ~vtkMatrixToLinearTransform() override;
 
   void InternalUpdate() override;
-  void InternalDeepCopy(vtkAbstractTransform *transform) override;
+  void InternalDeepCopy(vtkAbstractTransform* transform) override;
 
-  int InverseFlag;
-  vtkMatrix4x4 *Input;
+  vtkTypeBool InverseFlag;
+  vtkMatrix4x4* Input;
+
 private:
   vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&) = delete;
   void operator=(const vtkMatrixToLinearTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

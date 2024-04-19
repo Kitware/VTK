@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPExtractExodusGlobalTemporalVariables.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkPExtractExodusGlobalTemporalVariables
  * @brief parallel version of vtkExtractExodusGlobalTemporalVariables.
@@ -32,6 +20,7 @@
 #include "vtkExtractExodusGlobalTemporalVariables.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPExtractExodusGlobalTemporalVariables
@@ -42,14 +31,14 @@ public:
   vtkTypeMacro(vtkPExtractExodusGlobalTemporalVariables, vtkExtractExodusGlobalTemporalVariables);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the controller to use. By default
    * `vtkMultiProcessController::GlobalController` will be used.
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 protected:
   vtkPExtractExodusGlobalTemporalVariables();
   ~vtkPExtractExodusGlobalTemporalVariables() override;
@@ -65,4 +54,5 @@ private:
   vtkMultiProcessController* Controller;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

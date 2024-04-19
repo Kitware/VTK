@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRectilinearGridReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkRectilinearGridReader
  * @brief   read vtk rectilinear grid data file
@@ -26,44 +14,42 @@
  * Binary files written on one system may not be readable on other systems.
  * @sa
  * vtkRectilinearGrid vtkDataReader
-*/
+ */
 
 #ifndef vtkRectilinearGridReader_h
 #define vtkRectilinearGridReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRectilinearGrid;
 
 class VTKIOLEGACY_EXPORT vtkRectilinearGridReader : public vtkDataReader
 {
 public:
-  static vtkRectilinearGridReader *New();
-  vtkTypeMacro(vtkRectilinearGridReader,vtkDataReader);
+  static vtkRectilinearGridReader* New();
+  vtkTypeMacro(vtkRectilinearGridReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get and set the output of this reader.
    */
-  vtkRectilinearGrid *GetOutput();
-  vtkRectilinearGrid *GetOutput(int idx);
-  void SetOutput(vtkRectilinearGrid *output);
-  //@}
+  vtkRectilinearGrid* GetOutput();
+  vtkRectilinearGrid* GetOutput(int idx);
+  void SetOutput(vtkRectilinearGrid* output);
+  ///@}
 
   /**
    * Read the meta information from the file (WHOLE_EXTENT).
    */
-  int ReadMetaDataSimple(const std::string& fname,
-                         vtkInformation *metadata) override;
+  int ReadMetaDataSimple(VTK_FILEPATH const std::string& fname, vtkInformation* metadata) override;
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
+  int ReadMeshSimple(VTK_FILEPATH const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkRectilinearGridReader();
@@ -76,4 +62,5 @@ private:
   void operator=(const vtkRectilinearGridReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

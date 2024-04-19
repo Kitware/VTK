@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestDataObjectTreeRange.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include <vtkDataObjectTreeIterator.h>
 #include <vtkDataObjectTreeRange.h>
@@ -22,13 +10,14 @@
 
 #include <algorithm>
 
-#define TEST_FAIL(msg) \
-  std::cerr << "Test failed! " msg << "\n"; \
+#define TEST_FAIL(msg)                                                                             \
+  std::cerr << "Test failed! " msg << "\n";                                                        \
   return false
 
-namespace {
+namespace
+{
 
-bool TestCopy(vtkDataObjectTree *src)
+bool TestCopy(vtkDataObjectTree* src)
 {
   // Clone dataset:
   auto dst = vtkSmartPointer<vtkDataObjectTree>::Take(src->NewInstance());
@@ -58,8 +47,7 @@ bool TestCopy(vtkDataObjectTree *src)
 }
 
 // Test that the for-range iterators behave the same as the regular iterators.
-bool TestConfig(vtkDataObjectTree *cds,
-                vtk::DataObjectTreeOptions opts)
+bool TestConfig(vtkDataObjectTree* cds, vtk::DataObjectTreeOptions opts)
 {
   using SmartIterator = vtkSmartPointer<vtkDataObjectTreeIterator>;
   using Opts = vtk::DataObjectTreeOptions;
@@ -69,7 +57,6 @@ bool TestConfig(vtkDataObjectTree *cds,
   refIter->SetVisitOnlyLeaves((opts & Opts::VisitOnlyLeaves) != Opts::None);
   refIter->SetTraverseSubTree((opts & Opts::TraverseSubTree) != Opts::None);
   refIter->InitTraversal();
-
 
   // ref is a vtk::CompositeDataSetNodeReference:
   for (auto node : vtk::Range(cds, opts))
@@ -138,8 +125,8 @@ bool TestConfig(vtkDataObjectTree *cds,
       // vtkDataObject pointer internally, so if the dataset changes, the
       // iterator will hold a stale value. Look up the data object in the
       // dataset instead. See VTK issue #17529.
-//      vtkDataObject *refDummy = refIter->GetCurrentDataObject();
-      vtkDataObject *refDummy = refIter->GetDataSet()->GetDataSet(refIter);
+      //      vtkDataObject *refDummy = refIter->GetCurrentDataObject();
+      vtkDataObject* refDummy = refIter->GetDataSet()->GetDataSet(refIter);
       node.SetDataObject(cache);
 
       if (refDummy != dummy)
@@ -170,8 +157,8 @@ bool TestConfig(vtkDataObjectTree *cds,
       // vtkDataObject pointer internally, so if the dataset changes, the
       // iterator will hold a stale value. Look up the data object in the
       // dataset instead. See VTK issue #17529.
-//      vtkDataObject *refDummy = refIter->GetCurrentDataObject();
-      vtkDataObject *refDummy = refIter->GetDataSet()->GetDataSet(refIter);
+      //      vtkDataObject *refDummy = refIter->GetCurrentDataObject();
+      vtkDataObject* refDummy = refIter->GetDataSet()->GetDataSet(refIter);
       node.SetDataObject(cache);
 
       if (refDummy != dummy)
@@ -204,7 +191,7 @@ bool TestConfig(vtkDataObjectTree *cds,
   return true;
 }
 
-bool TestOptions(vtkDataObjectTree *cds)
+bool TestOptions(vtkDataObjectTree* cds)
 {
   using Opts = vtk::DataObjectTreeOptions;
 
@@ -249,25 +236,21 @@ bool TestOptions(vtkDataObjectTree *cds)
 //
 vtkSmartPointer<vtkDataObjectTree> CreateDataSet()
 {
-  auto addPolyData = [](unsigned int blockNum, vtkMultiBlockDataSet *mbds)
-      -> vtkSmartPointer<vtkPolyData>
-  {
+  auto addPolyData = [](unsigned int blockNum,
+                       vtkMultiBlockDataSet* mbds) -> vtkSmartPointer<vtkPolyData> {
     vtkNew<vtkPolyData> pd;
     mbds->SetBlock(blockNum, pd);
-    return {pd};
+    return { pd };
   };
 
-  auto addMultiBlock = [](unsigned int blockNum, vtkMultiBlockDataSet *mbds)
-      -> vtkSmartPointer<vtkMultiBlockDataSet>
-  {
+  auto addMultiBlock = [](unsigned int blockNum,
+                         vtkMultiBlockDataSet* mbds) -> vtkSmartPointer<vtkMultiBlockDataSet> {
     auto newMbds = vtkSmartPointer<vtkMultiBlockDataSet>::New();
     mbds->SetBlock(blockNum, newMbds);
     return newMbds;
   };
 
-  auto addNullDataSet = [](unsigned int blockNum,
-                           vtkMultiBlockDataSet *mbds) -> void
-  {
+  auto addNullDataSet = [](unsigned int blockNum, vtkMultiBlockDataSet* mbds) -> void {
     mbds->SetBlock(blockNum, nullptr);
   };
 

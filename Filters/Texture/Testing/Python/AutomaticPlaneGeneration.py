@@ -1,31 +1,44 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkFiltersTexture import vtkTextureMapToPlane
+from vtkmodules.vtkIOImage import vtkPNMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-aPlane = vtk.vtkPlaneSource()
+aPlane = vtkPlaneSource()
 aPlane.SetCenter(-100,-100,-100)
 aPlane.SetOrigin(-100,-100,-100)
 aPlane.SetPoint1(-90,-100,-100)
 aPlane.SetPoint2(-100,-90,-100)
 aPlane.SetNormal(0,-1,1)
-imageIn = vtk.vtkPNMReader()
-imageIn.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/earth.ppm")
-texture = vtk.vtkTexture()
+imageIn = vtkPNMReader()
+imageIn.SetFileName(VTK_DATA_ROOT + "/Data/earth.ppm")
+texture = vtkTexture()
 texture.SetInputConnection(imageIn.GetOutputPort())
-texturePlane = vtk.vtkTextureMapToPlane()
+texturePlane = vtkTextureMapToPlane()
 texturePlane.SetInputConnection(aPlane.GetOutputPort())
 texturePlane.AutomaticPlaneGenerationOn()
-planeMapper = vtk.vtkPolyDataMapper()
+planeMapper = vtkPolyDataMapper()
 planeMapper.SetInputConnection(texturePlane.GetOutputPort())
-texturedPlane = vtk.vtkActor()
+texturedPlane = vtkActor()
 texturedPlane.SetMapper(planeMapper)
 texturedPlane.SetTexture(texture)
 # Add the actors to the renderer, set the background and size

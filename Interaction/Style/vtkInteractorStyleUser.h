@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleUser.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkInteractorStyleUser
@@ -28,76 +16,78 @@
  * but leave the interaction modes for the others unchanged, you
  * must use e.g. SetMiddleButtonPressMethod() instead of the more
  * general SetButtonPressMethod().
-*/
+ */
 
 #ifndef vtkInteractorStyleUser_h
 #define vtkInteractorStyleUser_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 // new motion flag
 #define VTKIS_USERINTERACTION 8
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleUser : public vtkInteractorStyle
+VTK_ABI_NAMESPACE_BEGIN
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleUser : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleUser *New();
-  vtkTypeMacro(vtkInteractorStyleUser,vtkInteractorStyle);
+  static vtkInteractorStyleUser* New();
+  vtkTypeMacro(vtkInteractorStyleUser, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the most recent mouse position during mouse motion.
    * In your user interaction method, you must use this to track
    * the mouse movement.  Do not use GetEventPosition(), which records
    * the last position where a mouse button was pressed.
    */
-  vtkGetVector2Macro(LastPos,int);
-  //@}
+  vtkGetVector2Macro(LastPos, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the previous mouse position during mouse motion, or after
    * a key press.  This can be used to calculate the relative
    * displacement of the mouse.
    */
-  vtkGetVector2Macro(OldPos,int);
-  //@}
+  vtkGetVector2Macro(OldPos, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Test whether modifiers were held down when mouse button or key
    * was pressed.
    */
-  vtkGetMacro(ShiftKey,int);
-  vtkGetMacro(CtrlKey,int);
-  //@}
+  vtkGetMacro(ShiftKey, int);
+  vtkGetMacro(CtrlKey, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the character for a Char event.
    */
-  vtkGetMacro(Char,int);
-  //@}
+  vtkGetMacro(Char, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the KeySym (in the same format as vtkRenderWindowInteractor KeySyms)
    * for a KeyPress or KeyRelease method.
    */
   vtkGetStringMacro(KeySym);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the mouse button that was last pressed inside the window
    * (returns zero when the button is released).
    */
-  vtkGetMacro(Button,int);
-  //@}
+  vtkGetMacro(Button, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Generic event bindings
    */
@@ -110,18 +100,18 @@ public:
   void OnRightButtonUp() override;
   void OnMouseWheelForward() override;
   void OnMouseWheelBackward() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Keyboard functions
    */
   void OnChar() override;
   void OnKeyPress() override;
   void OnKeyRelease() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are more esoteric events, but are useful in some cases.
    */
@@ -129,12 +119,11 @@ public:
   void OnConfigure() override;
   void OnEnter() override;
   void OnLeave() override;
-  //@}
+  ///@}
 
   void OnTimer() override;
 
 protected:
-
   vtkInteractorStyleUser();
   ~vtkInteractorStyleUser() override;
 
@@ -144,7 +133,7 @@ protected:
   int ShiftKey;
   int CtrlKey;
   int Char;
-  char *KeySym;
+  char* KeySym;
   int Button;
 
 private:
@@ -152,4 +141,5 @@ private:
   void operator=(const vtkInteractorStyleUser&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

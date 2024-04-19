@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkArray.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkArray
@@ -49,23 +32,24 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at  Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArray_h
 #define vtkArray_h
 
+#include "vtkArrayCoordinates.h" // for vtkArrayCoordinates
+#include "vtkArrayExtents.h"     // for vtkArrayExtents
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkArrayCoordinates.h"
-#include "vtkArrayExtents.h"
 #include "vtkObject.h"
-#include "vtkStdString.h"
-#include "vtkVariant.h"
+#include "vtkStdString.h" // for vtkStdString
+#include "vtkVariant.h"   // for vtkVariant
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkArray, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   typedef vtkArrayExtents::CoordinateT CoordinateT;
   typedef vtkArrayExtents::DimensionT DimensionT;
@@ -97,7 +81,7 @@ public:
    */
   virtual bool IsDense() = 0;
 
-  //@{
+  ///@{
   /**
    * Resizes the array to the given extents (number of dimensions and
    * size of each dimension).  Note that concrete implementations of
@@ -110,14 +94,14 @@ public:
    * dimension-labels will be undefined, dense array values will be
    * undefined, and sparse arrays will be empty.
    */
-  void Resize(const CoordinateT i);
-  void Resize(const CoordinateT i, const CoordinateT j);
-  void Resize(const CoordinateT i, const CoordinateT j, const CoordinateT k);
+  void Resize(CoordinateT i);
+  void Resize(CoordinateT i, CoordinateT j);
+  void Resize(CoordinateT i, CoordinateT j, CoordinateT k);
   void Resize(const vtkArrayRange& i);
   void Resize(const vtkArrayRange& i, const vtkArrayRange& j);
   void Resize(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k);
   void Resize(const vtkArrayExtents& extents);
-  //@}
+  ///@}
 
   /**
    * Returns the extent (valid coordinate range) along the given
@@ -179,9 +163,9 @@ public:
    * order in which values are visited using vtkTypedArray::GetValueN()
    * and vtkTypedArray::SetValueN().
    */
-  virtual void GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates) = 0;
+  virtual void GetCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) = 0;
 
-  //@{
+  ///@{
   /**
    * Returns the value stored in the array at the given coordinates.
    * Note that the number of dimensions in the supplied coordinates must
@@ -191,7 +175,7 @@ public:
   inline vtkVariant GetVariantValue(CoordinateT i, CoordinateT j);
   inline vtkVariant GetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k);
   virtual vtkVariant GetVariantValue(const vtkArrayCoordinates& coordinates) = 0;
-  //@}
+  ///@}
 
   /**
    * Returns the n-th value stored in the array, where n is in the
@@ -200,9 +184,9 @@ public:
    * values are visited is undefined, but is guaranteed to match the
    * order used by vtkArray::GetCoordinatesN().
    */
-  virtual vtkVariant GetVariantValueN(const SizeT n) = 0;
+  virtual vtkVariant GetVariantValueN(SizeT n) = 0;
 
-  //@{
+  ///@{
   /**
    * Overwrites the value stored in the array at the given coordinates.
    * Note that the number of dimensions in the supplied coordinates must
@@ -212,7 +196,7 @@ public:
   inline void SetVariantValue(CoordinateT i, CoordinateT j, const vtkVariant& value);
   inline void SetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k, const vtkVariant& value);
   virtual void SetVariantValue(const vtkArrayCoordinates& coordinates, const vtkVariant& value) = 0;
-  //@}
+  ///@}
 
   /**
    * Overwrites the n-th value stored in the array, where n is in the
@@ -221,22 +205,25 @@ public:
    * values are visited is undefined, but is guaranteed to match the
    * order used by vtkArray::GetCoordinatesN().
    */
-  virtual void SetVariantValueN(const SizeT n, const vtkVariant& value) = 0;
+  virtual void SetVariantValueN(SizeT n, const vtkVariant& value) = 0;
 
-  //@{
+  ///@{
   /**
    * Overwrites a value with a value retrieved from another array.  Both
    * arrays must store the same data types.
    */
-  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates) = 0;
-  virtual void CopyValue(vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates) = 0;
-  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index) = 0;
-  //@}
+  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates,
+    const vtkArrayCoordinates& target_coordinates) = 0;
+  virtual void CopyValue(
+    vtkArray* source, SizeT source_index, const vtkArrayCoordinates& target_coordinates) = 0;
+  virtual void CopyValue(
+    vtkArray* source, const vtkArrayCoordinates& source_coordinates, SizeT target_index) = 0;
+  ///@}
 
   /**
    * Returns a new array that is a deep copy of this array.
    */
-  virtual vtkArray* DeepCopy() = 0;
+  virtual VTK_NEWINSTANCE vtkArray* DeepCopy() = 0;
 
 protected:
   vtkArray();
@@ -262,13 +249,13 @@ private:
    */
   virtual void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label) = 0;
 
-  //@{
+  ///@{
   /**
    * Implemented in concrete derivatives to get dimension labels.
    */
   virtual vtkStdString InternalGetDimensionLabel(DimensionT i) = 0;
+  ///@}
 };
-  //@}
 
 vtkVariant vtkArray::GetVariantValue(CoordinateT i)
 {
@@ -300,6 +287,5 @@ void vtkArray::SetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k, cons
   this->SetVariantValue(vtkArrayCoordinates(i, j, k), value);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-// VTK-HeaderTest-Exclude: vtkArray.h

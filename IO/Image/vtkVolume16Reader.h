@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVolume16Reader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkVolume16Reader
  * @brief   read 16 bit image files
@@ -43,7 +31,7 @@
  *
  * @sa
  * vtkSliceCubes vtkMarchingCubes vtkImageReader
-*/
+ */
 
 #ifndef vtkVolume16Reader_h
 #define vtkVolume16Reader_h
@@ -51,6 +39,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkVolumeReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 class vtkUnsignedCharArray;
 class vtkUnsignedShortArray;
@@ -61,7 +50,7 @@ class vtkUnsignedShortArray;
 class VTKIOIMAGE_EXPORT vtkVolume16Reader : public vtkVolumeReader
 {
 public:
-  vtkTypeMacro(vtkVolume16Reader,vtkVolumeReader);
+  vtkTypeMacro(vtkVolume16Reader, vtkVolumeReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -69,34 +58,34 @@ public:
    * set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;
    * header size 0; and byte swapping turned off.
    */
-  static vtkVolume16Reader *New();
+  static vtkVolume16Reader* New();
 
-  //@{
+  ///@{
   /**
    * Specify the dimensions for the data.
    */
-  vtkSetVector2Macro(DataDimensions,int);
-  vtkGetVectorMacro(DataDimensions,int,2);
-  //@}
+  vtkSetVector2Macro(DataDimensions, int);
+  vtkGetVectorMacro(DataDimensions, int, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a mask used to eliminate data in the data file (e.g.,
    * connectivity bits).
    */
-  vtkSetMacro(DataMask,unsigned short);
-  vtkGetMacro(DataMask,unsigned short);
-  //@}
+  vtkSetMacro(DataMask, unsigned short);
+  vtkGetMacro(DataMask, unsigned short);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of bytes to seek over at start of image.
    */
-  vtkSetMacro(HeaderSize,int);
-  vtkGetMacro(HeaderSize,int);
-  //@}
+  vtkSetMacro(HeaderSize, int);
+  vtkGetMacro(HeaderSize, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods should be used instead of the SwapBytes methods.
    * They indicate the byte ordering of the file you are trying
@@ -114,61 +103,61 @@ public:
   void SetDataByteOrderToLittleEndian();
   int GetDataByteOrder();
   void SetDataByteOrder(int);
-  const char *GetDataByteOrderAsString();
-  //@}
+  const char* GetDataByteOrderAsString();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off byte swapping.
    */
-  vtkSetMacro(SwapBytes,vtkTypeBool);
-  vtkGetMacro(SwapBytes,vtkTypeBool);
-  vtkBooleanMacro(SwapBytes,vtkTypeBool);
-  //@}
+  vtkSetMacro(SwapBytes, vtkTypeBool);
+  vtkGetMacro(SwapBytes, vtkTypeBool);
+  vtkBooleanMacro(SwapBytes, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get transformation matrix to transform the data from slice space
    * into world space. This matrix must be a permutation matrix. To qualify,
    * the sums of the rows must be + or - 1.
    */
   virtual void SetTransform(vtkTransform*);
-  vtkGetObjectMacro(Transform,vtkTransform);
-  //@}
+  vtkGetObjectMacro(Transform, vtkTransform);
+  ///@}
 
   /**
    * Other objects make use of these methods
    */
-  vtkImageData *GetImage(int ImageNumber) override;
+  vtkImageData* GetImage(int ImageNumber) override;
 
 protected:
   vtkVolume16Reader();
   ~vtkVolume16Reader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int   DataDimensions[2];
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int DataDimensions[2];
   unsigned short DataMask;
-  vtkTypeBool   SwapBytes;
-  int   HeaderSize;
-  vtkTransform *Transform;
+  vtkTypeBool SwapBytes;
+  int HeaderSize;
+  vtkTransform* Transform;
 
-  void TransformSlice (unsigned short *slice, unsigned short *pixels, int k, int dimensions[3], int bounds[3]);
+  void TransformSlice(
+    unsigned short* slice, unsigned short* pixels, int k, int dimensions[3], int bounds[6]);
   void ComputeTransformedDimensions(int dimensions[3]);
   void ComputeTransformedBounds(int bounds[6]);
   void ComputeTransformedSpacing(double Spacing[3]);
   void ComputeTransformedOrigin(double origin[3]);
   void AdjustSpacingAndOrigin(int dimensions[3], double Spacing[3], double origin[3]);
-  void ReadImage(int ImageNumber, vtkUnsignedShortArray *);
-  void ReadVolume(int FirstImage, int LastImage, vtkUnsignedShortArray *);
-  int Read16BitImage(FILE *fp, unsigned short *pixels, int xsize, int ysize,
-                     int skip, int swapBytes);
+  void ReadImage(int ImageNumber, vtkUnsignedShortArray*);
+  void ReadVolume(int FirstImage, int LastImage, vtkUnsignedShortArray*);
+  int Read16BitImage(
+    FILE* fp, unsigned short* pixels, int xsize, int ysize, int skip, int swapBytes);
 
 private:
   vtkVolume16Reader(const vtkVolume16Reader&) = delete;
   void operator=(const vtkVolume16Reader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

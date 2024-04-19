@@ -1,0 +1,42 @@
+NAME
+  VTK::AcceleratorsVTKmFilters
+LIBRARY_NAME
+  vtkAcceleratorsVTKmFilters
+DESCRIPTION
+  VTKm filters and algorithms
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-BSD-3-Clause-Sandia-USGov
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Kitware, Inc.
+  Copyright 2012 Sandia Corporation.
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
+  BSD-3-Clause-Sandia-USGov
+LICENSE_FILES
+  LICENSE
+DEPENDS
+  VTK::AcceleratorsVTKmCore
+  VTK::AcceleratorsVTKmDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::ImagingCore
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersSources
+  VTK::IOImage
+  VTK::IOLegacy
+  VTK::IOPLY
+  VTK::IOXML
+  VTK::ImagingHybrid
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::InteractionWidgets
+  VTK::RenderingFreeType
+  VTK::RenderingOpenGL2
+  VTK::RenderingVolumeOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

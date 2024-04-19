@@ -1,12 +1,20 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkBoundingBox,
+    vtkPolyData,
+    vtkStaticPointLocator,
+)
 
 # Test how the locator bins are generated
 # Test how the vtkBoundingBox class computes binning divisions
 
 # create a test dataset
 #
-math = vtk.vtkMath()
+math = vtkMath()
 
 # Note: the bigger the data the better vtkStaticPointLocator performs
 #testSize = "large"
@@ -26,20 +34,20 @@ else:
 maxNumBuckets = 2500
 
 # Create an initial set of points and associated dataset
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.SetDataTypeToDouble()
 points.SetNumberOfPoints(numPts)
 for i in range(0,numPts):
     points.SetPoint(i,math.Random(-0.25,0.25),math.Random(-0.5,0.5),math.Random(-1,1))
 
-polydata = vtk.vtkPolyData()
+polydata = vtkPolyData()
 polydata.SetPoints(points)
 
 # Print initial statistics
 print("Processing NumPts: {0}".format(numPts))
 
 # Time the creation and building of the static point locator
-locator = vtk.vtkStaticPointLocator()
+locator = vtkStaticPointLocator()
 locator.SetDataSet(polydata)
 locator.SetNumberOfPointsPerBucket(5)
 locator.AutomaticOn()
@@ -93,7 +101,7 @@ print("\nTesting vtkBoundingBox w/ {} target bins".format(targetBins))
 divs = [1,1,1]
 bounds = [0,0,0,0,0,0]
 bds = [0,0,0,0,0,0]
-bbox = vtk.vtkBoundingBox()
+bbox = vtkBoundingBox()
 
 # Degenerate
 bbox.SetBounds(0,0,1,1,2,2)

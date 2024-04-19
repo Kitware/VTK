@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_ENDIAN_GCC_HPP
@@ -13,11 +13,11 @@ namespace tao
    {
       namespace internal
       {
-#if not defined( __BYTE_ORDER__ )
+#if !defined( __BYTE_ORDER__ )
 #error No byte order defined!
 #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 
-         template< unsigned S >
+         template< std::size_t S >
          struct to_and_from_be
          {
             template< typename T >
@@ -27,7 +27,7 @@ namespace tao
             }
          };
 
-         template< unsigned S >
+         template< std::size_t S >
          struct to_and_from_le;
 
          template<>
@@ -49,7 +49,7 @@ namespace tao
          {
             static std::int16_t convert( const std::int16_t n ) noexcept
             {
-               return __builtin_bswap16( n );
+               return static_cast< std::int16_t >( __builtin_bswap16( static_cast< std::uint16_t >( n ) ) );
             }
 
             static std::uint16_t convert( const std::uint16_t n ) noexcept
@@ -72,7 +72,7 @@ namespace tao
 
             static std::int32_t convert( const std::int32_t n ) noexcept
             {
-               return __builtin_bswap32( n );
+               return static_cast< std::int32_t >( __builtin_bswap32( static_cast< std::uint32_t >( n ) ) );
             }
 
             static std::uint32_t convert( const std::uint32_t n ) noexcept
@@ -95,7 +95,7 @@ namespace tao
 
             static std::int64_t convert( const std::int64_t n ) noexcept
             {
-               return __builtin_bswap64( n );
+               return static_cast< std::int64_t >( __builtin_bswap64( static_cast< std::uint64_t >( n ) ) );
             }
 
             static std::uint64_t convert( const std::uint64_t n ) noexcept
@@ -110,7 +110,7 @@ namespace tao
 
 #elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 
-         template< unsigned S >
+         template< std::size_t S >
          struct to_and_from_le
          {
             template< typename T >
@@ -120,7 +120,7 @@ namespace tao
             }
          };
 
-         template< unsigned S >
+         template< std::size_t S >
          struct to_and_from_be;
 
          template<>
@@ -142,7 +142,7 @@ namespace tao
          {
             static std::int16_t convert( const std::int16_t n ) noexcept
             {
-               return __builtin_bswap16( n );
+               return static_cast< std::int16_t >( __builtin_bswap16( static_cast< std::uint16_t >( n ) ) );
             }
 
             static std::uint16_t convert( const std::uint16_t n ) noexcept
@@ -165,7 +165,7 @@ namespace tao
 
             static std::int32_t convert( const std::int32_t n ) noexcept
             {
-               return __builtin_bswap32( n );
+               return static_cast< std::int32_t >( __builtin_bswap32( static_cast< std::uint32_t >( n ) ) );
             }
 
             static std::uint32_t convert( const std::uint32_t n ) noexcept
@@ -186,12 +186,12 @@ namespace tao
                return n;
             }
 
-            static std::uint64_t convert( const std::uint64_t n ) noexcept
+            static std::int64_t convert( const std::int64_t n ) noexcept
             {
-               return __builtin_bswap64( n );
+               return static_cast< std::int64_t >( __builtin_bswap64( static_cast< std::uint64_t >( n ) ) );
             }
 
-            static std::int64_t convert( const std::int64_t n ) noexcept
+            static std::uint64_t convert( const std::uint64_t n ) noexcept
             {
                return __builtin_bswap64( n );
             }

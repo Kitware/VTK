@@ -1,193 +1,199 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGLTFDocumentLoader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkGLTFDocumentLoaderInternals.h"
 
 #include "vtkGLTFUtils.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
-#include "vtkTransform.h"
-#include "vtk_jsoncpp.h"
+#include "vtkMatrix4x4.h"
+#include "vtkResourceStream.h"
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
 #include <sstream>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 bool vtkGLTFDocumentLoaderInternals::LoadBuffer(
-  const Json::Value& root, std::vector<char>& buffer, const std::string& glTFFileName)
+  const nlohmann::json& root, std::vector<char>& buffer)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid buffer value");
     return false;
   }
 
-  int byteLength = 0;
-  ifstream fin;
-
-  std::string name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], name);
-
-  if (!vtkGLTFUtils::GetIntValue(root["byteLength"], byteLength))
-  {
-    vtkErrorWithObjectMacro(this->Self, "Invalid buffer.byteLength value for buffer " << name);
-    return false;
-  }
-  Json::Value uriRoot = root["uri"];
-  if (uriRoot.empty())
+  auto rootUriIt = root.find("uri");
+  if (rootUriIt == root.end())
   {
     return true;
   }
-  std::string uri = root["uri"].asString();
+
+  if (!this->Self->GetInternalModel()->URILoader)
+  {
+    vtkErrorWithObjectMacro(this->Self, "Trying to load data using URI without an URI loader");
+    return false;
+  }
+
+  int byteLength = 0;
+  if (!vtkGLTFUtils::GetIntValue(root, "byteLength", byteLength))
+  {
+    std::string name;
+    vtkGLTFUtils::GetStringValue(root, "name", name);
+    vtkErrorWithObjectMacro(this->Self, "Invalid buffer.byteLength value for buffer " << name);
+    return false;
+  }
 
   // Load buffer data
-  if (!vtkGLTFUtils::GetBinaryBufferFromUri(uri, glTFFileName, buffer, byteLength))
+  std::string uri = rootUriIt.value();
+  if (!vtkGLTFUtils::GetBinaryBufferFromUri(
+        uri, this->Self->GetInternalModel()->URILoader, buffer, byteLength))
   {
+    std::string name;
+    vtkGLTFUtils::GetStringValue(root, "name", name);
     vtkErrorWithObjectMacro(this->Self, "Invalid buffer.uri value for buffer " << name);
     return false;
   }
+
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
 {
-  Json::Value bufferRoot;
-  Json::CharReaderBuilder reader;
-  std::string errs;
-  std::stringstream JSONStream(this->Self->GetInternalModel()->BufferMetaData);
-  // Parse json
-  if (!Json::parseFromStream(reader, JSONStream, &bufferRoot, &errs))
+  try
   {
-    vtkErrorWithObjectMacro(this->Self, "Could not parse JSON: " << errs);
-    return false;
-  }
-  // Load buffers from disk
-  for (const auto& glTFBuffer : bufferRoot)
-  {
-    std::vector<char> buffer;
-    if (this->LoadBuffer(glTFBuffer, buffer, this->Self->GetInternalModel()->FileName))
+    nlohmann::json bufferRoot =
+      nlohmann::json::parse(this->Self->GetInternalModel()->BufferMetaData);
+    // Load buffers from disk
+    for (const auto& glTFBuffer : bufferRoot)
     {
-      if (buffer.empty() && this->Self->GetInternalModel()->Buffers.empty() && !firstBufferIsGLB)
+      std::vector<char> buffer;
+      if (this->LoadBuffer(glTFBuffer, buffer))
       {
-        vtkErrorWithObjectMacro(this->Self,
-          "Invalid first buffer value for glb file. No buffer was loaded from the file.");
+        if (buffer.empty() && this->Self->GetInternalModel()->Buffers.empty() && !firstBufferIsGLB)
+        {
+          vtkErrorWithObjectMacro(this->Self,
+            "Invalid first buffer value for glb file. No buffer was loaded from the file.");
+          return false;
+        }
+        if (firstBufferIsGLB && this->Self->GetInternalModel()->Buffers.size() == 1 &&
+          !buffer.empty())
+        {
+          vtkErrorWithObjectMacro(
+            this->Self, "Invalid first buffer value for glb file. buffer.uri should be undefined");
+          return false;
+        }
+        this->Self->GetInternalModel()->Buffers.emplace_back(std::move(buffer));
+      }
+      else
+      {
+        vtkErrorWithObjectMacro(this->Self, "Could not load Buffer from JSON.");
         return false;
       }
-      if (firstBufferIsGLB && this->Self->GetInternalModel()->Buffers.size() == 1 &&
-        !buffer.empty())
-      {
-        vtkErrorWithObjectMacro(
-          this->Self, "Invalid first buffer value for glb file. buffer.uri should be undefined");
-        return false;
-      }
-      this->Self->GetInternalModel()->Buffers.emplace_back(std::move(buffer));
     }
   }
+  catch (nlohmann::json::parse_error& e)
+  {
+    vtkErrorWithObjectMacro(this->Self, "Could not parse JSON: " << e.what());
+    return false;
+  }
+
   return true;
 }
 
-//----------------------------------------------------------------------------
-bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(
-  const std::string& fileName, Json::Value& gltfRoot)
+//------------------------------------------------------------------------------
+bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(nlohmann::json& gltfRoot)
 {
-  // Expect extension to be either .gltf or .glb
-  std::string extension = vtksys::SystemTools::GetFilenameLastExtension(fileName);
-  if (extension != ".gltf" && extension != ".glb")
+  try
   {
-    vtkErrorWithObjectMacro(
-      this->Self, "Invalid file extension: " << extension << ". Expected '.gltf' or '.glb'");
-    return false;
-  }
+    const auto& stream = this->Self->GetInternalModel()->Stream;
+    stream->Seek(this->Self->GetGLBStart(), vtkResourceStream::SeekDirection::Begin);
 
-  std::stringstream JSONstream;
-  std::ifstream fin;
-  if (extension == ".glb")
-  {
-    // Get base information
+    // Determine the format
     std::string magic;
-    uint32_t version;
-    uint32_t fileLength;
-    std::vector<vtkGLTFUtils::ChunkInfoType> chunkInfo;
-    if (!vtkGLTFUtils::ExtractGLBFileInformation(fileName, magic, version, fileLength, chunkInfo))
-    {
-      vtkErrorWithObjectMacro(this->Self, "Invalid binary glTF file");
-      return false;
-    }
-    if (!vtkGLTFUtils::ValidateGLBFile(magic, version, fileLength, chunkInfo))
-    {
-      vtkErrorWithObjectMacro(this->Self, "Invalid binary glTF file");
-      return false;
-    }
+    magic.resize(4);
+    stream->Read(&magic[0], magic.size());
 
-    // Open the file in binary mode
-    fin.open(fileName, std::ios::binary | std::ios::in);
-    if (!fin.is_open())
+    if (magic == "glTF")
     {
-      vtkErrorWithObjectMacro(this->Self, "Error opening file " << fileName);
-      return false;
+      std::uint32_t version;
+      std::uint32_t fileLength;
+      std::vector<vtkGLTFUtils::ChunkInfoType> chunkInfo;
+      if (vtkGLTFUtils::ExtractGLBFileInformation(
+            stream, version, fileLength, this->Self->GetGLBStart(), chunkInfo))
+      {
+        if (!vtkGLTFUtils::ValidateGLBFile(magic, version, fileLength, chunkInfo))
+        {
+          vtkErrorWithObjectMacro(this->Self, "Invalid binary glTF file");
+          return false;
+        }
+
+        // Get JSON chunk's information (we know it exists and it's the first chunk)
+        vtkGLTFUtils::ChunkInfoType& JSONChunkInfo = chunkInfo[0];
+
+        // Jump to chunk data start
+        stream->Seek(this->Self->GetGLBStart() + vtkGLTFUtils::GLBHeaderSize +
+            vtkGLTFUtils::GLBChunkHeaderSize,
+          vtkResourceStream::SeekDirection::Begin);
+        // Read chunk data
+        std::vector<char> JSONDataBuffer;
+        JSONDataBuffer.resize(JSONChunkInfo.second);
+        if (stream->Read(JSONDataBuffer.data(), JSONChunkInfo.second) != JSONChunkInfo.second)
+        {
+          vtkErrorWithObjectMacro(this->Self, "Failed to read chunk 0.");
+          return false;
+        }
+
+        gltfRoot = nlohmann::json::parse(JSONDataBuffer);
+      }
     }
-    // Get JSON chunk's information (we know it exists and it's the first chunk)
-    vtkGLTFUtils::ChunkInfoType& JSONChunkInfo = chunkInfo[0];
-    // Jump to chunk data start
-    fin.seekg(vtkGLTFUtils::GLBHeaderSize + vtkGLTFUtils::GLBChunkHeaderSize);
-    // Read chunk data
-    std::vector<char> JSONDataBuffer(JSONChunkInfo.second);
-    fin.read(JSONDataBuffer.data(), JSONChunkInfo.second);
-    JSONstream.write(JSONDataBuffer.data(), JSONChunkInfo.second);
-  }
-  else
-  {
-    // Copy whole file into string
-    fin.open(fileName);
-    if (!fin.is_open())
+    else
     {
-      vtkErrorWithObjectMacro(this->Self, "Error opening file " << fileName);
-      return false;
+      // Text gltf
+      stream->Seek(0, vtkResourceStream::SeekDirection::End);
+      const auto fileSize = static_cast<std::size_t>(stream->Tell()) - this->Self->GetGLBStart();
+      stream->Seek(this->Self->GetGLBStart(), vtkResourceStream::SeekDirection::Begin);
+
+      std::vector<char> fileData;
+      fileData.resize(fileSize);
+      if (stream->Read(fileData.data(), fileData.size()) != fileData.size())
+      {
+        vtkErrorWithObjectMacro(this->Self, "Failed to read GLTF file");
+        return false;
+      }
+
+      gltfRoot = nlohmann::json::parse(fileData);
     }
-    JSONstream << fin.rdbuf();
   }
-  Json::CharReaderBuilder reader;
-  std::string errs;
-  // Parse json
-  if (!Json::parseFromStream(reader, JSONstream, &gltfRoot, &errs))
+  catch (nlohmann::json::parse_error& e)
   {
-    vtkErrorWithObjectMacro(this->Self, << errs.c_str());
+    vtkErrorWithObjectMacro(this->Self, << e.what());
     return false;
   }
+
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadAccessor(
-  const Json::Value& root, vtkGLTFDocumentLoader::Accessor& accessor)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Accessor& accessor)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid accessor value");
     return false;
   }
 
   accessor.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], accessor.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", accessor.Name);
 
   accessor.BufferView = -1;
-  vtkGLTFUtils::GetIntValue(root["bufferView"], accessor.BufferView);
+  vtkGLTFUtils::GetIntValue(root, "bufferView", accessor.BufferView);
   accessor.ByteOffset = 0;
-  vtkGLTFUtils::GetIntValue(root["byteOffset"], accessor.ByteOffset);
+  vtkGLTFUtils::GetIntValue(root, "byteOffset", accessor.ByteOffset);
   if (accessor.ByteOffset < 0)
   {
     vtkErrorWithObjectMacro(
@@ -195,7 +201,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessor(
     return false;
   }
   int integerComponentType = 0;
-  if (!vtkGLTFUtils::GetIntValue(root["componentType"], integerComponentType))
+  if (!vtkGLTFUtils::GetIntValue(root, "componentType", integerComponentType))
   {
     vtkErrorWithObjectMacro(
       this->Self, "Invalid accessor.componentType value for accessor " << accessor.Name);
@@ -221,8 +227,8 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessor(
   }
 
   accessor.Normalized = false;
-  vtkGLTFUtils::GetBoolValue(root["normalized"], accessor.Normalized);
-  if (!vtkGLTFUtils::GetIntValue(root["count"], accessor.Count))
+  vtkGLTFUtils::GetBoolValue(root, "normalized", accessor.Normalized);
+  if (!vtkGLTFUtils::GetIntValue(root, "count", accessor.Count))
   {
     vtkErrorWithObjectMacro(
       this->Self, "Invalid accessor.count value for accessor " << accessor.Name);
@@ -236,7 +242,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessor(
   }
 
   std::string accessorTypeString;
-  if (!vtkGLTFUtils::GetStringValue(root["type"], accessorTypeString))
+  if (!vtkGLTFUtils::GetStringValue(root, "type", accessorTypeString))
   {
     vtkErrorWithObjectMacro(
       this->Self, "Invalid accessor.type value for accessor " << accessor.Name);
@@ -257,7 +263,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessor(
     return false;
   }
   // Load max and min
-  if (!root["max"].empty() && !root["min"].empty())
+  if (root.find("max") != root.end() && root.find("min") != root.end())
   {
     if (!this->LoadAccessorBounds(root, accessor))
     {
@@ -266,9 +272,10 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessor(
       return false;
     }
   }
-  if (!root["sparse"].isNull())
+  auto rootSparseIt = root.find("sparse");
+  if (rootSparseIt != root.end())
   {
-    if (!this->LoadSparse(root["sparse"], accessor.SparseObject))
+    if (!this->LoadSparse(rootSparseIt.value(), accessor.SparseObject))
     {
       vtkErrorWithObjectMacro(this->Self, "Invalid accessor object.");
       return false;
@@ -282,13 +289,13 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessor(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadAccessorBounds(
-  const Json::Value& root, vtkGLTFDocumentLoader::Accessor& accessor)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Accessor& accessor)
 {
   // min
-  const Json::Value& minArray = root["min"];
-  if (!minArray.empty() && minArray.isArray())
+  const nlohmann::json& minArray = root["min"];
+  if (!minArray.empty() && minArray.is_array())
   {
     if (minArray.size() != accessor.NumberOfComponents)
     {
@@ -296,7 +303,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessorBounds(
         this->Self, "Invalid accessor.min array size for accessor " << accessor.Name);
       return false;
     }
-    vtkGLTFUtils::GetDoubleArray(minArray, accessor.Min);
+    vtkGLTFUtils::GetDoubleArray(root, "min", accessor.Min);
     if (accessor.Min.size() != accessor.NumberOfComponents)
     {
       vtkErrorWithObjectMacro(this->Self, "Error loading accessor.min");
@@ -304,8 +311,8 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessorBounds(
     }
   }
   // max
-  const Json::Value& maxArray = root["max"];
-  if (!maxArray.empty() && maxArray.isArray())
+  const nlohmann::json& maxArray = root["max"];
+  if (!maxArray.empty() && maxArray.is_array())
   {
     if (maxArray.size() != accessor.NumberOfComponents)
     {
@@ -313,7 +320,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessorBounds(
         this->Self, "Invalid accessor.max array size for accessor " << accessor.Name);
       return false;
     }
-    vtkGLTFUtils::GetDoubleArray(maxArray, accessor.Max);
+    vtkGLTFUtils::GetDoubleArray(root, "max", accessor.Max);
     if (accessor.Max.size() != accessor.NumberOfComponents)
     {
       vtkErrorWithObjectMacro(this->Self, "Error loading accessor.max");
@@ -323,21 +330,22 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessorBounds(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadAnimation(
-  const Json::Value& root, vtkGLTFDocumentLoader::Animation& animation)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Animation& animation)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid animation value");
     return false;
   }
 
   animation.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], animation.Name);
-
-  if ((root["channels"].empty() && !root["channels"].isArray()) ||
-    (root["samplers"].empty() && !root["samplers"].isArray()))
+  vtkGLTFUtils::GetStringValue(root, "name", animation.Name);
+  auto rootChannelsIt = root.find("channels");
+  auto rootSamplersIt = root.find("samplers");
+  if ((rootChannelsIt != root.end() && !rootChannelsIt.value().is_array()) ||
+    (rootSamplersIt != root.end() && !rootSamplersIt.value().is_array()))
   {
     vtkErrorWithObjectMacro(this->Self,
       "Invalid animation.channels and animation.samplers for animation " << animation.Name);
@@ -345,20 +353,20 @@ bool vtkGLTFDocumentLoaderInternals::LoadAnimation(
   }
 
   // Load channel metadata
-  for (const auto& channelRoot : root["channels"])
+  for (const auto& channelRoot : rootChannelsIt.value())
   {
     vtkGLTFDocumentLoader::Animation::Channel channel;
-    if (!vtkGLTFUtils::GetIntValue(channelRoot["sampler"], channel.Sampler))
+    if (!vtkGLTFUtils::GetIntValue(channelRoot, "sampler", channel.Sampler))
     {
       vtkErrorWithObjectMacro(
         this->Self, "Invalid animation.channel.sampler value for animation " << animation.Name);
       return false;
     }
     channel.TargetNode = -1;
-    vtkGLTFUtils::GetIntValue(channelRoot["target"]["node"], channel.TargetNode);
+    vtkGLTFUtils::GetIntValue(channelRoot["target"], "node", channel.TargetNode);
 
     std::string targetPathString;
-    if (!vtkGLTFUtils::GetStringValue(channelRoot["target"]["path"], targetPathString))
+    if (!vtkGLTFUtils::GetStringValue(channelRoot["target"], "path", targetPathString))
     {
       vtkErrorWithObjectMacro(
         this->Self, "Invalid animation.channel.target.path value for animation " << animation.Name);
@@ -394,7 +402,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAnimation(
   for (const auto& samplerRoot : root["samplers"])
   {
     vtkGLTFDocumentLoader::Animation::Sampler sampler;
-    if (!vtkGLTFUtils::GetUIntValue(samplerRoot["input"], sampler.Input))
+    if (!vtkGLTFUtils::GetUIntValue(samplerRoot, "input", sampler.Input))
     {
       vtkErrorWithObjectMacro(
         this->Self, "Invalid animation.sampler.input value for animation " << animation.Name);
@@ -421,14 +429,14 @@ bool vtkGLTFDocumentLoaderInternals::LoadAnimation(
       vtkErrorWithObjectMacro(this->Self, "Invalid sampler.input value.");
       return false;
     }
-    if (!vtkGLTFUtils::GetUIntValue(samplerRoot["output"], sampler.Output))
+    if (!vtkGLTFUtils::GetUIntValue(samplerRoot, "output", sampler.Output))
     {
       vtkErrorWithObjectMacro(
         this->Self, "Invalid animation.sampler.output value for animation " << animation.Name);
       return false;
     }
     std::string interpolationString("LINEAR");
-    vtkGLTFUtils::GetStringValue(samplerRoot["interpolation"], interpolationString);
+    vtkGLTFUtils::GetStringValue(samplerRoot, "interpolation", interpolationString);
     if (interpolationString == "LINEAR")
     {
       sampler.Interpolation = vtkGLTFDocumentLoader::Animation::Sampler::InterpolationMode::LINEAR;
@@ -454,25 +462,25 @@ bool vtkGLTFDocumentLoaderInternals::LoadAnimation(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadBufferView(
-  const Json::Value& root, vtkGLTFDocumentLoader::BufferView& bufferView)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::BufferView& bufferView)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid bufferView value");
     return false;
   }
   bufferView.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], bufferView.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", bufferView.Name);
 
-  if (!vtkGLTFUtils::GetIntValue(root["buffer"], bufferView.Buffer))
+  if (!vtkGLTFUtils::GetIntValue(root, "buffer", bufferView.Buffer))
   {
     vtkErrorWithObjectMacro(
       this->Self, "Invalid bufferView.buffer value for bufferView " << bufferView.Name);
     return false;
   }
-  if (!vtkGLTFUtils::GetIntValue(root["byteLength"], bufferView.ByteLength))
+  if (!vtkGLTFUtils::GetIntValue(root, "byteLength", bufferView.ByteLength))
   {
     vtkErrorWithObjectMacro(
       this->Self, "Invalid bufferView.bytelength value for bufferView " << bufferView.Name);
@@ -481,9 +489,9 @@ bool vtkGLTFDocumentLoaderInternals::LoadBufferView(
   bufferView.ByteOffset = 0;
   bufferView.ByteStride = 0;
   bufferView.Target = 0;
-  vtkGLTFUtils::GetIntValue(root["byteOffset"], bufferView.ByteOffset);
-  vtkGLTFUtils::GetIntValue(root["byteStride"], bufferView.ByteStride);
-  vtkGLTFUtils::GetIntValue(root["target"], bufferView.Target);
+  vtkGLTFUtils::GetIntValue(root, "byteOffset", bufferView.ByteOffset);
+  vtkGLTFUtils::GetIntValue(root, "byteStride", bufferView.ByteStride);
+  vtkGLTFUtils::GetIntValue(root, "target", bufferView.Target);
   if (bufferView.Target != 0 &&
     bufferView.Target !=
       static_cast<unsigned short>(vtkGLTFDocumentLoader::Target::ELEMENT_ARRAY_BUFFER) &&
@@ -496,27 +504,27 @@ bool vtkGLTFDocumentLoaderInternals::LoadBufferView(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadCamera(
-  const Json::Value& root, vtkGLTFDocumentLoader::Camera& camera)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Camera& camera)
 {
-  if (root.isNull() || !root.isObject())
+  if (root.is_null() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid camera object");
     return false;
   }
 
   std::string type;
-  if (!vtkGLTFUtils::GetStringValue(root["type"], type))
+  if (!vtkGLTFUtils::GetStringValue(root, "type", type))
   {
     vtkErrorWithObjectMacro(this->Self, "camera.type field is required but not found");
     return false;
   }
   camera.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], camera.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", camera.Name);
 
-  Json::Value camRoot; // used to extract zfar and znear, can be either camera.orthographic or
-                       // camera.perspective objects.
+  nlohmann::json camRoot; // used to extract zfar and znear, can be either camera.orthographic or
+                          // camera.perspective objects.
 
   if (type == "orthographic")
   {
@@ -535,7 +543,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadCamera(
     return false;
   }
 
-  if (!vtkGLTFUtils::GetDoubleValue(camRoot["znear"], camera.Znear))
+  if (!vtkGLTFUtils::GetDoubleValue(camRoot, "znear", camera.Znear))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid camera.znear value.");
     return false;
@@ -543,7 +551,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadCamera(
 
   // zfar is only required for orthographic cameras
   // znear is required for both types, and has to be positive
-  if (!vtkGLTFUtils::GetDoubleValue(camRoot["zfar"], camera.Zfar) && type == "orthographic")
+  if (!vtkGLTFUtils::GetDoubleValue(camRoot, "zfar", camera.Zfar) && type == "orthographic")
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid camera.zfar value.");
     return false;
@@ -557,13 +565,13 @@ bool vtkGLTFDocumentLoaderInternals::LoadCamera(
 
   if (type == "orthographic")
   {
-    if (!vtkGLTFUtils::GetDoubleValue(camRoot["xmag"], camera.Xmag))
+    if (!vtkGLTFUtils::GetDoubleValue(camRoot, "xmag", camera.Xmag))
     {
       vtkErrorWithObjectMacro(
         this->Self, "camera.orthographic.xmag field is required but not found");
       return false;
     }
-    if (!vtkGLTFUtils::GetDoubleValue(camRoot["ymag"], camera.Ymag))
+    if (!vtkGLTFUtils::GetDoubleValue(camRoot, "ymag", camera.Ymag))
     {
       vtkErrorWithObjectMacro(
         this->Self, "camera.orthographic.ymag field is required but not found");
@@ -572,7 +580,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadCamera(
   }
   else if (type == "perspective")
   {
-    if (vtkGLTFUtils::GetDoubleValue(camRoot["aspectRatio"], camera.AspectRatio))
+    if (vtkGLTFUtils::GetDoubleValue(camRoot, "aspectRatio", camera.AspectRatio))
     {
       if (camera.AspectRatio <= 0)
       {
@@ -580,7 +588,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadCamera(
         return false;
       }
     }
-    if (!vtkGLTFUtils::GetDoubleValue(camRoot["yfov"], camera.Yfov))
+    if (!vtkGLTFUtils::GetDoubleValue(camRoot, "yfov", camera.Yfov))
     {
       vtkErrorWithObjectMacro(this->Self, "Invalid camera.perspective.yfov value");
       return false;
@@ -594,19 +602,19 @@ bool vtkGLTFDocumentLoaderInternals::LoadCamera(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadImage(
-  const Json::Value& root, vtkGLTFDocumentLoader::Image& image)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Image& image)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     return false;
   }
 
   image.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], image.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", image.Name);
 
-  if (!vtkGLTFUtils::GetStringValue(root["mimeType"], image.MimeType))
+  if (!vtkGLTFUtils::GetStringValue(root, "mimeType", image.MimeType))
   {
     image.MimeType.clear();
   }
@@ -619,7 +627,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadImage(
   }
   // Read the bufferView index value, if it exists.
   image.BufferView = -1;
-  if (vtkGLTFUtils::GetIntValue(root["bufferView"], image.BufferView))
+  if (vtkGLTFUtils::GetIntValue(root, "bufferView", image.BufferView))
   {
     if (image.MimeType.empty())
     {
@@ -632,7 +640,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadImage(
   else // Don't look for uri when bufferView is specified
   {
     // Read the image uri value if it exists
-    if (!vtkGLTFUtils::GetStringValue(root["uri"], image.Uri))
+    if (!vtkGLTFUtils::GetStringValue(root, "uri", image.Uri))
     {
       vtkErrorWithObjectMacro(this->Self, "Invalid image.uri value for image " << image.Name);
       return false;
@@ -641,9 +649,9 @@ bool vtkGLTFDocumentLoaderInternals::LoadImage(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
-  const Json::Value& root, vtkGLTFDocumentLoader::Material& material)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Material& material)
 {
   double metallicFactor = 1;
   double roughnessFactor = 1;
@@ -651,7 +659,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
   const auto& pbrRoot = root["pbrMetallicRoughness"];
   if (!pbrRoot.empty())
   {
-    if (vtkGLTFUtils::GetDoubleValue(pbrRoot["metallicFactor"], metallicFactor))
+    if (vtkGLTFUtils::GetDoubleValue(pbrRoot, "metallicFactor", metallicFactor))
     {
       if (metallicFactor < 0 || metallicFactor > 1)
       {
@@ -661,7 +669,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
         metallicFactor = 1;
       }
     }
-    if (vtkGLTFUtils::GetDoubleValue(pbrRoot["roughnessFactor"], roughnessFactor))
+    if (vtkGLTFUtils::GetDoubleValue(pbrRoot, "roughnessFactor", roughnessFactor))
     {
       if (roughnessFactor < 0 || roughnessFactor > 1)
       {
@@ -671,18 +679,20 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
         roughnessFactor = 1;
       }
     }
-    if (!pbrRoot["baseColorTexture"].isNull())
+    auto pbrRootBaseColorTextureIt = pbrRoot.find("baseColorTexture");
+    if (pbrRootBaseColorTextureIt != pbrRoot.end())
     {
       this->LoadTextureInfo(
-        pbrRoot["baseColorTexture"], material.PbrMetallicRoughness.BaseColorTexture);
+        pbrRootBaseColorTextureIt.value(), material.PbrMetallicRoughness.BaseColorTexture);
     }
-    if (!pbrRoot["metallicRoughnessTexture"].isNull())
+    auto pbrRootMetallicRoughnessTextureIt = pbrRoot.find("metallicRoughnessTexture");
+    if (pbrRootMetallicRoughnessTextureIt != pbrRoot.end())
     {
-      this->LoadTextureInfo(pbrRoot["metallicRoughnessTexture"],
+      this->LoadTextureInfo(pbrRootMetallicRoughnessTextureIt.value(),
         material.PbrMetallicRoughness.MetallicRoughnessTexture);
     }
     vtkGLTFUtils::GetDoubleArray(
-      pbrRoot["baseColorFactor"], material.PbrMetallicRoughness.BaseColorFactor);
+      pbrRoot, "baseColorFactor", material.PbrMetallicRoughness.BaseColorFactor);
   }
   if (material.PbrMetallicRoughness.BaseColorFactor.size() !=
     vtkGLTFDocumentLoader::GetNumberOfComponentsForType(vtkGLTFDocumentLoader::AccessorType::VEC4))
@@ -696,24 +706,27 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
   }
   material.PbrMetallicRoughness.MetallicFactor = metallicFactor;
   material.PbrMetallicRoughness.RoughnessFactor = roughnessFactor;
-  if (!root["normalTexture"].isNull())
+  auto rootNormalTextureIt = root.find("normalTexture");
+  if (rootNormalTextureIt != root.end())
   {
-    this->LoadTextureInfo(root["normalTexture"], material.NormalTexture);
+    this->LoadTextureInfo(rootNormalTextureIt.value(), material.NormalTexture);
     material.NormalTextureScale = 1.0;
-    vtkGLTFUtils::GetDoubleValue(root["normalTexture"]["scale"], material.NormalTextureScale);
+    vtkGLTFUtils::GetDoubleValue(rootNormalTextureIt.value(), "scale", material.NormalTextureScale);
   }
-  if (!root["occlusionTexture"].isNull())
+  auto rootOcclusionTextureIt = root.find("occlusionTexture");
+  if (rootOcclusionTextureIt != root.end())
   {
-    this->LoadTextureInfo(root["occlusionTexture"], material.OcclusionTexture);
+    this->LoadTextureInfo(rootOcclusionTextureIt.value(), material.OcclusionTexture);
     material.OcclusionTextureStrength = 1.0;
     vtkGLTFUtils::GetDoubleValue(
-      root["occlusionTexture"]["strength"], material.OcclusionTextureStrength);
+      rootOcclusionTextureIt.value(), "strength", material.OcclusionTextureStrength);
   }
-  if (!root["emissiveTexture"].isNull())
+  auto rootEmissiveTextureIt = root.find("emissiveTexture");
+  if (rootEmissiveTextureIt != root.end())
   {
-    this->LoadTextureInfo(root["emissiveTexture"], material.EmissiveTexture);
+    this->LoadTextureInfo(rootEmissiveTextureIt.value(), material.EmissiveTexture);
   }
-  vtkGLTFUtils::GetDoubleArray(root["emissiveFactor"], material.EmissiveFactor);
+  vtkGLTFUtils::GetDoubleArray(root, "emissiveFactor", material.EmissiveFactor);
   if (material.EmissiveFactor.size() !=
     vtkGLTFDocumentLoader::GetNumberOfComponentsForType(vtkGLTFDocumentLoader::AccessorType::VEC3))
   {
@@ -725,11 +738,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
   }
 
   std::string alphaMode = "OPAQUE";
-  vtkGLTFUtils::GetStringValue(root["alphaMode"], alphaMode);
+  vtkGLTFUtils::GetStringValue(root, "alphaMode", alphaMode);
   material.AlphaMode = this->MaterialAlphaModeStringToEnum(alphaMode);
 
   material.AlphaCutoff = 0.5;
-  vtkGLTFUtils::GetDoubleValue(root["alphaCutoff"], material.AlphaCutoff);
+  vtkGLTFUtils::GetDoubleValue(root, "alphaCutoff", material.AlphaCutoff);
   if (material.AlphaCutoff < 0)
   {
     vtkWarningWithObjectMacro(
@@ -738,24 +751,32 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
   }
 
   material.DoubleSided = false;
-  vtkGLTFUtils::GetBoolValue(root["doubleSided"], material.DoubleSided);
+  vtkGLTFUtils::GetBoolValue(root, "doubleSided", material.DoubleSided);
 
   material.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], material.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", material.Name);
+
+  material.Unlit = false;
+
+  auto extRootIt = root.find("extensions");
+  if (extRootIt != root.end())
+  {
+    material.Unlit = extRootIt.value().find("KHR_materials_unlit") != extRootIt.value().end();
+  }
 
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadMesh(
-  const Json::Value& root, vtkGLTFDocumentLoader::Mesh& mesh)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Mesh& mesh)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     return false;
   }
 
-  if (!vtkGLTFUtils::GetStringValue(root["name"], mesh.Name))
+  if (!vtkGLTFUtils::GetStringValue(root, "name", mesh.Name))
   {
     mesh.Name = "";
   }
@@ -771,28 +792,28 @@ bool vtkGLTFDocumentLoaderInternals::LoadMesh(
   }
 
   // Load morph weights
-  if (!vtkGLTFUtils::GetFloatArray(root["weights"], mesh.Weights))
+  if (!vtkGLTFUtils::GetFloatArray(root, "weights", mesh.Weights))
   {
     mesh.Weights.clear();
   }
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadNode(
-  const Json::Value& root, vtkGLTFDocumentLoader::Node& node)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Node& node)
 {
   node.Camera = -1;
-  vtkGLTFUtils::GetIntValue(root["camera"], node.Camera);
+  vtkGLTFUtils::GetIntValue(root, "camera", node.Camera);
 
   node.Children.clear();
-  vtkGLTFUtils::GetIntArray(root["children"], node.Children);
+  vtkGLTFUtils::GetIntArray(root, "children", node.Children);
 
   node.Skin = -1;
-  vtkGLTFUtils::GetIntValue(root["skin"], node.Skin);
+  vtkGLTFUtils::GetIntValue(root, "skin", node.Skin);
 
   node.Mesh = -1;
-  vtkGLTFUtils::GetIntValue(root["mesh"], node.Mesh);
+  vtkGLTFUtils::GetIntValue(root, "mesh", node.Mesh);
 
   // Load matrix value
   std::vector<double> matrixValues;
@@ -801,7 +822,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadNode(
 
   // A node can define either a 'matrix' property, or any of the three 'rotation', 'translation' and
   // 'scale' properties, not both.
-  if (vtkGLTFUtils::GetDoubleArray(root["matrix"], matrixValues))
+  if (vtkGLTFUtils::GetDoubleArray(root, "matrix", matrixValues))
   {
     // If the node has defined a skin, it can't define 'matrix'
     if (node.Skin >= 0)
@@ -821,7 +842,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadNode(
   else
   {
     // Load translation, rotation and scale values
-    if (vtkGLTFUtils::GetFloatArray(root["scale"], node.InitialScale))
+    if (vtkGLTFUtils::GetFloatArray(root, "scale", node.InitialScale))
     {
       if (node.InitialScale.size() !=
         vtkGLTFDocumentLoader::GetNumberOfComponentsForType(
@@ -837,7 +858,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadNode(
       // Default values
       node.InitialScale.insert(node.InitialScale.end(), { 1, 1, 1 });
     }
-    if (vtkGLTFUtils::GetFloatArray(root["translation"], node.InitialTranslation))
+    if (vtkGLTFUtils::GetFloatArray(root, "translation", node.InitialTranslation))
     {
       if (node.InitialTranslation.size() != 3)
       {
@@ -851,14 +872,14 @@ bool vtkGLTFDocumentLoaderInternals::LoadNode(
       // Default values
       node.InitialTranslation.insert(node.InitialTranslation.end(), { 0, 0, 0 });
     }
-    if (vtkGLTFUtils::GetFloatArray(root["rotation"], node.InitialRotation))
+    if (vtkGLTFUtils::GetFloatArray(root, "rotation", node.InitialRotation))
     {
       float rotationLengthSquared = 0;
       for (float rotationValue : node.InitialRotation)
       {
         rotationLengthSquared += rotationValue * rotationValue;
       }
-      if (!vtkMathUtilities::NearlyEqual<float>(rotationLengthSquared, 1))
+      if (!vtkMathUtilities::NearlyEqual<float>(rotationLengthSquared, 1.f, 1e-4f))
       {
         vtkWarningWithObjectMacro(this->Self,
           "Invalid node.rotation value. Using normalized rotation for node " << node.Name);
@@ -885,38 +906,40 @@ bool vtkGLTFDocumentLoaderInternals::LoadNode(
     node.TRSLoaded = true;
   }
 
-  node.Transform = vtkSmartPointer<vtkTransform>::New();
+  node.Transform = vtkSmartPointer<vtkMatrix4x4>::New();
   // Update the node with its initial transform values
   node.UpdateTransform();
 
-  if (!vtkGLTFUtils::GetFloatArray(root["weights"], node.InitialWeights))
+  if (!vtkGLTFUtils::GetFloatArray(root, "weights", node.InitialWeights))
   {
     node.InitialWeights.clear();
   }
 
   node.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], node.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", node.Name);
 
   // Load extensions if necessary
-  if (!this->Self->GetUsedExtensions().empty() && root["extensions"].isObject())
+  auto rootExtensionsIt = root.find("extensions");
+  if (!this->Self->GetUsedExtensions().empty() && rootExtensionsIt != root.end() &&
+    rootExtensionsIt.value().is_object())
   {
-    this->LoadNodeExtensions(root["extensions"], node.ExtensionMetaData);
+    this->LoadNodeExtensions(rootExtensionsIt.value(), node.ExtensionMetaData);
   }
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadSampler(
-  const Json::Value& root, vtkGLTFDocumentLoader::Sampler& sampler)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Sampler& sampler)
 {
   using Sampler = vtkGLTFDocumentLoader::Sampler;
-  if (!root.isObject())
+  if (!root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid sampler object");
     return false;
   }
 
-  if (root.size() == 0)
+  if (root.empty())
   {
     sampler.MagFilter = Sampler::FilterType::LINEAR_MIPMAP_LINEAR;
     sampler.MinFilter = Sampler::FilterType::LINEAR_MIPMAP_LINEAR;
@@ -926,7 +949,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
   }
 
   int tempIntValue = 0;
-  if (!vtkGLTFUtils::GetIntValue(root["magFilter"], tempIntValue))
+  if (!vtkGLTFUtils::GetIntValue(root, "magFilter", tempIntValue))
   {
     sampler.MagFilter = vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST;
   }
@@ -944,7 +967,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
     }
   }
 
-  if (!vtkGLTFUtils::GetIntValue(root["minFilter"], tempIntValue))
+  if (!vtkGLTFUtils::GetIntValue(root, "minFilter", tempIntValue))
   {
     sampler.MinFilter = Sampler::FilterType::NEAREST;
   }
@@ -966,7 +989,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
     }
   }
 
-  if (!vtkGLTFUtils::GetIntValue(root["wrapS"], tempIntValue))
+  if (!vtkGLTFUtils::GetIntValue(root, "wrapS", tempIntValue))
   {
     sampler.WrapS = Sampler::WrapType::REPEAT;
   }
@@ -985,7 +1008,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
     }
   }
 
-  if (!vtkGLTFUtils::GetIntValue(root["wrapT"], tempIntValue))
+  if (!vtkGLTFUtils::GetIntValue(root, "wrapT", tempIntValue))
   {
     sampler.WrapT = Sampler::WrapType::REPEAT;
   }
@@ -1005,23 +1028,23 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
   }
 
   sampler.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], sampler.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", sampler.Name);
 
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadPrimitive(
-  const Json::Value& root, vtkGLTFDocumentLoader::Primitive& primitive)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Primitive& primitive)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     return false;
   }
 
   // Load mode
   primitive.Mode = GL_TRIANGLES;
-  vtkGLTFUtils::GetIntValue(root["mode"], primitive.Mode);
+  vtkGLTFUtils::GetIntValue(root, "mode", primitive.Mode);
   switch (primitive.Mode)
   {
     case GL_POINTS:
@@ -1040,85 +1063,113 @@ bool vtkGLTFDocumentLoaderInternals::LoadPrimitive(
   }
 
   primitive.Material = -1; // default material
-  vtkGLTFUtils::GetIntValue(root["material"], primitive.Material);
+  vtkGLTFUtils::GetIntValue(root, "material", primitive.Material);
 
   primitive.IndicesId = -1;
-  vtkGLTFUtils::GetIntValue(root["indices"], primitive.IndicesId);
+  vtkGLTFUtils::GetIntValue(root, "indices", primitive.IndicesId);
   const auto& glTFAttributes = root["attributes"];
-  if (!glTFAttributes.empty() && glTFAttributes.isObject())
+  if (!glTFAttributes.empty() && glTFAttributes.is_object())
   {
-    for (const auto& glTFAttribute : glTFAttributes.getMemberNames())
+    for (const auto& glTFAttribute : glTFAttributes.items())
     {
       int indice;
-      if (vtkGLTFUtils::GetIntValue(glTFAttributes[glTFAttribute], indice))
+      if (vtkGLTFUtils::GetIntValue(glTFAttributes, glTFAttribute.key(), indice))
       {
-        primitive.AttributeIndices[glTFAttribute] = indice;
+        primitive.AttributeIndices[glTFAttribute.key()] = indice;
       }
     }
   }
 
   // Load morph targets
-  const auto& glTFMorphTargets = root["targets"];
-  if (!glTFMorphTargets.empty() && glTFMorphTargets.isArray())
+  auto rootTargetsIt = root.find("targets");
+  if (rootTargetsIt != root.end() && rootTargetsIt.value().is_array())
   {
-    for (const auto& glTFMorphTarget : glTFMorphTargets)
+    for (const auto& glTFMorphTarget : rootTargetsIt.value())
     {
       vtkGLTFDocumentLoader::MorphTarget target;
       int indice;
-      for (const auto& glTFAttribute : glTFMorphTarget.getMemberNames())
+      for (const auto& glTFAttribute : glTFMorphTarget.items())
       {
-        if (vtkGLTFUtils::GetIntValue(glTFMorphTarget[glTFAttribute], indice))
+        if (vtkGLTFUtils::GetIntValue(glTFMorphTarget, glTFAttribute.key(), indice))
         {
-          target.AttributeIndices[glTFAttribute] = indice;
+          target.AttributeIndices[glTFAttribute.key()] = indice;
         }
       }
       primitive.Targets.push_back(target);
     }
   }
 
+  // extensions
+  auto rootExtIt = root.find("extensions");
+
+  if (rootExtIt != root.end() && rootExtIt.value().is_object())
+  {
+    for (const auto& extension : rootExtIt.value().items())
+    {
+      if (extension.key() == "KHR_draco_mesh_compression")
+      {
+        auto& meshComp = primitive.ExtensionMetaData.KHRDracoMetaData;
+        vtkGLTFUtils::GetIntValue(extension.value(), "bufferView", meshComp.BufferView);
+
+        const auto& dracoAttributes = extension.value()["attributes"];
+        if (!dracoAttributes.empty() && dracoAttributes.is_object())
+        {
+          for (const auto& dracoAttr : dracoAttributes.items())
+          {
+            int indice;
+            if (vtkGLTFUtils::GetIntValue(dracoAttributes, dracoAttr.key(), indice))
+            {
+              meshComp.AttributeIndices[dracoAttr.key()] = indice;
+            }
+          }
+        }
+      }
+    }
+  }
+
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadScene(
-  const Json::Value& root, vtkGLTFDocumentLoader::Scene& scene)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Scene& scene)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid scene object");
     return false;
   }
-  if (!vtkGLTFUtils::GetUIntArray(root["nodes"], scene.Nodes))
+  if (!vtkGLTFUtils::GetUIntArray(root, "nodes", scene.Nodes))
   {
     scene.Nodes.clear();
   }
 
   scene.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], scene.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", scene.Name);
 
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadSkin(
-  const Json::Value& root, vtkGLTFDocumentLoader::Skin& skin)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Skin& skin)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid skin object");
     return false;
   }
 
   skin.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], skin.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", skin.Name);
 
   skin.Skeleton = -1;
-  vtkGLTFUtils::GetIntValue(root["skeleton"], skin.Skeleton);
+  vtkGLTFUtils::GetIntValue(root, "skeleton", skin.Skeleton);
 
   skin.InverseBindMatricesAccessorId = -1;
-  vtkGLTFUtils::GetIntValue(root["inverseBindMatrices"], skin.InverseBindMatricesAccessorId);
+  vtkGLTFUtils::GetIntValue(root, "inverseBindMatrices", skin.InverseBindMatricesAccessorId);
 
-  if (!vtkGLTFUtils::GetIntArray(root["joints"], skin.Joints))
+  if (!vtkGLTFUtils::GetIntArray(root, "joints", skin.Joints))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid skin.joints value for skin " << skin.Name);
     return false;
@@ -1126,40 +1177,40 @@ bool vtkGLTFDocumentLoaderInternals::LoadSkin(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadSparse(
-  const Json::Value& root, vtkGLTFDocumentLoader::Accessor::Sparse& sparse)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Accessor::Sparse& sparse)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid accessor.sparse object");
     return false;
   }
-  if (!vtkGLTFUtils::GetIntValue(root["count"], sparse.Count))
+  if (!vtkGLTFUtils::GetIntValue(root, "count", sparse.Count))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid accessor.sparse.count value");
     return false;
   }
-  const Json::Value& indices = root["indices"];
-  const Json::Value& values = root["values"];
-  if (indices.empty() || values.empty() || !indices.isObject() || !values.isObject())
+  const nlohmann::json& indices = root["indices"];
+  const nlohmann::json& values = root["values"];
+  if (indices.empty() || values.empty() || !indices.is_object() || !values.is_object())
   {
     vtkErrorWithObjectMacro(
       this->Self, "Invalid accessor.sparse.indices or accessor.sparse.values value");
     return false;
   }
-  if (!vtkGLTFUtils::GetIntValue(indices["bufferView"], sparse.IndicesBufferView))
+  if (!vtkGLTFUtils::GetIntValue(indices, "bufferView", sparse.IndicesBufferView))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid accessor.sparse.indices.bufferView value");
     return false;
   }
-  if (!vtkGLTFUtils::GetIntValue(indices["byteOffset"], sparse.IndicesByteOffset))
+  if (!vtkGLTFUtils::GetIntValue(indices, "byteOffset", sparse.IndicesByteOffset))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid accessor.sparse.indices.byteOffset value");
     return false;
   }
   int intIndicesComponentTypes = 0;
-  if (!vtkGLTFUtils::GetIntValue(indices["componentType"], intIndicesComponentTypes))
+  if (!vtkGLTFUtils::GetIntValue(indices, "componentType", intIndicesComponentTypes))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid accessor.sparse.indices.componentType value");
     return false;
@@ -1172,12 +1223,12 @@ bool vtkGLTFDocumentLoaderInternals::LoadSparse(
   }
   sparse.IndicesComponentType =
     static_cast<vtkGLTFDocumentLoader::ComponentType>(intIndicesComponentTypes);
-  if (!vtkGLTFUtils::GetIntValue(values["bufferView"], sparse.ValuesBufferView))
+  if (!vtkGLTFUtils::GetIntValue(values, "bufferView", sparse.ValuesBufferView))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid accessor.sparse.values.bufferView value");
     return false;
   }
-  if (!vtkGLTFUtils::GetIntValue(values["byteOffset"], sparse.ValuesByteOffset))
+  if (!vtkGLTFUtils::GetIntValue(values, "byteOffset", sparse.ValuesByteOffset))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid accessor.sparse.values.byteOffset value");
     return false;
@@ -1185,9 +1236,9 @@ bool vtkGLTFDocumentLoaderInternals::LoadSparse(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadTexture(
-  const Json::Value& root, vtkGLTFDocumentLoader::Texture& texture)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Texture& texture)
 {
   /**
    * This loads a glTF object from a Json value, no files are loaded by this function.
@@ -1195,32 +1246,32 @@ bool vtkGLTFDocumentLoaderInternals::LoadTexture(
    * image object (the object that references to an actual image file), and one to a sampler
    * object (which specifies filter and wrapping options for a texture).
    */
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid texture object.");
     return false;
   }
   texture.Sampler = -1;
-  vtkGLTFUtils::GetIntValue(root["sampler"], texture.Sampler);
+  vtkGLTFUtils::GetIntValue(root, "sampler", texture.Sampler);
   texture.Source = -1;
-  vtkGLTFUtils::GetIntValue(root["source"], texture.Source);
+  vtkGLTFUtils::GetIntValue(root, "source", texture.Source);
   texture.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], texture.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", texture.Name);
 
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadTextureInfo(
-  const Json::Value& root, vtkGLTFDocumentLoader::TextureInfo& textureInfo)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::TextureInfo& textureInfo)
 {
-  if (root.empty() || !root.isObject())
+  if (root.empty() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid textureInfo object");
     return false;
   }
   textureInfo.Index = -1;
-  if (!vtkGLTFUtils::GetIntValue(root["index"], textureInfo.Index))
+  if (!vtkGLTFUtils::GetIntValue(root, "index", textureInfo.Index))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid textureInfo.index value");
     return false;
@@ -1232,44 +1283,44 @@ bool vtkGLTFDocumentLoaderInternals::LoadTextureInfo(
   }
 
   textureInfo.TexCoord = 0;
-  vtkGLTFUtils::GetIntValue(root["texCoord"], textureInfo.TexCoord);
+  vtkGLTFUtils::GetIntValue(root, "texCoord", textureInfo.TexCoord);
 
   return true;
 }
 
-//----------------------------------------------------------------------------
-bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(
-  std::string& fileName, std::vector<std::string>& extensionsUsedByLoader)
+//------------------------------------------------------------------------------
+bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
+  std::vector<std::string>& extensionsUsedByLoader)
 {
-  extensionsUsedByLoader.clear();
-
-  Json::Value root;
-  if (!this->LoadFileMetaData(fileName, root))
+  nlohmann::json root;
+  if (!this->LoadFileMetaData(root))
   {
-    vtkErrorWithObjectMacro(this->Self, "Failed to load file: " << fileName);
+    vtkErrorWithObjectMacro(this->Self, "Failed to load file from stream");
     return false;
   }
 
+  extensionsUsedByLoader.clear();
+
   // Load asset
-  Json::Value glTFAsset = root["asset"];
-  if (glTFAsset.empty() || !glTFAsset.isObject())
+  nlohmann::json glTFAsset = root["asset"];
+  if (glTFAsset.empty() || !glTFAsset.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid asset value");
-    return 0;
+    return false;
   }
 
   // check minversion and version
   if (!vtkGLTFUtils::CheckVersion(glTFAsset))
   {
     vtkErrorWithObjectMacro(this->Self, "Unsupported or invalid glTF version");
-    return 0;
+    return false;
   }
 
   // Check for extensions
-  const auto& supportedExtensions = this->Self->GetSupportedExtensions();
+  auto supportedExtensions = this->Self->GetSupportedExtensions();
   for (const auto& extensionRequiredByModel : root["extensionsRequired"])
   {
-    if (!extensionRequiredByModel.isString())
+    if (!extensionRequiredByModel.is_string())
     {
       vtkWarningWithObjectMacro(
         this->Self, "Invalid extensions.extensionsRequired value. Ignoring this value.");
@@ -1279,17 +1330,18 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(
     // used to fill extensionsUsedByLoader.
     if (!std::any_of(supportedExtensions.begin(), supportedExtensions.end(),
           [&extensionRequiredByModel](
-            const std::string& value) { return value == extensionRequiredByModel.asString(); }))
+            const std::string& value) { return value == extensionRequiredByModel; }))
     {
-      vtkWarningWithObjectMacro(this->Self,
-        "glTF extension " << extensionRequiredByModel.asString()
-                          << " is required in this model, but not supported by this loader. The "
-                             "extension will be ignored.");
+      vtkErrorWithObjectMacro(this->Self,
+        "glTF extension "
+          << extensionRequiredByModel.get<std::string>()
+          << " is required in this model, but not supported by this loader. Aborting");
+      return false;
     }
   }
   for (const auto& extensionUsedByModel : root["extensionsUsed"])
   {
-    if (!extensionUsedByModel.isString())
+    if (!extensionUsedByModel.is_string())
     {
       vtkWarningWithObjectMacro(
         this->Self, "Invalid extensions.extensionsUsed value. Ignoring this value.");
@@ -1297,14 +1349,14 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(
     }
     if (std::any_of(supportedExtensions.begin(), supportedExtensions.end(),
           [&extensionUsedByModel](
-            const std::string& value) { return value == extensionUsedByModel.asString(); }))
+            const std::string& value) { return value == extensionUsedByModel; }))
     {
-      extensionsUsedByLoader.push_back(extensionUsedByModel.asString());
+      extensionsUsedByLoader.push_back(extensionUsedByModel);
     }
     else
     {
       vtkWarningWithObjectMacro(this->Self,
-        "glTF extension " << extensionUsedByModel.asString()
+        "glTF extension " << extensionUsedByModel.get<std::string>()
                           << " is used in this model, but not supported by this loader. The "
                              "extension will be ignored.");
     }
@@ -1422,7 +1474,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(
 
   // Load default scene
   this->Self->GetInternalModel()->DefaultScene = 0;
-  if (!vtkGLTFUtils::GetIntValue(root["scene"], this->Self->GetInternalModel()->DefaultScene))
+  if (!vtkGLTFUtils::GetIntValue(root, "scene", this->Self->GetInternalModel()->DefaultScene))
   {
     int nbScenes = static_cast<int>(this->Self->GetInternalModel()->Scenes.size());
     if (this->Self->GetInternalModel()->DefaultScene < 0 ||
@@ -1455,30 +1507,34 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(
   }
 
   // Load extensions
-  if (!this->Self->GetUsedExtensions().empty() && root["extensions"].isObject())
+  auto rootExtensionsIt = root.find("extensions");
+  if (!this->Self->GetUsedExtensions().empty() && rootExtensionsIt != root.end() &&
+    rootExtensionsIt.value().is_object())
   {
-    this->LoadExtensions(root["extensions"], this->Self->GetInternalModel()->ExtensionMetaData);
+    this->LoadExtensions(
+      rootExtensionsIt.value(), this->Self->GetInternalModel()->ExtensionMetaData);
   }
 
   // Save buffer metadata but don't load buffers
-  if (!root["buffers"].empty() && root["buffers"].isArray())
+  auto rootBuffersIt = root.find("buffers");
+  if (rootBuffersIt != root.end() && rootBuffersIt.value().is_array())
   {
-    this->Self->GetInternalModel()->BufferMetaData = root["buffers"].toStyledString();
+    this->Self->GetInternalModel()->BufferMetaData = rootBuffersIt.value().dump();
   }
 
   return true;
 }
 
-//----------------------------------------------------------------------------
-bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualNodeExtension(const Json::Value& root,
+//------------------------------------------------------------------------------
+bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualNodeExtension(const nlohmann::json& root,
   vtkGLTFDocumentLoader::Node::Extensions::KHRLightsPunctual& lightsExtension)
 {
-  if (root.isNull() || !root.isObject())
+  if (root.is_null() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid node.extensions.KHR_lights_punctual object");
     return false;
   }
-  if (!vtkGLTFUtils::GetIntValue(root["light"], lightsExtension.Light))
+  if (!vtkGLTFUtils::GetIntValue(root, "light", lightsExtension.Light))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid node.extensions.KHR_lights_punctual.light value");
     return false;
@@ -1486,9 +1542,9 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualNodeExtension(const Js
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtension(
-  const Json::Value& root, vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual& lightsExtension)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual& lightsExtension)
 {
   lightsExtension.Lights.reserve(root["lights"].size());
   for (const auto& glTFLight : root["lights"])
@@ -1502,11 +1558,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtension(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
-  const Json::Value& root, vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light& light)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light& light)
 {
-  if (root.isNull() || !root.isObject())
+  if (root.is_null() || !root.is_object())
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid KHR_lights_punctual.lights object");
     return false;
@@ -1521,11 +1577,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
 
   // Load name
   light.Name = "";
-  vtkGLTFUtils::GetStringValue(root["name"], light.Name);
+  vtkGLTFUtils::GetStringValue(root, "name", light.Name);
 
   // Load type and type-specific values
   std::string type;
-  if (!vtkGLTFUtils::GetStringValue(root["type"], type))
+  if (!vtkGLTFUtils::GetStringValue(root, "type", type))
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid KHR_lights_punctual.lights.type value.");
     return false;
@@ -1543,15 +1599,15 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
   {
     light.Type = vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::SPOT;
     // Load innerConeAngle and outerConeAngle
-    auto glTFSpot = root["spot"];
-    if (glTFSpot.isNull() || !glTFSpot.isObject())
+    auto const& glTFSpot = root["spot"];
+    if (glTFSpot.is_null() || !glTFSpot.is_object())
     {
       vtkErrorWithObjectMacro(
         this->Self, "Invalid KHR_lights_punctual.lights.spot object for spot type");
       return false;
     }
     light.SpotOuterConeAngle = DefaultSpotOuterConeAngle;
-    if (vtkGLTFUtils::GetDoubleValue(glTFSpot["outerConeAngle"], light.SpotOuterConeAngle))
+    if (vtkGLTFUtils::GetDoubleValue(glTFSpot, "outerConeAngle", light.SpotOuterConeAngle))
     {
       if (light.SpotOuterConeAngle <= 0 || light.SpotOuterConeAngle > MaxSpotInnerConeAngle)
       {
@@ -1561,7 +1617,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
       }
     }
     light.SpotInnerConeAngle = DefaultSpotInnerConeAngle;
-    if (vtkGLTFUtils::GetDoubleValue(glTFSpot["innerConeAngle"], light.SpotInnerConeAngle))
+    if (vtkGLTFUtils::GetDoubleValue(glTFSpot, "innerConeAngle", light.SpotInnerConeAngle))
     {
       if (light.SpotInnerConeAngle < 0 || light.SpotInnerConeAngle >= light.SpotOuterConeAngle)
       {
@@ -1578,18 +1634,18 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
   }
 
   // Load color
-  if (!vtkGLTFUtils::GetDoubleArray(root["color"], light.Color) || light.Color.size() != 3)
+  if (!vtkGLTFUtils::GetDoubleArray(root, "color", light.Color) || light.Color.size() != 3)
   {
     light.Color = std::vector<double>(3, 1.0f);
   }
 
   // Load intensity
   light.Intensity = 1.0f;
-  vtkGLTFUtils::GetDoubleValue(root["intensity"], light.Intensity);
+  vtkGLTFUtils::GetDoubleValue(root, "intensity", light.Intensity);
 
   // Load range
   light.Range = 0;
-  if (vtkGLTFUtils::GetDoubleValue(root["range"], light.Range))
+  if (vtkGLTFUtils::GetDoubleValue(root, "range", light.Range))
   {
     // Must be positive
     if (light.Range < 0)
@@ -1600,38 +1656,42 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadNodeExtensions(
-  const Json::Value& root, vtkGLTFDocumentLoader::Node::Extensions& nodeExtensions)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Node::Extensions& nodeExtensions)
 {
+  auto rootLightsPunctualIt = root.find("KHR_lights_punctual");
   for (const std::string& usedExtensionName : this->Self->GetUsedExtensions())
   {
-    if (usedExtensionName == "KHR_lights_punctual" && root["KHR_lights_punctual"].isObject())
+    if (usedExtensionName == "KHR_lights_punctual" && rootLightsPunctualIt != root.end() &&
+      rootLightsPunctualIt.value().is_object())
     {
       this->LoadKHRLightsPunctualNodeExtension(
-        root["KHR_lights_punctual"], nodeExtensions.KHRLightsPunctualMetaData);
+        rootLightsPunctualIt.value(), nodeExtensions.KHRLightsPunctualMetaData);
     }
     // New node extensions should be loaded from here
   }
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadExtensions(
-  const Json::Value& root, vtkGLTFDocumentLoader::Extensions& extensions)
+  const nlohmann::json& root, vtkGLTFDocumentLoader::Extensions& extensions)
 {
+  auto rootLightsPunctualIt = root.find("KHR_lights_punctual");
   for (const std::string& usedExtensionName : this->Self->GetUsedExtensions())
   {
-    if (usedExtensionName == "KHR_lights_punctual" && root["KHR_lights_punctual"].isObject())
+    if (usedExtensionName == "KHR_lights_punctual" && rootLightsPunctualIt != root.end() &&
+      rootLightsPunctualIt.value().is_object())
     {
       this->LoadKHRLightsPunctualExtension(
-        root["KHR_lights_punctual"], extensions.KHRLightsPunctualMetaData);
+        rootLightsPunctualIt.value(), extensions.KHRLightsPunctualMetaData);
     }
   }
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGLTFDocumentLoader::AccessorType vtkGLTFDocumentLoaderInternals::AccessorTypeStringToEnum(
   std::string typeName)
 {
@@ -1669,7 +1729,7 @@ vtkGLTFDocumentLoader::AccessorType vtkGLTFDocumentLoaderInternals::AccessorType
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGLTFDocumentLoader::Material::AlphaModeType
 vtkGLTFDocumentLoaderInternals::MaterialAlphaModeStringToEnum(std::string alphaModeString)
 {
@@ -1683,3 +1743,4 @@ vtkGLTFDocumentLoaderInternals::MaterialAlphaModeStringToEnum(std::string alphaM
   }
   return vtkGLTFDocumentLoader::Material::AlphaModeType::OPAQUE;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImplicitVolume.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImplicitVolume
  * @brief   treat a volume as if it were an implicit function
@@ -35,7 +23,7 @@
  * @sa
  * vtkImplicitFunction vtkImplicitDataSet vtkClipPolyData vtkCutter
  * vtkImplicitWindowFunction
-*/
+ */
 
 #ifndef vtkImplicitVolume_h
 #define vtkImplicitVolume_h
@@ -43,20 +31,21 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkImageData;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
-  vtkTypeMacro(vtkImplicitVolume,vtkImplicitFunction);
+  vtkTypeMacro(vtkImplicitVolume, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct an vtkImplicitVolume with no initial volume; the OutValue
    * set to a large negative number; and the OutGradient set to (0,0,1).
    */
-  static vtkImplicitVolume *New();
+  static vtkImplicitVolume* New();
 
   /**
    * Returns the mtime also considering the volume.  This also calls Update
@@ -65,59 +54,58 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Evaluate the ImplicitVolume. This returns the interpolated scalar value
    * at x[3].
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate ImplicitVolume gradient.
    */
   void EvaluateGradient(double x[3], double n[3]) override;
 
-  //@{
+  ///@{
   /**
    * Specify the volume for the implicit function.
    */
   virtual void SetVolume(vtkImageData*);
-  vtkGetObjectMacro(Volume,vtkImageData);
-  //@}
+  vtkGetObjectMacro(Volume, vtkImageData);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the function value to use for points outside of the dataset.
    */
-  vtkSetMacro(OutValue,double);
-  vtkGetMacro(OutValue,double);
-  //@}
+  vtkSetMacro(OutValue, double);
+  vtkGetMacro(OutValue, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the function gradient to use for points outside of the dataset.
    */
-  vtkSetVector3Macro(OutGradient,double);
-  vtkGetVector3Macro(OutGradient,double);
-  //@}
+  vtkSetVector3Macro(OutGradient, double);
+  vtkGetVector3Macro(OutGradient, double);
+  ///@}
 
 protected:
   vtkImplicitVolume();
   ~vtkImplicitVolume() override;
 
-  vtkImageData *Volume; // the structured points
+  vtkImageData* Volume; // the structured points
   double OutValue;
   double OutGradient[3];
   // to replace a static
-  vtkIdList *PointIds;
+  vtkIdList* PointIds;
 
 private:
   vtkImplicitVolume(const vtkImplicitVolume&) = delete;
   void operator=(const vtkImplicitVolume&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

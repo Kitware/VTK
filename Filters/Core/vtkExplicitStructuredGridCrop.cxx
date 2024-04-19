@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExplicitStructuredGridCrop.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExplicitStructuredGridCrop.h"
 
 #include "vtkAlgorithmOutput.h"
@@ -21,9 +9,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExplicitStructuredGridCrop);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExplicitStructuredGridCrop::vtkExplicitStructuredGridCrop()
 {
   this->Initialized = 0;
@@ -34,7 +23,7 @@ vtkExplicitStructuredGridCrop::vtkExplicitStructuredGridCrop()
     VTK_INT_MAX;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGridCrop::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -46,7 +35,7 @@ void vtkExplicitStructuredGridCrop::PrintSelf(ostream& os, vtkIndent indent)
   os << ")\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGridCrop::SetOutputWholeExtent(int extent[6], vtkInformation* outInfo)
 {
   int idx;
@@ -72,7 +61,7 @@ void vtkExplicitStructuredGridCrop::SetOutputWholeExtent(int extent[6], vtkInfor
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGridCrop::SetOutputWholeExtent(
   int minX, int maxX, int minY, int maxY, int minZ, int maxZ)
 {
@@ -86,7 +75,7 @@ void vtkExplicitStructuredGridCrop::SetOutputWholeExtent(
   this->SetOutputWholeExtent(extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGridCrop::GetOutputWholeExtent(int extent[6])
 {
   for (int idx = 0; idx < 6; ++idx)
@@ -95,7 +84,7 @@ void vtkExplicitStructuredGridCrop::GetOutputWholeExtent(int extent[6])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sets the output whole extent to be the input whole extent.
 void vtkExplicitStructuredGridCrop::ResetOutputWholeExtent()
 {
@@ -110,7 +99,7 @@ void vtkExplicitStructuredGridCrop::ResetOutputWholeExtent()
   this->SetOutputWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Change the WholeExtent
 int vtkExplicitStructuredGridCrop::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -146,7 +135,7 @@ int vtkExplicitStructuredGridCrop::RequestInformation(vtkInformation* vtkNotUsed
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridCrop::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -156,7 +145,7 @@ int vtkExplicitStructuredGridCrop::RequestUpdateExtent(vtkInformation* vtkNotUse
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridCrop::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -166,6 +155,8 @@ int vtkExplicitStructuredGridCrop::RequestData(vtkInformation* vtkNotUsed(reques
 
   output->Crop(input, this->OutputWholeExtent, true);
 
+  this->CheckAbort();
   this->UpdateProgress(1.);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

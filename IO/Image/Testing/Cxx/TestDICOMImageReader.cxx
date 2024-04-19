@@ -1,21 +1,8 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestDICOMImageReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test of vtkDICOMImageReader
 // .SECTION Description
 //
-
 
 #include "vtkSmartPointer.h"
 
@@ -23,14 +10,13 @@
 
 #include "vtkImageData.h"
 #include "vtkImageViewer2.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
-
-int TestDICOMImageReader(int argc, char *argv[])
+int TestDICOMImageReader(int argc, char* argv[])
 {
 
-  if ( argc <= 1 )
+  if (argc <= 1)
   {
     cout << "Usage: " << argv[0] << " <dicom file>" << endl;
     return 1;
@@ -38,13 +24,12 @@ int TestDICOMImageReader(int argc, char *argv[])
 
   std::string filename = argv[1];
 
-  vtkSmartPointer<vtkDICOMImageReader> DICOMReader =
-    vtkSmartPointer<vtkDICOMImageReader>::New();
+  vtkSmartPointer<vtkDICOMImageReader> DICOMReader = vtkSmartPointer<vtkDICOMImageReader>::New();
 
   // Check the image can be read
   if (!DICOMReader->CanReadFile(filename.c_str()))
   {
-    cerr << "CanReadFile failed for " << filename.c_str() << "\n";
+    cerr << "CanReadFile failed for " << filename << "\n";
     exit(1);
   }
 
@@ -53,7 +38,7 @@ int TestDICOMImageReader(int argc, char *argv[])
   DICOMReader->Update();
 
   // Read and display the image properties
-  const char* fileExtensions = DICOMReader-> GetFileExtensions();
+  const char* fileExtensions = DICOMReader->GetFileExtensions();
   cout << "fileExtensions: " << fileExtensions << endl;
 
   const char* descriptiveName = DICOMReader->GetDescriptiveName();
@@ -104,15 +89,12 @@ int TestDICOMImageReader(int argc, char *argv[])
   float gantryAngle = DICOMReader->GetGantryAngle();
   cout << "gantryAngle: " << gantryAngle << endl;
 
-
   // Display the center slice
   int sliceNumber =
-    (DICOMReader->GetOutput()->GetExtent()[5] +
-     DICOMReader->GetOutput()->GetExtent()[4]) / 2;
+    (DICOMReader->GetOutput()->GetExtent()[5] + DICOMReader->GetOutput()->GetExtent()[4]) / 2;
 
   // Visualize
-  vtkSmartPointer<vtkImageViewer2> imageViewer =
-    vtkSmartPointer<vtkImageViewer2>::New();
+  vtkSmartPointer<vtkImageViewer2> imageViewer = vtkSmartPointer<vtkImageViewer2>::New();
   imageViewer->SetInputConnection(DICOMReader->GetOutputPort());
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -124,7 +106,6 @@ int TestDICOMImageReader(int argc, char *argv[])
   imageViewer->Render();
 
   renderWindowInteractor->Start();
-
 
   return 0;
 }

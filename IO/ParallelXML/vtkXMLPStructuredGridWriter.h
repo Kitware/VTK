@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPStructuredGridWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPStructuredGridWriter
  * @brief   Write PVTK XML StructuredGrid files.
@@ -25,7 +13,7 @@
  *
  * @sa
  * vtkXMLStructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLPStructuredGridWriter_h
 #define vtkXMLPStructuredGridWriter_h
@@ -33,13 +21,14 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPStructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredGrid;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPStructuredGridWriter : public vtkXMLPStructuredDataWriter
 {
 public:
   static vtkXMLPStructuredGridWriter* New();
-  vtkTypeMacro(vtkXMLPStructuredGridWriter,vtkXMLPStructuredDataWriter);
+  vtkTypeMacro(vtkXMLPStructuredGridWriter, vtkXMLPStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -68,4 +57,5 @@ private:
   void operator=(const vtkXMLPStructuredGridWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

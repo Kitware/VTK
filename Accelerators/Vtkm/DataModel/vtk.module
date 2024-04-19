@@ -1,0 +1,29 @@
+NAME
+  VTK::AcceleratorsVTKmDataModel
+LIBRARY_NAME
+  vtkAcceleratorsVTKmDataModel
+DESCRIPTION
+  VTKm data structures
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-BSD-3-Clause-Sandia-LANL-USGov
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Kitware, Inc.
+  Copyright 2015 Sandia Corporation.
+  Copyright 2015 UT-Battelle, LLC.
+  Copyright 2015 Los Alamos National Security.
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
+  BSD-3-Clause-Sandia-LANL-USGov
+LICENSE_FILES
+  LICENSE
+DEPENDS
+  VTK::AcceleratorsVTKmCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::vtkvtkm
+TEST_DEPENDS
+  VTK::FiltersGeneral
+  VTK::TestingCore
+  VTK::TestingRendering

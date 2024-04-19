@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBox.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBox
  * @brief   implicit function for a bounding box
@@ -25,26 +13,27 @@
  * vtkBox is a concrete implementation of vtkImplicitFunction.
  *
  * @sa
- * vtkCubeSource vtkImplicitFunction
-*/
+ * vtkCubeSource vtkImplicitFunction vtkBoundingBox
+ */
 
 #ifndef vtkBox_h
 #define vtkBox_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkBox : public vtkImplicitFunction
 {
 public:
-  vtkTypeMacro(vtkBox,vtkImplicitFunction);
+  vtkTypeMacro(vtkBox, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct box with center at (0,0,0) and each side of length 1.0.
    */
-  static vtkBox *New();
+  static vtkBox* New();
 
   /**
    * Evaluate box defined by the two points (pMin,pMax).
@@ -57,30 +46,27 @@ public:
    */
   void EvaluateGradient(double x[3], double n[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set / get the bounding box using various methods.
    */
   void SetXMin(double p[3]);
   void SetXMin(double x, double y, double z);
   void GetXMin(double p[3]);
-  void GetXMin(double &x, double &y, double &z);
-  //@}
+  void GetXMin(double& x, double& y, double& z);
+  ///@}
 
   void SetXMax(double p[3]);
   void SetXMax(double x, double y, double z);
   void GetXMax(double p[3]);
-  void GetXMax(double &x, double &y, double &z);
+  void GetXMax(double& x, double& y, double& z);
 
-  void SetBounds(double xMin, double xMax,
-                 double yMin, double yMax,
-                 double zMin, double zMax);
+  void SetBounds(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
   void SetBounds(const double bounds[6]);
-  void GetBounds(double &xMin, double &xMax,
-                 double &yMin, double &yMax,
-                 double &zMin, double &zMax);
+  void GetBounds(
+    double& xMin, double& xMax, double& yMin, double& yMax, double& zMin, double& zMax);
   void GetBounds(double bounds[6]);
-  double *GetBounds() VTK_SIZEHINT(6);
+  double* GetBounds() VTK_SIZEHINT(6);
 
   /**
    * A special method that allows union set operation on bounding boxes.
@@ -99,8 +85,8 @@ public:
    * dir[3] is NOT normalized.  Valid intersections will only occur between
    * 0<=t<=1.)
    */
-  static char IntersectBox(double bounds[6], const double origin[3], double dir[3],
-                           double coord[3], double& t);
+  static char IntersectBox(const double bounds[6], const double origin[3], const double dir[3],
+    double coord[3], double& t, double tolerance = 0.0);
 
   /**
    * Intersect a line with the box.  Give the endpoints of the line in
@@ -114,11 +100,21 @@ public:
    * do not need them to be returned.  The function return value will be
    * zero if the line is wholly outside of the box.
    */
-  static int IntersectWithLine(const double bounds[6],
-                               const double p1[3], const double p2[3],
-                               double &t1, double &t2,
-                               double x1[3], double x2[3],
-                               int &plane1, int &plane2);
+  static int IntersectWithLine(const double bounds[6], const double p1[3], const double p2[3],
+    double& t1, double& t2, double x1[3], double x2[3], int& plane1, int& plane2);
+
+  /**
+   * Same method as vtkBox::IntersectWithLine, except that t1 and t2 can be outside of [0,1].
+   * t1 is the distance of x1 to p1 in parametric coordinates, and t2 is the distance of x2 to p1
+   * in parametric coordinates as well.
+   * In vtkBox::IntersectWithInLine, it is assumed that [p1,p2] is a segment, here, it is
+   * assumed that it is a line with no ends.
+   * t1 <= t2, which means that x1 is always "before" x2 on the line parameterized by [p1,p2].
+   * x1 and x2 can be set to nullptr without crash.
+   */
+  static bool IntersectWithInfiniteLine(const double bounds[6], const double p1[3],
+    const double p2[3], double& t1, double& t2, double x1[3], double x2[3], int& plane1,
+    int& plane2);
 
   /**
    * Plane intersection with the box. The plane is infinite in extent and
@@ -127,8 +123,7 @@ public:
    * The function returns non-zero if the plane and box intersect; zero
    * otherwise.
    */
-  static vtkTypeBool IntersectWithPlane(double bounds[6], double origin[3],
-                                double normal[3]);
+  static vtkTypeBool IntersectWithPlane(double bounds[6], double origin[3], double normal[3]);
 
   /**
    * Plane intersection with the box. The plane is infinite in extent and
@@ -137,26 +132,33 @@ public:
    * are provided (i.e., the points are ordered and form a valid polygon).
    * Thus the function returns non-zero if the plane and box intersect; zero
    * otherwise. Note that if there is an intersection, the number of
-   * intersections ranges from [3,6]. xints memory layout is consistent with
+   * intersections ranges from [3,6]. xout memory layout is consistent with
    * vtkPoints array layout and is organized as (xyz, xyz, xyz, xyz, xyz,
    * xyz).
    */
-  static vtkTypeBool IntersectWithPlane(double bounds[6], double origin[3],
-                                double normal[3], double xints[18]);
+  static vtkTypeBool IntersectWithPlane(
+    double bounds[6], double origin[3], double normal[3], double xout[18]);
+
+  /**
+   * Is a box in a frustum. Returns true if the box is in the frustum
+   * even partially. The frustum is defined as 6 planes. This method
+   * is not exact may and return true for cases where there is no
+   * intersection. It should never return false when there is an
+   * intersection though.
+   */
+  static vtkTypeBool IsBoxInFrustum(double planes[24], double bounds[6]);
 
 protected:
   vtkBox();
   ~vtkBox() override;
 
-  vtkBoundingBox *BBox;
-  double Bounds[6]; //supports the GetBounds() method
+  vtkBoundingBox* BBox;
+  double Bounds[6]; // supports the GetBounds() method
 
 private:
   vtkBox(const vtkBox&) = delete;
   void operator=(const vtkBox&) = delete;
 };
-
-
 
 inline void vtkBox::SetXMin(double p[3])
 {
@@ -168,5 +170,5 @@ inline void vtkBox::SetXMax(double p[3])
   this->SetXMax(p[0], p[1], p[2]);
 }
 
-
+VTK_ABI_NAMESPACE_END
 #endif

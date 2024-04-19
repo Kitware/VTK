@@ -1,3 +1,6 @@
+set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_ERRORS 1000)
+set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 1000)
+
 list(APPEND CTEST_CUSTOM_MEMCHECK_IGNORE
   # Issues in third party glut library
   VTK::RenderingExternalCxx-TestGLUTRenderWindow
@@ -24,6 +27,12 @@ list(APPEND CTEST_CUSTOM_MEMCHECK_IGNORE
   # The key classes impacted are vtkPlotPoints and the
   # Draw calls in Context2D
   VTK::ChartsCoreCxx-TestLinePlotDouble
+
+  # loguru looks like it leaks the thread name but apparently
+  # it eventually does free the memory. See
+  # https://github.com/emilk/loguru/issues/132
+  # for some reason only this test seems to report it
+  VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilter
 )
 
 list(APPEND CTEST_CUSTOM_WARNING_MATCH
@@ -49,6 +58,10 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # the main culprit here.
   "vcruntime_exception.h.*: note: see declaration of 'std::exception'"
 
+  # C4702 warning (unreachable code) caused by intentional abort() used
+  # in test which prevents the return statement from being called.
+  "TestLoggerDisableSignalHandler.*unreachable code"
+
   # GetVersion is deprecated, but its use is OK.
   "sysinfoapi.h.*: note: see declaration of 'GetVersion'"
 
@@ -65,6 +78,9 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "note: see declaration of"
   "note: see previous definition of"
 
+  # Ignore macro expansion lines from GCC
+  "note: in expansion of macro"
+
   # function cast in vtkLogger/loguru
   "vtkLogger.cxx.*: warning: cast between incompatible function types"
 
@@ -73,20 +89,72 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # Qt has some functions marked as `__forceinline` which MSVC refuses to inline.
   "[Qq]t.*warning C4714"
   "[Qq]t.*note: see declaration of"
+
+  # Python notes triggered from MPI4Py Cython-generated code.
+  "include/python3.*: note:"
+
+  # macOS warnings about dependencies htat are newer than the CI target
+  # version.
+  "ld: warning: dylib \\(/Applications/Xcode.*\\.app/Contents/Developer/Library/Frameworks/.*\\) was built for newer macOS version \\(.*\\) than being linked \\(.*\\)"
+
+  # Warning notes from Xcode.
+  "/Applications/Xcode.*: note:"
+
+  # Ignore moc-generated code (and rcc and uic).
+  "\\.dir[/\\\\][^/\\\\]*_autogen"
+
+  # Intel compilers warn about large functions, but we don't usually care.
+  "remark #11074: Inlining inhibited by limit (max-total-size|max-size)"
+  # Ignore the suggestion line for more information too.
+  "remark #11076: To get full report use"
+
+  # clang-tidy ignores
+  "vtkParse.tab.c.*bugprone-sizeof-expression"
+  "vtkParse.tab.c.*bugprone-suspicious-include"
+  "mocs_compilation.cpp.*bugprone-suspicious-include"
+
+  # Ignore some tidy warnings from wrapper code.
+  "vtk[^\\.]+(Java|Python).cxx:.*\\[(readability-redundant-string-init)\\]"
+
+  # Ignore some doxygen warnings
+  "warning: documented symbol 'template class .*' was not declared or defined."
+  "vtkContext2D.h:.*: warning: argument '.*' of command @param is not found in the argument list of vtkContext2D::DrawMarkers"
+  "vtkMultiThreshold.h:.*: warning: argument '.*' of command @param is not found in the argument list of vtkMultiThreshold::AddIntervalSet"
+
+  # Ignore bits from gcc-12 stdlib. There seem to be some serious issues in GCC
+  # 12 diagnostics. These come from the `quay.io/pypa/manylinux_2_28_x86_64`
+  # container as of now.
+  "/opt/rh/gcc-toolset-12"
   )
 
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")
 if (NOT cdash_show_third_party_warnings)
   list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+    # issue with exodus but exodus is not included in the note
+    # should these issues get fixed in exodus then remove this
+    # suppression
+    "note: '__builtin___snprintf_chk'"
+
     # HDF5 lex/yacc sources compilation lacks the "ThirdParty" part of the path.
     "hl/src/H5LT(parse|analyze)"
 
     # Suppress ThirdParty source code from displaying warnings.
     "[Tt]hird[Pp]arty"
 
+    # Suppress MetaIO warnings.
+    "MetaIO/vtkmetaio"
+
+    # clang will often give multiline warnings from macro expansions,
+    # where the first part has "warning:" and subsequent parts have "note:"
+    # and those will sometimes expand into systems headers. When this occurs
+    # for ThirdParty code, we want it suppressed too. Do so here for headers within Xcode.
+    "Xcode\\.app/Contents/Developer.+note:"
+
     # Suppress Remote module source code from displaying warnings.
     # Suppress modules individually as just "Remote" is a common pattern
     "[Rr]emote.[Mm]oment[Ii]nvariants"
+    "[Rr]emote.[Pp]oisson[Rr]econstruction"
+    "[Rr]emote.[Pp]owercrust"
 
     # sometimes we use system third party headers with issues
     # in this case liblas
@@ -117,13 +185,68 @@ if (NOT cdash_show_third_party_warnings)
     # /source/Infovis/BoostGraphAlgorithms/Testing/Cxx/TestBoostAdapter.cxx:221:47: warning: '*((void*)(& ei)+32).__gnu_cxx::__normal_iterator<boost::detail::stored_edge_property<long unsigned int, boost::property<boost::edge_index_t, unsigned int> >*, std::vector<boost::detail::stored_edge_property<long unsigned int, boost::property<boost::edge_index_t, unsigned int> >, std::allocator<boost::detail::stored_edge_property<long unsigned int, boost::property<boost::edge_index_t, unsigned int> > > > >::_M_current' may be used uninitialized in this function [-Wmaybe-uninitialized]
     "[Bb]oost[Gg]raph.*edge_property.*may be used uninitialized"
 
+    # Boost.Graph uses deprecated Boost headers internally.
+    "define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior"
+
     # Warnings due to DIY
     "xmemory.*: warning C4996:.*Default Bounds constructor"
+
+    # vtkm uses deprecated TBB headers
+    "TBB Warning: tbb/task.h is deprecated"
+
+    # vtkm related warnings, someone working on vtkm should fix these and once fixed
+    # remove these suppressions
+    "struct VTKM_DEPRECATED"
+    "vtkm::filter"
 
     # eigen uses this internal header from CUDA that should not be used.
     # [-Wcpp]
     "host_defines.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead"
+
+    # warnings from moc generated code such as
+    # GUISupport/Qt/GUISupportQt_autogen/EWIEGA46WW/moc_QVTKInteractorInternal.cpp:73:55: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
+    "autogen.*moc.*redundant parentheses"
+
+    # third party hdf5
+    # if(NULL == (*full_name = (char *)H5MM_malloc(path1_len + path2_len + 2 + 2))) /* Extra "+2" to quiet GCC warning - 2019/07/05, QAK */
+    "H5MM.*quiet GCC warning"
+
+    # Ignore diy2 warnings
+    "vtkdiy2"
+
+    # missing overrides may be suppressed, but the superclass shows up as a match on some systems
+    # it makes no sense to suppress the offending class but report the superclass
+    # vtkPolyDataAlgorithm.h:91:3: note: overridden virtual function is here
+    "note: overridden virtual function is here"
+
+    # Warnings from template instantiations. Remove once cmake/cmake!4766 is releasted.
+    "x(memory0|utility)\\([0-9]+\\): warning C4244"
+
+    # Timeout errors of SCCACHE are common cases for long builds such as VTK+VTKm+CUDA
+    "sccache: warning: The server looks like it shut down unexpectedly, compiling locally instead"
   )
+endif ()
+
+# CI-specific warning suppressions.
+#
+# Some of our CI ends up generating warnings that don't really matter. Of
+# particular interest are warnings which have different behavior in older
+# compilers than modern ones. It's not really all that important to cater to
+# old, broken warning implementations when newer compilers tell us when we
+# aren't doing things properly.
+if (NOT "$ENV{CI}" STREQUAL "")
+  # Warning exclusions for old compilers and dependencies.
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "mindeps")
+    # GCC 4.8.5
+    if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el7")
+      list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+        # Deprecated classes trigger "usage" warnings in methods marked with
+        # either `= default` or `= delete` generated implementations. This is not
+        # helpful, so just ignore them all.
+        "Wdeprecated-declarations"
+      )
+    endif ()
+  endif ()
 endif ()
 
 list(APPEND CTEST_CUSTOM_COVERAGE_EXCLUDE

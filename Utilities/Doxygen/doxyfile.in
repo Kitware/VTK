@@ -4,8 +4,11 @@
 # -------------------------------------------------------------------------
 
 PROJECT_NAME         = VTK
+PROJECT_LOGO         = "@VTK_SOURCE_DIR@/vtkLogo.ico"
+PROJECT_NUMBER       = "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@"
 
 FULL_PATH_NAMES      = YES
+STRIP_FROM_PATH      = "@VTK_BINARY_DIR@/Utilities/Doxygen/dox"
 WARN_IF_UNDOCUMENTED = NO
 
 GENERATE_TREEVIEW    = NO
@@ -20,6 +23,9 @@ GENERATE_TAGFILE     = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk@VTK_MAJOR_VERSION
 
 PDF_HYPERLINKS       = YES
 
+SEARCHENGINE         = YES
+SERVER_BASED_SEARCH  = NO
+
 HAVE_DOT             = @HAVE_DOT_YESNO@
 DOT_PATH             = "@DOT_PATH@"
 DOT_IMAGE_FORMAT     = svg
@@ -33,18 +39,19 @@ CLASS_DIAGRAMS       = YES
 GENERATE_LEGEND      = YES
 GRAPHICAL_HIERARCHY  = NO        # would be too large for vtkObject
 MAX_DOT_GRAPH_DEPTH  = 3
+USE_MATHJAX          = YES
 
 ALLEXTERNALS         = NO
 
-IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" "@VTK_BINARY_DIR@/Utilities/Doxygen/contrib" \
+IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" \
                        "@VTK_SOURCE_DIR@/Filters" \
                        "@VTK_SOURCE_DIR@/Geovis" \
-                       "@VTK_SOURCE_DIR@/Rendering"
+                       "@VTK_SOURCE_DIR@/Rendering" \
+                       "@VTK_SOURCE_DIR@"
 
 OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
 INPUT                = \
-          "@VTK_SOURCE_DIR@/Documentation/Doxygen" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_version.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2examples.dox" \
@@ -53,26 +60,24 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_events.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_index.dox"
 
-EXCLUDE_PATTERNS     =
+EXCLUDE_PATTERNS     = ".*/Testing/"
 EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Core/vtkSetGet.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingSquaresCases.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingCubesCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingSquaresLineCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingCubesTriangleCases.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Core/vtkWindows.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTk.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPython.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPythonUtil.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkJavaAwt.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkJavaUtil.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPythonUtil.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel/MPI/vtkMPI.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtk3DS.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtkVRML.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/PLY/vtkPLY.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/OpenGL/vtkOpenGL.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/FreeType/fonts/vtkEmbeddedFonts.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Testing/Rendering/Testing/vtkRegressionTestImage.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Testing/Core/Testing/vtkTestDriver.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModule.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleJson.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleGraphviz.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleSerialization.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleTesting.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleWrapJava.cmake" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/CMake/vtkModuleWrapPython.cmake" \
 
 # TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk@VTK_MAJOR_VERSION@-nightly.tag"=http://www.vtk.org/doc/nightly/html
 
@@ -93,10 +98,15 @@ SORT_MEMBER_DOCS     = NO
 DISTRIBUTE_GROUP_DOC = YES
 TAB_SIZE             = 3
 HTML_TIMESTAMP       = YES
+HTML_HEADER          = "@VTK_SOURCE_DIR@/Utilities/Doxygen/dox_header.html"
+HTML_EXTRA_FILES     += "@VTK_SOURCE_DIR@/Utilities/Doxygen/vtk_favicon.png"
+HTML_EXTRA_STYLESHEET = "@VTK_SOURCE_DIR@/Utilities/Doxygen/doc_extra_stylesheet.css"
 SHORT_NAMES          = @DOXYGEN_SHORT_NAMES@
 # PAPER_TYPE           = letter
 
-FILE_PATTERNS        = *.h *.md
+FILE_PATTERNS        = *.h *.md *.cmake
+EXTENSION_MAPPING    = cmake=c
+FILTER_PATTERNS      = *.cmake="@PERL_EXECUTABLE@ @VTK_SOURCE_DIR@/Utilities/Doxygen/filters/cmake2c.pl"
 RECURSIVE            = YES
 
 ALPHABETICAL_INDEX   = YES
@@ -191,4 +201,15 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_ZEROCOPY=" \
                "VTK_EXPECTS(x)=" \
                "VTK_SIZEHINT(...)=" \
-               "DOXYGEN_SHOULD_SKIP_THIS"
+               "VTK_MARSHALEXCLUDE(reason)=" \
+               "VTK_MARSHALGETTER(pname)=" \
+               "VTK_MARSHALSETTER(pname)=" \
+               "VTK_DEPRECATED_IN_8_2_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_0_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_1_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_2_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_3_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_4_0(msg)=" \
+               "DOXYGEN_SHOULD_SKIP_THIS" \
+               "VTK_ABI_NAMESPACE_BEGIN=" \
+               "VTK_ABI_NAMESPACE_END="

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSliceCubes.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSliceCubes
  * @brief   generate isosurface(s) from volume four slices at a time
@@ -44,7 +32,7 @@
  *
  * @sa
  * vtkMarchingCubes vtkContourFilter vtkMCubesReader vtkDividingCubes vtkVolumeReader
-*/
+ */
 
 #ifndef vtkSliceCubes_h
 #define vtkSliceCubes_h
@@ -52,51 +40,52 @@
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVolumeReader;
 
 class VTKIMAGINGHYBRID_EXPORT vtkSliceCubes : public vtkObject
 {
 public:
-  static vtkSliceCubes *New();
-  vtkTypeMacro(vtkSliceCubes,vtkObject);
+  static vtkSliceCubes* New();
+  vtkTypeMacro(vtkSliceCubes, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // methods to make it look like a filter
-  void Write() {this->Update();};
+  void Write() { this->Update(); }
   void Update();
 
-  //@{
+  ///@{
   /**
    * Set/get object to read slices.
    */
   virtual void SetReader(vtkVolumeReader*);
-  vtkGetObjectMacro(Reader,vtkVolumeReader);
-  //@}
+  vtkGetObjectMacro(Reader, vtkVolumeReader);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file name of marching cubes output file.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get isosurface contour value.
    */
-  vtkSetMacro(Value,double);
-  vtkGetMacro(Value,double);
-  //@}
+  vtkSetMacro(Value, double);
+  vtkGetMacro(Value, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file name of marching cubes limits file. The limits file
    * speeds up subsequent reading of output triangle file.
    */
-  vtkSetStringMacro(LimitsFileName);
-  vtkGetStringMacro(LimitsFileName);
-  //@}
+  vtkSetFilePathMacro(LimitsFileName);
+  vtkGetFilePathMacro(LimitsFileName);
+  ///@}
 
 protected:
   vtkSliceCubes();
@@ -104,14 +93,15 @@ protected:
 
   void Execute();
 
-  vtkVolumeReader *Reader;
-  char *FileName;
+  vtkVolumeReader* Reader;
+  char* FileName;
   double Value;
-  char *LimitsFileName;
+  char* LimitsFileName;
 
 private:
   vtkSliceCubes(const vtkSliceCubes&) = delete;
   void operator=(const vtkSliceCubes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

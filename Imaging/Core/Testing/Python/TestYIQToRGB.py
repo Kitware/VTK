@@ -1,12 +1,22 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkPNGWriter
+from vtkmodules.vtkImagingCore import vtkImageCast
+from vtkmodules.vtkImagingColor import (
+    vtkImageRGBToYIQ,
+    vtkImageYIQToRGB,
+)
+from vtkmodules.vtkImagingSources import vtkImageCanvasSource2D
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Use the painter to draw using colors.
 # This is not a pipeline object.  It will support pipeline objects.
 # Please do not use this object directly.
-imageCanvas = vtk.vtkImageCanvasSource2D()
+imageCanvas = vtkImageCanvasSource2D()
 imageCanvas.SetNumberOfScalarComponents(3)
 imageCanvas.SetScalarTypeToUnsignedChar()
 imageCanvas.SetExtent(0,320,0,320,0,0)
@@ -51,23 +61,21 @@ imageCanvas.SetDrawColor(117,64,64)
 imageCanvas.FillBox(200,250,220,320)
 imageCanvas.SetDrawColor(85,80,80)
 imageCanvas.FillBox(250,300,220,320)
-convert = vtk.vtkImageRGBToYIQ()
-convert.SetInputConnection(imageCanvas.GetOutputPort())
-convertBack = vtk.vtkImageYIQToRGB()
+# convert data to float for conversion (YIQ is signed)
+cast1 = vtkImageCast()
+cast1.SetInputConnection(imageCanvas.GetOutputPort())
+cast1.SetOutputScalarTypeToFloat()
+convert = vtkImageRGBToYIQ()
+convert.SetInputConnection(cast1.GetOutputPort())
+convertBack = vtkImageYIQToRGB()
 convertBack.SetInputConnection(convert.GetOutputPort())
-cast = vtk.vtkImageCast()
-cast.SetInputConnection(convertBack.GetOutputPort())
-cast.SetOutputScalarTypeToFloat()
-cast.ReleaseDataFlagOff()
-# DELETE ME
-writer = vtk.vtkPNGWriter()
-writer.SetFileName("YIQToPNG-testimage.png")
-writer.SetInputConnection(convertBack.GetOutputPort())
-writer.Write()
-# DELETE ME END
-viewer = vtk.vtkImageViewer()
-viewer.SetInputConnection(convertBack.GetOutputPort())
-#viewer SetInputConnection [imageCanvas GetOutputPort]
+# convert data back to unsigned char for display
+cast2 = vtkImageCast()
+cast2.SetInputConnection(convertBack.GetOutputPort())
+cast2.SetOutputScalarTypeToUnsignedChar()
+cast2.ClampOverflowOn()
+viewer = vtkImageViewer()
+viewer.SetInputConnection(cast2.GetOutputPort())
 viewer.SetColorWindow(256)
 viewer.SetColorLevel(127.5)
 viewer.SetSize(320,320)

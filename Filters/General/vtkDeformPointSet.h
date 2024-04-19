@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDeformPointSet.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDeformPointSet
  * @brief   use a control polyhedron to deform an input vtkPointSet
@@ -57,7 +45,7 @@
  *
  * @sa
  * vtkMeanValueCoordinatesInterpolator vtkProbePolyhedron vtkPolyhedron
-*/
+ */
 
 #ifndef vtkDeformPointSet_h
 #define vtkDeformPointSet_h
@@ -67,30 +55,30 @@
 
 #include "vtkSmartPointer.h" // For protected ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkPolyData;
-
 
 class VTKFILTERSGENERAL_EXPORT vtkDeformPointSet : public vtkPointSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiable (i.e., concrete) class.
    */
-  static vtkDeformPointSet *New();
-  vtkTypeMacro(vtkDeformPointSet,vtkPointSetAlgorithm);
+  static vtkDeformPointSet* New();
+  vtkTypeMacro(vtkDeformPointSet, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the control mesh to deform the input vtkPointSet. The control
    * mesh must be a closed, non-self-intersecting, manifold mesh.
    */
-  void SetControlMeshData(vtkPolyData *controlMesh);
-  vtkPolyData *GetControlMeshData();
-  //@}
+  void SetControlMeshData(vtkPolyData* controlMesh);
+  vtkPolyData* GetControlMeshData();
+  ///@}
 
   /**
    * Specify the point locations used to probe input. Any geometry
@@ -98,7 +86,7 @@ public:
    */
   void SetControlMeshConnection(vtkAlgorithmOutput* algOutput);
 
-  //@{
+  ///@{
   /**
    * Specify whether to regenerate interpolation weights or not. Initially
    * the filter will reexecute no matter what this flag is set to (initial
@@ -110,7 +98,7 @@ public:
   vtkSetMacro(InitializeWeights, vtkTypeBool);
   vtkGetMacro(InitializeWeights, vtkTypeBool);
   vtkBooleanMacro(InitializeWeights, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkDeformPointSet();
@@ -125,13 +113,12 @@ protected:
   vtkIdType InitialNumberOfPointSetCells;
   vtkSmartPointer<vtkDoubleArray> Weights;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkDeformPointSet(const vtkDeformPointSet&) = delete;
   void operator=(const vtkDeformPointSet&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

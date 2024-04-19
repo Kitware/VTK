@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImagePointDataIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImagePointDataIterator
  * @brief   iterate over point data in an image.
@@ -26,14 +14,15 @@
  * method of iterating over image data within the VTK image filters.
  * @sa
  * vtkImageData vtkImageStencilData vtkImageProgressIterator
-*/
+ */
 
 #ifndef vtkImagePointDataIterator_h
 #define vtkImagePointDataIterator_h
 
-#include "vtkSystemIncludes.h"
 #include "vtkImagingCoreModule.h" // for export macro
+#include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkImageData;
 class vtkImageStencilData;
@@ -56,11 +45,8 @@ public:
    * a pointer to the algorithm is provided and threadId is set to zero,
    * then progress events will provided for the algorithm.
    */
-  vtkImagePointDataIterator(vtkImageData *image,
-                            const int extent[6] = nullptr,
-                            vtkImageStencilData *stencil=nullptr,
-                            vtkAlgorithm *algorithm=nullptr,
-                            int threadId=0)
+  vtkImagePointDataIterator(vtkImageData* image, const int extent[6] = nullptr,
+    vtkImageStencilData* stencil = nullptr, vtkAlgorithm* algorithm = nullptr, int threadId = 0)
   {
     this->Initialize(image, extent, stencil, algorithm, threadId);
   }
@@ -68,9 +54,8 @@ public:
   /**
    * Initialize an iterator.  See constructor for more details.
    */
-  void Initialize(vtkImageData *image, const int extent[6] = nullptr,
-                  vtkImageStencilData *stencil=nullptr,
-                  vtkAlgorithm *algorithm=nullptr, int threadId=0);
+  void Initialize(vtkImageData* image, const int extent[6] = nullptr,
+    vtkImageStencilData* stencil = nullptr, vtkAlgorithm* algorithm = nullptr, int threadId = 0);
 
   /**
    * Move the iterator to the beginning of the next span.
@@ -82,21 +67,15 @@ public:
   /**
    * Test if the iterator has completed iterating over the entire extent.
    */
-  bool IsAtEnd()
-  {
-    return (this->Id == this->End);
-  }
+  bool IsAtEnd() { return (this->Id == this->End); }
 
   /**
    * Check if the iterator is within the region specified by the stencil.
    * This is updated when NextSpan() is called.
    */
-  bool IsInStencil()
-  {
-    return this->InStencil;
-  }
+  bool IsInStencil() { return this->InStencil; }
 
-  //@{
+  ///@{
   /**
    * Get the index at the beginning of the current span.
    */
@@ -106,51 +85,37 @@ public:
     result[1] = this->Index[1];
     result[2] = this->Index[2];
   }
-  //@}
+  ///@}
 
   /**
    * Get the index at the beginning of the current span.
    */
-  const int *GetIndex() VTK_SIZEHINT(3)
-  {
-    return this->Index;
-  }
+  const int* GetIndex() VTK_SIZEHINT(3) { return this->Index; }
 
   /**
    * Get the point Id at the beginning of the current span.
    */
-  vtkIdType GetId()
-  {
-    return this->Id;
-  }
+  vtkIdType GetId() { return this->Id; }
 
   /**
    * Get the end of the span.
    */
-  vtkIdType SpanEndId()
-  {
-    return this->SpanEnd;
-  }
+  vtkIdType SpanEndId() { return this->SpanEnd; }
 
   /**
    * Get a void pointer and pixel increment for the given point Id.
    * The pixel increment is the number of scalar components.
    */
-  static void *GetVoidPointer(vtkImageData *image,
-                              vtkIdType i=0,
-                              int *pixelIncrement=nullptr);
+  static void* GetVoidPointer(vtkImageData* image, vtkIdType i = 0, int* pixelIncrement = nullptr);
 
   /**
    * Get a void pointer and pixel increment for the given point Id.
    * The array must be the same size as the image.  The pixel increment
    * that is returned will be the number of components for the array.
    */
-  static void *GetVoidPointer(vtkDataArray *array,
-                              vtkIdType i=0,
-                              int *pixelIncrement=nullptr);
+  static void* GetVoidPointer(vtkDataArray* array, vtkIdType i = 0, int* pixelIncrement = nullptr);
 
 protected:
-
   /**
    * Set all the state variables for the stencil span that includes idX.
    */
@@ -163,40 +128,41 @@ protected:
    */
   void ReportProgress();
 
-  vtkIdType  Id;                // the current point Id
-  vtkIdType  SpanEnd;           // end of current span
-  vtkIdType  RowEnd;            // end of current row
-  vtkIdType  SliceEnd;          // end of current slice
-  vtkIdType  End;               // end of data
+  vtkIdType Id;       // the current point Id
+  vtkIdType SpanEnd;  // end of current span
+  vtkIdType RowEnd;   // end of current row
+  vtkIdType SliceEnd; // end of current slice
+  vtkIdType End;      // end of data
 
   // Increments
-  vtkIdType  RowIncrement;      // to same position in next row
-  vtkIdType  SliceIncrement;    // to same position in next slice
-  vtkIdType  RowEndIncrement;   // from end of row to start of next row
-  vtkIdType  SliceEndIncrement; // from end of slice to start of next slice
+  vtkIdType RowIncrement;      // to same position in next row
+  vtkIdType SliceIncrement;    // to same position in next slice
+  vtkIdType RowEndIncrement;   // from end of row to start of next row
+  vtkIdType SliceEndIncrement; // from end of slice to start of next slice
 
   // The extent, adjusted for the stencil
-  int        Extent[6];
+  int Extent[6];
 
   // Index-related items
-  int        Index[3];
-  int        StartY;
+  int Index[3];
+  int StartY;
 
   // Stencil-related items
-  bool       HasStencil;
-  bool       InStencil;
-  int        SpanSliceEndIncrement;
-  int        SpanSliceIncrement;
-  int        SpanIndex;
-  int       *SpanCountPointer;
-  int      **SpanListPointer;
+  bool HasStencil;
+  bool InStencil;
+  int SpanSliceEndIncrement;
+  int SpanSliceIncrement;
+  int SpanIndex;
+  int* SpanCountPointer;
+  int** SpanListPointer;
 
   // Progress-related items
-  vtkAlgorithm *Algorithm;
-  vtkIdType  Count;
-  vtkIdType  Target;
-  int        ThreadId;
+  vtkAlgorithm* Algorithm;
+  vtkIdType Count;
+  vtkIdType Target;
+  int ThreadId;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkImagePointDataIterator.h

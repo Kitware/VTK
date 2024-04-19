@@ -1,42 +1,34 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBar.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBar
  * @brief   Bar class for vtk
  *
  * None.
-*/
+ */
 
 #ifndef vtkBar_h
 #define vtkBar_h
 
 #include "vtkObject.h"
-#include "vtkmyCommonWin32Header.h"
+#include "vtkmyCommonModule.h" // For export macro
 
-class VTK_MY_COMMON_EXPORT vtkBar : public vtkObject
+VTK_ABI_NAMESPACE_BEGIN
+class VTKMYCOMMON_EXPORT vtkBar : public vtkObject
 {
 public:
-  static vtkBar *New();
-  vtkTypeMacro(vtkBar,vtkObject);
+  static vtkBar* New();
+  vtkTypeMacro(vtkBar, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkBar() {}
   ~vtkBar() override {}
+
 private:
   vtkBar(const vtkBar&) = delete;
   void operator=(const vtkBar&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

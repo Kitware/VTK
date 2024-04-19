@@ -1,0 +1,36 @@
+NAME
+  VTK::IOCesium3DTiles
+LIBRARY_NAME
+  vtkIOCesium3DTiles
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonTransforms
+  VTK::CommonSystem
+  VTK::IOImage
+  VTK::IOGeometry
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersExtraction
+  VTK::RenderingCore
+  VTK::vtksys
+  VTK::libproj
+  VTK::nlohmannjson
+TEST_DEPENDS
+  VTK::InteractionStyle
+  VTK::CommonSystem
+  VTK::IOCityGML
+  VTK::IOGeometry
+  VTK::IOImport
+  VTK::FiltersCore
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
+  VTK::nlohmannjson

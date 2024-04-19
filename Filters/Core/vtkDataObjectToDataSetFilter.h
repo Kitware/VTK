@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataObjectToDataSetFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDataObjectToDataSetFilter
  * @brief   map field data to concrete dataset
@@ -60,14 +48,15 @@
  * vtkDataObject vtkFieldData vtkDataSet vtkPolyData vtkStructuredPoints
  * vtkStructuredGrid vtkUnstructuredGrid vtkRectilinearGrid
  * vtkDataSetAttributes vtkDataArray
-*/
+ */
 
 #ifndef vtkDataObjectToDataSetFilter_h
 #define vtkDataObjectToDataSetFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkDataSet;
@@ -81,34 +70,29 @@ class vtkUnstructuredGrid;
 class VTKFILTERSCORE_EXPORT vtkDataObjectToDataSetFilter : public vtkDataSetAlgorithm
 {
 public:
-  static vtkDataObjectToDataSetFilter *New();
-  vtkTypeMacro(vtkDataObjectToDataSetFilter,vtkDataSetAlgorithm);
+  static vtkDataObjectToDataSetFilter* New();
+  vtkTypeMacro(vtkDataObjectToDataSetFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the input to the filter.
    */
-  vtkDataObject *GetInput();
+  vtkDataObject* GetInput();
 
-  //@{
+  ///@{
   /**
    * Control what type of data is generated for output.
    */
   void SetDataSetType(int);
-  vtkGetMacro(DataSetType,int);
-  void SetDataSetTypeToPolyData() {
-    this->SetDataSetType(VTK_POLY_DATA);};
-  void SetDataSetTypeToStructuredPoints() {
-    this->SetDataSetType(VTK_STRUCTURED_POINTS);};
-  void SetDataSetTypeToStructuredGrid() {
-    this->SetDataSetType(VTK_STRUCTURED_GRID);};
-  void SetDataSetTypeToRectilinearGrid() {
-    this->SetDataSetType(VTK_RECTILINEAR_GRID);};
-  void SetDataSetTypeToUnstructuredGrid() {
-    this->SetDataSetType(VTK_UNSTRUCTURED_GRID);};
-  //@}
+  vtkGetMacro(DataSetType, int);
+  void SetDataSetTypeToPolyData() { this->SetDataSetType(VTK_POLY_DATA); }
+  void SetDataSetTypeToStructuredPoints() { this->SetDataSetType(VTK_STRUCTURED_POINTS); }
+  void SetDataSetTypeToStructuredGrid() { this->SetDataSetType(VTK_STRUCTURED_GRID); }
+  void SetDataSetTypeToRectilinearGrid() { this->SetDataSetType(VTK_RECTILINEAR_GRID); }
+  void SetDataSetTypeToUnstructuredGrid() { this->SetDataSetType(VTK_UNSTRUCTURED_GRID); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output in different forms. The particular method invoked
    * should be consistent with the SetDataSetType() method. (Note:
@@ -116,16 +100,16 @@ public:
    * SetDataSetType(). Also, GetOutput() will return nullptr if the filter
    * aborted due to inconsistent data.)
    */
-  vtkDataSet *GetOutput();
-  vtkDataSet *GetOutput(int idx);
-  vtkPolyData *GetPolyDataOutput();
-  vtkStructuredPoints *GetStructuredPointsOutput();
-  vtkStructuredGrid *GetStructuredGridOutput();
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
-  vtkRectilinearGrid *GetRectilinearGridOutput();
-  //@}
+  vtkDataSet* GetOutput();
+  vtkDataSet* GetOutput(int idx);
+  vtkPolyData* GetPolyDataOutput();
+  vtkStructuredPoints* GetStructuredPointsOutput();
+  vtkStructuredGrid* GetStructuredGridOutput();
+  vtkUnstructuredGrid* GetUnstructuredGridOutput();
+  vtkRectilinearGrid* GetRectilinearGridOutput();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the component of the field to be used for the x, y, and z values
    * of the points. Note that the parameter comp must lie between (0,2) and
@@ -138,18 +122,20 @@ public:
    * provided which does not require setting the (min,max) component range or
    * the normalize flag (normalize is set to DefaulatNormalize value).
    */
-  void SetPointComponent(int comp, const char *arrayName, int arrayComp,
-                         int min, int max, int normalize);
-  void SetPointComponent(int comp, const char *arrayName, int arrayComp)
-    {this->SetPointComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
-  const char *GetPointComponentArrayName(int comp);
+  void SetPointComponent(
+    int comp, const char* arrayName, int arrayComp, int min, int max, int normalize);
+  void SetPointComponent(int comp, const char* arrayName, int arrayComp)
+  {
+    this->SetPointComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);
+  }
+  const char* GetPointComponentArrayName(int comp);
   int GetPointComponentArrayComponent(int comp);
   int GetPointComponentMinRange(int comp);
   int GetPointComponentMaxRange(int comp);
   int GetPointComponentNormailzeFlag(int comp);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define cell connectivity when creating vtkPolyData. You can define
    * vertices, lines, polygons, and/or triangle strips via these methods.
@@ -157,39 +143,47 @@ public:
    * that no normalization of the data is possible. Basically, you need to
    * define an array of values that (for each cell) includes the number of
    * points per cell, and then the cell connectivity. (This is the vtk file
-   * format described in in the textbook or User's Guide.)
+   * format described in the textbook or User's Guide.)
    */
-  void SetVertsComponent(const char *arrayName, int arrayComp, int min, int max);
-  void SetVertsComponent(const char *arrayName, int arrayComp)
-    {this->SetVertsComponent(arrayName, arrayComp, -1, -1);};
-  const char *GetVertsComponentArrayName();
+  void SetVertsComponent(const char* arrayName, int arrayComp, int min, int max);
+  void SetVertsComponent(const char* arrayName, int arrayComp)
+  {
+    this->SetVertsComponent(arrayName, arrayComp, -1, -1);
+  }
+  const char* GetVertsComponentArrayName();
   int GetVertsComponentArrayComponent();
   int GetVertsComponentMinRange();
   int GetVertsComponentMaxRange();
-  void SetLinesComponent(const char *arrayName, int arrayComp, int min, int max);
-  void SetLinesComponent(const char *arrayName, int arrayComp)
-    {this->SetLinesComponent(arrayName, arrayComp, -1, -1);};
-  const char *GetLinesComponentArrayName();
+  void SetLinesComponent(const char* arrayName, int arrayComp, int min, int max);
+  void SetLinesComponent(const char* arrayName, int arrayComp)
+  {
+    this->SetLinesComponent(arrayName, arrayComp, -1, -1);
+  }
+  const char* GetLinesComponentArrayName();
   int GetLinesComponentArrayComponent();
   int GetLinesComponentMinRange();
   int GetLinesComponentMaxRange();
-  void SetPolysComponent(const char *arrayName, int arrayComp, int min, int max);
-  void SetPolysComponent(const char *arrayName, int arrayComp)
-    {this->SetPolysComponent(arrayName, arrayComp, -1, -1);};
-  const char *GetPolysComponentArrayName();
+  void SetPolysComponent(const char* arrayName, int arrayComp, int min, int max);
+  void SetPolysComponent(const char* arrayName, int arrayComp)
+  {
+    this->SetPolysComponent(arrayName, arrayComp, -1, -1);
+  }
+  const char* GetPolysComponentArrayName();
   int GetPolysComponentArrayComponent();
   int GetPolysComponentMinRange();
   int GetPolysComponentMaxRange();
-  void SetStripsComponent(const char *arrayName, int arrayComp, int min, int max);
-  void SetStripsComponent(const char *arrayName, int arrayComp)
-    {this->SetStripsComponent(arrayName, arrayComp, -1, -1);};
-  const char *GetStripsComponentArrayName();
+  void SetStripsComponent(const char* arrayName, int arrayComp, int min, int max);
+  void SetStripsComponent(const char* arrayName, int arrayComp)
+  {
+    this->SetStripsComponent(arrayName, arrayComp, -1, -1);
+  }
+  const char* GetStripsComponentArrayName();
   int GetStripsComponentArrayComponent();
   int GetStripsComponentMinRange();
   int GetStripsComponentMaxRange();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define cell types and cell connectivity when creating unstructured grid
    * data.  These methods are similar to those for defining points, except
@@ -199,136 +193,143 @@ public:
    * then the cell connectivity. (This is the vtk file format described in
    * in the textbook or User's Guide.)
    */
-  void SetCellTypeComponent(const char *arrayName, int arrayComp,
-                            int min, int max);
-  void SetCellTypeComponent(const char *arrayName, int arrayComp)
-    {this->SetCellTypeComponent(arrayName, arrayComp, -1, -1);};
-  const char *GetCellTypeComponentArrayName();
+  void SetCellTypeComponent(const char* arrayName, int arrayComp, int min, int max);
+  void SetCellTypeComponent(const char* arrayName, int arrayComp)
+  {
+    this->SetCellTypeComponent(arrayName, arrayComp, -1, -1);
+  }
+  const char* GetCellTypeComponentArrayName();
   int GetCellTypeComponentArrayComponent();
   int GetCellTypeComponentMinRange();
   int GetCellTypeComponentMaxRange();
-  void SetCellConnectivityComponent(const char *arrayName, int arrayComp,
-                                    int min, int max);
-  void SetCellConnectivityComponent(const char *arrayName, int arrayComp)
-    {this->SetCellConnectivityComponent(arrayName, arrayComp, -1, -1);};
-  const char *GetCellConnectivityComponentArrayName();
+  void SetCellConnectivityComponent(const char* arrayName, int arrayComp, int min, int max);
+  void SetCellConnectivityComponent(const char* arrayName, int arrayComp)
+  {
+    this->SetCellConnectivityComponent(arrayName, arrayComp, -1, -1);
+  }
+  const char* GetCellConnectivityComponentArrayName();
   int GetCellConnectivityComponentArrayComponent();
   int GetCellConnectivityComponentMinRange();
   int GetCellConnectivityComponentMaxRange();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default Normalize() flag for those methods setting a default
    * Normalize value (e.g., SetPointComponent).
    */
-  vtkSetMacro(DefaultNormalize,vtkTypeBool);
-  vtkGetMacro(DefaultNormalize,vtkTypeBool);
-  vtkBooleanMacro(DefaultNormalize,vtkTypeBool);
-  //@}
+  vtkSetMacro(DefaultNormalize, vtkTypeBool);
+  vtkGetMacro(DefaultNormalize, vtkTypeBool);
+  vtkBooleanMacro(DefaultNormalize, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the dimensions to use if generating a dataset that requires
    * dimensions specification (vtkStructuredPoints, vtkStructuredGrid,
    * vtkRectilinearGrid).
    */
-  vtkSetVector3Macro(Dimensions,int);
-  vtkGetVectorMacro(Dimensions,int,3);
-  //@}
+  vtkSetVector3Macro(Dimensions, int);
+  vtkGetVectorMacro(Dimensions, int, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the origin to use if generating a dataset whose origin
    * can be set (i.e., a vtkStructuredPoints dataset).
    */
-  vtkSetVector3Macro(Origin,double);
-  vtkGetVectorMacro(Origin,double,3);
-  //@}
+  vtkSetVector3Macro(Origin, double);
+  vtkGetVectorMacro(Origin, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the spacing to use if generating a dataset whose spacing
    * can be set (i.e., a vtkStructuredPoints dataset).
    */
-  vtkSetVector3Macro(Spacing,double);
-  vtkGetVectorMacro(Spacing,double,3);
-  //@}
+  vtkSetVector3Macro(Spacing, double);
+  vtkGetVectorMacro(Spacing, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Alternative methods to specify the dimensions, spacing, and origin for those
    * datasets requiring this information. You need to specify the name of an array;
    * the component of the array, and the range of the array (min,max). These methods
    * will override the information given by the previous methods.
    */
-  void SetDimensionsComponent(const char *arrayName, int arrayComp, int min, int max);
-  void SetDimensionsComponent(const char *arrayName, int arrayComp)
-    {this->SetDimensionsComponent(arrayName, arrayComp, -1, -1);};
-  void SetSpacingComponent(const char *arrayName, int arrayComp, int min, int max);
-  void SetSpacingComponent(const char *arrayName, int arrayComp)
-    {this->SetSpacingComponent(arrayName, arrayComp, -1, -1);};
-  void SetOriginComponent(const char *arrayName, int arrayComp, int min, int max);
-  void SetOriginComponent(const char *arrayName, int arrayComp)
-    {this->SetOriginComponent(arrayName, arrayComp, -1, -1);};
-  //@}
+  void SetDimensionsComponent(const char* arrayName, int arrayComp, int min, int max);
+  void SetDimensionsComponent(const char* arrayName, int arrayComp)
+  {
+    this->SetDimensionsComponent(arrayName, arrayComp, -1, -1);
+  }
+  void SetSpacingComponent(const char* arrayName, int arrayComp, int min, int max);
+  void SetSpacingComponent(const char* arrayName, int arrayComp)
+  {
+    this->SetSpacingComponent(arrayName, arrayComp, -1, -1);
+  }
+  void SetOriginComponent(const char* arrayName, int arrayComp, int min, int max);
+  void SetOriginComponent(const char* arrayName, int arrayComp)
+  {
+    this->SetOriginComponent(arrayName, arrayComp, -1, -1);
+  }
+  ///@}
 
 protected:
   vtkDataObjectToDataSetFilter();
   ~vtkDataObjectToDataSetFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override; //generate output data
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int RequestDataObject(vtkInformation *, vtkInformationVector **,
-                                vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**,
+    vtkInformationVector*) override; // generate output data
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char Updating;
 
   // control flags used to generate the output dataset
-  int DataSetType; //the type of dataset to generate
+  int DataSetType; // the type of dataset to generate
 
   // Support definition of points
-  char *PointArrays[3]; //the name of the arrays
-  int PointArrayComponents[3]; //the array components used for x-y-z
-  vtkIdType PointComponentRange[3][2]; //the range of the components to use
-  int PointNormalize[3]; //flags control normalization
+  char* PointArrays[3];                // the name of the arrays
+  int PointArrayComponents[3];         // the array components used for x-y-z
+  vtkIdType PointComponentRange[3][2]; // the range of the components to use
+  int PointNormalize[3];               // flags control normalization
 
   // These define cells for vtkPolyData
-  char *VertsArray; //the name of the array
-  int VertsArrayComponent; //the array component
-  vtkIdType VertsComponentRange[2]; //the range of the components to use
+  char* VertsArray;                 // the name of the array
+  int VertsArrayComponent;          // the array component
+  vtkIdType VertsComponentRange[2]; // the range of the components to use
 
-  char *LinesArray; //the name of the array
-  int LinesArrayComponent; //the array component used for cell types
-  vtkIdType LinesComponentRange[2]; //the range of the components to use
+  char* LinesArray;                 // the name of the array
+  int LinesArrayComponent;          // the array component used for cell types
+  vtkIdType LinesComponentRange[2]; // the range of the components to use
 
-  char *PolysArray; //the name of the array
-  int PolysArrayComponent; //the array component
-  vtkIdType PolysComponentRange[2]; //the range of the components to use
+  char* PolysArray;                 // the name of the array
+  int PolysArrayComponent;          // the array component
+  vtkIdType PolysComponentRange[2]; // the range of the components to use
 
-  char *StripsArray; //the name of the array
-  int StripsArrayComponent; //the array component
-  vtkIdType StripsComponentRange[2]; //the range of the components to use
+  char* StripsArray;                 // the name of the array
+  int StripsArrayComponent;          // the array component
+  vtkIdType StripsComponentRange[2]; // the range of the components to use
 
   // Used to define vtkUnstructuredGrid datasets
-  char *CellTypeArray; //the name of the array
-  int CellTypeArrayComponent; //the array component used for cell types
-  vtkIdType CellTypeComponentRange[2]; //the range of the components to use
+  char* CellTypeArray;                 // the name of the array
+  int CellTypeArrayComponent;          // the array component used for cell types
+  vtkIdType CellTypeComponentRange[2]; // the range of the components to use
 
-  char *CellConnectivityArray; //the name of the array
-  int CellConnectivityArrayComponent; //the array components used for cell connectivity
-  vtkIdType CellConnectivityComponentRange[2]; //the range of the components to use
+  char* CellConnectivityArray;                 // the name of the array
+  int CellConnectivityArrayComponent;          // the array components used for cell connectivity
+  vtkIdType CellConnectivityComponentRange[2]; // the range of the components to use
 
   // helper methods (and attributes) to construct datasets
-  void SetArrayName(char* &name, char *newName);
-  vtkIdType ConstructPoints(vtkDataObject *input, vtkPointSet *ps);
-  vtkIdType ConstructPoints(vtkDataObject *input, vtkRectilinearGrid *rg);
-  int ConstructCells(vtkDataObject *input, vtkPolyData *pd);
-  int ConstructCells(vtkDataObject *input, vtkUnstructuredGrid *ug);
-  vtkCellArray *ConstructCellArray(vtkDataArray *da, int comp,
-                                   vtkIdType compRange[2]);
+  void SetArrayName(char*& name, char* newName);
+  vtkIdType ConstructPoints(vtkDataObject* input, vtkPointSet* ps);
+  vtkIdType ConstructPoints(vtkDataObject* input, vtkRectilinearGrid* rg);
+  int ConstructCells(vtkDataObject* input, vtkPolyData* pd);
+  int ConstructCells(vtkDataObject* input, vtkUnstructuredGrid* ug);
+  vtkCellArray* ConstructCellArray(vtkDataArray* da, int comp, vtkIdType compRange[2]);
 
   // Default value for normalization
   vtkTypeBool DefaultNormalize;
@@ -338,25 +339,26 @@ protected:
   double Origin[3];
   double Spacing[3];
 
-  char *DimensionsArray; //the name of the array
-  int DimensionsArrayComponent; //the component of the array used for dimensions
-  vtkIdType DimensionsComponentRange[2]; //the ComponentRange of the array for the dimensions
+  char* DimensionsArray;                 // the name of the array
+  int DimensionsArrayComponent;          // the component of the array used for dimensions
+  vtkIdType DimensionsComponentRange[2]; // the ComponentRange of the array for the dimensions
 
-  char *OriginArray; //the name of the array
-  int OriginArrayComponent; //the component of the array used for Origins
-  vtkIdType OriginComponentRange[2]; //the ComponentRange of the array for the Origins
+  char* OriginArray;                 // the name of the array
+  int OriginArrayComponent;          // the component of the array used for Origins
+  vtkIdType OriginComponentRange[2]; // the ComponentRange of the array for the Origins
 
-  char *SpacingArray; //the name of the array
-  int SpacingArrayComponent; //the component of the array used for Spacings
-  vtkIdType SpacingComponentRange[2]; //the ComponentRange of the array for the Spacings
+  char* SpacingArray;                 // the name of the array
+  int SpacingArrayComponent;          // the component of the array used for Spacings
+  vtkIdType SpacingComponentRange[2]; // the ComponentRange of the array for the Spacings
 
-  void ConstructDimensions(vtkDataObject *input);
-  void ConstructSpacing(vtkDataObject *input);
-  void ConstructOrigin(vtkDataObject *input);
+  void ConstructDimensions(vtkDataObject* input);
+  void ConstructSpacing(vtkDataObject* input);
+  void ConstructOrigin(vtkDataObject* input);
 
 private:
   vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&) = delete;
   void operator=(const vtkDataObjectToDataSetFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

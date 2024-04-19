@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMCubesReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMCubesReader
  * @brief   read binary marching cubes file
@@ -48,7 +36,7 @@
  *
  * @sa
  * vtkContourFilter vtkMarchingCubes vtkSliceCubes vtkLocator
-*/
+ */
 
 #ifndef vtkMCubesReader_h
 #define vtkMCubesReader_h
@@ -59,65 +47,66 @@
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 
 class VTKIOGEOMETRY_EXPORT vtkMCubesReader : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkMCubesReader,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkMCubesReader, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with FlipNormals turned off and Normals set to true.
    */
-  static vtkMCubesReader *New();
+  static vtkMCubesReader* New();
 
-  //@{
+  ///@{
   /**
    * Specify file name of marching cubes file.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the file name of the marching cubes limits file.
    */
-  vtkSetStringMacro(LimitsFileName);
-  vtkGetStringMacro(LimitsFileName);
-  //@}
+  vtkSetFilePathMacro(LimitsFileName);
+  vtkGetFilePathMacro(LimitsFileName);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a header size if one exists. The header is skipped and not used at this time.
    */
-  vtkSetClampMacro(HeaderSize,int,0,VTK_INT_MAX);
-  vtkGetMacro(HeaderSize,int);
-  //@}
+  vtkSetClampMacro(HeaderSize, int, 0, VTK_INT_MAX);
+  vtkGetMacro(HeaderSize, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to flip normals in opposite direction. Flipping ONLY
    * changes the direction of the normal vector. Contrast this with flipping
    * in vtkPolyDataNormals which flips both the normal and the cell point
    * order.
    */
-  vtkSetMacro(FlipNormals,vtkTypeBool);
-  vtkGetMacro(FlipNormals,vtkTypeBool);
-  vtkBooleanMacro(FlipNormals,vtkTypeBool);
-  //@}
+  vtkSetMacro(FlipNormals, vtkTypeBool);
+  vtkGetMacro(FlipNormals, vtkTypeBool);
+  vtkBooleanMacro(FlipNormals, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to read normals.
    */
-  vtkSetMacro(Normals,vtkTypeBool);
-  vtkGetMacro(Normals,vtkTypeBool);
-  vtkBooleanMacro(Normals,vtkTypeBool);
-  //@}
+  vtkSetMacro(Normals, vtkTypeBool);
+  vtkGetMacro(Normals, vtkTypeBool);
+  vtkBooleanMacro(Normals, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods should be used instead of the SwapBytes methods.
    * They indicate the byte ordering of the file you are trying
@@ -135,26 +124,26 @@ public:
   void SetDataByteOrderToLittleEndian();
   int GetDataByteOrder();
   void SetDataByteOrder(int);
-  const char *GetDataByteOrderAsString();
-  //@}
+  const char* GetDataByteOrderAsString();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off byte swapping.
    */
-  vtkSetMacro(SwapBytes,vtkTypeBool);
-  vtkGetMacro(SwapBytes,vtkTypeBool);
-  vtkBooleanMacro(SwapBytes,vtkTypeBool);
-  //@}
+  vtkSetMacro(SwapBytes, vtkTypeBool);
+  vtkGetMacro(SwapBytes, vtkTypeBool);
+  vtkBooleanMacro(SwapBytes, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get a spatial locator for merging points. By default,
    * an instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
-  //@}
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified.
@@ -170,11 +159,11 @@ protected:
   vtkMCubesReader();
   ~vtkMCubesReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char *FileName;
-  char *LimitsFileName;
-  vtkIncrementalPointLocator *Locator;
+  char* FileName;
+  char* LimitsFileName;
+  vtkIncrementalPointLocator* Locator;
   vtkTypeBool SwapBytes;
   int HeaderSize;
   vtkTypeBool FlipNormals;
@@ -185,4 +174,5 @@ private:
   void operator=(const vtkMCubesReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

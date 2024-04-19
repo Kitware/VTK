@@ -6,6 +6,10 @@
 
 #include "nclist.h"
 
+#if defined(_WIN32) && !defined(__MINGW32__)
+#define strcasecmp _stricmp
+#endif
+
 int nclistnull(void* e) {return e == NULL;}
 
 #ifndef TRUE
@@ -53,17 +57,25 @@ Free a list and its contents
 int
 nclistfreeall(NClist* l)
 {
+    nclistclearall(l);
+    return nclistfree(l);
+}
+
+/*
+Free the contents of a list
+*/
+int
+nclistclearall(NClist* l)
+{
   size_t i,len;
-  void** content = NULL;
   if(l == NULL) return TRUE;
   len = l->length;
-  content = nclistextract(l);
   for(i=0;i<len;i++) {
-      void* value = content[i];
+      void* value = l->content[i];
       if(value != NULL) free(value);
   }
-  if(content != NULL) free(content);
-  return nclistfree(l);
+  nclistsetlength(l,0);
+  return TRUE;
 }
 
 int
@@ -97,7 +109,7 @@ nclistsetlength(NClist* l, size_t newlen)
 }
 
 void*
-nclistget(NClist* l, size_t index)
+nclistget(const NClist* l, size_t index)
 {
   if(l == NULL || l->length == 0) return NULL;
   if(index >= l->length) return NULL;
@@ -134,11 +146,11 @@ nclistinsert(NClist* l, size_t index, void* elem)
 }
 
 int
-nclistpush(NClist* l, void* elem)
+nclistpush(NClist* l, const void* elem)
 {
   if(l == NULL) return FALSE;
   if(l->length >= l->alloc) nclistsetalloc(l,0);
-  l->content[l->length] = elem;
+  l->content[l->length] = (void*)elem;
   l->length++;
   return TRUE;
 }
@@ -171,22 +183,30 @@ nclistremove(NClist* l, size_t i)
   return elem;
 }
 
-/* Duplicate and return the content (null terminate) */
-void**
-nclistdup(NClist* l)
-{
-    void** result = (void**)malloc(sizeof(void*)*(l->length+1));
-    memcpy((void*)result,(void*)l->content,sizeof(void*)*l->length);
-    result[l->length] = (void*)0;
-    return result;
-}
-
+/* Match on == */
 int
 nclistcontains(NClist* l, void* elem)
 {
     size_t i;
     for(i=0;i<nclistlength(l);i++) {
 	if(elem == nclistget(l,i)) return 1;
+    }
+    return 0;
+}
+
+/* Match on str(case)cmp */
+int
+nclistmatch(NClist* l, const char* elem, int casesensitive)
+{
+    size_t i;
+    for(i=0;i<nclistlength(l);i++) {
+	const char* candidate = (const char*)nclistget(l,i);
+	int match;
+	if(casesensitive)
+	    match = strcmp(elem,candidate);
+	else
+	    match = strcasecmp(elem,candidate);
+	if(match == 0) return 1;
     }
     return 0;
 }
@@ -210,7 +230,6 @@ nclistelemremove(NClist* l, void* elem)
   }
   return found;
 }
-
 
 /* Extends nclist to include a unique operator
    which remove duplicate values; NULL values removed
@@ -238,14 +257,31 @@ nclistunique(NClist* l)
     return 1;
 }
 
+/* Duplicate a list and if deep is true, assume the contents
+   are char** and duplicate those also */
 NClist*
-nclistclone(NClist* l)
+nclistclone(const NClist* l, int deep)
 {
-    NClist* clone = nclistnew();
-    *clone = *l;
-    clone->content = nclistdup(l);
+    NClist* clone = NULL;
+    if(l == NULL) goto done;
+    clone = nclistnew();
+    nclistsetalloc(clone,l->length+1); /* make room for final null */
+    if(!deep) {
+        nclistsetlength(clone,l->length);
+        memcpy((void*)clone->content,(void*)l->content,sizeof(void*)*l->length);
+    } else { /*deep*/
+	int i;
+	for(i=0;i<nclistlength(l);i++) {
+	    char* dups = strdup(nclistget(l,i));
+	    if(dups == NULL) {nclistfreeall(clone); clone = NULL; goto done;}
+	    nclistpush(clone,dups);	    
+	}
+    }
+    clone->content[l->length] = (void*)0;
+done:
     return clone;
 }
+
 
 void*
 nclistextract(NClist* l)

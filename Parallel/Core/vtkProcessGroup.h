@@ -1,22 +1,6 @@
-// -*- c++ -*-
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProcessGroup.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkProcessGroup
@@ -40,14 +24,15 @@
  * This class was originally written by Kenneth Moreland (kmorel@sandia.gov)
  * from Sandia National Laboratories.
  *
-*/
+ */
 
 #ifndef vtkProcessGroup_h
 #define vtkProcessGroup_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkCommunicator;
 
@@ -55,25 +40,25 @@ class VTKPARALLELCORE_EXPORT vtkProcessGroup : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProcessGroup, vtkObject);
-  static vtkProcessGroup *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkProcessGroup* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Initialize the group to the given controller or communicator.  The group
    * will be set to contain all of the processes in the controller/communicator
    * in the same order.
    */
-  void Initialize(vtkMultiProcessController *controller);
-  void Initialize(vtkCommunicator *communicator);
-  //@}
+  void Initialize(vtkMultiProcessController* controller);
+  void Initialize(vtkCommunicator* communicator);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the communicator on which this group is based on.
    */
   vtkGetObjectMacro(Communicator, vtkCommunicator);
-  //@}
+  ///@}
 
   /**
    * Set the communicator.  This has the same effect as Initialize except that
@@ -82,14 +67,14 @@ public:
    * Note that this can lead to an invalid group if there are values in the
    * group that are not valid in the new communicator.
    */
-  void SetCommunicator(vtkCommunicator *communicator);
+  void SetCommunicator(vtkCommunicator* communicator);
 
-  //@{
+  ///@{
   /**
    * Returns the size of this group (the number of processes defined in it).
    */
   vtkGetMacro(NumberOfProcessIds, int);
-  //@}
+  ///@}
 
   /**
    * Given a position in the group, returns the id of the process in the
@@ -135,20 +120,21 @@ public:
   /**
    * Copies the given group's communicator and process ids.
    */
-  void Copy(vtkProcessGroup *group);
+  void Copy(vtkProcessGroup* group);
 
 protected:
   vtkProcessGroup();
   ~vtkProcessGroup() override;
 
-  int *ProcessIds;
+  int* ProcessIds;
   int NumberOfProcessIds;
 
-  vtkCommunicator *Communicator;
+  vtkCommunicator* Communicator;
 
 private:
-  vtkProcessGroup(const vtkProcessGroup &) = delete;
-  void operator=(const vtkProcessGroup &) = delete;
+  vtkProcessGroup(const vtkProcessGroup&) = delete;
+  void operator=(const vtkProcessGroup&) = delete;
 };
 
-#endif //vtkProcessGroup_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkProcessGroup_h

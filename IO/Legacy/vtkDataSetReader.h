@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataSetReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDataSetReader
  * @brief   class to read any type of vtk dataset
@@ -29,14 +17,15 @@
  * @sa
  * vtkDataReader vtkPolyDataReader vtkRectilinearGridReader
  * vtkStructuredPointsReader vtkStructuredGridReader vtkUnstructuredGridReader
-*/
+ */
 
 #ifndef vtkDataSetReader_h
 #define vtkDataSetReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkPolyData;
 class vtkRectilinearGrid;
@@ -47,19 +36,19 @@ class vtkUnstructuredGrid;
 class VTKIOLEGACY_EXPORT vtkDataSetReader : public vtkDataReader
 {
 public:
-  static vtkDataSetReader *New();
-  vtkTypeMacro(vtkDataSetReader,vtkDataReader);
+  static vtkDataSetReader* New();
+  vtkTypeMacro(vtkDataSetReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output of this filter
    */
-  vtkDataSet *GetOutput();
-  vtkDataSet *GetOutput(int idx);
-  //@}
+  vtkDataSet* GetOutput();
+  vtkDataSet* GetOutput(int idx);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output as various concrete types. This method is typically used
    * when you know exactly what type of data is being read.  Otherwise, use
@@ -67,12 +56,12 @@ public:
    * returned.  (You must also set the filename of the object prior to
    * getting the output.)
    */
-  vtkPolyData *GetPolyDataOutput();
-  vtkStructuredPoints *GetStructuredPointsOutput();
-  vtkStructuredGrid *GetStructuredGridOutput();
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
-  vtkRectilinearGrid *GetRectilinearGridOutput();
-  //@}
+  vtkPolyData* GetPolyDataOutput();
+  vtkStructuredPoints* GetStructuredPointsOutput();
+  vtkStructuredGrid* GetStructuredGridOutput();
+  vtkUnstructuredGrid* GetUnstructuredGridOutput();
+  vtkRectilinearGrid* GetRectilinearGridOutput();
+  ///@}
 
   /**
    * This method can be used to find out the type of output expected without
@@ -83,15 +72,12 @@ public:
   /**
    * Read metadata from file.
    */
-  int ReadMetaDataSimple(const std::string& fname,
-                         vtkInformation* metadata) override;
+  int ReadMetaDataSimple(VTK_FILEPATH const std::string& fname, vtkInformation* metadata) override;
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
-
+  int ReadMeshSimple(VTK_FILEPATH const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkDataSetReader();
@@ -99,11 +85,12 @@ protected:
 
   vtkDataObject* CreateOutput(vtkDataObject* currentOutput) override;
 
-  int FillOutputPortInformation(int, vtkInformation *) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
 private:
   vtkDataSetReader(const vtkDataSetReader&) = delete;
   void operator=(const vtkDataSetReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

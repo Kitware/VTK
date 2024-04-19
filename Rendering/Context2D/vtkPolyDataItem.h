@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataItem.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPolyDataItem
  * @brief   Filter that translate a vtkPolyData 2D mesh into vtkContextItems.
@@ -24,10 +12,10 @@
 #ifndef vtkPolyDataItem_h
 #define vtkPolyDataItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkUnsignedCharArray;
 
@@ -37,7 +25,7 @@ public:
   vtkTypeMacro(vtkPolyDataItem, vtkContextItem);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPolyDataItem *New();
+  static vtkPolyDataItem* New();
 
   /**
    * Paint event for the item.
@@ -90,4 +78,5 @@ private:
   void operator=(const vtkPolyDataItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

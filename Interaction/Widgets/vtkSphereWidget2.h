@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSphereWidget2.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSphereWidget2
  * @brief   3D widget for manipulating a point on a sphere
@@ -82,54 +70,57 @@
  *
  * @sa
  * vtkSphereRepresentation vtkSphereWidget
-*/
+ */
 
 #ifndef vtkSphereWidget2_h
 #define vtkSphereWidget2_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSphereRepresentation;
 class vtkHandleWidget;
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkSphereWidget2 : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkSphereWidget2 : public vtkAbstractWidget
 {
 public:
   /**
    * Instantiate the object.
    */
-  static vtkSphereWidget2 *New();
+  static vtkSphereWidget2* New();
 
-  //@{
+  ///@{
   /**
    * Standard class methods for type information and printing.
    */
-  vtkTypeMacro(vtkSphereWidget2,vtkAbstractWidget);
+  vtkTypeMacro(vtkSphereWidget2, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
    * widget in the scene. Note that the representation is a subclass of
    * vtkProp so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkSphereRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkSphereRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
-  //@{
+  ///@{
   /**
    * Control the behavior of the widget (i.e., how it processes
    * events). Translation, and scaling can all be enabled and disabled.
    */
-  vtkSetMacro(TranslationEnabled,vtkTypeBool);
-  vtkGetMacro(TranslationEnabled,vtkTypeBool);
-  vtkBooleanMacro(TranslationEnabled,vtkTypeBool);
-  vtkSetMacro(ScalingEnabled,vtkTypeBool);
-  vtkGetMacro(ScalingEnabled,vtkTypeBool);
-  vtkBooleanMacro(ScalingEnabled,vtkTypeBool);
-  //@}
+  vtkSetMacro(TranslationEnabled, vtkTypeBool);
+  vtkGetMacro(TranslationEnabled, vtkTypeBool);
+  vtkBooleanMacro(TranslationEnabled, vtkTypeBool);
+  vtkSetMacro(ScalingEnabled, vtkTypeBool);
+  vtkGetMacro(ScalingEnabled, vtkTypeBool);
+  vtkBooleanMacro(ScalingEnabled, vtkTypeBool);
+  ///@}
 
   /**
    * Create the default widget representation if one is not set. By default,
@@ -149,7 +140,11 @@ protected:
 
   // Manage the state of the widget
   int WidgetState;
-  enum _WidgetState {Start=0,Active};
+  enum WidgetStateType
+  {
+    Start = 0,
+    Active
+  };
 
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
@@ -170,4 +165,5 @@ private:
   void operator=(const vtkSphereWidget2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

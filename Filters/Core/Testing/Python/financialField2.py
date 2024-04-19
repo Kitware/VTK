@@ -1,29 +1,39 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkFloatArray
+from vtkmodules.vtkCommonDataModel import vtkFieldData
+from vtkmodules.vtkFiltersCore import (
+    vtkDataObjectToDataSetFilter,
+    vtkFieldDataToAttributeDataFilter,
+    vtkTubeFilter,
+)
+from vtkmodules.vtkFiltersGeneral import (
+    vtkAxes,
+    vtkMarchingContourFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkProgrammableDataObjectSource
+from vtkmodules.vtkImagingHybrid import vtkGaussianSplatter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkFollower,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingFreeType import vtkVectorText
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class financialField2(vtk.test.Testing.vtkTest):
+class financialField2(vtkmodules.test.Testing.vtkTest):
 
     def testFinancialField(self):
 
@@ -42,7 +52,7 @@ class financialField2(vtk.test.Testing.vtkTest):
 
         # Parse an ascii file and manually create a field. Then construct a
         # dataset from the field.
-        dos = vtk.vtkProgrammableDataObjectSource()
+        dos = vtkProgrammableDataObjectSource()
 
         def parseFile():
             f = open(VTK_DATA_ROOT + "/Data/financial.txt", "r")
@@ -50,10 +60,10 @@ class financialField2(vtk.test.Testing.vtkTest):
             line = f.readline().split()
             # From the size calculate the number of lines.
             numPts = int(line[1])
-            numLines = (numPts - 1) / 8 + 1
+            numLines = (numPts - 1) // 8 + 1
 
             # create the data object
-            field = vtk.vtkFieldData()
+            field = vtkFieldData()
             field.AllocateArrays(4)
 
             # read TIME_LATE - dependent variable
@@ -61,7 +71,7 @@ class financialField2(vtk.test.Testing.vtkTest):
                 line = f.readline().split()
                 if len(line) > 0:
                     break;
-            timeLate = vtk.vtkFloatArray()
+            timeLate = vtkFloatArray()
             timeLate.SetName(line[0])
             for i in range(0, numLines):
                 line = f.readline().split()
@@ -74,7 +84,7 @@ class financialField2(vtk.test.Testing.vtkTest):
                 line = f.readline().split()
                 if len(line) > 0:
                     break;
-            monthlyPayment = vtk.vtkFloatArray()
+            monthlyPayment = vtkFloatArray()
             monthlyPayment.SetName(line[0])
             for i in range(0, numLines):
                 line = f.readline().split()
@@ -103,7 +113,7 @@ class financialField2(vtk.test.Testing.vtkTest):
                 line = f.readline().split()
                 if len(line) > 0:
                     break;
-            interestRate = vtk.vtkFloatArray()
+            interestRate = vtkFloatArray()
             interestRate.SetName(line[0])
             for i in range(0, numLines):
                 line = f.readline().split()
@@ -116,7 +126,7 @@ class financialField2(vtk.test.Testing.vtkTest):
                 line = f.readline().split()
                 if len(line) > 0:
                     break;
-            monthlyIncome = vtk.vtkFloatArray()
+            monthlyIncome = vtkFloatArray()
             monthlyIncome.SetName(line[0])
             for i in range(0, numLines):
                 line = f.readline().split()
@@ -129,7 +139,7 @@ class financialField2(vtk.test.Testing.vtkTest):
         dos.SetExecuteMethod(parseFile)
 
         # Create the dataset
-        do2ds = vtk.vtkDataObjectToDataSetFilter()
+        do2ds = vtkDataObjectToDataSetFilter()
         do2ds.SetInputConnection(dos.GetOutputPort())
         do2ds.SetDataSetTypeToPolyData()
         #format: component#, arrayname, arraycomp, minArrayId, maxArrayId, normalize
@@ -138,7 +148,7 @@ class financialField2(vtk.test.Testing.vtkTest):
         do2ds.SetPointComponent(1, yAxis, 0)
         do2ds.SetPointComponent(2, zAxis, 0)
         do2ds.Update()
-        fd2ad = vtk.vtkFieldDataToAttributeDataFilter()
+        fd2ad = vtkFieldDataToAttributeDataFilter()
         fd2ad.SetInputConnection(do2ds.GetOutputPort())
         fd2ad.SetInputFieldToDataObjectField()
         fd2ad.SetOutputAttributeDataToPointData()
@@ -146,79 +156,79 @@ class financialField2(vtk.test.Testing.vtkTest):
         fd2ad.SetScalarComponent(0, scalar, 0)
 
         # construct pipeline for original population
-        popSplatter = vtk.vtkGaussianSplatter()
+        popSplatter = vtkGaussianSplatter()
         popSplatter.SetInputConnection(fd2ad.GetOutputPort())
         popSplatter.SetSampleDimensions(50, 50, 50)
         popSplatter.SetRadius(0.05)
         popSplatter.ScalarWarpingOff()
-        popSurface = vtk.vtkMarchingContourFilter()
+        popSurface = vtkMarchingContourFilter()
         popSurface.SetInputConnection(popSplatter.GetOutputPort())
         popSurface.SetValue(0, 0.01)
-        popMapper = vtk.vtkPolyDataMapper()
+        popMapper = vtkPolyDataMapper()
         popMapper.SetInputConnection(popSurface.GetOutputPort())
         popMapper.ScalarVisibilityOff()
-        popActor = vtk.vtkActor()
+        popActor = vtkActor()
         popActor.SetMapper(popMapper)
         popActor.GetProperty().SetOpacity(0.3)
         popActor.GetProperty().SetColor(.9, .9, .9)
 
         # construct pipeline for delinquent population
-        lateSplatter = vtk.vtkGaussianSplatter()
+        lateSplatter = vtkGaussianSplatter()
         lateSplatter.SetInputConnection(fd2ad.GetOutputPort())
         lateSplatter.SetSampleDimensions(50, 50, 50)
         lateSplatter.SetRadius(0.05)
         lateSplatter.SetScaleFactor(0.05)
-        lateSurface = vtk.vtkMarchingContourFilter()
+        lateSurface = vtkMarchingContourFilter()
         lateSurface.SetInputConnection(lateSplatter.GetOutputPort())
         lateSurface.SetValue(0, 0.01)
-        lateMapper = vtk.vtkPolyDataMapper()
+        lateMapper = vtkPolyDataMapper()
         lateMapper.SetInputConnection(lateSurface.GetOutputPort())
         lateMapper.ScalarVisibilityOff()
-        lateActor = vtk.vtkActor()
+        lateActor = vtkActor()
         lateActor.SetMapper(lateMapper)
         lateActor.GetProperty().SetColor(1.0, 0.0, 0.0)
 
         # create axes
         popSplatter.Update()
         bounds = popSplatter.GetOutput().GetBounds()
-        axes = vtk.vtkAxes()
+        axes = vtkAxes()
         axes.SetOrigin(bounds[0], bounds[2], bounds[4])
         axes.SetScaleFactor(popSplatter.GetOutput().GetLength() / 5.0)
-        axesTubes = vtk.vtkTubeFilter()
+        axesTubes = vtkTubeFilter()
         axesTubes.SetInputConnection(axes.GetOutputPort())
         axesTubes.SetRadius(axes.GetScaleFactor() / 25.0)
         axesTubes.SetNumberOfSides(6)
-        axesMapper = vtk.vtkPolyDataMapper()
+        axesMapper = vtkPolyDataMapper()
         axesMapper.SetInputConnection(axesTubes.GetOutputPort())
-        axesActor = vtk.vtkActor()
+        axesActor = vtkActor()
         axesActor.SetMapper(axesMapper)
 
         # label the axes
-        XText = vtk.vtkVectorText()
+        XText = vtkVectorText()
         XText.SetText(xAxis)
-        XTextMapper = vtk.vtkPolyDataMapper()
+        XTextMapper = vtkPolyDataMapper()
         XTextMapper.SetInputConnection(XText.GetOutputPort())
-        XActor = vtk.vtkFollower()
+        XActor = vtkFollower()
         XActor.SetMapper(XTextMapper)
         XActor.SetScale(0.02, .02, .02)
         XActor.SetPosition(0.35, -0.05, -0.05)
         XActor.GetProperty().SetColor(0, 0, 0)
 
-        YText = vtk.vtkVectorText()
+        YText = vtkVectorText()
         YText.SetText(yAxis)
-        YTextMapper = vtk.vtkPolyDataMapper()
+        YTextMapper = vtkPolyDataMapper()
         YTextMapper.SetInputConnection(YText.GetOutputPort())
-        YActor = vtk.vtkFollower()
+        YActor = vtkFollower()
         YActor.SetMapper(YTextMapper)
         YActor.SetScale(0.02, .02, .02)
         YActor.SetPosition(-0.05, 0.35, -0.05)
         YActor.GetProperty().SetColor(0, 0, 0)
 
-        ZText = vtk.vtkVectorText()
+        ZText = vtkVectorText()
         ZText.SetText(zAxis)
-        ZTextMapper = vtk.vtkPolyDataMapper()
+        ZTextMapper = vtkPolyDataMapper()
         ZTextMapper.SetInputConnection(ZText.GetOutputPort())
-        ZActor = vtk.vtkFollower()
+        ZActor = vtkFollower()
         ZActor.SetMapper(ZTextMapper)
         ZActor.SetScale(0.02, .02, .02)
         ZActor.SetPosition(-0.05, -0.05, 0.35)
@@ -226,8 +236,8 @@ class financialField2(vtk.test.Testing.vtkTest):
 
         # Graphics stuff
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
         renWin.SetWindowName("vtk - Field.Data")
 
@@ -242,7 +252,7 @@ class financialField2(vtk.test.Testing.vtkTest):
         ren.SetBackground(1, 1, 1)
         renWin.SetSize(500, 500)
 
-        camera = vtk.vtkCamera()
+        camera = vtkCamera()
         camera.SetClippingRange(.274, 13.72)
         camera.SetFocalPoint(0.433816, 0.333131, 0.449)
         camera.SetPosition(-1.96987, 1.15145, 1.49053)
@@ -254,13 +264,13 @@ class financialField2(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "financialField2.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(financialField2, 'test')])
+     vtkmodules.test.Testing.main([(financialField2, 'test')])

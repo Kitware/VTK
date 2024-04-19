@@ -1,0 +1,31 @@
+# Note that some of the flags listed here really should be developer
+# flags (listed in separate files, gnu-warnings-developer*) but we put
+# them here because they are not raised by the current code and we'd like to
+# know if they do start showing up.
+#
+# NOTE: Don't add -Wpadded here since we can't/won't fix the (many)
+# warnings that are emitted. If you need it, add it from the
+# environment variable at configure time.
+-Wall
+-Wcast-qual
+-Wconversion
+-Wctor-dtor-privacy
+-Weffc++
+-Wextra
+-Wfloat-equal
+-Wformat=2
+-Winit-self
+-Winvalid-pch
+-Wmissing-include-dirs
+-Wno-format-nonliteral
+-Wnon-virtual-dtor
+-Wold-style-cast
+-Woverloaded-virtual
+-Wreorder
+-Wshadow
+-Wsign-promo
+##-Wunreachable-code
+-Wundef
+##-Wvariadic-macros
+-Wwrite-strings
+-pedantic

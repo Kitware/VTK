@@ -1,6 +1,7 @@
 set(classes
   vtkAbstractImageInterpolator
   vtkExtractVOI
+  vtkGenericImageInterpolator
   vtkImageAppendComponents
   vtkImageBlend
   vtkImageBSplineCoefficients
@@ -26,6 +27,7 @@ set(classes
   vtkImagePermute
   vtkImagePointDataIterator
   vtkImagePointIterator
+  vtkImageProbeFilter
   vtkImageResample
   vtkImageResize
   vtkImageReslice
@@ -37,6 +39,7 @@ set(classes
   vtkImageStencilData
   vtkImageStencilIterator
   vtkImageStencilSource # Needed by vtkImageStencilData
+  vtkImageSSIM
   vtkImageThreshold
   vtkImageTranslateExtent
   vtkImageWrapPad
@@ -44,3 +47,4 @@ set(classes
 
 vtk_module_add_module(VTK::ImagingCore
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::ImagingCore)

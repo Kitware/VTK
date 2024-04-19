@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTextActor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTextActor
  * @brief   An actor that displays text. Scaled or unscaled
@@ -30,7 +18,7 @@
  *
  * @sa
  * vtkActor2D vtkPolyDataMapper vtkTextProperty vtkTextRenderer
-*/
+ */
 
 #ifndef vtkTextActor_h
 #define vtkTextActor_h
@@ -38,6 +26,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTexturedActor2D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkPoints;
 class vtkPolyData;
@@ -50,54 +39,54 @@ class vtkTransform;
 class VTKRENDERINGCORE_EXPORT vtkTextActor : public vtkTexturedActor2D
 {
 public:
-  vtkTypeMacro(vtkTextActor,vtkTexturedActor2D);
+  vtkTypeMacro(vtkTextActor, vtkTexturedActor2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with a rectangle in normaled view coordinates
    * of (0.2,0.85, 0.8, 0.95).
    */
-  static vtkTextActor *New();
+  static vtkTextActor* New();
 
   /**
    * Shallow copy of this text actor. Overloads the virtual
    * vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
-  //@{
+  ///@{
   /**
    * Set the text string to be displayed. "\n" is recognized
    * as a carriage return/linefeed (line separator).
    * The characters must be in the UTF-8 encoding.
    * Convenience method to the underlying mapper
    */
-  void SetInput(const char *inputString);
-  char *GetInput();
-  //@}
+  void SetInput(const char* inputString);
+  char* GetInput();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum size in pixels for this actor.
    * Defaults to 10,10.
    * Only valid when TextScaleMode is PROP.
    */
-  vtkSetVector2Macro(MinimumSize,int);
-  vtkGetVector2Macro(MinimumSize,int);
-  //@}
+  vtkSetVector2Macro(MinimumSize, int);
+  vtkGetVector2Macro(MinimumSize, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum height of a line of text as a
    * percentage of the vertical area allocated to this
    * scaled text actor. Defaults to 1.0.
    * Only valid when TextScaleMode is PROP.
    */
-  vtkSetMacro(MaximumLineHeight,float);
-  vtkGetMacro(MaximumLineHeight,float);
-  //@}
+  vtkSetMacro(MaximumLineHeight, float);
+  vtkGetMacro(MaximumLineHeight, float);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set how text should be scaled.  If set to
    * vtkTextActor::TEXT_SCALE_MODE_NONE, the font size will be fixed by the
@@ -107,35 +96,32 @@ public:
    * vtkTextActor::TEXT_SCALE_MODE_VIEWPORT, the text will be scaled based on
    * the size of the viewport it is displayed in.
    */
-  vtkSetClampMacro(TextScaleMode, int,
-                     TEXT_SCALE_MODE_NONE, TEXT_SCALE_MODE_VIEWPORT);
+  vtkSetClampMacro(TextScaleMode, int, TEXT_SCALE_MODE_NONE, TEXT_SCALE_MODE_VIEWPORT);
   vtkGetMacro(TextScaleMode, int);
-  void SetTextScaleModeToNone()
-    { this->SetTextScaleMode(TEXT_SCALE_MODE_NONE); }
-  void SetTextScaleModeToProp()
-    { this->SetTextScaleMode(TEXT_SCALE_MODE_PROP); }
-  void SetTextScaleModeToViewport()
-    { this->SetTextScaleMode(TEXT_SCALE_MODE_VIEWPORT); }
-  //@}
+  void SetTextScaleModeToNone() { this->SetTextScaleMode(TEXT_SCALE_MODE_NONE); }
+  void SetTextScaleModeToProp() { this->SetTextScaleMode(TEXT_SCALE_MODE_PROP); }
+  void SetTextScaleModeToViewport() { this->SetTextScaleMode(TEXT_SCALE_MODE_VIEWPORT); }
+  ///@}
 
-  enum {
+  enum
+  {
     TEXT_SCALE_MODE_NONE = 0,
     TEXT_SCALE_MODE_PROP,
     TEXT_SCALE_MODE_VIEWPORT
   };
 
-  //@{
+  ///@{
   /**
    * Turn on or off the UseBorderAlign option.
    * When UseBorderAlign is on, the bounding rectangle is used to align the text,
    * which is the proper behavior when using vtkTextRepresentation
    */
-  vtkSetMacro(UseBorderAlign,vtkTypeBool);
-  vtkGetMacro(UseBorderAlign,vtkTypeBool);
-  vtkBooleanMacro(UseBorderAlign,vtkTypeBool);
-  //@}
+  vtkSetMacro(UseBorderAlign, vtkTypeBool);
+  vtkGetMacro(UseBorderAlign, vtkTypeBool);
+  vtkBooleanMacro(UseBorderAlign, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This method is being deprecated.  Use SetJustification and
    * SetVerticalJustification in text property instead.
@@ -153,9 +139,9 @@ public:
    */
   void SetAlignmentPoint(int point);
   int GetAlignmentPoint();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Counterclockwise rotation around the Alignment point.
    * Units are in degrees and defaults to 0.
@@ -164,16 +150,16 @@ public:
    * desire.
    */
   void SetOrientation(float orientation);
-  vtkGetMacro(Orientation,float);
-  //@}
+  vtkGetMacro(Orientation, float);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property.
    */
-  virtual void SetTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(TextProperty,vtkTextProperty);
-  //@}
+  virtual void SetTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(TextProperty, vtkTextProperty);
+  ///@}
 
   /**
    * Return the bounding box coordinates of the text in pixels.
@@ -187,17 +173,15 @@ public:
    */
   virtual void GetSize(vtkViewport* vport, double size[2]);
 
-  //@{
+  ///@{
   /**
    * Set and return the font size required to make this mapper fit in a given
    * target rectangle (width x height, in pixels). A static version of the
    * method is also available for convenience to other classes (e.g., widgets).
    */
-  virtual int SetConstrainedFontSize(
-    vtkViewport*, int targetWidth, int targetHeight);
-  static int SetConstrainedFontSize(
-    vtkTextActor*, vtkViewport*, int targetWidth, int targetHeight);
-  //@}
+  virtual int SetConstrainedFontSize(vtkViewport*, int targetWidth, int targetHeight);
+  static int SetConstrainedFontSize(vtkTextActor*, vtkViewport*, int targetWidth, int targetHeight);
+  ///@}
 
   /**
    * Set and return the font size required to make each element of an array
@@ -205,8 +189,7 @@ public:
    * font size is the smallest size that was required to fit the largest
    * mapper in this constraint.
    */
-  static int SetMultipleConstrainedFontSize(
-    vtkViewport*, int targetWidth, int targetHeight,
+  static int SetMultipleConstrainedFontSize(vtkViewport*, int targetWidth, int targetHeight,
     vtkTextActor** actors, int nbOfActors, int* maxResultingSize);
 
   /**
@@ -224,27 +207,27 @@ public:
    * This is just a simple coordinate conversion method used in the render
    * process.
    */
-  void SpecifiedToDisplay(double *pos, vtkViewport *vport, int specified);
+  void SpecifiedToDisplay(double* pos, vtkViewport* vport, int specified);
 
   /**
    * This is just a simple coordinate conversion method used in the render
    * process.
    */
-  void DisplayToSpecified(double *pos, vtkViewport *vport, int specified);
+  void DisplayToSpecified(double* pos, vtkViewport* vport, int specified);
 
   /**
    * Compute the scale the font should be given the viewport.  The result
    * is placed in the ScaledTextProperty ivar.
    */
-  virtual void ComputeScaledFont(vtkViewport *viewport);
+  virtual void ComputeScaledFont(vtkViewport* viewport);
 
-  //@{
+  ///@{
   /**
    * Get the scaled font.  Use ComputeScaledFont to set the scale for a given
    * viewport.
    */
   vtkGetObjectMacro(ScaledTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
   /**
    * Provide a font scaling based on a viewport.  This is the scaling factor
@@ -253,7 +236,7 @@ public:
    * the viewport is meant to be 6 inches (a typical width of text in a paper)
    * and then resizes based on if that long dimension was 72 DPI.
    */
-  static float GetFontScale(vtkViewport *viewport);
+  static float GetFontScale(vtkViewport* viewport);
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -262,18 +245,18 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
    * Draw the text actor to the screen.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport* ) override {return 0;};
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
   int RenderOverlay(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
@@ -284,43 +267,42 @@ protected:
   /**
    * Render Input to Image using the supplied font property.
    */
-  virtual bool RenderImage(vtkTextProperty *tprop, vtkViewport *viewport);
+  virtual bool RenderImage(vtkTextProperty* tprop, vtkViewport* viewport);
 
   /**
    * Get the bounding box for Input using the supplied font property.
    */
-  virtual bool GetImageBoundingBox(
-    vtkTextProperty *tprop, vtkViewport *viewport, int bbox[4]);
+  virtual bool GetImageBoundingBox(vtkTextProperty* tprop, vtkViewport* viewport, int bbox[4]);
 
-   vtkTextActor();
+  vtkTextActor();
   ~vtkTextActor() override;
 
-  int     MinimumSize[2];
-  float   MaximumLineHeight;
-  double  FontScaleExponent;
-  int     TextScaleMode;
-  float   Orientation;
-  vtkTypeBool     UseBorderAlign;
+  int MinimumSize[2];
+  float MaximumLineHeight;
+  double FontScaleExponent;
+  int TextScaleMode;
+  float Orientation;
+  vtkTypeBool UseBorderAlign;
 
-  vtkTextProperty *TextProperty;
-  vtkImageData *ImageData;
-  vtkTextRenderer *TextRenderer;
-  vtkTimeStamp  BuildTime;
-  vtkTransform *Transform;
+  vtkTextProperty* TextProperty;
+  vtkImageData* ImageData;
+  vtkTextRenderer* TextRenderer;
+  vtkTimeStamp BuildTime;
+  vtkTransform* Transform;
   int LastSize[2];
   int LastOrigin[2];
-  char *Input;
+  char* Input;
   bool InputRendered;
   double FormerOrientation;
   int RenderedDPI;
 
-  vtkTextProperty *ScaledTextProperty;
+  vtkTextProperty* ScaledTextProperty;
 
   // Stuff needed to display the image text as a texture map.
   vtkPolyData* Rectangle;
-  vtkPoints*   RectanglePoints;
+  vtkPoints* RectanglePoints;
 
-  virtual void ComputeRectangle(vtkViewport *viewport);
+  virtual void ComputeRectangle(vtkViewport* viewport);
 
   /**
    * Ensure that \a Rectangle and \a RectanglePoints are valid and up-to-date.
@@ -342,5 +324,5 @@ private:
   void operator=(const vtkTextActor&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif

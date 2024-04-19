@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_ANY_HPP
@@ -42,14 +42,11 @@ namespace tao
             using analyze_t = analysis::generic< analysis::rule_type::any >;
 
             template< typename Input >
-            static bool match( Input& in ) noexcept( noexcept( in.size( Peek::max_input_size ) ) )
+            static bool match( Input& in ) noexcept( noexcept( Peek::peek( in ) ) )
             {
-               const std::size_t s = in.size( Peek::max_input_size );
-               if( s >= Peek::min_input_size ) {
-                  if( const auto t = Peek::peek( in, s ) ) {
-                     in.bump( t.size );
-                     return true;
-                  }
+               if( const auto t = Peek::peek( in ) ) {
+                  in.bump( t.size );
+                  return true;
                }
                return false;
             }

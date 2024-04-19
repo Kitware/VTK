@@ -1,29 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkLookupTable,
+    vtkMath,
+)
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersSources import vtkPlatonicSolidSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestPlatonicSolids(vtk.test.Testing.vtkTest):
+class TestPlatonicSolids(vtkmodules.test.Testing.vtkTest):
 
     class Colors(object):
         '''
@@ -33,7 +33,7 @@ class TestPlatonicSolids(vtk.test.Testing.vtkTest):
             '''
                 Define a single instance of the NamedColors class here.
             '''
-            self.namedColors = vtk.vtkNamedColors()
+            self.namedColors = vtkNamedColors()
 
         def GetRGBColor(self, colorName):
             '''
@@ -58,49 +58,49 @@ class TestPlatonicSolids(vtk.test.Testing.vtkTest):
         # Create five instances of vtkPlatonicSolidSource
         # corresponding to each of the five Platonic solids.
         #
-        tet = vtk.vtkPlatonicSolidSource()
+        tet = vtkPlatonicSolidSource()
         tet.SetSolidTypeToTetrahedron()
-        tetMapper = vtk.vtkPolyDataMapper()
+        tetMapper = vtkPolyDataMapper()
         tetMapper.SetInputConnection(tet.GetOutputPort())
-        tetActor = vtk.vtkActor()
+        tetActor = vtkActor()
         tetActor.SetMapper(tetMapper)
 
-        cube = vtk.vtkPlatonicSolidSource()
+        cube = vtkPlatonicSolidSource()
         cube.SetSolidTypeToCube()
-        cubeMapper = vtk.vtkPolyDataMapper()
+        cubeMapper = vtkPolyDataMapper()
         cubeMapper.SetInputConnection(cube.GetOutputPort())
-        cubeActor = vtk.vtkActor()
+        cubeActor = vtkActor()
         cubeActor.SetMapper(cubeMapper)
         cubeActor.AddPosition(2.0, 0, 0)
 
-        oct = vtk.vtkPlatonicSolidSource()
+        oct = vtkPlatonicSolidSource()
         oct.SetSolidTypeToOctahedron()
-        octMapper = vtk.vtkPolyDataMapper()
+        octMapper = vtkPolyDataMapper()
         octMapper.SetInputConnection(oct.GetOutputPort())
-        octActor = vtk.vtkActor()
+        octActor = vtkActor()
         octActor.SetMapper(octMapper)
         octActor.AddPosition(4.0, 0, 0)
 
-        icosa = vtk.vtkPlatonicSolidSource()
+        icosa = vtkPlatonicSolidSource()
         icosa.SetSolidTypeToIcosahedron()
-        icosaMapper = vtk.vtkPolyDataMapper()
+        icosaMapper = vtkPolyDataMapper()
         icosaMapper.SetInputConnection(icosa.GetOutputPort())
-        icosaActor = vtk.vtkActor()
+        icosaActor = vtkActor()
         icosaActor.SetMapper(icosaMapper)
         icosaActor.AddPosition(6.0, 0, 0)
 
-        dode = vtk.vtkPlatonicSolidSource()
+        dode = vtkPlatonicSolidSource()
         dode.SetSolidTypeToDodecahedron()
-        dodeMapper = vtk.vtkPolyDataMapper()
+        dodeMapper = vtkPolyDataMapper()
         dodeMapper.SetInputConnection(dode.GetOutputPort())
-        dodeActor = vtk.vtkActor()
+        dodeActor = vtkActor()
         dodeActor.SetMapper(dodeMapper)
         dodeActor.AddPosition(8.0, 0, 0)
 
         # Create rendering stuff
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
         # Add the actors to the renderer, set the background and size
@@ -115,8 +115,8 @@ class TestPlatonicSolids(vtk.test.Testing.vtkTest):
 
         # Create a lookup table with colors for each face
         #
-        math = vtk.vtkMath()
-        lut = vtk.vtkLookupTable()
+        math = vtkMath()
+        lut = vtkLookupTable()
         lut.SetNumberOfColors(20)
         lut.Build()
         lut.SetTableValue(0, colors.GetRGBAColor("red"))
@@ -163,13 +163,13 @@ class TestPlatonicSolids(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "TestPlatonicSolids.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestPlatonicSolids, 'test')])
+     vtkmodules.test.Testing.main([(TestPlatonicSolids, 'test')])

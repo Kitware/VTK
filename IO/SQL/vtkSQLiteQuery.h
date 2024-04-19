@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSQLiteQuery.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkSQLiteQuery
  * @brief   vtkSQLQuery implementation for SQLite databases
@@ -39,7 +23,7 @@
  *
  * @sa
  * vtkSQLDatabase vtkSQLQuery vtkSQLiteDatabase
-*/
+ */
 
 #ifndef vtkSQLiteQuery_h
 #define vtkSQLiteQuery_h
@@ -47,6 +31,7 @@
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLiteDatabase;
 class vtkVariant;
 class vtkVariantArray;
@@ -59,13 +44,13 @@ class VTKIOSQL_EXPORT vtkSQLiteQuery : public vtkSQLQuery
 public:
   vtkTypeMacro(vtkSQLiteQuery, vtkSQLQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkSQLiteQuery *New();
+  static vtkSQLiteQuery* New();
 
   /**
    * Set the SQL query string.  This must be performed before
    * Execute() or BindParameter() can be called.
    */
-  bool SetQuery(const char *query) override;
+  bool SetQuery(const char* query) override;
 
   /**
    * Execute the query.  This must be performed
@@ -99,14 +84,14 @@ public:
    */
   bool HasError() override;
 
-  //@{
+  ///@{
   /**
    * Begin, abort (roll back), or commit a transaction.
    */
   bool BeginTransaction() override;
   bool RollbackTransaction() override;
   bool CommitTransaction() override;
-  //@}
+  ///@}
 
   /**
    * Return data in current row, field c
@@ -145,24 +130,24 @@ public:
   /**
    * Bind a string value -- string must be null-terminated
    */
-  bool BindParameter(int index, const char *stringValue) override;
+  bool BindParameter(int index, const char* stringValue) override;
   /**
    * Bind a string value by specifying an array and a size
    */
-  bool BindParameter(int index, const char *stringValue, size_t length) override;
+  bool BindParameter(int index, const char* stringValue, size_t length) override;
 
-  bool BindParameter(int index, const vtkStdString &string) override;
+  bool BindParameter(int index, const vtkStdString& string) override;
 
   bool BindParameter(int index, vtkVariant value) override;
-  //@{
+  ///@{
   /**
    * Bind a blob value.  Not all databases support blobs as a data
    * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
    * make sure.
    */
-  bool BindParameter(int index, const void *data, size_t length) override;
+  bool BindParameter(int index, const void* data, size_t length) override;
   bool ClearParameterBindings() override;
-  //@}
+  ///@}
 
 protected:
   vtkSQLiteQuery();
@@ -171,17 +156,17 @@ protected:
   vtkSetStringMacro(LastErrorText);
 
 private:
-  vtkSQLiteQuery(const vtkSQLiteQuery &) = delete;
-  void operator=(const vtkSQLiteQuery &) = delete;
+  vtkSQLiteQuery(const vtkSQLiteQuery&) = delete;
+  void operator=(const vtkSQLiteQuery&) = delete;
 
   class Priv;
   Priv* Private;
   bool InitialFetch;
   int InitialFetchResult;
-  char *LastErrorText;
+  char* LastErrorText;
   bool TransactionInProgress;
 
-  //@{
+  ///@{
   /**
    * All of the BindParameter calls fall through to these methods
    * where we actually talk to sqlite.  You don't need to call them directly.
@@ -189,11 +174,10 @@ private:
   bool BindIntegerParameter(int index, int value);
   bool BindDoubleParameter(int index, double value);
   bool BindInt64Parameter(int index, vtkTypeInt64 value);
-  bool BindStringParameter(int index, const char *data, int length);
-  bool BindBlobParameter(int index, const void *data, int length);
-  //@}
-
+  bool BindStringParameter(int index, const char* data, int length);
+  bool BindBlobParameter(int index, const void* data, int length);
+  ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSQLiteQuery_h
-

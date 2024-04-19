@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOSPRayAMRVolumeMapperNode.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkOSPRayAMRVolumeMapperNode
  * @brief links vtkVolumeMapper  to OSPRay
@@ -20,16 +8,16 @@
  * Directly samples the vtkAMR data structure without resampling
  * Data is expected to be overlapping, only floats and doubles are now
  * supported.
-*/
+ */
 
 #ifndef vtkOSPRayAMRVolumeMapperNode_h
 #define vtkOSPRayAMRVolumeMapperNode_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkOSPRayVolumeMapperNode.h"
+#include "vtkRenderingRayTracingModule.h" // For export macro
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayAMRVolumeMapperNode :
-  public vtkOSPRayVolumeMapperNode
+VTK_ABI_NAMESPACE_BEGIN
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayAMRVolumeMapperNode : public vtkOSPRayVolumeMapperNode
 {
 public:
   static vtkOSPRayAMRVolumeMapperNode* New();
@@ -37,13 +25,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-  * Traverse graph in ospray's preferred order and render
-  */
-  virtual void Render(bool prepass) override;
-protected:
+   * Traverse graph in ospray's preferred order and render
+   */
+  void Render(bool prepass) override;
 
+protected:
   vtkOSPRayAMRVolumeMapperNode();
-  ~vtkOSPRayAMRVolumeMapperNode() = default;
+  ~vtkOSPRayAMRVolumeMapperNode() override = default;
 
 private:
   vtkOSPRayAMRVolumeMapperNode(const vtkOSPRayAMRVolumeMapperNode&) = delete;
@@ -51,4 +39,5 @@ private:
 
   float OldSamplingRate;
 };
+VTK_ABI_NAMESPACE_END
 #endif

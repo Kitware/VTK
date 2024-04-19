@@ -1,24 +1,6 @@
-// -*- c++ -*-
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSLACParticleReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-LANL-California-USGov
 
 /**
  * @class   vtkSLACParticleReader
@@ -33,7 +15,7 @@
  * This reader supports pieces, but in actuality only loads anything in
  * piece 0.  All other pieces are empty.
  *
-*/
+ */
 
 #ifndef vtkSLACParticleReader_h
 #define vtkSLACParticleReader_h
@@ -41,6 +23,7 @@
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkIdTypeArray;
 class vtkInformationIntegerKey;
@@ -50,30 +33,28 @@ class VTKIONETCDF_EXPORT vtkSLACParticleReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkSLACParticleReader, vtkPolyDataAlgorithm);
-  static vtkSLACParticleReader *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkSLACParticleReader* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  vtkSetFilePathMacro(FileName);
 
   /**
    * Returns true if the given file can be read by this reader.
    */
-  static int CanReadFile(const char *filename);
+  static int CanReadFile(VTK_FILEPATH const char* filename);
 
 protected:
   vtkSLACParticleReader();
   ~vtkSLACParticleReader() override;
 
-  char *FileName;
+  char* FileName;
 
-  int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   /**
    * Convenience function that checks the dimensions of a 2D netCDF array that
@@ -82,12 +63,12 @@ protected:
    * agree with what is expected.  It then returns the number of tuples.  An
    * error is emitted and 0 is returned if the checks fail.
    */
-  virtual vtkIdType GetNumTuplesInVariable(int ncFD, int varId,
-                                           int expectedNumComponents);
+  virtual vtkIdType GetNumTuplesInVariable(int ncFD, int varId, int expectedNumComponents);
 
 private:
-  vtkSLACParticleReader(const vtkSLACParticleReader &) = delete;
-  void operator=(const vtkSLACParticleReader &) = delete;
+  vtkSLACParticleReader(const vtkSLACParticleReader&) = delete;
+  void operator=(const vtkSLACParticleReader&) = delete;
 };
 
-#endif //vtkSLACParticleReader_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkSLACParticleReader_h

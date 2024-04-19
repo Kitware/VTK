@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMultiBlockVolumeMapper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * \class vtkMultiBlockVolumeMapper
  * \brief Mapper to render volumes defined as vtkMultiBlockDataSet.
@@ -35,28 +23,29 @@
 #ifndef vtkMultiBlockVolumeMapper_h
 #define vtkMultiBlockVolumeMapper_h
 
-#include <vector>                            // For DataBlocks
+#include <vector> // For DataBlocks
 
-#include "vtkTimeStamp.h"                    // For BlockLoadingTime
+#include "vtkNew.h"                          // for ivar
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkVolumeMapper.h"
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectTree;
 class vtkDataSet;
 class vtkImageData;
+class vtkMatrix4x4;
 class vtkMultiBlockDataSet;
+class vtkRenderWindow;
 class vtkSmartVolumeMapper;
 
-class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkMultiBlockVolumeMapper :
-  public vtkVolumeMapper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkMultiBlockVolumeMapper : public vtkVolumeMapper
 {
 public:
-  static vtkMultiBlockVolumeMapper *New();
-  vtkTypeMacro(vtkMultiBlockVolumeMapper,vtkVolumeMapper);
+  static vtkMultiBlockVolumeMapper* New();
+  vtkTypeMacro(vtkMultiBlockVolumeMapper, vtkVolumeMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    *  \brief API Superclass
    *  \sa vtkAbstractVolumeMapper
@@ -82,9 +71,9 @@ public:
    * NOT use this method outside of the rendering process.
    */
   void ReleaseGraphicsResources(vtkWindow* window) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * VectorMode interface exposed from vtkSmartVolumeMapper.
    */
@@ -92,17 +81,41 @@ public:
   vtkGetMacro(VectorMode, int);
   void SetVectorComponent(int component);
   vtkGetMacro(VectorComponent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Blending mode API from vtkVolumeMapper
    * \sa vtkVolumeMapper::SetBlendMode
    */
   void SetBlendMode(int mode) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * ComputeNormalFromOpacity exposed
+   * \sa vtkVolumeMapper::SetComputeNormalFromOpacity
+   */
+  void SetComputeNormalFromOpacity(bool val) override;
+  ///@}
+
+  ///@{
+  /**
+   * @copydoc vtkSmartVolumeMapper::SetGlobalIlluminationReach(float)
+   */
+  void SetGlobalIlluminationReach(float val);
+  vtkGetMacro(GlobalIlluminationReach, float);
+  ///@}
+
+  ///@{
+  /**
+   * @copydoc vtkSmartVolumeMapper::SetVolumetricScatteringBlending(float)
+   */
+  void SetVolumetricScatteringBlending(float val);
+  vtkGetMacro(VolumetricScatteringBlending, float);
+  ///@}
+
+  ///@{
   /**
    * Cropping API from vtkVolumeMapper
    * \sa vtkVolumeMapper::SetCropping
@@ -112,15 +125,30 @@ public:
   /**
    * \sa vtkVolumeMapper::SetCroppingRegionPlanes
    */
-  void SetCroppingRegionPlanes(double arg1, double arg2, double arg3,
-    double arg4, double arg5, double arg6) override;
-  void SetCroppingRegionPlanes(double *planes) override;
+  void SetCroppingRegionPlanes(
+    double arg1, double arg2, double arg3, double arg4, double arg5, double arg6) override;
+  void SetCroppingRegionPlanes(const double* planes) override;
 
   /**
    * \sa vtkVolumeMapper::SetCroppingRegionFlags
    */
   void SetCroppingRegionFlags(int mode) override;
-  //@}
+  ///@}
+
+  ///@{
+  /**
+   * Forwarded to internal vtkSmartVolumeMappers used.
+   * @sa vtkSmartVolumeMapper::SetRequestedRenderMode.
+   */
+  void SetRequestedRenderMode(int);
+  ///@}
+
+  ///@{
+  /**
+   * \sa vtkSmartVolumeMapper::SetTransfer2DYAxisArray
+   */
+  void SetTransfer2DYAxisArray(const char* a);
+  ///@}
 
 protected:
   vtkMultiBlockVolumeMapper();
@@ -134,6 +162,11 @@ protected:
    * \sa vtkAlgorithm::FillInputPortInformation
    */
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
+  vtkRenderWindow* DebugWin;
+  vtkRenderer* DebugRen;
+
+  vtkNew<vtkMatrix4x4> TempMatrix4x4;
 
 private:
   /**
@@ -181,10 +214,24 @@ private:
   MapperVec Mappers;
   vtkSmartVolumeMapper* FallBackMapper;
 
-  vtkTimeStamp BlockLoadingTime;
-  vtkTimeStamp BoundsComputeTime;
+  vtkMTimeType BlockLoadingTime;
+  vtkMTimeType BoundsComputeTime;
 
   int VectorMode;
   int VectorComponent;
+  int RequestedRenderMode;
+
+  /**
+   * Secondary rays ambient/global adjustment coefficient
+   */
+  float GlobalIlluminationReach = 0.0;
+
+  /**
+   * Blending coefficient between surfacic and volumetric models in GPU Mapper
+   */
+  float VolumetricScatteringBlending = 0.0;
+
+  char* Transfer2DYAxisArray;
 };
+VTK_ABI_NAMESPACE_END
 #endif

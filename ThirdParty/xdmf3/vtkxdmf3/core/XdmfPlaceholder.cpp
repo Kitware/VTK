@@ -39,7 +39,7 @@ XdmfPlaceholder::New(const std::string & filePath,
                      const std::vector<unsigned int> & dimensions,
                      const std::vector<unsigned int> & dataspaceDimensions)
 {
-  shared_ptr<XdmfPlaceholder> 
+  shared_ptr<XdmfPlaceholder>
     p(new XdmfPlaceholder(filePath,
                           type,
                           start,
@@ -146,6 +146,9 @@ XDMFPLACEHOLDER * XdmfPlaceholderNew(char * hdf5FilePath,
       case XDMF_ARRAY_TYPE_UINT32:
         buildType = XdmfArrayType::UInt32();
         break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        buildType = XdmfArrayType::UInt64();
+        break;
       case XDMF_ARRAY_TYPE_INT8:
         buildType = XdmfArrayType::Int8();
         break;
@@ -188,6 +191,9 @@ XDMFPLACEHOLDER * XdmfPlaceholderNew(char * hdf5FilePath,
         break;
       case XDMF_ARRAY_TYPE_UINT32:
         buildType = XdmfArrayType::UInt32();
+        break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        buildType = XdmfArrayType::UInt64();
         break;
       case XDMF_ARRAY_TYPE_INT8:
         buildType = XdmfArrayType::Int8();

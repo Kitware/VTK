@@ -1,26 +1,9 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
-  Program:   Visualization Toolkit
-  Module:    vtkAdjacencyMatrixToEdgeTable.cxx
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkArrayData.h"
 #include "vtkAdjacencyMatrixToEdgeTable.h"
+#include "vtkArrayData.h"
 #include "vtkCommand.h"
 #include "vtkDenseArray.h"
 #include "vtkDoubleArray.h"
@@ -32,20 +15,21 @@
 #include "vtkTable.h"
 
 #include <algorithm>
-#include <map>
 #include <functional>
+#include <map>
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAdjacencyMatrixToEdgeTable);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-vtkAdjacencyMatrixToEdgeTable::vtkAdjacencyMatrixToEdgeTable() :
-  SourceDimension(0),
-  ValueArrayName(nullptr),
-  MinimumCount(0),
-  MinimumThreshold(0.5)
+vtkAdjacencyMatrixToEdgeTable::vtkAdjacencyMatrixToEdgeTable()
+  : SourceDimension(0)
+  , ValueArrayName(nullptr)
+  , MinimumCount(0)
+  , MinimumThreshold(0.5)
 {
   this->SetValueArrayName("value");
 
@@ -53,14 +37,14 @@ vtkAdjacencyMatrixToEdgeTable::vtkAdjacencyMatrixToEdgeTable() :
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkAdjacencyMatrixToEdgeTable::~vtkAdjacencyMatrixToEdgeTable()
 {
   this->SetValueArrayName(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkAdjacencyMatrixToEdgeTable::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -73,7 +57,7 @@ void vtkAdjacencyMatrixToEdgeTable::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkAdjacencyMatrixToEdgeTable::FillInputPortInformation(int port, vtkInformation* info)
 {
-  switch(port)
+  switch (port)
   {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
@@ -83,28 +67,27 @@ int vtkAdjacencyMatrixToEdgeTable::FillInputPortInformation(int port, vtkInforma
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 int vtkAdjacencyMatrixToEdgeTable::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  if(input->GetNumberOfArrays() != 1)
+  if (input->GetNumberOfArrays() != 1)
   {
-    vtkErrorMacro(<< this->GetClassName() << " requires an input vtkArrayData containing one array.");
+    vtkErrorMacro(<< this->GetClassName()
+                  << " requires an input vtkArrayData containing one array.");
     return 0;
   }
 
-  vtkDenseArray<double>* const input_array = vtkDenseArray<double>::SafeDownCast(
-    input->GetArray(static_cast<vtkIdType>(0)));
-  if(!input_array)
+  vtkDenseArray<double>* const input_array =
+    vtkDenseArray<double>::SafeDownCast(input->GetArray(static_cast<vtkIdType>(0)));
+  if (!input_array)
   {
     vtkErrorMacro(<< this->GetClassName() << " requires an input vtkDenseArray<double>.");
     return 0;
   }
-  if(input_array->GetDimensions() != 2)
+  if (input_array->GetDimensions() != 2)
   {
     vtkErrorMacro(<< this->GetClassName() << " requires an input matrix.");
     return 0;
@@ -112,37 +95,41 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
 
   const vtkArrayExtents input_extents = input_array->GetExtents();
 
-  const vtkIdType source_dimension = std::max(static_cast<vtkIdType>(0), std::min(static_cast<vtkIdType>(1), this->SourceDimension));
+  const vtkIdType source_dimension =
+    std::max(static_cast<vtkIdType>(0), std::min(static_cast<vtkIdType>(1), this->SourceDimension));
   const vtkIdType target_dimension = 1 - source_dimension;
 
   vtkTable* const output_table = vtkTable::GetData(outputVector);
 
   vtkIdTypeArray* const source_array = vtkIdTypeArray::New();
-  source_array->SetName(input_array->GetDimensionLabel(source_dimension));
+  source_array->SetName(input_array->GetDimensionLabel(source_dimension).c_str());
 
   vtkIdTypeArray* const target_array = vtkIdTypeArray::New();
-  target_array->SetName(input_array->GetDimensionLabel(target_dimension));
+  target_array->SetName(input_array->GetDimensionLabel(target_dimension).c_str());
 
   vtkDoubleArray* const value_array = vtkDoubleArray::New();
   value_array->SetName(this->ValueArrayName);
 
   // For each source in the matrix ...
   vtkArrayCoordinates coordinates(0, 0);
-  for(vtkIdType i = input_extents[source_dimension].GetBegin(); i != input_extents[source_dimension].GetEnd(); ++i)
+  for (vtkIdType i = input_extents[source_dimension].GetBegin();
+       i != input_extents[source_dimension].GetEnd(); ++i)
   {
     coordinates[source_dimension] = i;
 
     // Create a sorted list of source values ...
-    typedef std::multimap<double, vtkIdType, std::greater<double> > sorted_values_t;
+    typedef std::multimap<double, vtkIdType, std::greater<double>> sorted_values_t;
     sorted_values_t sorted_values;
-    for(vtkIdType j = input_extents[target_dimension].GetBegin(); j != input_extents[target_dimension].GetEnd(); ++j)
+    for (vtkIdType j = input_extents[target_dimension].GetBegin();
+         j != input_extents[target_dimension].GetEnd(); ++j)
     {
       coordinates[target_dimension] = j;
 
 #ifdef _RWSTD_NO_MEMBER_TEMPLATES
       // Deal with Sun Studio old libCstd.
       // http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-      sorted_values.insert(std::pair<const double,vtkIdType>(input_array->GetValue(coordinates),j));
+      sorted_values.insert(
+        std::pair<const double, vtkIdType>(input_array->GetValue(coordinates), j));
 #else
       sorted_values.insert(std::make_pair(input_array->GetValue(coordinates), j));
 #endif
@@ -150,9 +137,10 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
 
     // Create edges for each value that meets our count / threshold criteria ...
     vtkIdType count = 0;
-    for(sorted_values_t::const_iterator value = sorted_values.begin(); value != sorted_values.end(); ++value, ++count)
+    for (sorted_values_t::const_iterator value = sorted_values.begin();
+         value != sorted_values.end(); ++value, ++count)
     {
-      if(count < this->MinimumCount || value->first >= this->MinimumThreshold)
+      if (count < this->MinimumCount || value->first >= this->MinimumThreshold)
       {
         source_array->InsertNextValue(i);
         target_array->InsertNextValue(value->second);
@@ -160,10 +148,10 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
       }
     }
 
-    double progress = static_cast<double>(i - input_extents[source_dimension].GetBegin()) / static_cast<double>(input_extents[source_dimension].GetSize());
+    double progress = static_cast<double>(i - input_extents[source_dimension].GetBegin()) /
+      static_cast<double>(input_extents[source_dimension].GetSize());
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
   }
-
 
   output_table->AddColumn(source_array);
   output_table->AddColumn(target_array);
@@ -175,4 +163,4 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
 
   return 1;
 }
-
+VTK_ABI_NAMESPACE_END

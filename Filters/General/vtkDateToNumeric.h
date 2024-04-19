@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDateToNumeric.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDateToNumeric
  * @brief   Converts string dates to numeric values
@@ -36,6 +24,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkSmartPointer.h" // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkDateToNumeric : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -43,14 +32,14 @@ public:
   vtkTypeMacro(vtkDateToNumeric, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * You can specify your own format to parse dates by. This string
    * follows the formatting conventions of std::get_time
    */
   vtkGetStringMacro(DateFormat);
   vtkSetStringMacro(DateFormat);
-  //@}
+  ///@}
 
 protected:
   vtkDateToNumeric();
@@ -59,11 +48,12 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char *DateFormat;
+  char* DateFormat;
 
 private:
   vtkDateToNumeric(const vtkDateToNumeric&) = delete;
   void operator=(const vtkDateToNumeric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

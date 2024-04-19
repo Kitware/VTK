@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkUnsignedLongArray.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkUnsignedLongArray
  * @brief   dynamic, self-adjusting array of unsigned long
@@ -25,40 +13,42 @@
  * unsigned integers is needed, prefer vtkTypeUInt32Array to this class.
  * If an array of 64 bit unsigned integers is needed, prefer
  * vtkUTypeInt64Array to this class.
-*/
+ */
 
 #ifndef vtkUnsignedLongArray_h
 #define vtkUnsignedLongArray_h
 
-#include "vtkCommonCoreModule.h" // For export macro
-#include "vtkDataArray.h"
 #include "vtkAOSDataArrayTemplate.h" // Real Superclass
+#include "vtkCommonCoreModule.h"     // For export macro
+#include "vtkDataArray.h"
 
 // Fake the superclass for the wrappers.
 #ifndef __VTK_WRAP__
 #define vtkDataArray vtkAOSDataArrayTemplate<unsigned long>
 #endif
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkUnsignedLongArray : public vtkDataArray
 {
 public:
-  vtkTypeMacro(vtkUnsignedLongArray, vtkDataArray)
+  vtkTypeMacro(vtkUnsignedLongArray, vtkDataArray);
 #ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
   static vtkUnsignedLongArray* New();
+  static vtkUnsignedLongArray* ExtendedNew();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(unsigned long);
 #endif
 
   /**
    * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
    */
-  static vtkUnsignedLongArray* FastDownCast(vtkAbstractArray *source)
+  static vtkUnsignedLongArray* FastDownCast(vtkAbstractArray* source)
   {
     return static_cast<vtkUnsignedLongArray*>(Superclass::FastDownCast(source));
   }
@@ -78,7 +68,6 @@ protected:
   ~vtkUnsignedLongArray() override;
 
 private:
-
   typedef vtkAOSDataArrayTemplate<unsigned long> RealSuperclass;
 
   vtkUnsignedLongArray(const vtkUnsignedLongArray&) = delete;
@@ -86,6 +75,7 @@ private:
 };
 
 // Define vtkArrayDownCast implementation:
-vtkArrayDownCast_FastCastMacro(vtkUnsignedLongArray)
+vtkArrayDownCast_FastCastMacro(vtkUnsignedLongArray);
 
+VTK_ABI_NAMESPACE_END
 #endif

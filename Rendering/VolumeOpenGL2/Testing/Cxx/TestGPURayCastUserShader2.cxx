@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastUserShader2.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Description
 // Test the volume mapper's ability to perform shader substitutions based on
@@ -31,10 +19,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkShaderProperty.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkShaderProperty.h"
 
 #include <TestGPURayCastUserShader2_FS.h>
 
@@ -43,15 +31,14 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   // Load data
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tooth.nhdr");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tooth.nhdr");
   vtkNew<vtkNrrdReader> reader;
   reader->SetFileName(fname);
   reader->Update();
   delete[] fname;
 
   vtkImageData* im = reader->GetOutput();
-  double * bounds = im->GetBounds();
+  double* bounds = im->GetBounds();
   double depthRange[2];
   depthRange[0] = vtkMath::Min(bounds[0], bounds[2]);
   depthRange[0] = vtkMath::Min(depthRange[0], bounds[4]);
@@ -69,8 +56,8 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
   // Prepare 1D Transfer Functions
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddRGBPoint(depthRange[0], 1.0, 0.0, 0.0);
-  ctf->AddRGBPoint(0.5*(depthRange[0]+depthRange[1]), 0.5, 0.5, 0.5);
-  ctf->AddRGBPoint(0.8*(depthRange[0]+depthRange[1]), 0.5, 0.4, 0.6);
+  ctf->AddRGBPoint(0.5 * (depthRange[0] + depthRange[1]), 0.5, 0.5, 0.5);
+  ctf->AddRGBPoint(0.8 * (depthRange[0] + depthRange[1]), 0.5, 0.4, 0.6);
   ctf->AddRGBPoint(depthRange[1], 0.0, 1.0, 1.0);
 
   vtkNew<vtkPiecewiseFunction> pf;

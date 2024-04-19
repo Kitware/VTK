@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkContextItem.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkContextTransform
@@ -21,28 +9,29 @@
  *
  * This class can be used to transform all child items of this class. The
  * default transform is the identity.
-*/
+ */
 
 #ifndef vtkContextTransform_h
 #define vtkContextTransform_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
-#include "vtkSmartPointer.h" // Needed for SP ivars.
-#include "vtkVector.h" // Needed for ivars.
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkSmartPointer.h"             // Needed for SP ivars.
+#include "vtkVector.h"                   // Needed for ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform2D;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextTransform : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkContextTransform, vtkAbstractContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a vtkContextTransform object.
    */
-  static vtkContextTransform *New();
+  static vtkContextTransform* New();
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
@@ -54,7 +43,7 @@ public:
   /**
    * Paint event for the item, called whenever the item needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Reset the transform to the identity transformation.
@@ -93,115 +82,115 @@ public:
    */
   vtkVector2f MapFromParent(const vtkVector2f& point) override;
 
-  //@{
+  ///@{
   /**
    * The mouse button from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::LEFT_BUTTON.
    */
   vtkSetMacro(PanMouseButton, int);
   vtkGetMacro(PanMouseButton, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The modifier from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::NO_MODIFIER.
    */
   vtkSetMacro(PanModifier, int);
   vtkGetMacro(PanModifier, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A secondary mouse button from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::NO_BUTTON (disabled).
    */
   vtkSetMacro(SecondaryPanMouseButton, int);
   vtkGetMacro(SecondaryPanMouseButton, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A secondary modifier from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::NO_MODIFIER.
    */
   vtkSetMacro(SecondaryPanModifier, int);
   vtkGetMacro(SecondaryPanModifier, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The mouse button from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::RIGHT_BUTTON.
    */
   vtkSetMacro(ZoomMouseButton, int);
   vtkGetMacro(ZoomMouseButton, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The modifier from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::NO_MODIFIER.
    */
   vtkSetMacro(ZoomModifier, int);
   vtkGetMacro(ZoomModifier, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A secondary mouse button from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::LEFT_BUTTON.
    */
   vtkSetMacro(SecondaryZoomMouseButton, int);
   vtkGetMacro(SecondaryZoomMouseButton, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A secondary modifier from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::SHIFT_MODIFIER.
    */
   vtkSetMacro(SecondaryZoomModifier, int);
   vtkGetMacro(SecondaryZoomModifier, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to zoom on mouse wheels. Default is true.
    */
   vtkSetMacro(ZoomOnMouseWheel, bool);
   vtkGetMacro(ZoomOnMouseWheel, bool);
   vtkBooleanMacro(ZoomOnMouseWheel, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to pan in the Y direction on mouse wheels. Default is false.
    */
   vtkSetMacro(PanYOnMouseWheel, bool);
   vtkGetMacro(PanYOnMouseWheel, bool);
   vtkBooleanMacro(PanYOnMouseWheel, bool);
-  //@}
+  ///@}
 
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse press event. Keep track of zoom anchor position.
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event. Perform pan or zoom as specified by the mouse bindings.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse wheel event. Perform pan or zoom as specified by mouse bindings.
    */
-  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) override;
+  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
 
 protected:
   vtkContextTransform();
@@ -224,9 +213,9 @@ protected:
   vtkVector2f ZoomAnchor;
 
 private:
-  vtkContextTransform(const vtkContextTransform &) = delete;
-  void operator=(const vtkContextTransform &) = delete;
-
+  vtkContextTransform(const vtkContextTransform&) = delete;
+  void operator=(const vtkContextTransform&) = delete;
 };
 
-#endif //vtkContextTransform_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkContextTransform_h

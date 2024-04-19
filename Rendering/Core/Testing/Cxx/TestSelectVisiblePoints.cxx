@@ -1,28 +1,17 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkGlyph3DMapper.h"
 #include "vtkInteractorStyleSwitch.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSelectVisiblePoints.h"
 #include "vtkSphereSource.h"
 
@@ -30,7 +19,7 @@ int GetNumberOfVisiblePoints(vtkSelectVisiblePoints* selectVisiblePoints, vtkPoi
 {
   // Points on the back side of the sphere should not be visible
   int numberOfVisiblePoints = 0;
-  for (vtkIdType pointIndex = 0; pointIndex<points->GetNumberOfPoints(); pointIndex++)
+  for (vtkIdType pointIndex = 0; pointIndex < points->GetNumberOfPoints(); pointIndex++)
   {
     bool occluded = selectVisiblePoints->IsPointOccluded(points->GetPoint(pointIndex), nullptr);
     if (occluded)
@@ -41,7 +30,7 @@ int GetNumberOfVisiblePoints(vtkSelectVisiblePoints* selectVisiblePoints, vtkPoi
   return numberOfVisiblePoints;
 }
 
-int TestSelectVisiblePoints(int argc, char *argv[])
+int TestSelectVisiblePoints(int argc, char* argv[])
 {
   // Create a point set that we will test visibility of,
   // using a sphere source.
@@ -56,10 +45,11 @@ int TestSelectVisiblePoints(int argc, char *argv[])
   vtkNew<vtkRenderWindow> win;
   win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  vtkInteractorStyleSwitch::SafeDownCast(iren->GetInteractorStyle())->SetCurrentStyleToTrackballCamera();
+  vtkInteractorStyleSwitch::SafeDownCast(iren->GetInteractorStyle())
+    ->SetCurrentStyleToTrackballCamera();
   iren->SetRenderWindow(win);
-  ren->SetBackground(0.5,0.5,0.5);
-  win->SetSize(450,450);
+  ren->SetBackground(0.5, 0.5, 0.5);
+  win->SetSize(450, 450);
 
   // Create a sphere actor (to test that labels are only visible on one side).
   vtkNew<vtkActor> sphereActor;
@@ -122,7 +112,8 @@ int TestSelectVisiblePoints(int argc, char *argv[])
     ren->AddActor(glyphActor);
     win->Render();
     numberOfVisiblePoints = GetNumberOfVisiblePoints(selectVisiblePoints, spherePoints);
-    std::cout << "Visible points when glyph is shown at each point: " << numberOfVisiblePoints << std::endl;
+    std::cout << "Visible points when glyph is shown at each point: " << numberOfVisiblePoints
+              << std::endl;
     if (numberOfVisiblePoints == spherePoints->GetNumberOfPoints())
     {
       std::cerr << "Number of points is incorrect" << std::endl;
@@ -135,10 +126,11 @@ int TestSelectVisiblePoints(int argc, char *argv[])
   const int numberOfOccludedPoints = 4;
   if (result == EXIT_SUCCESS)
   {
-    selectVisiblePoints->SetToleranceWorld(glypher->GetScaleFactor()*0.5);
+    selectVisiblePoints->SetToleranceWorld(glypher->GetScaleFactor() * 0.5);
     win->Render();
     numberOfVisiblePoints = GetNumberOfVisiblePoints(selectVisiblePoints, spherePoints);
-    std::cout << "Visible points when sphere is shown, with world tolerance set: " << numberOfVisiblePoints << std::endl;
+    std::cout << "Visible points when sphere is shown, with world tolerance set: "
+              << numberOfVisiblePoints << std::endl;
     if (numberOfVisiblePoints != spherePoints->GetNumberOfPoints() - numberOfOccludedPoints)
     {
       std::cerr << "Number of points is incorrect" << std::endl;
@@ -157,7 +149,7 @@ int TestSelectVisiblePoints(int argc, char *argv[])
     win->Render();
     numberOfVisiblePoints = GetNumberOfVisiblePoints(selectVisiblePoints, spherePoints);
     std::cout << "Visible points when sphere is shown, with world tolerance set, view aligned: "
-      << numberOfVisiblePoints << std::endl;
+              << numberOfVisiblePoints << std::endl;
     if (numberOfVisiblePoints != spherePoints->GetNumberOfPoints())
     {
       std::cerr << "Number of points is incorrect" << std::endl;
@@ -171,7 +163,8 @@ int TestSelectVisiblePoints(int argc, char *argv[])
     sphereActor->SetVisibility(true);
     win->Render();
     numberOfVisiblePoints = GetNumberOfVisiblePoints(selectVisiblePoints, spherePoints);
-    std::cout << "Visible points when sphere and glyphs are shown: " << numberOfVisiblePoints << std::endl;
+    std::cout << "Visible points when sphere and glyphs are shown: " << numberOfVisiblePoints
+              << std::endl;
     if (numberOfVisiblePoints == 0 || numberOfVisiblePoints == spherePoints->GetNumberOfPoints())
     {
       std::cerr << "Number of points is incorrect" << std::endl;
@@ -180,7 +173,7 @@ int TestSelectVisiblePoints(int argc, char *argv[])
   }
 
   int retVal = vtkRegressionTestImage(win);
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

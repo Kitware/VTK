@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeMapLayout.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkTreeMapLayout
  * @brief   layout a vtkTree into a tree map
@@ -38,7 +22,7 @@
  * Tree map concept comes from:
  * Shneiderman, B. 1992. Tree visualization with tree-maps: 2-d space-filling approach.
  * ACM Trans. Graph. 11, 1 (Jan. 1992), 92-99.
-*/
+ */
 
 #ifndef vtkTreeMapLayout_h
 #define vtkTreeMapLayout_h
@@ -46,17 +30,18 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTreeMapLayoutStrategy;
 
 class VTKINFOVISLAYOUT_EXPORT vtkTreeMapLayout : public vtkTreeAlgorithm
 {
 public:
-  static vtkTreeMapLayout *New();
+  static vtkTreeMapLayout* New();
 
-  vtkTypeMacro(vtkTreeMapLayout,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkTreeMapLayout, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The field name to use for storing the rectangles for each vertex.
    * The rectangles are stored in a quadruple float array
@@ -64,32 +49,34 @@ public:
    */
   vtkGetStringMacro(RectanglesFieldName);
   vtkSetStringMacro(RectanglesFieldName);
-  //@}
+  ///@}
 
   /**
    * The array to use for the size of each vertex.
    */
   virtual void SetSizeArrayName(const char* name)
-    { this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
+  {
+    this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  }
 
-  //@{
+  ///@{
   /**
    * The strategy to use when laying out the tree map.
    */
   vtkGetObjectMacro(LayoutStrategy, vtkTreeMapLayoutStrategy);
-  void SetLayoutStrategy(vtkTreeMapLayoutStrategy * strategy);
-  //@}
+  void SetLayoutStrategy(vtkTreeMapLayoutStrategy* strategy);
+  ///@}
 
   /**
    * Returns the vertex id that contains pnt (or -1 if no one contains it)
    */
-  vtkIdType FindVertex(float pnt[2], float *binfo=nullptr);
+  vtkIdType FindVertex(float pnt[2], float* binfo = nullptr);
 
   /**
    * Return the min and max 2D points of the
    * vertex's bounding box
    */
-  void GetBoundingBox(vtkIdType id, float *binfo);
+  void GetBoundingBox(vtkIdType id, float* binfo);
 
   /**
    * Get the modification time of the layout algorithm.
@@ -100,15 +87,15 @@ protected:
   vtkTreeMapLayout();
   ~vtkTreeMapLayout() override;
 
-  char * RectanglesFieldName;
+  char* RectanglesFieldName;
   vtkTreeMapLayoutStrategy* LayoutStrategy;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-
   vtkTreeMapLayout(const vtkTreeMapLayout&) = delete;
   void operator=(const vtkTreeMapLayout&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

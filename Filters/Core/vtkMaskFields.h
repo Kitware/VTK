@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMaskFields.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMaskFields
  * @brief   Allow control of which fields get passed
@@ -25,28 +13,29 @@
  * vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
  * vtkDataSetAttributes vtkDataArray vtkRearrangeFields
  * vtkSplitField vtkMergeFields vtkAssignAttribute
-*/
+ */
 
 #ifndef vtkMaskFields_h
 #define vtkMaskFields_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKFILTERSCORE_EXPORT vtkMaskFields : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkMaskFields,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkMaskFields, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkMaskFields.
    */
-  static vtkMaskFields *New();
+  static vtkMaskFields* New();
 
   /**
    * Turn on/off the copying of the field or specified by name.
@@ -63,9 +52,14 @@ public:
    * causes the field "foo" on the input cell data to not get copied
    * to the output.
    */
-  void CopyFieldOn(int fieldLocation, const char* name) { this->CopyFieldOnOff(fieldLocation, name, 1); }
-  void CopyFieldOff(int fieldLocation, const char* name) { this->CopyFieldOnOff(fieldLocation, name, 0); }
-
+  void CopyFieldOn(int fieldLocation, const char* name)
+  {
+    this->CopyFieldOnOff(fieldLocation, name, 1);
+  }
+  void CopyFieldOff(int fieldLocation, const char* name)
+  {
+    this->CopyFieldOnOff(fieldLocation, name, 0);
+  }
 
   /**
    * Turn on/off the copying of the attribute or specified by vtkDataSetAttributes:AttributeTypes.
@@ -82,8 +76,14 @@ public:
    * causes the scalars on the input point data to not get copied
    * to the output.
    */
-  void CopyAttributeOn(int attributeLocation, int attributeType) { this->CopyAttributeOnOff(attributeLocation, attributeType, 1); }
-  void CopyAttributeOff(int attributeLocation, int attributeType) { this->CopyAttributeOnOff(attributeLocation, attributeType, 0); }
+  void CopyAttributeOn(int attributeLocation, int attributeType)
+  {
+    this->CopyAttributeOnOff(attributeLocation, attributeType, 1);
+  }
+  void CopyAttributeOff(int attributeLocation, int attributeType)
+  {
+    this->CopyAttributeOnOff(attributeLocation, attributeType, 0);
+  }
 
   /**
    * Convenience methods which operate on all field data or
@@ -95,20 +95,16 @@ public:
   void CopyFieldsOn() { this->CopyFields = 1; }
   void CopyAttributesOn() { this->CopyAttributes = 1; }
 
-  //@{
+  ///@{
   /**
    * Helper methods used by other language bindings. Allows the caller to
    * specify arguments as strings instead of enums.
    */
-  void CopyAttributeOn(const char* attributeLoc,
-                       const char* attributeType);
-  void CopyAttributeOff(const char* attributeLoc,
-                        const char* attributeType);
-  void CopyFieldOn(const char* fieldLoc,
-                   const char* name);
-  void CopyFieldOff(const char* fieldLoc,
-                    const char* name);
-  //@}
+  void CopyAttributeOn(const char* attributeLoc, const char* attributeType);
+  void CopyAttributeOff(const char* attributeLoc, const char* attributeType);
+  void CopyFieldOn(const char* fieldLoc, const char* name);
+  void CopyFieldOff(const char* fieldLoc, const char* name);
+  ///@}
 
   /**
    * Turn on copying of all data.
@@ -134,16 +130,16 @@ public:
 
   enum FieldLocation
   {
-      OBJECT_DATA=0,
-      POINT_DATA=1,
-      CELL_DATA=2
+    OBJECT_DATA = 0,
+    POINT_DATA = 1,
+    CELL_DATA = 2
   };
 
 protected:
   vtkMaskFields();
   ~vtkMaskFields() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   struct CopyFieldFlag
   {
@@ -154,7 +150,7 @@ protected:
   };
 
   CopyFieldFlag* CopyFieldFlags; // the names of fields not to be copied
-  int NumberOfFieldFlags; // the number of fields not to be copied
+  int NumberOfFieldFlags;        // the number of fields not to be copied
   void CopyFieldOnOff(int fieldLocation, const char* name, int onOff);
   void CopyAttributeOnOff(int attributeLocation, int attributeType, int onOff);
   void ClearFieldFlags();
@@ -176,6 +172,5 @@ private:
   void operator=(const vtkMaskFields&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

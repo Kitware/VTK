@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBooleanTexture.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBooleanTexture
  * @brief   generate 2D texture map based on combinations of inside, outside, and on region boundary
@@ -39,124 +27,125 @@
  *
  * @sa
  * vtkImplicitTextureCoords vtkThresholdTextureCoords
-*/
+ */
 
 #ifndef vtkBooleanTexture_h
 #define vtkBooleanTexture_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGHYBRID_EXPORT vtkBooleanTexture : public vtkImageAlgorithm
 {
 public:
-  static vtkBooleanTexture *New();
+  static vtkBooleanTexture* New();
 
-  vtkTypeMacro(vtkBooleanTexture,vtkImageAlgorithm);
+  vtkTypeMacro(vtkBooleanTexture, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the X texture map dimension.
    */
-  vtkSetMacro(XSize,int);
-  vtkGetMacro(XSize,int);
-  //@}
+  vtkSetMacro(XSize, int);
+  vtkGetMacro(XSize, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the Y texture map dimension.
    */
-  vtkSetMacro(YSize,int);
-  vtkGetMacro(YSize,int);
-  //@}
+  vtkSetMacro(YSize, int);
+  vtkGetMacro(YSize, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the thickness of the "on" region.
    */
-  vtkSetMacro(Thickness,int);
-  vtkGetMacro(Thickness,int);
-  //@}
+  vtkSetMacro(Thickness, int);
+  vtkGetMacro(Thickness, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify intensity/transparency for "in/in" region.
    */
-  vtkSetVector2Macro(InIn,unsigned char);
-  vtkGetVectorMacro(InIn,unsigned char,2);
-  //@}
+  vtkSetVector2Macro(InIn, unsigned char);
+  vtkGetVectorMacro(InIn, unsigned char, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify intensity/transparency for "in/out" region.
    */
-  vtkSetVector2Macro(InOut,unsigned char);
-  vtkGetVectorMacro(InOut,unsigned char,2);
-  //@}
+  vtkSetVector2Macro(InOut, unsigned char);
+  vtkGetVectorMacro(InOut, unsigned char, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify intensity/transparency for "out/in" region.
    */
-  vtkSetVector2Macro(OutIn,unsigned char);
-  vtkGetVectorMacro(OutIn,unsigned char,2);
-  //@}
+  vtkSetVector2Macro(OutIn, unsigned char);
+  vtkGetVectorMacro(OutIn, unsigned char, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify intensity/transparency for "out/out" region.
    */
-  vtkSetVector2Macro(OutOut,unsigned char);
-  vtkGetVectorMacro(OutOut,unsigned char,2);
-  //@}
+  vtkSetVector2Macro(OutOut, unsigned char);
+  vtkGetVectorMacro(OutOut, unsigned char, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify intensity/transparency for "on/on" region.
    */
-  vtkSetVector2Macro(OnOn,unsigned char);
-  vtkGetVectorMacro(OnOn,unsigned char,2);
-  //@}
+  vtkSetVector2Macro(OnOn, unsigned char);
+  vtkGetVectorMacro(OnOn, unsigned char, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify intensity/transparency for "on/in" region.
    */
-  vtkSetVector2Macro(OnIn,unsigned char);
-  vtkGetVectorMacro(OnIn,unsigned char,2);
-  //@}
+  vtkSetVector2Macro(OnIn, unsigned char);
+  vtkGetVectorMacro(OnIn, unsigned char, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify intensity/transparency for "on/out" region.
    */
-  vtkSetVector2Macro(OnOut,unsigned char);
-  vtkGetVectorMacro(OnOut,unsigned char,2);
-  //@}
+  vtkSetVector2Macro(OnOut, unsigned char);
+  vtkGetVectorMacro(OnOut, unsigned char, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify intensity/transparency for "in/on" region.
    */
-  vtkSetVector2Macro(InOn,unsigned char);
-  vtkGetVectorMacro(InOn,unsigned char,2);
-  //@}
+  vtkSetVector2Macro(InOn, unsigned char);
+  vtkGetVectorMacro(InOn, unsigned char, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify intensity/transparency for "out/on" region.
    */
-  vtkSetVector2Macro(OutOn,unsigned char);
-  vtkGetVectorMacro(OutOn,unsigned char,2);
-  //@}
+  vtkSetVector2Macro(OutOn, unsigned char);
+  vtkGetVectorMacro(OutOn, unsigned char, 2);
+  ///@}
 
 protected:
   vtkBooleanTexture();
-  ~vtkBooleanTexture() override {}
+  ~vtkBooleanTexture() override = default;
 
-  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) override;
-  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void ExecuteDataWithInformation(vtkDataObject* data, vtkInformation* outInfo) override;
 
   int XSize;
   int YSize;
@@ -177,6 +166,5 @@ private:
   void operator=(const vtkBooleanTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

@@ -1,39 +1,42 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkFiltersCore import (
+    vtkDecimatePro,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkFiltersProgrammable import vtkProgrammableFilter
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class deciPlane(vtk.test.Testing.vtkTest):
+class deciPlane(vtkmodules.test.Testing.vtkTest):
 
     def testDeciPlane(self):
 
         # Create the RenderWindow, Renderer and both Actors
         #
-        ren1 = vtk.vtkRenderer()
-        ren2 = vtk.vtkRenderer()
-        ren3 = vtk.vtkRenderer()
-        ren4 = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren1 = vtkRenderer()
+        ren2 = vtkRenderer()
+        ren3 = vtkRenderer()
+        ren4 = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren1)
         renWin.AddRenderer(ren2)
         renWin.AddRenderer(ren3)
@@ -41,11 +44,11 @@ class deciPlane(vtk.test.Testing.vtkTest):
 
         # Create the data -- a plane with a couple of bumps
         #
-        plane = vtk.vtkPlaneSource()
+        plane = vtkPlaneSource()
         plane.SetXResolution(10)
         plane.SetYResolution(10)
 
-        tf = vtk.vtkTriangleFilter()
+        tf = vtkTriangleFilter()
         tf.SetInputConnection(plane.GetOutputPort())
         tf.Update()
 
@@ -53,7 +56,7 @@ class deciPlane(vtk.test.Testing.vtkTest):
             input = adjustPoints.GetPolyDataInput()
             inPts = input.GetPoints()
             numPts = input.GetNumberOfPoints()
-            newPts = vtk.vtkPoints()
+            newPts = vtkPoints()
             newPts.SetNumberOfPoints(numPts)
 
             for i in range(0, numPts):
@@ -72,7 +75,7 @@ class deciPlane(vtk.test.Testing.vtkTest):
 
         # This filter modifies the point coordinates in a couple of spots
         #
-        adjustPoints = vtk.vtkProgrammableFilter()
+        adjustPoints = vtkProgrammableFilter()
         adjustPoints.SetInputConnection(tf.GetOutputPort())
         # The SetExecuteMethod takes a python procedure as an argument
         # In here is where all the processing is done.
@@ -80,7 +83,7 @@ class deciPlane(vtk.test.Testing.vtkTest):
         #adjustPoints.Update()
 
         # Now remove the extreme peak in the center
-        gf = vtk.vtkGeometryFilter()
+        gf = vtkGeometryFilter()
         gf.SetInputData(adjustPoints.GetPolyDataOutput())
         gf.ExtentClippingOn()
         gf.SetExtent(-100, 100, -100, 100, -1, 0.9)
@@ -99,7 +102,7 @@ class deciPlane(vtk.test.Testing.vtkTest):
             for accumulate in accumulates:
         #        idx = i * sz + j
                 idx = topology + accumulate
-                deci.update({idx: vtk.vtkDecimatePro()})
+                deci.update({idx: vtkDecimatePro()})
                 deci[idx].SetInputConnection(gf.GetOutputPort())
                 deci[idx].SetTargetReduction(.95)
                 if topology == "On":
@@ -110,9 +113,9 @@ class deciPlane(vtk.test.Testing.vtkTest):
                     deci[idx].AccumulateErrorOn()
                 elif accumulate == "Off":
                     deci[idx].AccumulateErrorOff()
-                mapper.update({idx: vtk.vtkPolyDataMapper()})
+                mapper.update({idx: vtkPolyDataMapper()})
                 mapper[idx].SetInputConnection(deci[idx].GetOutputPort())
-                plane.update({idx: vtk.vtkActor()})
+                plane.update({idx: vtkActor()})
                 plane[idx].SetMapper(mapper[idx])
 
         # Add the actors to the renderer, set the background and size
@@ -127,7 +130,7 @@ class deciPlane(vtk.test.Testing.vtkTest):
         ren3.AddActor(plane["OffOn"])
         ren4.AddActor(plane["OffOff"])
 
-        camera = vtk.vtkCamera()
+        camera = vtkCamera()
         ren1.SetActiveCamera(camera)
         ren2.SetActiveCamera(camera)
         ren3.SetActiveCamera(camera)
@@ -147,13 +150,13 @@ class deciPlane(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "deciPlane.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(deciPlane, 'test')])
+     vtkmodules.test.Testing.main([(deciPlane, 'test')])

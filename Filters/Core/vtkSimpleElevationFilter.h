@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSimpleElevationFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSimpleElevationFilter
  * @brief   generate scalars along a specified direction
@@ -35,42 +23,45 @@
  *
  * @sa
  * vtkElevationFilter
-*/
+ */
 
 #ifndef vtkSimpleElevationFilter_h
 #define vtkSimpleElevationFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkSimpleElevationFilter : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkSimpleElevationFilter,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkSimpleElevationFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with Vector=(0,0,1).
    */
-  static vtkSimpleElevationFilter *New();
+  static vtkSimpleElevationFilter* New();
 
-  //@{
+  ///@{
   /**
    * Define the vector with which to dot against.
    */
-  vtkSetVector3Macro(Vector,double);
-  vtkGetVectorMacro(Vector,double,3);
-  //@}
+  vtkSetVector3Macro(Vector, double);
+  vtkGetVectorMacro(Vector, double, 3);
+  ///@}
 
 protected:
   vtkSimpleElevationFilter();
-  ~vtkSimpleElevationFilter() override {}
+  ~vtkSimpleElevationFilter() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double Vector[3];
+
 private:
   vtkSimpleElevationFilter(const vtkSimpleElevationFilter&) = delete;
   void operator=(const vtkSimpleElevationFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

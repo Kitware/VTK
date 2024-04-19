@@ -8,5 +8,6 @@ process.
 
   * Ignore whitespace errors to pass VTK's commit checks.
   * Use VTK's hdf5 library.
+  * Use VTK's MPI library.
   * Integrate the CMake build with VTK's module system.
   * Mangle all exported symbols to have a `vtknetcdf_` prefix.

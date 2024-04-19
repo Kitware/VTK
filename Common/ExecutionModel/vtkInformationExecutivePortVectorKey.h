@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationExecutivePortVectorKey.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInformationExecutivePortVectorKey
  * @brief   Key for vtkExecutive/Port value pair vectors.
@@ -19,7 +7,7 @@
  * vtkInformationExecutivePortVectorKey is used to represent keys in
  * vtkInformation for values that are vectors of vtkExecutive
  * instances paired with port numbers.
-*/
+ */
 
 #ifndef vtkInformationExecutivePortVectorKey_h
 #define vtkInformationExecutivePortVectorKey_h
@@ -29,12 +17,13 @@
 
 #include "vtkFilteringInformationKeyManager.h" // Manage instances of this type.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExecutive;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationExecutivePortVectorKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationExecutivePortVectorKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationExecutivePortVectorKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationExecutivePortVectorKey(const char* name, const char* location);
@@ -45,12 +34,13 @@ public:
    * given a name and a location. This method is provided for wrappers. Use
    * the constructor directly from C++ instead.
    */
-  static vtkInformationExecutivePortVectorKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationExecutivePortVectorKey* MakeKey(
+    const char* name, const char* location)
   {
     return new vtkInformationExecutivePortVectorKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -62,7 +52,7 @@ public:
   int* GetPorts(vtkInformation* info);
   void Get(vtkInformation* info, vtkExecutive** executives, int* ports);
   int Length(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information
@@ -87,8 +77,7 @@ public:
   void Print(ostream& os, vtkInformation* info) override;
 
 protected:
-
-  //@{
+  ///@{
   /**
    * Get the address at which the actual value is stored.  This is
    * meant for use from a debugger to add watches and is therefore not
@@ -96,11 +85,12 @@ protected:
    */
   vtkExecutive** GetExecutivesWatchAddress(vtkInformation* info);
   int* GetPortsWatchAddress(vtkInformation* info);
-  //@}
+  ///@}
 
 private:
   vtkInformationExecutivePortVectorKey(const vtkInformationExecutivePortVectorKey&) = delete;
   void operator=(const vtkInformationExecutivePortVectorKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

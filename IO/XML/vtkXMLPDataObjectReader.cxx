@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPDataObjectReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLPDataObjectReader.h"
 
 #include "vtkCallbackCommand.h"
@@ -20,7 +8,8 @@
 #include <cassert>
 #include <sstream>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLPDataObjectReader::vtkXMLPDataObjectReader()
 {
   this->NumberOfPieces = 0;
@@ -37,7 +26,7 @@ vtkXMLPDataObjectReader::vtkXMLPDataObjectReader()
   this->PieceProgressObserver->SetClientData(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPDataObjectReader::~vtkXMLPDataObjectReader()
 {
   if (this->NumberOfPieces)
@@ -48,20 +37,20 @@ vtkXMLPDataObjectReader::~vtkXMLPDataObjectReader()
   this->PieceProgressObserver->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfPieces: " << this->NumberOfPieces << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkXMLPDataObjectReader::CreatePieceFileName(const char* fileName)
 {
   assert(fileName);
@@ -83,7 +72,7 @@ char* vtkXMLPDataObjectReader::CreatePieceFileName(const char* fileName)
 
   return buffer;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectReader::SplitFileName()
 {
   if (!this->FileName)
@@ -135,14 +124,14 @@ void vtkXMLPDataObjectReader::SplitFileName()
   delete[] fileName;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectReader::PieceProgressCallbackFunction(
   vtkObject*, unsigned long, void* clientdata, void*)
 {
   reinterpret_cast<vtkXMLPDataObjectReader*>(clientdata)->PieceProgressCallback();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPDataObjectReader::ReadXMLInformation()
 {
   // First setup the filename components.
@@ -152,12 +141,17 @@ int vtkXMLPDataObjectReader::ReadXMLInformation()
   return this->Superclass::ReadXMLInformation();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectReader::SetupPieces(int numPieces)
 {
   if (this->NumberOfPieces)
   {
     this->DestroyPieces();
+  }
+
+  if (!numPieces)
+  {
+    return;
   }
 
   this->NumberOfPieces = numPieces;
@@ -171,7 +165,7 @@ void vtkXMLPDataObjectReader::SetupPieces(int numPieces)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectReader::DestroyPieces()
 {
   delete[] this->PieceElements;
@@ -180,9 +174,10 @@ void vtkXMLPDataObjectReader::DestroyPieces()
   this->NumberOfPieces = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPDataObjectReader::ReadPiece(vtkXMLDataElement* ePiece, int index)
 {
   this->Piece = index;
   return this->ReadPiece(ePiece);
 }
+VTK_ABI_NAMESPACE_END

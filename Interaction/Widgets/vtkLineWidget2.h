@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLineWidget2.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLineWidget2
  * @brief   3D widget for manipulating a finite, straight line
@@ -36,7 +24,7 @@
  *   LeftButtonReleaseEvent - release the handle widget associated with the point
  *   MouseMoveEvent - move the point
  * If the line is selected:
- *   LeftButtonPressEvent - activate a handle widget accociated with the line
+ *   LeftButtonPressEvent - activate a handle widget associated with the line
  *   LeftButtonReleaseEvent - release the handle widget associated with the line
  *   MouseMoveEvent - translate the line
  * In all the cases, independent of what is picked, the widget responds to the
@@ -77,33 +65,34 @@
  * @sa
  * vtkLineRepresentation vtkLineWidget vtk3DWidget vtkImplicitPlaneWidget
  * vtkImplicitPlaneWidget2
-*/
+ */
 
 #ifndef vtkLineWidget2_h
 #define vtkLineWidget2_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLineRepresentation;
 class vtkHandleWidget;
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkLineWidget2 : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkLineWidget2 : public vtkAbstractWidget
 {
 public:
   /**
    * Instantiate the object.
    */
-  static vtkLineWidget2 *New();
+  static vtkLineWidget2* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtkObject methods
    */
-  vtkTypeMacro(vtkLineWidget2,vtkAbstractWidget);
+  vtkTypeMacro(vtkLineWidget2, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Override superclasses' SetEnabled() method because the line
@@ -116,14 +105,18 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkLineRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkLineRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkLineRepresentation.
    */
-  vtkLineRepresentation *GetLineRepresentation()
-    {return reinterpret_cast<vtkLineRepresentation*>(this->WidgetRep);}
+  vtkLineRepresentation* GetLineRepresentation()
+  {
+    return reinterpret_cast<vtkLineRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -142,7 +135,12 @@ protected:
 
   // Manage the state of the widget
   int WidgetState;
-  enum _WidgetState {Start=0,Active};
+  enum WidgetStateType
+  {
+    Start = 0,
+    Active
+  };
+
   int CurrentHandle;
 
   // These methods handle events
@@ -153,16 +151,17 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
   // The positioning handle widgets
-  vtkHandleWidget *Point1Widget; //first end point
-  vtkHandleWidget *Point2Widget; //second end point
-  vtkHandleWidget *LineHandle; //used when selecting the line
+  vtkHandleWidget* Point1Widget; // first end point
+  vtkHandleWidget* Point2Widget; // second end point
+  vtkHandleWidget* LineHandle;   // used when selecting the line
 
-  vtkCallbackCommand *KeyEventCallbackCommand;
-  static void ProcessKeyEvents(vtkObject *, unsigned long, void *, void *);
+  vtkCallbackCommand* KeyEventCallbackCommand;
+  static void ProcessKeyEvents(vtkObject*, unsigned long, void*, void*);
 
 private:
   vtkLineWidget2(const vtkLineWidget2&) = delete;
   void operator=(const vtkLineWidget2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

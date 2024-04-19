@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -15,58 +15,53 @@
 /* Module Setup */
 /****************/
 
-#define H5O_FRIEND		/*suppress error about including H5Opkg	  */
-#include "H5SMmodule.h"         /* This source code file is part of the H5SM module */
-
+#define H5O_FRIEND      /*suppress error about including H5Opkg	  */
+#include "H5SMmodule.h" /* This source code file is part of the H5SM module */
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Opkg.h"             /* Object Headers                       */
-#include "H5SMpkg.h"            /* Shared object header messages        */
-
+#include "H5private.h"   /* Generic Functions			*/
+#include "H5Eprivate.h"  /* Error handling		  	*/
+#include "H5MMprivate.h" /* Memory management			*/
+#include "H5Opkg.h"      /* Object Headers                       */
+#include "H5SMpkg.h"     /* Shared object header messages        */
 
 /****************/
 /* Local Macros */
 /****************/
 
-
 /******************/
 /* Local Typedefs */
 /******************/
-
 
 /********************/
 /* Local Prototypes */
 /********************/
 
 /* v2 B-tree callbacks */
-static void *H5SM__bt2_crt_context(void *udata);
+static void * H5SM__bt2_crt_context(void *udata);
 static herr_t H5SM__bt2_dst_context(void *ctx);
 static herr_t H5SM__bt2_store(void *native, const void *udata);
-static herr_t H5SM__bt2_debug(FILE *stream, int indent, int fwidth,
-    const void *record, const void *_udata);
-
+static herr_t H5SM__bt2_debug(FILE *stream, int indent, int fwidth, const void *record, const void *_udata);
 
 /*****************************/
 /* Library Private Variables */
 /*****************************/
 /* v2 B-tree class for SOHM indexes*/
-const H5B2_class_t H5SM_INDEX[1]={{   /* B-tree class information */
-    H5B2_SOHM_INDEX_ID,               /* Type of B-tree */
-    "H5B2_SOHM_INDEX_ID",             /* Name of B-tree class */
-    sizeof(H5SM_sohm_t),              /* Size of native record */
-    H5SM__bt2_crt_context,            /* Create client callback context */
-    H5SM__bt2_dst_context,            /* Destroy client callback context */
-    H5SM__bt2_store,                  /* Record storage callback */
-    H5SM__message_compare,            /* Record comparison callback */
-    H5SM__message_encode,             /* Record encoding callback */
-    H5SM__message_decode,             /* Record decoding callback */
-    H5SM__bt2_debug                   /* Record debugging callback */
+const H5B2_class_t H5SM_INDEX[1] = {{
+    /* B-tree class information */
+    H5B2_SOHM_INDEX_ID,    /* Type of B-tree */
+    "H5B2_SOHM_INDEX_ID",  /* Name of B-tree class */
+    sizeof(H5SM_sohm_t),   /* Size of native record */
+    H5SM__bt2_crt_context, /* Create client callback context */
+    H5SM__bt2_dst_context, /* Destroy client callback context */
+    H5SM__bt2_store,       /* Record storage callback */
+    H5SM__message_compare, /* Record comparison callback */
+    H5SM__message_encode,  /* Record encoding callback */
+    H5SM__message_decode,  /* Record decoding callback */
+    H5SM__bt2_debug        /* Record debugging callback */
 }};
-
 
 /*******************/
 /* Local Variables */
@@ -75,8 +70,6 @@ const H5B2_class_t H5SM_INDEX[1]={{   /* B-tree class information */
 /* Declare a free list to manage the H5SM_bt2_ctx_t struct */
 H5FL_DEFINE_STATIC(H5SM_bt2_ctx_t);
 
-
-
 /*-------------------------------------------------------------------------
  * Function:	H5SM__bt2_crt_context
  *
@@ -93,9 +86,9 @@ H5FL_DEFINE_STATIC(H5SM_bt2_ctx_t);
 static void *
 H5SM__bt2_crt_context(void *_f)
 {
-    H5F_t *f = (H5F_t *)_f;     /* User data for building callback context */
-    H5SM_bt2_ctx_t *ctx;        /* Callback context structure */
-    void *ret_value = NULL;     /* Return value */
+    H5F_t *         f = (H5F_t *)_f;  /* User data for building callback context */
+    H5SM_bt2_ctx_t *ctx;              /* Callback context structure */
+    void *          ret_value = NULL; /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -103,7 +96,7 @@ H5SM__bt2_crt_context(void *_f)
     HDassert(f);
 
     /* Allocate callback context */
-    if(NULL == (ctx = H5FL_MALLOC(H5SM_bt2_ctx_t)))
+    if (NULL == (ctx = H5FL_MALLOC(H5SM_bt2_ctx_t)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, NULL, "can't allocate callback context")
 
     /* Determine the size of addresses & lengths in the file */
@@ -116,7 +109,6 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5SM__bt2_crt_context() */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5SM__bt2_dst_context
  *
@@ -133,7 +125,7 @@ done:
 static herr_t
 H5SM__bt2_dst_context(void *_ctx)
 {
-    H5SM_bt2_ctx_t *ctx = (H5SM_bt2_ctx_t *)_ctx;       /* Callback context structure */
+    H5SM_bt2_ctx_t *ctx = (H5SM_bt2_ctx_t *)_ctx; /* Callback context structure */
 
     FUNC_ENTER_STATIC_NOERR
 
@@ -146,7 +138,6 @@ H5SM__bt2_dst_context(void *_ctx)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5SM__bt2_dst_context() */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5SM__bt2_store
  *
@@ -175,7 +166,6 @@ H5SM__bt2_store(void *native, const void *udata)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5SM__bt2_store */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5SM__bt2_debug
  *
@@ -190,66 +180,22 @@ H5SM__bt2_store(void *native, const void *udata)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5SM__bt2_debug(FILE *stream, int indent, int fwidth,
-    const void *record, const void H5_ATTR_UNUSED *_udata)
+H5SM__bt2_debug(FILE *stream, int indent, int fwidth, const void *record, const void H5_ATTR_UNUSED *_udata)
 {
     const H5SM_sohm_t *sohm = (const H5SM_sohm_t *)record;
 
     FUNC_ENTER_STATIC_NOERR
 
-    if(sohm->location == H5SM_IN_HEAP)
-        HDfprintf(stream, "%*s%-*s {%a, %lo, %Hx}\n", indent, "", fwidth,
-            "Shared Message in heap:",
-            sohm->u.heap_loc.fheap_id, sohm->hash, sohm->u.heap_loc.ref_count);
+    if (sohm->location == H5SM_IN_HEAP)
+        HDfprintf(stream, "%*s%-*s {%" PRIu64 ", %" PRIo32 ", %" PRIxHSIZE "}\n", indent, "", fwidth,
+                  "Shared Message in heap:", sohm->u.heap_loc.fheap_id.val, sohm->hash,
+                  sohm->u.heap_loc.ref_count);
     else {
         HDassert(sohm->location == H5SM_IN_OH);
-        HDfprintf(stream, "%*s%-*s {%a, %lo, %Hx, %Hx}\n", indent, "", fwidth,
-            "Shared Message in OH:",
-            sohm->u.mesg_loc.oh_addr, sohm->hash, sohm->msg_type_id, sohm->u.mesg_loc.index);
+        HDfprintf(stream, "%*s%-*s {%" PRIuHADDR ", %" PRIo32 ", %x, %" PRIx32 "}\n", indent, "", fwidth,
+                  "Shared Message in OH:", sohm->u.mesg_loc.oh_addr, sohm->hash, sohm->msg_type_id,
+                  sohm->u.mesg_loc.index);
     } /* end else */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5SM__bt2_debug */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5SM_bt2_convert_to_list_op
- *
- * Purpose:	An H5B2_remove_t callback function to convert a SOHM
- *              B-tree index to a list.
- *
- *              Inserts this record into the list passed through op_data.
- *
- * Return:	Non-negative on success
- *              Negative on failure
- *
- * Programmer:	James Laird
- *              Monday, November 6, 2006
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5SM_bt2_convert_to_list_op(const void * record, void *op_data)
-{
-    const H5SM_sohm_t *message = (const H5SM_sohm_t *)record;
-    const H5SM_list_t *list = (const H5SM_list_t *)op_data;
-    size_t mesg_idx;            /* Index of message to modify */
-
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    /* Sanity checks */
-    HDassert(record);
-    HDassert(op_data);
-
-    /* Get the message index, and increment the # of messages in list */
-    mesg_idx = list->header->num_messages++;
-    HDassert(list->header->num_messages <= list->header->list_max);
-
-    /* Insert this message at the end of the list */
-    HDassert(list->messages[mesg_idx].location == H5SM_NO_LOC);
-    HDassert(message->location != H5SM_NO_LOC);
-    HDmemcpy(&(list->messages[mesg_idx]), message, sizeof(H5SM_sohm_t));
-
-    FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5SM_bt2_convert_to_list_op() */
-

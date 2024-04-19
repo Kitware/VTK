@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAffineWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAffineWidget
  * @brief   perform affine transformations
@@ -53,46 +41,51 @@
  *   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
  * </pre>
  *
-*/
+ */
 
 #ifndef vtkAffineWidget_h
 #define vtkAffineWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAffineRepresentation;
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkAffineWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkAffineWidget : public vtkAbstractWidget
 {
 public:
   /**
    * Instantiate this class.
    */
-  static vtkAffineWidget *New();
+  static vtkAffineWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class macros.
    */
-  vtkTypeMacro(vtkAffineWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkAffineWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkAffineRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkAffineRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkAffineRepresentation.
    */
-  vtkAffineRepresentation *GetAffineRepresentation()
-    {return reinterpret_cast<vtkAffineRepresentation*>(this->WidgetRep);}
+  vtkAffineRepresentation* GetAffineRepresentation()
+  {
+    return reinterpret_cast<vtkAffineRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -121,9 +114,9 @@ protected:
 
   // Manage the state of the widget
   int WidgetState;
-  enum _WidgetState
+  enum WidgetStateType
   {
-    Start=0,
+    Start = 0,
     Active
   };
 
@@ -135,4 +128,5 @@ private:
   void operator=(const vtkAffineWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

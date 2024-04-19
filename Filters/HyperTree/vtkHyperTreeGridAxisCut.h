@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridAxisCut.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHyperTreeGridAxisCut
  * @brief   Axis aligned hyper tree grid cut
@@ -34,7 +22,7 @@
  * This class was modified by Jacques-Bernard Lekien, 2018
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridAxisCut_h
 #define vtkHyperTreeGridAxisCut_h
@@ -42,6 +30,7 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
@@ -51,42 +40,41 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkHyperTreeGr
 {
 public:
   static vtkHyperTreeGridAxisCut* New();
-  vtkTypeMacro( vtkHyperTreeGridAxisCut, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkHyperTreeGridAxisCut, vtkHyperTreeGridAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Normal axis: 0=X, 1=Y, 2=Z. Default is 0
    */
   vtkSetClampMacro(PlaneNormalAxis, int, 0, 2);
   vtkGetMacro(PlaneNormalAxis, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Position of plane: Axis constant. Default is 0.0
    */
   vtkSetMacro(PlanePosition, double);
   vtkGetMacro(PlanePosition, double);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridAxisCut();
   ~vtkHyperTreeGridAxisCut() override;
 
   // For this algorithm the output is a vtkHyperTreeGrid instance
-  int FillOutputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * Main routine to generate hyper tree grid cut
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree(
-    vtkHyperTreeGridNonOrientedGeometryCursor* inCursor,
+  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedGeometryCursor* inCursor,
     vtkHyperTreeGridNonOrientedCursor* outCursor);
 
   /**
@@ -116,4 +104,5 @@ private:
   void operator=(const vtkHyperTreeGridAxisCut&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridAxisCut_h

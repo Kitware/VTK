@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPolygonalHandleRepresentation3D.h"
 
 #include <cstdlib>
@@ -5,12 +7,13 @@
 
 #include "WidgetTestingMacros.h"
 
-int vtkPolygonalHandleRepresentation3DTest1(int , char * [] )
+int vtkPolygonalHandleRepresentation3DTest1(int, char*[])
 {
-  vtkSmartPointer< vtkPolygonalHandleRepresentation3D > node1 = vtkSmartPointer< vtkPolygonalHandleRepresentation3D >::New();
+  vtkSmartPointer<vtkPolygonalHandleRepresentation3D> node1 =
+    vtkSmartPointer<vtkPolygonalHandleRepresentation3D>::New();
 
-  EXERCISE_BASIC_ABSTRACT_POLYGONAL_HANDLE_REPRESENTATION3D_METHODS(vtkPolygonalHandleRepresentation3D, node1);
-
+  EXERCISE_BASIC_ABSTRACT_POLYGONAL_HANDLE_REPRESENTATION3D_METHODS(
+    vtkPolygonalHandleRepresentation3D, node1);
 
   TEST_SET_GET_VECTOR3_DOUBLE_RANGE(node1, Offset, -10.0, 10.0);
 

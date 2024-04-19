@@ -88,9 +88,10 @@ set(DATA_ROOT "@VTK_DATA_ROOT@")
 #   GITWEB_DATA_SUFFIX=?root=VTKData
 #   GITWEB_DATA_CHECKOUT=http://public.kitware.com/cgi-bin/viewcvs.cgi/*checkout*
 #
-set(GITWEB http://vtk.org/gitweb) # not used
+set(GITWEB https://gitlab.kitware.com) # not used
 set(GITWEB_SUFFIX ) #empty for git ?p=VTK)
-set(GITWEB_CHECKOUT http://vtk.org/gitweb?p=VTK.git;a=blob;f=)
+set(GITWEB_CHECKOUT
+  "https://gitlab.kitware.com/vtk/vtk/-/blob/v@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.0/")
 set(GITWEB_DATA http://vtk.org/gitweb)
 set(GITWEB_DATA_SUFFIX ) # empty for git ?p=VTKData)
 set(GITWEB_DATA_CHECKOUT http://vtk.org/gitweb?p=VTKData.git;a=blob;f=)
@@ -260,6 +261,17 @@ foreach(var
     FILES_MATCHING PATTERN "*.h"
     )
 endforeach()
+file(COPY "${SOURCE_DIR}/CMake"
+  DESTINATION "${INTERMEDIATE_DOX_DIR}"
+  FILES_MATCHING
+  PATTERN "vtkDetectLibraryType.cmake"
+  PATTERN "vtkEncodeString.cmake"
+  PATTERN "vtkHashSource.cmake"
+  PATTERN "vtkModule*.cmake"
+  PATTERN "vtkModuleDebugging.cmake" EXCLUDE
+  PATTERN "vtkModuleRemote.cmake" EXCLUDE
+  PATTERN "vtkObjectFactory.cmake"
+  )
 
 # ----------------------------------------------------------------------------
 # Build the Events invocation list.
@@ -304,7 +316,7 @@ step(4 "extract VTK version")
 execute_process(COMMAND ${PERL}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_version.pl"
   --version_file "${SOURCE_DIR}/${REL_PATH_TO_TOP}/CMake/vtkVersion.cmake"
-  --logo "${PATH_TO_VTK_DOX_SCRIPTS}/vtk-logo.gif"
+  --logo "${SOURCE_DIR}/vtkLogo.ico"
   --store "doc_${PROJECT_NAME}_version.dox"
   --to "${INTERMEDIATE_DOX_DIR}"
   RESULT_VARIABLE rv
@@ -334,6 +346,19 @@ execute_process(COMMAND ${PERL}
   --unique "e"
   --remove_leading_slash=1
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}"
+  RESULT_VARIABLE rv
+)
+
+# ----------------------------------------------------------------------------
+# Cross-reference against vtk-examples
+
+step (5a "cross-reference classes with online examples")
+execute_process(COMMAND ${PYTHON_EXECUTABLE}
+  "${PATH_TO_VTK_DOX_SCRIPTS}/doc_class2onlineexamples.py"
+  --label "Online Examples"
+  --number 10
+  --tmpdir "${DOXTEMP}"
+  --dir "${INTERMEDIATE_DOX_DIR}"
   RESULT_VARIABLE rv
 )
 

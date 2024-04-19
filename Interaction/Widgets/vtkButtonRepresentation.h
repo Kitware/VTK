@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkButtonRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkButtonRepresentation
  * @brief   abstract class defines the representation for a vtkButtonWidget
@@ -33,41 +21,43 @@
  *
  * @sa
  * vtkButtonWidget
-*/
+ */
 
 #ifndef vtkButtonRepresentation_h
 #define vtkButtonRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkButtonRepresentation : public vtkWidgetRepresentation
+VTK_ABI_NAMESPACE_BEGIN
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkButtonRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkButtonRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkButtonRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve the current button state.
    */
-  vtkSetClampMacro(NumberOfStates,int,1,VTK_INT_MAX);
-  //@}
+  vtkSetClampMacro(NumberOfStates, int, 1, VTK_INT_MAX);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve the current button state.
    */
-  vtkGetMacro(State,int);
-  //@}
+  vtkGetMacro(State, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Manipulate the state. Note that the NextState() and PreviousState() methods
    * use modulo traversal. The "state" integral value will be clamped within
@@ -77,15 +67,15 @@ public:
   virtual void SetState(int state);
   virtual void NextState();
   virtual void PreviousState();
-  //@}
+  ///@}
 
-  enum _InteractionState
+  enum InteractionStateType
   {
-    Outside=0,
+    Outside = 0,
     Inside
   };
 
-  //@{
+  ///@{
   /**
    * These methods control the appearance of the button as it is being
    * interacted with. Subclasses will behave differently depending on their
@@ -94,15 +84,21 @@ public:
    * Otherwise, the HighlightNormal is used. The Highlight() method will throw
    * a vtkCommand::HighlightEvent.
    */
-  enum _HighlightState {HighlightNormal,HighlightHovering,HighlightSelecting};
+  enum HighlightStateType
+  {
+    HighlightNormal,
+    HighlightHovering,
+    HighlightSelecting
+  };
+
   void Highlight(int) override;
-  vtkGetMacro(HighlightState,int);
-  //@}
+  vtkGetMacro(HighlightState, int);
+  ///@}
 
   /**
    * Satisfy some of vtkProp's API.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
 protected:
   vtkButtonRepresentation();
@@ -118,4 +114,5 @@ private:
   void operator=(const vtkButtonRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

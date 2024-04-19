@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCaptionWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCaptionWidget
  * @brief   widget for placing a caption (text plus leader)
@@ -33,36 +21,37 @@
  *
  * @sa
  * vtkBorderWidget vtkTextWidget
-*/
+ */
 
 #ifndef vtkCaptionWidget_h
 #define vtkCaptionWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCaptionRepresentation;
 class vtkCaptionActor2D;
 class vtkHandleWidget;
 class vtkPointHandleRepresentation3D;
 class vtkCaptionAnchorCallback;
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkCaptionWidget : public vtkBorderWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCaptionWidget : public vtkBorderWidget
 {
 public:
   /**
    * Instantiate this class.
    */
-  static vtkCaptionWidget *New();
+  static vtkCaptionWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
-  vtkTypeMacro(vtkCaptionWidget,vtkBorderWidget);
+  vtkTypeMacro(vtkCaptionWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Override superclasses' SetEnabled() method because the caption leader
@@ -75,18 +64,20 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkCaptionRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkCaptionRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
-  //@{
+  ///@{
   /**
    * Specify a vtkCaptionActor2D to manage. This is convenient, alternative
    * method to SetRepresentation(). It internally create a vtkCaptionRepresentation
    * and then invokes vtkCaptionRepresentation::SetCaptionActor2D().
    */
-  void SetCaptionActor2D(vtkCaptionActor2D *capActor);
-  vtkCaptionActor2D *GetCaptionActor2D();
-  //@}
+  void SetCaptionActor2D(vtkCaptionActor2D* capActor);
+  vtkCaptionActor2D* GetCaptionActor2D();
+  ///@}
 
   /**
    * Create the default widget representation if one is not set.
@@ -98,10 +89,10 @@ protected:
   ~vtkCaptionWidget() override;
 
   // Handles callbacks from the anchor point
-  vtkCaptionAnchorCallback *AnchorCallback;
+  vtkCaptionAnchorCallback* AnchorCallback;
 
   // Widget for the anchor point
-  vtkHandleWidget *HandleWidget;
+  vtkHandleWidget* HandleWidget;
 
   // Special callbacks for the anchor interaction
   void StartAnchorInteraction();
@@ -115,4 +106,5 @@ private:
   void operator=(const vtkCaptionWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

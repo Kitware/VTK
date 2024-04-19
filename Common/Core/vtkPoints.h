@@ -1,44 +1,33 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPoints.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPoints
  * @brief   represent and manipulate 3D points
  *
  * vtkPoints represents 3D points. The data model for vtkPoints is an
  * array of vx-vy-vz triplets accessible by (point or cell) id.
-*/
+ */
 
 #ifndef vtkPoints_h
 #define vtkPoints_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkDataArray.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 
-class VTKCOMMONCORE_EXPORT vtkPoints : public vtkObject
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkPoints : public vtkObject
 {
 public:
+  static vtkPoints* New(int dataType);
 
-  static vtkPoints *New(int dataType);
+  static vtkPoints* New();
 
-  static vtkPoints *New();
-
-  vtkTypeMacro(vtkPoints,vtkObject);
+  vtkTypeMacro(vtkPoints, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -59,17 +48,18 @@ public:
    * tuple dimension of 9. Scalars, on the other hand, can have tuple dimension
    * from 1-4, depending on the type of scalar.)
    */
-  virtual void SetData(vtkDataArray *);
-  vtkDataArray *GetData() { return this->Data; }
+  virtual void SetData(vtkDataArray*);
+  vtkDataArray* GetData() { return this->Data; }
 
   /**
    * Return the underlying data type. An integer indicating data type is
    * returned as specified in vtkSetGet.h.
    */
-  virtual int GetDataType();
+  virtual int GetDataType() const;
 
   /**
    * Specify the underlying data type of the object.
+   * Default is VTK_FLOAT.
    */
   virtual void SetDataType(int dataType);
   void SetDataTypeToBit() { this->SetDataType(VTK_BIT); }
@@ -88,7 +78,7 @@ public:
    * Return a void pointer. For image pipeline interface and other
    * special pointer manipulation.
    */
-  void *GetVoidPointer(const int id) { return this->Data->GetVoidPointer(id); }
+  void* GetVoidPointer(const int id) { return this->Data->GetVoidPointer(id); }
 
   /**
    * Reclaim any extra memory.
@@ -100,15 +90,15 @@ public:
    */
   virtual void Reset();
 
-  //@{
+  ///@{
   /**
    * Different ways to copy data. Shallow copy does reference count (i.e.,
    * assigns pointers and updates reference count); deep copy runs through
    * entire data array assigning values.
    */
-  virtual void DeepCopy(vtkPoints *ad);
-  virtual void ShallowCopy(vtkPoints *ad);
-  //@}
+  virtual void DeepCopy(vtkPoints* ad);
+  virtual void ShallowCopy(vtkPoints* ad);
+  ///@}
 
   /**
    * Return the memory in kibibytes (1024 bytes) consumed by this attribute data.
@@ -123,7 +113,7 @@ public:
   /**
    * Return number of points in array.
    */
-  vtkIdType GetNumberOfPoints() { return this->Data->GetNumberOfTuples(); }
+  vtkIdType GetNumberOfPoints() const { return this->Data->GetNumberOfTuples(); }
 
   /**
    * Return a pointer to a double point x[3] for a specific id.
@@ -131,19 +121,20 @@ public:
    * and its values are only valid as long as another method invocation is not
    * performed. Prefer GetPoint() with the return value in argument.
    */
-  double *GetPoint(vtkIdType id)
-    VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
-    VTK_SIZEHINT(3)
-    { return this->Data->GetTuple(id); }
+  double* GetPoint(vtkIdType id) VTK_EXPECTS(0 <= id && id < GetNumberOfPoints()) VTK_SIZEHINT(3)
+  {
+    return this->Data->GetTuple(id);
+  }
 
   /**
    * Copy point components into user provided array v[3] for specified
    * id.
    */
-  void GetPoint(vtkIdType id, double x[3])
-    VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
+  void GetPoint(vtkIdType id, double x[3]) VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
     VTK_SIZEHINT(3)
-    { this->Data->GetTuple(id,x); }
+  {
+    this->Data->GetTuple(id, x);
+  }
 
   /**
    * Insert point into object. No range checking performed (fast!).
@@ -151,54 +142,58 @@ public:
    * to using SetPoint(). You should call Modified() finally after
    * changing points using this method as it will not do it itself.
    */
-  void SetPoint(vtkIdType id, const float x[3])
-    VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
-    { this->Data->SetTuple(id,x); }
-  void SetPoint(vtkIdType id, const double x[3])
-    VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
-    { this->Data->SetTuple(id,x); }
+  void SetPoint(vtkIdType id, const float x[3]) VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
+  {
+    this->Data->SetTuple(id, x);
+  }
+  void SetPoint(vtkIdType id, const double x[3]) VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
+  {
+    this->Data->SetTuple(id, x);
+  }
   void SetPoint(vtkIdType id, double x, double y, double z)
     VTK_EXPECTS(0 <= id && id < GetNumberOfPoints());
 
-  //@{
+  ///@{
   /**
    * Insert point into object. Range checking performed and memory
    * allocated as necessary.
    */
-  void InsertPoint(vtkIdType id, const float x[3])
-    VTK_EXPECTS(0 <= id)
-    { this->Data->InsertTuple(id,x);};
-  void InsertPoint(vtkIdType id, const double x[3])
-    VTK_EXPECTS(0 <= id)
-    {this->Data->InsertTuple(id,x);};
-  void InsertPoint(vtkIdType id, double x, double y, double z)
-    VTK_EXPECTS(0 <= id);
-  //@}
+  void InsertPoint(vtkIdType id, const float x[3]) VTK_EXPECTS(0 <= id)
+  {
+    this->Data->InsertTuple(id, x);
+  }
+  void InsertPoint(vtkIdType id, const double x[3]) VTK_EXPECTS(0 <= id)
+  {
+    this->Data->InsertTuple(id, x);
+  }
+  void InsertPoint(vtkIdType id, double x, double y, double z) VTK_EXPECTS(0 <= id);
+  ///@}
 
   /**
    * Copy the points indexed in srcIds from the source array to the tuple
    * locations indexed by dstIds in this array.
    * Note that memory allocation is performed as necessary to hold the data.
    */
-  void InsertPoints(vtkIdList *dstIds, vtkIdList *srcIds, vtkPoints *source)
-    { this->Data->InsertTuples(dstIds, srcIds, source->Data); }
+  void InsertPoints(vtkIdList* dstIds, vtkIdList* srcIds, vtkPoints* source)
+  {
+    this->Data->InsertTuples(dstIds, srcIds, source->Data);
+  }
 
   /**
    * Copy n consecutive points starting at srcStart from the source array to
    * this array, starting at the dstStart location.
    * Note that memory allocation is performed as necessary to hold the data.
    */
-  void InsertPoints(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                    vtkPoints* source)
-    { this->Data->InsertTuples(dstStart, n, srcStart, source->Data); }
+  void InsertPoints(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkPoints* source)
+  {
+    this->Data->InsertTuples(dstStart, n, srcStart, source->Data);
+  }
 
   /**
    * Insert point into next available slot. Returns id of slot.
    */
-  vtkIdType InsertNextPoint(const float x[3])
-    { return this->Data->InsertNextTuple(x); }
-  vtkIdType InsertNextPoint(const double x[3])
-    { return this->Data->InsertNextTuple(x); }
+  vtkIdType InsertNextPoint(const float x[3]) { return this->Data->InsertNextTuple(x); }
+  vtkIdType InsertNextPoint(const double x[3]) { return this->Data->InsertNextTuple(x); }
   vtkIdType InsertNextPoint(double x, double y, double z);
 
   /**
@@ -217,7 +212,7 @@ public:
   /**
    * Given a list of pt ids, return an array of points.
    */
-  void GetPoints(vtkIdList *ptId, vtkPoints *fp);
+  void GetPoints(vtkIdList* ptId, vtkPoints* outPoints);
 
   /**
    * Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
@@ -227,7 +222,7 @@ public:
   /**
    * Return the bounds of the points.
    */
-  double *GetBounds() VTK_SIZEHINT(6);
+  double* GetBounds() VTK_SIZEHINT(6);
 
   /**
    * Return the bounds of the points.
@@ -252,7 +247,7 @@ protected:
 
   double Bounds[6];
   vtkTimeStamp ComputeTime; // Time at which bounds computed
-  vtkDataArray *Data;  // Array which represents data
+  vtkDataArray* Data;       // Array which represents data
 
 private:
   vtkPoints(const vtkPoints&) = delete;
@@ -297,5 +292,5 @@ inline vtkIdType vtkPoints::InsertNextPoint(double x, double y, double z)
   return this->Data->InsertNextTuple(p);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
-

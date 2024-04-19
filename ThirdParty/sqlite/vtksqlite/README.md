@@ -55,11 +55,11 @@ a stand-alone program.  To install, simply download or build the single
 executable file and put that file someplace on your $PATH.)
 Then run commands like this:
 
-        mkdir ~/sqlite
+        mkdir -p ~/sqlite ~/Fossils
         cd ~/sqlite
-        fossil clone https://www.sqlite.org/src sqlite.fossil
-        fossil open sqlite.fossil
-    
+        fossil clone https://www.sqlite.org/src ~/Fossils/sqlite.fossil
+        fossil open ~/Fossils/sqlite.fossil
+
 After setting up a repository using the steps above, you can always
 update to the lastest version using:
 
@@ -68,7 +68,7 @@ update to the lastest version using:
 
 Or type "fossil ui" to get a web-based user interface.
 
-## Compiling
+## Compiling for Unix-like systems
 
 First create a directory in which to place
 the build products.  It is recommended, but not required, that the
@@ -94,22 +94,22 @@ script does not work out for you, there is a generic makefile named
 can copy and edit to suit your needs.  Comments on the generic makefile
 show what changes are needed.
 
-## Using MSVC
+## Using MSVC for Windows systems
 
 On Windows, all applicable build products can be compiled with MSVC.
 First open the command prompt window associated with the desired compiler
 version (e.g. "Developer Command Prompt for VS2013").  Next, use NMAKE
 with the provided "Makefile.msc" to build one of the supported targets.
 
-For example:
+For example, from the parent directory of the source subtree named "sqlite":
 
         mkdir bld
         cd bld
-        nmake /f Makefile.msc TOP=..\sqlite
-        nmake /f Makefile.msc sqlite3.c TOP=..\sqlite
-        nmake /f Makefile.msc sqlite3.dll TOP=..\sqlite
-        nmake /f Makefile.msc sqlite3.exe TOP=..\sqlite
-        nmake /f Makefile.msc test TOP=..\sqlite
+        nmake /f ..\sqlite\Makefile.msc TOP=..\sqlite
+        nmake /f ..\sqlite\Makefile.msc sqlite3.c TOP=..\sqlite
+        nmake /f ..\sqlite\Makefile.msc sqlite3.dll TOP=..\sqlite
+        nmake /f ..\sqlite\Makefile.msc sqlite3.exe TOP=..\sqlite
+        nmake /f ..\sqlite\Makefile.msc test TOP=..\sqlite
 
 There are several build options that can be set via the NMAKE command
 line.  For example, to build for WinRT, simply add "FOR_WINRT=1" argument
@@ -306,30 +306,13 @@ describes its purpose and role within the larger system.
 <a name="vauth"></a>
 ## Verifying Code Authenticity
 
-If you obtained an SQLite source tree from a secondary source, such as a
-GitHub mirror, and you want to verify that it has not been altered, there
-are a couple of ways to do that.
-
-If you have a release version of SQLite, and you are using the
-`sqlite3.c` amalgamation, then SHA3-256 hashes for the amalgamation are
-available in the [change log](https://www.sqlite.org/changes.html) on
-the official website.  After building the `sqlite3.c` file, you can check
-that it is authentic by comparing the hash.  This does not ensure that the
-test scripts are unaltered, but it does validate the deliverable part of
-the code and the verification process only involves computing and
-comparing a single hash.
-
-For versions other than an official release, or if you are building the
-`sqlite3.c` amalgamation using non-standard build options, the verification
-process is a little more involved.  The `manifest` file at the root directory
-of the source tree
+The `manifest` file at the root directory of the source tree
 contains either a SHA3-256 hash (for newer files) or a SHA1 hash (for 
-older files) for every source file in the repository.  You can write a script
-to extracts hashes from `manifest` and verifies the hashes against the 
-corresponding files in the source tree.  The SHA3-256 hash of the `manifest`
+older files) for every source file in the repository.
+The SHA3-256 hash of the `manifest`
 file itself is the official name of the version of the source tree that you
-have.  The `manifest.uuid` file should contain the SHA3-256 hash of the
-`manifest` file.  If all of the above hash comparisons are correct, then
+have. The `manifest.uuid` file should contain the SHA3-256 hash of the
+`manifest` file. If all of the above hash comparisons are correct, then
 you can be confident that your source tree is authentic and unadulterated.
 
 The format of the `manifest` file should be mostly self-explanatory, but

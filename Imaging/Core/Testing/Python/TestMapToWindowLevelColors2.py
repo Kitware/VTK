@@ -1,12 +1,16 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkBMPReader
+from vtkmodules.vtkInteractionImage import vtkImageViewer2
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-reader = vtk.vtkBMPReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/masonry.bmp")
+reader = vtkBMPReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/masonry.bmp")
 # set the window/level
-viewer = vtk.vtkImageViewer2()
+viewer = vtkImageViewer2()
 viewer.SetInputConnection(reader.GetOutputPort())
 viewer.SetColorWindow(100.0)
 viewer.SetColorLevel(127.5)

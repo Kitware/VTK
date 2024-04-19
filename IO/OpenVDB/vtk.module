@@ -1,0 +1,23 @@
+NAME
+  VTK::IOOpenVDB
+LIBRARY_NAME
+  vtkIOOpenVDB
+KIT
+  VTK::IO
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::ParallelCore
+  VTK::vtksys
+  VTK::RenderingCore
+TEST_DEPENDS
+  VTK::RenderingContextOpenGL2
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

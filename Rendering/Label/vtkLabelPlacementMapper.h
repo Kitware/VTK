@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLabelPlacementMapper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkLabelPlacementMapper
  * @brief   Places and renders non-overlapping labels.
@@ -30,14 +14,15 @@
  * frame will decide which labels and/or icons to place in order of priority,
  * and will render only those labels/icons. A label render strategy is used to
  * render the labels, and can use e.g. FreeType or Qt for rendering.
-*/
+ */
 
 #ifndef vtkLabelPlacementMapper_h
 #define vtkLabelPlacementMapper_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCoordinate;
 class vtkLabelRenderStrategy;
 class vtkSelectVisiblePoints;
@@ -45,82 +30,73 @@ class vtkSelectVisiblePoints;
 class VTKRENDERINGLABEL_EXPORT vtkLabelPlacementMapper : public vtkMapper2D
 {
 public:
-  static vtkLabelPlacementMapper *New();
+  static vtkLabelPlacementMapper* New();
   vtkTypeMacro(vtkLabelPlacementMapper, vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Draw non-overlapping labels to the screen.
    */
-  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) override;
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
 
-  //@{
+  ///@{
   /**
    * Set the label rendering strategy.
    */
   virtual void SetRenderStrategy(vtkLabelRenderStrategy* s);
   vtkGetObjectMacro(RenderStrategy, vtkLabelRenderStrategy);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The maximum fraction of the screen that the labels may cover.
    * Label placement stops when this fraction is reached.
    */
-  vtkSetClampMacro(MaximumLabelFraction,double,0.,1.);
-  vtkGetMacro(MaximumLabelFraction,double);
-  //@}
+  vtkSetClampMacro(MaximumLabelFraction, double, 0., 1.);
+  vtkGetMacro(MaximumLabelFraction, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The type of iterator used when traversing the labels.
    * May be vtkLabelHierarchy::FRUSTUM or vtkLabelHierarchy::FULL_SORT
    */
-  vtkSetMacro(IteratorType,int);
-  vtkGetMacro(IteratorType,int);
-  //@}
+  vtkSetMacro(IteratorType, int);
+  vtkGetMacro(IteratorType, int);
+  ///@}
 
-  //@{
-  /**
-   * Set whether, or not, to use unicode strings.
-   */
-  vtkSetMacro(UseUnicodeStrings,bool);
-  vtkGetMacro(UseUnicodeStrings,bool);
-  vtkBooleanMacro(UseUnicodeStrings,bool);
-  //@}
-
-  //@{
+  ///@{
   /**
    * Use label anchor point coordinates as normal vectors and eliminate those
    * pointing away from the camera. Valid only when points are on a sphere
    * centered at the origin (such as a 3D geographic view). Off by default.
    */
-  vtkGetMacro(PositionsAsNormals,bool);
-  vtkSetMacro(PositionsAsNormals,bool);
-  vtkBooleanMacro(PositionsAsNormals,bool);
-  //@}
+  vtkGetMacro(PositionsAsNormals, bool);
+  vtkSetMacro(PositionsAsNormals, bool);
+  vtkBooleanMacro(PositionsAsNormals, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable drawing spokes (lines) to anchor point coordinates that were perturbed
    * for being coincident with other anchor point coordinates.
    */
-  vtkGetMacro(GeneratePerturbedLabelSpokes,bool);
-  vtkSetMacro(GeneratePerturbedLabelSpokes,bool);
-  vtkBooleanMacro(GeneratePerturbedLabelSpokes,bool);
-  //@}
+  vtkGetMacro(GeneratePerturbedLabelSpokes, bool);
+  vtkSetMacro(GeneratePerturbedLabelSpokes, bool);
+  vtkBooleanMacro(GeneratePerturbedLabelSpokes, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the depth buffer to test each label to see if it should not be displayed if
    * it would be occluded by other objects in the scene. Off by default.
    */
-  vtkGetMacro(UseDepthBuffer,bool);
-  vtkSetMacro(UseDepthBuffer,bool);
-  vtkBooleanMacro(UseDepthBuffer,bool);
-  //@}
+  vtkGetMacro(UseDepthBuffer, bool);
+  vtkSetMacro(UseDepthBuffer, bool);
+  vtkBooleanMacro(UseDepthBuffer, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Tells the placer to place every label regardless of overlap.
    * Off by default.
@@ -128,104 +104,101 @@ public:
   vtkSetMacro(PlaceAllLabels, bool);
   vtkGetMacro(PlaceAllLabels, bool);
   vtkBooleanMacro(PlaceAllLabels, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to render traversed bounds. Off by default.
    */
   vtkSetMacro(OutputTraversedBounds, bool);
   vtkGetMacro(OutputTraversedBounds, bool);
   vtkBooleanMacro(OutputTraversedBounds, bool);
-  //@}
+  ///@}
 
-  enum LabelShape {
+  enum LabelShape
+  {
     NONE,
     RECT,
     ROUNDED_RECT,
     NUMBER_OF_LABEL_SHAPES
   };
 
-  //@{
+  ///@{
   /**
    * The shape of the label background, should be one of the
    * values in the LabelShape enumeration.
    */
-  vtkSetClampMacro(Shape, int, 0, NUMBER_OF_LABEL_SHAPES-1);
+  vtkSetClampMacro(Shape, int, 0, NUMBER_OF_LABEL_SHAPES - 1);
   vtkGetMacro(Shape, int);
-  virtual void SetShapeToNone()
-    { this->SetShape(NONE); }
-  virtual void SetShapeToRect()
-    { this->SetShape(RECT); }
-  virtual void SetShapeToRoundedRect()
-    { this->SetShape(ROUNDED_RECT); }
-  //@}
+  virtual void SetShapeToNone() { this->SetShape(NONE); }
+  virtual void SetShapeToRect() { this->SetShape(RECT); }
+  virtual void SetShapeToRoundedRect() { this->SetShape(ROUNDED_RECT); }
+  ///@}
 
-  enum LabelStyle {
+  enum LabelStyle
+  {
     FILLED,
     OUTLINE,
     NUMBER_OF_LABEL_STYLES
   };
 
-  //@{
+  ///@{
   /**
    * The style of the label background shape, should be one of the
    * values in the LabelStyle enumeration.
    */
-  vtkSetClampMacro(Style, int, 0, NUMBER_OF_LABEL_STYLES-1);
+  vtkSetClampMacro(Style, int, 0, NUMBER_OF_LABEL_STYLES - 1);
   vtkGetMacro(Style, int);
-  virtual void SetStyleToFilled()
-    { this->SetStyle(FILLED); }
-  virtual void SetStyleToOutline()
-    { this->SetStyle(OUTLINE); }
-  //@}
+  virtual void SetStyleToFilled() { this->SetStyle(FILLED); }
+  virtual void SetStyleToOutline() { this->SetStyle(OUTLINE); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The size of the margin on the label background shape.
    * Default is 5.
    */
   vtkSetMacro(Margin, double);
   vtkGetMacro(Margin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The color of the background shape.
    */
   vtkSetVector3Macro(BackgroundColor, double);
   vtkGetVector3Macro(BackgroundColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The opacity of the background shape.
    */
   vtkSetClampMacro(BackgroundOpacity, double, 0.0, 1.0);
   vtkGetMacro(BackgroundOpacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the transform for the anchor points.
    */
-  vtkGetObjectMacro(AnchorTransform,vtkCoordinate);
-  //@}
+  vtkGetObjectMacro(AnchorTransform, vtkCoordinate);
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
 protected:
   vtkLabelPlacementMapper();
   ~vtkLabelPlacementMapper() override;
 
-  virtual void SetAnchorTransform( vtkCoordinate* );
+  virtual void SetAnchorTransform(vtkCoordinate*);
 
-  int FillInputPortInformation( int port, vtkInformation* info ) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   class Internal;
   Internal* Buckets;
@@ -237,7 +210,6 @@ protected:
   bool PositionsAsNormals;
   bool GeneratePerturbedLabelSpokes;
   bool UseDepthBuffer;
-  bool UseUnicodeStrings;
   bool PlaceAllLabels;
   bool OutputTraversedBounds;
 
@@ -259,5 +231,5 @@ private:
   void operator=(const vtkLabelPlacementMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

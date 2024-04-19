@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSynchronizedTemplatesCutter3D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSynchronizedTemplatesCutter3D
  * @brief   generate cut surface from structured points
@@ -23,7 +11,7 @@
  *
  * @sa
  * vtkContourFilter vtkSynchronizedTemplates3D
-*/
+ */
 
 #ifndef vtkSynchronizedTemplatesCutter3D_h
 #define vtkSynchronizedTemplatesCutter3D_h
@@ -31,30 +19,31 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSynchronizedTemplates3D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 
 class VTKFILTERSCORE_EXPORT vtkSynchronizedTemplatesCutter3D : public vtkSynchronizedTemplates3D
 {
 public:
-  static vtkSynchronizedTemplatesCutter3D *New();
+  static vtkSynchronizedTemplatesCutter3D* New();
 
-  vtkTypeMacro(vtkSynchronizedTemplatesCutter3D,vtkSynchronizedTemplates3D);
+  vtkTypeMacro(vtkSynchronizedTemplatesCutter3D, vtkSynchronizedTemplates3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Needed by templated functions.
    */
-  void ThreadedExecute(vtkImageData *data, vtkInformation *outInfo, int);
+  void ThreadedExecute(vtkImageData* data, vtkInformation* outInfo, int);
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function to perform the cutting.
    */
   virtual void SetCutFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
-  //@}
+  vtkGetObjectMacro(CutFunction, vtkImplicitFunction);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -62,23 +51,21 @@ public:
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkSynchronizedTemplatesCutter3D();
   ~vtkSynchronizedTemplatesCutter3D() override;
 
-  vtkImplicitFunction *CutFunction;
+  vtkImplicitFunction* CutFunction;
   int OutputPointsPrecision;
 
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkSynchronizedTemplatesCutter3D(const vtkSynchronizedTemplatesCutter3D&) = delete;
   void operator=(const vtkSynchronizedTemplatesCutter3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

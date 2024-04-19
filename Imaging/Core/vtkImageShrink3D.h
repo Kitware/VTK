@@ -1,56 +1,44 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageShrink3D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageShrink3D
  * @brief   Subsamples an image.
  *
  * vtkImageShrink3D shrinks an image by sub sampling on a
  * uniform grid (integer multiples).
-*/
+ */
 
 #ifndef vtkImageShrink3D_h
 #define vtkImageShrink3D_h
 
-
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageShrink3D : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageShrink3D *New();
-  vtkTypeMacro(vtkImageShrink3D,vtkThreadedImageAlgorithm);
+  static vtkImageShrink3D* New();
+  vtkTypeMacro(vtkImageShrink3D, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the shrink factors
    */
-  vtkSetVector3Macro(ShrinkFactors,int);
-  vtkGetVector3Macro(ShrinkFactors,int);
-  //@}
+  vtkSetVector3Macro(ShrinkFactors, int);
+  vtkGetVector3Macro(ShrinkFactors, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the pixel to use as origin.
    */
-  vtkSetVector3Macro(Shift,int);
-  vtkGetVector3Macro(Shift,int);
-  //@}
+  vtkSetVector3Macro(Shift, int);
+  vtkGetVector3Macro(Shift, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Choose Mean, Minimum, Maximum, Median or sub sampling.
    * The neighborhood operations are not centered on the sampled pixel.
@@ -59,29 +47,29 @@ public:
    * vtkImageGaussianSmooth or vtkImageMean with strides.
    */
   void SetAveraging(vtkTypeBool);
-  vtkTypeBool GetAveraging() {return this->GetMean();};
-  vtkBooleanMacro(Averaging,vtkTypeBool);
-  //@}
+  vtkTypeBool GetAveraging() { return this->GetMean(); }
+  vtkBooleanMacro(Averaging, vtkTypeBool);
+  ///@}
 
   void SetMean(vtkTypeBool);
-  vtkGetMacro(Mean,vtkTypeBool);
-  vtkBooleanMacro(Mean,vtkTypeBool);
+  vtkGetMacro(Mean, vtkTypeBool);
+  vtkBooleanMacro(Mean, vtkTypeBool);
 
   void SetMinimum(vtkTypeBool);
-  vtkGetMacro(Minimum,vtkTypeBool);
-  vtkBooleanMacro(Minimum,vtkTypeBool);
+  vtkGetMacro(Minimum, vtkTypeBool);
+  vtkBooleanMacro(Minimum, vtkTypeBool);
 
   void SetMaximum(vtkTypeBool);
-  vtkGetMacro(Maximum,vtkTypeBool);
-  vtkBooleanMacro(Maximum,vtkTypeBool);
+  vtkGetMacro(Maximum, vtkTypeBool);
+  vtkBooleanMacro(Maximum, vtkTypeBool);
 
   void SetMedian(vtkTypeBool);
-  vtkGetMacro(Median,vtkTypeBool);
-  vtkBooleanMacro(Median,vtkTypeBool);
+  vtkGetMacro(Median, vtkTypeBool);
+  vtkBooleanMacro(Median, vtkTypeBool);
 
 protected:
   vtkImageShrink3D();
-  ~vtkImageShrink3D() override {}
+  ~vtkImageShrink3D() override = default;
 
   int ShrinkFactors[3];
   int Shift[3];
@@ -90,23 +78,19 @@ protected:
   vtkTypeBool Maximum;
   vtkTypeBool Median;
 
-  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int ext[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
+    int id) override;
 
-  void InternalRequestUpdateExtent(int *inExt, int *outExt);
+  void InternalRequestUpdateExtent(int* inExt, int* outExt);
 
 private:
   vtkImageShrink3D(const vtkImageShrink3D&) = delete;
   void operator=(const vtkImageShrink3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-

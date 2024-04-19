@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSimplePointsWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSimplePointsWriter
  * @brief   write a file of xyz coordinates
@@ -20,19 +8,20 @@
  *
  * @sa
  * vtkSimplePointsReader
-*/
+ */
 
 #ifndef vtkSimplePointsWriter_h
 #define vtkSimplePointsWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataSetWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOLEGACY_EXPORT vtkSimplePointsWriter : public vtkDataSetWriter
 {
 public:
-  static vtkSimplePointsWriter *New();
-  vtkTypeMacro(vtkSimplePointsWriter,vtkDataSetWriter);
+  static vtkSimplePointsWriter* New();
+  vtkTypeMacro(vtkSimplePointsWriter, vtkDataSetWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetMacro(DecimalPrecision, int);
@@ -40,7 +29,7 @@ public:
 
 protected:
   vtkSimplePointsWriter();
-  ~vtkSimplePointsWriter() override{}
+  ~vtkSimplePointsWriter() override = default;
 
   void WriteData() override;
 
@@ -51,4 +40,5 @@ private:
   void operator=(const vtkSimplePointsWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

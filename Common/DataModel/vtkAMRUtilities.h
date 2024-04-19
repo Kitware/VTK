@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    vtkAMRUtilities.h
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAMRUtilities
  *
@@ -21,7 +9,7 @@
  *
  * @sa
  *  vtkOverlappingAMR, vtkAMRBox
-*/
+ */
 
 #ifndef vtkAMRUtilities_h
 #define vtkAMRUtilities_h
@@ -31,15 +19,18 @@
 #include <vector> // For C++ vector
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArray;
 class vtkFieldData;
 class vtkOverlappingAMR;
 class vtkUniformGrid;
+class vtkUnsignedCharArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkAMRUtilities : public vtkObject
 {
 public:
   // Standard Routines
-  vtkTypeMacro(vtkAMRUtilities,vtkObject);
+  vtkTypeMacro(vtkAMRUtilities, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -52,8 +43,7 @@ public:
    * 1) The ghosted AMR data must have complete metadata information.
    */
   static void StripGhostLayers(
-      vtkOverlappingAMR *ghostedAMRData,
-      vtkOverlappingAMR *strippedAMRData);
+    vtkOverlappingAMR* ghostedAMRData, vtkOverlappingAMR* strippedAMRData);
 
   /**
    * A quick test of whether partially overlapping ghost cells exist. This test
@@ -61,7 +51,7 @@ public:
    * overlapping cells. The code returns with true once partially overlapping
    * cells are detected. Otherwise, false is returned.
    */
-  static bool HasPartiallyOverlappingGhostCells(vtkOverlappingAMR *amr);
+  static bool HasPartiallyOverlappingGhostCells(vtkOverlappingAMR* amr);
 
   /**
    * Blank cells in overlapping AMR
@@ -69,24 +59,21 @@ public:
   static void BlankCells(vtkOverlappingAMR* amr);
 
 protected:
-  vtkAMRUtilities() {}
-  ~vtkAMRUtilities() override {}
+  vtkAMRUtilities() = default;
+  ~vtkAMRUtilities() override = default;
 
   /**
    * Given the real-extent w.r.t. the ghosted grid, this method copies the
    * field data (point/cell) data on the stripped grid.
    */
   static void CopyFieldsWithinRealExtent(
-      int realExtent[6],
-      vtkUniformGrid *ghostedGrid,
-      vtkUniformGrid *strippedGrid);
+    int realExtent[6], vtkUniformGrid* ghostedGrid, vtkUniformGrid* strippedGrid);
 
   /**
    * Copies the fields from the given source to the given target.
    */
   static void CopyFieldData(
-      vtkFieldData *target, vtkIdType targetIdx,
-      vtkFieldData *source, vtkIdType sourceIdx );
+    vtkFieldData* target, vtkIdType targetIdx, vtkFieldData* source, vtkIdType sourceIdx);
 
   /**
    * Strips ghost layers from the given grid according to the given ghost
@@ -95,15 +82,17 @@ protected:
    * of {0,2,0,2,0,0} would indicate that there exist 2 ghost cells on the
    * imax and jmax side.
    */
-  static vtkUniformGrid* StripGhostLayersFromGrid(
-      vtkUniformGrid* grid, int ghost[6]);
+  static vtkUniformGrid* StripGhostLayersFromGrid(vtkUniformGrid* grid, int ghost[6]);
 
   static void BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
-                          std::vector<std::vector<unsigned int> >& children,
-                          const std::vector<int>& processMap);
+    std::vector<std::vector<unsigned int>>& children, const std::vector<int>& processMap);
+
 private:
   vtkAMRUtilities(const vtkAMRUtilities&) = delete;
   void operator=(const vtkAMRUtilities&) = delete;
+
+  static void MergeGhostArrays(vtkDataArray* existingArray, vtkUnsignedCharArray* ghosts);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRUtilities_h */

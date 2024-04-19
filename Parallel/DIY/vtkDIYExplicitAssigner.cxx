@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDIYExplicitAssigner.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDIYExplicitAssigner.h"
 
 #include "vtkMath.h"
@@ -22,7 +10,8 @@
 #include <iterator>
 #include <numeric>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkDIYExplicitAssigner::vtkDIYExplicitAssigner(
   diy::mpi::communicator comm, int local_blocks, bool force_power_of_two /*=false*/)
   : diy::StaticAssigner(comm.size(), local_blocks)
@@ -73,7 +62,7 @@ vtkDIYExplicitAssigner::vtkDIYExplicitAssigner(
     force_power_of_two == false || vtkMath::NearestPowerOfTwo(this->nblocks()) == this->nblocks());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDIYExplicitAssigner::rank(int gid) const
 {
   auto iter =
@@ -82,7 +71,7 @@ int vtkDIYExplicitAssigner::rank(int gid) const
   return static_cast<int>(std::distance(this->IScanBlockCounts.begin(), iter));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDIYExplicitAssigner::local_gids(int rank, std::vector<int>& gids) const
 {
   const auto min = rank == 0 ? 0 : this->IScanBlockCounts[rank - 1];
@@ -90,3 +79,4 @@ void vtkDIYExplicitAssigner::local_gids(int rank, std::vector<int>& gids) const
   gids.resize(max - min);
   std::iota(gids.begin(), gids.end(), min);
 }
+VTK_ABI_NAMESPACE_END

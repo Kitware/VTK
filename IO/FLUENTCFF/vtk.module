@@ -1,0 +1,20 @@
+NAME
+  VTK::IOFLUENTCFF
+LIBRARY_NAME
+  vtkIOFLUENTCFF
+DESCRIPTION
+  Reader for the FluentCFF file format
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonMisc
+  VTK::hdf5

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestResampleWithDataset3.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkResampleWithDataSet.h"
 
@@ -24,20 +12,21 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRandomAttributeGenerator.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSphere.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkTableBasedClipDataSet.h"
 #include "vtkThreshold.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
-
-namespace {
+namespace
+{
 
 void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 {
@@ -91,7 +80,7 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
     clipCyl->SetInputData(wavelet->GetOutputDataObject(0));
     randomAttrs->Update();
 
-    vtkDataObject *block = randomAttrs->GetOutputDataObject(0)->NewInstance();
+    vtkDataObject* block = randomAttrs->GetOutputDataObject(0)->NewInstance();
     block->DeepCopy(randomAttrs->GetOutputDataObject(0));
     dataset->SetBlock(i, block);
     block->Delete();
@@ -113,7 +102,8 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 
   vtkNew<vtkThreshold> threshold;
   threshold->SetInputConnection(wavelet->GetOutputPort());
-  threshold->ThresholdByLower(185.0);
+  threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_LOWER);
+  threshold->SetLowerThreshold(185.0);
 
   for (int i = 0; i < numberOfBlocks; ++i)
   {
@@ -125,7 +115,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
     wavelet->UpdateExtent(blockExtent);
     threshold->Update();
 
-    vtkDataObject *block = threshold->GetOutputDataObject(0)->NewInstance();
+    vtkDataObject* block = threshold->GetOutputDataObject(0)->NewInstance();
     block->DeepCopy(threshold->GetOutputDataObject(0));
     dataset->SetBlock(i, block);
     block->Delete();
@@ -134,8 +124,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 
 } // anonymous namespace
 
-
-int TestResampleWithDataSet3(int argc, char *argv[])
+int TestResampleWithDataSet3(int argc, char* argv[])
 {
   // create input dataset
   vtkNew<vtkMultiBlockDataSet> input;
@@ -144,13 +133,14 @@ int TestResampleWithDataSet3(int argc, char *argv[])
   vtkNew<vtkMultiBlockDataSet> source;
   CreateSourceDataSet(source, 4);
 
+  vtkNew<vtkStaticCellLocator> locator;
   vtkNew<vtkResampleWithDataSet> resample;
   resample->SetInputData(input);
   resample->SetSourceData(source);
+  resample->SetCellLocatorPrototype(locator);
 
-
-  vtkMultiBlockDataSet *result;
-  vtkDataSet *block0;
+  vtkMultiBlockDataSet* result;
+  vtkDataSet* block0;
 
   // Test that ghost arrays are not generated
   resample->MarkBlankPointsAndCellsOff();
@@ -159,7 +149,8 @@ int TestResampleWithDataSet3(int argc, char *argv[])
   block0 = vtkDataSet::SafeDownCast(result->GetBlock(0));
   if (block0->GetPointGhostArray() || block0->GetCellGhostArray())
   {
-    std::cout << "Error: ghost arrays were generated with MarkBlankPointsAndCellsOff()" << std::endl;
+    std::cout << "Error: ghost arrays were generated with MarkBlankPointsAndCellsOff()"
+              << std::endl;
     return !vtkTesting::FAILED;
   }
 

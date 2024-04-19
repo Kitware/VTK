@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMappedUnstructuredGridCellIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkMappedUnstructuredGridCellIterator
@@ -22,7 +10,7 @@
  * This class is used by default for vtkMappedUnstructedGrid instances. It
  * uses random access for data lookups. Custom vtkCellIterator implementations
  * should be used instead when random-access is inefficient.
-*/
+ */
 
 #ifndef vtkMappedUnstructuredGridCellIterator_h
 #define vtkMappedUnstructuredGridCellIterator_h
@@ -30,6 +18,7 @@
 #include "vtkCellIterator.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class Implementation, class CellIterator>
 class vtkMappedUnstructuredGrid;
 
@@ -37,15 +26,13 @@ template <class Implementation>
 class vtkMappedUnstructuredGridCellIterator : public vtkCellIterator
 {
 public:
-  vtkTemplateTypeMacro(vtkMappedUnstructuredGridCellIterator<Implementation>,
-                       vtkCellIterator)
+  vtkTemplateTypeMacro(vtkMappedUnstructuredGridCellIterator<Implementation>, vtkCellIterator);
   typedef Implementation ImplementationType;
   typedef vtkMappedUnstructuredGridCellIterator<ImplementationType> ThisType;
-  static vtkMappedUnstructuredGridCellIterator<ImplementationType> *New();
+  static vtkMappedUnstructuredGridCellIterator<ImplementationType>* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void SetMappedUnstructuredGrid(
-      vtkMappedUnstructuredGrid<ImplementationType, ThisType> *grid);
+  void SetMappedUnstructuredGrid(vtkMappedUnstructuredGrid<ImplementationType, ThisType>* grid);
 
   bool IsDoneWithTraversal() override;
   vtkIdType GetCellId() override;
@@ -61,8 +48,8 @@ protected:
   void FetchPoints() override;
 
 private:
-  vtkMappedUnstructuredGridCellIterator(const vtkMappedUnstructuredGridCellIterator &) = delete;
-  void operator=(const vtkMappedUnstructuredGridCellIterator &) = delete;
+  vtkMappedUnstructuredGridCellIterator(const vtkMappedUnstructuredGridCellIterator&) = delete;
+  void operator=(const vtkMappedUnstructuredGridCellIterator&) = delete;
 
   vtkSmartPointer<ImplementationType> Impl;
   vtkSmartPointer<vtkPoints> GridPoints;
@@ -70,8 +57,9 @@ private:
   vtkIdType NumberOfCells;
 };
 
-#include "vtkMappedUnstructuredGridCellIterator.txx"
+VTK_ABI_NAMESPACE_END
+#include "vtkMappedUnstructuredGridCellIterator.txx" // template implementations
 
-#endif //vtkMappedUnstructuredGridCellIterator_h
+#endif // vtkMappedUnstructuredGridCellIterator_h
 
 // VTK-HeaderTest-Exclude: vtkMappedUnstructuredGridCellIterator.h

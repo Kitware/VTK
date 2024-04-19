@@ -1,0 +1,91 @@
+#
+# HDF5 code should not trigger the following warnings under any
+# circumstances, so ask the compiler to treat them as errors:
+#
+-Werror=bad-function-cast
+-Werror=implicit-function-declaration
+-Werror=missing-declarations
+-Werror=missing-prototypes
+-Werror=nested-externs
+-Werror=old-style-definition
+-Werror=packed
+-Werror=pointer-sign
+-Werror=pointer-to-int-cast
+-Werror=int-to-pointer-cast
+-Werror=redundant-decls
+-Werror=strict-prototypes
+-Werror=switch
+#
+#-Werror=discarded-qualifiers
+#
+#
+# NOTE: File Driver files are not compatible with these warnings as errors
+#     H5FDdirect.c,H5FDmpio.c,H5FDros3.c,
+#       -Werror=unused-function
+#
+-Wunused-function
+#
+#     H5FDdrvr_module.h
+#       -Werror=unused-variable
+#
+-Wunused-variable
+#
+#     H5VLpassthru.c
+#       -Werror=unused-parameter
+#
+-Wunused-parameter
+#
+#
+#
+# NOTE: Tools files are not compatible with these warnings as errors
+#     lib/h5tools.c
+#       -Werror=cast-align
+#
+-Wcast-align
+#
+#     lib/h5diff_array.c
+#       -Werror=unused-but-set-variable
+#
+-Wunused-but-set-variable
+#
+#     lib/h5tools_utils.c
+#       -Werror=unused-parameter
+#
+#
+# NOTE: JNI files are not compatible with these warnings as errors
+#     jni/h5pDCPLImp.c,jni/nativeData.c,jni/h5util.c,jni/h5rImp.c
+#     jni/h5sImp.c,jni/h5tImp.c
+#       -Werror=cast-align
+#     jni/h5util.c
+#       -Werror=format(-overflow)
+#
+-Werror=format
+#
+#
+#Examples and tests do not use the same set of extensive warning flags as libraries
+# Here is a list of tests and examples that have issues with the stricter warnings as error
+#
+# NOTE: Test files are not compatible with these warnings as errors
+#     thread_id.c,
+#       -Werror=unused-function
+#     dsets.c
+#       -Werror=unused-parameter
+#     external.c,perform/sio_engine.c
+#       -Werror=format(-truncation)
+#
+#
+# NOTE: Examples files are not compatible with these warnings as errors
+#     h5_vds-eiger.c,h5_vds-exclim.c,h5_vds.c,h5_vds-exc.c,h5_vds-percival-unlim-maxmin.c
+#     h5_vds-percival.c,h5_read.c,h5_rdwt.c,h5_mount.c,h5_extend.c,h5_extend_write.c
+#     h5_write.c,h5_vds-simpleIO.c,h5_ref2reg_deprec.c,h5_crtgrp.c,h5_select.c
+#     h5_vds-percival-unlim.c,h5_crtatt.c,h5_group.c,h5_attribute.c,h5_crtdat.c
+#     h5_reference_deprec.c
+#     h5_rdwt.c,h5_crtgrp.c,h5_crtatt.c,h5_crtdat.c
+#       -Werror=strict-prototypes
+#     h5_rdwt.c,h5_crtgrp.c,h5_crtatt.c,h5_crtdat.c
+#       -Werror=old-style-definition
+#     h5_vds-exclim.c,h5_vds.c,h5_vds-exc.c,
+#       -Werror=unused-variable
+#     h5_elink_unix2win.c,h5_extlink.c,h5_attribute.c
+#       -Werror=unused-parameter
+

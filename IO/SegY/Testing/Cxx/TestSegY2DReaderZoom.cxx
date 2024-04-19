@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestSegY2DReaderZoom.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test of vtkSegYReader
 // .SECTION Description
 //
@@ -46,8 +34,7 @@ int TestSegY2DReaderZoom(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   // Read file name.
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineA.sgy");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineA.sgy");
 
   vtkNew<vtkSegYReader> reader;
   vtkNew<vtkDataSetMapper> mapper;
@@ -82,23 +69,20 @@ int TestSegY2DReaderZoom(int argc, char* argv[])
   double bounds[6];
   output->GetBounds(bounds);
 
-  if (!vtkMathUtilities::FuzzyCompare<double>(bounds[4], -4000.00) ||
-      (bounds[5] > 1e-3))
+  if (!vtkMathUtilities::FuzzyCompare<double>(bounds[4], -4000.00) || (bounds[5] > 1e-3))
   {
-    std::cerr << "Error: Z bounds are incorrect: (" << bounds[4] << ", "
-              << bounds[5] << ")" << std::endl
+    std::cerr << "Error: Z bounds are incorrect: (" << bounds[4] << ", " << bounds[5] << ")"
+              << std::endl
               << "Expected Z bounds: (-4000, 0)" << std::endl;
   }
 
   // Test some scalar values
-  vtkFloatArray* scalars =
-    vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
+  vtkFloatArray* scalars = vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
   float scalar = scalars->GetVariantValue(390 * 39).ToFloat();
   if (!vtkMathUtilities::FuzzyCompare<float>(scalar, 0.0676235f))
   {
     std::cerr << "Error: Trace value for 39th sample is wrong." << std::endl
-              << "trace[390*39] = " << std::setprecision(10) << scalar
-              << std::endl
+              << "trace[390*39] = " << std::setprecision(10) << scalar << std::endl
               << "Expected trace[390*39] = 0.0676235f" << std::endl;
     retVal++;
   }
@@ -107,8 +91,7 @@ int TestSegY2DReaderZoom(int argc, char* argv[])
   if (!vtkMathUtilities::FuzzyCompare<float>(scalar, 0.6201947331f))
   {
     std::cerr << "Error: Trace value for 390th sample is wrong." << std::endl
-              << "trace[390*390] = " << std::setprecision(10) << scalar
-              << std::endl
+              << "trace[390*390] = " << std::setprecision(10) << scalar << std::endl
               << "Expected trace[390*390] = 0.620195f" << std::endl;
     retVal++;
   }

@@ -128,7 +128,7 @@ execute()
   }
   else
   {
-    num_threads = std::min(threads_, limit_);
+    num_threads = (std::min)(threads_, limit_);
     blocks_per_thread = limit_/num_threads;
   }
 

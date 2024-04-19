@@ -1,67 +1,85 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkMergeFilter,
+    vtkProbeFilter,
+    vtkStructuredGridOutlineFilter,
+    vtkTubeFilter,
+)
+from vtkmodules.vtkFiltersGeneral import vtkWarpScalar
+from vtkmodules.vtkFiltersSources import vtkLineSource
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-ren2 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+ren2 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create pipeline
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
-pl3d.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-pl3d.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+pl3d = vtkMultiBlockPLOT3DReader()
+pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(110)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
 output = pl3d.GetOutput().GetBlock(0)
-probeLine = vtk.vtkLineSource()
+probeLine = vtkLineSource()
 probeLine.SetPoint1(1,1,29)
 probeLine.SetPoint2(16.5,5,31.7693)
 probeLine.SetResolution(500)
-probe = vtk.vtkProbeFilter()
+probe = vtkProbeFilter()
 probe.SetInputConnection(probeLine.GetOutputPort())
 probe.SetSourceData(output)
 probe.Update()
-probeTube = vtk.vtkTubeFilter()
+probeTube = vtkTubeFilter()
 probeTube.SetInputData(probe.GetPolyDataOutput())
 probeTube.SetNumberOfSides(5)
 probeTube.SetRadius(.05)
-probeMapper = vtk.vtkPolyDataMapper()
+probeMapper = vtkPolyDataMapper()
 probeMapper.SetInputConnection(probeTube.GetOutputPort())
 probeMapper.SetScalarRange(output.GetScalarRange())
-probeActor = vtk.vtkActor()
+probeActor = vtkActor()
 probeActor.SetMapper(probeMapper)
-displayLine = vtk.vtkLineSource()
+displayLine = vtkLineSource()
 displayLine.SetPoint1(0,0,0)
 displayLine.SetPoint2(1,0,0)
 displayLine.SetResolution(probeLine.GetResolution())
-displayMerge = vtk.vtkMergeFilter()
+displayMerge = vtkMergeFilter()
 displayMerge.SetGeometryConnection(displayLine.GetOutputPort())
 displayMerge.SetScalarsData(probe.GetPolyDataOutput())
 displayMerge.Update()
-displayWarp = vtk.vtkWarpScalar()
+displayWarp = vtkWarpScalar()
 displayWarp.SetInputData(displayMerge.GetPolyDataOutput())
 displayWarp.SetNormal(0,1,0)
 displayWarp.SetScaleFactor(.000001)
 displayWarp.Update()
-displayMapper = vtk.vtkPolyDataMapper()
+displayMapper = vtkPolyDataMapper()
 displayMapper.SetInputData(displayWarp.GetPolyDataOutput())
 displayMapper.SetScalarRange(output.GetScalarRange())
-displayActor = vtk.vtkActor()
+displayActor = vtkActor()
 displayActor.SetMapper(displayMapper)
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 outline.SetInputData(output)
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 outlineActor.GetProperty().SetColor(0,0,0)
 ren1.AddActor(outlineActor)

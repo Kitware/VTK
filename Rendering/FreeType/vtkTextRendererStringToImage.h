@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTextRendererStringToImage.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkTextRendererStringToImage
  * @brief   uses vtkTextRenderer to render the
  * supplied text to an image.
-*/
+ */
 
 #ifndef vtkTextRendererStringToImage_h
 #define vtkTextRendererStringToImage_h
@@ -25,16 +13,16 @@
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkStringToImage.h"
 
-class VTKRENDERINGFREETYPE_EXPORT vtkTextRendererStringToImage :
-    public vtkStringToImage
+VTK_ABI_NAMESPACE_BEGIN
+class VTKRENDERINGFREETYPE_EXPORT vtkTextRendererStringToImage : public vtkStringToImage
 {
 public:
   vtkTypeMacro(vtkTextRendererStringToImage, vtkStringToImage);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkTextRendererStringToImage *New();
+  static vtkTextRendererStringToImage* New();
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, get the bounding box [xmin, xmax] x
    * [ymin, ymax]. Note that this is the bounding box of the area
@@ -48,15 +36,10 @@ public:
    * is valid (it may not if GetBoundingBox() failed or if the string
    * was empty).
    */
-  vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkUnicodeString& string,
-                                int dpi) override;
-  vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkStdString& string,
-                                int dpi) override;
-  //@}
+  vtkVector2i GetBounds(vtkTextProperty* property, const vtkStdString& string, int dpi) override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, this function initializes the
    * vtkImageData *data and renders it in a vtkImageData. textDims, if provided,
@@ -64,17 +47,9 @@ public:
    * This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
    * not match the dimensions of the rendered text.
    */
-  int RenderString(vtkTextProperty *property,
-                           const vtkUnicodeString& string,
-                           int dpi,
-                           vtkImageData *data,
-                           int textDims[2] = nullptr) override;
-  int RenderString(vtkTextProperty *property,
-                           const vtkStdString& string,
-                           int dpi,
-                           vtkImageData *data,
-                           int textDims[2] = nullptr) override;
-  //@}
+  int RenderString(vtkTextProperty* property, const vtkStdString& string, int dpi,
+    vtkImageData* data, int textDims[2] = nullptr) override;
+  ///@}
 
   /**
    * Should we produce images at powers of 2, makes rendering on old OpenGL
@@ -85,7 +60,7 @@ public:
   /**
    * Make a deep copy of the supplied utility class.
    */
-  void DeepCopy(vtkTextRendererStringToImage *utility);
+  void DeepCopy(vtkTextRendererStringToImage* utility);
 
 protected:
   vtkTextRendererStringToImage();
@@ -95,8 +70,9 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkTextRendererStringToImage(const vtkTextRendererStringToImage &) = delete;
-  void operator=(const vtkTextRendererStringToImage &) = delete;
+  vtkTextRendererStringToImage(const vtkTextRendererStringToImage&) = delete;
+  void operator=(const vtkTextRendererStringToImage&) = delete;
 };
 
-#endif //vtkTextRendererStringToImage_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkTextRendererStringToImage_h

@@ -1,69 +1,73 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import StringIO
+from io import StringIO
 import sys
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkMassProperties,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkCubeSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingFreeType import vtkVectorText
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class MassProperties(vtk.test.Testing.vtkTest):
+class MassProperties(vtkmodules.test.Testing.vtkTest):
 
     def testMassProperties(self):
 
         # Create the RenderWindow, Renderer and both Actors
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
-        cone = vtk.vtkConeSource()
+        cone = vtkConeSource()
         cone.SetResolution(50)
 
-        sphere = vtk.vtkSphereSource()
+        sphere = vtkSphereSource()
         sphere.SetPhiResolution(50)
         sphere.SetThetaResolution(50)
 
-        cube = vtk.vtkCubeSource()
+        cube = vtkCubeSource()
         cube.SetXLength(1)
         cube.SetYLength(1)
         cube.SetZLength(1)
 
-        sphereMapper = vtk.vtkPolyDataMapper()
+        sphereMapper = vtkPolyDataMapper()
         sphereMapper.SetInputConnection(sphere.GetOutputPort())
 
-        sphereActor = vtk.vtkActor()
+        sphereActor = vtkActor()
         sphereActor.SetMapper(sphereMapper)
         sphereActor.GetProperty().SetDiffuseColor(1, .2, .4)
-        coneMapper = vtk.vtkPolyDataMapper()
+        coneMapper = vtkPolyDataMapper()
         coneMapper.SetInputConnection(cone.GetOutputPort())
 
-        coneActor = vtk.vtkActor()
+        coneActor = vtkActor()
         coneActor.SetMapper(coneMapper)
         coneActor.GetProperty().SetDiffuseColor(.2, .4, 1)
 
-        cubeMapper = vtk.vtkPolyDataMapper()
+        cubeMapper = vtkPolyDataMapper()
         cubeMapper.SetInputConnection(cube.GetOutputPort())
 
-        cubeActor = vtk.vtkActor()
+        cubeActor = vtkActor()
         cubeActor.SetMapper(cubeMapper)
         cubeActor.GetProperty().SetDiffuseColor(.2, 1, .4)
 
@@ -84,34 +88,34 @@ class MassProperties(vtk.test.Testing.vtkTest):
 
         def MakeText(primitive):
 
-            tf.update({primitive: vtk.vtkTriangleFilter()})
+            tf.update({primitive: vtkTriangleFilter()})
             tf[primitive].SetInputConnection(primitive.GetOutputPort())
 
-            mp.update({primitive: vtk.vtkMassProperties()})
+            mp.update({primitive: vtkMassProperties()})
             mp[primitive].SetInputConnection(tf[primitive].GetOutputPort())
 
             # here we capture stdout and write it to a variable for processing.
-            summary = StringIO.StringIO()
+            summary = StringIO()
             # save the original stdout
             old_stdout = sys.stdout
             sys.stdout = summary
 
-            print mp[primitive]
+            print(mp[primitive])
             summary = summary.getvalue()
 
             startSum = summary.find("  VolumeX")
             endSum = len(summary)
-            print summary[startSum:]
+            print(summary[startSum:])
             # Restore stdout
             sys.stdout = old_stdout
 
-            vt.update({primitive: vtk.vtkVectorText()})
+            vt.update({primitive: vtkVectorText()})
             vt[primitive].SetText(summary[startSum:])
 
-            pdm.update({primitive: vtk.vtkPolyDataMapper()})
+            pdm.update({primitive: vtkPolyDataMapper()})
             pdm[primitive].SetInputConnection(vt[primitive].GetOutputPort())
 
-            ta.update({primitive: vtk.vtkActor()})
+            ta.update({primitive: vtkActor()})
             ta[primitive].SetMapper(pdm[primitive])
             ta[primitive].SetScale(.2, .2, .2)
             return ta[primitive]
@@ -140,13 +144,13 @@ class MassProperties(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "MassProperties.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(MassProperties, 'test')])
+     vtkmodules.test.Testing.main([(MassProperties, 'test')])

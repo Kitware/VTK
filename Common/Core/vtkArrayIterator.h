@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkArrayIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkArrayIterator
@@ -38,13 +26,14 @@
  *   }
  * iter->Delete();
  * \endcode
-*/
+ */
 
 #ifndef vtkArrayIterator_h
 #define vtkArrayIterator_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class VTKCOMMONCORE_EXPORT vtkArrayIterator : public vtkObject
 {
@@ -65,7 +54,7 @@ public:
    * Get the data type from the underlying array. Returns 0 if
    * no underlying array is present.
    */
-  virtual int GetDataType()=0;
+  virtual int GetDataType() const = 0;
 
 protected:
   vtkArrayIterator();
@@ -76,6 +65,5 @@ private:
   void operator=(const vtkArrayIterator&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif
-

@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    VTXSchema.txx
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * VTXSchema.txx
@@ -31,16 +19,20 @@
 
 namespace vtx
 {
+VTK_ABI_NAMESPACE_BEGIN
 
-template<class T>
+template <class T>
 void VTXSchema::GetDataArrayCommon(
-  adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
+  adios2::Variable<T> variable, types::DataArray& dataArray, size_t step)
 {
+  dataArray.IsUpdated = true;
+
   if (dataArray.Persist)
   {
     const auto blocksInfo = this->Engine.BlocksInfo(variable, step);
     if (blocksInfo.empty())
     {
+      dataArray.IsUpdated = false;
       return;
     }
   }
@@ -65,9 +57,9 @@ void VTXSchema::GetDataArrayCommon(
   }
 }
 
-template<class T>
+template <class T>
 void VTXSchema::GetDataArrayGlobal(
-  adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
+  adios2::Variable<T> variable, types::DataArray& dataArray, size_t step)
 {
   SetDimensions(variable, dataArray, step);
   const size_t elements = helper::TotalElements(dataArray.Count);
@@ -77,9 +69,9 @@ void VTXSchema::GetDataArrayGlobal(
   this->Engine.Get(variable, ptr);
 }
 
-template<class T>
+template <class T>
 void VTXSchema::GetDataArrayLocal(
-  adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
+  adios2::Variable<T> variable, types::DataArray& dataArray, size_t step)
 {
   // set partition: blocks per MPI visualization process
   SetBlocks(variable, dataArray, step);
@@ -93,6 +85,8 @@ void VTXSchema::GetDataArrayLocal(
   size_t components = 1;
   if (dataArray.HasTuples)
   {
+    // last one?
+    // TODO: check ordering here
     components = variable.Count().back();
   }
   else
@@ -117,18 +111,18 @@ void VTXSchema::GetDataArrayLocal(
   }
 }
 
-template<class T>
+template <class T>
 void VTXSchema::GetDataValueGlobal(
-  adios2::Variable<T> variable, types::DataArray& dataArray, const size_t /*step*/)
+  adios2::Variable<T> variable, types::DataArray& dataArray, size_t /*step*/)
 {
   InitDataArray<T>(variable.Name(), 1, 1, dataArray);
   T* ptr = reinterpret_cast<T*>(dataArray.Data->GetVoidPointer(0));
   this->Engine.Get(variable, ptr);
 }
 
-template<class T>
-void VTXSchema::InitDataArray(const std::string& name, const size_t elements,
-  const size_t components, types::DataArray& dataArray)
+template <class T>
+void VTXSchema::InitDataArray(
+  const std::string& name, size_t elements, size_t components, types::DataArray& dataArray)
 {
   if (dataArray.IsIdType)
   {
@@ -140,12 +134,12 @@ void VTXSchema::InitDataArray(const std::string& name, const size_t elements,
   }
 
   dataArray.Data->Allocate(elements);
-  dataArray.Data->SetNumberOfComponents(components);
+  dataArray.Data->SetNumberOfComponents(static_cast<int>(components));
   dataArray.Data->SetNumberOfTuples(elements / components);
   dataArray.Data->SetName(name.c_str());
 }
 
-template<class T>
+template <class T>
 void VTXSchema::GetTimesCommon(const std::string& variableName)
 {
   adios2::Variable<T> varTime = this->IO.InquireVariable<T>(variableName);
@@ -162,6 +156,7 @@ void VTXSchema::GetTimesCommon(const std::string& variableName)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtx
 
 #endif /* VTK_IO_ADIOS2_SCHEMA_VTXSchema_tcc */

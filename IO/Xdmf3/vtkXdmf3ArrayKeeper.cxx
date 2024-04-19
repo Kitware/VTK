@@ -1,25 +1,15 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXdmf3ArrayKeeper.cxx
-  Language:  C++
-
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkXdmf3ArrayKeeper.h"
 
+// clang-format off
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(core/XdmfArray.hpp)
+// clang-format on
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXdmf3ArrayKeeper::vtkXdmf3ArrayKeeper()
 {
   generation = 0;
@@ -38,7 +28,7 @@ void vtkXdmf3ArrayKeeper::BumpGeneration()
 }
 
 //------------------------------------------------------------------------------
-void vtkXdmf3ArrayKeeper::Insert(XdmfArray *val)
+void vtkXdmf3ArrayKeeper::Insert(XdmfArray* val)
 {
   this->operator[](val) = this->generation;
 }
@@ -47,19 +37,20 @@ void vtkXdmf3ArrayKeeper::Insert(XdmfArray *val)
 void vtkXdmf3ArrayKeeper::Release(bool force)
 {
   vtkXdmf3ArrayKeeper::iterator it = this->begin();
-  //int cnt = 0;
-  //int total = 0;
+  // int cnt = 0;
+  // int total = 0;
   while (it != this->end())
   {
-    //total++;
+    // total++;
     vtkXdmf3ArrayKeeper::iterator current = it++;
     if (force || (current->second != this->generation))
     {
       XdmfArray* atCurrent = current->first;
       atCurrent->release();
       this->erase(current);
-      //cnt++;
+      // cnt++;
     }
   }
-  //cerr << "released " << cnt << "/" << total << " arrays" << endl;
+  // cerr << "released " << cnt << "/" << total << " arrays" << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -2,4 +2,6 @@ NAME
   VTK::utf8
 LIBRARY_NAME
   vtkutf8
+TEST_DEPENDS
+  VTK::TestingCore
 THIRD_PARTY

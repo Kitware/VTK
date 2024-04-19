@@ -1,0 +1,12 @@
+# Note that some of the flags listed here really should be developer
+# flags (listed in separate files, gnu-warnings-developer*) but we put
+# them here because they are not raised by the current code and we'd like to
+# know if they do start showing up.
+-Waliasing
+-Wall
+-Wcharacter-truncation
+-Wextra
+-Wimplicit-interface
+-Wsurprising
+-Wunderflow
+-pedantic

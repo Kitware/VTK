@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLStructuredDataWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLStructuredDataWriter
  * @brief   Superclass for VTK XML structured data writers.
  *
  * vtkXMLStructuredDataWriter provides VTK XML writing functionality that
  * is common among all the structured data formats.
-*/
+ */
 
 #ifndef vtkXMLStructuredDataWriter_h
 #define vtkXMLStructuredDataWriter_h
@@ -26,6 +14,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkInformation;
 class vtkInformationVector;
@@ -33,36 +22,36 @@ class vtkInformationVector;
 class VTKIOXML_EXPORT vtkXMLStructuredDataWriter : public vtkXMLWriter
 {
 public:
-  vtkTypeMacro(vtkXMLStructuredDataWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkXMLStructuredDataWriter, vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of pieces used to stream the image through the
    * pipeline while writing to the file.
    */
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the piece to write to the file.  If this is
    * negative, all pieces will be written.
    */
   vtkSetMacro(WritePiece, int);
   vtkGetMacro(WritePiece, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the ghost level used to pad each piece.
    */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the extent of the input that should be treated as the
    * WholeExtent in the output file.  The default is the WholeExtent
@@ -70,18 +59,18 @@ public:
    */
   vtkSetVector6Macro(WriteExtent, int);
   vtkGetVector6Macro(WriteExtent, int);
-  //@}
+  ///@}
 
 protected:
   vtkXMLStructuredDataWriter();
   ~vtkXMLStructuredDataWriter() override;
 
   // Writing drivers defined by subclasses.
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) override;
+  void WritePrimaryElementAttributes(ostream& os, vtkIndent indent) override;
   virtual void WriteAppendedPiece(int index, vtkIndent indent);
   virtual void WriteAppendedPieceData(int index);
   virtual void WriteInlinePiece(vtkIndent indent);
-  virtual void GetInputExtent(int* extent)=0;
+  virtual void GetInputExtent(int* extent) = 0;
 
   virtual int WriteHeader();
   virtual int WriteAPiece();
@@ -91,14 +80,12 @@ protected:
   virtual void DeletePositionArrays();
 
   virtual int WriteInlineMode(vtkIndent indent);
-  vtkIdType GetStartTuple(int* extent, vtkIdType* increments,
-                          int i, int j, int k);
+  vtkIdType GetStartTuple(int* extent, vtkIdType* increments, int i, int j, int k);
   void CalculatePieceFractions(float* fractions);
 
   void SetInputUpdateExtent(int piece);
-  vtkTypeBool ProcessRequest(vtkInformation* request,
-                     vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   vtkSetVector6Macro(InternalWriteExtent, int);
 
@@ -125,12 +112,13 @@ protected:
 
   // Appended data offsets of point and cell data arrays.
   // Store offset position (add TimeStep support)
-  OffsetsManagerArray *PointDataOM;
-  OffsetsManagerArray *CellDataOM;
+  OffsetsManagerArray* PointDataOM;
+  OffsetsManagerArray* CellDataOM;
 
 private:
   vtkXMLStructuredDataWriter(const vtkXMLStructuredDataWriter&) = delete;
   void operator=(const vtkXMLStructuredDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

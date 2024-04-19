@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -22,7 +22,9 @@
 #include <string.h>
 #include <hdf5.h>
 
-extern int yylex();
+#include "H5private.h"
+
+extern int yylex(void);
 extern int yyerror(const char *);
 
 #define STACK_SIZE      16
@@ -35,13 +37,13 @@ struct cmpd_info {
 };
 
 /*stack for nested compound type*/
-struct cmpd_info cmpd_stack[STACK_SIZE] = {
+static struct cmpd_info cmpd_stack[STACK_SIZE] = {
     {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1},
     {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1},
     {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1},
     {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1} };
 
-int csindex = -1;                /*pointer to the top of compound stack*/
+static int csindex = -1;                /*pointer to the top of compound stack*/
 
 /*structure for array type information*/
 struct arr_info {
@@ -50,23 +52,18 @@ struct arr_info {
     hbool_t             is_dim;                 /*flag to lexer for dimension*/
 };
 /*stack for nested array type*/
-struct arr_info arr_stack[STACK_SIZE];
-int asindex = -1;               /*pointer to the top of array stack*/ 
+static struct arr_info arr_stack[STACK_SIZE];
+static int asindex = -1;               /*pointer to the top of array stack*/ 
 
-hbool_t     is_str_size = 0;        /*flag to lexer for string size*/
-hbool_t     is_str_pad = 0;         /*flag to lexer for string padding*/
-H5T_str_t   str_pad;                /*variable for string padding*/
-H5T_cset_t  str_cset;               /*variable for string character set*/
-hbool_t     is_variable = 0;        /*variable for variable-length string*/
-size_t      str_size;               /*variable for string size*/
+static H5T_str_t   str_pad;                /*variable for string padding*/
+static H5T_cset_t  str_cset;               /*variable for string character set*/
+static hbool_t     is_variable = 0;        /*variable for variable-length string*/
+static size_t      str_size;               /*variable for string size*/
    
-hid_t       enum_id;                /*type ID*/
-hbool_t     is_enum = 0;            /*flag to lexer for enum type*/
-hbool_t     is_enum_memb = 0;       /*flag to lexer for enum member*/
-char*       enum_memb_symbol;       /*enum member symbol string*/
-
-hbool_t is_opq_size = 0;            /*flag to lexer for opaque type size*/
-hbool_t is_opq_tag = 0;             /*flag to lexer for opaque type tag*/
+static hid_t       enum_id;                /*type ID*/
+static hbool_t     is_enum = 0;            /*flag to lexer for enum type*/
+static hbool_t     is_enum_memb = 0;       /*flag to lexer for enum member*/
+static char*       enum_memb_symbol;       /*enum member symbol string*/
 
 %}
 %union {
@@ -99,7 +96,7 @@ hbool_t is_opq_tag = 0;             /*flag to lexer for opaque type tag*/
 
 %token <sval> STRING
 %token <ival> NUMBER
-%token <ival> '{' '}' '[' ']' '"' ':' ';' 
+%token <ival> '{' '}' '[' ']' ':' ';' 
 
 %%
 start   :       { memset(arr_stack, 0, STACK_SIZE*sizeof(struct arr_info)); /*initialize here?*/ }
@@ -168,35 +165,35 @@ memb_list       :
                 |       memb_list memb_def
                 ;
 memb_def        :       ddl_type { cmpd_stack[csindex].is_field = 1; /*notify lexer a compound member is parsed*/ } 
-                        '"' field_name '"' field_offset ';'
+                        field_name field_offset ';'
                         {   
                             size_t origin_size, new_size;
                             hid_t dtype_id = cmpd_stack[csindex].id;
 
                             /*Adjust size and insert member, consider both member size and offset.*/
                             if(cmpd_stack[csindex].first_memb) { /*reclaim the size 1 temporarily set*/
-                                new_size = H5Tget_size($<hid>1) + $<ival>6;
+                                new_size = H5Tget_size($<hid>1) + $<ival>4;
                                 H5Tset_size(dtype_id, new_size);
                                 /*member name is saved in yylval.sval by lexer*/
-                                H5Tinsert(dtype_id, $<sval>4, $<ival>6, $<hid>1);
+                                H5Tinsert(dtype_id, $<sval>3, $<ival>4, $<hid>1);
 
                                 cmpd_stack[csindex].first_memb = 0;
                             } else {
                                 origin_size = H5Tget_size(dtype_id);
                                 
-                                if($<ival>6 == 0) {
+                                if($<ival>4 == 0) {
                                     new_size = origin_size + H5Tget_size($<hid>1);
                                     H5Tset_size(dtype_id, new_size);
-                                    H5Tinsert(dtype_id, $<sval>4, origin_size, $<hid>1);
+                                    H5Tinsert(dtype_id, $<sval>3, origin_size, $<hid>1);
                                 } else {
-                                    new_size = $<ival>6 + H5Tget_size($<hid>1);
+                                    new_size = $<ival>4 + H5Tget_size($<hid>1);
                                     H5Tset_size(dtype_id, new_size);
-                                    H5Tinsert(dtype_id, $<sval>4, $<ival>6, $<hid>1);
+                                    H5Tinsert(dtype_id, $<sval>3, $<ival>4, $<hid>1);
                                 }
                             }
-                            if($<sval>4) {
-                                free($<sval>4);
-                                $<sval>4 = NULL;
+                            if($<sval>3) {
+                                HDfree($<sval>3);
+                                $<sval>3 = NULL;
                             }
                             cmpd_stack[csindex].is_field = 0;
                             H5Tclose($<hid>1);
@@ -206,8 +203,8 @@ memb_def        :       ddl_type { cmpd_stack[csindex].is_field = 1; /*notify le
                 ;
 field_name      :       STRING
                         {
-                            $<sval>$ = strdup(yylval.sval);
-                            free(yylval.sval);
+                            $<sval>$ = HDstrdup(yylval.sval);
+                            HDfree(yylval.sval);
                             yylval.sval = NULL;
                         }                            
                 ;
@@ -247,20 +244,18 @@ vlen_type       :       H5T_VLEN_TOKEN '{' ddl_type '}'
 
 opaque_type     :       H5T_OPAQUE_TOKEN
                         '{' 
-                            OPQ_SIZE_TOKEN { is_opq_size = 1; } opaque_size ';'
+                            OPQ_SIZE_TOKEN opaque_size ';'
                             {   
                                 size_t size = (size_t)yylval.ival;
                                 $<hid>$ = H5Tcreate(H5T_OPAQUE, size);
-                                is_opq_size = 0;    
                             }
-                            OPQ_TAG_TOKEN { is_opq_tag = 1; } '"' opaque_tag '"' ';'
+                            OPQ_TAG_TOKEN opaque_tag ';'
                             {  
-                                H5Tset_tag($<hid>7, yylval.sval);
-                                free(yylval.sval);
+                                H5Tset_tag($<hid>6, yylval.sval);
+                                HDfree(yylval.sval);
                                 yylval.sval = NULL;
-                                is_opq_tag = 0;
                             }                             
-                        '}' { $<hid>$ = $<hid>7; }
+                        '}' { $<hid>$ = $<hid>6; }
                 ;
 opaque_size     :       NUMBER
                 ;
@@ -268,40 +263,39 @@ opaque_tag      :       STRING
                 ;
 string_type     :       H5T_STRING_TOKEN 
                         '{' 
-                            STRSIZE_TOKEN { is_str_size = 1; } strsize ';'
+                            STRSIZE_TOKEN strsize ';'
                             {  
-                                if($<ival>5 == H5T_VARIABLE_TOKEN)
+                                if($<ival>4 == H5T_VARIABLE_TOKEN)
                                     is_variable = 1;
                                 else 
                                     str_size = yylval.ival;
-                                is_str_size = 0; 
                             }
                             STRPAD_TOKEN strpad ';'
                             {
-                                if($<ival>9 == H5T_STR_NULLTERM_TOKEN)
+                                if($<ival>8 == H5T_STR_NULLTERM_TOKEN)
                                     str_pad = H5T_STR_NULLTERM;
-                                else if($<ival>9 == H5T_STR_NULLPAD_TOKEN)
+                                else if($<ival>8 == H5T_STR_NULLPAD_TOKEN)
                                     str_pad = H5T_STR_NULLPAD;
-                                else if($<ival>9 == H5T_STR_SPACEPAD_TOKEN)
+                                else if($<ival>8 == H5T_STR_SPACEPAD_TOKEN)
                                     str_pad = H5T_STR_SPACEPAD;
                             }
                             CSET_TOKEN cset ';'
                             {  
-                                if($<ival>13 == H5T_CSET_ASCII_TOKEN)
+                                if($<ival>12 == H5T_CSET_ASCII_TOKEN)
                                     str_cset = H5T_CSET_ASCII;
-                                else if($<ival>13 == H5T_CSET_UTF8_TOKEN)
+                                else if($<ival>12 == H5T_CSET_UTF8_TOKEN)
                                     str_cset = H5T_CSET_UTF8;
                             }
                             CTYPE_TOKEN ctype ';'
                             {
-                                if($<hid>17 == H5T_C_S1_TOKEN)
+                                if($<hid>16 == H5T_C_S1_TOKEN)
                                     $<hid>$ = H5Tcopy(H5T_C_S1);
-                                else if($<hid>17 == H5T_FORTRAN_S1_TOKEN)
+                                else if($<hid>16 == H5T_FORTRAN_S1_TOKEN)
                                     $<hid>$ = H5Tcopy(H5T_FORTRAN_S1);
                             }
                         '}' 
                             {   
-                                hid_t str_id = $<hid>19;
+                                hid_t str_id = $<hid>18;
 
                                 /*set string size*/
                                 if(is_variable) {
@@ -339,14 +333,10 @@ enum_type       :       H5T_ENUM_TOKEN '{' integer_type ';'
 enum_list       :
                 |       enum_list enum_def
                 ;
-enum_def        :       '"' enum_symbol '"' {
+enum_def        :       enum_symbol         {
                                                 is_enum_memb = 1; /*indicate member of enum*/
-#ifdef H5_HAVE_WIN32_API
-                                                enum_memb_symbol = _strdup(yylval.sval); 
-#else /* H5_HAVE_WIN32_API */
-                                                enum_memb_symbol = strdup(yylval.sval); 
-#endif  /* H5_HAVE_WIN32_API */
-                                                free(yylval.sval);
+                                                enum_memb_symbol = HDstrdup(yylval.sval); 
+                                                HDfree(yylval.sval);
                                                 yylval.sval = NULL;
                                             }
                         enum_val ';'
@@ -386,7 +376,7 @@ enum_def        :       '"' enum_symbol '"' {
                                     }
 
                                     is_enum_memb = 0; 
-                                    if(enum_memb_symbol) free(enum_memb_symbol);
+                                    if(enum_memb_symbol) HDfree(enum_memb_symbol);
                                 }
 
                                 H5Tclose(super);

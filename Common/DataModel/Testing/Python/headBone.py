@@ -1,6 +1,25 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonDataModel import vtkMergePoints
+from vtkmodules.vtkFiltersCore import (
+    vtkMarchingCubes,
+    vtkVectorNorm,
+)
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOImage import vtkVolume16Reader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkLight,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,26 +28,26 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-lgt = vtk.vtkLight()
+lgt = vtkLight()
 # create pipeline
 #
-locator = vtk.vtkMergePoints()
+locator = vtkMergePoints()
 locator.SetDivisions(32, 32, 46)
 locator.SetNumberOfPointsPerBucket(2)
 locator.AutomaticOff()
 
-v16 = vtk.vtkVolume16Reader()
+v16 = vtkVolume16Reader()
 v16.SetDataDimensions(64, 64)
 v16.GetOutput().SetOrigin(0.0, 0.0, 0.0)
 v16.SetDataByteOrderToLittleEndian()
@@ -36,34 +55,34 @@ v16.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
 v16.SetImageRange(1, 93)
 v16.SetDataSpacing(3.2, 3.2, 1.5)
 
-iso = vtk.vtkMarchingCubes()
+iso = vtkMarchingCubes()
 iso.SetInputConnection(v16.GetOutputPort())
 iso.SetValue(0, 1150)
 iso.ComputeGradientsOn()
 iso.ComputeScalarsOff()
 iso.SetLocator(locator)
 
-gradient = vtk.vtkVectorNorm()
+gradient = vtkVectorNorm()
 gradient.SetInputConnection(iso.GetOutputPort())
 
-isoMapper = vtk.vtkDataSetMapper()
+isoMapper = vtkDataSetMapper()
 isoMapper.SetInputConnection(gradient.GetOutputPort())
 isoMapper.ScalarVisibilityOn()
 isoMapper.SetScalarRange(0, 1200)
 
-isoActor = vtk.vtkActor()
+isoActor = vtkActor()
 isoActor.SetMapper(isoMapper)
 
 isoProp = isoActor.GetProperty()
 isoProp.SetColor(GetRGBColor('antique_white'))
 
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(v16.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 outlineProp = outlineActor.GetProperty()

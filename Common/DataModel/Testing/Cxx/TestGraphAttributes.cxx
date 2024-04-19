@@ -1,42 +1,25 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGraphAttributes.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAdjacentVertexIterator.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDirectedAcyclicGraph.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkInEdgeIterator.h"
+#include "vtkIntArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkOutEdgeIterator.h"
 #include "vtkSmartPointer.h"
-#include "vtkTree.h"
-#include "vtkVertexListIterator.h"
-#include "vtkVariantArray.h"
 #include "vtkStringArray.h"
-#include "vtkIntArray.h"
+#include "vtkTree.h"
+#include "vtkVariantArray.h"
+#include "vtkVertexListIterator.h"
 
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
-void TestGraphAttribIterators(vtkGraph *g, int & errors)
+void TestGraphAttribIterators(vtkGraph* g, int& errors)
 {
   if (g->GetNumberOfVertices() != 10)
   {
@@ -182,20 +165,19 @@ int TestGraphAttributes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vertexProp1Array->SetName("weight");
   mdgTree->GetVertexData()->AddArray(vertexProp1Array);
 
-  const char *vertexLabel[] = {"Dick","Jane","Sally","Spot","Puff"};
+  const char* vertexLabel[] = { "Dick", "Jane", "Sally", "Spot", "Puff" };
 
-  const char *stringProp;
+  const char* stringProp;
   int weight;
 
   for (vtkIdType i = 0; i < 10; ++i)
   {
     stringProp = vertexLabel[rand() % 5];
     weight = rand() % 10;
-//    cout << myRank <<" vertex "<< v <<","<< stringProp <<","<<weight<< endl;
-    vertexPropertyArr->SetValue(0,stringProp);
-    vertexPropertyArr->SetValue(1,weight);
+    //    cout << myRank <<" vertex "<< v <<","<< stringProp <<","<<weight<< endl;
+    vertexPropertyArr->SetValue(0, stringProp);
+    vertexPropertyArr->SetValue(1, weight);
     mdgTree->AddVertex(vertexPropertyArr);
-
   }
 
   // Create a valid tree.
@@ -208,7 +190,6 @@ int TestGraphAttributes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   mdgTree->AddEdge(2, 7);
   mdgTree->AddEdge(3, 8);
   mdgTree->AddEdge(3, 9);
-
 
   cerr << "Testing graph conversions ..." << endl;
   if (!t->CheckedShallowCopy(mdgTree))

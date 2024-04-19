@@ -1,0 +1,26 @@
+# general clang warnings flags
+-Wall
+-Warray-bounds
+-Wcast-qual
+-Wconversion
+-Wdouble-promotion
+-Wextra
+-Wformat=2
+-Wframe-larger-than=16384
+-Wimplicit-fallthrough
+#
+# NOTE: Due to the divergence in the C and C++, we're dropping support for
+# compiling the C library with a C++ compiler and dropping the -Wc++-compat
+# warning.
+#
+-Wno-c++-compat
+#
+# NOTE: Disable the -Wformat-nonliteral from -Wformat=2 here and re-add
+# it to the developer flags.
+#
+-Wno-format-nonliteral
+-Wnull-dereference
+-Wunused-const-variable
+-Wwrite-strings
+-Wpedantic
+-Wvolatile-register-var

@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -15,7 +15,7 @@
  *
  * Created:		H5checksum.c
  *			Aug 21 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Internal code for computing fletcher32 checksums
  *
@@ -25,13 +25,12 @@
 /****************/
 /* Module Setup */
 /****************/
-
+#include "H5module.h" /* This source code file is part of the H5 module */
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-
+#include "H5private.h" /* Generic Functions			*/
 
 /****************/
 /* Local Macros */
@@ -41,31 +40,25 @@
 /* (same as the IEEE 802.3 (Ethernet) quotient) */
 #define H5_CRC_QUOTIENT 0x04C11DB7
 
-
 /******************/
 /* Local Typedefs */
 /******************/
-
 
 /********************/
 /* Package Typedefs */
 /********************/
 
-
 /********************/
 /* Local Prototypes */
 /********************/
-
 
 /*********************/
 /* Package Variables */
 /*********************/
 
-
 /*****************************/
 /* Library Private Variables */
 /*****************************/
-
 
 /*******************/
 /* Local Variables */
@@ -77,8 +70,6 @@ static uint32_t H5_crc_table[256];
 /* Flag: has the table been computed? */
 static hbool_t H5_crc_table_computed = FALSE;
 
-
-
 /*-------------------------------------------------------------------------
  * Function:	H5_checksum_fletcher32
  *
@@ -109,9 +100,9 @@ static hbool_t H5_crc_table_computed = FALSE;
 uint32_t
 H5_checksum_fletcher32(const void *_data, size_t _len)
 {
-    const uint8_t *data = (const uint8_t *)_data;  /* Pointer to the data to be summed */
-    size_t len = _len / 2;      /* Length in 16-bit words */
-    uint32_t sum1 = 0, sum2 = 0;
+    const uint8_t *data = (const uint8_t *)_data; /* Pointer to the data to be summed */
+    size_t         len  = _len / 2;               /* Length in 16-bit words */
+    uint32_t       sum1 = 0, sum2 = 0;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -136,7 +127,7 @@ H5_checksum_fletcher32(const void *_data, size_t _len)
     }
 
     /* Check for odd # of bytes */
-    if(_len % 2) {
+    if (_len % 2) {
         sum1 += (uint32_t)(((uint16_t)*data) << 8);
         sum2 += sum1;
         sum1 = (sum1 & 0xffff) + (sum1 >> 16);
@@ -150,9 +141,8 @@ H5_checksum_fletcher32(const void *_data, size_t _len)
     FUNC_LEAVE_NOAPI((sum2 << 16) | sum1)
 } /* end H5_checksum_fletcher32() */
 
-
 /*-------------------------------------------------------------------------
- * Function:	H5_checksum_crc_make_table
+ * Function:	H5__checksum_crc_make_table
  *
  * Purpose:	Compute the CRC table for the CRC checksum algorithm
  *
@@ -164,18 +154,18 @@ H5_checksum_fletcher32(const void *_data, size_t _len)
  *-------------------------------------------------------------------------
  */
 static void
-H5_checksum_crc_make_table(void)
+H5__checksum_crc_make_table(void)
 {
-    uint32_t c;         /* Checksum for each byte value */
-    unsigned n, k;      /* Local index variables */
+    uint32_t c;    /* Checksum for each byte value */
+    unsigned n, k; /* Local index variables */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Compute the checksum for each possible byte value */
-    for(n = 0; n < 256; n++) {
-        c = (uint32_t) n;
-        for(k = 0; k < 8; k++)
-            if(c & 1)
+    for (n = 0; n < 256; n++) {
+        c = (uint32_t)n;
+        for (k = 0; k < 8; k++)
+            if (c & 1)
                 c = H5_CRC_QUOTIENT ^ (c >> 1);
             else
                 c = c >> 1;
@@ -184,11 +174,10 @@ H5_checksum_crc_make_table(void)
     H5_crc_table_computed = TRUE;
 
     FUNC_LEAVE_NOAPI_VOID
-} /* end H5_checksum_crc_make_table() */
+} /* end H5__checksum_crc_make_table() */
 
-
 /*-------------------------------------------------------------------------
- * Function:	H5_checksum_crc_make_table
+ * Function:	H5__checksum_crc_update
  *
  * Purpose:	Update a running CRC with the bytes buf[0..len-1]--the CRC
  *              should be initialized to all 1's, and the transmitted value
@@ -203,24 +192,23 @@ H5_checksum_crc_make_table(void)
  *-------------------------------------------------------------------------
  */
 static uint32_t
-H5_checksum_crc_update(uint32_t crc, const uint8_t *buf, size_t len)
+H5__checksum_crc_update(uint32_t crc, const uint8_t *buf, size_t len)
 {
-    size_t n;           /* Local index variable */
+    size_t n; /* Local index variable */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Initialize the CRC table if necessary */
-    if(!H5_crc_table_computed)
-        H5_checksum_crc_make_table();
+    if (!H5_crc_table_computed)
+        H5__checksum_crc_make_table();
 
     /* Update the CRC with the results from this buffer */
-    for(n = 0; n < len; n++)
+    for (n = 0; n < len; n++)
         crc = H5_crc_table[(crc ^ buf[n]) & 0xff] ^ (crc >> 8);
 
     FUNC_LEAVE_NOAPI(crc)
-} /* end H5_checksum_crc_update() */
+} /* end H5__checksum_crc_update() */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5_checksum_crc
  *
@@ -247,7 +235,8 @@ H5_checksum_crc(const void *_data, size_t len)
     HDassert(_data);
     HDassert(len > 0);
 
-    FUNC_LEAVE_NOAPI(H5_checksum_crc_update((uint32_t)0xffffffffL, (const uint8_t *)_data, len) ^ 0xffffffffL)
+    FUNC_LEAVE_NOAPI(H5__checksum_crc_update((uint32_t)0xffffffffL, (const uint8_t *)_data, len) ^
+                     0xffffffffL)
 } /* end H5_checksum_crc() */
 
 /*
@@ -294,16 +283,28 @@ on, and rotates are much kinder to the top and bottom bits, so I used
 rotates.
 -------------------------------------------------------------------------------
 */
-#define H5_lookup3_rot(x,k) (((x)<<(k)) ^ ((x)>>(32-(k))))
-#define H5_lookup3_mix(a,b,c) \
-{ \
-  a -= c;  a ^= H5_lookup3_rot(c, 4);  c += b; \
-  b -= a;  b ^= H5_lookup3_rot(a, 6);  a += c; \
-  c -= b;  c ^= H5_lookup3_rot(b, 8);  b += a; \
-  a -= c;  a ^= H5_lookup3_rot(c,16);  c += b; \
-  b -= a;  b ^= H5_lookup3_rot(a,19);  a += c; \
-  c -= b;  c ^= H5_lookup3_rot(b, 4);  b += a; \
-}
+#define H5_lookup3_rot(x, k) (((x) << (k)) ^ ((x) >> (32 - (k))))
+#define H5_lookup3_mix(a, b, c)                                                                              \
+    {                                                                                                        \
+        a -= c;                                                                                              \
+        a ^= H5_lookup3_rot(c, 4);                                                                           \
+        c += b;                                                                                              \
+        b -= a;                                                                                              \
+        b ^= H5_lookup3_rot(a, 6);                                                                           \
+        a += c;                                                                                              \
+        c -= b;                                                                                              \
+        c ^= H5_lookup3_rot(b, 8);                                                                           \
+        b += a;                                                                                              \
+        a -= c;                                                                                              \
+        a ^= H5_lookup3_rot(c, 16);                                                                          \
+        c += b;                                                                                              \
+        b -= a;                                                                                              \
+        b ^= H5_lookup3_rot(a, 19);                                                                          \
+        a += c;                                                                                              \
+        c -= b;                                                                                              \
+        c ^= H5_lookup3_rot(b, 4);                                                                           \
+        b += a;                                                                                              \
+    }
 
 /*
 -------------------------------------------------------------------------------
@@ -330,16 +331,23 @@ and these came close:
  11  8 15 26 3 22 24
 -------------------------------------------------------------------------------
 */
-#define H5_lookup3_final(a,b,c) \
-{ \
-  c ^= b; c -= H5_lookup3_rot(b,14); \
-  a ^= c; a -= H5_lookup3_rot(c,11); \
-  b ^= a; b -= H5_lookup3_rot(a,25); \
-  c ^= b; c -= H5_lookup3_rot(b,16); \
-  a ^= c; a -= H5_lookup3_rot(c,4);  \
-  b ^= a; b -= H5_lookup3_rot(a,14); \
-  c ^= b; c -= H5_lookup3_rot(b,24); \
-}
+#define H5_lookup3_final(a, b, c)                                                                            \
+    {                                                                                                        \
+        c ^= b;                                                                                              \
+        c -= H5_lookup3_rot(b, 14);                                                                          \
+        a ^= c;                                                                                              \
+        a -= H5_lookup3_rot(c, 11);                                                                          \
+        b ^= a;                                                                                              \
+        b -= H5_lookup3_rot(a, 25);                                                                          \
+        c ^= b;                                                                                              \
+        c -= H5_lookup3_rot(b, 16);                                                                          \
+        a ^= c;                                                                                              \
+        a -= H5_lookup3_rot(c, 4);                                                                           \
+        b ^= a;                                                                                              \
+        b -= H5_lookup3_rot(a, 14);                                                                          \
+        c ^= b;                                                                                              \
+        c -= H5_lookup3_rot(b, 24);                                                                          \
+    }
 
 /*
 -------------------------------------------------------------------------------
@@ -372,7 +380,7 @@ uint32_t
 H5_checksum_lookup3(const void *key, size_t length, uint32_t initval)
 {
     const uint8_t *k = (const uint8_t *)key;
-    uint32_t a, b, c;           /* internal state */
+    uint32_t       a, b, c = 0; /* internal state */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -384,42 +392,76 @@ H5_checksum_lookup3(const void *key, size_t length, uint32_t initval)
     a = b = c = 0xdeadbeef + ((uint32_t)length) + initval;
 
     /*--------------- all but the last block: affect some 32 bits of (a,b,c) */
-    while (length > 12)
-    {
-      a += k[0];
-      a += ((uint32_t)k[1])<<8;
-      a += ((uint32_t)k[2])<<16;
-      a += ((uint32_t)k[3])<<24;
-      b += k[4];
-      b += ((uint32_t)k[5])<<8;
-      b += ((uint32_t)k[6])<<16;
-      b += ((uint32_t)k[7])<<24;
-      c += k[8];
-      c += ((uint32_t)k[9])<<8;
-      c += ((uint32_t)k[10])<<16;
-      c += ((uint32_t)k[11])<<24;
-      H5_lookup3_mix(a, b, c);
-      length -= 12;
-      k += 12;
+    while (length > 12) {
+        a += k[0];
+        a += ((uint32_t)k[1]) << 8;
+        a += ((uint32_t)k[2]) << 16;
+        a += ((uint32_t)k[3]) << 24;
+        b += k[4];
+        b += ((uint32_t)k[5]) << 8;
+        b += ((uint32_t)k[6]) << 16;
+        b += ((uint32_t)k[7]) << 24;
+        c += k[8];
+        c += ((uint32_t)k[9]) << 8;
+        c += ((uint32_t)k[10]) << 16;
+        c += ((uint32_t)k[11]) << 24;
+        H5_lookup3_mix(a, b, c);
+        length -= 12;
+        k += 12;
     }
 
     /*-------------------------------- last block: affect all 32 bits of (c) */
-    switch(length)                   /* all the case statements fall through */
+    switch (length) /* all the case statements fall through */
     {
-        case 12: c+=((uint32_t)k[11])<<24;
-        case 11: c+=((uint32_t)k[10])<<16;
-        case 10: c+=((uint32_t)k[9])<<8;
-        case 9 : c+=k[8];
-        case 8 : b+=((uint32_t)k[7])<<24;
-        case 7 : b+=((uint32_t)k[6])<<16;
-        case 6 : b+=((uint32_t)k[5])<<8;
-        case 5 : b+=k[4];
-        case 4 : a+=((uint32_t)k[3])<<24;
-        case 3 : a+=((uint32_t)k[2])<<16;
-        case 2 : a+=((uint32_t)k[1])<<8;
-        case 1 : a+=k[0];
-                 break;
-        case 0 : goto done;
+        case 12:
+            c += ((uint32_t)k[11]) << 24;
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 11:
+            c += ((uint32_t)k[10]) << 16;
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 10:
+            c += ((uint32_t)k[9]) << 8;
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 9:
+            c += k[8];
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 8:
+            b += ((uint32_t)k[7]) << 24;
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 7:
+            b += ((uint32_t)k[6]) << 16;
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 6:
+            b += ((uint32_t)k[5]) << 8;
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 5:
+            b += k[4];
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 4:
+            a += ((uint32_t)k[3]) << 24;
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 3:
+            a += ((uint32_t)k[2]) << 16;
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 2:
+            a += ((uint32_t)k[1]) << 8;
+            /* FALLTHROUGH */
+            H5_ATTR_FALLTHROUGH
+        case 1:
+            a += k[0];
+            break;
+        case 0:
+            goto done;
         default:
             HDassert(0 && "This Should never be executed!");
     }
@@ -430,7 +472,6 @@ done:
     FUNC_LEAVE_NOAPI(c)
 } /* end H5_checksum_lookup3() */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5_checksum_metadata
  *
@@ -459,7 +500,6 @@ H5_checksum_metadata(const void *data, size_t len, uint32_t initval)
     FUNC_LEAVE_NOAPI(H5_checksum_lookup3(data, len, initval))
 } /* end H5_checksum_metadata() */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5_hash_string
  *
@@ -479,16 +519,15 @@ uint32_t
 H5_hash_string(const char *str)
 {
     uint32_t hash = 5381;
-    int c;
+    int      c;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(str);
 
-    while((c = *str++))
+    while ((c = *str++))
         hash = ((hash << 5) + hash) + (uint32_t)c; /* hash * 33 + c */
 
     FUNC_LEAVE_NOAPI(hash)
 } /* end H5_hash_string() */
-

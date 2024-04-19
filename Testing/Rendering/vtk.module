@@ -4,8 +4,14 @@ LIBRARY_NAME
   vtkTestingRendering
 GROUPS
   Rendering
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
+  VTK::ImagingColor
+  VTK::IOXML
   VTK::RenderingCore
   VTK::TestingCore
 PRIVATE_DEPENDS
@@ -14,4 +20,7 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::IOImage
   VTK::ImagingCore
+  VTK::ParallelCore
   VTK::vtksys
+OPTIONAL_DEPENDS
+  VTK::ParallelMPI

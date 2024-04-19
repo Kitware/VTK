@@ -1,23 +1,8 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
-  Program:   Visualization Toolkit
-  Module:    TestThresholdTable.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
-
+#include "vtkAffineArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
 #include "vtkStringArray.h"
@@ -26,42 +11,10 @@
 #include "vtkVariant.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+//------------------------------------------------------------------------------
+int TestIntArrayBetween(vtkThresholdTable* threshold)
 {
-  // Create the test input
-  VTK_CREATE(vtkTable, table);
-  VTK_CREATE(vtkIntArray, intArr);
-  intArr->SetName("intArr");
-  intArr->InsertNextValue(0);
-  intArr->InsertNextValue(1);
-  intArr->InsertNextValue(2);
-  intArr->InsertNextValue(3);
-  intArr->InsertNextValue(4);
-  table->AddColumn(intArr);
-  VTK_CREATE(vtkDoubleArray, doubleArr);
-  doubleArr->SetName("doubleArr");
-  doubleArr->InsertNextValue(1.0);
-  doubleArr->InsertNextValue(1.1);
-  doubleArr->InsertNextValue(1.2);
-  doubleArr->InsertNextValue(1.3);
-  doubleArr->InsertNextValue(1.4);
-  table->AddColumn(doubleArr);
-  VTK_CREATE(vtkStringArray, stringArr);
-  stringArr->SetName("stringArr");
-  stringArr->InsertNextValue("10");
-  stringArr->InsertNextValue("11");
-  stringArr->InsertNextValue("12");
-  stringArr->InsertNextValue("13");
-  stringArr->InsertNextValue("14");
-  table->AddColumn(stringArr);
-
-  // Use the ThresholdTable
-  VTK_CREATE(vtkThresholdTable, threshold);
-  threshold->SetInputData(table);
-
   int errors = 0;
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "intArr");
   threshold->SetMinValue(vtkVariant(3));
@@ -79,7 +32,8 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   else if (intArrOut->GetNumberOfTuples() != 2)
   {
-    cerr << "int threshold should have 2 tuples, instead has " << intArrOut->GetNumberOfTuples() << endl;
+    cerr << "int threshold should have 2 tuples, instead has " << intArrOut->GetNumberOfTuples()
+         << endl;
     errors++;
   }
   else
@@ -95,13 +49,20 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       errors++;
     }
   }
+  return errors;
+}
 
+//------------------------------------------------------------------------------
+int TestDoubleArrayLess(vtkThresholdTable* threshold)
+{
+  int errors = 0;
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "doubleArr");
   threshold->SetMaxValue(vtkVariant(1.2));
   threshold->SetMode(vtkThresholdTable::ACCEPT_LESS_THAN);
   threshold->Update();
-  output = threshold->GetOutput();
-  vtkDoubleArray* doubleArrOut = vtkArrayDownCast<vtkDoubleArray>(output->GetColumnByName("doubleArr"));
+  auto output = threshold->GetOutput();
+  vtkDoubleArray* doubleArrOut =
+    vtkArrayDownCast<vtkDoubleArray>(output->GetColumnByName("doubleArr"));
 
   // Perform error checking
   if (!doubleArrOut)
@@ -111,7 +72,8 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   else if (doubleArrOut->GetNumberOfTuples() != 3)
   {
-    cerr << "double threshold should have 3 tuples, instead has " << intArrOut->GetNumberOfTuples() << endl;
+    cerr << "double threshold should have 3 tuples, instead has "
+         << doubleArrOut->GetNumberOfTuples() << endl;
     errors++;
   }
   else
@@ -133,13 +95,21 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   }
 
+  return errors;
+}
+
+//------------------------------------------------------------------------------
+int TestStringArrayOutside(vtkThresholdTable* threshold)
+{
+  int errors = 0;
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "stringArr");
   threshold->SetMinValue(vtkVariant("10"));
   threshold->SetMaxValue(vtkVariant("13"));
   threshold->SetMode(vtkThresholdTable::ACCEPT_OUTSIDE);
   threshold->Update();
-  output = threshold->GetOutput();
-  vtkStringArray* stringArrOut = vtkArrayDownCast<vtkStringArray>(output->GetColumnByName("stringArr"));
+  auto output = threshold->GetOutput();
+  vtkStringArray* stringArrOut =
+    vtkArrayDownCast<vtkStringArray>(output->GetColumnByName("stringArr"));
 
   // Perform error checking
   if (!stringArrOut)
@@ -149,7 +119,8 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   else if (stringArrOut->GetNumberOfTuples() != 3)
   {
-    cerr << "string threshold should have 3 tuples, instead has " << stringArrOut->GetNumberOfTuples() << endl;
+    cerr << "string threshold should have 3 tuples, instead has "
+         << stringArrOut->GetNumberOfTuples() << endl;
     errors++;
   }
   else
@@ -170,6 +141,103 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       errors++;
     }
   }
+  return errors;
+}
+
+//------------------------------------------------------------------------------
+int TestImplicitArrayGreater(vtkThresholdTable* threshold)
+{
+  int errors = 0;
+  threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "affineArr");
+  threshold->SetMinValue(vtkVariant(4));
+  threshold->SetMaxValue(vtkVariant(8));
+  threshold->SetMode(vtkThresholdTable::ACCEPT_GREATER_THAN);
+  threshold->Update();
+  auto output = threshold->GetOutput();
+  vtkIntArray* intArrOut = vtkArrayDownCast<vtkIntArray>(output->GetColumnByName("affineArr"));
+
+  // Perform error checking
+  if (!intArrOut)
+  {
+    cerr << "affine array undefined in output" << endl;
+    errors++;
+  }
+  else if (intArrOut->GetNumberOfTuples() != 3)
+  {
+    cerr << "affine threshold should have 3 tuples, instead has " << intArrOut->GetNumberOfTuples()
+         << endl;
+    errors++;
+  }
+  else
+  {
+    if (intArrOut->GetValue(0) != 5)
+    {
+      cerr << "affine array [0] should be 5 but is " << intArrOut->GetValue(0) << endl;
+      errors++;
+    }
+    if (intArrOut->GetValue(1) != 7)
+    {
+      cerr << "affine array [1] should be 7 but is " << intArrOut->GetValue(1) << endl;
+      errors++;
+    }
+    if (intArrOut->GetValue(2) != 9)
+    {
+      cerr << "affine array [2] should be 9 but is " << intArrOut->GetValue(2) << endl;
+      errors++;
+    }
+  }
+  return errors;
+}
+
+//------------------------------------------------------------------------------
+int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+{
+  // Create the test input
+  vtkNew<vtkTable> table;
+  vtkNew<vtkIntArray> intArr;
+  intArr->SetName("intArr");
+  intArr->InsertNextValue(0);
+  intArr->InsertNextValue(1);
+  intArr->InsertNextValue(2);
+  intArr->InsertNextValue(3);
+  intArr->InsertNextValue(4);
+  table->AddColumn(intArr);
+  vtkNew<vtkDoubleArray> doubleArr;
+  doubleArr->SetName("doubleArr");
+  doubleArr->InsertNextValue(1.0);
+  doubleArr->InsertNextValue(1.1);
+  doubleArr->InsertNextValue(1.2);
+  doubleArr->InsertNextValue(1.3);
+  doubleArr->InsertNextValue(1.4);
+  table->AddColumn(doubleArr);
+  vtkNew<vtkStringArray> stringArr;
+  stringArr->SetName("stringArr");
+  stringArr->InsertNextValue("10");
+  stringArr->InsertNextValue("11");
+  stringArr->InsertNextValue("12");
+  stringArr->InsertNextValue("13");
+  stringArr->InsertNextValue("14");
+  table->AddColumn(stringArr);
+  vtkNew<vtkAffineArray<int>> oddIntArr;
+  oddIntArr->SetName("affineArr");
+  // value = 2*idx + 1
+  oddIntArr->SetBackend(std::make_shared<vtkAffineImplicitBackend<int>>(2, 1));
+  oddIntArr->SetNumberOfTuples(5);
+  oddIntArr->SetNumberOfComponents(1);
+  table->AddColumn(oddIntArr);
+
+  // Use the ThresholdTable
+  vtkNew<vtkThresholdTable> threshold;
+  threshold->SetInputData(table);
+
+  std::cout << "test int between" << std::endl;
+  int errors = TestIntArrayBetween(threshold);
+  std::cout << "test double less" << std::endl;
+  errors += TestDoubleArrayLess(threshold);
+  std::cout << "test string outside" << std::endl;
+  errors += TestStringArrayOutside(threshold);
+  std::cout << "test implicit greater" << std::endl;
+  errors += TestImplicitArrayGreater(threshold);
 
   return errors;
 }

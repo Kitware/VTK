@@ -1,37 +1,24 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestStructuredGridLIC2DXSlice.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkStructuredGridLIC2DTestDriver.h"
 #include "vtkTestUtilities.h"
 #include "vtksys/SystemTools.hxx"
 
 int TestStructuredGridLIC2DXSlice(int argc, char* argv[])
 {
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/timestep_0_15.vts");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/timestep_0_15.vts");
 
   std::string filename = fname;
   filename = "--data=" + filename;
-  delete [] fname;
+  delete[] fname;
 
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/noise.png");
   std::string noise = fname;
   noise = "--noise=" + noise;
-  delete [] fname;
+  delete[] fname;
 
-  char** new_argv = new char*[argc+12];
-  for (int cc=0; cc < argc; cc++)
+  char** new_argv = new char*[argc + 12];
+  for (int cc = 0; cc < argc; cc++)
   {
     new_argv[cc] = vtksys::SystemTools::DuplicateString(argv[cc]);
   }
@@ -45,11 +32,11 @@ int TestStructuredGridLIC2DXSlice(int argc, char* argv[])
   new_argv[argc++] = vtksys::SystemTools::DuplicateString("--zoom-factor=3.0");
   new_argv[argc++] = vtksys::SystemTools::DuplicateString("--test-mode=1");
   int status = vtkStructuredGridLIC2DTestDriver(argc, new_argv);
-  for (int kk=0; kk < argc; kk++)
+  for (int kk = 0; kk < argc; kk++)
   {
-    delete [] new_argv[kk];
+    delete[] new_argv[kk];
   }
-  delete [] new_argv;
+  delete[] new_argv;
 
   return status;
 }

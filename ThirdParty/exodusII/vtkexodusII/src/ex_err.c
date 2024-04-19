@@ -1,42 +1,16 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE2 USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 
 #include "exodusII.h" // for exoptval, MAX_ERR_LENGTH, etc
 #include "exodusII_int.h"
 
 /*!
+\ingroup Utilities
 \fn{void ex_err_fn(exoid, const char *module_name, const char *message, int err_num)}
 
 The function ex_err_fn(exoid, ) logs an error to stderr. It is intended
@@ -111,7 +85,11 @@ static int  last_err_num;
 #define EX_ERR_NUM last_err_num
 #endif
 
-void ex_reset_error_status()
+/*!
+  \ingroup Utilities
+  \undoc
+*/
+void ex__reset_error_status()
 {
 #if !defined(EXODUS_THREADSAFE)
   exerrval   = 0;
@@ -119,6 +97,10 @@ void ex_reset_error_status()
 #endif
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+*/
 void ex_err(const char *module_name, const char *message, int err_num)
 {
   EX_FUNC_ENTER_INT();
@@ -174,6 +156,10 @@ void ex_err(const char *module_name, const char *message, int err_num)
   EX_FUNC_VOID();
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+*/
 void ex_err_fn(int exoid, const char *module_name, const char *message, int err_num)
 {
   EX_FUNC_ENTER_INT();
@@ -193,7 +179,7 @@ void ex_err_fn(int exoid, const char *module_name, const char *message, int err_
   if (err_num == EX_PRTLASTMSG) {
     fprintf(stderr, "\n[%s] %s\n", EX_PNAME, EX_ERRMSG);
 
-    struct ex_file_item *file = ex_find_file_item(exoid);
+    struct ex__file_item *file = ex__find_file_item(exoid);
     if (file) {
       size_t pathlen = 0;
       nc_inq_path(exoid, &pathlen, NULL);
@@ -231,8 +217,8 @@ void ex_err_fn(int exoid, const char *module_name, const char *message, int err_
   }
 
   else if (exoptval & EX_VERBOSE) { /* check see if we really want to hear this */
-    char *               path = NULL;
-    struct ex_file_item *file = ex_find_file_item(exoid);
+    char *                path = NULL;
+    struct ex__file_item *file = ex__find_file_item(exoid);
     if (file) {
       size_t pathlen = 0;
       nc_inq_path(exoid, &pathlen, NULL);
@@ -263,6 +249,10 @@ void ex_err_fn(int exoid, const char *module_name, const char *message, int err_
   EX_FUNC_VOID();
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+*/
 void ex_set_err(const char *module_name, const char *message, int err_num)
 {
   EX_FUNC_ENTER_INT();
@@ -276,6 +266,10 @@ void ex_set_err(const char *module_name, const char *message, int err_num)
   EX_FUNC_VOID();
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+*/
 void ex_get_err(const char **msg, const char **func, int *err_num)
 {
   EX_FUNC_ENTER_INT();
@@ -293,6 +287,22 @@ void ex_get_err(const char **msg, const char **func, int *err_num)
   EX_FUNC_VOID();
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+  Returns a pointer to a string which gives a text description of the error code err_num.
+  If the error code refers to a NetCDF error, then that string is returned.
+
+~~~{.c}
+    std::ostringstream errmsg;
+    \comment{Create errmsg here so that the exerrval doesn't get cleared by}
+    \comment{the ex_close call.}
+    int status;
+    ex_get_err(nullptr, nullptr, &status);
+    fmt::print(errmsg, "Exodus error ({}) {} at line {} of file '{}' in function '{}'.", status,
+               ex_strerror(status), lineno, filename, function);
+~~~
+*/
 const char *ex_strerror(int err_num)
 {
   switch (err_num) {
@@ -303,10 +313,13 @@ const char *ex_strerror(int err_num)
   case EX_LOOKUPFAIL:
     return "Id lookup failed for specified entity type. Could not find entity with specified id.";
   case EX_BADPARAM: return "Bad parameter.";
+  case -EX_BADPARAM: return "Bad parameter.";
   case EX_INTERNAL: return "Internal logic error in exodus library.";
   case EX_NOTROOTID: return "File id is not the root id; it is a subgroup id.";
   case EX_NULLENTITY: return "Null entity found.";
   case EX_DUPLICATEID: return "Duplicate entity id found.";
+  case EX_DUPLICATEOPEN: return "File is open multiple times for both read and write.";
+  case EX_MSG: return "Message printed; no error implied.";
   default: return nc_strerror(err_num);
   }
 }

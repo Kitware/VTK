@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAbstractWidget.h,v
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAbstractWidget
  * @brief   define the API for widget / widget representation
@@ -47,29 +35,31 @@
  *
  * @sa
  * vtkWidgetRepresentation vtkWidgetEventTranslator vtkWidgetCallbackMapper
-*/
+ */
 
 #ifndef vtkAbstractWidget_h
 #define vtkAbstractWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWidgetEventTranslator;
 class vtkWidgetCallbackMapper;
 class vtkWidgetRepresentation;
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkAbstractWidget : public vtkInteractorObserver
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALMANUAL vtkAbstractWidget
+  : public vtkInteractorObserver
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard macros implementing standard VTK methods.
    */
-  vtkTypeMacro(vtkAbstractWidget,vtkInteractorObserver);
+  vtkTypeMacro(vtkAbstractWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Methods for activating this widget. Note that the widget representation
@@ -80,7 +70,7 @@ public:
    */
   void SetEnabled(int) override;
 
-  //@{
+  ///@{
   /**
    * Methods to change whether the widget responds to interaction.
    * Set this to Off to disable interaction. On by default.
@@ -88,16 +78,20 @@ public:
    * that they pass on the flag to all component widgets.
    */
   vtkSetClampMacro(ProcessEvents, vtkTypeBool, 0, 1);
-  vtkGetMacro(ProcessEvents, vtkTypeBool);
+  virtual vtkTypeBool GetProcessEvents()
+  {
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning ProcessEvents of "
+                  << this->ProcessEvents);
+    return this->ProcessEvents;
+  }
   vtkBooleanMacro(ProcessEvents, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the event translator. Careful manipulation of this class enables
    * the user to override the default event bindings.
    */
-  vtkWidgetEventTranslator *GetEventTranslator()
-    {return this->EventTranslator;}
+  vtkWidgetEventTranslator* GetEventTranslator() { return this->EventTranslator; }
 
   /**
    * Create the default widget representation if one is not set. The
@@ -121,24 +115,24 @@ public:
    * When a widget has a parent, it defers the rendering to the parent. It
    * may also defer managing the cursor (see ManagesCursor ivar).
    */
-  void SetParent(vtkAbstractWidget *parent) {this->Parent = parent;}
-  vtkGetObjectMacro(Parent,vtkAbstractWidget);
+  void SetParent(vtkAbstractWidget* parent) { this->Parent = parent; }
+  vtkGetObjectMacro(Parent, vtkAbstractWidget);
 
-  //@{
+  ///@{
   /**
    * Return an instance of vtkWidgetRepresentation used to represent this
    * widget in the scene. Note that the representation is a subclass of
    * vtkProp (typically a subclass of vtkWidgetRepresentation) so it can be
    * added to the renderer independent of the widget.
    */
-  vtkWidgetRepresentation *GetRepresentation()
+  vtkWidgetRepresentation* GetRepresentation()
   {
-      this->CreateDefaultRepresentation();
-      return this->WidgetRep;
+    this->CreateDefaultRepresentation();
+    return this->WidgetRep;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on or off the management of the cursor. Cursor management is
    * typically disabled for subclasses when composite widgets are
@@ -146,56 +140,62 @@ public:
    * composite widgets, and the parent widget takes over the cursor
    * management.
    */
-  vtkSetMacro(ManagesCursor,vtkTypeBool);
-  vtkGetMacro(ManagesCursor,vtkTypeBool);
-  vtkBooleanMacro(ManagesCursor,vtkTypeBool);
-  //@}
+  vtkSetMacro(ManagesCursor, vtkTypeBool);
+  vtkGetMacro(ManagesCursor, vtkTypeBool);
+  vtkBooleanMacro(ManagesCursor, vtkTypeBool);
+  ///@}
 
   /**
    * Override the superclass method. This will automatically change the
    * priority of the widget. Unlike the superclass documentation, no
    * methods such as SetInteractor to null and reset it etc. are necessary
    */
-  void SetPriority( float ) override;
+  void SetPriority(float) override;
 
 protected:
   vtkAbstractWidget();
   ~vtkAbstractWidget() override;
 
   // Handles the events; centralized here for all widgets.
-  static void ProcessEventsHandler(vtkObject* object, unsigned long event,
-                            void* clientdata, void* calldata);
+  static void ProcessEventsHandler(
+    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   // The representation for the widget. This is typically called by the
   // SetRepresentation() methods particular to each widget (i.e. subclasses
   // of this class). This method does the actual work; the SetRepresentation()
   // methods constrain the type that can be set.
-  void SetWidgetRepresentation(vtkWidgetRepresentation *r);
-  vtkWidgetRepresentation *WidgetRep;
+  void SetWidgetRepresentation(vtkWidgetRepresentation* r);
+  vtkWidgetRepresentation* WidgetRep;
 
   // helper methods for cursor management
   vtkTypeBool ManagesCursor;
   virtual void SetCursor(int vtkNotUsed(state)) {}
 
   // For translating and invoking events
-  vtkWidgetEventTranslator *EventTranslator;
-  vtkWidgetCallbackMapper  *CallbackMapper;
+  vtkWidgetEventTranslator* EventTranslator;
+  vtkWidgetCallbackMapper* CallbackMapper;
 
   // The parent, if any, for this widget
-  vtkAbstractWidget *Parent;
+  vtkAbstractWidget* Parent;
 
   // Call data which can be retrieved by the widget. This data is set
   // by ProcessEvents() if call data is provided during a callback
   // sequence.
-  void *CallData;
+  void* CallData;
 
   // Flag indicating if the widget should handle interaction events.
   // On by default.
   vtkTypeBool ProcessEvents;
+
+  // Used by subclasses to ensure different events comes from the same
+  // hardware device. Such as starting a move with the right controller
+  // should then only respond to move events from the right controller.
+  int LastDevice;
 
 private:
   vtkAbstractWidget(const vtkAbstractWidget&) = delete;
   void operator=(const vtkAbstractWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

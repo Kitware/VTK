@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleRubberBand3D.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkInteractorStyleRubberBand3D.h"
 
@@ -24,14 +8,15 @@
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleRubberBand3D);
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleRubberBand3D::vtkInteractorStyleRubberBand3D()
 {
   this->PixelArray = vtkUnsignedCharArray::New();
@@ -43,19 +28,19 @@ vtkInteractorStyleRubberBand3D::vtkInteractorStyleRubberBand3D()
   this->EndPosition[1] = 0;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInteractorStyleRubberBand3D::~vtkInteractorStyleRubberBand3D()
 {
   this->PixelArray->Delete();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnLeftButtonDown()
 {
-  if(this->Interaction == NONE)
+  if (this->Interaction == NONE)
   {
     this->Interaction = SELECTING;
-    vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
+    vtkRenderWindow* renWin = this->Interactor->GetRenderWindow();
 
     this->StartPosition[0] = this->Interactor->GetEventPosition()[0];
     this->StartPosition[1] = this->Interactor->GetEventPosition()[1];
@@ -64,24 +49,25 @@ void vtkInteractorStyleRubberBand3D::OnLeftButtonDown()
 
     this->PixelArray->Initialize();
     this->PixelArray->SetNumberOfComponents(4);
-    int *size = renWin->GetSize();
-    this->PixelArray->SetNumberOfTuples(size[0]*size[1]);
+    const int* size = renWin->GetSize();
+    this->PixelArray->SetNumberOfTuples(size[0] * size[1]);
 
-    renWin->GetRGBACharPixelData(0, 0, size[0]-1, size[1]-1, 1, this->PixelArray);
+    renWin->GetRGBACharPixelData(0, 0, size[0] - 1, size[1] - 1, 1, this->PixelArray);
     this->FindPokedRenderer(this->StartPosition[0], this->StartPosition[1]);
     this->InvokeEvent(vtkCommand::StartInteractionEvent);
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnLeftButtonUp()
 {
-  if(this->Interaction == SELECTING)
+  if (this->Interaction == SELECTING)
   {
     // Clear the rubber band
-    int* size = this->Interactor->GetRenderWindow()->GetSize();
+    const int* size = this->Interactor->GetRenderWindow()->GetSize();
     unsigned char* pixels = this->PixelArray->GetPointer(0);
-    this->Interactor->GetRenderWindow()->SetRGBACharPixelData(0, 0, size[0]-1, size[1]-1, pixels, 0);
+    this->Interactor->GetRenderWindow()->SetRGBACharPixelData(
+      0, 0, size[0] - 1, size[1] - 1, pixels, 0);
     this->Interactor->GetRenderWindow()->Frame();
 
     unsigned int rect[5];
@@ -103,33 +89,32 @@ void vtkInteractorStyleRubberBand3D::OnLeftButtonUp()
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnMiddleButtonDown()
 {
-  if(this->Interaction == NONE)
+  if (this->Interaction == NONE)
   {
     this->Interaction = PANNING;
     this->FindPokedRenderer(
-      this->Interactor->GetEventPosition()[0],
-      this->Interactor->GetEventPosition()[1]);
+      this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]);
     this->InvokeEvent(vtkCommand::StartInteractionEvent);
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnMiddleButtonUp()
 {
-  if(this->Interaction == PANNING)
+  if (this->Interaction == PANNING)
   {
     this->InvokeEvent(vtkCommand::EndInteractionEvent);
     this->Interaction = NONE;
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnRightButtonDown()
 {
-  if(this->Interaction == NONE)
+  if (this->Interaction == NONE)
   {
     if (this->Interactor->GetShiftKey())
     {
@@ -140,23 +125,22 @@ void vtkInteractorStyleRubberBand3D::OnRightButtonDown()
       this->Interaction = ROTATING;
     }
     this->FindPokedRenderer(
-      this->Interactor->GetEventPosition()[0],
-      this->Interactor->GetEventPosition()[1]);
+      this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]);
     this->InvokeEvent(vtkCommand::StartInteractionEvent);
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnRightButtonUp()
 {
-  if(this->Interaction == ZOOMING || this->Interaction == ROTATING)
+  if (this->Interaction == ZOOMING || this->Interaction == ROTATING)
   {
     this->InvokeEvent(vtkCommand::EndInteractionEvent);
     this->Interaction = NONE;
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnMouseMove()
 {
   if (this->Interaction == PANNING)
@@ -175,18 +159,18 @@ void vtkInteractorStyleRubberBand3D::OnMouseMove()
   {
     this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
     this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
-    int *size = this->Interactor->GetRenderWindow()->GetSize();
-    if (this->EndPosition[0] > (size[0]-1))
+    const int* size = this->Interactor->GetRenderWindow()->GetSize();
+    if (this->EndPosition[0] > (size[0] - 1))
     {
-      this->EndPosition[0] = size[0]-1;
+      this->EndPosition[0] = size[0] - 1;
     }
     if (this->EndPosition[0] < 0)
     {
       this->EndPosition[0] = 0;
     }
-    if (this->EndPosition[1] > (size[1]-1))
+    if (this->EndPosition[1] > (size[1] - 1))
     {
-      this->EndPosition[1] = size[1]-1;
+      this->EndPosition[1] = size[1] - 1;
     }
     if (this->EndPosition[1] < 0)
     {
@@ -201,12 +185,11 @@ void vtkInteractorStyleRubberBand3D::OnMouseMove()
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnMouseWheelForward()
 {
   this->FindPokedRenderer(
-    this->Interactor->GetEventPosition()[0],
-    this->Interactor->GetEventPosition()[1]);
+    this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]);
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   if (!camera)
   {
@@ -217,12 +200,11 @@ void vtkInteractorStyleRubberBand3D::OnMouseWheelForward()
   this->Interaction = NONE;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnMouseWheelBackward()
 {
   this->FindPokedRenderer(
-    this->Interactor->GetEventPosition()[0],
-    this->Interactor->GetEventPosition()[1]);
+    this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]);
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   if (!camera)
   {
@@ -233,70 +215,97 @@ void vtkInteractorStyleRubberBand3D::OnMouseWheelBackward()
   this->Interaction = NONE;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::RedrawRubberBand()
 {
   // Update the rubber band on the screen
-  int *size = this->Interactor->GetRenderWindow()->GetSize();
+  const int* size = this->Interactor->GetRenderWindow()->GetSize();
 
-  vtkUnsignedCharArray *tmpPixelArray = vtkUnsignedCharArray::New();
+  vtkUnsignedCharArray* tmpPixelArray = vtkUnsignedCharArray::New();
   tmpPixelArray->DeepCopy(this->PixelArray);
-  unsigned char *pixels = tmpPixelArray->GetPointer(0);
+  unsigned char* pixels = tmpPixelArray->GetPointer(0);
 
   int min[2], max[2];
 
-  min[0] = this->StartPosition[0] <= this->EndPosition[0] ?
-    this->StartPosition[0] : this->EndPosition[0];
-  if (min[0] < 0) { min[0] = 0; }
-  if (min[0] >= size[0]) { min[0] = size[0] - 1; }
+  min[0] =
+    this->StartPosition[0] <= this->EndPosition[0] ? this->StartPosition[0] : this->EndPosition[0];
+  if (min[0] < 0)
+  {
+    min[0] = 0;
+  }
+  if (min[0] >= size[0])
+  {
+    min[0] = size[0] - 1;
+  }
 
-  min[1] = this->StartPosition[1] <= this->EndPosition[1] ?
-    this->StartPosition[1] : this->EndPosition[1];
-  if (min[1] < 0) { min[1] = 0; }
-  if (min[1] >= size[1]) { min[1] = size[1] - 1; }
+  min[1] =
+    this->StartPosition[1] <= this->EndPosition[1] ? this->StartPosition[1] : this->EndPosition[1];
+  if (min[1] < 0)
+  {
+    min[1] = 0;
+  }
+  if (min[1] >= size[1])
+  {
+    min[1] = size[1] - 1;
+  }
 
-  max[0] = this->EndPosition[0] > this->StartPosition[0] ?
-    this->EndPosition[0] : this->StartPosition[0];
-  if (max[0] < 0) { max[0] = 0; }
-  if (max[0] >= size[0]) { max[0] = size[0] - 1; }
+  max[0] =
+    this->EndPosition[0] > this->StartPosition[0] ? this->EndPosition[0] : this->StartPosition[0];
+  if (max[0] < 0)
+  {
+    max[0] = 0;
+  }
+  if (max[0] >= size[0])
+  {
+    max[0] = size[0] - 1;
+  }
 
-  max[1] = this->EndPosition[1] > this->StartPosition[1] ?
-    this->EndPosition[1] : this->StartPosition[1];
-  if (max[1] < 0) { max[1] = 0; }
-  if (max[1] >= size[1]) { max[1] = size[1] - 1; }
+  max[1] =
+    this->EndPosition[1] > this->StartPosition[1] ? this->EndPosition[1] : this->StartPosition[1];
+  if (max[1] < 0)
+  {
+    max[1] = 0;
+  }
+  if (max[1] >= size[1])
+  {
+    max[1] = size[1] - 1;
+  }
 
   int i;
   for (i = min[0]; i <= max[0]; i++)
   {
-    pixels[4*(min[1]*size[0]+i)] = 255 ^ pixels[4*(min[1]*size[0]+i)];
-    pixels[4*(min[1]*size[0]+i)+1] = 255 ^ pixels[4*(min[1]*size[0]+i)+1];
-    pixels[4*(min[1]*size[0]+i)+2] = 255 ^ pixels[4*(min[1]*size[0]+i)+2];
-    pixels[4*(max[1]*size[0]+i)] = 255 ^ pixels[4*(max[1]*size[0]+i)];
-    pixels[4*(max[1]*size[0]+i)+1] = 255 ^ pixels[4*(max[1]*size[0]+i)+1];
-    pixels[4*(max[1]*size[0]+i)+2] = 255 ^ pixels[4*(max[1]*size[0]+i)+2];
+    pixels[4 * (min[1] * size[0] + i)] = 255 ^ pixels[4 * (min[1] * size[0] + i)];
+    pixels[4 * (min[1] * size[0] + i) + 1] = 255 ^ pixels[4 * (min[1] * size[0] + i) + 1];
+    pixels[4 * (min[1] * size[0] + i) + 2] = 255 ^ pixels[4 * (min[1] * size[0] + i) + 2];
+    pixels[4 * (max[1] * size[0] + i)] = 255 ^ pixels[4 * (max[1] * size[0] + i)];
+    pixels[4 * (max[1] * size[0] + i) + 1] = 255 ^ pixels[4 * (max[1] * size[0] + i) + 1];
+    pixels[4 * (max[1] * size[0] + i) + 2] = 255 ^ pixels[4 * (max[1] * size[0] + i) + 2];
   }
-  for (i = min[1]+1; i < max[1]; i++)
+  for (i = min[1] + 1; i < max[1]; i++)
   {
-    pixels[4*(i*size[0]+min[0])] = 255 ^ pixels[4*(i*size[0]+min[0])];
-    pixels[4*(i*size[0]+min[0])+1] = 255 ^ pixels[4*(i*size[0]+min[0])+1];
-    pixels[4*(i*size[0]+min[0])+2] = 255 ^ pixels[4*(i*size[0]+min[0])+2];
-    pixels[4*(i*size[0]+max[0])] = 255 ^ pixels[4*(i*size[0]+max[0])];
-    pixels[4*(i*size[0]+max[0])+1] = 255 ^ pixels[4*(i*size[0]+max[0])+1];
-    pixels[4*(i*size[0]+max[0])+2] = 255 ^ pixels[4*(i*size[0]+max[0])+2];
+    pixels[4 * (i * size[0] + min[0])] = 255 ^ pixels[4 * (i * size[0] + min[0])];
+    pixels[4 * (i * size[0] + min[0]) + 1] = 255 ^ pixels[4 * (i * size[0] + min[0]) + 1];
+    pixels[4 * (i * size[0] + min[0]) + 2] = 255 ^ pixels[4 * (i * size[0] + min[0]) + 2];
+    pixels[4 * (i * size[0] + max[0])] = 255 ^ pixels[4 * (i * size[0] + max[0])];
+    pixels[4 * (i * size[0] + max[0]) + 1] = 255 ^ pixels[4 * (i * size[0] + max[0]) + 1];
+    pixels[4 * (i * size[0] + max[0]) + 2] = 255 ^ pixels[4 * (i * size[0] + max[0]) + 2];
   }
 
-  this->Interactor->GetRenderWindow()->SetRGBACharPixelData(0, 0, size[0]-1, size[1]-1, pixels, 0);
+  this->Interactor->GetRenderWindow()->SetRGBACharPixelData(
+    0, 0, size[0] - 1, size[1] - 1, pixels, 0);
   this->Interactor->GetRenderWindow()->Frame();
 
   tmpPixelArray->Delete();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Interaction: " << this->Interaction << endl;
   os << indent << "RenderOnMouseMove: " << this->RenderOnMouseMove << endl;
-  os << indent << "StartPosition: " << this->StartPosition[0] << "," << this->StartPosition[1] << endl;
+  os << indent << "StartPosition: " << this->StartPosition[0] << "," << this->StartPosition[1]
+     << endl;
   os << indent << "EndPosition: " << this->EndPosition[0] << "," << this->EndPosition[1] << endl;
 }
+VTK_ABI_NAMESPACE_END

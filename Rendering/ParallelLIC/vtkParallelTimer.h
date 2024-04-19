@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParallelTimer.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 //
 /**
  * @class   vtkParallelTimer
@@ -33,7 +21,7 @@
  *  doesn't exist then one is created. It will be automatically
  *  destroyed at exit by the signleton destructor. It can be
  *  destroyed explicitly by calling DeleteGlobalInstance.
-*/
+ */
 
 #ifndef vtkParallelTimer_h
 #define vtkParallelTimer_h
@@ -43,68 +31,73 @@
 #include "vtkObject.h"
 #include "vtkRenderingParallelLICModule.h" // for export
 
-#include <vector> // for vector
-#include <string> // for string
 #include <sstream> // for sstream
+#include <string>  // for string
+#include <vector>  // for vector
 #if vtkParallelTimerDEBUG > 0
 #include <iostream> // for cerr
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkParallelTimerBuffer;
 
 class VTKRENDERINGPARALLELLIC_EXPORT vtkParallelTimer : public vtkObject
 {
 public:
-  static vtkParallelTimer *New();
-  vtkTypeMacro(vtkParallelTimer,vtkObject);
+  static vtkParallelTimer* New();
+  vtkTypeMacro(vtkParallelTimer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Type used to direct an output stream into the log's header. The header
    * is a buffer used only by the root rank.
    */
   class LogHeaderType
   {
-    public:
-      template<typename T> LogHeaderType &operator<<(const T& s);
+  public:
+    template <typename T>
+    LogHeaderType& operator<<(const T& s);
   };
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Type used to direct an output stream into the log's body. The body is a
    * buffer that all ranks write to.
    */
   class LogBodyType
   {
-    public:
-      template<typename T> LogBodyType &operator<<(const T& s);
+  public:
+    template <typename T>
+    LogBodyType& operator<<(const T& s);
   };
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the rank who writes.
    */
-  vtkSetMacro(WriterRank,int);
-  vtkGetMacro(WriterRank,int);
-  //@}
+  vtkSetMacro(WriterRank, int);
+  vtkGetMacro(WriterRank, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the filename that is used during write when the object
    * is used as a singleton. If nothing is set the default is
    * ROOT_RANKS_PID.log
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
-  void SetFileName(const std::string &fileName)
-    { this->SetFileName(fileName.c_str()); }
+  void SetFileName(VTK_FILEPATH const std::string& fileName)
+  {
+    this->SetFileName(fileName.c_str());
+  }
 
-  //@{
+  ///@{
   /**
    * The log works as an event stack. EventStart pushes the
    * event identifier and its start time onto the stack. EventEnd
@@ -113,31 +106,29 @@ public:
    * event, it's start and end times, and its elapsed time.
    * EndEventSynch includes a barrier before the measurement.
    */
-  void StartEvent(const char *event);
-  void StartEvent(int rank, const char *event);
-  void EndEvent(const char *event);
-  void EndEvent(int rank, const char *event);
-  void EndEventSynch(const char *event);
-  void EndEventSynch(int rank, const char *event);
-  //@}
+  void StartEvent(const char* event);
+  void StartEvent(int rank, const char* event);
+  void EndEvent(const char* event);
+  void EndEvent(int rank, const char* event);
+  void EndEventSynch(const char* event);
+  void EndEventSynch(int rank, const char* event);
+  ///@}
 
   /**
    * Insert text into the log header on the writer rank.
    */
-  template<typename T>
-  vtkParallelTimer &operator<<(const T& s);
+  template <typename T>
+  vtkParallelTimer& operator<<(const T& s);
 
   /**
    * stream output to the log's header(root rank only).
    */
-  vtkParallelTimer::LogHeaderType GetHeader()
-    { return vtkParallelTimer::LogHeaderType(); }
+  vtkParallelTimer::LogHeaderType GetHeader() { return vtkParallelTimer::LogHeaderType(); }
 
   /**
    * stream output to log body(all ranks).
    */
-  vtkParallelTimer::LogBodyType GetBody()
-    { return vtkParallelTimer::LogBodyType(); }
+  vtkParallelTimer::LogBodyType GetBody() { return vtkParallelTimer::LogBodyType(); }
 
   /**
    * Clear the log.
@@ -166,34 +157,34 @@ public:
    * destroyed at exit by the signleton destructor. It can be
    * destroyed explicitly by calling DeleteGlobalInstance.
    */
-  static vtkParallelTimer *GetGlobalInstance();
+  static vtkParallelTimer* GetGlobalInstance();
 
   /**
    * Explicitly delete the singleton.
    */
   static void DeleteGlobalInstance();
 
-  //@{
+  ///@{
   /**
    * If enabled and used as a singleton the log will write
    * it's contents to disk during program termination.
    */
   vtkSetMacro(WriteOnClose, int);
   vtkGetMacro(WriteOnClose, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the global log level. Applications can set this to the
    * desired level so that all pipeline objects will log data.
    */
   vtkSetMacro(GlobalLevel, int);
   vtkGetMacro(GlobalLevel, int);
-  //@}
+  ///@}
 
 protected:
   vtkParallelTimer();
-  virtual ~vtkParallelTimer();
+  ~vtkParallelTimer() override;
 
 private:
   vtkParallelTimer(const vtkParallelTimer&) = delete;
@@ -204,31 +195,33 @@ private:
    */
   class VTKRENDERINGPARALLELLIC_EXPORT vtkParallelTimerDestructor
   {
-    public:
-      vtkParallelTimerDestructor() : Log(0) {}
-      ~vtkParallelTimerDestructor();
+  public:
+    vtkParallelTimerDestructor()
+      : Log(nullptr)
+    {
+    }
+    ~vtkParallelTimerDestructor();
 
-      void SetLog(vtkParallelTimer *log){ this->Log = log; }
+    void SetLog(vtkParallelTimer* log) { this->Log = log; }
 
-    private:
-      vtkParallelTimer *Log;
+  private:
+    vtkParallelTimer* Log;
   };
 
-private:
   int GlobalLevel;
   int Initialized;
   int WorldRank;
   int WriterRank;
-  char *FileName;
+  char* FileName;
   int WriteOnClose;
   std::vector<double> StartTime;
-  #if vtkParallelTimerDEBUG < 0
+#if vtkParallelTimerDEBUG < 0
   std::vector<std::string> EventId;
-  #endif
+#endif
 
-  vtkParallelTimerBuffer *Log;
+  vtkParallelTimerBuffer* Log;
 
-  static vtkParallelTimer *GlobalInstance;
+  static vtkParallelTimer* GlobalInstance;
   static vtkParallelTimerDestructor GlobalInstanceDestructor;
 
   std::ostringstream HeaderBuffer;
@@ -238,48 +231,49 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-template<typename T>
-vtkParallelTimer &vtkParallelTimer::operator<<(const T& s)
+template <typename T>
+vtkParallelTimer& vtkParallelTimer::operator<<(const T& s)
 {
   if (this->WorldRank == this->WriterRank)
   {
     this->HeaderBuffer << s;
-    #if vtkParallelTimerDEBUG > 0
+#if vtkParallelTimerDEBUG > 0
     std::cerr << s;
-    #endif
+#endif
   }
   return *this;
 }
 
 //-----------------------------------------------------------------------------
-template<typename T>
-vtkParallelTimer::LogHeaderType &vtkParallelTimer::LogHeaderType::operator<<(const T& s)
+template <typename T>
+vtkParallelTimer::LogHeaderType& vtkParallelTimer::LogHeaderType::operator<<(const T& s)
 {
-  vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
+  vtkParallelTimer* log = vtkParallelTimer::GetGlobalInstance();
 
   if (log->WorldRank == log->WriterRank)
   {
     log->HeaderBuffer << s;
-    #if vtkParallelTimerDEBUG > 0
+#if vtkParallelTimerDEBUG > 0
     std::cerr << s;
-    #endif
+#endif
   }
 
   return *this;
 }
 
 //-----------------------------------------------------------------------------
-template<typename T>
-vtkParallelTimer::LogBodyType &vtkParallelTimer::LogBodyType::operator<<(const T& s)
+template <typename T>
+vtkParallelTimer::LogBodyType& vtkParallelTimer::LogBodyType::operator<<(const T& s)
 {
-  vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
+  vtkParallelTimer* log = vtkParallelTimer::GetGlobalInstance();
 
-  *(log->Log) <<  s;
-  #if vtkParallelTimerDEBUG > 0
+  *(log->Log) << s;
+#if vtkParallelTimerDEBUG > 0
   std::cerr << s;
-  #endif
+#endif
 
   return *this;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

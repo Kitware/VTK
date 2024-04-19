@@ -2,6 +2,12 @@ NAME
   VTK::theora
 LIBRARY_NAME
   vtktheora
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::ogg
+TEST_DEPENDS
+  VTK::TestingCore
 THIRD_PARTY

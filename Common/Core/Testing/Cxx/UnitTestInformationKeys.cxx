@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -5,12 +7,11 @@
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationVariantKey.h"
 #include "vtkInformationVariantVectorKey.h"
-#include "vtkNew.h"
-#include "vtkStdString.h"
-#include "vtkVariant.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkVariant.h"
 
-template<typename T, typename V>
+template <typename T, typename V>
 int UnitTestScalarValueKey(vtkInformation* info, T* key, const V& val)
 {
   key->Set(info, val);
@@ -31,7 +32,7 @@ int UnitTestScalarValueKey(vtkInformation* info, T* key, const V& val)
   return ok_setget & ok_copyget;
 }
 
-template<typename T, typename V>
+template <typename T, typename V>
 int UnitTestVectorValueKey(vtkInformation* info, T* key, const V& val)
 {
   key->Set(info, const_cast<V*>(&val), 1);
@@ -66,17 +67,14 @@ int UnitTestVectorValueKey(vtkInformation* info, T* key, const V& val)
     cerr << "Appended length was " << key->Length(info) << " not 2.\n";
   }
 
-  return
-    ok_setget && ok_setgetcomp && ok_copyget &&
-    ok_length && ok_appendedlength;
+  return ok_setget && ok_setgetcomp && ok_copyget && ok_length && ok_appendedlength;
 }
 
 // === String adaptations of tests above ===
 // Note these are not specializations.
 
 int UnitTestScalarValueKey(
-  vtkInformation* info, vtkInformationStringKey* key,
-  const vtkStdString& val)
+  vtkInformation* info, vtkInformationStringKey* key, const std::string& val)
 {
   key->Set(info, val.c_str());
   int ok_setget = (val == key->Get(info));
@@ -97,8 +95,7 @@ int UnitTestScalarValueKey(
 }
 
 int UnitTestVectorValueKey(
-  vtkInformation* info, vtkInformationStringVectorKey* key,
-  const vtkStdString& val)
+  vtkInformation* info, vtkInformationStringVectorKey* key, const std::string& val)
 {
   key->Set(info, val.c_str(), 0);
   int ok_setgetcomp = (val == key->Get(info, 0));
@@ -136,31 +133,25 @@ int UnitTestInformationKeys(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkInformation> info;
   vtkVariant tvval("foo");
   double tdval = vtkMath::Pi();
-  vtkStdString tsval = "bar";
+  std::string tsval = "bar";
 
-  vtkInformationVariantKey* tvskey =
-    new vtkInformationVariantKey("Test", "vtkTest");
+  vtkInformationVariantKey* tvskey = new vtkInformationVariantKey("Test", "vtkTest");
   ok &= UnitTestScalarValueKey(info, tvskey, tvval);
 
-  vtkInformationVariantVectorKey* tvvkey =
-    new vtkInformationVariantVectorKey("Test", "vtkTest");
+  vtkInformationVariantVectorKey* tvvkey = new vtkInformationVariantVectorKey("Test", "vtkTest");
   ok &= UnitTestVectorValueKey(info, tvvkey, tvval);
 
-  vtkInformationDoubleKey* tdskey =
-    new vtkInformationDoubleKey("Test", "vtkTest");
+  vtkInformationDoubleKey* tdskey = new vtkInformationDoubleKey("Test", "vtkTest");
   ok &= UnitTestScalarValueKey(info, tdskey, tdval);
 
-  vtkInformationDoubleVectorKey* tdvkey =
-    new vtkInformationDoubleVectorKey("Test", "vtkTest");
+  vtkInformationDoubleVectorKey* tdvkey = new vtkInformationDoubleVectorKey("Test", "vtkTest");
   ok &= UnitTestVectorValueKey(info, tdvkey, tdval);
 
-  vtkInformationStringKey* tsskey =
-    new vtkInformationStringKey("Test", "vtkTest");
+  vtkInformationStringKey* tsskey = new vtkInformationStringKey("Test", "vtkTest");
   ok &= UnitTestScalarValueKey(info, tsskey, tsval);
 
-  vtkInformationStringVectorKey* tsvkey =
-    new vtkInformationStringVectorKey("Test", "vtkTest");
+  vtkInformationStringVectorKey* tsvkey = new vtkInformationStringVectorKey("Test", "vtkTest");
   ok &= UnitTestVectorValueKey(info, tsvkey, tsval);
 
-  return ! ok;
+  return !ok;
 }

@@ -1,31 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersCore import vtkSynchronizedTemplates3D
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOLegacy import vtkStructuredPointsReader
+from vtkmodules.vtkImagingCore import (
+    vtkImageCast,
+    vtkImageClip,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 
 
-class sync3dAll(vtk.test.Testing.vtkTest):
+class sync3dAll(vtkmodules.test.Testing.vtkTest):
 
     class Colors(object):
         '''
@@ -35,7 +37,7 @@ class sync3dAll(vtk.test.Testing.vtkTest):
             '''
                 Define a single instance of the NamedColors class here.
             '''
-            self.namedColors = vtk.vtkNamedColors()
+            self.namedColors = vtkNamedColors()
 
         def GetRGBColor(self, colorName):
             '''
@@ -59,13 +61,13 @@ class sync3dAll(vtk.test.Testing.vtkTest):
 
         # Create the RenderWindow, Renderer and both Actors
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
         # create pipeline
         #
-        slc = vtk.vtkStructuredPointsReader()
+        slc = vtkStructuredPointsReader()
         slc.SetFileName(VTK_DATA_ROOT + "/Data/ironProt.vtk")
 
         colors = ["flesh", "banana", "grey", "pink", "carrot", "gainsboro", "tomato", "gold", "thistle", "chocolate"]
@@ -83,24 +85,24 @@ class sync3dAll(vtk.test.Testing.vtkTest):
         colorWrapper = self.Colors()
 
         for idx, vtkType in enumerate(types):
-            clip.append(vtk.vtkImageClip())
+            clip.append(vtkImageClip())
             clip[idx].SetInputConnection(slc.GetOutputPort())
             clip[idx].SetOutputWholeExtent(-1000, 1000, -1000, 1000, i, i + 5)
             i += 5
-            cast.append(vtk.vtkImageCast())
+            cast.append(vtkImageCast())
             eval('cast[idx].SetOutputScalarTypeTo' + vtkType + '()')
             cast[idx].SetInputConnection(clip[idx].GetOutputPort())
             cast[idx].ClampOverflowOn()
 
-            iso.append(vtk.vtkSynchronizedTemplates3D())
+            iso.append(vtkSynchronizedTemplates3D())
             iso[idx].SetInputConnection(cast[idx].GetOutputPort())
             iso[idx].GenerateValues(1, 30, 30)
 
-            mapper.append(vtk.vtkPolyDataMapper())
+            mapper.append(vtkPolyDataMapper())
             mapper[idx].SetInputConnection(iso[idx].GetOutputPort())
             mapper[idx].ScalarVisibilityOff()
 
-            actor.append(vtk.vtkActor())
+            actor.append(vtkActor())
             actor[idx].SetMapper(mapper[idx])
         #    actor[idx].Actor.GetProperty().SetDiffuseColor(lindex.colors.c.lindex.colors.c+1.lindex.colors.c+1)
             actor[idx].GetProperty().SetDiffuseColor(colorWrapper.GetRGBColor(colors[c]))
@@ -111,11 +113,11 @@ class sync3dAll(vtk.test.Testing.vtkTest):
             ren.AddActor(actor[idx])
 
 
-        outline = vtk.vtkOutlineFilter()
+        outline = vtkOutlineFilter()
         outline.SetInputConnection(slc.GetOutputPort())
-        outlineMapper = vtk.vtkPolyDataMapper()
+        outlineMapper = vtkPolyDataMapper()
         outlineMapper.SetInputConnection(outline.GetOutputPort())
-        outlineActor = vtk.vtkActor()
+        outlineActor = vtkActor()
         outlineActor.SetMapper(outlineMapper)
         outlineActor.VisibilityOff()
 
@@ -134,14 +136,14 @@ class sync3dAll(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
 
         img_file = "sync3dAll.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(sync3dAll, 'test')])
+     vtkmodules.test.Testing.main([(sync3dAll, 'test')])

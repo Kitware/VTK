@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTreeWriter
  * @brief   write vtkTree data to a file
@@ -20,38 +8,39 @@
  * vtkTree data files in vtk format. See text for format details.
  * @warning
  * Binary files written on one system may not be readable on other systems.
-*/
+ */
 
 #ifndef vtkTreeWriter_h
 #define vtkTreeWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 
 class VTKIOLEGACY_EXPORT vtkTreeWriter : public vtkDataWriter
 {
 public:
-  static vtkTreeWriter *New();
-  vtkTypeMacro(vtkTreeWriter,vtkDataWriter);
+  static vtkTreeWriter* New();
+  vtkTypeMacro(vtkTreeWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkTree* GetInput();
   vtkTree* GetInput(int port);
-  //@}
+  ///@}
 
 protected:
-  vtkTreeWriter() {}
-  ~vtkTreeWriter() override {}
+  vtkTreeWriter() = default;
+  ~vtkTreeWriter() override = default;
 
   void WriteData() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkTreeWriter(const vtkTreeWriter&) = delete;
@@ -60,4 +49,5 @@ private:
   void WriteEdges(ostream& Stream, vtkTree* Tree);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -11,10 +11,46 @@
  */
 
 #include "config.h"
-#include <nc4internal.h>
+#include "nc4internal.h"
 #include "nc4dispatch.h"
+#ifdef USE_HDF5
 #include "hdf5internal.h"
+#endif
 #include <math.h>
+
+/** @internal Default size for unlimited dim chunksize. */
+#define DEFAULT_1D_UNLIM_SIZE (4096)
+
+/* Define log_e for 10 and 2. Prefer constants defined in math.h,
+ * however, GCC environments can have hard time defining M_LN10/M_LN2
+ * despite finding math.h */
+#ifndef M_LN10
+# define M_LN10         2.30258509299404568402  /**< log_e 10 */
+#endif /* M_LN10 */
+#ifndef M_LN2
+# define M_LN2          0.69314718055994530942  /**< log_e 2 */
+#endif /* M_LN2 */
+
+/** Used in quantize code. Number of explicit bits in significand for
+ * floats. Bits 0-22 of SP significands are explicit. Bit 23 is
+ * implicitly 1. Currently redundant with NC_QUANTIZE_MAX_FLOAT_NSB
+ * and with limits.h/climit (FLT_MANT_DIG-1) */
+#define BIT_XPL_NBR_SGN_FLT (23)
+
+/** Used in quantize code. Number of explicit bits in significand for
+ * doubles. Bits 0-51 of DP significands are explicit. Bit 52 is
+ * implicitly 1. Currently redundant with NC_QUANTIZE_MAX_DOUBLE_NSB 
+ * and with limits.h/climit (DBL_MANT_DIG-1) */
+#define BIT_XPL_NBR_SGN_DBL (52) 
+  
+/** Pointer union for floating point and bitmask types. */
+typedef union { /* ptr_unn */
+  float *fp;
+  double *dp;
+  unsigned int *ui32p;
+  unsigned long long *ui64p;
+  void *vp;
+} ptr_unn;
 
 /**
  * @internal This is called by nc_get_var_chunk_cache(). Get chunk
@@ -55,11 +91,11 @@ NC4_get_var_chunk_cache(int ncid, int varid, size_t *sizep,
 
     /* Give the user what they want. */
     if (sizep)
-        *sizep = var->chunk_cache_size;
+        *sizep = var->chunkcache.size;
     if (nelemsp)
-        *nelemsp = var->chunk_cache_nelems;
+        *nelemsp = var->chunkcache.nelems;
     if (preemptionp)
-        *preemptionp = var->chunk_cache_preemption;
+        *preemptionp = var->chunkcache.preemption;
 
     return NC_NOERR;
 }
@@ -70,7 +106,7 @@ NC4_get_var_chunk_cache(int ncid, int varid, size_t *sizep,
  *
  * @param ncid File ID.
  * @param varid Variable ID.
- * @param sizep Gets size in bytes of cache.
+ * @param sizep Gets size in MB of cache.
  * @param nelemsp Gets number of element slots in cache.
  * @param preemptionp Gets cache swapping setting.
  *
@@ -121,7 +157,7 @@ nc_get_var_chunk_cache_ints(int ncid, int varid, int *sizep,
  * @param deflatep Gets deflate setting.
  * @param deflate_levelp Gets deflate level.
  * @param fletcher32p Gets fletcher32 setting.
- * @param contiguousp Gets contiguous setting.
+ * @param storagep Gets storage setting.
  * @param chunksizesp Gets chunksizes.
  * @param no_fill Gets fill mode.
  * @param fill_valuep Gets fill value.
@@ -143,7 +179,7 @@ int
 NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
                 int *ndimsp, int *dimidsp, int *nattsp,
                 int *shufflep, int *deflatep, int *deflate_levelp,
-                int *fletcher32p, int *contiguousp, size_t *chunksizesp,
+                int *fletcher32p, int *storagep, size_t *chunksizesp,
                 int *no_fill, void *fill_valuep, int *endiannessp,
                 unsigned int *idp, size_t *nparamsp, unsigned int *params)
 {
@@ -185,33 +221,37 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
     if (nattsp)
         *nattsp = ncindexcount(var->att);
 
-    /* Chunking stuff. */
-    if (!var->contiguous && chunksizesp)
+    /* Did the user want the chunksizes? */
+    if (var->storage == NC_CHUNKED && chunksizesp)
+    {
         for (d = 0; d < var->ndims; d++)
         {
             chunksizesp[d] = var->chunksizes[d];
             LOG((4, "chunksizesp[%d]=%d", d, chunksizesp[d]));
         }
+    }
 
-    if (contiguousp)
-        *contiguousp = var->contiguous ? NC_CONTIGUOUS : NC_CHUNKED;
+    /* Did the user inquire about the storage? */
+    if (storagep)
+	*storagep = var->storage;
 
     /* Filter stuff. */
+    if (shufflep) {
+	retval = nc_inq_var_filter_info(ncid,varid,H5Z_FILTER_SHUFFLE,0,NULL);
+	if(retval && retval != NC_ENOFILTER) return retval;
+	*shufflep = (retval == NC_NOERR?1:0);
+    }
+    if (fletcher32p) {
+	retval = nc_inq_var_filter_info(ncid,varid,H5Z_FILTER_FLETCHER32,0,NULL);
+	if(retval && retval != NC_ENOFILTER) return retval;
+        *fletcher32p = (retval == NC_NOERR?1:0);
+    }
     if (deflatep)
-        *deflatep = (int)var->deflate;
-    if (deflate_levelp)
-        *deflate_levelp = var->deflate_level;
-    if (shufflep)
-        *shufflep = (int)var->shuffle;
-    if (fletcher32p)
-        *fletcher32p = (int)var->fletcher32;
+	return NC_EFILTER;
 
-    if (idp)
-        *idp = var->filterid;
-    if (nparamsp)
-        *nparamsp = (var->params == NULL ? 0 : var->nparams);
-    if (params && var->params != NULL)
-        memcpy(params,var->params,var->nparams*sizeof(unsigned int));
+    if (idp) {
+	return NC_EFILTER;
+    }
 
     /* Fill value stuff. */
     if (no_fill)
@@ -223,11 +263,12 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
     {
         /* Do we have a fill value for this var? */
         if (var->fill_value)
+#ifdef SEPDATA
         {
             if (var->type_info->nc_type_class == NC_STRING)
             {
                 assert(*(char **)var->fill_value);
-                /* This will allocate memeory and copy the string. */
+                /* This will allocate memory and copy the string. */
                 if (!(*(char **)fill_valuep = strdup(*(char **)var->fill_value)))
                 {
                     free(*(char **)fill_valuep);
@@ -240,14 +281,21 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
                 memcpy(fill_valuep, var->fill_value, var->type_info->size);
             }
         }
+#else
+        {
+	    int xtype = var->type_info->hdr.id;
+	    if((retval = nc_copy_data(ncid,xtype,var->fill_value,1,fill_valuep))) return retval;
+	}
+#endif
         else
         {
-            if (var->type_info->nc_type_class == NC_STRING)
+#ifdef SEPDATA
+	    if (var->type_info->nc_type_class == NC_STRING)
             {
                 if (!(*(char **)fill_valuep = calloc(1, sizeof(char *))))
                     return NC_ENOMEM;
 
-                if ((retval = nc4_get_default_fill_value(var->type_info, (char **)fill_valuep)))
+                if ((retval = nc4_get_default_fill_value(var->type_info->hdr.ud, (char **)fill_valuep)))
                 {
                     free(*(char **)fill_valuep);
                     return retval;
@@ -255,15 +303,19 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
             }
             else
             {
-                if ((retval = nc4_get_default_fill_value(var->type_info, fill_valuep)))
+                if ((retval = nc4_get_default_fill_value(var->type_info->hdr.id, fill_valuep)))
                     return retval;
             }
+#else
+            if ((retval = nc4_get_default_fill_value(var->type_info, fill_valuep)))
+                    return retval;
+#endif
         }
     }
 
     /* Does the user want the endianness of this variable? */
     if (endiannessp)
-        *endiannessp = var->type_info->endianness;
+        *endiannessp = var->endianness;
 
     return NC_NOERR;
 }
@@ -274,7 +326,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
  *
  * @param ncid File ID.
  * @param varid Variable ID.
- * @param contiguousp Gets contiguous setting.
+ * @param storagep Gets contiguous setting.
  * @param chunksizesp Gets chunksizes.
  *
  * @returns ::NC_NOERR No error.
@@ -285,7 +337,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
  * @author Ed Hartnett
  */
 int
-nc_inq_var_chunking_ints(int ncid, int varid, int *contiguousp, int *chunksizesp)
+nc_inq_var_chunking_ints(int ncid, int varid, int *storagep, int *chunksizesp)
 {
     NC_VAR_INFO_T *var;
     size_t *cs = NULL;
@@ -303,11 +355,11 @@ nc_inq_var_chunking_ints(int ncid, int varid, int *contiguousp, int *chunksizesp
 
     /* Call the netcdf-4 version directly. */
     retval = NC4_inq_var_all(ncid, varid, NULL, NULL, NULL, NULL, NULL,
-                             NULL, NULL, NULL, NULL, contiguousp, cs, NULL,
+                             NULL, NULL, NULL, NULL, storagep, cs, NULL,
                              NULL, NULL, NULL, NULL, NULL);
 
     /* Copy from size_t array. */
-    if (!retval && chunksizesp && var->contiguous == NC_CHUNKED)
+    if (!retval && chunksizesp && var->storage == NC_CHUNKED)
     {
         for (i = 0; i < var->ndims; i++)
         {
@@ -381,7 +433,7 @@ NC4_inq_varid(int ncid, const char *name, int *varidp)
  * @returns ::NC_NOERR No error.
  * @returns ::NC_EBADID Invalid ncid passed.
  * @returns ::NC_ENOTVAR Invalid varid passed.
- * @returns ::NC_ENOPAR LFile was not opened with nc_open_par/nc_create_var.
+ * @returns ::NC_ENOPAR LFile was not opened with nc_open_par/nc_create_par.
  * @returns ::NC_EINVAL Invalid par_access specified.
  * @returns ::NC_NOERR for success
  * @author Ed Hartnett, Dennis Heimbigner
@@ -420,6 +472,13 @@ NC4_var_par_access(int ncid, int varid, int par_access)
     if (!var) return NC_ENOTVAR;
     assert(var->hdr.id == varid);
 
+    /* If zlib, shuffle, or fletcher32 filters are in use, then access
+     * must be collective. Fail an attempt to set such a variable to
+     * independent access. */
+    if (nclistlength((NClist*)var->filters) > 0 &&
+        par_access == NC_INDEPENDENT)
+        return NC_EINVAL;
+
     if (par_access)
         var->parallel_access = NC_COLLECTIVE;
     else
@@ -437,6 +496,11 @@ NC4_var_par_access(int ncid, int varid, int par_access)
  * value used (or the default fill value if none is supplied) for
  * values that overflow the type.
  *
+ * This function applies quantization to float and double data, if
+ * desired. The code to do this is derived from the corresponding 
+ * filter in the CCR project (e.g., 
+ * https://github.com/ccr/ccr/blob/master/hdf5_plugins/BITGROOM/src/H5Zbitgroom.c).
+ *
  * @param src Pointer to source of data.
  * @param dest Pointer that gets data.
  * @param src_type Type ID of source data.
@@ -445,16 +509,47 @@ NC4_var_par_access(int ncid, int varid, int par_access)
  * @param range_error Pointer that gets 1 if there was a range error.
  * @param fill_value The fill value.
  * @param strict_nc3 Non-zero if strict model in effect.
- *
- * @returns NC_NOERR No error.
- * @returns NC_EBADTYPE Type not found.
+ * @param quantize_mode May be ::NC_NOQUANTIZE, ::NC_QUANTIZE_BITGROOM, 
+ * ::NC_QUANTIZE_GRANULARBR, or ::NC_QUANTIZE_BITROUND.
+ * @param nsd Number of significant digits for quantize. Ignored
+ * unless quantize_mode is ::NC_QUANTIZE_BITGROOM, 
+ * ::NC_QUANTIZE_GRANULARBR, or ::NC_QUANTIZE_BITROUND
+ * 
+ * @returns ::NC_NOERR No error.
+ * @returns ::NC_EBADTYPE Type not found.
  * @author Ed Hartnett, Dennis Heimbigner
  */
 int
 nc4_convert_type(const void *src, void *dest, const nc_type src_type,
                  const nc_type dest_type, const size_t len, int *range_error,
-                 const void *fill_value, int strict_nc3)
+                 const void *fill_value, int strict_nc3, int quantize_mode,
+		 int nsd)
 {
+    /* These vars are used with quantize feature. */
+    const double bit_per_dgt = M_LN10 / M_LN2; /* 3.32 [frc] Bits per decimal digit of precision  = log2(10) */
+    const double dgt_per_bit= M_LN2 / M_LN10; /* 0.301 [frc] Decimal digits per bit of precision = log10(2) */
+    double mnt; /* [frc] Mantissa, 0.5 <= mnt < 1.0 */
+    double mnt_fabs; /* [frc] fabs(mantissa) */
+    double mnt_log10_fabs; /* [frc] log10(fabs(mantissa))) */
+    double val; /* [frc] Copy of input value to avoid indirection */
+    double mss_val_cmp_dbl; /* Missing value for comparison to double precision values */
+    float mss_val_cmp_flt; /* Missing value for comparison to single precision values */
+    int bit_xpl_nbr_zro; /* [nbr] Number of explicit bits to zero */
+    int dgt_nbr; /* [nbr] Number of digits before decimal point */
+    int qnt_pwr; /* [nbr] Power of two in quantization mask: qnt_msk = 2^qnt_pwr */
+    int xpn_bs2; /* [nbr] Binary exponent xpn_bs2 in val = sign(val) * 2^xpn_bs2 * mnt, 0.5 < mnt <= 1.0 */
+    size_t idx;
+    unsigned int *u32_ptr;
+    unsigned int msk_f32_u32_zro;
+    unsigned int msk_f32_u32_one;
+    unsigned int msk_f32_u32_hshv;
+    unsigned long long int *u64_ptr;
+    unsigned long long int msk_f64_u64_zro;
+    unsigned long long int msk_f64_u64_one;
+    unsigned long long int msk_f64_u64_hshv;
+    unsigned short prc_bnr_xpl_rqr; /* [nbr] Explicitly represented binary digits required to retain */
+    ptr_unn op1; /* I/O [frc] Values to quantize */
+    
     char *cp, *cp1;
     float *fp, *fp1;
     double *dp, *dp1;
@@ -472,6 +567,103 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
     LOG((3, "%s: len %d src_type %d dest_type %d", __func__, len, src_type,
          dest_type));
 
+    /* If quantize is in use, set up some values. Quantize can only be
+     * used when the destination type is NC_FLOAT or NC_DOUBLE. */
+    if (quantize_mode != NC_NOQUANTIZE)
+      {
+        assert(dest_type == NC_FLOAT || dest_type == NC_DOUBLE);
+
+	/* Parameters shared by all quantization codecs */
+        if (dest_type == NC_FLOAT)
+	  {
+            /* Determine the fill value. */
+            if (fill_value)
+	      mss_val_cmp_flt = *(float *)fill_value;
+            else
+	      mss_val_cmp_flt = NC_FILL_FLOAT;
+
+	  }
+        else
+	  {
+	
+            /* Determine the fill value. */
+            if (fill_value)
+	      mss_val_cmp_dbl = *(double *)fill_value;
+            else
+	      mss_val_cmp_dbl = NC_FILL_DOUBLE;
+
+	  }
+
+	/* Set parameters used by BitGroom and BitRound here, outside value loop.
+	   Equivalent parameters used by GranularBR are set inside value loop,
+	   since keep bits and thus masks can change for every value. */
+	if (quantize_mode == NC_QUANTIZE_BITGROOM ||
+	    quantize_mode == NC_QUANTIZE_BITROUND )
+	  {
+
+	    if (quantize_mode == NC_QUANTIZE_BITGROOM){
+
+	      /* BitGroom interprets nsd as number of significant decimal digits
+	       * Must convert that to number of significant bits to preserve
+	       * How many bits to preserve? Being conservative, we round up the
+	       * exact binary digits of precision. Add one because the first bit
+	       * is implicit not explicit but corner cases prevent our taking
+	       * advantage of this. */
+	      prc_bnr_xpl_rqr = (unsigned short)ceil(nsd * bit_per_dgt) + 1;
+
+	    }else if (quantize_mode == NC_QUANTIZE_BITROUND){
+
+	      /* BitRound interprets nsd as number of significant binary digits (bits) */
+	      prc_bnr_xpl_rqr = nsd;
+	      
+	    }
+	    
+	    if (dest_type == NC_FLOAT)
+	      {
+
+		bit_xpl_nbr_zro = BIT_XPL_NBR_SGN_FLT - prc_bnr_xpl_rqr;
+
+		/* Create mask */
+		msk_f32_u32_zro = 0u; /* Zero all bits */
+		msk_f32_u32_zro = ~msk_f32_u32_zro; /* Turn all bits to ones */
+		
+		/* BitShave mask for AND: Left shift zeros into bits to be
+		 * rounded, leave ones in untouched bits. */
+		msk_f32_u32_zro <<= bit_xpl_nbr_zro;
+		
+		/* BitSet mask for OR: Put ones into bits to be set, zeros in
+		 * untouched bits. */
+		msk_f32_u32_one = ~msk_f32_u32_zro;
+
+		/* BitRound mask for ADD: Set one bit: the MSB of LSBs */
+		msk_f32_u32_hshv=msk_f32_u32_one & (msk_f32_u32_zro >> 1);
+
+	      }
+	    else
+	      {
+
+		bit_xpl_nbr_zro = BIT_XPL_NBR_SGN_DBL - prc_bnr_xpl_rqr;
+		/* Create mask. */
+		msk_f64_u64_zro = 0ul; /* Zero all bits. */
+		msk_f64_u64_zro = ~msk_f64_u64_zro; /* Turn all bits to ones. */
+		
+		/* BitShave mask for AND: Left shift zeros into bits to be
+		 * rounded, leave ones in untouched bits. */
+		msk_f64_u64_zro <<= bit_xpl_nbr_zro;
+		
+		/* BitSet mask for OR: Put ones into bits to be set, zeros in
+		 * untouched bits. */
+		msk_f64_u64_one =~ msk_f64_u64_zro;
+
+		/* BitRound mask for ADD: Set one bit: the MSB of LSBs */
+		msk_f64_u64_hshv = msk_f64_u64_one & (msk_f64_u64_zro >> 1);
+
+	      }
+
+	  }
+	  
+      } /* endif quantize */
+	    
     /* OK, this is ugly. If you can think of anything better, I'm open
        to suggestions!
 
@@ -546,8 +738,8 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             }
             break;
         case NC_FLOAT:
-            for (bp = (signed char *)src, fp = dest; count < len; count++)
-                *fp++ = *bp++;
+	    for (bp = (signed char *)src, fp = dest; count < len; count++)
+		*fp++ = *bp++;
             break;
         case NC_DOUBLE:
             for (bp = (signed char *)src, dp = dest; count < len; count++)
@@ -1123,11 +1315,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             break;
         case NC_FLOAT:
             for (fp = (float *)src, fp1 = dest; count < len; count++)
-            {
-                /*                if (*fp > X_FLOAT_MAX || *fp < X_FLOAT_MIN)
-                                  (*range_error)++;*/
                 *fp1++ = *fp++;
-            }
             break;
         case NC_DOUBLE:
             for (fp = (float *)src, dp = dest; count < len; count++)
@@ -1210,18 +1398,14 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
         case NC_FLOAT:
             for (dp = (double *)src, fp = dest; count < len; count++)
             {
-                if (*dp > X_FLOAT_MAX || *dp < X_FLOAT_MIN)
+                if (isgreater(*dp, X_FLOAT_MAX) || isless(*dp, X_FLOAT_MIN))
                     (*range_error)++;
                 *fp++ = *dp++;
             }
             break;
         case NC_DOUBLE:
             for (dp = (double *)src, dp1 = dest; count < len; count++)
-            {
-                /* if (*dp > X_DOUBLE_MAX || *dp < X_DOUBLE_MIN) */
-                /*    (*range_error)++; */
                 *dp1++ = *dp++;
-            }
             break;
         default:
             LOG((0, "%s: unexpected dest type. src_type %d, dest_type %d",
@@ -1235,75 +1419,216 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
              __func__, src_type, dest_type));
         return NC_EBADTYPE;
     }
+
+    /* If quantize is in use, determine masks, copy the data, do the
+     * quantization. */
+    if (quantize_mode == NC_QUANTIZE_BITGROOM)
+    {
+        if (dest_type == NC_FLOAT)
+        {
+            /* BitGroom: alternately shave and set LSBs */
+            op1.fp = (float *)dest;
+            u32_ptr = op1.ui32p;
+            for (idx = 0L; idx < len; idx += 2L)
+                if (op1.fp[idx] != mss_val_cmp_flt)
+                    u32_ptr[idx] &= msk_f32_u32_zro;
+            for (idx = 1L; idx < len; idx += 2L)
+                if (op1.fp[idx] != mss_val_cmp_flt && u32_ptr[idx] != 0U) /* Never quantize upwards floating point values of zero */
+                    u32_ptr[idx] |= msk_f32_u32_one;
+        }
+        else
+        {
+            /* BitGroom: alternately shave and set LSBs. */
+            op1.dp = (double *)dest;
+            u64_ptr = op1.ui64p;
+            for (idx = 0L; idx < len; idx += 2L)
+                if (op1.dp[idx] != mss_val_cmp_dbl)
+                    u64_ptr[idx] &= msk_f64_u64_zro;
+            for (idx = 1L; idx < len; idx += 2L)
+                if (op1.dp[idx] != mss_val_cmp_dbl && u64_ptr[idx] != 0ULL) /* Never quantize upwards floating point values of zero */
+                    u64_ptr[idx] |= msk_f64_u64_one;
+        }
+    } /* endif BitGroom */
+
+    if (quantize_mode == NC_QUANTIZE_BITROUND)
+      {
+        if (dest_type == NC_FLOAT)
+	  {
+            /* BitRound: Quantize to user-specified NSB with IEEE-rounding */
+            op1.fp = (float *)dest;
+            u32_ptr = op1.ui32p;
+            for (idx = 0L; idx < len; idx++){
+	      if (op1.fp[idx] != mss_val_cmp_flt){
+		u32_ptr[idx] += msk_f32_u32_hshv; /* Add 1 to the MSB of LSBs, carry 1 to mantissa or even exponent */
+		u32_ptr[idx] &= msk_f32_u32_zro; /* Shave it */
+	      }
+	    }
+	  }
+        else
+	  {
+            /* BitRound: Quantize to user-specified NSB with IEEE-rounding */
+            op1.dp = (double *)dest;
+            u64_ptr = op1.ui64p;
+            for (idx = 0L; idx < len; idx++){
+	      if (op1.dp[idx] != mss_val_cmp_dbl){
+		u64_ptr[idx] += msk_f64_u64_hshv; /* Add 1 to the MSB of LSBs, carry 1 to mantissa or even exponent */
+		u64_ptr[idx] &= msk_f64_u64_zro; /* Shave it */
+	      }
+	    }
+	  }
+      } /* endif BitRound */
+    
+    if (quantize_mode == NC_QUANTIZE_GRANULARBR)
+    {
+        if (dest_type == NC_FLOAT)
+        {
+            /* Granular BitRound */
+            op1.fp = (float *)dest;
+            u32_ptr = op1.ui32p;
+            for (idx = 0L; idx < len; idx++)
+	      {
+	      
+		if((val = op1.fp[idx]) != mss_val_cmp_flt && u32_ptr[idx] != 0U)
+		  {
+		    mnt = frexp(val, &xpn_bs2); /* DGG19 p. 4102 (8) */
+		    mnt_fabs = fabs(mnt);
+		    mnt_log10_fabs = log10(mnt_fabs);
+		    /* 20211003 Continuous determination of dgt_nbr improves CR by ~10% */
+		    dgt_nbr = (int)floor(xpn_bs2 * dgt_per_bit + mnt_log10_fabs) + 1; /* DGG19 p. 4102 (8.67) */
+		    qnt_pwr = (int)floor(bit_per_dgt * (dgt_nbr - nsd)); /* DGG19 p. 4101 (7) */
+		    prc_bnr_xpl_rqr = mnt_fabs == 0.0 ? 0 : abs((int)floor(xpn_bs2 - bit_per_dgt*mnt_log10_fabs) - qnt_pwr); /* Protect against mnt = -0.0 */
+		    prc_bnr_xpl_rqr--; /* 20211003 Reduce formula result by 1 bit: Passes all tests, improves CR by ~10% */
+
+		    bit_xpl_nbr_zro = BIT_XPL_NBR_SGN_FLT - prc_bnr_xpl_rqr;
+		    msk_f32_u32_zro = 0u; /* Zero all bits */
+		    msk_f32_u32_zro = ~msk_f32_u32_zro; /* Turn all bits to ones */
+		    /* Bit Shave mask for AND: Left shift zeros into bits to be rounded, leave ones in untouched bits */
+		    msk_f32_u32_zro <<= bit_xpl_nbr_zro;
+		    /* Bit Set   mask for OR:  Put ones into bits to be set, zeros in untouched bits */
+		    msk_f32_u32_one = ~msk_f32_u32_zro;
+		    msk_f32_u32_hshv = msk_f32_u32_one & (msk_f32_u32_zro >> 1); /* Set one bit: the MSB of LSBs */
+		    u32_ptr[idx] += msk_f32_u32_hshv; /* Add 1 to the MSB of LSBs, carry 1 to mantissa or even exponent */
+		    u32_ptr[idx] &= msk_f32_u32_zro; /* Shave it */
+
+		  } /* !mss_val_cmp_flt */
+
+	      } 
+        }
+        else
+        {
+            /* Granular BitRound */
+            op1.dp = (double *)dest;
+            u64_ptr = op1.ui64p;
+            for (idx = 0L; idx < len; idx++)
+	      {
+
+		if((val = op1.dp[idx]) != mss_val_cmp_dbl && u64_ptr[idx] != 0ULL)
+		  {
+		    mnt = frexp(val, &xpn_bs2); /* DGG19 p. 4102 (8) */
+		    mnt_fabs = fabs(mnt);
+		    mnt_log10_fabs = log10(mnt_fabs);
+		    /* 20211003 Continuous determination of dgt_nbr improves CR by ~10% */
+		    dgt_nbr = (int)floor(xpn_bs2 * dgt_per_bit + mnt_log10_fabs) + 1; /* DGG19 p. 4102 (8.67) */
+		    qnt_pwr = (int)floor(bit_per_dgt * (dgt_nbr - nsd)); /* DGG19 p. 4101 (7) */
+		    prc_bnr_xpl_rqr = mnt_fabs == 0.0 ? 0 : abs((int)floor(xpn_bs2 - bit_per_dgt*mnt_log10_fabs) - qnt_pwr); /* Protect against mnt = -0.0 */
+		    prc_bnr_xpl_rqr--; /* 20211003 Reduce formula result by 1 bit: Passes all tests, improves CR by ~10% */
+
+		    bit_xpl_nbr_zro = BIT_XPL_NBR_SGN_DBL - prc_bnr_xpl_rqr;
+		    msk_f64_u64_zro = 0ull; /* Zero all bits */
+		    msk_f64_u64_zro = ~msk_f64_u64_zro; /* Turn all bits to ones */
+		    /* Bit Shave mask for AND: Left shift zeros into bits to be rounded, leave ones in untouched bits */
+		    msk_f64_u64_zro <<= bit_xpl_nbr_zro;
+		    /* Bit Set   mask for OR:  Put ones into bits to be set, zeros in untouched bits */
+		    msk_f64_u64_one = ~msk_f64_u64_zro;
+		    msk_f64_u64_hshv = msk_f64_u64_one & (msk_f64_u64_zro >> 1); /* Set one bit: the MSB of LSBs */
+		    u64_ptr[idx] += msk_f64_u64_hshv; /* Add 1 to the MSB of LSBs, carry 1 to mantissa or even exponent */
+		    u64_ptr[idx] &= msk_f64_u64_zro; /* Shave it */
+
+		  } /* !mss_val_cmp_dbl */
+
+	      }
+        }
+    } /* endif GranularBR */
+
     return NC_NOERR;
 }
 
 /**
- * @internal Get the default fill value for an atomic type. Memory for
- * fill_value must already be allocated, or you are DOOMED!
+ * @internal What fill value should be used for a variable?
  *
- * @param type_info Pointer to type info struct.
- * @param fill_value Pointer that gets the default fill value.
+ * @param h5 Pointer to HDF5 file info struct.
+ * @param var Pointer to variable info struct.
+ * @param fillp Pointer that gets pointer to fill value.
  *
  * @returns NC_NOERR No error.
- * @returns NC_EINVAL Can't find atomic type.
+ * @returns NC_ENOMEM Out of memory.
  * @author Ed Hartnett
  */
 int
-nc4_get_default_fill_value(const NC_TYPE_INFO_T *type_info, void *fill_value)
+nc4_get_fill_value(NC_FILE_INFO_T *h5, NC_VAR_INFO_T *var, void **fillp)
 {
-    switch (type_info->hdr.id)
+    size_t size;
+    int retval;
+
+    /* Find out how much space we need for this type's fill value. */
+    if (var->type_info->nc_type_class == NC_VLEN)
+        size = sizeof(nc_vlen_t);
+    else if (var->type_info->nc_type_class == NC_STRING)
+        size = sizeof(char *);
+    else
     {
-    case NC_CHAR:
-        *(char *)fill_value = NC_FILL_CHAR;
-        break;
+        if ((retval = nc4_get_typelen_mem(h5, var->type_info->hdr.id, &size)))
+            return retval;
+    }
+    assert(size);
 
-    case NC_STRING:
-        *(char **)fill_value = strdup(NC_FILL_STRING);
-        break;
+    /* Allocate the space. */
+    if (!((*fillp) = calloc(1, size)))
+        return NC_ENOMEM;
 
-    case NC_BYTE:
-        *(signed char *)fill_value = NC_FILL_BYTE;
-        break;
+    /* If the user has set a fill_value for this var, use, otherwise
+     * find the default fill value. */
+    if (var->fill_value)
+    {
+        LOG((4, "Found a fill value for var %s", var->hdr.name));
+        if (var->type_info->nc_type_class == NC_VLEN)
+        {
+            nc_vlen_t *in_vlen = (nc_vlen_t *)(var->fill_value), *fv_vlen = (nc_vlen_t *)(*fillp);
+            size_t basetypesize = 0;
 
-    case NC_SHORT:
-        *(short *)fill_value = NC_FILL_SHORT;
-        break;
+            if((retval=nc4_get_typelen_mem(h5, var->type_info->u.v.base_nc_typeid, &basetypesize)))
+                return retval;
 
-    case NC_INT:
-        *(int *)fill_value = NC_FILL_INT;
-        break;
-
-    case NC_UBYTE:
-        *(unsigned char *)fill_value = NC_FILL_UBYTE;
-        break;
-
-    case NC_USHORT:
-        *(unsigned short *)fill_value = NC_FILL_USHORT;
-        break;
-
-    case NC_UINT:
-        *(unsigned int *)fill_value = NC_FILL_UINT;
-        break;
-
-    case NC_INT64:
-        *(long long *)fill_value = NC_FILL_INT64;
-        break;
-
-    case NC_UINT64:
-        *(unsigned long long *)fill_value = NC_FILL_UINT64;
-        break;
-
-    case NC_FLOAT:
-        *(float *)fill_value = NC_FILL_FLOAT;
-        break;
-
-    case NC_DOUBLE:
-        *(double *)fill_value = NC_FILL_DOUBLE;
-        break;
-
-    default:
-        return NC_EINVAL;
+            fv_vlen->len = in_vlen->len;
+            if (!(fv_vlen->p = malloc(basetypesize * in_vlen->len)))
+            {
+                free(*fillp);
+                *fillp = NULL;
+                return NC_ENOMEM;
+            }
+            memcpy(fv_vlen->p, in_vlen->p, in_vlen->len * basetypesize);
+        }
+        else if (var->type_info->nc_type_class == NC_STRING)
+        {
+            if (*(char **)var->fill_value)
+                if (!(**(char ***)fillp = strdup(*(char **)var->fill_value)))
+                {
+                    free(*fillp);
+                    *fillp = NULL;
+                    return NC_ENOMEM;
+                }
+        }
+        else
+            memcpy((*fillp), var->fill_value, size);
+    }
+    else
+    {
+        if (nc4_get_default_fill_value(var->type_info, *fillp))
+        {
+            /* Note: release memory, but don't return error on failure */
+            free(*fillp);
+            *fillp = NULL;
+        }
     }
 
     return NC_NOERR;
@@ -1374,3 +1699,272 @@ nc4_get_typelen_mem(NC_FILE_INFO_T *h5, nc_type xtype, size_t *len)
 
     return NC_NOERR;
 }
+
+
+/**
+ * @internal Check a set of chunksizes to see if they specify a chunk
+ * that is too big.
+ *
+ * @param grp Pointer to the group info.
+ * @param var Pointer to the var info.
+ * @param chunksizes Array of chunksizes to check.
+ *
+ * @returns ::NC_NOERR No error.
+ * @returns ::NC_EBADID Bad ncid.
+ * @returns ::NC_ENOTVAR Invalid variable ID.
+ * @returns ::NC_EBADCHUNK Bad chunksize.
+ */
+int
+nc4_check_chunksizes(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, const size_t *chunksizes)
+{
+    double dprod;
+    size_t type_len;
+    int d;
+    int retval;
+
+    if ((retval = nc4_get_typelen_mem(grp->nc4_info, var->type_info->hdr.id, &type_len)))
+        return retval;
+    if (var->type_info->nc_type_class == NC_VLEN)
+        dprod = (double)sizeof(nc_vlen_t);
+    else
+        dprod = (double)type_len;
+    for (d = 0; d < var->ndims; d++)
+        dprod *= (double)chunksizes[d];
+
+    if (dprod > (double) NC_MAX_UINT)
+        return NC_EBADCHUNK;
+
+    return NC_NOERR;
+}
+
+/**
+ * @internal Determine some default chunksizes for a variable.
+ *
+ * @param grp Pointer to the group info.
+ * @param var Pointer to the var info.
+ *
+ * @returns ::NC_NOERR for success
+ * @returns ::NC_EBADID Bad ncid.
+ * @returns ::NC_ENOTVAR Invalid variable ID.
+ * @author Ed Hartnett, Dennis Heimbigner
+ */
+int
+nc4_find_default_chunksizes2(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var)
+{
+    int d;
+    size_t type_size;
+    float num_values = 1, num_unlim = 0;
+    int retval;
+    size_t suggested_size;
+#ifdef LOGGING
+    double total_chunk_size;
+#endif
+
+    if (var->type_info->nc_type_class == NC_STRING)
+        type_size = sizeof(char *);
+    else
+        type_size = var->type_info->size;
+
+#ifdef LOGGING
+    /* Later this will become the total number of bytes in the default
+     * chunk. */
+    total_chunk_size = (double) type_size;
+#endif
+
+    if(var->chunksizes == NULL) {
+        if((var->chunksizes = calloc(1,sizeof(size_t)*var->ndims)) == NULL)
+            return NC_ENOMEM;
+    }
+
+    /* How many values in the variable (or one record, if there are
+     * unlimited dimensions). */
+    for (d = 0; d < var->ndims; d++)
+    {
+        assert(var->dim[d]);
+        if (! var->dim[d]->unlimited)
+            num_values *= (float)var->dim[d]->len;
+        else {
+            num_unlim++;
+            var->chunksizes[d] = 1; /* overwritten below, if all dims are unlimited */
+        }
+    }
+    /* Special case to avoid 1D vars with unlim dim taking huge amount
+       of space (DEFAULT_CHUNK_SIZE bytes). Instead we limit to about
+       4KB */
+    if (var->ndims == 1 && num_unlim == 1) {
+        if (DEFAULT_CHUNK_SIZE / type_size <= 0)
+            suggested_size = 1;
+        else if (DEFAULT_CHUNK_SIZE / type_size > DEFAULT_1D_UNLIM_SIZE)
+            suggested_size = DEFAULT_1D_UNLIM_SIZE;
+        else
+            suggested_size = DEFAULT_CHUNK_SIZE / type_size;
+        var->chunksizes[0] = suggested_size / type_size;
+        LOG((4, "%s: name %s dim %d DEFAULT_CHUNK_SIZE %d num_values %f type_size %d "
+             "chunksize %ld", __func__, var->hdr.name, d, DEFAULT_CHUNK_SIZE, num_values, type_size, var->chunksizes[0]));
+    }
+    if (var->ndims > 1 && var->ndims == num_unlim) { /* all dims unlimited */
+        suggested_size = pow((double)DEFAULT_CHUNK_SIZE/type_size, 1.0/(double)(var->ndims));
+        for (d = 0; d < var->ndims; d++)
+        {
+            var->chunksizes[d] = suggested_size ? suggested_size : 1;
+            LOG((4, "%s: name %s dim %d DEFAULT_CHUNK_SIZE %d num_values %f type_size %d "
+                 "chunksize %ld", __func__, var->hdr.name, d, DEFAULT_CHUNK_SIZE, num_values, type_size, var->chunksizes[d]));
+        }
+    }
+
+    /* Pick a chunk length for each dimension, if one has not already
+     * been picked above. */
+    for (d = 0; d < var->ndims; d++)
+        if (!var->chunksizes[d])
+        {
+            suggested_size = (pow((double)DEFAULT_CHUNK_SIZE/(num_values * type_size),
+                                  1.0/(double)(var->ndims - num_unlim)) * var->dim[d]->len - .5);
+            if (suggested_size > var->dim[d]->len)
+                suggested_size = var->dim[d]->len;
+            var->chunksizes[d] = suggested_size ? suggested_size : 1;
+            LOG((4, "%s: name %s dim %d DEFAULT_CHUNK_SIZE %d num_values %f type_size %d "
+                 "chunksize %ld", __func__, var->hdr.name, d, DEFAULT_CHUNK_SIZE, num_values, type_size, var->chunksizes[d]));
+        }
+
+#ifdef LOGGING
+    /* Find total chunk size. */
+    for (d = 0; d < var->ndims; d++)
+        total_chunk_size *= (double) var->chunksizes[d];
+    LOG((4, "total_chunk_size %f", total_chunk_size));
+#endif
+
+    /* But did this result in a chunk that is too big? */
+    retval = nc4_check_chunksizes(grp, var, var->chunksizes);
+    if (retval)
+    {
+        /* Other error? */
+        if (retval != NC_EBADCHUNK)
+            return retval;
+
+        /* Chunk is too big! Reduce each dimension by half and try again. */
+        for ( ; retval == NC_EBADCHUNK; retval = nc4_check_chunksizes(grp, var, var->chunksizes))
+            for (d = 0; d < var->ndims; d++)
+                var->chunksizes[d] = var->chunksizes[d]/2 ? var->chunksizes[d]/2 : 1;
+    }
+
+    /* Do we have any big data overhangs? They can be dangerous to
+     * babies, the elderly, or confused campers who have had too much
+     * beer. */
+    for (d = 0; d < var->ndims; d++)
+    {
+        size_t num_chunks;
+        size_t overhang;
+        assert(var->chunksizes[d] > 0);
+        num_chunks = (var->dim[d]->len + var->chunksizes[d] - 1) / var->chunksizes[d];
+        if(num_chunks > 0) {
+            overhang = (num_chunks * var->chunksizes[d]) - var->dim[d]->len;
+            var->chunksizes[d] -= overhang / num_chunks;
+        }
+    }
+
+
+    return NC_NOERR;
+}
+
+/**
+ * @internal Get the default fill value for an atomic type. Memory for
+ * fill_value must already be allocated, or you are DOOMED!
+ *
+ * @param xtype type id
+ * @param fill_value Pointer that gets the default fill value.
+ *
+ * @returns NC_NOERR No error.
+ * @returns NC_EINVAL Can't find atomic type.
+ * @author Ed Hartnett
+ */
+int
+nc4_get_default_fill_value(NC_TYPE_INFO_T* tinfo, void *fill_value)
+{
+    if(tinfo->hdr.id > NC_NAT && tinfo->hdr.id <= NC_MAX_ATOMIC_TYPE)
+        return nc4_get_default_atomic_fill_value(tinfo->hdr.id,fill_value);
+#ifdef USE_NETCDF4
+    switch(tinfo->nc_type_class) {
+    case NC_ENUM:
+	return nc4_get_default_atomic_fill_value(tinfo->u.e.base_nc_typeid,fill_value);
+    case NC_OPAQUE:
+    case NC_VLEN:
+    case NC_COMPOUND:
+	if(fill_value)
+	    memset(fill_value,0,tinfo->size);
+	break;	
+    default: return NC_EBADTYPE;
+    }
+#endif
+    return NC_NOERR;
+}
+
+/**
+ * @internal Get the default fill value for an atomic type. Memory for
+ * fill_value must already be allocated, or you are DOOMED!
+ *
+ * @param xtype type id
+ * @param fill_value Pointer that gets the default fill value.
+ *
+ * @returns NC_NOERR No error.
+ * @returns NC_EINVAL Can't find atomic type.
+ * @author Ed Hartnett
+ */
+int
+nc4_get_default_atomic_fill_value(nc_type xtype, void *fill_value)
+{
+    switch (xtype)
+    {
+    case NC_CHAR:
+        *(char *)fill_value = NC_FILL_CHAR;
+        break;
+
+    case NC_STRING:
+        *(char **)fill_value = strdup(NC_FILL_STRING);
+        break;
+
+    case NC_BYTE:
+        *(signed char *)fill_value = NC_FILL_BYTE;
+        break;
+
+    case NC_SHORT:
+        *(short *)fill_value = NC_FILL_SHORT;
+        break;
+
+    case NC_INT:
+        *(int *)fill_value = NC_FILL_INT;
+        break;
+
+    case NC_UBYTE:
+        *(unsigned char *)fill_value = NC_FILL_UBYTE;
+        break;
+
+    case NC_USHORT:
+        *(unsigned short *)fill_value = NC_FILL_USHORT;
+        break;
+
+    case NC_UINT:
+        *(unsigned int *)fill_value = NC_FILL_UINT;
+        break;
+
+    case NC_INT64:
+        *(long long *)fill_value = NC_FILL_INT64;
+        break;
+
+    case NC_UINT64:
+        *(unsigned long long *)fill_value = NC_FILL_UINT64;
+        break;
+
+    case NC_FLOAT:
+        *(float *)fill_value = NC_FILL_FLOAT;
+        break;
+
+    case NC_DOUBLE:
+        *(double *)fill_value = NC_FILL_DOUBLE;
+        break;
+
+    default:
+        return NC_EINVAL;
+    }
+    return NC_NOERR;
+}
+

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    Cube.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This example shows how to manually create vtkPolyData.
 
 // For a python version, please see:
@@ -37,21 +25,11 @@ int main()
 {
   vtkNew<vtkNamedColors> colors;
 
-  std::array<std::array<double, 3>, 8> pts = {{{{0, 0, 0}},
-                                               {{1, 0, 0}},
-                                               {{1, 1, 0}},
-                                               {{0, 1, 0}},
-                                               {{0, 0, 1}},
-                                               {{1, 0, 1}},
-                                               {{1, 1, 1}},
-                                               {{0, 1, 1}}}};
+  std::array<std::array<double, 3>, 8> pts = { { { { 0, 0, 0 } }, { { 1, 0, 0 } }, { { 1, 1, 0 } },
+    { { 0, 1, 0 } }, { { 0, 0, 1 } }, { { 1, 0, 1 } }, { { 1, 1, 1 } }, { { 0, 1, 1 } } } };
   // The ordering of the corner points on each face.
-  std::array<std::array<vtkIdType, 4>, 6> ordering = {{{{0, 1, 2, 3}},
-                                                       {{4, 5, 6, 7}},
-                                                       {{0, 1, 5, 4}},
-                                                       {{1, 2, 6, 5}},
-                                                       {{2, 3, 7, 6}},
-                                                       {{3, 0, 4, 7}}}};
+  std::array<std::array<vtkIdType, 4>, 6> ordering = { { { { 0, 1, 2, 3 } }, { { 4, 5, 6, 7 } },
+    { { 0, 1, 5, 4 } }, { { 1, 2, 6, 5 } }, { { 2, 3, 7, 6 } }, { { 3, 0, 4, 7 } } } };
 
   // We'll create the building blocks of polydata including data attributes.
   vtkNew<vtkPolyData> cube;

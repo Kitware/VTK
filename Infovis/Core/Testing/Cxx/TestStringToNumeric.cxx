@@ -1,31 +1,15 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestStringToNumeric.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkDelimitedTextReader.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
+#include "vtkMath.h"
 #include "vtkStringArray.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTable.h"
 #include "vtkTestUtilities.h"
-#include "vtkMath.h"
 
 #include "vtkNew.h"
 
@@ -34,14 +18,13 @@ namespace
 
 int ArrayTypesTest(int argc, char* argv[])
 {
-  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                    "Data/authors.csv");
+  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/authors.csv");
 
   vtkNew<vtkDelimitedTextReader> reader;
   reader->SetFileName(file);
   reader->SetHaveHeaders(true);
 
-  delete [] file;
+  delete[] file;
 
   vtkNew<vtkStringToNumeric> numeric;
   numeric->SetInputConnection(reader->GetOutputPort());
@@ -164,8 +147,7 @@ int WhitespaceAndEmptyCellsTest()
   }
   else
   {
-    vtkIntArray* column =
-        vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("IntegerColumn"));
+    vtkIntArray* column = vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("IntegerColumn"));
     if (defaultIntValue != column->GetValue(0))
     {
       cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
@@ -174,22 +156,20 @@ int WhitespaceAndEmptyCellsTest()
     }
     if (1 != column->GetValue(1))
     {
-      cerr << "ERROR: Cell with whitespace value is: "
-           << column->GetValue(1) << ". Expected: 1";
+      cerr << "ERROR: Cell with whitespace value is: " << column->GetValue(1) << ". Expected: 1";
       ++errors;
     }
   }
 
   if (!vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("DoubleColumn")))
   {
-    cerr << "ERROR: DoubleColumn array missing or not converted to double"
-         << endl;
+    cerr << "ERROR: DoubleColumn array missing or not converted to double" << endl;
     ++errors;
   }
   else
   {
     vtkDoubleArray* column =
-        vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("DoubleColumn"));
+      vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("DoubleColumn"));
     if (!vtkMath::IsNan(column->GetValue(0)))
     {
       cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
@@ -198,8 +178,7 @@ int WhitespaceAndEmptyCellsTest()
     }
     if (1.1 != column->GetValue(1))
     {
-      cerr << "ERROR: Cell with whitespace value is: "
-           << column->GetValue(1) << ". Expected: 1.1";
+      cerr << "ERROR: Cell with whitespace value is: " << column->GetValue(1) << ". Expected: 1.1";
       ++errors;
     }
   }

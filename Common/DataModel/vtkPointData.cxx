@@ -1,45 +1,23 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPointData.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPointData.h"
 
-#include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointData);
+vtkStandardExtendedNewMacro(vtkPointData);
 
-void vtkPointData::NullPoint (vtkIdType ptId)
+//------------------------------------------------------------------------------
+vtkPointData::vtkPointData()
 {
-  vtkFieldData::Iterator it(this);
-  vtkDataArray* da;
-  for(da=it.Begin(); !it.End(); da=it.Next())
-  {
-    if (da)
-    {
-      int length = da->GetNumberOfComponents();
-      float* tuple = new float[length];
-      for(int j=0; j<length; j++)
-      {
-        tuple[j] = 0;
-      }
-      da->InsertTuple(ptId, tuple);
-      delete[] tuple;
-    }
-  }
+  this->GhostsToSkip = vtkDataSetAttributes::HIDDENPOINT;
 }
 
+//------------------------------------------------------------------------------
 void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

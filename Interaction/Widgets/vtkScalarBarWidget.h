@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkScalarBarWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkScalarBarWidget
  * @brief   2D widget for manipulating a scalar bar
@@ -30,21 +18,23 @@
  *
  * @sa
  * vtkInteractorObserver
-*/
+ */
 
 #ifndef vtkScalarBarWidget_h
 #define vtkScalarBarWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarBarActor;
 class vtkScalarBarRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarWidget : public vtkBorderWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkScalarBarWidget : public vtkBorderWidget
 {
 public:
-  static vtkScalarBarWidget *New();
+  static vtkScalarBarWidget* New();
   vtkTypeMacro(vtkScalarBarWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -53,23 +43,25 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  virtual void SetRepresentation(vtkScalarBarRepresentation *rep);
+  virtual void SetRepresentation(vtkScalarBarRepresentation* rep);
 
   /**
    * Return the representation as a vtkScalarBarRepresentation.
    */
-  vtkScalarBarRepresentation *GetScalarBarRepresentation()
-    { return reinterpret_cast<vtkScalarBarRepresentation *>(this->GetRepresentation()); }
+  vtkScalarBarRepresentation* GetScalarBarRepresentation()
+  {
+    return reinterpret_cast<vtkScalarBarRepresentation*>(this->GetRepresentation());
+  }
 
-  //@{
+  ///@{
   /**
    * Get the ScalarBar used by this Widget. One is created automatically.
    */
-  virtual void SetScalarBarActor(vtkScalarBarActor *actor);
-  virtual vtkScalarBarActor *GetScalarBarActor();
-  //@}
+  virtual void SetScalarBarActor(vtkScalarBarActor* actor);
+  virtual vtkScalarBarActor* GetScalarBarActor();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Can the widget be moved. On by default. If off, the widget cannot be moved
    * around.
@@ -79,12 +71,18 @@ public:
   vtkSetMacro(Repositionable, vtkTypeBool);
   vtkGetMacro(Repositionable, vtkTypeBool);
   vtkBooleanMacro(Repositionable, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Create the default widget representation if one is not set.
    */
   void CreateDefaultRepresentation() override;
+
+  /**
+   * Reimplement ProcessEvents to use vtkAbstractWidget instead of vtkBorderWidget,
+   * for interaction with the scalar bar, even when the scalar bar's position is not AnyLocation.
+   */
+  vtkTypeBool GetProcessEvents() override;
 
 protected:
   vtkScalarBarWidget();
@@ -103,4 +101,5 @@ private:
   void operator=(const vtkScalarBarWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

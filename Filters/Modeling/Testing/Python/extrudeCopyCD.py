@@ -1,29 +1,51 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkMath,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import (
+    vtkAppendPolyData,
+    vtkStripper,
+)
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
+from vtkmodules.vtkFiltersModeling import vtkLinearExtrusionFilter
+from vtkmodules.vtkFiltersSources import vtkArrowSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingFreeType import vtkVectorText
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-disk = vtk.vtkVectorText()
+disk = vtkVectorText()
 disk.SetText("o")
-t = vtk.vtkTransform()
+t = vtkTransform()
 t.Translate(1.1,0,0)
-tf = vtk.vtkTransformFilter()
+tf = vtkTransformFilter()
 tf.SetTransform(t)
 tf.SetInputConnection(disk.GetOutputPort())
-strips = vtk.vtkStripper()
+strips = vtkStripper()
 strips.SetInputConnection(tf.GetOutputPort())
 strips.Update()
-app = vtk.vtkAppendPolyData()
+app = vtkAppendPolyData()
 app.AddInputData(disk.GetOutput())
 app.AddInputData(strips.GetOutput())
 app.Update()
 model = app.GetOutput()
-extrude = vtk.vtkLinearExtrusionFilter()
+extrude = vtkLinearExtrusionFilter()
 extrude.SetInputData(model)
 # create random cell scalars for the model before extrusion.
-rn = vtk.vtkMath()
+rn = vtkMath()
 rn.RandomSeed(1230)
-cellColors = vtk.vtkUnsignedCharArray()
+cellColors = vtkUnsignedCharArray()
 cellColors.SetNumberOfComponents(3)
 cellColors.SetNumberOfTuples(model.GetNumberOfCells())
 i = 0
@@ -35,30 +57,30 @@ while i < model.GetNumberOfCells():
 
 model.GetCellData().SetScalars(cellColors)
 # Lets test the arrow source instead of creating another test.
-arrow1 = vtk.vtkArrowSource()
-mapper1 = vtk.vtkPolyDataMapper()
+arrow1 = vtkArrowSource()
+mapper1 = vtkPolyDataMapper()
 mapper1.SetInputConnection(arrow1.GetOutputPort())
-actor1 = vtk.vtkActor()
+actor1 = vtkActor()
 actor1.SetMapper(mapper1)
 actor1.SetPosition(0,-0.2,1)
-arrow2 = vtk.vtkArrowSource()
+arrow2 = vtkArrowSource()
 arrow2.SetShaftResolution(2)
 arrow2.SetTipResolution(1)
-mapper2 = vtk.vtkPolyDataMapper()
+mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection(arrow2.GetOutputPort())
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
 actor2.SetPosition(1,-0.2,1)
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(extrude.GetOutputPort())
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 # Add the actors to the renderer, set the background and size
 #

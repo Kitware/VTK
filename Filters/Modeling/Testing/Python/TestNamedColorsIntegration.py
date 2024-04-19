@@ -1,36 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersCore import vtkElevationFilter
+from vtkmodules.vtkFiltersModeling import vtkBandedPolyDataContourFilter
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class NamedColorsIntegration(vtk.test.Testing.vtkTest):
+class NamedColorsIntegration(vtkmodules.test.Testing.vtkTest):
 
     def test(self):
         '''
           Create a cone, contour it using the banded contour filter and
               color it with the primary additive and subtractive colors.
         '''
-        namedColors = vtk.vtkNamedColors()
+        namedColors = vtkNamedColors()
         # Test printing of the object
         # Uncomment if desired
         #print namedColors
@@ -53,7 +52,7 @@ class NamedColorsIntegration(vtk.test.Testing.vtkTest):
         #print synonyms
 
         # Create a cone
-        coneSource = vtk.vtkConeSource()
+        coneSource = vtkConeSource()
         coneSource.SetCenter(0.0, 0.0, 0.0)
         coneSource.SetRadius(5.0)
         coneSource.SetHeight(10)
@@ -63,12 +62,12 @@ class NamedColorsIntegration(vtk.test.Testing.vtkTest):
         bounds = [1.0,-1.0,1.0,-1.0,1.0,-1.0]
         coneSource.GetOutput().GetBounds(bounds)
 
-        elevation = vtk.vtkElevationFilter()
+        elevation = vtkElevationFilter()
         elevation.SetInputConnection(coneSource.GetOutputPort());
         elevation.SetLowPoint(0,bounds[2],0);
         elevation.SetHighPoint(0,bounds[3],0);
 
-        bcf = vtk.vtkBandedPolyDataContourFilter()
+        bcf = vtkBandedPolyDataContourFilter()
         bcf.SetInputConnection(elevation.GetOutputPort());
         bcf.SetScalarModeToValue();
         bcf.GenerateContourEdgesOn();
@@ -76,7 +75,7 @@ class NamedColorsIntegration(vtk.test.Testing.vtkTest):
 
         # Build a simple lookup table of
         # primary additive and subtractive colors.
-        lut = vtk.vtkLookupTable()
+        lut = vtkLookupTable()
         lut.SetNumberOfTableValues(7);
         rgba = [0.0,0.0,0.0,1.0]
         # Test setting and getting a color here.
@@ -99,29 +98,29 @@ class NamedColorsIntegration(vtk.test.Testing.vtkTest):
         lut.SetTableRange(elevation.GetScalarRange());
         lut.Build();
 
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputConnection(bcf.GetOutputPort());
         mapper.SetLookupTable(lut);
         mapper.SetScalarModeToUseCellData();
 
-        contourLineMapper = vtk.vtkPolyDataMapper()
+        contourLineMapper = vtkPolyDataMapper()
         contourLineMapper.SetInputData(bcf.GetContourEdgesOutput());
         contourLineMapper.SetScalarRange(elevation.GetScalarRange());
         contourLineMapper.SetResolveCoincidentTopologyToPolygonOffset();
 
-        actor = vtk.vtkActor()
+        actor = vtkActor()
         actor.SetMapper(mapper);
 
-        contourLineActor = vtk.vtkActor()
+        contourLineActor = vtkActor()
         contourLineActor.SetMapper(contourLineMapper);
         rgb = [0.0,0.0,0.0]
         namedColors.GetColorRGB("black",rgb)
         contourLineActor.GetProperty().SetColor(rgb);
 
-        renderer = vtk.vtkRenderer()
-        renderWindow = vtk.vtkRenderWindow()
+        renderer = vtkRenderer()
+        renderWindow = vtkRenderWindow()
         renderWindow.AddRenderer(renderer);
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renderWindow);
 
         renderer.AddActor(actor);
@@ -131,8 +130,8 @@ class NamedColorsIntegration(vtk.test.Testing.vtkTest):
 
         renderWindow.Render();
         img_file = "TestNamedColorsIntegration.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(),vtkmodules.test.Testing.getAbsImagePath(img_file),threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(NamedColorsIntegration, 'test')])
+     vtkmodules.test.Testing.main([(NamedColorsIntegration, 'test')])

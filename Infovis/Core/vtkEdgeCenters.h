@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkEdgeCenters.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkEdgeCenters
  * @brief   generate points at center of edges
@@ -30,7 +18,7 @@
  *
  * @sa
  * vtkGlyph3D vtkLabeledDataMapper
-*/
+ */
 
 #ifndef vtkEdgeCenters_h
 #define vtkEdgeCenters_h
@@ -38,37 +26,40 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkEdgeCenters : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkEdgeCenters,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkEdgeCenters, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with vertex cell generation turned off.
    */
-  static vtkEdgeCenters *New();
+  static vtkEdgeCenters* New();
 
-  //@{
+  ///@{
   /**
    * Enable/disable the generation of vertex cells.
    */
-  vtkSetMacro(VertexCells,vtkTypeBool);
-  vtkGetMacro(VertexCells,vtkTypeBool);
-  vtkBooleanMacro(VertexCells,vtkTypeBool);
-  //@}
+  vtkSetMacro(VertexCells, vtkTypeBool);
+  vtkGetMacro(VertexCells, vtkTypeBool);
+  vtkBooleanMacro(VertexCells, vtkTypeBool);
+  ///@}
 
 protected:
   vtkEdgeCenters();
-  ~vtkEdgeCenters() override {}
+  ~vtkEdgeCenters() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkTypeBool VertexCells;
+
 private:
   vtkEdgeCenters(const vtkEdgeCenters&) = delete;
   void operator=(const vtkEdgeCenters&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

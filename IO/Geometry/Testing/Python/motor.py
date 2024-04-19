@@ -1,6 +1,30 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonDataModel import vtkPlanes
+from vtkmodules.vtkFiltersCore import (
+    vtkPolyDataNormals,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersTexture import vtkImplicitTextureCoords
+from vtkmodules.vtkIOGeometry import vtkBYUReader
+from vtkmodules.vtkIOLegacy import vtkStructuredPointsReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,21 +33,21 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create cutting planes
-planes = vtk.vtkPlanes()
-points = vtk.vtkPoints()
-norms = vtk.vtkFloatArray()
+planes = vtkPlanes()
+points = vtkPoints()
+norms = vtkFloatArray()
 
 norms.SetNumberOfComponents(3)
 points.InsertPoint(0, 0.0, 0.0, 0.0)
@@ -34,114 +58,114 @@ planes.SetPoints(points)
 planes.SetNormals(norms)
 
 # texture
-texReader = vtk.vtkStructuredPointsReader()
+texReader = vtkStructuredPointsReader()
 texReader.SetFileName(VTK_DATA_ROOT + "/Data/texThres2.vtk")
-texture = vtk.vtkTexture()
+texture = vtkTexture()
 texture.SetInputConnection(texReader.GetOutputPort())
 texture.InterpolateOff()
 texture.RepeatOff()
 
 # read motor parts...each part colored separately
 #
-byu = vtk.vtkBYUReader()
+byu = vtkBYUReader()
 byu.SetGeometryFileName(VTK_DATA_ROOT + "/Data/motor.g")
 byu.SetPartNumber(1)
 
-normals = vtk.vtkPolyDataNormals()
+normals = vtkPolyDataNormals()
 normals.SetInputConnection(byu.GetOutputPort())
 
-tex1 = vtk.vtkImplicitTextureCoords()
+tex1 = vtkImplicitTextureCoords()
 tex1.SetInputConnection(normals.GetOutputPort())
 tex1.SetRFunction(planes)
 # tex1.FlipTextureOn()
 
-byuMapper = vtk.vtkDataSetMapper()
+byuMapper = vtkDataSetMapper()
 byuMapper.SetInputConnection(tex1.GetOutputPort())
 
-byuActor = vtk.vtkActor()
+byuActor = vtkActor()
 byuActor.SetMapper(byuMapper)
 byuActor.SetTexture(texture)
 byuActor.GetProperty().SetColor(GetRGBColor('cold_grey'))
 
-byu2 = vtk.vtkBYUReader()
+byu2 = vtkBYUReader()
 byu2.SetGeometryFileName(VTK_DATA_ROOT + "/Data/motor.g")
 byu2.SetPartNumber(2)
 
-normals2 = vtk.vtkPolyDataNormals()
+normals2 = vtkPolyDataNormals()
 normals2.SetInputConnection(byu2.GetOutputPort())
 
-tex2 = vtk.vtkImplicitTextureCoords()
+tex2 = vtkImplicitTextureCoords()
 tex2.SetInputConnection(normals2.GetOutputPort())
 tex2.SetRFunction(planes)
 # tex2.FlipTextureOn()
 
-byuMapper2 = vtk.vtkDataSetMapper()
+byuMapper2 = vtkDataSetMapper()
 byuMapper2.SetInputConnection(tex2.GetOutputPort())
 
-byuActor2 = vtk.vtkActor()
+byuActor2 = vtkActor()
 byuActor2.SetMapper(byuMapper2)
 byuActor2.SetTexture(texture)
 byuActor2.GetProperty().SetColor(GetRGBColor('peacock'))
 
-byu3 = vtk.vtkBYUReader()
+byu3 = vtkBYUReader()
 byu3.SetGeometryFileName(VTK_DATA_ROOT + "/Data/motor.g")
 byu3.SetPartNumber(3)
 
-triangle3 = vtk.vtkTriangleFilter()
+triangle3 = vtkTriangleFilter()
 triangle3.SetInputConnection(byu3.GetOutputPort())
 
-normals3 = vtk.vtkPolyDataNormals()
+normals3 = vtkPolyDataNormals()
 normals3.SetInputConnection(triangle3.GetOutputPort())
 
-tex3 = vtk.vtkImplicitTextureCoords()
+tex3 = vtkImplicitTextureCoords()
 tex3.SetInputConnection(normals3.GetOutputPort())
 tex3.SetRFunction(planes)
 # tex3.FlipTextureOn()
 
-byuMapper3 = vtk.vtkDataSetMapper()
+byuMapper3 = vtkDataSetMapper()
 byuMapper3.SetInputConnection(tex3.GetOutputPort())
 
-byuActor3 = vtk.vtkActor()
+byuActor3 = vtkActor()
 byuActor3.SetMapper(byuMapper3)
 byuActor3.SetTexture(texture)
 byuActor3.GetProperty().SetColor(GetRGBColor('raw_sienna'))
 
-byu4 = vtk.vtkBYUReader()
+byu4 = vtkBYUReader()
 byu4.SetGeometryFileName(VTK_DATA_ROOT + "/Data/motor.g")
 byu4.SetPartNumber(4)
 
-normals4 = vtk.vtkPolyDataNormals()
+normals4 = vtkPolyDataNormals()
 normals4.SetInputConnection(byu4.GetOutputPort())
 
-tex4 = vtk.vtkImplicitTextureCoords()
+tex4 = vtkImplicitTextureCoords()
 tex4.SetInputConnection(normals4.GetOutputPort())
 tex4.SetRFunction(planes)
 # tex4.FlipTextureOn()
 
-byuMapper4 = vtk.vtkDataSetMapper()
+byuMapper4 = vtkDataSetMapper()
 byuMapper4.SetInputConnection(tex4.GetOutputPort())
 
-byuActor4 = vtk.vtkActor()
+byuActor4 = vtkActor()
 byuActor4.SetMapper(byuMapper4)
 byuActor4.SetTexture(texture)
 byuActor4.GetProperty().SetColor(GetRGBColor('banana'))
 
-byu5 = vtk.vtkBYUReader()
+byu5 = vtkBYUReader()
 byu5.SetGeometryFileName(VTK_DATA_ROOT + "/Data/motor.g")
 byu5.SetPartNumber(5)
 
-normals5 = vtk.vtkPolyDataNormals()
+normals5 = vtkPolyDataNormals()
 normals5.SetInputConnection(byu5.GetOutputPort())
 
-tex5 = vtk.vtkImplicitTextureCoords()
+tex5 = vtkImplicitTextureCoords()
 tex5.SetInputConnection(normals5.GetOutputPort())
 tex5.SetRFunction(planes)
 # tex5.FlipTextureOn()
 
-byuMapper5 = vtk.vtkDataSetMapper()
+byuMapper5 = vtkDataSetMapper()
 byuMapper5.SetInputConnection(tex5.GetOutputPort())
 
-byuActor5 = vtk.vtkActor()
+byuActor5 = vtkActor()
 byuActor5.SetMapper(byuMapper5)
 byuActor5.SetTexture(texture)
 byuActor5.GetProperty().SetColor(GetRGBColor('peach_puff'))
@@ -158,7 +182,7 @@ ren1.SetBackground(1, 1, 1)
 
 renWin.SetSize(300, 300)
 
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetFocalPoint(0.0286334, 0.0362996, 0.0379685)
 camera.SetPosition(1.37067, 1.08629, -1.30349)
 camera.SetViewAngle(17.673)

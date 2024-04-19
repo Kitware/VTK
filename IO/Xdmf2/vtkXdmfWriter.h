@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXdmfWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkXdmfWriter
@@ -21,7 +9,7 @@
  * replace vtkXdmfWriter, which is not up to date with the capabilities of the
  * newer XDMF2 library. This writer understands VTK's composite data types and
  * produces full trees in the output XDMF files.
-*/
+ */
 
 #ifndef vtkXdmfWriter_h
 #define vtkXdmfWriter_h
@@ -33,6 +21,17 @@
 #include <string> // Needed for private members
 #include <vector> //
 
+namespace xdmf2
+{
+class XdmfArray;
+class XdmfDOM;
+class XdmfElement;
+class XdmfGrid;
+class XdmfGeometry;
+class XdmfTopology;
+}
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExecutive;
 
 class vtkCompositeDataSet;
@@ -44,21 +43,11 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkXdmfWriterDomainMemoryHandler;
 
-namespace xdmf2
-{
-class XdmfArray;
-class XdmfDOM;
-class XdmfElement;
-class XdmfGrid;
-class XdmfGeometry;
-class XdmfTopology;
-}
-
 class VTKIOXDMF2_EXPORT vtkXdmfWriter : public vtkDataObjectAlgorithm
 {
 public:
-  static vtkXdmfWriter *New();
-  vtkTypeMacro(vtkXdmfWriter,vtkDataObjectAlgorithm);
+  static vtkXdmfWriter* New();
+  vtkTypeMacro(vtkXdmfWriter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -66,31 +55,31 @@ public:
    */
   virtual void SetInputData(vtkDataObject* dobj);
 
-  //@{
+  ///@{
   /**
    * Set or get the file name of the xdmf file.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set or get the file name of the hdf5 file.
    * Note that if the File name is not specified, then the group name is ignore
    */
-  vtkSetStringMacro(HeavyDataFileName);
-  vtkGetStringMacro(HeavyDataFileName);
-  //@}
+  vtkSetFilePathMacro(HeavyDataFileName);
+  vtkGetFilePathMacro(HeavyDataFileName);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set or get the group name into which data will be written
    * it may contain nested groups as in "/Proc0/Block0"
    */
   vtkSetStringMacro(HeavyDataGroupName);
   vtkGetStringMacro(HeavyDataGroupName);
-  //@}
+  ///@}
 
   /**
    * Write data to output. Method executes subclasses WriteData() method, as
@@ -99,7 +88,7 @@ public:
    */
   virtual int Write();
 
-  //@{
+  ///@{
   /**
    * Topology Geometry and Attribute arrays smaller than this are written in line into the XML.
    * Default is 100.
@@ -107,9 +96,9 @@ public:
    */
   vtkSetMacro(LightDataLimit, int);
   vtkGetMacro(LightDataLimit, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls whether writer automatically writes all input time steps, or
    * just the timestep that is currently on the input.
@@ -118,9 +107,9 @@ public:
   vtkSetMacro(WriteAllTimeSteps, int);
   vtkGetMacro(WriteAllTimeSteps, int);
   vtkBooleanMacro(WriteAllTimeSteps, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set of get the flag that specify if input mesh is static over time.
    * If so, the mesh topology and geometry heavy data will be written only once.
@@ -130,66 +119,60 @@ public:
   vtkSetMacro(MeshStaticOverTime, bool);
   vtkGetMacro(MeshStaticOverTime, bool);
   vtkBooleanMacro(MeshStaticOverTime, bool);
-  //@}
+  ///@}
 
-    //@{
-    /**
-     * Called in parallel runs to identify the portion this process is responsible for
-     * TODO: respect this
-     */
+  ///@{
+  /**
+   * Called in parallel runs to identify the portion this process is responsible for
+   * TODO: respect this
+   */
   vtkSetMacro(Piece, int);
   vtkSetMacro(NumberOfPieces, int);
-    //@}
+  ///@}
 
-  //TODO: control choice of heavy data format (xml, hdf5, sql, raw)
+  // TODO: control choice of heavy data format (xml, hdf5, sql, raw)
 
-  //TODO: These controls are available in vtkXdmfWriter, but are not used here.
-  //GridsOnly
-  //Append to Domain
+  // TODO: These controls are available in vtkXdmfWriter, but are not used here.
+  // GridsOnly
+  // Append to Domain
 
 protected:
   vtkXdmfWriter();
   ~vtkXdmfWriter() override;
 
-  //Choose composite executive by default for time.
+  // Choose composite executive by default for time.
   vtkExecutive* CreateDefaultExecutive() override;
 
-  //Can take any one data object
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  // Can take any one data object
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  //Overridden to ...
-  int RequestInformation(vtkInformation*,
-                         vtkInformationVector**,
-                         vtkInformationVector*) override;
-  //Overridden to ...
-  int RequestUpdateExtent(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*) override;
-  //Overridden to ...
-  int RequestData(vtkInformation*,
-                  vtkInformationVector**,
-                  vtkInformationVector*) override;
+  // Overridden to ...
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  // Overridden to ...
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  // Overridden to ...
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //These do the work: recursively parse down input's structure all the way to arrays,
-  //use XDMF lib to dump everything to file.
+  // These do the work: recursively parse down input's structure all the way to arrays,
+  // use XDMF lib to dump everything to file.
 
-  virtual int CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdType PDims[3], vtkIdType CDims[3], vtkIdType &PRank, vtkIdType &CRank, void *staticdata);
-  virtual int CreateGeometry(vtkDataSet *ds, xdmf2::XdmfGrid *grid, void *staticdata);
+  virtual int CreateTopology(vtkDataSet* ds, xdmf2::XdmfGrid* grid, vtkIdType PDims[3],
+    vtkIdType CDims[3], vtkIdType& PRank, vtkIdType& CRank, void* staticdata);
+  virtual int CreateGeometry(vtkDataSet* ds, xdmf2::XdmfGrid* grid, void* staticdata);
 
-  virtual int WriteDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid);
-  virtual int WriteCompositeDataSet(vtkCompositeDataSet *dobj, xdmf2::XdmfGrid *grid);
-  virtual int WriteAtomicDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid);
-  virtual int WriteArrays(vtkFieldData* dsa, xdmf2::XdmfGrid *grid, int association,
-                           vtkIdType rank, vtkIdType *dims, const char *name);
-  virtual void ConvertVToXArray(vtkDataArray *vda, xdmf2::XdmfArray *xda,
-                                vtkIdType rank, vtkIdType *dims,
-                                int AllocStrategy, const char *heavyprefix);
+  virtual int WriteDataSet(vtkDataObject* dobj, xdmf2::XdmfGrid* grid);
+  virtual int WriteCompositeDataSet(vtkCompositeDataSet* dobj, xdmf2::XdmfGrid* grid);
+  virtual int WriteAtomicDataSet(vtkDataObject* dobj, xdmf2::XdmfGrid* grid);
+  virtual int WriteArrays(vtkFieldData* dsa, xdmf2::XdmfGrid* grid, int association, vtkIdType rank,
+    vtkIdType* dims, const char* name);
+  virtual void ConvertVToXArray(vtkDataArray* vda, xdmf2::XdmfArray* xda, vtkIdType rank,
+    vtkIdType* dims, int AllocStrategy, const char* heavyprefix);
 
   virtual void SetupDataArrayXML(xdmf2::XdmfElement*, xdmf2::XdmfArray*) const;
 
-  char *FileName;
-  char *HeavyDataFileName;
-  char *HeavyDataGroupName;
+  char* FileName;
+  char* HeavyDataFileName;
+  char* HeavyDataGroupName;
   std::string WorkingDirectory;
   std::string BaseFileName;
 
@@ -207,10 +190,10 @@ protected:
 
   bool MeshStaticOverTime;
 
-  xdmf2::XdmfDOM *DOM;
-  xdmf2::XdmfGrid *TopTemporalGrid;
+  xdmf2::XdmfDOM* DOM;
+  xdmf2::XdmfGrid* TopTemporalGrid;
 
-  vtkXdmfWriterDomainMemoryHandler *DomainMemoryHandler;
+  vtkXdmfWriterDomainMemoryHandler* DomainMemoryHandler;
 
   std::vector<xdmf2::XdmfTopology*> TopologyAtT0;
   std::vector<xdmf2::XdmfGeometry*> GeometryAtT0;
@@ -220,4 +203,5 @@ private:
   void operator=(const vtkXdmfWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkXdmfWriter_h */

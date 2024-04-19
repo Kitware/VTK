@@ -1,37 +1,54 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkDataObject
+from vtkmodules.vtkCommonMath import vtkRungeKutta4
+from vtkmodules.vtkFiltersCore import vtkStructuredGridOutlineFilter
+from vtkmodules.vtkFiltersFlowPaths import vtkStreamTracer
+from vtkmodules.vtkFiltersGeneral import vtkSplineFilter
+from vtkmodules.vtkFiltersModeling import vtkRibbonFilter
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create pipeline
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
-pl3d.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-pl3d.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+pl3d = vtkMultiBlockPLOT3DReader()
+pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
 output = pl3d.GetOutput().GetBlock(0)
-ps = vtk.vtkPlaneSource()
+ps = vtkPlaneSource()
 ps.SetXResolution(4)
 ps.SetYResolution(4)
 ps.SetOrigin(2,-2,26)
 ps.SetPoint1(2,2,26)
 ps.SetPoint2(2,-2,32)
-psMapper = vtk.vtkPolyDataMapper()
+psMapper = vtkPolyDataMapper()
 psMapper.SetInputConnection(ps.GetOutputPort())
-psActor = vtk.vtkActor()
+psActor = vtkActor()
 psActor.SetMapper(psMapper)
 psActor.GetProperty().SetRepresentationToWireframe()
-rk4 = vtk.vtkRungeKutta4()
-streamer = vtk.vtkStreamTracer()
+rk4 = vtkRungeKutta4()
+streamer = vtkStreamTracer()
 streamer.SetInputData(output)
 streamer.SetSourceData(ps.GetOutput())
 streamer.SetMaximumPropagation(100)
@@ -40,25 +57,25 @@ streamer.SetInitialIntegrationStep(.2)
 streamer.SetIntegrationDirectionToForward()
 streamer.SetComputeVorticity(1)
 streamer.SetIntegrator(rk4)
-sf = vtk.vtkSplineFilter()
+sf = vtkSplineFilter()
 sf.SetInputConnection(streamer.GetOutputPort())
 sf.SetSubdivideToLength()
 sf.SetLength(0.15)
-rf = vtk.vtkRibbonFilter()
+rf = vtkRibbonFilter()
 rf.SetInputConnection(sf.GetOutputPort())
-rf.SetInputArrayToProcess(1, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "Normals")
+rf.SetInputArrayToProcess(1, 0, 0, vtkDataObject.FIELD_ASSOCIATION_POINTS, "Normals")
 rf.SetWidth(0.1)
 rf.SetWidthFactor(5)
-streamMapper = vtk.vtkPolyDataMapper()
+streamMapper = vtkPolyDataMapper()
 streamMapper.SetInputConnection(rf.GetOutputPort())
 streamMapper.SetScalarRange(output.GetScalarRange())
-streamline = vtk.vtkActor()
+streamline = vtkActor()
 streamline.SetMapper(streamMapper)
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 outline.SetInputData(output)
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 # Add the actors to the renderer, set the background and size
 #

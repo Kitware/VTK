@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTextActor3D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTextActor3D
  * @brief   An actor that displays text.
@@ -28,15 +16,16 @@
  *
  * @sa
  * vtkProp3D
-*/
+ */
 
 #ifndef vtkTextActor3D_h
 #define vtkTextActor3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
-#include <string> // for ivar
+#include "vtkRenderingCoreModule.h" // For export macro
+#include <string>                   // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageActor;
 class vtkImageData;
 class vtkTextProperty;
@@ -44,25 +33,25 @@ class vtkTextProperty;
 class VTKRENDERINGCORE_EXPORT vtkTextActor3D : public vtkProp3D
 {
 public:
-  static vtkTextActor3D *New();
-  vtkTypeMacro(vtkTextActor3D,vtkProp3D);
+  static vtkTextActor3D* New();
+  vtkTypeMacro(vtkTextActor3D, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the text string to be displayed.
    */
   vtkSetStringMacro(Input);
   vtkGetStringMacro(Input);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property.
    */
-  virtual void SetTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(TextProperty,vtkTextProperty);
-  //@}
+  virtual void SetTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(TextProperty, vtkTextProperty);
+  ///@}
 
   /**
    * Since a 3D text actor is not pixel-aligned and positioned in 3D space,
@@ -76,13 +65,13 @@ public:
    * Shallow copy of this text actor. Overloads the virtual
    * vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
   /**
    * Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  double *GetBounds() VTK_SIZEHINT(6) override;
-  void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );}
+  double* GetBounds() VTK_SIZEHINT(6) override;
+  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds(bounds); }
 
   /**
    * Get the vtkTextRenderer-derived bounding box for the given vtkTextProperty
@@ -98,7 +87,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
    * Force the actor to render during the opaque or translucent pass.
@@ -114,7 +103,7 @@ public:
   virtual void ForceTranslucentOff();
   /**@}*/
 
-  //@{
+  ///@{
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
@@ -123,7 +112,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   int RenderOverlay(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
@@ -131,16 +120,16 @@ public:
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
 protected:
-   vtkTextActor3D();
+  vtkTextActor3D();
   ~vtkTextActor3D() override;
 
-  char            *Input;
+  char* Input;
 
-  vtkImageActor   *ImageActor;
-  vtkImageData    *ImageData;
-  vtkTextProperty *TextProperty;
+  vtkImageActor* ImageActor;
+  vtkImageData* ImageData;
+  vtkTextProperty* TextProperty;
 
-  vtkTimeStamp    BuildTime;
+  vtkTimeStamp BuildTime;
   std::string LastInputString;
 
   virtual int UpdateImageActor();
@@ -150,5 +139,5 @@ private:
   void operator=(const vtkTextActor3D&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif

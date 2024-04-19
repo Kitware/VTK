@@ -1,27 +1,16 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAvatar.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAvatar.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkAvatar)
+VTK_ABI_NAMESPACE_BEGIN
+vtkObjectFactoryNewMacro(vtkAvatar);
 
 //------------------------------------------------------------------------------
-void vtkAvatar::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkAvatar::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
@@ -53,7 +42,8 @@ vtkAvatar::vtkAvatar()
   this->LeftHandOrientation[1] = 0.0;
   this->LeftHandOrientation[2] = 0.0;
 
-  for (int i = 0; i < NUM_BODY; ++i) {
+  for (int i = 0; i < NUM_BODY; ++i)
+  {
     this->BodyPosition[i][0] = 0.0;
     this->BodyPosition[i][1] = 0.0;
     this->BodyPosition[i][2] = 0.0;
@@ -69,8 +59,8 @@ vtkAvatar::vtkAvatar()
   UseLeftHand = true;
   UseRightHand = true;
   ShowHandsOnly = false;
-
 }
 
 //------------------------------------------------------------------------------
 vtkAvatar::~vtkAvatar() = default;
+VTK_ABI_NAMESPACE_END

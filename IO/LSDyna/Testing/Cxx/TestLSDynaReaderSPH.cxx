@@ -1,40 +1,28 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPLYReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test of vtkLSDynaReader
 // .SECTION Description
 // Tests the vtkLSDynaReader.
 
-#include "vtkLSDynaReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkLSDynaReader.h"
 
 #include "vtkActor.h"
 #include "vtkCompositeDataGeometryFilter.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-#include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
+#include "vtkWindowToImageFilter.h"
 
 #include "vtkNew.h"
 
-int TestLSDynaReaderSPH( int argc, char *argv[] )
+int TestLSDynaReaderSPH(int argc, char* argv[])
 {
   // Read file name.
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/LSDyna/foam/foam.d3plot");
@@ -43,7 +31,7 @@ int TestLSDynaReaderSPH( int argc, char *argv[] )
   vtkNew<vtkLSDynaReader> reader;
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkCompositeDataGeometryFilter> geom1;
   geom1->SetInputConnection(0, reader->GetOutputPort(0));
@@ -66,15 +54,15 @@ int TestLSDynaReaderSPH( int argc, char *argv[] )
   iren->SetRenderWindow(renWin);
 
   ren->AddActor(actor);
-  ren->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
+  ren->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

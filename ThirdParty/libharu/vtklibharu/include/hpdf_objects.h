@@ -46,6 +46,7 @@ extern "C" {
 #define  HPDF_OCLASS_ARRAY            0x0010
 #define  HPDF_OCLASS_DICT             0x0011
 #define  HPDF_OCLASS_PROXY            0x0012
+#define  HPDF_OCLASS_DIRECT           0x00A0
 #define  HPDF_OCLASS_ANY              0x00FF
 
 #define  HPDF_OSUBCLASS_FONT          0x0100
@@ -599,6 +600,41 @@ typedef HPDF_Dict  HPDF_U3D;
 typedef HPDF_Dict  HPDF_OutputIntent;
 typedef HPDF_Dict  HPDF_JavaScript;
 typedef HPDF_Dict  HPDF_Shading;
+
+/*---------------------------------------------------------------------------*/
+/*----- HPDF_Direct ---------------------------------------------------------*/
+
+typedef struct _HPDF_Direct_Rec  *HPDF_Direct;
+
+typedef struct _HPDF_Direct_Rec {
+    HPDF_Obj_Header  header;
+    HPDF_MMgr        mmgr;
+    HPDF_Error       error;
+    HPDF_BYTE        *value;
+    HPDF_UINT        len;
+} HPDF_Direct_Rec;
+
+
+
+HPDF_Direct
+HPDF_Direct_New  (HPDF_MMgr  mmgr,
+                  HPDF_BYTE  *value,
+                  HPDF_UINT  len);
+
+
+HPDF_STATUS
+HPDF_Direct_SetValue  (HPDF_Direct  obj,
+                       HPDF_BYTE    *value,
+                       HPDF_UINT    len);
+
+void
+HPDF_Direct_Free  (HPDF_Direct  obj);
+
+
+HPDF_STATUS
+HPDF_Direct_Write  (HPDF_Direct  obj,
+                    HPDF_Stream  stream);
+
 
 #ifdef __cplusplus
 }

@@ -1,12 +1,6 @@
-/*=========================================================================
-  Copyright 2004 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-  license for use of this work by or on behalf of the
-  U.S. Government. Redistribution and use in source and binary forms, with
-  or without modification, are permitted provided that this Notice and any
-  statement of authorship are reproduced on all copies.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2004 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /*========================================================================
  For general information about using VTK and Qt, see:
@@ -23,32 +17,32 @@
  !!! license.
 =========================================================================*/
 
-#include <QtWidgets/QApplication>
 #include <QtGui/QSurfaceFormat>
+#include <QtWidgets/QApplication>
 
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkImageViewer.h"
+#include "vtkPNGReader.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkPNGReader.h"
 #include "vtkTestUtilities.h"
 
-#include "QVTKOpenGLWidget.h"
+#include "QVTKRenderWidget.h"
 
 int main(int argc, char** argv)
 {
   // set surface format before application initialization
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKRenderWidget::defaultFormat());
   QApplication app(argc, argv);
-  QVTKOpenGLWidget widget;
-  widget.resize(256,256);
+  QVTKRenderWidget widget;
+  widget.resize(256, 256);
   vtkNew<vtkGenericOpenGLRenderWindow> renWin;
   widget.setRenderWindow(renWin);
 
   vtkNew<vtkPNGReader> reader;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk.png");
   reader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkImageViewer> image_view;
   // use our render window with image_view

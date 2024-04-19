@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPlotFunctionalBag.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkPlotFunctionalBag.h"
 
@@ -31,10 +19,11 @@
 #include "vtkScalarsToColors.h"
 #include "vtkTable.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlotFunctionalBag);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotFunctionalBag::vtkPlotFunctionalBag()
 {
   this->LookupTable = nullptr;
@@ -43,7 +32,7 @@ vtkPlotFunctionalBag::vtkPlotFunctionalBag()
   this->LogY = false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotFunctionalBag::~vtkPlotFunctionalBag()
 {
   if (this->LookupTable)
@@ -52,56 +41,36 @@ vtkPlotFunctionalBag::~vtkPlotFunctionalBag()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::IsBag()
 {
   this->Update();
   return (this->BagPoints->GetNumberOfPoints() > 0);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::GetVisible()
 {
   return this->Superclass::GetVisible() || this->GetSelection() != nullptr;
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotFunctionalBag::Update()
+bool vtkPlotFunctionalBag::CacheRequiresUpdate()
 {
-  if (!this->GetVisible())
-  {
-    return;
-  }
-  // Check if we have an input
-  vtkTable *table = this->Data->GetInput();
-
-  if (!table)
-  {
-    vtkDebugMacro(<< "Update event called with no input table set.");
-    return;
-  }
-  else if(this->Data->GetMTime() > this->BuildTime ||
-          table->GetMTime() > this->BuildTime ||
-          (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime) ||
-          this->MTime > this->BuildTime)
-  {
-    vtkDebugMacro(<< "Updating cached values.");
-    this->UpdateTableCache(table);
-  }
-  else if ((this->XAxis->GetMTime() > this->BuildTime) ||
-           (this->YAxis->GetMTime() > this->BuildTime))
-  {
-    if ((this->LogX != this->XAxis->GetLogScale()) ||
-        (this->LogY != this->YAxis->GetLogScale()))
-    {
-      this->UpdateTableCache(table);
-    }
-  }
+  return this->Superclass::CacheRequiresUpdate() ||
+    (this->XAxis && this->LogX != this->XAxis->GetLogScaleActive()) ||
+    (this->YAxis && this->LogY != this->YAxis->GetLogScaleActive()) ||
+    (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime);
 }
 
-//-----------------------------------------------------------------------------
-bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable *table)
+//------------------------------------------------------------------------------
+bool vtkPlotFunctionalBag::UpdateCache()
 {
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+
+  vtkTable* table = this->Data->GetInput();
   if (!this->LookupTable)
   {
     this->CreateDefaultLookupTable();
@@ -111,7 +80,7 @@ bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable *table)
 
   this->BagPoints->Reset();
 
-  vtkDataArray *array[2] = { nullptr, nullptr };
+  vtkDataArray* array[2] = { nullptr, nullptr };
   if (!this->GetDataArrays(table, array))
   {
     this->BuildTime.Modified();
@@ -121,8 +90,7 @@ bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable *table)
   if (array[1]->GetNumberOfComponents() == 1)
   {
     // The input array has one component, manage it as a line
-    this->Line->SetInputData(table,
-      array[0] ? array[0]->GetName() : "", array[1]->GetName());
+    this->Line->SetInputData(table, array[0] ? array[0]->GetName() : "", array[1]->GetName());
     this->Line->SetUseIndexForXSeries(this->UseIndexForXSeries);
     this->Line->SetMarkerStyle(vtkPlotPoints::NONE);
     this->Line->SetPen(this->Pen);
@@ -148,8 +116,8 @@ bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable *table)
         double y[2];
         darr->GetTuple(i, y);
 
-        double x = (!this->UseIndexForXSeries && array[0]) ?
-          array[0]->GetVariantValue(i).ToDouble() : static_cast<double>(i);
+        double x = (!this->UseIndexForXSeries && array[0]) ? array[0]->GetVariantValue(i).ToDouble()
+                                                           : static_cast<double>(i);
         if (this->LogX)
         {
           x = xAbs ? log10(fabs(x)) : log10(x);
@@ -173,8 +141,8 @@ bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable *table)
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkPlotFunctionalBag::GetDataArrays(vtkTable *table, vtkDataArray *array[2])
+//------------------------------------------------------------------------------
+bool vtkPlotFunctionalBag::GetDataArrays(vtkTable* table, vtkDataArray* array[2])
 {
   if (!table)
   {
@@ -182,8 +150,7 @@ bool vtkPlotFunctionalBag::GetDataArrays(vtkTable *table, vtkDataArray *array[2]
   }
 
   // Get the x and y arrays (index 0 and 1 respectively)
-  array[0] = this->UseIndexForXSeries ?
-        nullptr : this->Data->GetInputArrayToProcess(0, table);
+  array[0] = this->UseIndexForXSeries ? nullptr : this->Data->GetInputArrayToProcess(0, table);
   array[1] = this->Data->GetInputArrayToProcess(1, table);
 
   if (!array[0] && !this->UseIndexForXSeries)
@@ -197,18 +164,17 @@ bool vtkPlotFunctionalBag::GetDataArrays(vtkTable *table, vtkDataArray *array[2]
     return false;
   }
   else if (!this->UseIndexForXSeries &&
-           array[0]->GetNumberOfTuples() != array[1]->GetNumberOfTuples())
+    array[0]->GetNumberOfTuples() != array[1]->GetNumberOfTuples())
   {
     vtkErrorMacro("The x and y columns must have the same number of elements. "
-                  << array[0]->GetNumberOfTuples() << ", "
-                  << array[1]->GetNumberOfTuples());
+      << array[0]->GetNumberOfTuples() << ", " << array[1]->GetNumberOfTuples());
     return false;
   }
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkPlotFunctionalBag::Paint(vtkContext2D *painter)
+//------------------------------------------------------------------------------
+bool vtkPlotFunctionalBag::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotFunctionalBag.");
@@ -241,9 +207,8 @@ bool vtkPlotFunctionalBag::Paint(vtkContext2D *painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkPlotFunctionalBag::PaintLegend(vtkContext2D *painter,
-                                       const vtkRectf& rect, int index)
+//------------------------------------------------------------------------------
+bool vtkPlotFunctionalBag::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int index)
 {
   if (this->BagPoints->GetNumberOfPoints() > 0)
   {
@@ -261,29 +226,10 @@ bool vtkPlotFunctionalBag::PaintLegend(vtkContext2D *painter,
   return true;
 }
 
-//-----------------------------------------------------------------------------
-vtkIdType vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point,
-                                                const vtkVector2f& tol,
-                                                vtkVector2f* location,
-                                                vtkIdType* segmentId)
+//------------------------------------------------------------------------------
+vtkIdType vtkPlotFunctionalBag::GetNearestPoint(
+  const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location, vtkIdType* segmentId)
 {
-#ifndef VTK_LEGACY_REMOVE
-  if (!this->LegacyRecursionFlag)
-  {
-    this->LegacyRecursionFlag = true;
-    vtkIdType ret = this->GetNearestPoint(point, tol, location);
-    this->LegacyRecursionFlag = false;
-    if (ret != -1)
-    {
-      VTK_LEGACY_REPLACED_BODY(
-        vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location),
-        "VTK 8.3",
-        vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location, vtkIdType* segmentId));
-      return ret;
-    }
-  }
-#endif // VTK_LEGACY_REMOVE
-
   if (this->BagPoints->GetNumberOfPoints() == 0)
   {
     return this->Line->GetNearestPoint(point, tol, location, segmentId);
@@ -291,7 +237,7 @@ vtkIdType vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point,
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
 {
   if (!this->IsBag())
@@ -301,8 +247,8 @@ bool vtkPlotFunctionalBag::SelectPoints(const vtkVector2f& min, const vtkVector2
   return false;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkPlotFunctionalBag::SelectPointsInPolygon(const vtkContextPolygon &polygon)
+//------------------------------------------------------------------------------
+bool vtkPlotFunctionalBag::SelectPointsInPolygon(const vtkContextPolygon& polygon)
 {
   if (!this->IsBag())
   {
@@ -311,7 +257,7 @@ bool vtkPlotFunctionalBag::SelectPointsInPolygon(const vtkContextPolygon &polygo
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotFunctionalBag::GetBounds(double bounds[4])
 {
   if (this->BagPoints->GetNumberOfPoints() > 0)
@@ -333,11 +279,11 @@ void vtkPlotFunctionalBag::GetBounds(double bounds[4])
     this->Line->GetBounds(bounds);
   }
 
-  vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
-                << bounds[2] << "\t" << bounds[3]);
+  vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t" << bounds[2] << "\t"
+                << bounds[3]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotFunctionalBag::GetUnscaledInputBounds(double bounds[4])
 {
   if (this->BagPoints->GetNumberOfPoints() > 0)
@@ -349,22 +295,22 @@ void vtkPlotFunctionalBag::GetUnscaledInputBounds(double bounds[4])
     this->Line->GetUnscaledInputBounds(bounds);
   }
 
-  vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
-                << bounds[2] << "\t" << bounds[3]);
+  vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t" << bounds[2] << "\t"
+                << bounds[3]);
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotFunctionalBag::PrintSelf(ostream &os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkPlotFunctionalBag::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotFunctionalBag::SetLookupTable(vtkScalarsToColors *lut)
+//------------------------------------------------------------------------------
+void vtkPlotFunctionalBag::SetLookupTable(vtkScalarsToColors* lut)
 {
-  if ( this->LookupTable != lut )
+  if (this->LookupTable != lut)
   {
-    if ( this->LookupTable)
+    if (this->LookupTable)
     {
       this->LookupTable->UnRegister(this);
     }
@@ -377,20 +323,20 @@ void vtkPlotFunctionalBag::SetLookupTable(vtkScalarsToColors *lut)
   }
 }
 
-//-----------------------------------------------------------------------------
-vtkScalarsToColors *vtkPlotFunctionalBag::GetLookupTable()
+//------------------------------------------------------------------------------
+vtkScalarsToColors* vtkPlotFunctionalBag::GetLookupTable()
 {
-  if ( this->LookupTable == nullptr )
+  if (this->LookupTable == nullptr)
   {
     this->CreateDefaultLookupTable();
   }
   return this->LookupTable;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotFunctionalBag::CreateDefaultLookupTable()
 {
-  if ( this->LookupTable)
+  if (this->LookupTable)
   {
     this->LookupTable->UnRegister(this);
   }
@@ -399,3 +345,4 @@ void vtkPlotFunctionalBag::CreateDefaultLookupTable()
   this->LookupTable->Register(this);
   this->LookupTable->Delete();
 }
+VTK_ABI_NAMESPACE_END

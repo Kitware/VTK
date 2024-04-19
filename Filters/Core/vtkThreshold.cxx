@@ -1,378 +1,423 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+// Hide VTK_DEPRECATED_IN_9_3_0() warnings.
+#define VTK_DEPRECATION_LEVEL 0
 
-  Program:   Visualization Toolkit
-  Module:    vtkThreshold.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
 #include "vtkThreshold.h"
 
-#include "vtkCell.h"
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
+#include "vtkEventForwarderCommand.h"
+#include "vtkExtractCells.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkMath.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
+#include <limits>
 
-vtkStandardNewMacro(vtkThreshold);
+VTK_ABI_NAMESPACE_BEGIN
+//------------------------------------------------------------------------------
+vtkObjectFactoryNewMacro(vtkThreshold);
 
+//------------------------------------------------------------------------------
 // Construct with lower threshold=0, upper threshold=1, and threshold
 // function=upper AllScalars=1.
 vtkThreshold::vtkThreshold()
 {
-  this->LowerThreshold         = 0.0;
-  this->UpperThreshold         = 1.0;
-  this->AllScalars             = 1;
-  this->AttributeMode          = -1;
-  this->ThresholdFunction      = &vtkThreshold::Upper;
-  this->ComponentMode          = VTK_COMPONENT_MODE_USE_SELECTED;
-  this->SelectedComponent      = 0;
-  this->OutputPointsPrecision = DEFAULT_PRECISION;
+  this->LowerThreshold = -std::numeric_limits<double>::infinity();
+  this->UpperThreshold = std::numeric_limits<double>::infinity();
 
   // by default process active point scalars
-  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
-                               vtkDataSetAttributes::SCALARS);
-
-  this->UseContinuousCellRange = 0;
-  this->Invert = false;
-
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
 vtkThreshold::~vtkThreshold() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkThreshold::Lower(double s) const
 {
-  return ( s <= this->LowerThreshold ? 1 : 0 );
+  return (s <= this->LowerThreshold ? 1 : 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkThreshold::Upper(double s) const
 {
-  return ( s >= this->UpperThreshold ? 1 : 0 );
+  return (s >= this->UpperThreshold ? 1 : 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkThreshold::Between(double s) const
 {
-  return ( s >= this->LowerThreshold ? (s <= this->UpperThreshold ? 1 : 0) : 0 );
-};
-
-// Criterion is cells whose scalars are less or equal to lower threshold.
-void vtkThreshold::ThresholdByLower(double lower)
-{
-  if ( this->LowerThreshold != lower ||
-       this->ThresholdFunction != &vtkThreshold::Lower)
-  {
-    this->LowerThreshold = lower;
-    this->ThresholdFunction = &vtkThreshold::Lower;
-    this->Modified();
-  }
+  return (s >= this->LowerThreshold ? (s <= this->UpperThreshold ? 1 : 0) : 0);
 }
 
-// Criterion is cells whose scalars are greater or equal to upper threshold.
-void vtkThreshold::ThresholdByUpper(double upper)
+//------------------------------------------------------------------------------
+void vtkThreshold::SetThresholdFunction(int function)
 {
-  if ( this->UpperThreshold != upper ||
-       this->ThresholdFunction != &vtkThreshold::Upper)
+  if (this->GetThresholdFunction() != function)
   {
-    this->UpperThreshold = upper;
-    this->ThresholdFunction = &vtkThreshold::Upper;
-    this->Modified();
-  }
-}
-
-// Criterion is cells whose scalars are between lower and upper thresholds.
-void vtkThreshold::ThresholdBetween(double lower, double upper)
-{
-  if ( this->LowerThreshold != lower || this->UpperThreshold != upper ||
-       this->ThresholdFunction != &vtkThreshold::Between)
-  {
-    this->LowerThreshold = lower;
-    this->UpperThreshold = upper;
-    this->ThresholdFunction = &vtkThreshold::Between;
-    this->Modified();
-  }
-}
-
-int vtkThreshold::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
-{
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  vtkIdType cellId, newCellId;
-  vtkIdList *cellPts, *pointMap;
-  vtkIdList *newCellPts;
-  vtkCell *cell;
-  vtkPoints *newPoints;
-  vtkIdType i, ptId, newId, numPts;
-  int numCellPts;
-  double x[3];
-  vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
-  vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  int keepCell;
-
-  vtkDebugMacro(<< "Executing threshold filter");
-
-  if (this->AttributeMode != -1)
-  {
-    vtkErrorMacro(<<"You have set the attribute mode on vtkThreshold. This method is deprecated, please use SetInputArrayToProcess instead.");
-    return 1;
-  }
-
-  vtkDataArray *inScalars = this->GetInputArrayToProcess(0,inputVector);
-
-  if (!inScalars)
-  {
-    vtkDebugMacro(<<"No scalar data to threshold");
-    return 1;
-  }
-
-  outPD->CopyGlobalIdsOn();
-  outPD->CopyAllocate(pd);
-  outCD->CopyGlobalIdsOn();
-  outCD->CopyAllocate(cd);
-
-  numPts = input->GetNumberOfPoints();
-  output->Allocate(input->GetNumberOfCells());
-
-  newPoints = vtkPoints::New();
-
-  // set precision for the points in the output
-  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
-  {
-    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
-    if(inputPointSet && inputPointSet->GetPoints())
+    switch (function)
     {
-      newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      case vtkThreshold::THRESHOLD_BETWEEN:
+        this->ThresholdFunction = &vtkThreshold::Between;
+        break;
+      case vtkThreshold::THRESHOLD_LOWER:
+        this->ThresholdFunction = &vtkThreshold::Lower;
+        break;
+      case vtkThreshold::THRESHOLD_UPPER:
+        this->ThresholdFunction = &vtkThreshold::Upper;
+        break;
     }
-    else
+
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkThreshold::GetThresholdFunction()
+{
+  if (this->ThresholdFunction == &vtkThreshold::Between)
+  {
+    return vtkThreshold::THRESHOLD_BETWEEN;
+  }
+  else if (this->ThresholdFunction == &vtkThreshold::Lower)
+  {
+    return vtkThreshold::THRESHOLD_LOWER;
+  }
+  else if (this->ThresholdFunction == &vtkThreshold::Upper)
+  {
+    return vtkThreshold::THRESHOLD_UPPER;
+  }
+
+  // Added to avoid warning. Should never be reached.
+  return -1;
+}
+
+//------------------------------------------------------------------------------
+template <typename TScalarArray>
+struct vtkThreshold::EvaluateCellsFunctor
+{
+  vtkThreshold* Self;
+  vtkDataSet* Input;
+  TScalarArray* ScalarsArray;
+  vtkUnsignedCharArray* GhostArray;
+  bool UsePointScalars;
+  vtkIdType NumberOfCells;
+
+  vtkSMPThreadLocal<vtkSmartPointer<vtkIdList>> TLCellIds;
+
+  vtkNew<vtkUnsignedCharArray> InsidenessArray;
+  vtkIdList* KeptCellsList;
+
+  EvaluateCellsFunctor(vtkThreshold* self, vtkDataSet* input, TScalarArray* scalarsArray,
+    vtkUnsignedCharArray* ghostArray, bool usePointScalars, vtkIdList* keptCellsList)
+    : Self(self)
+    , Input(input)
+    , ScalarsArray(scalarsArray)
+    , GhostArray(ghostArray)
+    , UsePointScalars(usePointScalars)
+    , NumberOfCells(input->GetNumberOfCells())
+    , KeptCellsList(keptCellsList)
+  {
+    this->InsidenessArray->SetNumberOfComponents(1);
+    this->InsidenessArray->SetNumberOfTuples(this->NumberOfCells);
+    if (this->NumberOfCells > 0)
     {
-      newPoints->SetDataType(VTK_FLOAT);
+      // ensure that internal structures are initialized.
+      this->Input->GetCell(0);
     }
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+
+  void Initialize() { this->TLCellIds.Local().TakeReference(vtkIdList::New()); }
+
+  void operator()(vtkIdType begin, vtkIdType end)
   {
-    newPoints->SetDataType(VTK_FLOAT);
-  }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-  {
-    newPoints->SetDataType(VTK_DOUBLE);
-  }
+    const bool isFirst = vtkSMPTools::GetSingleThread();
 
-  newPoints->Allocate(numPts);
+    auto scalars = vtk::DataArrayTupleRange(this->ScalarsArray);
+    auto insideness = vtk::DataArrayValueRange<1>(this->InsidenessArray);
 
-  pointMap = vtkIdList::New(); //maps old point ids into new
-  pointMap->SetNumberOfIds(numPts);
-  for (i=0; i < numPts; i++)
-  {
-    pointMap->SetId(i,-1);
-  }
+    auto cellIds = this->TLCellIds.Local();
+    vtkIdType numCellPts;
+    const vtkIdType* cellPts;
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
 
-  newCellPts = vtkIdList::New();
-
-  // are we using pointScalars?
-  int fieldAssociation = this->GetInputArrayAssociation(0, inputVector);
-  bool usePointScalars = fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS;
-
-  // Check that the scalars of each cell satisfy the threshold criterion
-  for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
-  {
-    cell = input->GetCell(cellId);
-    cellPts = cell->GetPointIds();
-    numCellPts = cell->GetNumberOfPoints();
-
-    if ( usePointScalars )
+    for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
-      if (this->AllScalars)
+      if (cellId % checkAbortInterval == 0)
       {
-        keepCell = 1;
-        for ( i=0; keepCell && (i < numCellPts); i++)
+        if (isFirst)
         {
-          ptId = cellPts->GetId(i);
-          keepCell = this->EvaluateComponents( inScalars, ptId );
+          this->Self->CheckAbort();
+        }
+        if (this->Self->GetAbortOutput())
+        {
+          break;
         }
       }
-      else
+
+      if (this->GhostArray && this->GhostArray->GetValue(cellId) & vtkDataSetAttributes::HIDDENCELL)
       {
-        if(!this->UseContinuousCellRange)
+        insideness[cellId] = 0;
+        continue;
+      }
+      int cellType = this->Input->GetCellType(cellId);
+      if (cellType == VTK_EMPTY_CELL)
+      {
+        insideness[cellId] = 0;
+        continue;
+      }
+      this->Input->GetCellPoints(cellId, numCellPts, cellPts, cellIds);
+
+      int keepCell = 0;
+      if (this->UsePointScalars)
+      {
+        if (this->Self->GetAllScalars())
         {
-          keepCell = 0;
-          for ( i=0; (!keepCell) && (i < numCellPts); i++)
+          keepCell = 1;
+          for (int i = 0; keepCell && (i < numCellPts); i++)
           {
-            ptId = cellPts->GetId(i);
-            keepCell = this->EvaluateComponents( inScalars, ptId );
+            keepCell = this->Self->EvaluateComponents(scalars, cellPts[i]);
           }
         }
         else
         {
-          keepCell = this->EvaluateCell(inScalars, cellPts, numCellPts);
+          if (!this->Self->GetUseContinuousCellRange())
+          {
+            keepCell = 0;
+            for (int i = 0; (!keepCell) && (i < numCellPts); i++)
+            {
+              keepCell = this->Self->EvaluateComponents(scalars, cellPts[i]);
+            }
+          }
+          else
+          {
+            keepCell = this->Self->EvaluateCell(scalars, cellPts, numCellPts);
+          }
         }
       }
-    }
-    else //use cell scalars
-    {
-      keepCell = this->EvaluateComponents( inScalars, cellId );
-    }
-
-    // Invert the keep flag if the Invert option is enabled.
-    keepCell = this->Invert ? (1 - keepCell) : keepCell;
-
-    if (  numCellPts > 0 && keepCell)
-    {
-      // satisfied thresholding (also non-empty cell, i.e. not VTK_EMPTY_CELL)
-      for (i=0; i < numCellPts; i++)
+      else // use cell scalars
       {
-        ptId = cellPts->GetId(i);
-        if ( (newId = pointMap->GetId(ptId)) < 0 )
-        {
-          input->GetPoint(ptId, x);
-          newId = newPoints->InsertNextPoint(x);
-          pointMap->SetId(ptId,newId);
-          outPD->CopyData(pd,ptId,newId);
-        }
-        newCellPts->InsertId(i,newId);
+        keepCell = this->Self->EvaluateComponents(scalars, cellId);
       }
-      // special handling for polyhedron cells
-      if (vtkUnstructuredGrid::SafeDownCast(input) &&
-          input->GetCellType(cellId) == VTK_POLYHEDRON)
+      // Invert the keep flag if the Invert option is enabled.
+      keepCell = this->Self->GetInvert() ? (1 - keepCell) : keepCell;
+      insideness[cellId] = numCellPts > 0 && keepCell ? 1 : 0;
+    }
+    if (isFirst)
+    {
+      this->Self->UpdateProgress(end * 1.0 / this->NumberOfCells);
+    }
+  }
+
+  void Reduce()
+  {
+    this->KeptCellsList->Allocate(this->NumberOfCells);
+    for (vtkIdType cellId = 0; cellId < this->NumberOfCells; ++cellId)
+    {
+      if (this->InsidenessArray->GetValue(cellId))
       {
-        newCellPts->Reset();
-        vtkUnstructuredGrid::SafeDownCast(input)->
-          GetFaceStream(cellId, newCellPts);
-        vtkUnstructuredGrid::ConvertFaceStreamPointIds(
-          newCellPts, pointMap->GetPointer(0));
+        this->KeptCellsList->InsertNextId(cellId);
       }
-      newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
-      outCD->CopyData(cd,cellId,newCellId);
-      newCellPts->Reset();
-    } // satisfied thresholding
-  } // for all cells
+    }
+  }
+};
 
-  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells()
-                << " number of cells.");
+//------------------------------------------------------------------------------
+struct vtkThreshold::EvaluateCellsWorker
+{
+  template <typename TScalarArray>
+  void operator()(TScalarArray* scalarsArray, vtkThreshold* self, vtkDataSet* input,
+    vtkUnsignedCharArray* ghostArray, bool usePointScalars, vtkIdList* keptCellsList)
+  {
+    EvaluateCellsFunctor<TScalarArray> functor(
+      self, input, scalarsArray, ghostArray, usePointScalars, keptCellsList);
+    vtkSMPTools::For(0, input->GetNumberOfCells(), functor);
+  }
+};
 
-  // now clean up / update ourselves
-  pointMap->Delete();
-  newCellPts->Delete();
+//------------------------------------------------------------------------------
+int vtkThreshold::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0]->GetInformationObject(0));
 
-  output->SetPoints(newPoints);
-  newPoints->Delete();
+  vtkDebugMacro(<< "Executing threshold filter");
 
-  output->Squeeze();
+  vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
 
-  return 1;
+  if (!inScalars)
+  {
+    vtkDebugMacro(<< "No scalar data to threshold");
+    return 1;
+  }
+  vtkUnsignedCharArray* ghostsArray = input->GetCellData()->GetGhostArray();
+
+  // are we using pointScalars?
+  int fieldAssociation = this->GetInputArrayAssociation(0, inputVector);
+  this->NumberOfComponents = inScalars->GetNumberOfComponents();
+  bool usePointScalars = fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS;
+
+  auto keptCellsList = vtkSmartPointer<vtkIdList>::New(); // maps old point ids into new
+
+  // The result is computed in two steps: EvaluateCellsWorker to select cells &
+  // vtkExtractCells to extract them.  The fraction of the total time required
+  // for these operations varies based on type of dataset (image vs
+  // unstructured) and size of extracted region. To keep things simple we just
+  // devote 50% to each step even if one of they two completes faster.
+  this->SetProgressShiftScale(0, 0.5);
+  EvaluateCellsWorker worker;
+  if (!vtkArrayDispatch::Dispatch::Execute(
+        inScalars, worker, this, input, ghostsArray, usePointScalars, keptCellsList))
+  {
+    worker(inScalars, this, input, ghostsArray, usePointScalars, keptCellsList);
+  }
+  if (this->CheckAbort())
+  {
+    return 1;
+  }
+  // call vtkExtractCells
+  vtkNew<vtkExtractCells> extractCells;
+  extractCells->SetContainerAlgorithm(this);
+  extractCells->SetInputData(input);
+  extractCells->SetExtractAllCells(input->GetNumberOfCells() == keptCellsList->GetNumberOfIds());
+  if (!extractCells->GetExtractAllCells())
+  {
+    extractCells->SetCellList(keptCellsList);
+  }
+  extractCells->SetCellList(keptCellsList);
+  extractCells->AssumeSortedAndUniqueIdsOn();
+  extractCells->PassThroughCellIdsOff();
+  extractCells->SetOutputPointsPrecision(this->OutputPointsPrecision);
+
+  vtkNew<vtkEventForwarderCommand> progressForwarder;
+  progressForwarder->SetTarget(this);
+  extractCells->AddObserver(vtkCommand::ProgressEvent, progressForwarder);
+  extractCells->SetProgressShiftScale(0.5, 0.5);
+  this->SetProgressShiftScale(0.5, 0.5);
+
+  return extractCells->ProcessRequest(request, inputVector, outputVector);
 }
 
-int vtkThreshold::EvaluateCell( vtkDataArray *scalars,vtkIdList* cellPts, int numCellPts )
+//------------------------------------------------------------------------------
+template <typename TScalarsArray>
+int vtkThreshold::EvaluateCell(
+  TScalarsArray& scalars, const vtkIdType* cellPts, vtkIdType numCellPts)
 {
   int c(0);
-  int numComp = scalars->GetNumberOfComponents();
   int keepCell(0);
   switch (this->ComponentMode)
   {
     case VTK_COMPONENT_MODE_USE_SELECTED:
-      c  =   (this->SelectedComponent < numComp)?(this->SelectedComponent):(0);
-      keepCell = EvaluateCell(scalars,c,cellPts,numCellPts);
+      c = this->SelectedComponent < this->NumberOfComponents ? this->SelectedComponent : 0;
+      keepCell = EvaluateCell(scalars, c, cellPts, numCellPts);
       break;
     case VTK_COMPONENT_MODE_USE_ANY:
       keepCell = 0;
-      for ( c = 0; (!keepCell) && (c < numComp); c++ )
+      for (c = 0; (!keepCell) && (c < this->NumberOfComponents); c++)
       {
-        keepCell =EvaluateCell(scalars,c,cellPts,numCellPts);
+        keepCell = EvaluateCell(scalars, c, cellPts, numCellPts);
       }
       break;
     case VTK_COMPONENT_MODE_USE_ALL:
       keepCell = 1;
-      for ( c = 0; keepCell && (c < numComp); c++ )
+      for (c = 0; keepCell && (c < this->NumberOfComponents); c++)
       {
-        keepCell =EvaluateCell(scalars,c,cellPts,numCellPts);
+        keepCell = EvaluateCell(scalars, c, cellPts, numCellPts);
       }
       break;
   }
   return keepCell;
 }
 
-int vtkThreshold::EvaluateCell( vtkDataArray *scalars, int c, vtkIdList* cellPts, int numCellPts )
+//------------------------------------------------------------------------------
+template <typename TScalarsArray>
+int vtkThreshold::EvaluateCell(
+  TScalarsArray& scalars, int c, const vtkIdType* cellPts, vtkIdType numCellPts)
 {
-  double minScalar=DBL_MAX, maxScalar=DBL_MIN;
-  for (int i=0; i < numCellPts; i++)
+  double minScalar = DBL_MAX, maxScalar = DBL_MIN;
+  for (int i = 0; i < numCellPts; i++)
   {
-    vtkIdType ptId = cellPts->GetId(i);
-    double s = scalars->GetComponent(ptId,c);
-    minScalar = std::min(s,minScalar);
-    maxScalar = std::max(s,maxScalar);
+    double s = scalars[cellPts[i]][c];
+    minScalar = std::min(s, minScalar);
+    maxScalar = std::max(s, maxScalar);
   }
 
-  int keepCell =  !(this->LowerThreshold > maxScalar || this->UpperThreshold < minScalar);
+  int keepCell = !(this->LowerThreshold > maxScalar || this->UpperThreshold < minScalar);
   return keepCell;
 }
 
-int vtkThreshold::EvaluateComponents( vtkDataArray *scalars, vtkIdType id )
+//------------------------------------------------------------------------------
+template <typename TScalarsArray>
+int vtkThreshold::EvaluateComponents(TScalarsArray& scalars, vtkIdType id)
 {
   int keepCell = 0;
-  int numComp = scalars->GetNumberOfComponents();
   int c;
-
-  switch ( this->ComponentMode )
+  switch (this->ComponentMode)
   {
     case VTK_COMPONENT_MODE_USE_SELECTED:
-      c = (this->SelectedComponent < numComp)?(this->SelectedComponent):(0);
-      keepCell =
-        (this->*(this->ThresholdFunction))(scalars->GetComponent(id,c));
-      break;
+    {
+      double value = 0.0;
+      if (!this->ComputeMagnitude(value, scalars, id))
+      {
+        c = this->SelectedComponent < this->NumberOfComponents ? this->SelectedComponent : 0;
+        value = static_cast<double>(scalars[id][c]);
+      }
+      keepCell = (this->*(this->ThresholdFunction))(value);
+    }
+    break;
     case VTK_COMPONENT_MODE_USE_ANY:
       keepCell = 0;
-      for ( c = 0; (!keepCell) && (c < numComp); c++ )
+      for (c = 0; (!keepCell) && (c < this->NumberOfComponents); c++)
       {
-        keepCell =
-          (this->*(this->ThresholdFunction))(scalars->GetComponent(id,c));
+        keepCell = (this->*(this->ThresholdFunction))(static_cast<double>(scalars[id][c]));
       }
       break;
     case VTK_COMPONENT_MODE_USE_ALL:
       keepCell = 1;
-      for ( c = 0; keepCell && (c < numComp); c++ )
+      for (c = 0; keepCell && (c < this->NumberOfComponents); c++)
       {
-        keepCell =
-          (this->*(this->ThresholdFunction))(scalars->GetComponent(id,c));
+        keepCell = (this->*(this->ThresholdFunction))(static_cast<double>(scalars[id][c]));
       }
       break;
   }
   return keepCell;
 }
 
-
-// Return the method for manipulating scalar data as a string.
-const char *vtkThreshold::GetAttributeModeAsString()
+//------------------------------------------------------------------------------
+void vtkThreshold::SetAttributeModeToDefault()
 {
-  if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
+  this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);
+}
+
+//------------------------------------------------------------------------------
+void vtkThreshold::SetAttributeModeToUsePointData()
+{
+  this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);
+}
+
+//------------------------------------------------------------------------------
+void vtkThreshold::SetAttributeModeToUseCellData()
+{
+  this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);
+}
+
+//------------------------------------------------------------------------------
+// Return the method for manipulating scalar data as a string.
+const char* vtkThreshold::GetAttributeModeAsString()
+{
+  if (this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT)
   {
     return "Default";
   }
-  else if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA )
+  else if (this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA)
   {
     return "UsePointData";
   }
@@ -382,14 +427,15 @@ const char *vtkThreshold::GetAttributeModeAsString()
   }
 }
 
+//------------------------------------------------------------------------------
 // Return a string representation of the component mode
-const char *vtkThreshold::GetComponentModeAsString()
+const char* vtkThreshold::GetComponentModeAsString()
 {
-  if ( this->ComponentMode == VTK_COMPONENT_MODE_USE_SELECTED )
+  if (this->ComponentMode == VTK_COMPONENT_MODE_USE_SELECTED)
   {
     return "UseSelected";
   }
-  else if ( this->ComponentMode == VTK_COMPONENT_MODE_USE_ANY )
+  else if (this->ComponentMode == VTK_COMPONENT_MODE_USE_ANY)
   {
     return "UseAny";
   }
@@ -399,25 +445,39 @@ const char *vtkThreshold::GetComponentModeAsString()
   }
 }
 
+//------------------------------------------------------------------------------
+void vtkThreshold::SetPointsDataTypeToDouble()
+{
+  this->SetPointsDataType(VTK_DOUBLE);
+}
+
+//------------------------------------------------------------------------------
+void vtkThreshold::SetPointsDataTypeToFloat()
+{
+  this->SetPointsDataType(VTK_FLOAT);
+}
+
+//------------------------------------------------------------------------------
 void vtkThreshold::SetPointsDataType(int type)
 {
-  if(type == VTK_FLOAT)
+  if (type == VTK_FLOAT)
   {
     this->SetOutputPointsPrecision(SINGLE_PRECISION);
   }
-  else if(type == VTK_DOUBLE)
+  else if (type == VTK_DOUBLE)
   {
     this->SetOutputPointsPrecision(DOUBLE_PRECISION);
   }
 }
 
+//------------------------------------------------------------------------------
 int vtkThreshold::GetPointsDataType()
 {
-  if(this->OutputPointsPrecision == SINGLE_PRECISION)
+  if (this->OutputPointsPrecision == SINGLE_PRECISION)
   {
     return VTK_FLOAT;
   }
-  else if(this->OutputPointsPrecision == DOUBLE_PRECISION)
+  else if (this->OutputPointsPrecision == DOUBLE_PRECISION)
   {
     return VTK_DOUBLE;
   }
@@ -425,53 +485,62 @@ int vtkThreshold::GetPointsDataType()
   return 0;
 }
 
-void vtkThreshold::SetOutputPointsPrecision(int precision)
-{
-  if (this->OutputPointsPrecision != precision)
-  {
-    this->OutputPointsPrecision = precision;
-    this->Modified();
-  }
-}
-
-int vtkThreshold::GetOutputPointsPrecision() const
-{
-  return this->OutputPointsPrecision;
-}
-
-int vtkThreshold::FillInputPortInformation(int, vtkInformation *info)
+//------------------------------------------------------------------------------
+int vtkThreshold::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//------------------------------------------------------------------------------
+template <typename TScalarsArray>
+bool vtkThreshold::ComputeMagnitude(double& magnitude, const TScalarsArray& scalars, vtkIdType id)
+{
+  if (this->SelectedComponent != this->NumberOfComponents || this->NumberOfComponents <= 1)
+  {
+    // If NumberOfComponents == 1, magnitude equals component value
+    // so don't do extra computation
+    return false;
+  }
+
+  double squaredNorm = 0.0;
+  for (int i = 0; i < this->NumberOfComponents; ++i)
+  {
+    const double value = static_cast<double>(scalars[id][i]);
+    squaredNorm += value * value;
+  }
+
+  magnitude = std::sqrt(squaredNorm);
+  return true;
+}
+
+//------------------------------------------------------------------------------
 void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
   os << indent << "Component Mode: " << this->GetComponentModeAsString() << endl;
   os << indent << "Selected Component: " << this->SelectedComponent << endl;
 
   os << indent << "All Scalars: " << this->AllScalars << "\n";
-  if ( this->ThresholdFunction == &vtkThreshold::Upper )
+  if (this->ThresholdFunction == &vtkThreshold::Upper)
   {
     os << indent << "Threshold By Upper\n";
   }
 
-  else if ( this->ThresholdFunction == &vtkThreshold::Lower )
+  else if (this->ThresholdFunction == &vtkThreshold::Lower)
   {
     os << indent << "Threshold By Lower\n";
   }
 
-  else if ( this->ThresholdFunction == &vtkThreshold::Between )
+  else if (this->ThresholdFunction == &vtkThreshold::Between)
   {
     os << indent << "Threshold Between\n";
   }
 
   os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";
-  os << indent << "Precision of the output points: "
-     << this->OutputPointsPrecision << "\n";
-  os << indent << "Use Continuous Cell Range: "<<this->UseContinuousCellRange<<endl;
+  os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
+  os << indent << "Use Continuous Cell Range: " << this->UseContinuousCellRange << endl;
 }
+VTK_ABI_NAMESPACE_END

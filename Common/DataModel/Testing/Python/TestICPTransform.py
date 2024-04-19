@@ -1,35 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkIterativeClosestPointTransform
+from vtkmodules.vtkFiltersCore import vtkFeatureEdges
+from vtkmodules.vtkFiltersSources import vtkSuperquadricSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestICPTransform(vtk.test.Testing.vtkTest):
+class TestICPTransform(vtkmodules.test.Testing.vtkTest):
 
     def testICPTransform(self):
 
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
 
-        #iren = vtk.vtkRenderWindowInteractor()
+        #iren = vtkRenderWindowInteractor()
         #iren.SetRenderWindow(renWin)
 
         # Create objects
@@ -44,7 +41,7 @@ class TestICPTransform(vtk.test.Testing.vtkTest):
         s = dict() # The super quadric sources
 
         for sidx in range(1, 4):
-            s.update({sidx:vtk.vtkSuperquadricSource()})
+            s.update({sidx:vtkSuperquadricSource()})
             s[sidx].ToroidalOff()
             s[sidx].SetThetaResolution(20)
             s[sidx].SetPhiResolution(20)
@@ -68,7 +65,7 @@ class TestICPTransform(vtk.test.Testing.vtkTest):
         # Create the renderers
 
         for ridx in range(1, 4):
-            ren.update({ridx: vtk.vtkRenderer()})
+            ren.update({ridx: vtkRenderer()})
             ren[ridx].SetViewport((ridx - 1) / 3.0, 0.0, ridx / 3.0, 1.0)
             ren[ridx].SetBackground(0.7, 0.8, 1.0)
             cam = ren[ridx].GetActiveCamera()
@@ -83,10 +80,10 @@ class TestICPTransform(vtk.test.Testing.vtkTest):
             for sidx in range(1, 4):
 
                 if ridx == 1 or sidx == 1 or ridx == sidx:
-                    sm.update({ridx:{sidx:vtk.vtkPolyDataMapper()}})
+                    sm.update({ridx:{sidx:vtkPolyDataMapper()}})
                     sm[ridx][sidx].SetInputConnection(s[sidx].GetOutputPort())
 
-                    sa.update({ridx:{sidx:vtk.vtkActor()}})
+                    sa.update({ridx:{sidx:vtkActor()}})
                     sa[ridx][sidx].SetMapper(sm[ridx][sidx])
 
                     prop = sa[ridx][sidx].GetProperty()
@@ -96,18 +93,18 @@ class TestICPTransform(vtk.test.Testing.vtkTest):
                     if sidx == 1:
                         prop.SetOpacity(0.2)
 
-                        fe.update({ridx:{sidx:vtk.vtkFeatureEdges()}})
+                        fe.update({ridx:{sidx:vtkFeatureEdges()}})
                         src = s[sidx]
                         fe[ridx][sidx].SetInputConnection(src.GetOutputPort())
                         fe[ridx][sidx].BoundaryEdgesOn()
                         fe[ridx][sidx].ColoringOff()
                         fe[ridx][sidx].ManifoldEdgesOff()
 
-                        fem.update({ridx:{sidx:vtk.vtkPolyDataMapper()}})
+                        fem.update({ridx:{sidx:vtkPolyDataMapper()}})
                         fem[ridx][sidx].SetInputConnection(fe[ridx][sidx].GetOutputPort())
                         fem[ridx][sidx].SetResolveCoincidentTopologyToPolygonOffset()
 
-                        fea.update({ridx:{sidx:vtk.vtkActor()}})
+                        fea.update({ridx:{sidx:vtkActor()}})
                         fea[ridx][sidx].SetMapper(fem[ridx][sidx])
 
                         ren[ridx].AddActor(fea[ridx][sidx])
@@ -117,7 +114,7 @@ class TestICPTransform(vtk.test.Testing.vtkTest):
 
 
                 if ridx > 1 and ridx == sidx:
-                    icp.update({ridx:{sidx:vtk.vtkIterativeClosestPointTransform()}})
+                    icp.update({ridx:{sidx:vtkIterativeClosestPointTransform()}})
                     icp[ridx][sidx].SetSource(s[sidx].GetOutput())
                     icp[ridx][sidx].SetTarget(s[1].GetOutput())
                     icp[ridx][sidx].SetCheckMeanDistance(1)
@@ -133,13 +130,13 @@ class TestICPTransform(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "TestICPTransform.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestICPTransform, 'test')])
+     vtkmodules.test.Testing.main([(TestICPTransform, 'test')])

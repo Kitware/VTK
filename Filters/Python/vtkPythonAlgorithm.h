@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPythonAlgorithm.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPythonAlgorithm
  * @brief   algorithm that can be implemented in Python
@@ -24,7 +12,8 @@
  * - FillOutputPortInformation()
  *
  * Python signature of these methods is as follows:
- * - ProcessRequest(self, vtkself, request, inInfo, outInfo) : vtkself is the vtk object, inInfo is a tuple of information objects
+ * - ProcessRequest(self, vtkself, request, inInfo, outInfo) : vtkself is the vtk object, inInfo is
+ * a tuple of information objects
  * - FillInputPortInformation(self, vtkself, port, info)
  * - FillOutputPortInformation(self, vtkself, port, info)
  * - Initialize(self, vtkself)
@@ -35,7 +24,7 @@
  *
  * @sa
  * vtkProgrammableFilter
-*/
+ */
 
 #ifndef vtkPythonAlgorithm_h
 #define vtkPythonAlgorithm_h
@@ -43,15 +32,16 @@
 
 #include "vtkPython.h" // Must be first
 
-#include "vtkFiltersPythonModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkFiltersPythonModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSmartPyObject;
 
 class VTKFILTERSPYTHON_EXPORT vtkPythonAlgorithm : public vtkAlgorithm
 {
 public:
-  static vtkPythonAlgorithm *New();
+  static vtkPythonAlgorithm* New();
   vtkTypeMacro(vtkPythonAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -80,9 +70,8 @@ protected:
   vtkPythonAlgorithm();
   ~vtkPythonAlgorithm() override;
 
-  vtkTypeBool ProcessRequest(vtkInformation* request,
-                     vtkInformationVector** inInfo,
-                     vtkInformationVector* outInfo) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
@@ -95,5 +84,6 @@ private:
   PyObject* Object;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 #endif

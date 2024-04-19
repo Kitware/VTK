@@ -3,10 +3,16 @@ NAME
 LIBRARY_NAME
   vtkFiltersParallel
 IMPLEMENTABLE
+IMPLEMENTS
+  VTK::FiltersCore
 KIT
   VTK::Parallel
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
@@ -15,26 +21,33 @@ DEPENDS
   VTK::FiltersExtraction
   VTK::FiltersGeneral
   VTK::FiltersGeometry
+  VTK::FiltersHybrid
+  VTK::FiltersHyperTree
   VTK::FiltersModeling
   VTK::FiltersSources
+  VTK::FiltersTexture
+  VTK::ParallelCore
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::CommonTransforms
   VTK::IOLegacy
-  VTK::ParallelCore
-  VTK::RenderingCore
 TEST_DEPENDS
   VTK::FiltersFlowPaths
   VTK::FiltersParallelImaging
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::IOExodus
+  VTK::IOImage
   VTK::IOLegacy
   VTK::IOParallelExodus
   VTK::IOXML
-  VTK::InteractionStyle
+  VTK::ParallelCore
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingCore
   VTK::TestingRendering
 TEST_OPTIONAL_DEPENDS
+  VTK::AcceleratorsVTKmFilters
   VTK::FiltersParallelGeometry
   VTK::FiltersParallelMPI
   VTK::ParallelMPI

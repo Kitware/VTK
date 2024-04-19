@@ -1,0 +1,11 @@
+vtk_module_test_data(
+  Data/post_5016_spray.h5
+  Data/converge3.1-format.h5
+  Data/CONVERGETimeSeries/post000001_+0.00000e+00.h5
+  Data/CONVERGETimeSeries/post000002_+2.01809e-04.h5
+  Data/CONVERGETimeSeries/post000003_+4.01809e-04.h5
+  Data/CONVERGETimeSeries/post000004_+6.01809e-04.h5
+  Data/CONVERGETimeSeries/post000005_+8.01809e-04.h5
+  Data/CONVERGETimeSeries/post000006_+1.00181e-03.h5
+)
+add_subdirectory(Cxx)

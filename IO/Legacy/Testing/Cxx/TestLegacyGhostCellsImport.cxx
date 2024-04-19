@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestLegacyGhostCellsImport.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Test converting from a vtkGhostLevels to vtkGhostType
 // see http://www.kitware.com/blog/home/post/856
@@ -26,16 +14,16 @@
 #include "vtkPoints.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTesting.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-int TestLegacyGhostCellsImport(int argc, char *argv[])
+int TestLegacyGhostCellsImport(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testing;
   testing->AddArguments(argc, argv);
@@ -69,9 +57,9 @@ int TestLegacyGhostCellsImport(int argc, char *argv[])
 
   renwin->Render();
 
-  int retVal = vtkRegressionTestImage( renwin );
+  int retVal = vtkRegressionTestImage(renwin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

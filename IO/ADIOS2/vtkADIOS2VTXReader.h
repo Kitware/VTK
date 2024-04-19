@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    vtkADIOS2VTXReader.h
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * vtkADIOS2VTXReader.h  public facing class
@@ -34,8 +22,12 @@
 // forward declaring to keep it private
 namespace vtx
 {
+VTK_ABI_NAMESPACE_BEGIN
 class VTXSchemaManager;
+VTK_ABI_NAMESPACE_END
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkIndent;
 class vtkInformation;
@@ -44,30 +36,31 @@ class vtkInformationvector;
 class VTKIOADIOS2_EXPORT vtkADIOS2VTXReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-    static vtkADIOS2VTXReader *New();
-    vtkTypeMacro(vtkADIOS2VTXReader, vtkMultiBlockDataSetAlgorithm);
-    void PrintSelf(ostream &os, vtkIndent index) override;
+  static vtkADIOS2VTXReader* New();
+  vtkTypeMacro(vtkADIOS2VTXReader, vtkMultiBlockDataSetAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-    vtkSetStringMacro(FileName);
-    vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
 
 protected:
-    vtkADIOS2VTXReader();
-    ~vtkADIOS2VTXReader() = default;
+  vtkADIOS2VTXReader();
+  ~vtkADIOS2VTXReader() override;
 
-    vtkADIOS2VTXReader(const vtkADIOS2VTXReader &) = delete;
-    void operator=(const vtkADIOS2VTXReader &) = delete;
+  vtkADIOS2VTXReader(const vtkADIOS2VTXReader&) = delete;
+  void operator=(const vtkADIOS2VTXReader&) = delete;
 
-    int RequestInformation(vtkInformation *, vtkInformationVector **,
-                           vtkInformationVector *outputVector);
-    int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                            vtkInformationVector *outputVector);
-    int RequestData(vtkInformation *, vtkInformationVector **,
-                    vtkInformationVector *outputVector);
+  int RequestInformation(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override;
+  int RequestUpdateExtent(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override;
+  int RequestData(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override;
 
 private:
-    char *FileName;
-    std::unique_ptr<vtx::VTXSchemaManager> SchemaManager;
+  char* FileName;
+  std::unique_ptr<vtx::VTXSchemaManager> SchemaManager;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkADIOS2VTXReader_h */

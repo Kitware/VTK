@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #import "MyDocument.h"
 
 #import "MyWindowController.h"
@@ -14,16 +16,13 @@
 }
 
 // ----------------------------------------------------------------------------
-- (nullable NSData*)dataOfType:(NSString*)typeName
-                         error:(NSError**)outError
+- (nullable NSData*)dataOfType:(NSString*)typeName error:(NSError**)outError
 {
   return nil;
 }
 
 // ----------------------------------------------------------------------------
-- (BOOL)readFromData:(NSData*)data
-              ofType:(NSString*)typeName
-               error:(NSError**)outError
+- (BOOL)readFromData:(NSData*)data ofType:(NSString*)typeName error:(NSError**)outError
 {
   return YES;
 }

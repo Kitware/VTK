@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    ParallelConnectivity.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkConnectivityFilter.h"
 
@@ -19,9 +7,9 @@
 #include "vtkContourFilter.h"
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkDistributedDataFilter.h"
+#include "vtkGhostCellsGenerator.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMPIController.h"
-#include "vtkPUnstructuredGridGhostCellsGenerator.h"
 #include "vtkPConnectivityFilter.h"
 #include "vtkRemoveGhosts.h"
 #include "vtkStructuredPoints.h"
@@ -29,9 +17,10 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
-int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecision precision, vtkMPIController* contr)
+int RunParallelConnectivity(
+  const char* fname, vtkAlgorithm::DesiredOutputPrecision precision, vtkMPIController* contr)
 {
   int returnValue = EXIT_SUCCESS;
   int me = contr->GetLocalProcessId();
@@ -67,10 +56,10 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
   vtkNew<vtkDataSetTriangleFilter> tetrahedralize;
   tetrahedralize->SetInputConnection(contour->GetOutputPort());
 
-  vtkNew<vtkPUnstructuredGridGhostCellsGenerator> ghostCells;
+  vtkNew<vtkGhostCellsGenerator> ghostCells;
   ghostCells->SetController(contr);
   ghostCells->SetBuildIfRequired(false);
-  ghostCells->SetMinimumNumberOfGhostLevels(1);
+  ghostCells->SetNumberOfGhostLayers(1);
   ghostCells->SetInputConnection(tetrahedralize->GetOutputPort());
 
   // Test factory override mechanism instantiated as a vtkPConnectivityFilter.
@@ -95,8 +84,8 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
   int expectedNumberOfRegions = 19;
   if (numberOfRegions != expectedNumberOfRegions)
   {
-    std::cerr << "Expected " << expectedNumberOfRegions << " regions but got "
-      << numberOfRegions << std::endl;
+    std::cerr << "Expected " << expectedNumberOfRegions << " regions but got " << numberOfRegions
+              << std::endl;
     returnValue = EXIT_FAILURE;
   }
 
@@ -113,7 +102,8 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
   std::vector<vtkIdType> regionCounts(connectivity->GetNumberOfExtractedRegions(), 0);
 
   // Count up cells with RegionIds
-  auto regionIdArray = vtkIdTypeArray::SafeDownCast(ghostOutput->GetCellData()->GetArray("RegionId"));
+  auto regionIdArray =
+    vtkIdTypeArray::SafeDownCast(ghostOutput->GetCellData()->GetArray("RegionId"));
   for (vtkIdType cellId = 0; cellId < numberOfCells; ++cellId)
   {
     vtkIdType regionId = regionIdArray->GetValue(cellId);
@@ -129,9 +119,9 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
     bool printCounts = false;
     for (vtkIdType i = 1; i < numberOfRegions; ++i)
     {
-      if (globalRegionCounts[i] > globalRegionCounts[i-1])
+      if (globalRegionCounts[i] > globalRegionCounts[i - 1])
       {
-        std::cerr << "Region " << i << " is larger than region " << i-1 << std::endl;
+        std::cerr << "Region " << i << " is larger than region " << i - 1 << std::endl;
         printCounts = true;
         returnValue = EXIT_FAILURE;
         break;
@@ -167,9 +157,9 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
     bool printCounts = false;
     for (vtkIdType i = 1; i < numberOfRegions; ++i)
     {
-      if (globalRegionCounts[i] < globalRegionCounts[i-1])
+      if (globalRegionCounts[i] < globalRegionCounts[i - 1])
       {
-        std::cerr << "Region " << i << " is smaller than " << i-1 << std::endl;
+        std::cerr << "Region " << i << " is smaller than " << i - 1 << std::endl;
         printCounts = true;
         returnValue = EXIT_FAILURE;
         break;
@@ -188,8 +178,7 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
   // is set to largest region.
   connectivity->SetExtractionModeToLargestRegion();
   removeGhosts->Update();
-  numberOfCells =
-    vtkPointSet::SafeDownCast(removeGhosts->GetOutput())->GetNumberOfCells();
+  numberOfCells = vtkPointSet::SafeDownCast(removeGhosts->GetOutput())->GetNumberOfCells();
   globalNumberOfCells = 0;
   contr->AllReduce(&numberOfCells, &globalNumberOfCells, 1, vtkCommunicator::SUM_OP);
 
@@ -197,21 +186,20 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
   if (globalNumberOfCells != expectedNumberOfCells)
   {
     std::cerr << "Expected " << expectedNumberOfCells << " cells in largest "
-      << "region bug got " << globalNumberOfCells << std::endl;
+              << "region bug got " << globalNumberOfCells << std::endl;
     returnValue = EXIT_FAILURE;
   }
 
   // Closest point region test
   connectivity->SetExtractionModeToClosestPointRegion();
   removeGhosts->Update();
-  numberOfCells =
-    vtkPointSet::SafeDownCast(removeGhosts->GetOutput())->GetNumberOfCells();
+  numberOfCells = vtkPointSet::SafeDownCast(removeGhosts->GetOutput())->GetNumberOfCells();
   contr->AllReduce(&numberOfCells, &globalNumberOfCells, 1, vtkCommunicator::SUM_OP);
   expectedNumberOfCells = 862; // point (0, 0, 0)
   if (globalNumberOfCells != expectedNumberOfCells)
   {
     std::cerr << "Expected " << expectedNumberOfCells << " cells in closest "
-      << "point extraction mode but got " << globalNumberOfCells << std::endl;
+              << "point extraction mode but got " << globalNumberOfCells << std::endl;
     returnValue = EXIT_FAILURE;
   }
 
@@ -226,13 +214,12 @@ int ParallelConnectivity(int argc, char* argv[])
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv, 1);
 
   vtkMultiProcessController::SetGlobalController(contr);
 
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
 
   if (RunParallelConnectivity(fname, vtkAlgorithm::SINGLE_PRECISION, contr) != EXIT_SUCCESS)
   {

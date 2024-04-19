@@ -1,0 +1,12 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#ifndef vtkFeatures_h
+#define vtkFeatures_h
+
+/* Should all New methods use the object factory override. */
+#cmakedefine VTK_ALL_NEW_OBJECT_FACTORY
+
+/* Whether VTK supports an extended memory space via memkind. */
+#cmakedefine VTK_USE_MEMKIND
+
+#endif

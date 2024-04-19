@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDistributedGraphHelper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*
- * Copyright (C) 2008 The Trustees of Indiana University.
- * Use, modification and distribution is subject to the Boost Software
- * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
- */
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (C) 2008 The Trustees of Indiana University.
+// SPDX-License-Identifier: BSD-3-Clause AND BSL-1.0
 /**
  * @class   vtkDistributedGraphHelper
  * @brief   helper for the vtkGraph class
@@ -48,7 +31,7 @@
  *
  * @sa
  * vtkGraph
-*/
+ */
 
 #ifndef vtkDistributedGraphHelper_h
 #define vtkDistributedGraphHelper_h
@@ -56,6 +39,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDistributedGraphHelperInternals;
 struct vtkEdgeType;
 class vtkGraph;
@@ -71,13 +55,12 @@ class vtkInformationIntegerKey;
 // pedigree ID will reside on processor V % P, where P is the number
 // of processors. This type is used in conjunction with the
 // vtkDistributedGraphHelper class.
-typedef vtkIdType (*vtkVertexPedigreeIdDistribution)
-          (const vtkVariant& pedigreeId, void* userData);
+typedef vtkIdType (*vtkVertexPedigreeIdDistribution)(const vtkVariant& pedigreeId, void* userData);
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
 {
- public:
-  vtkTypeMacro(vtkDistributedGraphHelper,vtkObject);
+public:
+  vtkTypeMacro(vtkDistributedGraphHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -113,8 +96,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    * address. If a nullptr function pointer is provided, the default
    * hashed distribution will be used.
    */
-  void SetVertexPedigreeIdDistribution(vtkVertexPedigreeIdDistribution Func,
-                                       void *userData);
+  void SetVertexPedigreeIdDistribution(vtkVertexPedigreeIdDistribution Func, void* userData);
 
   /**
    * Determine which processor owns the vertex with the given pedigree ID.
@@ -136,9 +118,9 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    * distributed graph helper of the same kind that can be used in
    * another vtkGraph.
    */
-  virtual vtkDistributedGraphHelper *Clone() = 0;
+  virtual vtkDistributedGraphHelper* Clone() = 0;
 
-  //@{
+  ///@{
   /**
    * Information Keys that distributed graphs can append to attribute arrays
    * to flag them as containing distributed IDs.  These can be used to let
@@ -146,11 +128,11 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    * to single nodes) to also modify the ids contained in the attribute arrays
    * to maintain consistency.
    */
-  static vtkInformationIntegerKey * DISTRIBUTEDVERTEXIDS();
-  static vtkInformationIntegerKey * DISTRIBUTEDEDGEIDS();
-  //@}
+  static vtkInformationIntegerKey* DISTRIBUTEDVERTEXIDS();
+  static vtkInformationIntegerKey* DISTRIBUTEDEDGEIDS();
+  ///@}
 
- protected:
+protected:
   vtkDistributedGraphHelper();
   ~vtkDistributedGraphHelper() override;
 
@@ -161,14 +143,13 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    * non-nullptr and the vertex data contains pedigree IDs, a vertex will
    * only be added if there is no vertex with that pedigree ID.
    */
-  virtual void AddVertexInternal(vtkVariantArray *propertyArr,
-                         vtkIdType *vertex) = 0;
+  virtual void AddVertexInternal(vtkVariantArray* propertyArr, vtkIdType* vertex) = 0;
 
   /**
    * Add a vertex with the given pedigreeId to the distributed graph. If
    * vertex is non-nullptr, it will receive the newly-created vertex.
    */
-  virtual void AddVertexInternal(const vtkVariant& pedigreeId, vtkIdType *vertex) = 0;
+  virtual void AddVertexInternal(const vtkVariant& pedigreeId, vtkIdType* vertex) = 0;
 
   /**
    * Add an edge (u, v) to the distributed graph. The edge may be directed
@@ -176,9 +157,8 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    * If propertyArr is non-null, it specifies the properties that will be
    * attached to the newly-created edge.
    */
-  virtual void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed,
-                               vtkVariantArray *propertyArr,
-                               vtkEdgeType *edge) = 0;
+  virtual void AddEdgeInternal(
+    vtkIdType u, vtkIdType v, bool directed, vtkVariantArray* propertyArr, vtkEdgeType* edge) = 0;
 
   /**
    * Adds an edge (u, v) and returns the new edge. The graph edge may
@@ -188,9 +168,8 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    * that pedigree ID exists. If propertyArr is non-null, it specifies
    * the properties that will be attached to the newly-created edge.
    */
-  virtual void AddEdgeInternal(const vtkVariant& uPedigreeId, vtkIdType v,
-                               bool directed, vtkVariantArray *propertyArr,
-                               vtkEdgeType *edge) = 0;
+  virtual void AddEdgeInternal(const vtkVariant& uPedigreeId, vtkIdType v, bool directed,
+    vtkVariantArray* propertyArr, vtkEdgeType* edge) = 0;
 
   /**
    * Adds an edge (u, v) and returns the new edge. The graph edge may
@@ -200,9 +179,8 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    * with that pedigree ID exists. If propertyArr is non-null, it specifies
    * the properties that will be attached to the newly-created edge.
    */
-  virtual void AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigreeId,
-                               bool directed, vtkVariantArray *propertyArr,
-                               vtkEdgeType *edge) = 0;
+  virtual void AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigreeId, bool directed,
+    vtkVariantArray* propertyArr, vtkEdgeType* edge) = 0;
 
   /**
    * Adds an edge (u, v) and returns the new edge. The graph edge may
@@ -213,10 +191,8 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    * pedigree ID exists. If propertyArr is non-null, it specifies
    * the properties that will be attached to the newly-created edge.
    */
-  virtual void AddEdgeInternal(const vtkVariant& uPedigreeId,
-                               const vtkVariant& vPedigreeId,
-                               bool directed, vtkVariantArray *propertyArr,
-                               vtkEdgeType *edge) = 0;
+  virtual void AddEdgeInternal(const vtkVariant& uPedigreeId, const vtkVariant& vPedigreeId,
+    bool directed, vtkVariantArray* propertyArr, vtkEdgeType* edge) = 0;
 
   /**
    * Try to find the vertex with the given pedigree ID. Returns the
@@ -230,20 +206,18 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    * ID. Used internally by vtkGraph::GetSourceVertex and
    * vtkGraph::GetTargetVertex.
    */
-  virtual void
-  FindEdgeSourceAndTarget(vtkIdType id,
-                          vtkIdType *source, vtkIdType *target) = 0;
+  virtual void FindEdgeSourceAndTarget(vtkIdType id, vtkIdType* source, vtkIdType* target) = 0;
 
   /**
    * Attach this distributed graph helper to the given graph. This will
    * be called as part of vtkGraph::SetDistributedGraphHelper.
    */
-  virtual void AttachToGraph(vtkGraph *graph);
+  virtual void AttachToGraph(vtkGraph* graph);
 
   /**
    * The graph to which this distributed graph helper is already attached.
    */
-  vtkGraph *Graph;
+  vtkGraph* Graph;
 
   /**
    * The distribution function used to map a pedigree ID to a processor.
@@ -253,7 +227,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
   /**
    * Extra, user-specified data to be passed into the distribution function.
    */
-  void *VertexDistributionUserData;
+  void* VertexDistributionUserData;
 
   /**
    * Bit mask to speed up decoding graph info {owner,index}
@@ -275,12 +249,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    */
   int indexBits;
 
- private:
+private:
   vtkDistributedGraphHelper(const vtkDistributedGraphHelper&) = delete;
   void operator=(const vtkDistributedGraphHelper&) = delete;
 
   friend class vtkGraph;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkDistributedGraphHelper_h

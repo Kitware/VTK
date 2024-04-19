@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment version="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
@@ -26,52 +26,107 @@
                 <rect key="frame" x="0.0" y="0.0" width="1457" height="449"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <customView id="21" customClass="BasicVTKView">
-                        <rect key="frame" x="20" y="56" width="467" height="373"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="8uZ-83-kcv">
+                        <rect key="frame" x="20" y="20" width="467" height="409"/>
+                        <subviews>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="21" customClass="BasicVTKView">
+                                <rect key="frame" x="0.0" y="41" width="467" height="368"/>
+                            </customView>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Vzv-UY-pTE">
+                                <rect key="frame" x="170" y="-7" width="126" height="32"/>
+                                <buttonCell key="cell" type="push" title="Do Something" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1Tc-O9-bZ7">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="handleLeftButton:" target="-2" id="zwH-Lr-gK1"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="21" firstAttribute="leading" secondItem="8uZ-83-kcv" secondAttribute="leading" id="DpY-A2-We1"/>
+                            <constraint firstItem="Vzv-UY-pTE" firstAttribute="top" secondItem="21" secondAttribute="bottom" constant="20" symbolic="YES" id="EoC-Cc-AxA"/>
+                            <constraint firstItem="21" firstAttribute="width" secondItem="8uZ-83-kcv" secondAttribute="width" id="FTo-gw-uFY"/>
+                            <constraint firstItem="21" firstAttribute="centerX" secondItem="8uZ-83-kcv" secondAttribute="centerX" id="KJ5-oo-8H4"/>
+                            <constraint firstAttribute="trailing" secondItem="21" secondAttribute="trailing" id="KoT-iS-enl"/>
+                            <constraint firstAttribute="bottom" secondItem="Vzv-UY-pTE" secondAttribute="bottom" id="WEx-oY-vGV"/>
+                            <constraint firstItem="Vzv-UY-pTE" firstAttribute="centerX" secondItem="8uZ-83-kcv" secondAttribute="centerX" id="jBg-Js-h9q"/>
+                            <constraint firstItem="21" firstAttribute="top" secondItem="8uZ-83-kcv" secondAttribute="top" id="xV9-iw-nfC"/>
+                        </constraints>
                     </customView>
-                    <customView id="24" customClass="BasicVTKView">
-                        <rect key="frame" x="495" y="56" width="467" height="373"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="QU6-pw-xSX">
+                        <rect key="frame" x="495" y="20" width="467" height="409"/>
+                        <subviews>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="24" customClass="BasicVTKView">
+                                <rect key="frame" x="0.0" y="41" width="467" height="368"/>
+                            </customView>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XQh-Me-qZF">
+                                <rect key="frame" x="170" y="-7" width="126" height="32"/>
+                                <buttonCell key="cell" type="push" title="Do Something" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Kik-n3-57d">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="handleMiddleButton:" target="-2" id="53K-b8-UUW"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="XQh-Me-qZF" secondAttribute="bottom" id="14k-lv-2dk"/>
+                            <constraint firstItem="XQh-Me-qZF" firstAttribute="centerX" secondItem="QU6-pw-xSX" secondAttribute="centerX" id="1C1-1P-joY"/>
+                            <constraint firstAttribute="trailing" secondItem="24" secondAttribute="trailing" id="8Y1-yB-z8g"/>
+                            <constraint firstItem="XQh-Me-qZF" firstAttribute="top" secondItem="24" secondAttribute="bottom" constant="20" symbolic="YES" id="9cG-Y6-yM7"/>
+                            <constraint firstItem="24" firstAttribute="leading" secondItem="QU6-pw-xSX" secondAttribute="leading" id="J2h-X3-JBN"/>
+                            <constraint firstItem="24" firstAttribute="centerX" secondItem="QU6-pw-xSX" secondAttribute="centerX" id="OoG-Kc-lfn"/>
+                            <constraint firstItem="24" firstAttribute="top" secondItem="QU6-pw-xSX" secondAttribute="top" id="l4F-YR-YsT"/>
+                            <constraint firstItem="24" firstAttribute="width" secondItem="QU6-pw-xSX" secondAttribute="width" id="x4p-tg-7Iv"/>
+                        </constraints>
                     </customView>
-                    <button verticalHuggingPriority="750" id="Vzv-UY-pTE">
-                        <rect key="frame" x="190" y="13" width="126" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Do Something" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1Tc-O9-bZ7">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="handleLeftButton:" target="-2" id="zwH-Lr-gK1"/>
-                        </connections>
-                    </button>
-                    <button verticalHuggingPriority="750" id="XQh-Me-qZF">
-                        <rect key="frame" x="665" y="13" width="126" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Do Something" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Kik-n3-57d">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="handleMiddleButton:" target="-2" id="53K-b8-UUW"/>
-                        </connections>
-                    </button>
-                    <customView id="yfT-ep-8S6" customClass="CustomView">
-                        <rect key="frame" x="970" y="56" width="467" height="373"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="yez-hl-e21">
+                        <rect key="frame" x="970" y="20" width="467" height="409"/>
+                        <subviews>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="yfT-ep-8S6" customClass="CustomView">
+                                <rect key="frame" x="0.0" y="41" width="467" height="368"/>
+                            </customView>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3Zn-ZC-Eg1">
+                                <rect key="frame" x="170" y="-7" width="126" height="32"/>
+                                <buttonCell key="cell" type="push" title="Do Something" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6lX-js-aB8">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="handleRightButton:" target="-2" id="YUR-aL-9JL"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="3Zn-ZC-Eg1" secondAttribute="bottom" id="CkW-YO-xM8"/>
+                            <constraint firstItem="yfT-ep-8S6" firstAttribute="width" secondItem="yez-hl-e21" secondAttribute="width" id="G42-ZU-zYH"/>
+                            <constraint firstItem="3Zn-ZC-Eg1" firstAttribute="top" secondItem="yfT-ep-8S6" secondAttribute="bottom" constant="20" symbolic="YES" id="Mnm-lF-DAh"/>
+                            <constraint firstItem="3Zn-ZC-Eg1" firstAttribute="centerX" secondItem="yez-hl-e21" secondAttribute="centerX" id="VJt-6G-Kon"/>
+                            <constraint firstItem="yfT-ep-8S6" firstAttribute="top" secondItem="yez-hl-e21" secondAttribute="top" id="Wjf-Cx-0Jg"/>
+                            <constraint firstItem="yfT-ep-8S6" firstAttribute="leading" secondItem="yez-hl-e21" secondAttribute="leading" id="cE6-Um-8we"/>
+                            <constraint firstAttribute="trailing" secondItem="yfT-ep-8S6" secondAttribute="trailing" id="fwY-jh-QSO"/>
+                            <constraint firstItem="yfT-ep-8S6" firstAttribute="centerX" secondItem="yez-hl-e21" secondAttribute="centerX" id="qMw-UJ-r8R"/>
+                        </constraints>
                     </customView>
-                    <button verticalHuggingPriority="750" id="3Zn-ZC-Eg1">
-                        <rect key="frame" x="1140" y="13" width="126" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Do Something" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6lX-js-aB8">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="handleRightButton:" target="-2" id="YUR-aL-9JL"/>
-                        </connections>
-                    </button>
                 </subviews>
+                <constraints>
+                    <constraint firstItem="QU6-pw-xSX" firstAttribute="height" secondItem="8uZ-83-kcv" secondAttribute="height" id="3cc-sK-tzd"/>
+                    <constraint firstItem="8uZ-83-kcv" firstAttribute="top" secondItem="6" secondAttribute="top" constant="20" symbolic="YES" id="6Mp-Jc-gpm"/>
+                    <constraint firstItem="QU6-pw-xSX" firstAttribute="top" secondItem="6" secondAttribute="top" constant="20" symbolic="YES" id="8hu-bN-RTu"/>
+                    <constraint firstItem="yez-hl-e21" firstAttribute="top" secondItem="6" secondAttribute="top" constant="20" symbolic="YES" id="9OW-rU-EZp"/>
+                    <constraint firstAttribute="bottom" secondItem="yez-hl-e21" secondAttribute="bottom" constant="20" symbolic="YES" id="AaQ-Zu-xTC"/>
+                    <constraint firstItem="QU6-pw-xSX" firstAttribute="leading" secondItem="8uZ-83-kcv" secondAttribute="trailing" constant="8" symbolic="YES" id="D8S-9N-HaG"/>
+                    <constraint firstItem="yez-hl-e21" firstAttribute="leading" secondItem="QU6-pw-xSX" secondAttribute="trailing" constant="8" symbolic="YES" id="KAY-kP-AKQ"/>
+                    <constraint firstAttribute="bottom" secondItem="8uZ-83-kcv" secondAttribute="bottom" constant="20" symbolic="YES" id="NFz-3g-cw8"/>
+                    <constraint firstItem="QU6-pw-xSX" firstAttribute="height" secondItem="yez-hl-e21" secondAttribute="height" id="O4B-LW-Fb7"/>
+                    <constraint firstAttribute="trailing" secondItem="yez-hl-e21" secondAttribute="trailing" constant="20" symbolic="YES" id="QWe-oh-G2T"/>
+                    <constraint firstItem="QU6-pw-xSX" firstAttribute="width" secondItem="8uZ-83-kcv" secondAttribute="width" id="SEY-gH-lKP"/>
+                    <constraint firstItem="8uZ-83-kcv" firstAttribute="leading" secondItem="6" secondAttribute="leading" constant="20" symbolic="YES" id="X6N-VQ-NpA"/>
+                    <constraint firstItem="QU6-pw-xSX" firstAttribute="width" secondItem="yez-hl-e21" secondAttribute="width" id="gcg-Rm-8AP"/>
+                    <constraint firstAttribute="bottom" secondItem="QU6-pw-xSX" secondAttribute="bottom" constant="20" symbolic="YES" id="goO-tv-WEf"/>
+                </constraints>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="17"/>

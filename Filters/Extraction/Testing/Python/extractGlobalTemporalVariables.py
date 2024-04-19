@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersExtraction import vtkExtractExodusGlobalTemporalVariables
+from vtkmodules.vtkIOExodus import vtkExodusIIReader
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-reader = vtk.vtkExodusIIReader()
+reader = vtkExodusIIReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/can.ex2")
 reader.UpdateInformation()
 
@@ -11,7 +12,7 @@ for i in range(reader.GetNumberOfObjectArrays(reader.GLOBAL)):
     name = reader.GetObjectArrayName(reader.GLOBAL, i)
     reader.SetObjectArrayStatus(reader.GLOBAL, name, 1)
 
-extractTFD = vtk.vtkExtractExodusGlobalTemporalVariables()
+extractTFD = vtkExtractExodusGlobalTemporalVariables()
 extractTFD.SetInputConnection(reader.GetOutputPort())
 extractTFD.Update()
 

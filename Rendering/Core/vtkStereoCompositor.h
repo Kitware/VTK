@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStereoCompositor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkStereoCompositor
  * @brief helper class to generate composited stereo images.
@@ -30,6 +18,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
 class VTKRENDERINGCORE_EXPORT vtkStereoCompositor : public vtkObject
@@ -39,7 +28,7 @@ public:
   vtkTypeMacro(vtkStereoCompositor, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods for compositing left and right eye images based on various
    * supported modes. See vtkRenderWindow::SetStereoType for explanation of each
@@ -62,7 +51,7 @@ public:
 
   bool SplitViewportHorizontal(
     vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight, const int size[2]);
-  //@}
+  ///@}
 
 protected:
   vtkStereoCompositor();
@@ -76,4 +65,5 @@ private:
   void operator=(const vtkStereoCompositor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

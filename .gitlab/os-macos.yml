@@ -1,0 +1,285 @@
+# macOS-specific builder configurations and build commands
+
+## Base configurations
+
+.macos:
+    variables:
+        GIT_CLONE_PATH: "$CI_BUILDS_DIR/vtk-ci-ext/$CI_CONCURRENT_ID"
+        # TODO: Factor this out so that each job selects the Xcode version to
+        # use so that different versions can be tested in a single pipeline.
+        DEVELOPER_DIR: "/Applications/Xcode-14.2.app/Contents/Developer"
+
+.wheel_macos_arm64:
+    extends: .macos
+
+    variables:
+        VTK_INSTALL: 1
+
+.wheel_macos39_arm64:
+    extends: .wheel_macos_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos39_arm64
+        PYTHON_VERSION_SUFFIX: "3.9"
+        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
+
+.wheel_macos310_arm64:
+    extends: .wheel_macos_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos310_arm64
+        PYTHON_VERSION_SUFFIX: "3.10"
+        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
+
+.wheel_macos311_arm64:
+    extends: .wheel_macos_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos311_arm64
+        PYTHON_VERSION_SUFFIX: "3.11"
+        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
+
+.wheel_macos312_arm64:
+    extends: .wheel_macos_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos312_arm64
+        PYTHON_VERSION_SUFFIX: "3.12"
+        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
+
+.wheel_macos_x86_64:
+    extends: .macos
+
+    variables:
+        VTK_INSTALL: 1
+
+.wheel_macos38_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos38_x86_64
+        PYTHON_VERSION_SUFFIX: "3.8"
+
+.wheel_macos39_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos39_x86_64
+        PYTHON_VERSION_SUFFIX: "3.9"
+
+.wheel_macos310_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos310_x86_64
+        PYTHON_VERSION_SUFFIX: "3.10"
+        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
+
+.wheel_macos311_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos311_x86_64
+        PYTHON_VERSION_SUFFIX: "3.11"
+        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
+
+.wheel_macos312_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos312_x86_64
+        PYTHON_VERSION_SUFFIX: "3.12"
+        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
+
+### Build and test
+
+.macos_build:
+    extends: .macos
+
+    variables:
+        # Note that shell runners only support runners with a single
+        # concurrency level. We can't use `$CI_CONCURRENCY_ID` because this may
+        # change between the build and test stages which CMake doesn't support.
+        # Even if we could, it could change if other runners on the machine
+        # could run at the same time, so we drop it.
+        GIT_CLONE_PATH: "$CI_BUILDS_DIR/vtk-ci"
+
+.macos_arm64_kits_python_qt:
+    extends: .macos_build
+
+    variables:
+        CMAKE_CONFIGURATION: macos_arm64_kits_python_qt
+        VTK_INSTALL: 1
+
+.macos_x86_64_kits_python_qt:
+    extends: .macos_build
+
+    variables:
+        CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt
+        VTK_INSTALL: 1
+
+.macos_x86_64_kits_python_qt_stdthread:
+    extends: .macos_build
+
+    variables:
+        CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt_stdthread
+
+.macos_x86_64_kits_python_qt_ext_vtk:
+    extends: .macos
+
+    variables:
+        CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt_ext_vtk
+
+## Tags
+
+.macos_builder_tags:
+    tags:
+        - vtk
+        - macos-x86_64
+        - shell
+        - xcode-14.2
+        - nonconcurrent
+
+.macos_wheel_builder_tags:
+    tags:
+        - vtk
+        - macos-x86_64
+        - shell
+        - xcode-14.2
+        - concurrent
+
+.macos_ext_builder_tags:
+    tags:
+        - vtk
+        - macos-x86_64
+        - shell
+        - xcode-14.2
+        - concurrent
+
+.macos_arm64_builder_tags:
+    tags:
+        - vtk
+        - macos-arm64
+        - shell
+        - xcode-14.2
+        - nonconcurrent
+
+.macos_arm64_wheel_builder_tags:
+    tags:
+        - vtk
+        - macos-arm64
+        - shell
+        - xcode-14.2
+        - concurrent
+
+## macOS-specific scripts
+
+.before_script_macos: &before_script_macos
+    - .gitlab/ci/cmake.sh
+    - .gitlab/ci/ninja.sh
+    - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
+    - cmake --version
+    - ninja --version
+    # Download Qt
+    - cmake -P .gitlab/ci/download_qt.cmake
+    - export CMAKE_PREFIX_PATH=$PWD/.gitlab/qt
+    - "git submodule update --init --recursive || :"
+    - git submodule foreach --recursive cmake -P "$PWD/.gitlab/ci/fetch_submodule.cmake"
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+
+.before_script_macos_deps: &before_script_macos_deps
+    # currently not downloading adios for macos wheels
+    # this way we can only get it for non-wheel macos builds
+    - cmake -P .gitlab/ci/download_adios2.cmake
+    - export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$PWD/.gitlab/adios2
+
+.cmake_build_macos:
+    stage: build
+    extends: .warning_policy
+
+    script:
+        - *before_script_macos
+        - *before_script_macos_deps
+        - .gitlab/ci/sccache.sh
+        # Allow the server to already be running.
+        - "sccache --start-server || :"
+        - sccache --show-stats
+        - ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        - ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+        - sccache --show-stats
+        - exec .gitlab/ci/check_warnings.sh .
+
+    interruptible: true
+
+.cmake_test_macos:
+    stage: test
+
+    script:
+        - *before_script_macos
+        - *before_script_macos_deps
+        - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
+    interruptible: true
+
+.cmake_test_external_macos:
+    stage: test-ext
+    extends: .warning_policy
+
+    script:
+        - *before_script_macos
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
+        - exec .gitlab/ci/check_warnings.sh ./Testing/External
+
+    interruptible: true
+
+.cmake_build_wheel_macos:
+    stage: build
+    extends: .warning_policy
+
+    script:
+        - *before_script_macos
+        - .gitlab/ci/sccache.sh
+        - cmake -P .gitlab/ci/download_wheel_python.cmake
+        - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
+        # Allow the server to already be running.
+        - "sccache --start-server || :"
+        - sccache --show-stats
+        - ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        - ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+        - sccache --show-stats
+        - cd build
+        - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
+        - venv/bin/pip install setuptools
+        - venv/bin/pip install wheel
+        - venv/bin/python3 setup.py bdist_wheel
+        - '[ -f dist/*_universal2.whl ] && exit 1 # universal2 wheels are not made; platform detection requires an override'
+        - venv/bin/python3 $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py
+        # XXX: `delocate` can't handle `@loader_path` or do recursive
+        # dependency scanning. Ignore it and just do it manually because
+        # apparently VTK is the most complicated wheel in the world.
+        # - venv/bin/pip install delocate
+        # - venv/bin/delocate-listdeps dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
+        # - venv/bin/delocate-wheel -v dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
+        - cd ..
+        - exec .gitlab/ci/check_warnings.sh .
+    interruptible: true
+
+.cmake_test_wheel_macos:
+    stage: test
+
+    script:
+        - *before_script_macos
+        - cmake -P .gitlab/ci/download_wheel_python.cmake
+        - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
+        - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
+        - . venv/bin/activate
+          # Needed to rebuild some dependencies which don't have arm64-compatible wheels yet.
+        - '[ "$( uname -m )" = "arm64" ] && pip install wheel'
+        - pip install twine
+        - twine check build/dist/*.whl
+        - pip install build/dist/*.whl
+        - python -c "import vtk"
+        - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
+        - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWheel
+    interruptible: true

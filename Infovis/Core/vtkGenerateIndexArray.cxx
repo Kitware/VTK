@@ -1,22 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGenerateIndexArray.cxx
-
-  Copyright 2007 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-  license for use of this work by or on behalf of the
-  U.S. Government. Redistribution and use in source and binary forms, with
-  or without modification, are permitted provided that this Notice and any
-  statement of authorship are reproduced on all copies.
-
-=========================================================================*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2007 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
+#include "vtkGenerateIndexArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDemandDrivenPipeline.h"
-#include "vtkGenerateIndexArray.h"
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -27,13 +16,14 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenerateIndexArray);
 
-vtkGenerateIndexArray::vtkGenerateIndexArray() :
-  ArrayName(nullptr),
-  FieldType(ROW_DATA),
-  ReferenceArrayName(nullptr),
-  PedigreeID(false)
+vtkGenerateIndexArray::vtkGenerateIndexArray()
+  : ArrayName(nullptr)
+  , FieldType(ROW_DATA)
+  , ReferenceArrayName(nullptr)
+  , PedigreeID(false)
 {
   this->SetArrayName("index");
 }
@@ -46,19 +36,18 @@ vtkGenerateIndexArray::~vtkGenerateIndexArray()
 
 void vtkGenerateIndexArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << "ArrayName: " << (this->ArrayName ? this->ArrayName : "(none)") << endl;
   os << "FieldType: " << this->FieldType << endl;
-  os << "ReferenceArrayName: " << (this->ReferenceArrayName ? this->ReferenceArrayName : "(none)") << endl;
+  os << "ReferenceArrayName: " << (this->ReferenceArrayName ? this->ReferenceArrayName : "(none)")
+     << endl;
   os << "PedigreeID: " << this->PedigreeID << endl;
 }
 
 vtkTypeBool vtkGenerateIndexArray::ProcessRequest(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
     return this->RequestDataObject(request, inputVector, outputVector);
   }
@@ -66,24 +55,22 @@ vtkTypeBool vtkGenerateIndexArray::ProcessRequest(
 }
 
 int vtkGenerateIndexArray::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
   {
     return 0;
   }
-  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
   if (input)
   {
     // for each output
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+    for (int i = 0; i < this->GetNumberOfOutputPorts(); ++i)
     {
       vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
+      vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
 
       if (!output || !output->IsA(input->GetClassName()))
       {
@@ -97,13 +84,11 @@ int vtkGenerateIndexArray::RequestDataObject(
   return 0;
 }
 
-int vtkGenerateIndexArray::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkGenerateIndexArray::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // An output array name is required ...
-  if(!(this->ArrayName && strlen(this->ArrayName)))
+  if (!(this->ArrayName && strlen(this->ArrayName)))
   {
     vtkErrorMacro(<< "No array name defined.");
     return 0;
@@ -118,7 +103,7 @@ int vtkGenerateIndexArray::RequestData(
   vtkDataSetAttributes* output_attributes = nullptr;
   vtkIdType output_count = 0;
 
-  switch(this->FieldType)
+  switch (this->FieldType)
   {
     case ROW_DATA:
     {
@@ -157,7 +142,7 @@ int vtkGenerateIndexArray::RequestData(
     }
   }
 
-  if(!output_attributes)
+  if (!output_attributes)
   {
     vtkErrorMacro(<< "Invalid field type for this data object.");
     return 0;
@@ -170,15 +155,16 @@ int vtkGenerateIndexArray::RequestData(
   output_attributes->AddArray(output_array);
   output_array->Delete();
 
-  if(this->PedigreeID)
+  if (this->PedigreeID)
     output_attributes->SetPedigreeIds(output_array);
 
   // Generate indices based on the reference array ...
-  if(this->ReferenceArrayName && strlen(this->ReferenceArrayName))
+  if (this->ReferenceArrayName && strlen(this->ReferenceArrayName))
   {
     int reference_array_index = -1;
-    vtkAbstractArray* const reference_array = output_attributes->GetAbstractArray(this->ReferenceArrayName, reference_array_index);
-    if(!reference_array)
+    vtkAbstractArray* const reference_array =
+      output_attributes->GetAbstractArray(this->ReferenceArrayName, reference_array_index);
+    if (!reference_array)
     {
       vtkErrorMacro(<< "No reference array " << this->ReferenceArrayName);
       return 0;
@@ -187,14 +173,15 @@ int vtkGenerateIndexArray::RequestData(
     typedef std::map<vtkVariant, vtkIdType, vtkVariantLessThan> index_map_t;
     index_map_t index_map;
 
-    for(vtkIdType i = 0; i != output_count; ++i)
+    for (vtkIdType i = 0; i != output_count; ++i)
     {
-      if(!index_map.count(reference_array->GetVariantValue(i)))
+      if (!index_map.count(reference_array->GetVariantValue(i)))
       {
 #ifdef _RWSTD_NO_MEMBER_TEMPLATES
         // Deal with Sun Studio old libCstd.
         // http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-        index_map.insert(std::pair<const vtkVariant,vtkIdType>(reference_array->GetVariantValue(i), 0));
+        index_map.insert(
+          std::pair<const vtkVariant, vtkIdType>(reference_array->GetVariantValue(i), 0));
 #else
         index_map.insert(std::make_pair(reference_array->GetVariantValue(i), 0));
 #endif
@@ -202,19 +189,19 @@ int vtkGenerateIndexArray::RequestData(
     }
 
     vtkIdType index = 0;
-    for(index_map_t::iterator i = index_map.begin(); i != index_map.end(); ++i, ++index)
+    for (index_map_t::iterator i = index_map.begin(); i != index_map.end(); ++i, ++index)
       i->second = index;
 
-    for(vtkIdType i = 0; i != output_count; ++i)
+    for (vtkIdType i = 0; i != output_count; ++i)
       output_array->SetValue(i, index_map[reference_array->GetVariantValue(i)]);
   }
   // Otherwise, generate a trivial index array ...
   else
   {
-    for(vtkIdType i = 0; i != output_count; ++i)
+    for (vtkIdType i = 0; i != output_count; ++i)
       output_array->SetValue(i, i);
   }
 
   return 1;
 }
-
+VTK_ABI_NAMESPACE_END

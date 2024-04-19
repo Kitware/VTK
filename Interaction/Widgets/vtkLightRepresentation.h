@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLightRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLightRepresentation
  * @brief   represent a vtkLight
@@ -31,7 +19,9 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // Needed for vtkNew
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkBox;
 class vtkCellPicker;
@@ -42,54 +32,55 @@ class vtkPolyDataMapper;
 class vtkProperty;
 class vtkSphereSource;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkLightRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkLightRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   static vtkLightRepresentation* New();
   vtkTypeMacro(vtkLightRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the positional flag. When set to on, a cone will be visible.
    */
   vtkSetMacro(Positional, bool);
   vtkGetMacro(Positional, bool);
   vtkBooleanMacro(Positional, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the coordinates of the position of the light representation.
    */
   void SetLightPosition(double pos[3]);
   vtkGetVector3Macro(LightPosition, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the coordinates of the focal point of the light representation.
    */
   void SetFocalPoint(double pos[3]);
   vtkGetVector3Macro(FocalPoint, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the cone angle, in degrees, for the light.
    * Used only when positional.
    */
   void SetConeAngle(double angle);
   vtkGetMacro(ConeAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the light color.
    */
   void SetLightColor(double* color);
   double* GetLightColor() VTK_SIZEHINT(3);
-  //@}
+  ///@}
 
   /**
    * Enum used to communicate interaction state.
@@ -103,7 +94,7 @@ public:
     ScalingConeAngle
   };
 
-  //@{
+  ///@{
   /**
    * The interaction state may be set from a widget (e.g., vtkLightWidget) or
    * other object. This controls how the interaction with the widget
@@ -114,16 +105,16 @@ public:
    * further.
    */
   vtkSetClampMacro(InteractionState, int, Outside, ScalingConeAngle);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the property used for all the actors
    */
   vtkGetObjectMacro(Property, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Method to satisfy superclasses' API.
    */
@@ -132,16 +123,16 @@ public:
   void StartWidgetInteraction(double eventPosition[2]) override;
   void WidgetInteraction(double eventPosition[2]) override;
   double* GetBounds() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp superclass.
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
 protected:
   vtkLightRepresentation();
@@ -155,7 +146,7 @@ protected:
   vtkNew<vtkBox> BoundingBox;
   vtkCellPicker* LastPicker;
   double LastScalingDistance2 = -1;
-  double LastEventPosition[3] = { 0, 0, 0};
+  double LastEventPosition[3] = { 0, 0, 0 };
 
   // the Sphere
   vtkNew<vtkSphereSource> Sphere;
@@ -185,4 +176,5 @@ private:
   void operator=(const vtkLightRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

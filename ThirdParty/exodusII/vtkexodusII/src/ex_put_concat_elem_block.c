@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 /*****************************************************************************
  *
@@ -78,7 +51,9 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
 #endif
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   /* first check if any element blocks are specified
    * OK if zero...
@@ -207,7 +182,7 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
       num_attr = ((int *)num_attr_this_blk)[iblk];
     }
 
-    cur_num_elem_blk = ex_get_file_item(exoid, ex_get_counter_list(EX_ELEM_BLOCK));
+    cur_num_elem_blk = ex__get_file_item(exoid, ex__get_counter_list(EX_ELEM_BLOCK));
     if (cur_num_elem_blk >= num_elem_blk) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: exceeded number of element blocks (%d) defined in file id %d", num_elem_blk,
@@ -216,9 +191,9 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
       goto error_ret;
     }
 
-    /* NOTE: ex_inc_file_item  is used to find the number of element blocks
+    /* NOTE: ex__inc_file_item  is used to find the number of element blocks
        for a specific file and returns that value incremented. */
-    cur_num_elem_blk = ex_inc_file_item(exoid, ex_get_counter_list(EX_ELEM_BLOCK));
+    cur_num_elem_blk = ex__inc_file_item(exoid, ex__get_counter_list(EX_ELEM_BLOCK));
 
     if (eb_array[iblk] == 0) { /* Is this a NULL element block? */
       continue;
@@ -263,7 +238,7 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
       ex_err_fn(exoid, __func__, errmsg, status);
       goto error_ret; /* exit define mode and return */
     }
-    ex_compress_variable(exoid, connid, 1);
+    ex__compress_variable(exoid, connid, 1);
 
     /* store element type as attribute of connectivity variable */
     if ((status = nc_put_att_text(exoid, connid, ATT_NAME_ELB, strlen(elem_type[iblk]) + 1,
@@ -340,7 +315,7 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
           ex_err_fn(exoid, __func__, errmsg, status);
           goto error_ret; /* exit define mode and return */
         }
-        ex_compress_variable(exoid, temp, 1);
+        ex__compress_variable(exoid, temp, 1);
       }
     }
 
@@ -364,13 +339,13 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
           ex_err_fn(exoid, __func__, errmsg, status);
           goto error_ret; /* exit define mode and return */
         }
-        ex_compress_variable(exoid, temp, 1);
+        ex__compress_variable(exoid, temp, 1);
       }
     }
   }
 
   /* leave define mode  */
-  if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
     free(eb_array);
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -409,6 +384,6 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
 /* Fatal error: exit definition mode and return */
 error_ret:
   free(eb_array);
-  ex_leavedef(exoid, __func__);
+  ex__leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

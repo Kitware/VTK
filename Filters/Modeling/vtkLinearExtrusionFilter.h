@@ -1,20 +1,9 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLinearExtrusionFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLinearExtrusionFilter
- * @brief   sweep polygonal data creating a "skirt" from free edges and lines, and lines from vertices
+ * @brief   sweep polygonal data creating a "skirt" from free edges and lines, and lines from
+ * vertices
  *
  * vtkLinearExtrusionFilter is a modeling filter. It takes polygonal data as
  * input and generates polygonal data on output. The input dataset is swept
@@ -46,7 +35,7 @@
  *
  * @sa
  * vtkRotationalExtrusionFilter
-*/
+ */
 
 #ifndef vtkLinearExtrusionFilter_h
 #define vtkLinearExtrusionFilter_h
@@ -54,6 +43,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 
 #define VTK_VECTOR_EXTRUSION 1
@@ -63,84 +53,81 @@ class vtkDataArray;
 class VTKFILTERSMODELING_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkLinearExtrusionFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkLinearExtrusionFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create object with normal extrusion type, capping on, scale factor=1.0,
    * vector (0,0,1), and extrusion point (0,0,0).
    */
-  static vtkLinearExtrusionFilter *New();
+  static vtkLinearExtrusionFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the type of extrusion.
    */
-  vtkSetClampMacro(ExtrusionType,int,VTK_VECTOR_EXTRUSION,VTK_POINT_EXTRUSION);
-  vtkGetMacro(ExtrusionType,int);
-  void SetExtrusionTypeToVectorExtrusion()
-    {this->SetExtrusionType(VTK_VECTOR_EXTRUSION);};
-  void SetExtrusionTypeToNormalExtrusion()
-    {this->SetExtrusionType(VTK_NORMAL_EXTRUSION);};
-  void SetExtrusionTypeToPointExtrusion()
-    {this->SetExtrusionType(VTK_POINT_EXTRUSION);};
-  //@}
+  vtkSetClampMacro(ExtrusionType, int, VTK_VECTOR_EXTRUSION, VTK_POINT_EXTRUSION);
+  vtkGetMacro(ExtrusionType, int);
+  void SetExtrusionTypeToVectorExtrusion() { this->SetExtrusionType(VTK_VECTOR_EXTRUSION); }
+  void SetExtrusionTypeToNormalExtrusion() { this->SetExtrusionType(VTK_NORMAL_EXTRUSION); }
+  void SetExtrusionTypeToPointExtrusion() { this->SetExtrusionType(VTK_POINT_EXTRUSION); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the capping of the skirt.
    */
-  vtkSetMacro(Capping,vtkTypeBool);
-  vtkGetMacro(Capping,vtkTypeBool);
-  vtkBooleanMacro(Capping,vtkTypeBool);
-  //@}
+  vtkSetMacro(Capping, vtkTypeBool);
+  vtkGetMacro(Capping, vtkTypeBool);
+  vtkBooleanMacro(Capping, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get extrusion scale factor,
    */
-  vtkSetMacro(ScaleFactor,double);
-  vtkGetMacro(ScaleFactor,double);
-  //@}
+  vtkSetMacro(ScaleFactor, double);
+  vtkGetMacro(ScaleFactor, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get extrusion vector. Only needs to be set if VectorExtrusion is
    * turned on.
    */
-  vtkSetVector3Macro(Vector,double);
-  vtkGetVectorMacro(Vector,double,3);
-  //@}
+  vtkSetVector3Macro(Vector, double);
+  vtkGetVectorMacro(Vector, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get extrusion point. Only needs to be set if PointExtrusion is
    * turned on. This is the point towards which extrusion occurs.
    */
-  vtkSetVector3Macro(ExtrusionPoint,double);
-  vtkGetVectorMacro(ExtrusionPoint,double,3);
-  //@}
+  vtkSetVector3Macro(ExtrusionPoint, double);
+  vtkGetVectorMacro(ExtrusionPoint, double, 3);
+  ///@}
 
 protected:
   vtkLinearExtrusionFilter();
-  ~vtkLinearExtrusionFilter() override {}
+  ~vtkLinearExtrusionFilter() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int ExtrusionType;
   vtkTypeBool Capping;
   double ScaleFactor;
   double Vector[3];
   double ExtrusionPoint[3];
 
-  void (vtkLinearExtrusionFilter::*ExtrudePoint)(double x[3], vtkIdType id,
-                                                   vtkDataArray *normals);
-  void ViaNormal(double x[3], vtkIdType id, vtkDataArray *normals);
-  void ViaVector(double x[3], vtkIdType id, vtkDataArray *normals=nullptr);
-  void ViaPoint(double x[3], vtkIdType id, vtkDataArray *normals=nullptr);
+  void (vtkLinearExtrusionFilter::*ExtrudePoint)(double x[3], vtkIdType id, vtkDataArray* normals);
+  void ViaNormal(double x[3], vtkIdType id, vtkDataArray* normals);
+  void ViaVector(double x[3], vtkIdType id, vtkDataArray* normals = nullptr);
+  void ViaPoint(double x[3], vtkIdType id, vtkDataArray* normals = nullptr);
 
 private:
   vtkLinearExtrusionFilter(const vtkLinearExtrusionFilter&) = delete;
   void operator=(const vtkLinearExtrusionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

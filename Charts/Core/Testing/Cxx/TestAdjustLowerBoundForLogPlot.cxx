@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestAdjustLowerBoundForLogPlot.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAxis.h"
 #include "vtkChartXY.h"
 #include "vtkContextScene.h"
@@ -19,9 +7,9 @@
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
 #include "vtkPlot.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTable.h"
 
 #include <cstdio>
@@ -52,9 +40,9 @@ int TestAdjustLowerBoundForLogPlot(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
   table->SetNumberOfRows(numRows);
   for (int i = 0; i < numRows; ++i)
   {
-    float x = 0.1*((-0.5*(numRows-1)) + i);
+    float x = 0.1 * ((-0.5 * (numRows - 1)) + i);
     table->SetValue(i, 0, x);
-    float y = std::abs(x*x - 10.0);
+    float y = std::abs(x * x - 10.0);
     table->SetValue(i, 1, y);
   }
 
@@ -65,8 +53,8 @@ int TestAdjustLowerBoundForLogPlot(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
   axis->LogScaleOn();
 
   // This sequence is necessary to invoke the logic when AdjustLowerBoundForLogPlot is enabled.
- view->GetRenderWindow()->Render();
- chart->RecalculateBounds();
+  view->GetRenderWindow()->Render();
+  chart->RecalculateBounds();
 
   // Finally render the scene and compare the image to a reference image
   view->GetInteractor()->Initialize();

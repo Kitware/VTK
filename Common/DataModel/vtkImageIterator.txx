@@ -1,24 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageIterator.txx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef vtkImageIterator_txx
 #define vtkImageIterator_txx
 
-#include "vtkImageIterator.h"
 #include "vtkImageData.h"
+#include "vtkImageIterator.h"
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class DType>
 vtkImageIterator<DType>::vtkImageIterator()
 {
@@ -30,17 +19,14 @@ vtkImageIterator<DType>::vtkImageIterator()
 
 //----------------------------------------------------------------------------
 template <class DType>
-void vtkImageIterator<DType>::Initialize(vtkImageData *id, int *ext)
+void vtkImageIterator<DType>::Initialize(vtkImageData* id, int* ext)
 {
-  this->Pointer = static_cast<DType *>(id->GetScalarPointerForExtent(ext));
-  id->GetIncrements(this->Increments[0], this->Increments[1],
-                    this->Increments[2]);
-  id->GetContinuousIncrements(ext,this->ContinuousIncrements[0],
-                              this->ContinuousIncrements[1],
-                              this->ContinuousIncrements[2]);
+  this->Pointer = static_cast<DType*>(id->GetScalarPointerForExtent(ext));
+  id->GetIncrements(this->Increments[0], this->Increments[1], this->Increments[2]);
+  id->GetContinuousIncrements(ext, this->ContinuousIncrements[0], this->ContinuousIncrements[1],
+    this->ContinuousIncrements[2]);
   this->EndPointer =
-    static_cast<DType *>(id->GetScalarPointer(ext[1],ext[3],ext[5]))
-    +this->Increments[0];
+    static_cast<DType*>(id->GetScalarPointer(ext[1], ext[3], ext[5])) + this->Increments[0];
 
   // if the extent is empty then the end pointer should equal the beg pointer
   if (ext[1] < ext[0] || ext[3] < ext[2] || ext[5] < ext[4])
@@ -48,19 +34,16 @@ void vtkImageIterator<DType>::Initialize(vtkImageData *id, int *ext)
     this->EndPointer = this->Pointer;
   }
 
-  this->SpanEndPointer =
-    this->Pointer + this->Increments[0]*(ext[1] - ext[0] + 1);
-  this->SliceEndPointer =
-    this->Pointer + this->Increments[1]*(ext[3] - ext[2] + 1);
+  this->SpanEndPointer = this->Pointer + this->Increments[0] * (ext[1] - ext[0] + 1);
+  this->SliceEndPointer = this->Pointer + this->Increments[1] * (ext[3] - ext[2] + 1);
 }
 
 //----------------------------------------------------------------------------
 template <class DType>
-vtkImageIterator<DType>::vtkImageIterator(vtkImageData *id, int *ext)
+vtkImageIterator<DType>::vtkImageIterator(vtkImageData* id, int* ext)
 {
   this->Initialize(id, ext);
 }
-
 
 //----------------------------------------------------------------------------
 template <class DType>
@@ -76,4 +59,5 @@ void vtkImageIterator<DType>::NextSpan()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

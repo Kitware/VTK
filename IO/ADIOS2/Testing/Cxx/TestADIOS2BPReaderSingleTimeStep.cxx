@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestTemporalXdmfReaderWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // Description:
 // This tests reading of a simple ADIOS2 bp file.
 
@@ -32,24 +20,23 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnsignedIntArray.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkNew.h"
+#include "vtkTestUtilities.h"
 
 #include <sstream> // istringstream
-
 
 int TestADIOS2BPReaderSingleTimeStep(int argc, char* argv[])
 {
   vtkNew<vtkADIOS2CoreImageReader> reader;
 
   // Read the input data file
-  char* filePath = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                              "Data/ADIOS2/HeatMap3D/HeatMap3D.bp");
+  char* filePath =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/HeatMap3D/HeatMap3D.bp");
 
   if (!reader->CanReadFile(filePath))
   {
@@ -57,7 +44,7 @@ int TestADIOS2BPReaderSingleTimeStep(int argc, char* argv[])
     return 0;
   }
   reader->SetFileName(filePath);
-  delete [] filePath;
+  delete[] filePath;
 
   reader->UpdateInformation();
   auto& availVars = reader->GetAvilableVariables();
@@ -68,15 +55,17 @@ int TestADIOS2BPReaderSingleTimeStep(int argc, char* argv[])
   reader->SetOrigin(0.0, 0.0, 0.0);
   reader->SetSpacing(1.0, 1.0, 1.0);
   reader->SetDimensionArray("temperature");
-  reader->SetActiveScalar({"temperature", vtkADIOS2CoreImageReader::VarType::CellData});
+  reader->SetActiveScalar({ "temperature", vtkADIOS2CoreImageReader::VarType::CellData });
 
   reader->Update();
 
-  vtkSmartPointer<vtkMultiBlockDataSet> output = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput());
+  vtkSmartPointer<vtkMultiBlockDataSet> output =
+    vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput());
   assert(output->GetNumberOfBlocks() == 1);
-  vtkSmartPointer<vtkMultiPieceDataSet> mpds = vtkMultiPieceDataSet::SafeDownCast(output->GetBlock(0));
+  vtkSmartPointer<vtkMultiPieceDataSet> mpds =
+    vtkMultiPieceDataSet::SafeDownCast(output->GetBlock(0));
   assert(mpds->GetNumberOfPieces() == 2);
-  vtkSmartPointer<vtkImageData> image0 =  vtkImageData::SafeDownCast(mpds->GetPiece(0));
+  vtkSmartPointer<vtkImageData> image0 = vtkImageData::SafeDownCast(mpds->GetPiece(0));
 
   // Use vtkXMLPMultiBlockDataWriter if you want to dump the data
 
@@ -103,7 +92,7 @@ int TestADIOS2BPReaderSingleTimeStep(int argc, char* argv[])
   rendWin->AddRenderer(renderer);
   rendWin->Render();
 
-  // Do the test comparsion
+  // Do the test comparison
   int retval = vtkRegressionTestImage(rendWin);
   if (retval == vtkRegressionTester::DO_INTERACTOR)
   {

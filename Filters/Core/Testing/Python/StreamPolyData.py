@@ -1,6 +1,23 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersCore import (
+    vtkDecimatePro,
+    vtkPolyDataNormals,
+    vtkQuadricClustering,
+)
+from vtkmodules.vtkFiltersGeneral import vtkPolyDataStreamer
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,7 +26,7 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 NUMBER_OF_PIECES = 5
@@ -19,14 +36,14 @@ NUMBER_OF_PIECES = 5
 
 # Create renderer stuff
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create pipeline that handles ghost cells
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetRadius(3)
 sphere.SetPhiResolution(100)
 sphere.SetThetaResolution(150)
@@ -43,11 +60,11 @@ def NotUsed ():
     piece.CreateGhostCellsOff()
     # purposely put seams in here.
 
-    pdn = vtk.vtkPolyDataNormals()
+    pdn = vtkPolyDataNormals()
     pdn.SetInputConnection(piece.GetOutputPort())
 
 # Just playing with an alternative that is not currently used.
-deci = vtk.vtkDecimatePro()
+deci = vtkDecimatePro()
 deci.SetInputConnection(sphere.GetOutputPort())
 # this did not remove seams as I thought it would
 deci.BoundaryVertexDeletionOff()
@@ -55,26 +72,26 @@ deci.BoundaryVertexDeletionOff()
 
 # Since quadric Clustering does not handle borders properly yet,
 # the pieces will have dramatic "seams"
-q = vtk.vtkQuadricClustering()
+q = vtkQuadricClustering()
 q.SetInputConnection(sphere.GetOutputPort())
 q.SetNumberOfXDivisions(5)
 q.SetNumberOfYDivisions(5)
 q.SetNumberOfZDivisions(10)
 q.UseInputPointsOn()
 
-streamer = vtk.vtkPolyDataStreamer()
+streamer = vtkPolyDataStreamer()
 # streamer.SetInputConnection(deci.GetOutputPort())
 streamer.SetInputConnection(q.GetOutputPort())
 # streamer.SetInputConnection(pdn.GetOutputPort())
 streamer.SetNumberOfStreamDivisions(NUMBER_OF_PIECES)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(streamer.GetOutputPort())
 mapper.ScalarVisibilityOff()
 mapper.SetPiece(0)
 mapper.SetNumberOfPieces(2)
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetColor(GetRGBColor('english_red'))
 

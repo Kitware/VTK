@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAnnotationLayers.cxx
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkAnnotationLayers.h"
 
@@ -30,31 +13,29 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAnnotationLayers);
 vtkCxxSetObjectMacro(vtkAnnotationLayers, CurrentAnnotation, vtkAnnotation);
 
 class vtkAnnotationLayers::Internals
 {
 public:
-  std::vector<vtkSmartPointer<vtkAnnotation> > Annotations;
+  std::vector<vtkSmartPointer<vtkAnnotation>> Annotations;
 };
 
-vtkAnnotationLayers::vtkAnnotationLayers() :
-  Implementation(new Internals())
+vtkAnnotationLayers::vtkAnnotationLayers()
+  : Implementation(new Internals())
 {
   this->CurrentAnnotation = vtkAnnotation::New();
 
   // Start with an empty index selection
-  vtkSmartPointer<vtkSelection> sel =
-    vtkSmartPointer<vtkSelection>::New();
-  vtkSmartPointer<vtkSelectionNode> node =
-    vtkSmartPointer<vtkSelectionNode>::New();
+  vtkSmartPointer<vtkSelection> sel = vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
   node->SetContentType(vtkSelectionNode::INDICES);
-  vtkSmartPointer<vtkIdTypeArray> ids =
-    vtkSmartPointer<vtkIdTypeArray>::New();
+  vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
   node->SetSelectionList(ids);
   sel->AddNode(node);
   this->CurrentAnnotation->SetSelection(sel);
@@ -103,17 +84,14 @@ vtkAnnotation* vtkAnnotationLayers::GetAnnotation(unsigned int idx)
 
 void vtkAnnotationLayers::AddAnnotation(vtkAnnotation* annotation)
 {
-  this->Implementation->Annotations.push_back(annotation);
+  this->Implementation->Annotations.emplace_back(annotation);
   this->Modified();
 }
 
 void vtkAnnotationLayers::RemoveAnnotation(vtkAnnotation* annotation)
 {
-  this->Implementation->Annotations.erase(
-    std::remove(
-      this->Implementation->Annotations.begin(),
-      this->Implementation->Annotations.end(),
-      annotation),
+  this->Implementation->Annotations.erase(std::remove(this->Implementation->Annotations.begin(),
+                                            this->Implementation->Annotations.end(), annotation),
     this->Implementation->Annotations.end());
   this->Modified();
 }
@@ -152,8 +130,7 @@ void vtkAnnotationLayers::DeepCopy(vtkDataObject* other)
   this->Implementation->Annotations.clear();
   for (unsigned int a = 0; a < obj->GetNumberOfAnnotations(); ++a)
   {
-    vtkSmartPointer<vtkAnnotation> ann =
-      vtkSmartPointer<vtkAnnotation>::New();
+    vtkSmartPointer<vtkAnnotation> ann = vtkSmartPointer<vtkAnnotation>::New();
     ann->DeepCopy(obj->GetAnnotation(a));
     this->AddAnnotation(ann);
   }
@@ -226,3 +203,4 @@ vtkAnnotationLayers* vtkAnnotationLayers::GetData(vtkInformationVector* v, int i
 {
   return vtkAnnotationLayers::GetData(v->GetInformationObject(i));
 }
+VTK_ABI_NAMESPACE_END

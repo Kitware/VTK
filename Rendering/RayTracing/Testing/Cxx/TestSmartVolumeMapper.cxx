@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestSmartVolumeMapper.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This test covers the smart volume mapper and composite method.
 // This test volume renders a synthetic dataset with unsigned char values,
 // with the composite method.
@@ -24,12 +12,14 @@
 #include <vtkImageData.h>
 #include <vtkImageReader.h>
 #include <vtkImageShiftScale.h>
+#include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkPlane.h>
+#include <vtkOSPRayPass.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPlane.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -41,14 +31,11 @@
 #include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
-#include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkOSPRayPass.h>
-#include <vtkProperty.h>
 
 #include <vtkAutoInit.h>
 VTK_MODULE_INIT(vtkRenderingRayTracing);
 
-int TestSmartVolumeMapper(int argc, char *argv[])
+int TestSmartVolumeMapper(int argc, char* argv[])
 {
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
@@ -70,8 +57,7 @@ int TestSmartVolumeMapper(int argc, char *argv[])
   }
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
   volumeMapper->SetSampleDistance(0.01);
@@ -81,8 +67,8 @@ int TestSmartVolumeMapper(int argc, char *argv[])
   dssFilter->SetInputConnection(reader->GetOutputPort());
   vtkNew<vtkClipPolyData> clip;
   vtkNew<vtkPlane> plane;
-  plane->SetOrigin(0,50,0);
-  plane->SetNormal(0,-1,0);
+  plane->SetOrigin(0, 50, 0);
+  plane->SetNormal(0, -1, 0);
   clip->SetInputConnection(dssFilter->GetOutputPort());
   clip->SetClipFunction(plane);
   dssMapper->SetInputConnection(clip->GetOutputPort());
@@ -104,8 +90,8 @@ int TestSmartVolumeMapper(int argc, char *argv[])
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
-//  vtkNew<vtkInteractorStyleTrackballCamera> style;
-//  iren->SetInteractorStyle(style);
+  //  vtkNew<vtkInteractorStyleTrackballCamera> style;
+  //  iren->SetInteractorStyle(style);
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
@@ -135,8 +121,8 @@ int TestSmartVolumeMapper(int argc, char *argv[])
   iren->Initialize();
   iren->SetDesiredUpdateRate(30.0);
 
-  int retVal = vtkRegressionTestImageThreshold( renWin, 50.0 );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -1,18 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXdmf3Reader.h
-  Language:  C++
-
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXdmf3Reader
  * @brief   Reads <tt>eXtensible Data Model and Format</tt> files
@@ -25,14 +12,15 @@
  *
  * @warning
  * Uses the XDMF API (http://www.xdmf.org)
-*/
+ */
 
 #ifndef vtkXdmf3Reader_h
 #define vtkXdmf3Reader_h
 
-#include "vtkIOXdmf3Module.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkIOXdmf3Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXdmf3ArraySelection;
 class vtkGraph;
 
@@ -46,19 +34,19 @@ public:
   /**
    * Set tells the reader the name of a single top level xml file to read.
    */
-  void SetFileName(const char* filename);
+  void SetFileName(VTK_FILEPATH const char* filename);
 
-  //@{
+  ///@{
   /**
    * Add and remove give the reader a list of top level xml files to read.
    * Whether the set is treated as a spatial or temporal collection depends
    * on FileSeriestAsTime.
    */
-  virtual void AddFileName(const char* filename);
+  virtual void AddFileName(VTK_FILEPATH const char* filename);
   virtual void RemoveAllFileNames();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When true (the default) the reader treats a series of files as a temporal
    * collection. When false it treats it as a spatial partition and uses
@@ -66,12 +54,12 @@ public:
    */
   vtkSetMacro(FileSeriesAsTime, bool);
   vtkGetMacro(FileSeriesAsTime, bool);
-  //@}
+  ///@}
 
   /**
    * Determine if the file can be read with this reader.
    */
-  virtual int CanReadFile(const char* filename);
+  virtual int CanReadFile(VTK_FILEPATH const char* filename);
 
   /**
    * Get information about point-based arrays. As is typical with readers this
@@ -86,15 +74,15 @@ public:
    */
   const char* GetPointArrayName(int index);
 
-  //@{
+  ///@{
   /**
    * Get/Set the point array status.
    */
   int GetPointArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get information about cell-based arrays.  As is typical with readers this
    * in only valid after the filename is set and UpdateInformation() has been
@@ -104,9 +92,9 @@ public:
   const char* GetCellArrayName(int index);
   void SetCellArrayStatus(const char* name, int status);
   int GetCellArrayStatus(const char* name);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get information about unaligned arrays.  As is typical with readers this
    * in only valid after the filename is set and UpdateInformation() has been
@@ -116,9 +104,9 @@ public:
   const char* GetFieldArrayName(int index);
   void SetFieldArrayStatus(const char* name, int status);
   int GetFieldArrayStatus(const char* name);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set information about grids. As is typical with readers this is valid
    * only after the filename as been set and UpdateInformation() has been
@@ -128,9 +116,9 @@ public:
   const char* GetGridName(int index);
   void SetGridStatus(const char* gridname, int status);
   int GetGridStatus(const char* gridname);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set information about sets. As is typical with readers this is valid
    * only after the filename as been set and UpdateInformation() has been
@@ -141,16 +129,14 @@ public:
   const char* GetSetName(int index);
   void SetSetStatus(const char* gridname, int status);
   int GetSetStatus(const char* gridname);
-  //@}
+  ///@}
 
   /**
    * These methods are provided to make it easier to use the Sets in ParaView.
    */
   int GetNumberOfSetArrays() { return this->GetNumberOfSets(); }
-  const char* GetSetArrayName(int index)
-    { return this->GetSetName(index); }
-  int GetSetArrayStatus(const char* name)
-    { return this->GetSetStatus(name); }
+  const char* GetSetArrayName(int index) { return this->GetSetName(index); }
+  int GetSetArrayStatus(const char* name) { return this->GetSetStatus(name); }
 
   /**
    * SIL describes organization of/relationships between classifications
@@ -165,30 +151,27 @@ public:
 
 protected:
   vtkXdmf3Reader();
-  ~vtkXdmf3Reader();
+  ~vtkXdmf3Reader() override;
 
   const char* FileNameInternal;
-  vtkSetStringMacro(FileNameInternal);
+  vtkSetFilePathMacro(FileNameInternal);
 
-  //Overridden to announce that we make general DataObjects.
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  // Overridden to announce that we make general DataObjects.
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  //Overridden to handle RDO requests the way we need to
-  vtkTypeBool ProcessRequest(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  // Overridden to handle RDO requests the way we need to
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //Overridden to create the correct vtkDataObject subclass for the file.
-  virtual int RequestDataObjectInternal(
-    vtkInformationVector *);
+  // Overridden to create the correct vtkDataObject subclass for the file.
+  virtual int RequestDataObjectInternal(vtkInformationVector*);
 
-  //Overridden to announce temporal information and to participate in
-  //structured extent splitting.
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  // Overridden to announce temporal information and to participate in
+  // structured extent splitting.
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //Read the XDMF and HDF input files and fill in vtk data objects.
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  // Read the XDMF and HDF input files and fill in vtk data objects.
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkXdmf3ArraySelection* GetFieldArraySelection();
   vtkXdmf3ArraySelection* GetCellArraySelection();
@@ -208,7 +191,8 @@ private:
   bool FileSeriesAsTime;
 
   class Internals;
-  Internals *Internal;
+  Internals* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

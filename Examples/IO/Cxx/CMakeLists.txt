@@ -1,18 +1,24 @@
-cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
 project(IO)
 
-find_package(VTK
-  OPTIONAL_COMPONENTS
-    IOExport
-    IOImport
-    TestingRendering)
+include(GNUInstallDirs)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+
 find_package(VTK
   COMPONENTS
     CommonCore
     IOGeometry
     IOLegacy
     IOXML
-    InteractionStyle)
+    InteractionStyle
+    vtksys
+  OPTIONAL_COMPONENTS
+    IOExport
+    IOImport
+    RenderingOpenGL2
+    TestingRendering)
 if (NOT VTK_FOUND)
   message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
   return ()
@@ -42,19 +48,32 @@ if (TARGET VTK::IOExport AND TARGET VTK::IOImport)
     PRIVATE
       ${VTK_LIBRARIES}
       VTK::IOExport
-      VTK::IOImport)
+      VTK::IOImport
+      VTK::RenderingOpenGL2
+      )
 
   vtk_module_autoinit(
     TARGETS objtovtp
     MODULES ${VTK_LIBRARIES}
             VTK::IOExport
-            VTK::IOImport)
+            VTK::IOImport
+            VTK::RenderingOpenGL2
+            )
 endif ()
 
 if (BUILD_TESTING)
   include(CTest)
   if (TARGET VTK::TestingRendering)
     ######## Regression Testing ########
+    set(ExternalData_BINARY_ROOT ${CMAKE_CURRENT_BINARY_DIR}/ExternalData)
+
+    list(APPEND ExternalData_URL_TEMPLATES
+      # Data published by Girder
+      "https://data.kitware.com/api/v1/file/hashsum/%(algo)/%(hash)/download"
+
+      # Data published by developers using git-gitlab-push.
+      "https://www.vtk.org/files/ExternalData/%(algo)/%(hash)"
+    )
     include(ExternalData)
 
     ExternalData_add_test(IOData

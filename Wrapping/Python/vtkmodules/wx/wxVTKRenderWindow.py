@@ -471,7 +471,7 @@ class wxVTKRenderWindow(baseClass):
         if event.GetKeyCode() == ord('p'):
             self.PickActor(event)
 
-        if event.GetKeyCode() < 256:
+        if event.GetKeyCode() < 128:
             self.OnChar(event)
 
     def OnKeyUp(self, event):
@@ -740,6 +740,9 @@ def wxVTKRenderWindowConeExample():
 
     from vtkmodules.vtkFiltersSources import vtkConeSource
     from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+    # load implementations for rendering and interaction factory classes
+    import vtkmodules.vtkRenderingOpenGL2
+    import vtkmodules.vtkInteractionStyle
 
     # every wx app needs an app
     app = wx.App(False)

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDIYExplicitAssigner.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkDIYExplicitAssigner
  * @brief assigner for use with DIY
@@ -31,8 +19,8 @@
 #ifndef vtkDIYExplicitAssigner_h
 #define vtkDIYExplicitAssigner_h
 
-#include "vtkParallelDIYModule.h" // for export macros
 #include "vtkObject.h"
+#include "vtkParallelDIYModule.h" // for export macros
 // clang-format off
 #include "vtk_diy2.h"
 #include VTK_DIY2(diy/mpi.hpp)
@@ -40,9 +28,11 @@
 // clang-format on
 
 #ifdef _WIN32
-#pragma warning( disable : 4275 ) /* non dll-interface class `diy::StaticAssigner` used as base for dll-interface class */
+#pragma warning(disable : 4275) /* non dll-interface class `diy::StaticAssigner` used as base for  \
+                                   dll-interface class */
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPARALLELDIY_EXPORT vtkDIYExplicitAssigner : public diy::StaticAssigner
 {
 public:
@@ -53,11 +43,9 @@ public:
   void local_gids(int rank, std::vector<int>& gids) const override;
 
 private:
-  vtkDIYExplicitAssigner(const vtkDIYExplicitAssigner&) = delete;
-  void operator=(const vtkDIYExplicitAssigner&) = delete;
-
   std::vector<int> IScanBlockCounts;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkDIYExplicitAssigner.h

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDistancePolyDataFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDistancePolyDataFilter
  *
@@ -27,12 +15,15 @@
  * computed by calling SignedDistanceOff(). The signed distance field
  * may be negated by calling NegateDistanceOn();
  *
+ * Directions can be computed in conjunction with distances by calling
+ * ComputeDirectionsOn().
+ *
  * This code was contributed in the VTK Journal paper:
  * "Boolean Operations on Surfaces in VTK Without External Libraries"
  * by Cory Quammen, Chris Weigle C., Russ Taylor
  * http://hdl.handle.net/10380/3262
  * http://www.midasjournal.org/browse/publication/797
-*/
+ */
 
 #ifndef vtkDistancePolyDataFilter_h
 #define vtkDistancePolyDataFilter_h
@@ -40,42 +31,43 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkDistancePolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkDistancePolyDataFilter *New();
+  static vtkDistancePolyDataFilter* New();
   vtkTypeMacro(vtkDistancePolyDataFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Enable/disable computation of the signed distance between
    * the first poly data and the second poly data. Defaults to on.
    */
-  vtkSetMacro(SignedDistance,vtkTypeBool);
-  vtkGetMacro(SignedDistance,vtkTypeBool);
-  vtkBooleanMacro(SignedDistance,vtkTypeBool);
-  //@}
+  vtkSetMacro(SignedDistance, vtkTypeBool);
+  vtkGetMacro(SignedDistance, vtkTypeBool);
+  vtkBooleanMacro(SignedDistance, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable negation of the distance values. Defaults to
    * off. Has no effect if SignedDistance is off.
    */
-  vtkSetMacro(NegateDistance,vtkTypeBool);
-  vtkGetMacro(NegateDistance,vtkTypeBool);
-  vtkBooleanMacro(NegateDistance,vtkTypeBool);
-  //@}
+  vtkSetMacro(NegateDistance, vtkTypeBool);
+  vtkGetMacro(NegateDistance, vtkTypeBool);
+  vtkBooleanMacro(NegateDistance, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable computation of a second output poly data with the
    * distance from the first poly data at each point. Defaults to on.
    */
-  vtkSetMacro(ComputeSecondDistance,vtkTypeBool);
-  vtkGetMacro(ComputeSecondDistance,vtkTypeBool);
-  vtkBooleanMacro(ComputeSecondDistance,vtkTypeBool);
-  //@}
+  vtkSetMacro(ComputeSecondDistance, vtkTypeBool);
+  vtkGetMacro(ComputeSecondDistance, vtkTypeBool);
+  vtkBooleanMacro(ComputeSecondDistance, vtkTypeBool);
+  ///@}
 
   /**
    * Get the second output, which is a copy of the second input with an
@@ -85,7 +77,7 @@ public:
    */
   vtkPolyData* GetSecondDistanceOutput();
 
-  //@{
+  ///@{
   /**
    * Enable/disable computation of cell-center distance to the
    * second poly data. Defaults to on for backwards compatibility.
@@ -93,10 +85,20 @@ public:
    * If the first poly data consists of just vertex cells,
    * computing point and cell-center distances is redundant.
    */
-  vtkSetMacro(ComputeCellCenterDistance,vtkTypeBool);
-  vtkGetMacro(ComputeCellCenterDistance,vtkTypeBool);
-  vtkBooleanMacro(ComputeCellCenterDistance,vtkTypeBool);
-  //@}
+  vtkSetMacro(ComputeCellCenterDistance, vtkTypeBool);
+  vtkGetMacro(ComputeCellCenterDistance, vtkTypeBool);
+  vtkBooleanMacro(ComputeCellCenterDistance, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Enable/disable computation of unit directions for the distances.
+   * Defaults to off for backwards compatibility.
+   */
+  vtkSetMacro(ComputeDirection, vtkTypeBool);
+  vtkGetMacro(ComputeDirection, vtkTypeBool);
+  vtkBooleanMacro(ComputeDirection, vtkTypeBool);
+  ///@}
 
 protected:
   vtkDistancePolyDataFilter();
@@ -113,6 +115,8 @@ private:
   vtkTypeBool NegateDistance;
   vtkTypeBool ComputeSecondDistance;
   vtkTypeBool ComputeCellCenterDistance;
+  vtkTypeBool ComputeDirection;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

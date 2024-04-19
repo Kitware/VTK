@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVertexListIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkVertexListIterator
  * @brief   Iterates all vertices in a graph.
@@ -29,7 +13,7 @@
  *
  * @sa
  * vtkGraph
-*/
+ */
 
 #ifndef vtkVertexListIterator_h
 #define vtkVertexListIterator_h
@@ -39,28 +23,29 @@
 
 #include "vtkGraph.h" // For edge type definitions
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraphEdge;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkVertexListIterator : public vtkObject
 {
 public:
-  static vtkVertexListIterator *New();
+  static vtkVertexListIterator* New();
   vtkTypeMacro(vtkVertexListIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Setup the iterator with a graph.
    */
-  virtual void SetGraph(vtkGraph *graph);
+  virtual void SetGraph(vtkGraph* graph);
 
-  //@{
+  ///@{
   /**
    * Get the graph associated with this iterator.
    */
   vtkGetObjectMacro(Graph, vtkGraph);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the next edge in the graph.
    */
@@ -70,27 +55,25 @@ public:
     ++this->Current;
     return v;
   }
-  //@}
+  ///@}
 
   /**
    * Whether this iterator has more edges.
    */
-  bool HasNext()
-  {
-    return this->Current != this->End;
-  }
+  bool HasNext() { return this->Current != this->End; }
 
 protected:
   vtkVertexListIterator();
   ~vtkVertexListIterator() override;
 
-  vtkGraph *Graph;
-  vtkIdType  Current;
-  vtkIdType  End;
+  vtkGraph* Graph;
+  vtkIdType Current;
+  vtkIdType End;
 
 private:
   vtkVertexListIterator(const vtkVertexListIterator&) = delete;
   void operator=(const vtkVertexListIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

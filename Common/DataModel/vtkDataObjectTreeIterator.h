@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataObjectTreeIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDataObjectTreeIterator
  * @brief   superclass for composite data iterators
  *
  * vtkDataObjectTreeIterator provides an interface for accessing datasets
  * in a collection (vtkDataObjectTreeIterator).
-*/
+ */
 
 #ifndef vtkDataObjectTreeIterator_h
 #define vtkDataObjectTreeIterator_h
@@ -27,6 +15,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkSmartPointer.h" //to store data sets
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectTree;
 class vtkDataObjectTreeInternals;
 class vtkDataObjectTreeIndex;
@@ -75,7 +64,7 @@ public:
    * Returns if the a meta-data information object is present for the current
    * item. Return 1 on success, 0 otherwise.
    */
-  int HasCurrentMetaData() override;
+  vtkTypeBool HasCurrentMetaData() override;
 
   /**
    * Flat index is an index obtained by traversing the tree in preorder.
@@ -84,7 +73,7 @@ public:
    */
   unsigned int GetCurrentFlatIndex() override;
 
-  //@{
+  ///@{
   /**
    * If VisitOnlyLeaves is true, the iterator will only visit nodes
    * (sub-datasets) that are not composite. If it encounters a composite
@@ -98,9 +87,9 @@ public:
   vtkSetMacro(VisitOnlyLeaves, vtkTypeBool);
   vtkGetMacro(VisitOnlyLeaves, vtkTypeBool);
   vtkBooleanMacro(VisitOnlyLeaves, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If TraverseSubTree is set to true, the iterator will visit the entire tree
    * structure, otherwise it only visits the first level children. Set to 1 by
@@ -109,14 +98,14 @@ public:
   vtkSetMacro(TraverseSubTree, vtkTypeBool);
   vtkGetMacro(TraverseSubTree, vtkTypeBool);
   vtkBooleanMacro(TraverseSubTree, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkDataObjectTreeIterator();
   ~vtkDataObjectTreeIterator() override;
 
   // Use the macro to ensure MTime is updated:
-  vtkSetMacro(CurrentFlatIndex, unsigned int)
+  vtkSetMacro(CurrentFlatIndex, unsigned int);
 
   // Takes the current location to the next dataset. This traverses the tree in
   // preorder fashion.
@@ -144,6 +133,10 @@ private:
   class vtkInternals;
   vtkInternals* Internals;
   friend class vtkInternals;
+  /**
+   * Used to improve the speed of vtkDataObjectTree::SafeDownCast().
+   */
+  static bool IsDataObjectTree(vtkDataObject* dataObject);
 
   vtkTypeBool TraverseSubTree;
   vtkTypeBool VisitOnlyLeaves;
@@ -156,7 +149,7 @@ private:
 
   // Cannot be called when this->IsDoneWithTraversal() return 1.
   void UpdateLocation();
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -2,33 +2,45 @@
 # -*- coding: utf-8 -*-
 
 import os
-import vtk
-import vtk.test.Testing
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkLookupTable,
+)
+from vtkmodules.vtkCommonDataModel import vtkTable
+from vtkmodules.vtkChartsCore import (
+    vtkChart,
+    vtkChartXY,
+    vtkPlotPoints,
+)
+from vtkmodules.vtkRenderingContext2D import vtkPen
+from vtkmodules.vtkViewsContext2D import vtkContextView
+import vtkmodules.vtkRenderingContextOpenGL2
+import vtkmodules.test.Testing
 import math
 
-class TestLinePlotColors(vtk.test.Testing.vtkTest):
+class TestLinePlotColors(vtkmodules.test.Testing.vtkTest):
     def testLinePlot(self):
         "Test if colored line plots can be built with python"
 
         # Set up a 2D scene, add an XY chart to it
-        view = vtk.vtkContextView()
+        view = vtkContextView()
         view.GetRenderer().SetBackground(1.0, 1.0, 1.0)
         view.GetRenderWindow().SetSize(400, 300)
 
-        chart = vtk.vtkChartXY()
+        chart = vtkChartXY()
         view.GetScene().AddItem(chart)
 
         # Create a table with some points in it
-        arrX = vtk.vtkFloatArray()
+        arrX = vtkFloatArray()
         arrX.SetName("XAxis")
 
-        arrC = vtk.vtkFloatArray()
+        arrC = vtkFloatArray()
         arrC.SetName("Cosine")
 
-        arrS = vtk.vtkFloatArray()
+        arrS = vtkFloatArray()
         arrS.SetName("Sine")
 
-        arrS2 = vtk.vtkFloatArray()
+        arrS2 = vtkFloatArray()
         arrS2.SetName("Sine2")
 
         numPoints = 69
@@ -40,14 +52,14 @@ class TestLinePlotColors(vtk.test.Testing.vtkTest):
             arrS.InsertNextValue(math.sin(i * inc) + 0.0)
             arrS2.InsertNextValue(math.sin(i * inc) + 0.5)
 
-        table = vtk.vtkTable()
+        table = vtkTable()
         table.AddColumn(arrX)
         table.AddColumn(arrC)
         table.AddColumn(arrS)
         table.AddColumn(arrS2)
 
         # Generate a black-to-red lookup table with fixed alpha
-        lut = vtk.vtkLookupTable()
+        lut = vtkLookupTable()
         lut.SetValueRange(0.2, 1.0)
         lut.SetSaturationRange(1, 1)
         lut.SetHueRange(0,0)
@@ -57,7 +69,7 @@ class TestLinePlotColors(vtk.test.Testing.vtkTest):
         lut.Build()
 
         # Generate a black-to-blue lookup table with alpha range
-        lut2 = vtk.vtkLookupTable()
+        lut2 = vtkLookupTable()
         lut2.SetValueRange(0.2, 1.0)
         lut2.SetSaturationRange(1, 1)
         lut2.SetHueRange(0.6667, 0.6667)
@@ -67,28 +79,28 @@ class TestLinePlotColors(vtk.test.Testing.vtkTest):
         lut2.Build()
 
         # Add multiple line plots, setting the colors etc
-        line0 = chart.AddPlot(vtk.vtkChart.LINE)
+        line0 = chart.AddPlot(vtkChart.LINE)
         line0.SetInputData(table, 0, 1)
         line0.SetColor(50, 50, 50, 255)
         line0.SetWidth(3.0)
-        line0.GetPen().SetLineType(vtk.vtkPen.SOLID_LINE)
-        line0.SetMarkerStyle(vtk.vtkPlotPoints.CIRCLE)
+        line0.GetPen().SetLineType(vtkPen.SOLID_LINE)
+        line0.SetMarkerStyle(vtkPlotPoints.CIRCLE)
         line0.SetScalarVisibility(1)
         line0.SetLookupTable(lut)
         line0.SelectColorArray(1)
 
-        line1 = chart.AddPlot(vtk.vtkChart.LINE)
+        line1 = chart.AddPlot(vtkChart.LINE)
         line1.SetInputData(table, 0, 2)
-        line1.GetPen().SetLineType(vtk.vtkPen.NO_PEN)
-        line1.SetMarkerStyle(vtk.vtkPlotPoints.PLUS)
+        line1.GetPen().SetLineType(vtkPen.NO_PEN)
+        line1.SetMarkerStyle(vtkPlotPoints.PLUS)
         line1.SetColor(150, 100, 0, 255)
 
-        line2 = chart.AddPlot(vtk.vtkChart.LINE)
+        line2 = chart.AddPlot(vtkChart.LINE)
         line2.SetInputData(table, 0, 3)
         line2.SetColor(100, 100, 100, 255)
         line2.SetWidth(3.0)
-        line2.GetPen().SetLineType(vtk.vtkPen.DASH_LINE)
-        line2.SetMarkerStyle(vtk.vtkPlotPoints.SQUARE)
+        line2.GetPen().SetLineType(vtkPen.DASH_LINE)
+        line2.SetMarkerStyle(vtkPlotPoints.SQUARE)
         line2.ScalarVisibilityOn()
         line2.SetLookupTable(lut2)
         line2.SelectColorArray("Sine")
@@ -99,8 +111,8 @@ class TestLinePlotColors(vtk.test.Testing.vtkTest):
         view.GetRenderWindow().Render()
 
         img_file = "TestLinePlotColors.png"
-        vtk.test.Testing.compareImage(view.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(view.GetRenderWindow(),vtkmodules.test.Testing.getAbsImagePath(img_file),threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-    vtk.test.Testing.main([(TestLinePlotColors, 'test')])
+    vtkmodules.test.Testing.main([(TestLinePlotColors, 'test')])

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestProjectedTetrahedraTransform.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include <vtkActor.h>
 #include <vtkColorTransferFunction.h>
@@ -27,9 +15,9 @@
 #include <vtkRectilinearGrid.h>
 #include <vtkRectilinearGridToTetrahedra.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTesting.h>
 #include <vtkTransform.h>
@@ -62,8 +50,7 @@ vtkSmartPointer<vtkVolume> CubeVolume(double r, double g, double b)
   rectilinearGridToTetrahedra->SetInputData(grid);
   rectilinearGridToTetrahedra->Update();
 
-  vtkSmartPointer<vtkUnstructuredGrid> ugrid
-    = rectilinearGridToTetrahedra->GetOutput();
+  vtkSmartPointer<vtkUnstructuredGrid> ugrid = rectilinearGridToTetrahedra->GetOutput();
 
   // Add scalars to the grid
   vtkNew<vtkDoubleArray> scalars;
@@ -107,8 +94,7 @@ vtkSmartPointer<vtkActor> ConeActor(double r, double g, double b)
   return actor;
 }
 
-
-int TestProjectedTetrahedraTransform(int argc, char *argv[])
+int TestProjectedTetrahedraTransform(int argc, char* argv[])
 {
   // Create the props
 

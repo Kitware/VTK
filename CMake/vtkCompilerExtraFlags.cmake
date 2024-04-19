@@ -37,3 +37,26 @@ if(CMAKE_COMPILER_IS_GNUCXX)
       "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_WARN} ${CMAKE_CXX_FLAGS_ERROR}")
   endif()
 endif()
+
+# Intel OneAPI compilers >= 2021.2.0 turn on "fast math" at any non-zero
+# optimization level. Suppress this non-standard behavior using the
+# `-fp-model=precise` flag.
+set(intel_oneapi_compiler_detections)
+set(intel_oneapi_compiler_version_min "2021.2.0")
+foreach (lang IN ITEMS C CXX Fortran)
+  if (CMAKE_VERSION VERSION_LESS "3.14" AND lang STREQUAL "Fortran") # XXX(cmake-3.14): `Fortran_COMPILER_ID` genex
+    continue ()
+  endif ()
+  # Detect the IntelLLVM compiler for the given language.
+  set(is_lang "$<COMPILE_LANGUAGE:${lang}>")
+  set(is_intelllvm "$<${lang}_COMPILER_ID:IntelLLVM>")
+  set(is_intelllvm_fastmath_assuming_version "$<VERSION_GREATER_EQUAL:$<${lang}_COMPILER_VERSION>,${intel_oneapi_compiler_version_min}>")
+  list(APPEND intel_oneapi_compiler_detections
+    "$<AND:${is_lang},${is_intelllvm},${is_intelllvm_fastmath_assuming_version}>")
+endforeach ()
+string(REPLACE ";" "," intel_oneapi_compiler_detections "${intel_oneapi_compiler_detections}")
+if (TARGET vtkbuild)
+  target_compile_options(vtkbuild
+    INTERFACE
+      "$<BUILD_INTERFACE:$<$<OR:${intel_oneapi_compiler_detections}>:-fp-model=precise>>")
+endif ()

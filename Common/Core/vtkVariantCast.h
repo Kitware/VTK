@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVariantCast.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkVariantCast
@@ -31,135 +14,127 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkVariantCast_h
 #define vtkVariantCast_h
 
-#include "vtkUnicodeString.h"
+#include "vtkVariant.h"
 #include <typeinfo> // for warnings
 
-template<typename T>
+VTK_ABI_NAMESPACE_BEGIN
+template <typename T>
 T vtkVariantCast(const vtkVariant& value, bool* valid = nullptr)
 {
-  vtkGenericWarningMacro(
-    << "Cannot convert vtkVariant containing [" << value.GetTypeAsString() << "] "
-    << "to unsupported type [" << typeid(T).name() << "].  "
-    << "Create a vtkVariantCast<> specialization to eliminate this warning."
-    );
+  vtkGenericWarningMacro(<< "Cannot convert vtkVariant containing [" << value.GetTypeAsString()
+                         << "] "
+                         << "to unsupported type [" << typeid(T).name() << "].  "
+                         << "Create a vtkVariantCast<> specialization to eliminate this warning.");
 
-  if(valid)
+  if (valid)
     *valid = false;
 
   static T dummy;
   return dummy;
 }
 
-template<>
+template <>
 inline char vtkVariantCast<char>(const vtkVariant& value, bool* valid)
 {
   return value.ToChar(valid);
 }
 
-template<>
+template <>
 inline signed char vtkVariantCast<signed char>(const vtkVariant& value, bool* valid)
 {
   return value.ToSignedChar(valid);
 }
 
-template<>
+template <>
 inline unsigned char vtkVariantCast<unsigned char>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedChar(valid);
 }
 
-template<>
+template <>
 inline short vtkVariantCast<short>(const vtkVariant& value, bool* valid)
 {
   return value.ToShort(valid);
 }
 
-template<>
+template <>
 inline unsigned short vtkVariantCast<unsigned short>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedShort(valid);
 }
 
-template<>
+template <>
 inline int vtkVariantCast<int>(const vtkVariant& value, bool* valid)
 {
   return value.ToInt(valid);
 }
 
-template<>
+template <>
 inline unsigned int vtkVariantCast<unsigned int>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedInt(valid);
 }
 
-template<>
+template <>
 inline long vtkVariantCast<long>(const vtkVariant& value, bool* valid)
 {
   return value.ToLong(valid);
 }
 
-template<>
+template <>
 inline unsigned long vtkVariantCast<unsigned long>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedLong(valid);
 }
 
-template<>
+template <>
 inline long long vtkVariantCast<long long>(const vtkVariant& value, bool* valid)
 {
   return value.ToLongLong(valid);
 }
 
-template<>
+template <>
 inline unsigned long long vtkVariantCast<unsigned long long>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedLongLong(valid);
 }
 
-template<>
+template <>
 inline float vtkVariantCast<float>(const vtkVariant& value, bool* valid)
 {
   return value.ToFloat(valid);
 }
 
-template<>
+template <>
 inline double vtkVariantCast<double>(const vtkVariant& value, bool* valid)
 {
   return value.ToDouble(valid);
 }
 
-template<>
+template <>
 inline vtkStdString vtkVariantCast<vtkStdString>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
+  if (valid)
     *valid = true;
 
   return value.ToString();
 }
 
-template<>
-inline vtkUnicodeString vtkVariantCast<vtkUnicodeString>(const vtkVariant& value, bool* valid)
-{
-  if(valid)
-    *valid = true;
-
-  return value.ToUnicodeString();
-}
-
-template<>
+template <>
 inline vtkVariant vtkVariantCast<vtkVariant>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
+  if (valid)
     *valid = true;
 
   return value;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkVariantCast.h

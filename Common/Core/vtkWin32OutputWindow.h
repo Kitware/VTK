@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWin32OutputWindow.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWin32OutputWindow
  * @brief   Win32 Specific output window class
@@ -36,12 +24,12 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkWin32OutputWindow : public vtkOutputWindow
 {
 public:
-// Methods from vtkObject
-  vtkTypeMacro(vtkWin32OutputWindow,vtkOutputWindow);
+  // Methods from vtkObject
+  vtkTypeMacro(vtkWin32OutputWindow, vtkOutputWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -54,31 +42,23 @@ public:
    */
   void DisplayText(const char*) override;
 
-  //@{
   /**
-   * Set or get whether the vtkWin32OutputWindow should also send its output
-   * to stderr / cerr.
-   *
-   * @deprecated in VTK 8.3. Please use `vtkOutputWindow::SetDisplayMode` instead.
+   * Returns the window title.
    */
-  VTK_LEGACY(void SetSendToStdErr(bool));
-  VTK_LEGACY(bool GetSendToStdErr());
-  VTK_LEGACY(void SendToStdErrOn());
-  VTK_LEGACY(void SendToStdErrOff());
-  //@}
+  virtual const char* GetWindowTitle() { return "vtkOutputWindow"; }
 
 protected:
   vtkWin32OutputWindow();
   ~vtkWin32OutputWindow() override;
 
-  void PromptText(const char* text);
-  static void AddText(const char*);
-  static int Initialize();
+  virtual void PromptText(const char* text);
+  virtual void AddText(const char*);
+  virtual int Initialize();
 
 private:
   vtkWin32OutputWindow(const vtkWin32OutputWindow&) = delete;
   void operator=(const vtkWin32OutputWindow&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif

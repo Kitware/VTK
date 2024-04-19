@@ -6,6 +6,10 @@ CONDITION
   VTK_USE_TK
 GROUPS
   Tk
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::InteractionImage

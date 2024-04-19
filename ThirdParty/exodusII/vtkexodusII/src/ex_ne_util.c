@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 
 /*****************************************************************************/
@@ -38,11 +11,11 @@
 /*****************************************************************************/
 /* Function(s) contained in this file:
  *
- *     ex_leavedef()
- *     ne_id_lkup()
- *     ex_get_file_type()
- *     ex_put_nemesis_version()
- *     ne_check_file_version()
+ *     ex__leavedef()
+ *     ne__id_lkup()
+ *     ex__get_file_type()
+ *     ex__put_nemesis_version()
+ *     ne__check_file_version()
  *     ex_get_idx()
  *
  *****************************************************************************
@@ -64,7 +37,7 @@ char *ne_ret_string;
 /* Note: This function assumes a 1-d vector of data for "ne_var_name".
  */
 /*****************************************************************************/
-int ne_id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id ne_var_id)
+int ne__id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id ne_var_id)
 {
   int       status;
   int       varid, ndims, dimid[1], ret = -1;
@@ -136,7 +109,7 @@ int ne_id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id ne
 /* This function retrieves the file type from a Nemesis file.
  */
 /*****************************************************************************/
-int ex_get_file_type(int exoid, char *ftype)
+int ex__get_file_type(int exoid, char *ftype)
 {
   int status;
   int varid;
@@ -179,7 +152,7 @@ int ex_get_file_type(int exoid, char *ftype)
 /* This function outputs the Nemesis version information to the file.
  */
 /*****************************************************************************/
-int ex_put_nemesis_version(int exoid)
+int ex__put_nemesis_version(int exoid)
 {
   int   status;
   float file_ver, api_ver;
@@ -195,7 +168,7 @@ int ex_put_nemesis_version(int exoid)
   if (nc_get_att_float(exoid, NC_GLOBAL, "nemesis_file_version", &file_ver) != NC_NOERR) {
 
     /* Output the Nemesis file version */
-    if ((status = nc_put_att_float(exoid, NC_GLOBAL, "nemesis_file_version", NC_FLOAT, 1,
+    if ((status = nc_put_att_float(exoid, NC_GLOBAL, ATT_NEM_FILE_VERSION, NC_FLOAT, 1,
                                    &file_ver)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to output nemesis file version in file ID %d",
                exoid);
@@ -204,8 +177,8 @@ int ex_put_nemesis_version(int exoid)
     }
 
     /* Output the Nemesis API version */
-    if ((status = nc_put_att_float(exoid, NC_GLOBAL, "nemesis_api_version", NC_FLOAT, 1,
-                                   &api_ver)) != NC_NOERR) {
+    if ((status = nc_put_att_float(exoid, NC_GLOBAL, ATT_NEM_API_VERSION, NC_FLOAT, 1, &api_ver)) !=
+        NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to output nemesis api version in file ID %d",
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
@@ -221,7 +194,7 @@ int ex_put_nemesis_version(int exoid)
 /* This function checks that the version info is correct.
  */
 /*****************************************************************************/
-int ne_check_file_version(int exoid)
+int ne__check_file_version(int exoid)
 {
 #if 0
   float  file_ver;

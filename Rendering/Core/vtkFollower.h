@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFollower.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkFollower
  * @brief   a subclass of actor that always faces the camera
@@ -27,51 +15,47 @@
  *
  * @sa
  * vtkActor vtkCamera vtkAxisFollower vtkProp3DFollower
-*/
+ */
 
 #ifndef vtkFollower_h
 #define vtkFollower_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 
 class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
 {
- public:
-  vtkTypeMacro(vtkFollower,vtkActor);
+public:
+  vtkTypeMacro(vtkFollower, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a follower with no camera set
    */
-  static vtkFollower *New();
+  static vtkFollower* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the camera to follow. If this is not set, then the follower
    * won't know who to follow.
    */
   virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera, vtkCamera);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This causes the actor to be rendered. It in turn will render the actor's
    * property, texture map and then mapper. If a property hasn't been
    * assigned, then the actor will create one automatically.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
-  virtual void Render(vtkRenderer *ren);
-  //@}
-
-  /**
-   * Does this prop have some translucent polygonal geometry?
-   */
-  vtkTypeBool HasTranslucentPolygonalGeometry() override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
+  virtual void Render(vtkRenderer* ren);
+  ///@}
 
   /**
    * Release any graphics resources associated with this vtkProp3DFollower.
@@ -87,24 +71,25 @@ class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
   /**
    * Shallow copy of a follower. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
 protected:
   vtkFollower();
   ~vtkFollower() override;
 
-  vtkCamera *Camera;
-  vtkActor  *Device;
+  vtkCamera* Camera;
+  vtkActor* Device;
 
-  //Internal matrices to avoid New/Delete for performance reasons
-  vtkMatrix4x4 *InternalMatrix;
+  // Internal matrices to avoid New/Delete for performance reasons
+  vtkMatrix4x4* InternalMatrix;
 
 private:
   vtkFollower(const vtkFollower&) = delete;
   void operator=(const vtkFollower&) = delete;
 
   // hide the two parameter Render() method from the user and the compiler.
-  void Render(vtkRenderer *, vtkMapper *) override {}
+  void Render(vtkRenderer*, vtkMapper*) override {}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridOutlineFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHyperTreeGridOutlineFilter.h"
 
 #include "vtkHyperTreeGrid.h"
@@ -21,9 +9,10 @@
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridOutlineFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridOutlineFilter::vtkHyperTreeGridOutlineFilter()
 {
   this->OutlineSource = vtkOutlineSource::New();
@@ -31,7 +20,7 @@ vtkHyperTreeGridOutlineFilter::vtkHyperTreeGridOutlineFilter()
   this->GenerateFaces = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridOutlineFilter::~vtkHyperTreeGridOutlineFilter()
 {
   if (this->OutlineSource != nullptr)
@@ -41,7 +30,7 @@ vtkHyperTreeGridOutlineFilter::~vtkHyperTreeGridOutlineFilter()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -75,6 +64,7 @@ int vtkHyperTreeGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(reques
 
   this->OutlineSource->SetBounds(input->GetBounds());
   this->OutlineSource->SetGenerateFaces(this->GenerateFaces);
+  this->OutlineSource->SetContainerAlgorithm(this);
   this->OutlineSource->Update();
 
   output->CopyStructure(this->OutlineSource->GetOutput());
@@ -82,14 +72,14 @@ int vtkHyperTreeGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(reques
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridOutlineFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridOutlineFilter::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -98,18 +88,18 @@ int vtkHyperTreeGridOutlineFilter::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-// JBL Pour moi, c'est un defaut de design de vtkHyperTreeGridAlgorithm
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridOutlineFilter::ProcessTrees(
   vtkHyperTreeGrid* vtkNotUsed(input), vtkDataObject* vtkNotUsed(outputDO))
 {
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Generate Faces: " << (this->GenerateFaces ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestBoostAlgorithms.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkActor.h"
 #include "vtkBoostBrandesCentrality.h"
 #include "vtkBoostBreadthFirstSearch.h"
@@ -29,22 +13,21 @@
 #include "vtkGraphLayoutView.h"
 #include "vtkGraphToPolyData.h"
 #include "vtkGraphWriter.h"
-#include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTransform.h"
 
-#include <boost/version.hpp>
 #include "vtkBoostBiconnectedComponents.h"
+#include <boost/version.hpp>
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestBoostBrandesCentrality(int argc, char* argv[])
 {
@@ -52,12 +35,12 @@ int TestBoostBrandesCentrality(int argc, char* argv[])
   VTK_CREATE(vtkMutableUndirectedGraph, g);
 
   VTK_CREATE(vtkMatrix4x4, mat1);
-  mat1->SetElement(1,3, 5);
+  mat1->SetElement(1, 3, 5);
   VTK_CREATE(vtkTransform, transform1);
   transform1->SetMatrix(mat1);
 
   VTK_CREATE(vtkMatrix4x4, mat2);
-  mat2->SetElement(1,3, 0);
+  mat2->SetElement(1, 3, 0);
   VTK_CREATE(vtkTransform, transform2);
   transform2->SetMatrix(mat2);
 

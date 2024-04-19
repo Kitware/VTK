@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGPUInfo.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkGPUInfo
@@ -21,14 +9,15 @@
  * several GPUs. The values are set by vtkGPUInfoList.
  * @sa
  * vtkGPUInfoList vtkDirectXGPUInfoList vtkCoreGraphicsGPUInfoList
-*/
+ */
 
 #ifndef vtkGPUInfo_h
 #define vtkGPUInfo_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkGPUInfo : public vtkObject
 {
 public:
@@ -36,7 +25,7 @@ public:
   vtkTypeMacro(vtkGPUInfo, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get dedicated video memory in bytes. Initial value is 0.
    * Usually the fastest one. If it is not 0, it should be taken into
@@ -45,9 +34,9 @@ public:
    */
   vtkSetMacro(DedicatedVideoMemory, vtkTypeUInt64);
   vtkGetMacro(DedicatedVideoMemory, vtkTypeUInt64);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get dedicated system memory in bytes. Initial value is 0.
    * This is slow memory. If it is not 0, this value should be taken into
@@ -56,9 +45,9 @@ public:
    */
   vtkSetMacro(DedicatedSystemMemory, vtkTypeUInt64);
   vtkGetMacro(DedicatedSystemMemory, vtkTypeUInt64);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get shared system memory in bytes. Initial value is 0.
    * Slowest memory. This value should be taken into account only if there is
@@ -66,7 +55,7 @@ public:
    */
   vtkSetMacro(SharedSystemMemory, vtkTypeUInt64);
   vtkGetMacro(SharedSystemMemory, vtkTypeUInt64);
-  //@}
+  ///@}
 
 protected:
   vtkGPUInfo();
@@ -81,4 +70,5 @@ private:
   void operator=(const vtkGPUInfo&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

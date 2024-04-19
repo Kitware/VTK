@@ -25,6 +25,8 @@ set(private_headers)
 foreach (javascript_file IN LISTS javascript_files)
   vtk_encode_string(
     INPUT         "${javascript_file}"
+    EXPORT_HEADER "vtkWebGLExporterModule.h"
+    EXPORT_SYMBOL "VTKWEBGLEXPORTER_NO_EXPORT"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND sources
@@ -37,3 +39,4 @@ vtk_module_add_module(VTK::WebGLExporter
   CLASSES ${classes}
   SOURCES ${sources}
   PRIVATE_HEADERS ${private_headers})
+vtk_add_test_mangling(VTK::WebGLExporter)

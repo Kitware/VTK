@@ -5,7 +5,7 @@
 # This file is part of HDF5.  The full HDF5 copyright notice, including
 # terms governing use, modification, and redistribution, is contained in
 # the COPYING file, which can be found at the root of the source code
-# distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.
+# distribution tree, or in https://www.hdfgroup.org/licenses.
 # If you do not have access to either file, you may request a copy from
 # help@hdfgroup.org.
 #
@@ -20,7 +20,7 @@
 # Blank lines and lines beginning with '#' are ignored
 #
 # The format of this file is as follows:
-#  <type>: <base routine name>; <list of parameter types for function>; <version introduced>, <list of revised versions>
+#  <type>: <base routine name>; <list of versioned parameter types for function>; <version introduced>, <list of revised versions>
 #
 # Where <type> is either 'FUNCTION' or 'TYPEDEF'
 #
@@ -56,12 +56,34 @@ FUNCTION: H5Ewalk; H5E_walk, H5E_error; v10, v18
 FUNCTION: H5Fget_info; H5F_info; v18, v110
 FUNCTION: H5Gcreate; ; v10, v18
 FUNCTION: H5Gopen; ; v10, v18
+FUNCTION: H5Lget_info; H5L_info; v18, v112
+FUNCTION: H5Lget_info_by_idx; H5L_info; v18, v112
+FUNCTION: H5Literate; H5L_iterate; v18, v112
+FUNCTION: H5Literate_by_name; H5L_iterate; v18, v112
+FUNCTION: H5Lvisit; H5L_iterate; v18, v112
+FUNCTION: H5Lvisit_by_name; H5L_iterate; v18, v112
+# Note:  v111 is allowed in make_vers because H5O functions were prematurely
+#        versioned in HDF5 1.10.  Because users were affected by this, the
+#        versioning was rescinded but the H5O version 2 functions were kept
+#        to be called directly.  Now that the version macros are added in 1.12,
+#        along with a 3rd version of the H5O functions, the H5O function
+#        version for default api=v110 should be version 1 to work correctly
+#        with 1.10 applications that were using unversioned H5O functions,
+#        and the H5O function version should be version 3 for default api=v112
+#        (the default api version for 1.12).
+FUNCTION: H5Oget_info; ; v18, v111, v112
+FUNCTION: H5Oget_info_by_name; ; v18, v111, v112
+FUNCTION: H5Oget_info_by_idx; ; v18, v111, v112
+FUNCTION: H5Ovisit; ; v18, v111, v112
+FUNCTION: H5Ovisit_by_name; ; v18, v111, v112
+FUNCTION: H5Pencode; ; v110, v112
 FUNCTION: H5Pget_filter; ; v10, v18
 FUNCTION: H5Pget_filter_by_id; ; v16, v18
 FUNCTION: H5Pinsert; ; v14, v18
 FUNCTION: H5Pregister; ; v14, v18
 FUNCTION: H5Rdereference; ; v10, v110
 FUNCTION: H5Rget_obj_type; ; v16, v18
+FUNCTION: H5Sencode; ; v18, v112
 FUNCTION: H5Tarray_create; ; v14, v18
 FUNCTION: H5Tcommit; ; v10, v18
 FUNCTION: H5Tget_array_dims; ; v14, v18
@@ -71,5 +93,7 @@ FUNCTION: H5Topen; ; v10, v18
 # (although not required, it's easier to compare this file with the headers
 #       generated if the list below is in alphanumeric sort order - QAK)
 TYPEDEF: H5E_auto; v10, v18
+TYPEDEF: H5O_info; v18, v112
+TYPEDEF: H5O_iterate; v18, v112
 TYPEDEF: H5Z_class; v16, v18
 

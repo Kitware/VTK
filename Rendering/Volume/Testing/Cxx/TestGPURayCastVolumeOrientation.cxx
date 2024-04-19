@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastVolumeOrientation.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This test volume renders a dataset that has a transform that
 // doesn't preserve orientation.
 
@@ -32,7 +20,7 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-int TestGPURayCastVolumeOrientation(int argc, char *argv[])
+int TestGPURayCastVolumeOrientation(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   double scalarRange[2];
@@ -42,8 +30,7 @@ int TestGPURayCastVolumeOrientation(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
   delete[] volumeFile;
@@ -100,8 +87,7 @@ int TestGPURayCastVolumeOrientation(int argc, char *argv[])
   ren->AddActor(outlineActor);
   ren->ResetCamera();
 
-  int valid = volumeMapper->IsRenderSupported(renWin,
-                                              volumeProperty);
+  int valid = volumeMapper->IsRenderSupported(renWin, volumeProperty);
   int retVal;
   if (valid)
   {

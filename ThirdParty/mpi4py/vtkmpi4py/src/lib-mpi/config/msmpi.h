@@ -7,6 +7,7 @@
 #include "mpi-22.h"
 #include "mpi-30.h"
 #include "mpi-31.h"
+#include "mpi-40.h"
 
 #if MSMPI_VER >= 0x402
 #define PyMPI_HAVE_MPI_AINT 1
@@ -112,7 +113,7 @@
 #define PyMPI_HAVE_MPI_WIN_UNIFIED 1
 #endif
 
-#if MSMPI_VER >= 0x1000
+#if MSMPI_VER >= 0xA00
 #define PyMPI_HAVE_MPI_Get_accumulate
 #define PyMPI_HAVE_MPI_Rget_accumulate
 #define PyMPI_HAVE_MPI_Fetch_and_op

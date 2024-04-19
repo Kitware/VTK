@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkApplyIcons.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkApplyIcons
  * @brief   apply icons to a data set.
@@ -58,36 +42,35 @@
  *      lookup table icon for the data value of the element.
  * <li> Otherwise it will be glyphed with the default icon.
  * </ol>
-*/
+ */
 
 #ifndef vtkApplyIcons_h
 #define vtkApplyIcons_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
-#include "vtkVariant.h" // For variant arguments.
+#include "vtkVariant.h"            // For variant arguments.
+#include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKVIEWSINFOVIS_EXPORT vtkApplyIcons : public vtkPassInputTypeAlgorithm
 {
 public:
-  static vtkApplyIcons *New();
+  static vtkApplyIcons* New();
   vtkTypeMacro(vtkApplyIcons, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Edits the lookup table to use for point icons. This is only used if
    * input array 0 is set and UsePointLookupTable is on.
    */
   void SetIconType(vtkVariant v, int icon);
-  void SetIconType(double v, int icon)
-    { this->SetIconType(vtkVariant(v), icon); }
-  void SetIconType(const char* v, int icon)
-    { this->SetIconType(vtkVariant(v), icon); }
+  void SetIconType(double v, int icon) { this->SetIconType(vtkVariant(v), icon); }
+  void SetIconType(const char* v, int icon) { this->SetIconType(vtkVariant(v), icon); }
   void ClearAllIconTypes();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, uses the point lookup table to set the colors of unannotated,
    * unselected elements of the data.
@@ -95,34 +78,34 @@ public:
   vtkSetMacro(UseLookupTable, bool);
   vtkGetMacro(UseLookupTable, bool);
   vtkBooleanMacro(UseLookupTable, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The default point icon for all unannotated, unselected elements
    * of the data. This is used if UsePointLookupTable is off.
    */
   vtkSetMacro(DefaultIcon, int);
   vtkGetMacro(DefaultIcon, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The point icon for all selected elements of the data.
    * This is used if the annotation input has a current selection.
    */
   vtkSetMacro(SelectedIcon, int);
   vtkGetMacro(SelectedIcon, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The output array name for the point icon index array.
    * Default is "vtkApplyIcons icon".
    */
   vtkSetStringMacro(IconOutputArrayName);
   vtkGetStringMacro(IconOutputArrayName);
-  //@}
+  ///@}
 
   enum
   {
@@ -132,7 +115,7 @@ public:
     IGNORE_SELECTION
   };
 
-  //@{
+  ///@{
   /**
    * Changes the behavior of the icon to use for selected items.
    * <ul>
@@ -145,17 +128,13 @@ public:
    */
   vtkSetMacro(SelectionMode, int);
   vtkGetMacro(SelectionMode, int);
-  virtual void SetSelectionModeToSelectedIcon()
-    { this->SetSelectionMode(SELECTED_ICON); }
-  virtual void SetSelectionModeToSelectedOffset()
-    { this->SetSelectionMode(SELECTED_OFFSET); }
-  virtual void SetSelectionModeToAnnotationIcon()
-    { this->SetSelectionMode(ANNOTATION_ICON); }
-  virtual void SetSelectionModeToIgnoreSelection()
-    { this->SetSelectionMode(IGNORE_SELECTION); }
-  //@}
+  virtual void SetSelectionModeToSelectedIcon() { this->SetSelectionMode(SELECTED_ICON); }
+  virtual void SetSelectionModeToSelectedOffset() { this->SetSelectionMode(SELECTED_OFFSET); }
+  virtual void SetSelectionModeToAnnotationIcon() { this->SetSelectionMode(ANNOTATION_ICON); }
+  virtual void SetSelectionModeToIgnoreSelection() { this->SetSelectionMode(IGNORE_SELECTION); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The attribute type to append the icon array to, used only if the
    * input array is not specified or does not exist. This is set to one
@@ -164,7 +143,7 @@ public:
    */
   vtkSetMacro(AttributeType, int);
   vtkGetMacro(AttributeType, int);
-  //@}
+  ///@}
 
 protected:
   vtkApplyIcons();
@@ -173,8 +152,7 @@ protected:
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Set the input type of the algorithm to vtkGraph.
@@ -196,4 +174,5 @@ private:
   void operator=(const vtkApplyIcons&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

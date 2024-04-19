@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script src="https://cesium.com/downloads/cesiumjs/releases/1.90/Build/Cesium/Cesium.js"></script>
+        <link href="https://cesium.com/downloads/cesiumjs/releases/1.90/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+  <script>
+   var viewer = new Cesium.Viewer("cesiumContainer");
+   var scene = new Cesium.Cesium3DTileset({
+       url : "http://localhost:8003/tilesets/berlin-3d-tiles/tileset.json",
+       // debugShowBoundingVolume: true,
+       debugColorizeTiles: true,
+       // debugShowGeometricError: true
+   })
+   var tileset = viewer.scene.primitives.add(scene);
+   /* tileset.readyPromise.then(function(tileset) {
+    *   // tile.properties is not defined until readyPromise resolves.
+    *     var properties = tileset.properties;
+    *   if (Cesium.defined(properties)) {
+    *     for (var name in properties) {
+    *       console.log(properties[name]);
+    *     }
+    *   }
+    * });    */
+   viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
+  </script>
+</body>
+</html>

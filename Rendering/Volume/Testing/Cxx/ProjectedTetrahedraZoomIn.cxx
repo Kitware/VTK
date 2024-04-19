@@ -1,66 +1,44 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    ProjectedTetrahedraZoomIn.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*
- * Copyright 2007 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2007 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 // This test makes sure that the mapper behaves well when the user zooms in
 // enough to have cells in front of the near plane.
 
 #include "vtkProjectedTetrahedraMapper.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkSLCReader.h"
-#include "vtkStructuredPoints.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkThreshold.h"
-#include "vtkDataSetTriangleFilter.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkVolumeProperty.h"
-#include "vtkVolume.h"
-#include "vtkContourFilter.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkContourFilter.h"
+#include "vtkDataSetTriangleFilter.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkStdString.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSLCReader.h"
+#include "vtkStructuredPoints.h"
+#include "vtkStructuredPointsReader.h"
+#include "vtkThreshold.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int ProjectedTetrahedraZoomIn(int argc, char *argv[])
+int ProjectedTetrahedraZoomIn(int argc, char* argv[])
 {
   int i;
   // Need to get the data root.
-  const char *data_root = nullptr;
-  for (i = 0; i < argc-1; i++)
+  const char* data_root = nullptr;
+  for (i = 0; i < argc - 1; i++)
   {
     if (strcmp("-D", argv[i]) == 0)
     {
-      data_root = argv[i+1];
+      data_root = argv[i + 1];
       break;
     }
   }
@@ -89,10 +67,10 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
 
   // Create the reader for the data.
   // This is the data that will be volume rendered.
-  vtkStdString filename;
+  std::string filename;
   filename = data_root;
   filename += "/Data/ironProt.vtk";
-  cout << "Loading " << filename.c_str() << endl;
+  cout << "Loading " << filename << endl;
   VTK_CREATE(vtkStructuredPointsReader, reader);
   reader->SetFileName(filename.c_str());
 
@@ -100,14 +78,15 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
   // displayed as a polygonal mesh.
   filename = data_root;
   filename += "/Data/neghip.slc";
-  cout << "Loading " << filename.c_str() << endl;
+  cout << "Loading " << filename << endl;
   VTK_CREATE(vtkSLCReader, reader2);
   reader2->SetFileName(filename.c_str());
 
   // Convert from vtkImageData to vtkUnstructuredGrid.
   // Remove any cells where all values are below 80.
   VTK_CREATE(vtkThreshold, thresh);
-  thresh->ThresholdByUpper(80);
+  thresh->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
+  thresh->SetUpperThreshold(80.0);
   thresh->AllScalarsOff();
   thresh->SetInputConnection(reader->GetOutputPort());
 
@@ -117,13 +96,13 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
 
   // Create transfer mapping scalar value to opacity.
   VTK_CREATE(vtkPiecewiseFunction, opacityTransferFunction);
-  opacityTransferFunction->AddPoint(80.0,  0.0);
+  opacityTransferFunction->AddPoint(80.0, 0.0);
   opacityTransferFunction->AddPoint(120.0, 0.2);
   opacityTransferFunction->AddPoint(255.0, 0.2);
 
   // Create transfer mapping scalar value to color.
   VTK_CREATE(vtkColorTransferFunction, colorTransferFunction);
-  colorTransferFunction->AddRGBPoint(80.0,  0.0, 0.0, 0.0);
+  colorTransferFunction->AddRGBPoint(80.0, 0.0, 0.0, 0.0);
   colorTransferFunction->AddRGBPoint(120.0, 0.0, 0.0, 1.0);
   colorTransferFunction->AddRGBPoint(160.0, 1.0, 0.0, 0.0);
   colorTransferFunction->AddRGBPoint(200.0, 0.0, 1.0, 0.0);
@@ -165,7 +144,7 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
   renWin->SetSize(300, 300);
   ren1->ResetCamera();
 
-  vtkCamera *camera = ren1->GetActiveCamera();
+  vtkCamera* camera = ren1->GetActiveCamera();
   camera->ParallelProjectionOff();
   camera->SetFocalPoint(33, 33, 33);
   camera->SetPosition(43, 38, 61);

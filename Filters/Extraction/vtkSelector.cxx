@@ -1,21 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSelector.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkSelector.h"
 
 #include "vtkCompositeDataSet.h"
+#include "vtkDataAssembly.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
@@ -24,6 +14,7 @@
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
@@ -31,24 +22,20 @@
 #include "vtkUniformGridAMR.h"
 #include "vtkUniformGridAMRDataIterator.h"
 
-//----------------------------------------------------------------------------
-vtkSelector::vtkSelector()
-  : InsidednessArrayName()
-{
-}
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkSelector::vtkSelector() = default;
 
-//----------------------------------------------------------------------------
-vtkSelector::~vtkSelector()
-{
-}
+//------------------------------------------------------------------------------
+vtkSelector::~vtkSelector() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::Initialize(vtkSelectionNode* node)
 {
   this->Node = node;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::ProcessBlock(
   vtkDataObject* inputBlock, vtkDataObject* outputBlock, bool forceFalse)
 {
@@ -84,12 +71,17 @@ void vtkSelector::ProcessBlock(
   }
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::Execute(vtkDataObject* input, vtkDataObject* output)
 {
-  if (vtkCompositeDataSet::SafeDownCast(input))
+  if (auto cd = vtkCompositeDataSet::SafeDownCast(input))
   {
     assert(vtkCompositeDataSet::SafeDownCast(output) != nullptr);
+
+    // Populate SubsetCompositeIds if selector expressions are provided in
+    // vtkSelectionNode's properties.
+    this->ProcessSelectors(cd);
+
     auto inputDOT = vtkDataObjectTree::SafeDownCast(input);
     auto outputDOT = vtkDataObjectTree::SafeDownCast(output);
     if (inputDOT && outputDOT)
@@ -111,6 +103,13 @@ void vtkSelector::Execute(vtkDataObject* input, vtkDataObject* output)
     this->ProcessBlock(input, output, false);
   }
 
+  // handle expanding to connected elements.
+  this->ExpandToConnectedElements(output);
+}
+
+//------------------------------------------------------------------------------
+void vtkSelector::ExpandToConnectedElements(vtkDataObject* output)
+{
   // Expand layers, if requested.
   auto selectionProperties = this->Node->GetProperties();
   if (selectionProperties->Has(vtkSelectionNode::CONNECTED_LAYERS()))
@@ -127,11 +126,22 @@ void vtkSelector::Execute(vtkDataObject* input, vtkDataObject* output)
     }
 
     const int layers = selectionProperties->Get(vtkSelectionNode::CONNECTED_LAYERS());
+    const bool removeSeed =
+      selectionProperties->Has(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_SEED())
+      ? selectionProperties->Get(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_SEED()) == 1
+      : false;
+    const bool removeIntermediateLayers =
+      selectionProperties->Has(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_INTERMEDIATE_LAYERS())
+      ? selectionProperties->Get(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_INTERMEDIATE_LAYERS()) ==
+        1
+      : false;
     if (layers >= 1 && (association == vtkDataObject::POINT || association == vtkDataObject::CELL))
     {
       vtkNew<vtkExpandMarkedElements> expander;
       expander->SetInputArrayToProcess(0, 0, 0, association, this->InsidednessArrayName.c_str());
       expander->SetNumberOfLayers(layers);
+      expander->SetRemoveSeed(removeSeed);
+      expander->SetRemoveIntermediateLayers(removeIntermediateLayers);
       expander->SetInputDataObject(output);
       expander->Update();
       output->ShallowCopy(expander->GetOutputDataObject(0));
@@ -139,7 +149,32 @@ void vtkSelector::Execute(vtkDataObject* input, vtkDataObject* output)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkSelector::ProcessSelectors(vtkCompositeDataSet* input)
+{
+  this->SubsetCompositeIds.clear();
+
+  auto properties = this->Node->GetProperties();
+  if (properties->Has(vtkSelectionNode::ASSEMBLY_NAME()) &&
+    properties->Has(vtkSelectionNode::SELECTORS()))
+  {
+    if (auto assembly = vtkDataAssemblyUtilities::GetDataAssembly(
+          properties->Get(vtkSelectionNode::ASSEMBLY_NAME()), input))
+    {
+      std::vector<std::string> selectors(properties->Length(vtkSelectionNode::SELECTORS()));
+      for (int cc = 0; cc < static_cast<int>(selectors.size()); ++cc)
+      {
+        selectors[cc] = properties->Get(vtkSelectionNode::SELECTORS(), cc);
+      }
+
+      auto cids = vtkDataAssemblyUtilities::GetSelectedCompositeIds(
+        selectors, assembly, vtkPartitionedDataSetCollection::SafeDownCast(input));
+      this->SubsetCompositeIds.insert(cids.begin(), cids.end());
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkSelector::ProcessDataObjectTree(vtkDataObjectTree* input, vtkDataObjectTree* output,
   vtkSelector::SelectionMode mode, unsigned int compositeIndex)
 {
@@ -173,18 +208,19 @@ void vtkSelector::ProcessDataObjectTree(vtkDataObjectTree* input, vtkDataObjectT
   iter->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::ProcessAMR(vtkUniformGridAMR* input, vtkCompositeDataSet* output)
 {
   auto iter = vtkUniformGridAMRDataIterator::SafeDownCast(input->NewIterator());
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-    auto modeDSUsingCompositeIndex = this->GetBlockSelection(iter->GetCurrentFlatIndex());
+    auto modeDSUsingCompositeIndex = this->GetBlockSelection(iter->GetCurrentFlatIndex(), false);
     auto modeDSUsingAMRLevel =
       this->GetAMRBlockSelection(iter->GetCurrentLevel(), iter->GetCurrentIndex());
     auto realMode =
       modeDSUsingAMRLevel == INHERIT ? modeDSUsingCompositeIndex : modeDSUsingAMRLevel;
-    realMode = (realMode == INHERIT) ? EXCLUDE : realMode;
+    // if both modes are INHERIT then we include everything
+    realMode = (realMode == INHERIT) ? INCLUDE : realMode;
 
     auto inputDS = iter->GetCurrentDataObject();
     auto outputDS = output->GetDataSet(iter);
@@ -197,7 +233,7 @@ void vtkSelector::ProcessAMR(vtkUniformGridAMR* input, vtkCompositeDataSet* outp
   iter->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSelector::SelectionMode vtkSelector::GetAMRBlockSelection(unsigned int level, unsigned int index)
 {
   auto properties = this->Node->GetProperties();
@@ -227,8 +263,9 @@ vtkSelector::SelectionMode vtkSelector::GetAMRBlockSelection(unsigned int level,
   }
 }
 
-//----------------------------------------------------------------------------
-vtkSelector::SelectionMode vtkSelector::GetBlockSelection(unsigned int compositeIndex)
+//------------------------------------------------------------------------------
+vtkSelector::SelectionMode vtkSelector::GetBlockSelection(
+  unsigned int compositeIndex, bool isDataObjectTree)
 {
   auto properties = this->Node->GetProperties();
   auto key = vtkSelectionNode::COMPOSITE_INDEX();
@@ -240,13 +277,40 @@ vtkSelector::SelectionMode vtkSelector::GetBlockSelection(unsigned int composite
     }
     else
     {
-      // this needs some explanation:
-      // if `COMPOSITE_INDEX` is present, then the root node is to be treated as
-      // excluded unless explicitly selected. This ensures that
-      // we only "INCLUDE" the chosen subtree(s).
-      // For all other nodes, we will simply return INHERIT, that way the state
-      // from the parent is inherited unless overridden.
-      return compositeIndex == 0 ? EXCLUDE : INHERIT;
+      if (isDataObjectTree)
+      {
+        // this needs some explanation:
+        // if `COMPOSITE_INDEX` is present, then the root node is to be treated as
+        // excluded unless explicitly selected. This ensures that
+        // we only "INCLUDE" the chosen subtree(s).
+        // For all other nodes, we will simply return INHERIT, that way the state
+        // from the parent is inherited unless overridden.
+        return compositeIndex == 0 ? EXCLUDE : INHERIT;
+      }
+      else
+      {
+        return EXCLUDE;
+      }
+    }
+  }
+  else if (properties->Has(vtkSelectionNode::SELECTORS()) &&
+    properties->Has(vtkSelectionNode::ASSEMBLY_NAME()))
+  {
+    if (this->SubsetCompositeIds.find(compositeIndex) != this->SubsetCompositeIds.end())
+    {
+      return INCLUDE;
+    }
+    else
+    {
+      if (isDataObjectTree)
+      {
+        // see earlier explanation for why this is done for root node.
+        return compositeIndex == 0 ? EXCLUDE : INHERIT;
+      }
+      else
+      {
+        return EXCLUDE;
+      }
     }
   }
   else
@@ -255,7 +319,7 @@ vtkSelector::SelectionMode vtkSelector::GetBlockSelection(unsigned int composite
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Creates a new insidedness array with the given number of elements.
 vtkSmartPointer<vtkSignedCharArray> vtkSelector::CreateInsidednessArray(vtkIdType numElems)
 {
@@ -266,7 +330,7 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelector::CreateInsidednessArray(vtkIdTyp
   return darray;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkSignedCharArray> vtkSelector::ComputeCellsContainingSelectedPoints(
   vtkDataObject* data, vtkSignedCharArray* selectedPoints)
 {
@@ -289,15 +353,16 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelector::ComputeCellsContainingSelectedP
   // run through cells and accept those with any point inside
   vtkSMPTools::For(0, numCells, [&](vtkIdType first, vtkIdType last) {
     vtkNew<vtkIdList> cellPts;
+    vtkIdType numCellPts;
+    const vtkIdType* pts;
+    signed char selectedPointFound;
     for (vtkIdType cellId = first; cellId < last; ++cellId)
     {
-      dataset->GetCellPoints(cellId, cellPts);
-      const vtkIdType numCellPts = cellPts->GetNumberOfIds();
-      signed char selectedPointFound = 0;
+      dataset->GetCellPoints(cellId, numCellPts, pts, cellPts);
+      selectedPointFound = 0;
       for (vtkIdType i = 0; i < numCellPts; ++i)
       {
-        vtkIdType ptId = cellPts->GetId(i);
-        if (selectedPoints->GetValue(ptId) != 0)
+        if (selectedPoints->GetValue(pts[i]) != 0)
         {
           selectedPointFound = 1;
           break;
@@ -310,9 +375,10 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelector::ComputeCellsContainingSelectedP
   return selectedCells;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "InsidednessArrayName: " << this->InsidednessArrayName << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,30 +1,41 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersGeneral import vtkAxes
+from vtkmodules.vtkIOGeometry import vtkBYUReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create renderer stuff
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create pipeline
 #
-cow = vtk.vtkBYUReader()
-cow.SetGeometryFileName("" + str(VTK_DATA_ROOT) + "/Data/Viewpoint/cow.g")
-cowMapper = vtk.vtkPolyDataMapper()
+cow = vtkBYUReader()
+cow.SetGeometryFileName(VTK_DATA_ROOT + "/Data/Viewpoint/cow.g")
+cowMapper = vtkPolyDataMapper()
 cowMapper.SetInputConnection(cow.GetOutputPort())
-cowActor = vtk.vtkActor()
+cowActor = vtkActor()
 cowActor.SetMapper(cowMapper)
 cowActor.GetProperty().SetDiffuseColor(0.9608,0.8706,0.7020)
-cowAxesSource = vtk.vtkAxes()
+cowAxesSource = vtkAxes()
 cowAxesSource.SetScaleFactor(10)
 cowAxesSource.SetOrigin(0,0,0)
-cowAxesMapper = vtk.vtkPolyDataMapper()
+cowAxesMapper = vtkPolyDataMapper()
 cowAxesMapper.SetInputConnection(cowAxesSource.GetOutputPort())
-cowAxes = vtk.vtkActor()
+cowAxes = vtkActor()
 cowAxes.SetMapper(cowAxesMapper)
 ren1.AddActor(cowAxes)
 cowAxes.VisibilityOff()
@@ -43,7 +54,7 @@ renWin.Render()
 #
 # prevent the tk window from showing up then start the event loop
 #
-def RotateX (__vtk__temp0=0,__vtk__temp1=0):
+def RotateX():
     cowActor.SetOrientation(0,0,0)
     ren1.ResetCameraClippingRange()
     renWin.Render()
@@ -58,7 +69,7 @@ def RotateX (__vtk__temp0=0,__vtk__temp1=0):
 
     renWin.EraseOn()
 
-def RotateY (__vtk__temp0=0,__vtk__temp1=0):
+def RotateY():
     cowActor.SetOrientation(0,0,0)
     ren1.ResetCameraClippingRange()
     renWin.Render()
@@ -73,7 +84,7 @@ def RotateY (__vtk__temp0=0,__vtk__temp1=0):
 
     renWin.EraseOn()
 
-def RotateZ (__vtk__temp0=0,__vtk__temp1=0):
+def RotateZ():
     cowActor.SetOrientation(0,0,0)
     ren1.ResetCameraClippingRange()
     renWin.Render()
@@ -88,7 +99,7 @@ def RotateZ (__vtk__temp0=0,__vtk__temp1=0):
 
     renWin.EraseOn()
 
-def RotateXY (__vtk__temp0=0,__vtk__temp1=0):
+def RotateXY():
     cowActor.SetOrientation(0,0,0)
     cowActor.RotateX(60)
     ren1.ResetCameraClippingRange()

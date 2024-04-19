@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2016-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_CSTREAM_READER_HPP
@@ -25,7 +25,7 @@ namespace tao
                assert( m_cstream != nullptr );
             }
 
-            std::size_t operator()( char* buffer, const std::size_t length )
+            std::size_t operator()( char* buffer, const std::size_t length ) const
             {
                if( const auto r = std::fread( buffer, 1, length, m_cstream ) ) {
                   return r;

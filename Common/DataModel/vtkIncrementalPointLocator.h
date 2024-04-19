@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkIncrementalPointLocator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkIncrementalPointLocator
  * @brief   Abstract class in support of both
@@ -37,23 +25,23 @@
  * @sa
  *  vtkLocator, vtkIncrementalOctreePointLocator, vtkPointLocator,
  *  vtkMergePoints vtkStaticPointLocator
-*/
+ */
 
 #ifndef vtkIncrementalPointLocator_h
 #define vtkIncrementalPointLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkIdList;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkIncrementalPointLocator : public vtkAbstractPointLocator
 {
 public:
-
-  vtkTypeMacro( vtkIncrementalPointLocator, vtkAbstractPointLocator );
-  void PrintSelf( ostream & os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkIncrementalPointLocator, vtkAbstractPointLocator);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Given a point x assumed to be covered by the search structure, return the
@@ -63,7 +51,7 @@ public:
    * incremental point insertion. Note -1 indicates that no point is found.
    * InitPointInsertion() should have been called in advance.
    */
-  virtual vtkIdType FindClosestInsertedPoint( const double x[3] ) = 0;
+  virtual vtkIdType FindClosestInsertedPoint(const double x[3]) = 0;
 
   // -------------------------------------------------------------------------
   // ---------------------------- Point  Location ----------------------------
@@ -81,7 +69,7 @@ public:
    * It is created and provided by an external VTK class. Argument bounds
    * represents the spatial bounding box, into which the points fall.
    */
-  virtual int InitPointInsertion( vtkPoints * newPts, const double bounds[6] ) = 0;
+  virtual int InitPointInsertion(vtkPoints* newPts, const double bounds[6]) = 0;
 
   /**
    * Initialize the point insertion process. newPts is an object, storing 3D
@@ -89,28 +77,30 @@ public:
    * It is created and provided by an external VTK class. Argument bounds
    * represents the spatial bounding box, into which the points fall.
    */
-  virtual int InitPointInsertion( vtkPoints * newPts, const double bounds[6],
-                                  vtkIdType estSize ) = 0;
+  virtual int InitPointInsertion(vtkPoints* newPts, const double bounds[6], vtkIdType estSize) = 0;
 
   /**
    * Determine whether or not a given point has been inserted. Return the id of
    * the already inserted point if true, else return -1. InitPointInsertion()
    * should have been called in advance.
    */
-  virtual vtkIdType IsInsertedPoint( double x, double y, double z ) = 0;
+  virtual vtkIdType IsInsertedPoint(double x, double y, double z) = 0;
 
   /**
    * Determine whether or not a given point has been inserted. Return the id of
    * the already inserted point if true, else return -1. InitPointInsertion()
    * should have been called in advance.
    */
-  virtual vtkIdType IsInsertedPoint( const double x[3] ) = 0;
+  virtual vtkIdType IsInsertedPoint(const double x[3]) = 0;
 
   /**
    * Insert a point unless there has been a duplicate in the search structure.
+   * Return 0 if the point was already in the list, otherwise return 1. If the
+   * point was not in the list, it will be ADDED.  In either case, the id of
+   * the point (newly inserted or not) is returned in the ptId argument.
    * This method is not thread safe.
    */
-  virtual int InsertUniquePoint( const double x[3], vtkIdType & ptId ) = 0;
+  virtual int InsertUniquePoint(const double x[3], vtkIdType& ptId) = 0;
 
   /**
    * Insert a given point with a specified point index ptId. InitPointInsertion()
@@ -118,7 +108,7 @@ public:
    * should have been called in advance to ensure that the given point has not
    * been inserted unless point duplication is allowed.
    */
-  virtual void InsertPoint( vtkIdType ptId, const double x[3] ) = 0;
+  virtual void InsertPoint(vtkIdType ptId, const double x[3]) = 0;
 
   /**
    * Insert a given point and return the point index. InitPointInsertion()
@@ -126,15 +116,16 @@ public:
    * should have been called in advance to ensure that the given point has not
    * been inserted unless point duplication is allowed.
    */
-  virtual vtkIdType InsertNextPoint( const double x[3] ) = 0;
+  virtual vtkIdType InsertNextPoint(const double x[3]) = 0;
 
 protected:
   vtkIncrementalPointLocator();
   ~vtkIncrementalPointLocator() override;
 
 private:
-  vtkIncrementalPointLocator( const vtkIncrementalPointLocator & ) = delete;
-  void operator = ( const vtkIncrementalPointLocator & ) = delete;
+  vtkIncrementalPointLocator(const vtkIncrementalPointLocator&) = delete;
+  void operator=(const vtkIncrementalPointLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

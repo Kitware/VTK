@@ -1,0 +1,24 @@
+NAME
+  VTK::FiltersGeometryPreview
+LIBRARY_NAME
+  vtkFiltersGeometryPreview
+DESCRIPTION
+  Filters for creating a preview of the geometry of a dataset.
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersSources
+  VTK::RenderingVolumeOpenGL2
+  VTK::TestingRendering
+  VTK::TestingDataModel

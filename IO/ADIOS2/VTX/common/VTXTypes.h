@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    VTXTypes.h
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * VTXTypes.h : header-only type definitions needed by the VTK::IOADIOS2 module
@@ -34,33 +22,35 @@ namespace vtx
 {
 namespace types
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /** key: variable name, value: DataArray */
 using DataSet = std::map<std::string, DataArray>;
 
 enum class DataSetType
 {
-    CellData,
-    PointData,
-    Points,
-    Coordinates,
-    Cells,
-    Verts,
-    Lines,
-    Strips,
-    Polys
+  CellData,
+  PointData,
+  Points,
+  Coordinates,
+  Cells,
+  Verts,
+  Lines,
+  Strips,
+  Polys
 };
 
 using Piece = std::map<DataSetType, DataSet>;
 
-#define VTK_IO_ADIOS2_VTX_ARRAY_TYPE(MACRO)                                    \
-    MACRO(int32_t)                                                             \
-    MACRO(uint32_t)                                                            \
-    MACRO(int64_t)                                                             \
-    MACRO(uint64_t)                                                            \
-    MACRO(float)                                                               \
-    MACRO(double)
+#define VTK_IO_ADIOS2_VTX_ARRAY_TYPE(MACRO)                                                        \
+  MACRO(int32_t)                                                                                   \
+  MACRO(uint32_t)                                                                                  \
+  MACRO(int64_t)                                                                                   \
+  MACRO(uint64_t)                                                                                  \
+  MACRO(float)                                                                                     \
+  MACRO(double)
 
+VTK_ABI_NAMESPACE_END
 } // end namespace types
 } // end namespace vtx
 

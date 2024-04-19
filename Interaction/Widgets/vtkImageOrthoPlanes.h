@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageOrthoPlanes.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageOrthoPlanes
  * @brief   Connect three vtkImagePlaneWidgets together
@@ -23,7 +11,7 @@
  * vtkImagePlaneWidget
  * @par Thanks:
  * Thanks to Atamai Inc. for developing and contributing this class.
-*/
+ */
 
 #ifndef vtkImageOrthoPlanes_h
 #define vtkImageOrthoPlanes_h
@@ -31,6 +19,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImagePlaneWidget;
 class vtkTransform;
 class vtkMatrix4x4;
@@ -38,17 +27,17 @@ class vtkMatrix4x4;
 class VTKINTERACTIONWIDGETS_EXPORT vtkImageOrthoPlanes : public vtkObject
 {
 public:
-  static vtkImageOrthoPlanes *New();
-  vtkTypeMacro(vtkImageOrthoPlanes,vtkObject);
+  static vtkImageOrthoPlanes* New();
+  vtkTypeMacro(vtkImageOrthoPlanes, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * You must set three planes for the widget.
    */
-  void SetPlane(int i, vtkImagePlaneWidget *imagePlaneWidget);
+  void SetPlane(int i, vtkImagePlaneWidget* imagePlaneWidget);
   vtkImagePlaneWidget* GetPlane(int i);
-  //@}
+  ///@}
 
   /**
    * Reset the planes to original scale, rotation, and location.
@@ -58,31 +47,26 @@ public:
   /**
    * Get the transform for the planes.
    */
-  vtkTransform *GetTransform() { return this->Transform; };
+  vtkTransform* GetTransform() { return this->Transform; }
 
   /**
    * A public method to be used only by the event callback.
    */
-  void HandlePlaneEvent(vtkImagePlaneWidget *imagePlaneWidget);
+  void HandlePlaneEvent(vtkImagePlaneWidget* imagePlaneWidget);
 
 protected:
   vtkImageOrthoPlanes();
   ~vtkImageOrthoPlanes() override;
 
-  void HandlePlaneRotation(vtkImagePlaneWidget *imagePlaneWidget,
-                           int indexOfModifiedPlane);
-  void HandlePlanePush(vtkImagePlaneWidget *imagePlaneWidget,
-                       int indexOfModifiedPlane);
-  void HandlePlaneTranslate(vtkImagePlaneWidget *imagePlaneWidget,
-                            int indexOfModifiedPlane);
-  void HandlePlaneScale(vtkImagePlaneWidget *imagePlaneWidget,
-                       int indexOfModifiedPlane);
+  void HandlePlaneRotation(vtkImagePlaneWidget* imagePlaneWidget, int indexOfModifiedPlane);
+  void HandlePlanePush(vtkImagePlaneWidget* imagePlaneWidget, int indexOfModifiedPlane);
+  void HandlePlaneTranslate(vtkImagePlaneWidget* imagePlaneWidget, int indexOfModifiedPlane);
+  void HandlePlaneScale(vtkImagePlaneWidget* imagePlaneWidget, int indexOfModifiedPlane);
 
-  void SetTransformMatrix(vtkMatrix4x4 *matrix,
-                          vtkImagePlaneWidget *currentImagePlane,
-                          int indexOfModifiedPlane);
+  void SetTransformMatrix(
+    vtkMatrix4x4* matrix, vtkImagePlaneWidget* currentImagePlane, int indexOfModifiedPlane);
 
-  void GetBounds(double bounds[3]);
+  void GetBounds(double bounds[6]);
 
   // The plane definitions prior to any rotations or scales
   double Origin[3][3];
@@ -91,7 +75,7 @@ protected:
 
   // The current position and orientation of the bounding box with
   // respect to the origin.
-  vtkTransform *Transform;
+  vtkTransform* Transform;
 
   // An array to hold the planes
   vtkImagePlaneWidget** Planes;
@@ -100,13 +84,12 @@ protected:
   int NumberOfPlanes;
 
   // The observer tags for these planes
-  long *ObserverTags;
+  long* ObserverTags;
 
 private:
   vtkImageOrthoPlanes(const vtkImageOrthoPlanes&) = delete;
   void operator=(const vtkImageOrthoPlanes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

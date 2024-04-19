@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPImageDataWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPImageDataWriter
  * @brief   Write PVTK XML ImageData files.
@@ -24,7 +12,7 @@
  *
  * @sa
  * vtkXMLImageDataWriter
-*/
+ */
 
 #ifndef vtkXMLPImageDataWriter_h
 #define vtkXMLPImageDataWriter_h
@@ -32,13 +20,14 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPStructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPImageDataWriter : public vtkXMLPStructuredDataWriter
 {
 public:
   static vtkXMLPImageDataWriter* New();
-  vtkTypeMacro(vtkXMLPImageDataWriter,vtkXMLPStructuredDataWriter);
+  vtkTypeMacro(vtkXMLPImageDataWriter, vtkXMLPStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -56,7 +45,7 @@ protected:
   ~vtkXMLPImageDataWriter() override;
 
   const char* GetDataSetName() override;
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) override;
+  void WritePrimaryElementAttributes(ostream& os, vtkIndent indent) override;
   vtkXMLStructuredDataWriter* CreateStructuredPieceWriter() override;
 
   // see algorithm for more info
@@ -67,4 +56,5 @@ private:
   void operator=(const vtkXMLPImageDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

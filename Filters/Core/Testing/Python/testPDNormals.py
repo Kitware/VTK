@@ -1,43 +1,53 @@
 # This tests that vtkPolyDataNormals handles cell data
 # for strips properly. The filter splits strips to generate
 # proper normals so it also needs to split cell data.
-import vtk
+from vtkmodules.vtkCommonCore import vtkFloatArray
+from vtkmodules.vtkFiltersCore import (
+    vtkAppendPolyData,
+    vtkPolyDataNormals,
+    vtkStripper,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersSources import (
+    vtkPlaneSource,
+    vtkSphereSource,
+)
 
-ps = vtk.vtkPlaneSource()
+ps = vtkPlaneSource()
 ps.SetYResolution(10)
 
-tf = vtk.vtkTriangleFilter()
+tf = vtkTriangleFilter()
 tf.SetInputConnection(ps.GetOutputPort())
 
-ts = vtk.vtkStripper()
+ts = vtkStripper()
 ts.SetInputConnection(tf.GetOutputPort())
 
 ts.Update()
 strips = ts.GetOutput()
 
-a = vtk.vtkFloatArray()
+a = vtkFloatArray()
 a.InsertNextTuple1(1)
 a.SetName("foo")
 
 strips.GetCellData().AddArray(a)
 
-s = vtk.vtkSphereSource()
+s = vtkSphereSource()
 s.Update()
 
 sphere = s.GetOutput()
 
-a2 = vtk.vtkFloatArray()
+a2 = vtkFloatArray()
 a2.SetNumberOfTuples(96)
 a2.FillComponent(0, 2)
 a2.SetName("foo")
 
 sphere.GetCellData().AddArray(a2)
 
-app = vtk.vtkAppendPolyData()
+app = vtkAppendPolyData()
 app.AddInputData(strips)
 app.AddInputData(sphere)
 
-pdn = vtk.vtkPolyDataNormals()
+pdn = vtkPolyDataNormals()
 pdn.SetInputConnection(app.GetOutputPort())
 pdn.Update()
 

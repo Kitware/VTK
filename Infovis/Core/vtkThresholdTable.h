@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkThresholdTable.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkThresholdTable
  * @brief   Thresholds table rows.
@@ -25,7 +9,7 @@
  * vtkThresholdTable uses minimum and/or maximum values to threshold
  * table rows based on the values in a particular column.
  * The column to threshold is specified using SetInputArrayToProcess(0, ...).
-*/
+ */
 
 #ifndef vtkThresholdTable_h
 #define vtkThresholdTable_h
@@ -34,6 +18,7 @@
 #include "vtkTableAlgorithm.h"
 #include "vtkVariant.h" // For vtkVariant arguments
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkThresholdTable : public vtkTableAlgorithm
 {
 public:
@@ -41,14 +26,15 @@ public:
   vtkTypeMacro(vtkThresholdTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum {
+  enum
+  {
     ACCEPT_LESS_THAN = 0,
     ACCEPT_GREATER_THAN = 1,
     ACCEPT_BETWEEN = 2,
     ACCEPT_OUTSIDE = 3
   };
 
-  //@{
+  ///@{
   /**
    * The mode of the threshold filter.  Options are:
    * ACCEPT_LESS_THAN (0) accepts rows with values < MaxValue;
@@ -58,9 +44,9 @@ public:
    */
   vtkSetClampMacro(Mode, int, 0, 3);
   vtkGetMacro(Mode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The minimum value for the threshold.
    * This may be any data type stored in a vtkVariant.
@@ -70,13 +56,10 @@ public:
     this->MinValue = v;
     this->Modified();
   }
-  virtual vtkVariant GetMinValue()
-  {
-    return this->MinValue;
-  }
-  //@}
+  virtual vtkVariant GetMinValue() { return this->MinValue; }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The maximum value for the threshold.
    * This may be any data type stored in a vtkVariant.
@@ -86,11 +69,8 @@ public:
     this->MaxValue = v;
     this->Modified();
   }
-  virtual vtkVariant GetMaxValue()
-  {
-    return this->MaxValue;
-  }
-  //@}
+  virtual vtkVariant GetMaxValue() { return this->MaxValue; }
+  ///@}
 
   /**
    * Criterion is rows whose scalars are between lower and upper thresholds
@@ -101,18 +81,12 @@ public:
   /**
    * The minimum value for the threshold as a double.
    */
-  void SetMinValue(double v)
-  {
-    this->SetMinValue(vtkVariant(v));
-  }
+  void SetMinValue(double v) { this->SetMinValue(vtkVariant(v)); }
 
   /**
    * The maximum value for the threshold as a double.
    */
-  void SetMaxValue(double v)
-  {
-    this->SetMaxValue(vtkVariant(v));
-  }
+  void SetMaxValue(double v) { this->SetMaxValue(vtkVariant(v)); }
 
   /**
    * Criterion is rows whose scalars are between lower and upper thresholds
@@ -120,17 +94,19 @@ public:
    */
   void ThresholdBetween(double lower, double upper)
   {
-    this->ThresholdBetween(vtkVariant(lower),vtkVariant(upper));
+    this->ThresholdBetween(vtkVariant(lower), vtkVariant(upper));
   }
+
+  /**
+   * Return true if value, converted to double, matches the criteria of the current Mode.
+   */
+  bool IsValueAcceptable(vtkVariant value);
 
 protected:
   vtkThresholdTable();
   ~vtkThresholdTable() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkVariant MinValue;
   vtkVariant MaxValue;
@@ -141,5 +117,5 @@ private:
   void operator=(const vtkThresholdTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

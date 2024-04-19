@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastDepthPeeling.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  *  Tests interactive clipping with volume peeling.
  */
@@ -29,13 +17,14 @@
 #include <vtkInteractorEventRecorder.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkOutlineFilter.h>
 #include <vtkOpenGLRenderer.h>
+#include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPlaneCollection.h>
 #include <vtkPlanes.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderTimerLog.h>
 #include <vtkRenderWindow.h>
@@ -43,17 +32,16 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
-#include <vtkTestingObjectFactory.h>
 #include <vtkTestUtilities.h>
+#include <vtkTestingObjectFactory.h>
 #include <vtkTimerLog.h>
-#include <vtkProperty.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
 #include <cassert>
 
-
-namespace {
+namespace
+{
 
 // Callback for the interaction
 class vtkBWCallback : public vtkCommand
@@ -61,11 +49,11 @@ class vtkBWCallback : public vtkCommand
 public:
   vtkSmartPointer<vtkVolume> Volume;
 
-  static vtkBWCallback *New() { return new vtkBWCallback; }
+  static vtkBWCallback* New() { return new vtkBWCallback; }
 
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-    vtkBoxWidget *boxWidget = reinterpret_cast<vtkBoxWidget*>(caller);
+    vtkBoxWidget* boxWidget = reinterpret_cast<vtkBoxWidget*>(caller);
 
     vtkNew<vtkPlanes> widgetPlanes;
     boxWidget->GetPlanes(widgetPlanes);
@@ -76,27 +64,25 @@ public:
 class SamplingDistanceCallback : public vtkCommand
 {
 public:
-  static SamplingDistanceCallback *New()
-    { return new SamplingDistanceCallback; }
+  static SamplingDistanceCallback* New() { return new SamplingDistanceCallback; }
 
-  void Execute(vtkObject* vtkNotUsed(caller), unsigned long event,
-    void* vtkNotUsed(data)) override
+  void Execute(vtkObject* vtkNotUsed(caller), unsigned long event, void* vtkNotUsed(data)) override
   {
     switch (event)
     {
       case vtkCommand::StartInteractionEvent:
-        {
-          // Higher ImageSampleDistance to make the volume-rendered image's
-          // resolution visibly lower during interaction.
-          this->Mapper->SetImageSampleDistance(6.5);
-        }
-        break;
+      {
+        // Higher ImageSampleDistance to make the volume-rendered image's
+        // resolution visibly lower during interaction.
+        this->Mapper->SetImageSampleDistance(6.5);
+      }
+      break;
 
       case vtkCommand::EndInteractionEvent:
-        {
-          // Default ImageSampleDistance
-          this->Mapper->SetImageSampleDistance(1.0);
-        }
+      {
+        // Default ImageSampleDistance
+        this->Mapper->SetImageSampleDistance(1.0);
+      }
     }
   }
 
@@ -104,7 +90,7 @@ public:
 };
 
 const std::string EventStream =
-R"eventStream(
+  R"eventStream(
 # StreamVersion 1.1
 LeftButtonPressEvent 198 296 0 0 0 0
 RenderEvent 198 296 0 0 0 0
@@ -296,9 +282,9 @@ RenderEvent 266 134 0 0 0 0
 MouseMoveEvent 265 135 0 0 0 0
 RenderEvent 265 135 0 0 0 0
 )eventStream"
-    // We have to break this string up, otherwise MSVC whines about it being
-    // too long (error C2026)
-R"eventStream(
+  // We have to break this string up, otherwise MSVC whines about it being
+  // too long (error C2026)
+  R"eventStream(
 MouseMoveEvent 262 137 0 0 0 0
 RenderEvent 262 137 0 0 0 0
 MouseMoveEvent 260 138 0 0 0 0
@@ -632,9 +618,9 @@ RenderEvent 325 100 0 0 0 0
 InteractionEvent 325 100 0 0 0 0
 MouseMoveEvent 325 101 0 0 0 0
 )eventStream"
-    // We have to break this string up, otherwise MSVC whines about it being
-    // too long (error C2026)
-R"eventStream(
+  // We have to break this string up, otherwise MSVC whines about it being
+  // too long (error C2026)
+  R"eventStream(
 RenderEvent 325 101 0 0 0 0
 InteractionEvent 325 101 0 0 0 0
 MouseMoveEvent 325 102 0 0 0 0
@@ -920,9 +906,9 @@ MouseMoveEvent 379 42 0 0 0 0
 MouseMoveEvent 381 40 0 0 0 0
 MouseMoveEvent 382 40 0 0 0 0
 )eventStream"
-    // We have to break this string up, otherwise MSVC whines about it being
-    // too long (error C2026)
-R"eventStream(
+  // We have to break this string up, otherwise MSVC whines about it being
+  // too long (error C2026)
+  R"eventStream(
 MouseMoveEvent 383 39 0 0 0 0
 MouseMoveEvent 384 39 0 0 0 0
 MouseMoveEvent 385 38 0 0 0 0
@@ -1277,7 +1263,7 @@ RenderEvent 364 64 0 0 0 0
 
 } // end anon namespace
 
-int TestGPURayCastDepthPeelingBoxWidget(int argc, char *argv[])
+int TestGPURayCastDepthPeelingBoxWidget(int argc, char* argv[])
 {
   // Volume peeling is only supported through the dual depth peeling algorithm.
   // If the current system only supports the legacy peeler, skip this test:
@@ -1288,12 +1274,12 @@ int TestGPURayCastDepthPeelingBoxWidget(int argc, char *argv[])
   vtkNew<vtkRenderer> ren;
   renWin->Render(); // Create the context
   renWin->AddRenderer(ren);
-  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
+  vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
   assert(oglRen); // This test should only be enabled for OGL2 backend.
   // This will print details about why depth peeling is unsupported:
-  oglRen->SetDebug(1);
+  oglRen->SetDebug(true);
   bool supported = oglRen->IsDualDepthPeelingSupported();
-  oglRen->SetDebug(0);
+  oglRen->SetDebug(false);
   if (!supported)
   {
     std::cerr << "Skipping test; volume peeling not supported.\n";
@@ -1307,10 +1293,9 @@ int TestGPURayCastDepthPeelingBoxWidget(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
-  delete [] volumeFile;
+  delete[] volumeFile;
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   // Add outline filter

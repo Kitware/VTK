@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLinearKernel.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLinearKernel
  * @brief   a linear interpolation kernel
@@ -23,7 +11,7 @@
  * @sa
  * vtkPointInterpolator vtkInterpolationKernel vtkGeneralizedKernel
  * vtkGaussianKernel vtkLinearKernel vtkShepardKernel
-*/
+ */
 
 #ifndef vtkLinearKernel_h
 #define vtkLinearKernel_h
@@ -31,21 +19,21 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkGeneralizedKernel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
-
 
 class VTKFILTERSPOINTS_EXPORT vtkLinearKernel : public vtkGeneralizedKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkLinearKernel *New();
-  vtkTypeMacro(vtkLinearKernel,vtkGeneralizedKernel);
+  static vtkLinearKernel* New();
+  vtkTypeMacro(vtkLinearKernel, vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   // Re-use any superclass signatures that we don't override.
   using vtkGeneralizedKernel::ComputeWeights;
@@ -64,8 +52,8 @@ public:
    * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
-  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
+  vtkIdType ComputeWeights(
+    double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights) override;
 
 protected:
   vtkLinearKernel();
@@ -76,4 +64,5 @@ private:
   void operator=(const vtkLinearKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

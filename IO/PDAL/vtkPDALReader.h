@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGDALRasterReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPDALReader
  * @brief   Reads LIDAR data using the PDAL library.
@@ -24,7 +12,7 @@
  *
  * @sa
  * vtkPolyData
-*/
+ */
 
 #ifndef vtkPDALReader_h
 #define vtkPDALReader_h
@@ -35,40 +23,43 @@
 
 namespace pdal
 {
-  class Stage;
+class Stage;
 };
 
-class VTKIOPDAL_EXPORT vtkPDALReader: public vtkPolyDataAlgorithm
+VTK_ABI_NAMESPACE_BEGIN
+
+class VTKIOPDAL_EXPORT vtkPDALReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkPDALReader(const vtkPDALReader&) = delete;
   void operator=(const vtkPDALReader&) = delete;
   static vtkPDALReader* New();
-  vtkTypeMacro(vtkPDALReader,vtkPolyDataAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkPDALReader, vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Name of the file that will be opened
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
 
 protected:
   vtkPDALReader();
-  virtual ~vtkPDALReader();
+  ~vtkPDALReader() override;
 
   /**
    * Core implementation of the data set reader
    */
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+    vtkInformationVector* outputVector) override;
 
   /**
    * Read point record data i.e. position and visualisation data
    */
-  void ReadPointRecordData(pdal::Stage &reader, vtkPolyData* pointsPolyData);
+  void ReadPointRecordData(pdal::Stage& reader, vtkPolyData* pointsPolyData);
 
   char* FileName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPDALReader_h

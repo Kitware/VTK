@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkKdTreePointLocator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkKdTreePointLocator
  * @brief   class to quickly locate points in 3-space
@@ -21,21 +9,22 @@
  *
  * @sa
  * vtkKdTree
-*/
+ */
 
 #ifndef vtkKdTreePointLocator_h
 #define vtkKdTreePointLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkKdTree;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkKdTreePointLocator : public vtkAbstractPointLocator
 {
 public:
-  vtkTypeMacro(vtkKdTreePointLocator,vtkAbstractPointLocator);
+  vtkTypeMacro(vtkKdTreePointLocator, vtkAbstractPointLocator);
   static vtkKdTreePointLocator* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -52,8 +41,7 @@ public:
    * closest to the point in that radius.
    * dist2 returns the squared distance to the point.
    */
-  vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2) override;
+  vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], double& dist2) override;
 
   /**
    * Find the closest N points to a position. This returns the closest
@@ -63,8 +51,7 @@ public:
    * These methods are thread safe if BuildLocator() is directly or
    * indirectly called from a single thread first.
    */
-  void FindClosestNPoints(
-    int N, const double x[3], vtkIdList *result) override;
+  void FindClosestNPoints(int N, const double x[3], vtkIdList* result) override;
 
   /**
    * Find all points within a specified radius R of position x.
@@ -72,22 +59,24 @@ public:
    * These methods are thread safe if BuildLocator() is directly or
    * indirectly called from a single thread first.
    */
-  void FindPointsWithinRadius(double R, const double x[3],
-                              vtkIdList *result) override;
+  void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result) override;
 
-  //@{
+  ///@{
   /**
    * See vtkLocator interface documentation.
    * These methods are not thread safe.
    */
   void FreeSearchStructure() override;
   void BuildLocator() override;
-  void GenerateRepresentation(int level, vtkPolyData *pd) override;
-  //@}
+  void ForceBuildLocator() override;
+  void GenerateRepresentation(int level, vtkPolyData* pd) override;
+  ///@}
 
 protected:
   vtkKdTreePointLocator();
   ~vtkKdTreePointLocator() override;
+
+  void BuildLocatorInternal() override;
 
   vtkKdTree* KdTree;
 
@@ -96,6 +85,5 @@ private:
   void operator=(const vtkKdTreePointLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

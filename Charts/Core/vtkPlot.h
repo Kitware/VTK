@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPlot.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkPlot
@@ -22,18 +10,20 @@
  *
  * @sa
  * vtkPlotPoints vtkPlotLine vtkPlotBar vtkChart vtkChartXY
-*/
+ */
 
 #ifndef vtkPlot_h
 #define vtkPlot_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkStdString.h"     // Needed to hold TooltipLabelFormat ivar
-#include "vtkSmartPointer.h"  // Needed to hold SP ivars
 #include "vtkContextPolygon.h" // For vtkContextPolygon
+#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkRect.h"           // For vtkRectd ivar
+#include "vtkSmartPointer.h"   // Needed to hold SP ivars
+#include "vtkStdString.h"      // Needed to hold TooltipLabelFormat ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVariant;
 class vtkTable;
 class vtkIdTypeArray;
@@ -42,14 +32,22 @@ class vtkPen;
 class vtkBrush;
 class vtkAxis;
 class vtkStringArray;
+class vtkAlgorithmOutput;
 
 class VTKCHARTSCORE_EXPORT vtkPlot : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPlot, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  /**
+   * Perform any updates to the item that may be necessary before rendering.
+   * The scene should take care of calling this on all items before their
+   * Paint function is invoked.
+   */
+  void Update() override;
+
+  ///@{
   /**
    * Set whether the plot renders an entry in the legend. Default is true.
    * vtkPlot::PaintLegend will get called to render the legend marker on when
@@ -58,7 +56,7 @@ public:
   vtkSetMacro(LegendVisibility, bool);
   vtkGetMacro(LegendVisibility, bool);
   vtkBooleanMacro(LegendVisibility, bool);
-  //@}
+  ///@}
 
   /**
    * Paint legend event for the plot, called whenever the legend needs the
@@ -67,10 +65,9 @@ public:
    * and 3). The plot can choose how to fill the space supplied. The index is used
    * by Plots that return more than one label.
    */
-  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex);
+  virtual bool PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int legendIndex);
 
-  //@{
+  ///@{
   /**
    * Sets/gets a printf-style string to build custom tooltip labels from.
    * An empty string generates the default tooltip labels.
@@ -83,61 +80,40 @@ public:
    * Any other characters or unrecognized format tags are printed in the
    * tooltip label verbatim.
    */
-  virtual void SetTooltipLabelFormat(const vtkStdString &label);
+  virtual void SetTooltipLabelFormat(const vtkStdString& label);
   virtual vtkStdString GetTooltipLabelFormat();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets/gets the tooltip notation style.
    */
   virtual void SetTooltipNotation(int notation);
   virtual int GetTooltipNotation();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets/gets the tooltip precision.
    */
   virtual void SetTooltipPrecision(int precision);
   virtual int GetTooltipPrecision();
-  //@}
+  ///@}
 
   /**
    * Generate and return the tooltip label string for this plot
    * The segmentIndex parameter is ignored, except for vtkPlotBar
    */
-  virtual vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
-                                       vtkIdType seriesIndex,
-                                       vtkIdType segmentIndex);
+  virtual vtkStdString GetTooltipLabel(
+    const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex);
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
    * Returns the index of the data series with which the point is associated, or
    * -1 if no point was found.
    */
-  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
-                                    const vtkVector2f& tolerance,
-                                    vtkVector2f* location,
-#ifndef VTK_LEGACY_REMOVE
-                                    vtkIdType* segmentId);
-#else
-                                    vtkIdType* segmentId = nullptr);
-#endif // VTK_LEGACY_REMOVE
-
-
-#ifndef VTK_LEGACY_REMOVE
-  /**
-   * Function to query a plot for the nearest point to the specified coordinate.
-   * Returns the index of the data series with which the point is associated, or
-   * -1 if no point was found.
-   * Deprecated method, uses GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
-   * vtkVector2f* location, vtkIdType* segmentId); instead.
-   */
-  VTK_LEGACY(virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
-                                               const vtkVector2f& tolerance,
-                                               vtkVector2f* location));
-#endif // VTK_LEGACY_REMOVE
+  virtual vtkIdType GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
+    vtkVector2f* location, vtkIdType* segmentId);
 
   /**
    * Select all points in the specified rectangle.
@@ -147,18 +123,42 @@ public:
   /**
    * Select all points in the specified polygon.
    */
-  virtual bool SelectPointsInPolygon(const vtkContextPolygon &polygon);
+  virtual bool SelectPointsInPolygon(const vtkContextPolygon& polygon);
 
-  //@{
   /**
-   * Set the plot color
+   * Set the plot color with integer values (comprised between 0 and 255)
    */
-  virtual void SetColor(unsigned char r, unsigned char g, unsigned char b,
-                        unsigned char a);
-  virtual void SetColor(double r,  double g, double b);
-  virtual void GetColor(double rgb[3]);
+  virtual void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+
+  ///@{
+  /**
+   * Set the plot color with floating values (comprised between 0.0 and 1.0)
+   */
+  virtual void SetColorF(double r, double g, double b, double a);
+  virtual void SetColorF(double r, double g, double b);
+
+  // If removed, please remplace it with the following function:
+  // SetColor(unsigned char r, unsigned char g, unsigned char b)
+  // here and in the inheriting classes overriding it
+  VTK_DEPRECATED_IN_9_3_0("Please use unambiguous SetColorF method instead.")
+  virtual void SetColor(double r, double g, double b) { this->SetColorF(r, g, b); }
+  ///@}
+
+  /**
+   * Get the plot color as integer rgb values (comprised between 0 and 255)
+   */
   void GetColor(unsigned char rgb[3]);
-  //@}
+
+  ///@{
+  /**
+   * Get the plot color as floating rgb values (comprised between 0.0 and 1.0)
+   */
+  virtual void GetColorF(double rgb[3]);
+
+  // If removed, please make GetColor(unsigned char rgb[3]) virtual
+  VTK_DEPRECATED_IN_9_3_0("Please use unambiguous GetColorF method instead.")
+  virtual void GetColor(double rgb[3]) { this->GetColorF(rgb); }
+  ///@
 
   /**
    * Set the width of the line.
@@ -170,44 +170,44 @@ public:
    */
   virtual float GetWidth();
 
-  //@{
+  ///@{
   /**
    * Set/get the vtkPen object that controls how this plot draws (out)lines.
    */
-  void SetPen(vtkPen *pen);
+  void SetPen(vtkPen* pen);
   vtkPen* GetPen();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the vtkBrush object that controls how this plot fills shapes.
    */
-  void SetBrush(vtkBrush *brush);
+  void SetBrush(vtkBrush* brush);
   vtkBrush* GetBrush();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the vtkBrush object that controls how this plot fills selected
    * shapes.
    */
-  void SetSelectionPen(vtkPen *pen);
+  void SetSelectionPen(vtkPen* pen);
   vtkPen* GetSelectionPen();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the vtkBrush object that controls how this plot fills selected
    * shapes.
    */
-  void SetSelectionBrush(vtkBrush *brush);
+  void SetSelectionBrush(vtkBrush* brush);
   vtkBrush* GetSelectionBrush();
-  //@}
+  ///@}
 
   /**
    * Set the label of this plot.
    */
-  virtual void SetLabel(const vtkStdString &label);
+  virtual void SetLabel(const vtkStdString& label);
 
   /**
    * Get the label of this plot.
@@ -218,13 +218,13 @@ public:
    * Set the plot labels, these are used for stacked chart variants, with the
    * index referring to the stacking index.
    */
-  virtual void SetLabels(vtkStringArray *labels);
+  virtual void SetLabels(vtkStringArray* labels);
 
   /**
    * Get the plot labels. If this array has a length greater than 1 the index
    * refers to the stacked objects in the plot. See vtkPlotBar for example.
    */
-  virtual vtkStringArray *GetLabels();
+  virtual vtkStringArray* GetLabels();
 
   /**
    * Get the number of labels associated with this plot.
@@ -241,44 +241,51 @@ public:
    * custom labels for each point in a plot. This array should be the same
    * length as the points array. Default is null (no indexed labels).
    */
-  void SetIndexedLabels(vtkStringArray *labels);
+  void SetIndexedLabels(vtkStringArray* labels);
 
   /**
    * Get the indexed labels array.
    */
-  virtual vtkStringArray *GetIndexedLabels();
+  virtual vtkStringArray* GetIndexedLabels();
 
   /**
    * Get the data object that the plot will draw.
    */
   vtkContextMapper2D* GetData();
 
-  //@{
+  ///@{
   /**
    * Use the Y array index for the X value. If true any X column setting will be
    * ignored, and the X values will simply be the index of the Y column.
    */
   vtkGetMacro(UseIndexForXSeries, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the Y array index for the X value. If true any X column setting will be
    * ignored, and the X values will simply be the index of the Y column.
    */
   vtkSetMacro(UseIndexForXSeries, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is a convenience function to set the input table and the x, y column
    * for the plot.
    */
-  virtual void SetInputData(vtkTable *table);
-  virtual void SetInputData(vtkTable *table, const vtkStdString &xColumn,
-                            const vtkStdString &yColumn);
-  void SetInputData(vtkTable *table, vtkIdType xColumn, vtkIdType yColumn);
-  //@}
+  virtual void SetInputData(vtkTable* table);
+  virtual void SetInputData(
+    vtkTable* table, const vtkStdString& xColumn, const vtkStdString& yColumn);
+  void SetInputData(vtkTable* table, vtkIdType xColumn, vtkIdType yColumn);
+  ///@}
+
+  ///@{
+  /**
+   * This is a convenience function to set the input connection for the plot.
+   */
+  virtual void SetInputConnection(vtkAlgorithmOutput* input);
+  ///@}
 
   /**
    * Get the input table used by the plot.
@@ -286,68 +293,72 @@ public:
   virtual vtkTable* GetInput();
 
   /**
+   * Get the input connection used by the plot.
+   */
+  vtkAlgorithmOutput* GetInputConnection();
+
+  /**
    * Convenience function to set the input arrays. For most plots index 0
    * is the x axis, and index 1 is the y axis. The name is the name of the
    * column in the vtkTable.
    */
-  virtual void SetInputArray(int index, const vtkStdString &name);
+  virtual void SetInputArray(int index, const vtkStdString& name);
 
-  //@{
+  ///@{
   /**
    * Set whether the plot can be selected. True by default.
    * If not, then SetSelection(), SelectPoints() or SelectPointsInPolygon()
    * won't have any effect.
    * \sa SetSelection(), SelectPoints(), SelectPointsInPolygon()
    */
-  vtkSetMacro(Selectable,bool);
-  vtkGetMacro(Selectable,bool);
-  vtkBooleanMacro(Selectable,bool);
-  //@}
+  vtkSetMacro(Selectable, bool);
+  vtkGetMacro(Selectable, bool);
+  vtkBooleanMacro(Selectable, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the list of points that must be selected.
    * If Selectable is false, then this method does nothing.
    * \sa SetSelectable()
    */
-  virtual void SetSelection(vtkIdTypeArray *id);
+  virtual void SetSelection(vtkIdTypeArray* id);
   vtkGetObjectMacro(Selection, vtkIdTypeArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the X axis associated with this plot.
    */
   vtkGetObjectMacro(XAxis, vtkAxis);
   virtual void SetXAxis(vtkAxis* axis);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the Y axis associated with this plot.
    */
   vtkGetObjectMacro(YAxis, vtkAxis);
   virtual void SetYAxis(vtkAxis* axis);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the origin shift and scaling factor used by the plot, this is
    * normally 0.0 offset and 1.0 scaling, but can be used to render data outside
    * of the single precision range. The chart that owns the plot should set this
    * and ensure the appropriate matrix is used when rendering the plot.
    */
-  void SetShiftScale(const vtkRectd &scaling);
+  void SetShiftScale(const vtkRectd& shiftScale);
   vtkRectd GetShiftScale();
-  //@}
+  ///@}
 
   /**
    * Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
 
    * See \a GetUnscaledInputBounds for more information.
    */
-  virtual void GetBounds(double bounds[4])
-  { bounds[0] = bounds[1] = bounds[2] = bounds[3] = 0.0; }
+  virtual void GetBounds(double bounds[4]) { bounds[0] = bounds[1] = bounds[2] = bounds[3] = 0.0; }
 
   /**
    * Provide un-log-scaled bounds for the plot inputs.
@@ -380,31 +391,43 @@ public:
     return this->GetBounds(bounds);
   }
 
-  /**
-   * Subclasses that build data caches to speed up painting should override this
-   * method to update such caches. This is called on each Paint, hence
-   * subclasses must add checks to avoid rebuilding of cache, unless necessary.
-   * Default implementation is empty.
-   */
-  virtual void UpdateCache() {}
-
-  //@{
+  ///@{
   /**
    * A General setter/getter that should be overridden. It can silently drop
    * options, case is important
    */
-  virtual void SetProperty(const vtkStdString &property, const vtkVariant &var);
-  virtual vtkVariant GetProperty(const vtkStdString &property);
-  //@}
+  virtual void SetProperty(const vtkStdString& property, const vtkVariant& var);
+  virtual vtkVariant GetProperty(const vtkStdString& property);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Clamp the given 2D pos into the provided bounds
    * Return true if the pos has been clamped, false otherwise.
    */
   static bool ClampPos(double pos[2], double bounds[4]);
   virtual bool ClampPos(double pos[2]);
-  //@}
+  ///@}
+
+  /**
+   * Returns true if the supplied x, y coordinate is inside the item.
+   */
+  bool Hit(const vtkContextMouseEvent& mouse) override;
+
+  /**
+   * Update the internal cache. Returns true if cache was successfully updated. Default does
+   * nothing.
+   * This method is called by Update() when either the plot's data has changed or
+   * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
+   */
+  virtual bool UpdateCache() { return true; }
+
+  /**
+   * Utility function that fills up `selectedPoints` with tuples from `points`. Indices
+   * from `selectedIds` are used to index into `points`.
+   */
+  static void FilterSelectedPoints(
+    vtkDataArray* points, vtkDataArray* selectedPoints, vtkIdTypeArray* selectedIds);
 
 protected:
   vtkPlot();
@@ -413,20 +436,28 @@ protected:
   /**
    * Get the properly formatted number for the supplied position and axis.
    */
-  vtkStdString GetNumber(double position, vtkAxis *axis);
+  vtkStdString GetNumber(double position, vtkAxis* axis);
 
-  //@{
+  ///@{
   /**
    * Transform the mouse event in the control-points space. This is needed when
    * using logScale or shiftscale.
    */
   virtual void TransformScreenToData(const vtkVector2f& in, vtkVector2f& out);
   virtual void TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out);
-  virtual void TransformScreenToData(
-    const double inX, const double inY, double& outX, double& outY);
-  virtual void TransformDataToScreen(
-    const double inX, const double inY, double& outX, double& outY);
-  //@}
+  virtual void TransformScreenToData(double inX, double inY, double& outX, double& outY);
+  virtual void TransformDataToScreen(double inX, double inY, double& outX, double& outY);
+  ///@}
+
+  /**
+   * Test if the internal cache requires an update.
+   */
+  virtual bool CacheRequiresUpdate();
+
+  /**
+   * The point cache is marked dirty until it has been initialized.
+   */
+  vtkTimeStamp BuildTime;
 
   /**
    * This object stores the vtkPen that controls how the plot is drawn.
@@ -485,7 +516,7 @@ protected:
   /**
    * Selected indices for the table the plot is rendering
    */
-  vtkIdTypeArray *Selection;
+  vtkIdTypeArray* Selection;
 
   /**
    * The X axis associated with this plot.
@@ -519,18 +550,10 @@ protected:
 
   bool LegendVisibility;
 
-#ifndef VTK_LEGACY_REMOVE
-  /**
-   * Flag used by GetNearestPoint legacy implementation
-   * to avoid infinite call
-   */
-  bool LegacyRecursionFlag = false;
-#endif // VTK_LEGACY_REMOVE
-
 private:
-  vtkPlot(const vtkPlot &) = delete;
-  void operator=(const vtkPlot &) = delete;
-
+  vtkPlot(const vtkPlot&) = delete;
+  void operator=(const vtkPlot&) = delete;
 };
 
-#endif //vtkPlot_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkPlot_h

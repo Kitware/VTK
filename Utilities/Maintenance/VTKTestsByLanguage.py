@@ -347,22 +347,7 @@ def GetProgramParameters():
             [args.a, args.b, args.enabled, args.disabled,
              args.notIn, args.printFileNames]
 
-def CheckPythonVersion(ver):
-    '''
-    Check the Python version.
-
-    :param: ver - the minimum required version number as hexadecimal.
-    :return: True if the Python version is greater than or equal to ver.
-    '''
-    if sys.hexversion < ver:
-        return False
-    return True
-
 def main():
-    if not CheckPythonVersion(0x02070000):
-        print('This program requires Python 2.7 or greater.')
-        return
-
     Ok = True
 
     inputPath, opts = GetProgramParameters()

@@ -1,20 +1,9 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCoordinate.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCoordinate
- * @brief   perform coordinate transformation, and represent position, in a variety of vtk coordinate systems
+ * @brief   perform coordinate transformation, and represent position, in a variety of vtk
+ * coordinate systems
  *
  * vtkCoordinate represents position in a variety of coordinate systems, and
  * converts position to other coordinate systems. It also supports relative
@@ -54,23 +43,24 @@
  *
  * @sa
  * vtkActor2D vtkScalarBarActor
-*/
+ */
 
 #ifndef vtkCoordinate_h
 #define vtkCoordinate_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
+VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
 
-#define VTK_DISPLAY             0
-#define VTK_NORMALIZED_DISPLAY  1
-#define VTK_VIEWPORT            2
+#define VTK_DISPLAY 0
+#define VTK_NORMALIZED_DISPLAY 1
+#define VTK_VIEWPORT 2
 #define VTK_NORMALIZED_VIEWPORT 3
-#define VTK_VIEW                4
-#define VTK_POSE                5
-#define VTK_WORLD               6
-#define VTK_USERDEFINED         7
+#define VTK_VIEW 4
+#define VTK_POSE 5
+#define VTK_WORLD 6
+#define VTK_USERDEFINED 7
 
 class VTKRENDERINGCORE_EXPORT vtkCoordinate : public vtkObject
 {
@@ -84,7 +74,7 @@ public:
    */
   static vtkCoordinate* New();
 
-  //@{
+  ///@{
   /**
    * Set/get the coordinate system which this coordinate
    * is defined in. The options are Display, Normalized Display,
@@ -92,36 +82,34 @@ public:
    */
   vtkSetMacro(CoordinateSystem, int);
   vtkGetMacro(CoordinateSystem, int);
-  void SetCoordinateSystemToDisplay()
-    { this->SetCoordinateSystem(VTK_DISPLAY); }
+  void SetCoordinateSystemToDisplay() { this->SetCoordinateSystem(VTK_DISPLAY); }
   void SetCoordinateSystemToNormalizedDisplay()
-    { this->SetCoordinateSystem(VTK_NORMALIZED_DISPLAY); }
-  void SetCoordinateSystemToViewport()
-    { this->SetCoordinateSystem(VTK_VIEWPORT); }
+  {
+    this->SetCoordinateSystem(VTK_NORMALIZED_DISPLAY);
+  }
+  void SetCoordinateSystemToViewport() { this->SetCoordinateSystem(VTK_VIEWPORT); }
   void SetCoordinateSystemToNormalizedViewport()
-    { this->SetCoordinateSystem(VTK_NORMALIZED_VIEWPORT); }
-  void SetCoordinateSystemToView()
-    { this->SetCoordinateSystem(VTK_VIEW); }
-  void SetCoordinateSystemToPose()
-    { this->SetCoordinateSystem(VTK_POSE); }
-  void SetCoordinateSystemToWorld()
-    { this->SetCoordinateSystem(VTK_WORLD); }
-  //@}
+  {
+    this->SetCoordinateSystem(VTK_NORMALIZED_VIEWPORT);
+  }
+  void SetCoordinateSystemToView() { this->SetCoordinateSystem(VTK_VIEW); }
+  void SetCoordinateSystemToPose() { this->SetCoordinateSystem(VTK_POSE); }
+  void SetCoordinateSystemToWorld() { this->SetCoordinateSystem(VTK_WORLD); }
+  ///@}
 
-  const char *GetCoordinateSystemAsString ();
+  const char* GetCoordinateSystemAsString();
 
-  //@{
+  ///@{
   /**
    * Set/get the value of this coordinate. This can be thought of as
    * the position of this coordinate in its coordinate system.
    */
   vtkSetVector3Macro(Value, double);
   vtkGetVector3Macro(Value, double);
-  void SetValue(double a, double b)
-    { this->SetValue(a, b, 0.0); }
-  //@}
+  void SetValue(double a, double b) { this->SetValue(a, b, 0.0); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this coordinate is relative to another coordinate,
    * then specify that coordinate as the ReferenceCoordinate.
@@ -129,9 +117,9 @@ public:
    */
   virtual void SetReferenceCoordinate(vtkCoordinate*);
   vtkGetObjectMacro(ReferenceCoordinate, vtkCoordinate);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If you want this coordinate to be relative to a specific
    * vtkViewport (vtkRenderer) then you can specify that here.
@@ -139,22 +127,22 @@ public:
    * object, to avoid reference cycle loop between rendering classes and filter
    * classes.
    */
-  void SetViewport(vtkViewport *viewport);
+  void SetViewport(vtkViewport* viewport);
   vtkGetObjectMacro(Viewport, vtkViewport);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the computed value in a specified coordinate system.
    */
-  double *GetComputedWorldValue(vtkViewport *) VTK_SIZEHINT(3);
-  int *GetComputedViewportValue(vtkViewport *) VTK_SIZEHINT(2);
-  int *GetComputedDisplayValue(vtkViewport *) VTK_SIZEHINT(2);
-  int *GetComputedLocalDisplayValue(vtkViewport *) VTK_SIZEHINT(2);
-  //@}
+  double* GetComputedWorldValue(vtkViewport*) VTK_SIZEHINT(3);
+  int* GetComputedViewportValue(vtkViewport*) VTK_SIZEHINT(2);
+  int* GetComputedDisplayValue(vtkViewport*) VTK_SIZEHINT(2);
+  int* GetComputedLocalDisplayValue(vtkViewport*) VTK_SIZEHINT(2);
+  ///@}
 
-  double *GetComputedDoubleViewportValue(vtkViewport *) VTK_SIZEHINT(2);
-  double *GetComputedDoubleDisplayValue(vtkViewport *) VTK_SIZEHINT(2);
+  double* GetComputedDoubleViewportValue(vtkViewport*) VTK_SIZEHINT(2);
+  double* GetComputedDoubleDisplayValue(vtkViewport*) VTK_SIZEHINT(2);
 
   /**
    * GetComputedValue() will return either World, Viewport or
@@ -162,7 +150,7 @@ public:
    * This is good for objects like vtkLineSource, where the
    * user might want to use them as World or Viewport coordinates.
    */
-  double *GetComputedValue(vtkViewport *) VTK_SIZEHINT(3);
+  double* GetComputedValue(vtkViewport*) VTK_SIZEHINT(3);
 
   /**
    * GetComputedUserDefinedValue() is to be used only when
@@ -171,8 +159,7 @@ public:
    * when set as the TransformCoordinate in 2D-Mappers, the user
    * can customize display of 2D polygons
    */
-  virtual double *GetComputedUserDefinedValue(vtkViewport *) VTK_SIZEHINT(3)
-    { return this->Value; }
+  virtual double* GetComputedUserDefinedValue(vtkViewport*) VTK_SIZEHINT(3) { return this->Value; }
 
 protected:
   vtkCoordinate();
@@ -180,8 +167,8 @@ protected:
 
   double Value[3];
   int CoordinateSystem;
-  vtkCoordinate *ReferenceCoordinate;
-  vtkViewport *Viewport;
+  vtkCoordinate* ReferenceCoordinate;
+  vtkViewport* Viewport;
   double ComputedWorldValue[3];
   int ComputedDisplayValue[2];
   int ComputedViewportValue[2];
@@ -196,4 +183,5 @@ private:
   void operator=(const vtkCoordinate&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

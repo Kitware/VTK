@@ -1,38 +1,26 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtLabelRenderStrategy.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkQtLabelRenderStrategy.h"
 #include "vtkQtLabelRenderStrategyInternals.h"
 
 #include "vtkCoordinate.h"
 #include "vtkImageData.h"
-#include "vtkLabeledDataMapper.h"
 #include "vtkLabelSizeCalculator.h"
+#include "vtkLabeledDataMapper.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkPlaneSource.h"
+#include "vtkPointData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
 #include "vtkQImageToImageSource.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
-#include "vtkTexturedActor2D.h"
 #include "vtkTextureMapToPlane.h"
+#include "vtkTexturedActor2D.h"
 #include "vtkTimerLog.h"
 
 #include <QApplication>
@@ -41,14 +29,16 @@
 #include <QImage>
 #include <QMap>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPair>
 #include <QPixmap>
 #include <QTextDocument>
 #include <QTextStream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
-bool operator <(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other)
+bool operator<(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other)
 {
   if (a.Text != other.Text)
   {
@@ -73,7 +63,7 @@ bool operator <(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other)
   return a.Font < other.Font;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtLabelRenderStrategy::vtkQtLabelRenderStrategy()
 {
   this->Implementation = new Internals();
@@ -103,7 +93,7 @@ vtkQtLabelRenderStrategy::vtkQtLabelRenderStrategy()
   this->Actor->SetMapper(this->Mapper);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtLabelRenderStrategy::~vtkQtLabelRenderStrategy()
 {
   delete this->Implementation->Painter;
@@ -117,20 +107,20 @@ vtkQtLabelRenderStrategy::~vtkQtLabelRenderStrategy()
   this->Actor->Delete();
 }
 
-void vtkQtLabelRenderStrategy::ReleaseGraphicsResources(vtkWindow *window)
+void vtkQtLabelRenderStrategy::ReleaseGraphicsResources(vtkWindow* window)
 {
   this->Texture->ReleaseGraphicsResources(window);
   this->Mapper->ReleaseGraphicsResources(window);
   this->Actor->ReleaseGraphicsResources(window);
 }
 
-//double start_frame_time = 0;
-//int start_frame_iter = 0;
-//----------------------------------------------------------------------------
+// double start_frame_time = 0;
+// int start_frame_iter = 0;
+//------------------------------------------------------------------------------
 void vtkQtLabelRenderStrategy::StartFrame()
 {
-  //vtkTimerLog* timer = vtkTimerLog::New();
-  //timer->StartTimer();
+  // vtkTimerLog* timer = vtkTimerLog::New();
+  // timer->StartTimer();
 
   if (!this->Renderer)
   {
@@ -144,46 +134,43 @@ void vtkQtLabelRenderStrategy::StartFrame()
     return;
   }
 
-  int *size = this->Renderer->GetRenderWindow()->GetSize();
+  const int* size = this->Renderer->GetRenderWindow()->GetSize();
   int width = size[0];
   int height = size[1];
   // If the render window is not antialiased then the text should not be
   this->AntialiasText = this->Renderer->GetRenderWindow()->GetMultiSamples() > 0;
 
   if (this->Implementation->Image->width() != width ||
-      this->Implementation->Image->height() != height)
+    this->Implementation->Image->height() != height)
   {
     this->Implementation->Painter->end();
     delete this->Implementation->Image;
-    this->Implementation->Image = new QImage(width, height,
-                                             QImage::Format_ARGB32_Premultiplied);
+    this->Implementation->Image = new QImage(width, height, QImage::Format_ARGB32_Premultiplied);
     this->Implementation->Painter->begin(this->Implementation->Image);
-    this->Implementation->Painter->setRenderHint(QPainter::TextAntialiasing,
-                                                 this->AntialiasText);
-    this->Implementation->Painter->setRenderHint(QPainter::Antialiasing,
-                                                 this->AntialiasText);
+    this->Implementation->Painter->setRenderHint(QPainter::TextAntialiasing, this->AntialiasText);
+    this->Implementation->Painter->setRenderHint(QPainter::Antialiasing, this->AntialiasText);
     this->QImageToImage->SetQImage(this->Implementation->Image);
     this->PlaneSource->SetPoint1(width, 0, 0);
     this->PlaneSource->SetPoint2(0, height, 0);
   }
 
-  this->Implementation->Image->fill(qRgba(0,0,0,0));
+  this->Implementation->Image->fill(qRgba(0, 0, 0, 0));
   this->QImageToImage->Modified();
 
-  //timer->StopTimer();
-  //start_frame_time += timer->GetElapsedTime();
-  //start_frame_iter++;
-  //if (start_frame_iter % 10 == 0)
+  // timer->StopTimer();
+  // start_frame_time += timer->GetElapsedTime();
+  // start_frame_iter++;
+  // if (start_frame_iter % 10 == 0)
   //  {
   //  cerr << "StartFrame time: " << (start_frame_time / start_frame_iter) << endl;
   //  }
 }
 
-//double compute_bounds_time = 0;
-//int compute_bounds_iter = 0;
-//----------------------------------------------------------------------------
+// double compute_bounds_time = 0;
+// int compute_bounds_iter = 0;
+//------------------------------------------------------------------------------
 void vtkQtLabelRenderStrategy::ComputeLabelBounds(
-  vtkTextProperty* tprop, vtkUnicodeString label, double bds[4])
+  vtkTextProperty* tprop, vtkStdString label, double bds[4])
 {
   if (!QApplication::instance())
   {
@@ -191,8 +178,8 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
     return;
   }
 
-  //vtkTimerLog* timer = vtkTimerLog::New();
-  //timer->StartTimer();
+  // vtkTimerLog* timer = vtkTimerLog::New();
+  // timer->StartTimer();
 
   if (!tprop)
   {
@@ -211,9 +198,9 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
     fontSpec.setStyleStrategy(QFont::NoAntialias);
   }
 
-  QString text = QString::fromUtf8(label.utf8_str());
-  QColor textColor = this->Implementation->TextPropertyToColor(tprop->GetColor(),
-                                                               tprop->GetOpacity());
+  QString text = QString::fromUtf8(label.c_str());
+  QColor textColor =
+    this->Implementation->TextPropertyToColor(tprop->GetColor(), tprop->GetOpacity());
   vtkQtLabelMapEntry key;
   key.Font = fontSpec;
   key.Text = text;
@@ -241,14 +228,14 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
   bds[3] -= tprop->GetLineOffset();
 
   // Take justification into account
-  double sz[2] = {bds[1] - bds[0], bds[3] - bds[2]};
+  double sz[2] = { bds[1] - bds[0], bds[3] - bds[2] };
   switch (tprop->GetJustification())
   {
     case VTK_TEXT_LEFT:
       break;
     case VTK_TEXT_CENTERED:
-      bds[0] -= sz[0]/2;
-      bds[1] -= sz[0]/2;
+      bds[0] -= sz[0] / 2;
+      bds[1] -= sz[0] / 2;
       break;
     case VTK_TEXT_RIGHT:
       bds[0] -= sz[0];
@@ -260,8 +247,8 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
     case VTK_TEXT_BOTTOM:
       break;
     case VTK_TEXT_CENTERED:
-      bds[2] -= sz[1]/2;
-      bds[3] -= sz[1]/2;
+      bds[2] -= sz[1] / 2;
+      bds[3] -= sz[1] / 2;
       break;
     case VTK_TEXT_TOP:
       bds[2] -= sz[1];
@@ -269,20 +256,20 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
       break;
   }
 
-  //timer->StopTimer();
-  //compute_bounds_time += timer->GetElapsedTime();
-  //compute_bounds_iter++;
-  //if (compute_bounds_iter % 10000 == 0)
+  // timer->StopTimer();
+  // compute_bounds_time += timer->GetElapsedTime();
+  // compute_bounds_iter++;
+  // if (compute_bounds_iter % 10000 == 0)
   //  {
   //  cerr << "ComputeLabelBounds time: " << (compute_bounds_time / compute_bounds_iter) << endl;
   //  }
 }
 
-//double render_label_time = 0;
-//int render_label_iter = 0;
-//----------------------------------------------------------------------------
+// double render_label_time = 0;
+// int render_label_iter = 0;
+//------------------------------------------------------------------------------
 void vtkQtLabelRenderStrategy::RenderLabel(
-  int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth)
+  int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth)
 {
   if (!QApplication::instance())
   {
@@ -290,11 +277,11 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     return;
   }
 
-  //vtkTimerLog* timer = vtkTimerLog::New();
-  //timer->StartTimer();
+  // vtkTimerLog* timer = vtkTimerLog::New();
+  // timer->StartTimer();
 
   // Determine if we can render the label to fit the width
-  QString origText = QString::fromUtf8(label.utf8_str());
+  QString origText = QString::fromUtf8(label.c_str());
   QFont fontSpec = this->Implementation->TextPropertyToFont(tprop);
 
   // This is the recommended Qt way of controlling text antialiasing.
@@ -317,9 +304,10 @@ void vtkQtLabelRenderStrategy::RenderLabel(
 
   // Get properties from text property
   double rotation = -tprop->GetOrientation();
-  QColor textColor = this->Implementation->TextPropertyToColor(tprop->GetColor(), tprop->GetOpacity());
-  int *size = this->Renderer->GetRenderWindow()->GetSize();
-  double h = size[1]-1;
+  QColor textColor =
+    this->Implementation->TextPropertyToColor(tprop->GetColor(), tprop->GetOpacity());
+  const int* size = this->Renderer->GetRenderWindow()->GetSize();
+  double h = size[1] - 1;
   double line_offset = tprop->GetLineOffset();
   int shOff[2];
   tprop->GetShadowOffset(shOff);
@@ -333,12 +321,12 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   QRectF bounds = path.boundingRect();
   double delta_x = 0., delta_y = 0.;
 
-  switch( tprop->GetJustification() )
+  switch (tprop->GetJustification())
   {
     case VTK_TEXT_LEFT:
       break;
     case VTK_TEXT_CENTERED:
-      delta_x = -bounds.width()/2.0;
+      delta_x = -bounds.width() / 2.0;
       break;
     case VTK_TEXT_RIGHT:
       delta_x = -bounds.width();
@@ -350,7 +338,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
       delta_y = bounds.height() - bounds.bottom();
       break;
     case VTK_TEXT_CENTERED:
-      delta_y = bounds.height()/2.0 - bounds.bottom();
+      delta_y = bounds.height() / 2.0 - bounds.bottom();
       break;
     case VTK_TEXT_BOTTOM:
       delta_y = -bounds.bottom();
@@ -359,7 +347,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
 
   QPainter* painter = this->Implementation->Painter;
   painter->save();
-  painter->translate(x[0], h-x[1]);
+  painter->translate(x[0], h - x[1]);
   painter->rotate(rotation);
   painter->translate(delta_x, delta_y);
   painter->translate(0., line_offset);
@@ -375,18 +363,17 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   painter->fillPath(path, textColor);
   painter->restore();
 
-  //timer->StopTimer();
-  //render_label_time += timer->GetElapsedTime();
-  //render_label_iter++;
-  //if (render_label_iter % 100 == 0)
+  // timer->StopTimer();
+  // render_label_time += timer->GetElapsedTime();
+  // render_label_iter++;
+  // if (render_label_iter % 100 == 0)
   //  {
   //  cerr << "RenderLabel time: " << (render_label_time / render_label_iter) << endl;
   //  }
 }
 
-//----------------------------------------------------------------------------
-void vtkQtLabelRenderStrategy::RenderLabel(
-  int x[2], vtkTextProperty* tprop, vtkUnicodeString label)
+//------------------------------------------------------------------------------
+void vtkQtLabelRenderStrategy::RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
 {
   if (!QApplication::instance())
   {
@@ -400,10 +387,10 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     return;
   }
 
-  //vtkTimerLog* timer = vtkTimerLog::New();
-  //timer->StartTimer();
+  // vtkTimerLog* timer = vtkTimerLog::New();
+  // timer->StartTimer();
 
-  QString text = QString::fromUtf8(label.utf8_str());
+  QString text = QString::fromUtf8(label.c_str());
   QFont fontSpec = this->Implementation->TextPropertyToFont(tprop);
 
   // This is the recommended Qt way of controlling text antialiasing.
@@ -417,7 +404,8 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   }
 
   double rotation = -tprop->GetOrientation();
-  QColor textColor = this->Implementation->TextPropertyToColor(tprop->GetColor(), tprop->GetOpacity());
+  QColor textColor =
+    this->Implementation->TextPropertyToColor(tprop->GetColor(), tprop->GetOpacity());
 
   int shOff[2];
   tprop->GetShadowOffset(shOff);
@@ -432,7 +420,8 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   key.Font = fontSpec;
   key.Text = text;
   key.Color = textColor;
-  if (this->Implementation->Cache.contains(key) && this->Implementation->Cache[key].Image.width() > 0)
+  if (this->Implementation->Cache.contains(key) &&
+    this->Implementation->Cache[key].Image.width() > 0)
   {
     img = &this->Implementation->Cache[key].Image;
     bounds = this->Implementation->Cache[key].Bounds;
@@ -448,9 +437,10 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     QTransform trans;
     trans.rotate(rotation);
     QRectF rotBounds = trans.mapRect(bounds);
-    this->Implementation->Cache[key].Image = QImage(static_cast<int>(rotBounds.width()), static_cast<int>(rotBounds.height()), QImage::Format_ARGB32_Premultiplied);
+    this->Implementation->Cache[key].Image = QImage(static_cast<int>(rotBounds.width()),
+      static_cast<int>(rotBounds.height()), QImage::Format_ARGB32_Premultiplied);
     img = &this->Implementation->Cache[key].Image;
-    img->fill(qRgba(0,0,0,0));
+    img->fill(qRgba(0, 0, 0, 0));
     QPainter p(img);
     p.translate(-rotBounds.left(), -rotBounds.top());
     p.rotate(rotation);
@@ -474,15 +464,15 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   QPainter* painter = this->Implementation->Painter;
 
   double delta_x = 0.;
-  switch( tprop->GetJustification() )
+  switch (tprop->GetJustification())
   {
     case VTK_TEXT_LEFT:
-      delta_x = bounds.width()/2.0;
+      delta_x = bounds.width() / 2.0;
       break;
     case VTK_TEXT_CENTERED:
       break;
     case VTK_TEXT_RIGHT:
-      delta_x = -bounds.width()/2.0;
+      delta_x = -bounds.width() / 2.0;
       break;
   }
 
@@ -490,25 +480,25 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   switch (tprop->GetVerticalJustification())
   {
     case VTK_TEXT_TOP:
-      delta_y += bounds.height()/2.0;
+      delta_y += bounds.height() / 2.0;
       break;
     case VTK_TEXT_CENTERED:
       break;
     case VTK_TEXT_BOTTOM:
-      delta_y += -bounds.height()/2.0;
+      delta_y += -bounds.height() / 2.0;
       break;
   }
 
-  int *size = this->Renderer->GetRenderWindow()->GetSize();
-  double h = size[1]-1;
+  const int* size = this->Renderer->GetRenderWindow()->GetSize();
+  double h = size[1] - 1;
   double line_offset = tprop->GetLineOffset();
 
   QRectF imgRect;
   imgRect.setSize(img->size());
 
   painter->save();
-  painter->translate(x[0], h-x[1]);
-  painter->translate(-imgRect.width()/2.0, -imgRect.height()/2.0);
+  painter->translate(x[0], h - x[1]);
+  painter->translate(-imgRect.width() / 2.0, -imgRect.height() / 2.0);
   painter->rotate(rotation);
   painter->translate(delta_x, delta_y);
   painter->rotate(-rotation);
@@ -516,34 +506,35 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   painter->drawImage(imgRect, *img, imgRect);
   painter->restore();
 
-  //timer->StopTimer();
-  //render_label_time += timer->GetElapsedTime();
-  //render_label_iter++;
-  //if (render_label_iter % 100 == 0)
+  // timer->StopTimer();
+  // render_label_time += timer->GetElapsedTime();
+  // render_label_iter++;
+  // if (render_label_iter % 100 == 0)
   //  {
   //  cerr << "RenderLabel time: " << (render_label_time / render_label_iter) << endl;
   //  }
 }
 
-//double end_frame_time = 0;
-//int end_frame_iter = 0;
-//----------------------------------------------------------------------------
+// double end_frame_time = 0;
+// int end_frame_iter = 0;
+//------------------------------------------------------------------------------
 void vtkQtLabelRenderStrategy::EndFrame()
 {
-  //vtkTimerLog* timer = vtkTimerLog::New();
-  //timer->StartTimer();
+  // vtkTimerLog* timer = vtkTimerLog::New();
+  // timer->StartTimer();
   this->Actor->RenderOverlay(this->Renderer);
-  //timer->StopTimer();
-  //end_frame_time += timer->GetElapsedTime();
-  //end_frame_iter++;
-  //if (end_frame_iter % 10 == 0)
+  // timer->StopTimer();
+  // end_frame_time += timer->GetElapsedTime();
+  // end_frame_iter++;
+  // if (end_frame_iter % 10 == 0)
   //  {
   //  cerr << "EndFrame time: " << (end_frame_time / end_frame_iter) << endl;
   //  }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtLabelRenderStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

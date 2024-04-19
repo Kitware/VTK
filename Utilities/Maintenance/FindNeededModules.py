@@ -15,10 +15,10 @@ def get_program_parameters():
 Use modules.json and your source files to generate a
   find_package(VTK COMPONENTS ...) command listing all the vtk modules
   needed by the C++ source and header files in your code.
-  
+
 Paths to more than one modules.json file and/or more than one source path can be specified.
 Note than if there are spaces in the paths, enclose the path in quotes.
- 
+
 You can choose any of these approaches along with the path(s) to modules.json:
 1) Specify a path to your source files and headers.
    In this case this path all subdirectories are also searched
@@ -27,7 +27,7 @@ You can choose any of these approaches along with the path(s) to modules.json:
 3) Specify a filename with no extensions.
    In this case the usual C++ extensions will be added automatically
    and the corresponding files (if they exist) searched.
- 
+
 If it is unable to find modules for your headers then
   a list of these, along with the files they are in, is produced
   so you can manually add the corresponding modules or rebuild VTK
@@ -35,7 +35,7 @@ If it is unable to find modules for your headers then
 
 You will need to manually add any third-party modules
    (if used) to the find_package command.
- 
+
     '''
     parser = argparse.ArgumentParser(description=description, epilog=epilogue,
                                      formatter_class=argparse.RawTextHelpFormatter)

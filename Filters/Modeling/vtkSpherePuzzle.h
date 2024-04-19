@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSpherePuzzle.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSpherePuzzle
  * @brief   create a polygonal sphere centered at the origin
  *
  * vtkSpherePuzzle creates
-*/
+ */
 
 #ifndef vtkSpherePuzzle_h
 #define vtkSpherePuzzle_h
@@ -27,15 +15,16 @@
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 
 class VTKFILTERSMODELING_EXPORT vtkSpherePuzzle : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkSpherePuzzle,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSpherePuzzle, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkSpherePuzzle *New();
+  static vtkSpherePuzzle* New();
 
   /**
    * Reset the state of this puzzle back to its original state.
@@ -72,13 +61,13 @@ public:
   /**
    * For drawing state as arrows.
    */
-  int *GetState() {return this->State;}
+  int* GetState() { return this->State; }
 
 protected:
   vtkSpherePuzzle();
   ~vtkSpherePuzzle() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void MarkVertical(int section);
   void MarkHorizontal(int section);
 
@@ -86,7 +75,7 @@ protected:
 
   // Stuff for storing a partial move.
   int PieceMask[32];
-  vtkTransform *Transform;
+  vtkTransform* Transform;
 
   // Colors for faces.
   unsigned char Colors[96];
@@ -102,4 +91,5 @@ private:
   void operator=(const vtkSpherePuzzle&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

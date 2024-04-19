@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGenericVertexAttributeMapping.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGenericVertexAttributeMapping
  * @brief   stores mapping for data arrays to
@@ -23,14 +11,15 @@
  * @par Thanks:
  * Support for generic vertex attributes in VTK was contributed in
  * collaboration with Stephane Ploix at EDF.
-*/
+ */
 
 #ifndef vtkGenericVertexAttributeMapping_h
 #define vtkGenericVertexAttributeMapping_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkGenericVertexAttributeMapping : public vtkObject
 {
 public:
@@ -43,8 +32,8 @@ public:
    * and map it to a generic vertex attribute.
    * Note that indices change when a mapping is added/removed.
    */
-  void AddMapping(const char* attributeName, const char* arrayName,
-    int fieldAssociation, int component);
+  void AddMapping(
+    const char* attributeName, const char* arrayName, int fieldAssociation, int component);
 
   /**
    * Select a data array and use it as multitexture texture
@@ -52,9 +41,7 @@ public:
    * Note the texture unit parameter should correspond to the texture
    * unit set on the texture.
    */
-  void AddMapping(
-    int unit, const char* arrayName, int fieldAssociation,
-    int component);
+  void AddMapping(int unit, const char* arrayName, int fieldAssociation, int component);
 
   /**
    * Remove a vertex attribute mapping.
@@ -106,9 +93,7 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

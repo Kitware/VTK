@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageSliceMapper.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageSliceMapper.h"
 
 #include "vtkCamera.h"
@@ -29,13 +17,14 @@
 #include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkImageSliceMapper, Points, vtkPoints);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkImageSliceMapper)
+vtkObjectFactoryNewMacro(vtkImageSliceMapper);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSliceMapper::vtkImageSliceMapper()
 {
   this->SliceNumber = 0;
@@ -61,7 +50,7 @@ vtkImageSliceMapper::vtkImageSliceMapper()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSliceMapper::~vtkImageSliceMapper()
 {
   if (this->Points)
@@ -70,30 +59,29 @@ vtkImageSliceMapper::~vtkImageSliceMapper()
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkImageSliceMapper::ReleaseGraphicsResources(vtkWindow *)
+//------------------------------------------------------------------------------
+void vtkImageSliceMapper::ReleaseGraphicsResources(vtkWindow*)
 {
   // see OpenGL subclass for implementation
 }
 
-//----------------------------------------------------------------------------
-void vtkImageSliceMapper::Render(vtkRenderer *, vtkImageSlice *)
+//------------------------------------------------------------------------------
+void vtkImageSliceMapper::Render(vtkRenderer*, vtkImageSlice*)
 {
   // see OpenGL subclass for implementation
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageSliceMapper::ProcessRequest(
-  vtkInformation* request, vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // compute display extent
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     int wholeExtent[6];
-    int *extent = this->DataWholeExtent;
+    int* extent = this->DataWholeExtent;
 
-    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
 
     for (int k = 0; k < 6; k++)
@@ -105,25 +93,25 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
     {
       for (int i = 0; i < 3; i++)
       {
-        if (extent[2*i] < this->CroppingRegion[2*i])
+        if (extent[2 * i] < this->CroppingRegion[2 * i])
         {
-          extent[2*i] = this->CroppingRegion[2*i];
+          extent[2 * i] = this->CroppingRegion[2 * i];
         }
-        if (extent[2*i+1] > this->CroppingRegion[2*i+1])
+        if (extent[2 * i + 1] > this->CroppingRegion[2 * i + 1])
         {
-          extent[2*i+1] = this->CroppingRegion[2*i+1];
+          extent[2 * i + 1] = this->CroppingRegion[2 * i + 1];
         }
       }
     }
 
-    double *spacing = this->DataSpacing;
-    double *origin = this->DataOrigin;
-    double *dir = this->DataDirection;
+    double* spacing = this->DataSpacing;
+    double* origin = this->DataOrigin;
+    double* dir = this->DataDirection;
 
     inInfo->Get(vtkDataObject::SPACING(), spacing);
     inInfo->Get(vtkDataObject::ORIGIN(), origin);
 
-    vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();
+    vtkMatrix4x4* matrix = this->GetDataToWorldMatrix();
     if (inInfo->Has(vtkDataObject::DIRECTION()))
     {
       inInfo->Get(vtkDataObject::DIRECTION(), dir);
@@ -136,10 +124,10 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
     double i2p[16];
     for (int i = 0; i < 3; ++i)
     {
-      i2p[i*4] = dir[i*3]*spacing[0];
-      i2p[i*4 + 1] = dir[i*3 + 1]*spacing[1];
-      i2p[i*4 + 2] = dir[i*3 + 2]*spacing[2];
-      i2p[i*4 + 3] = origin[i];
+      i2p[i * 4] = dir[i * 3] * spacing[0];
+      i2p[i * 4 + 1] = dir[i * 3 + 1] * spacing[1];
+      i2p[i * 4 + 2] = dir[i * 3 + 2] * spacing[2];
+      i2p[i * 4 + 3] = origin[i];
       i2p[12 + i] = 0.0;
     }
     i2p[15] = 1.0;
@@ -150,11 +138,11 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
 
     if (this->SliceFacesCamera || this->SliceAtFocalPoint)
     {
-      vtkRenderer *ren = this->GetCurrentRenderer();
+      vtkRenderer* ren = this->GetCurrentRenderer();
 
       if (ren)
       {
-        vtkCamera *camera = ren->GetActiveCamera();
+        vtkCamera* camera = ren->GetActiveCamera();
 
         if (this->SliceFacesCamera)
         {
@@ -171,24 +159,24 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
 
     int orientation = this->Orientation % 3;
 
-    this->SliceNumberMinValue = wholeExtent[2*orientation];
-    this->SliceNumberMaxValue = wholeExtent[2*orientation + 1];
+    this->SliceNumberMinValue = wholeExtent[2 * orientation];
+    this->SliceNumberMaxValue = wholeExtent[2 * orientation + 1];
 
-    if (this->SliceNumber < extent[2*orientation])
+    if (this->SliceNumber < extent[2 * orientation])
     {
-      this->SliceNumber = extent[2*orientation];
+      this->SliceNumber = extent[2 * orientation];
     }
-    if (this->SliceNumber > extent[2*orientation + 1])
+    if (this->SliceNumber > extent[2 * orientation + 1])
     {
-      this->SliceNumber = extent[2*orientation + 1];
+      this->SliceNumber = extent[2 * orientation + 1];
     }
 
     // the test is for an empty extent (0, -1, 0, -1, 0, -1) which
     // otherwise would be changed into (0, -1, 0, -1, -1, -1)
-    if (extent[2*orientation] <= extent[2*orientation + 1])
+    if (extent[2 * orientation] <= extent[2 * orientation + 1])
     {
-      extent[2*orientation] = this->SliceNumber;
-      extent[2*orientation + 1] = this->SliceNumber;
+      extent[2 * orientation] = this->SliceNumber;
+      extent[2 * orientation + 1] = this->SliceNumber;
     }
 
     this->DisplayExtent[0] = extent[0];
@@ -200,9 +188,9 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
 
     // Create point and normal of plane
     double point[4];
-    point[0] = 0.5*(extent[0] + extent[1]);
-    point[1] = 0.5*(extent[2] + extent[3]);
-    point[2] = 0.5*(extent[4] + extent[5]);
+    point[0] = 0.5 * (extent[0] + extent[1]);
+    point[1] = 0.5 * (extent[2] + extent[3]);
+    point[2] = 0.5 * (extent[4] + extent[5]);
     point[3] = 1.0;
 
     double normal[4];
@@ -229,15 +217,14 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
   }
 
   // set update extent
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
-    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
     if (this->Streaming)
     {
       // only update the display extent if streaming is on
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-        this->DisplayExtent, 6);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), this->DisplayExtent, 6);
     }
     else
     {
@@ -250,11 +237,10 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
   }
 
   // just a dummy, does not do anything
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
   {
-    vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    vtkImageData *output = vtkImageData::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     // set output extent to avoid re-execution
     output->GetInformation()->Set(vtkDataObject::DATA_EXTENT(),
@@ -266,39 +252,35 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "SliceNumber: " << this->SliceNumber << "\n";
-  os << indent << "SliceNumberMinValue: "
-     << this->SliceNumberMinValue << "\n";
-  os << indent << "SliceNumberMaxValue: "
-     << this->SliceNumberMaxValue<< "\n";
+  os << indent << "SliceNumberMinValue: " << this->SliceNumberMinValue << "\n";
+  os << indent << "SliceNumberMaxValue: " << this->SliceNumberMaxValue << "\n";
   os << indent << "Orientation: " << this->Orientation << "\n";
-  os << indent << "Cropping: "
-     << ( this->Cropping ? "On\n" : "Off\n" );
-  os << indent << "CroppingRegion: "
-     << this->CroppingRegion[0] << " " << this->CroppingRegion[1] << " "
-     << this->CroppingRegion[2] << " " << this->CroppingRegion[3] << " "
+  os << indent << "Cropping: " << (this->Cropping ? "On\n" : "Off\n");
+  os << indent << "CroppingRegion: " << this->CroppingRegion[0] << " " << this->CroppingRegion[1]
+     << " " << this->CroppingRegion[2] << " " << this->CroppingRegion[3] << " "
      << this->CroppingRegion[4] << " " << this->CroppingRegion[5] << "\n";
   os << indent << "Points: " << this->Points << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImageSliceMapper::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
 
   if (this->SliceFacesCamera || this->SliceAtFocalPoint)
   {
-    vtkImageSlice *prop = this->GetCurrentProp();
-    vtkRenderer *ren = this->GetCurrentRenderer();
+    vtkImageSlice* prop = this->GetCurrentProp();
+    vtkRenderer* ren = this->GetCurrentRenderer();
 
     if (prop && ren)
     {
-      vtkCamera *camera = ren->GetActiveCamera();
+      vtkCamera* camera = ren->GetActiveCamera();
       vtkMTimeType mTime2 = prop->GetMTime();
       if (mTime2 > mTime)
       {
@@ -315,7 +297,7 @@ vtkMTimeType vtkImageSliceMapper::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::SetSliceNumber(int i)
 {
   if (i != this->SliceNumber)
@@ -325,27 +307,27 @@ void vtkImageSliceMapper::SetSliceNumber(int i)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceNumber()
 {
   return this->SliceNumber;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceNumberMinValue()
 {
   this->UpdateInformation();
   return this->SliceNumberMinValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceNumberMaxValue()
 {
   this->UpdateInformation();
   return this->SliceNumberMaxValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::GetIndexBounds(double extent[6])
 {
   if (!this->GetInput())
@@ -363,15 +345,15 @@ void vtkImageSliceMapper::GetIndexBounds(double extent[6])
   extent[5] = this->DisplayExtent[5];
 
   int orientation = this->Orientation % 3;
-  extent[2*orientation] = this->SliceNumberMinValue;
-  extent[2*orientation + 1] = this->SliceNumberMaxValue;
+  extent[2 * orientation] = this->SliceNumberMinValue;
+  extent[2 * orientation + 1] = this->SliceNumberMaxValue;
 
   // expand by half a pixel if border is on, except in slice direction
-  double border = 0.5*(this->Border != 0);
+  double border = 0.5 * (this->Border != 0);
   double borders[3];
-  borders[0] = border*(orientation != 0);
-  borders[1] = border*(orientation != 1);
-  borders[2] = border*(orientation != 2);
+  borders[0] = border * (orientation != 0);
+  borders[1] = border * (orientation != 1);
+  borders[2] = border * (orientation != 2);
 
   extent[0] -= borders[0];
   extent[1] += borders[0];
@@ -381,8 +363,8 @@ void vtkImageSliceMapper::GetIndexBounds(double extent[6])
   extent[5] += borders[2];
 }
 
-//----------------------------------------------------------------------------
-double *vtkImageSliceMapper::GetBounds()
+//------------------------------------------------------------------------------
+double* vtkImageSliceMapper::GetBounds()
 {
   if (!this->GetInput())
   {
@@ -393,9 +375,9 @@ double *vtkImageSliceMapper::GetBounds()
   double extent[6];
   this->GetIndexBounds(extent);
 
-  double *spacing = this->DataSpacing;
-  double *origin = this->DataOrigin;
-  double *direction = this->DataDirection;
+  double* spacing = this->DataSpacing;
+  double* origin = this->DataOrigin;
+  double* direction = this->DataDirection;
 
   // compute bounds
   for (int k = 0; k < 2; ++k)
@@ -409,10 +391,8 @@ double *vtkImageSliceMapper::GetBounds()
         double ival = extent[i];
         double point[3];
         vtkImageData::TransformContinuousIndexToPhysicalPoint(
-            ival, jval, kval,
-            origin, spacing, direction,
-            point);
-        if (i+j+k == 0)
+          ival, jval, kval, origin, spacing, direction, point);
+        if (i + j + k == 0)
         {
           this->Bounds[0] = point[0];
           this->Bounds[1] = point[0];
@@ -425,8 +405,9 @@ double *vtkImageSliceMapper::GetBounds()
         {
           for (int c = 0; c < 3; ++c)
           {
-            this->Bounds[c*2] = point[c] < this->Bounds[c*2] ? point[c] : this->Bounds[c*2];
-            this->Bounds[c*2 + 1] = point[c] > this->Bounds[c*2 + 1] ? point[c] : this->Bounds[c*2 + 1];
+            this->Bounds[c * 2] = point[c] < this->Bounds[c * 2] ? point[c] : this->Bounds[c * 2];
+            this->Bounds[c * 2 + 1] =
+              point[c] > this->Bounds[c * 2 + 1] ? point[c] : this->Bounds[c * 2 + 1];
           }
         }
       }
@@ -436,9 +417,8 @@ double *vtkImageSliceMapper::GetBounds()
   return this->Bounds;
 }
 
-//----------------------------------------------------------------------------
-int vtkImageSliceMapper::GetOrientationFromCamera(
-  double const *propMatrix, vtkCamera *camera)
+//------------------------------------------------------------------------------
+int vtkImageSliceMapper::GetOrientationFromCamera(double const* propMatrix, vtkCamera* camera)
 {
   double normal[4] = { 0, 0, -1, 0 };
   camera->GetDirectionOfProjection(normal);
@@ -456,7 +436,7 @@ int vtkImageSliceMapper::GetOrientationFromCamera(
     vec[1] = mat[c + 4];
     vec[2] = mat[c + 8];
     vtkMath::Normalize(vec);
-    double dot = vtkMath::Dot(vec,normal);
+    double dot = vtkMath::Dot(vec, normal);
     if (fabs(dot) > fabs(maxDot))
     {
       maxIdx = c;
@@ -467,9 +447,8 @@ int vtkImageSliceMapper::GetOrientationFromCamera(
   return maxIdx + (maxDot < 0.0 ? 3 : 0);
 }
 
-//----------------------------------------------------------------------------
-int vtkImageSliceMapper::GetSliceFromCamera(
-  double const *propMatrix, vtkCamera *camera)
+//------------------------------------------------------------------------------
+int vtkImageSliceMapper::GetSliceFromCamera(double const* propMatrix, vtkCamera* camera)
 {
   int orientation = this->Orientation;
 
@@ -480,15 +459,15 @@ int vtkImageSliceMapper::GetSliceFromCamera(
   double mat[16];
   vtkMatrix4x4::Invert(propMatrix, mat);
   vtkMatrix4x4::MultiplyPoint(mat, p, p);
-  double slicepos = p[orientation]/p[3];
+  double slicepos = p[orientation] / p[3];
 
   // round to get integer, add a tolerance to prefer rounding up
   return vtkMath::Floor(slicepos + (0.5 + 7.62939453125e-06));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSliceMapper::GetSlicePlaneInDataCoords(
-  vtkMatrix4x4 *vtkNotUsed(propMatrix), double normal[4])
+  vtkMatrix4x4* vtkNotUsed(propMatrix), double normal[4])
 {
   int orientation = this->Orientation % 3;
   int slice = this->SliceNumber;
@@ -501,16 +480,13 @@ void vtkImageSliceMapper::GetSlicePlaneInDataCoords(
   // in this context data coordinates is physical coordinates
   // in that spacing and origin and direction are still applied
   // so it is basically index -> data (aka physical) -> world
-  normal[3] = -(slice*this->DataSpacing[orientation]
-    + this->DataOrigin[0]*normal[0]
-    + this->DataOrigin[1]*normal[1]
-    + this->DataOrigin[2]*normal[2]
-    )/scale;
+  normal[3] = -(slice * this->DataSpacing[orientation] + this->DataOrigin[0] * normal[0] +
+                this->DataOrigin[1] * normal[1] + this->DataOrigin[2] * normal[2]) /
+    scale;
 }
 
-//----------------------------------------------------------------------------
-void vtkImageSliceMapper::GetDimensionIndices(
-  int orientation, int &xdim, int &ydim)
+//------------------------------------------------------------------------------
+void vtkImageSliceMapper::GetDimensionIndices(int orientation, int& xdim, int& ydim)
 {
   orientation = orientation % 3;
   xdim = 1;
@@ -524,3 +500,4 @@ void vtkImageSliceMapper::GetDimensionIndices(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

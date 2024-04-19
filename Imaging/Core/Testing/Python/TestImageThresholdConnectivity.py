@@ -1,29 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkIOImage import vtkImageReader
+from vtkmodules.vtkImagingMorphological import vtkImageThresholdConnectivity
+from vtkmodules.vtkRenderingCore import (
+    vtkActor2D,
+    vtkImageMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestImageThresholdConnectivity(vtk.test.Testing.vtkTest):
+class TestImageThresholdConnectivity(vtkmodules.test.Testing.vtkTest):
 
     def testImageThresholdConnectivity(self):
 
@@ -31,10 +28,10 @@ class TestImageThresholdConnectivity(vtk.test.Testing.vtkTest):
 
         # Image pipeline
 
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
         renWin.SetSize(192, 256)
 
-        reader = vtk.vtkImageReader()
+        reader = vtkImageReader()
         reader.ReleaseDataFlagOff()
         reader.SetDataByteOrderToLittleEndian()
         reader.SetDataExtent(0, 63, 0, 63, 2, 5)
@@ -42,7 +39,7 @@ class TestImageThresholdConnectivity(vtk.test.Testing.vtkTest):
         reader.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
         reader.SetDataMask(0x7fff)
 
-        seeds = vtk.vtkPoints()
+        seeds = vtkPoints()
         seeds.InsertNextPoint(0, 0, 0)
         seeds.InsertNextPoint(100.8, 100.8, 0)
 
@@ -60,7 +57,7 @@ class TestImageThresholdConnectivity(vtk.test.Testing.vtkTest):
             for rout in replaceout:
                 for t in thresholds:
 
-                    thresh.append(vtk.vtkImageThresholdConnectivity())
+                    thresh.append(vtkImageThresholdConnectivity())
                     thresh[k].SetSeedPoints(seeds)
                     thresh[k].SetInValue(2000)
                     thresh[k].SetOutValue(0)
@@ -69,7 +66,7 @@ class TestImageThresholdConnectivity(vtk.test.Testing.vtkTest):
                     thresh[k].SetInputConnection(reader.GetOutputPort())
                     eval('thresh[k].' + t)
 
-                    map.append(vtk.vtkImageMapper())
+                    map.append(vtkImageMapper())
                     map[k].SetInputConnection(thresh[k].GetOutputPort())
                     if k < 3:
                         map[k].SetColorWindow(255)
@@ -78,10 +75,10 @@ class TestImageThresholdConnectivity(vtk.test.Testing.vtkTest):
                         map[k].SetColorWindow(2000)
                         map[k].SetColorLevel(1000)
 
-                    act.append(vtk.vtkActor2D())
+                    act.append(vtkActor2D())
                     act[k].SetMapper(map[k])
 
-                    ren.append(vtk.vtkRenderer())
+                    ren.append(vtkRenderer())
                     ren[k].AddActor2D(act[k])
 
                     renWin.AddRenderer(ren[k])
@@ -103,13 +100,13 @@ class TestImageThresholdConnectivity(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "TestImageThresholdConnectivity.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestImageThresholdConnectivity, 'test')])
+     vtkmodules.test.Testing.main([(TestImageThresholdConnectivity, 'test')])

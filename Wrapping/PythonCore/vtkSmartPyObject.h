@@ -1,44 +1,34 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSmartPyObject.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkSmartPyObject
- *
- * The vtkSmartPyObject class serves as a smart pointer for PyObjects.
-*/
+ * @brief   The vtkSmartPyObject class serves as a smart pointer for PyObjects.
+ */
 
 #ifndef vtkSmartPyObject_h
 #define vtkSmartPyObject_h
 
 // this must be included first
+#include "vtkABINamespace.h"
 #include "vtkPython.h" // PyObject can't be forward declared
 
 #include "vtkWrappingPythonCoreModule.h"
 
-class VTKWRAPPINGPYTHONCORE_EXPORT vtkSmartPyObject {
+VTK_ABI_NAMESPACE_BEGIN
+class VTKWRAPPINGPYTHONCORE_EXPORT vtkSmartPyObject
+{
 public:
   /**
    * Creates a new vtkSmartPyObject managing the existing reference
    * to the object given
    */
-  vtkSmartPyObject(PyObject *obj = nullptr);
+  vtkSmartPyObject(PyObject* obj = nullptr);
   /**
    * Creates a new vtkSmartPyObject to the object in the other smart
    * pointer and increments the reference count to the object
    */
-  vtkSmartPyObject(const vtkSmartPyObject &other);
+  vtkSmartPyObject(const vtkSmartPyObject& other);
   /**
    * Decrements the reference count to the object
    */
@@ -49,13 +39,13 @@ public:
    * The reference count on the old object is decremented and the
    * reference count on the new object is incremented
    */
-  vtkSmartPyObject& operator=(const vtkSmartPyObject &other);
+  vtkSmartPyObject& operator=(const vtkSmartPyObject& other);
   /**
    * Sets the internal pointer to the given PyObject.  The reference
    * count on the PyObject is incremented.  To take a reference without
    * incrementing the reference count use TakeReference.
    */
-  vtkSmartPyObject& operator=(PyObject *obj);
+  vtkSmartPyObject& operator=(PyObject* obj);
   /**
    * Sets the internal pointer to the given PyObject without incrementing
    * the reference count
@@ -65,7 +55,7 @@ public:
   /**
    * Provides normal pointer target member access using operator ->.
    */
-  PyObject *operator->() const;
+  PyObject* operator->() const;
   /**
    * Get the contained pointer.
    */
@@ -75,7 +65,6 @@ public:
    * Returns true if the internal pointer is to a valid PyObject.
    */
   operator bool() const;
-
 
   /**
    * Returns the pointer to a PyObject stored internally and clears the
@@ -88,7 +77,7 @@ public:
    * Returns the internal pointer to a PyObject with no effect on its
    * reference count
    */
-  PyObject *GetPointer() const;
+  PyObject* GetPointer() const;
   /**
    * Returns the internal pointer to a PyObject and increments its reference
    * count
@@ -96,8 +85,9 @@ public:
   PyObject* GetAndIncreaseReferenceCount();
 
 private:
-  PyObject *Object;
+  PyObject* Object;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif
 // VTK-HeaderTest-Exclude: vtkSmartPyObject.h

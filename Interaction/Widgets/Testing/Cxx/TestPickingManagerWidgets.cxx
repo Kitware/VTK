@@ -1,38 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPickingManagerWidgets.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*==============================================================================
-
-  Library: MSVTK
-
-  Copyright (c) Kitware Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0.txt
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-
-==============================================================================*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware Inc.
+// SPDX-License-Identifier: BSD-3-Clause AND Apache-2.0
 //
 // This example tests the PickingManager using different widgets and associated
 // pickers:
@@ -45,8 +13,8 @@
 
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
-#include "vtkBalloonWidget.h"
 #include "vtkBalloonRepresentation.h"
+#include "vtkBalloonWidget.h"
 #include "vtkBoxWidget.h"
 #include "vtkCamera.h"
 #include "vtkClipPolyData.h"
@@ -63,11 +31,11 @@
 #include "vtkPlane.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
 #include "vtkPropPicker.h"
-#include "vtkRenderer.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
@@ -80,7 +48,7 @@ public:
   {
     vtkPropPicker* picker = reinterpret_cast<vtkPropPicker*>(caller);
     vtkProp* prop = picker->GetViewProp();
-    if ( prop != nullptr )
+    if (prop != nullptr)
     {
       this->BalloonWidget->UpdateBalloonString(prop, "Picked");
     }
@@ -96,22 +64,23 @@ public:
 class vtkTIPW2Callback : public vtkCommand
 {
 public:
-  static vtkTIPW2Callback *New()
-  { return new vtkTIPW2Callback; }
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  static vtkTIPW2Callback* New() { return new vtkTIPW2Callback; }
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-    vtkImplicitPlaneWidget2 *planeWidget =
-      reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
-    vtkImplicitPlaneRepresentation *rep =
-      reinterpret_cast<vtkImplicitPlaneRepresentation*>(
-        planeWidget->GetRepresentation());
+    vtkImplicitPlaneWidget2* planeWidget = reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
+    vtkImplicitPlaneRepresentation* rep =
+      reinterpret_cast<vtkImplicitPlaneRepresentation*>(planeWidget->GetRepresentation());
     rep->GetPlane(this->Plane);
     this->Actor->VisibilityOn();
   }
 
-  vtkTIPW2Callback():Plane(nullptr),Actor(nullptr) {}
-  vtkPlane *Plane;
-  vtkActor *Actor;
+  vtkTIPW2Callback()
+    : Plane(nullptr)
+    , Actor(nullptr)
+  {
+  }
+  vtkPlane* Plane;
+  vtkActor* Actor;
 };
 
 //------------------------------------------------------------------------------
@@ -121,19 +90,17 @@ public:
 class vtkEnableManagerCallback : public vtkCommand
 {
 public:
-  static vtkEnableManagerCallback *New()
-    {return new vtkEnableManagerCallback;}
+  static vtkEnableManagerCallback* New() { return new vtkEnableManagerCallback; }
 
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-    vtkRenderWindowInteractor *iren =
-      static_cast<vtkRenderWindowInteractor*>(caller);
+    vtkRenderWindowInteractor* iren = static_cast<vtkRenderWindowInteractor*>(caller);
+    char* cKeySym = iren->GetKeySym();
+    std::string keySym = cKeySym != nullptr ? cKeySym : "";
 
-    if((vtkStdString(iren->GetKeySym()) == "Control_L" ||
-       vtkStdString(iren->GetKeySym()) == "Control_R") &&
-       iren->GetPickingManager())
+    if ((keySym == "Control_L" || keySym == "Control_R") && iren->GetPickingManager())
     {
-      if(!iren->GetPickingManager()->GetEnabled())
+      if (!iren->GetPickingManager()->GetEnabled())
       {
         std::cout << "PickingManager ON !" << std::endl;
         iren->GetPickingManager()->EnabledOn();
@@ -145,18 +112,17 @@ public:
       }
     }
     // Enable/Disable the Optimization on render events.
-    else if (vtkStdString(iren->GetKeySym()) == "o" &&
-             iren->GetPickingManager())
+    else if (keySym == "o" && iren->GetPickingManager())
     {
-      if(!iren->GetPickingManager()->GetOptimizeOnInteractorEvents())
+      if (!iren->GetPickingManager()->GetOptimizeOnInteractorEvents())
       {
         std::cout << "Optimization on Interactor events ON !" << std::endl;
-        iren->GetPickingManager()->SetOptimizeOnInteractorEvents(1);
+        iren->GetPickingManager()->SetOptimizeOnInteractorEvents(true);
       }
       else
       {
         std::cout << "Optimization on Interactor events OFF !" << std::endl;
-        iren->GetPickingManager()->SetOptimizeOnInteractorEvents(0);
+        iren->GetPickingManager()->SetOptimizeOnInteractorEvents(false);
       }
     }
   }
@@ -183,7 +149,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Instantiate a picker and link it to the ballonWidgetCallback
   vtkNew<vtkPropPicker> picker;
   vtkNew<vtkBalloonPickCallback> pcbk;
-  picker->AddObserver(vtkCommand::PickEvent,pcbk);
+  picker->AddObserver(vtkCommand::PickEvent, pcbk);
   iren->SetPicker(picker);
 
   /*--------------------------------------------------------------------------*/
@@ -209,14 +175,14 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   csMapper->SetInputConnection(cs->GetOutputPort());
   vtkNew<vtkActor> cyl;
   cyl->SetMapper(csMapper);
-  cyl->AddPosition(5,0,0);
+  cyl->AddPosition(5, 0, 0);
 
   vtkNew<vtkConeSource> coneSource;
   vtkNew<vtkPolyDataMapper> coneMapper;
   coneMapper->SetInputConnection(coneSource->GetOutputPort());
   vtkNew<vtkActor> cone;
   cone->SetMapper(coneMapper);
-  cone->AddPosition(0,5,0);
+  cone->AddPosition(0, 5, 0);
 
   // Create the widget
   vtkNew<vtkBalloonRepresentation> rep;
@@ -225,9 +191,9 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkBalloonWidget> widget;
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
-  widget->AddBalloon(sph,"This is a sphere",nullptr);
-  widget->AddBalloon(cyl,"This is a\ncylinder",nullptr);
-  widget->AddBalloon(cone,"This is a\ncone,\na really big.",nullptr);
+  widget->AddBalloon(sph, "This is a sphere", nullptr);
+  widget->AddBalloon(cyl, "This is a\ncylinder", nullptr);
+  widget->AddBalloon(cone, "This is a\ncone,\na really big.", nullptr);
   pcbk->BalloonWidget = widget;
 
   /*--------------------------------------------------------------------------*/
@@ -243,7 +209,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(8);
   sphere->SetPhiResolution(8);
-  sphere->SetCenter(5,5,0);
+  sphere->SetCenter(5, 5, 0);
   vtkNew<vtkGlyph3D> glyph;
   glyph->SetInputConnection(sphere->GetOutputPort());
   glyph->SetSourceData(cone1->GetOutput());
@@ -287,7 +253,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkNew<vtkActor> maceActorImpPlane;
   maceActorImpPlane->SetMapper(maceMapperImpPlane);
-  maceActorImpPlane->AddPosition(0,0,0);
+  maceActorImpPlane->AddPosition(0, 0, 0);
   maceActorImpPlane->VisibilityOn();
 
   // This portion of the code clips the mace with the vtkPlanes
@@ -303,9 +269,9 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkNew<vtkActor> selectActor;
   selectActor->SetMapper(selectMapper);
-  selectActor->GetProperty()->SetColor(0,1,0);
+  selectActor->GetProperty()->SetColor(0, 1, 0);
   selectActor->VisibilityOff();
-  selectActor->AddPosition(0,0,0);
+  selectActor->AddPosition(0, 0, 0);
   selectActor->SetScale(1.01, 1.01, 1.01);
 
   // The SetInteractor method is how 3D widgets are associated with the render
@@ -321,18 +287,16 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   impPlaneRep->SetOutlineTranslation(0);
   impPlaneRep->SetScaleEnabled(0);
   impPlaneRep->PlaceWidget(glyphImpPlane->GetOutput()->GetBounds());
-  impPlaneRep->SetEdgeColor(0.,1.,0.);
-  impPlaneRep->SetNormal(1,0,1);
+  impPlaneRep->SetEdgeColor(0., 1., 0.);
+  impPlaneRep->SetNormal(1, 0, 1);
 
   vtkNew<vtkImplicitPlaneWidget2> planeWidget;
   planeWidget->SetInteractor(iren);
   planeWidget->SetRepresentation(impPlaneRep);
   planeWidget->On();
 
-  planeWidget->AddObserver(vtkCommand::InteractionEvent,
-                           impPlaneCallback);
-  planeWidget->AddObserver(vtkCommand::UpdateEvent,
-                           impPlaneCallback);
+  planeWidget->AddObserver(vtkCommand::InteractionEvent, impPlaneCallback);
+  planeWidget->AddObserver(vtkCommand::UpdateEvent, impPlaneCallback);
 
   // Second ImplicitPlaneWidget (Red)
   vtkNew<vtkImplicitPlaneRepresentation> impPlaneRep2;
@@ -340,7 +304,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   impPlaneRep2->SetScaleEnabled(0);
   impPlaneRep2->SetPlaceFactor(1.);
   impPlaneRep2->PlaceWidget(glyphImpPlane->GetOutput()->GetBounds());
-  impPlaneRep2->SetEdgeColor(1.,0.,0.);
+  impPlaneRep2->SetEdgeColor(1., 0., 0.);
 
   vtkNew<vtkImplicitPlaneWidget2> planeWidget2;
   planeWidget2->SetInteractor(iren);
@@ -366,7 +330,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   // render the image
   iren->Initialize();
-  double extent[6] = {-2, 7, -2, 7, -1, 1};
+  double extent[6] = { -2, 7, -2, 7, -1, 1 };
   ren1->ResetCamera(extent);
   renWin->Render();
   widget->On();

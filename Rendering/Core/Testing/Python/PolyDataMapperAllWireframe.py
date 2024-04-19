@@ -1,22 +1,44 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkLookupTable,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkTriangleStrip,
+    vtkUnstructuredGrid,
+)
+from vtkmodules.vtkFiltersCore import vtkTriangleFilter
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOImage import vtkBMPReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-pnmReader = vtk.vtkBMPReader()
+pnmReader = vtkBMPReader()
 pnmReader.SetFileName(VTK_DATA_ROOT + "/Data/masonry.bmp")
 
-texture = vtk.vtkTexture()
+texture = vtkTexture()
 texture.SetInputConnection(pnmReader.GetOutputPort())
 
-triangleStripPoints = vtk.vtkPoints()
+triangleStripPoints = vtkPoints()
 triangleStripPoints.SetNumberOfPoints(5)
 triangleStripPoints.InsertPoint(0, 0, 1, 0)
 triangleStripPoints.InsertPoint(1, 0, 0, .5)
@@ -24,7 +46,7 @@ triangleStripPoints.InsertPoint(2, 1, 1, .3)
 triangleStripPoints.InsertPoint(3, 1, 0, .6)
 triangleStripPoints.InsertPoint(4, 2, 1, .1)
 
-triangleStripTCoords = vtk.vtkFloatArray()
+triangleStripTCoords = vtkFloatArray()
 triangleStripTCoords.SetNumberOfComponents(2)
 triangleStripTCoords.SetNumberOfTuples(5)
 triangleStripTCoords.InsertTuple2(0, 0, 1)
@@ -33,7 +55,7 @@ triangleStripTCoords.InsertTuple2(2, .5, 1)
 triangleStripTCoords.InsertTuple2(3, .5, 0)
 triangleStripTCoords.InsertTuple2(4, 1, 1)
 
-triangleStripPointScalars = vtk.vtkFloatArray()
+triangleStripPointScalars = vtkFloatArray()
 triangleStripPointScalars.SetNumberOfTuples(5)
 triangleStripPointScalars.InsertValue(0, 1)
 triangleStripPointScalars.InsertValue(1, 0)
@@ -41,11 +63,11 @@ triangleStripPointScalars.InsertValue(2, 0)
 triangleStripPointScalars.InsertValue(3, 0)
 triangleStripPointScalars.InsertValue(4, 0)
 
-triangleStripCellScalars = vtk.vtkFloatArray()
+triangleStripCellScalars = vtkFloatArray()
 triangleStripCellScalars.SetNumberOfTuples(1)
 triangleStripCellScalars.InsertValue(0, 1)
 
-triangleStripPointNormals = vtk.vtkFloatArray()
+triangleStripPointNormals = vtkFloatArray()
 triangleStripPointNormals.SetNumberOfComponents(3)
 triangleStripPointNormals.SetNumberOfTuples(5)
 triangleStripPointNormals.InsertTuple3(0, 0, 0, 1)
@@ -54,12 +76,12 @@ triangleStripPointNormals.InsertTuple3(2, 0, 1, 1)
 triangleStripPointNormals.InsertTuple3(3, 1, 0, 0)
 triangleStripPointNormals.InsertTuple3(4, 1, 0, 1)
 
-triangleStripCellNormals = vtk.vtkFloatArray()
+triangleStripCellNormals = vtkFloatArray()
 triangleStripCellNormals.SetNumberOfComponents(3)
 triangleStripCellNormals.SetNumberOfTuples(1)
 triangleStripCellNormals.InsertTuple3(0, 1, 1, 1)
 
-aTriangleStrip = vtk.vtkTriangleStrip()
+aTriangleStrip = vtkTriangleStrip()
 aTriangleStrip.GetPointIds().SetNumberOfIds(5)
 aTriangleStrip.GetPointIds().SetId(0, 0)
 aTriangleStrip.GetPointIds().SetId(1, 1)
@@ -67,7 +89,7 @@ aTriangleStrip.GetPointIds().SetId(2, 2)
 aTriangleStrip.GetPointIds().SetId(3, 3)
 aTriangleStrip.GetPointIds().SetId(4, 4)
 
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetNumberOfColors(5)
 lut.SetTableValue(0, 0, 0, 1, 1)
 lut.SetTableValue(1, 0, 1, 0, 1)
@@ -83,20 +105,20 @@ k = 0
 for type in types:
     for mask in masks:
         idx = str(i)
-        exec("grid" + idx + " = vtk.vtkUnstructuredGrid()")
+        exec("grid" + idx + " = vtkUnstructuredGrid()")
         eval("grid" + idx).Allocate(1, 1)
         eval("grid" + idx).InsertNextCell(
           aTriangleStrip.GetCellType(), aTriangleStrip.GetPointIds())
         eval("grid" + idx).SetPoints(triangleStripPoints)
 
-        exec("geometry" + idx + " = vtk.vtkGeometryFilter()")
+        exec("geometry" + idx + " = vtkGeometryFilter()")
         eval("geometry" + idx).SetInputData(eval("grid" + idx))
 
-        exec("triangles" + idx + " = vtk.vtkTriangleFilter()")
+        exec("triangles" + idx + " = vtkTriangleFilter()")
         eval("triangles" + idx).SetInputConnection(
           eval("geometry" + idx).GetOutputPort())
 
-        exec("mapper" + idx + " = vtk.vtkPolyDataMapper()")
+        exec("mapper" + idx + " = vtkPolyDataMapper()")
         if (type == "strip"):
             eval("mapper" + idx).SetInputConnection(
               eval("geometry" + idx).GetOutputPort())
@@ -108,7 +130,7 @@ for type in types:
         eval("mapper" + idx).SetLookupTable(lut)
         eval("mapper" + idx).SetScalarRange(0, 4)
 
-        exec("actor" + idx + " = vtk.vtkActor()")
+        exec("actor" + idx + " = vtkActor()")
         eval("actor" + idx).SetMapper(eval("mapper" + idx))
 
         if mask & 1 != 0:

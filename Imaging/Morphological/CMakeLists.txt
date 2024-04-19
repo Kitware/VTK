@@ -1,6 +1,6 @@
 set(classes
-  vtkImageConnector
   vtkImageConnectivityFilter
+  vtkImageConnector
   vtkImageContinuousDilate3D
   vtkImageContinuousErode3D
   vtkImageDilateErode3D
@@ -13,3 +13,4 @@ set(classes
 
 vtk_module_add_module(VTK::ImagingMorphological
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::ImagingMorphological)

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPPairwiseExtractHistogram2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkPPairwiseExtractHistogram2D
  * @brief   compute a 2D histogram between
@@ -39,7 +23,7 @@
  * @par Thanks:
  *  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
  *------------------------------------------------------------------------------
-*/
+ */
 
 #ifndef vtkPPairwiseExtractHistogram2D_h
 #define vtkPPairwiseExtractHistogram2D_h
@@ -47,10 +31,12 @@
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkPairwiseExtractHistogram2D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractHistogram2D;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELIMAGING_EXPORT vtkPPairwiseExtractHistogram2D : public vtkPairwiseExtractHistogram2D
+class VTKFILTERSPARALLELIMAGING_EXPORT vtkPPairwiseExtractHistogram2D
+  : public vtkPairwiseExtractHistogram2D
 {
 public:
   static vtkPPairwiseExtractHistogram2D* New();
@@ -58,7 +44,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
 protected:
   vtkPPairwiseExtractHistogram2D();
@@ -76,4 +62,5 @@ private:
   void operator=(const vtkPPairwiseExtractHistogram2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

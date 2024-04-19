@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDelaunay2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDelaunay2D
  * @brief   create 2D Delaunay triangulation of input points
@@ -66,7 +54,9 @@
  * transition of triangle sizes throughout the mesh. (You may even want to
  * add extra points to create a better point distribution.) If numerical
  * problems are present, you will see a warning message to this effect at
- * the end of the triangulation process.
+ * the end of the triangulation process. Note also that the
+ * RandomPointInsertion mode can be set which will insert the points in
+ * pseudo-random order.
  *
  * To create constrained meshes, you must define an additional
  * input. This input is an instance of vtkPolyData which contains
@@ -120,15 +110,16 @@
  *
  * @sa
  * vtkDelaunay3D vtkTransformFilter vtkGaussianSplatter
-*/
+ */
 
 #ifndef vtkDelaunay2D_h
 #define vtkDelaunay2D_h
 
+#include "vtkAbstractTransform.h" // For point transformation
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class vtkAbstractTransform;
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkIdList;
 class vtkPointSet;
@@ -140,14 +131,14 @@ class vtkPointSet;
 class VTKFILTERSCORE_EXPORT vtkDelaunay2D : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDelaunay2D,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkDelaunay2D, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 1.25;
    * BoundingTriangulation turned off.
    */
-  static vtkDelaunay2D *New();
+  static vtkDelaunay2D* New();
 
   /**
    * Specify the source object used to specify constrained edges and loops.
@@ -158,7 +149,7 @@ public:
    * Note that this method does not connect the pipeline. See SetSourceConnection
    * for connecting the pipeline.
    */
-  void SetSourceData(vtkPolyData *);
+  void SetSourceData(vtkPolyData*);
 
   /**
    * Specify the source object used to specify constrained edges and loops.
@@ -168,56 +159,56 @@ public:
    * input and source).
    * New style. This method is equivalent to SetInputConnection(1, algOutput).
    */
-  void SetSourceConnection(vtkAlgorithmOutput *algOutput);
+  void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
   /**
    * Get a pointer to the source object.
    */
-  vtkPolyData *GetSource();
+  vtkPolyData* GetSource();
 
-  //@{
+  ///@{
   /**
    * Specify alpha (or distance) value to control output of this filter.
    * For a non-zero alpha value, only edges or triangles contained within
    * a sphere centered at mesh vertices will be output. Otherwise, only
    * triangles will be output.
    */
-  vtkSetClampMacro(Alpha,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Alpha,double);
-  //@}
+  vtkSetClampMacro(Alpha, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Alpha, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a tolerance to control discarding of closely spaced points.
    * This tolerance is specified as a fraction of the diagonal length of
    * the bounding box of the points.
    */
-  vtkSetClampMacro(Tolerance,double,0.0,1.0);
-  vtkGetMacro(Tolerance,double);
-  //@}
+  vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
+  vtkGetMacro(Tolerance, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a multiplier to control the size of the initial, bounding
    * Delaunay triangulation.
    */
-  vtkSetClampMacro(Offset,double,0.75,VTK_DOUBLE_MAX);
-  vtkGetMacro(Offset,double);
-  //@}
+  vtkSetClampMacro(Offset, double, 0.75, VTK_DOUBLE_MAX);
+  vtkGetMacro(Offset, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether bounding triangulation points (and associated
    * triangles) are included in the output. (These are introduced as an
    * initial triangulation to begin the triangulation process. This feature
    * is nice for debugging output.)
    */
-  vtkSetMacro(BoundingTriangulation,vtkTypeBool);
-  vtkGetMacro(BoundingTriangulation,vtkTypeBool);
-  vtkBooleanMacro(BoundingTriangulation,vtkTypeBool);
-  //@}
+  vtkSetMacro(BoundingTriangulation, vtkTypeBool);
+  vtkGetMacro(BoundingTriangulation, vtkTypeBool);
+  vtkBooleanMacro(BoundingTriangulation, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the transform which is applied to points to generate a
    * 2D problem.  This maps a 3D dataset into a 2D dataset where
@@ -228,11 +219,11 @@ public:
    * subclass of vtkAbstractTransform (thus it does not need to be a
    * linear or invertible transform).
    */
-  virtual void SetTransform(vtkAbstractTransform*);
-  vtkGetObjectMacro(Transform, vtkAbstractTransform);
-  //@}
+  vtkSetSmartPointerMacro(Transform, vtkAbstractTransform);
+  vtkGetSmartPointerMacro(Transform, vtkAbstractTransform);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the method to project the input 3D points into a 2D plane for
    * triangulation. When the VTK_DELAUNAY_XY_PLANE is set, the z-coordinate
@@ -241,10 +232,9 @@ public:
    * VTK_BEST_FITTING_PLANE is set, then the filter computes a best fitting
    * plane and projects the points onto it.
    */
-  vtkSetClampMacro(ProjectionPlaneMode,int,
-                   VTK_DELAUNAY_XY_PLANE,VTK_BEST_FITTING_PLANE);
-  vtkGetMacro(ProjectionPlaneMode,int);
-  //@}
+  vtkSetClampMacro(ProjectionPlaneMode, int, VTK_DELAUNAY_XY_PLANE, VTK_BEST_FITTING_PLANE);
+  vtkGetMacro(ProjectionPlaneMode, int);
+  ///@}
 
   /**
    * This method computes the best fit plane to a set of points represented
@@ -252,58 +242,83 @@ public:
    * successful completion (null otherwise). The user is responsible for
    * deleting the transform instance.
    */
-  static vtkAbstractTransform* ComputeBestFittingPlane(vtkPointSet *input);
+  static vtkAbstractTransform* ComputeBestFittingPlane(vtkPointSet* input);
+
+  ///@{
+  /**
+   * Indicate whether to insert the points in given order, or pseudo-random
+   * order. Inserting in random order can improve performance and numerics
+   * in many circumstances.
+   */
+  vtkSetMacro(RandomPointInsertion, vtkTypeBool);
+  vtkGetMacro(RandomPointInsertion, vtkTypeBool);
+  vtkBooleanMacro(RandomPointInsertion, vtkTypeBool);
+  ///@}
 
 protected:
   vtkDelaunay2D();
-  ~vtkDelaunay2D() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double Alpha;
   double Tolerance;
   vtkTypeBool BoundingTriangulation;
   double Offset;
+  vtkTypeBool RandomPointInsertion;
 
-  vtkAbstractTransform *Transform;
+  // Transform input points (if necessary)
+  vtkSmartPointer<vtkAbstractTransform> Transform;
 
-  int ProjectionPlaneMode; //selects the plane in 3D where the Delaunay triangulation will be computed.
+  int ProjectionPlaneMode; // selects the plane in 3D where the Delaunay triangulation will be
+                           // computed.
 
 private:
-  vtkPolyData *Mesh; //the created mesh
-  double *Points;    //the raw points in double precision
-  void SetPoint(vtkIdType id, double *x)
-  {vtkIdType idx=3*id;
-    this->Points[idx] = x[0];
-    this->Points[idx+1] = x[1];
-    this->Points[idx+2] = x[2];
-  }
+  vtkSmartPointer<vtkPolyData> Mesh; // the created mesh
 
+  // the raw points in double precision, and methods to access them
+  double* Points;
+  void SetPoint(vtkIdType id, double* x)
+  {
+    vtkIdType idx = 3 * id;
+    this->Points[idx] = x[0];
+    this->Points[idx + 1] = x[1];
+    this->Points[idx + 2] = x[2];
+  }
   void GetPoint(vtkIdType id, double x[3])
-  {double *ptr = this->Points + 3*id;
+  {
+    double* ptr = this->Points + 3 * id;
     x[0] = *ptr++;
     x[1] = *ptr++;
     x[2] = *ptr;
   }
 
+  // Keep track of the bounding radius of all points (including the eight bounding points).
+  // This is used occasionally for numerical sanity checks to determine whether a point is
+  // within a circumcircle.
+  double BoundingRadius2;
+
   int NumberOfDuplicatePoints;
   int NumberOfDegeneracies;
 
-  int *RecoverBoundary(vtkPolyData *source);
+  // Various methods to support the Delaunay algorithm
+  int* RecoverBoundary(vtkPolyData* source);
   int RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2);
-  void FillPolygons(vtkCellArray *polys, int *triUse);
+  void FillPolygons(vtkCellArray* polys, int* triUse);
 
-  int InCircle (double x[3], double x1[3], double x2[3], double x3[3]);
-  vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri,
-                         double tol, vtkIdType nei[3], vtkIdList *neighbors);
-  void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
-                 vtkIdType tri, bool recursive);
+  int InCircle(double x[3], double x1[3], double x2[3], double x3[3]);
+  vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri, double tol,
+    vtkIdType nei[3], vtkIdList* neighbors);
+
+  // CheckEdge() is a recursive function to determine if triangles satisfy the Delaunay
+  // criterion. To prevent segfaults due to excessive recursion, recursion depth is limited.
+  bool CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2, vtkIdType tri,
+    bool recursive, unsigned int depth);
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-private:
   vtkDelaunay2D(const vtkDelaunay2D&) = delete;
   void operator=(const vtkDelaunay2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

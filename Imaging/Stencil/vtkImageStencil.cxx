@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageStencil.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageStencil.h"
 
 #include "vtkImageData.h"
@@ -25,9 +13,10 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageStencil);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencil::vtkImageStencil()
 {
   this->ReverseStencil = 0;
@@ -39,17 +28,17 @@ vtkImageStencil::vtkImageStencil()
   this->SetNumberOfInputPorts(3);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageStencil::~vtkImageStencil() = default;
 
-//----------------------------------------------------------------------------
-void vtkImageStencil::SetStencilData(vtkImageStencilData *stencil)
+//------------------------------------------------------------------------------
+void vtkImageStencil::SetStencilData(vtkImageStencilData* stencil)
 {
   this->SetInputData(2, stencil);
 }
 
-//----------------------------------------------------------------------------
-vtkImageStencilData *vtkImageStencil::GetStencil()
+//------------------------------------------------------------------------------
+vtkImageStencilData* vtkImageStencil::GetStencil()
 {
   if (this->GetNumberOfInputConnections(2) < 1)
   {
@@ -57,19 +46,18 @@ vtkImageStencilData *vtkImageStencil::GetStencil()
   }
   else
   {
-    return vtkImageStencilData::SafeDownCast(
-      this->GetExecutive()->GetInputData(2, 0));
+    return vtkImageStencilData::SafeDownCast(this->GetExecutive()->GetInputData(2, 0));
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkImageStencil::SetBackgroundInputData(vtkImageData *data)
+//------------------------------------------------------------------------------
+void vtkImageStencil::SetBackgroundInputData(vtkImageData* data)
 {
   this->SetInputData(1, data);
 }
 
-//----------------------------------------------------------------------------
-vtkImageData *vtkImageStencil::GetBackgroundInput()
+//------------------------------------------------------------------------------
+vtkImageData* vtkImageStencil::GetBackgroundInput()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
@@ -77,37 +65,33 @@ vtkImageData *vtkImageStencil::GetBackgroundInput()
   }
   else
   {
-    return vtkImageData::SafeDownCast(
-      this->GetExecutive()->GetInputData(1, 0));
+    return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Some helper functions for 'ThreadedRequestData'
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // copy a pixel, advance the output pointer but not the input pointer
 
-template<class T>
-inline void vtkCopyPixel(T *&out, const T *in, int numscalars)
+template <class T>
+inline void vtkCopyPixel(T*& out, const T* in, int numscalars)
 {
   do
   {
     *out++ = *in++;
-  }
-  while (--numscalars);
+  } while (--numscalars);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert background color from double to appropriate type
 
 template <class T>
-void vtkAllocBackground(vtkImageStencil *self, T *&background,
-                        vtkInformation *outInfo)
+void vtkAllocBackground(vtkImageStencil* self, T*& background, vtkInformation* outInfo)
 {
-  vtkImageData *output = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int numComponents = output->GetNumberOfScalarComponents();
   int scalarType = output->GetScalarType();
 
@@ -123,8 +107,7 @@ void vtkAllocBackground(vtkImageStencil *self, T *&background,
       }
       else
       { // round float to nearest int
-        background[i] =
-          static_cast<T>(floor(self->GetBackgroundColor()[i] + 0.5));
+        background[i] = static_cast<T>(floor(self->GetBackgroundColor()[i] + 0.5));
       }
     }
     else
@@ -134,24 +117,20 @@ void vtkAllocBackground(vtkImageStencil *self, T *&background,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
-void vtkFreeBackground(vtkImageStencil *vtkNotUsed(self), T *&background)
+void vtkFreeBackground(vtkImageStencil* vtkNotUsed(self), T*& background)
 {
-  delete [] background;
+  delete[] background;
   background = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
-void vtkImageStencilExecute(vtkImageStencil *self,
-                            vtkImageData *inData, T *,
-                            vtkImageData *inData2, T *,
-                            vtkImageData *outData, T *,
-                            int outExt[6], int id,
-                            vtkInformation *outInfo)
+void vtkImageStencilExecute(vtkImageStencil* self, vtkImageData* inData, T*, vtkImageData* inData2,
+  T*, vtkImageData* outData, T*, int outExt[6], int id, vtkInformation* outInfo)
 {
-  vtkImageStencilData *stencil = self->GetStencil();
+  vtkImageStencilData* stencil = self->GetStencil();
 
   vtkImageIterator<T> inIter(inData, outExt);
   vtkImageStencilIterator<T> outIter(outData, stencil, outExt, self, id);
@@ -165,17 +144,17 @@ void vtkImageStencilExecute(vtkImageStencil *self,
   if (inData2 == nullptr)
   {
     // set color for area outside of input volume extent
-    T *background;
+    T* background;
     vtkAllocBackground(self, background, outInfo);
 
-    T *inPtr = inIter.BeginSpan();
-    T *inSpanEndPtr = inIter.EndSpan();
+    T* inPtr = inIter.BeginSpan();
+    T* inSpanEndPtr = inIter.EndSpan();
     while (!outIter.IsAtEnd())
     {
       T* outPtr = outIter.BeginSpan();
       T* outSpanEndPtr = outIter.EndSpan();
 
-      T *tmpPtr = inPtr;
+      T* tmpPtr = inPtr;
       int tmpInc = numscalars;
       if (!(outIter.IsInStencil() ^ reverseStencil))
       {
@@ -212,15 +191,15 @@ void vtkImageStencilExecute(vtkImageStencil *self,
   {
     vtkImageIterator<T> inIter2(inData2, outExt);
 
-    T *inPtr = inIter.BeginSpan();
-    T *inPtr2 = inIter2.BeginSpan();
-    T *inSpanEndPtr = inIter.EndSpan();
+    T* inPtr = inIter.BeginSpan();
+    T* inPtr2 = inIter2.BeginSpan();
+    T* inSpanEndPtr = inIter.EndSpan();
     while (!outIter.IsAtEnd())
     {
       T* outPtr = outIter.BeginSpan();
       T* outSpanEndPtr = outIter.EndSpan();
 
-      T *tmpPtr = inPtr;
+      T* tmpPtr = inPtr;
       if (!(outIter.IsInStencil() ^ reverseStencil))
       {
         tmpPtr = inPtr2;
@@ -252,23 +231,19 @@ void vtkImageStencilExecute(vtkImageStencil *self,
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkImageStencil::ThreadedRequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector,
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  int outExt[6], int id)
+//------------------------------------------------------------------------------
+void vtkImageStencil::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector, vtkImageData*** inData,
+  vtkImageData** outData, int outExt[6], int id)
 {
   void *inPtr, *inPtr2;
-  void *outPtr;
-  vtkImageData *inData2 = this->GetBackgroundInput();
+  void* outPtr;
+  vtkImageData* inData2 = this->GetBackgroundInput();
 
   inPtr = inData[0][0]->GetScalarPointer();
   outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   inPtr2 = nullptr;
   if (inData2)
@@ -278,30 +253,28 @@ void vtkImageStencil::ThreadedRequestData(
     {
       if (id == 0)
       {
-        vtkErrorMacro("Execute: BackgroundInput ScalarType "
-                      << inData2->GetScalarType()
-                      << ", must match Input ScalarType "
-                      << inData[0][0]->GetScalarType());
+        vtkErrorMacro("Execute: BackgroundInput ScalarType " << inData2->GetScalarType()
+                                                             << ", must match Input ScalarType "
+                                                             << inData[0][0]->GetScalarType());
       }
       return;
     }
-    else if (inData2->GetNumberOfScalarComponents()
-             != inData[0][0]->GetNumberOfScalarComponents())
+    else if (inData2->GetNumberOfScalarComponents() != inData[0][0]->GetNumberOfScalarComponents())
     {
       if (id == 0)
       {
         vtkErrorMacro("Execute: BackgroundInput NumberOfScalarComponents "
-                      << inData2->GetNumberOfScalarComponents()
-                      << ", must match Input NumberOfScalarComponents "
-                      << inData[0][0]->GetNumberOfScalarComponents());
+          << inData2->GetNumberOfScalarComponents()
+          << ", must match Input NumberOfScalarComponents "
+          << inData[0][0]->GetNumberOfScalarComponents());
       }
       return;
     }
     int wholeExt1[6], wholeExt2[6];
-    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-    vtkInformation *inInfo2 = inputVector[1]->GetInformationObject(0);
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExt1);
-    inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExt2);
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt1);
+    inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt2);
 
     for (int i = 0; i < 6; i++)
     {
@@ -319,24 +292,16 @@ void vtkImageStencil::ThreadedRequestData(
 
   switch (inData[0][0]->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageStencilExecute(this,
-                             inData[0][0],
-                             static_cast<VTK_TT *>(inPtr),
-                             inData2,
-                             static_cast<VTK_TT *>(inPtr2),
-                             outData[0],
-                             static_cast<VTK_TT *>(outPtr),
-                             outExt,
-                             id,
-                             outInfo));
+    vtkTemplateMacro(vtkImageStencilExecute(this, inData[0][0], static_cast<VTK_TT*>(inPtr),
+      inData2, static_cast<VTK_TT*>(inPtr2), outData[0], static_cast<VTK_TT*>(outPtr), outExt, id,
+      outInfo));
     default:
       vtkErrorMacro("Execute: Unknown ScalarType");
       return;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageStencil::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 2)
@@ -360,14 +325,13 @@ void vtkImageStencil::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Stencil: " << this->GetStencil() << "\n";
-  os << indent << "ReverseStencil: " << (this->ReverseStencil ?
-                                         "On\n" : "Off\n");
+  os << indent << "ReverseStencil: " << (this->ReverseStencil ? "On\n" : "Off\n");
 
   os << indent << "BackgroundInput: " << this->GetBackgroundInput() << "\n";
   os << indent << "BackgroundValue: " << this->BackgroundColor[0] << "\n";
 
   os << indent << "BackgroundColor: (" << this->BackgroundColor[0] << ", "
-                                    << this->BackgroundColor[1] << ", "
-                                    << this->BackgroundColor[2] << ", "
-                                    << this->BackgroundColor[3] << ")\n";
+     << this->BackgroundColor[1] << ", " << this->BackgroundColor[2] << ", "
+     << this->BackgroundColor[3] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

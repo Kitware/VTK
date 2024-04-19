@@ -1,54 +1,71 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOGeometry import vtkBYUReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkLight,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTextProperty,
+)
+from vtkmodules.vtkRenderingAnnotation import vtkCubeAxesActor2D
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # read in an interesting object and outline it
 #
-fohe = vtk.vtkBYUReader()
+fohe = vtkBYUReader()
 fohe.SetGeometryFileName(VTK_DATA_ROOT + "/Data/teapot.g")
 
-normals = vtk.vtkPolyDataNormals()
+normals = vtkPolyDataNormals()
 normals.SetInputConnection(fohe.GetOutputPort())
 
-foheMapper = vtk.vtkPolyDataMapper()
+foheMapper = vtkPolyDataMapper()
 foheMapper.SetInputConnection(normals.GetOutputPort())
 
-foheActor = vtk.vtkLODActor()
+foheActor = vtkLODActor()
 foheActor.SetMapper(foheMapper)
 
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(normals.GetOutputPort())
 
-mapOutline = vtk.vtkPolyDataMapper()
+mapOutline = vtkPolyDataMapper()
 mapOutline.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(mapOutline)
 outlineActor.GetProperty().SetColor(0, 0, 0)
 
 # Create the RenderWindow, Renderer, and setup viewports
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetClippingRange(1.60187, 20.0842)
 camera.SetFocalPoint(0.21406, 1.5, 0)
 camera.SetPosition(11.63, 6.32, 5.77)
 camera.SetViewUp(0.180325, 0.549245, -0.815974)
 
-light = vtk.vtkLight()
+light = vtkLight()
 light.SetFocalPoint(0.21406, 1.5, 0)
 light.SetPosition(8.3761, 4.94858, 4.12505)
 
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0, 0, 0.5, 1.0)
 ren1.SetActiveCamera(camera)
 ren1.AddLight(light)
 
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0.5, 0, 1.0, 1.0)
 ren2.SetActiveCamera(camera)
 ren2.AddLight(light)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
@@ -56,7 +73,7 @@ renWin.SetWindowName("VTK - Cube Axes")
 
 renWin.SetSize(790, 400)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size
@@ -70,11 +87,11 @@ ren2.AddViewProp(outlineActor)
 ren1.SetBackground(0.1, 0.2, 0.4)
 ren2.SetBackground(0.1, 0.2, 0.4)
 
-tprop = vtk.vtkTextProperty()
+tprop = vtkTextProperty()
 tprop.SetColor(1, 1, 1)
 tprop.ShadowOn()
 
-axes = vtk.vtkCubeAxesActor2D()
+axes = vtkCubeAxesActor2D()
 axes.SetInputConnection(normals.GetOutputPort())
 axes.SetCamera(ren1.GetActiveCamera())
 axes.SetLabelFormat("%6.1f")
@@ -85,7 +102,7 @@ axes.SetAxisLabelTextProperty(tprop)
 
 ren1.AddViewProp(axes)
 
-axes2 = vtk.vtkCubeAxesActor2D()
+axes2 = vtkCubeAxesActor2D()
 axes2.SetViewProp(foheActor)
 axes2.SetCamera(ren2.GetActiveCamera())
 axes2.SetLabelFormat(axes.GetLabelFormat())
@@ -103,11 +120,9 @@ renWin.Render()
 #
 iren.Initialize()
 
-def TkCheckAbort (object_binding, event_name):
-    foo = renWin.GetEventPending()
-    if (foo != 0):
+def TkCheckAbort(obj=None, event=""):
+    if renWin.GetEventPending():
         renWin.SetAbortRender(1)
-        pass
 
 renWin.AddObserver("AbortCheckEvent", TkCheckAbort)
 

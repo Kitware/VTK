@@ -1,52 +1,39 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationIdTypeKey.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkInformationIdTypeKey.h"
 
 #include "vtkInformation.h"
 
-
-//----------------------------------------------------------------------------
-vtkInformationIdTypeKey::vtkInformationIdTypeKey(const char* name, const char* location):
-  vtkInformationKey(name, location)
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkInformationIdTypeKey::vtkInformationIdTypeKey(const char* name, const char* location)
+  : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationIdTypeKey::~vtkInformationIdTypeKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIdTypeKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
-class vtkInformationIdTypeValue: public vtkObjectBase
+//------------------------------------------------------------------------------
+class vtkInformationIdTypeValue : public vtkObjectBase
 {
 public:
   vtkBaseTypeMacro(vtkInformationIdTypeValue, vtkObjectBase);
   vtkIdType Value;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIdTypeKey::Set(vtkInformation* info, vtkIdType value)
 {
-  if(vtkInformationIdTypeValue* oldv =
-     static_cast<vtkInformationIdTypeValue *>
-     (this->GetAsObjectBase(info)))
+  if (vtkInformationIdTypeValue* oldv =
+        static_cast<vtkInformationIdTypeValue*>(this->GetAsObjectBase(info)))
   {
     if (oldv->Value != value)
     {
@@ -69,16 +56,15 @@ void vtkInformationIdTypeKey::Set(vtkInformation* info, vtkIdType value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkInformationIdTypeKey::Get(vtkInformation* info)
 {
   vtkInformationIdTypeValue* v =
-    static_cast<vtkInformationIdTypeValue *>
-    (this->GetAsObjectBase(info));
-  return v?v->Value:0;
+    static_cast<vtkInformationIdTypeValue*>(this->GetAsObjectBase(info));
+  return v ? v->Value : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIdTypeKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   if (this->Has(from))
@@ -91,24 +77,24 @@ void vtkInformationIdTypeKey::ShallowCopy(vtkInformation* from, vtkInformation* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationIdTypeKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
-  if(this->Has(info))
+  if (this->Has(info))
   {
     os << this->Get(info);
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType* vtkInformationIdTypeKey::GetWatchAddress(vtkInformation* info)
 {
-  if(vtkInformationIdTypeValue* v =
-     static_cast<vtkInformationIdTypeValue *>
-     (this->GetAsObjectBase(info)))
+  if (vtkInformationIdTypeValue* v =
+        static_cast<vtkInformationIdTypeValue*>(this->GetAsObjectBase(info)))
   {
     return &v->Value;
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 /*****************************************************************************
  *
@@ -42,7 +15,7 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for ex_get_dimension, EX_FATAL, etc
+#include "exodusII_int.h" // for ex__get_dimension, EX_FATAL, etc
 
 /*!
  * reads the EXODUS specified variable truth vector from the database
@@ -66,64 +39,73 @@ int ex_get_object_truth_vector(int exoid, ex_entity_type obj_type, ex_entity_id 
   const char *var_name = NULL;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   switch (obj_type) {
   case EX_EDGE_BLOCK:
     status =
-        ex_get_dimension(exoid, DIM_NUM_EDG_VAR, "edge variables", &num_var_db, &varid, __func__);
+        ex__get_dimension(exoid, DIM_NUM_EDG_VAR, "edge variables", &num_var_db, &varid, __func__);
     statust  = nc_inq_varid(exoid, VAR_EBLK_TAB, &tabid);
     var_name = "vals_edge_var";
     ent_type = "eb";
     break;
   case EX_FACE_BLOCK:
     status =
-        ex_get_dimension(exoid, DIM_NUM_FAC_VAR, "face variables", &num_var_db, &varid, __func__);
+        ex__get_dimension(exoid, DIM_NUM_FAC_VAR, "face variables", &num_var_db, &varid, __func__);
     statust  = nc_inq_varid(exoid, VAR_FBLK_TAB, &tabid);
     var_name = "vals_face_var";
     ent_type = "fb";
     break;
   case EX_ELEM_BLOCK:
-    status   = ex_get_dimension(exoid, DIM_NUM_ELE_VAR, "element variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_ELE_VAR, "element variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_ELEM_TAB, &tabid);
     var_name = "vals_elem_var";
     ent_type = "eb";
     break;
   case EX_NODE_SET:
-    status   = ex_get_dimension(exoid, DIM_NUM_NSET_VAR, "nodeset variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_NSET_VAR, "nodeset variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_NSET_TAB, &tabid);
     var_name = "vals_nset_var";
     ent_type = "ns";
     break;
   case EX_EDGE_SET:
-    status   = ex_get_dimension(exoid, DIM_NUM_ESET_VAR, "edgeset variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_ESET_VAR, "edgeset variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_ESET_TAB, &tabid);
     var_name = "vals_eset_var";
     ent_type = "es";
     break;
   case EX_FACE_SET:
-    status   = ex_get_dimension(exoid, DIM_NUM_FSET_VAR, "faceset variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_FSET_VAR, "faceset variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_FSET_TAB, &tabid);
     var_name = "vals_fset_var";
     ent_type = "fs";
     break;
   case EX_SIDE_SET:
-    status   = ex_get_dimension(exoid, DIM_NUM_SSET_VAR, "sideset variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_SSET_VAR, "sideset variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_SSET_TAB, &tabid);
     var_name = "vals_sset_var";
     ent_type = "ss";
     break;
   case EX_ELEM_SET:
-    status   = ex_get_dimension(exoid, DIM_NUM_ELSET_VAR, "elemset variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_ELSET_VAR, "elemset variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_ELSET_TAB, &tabid);
     var_name = "vals_elset_var";
     ent_type = "es";
+    break;
+  case EX_BLOB:
+    status =
+        ex__get_dimension(exoid, DIM_NUM_BLOB_VAR, "blob variables", &num_var_db, &varid, __func__);
+    statust  = nc_inq_varid(exoid, VAR_BLOB_TAB, &tabid);
+    var_name = "vals_blob_var";
+    ent_type = "blob";
     break;
   default:
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid variable type %d specified in file id %d",
@@ -137,7 +119,7 @@ int ex_get_object_truth_vector(int exoid, ex_entity_type obj_type, ex_entity_id 
   }
 
   /* Determine index of entity_id in id array */
-  ent_ndx = ex_id_lkup(exoid, obj_type, entity_id);
+  ent_ndx = ex__id_lkup(exoid, obj_type, entity_id);
   if (ent_ndx <= 0) {
     ex_get_err(NULL, NULL, &status);
     if (status != 0) {
@@ -169,7 +151,8 @@ int ex_get_object_truth_vector(int exoid, ex_entity_type obj_type, ex_entity_id 
      */
     for (i = 0; i < num_var; i++) {
       /* NOTE: names are 1-based */
-      if (nc_inq_varid(exoid, ex_catstr2(var_name, i + 1, ent_type, ent_ndx), &tabid) != NC_NOERR) {
+      if (nc_inq_varid(exoid, ex__catstr2(var_name, i + 1, ent_type, ent_ndx), &tabid) !=
+          NC_NOERR) {
         /* variable doesn't exist; put a 0 in the truth vector */
         var_vec[i] = 0;
       }

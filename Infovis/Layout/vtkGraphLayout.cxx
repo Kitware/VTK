@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGraphLayout.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkGraphLayout.h"
 
@@ -27,18 +11,19 @@
 #include "vtkEventForwarderCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkGraphLayoutStrategy.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphLayout);
 vtkCxxSetObjectMacro(vtkGraphLayout, Transform, vtkAbstractTransform);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkGraphLayout::vtkGraphLayout()
 {
@@ -55,7 +40,7 @@ vtkGraphLayout::vtkGraphLayout()
   this->EventForwarder->SetTarget(this);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkGraphLayout::~vtkGraphLayout()
 {
@@ -75,16 +60,15 @@ vtkGraphLayout::~vtkGraphLayout()
   this->EventForwarder->Delete();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-void
-vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
+void vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy* strategy)
 {
   // This method is a cut and paste of vtkCxxSetObjectMacro
   // except for the call to SetGraph in the middle :)
   if (strategy != this->LayoutStrategy)
   {
-    vtkGraphLayoutStrategy *tmp = this->LayoutStrategy;
+    vtkGraphLayoutStrategy* tmp = this->LayoutStrategy;
     if (tmp)
     {
       tmp->RemoveObserver(this->EventForwarder);
@@ -94,8 +78,7 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
     {
       this->StrategyChanged = true;
       this->LayoutStrategy->Register(this);
-      this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent,
-                                        this->EventForwarder);
+      this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent, this->EventForwarder);
       if (this->InternalGraph)
       {
         // Set the graph in the layout strategy
@@ -110,10 +93,9 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-vtkMTimeType
-vtkGraphLayout::GetMTime()
+vtkMTimeType vtkGraphLayout::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
@@ -126,10 +108,9 @@ vtkGraphLayout::GetMTime()
   return mTime;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-int
-vtkGraphLayout::IsLayoutComplete()
+int vtkGraphLayout::IsLayoutComplete()
 {
   if (this->LayoutStrategy)
   {
@@ -141,12 +122,10 @@ vtkGraphLayout::IsLayoutComplete()
   return 0;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-int
-vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
-                            vtkInformationVector **inputVector,
-                            vtkInformationVector *outputVector)
+int vtkGraphLayout::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (this->LayoutStrategy == nullptr)
   {
@@ -155,34 +134,30 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
   }
 
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkGraph *input = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkGraph *output = vtkGraph::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* output = vtkGraph::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Is this a completely new input?  Is it the same input as the last
   // time the filter ran but with a new MTime?  If either of those is
   // true, make a copy and give it to the strategy object anew.
-  if (this->StrategyChanged ||
-      input != this->LastInput ||
-      input->GetMTime() > this->LastInputMTime)
+  if (this->StrategyChanged || input != this->LastInput || input->GetMTime() > this->LastInputMTime)
   {
     if (this->StrategyChanged)
     {
-      vtkDebugMacro(<<"Strategy changed so reading in input again.");
+      vtkDebugMacro(<< "Strategy changed so reading in input again.");
       this->StrategyChanged = false;
     }
     else if (input != this->LastInput)
     {
-      vtkDebugMacro(<<"Filter running with different input.  Resetting in strategy.");
+      vtkDebugMacro(<< "Filter running with different input.  Resetting in strategy.");
     }
     else
     {
-      vtkDebugMacro(<<"Input modified since last run.  Resetting in strategy.");
+      vtkDebugMacro(<< "Input modified since last run.  Resetting in strategy.");
     }
 
     if (this->InternalGraph)
@@ -201,7 +176,6 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
     newPoints->DeepCopy(input->GetPoints());
     this->InternalGraph->SetPoints(newPoints);
     newPoints->Delete();
-
 
     // Save information about the input so that we can detect when
     // it's changed on future runs.  According to the VTK pipeline
@@ -247,7 +221,7 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
       for (vtkIdType i = 0; i < numVert; ++i)
       {
         output->GetPoint(i, x);
-        x[2] = this->ZRange*static_cast<double>(i)/numVert;
+        x[2] = this->ZRange * static_cast<double>(i) / numVert;
         pts->SetPoint(i, x);
       }
       output->SetPoints(pts);
@@ -275,8 +249,7 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
   return 1;
 }
 
-// ----------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
 
 void vtkGraphLayout::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -300,3 +273,4 @@ void vtkGraphLayout::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "UseTransform: " << (this->UseTransform ? "True" : "False") << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,27 +1,15 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkChartPie.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkChartPie.h"
 
 #include "vtkObjectFactory.h"
 
 #include "vtkContext2D.h"
-#include "vtkTransform2D.h"
-#include "vtkContextScene.h"
 #include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
 #include "vtkPoints2D.h"
+#include "vtkTransform2D.h"
 
 #include "vtkPlotPie.h"
 
@@ -30,19 +18,19 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChartPiePrivate
 {
-  public:
-    vtkChartPiePrivate() = default;
+public:
+  vtkChartPiePrivate() = default;
 
   vtkSmartPointer<vtkPlotPie> Plot;
 };
 
-
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartPie);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartPie::vtkChartPie()
 {
   this->Legend = vtkChartLegend::New();
@@ -57,14 +45,14 @@ vtkChartPie::vtkChartPie()
   this->Private = new vtkChartPiePrivate();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkChartPie::~vtkChartPie()
 {
   this->Tooltip->Delete();
   delete this->Private;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartPie::Update()
 {
   if (this->Private->Plot && this->Private->Plot->GetVisible())
@@ -76,14 +64,13 @@ void vtkChartPie::Update()
   this->Legend->SetVisible(this->ShowLegend);
 }
 
-//-----------------------------------------------------------------------------
-bool vtkChartPie::Paint(vtkContext2D *painter)
+//------------------------------------------------------------------------------
+bool vtkChartPie::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called.");
 
-  int geometry[] = { this->GetScene()->GetSceneWidth(),
-                     this->GetScene()->GetSceneHeight() };
+  int geometry[] = { this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight() };
   if (geometry[0] == 0 || geometry[1] == 0 || !this->Visible)
   {
     // The geometry of the chart must be valid before anything can be drawn
@@ -92,64 +79,77 @@ bool vtkChartPie::Paint(vtkContext2D *painter)
 
   this->Update();
 
-  if ( geometry[0] != this->Geometry[0] || geometry[1] != this->Geometry[1] )
+  if (this->LayoutStrategy == vtkChart::FILL_SCENE &&
+    (geometry[0] != this->Geometry[0] || geometry[1] != this->Geometry[1]))
   {
-    // Take up the entire window right now, this could be made configurable
-    this->SetGeometry(geometry);
+    this->SetSize(vtkRectf(0.0, 0.0, geometry[0], geometry[1]));
+  }
 
-    vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
-    this->SetBorders(20 * tileScale.GetX(), 20 * tileScale.GetY(),
-                     20 * tileScale.GetX(), 20 * tileScale.GetY());
+  vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
+  this->SetBorders(
+    20 * tileScale.GetX(), 20 * tileScale.GetY(), 20 * tileScale.GetX(), 20 * tileScale.GetY());
 
-    // Put the legend in the top corner of the chart
-    vtkRectf rect = this->Legend->GetBoundingRect(painter);
-    this->Legend->SetPoint(this->Point2[0] - rect.GetWidth(),
-                           this->Point2[1] - rect.GetHeight());
+  // Put the legend in the top corner of the chart
+  vtkRectf legendRect = this->Legend->GetBoundingRect(painter);
+  this->Legend->SetPoint(
+    this->Point2[0] - legendRect.GetWidth(), this->Point2[1] - legendRect.GetHeight());
 
-    // Set the dimensions of the Plot
-    if (this->Private->Plot)
-    {
-      this->Private->Plot->SetDimensions(20, 20, this->Geometry[0]-40,
-                                         this->Geometry[1]-40);
-    }
+  // Set the dimensions of the Plot
+  if (this->Private->Plot)
+  {
+    this->Private->Plot->SetDimensions(this->Size.GetX() + 20, this->Size.GetY() + 20,
+      this->Geometry[0] - 40, this->Geometry[1] - 40);
   }
 
   this->PaintChildren(painter);
 
-  if (this->Title)
-  {
-    vtkPoints2D *rect = vtkPoints2D::New();
-    rect->InsertNextPoint(this->Point1[0], this->Point2[1]);
-    rect->InsertNextPoint(this->Point2[0]-this->Point1[0], 10);
-    painter->ApplyTextProp(this->TitleProperties);
-    painter->DrawStringRect(rect, this->Title);
-    rect->Delete();
-  }
+  vtkPoints2D* rect = vtkPoints2D::New();
+  rect->InsertNextPoint(this->Point1[0], this->Point2[1]);
+  rect->InsertNextPoint(this->Point2[0] - this->Point1[0], 10);
+  painter->ApplyTextProp(this->TitleProperties);
+  painter->DrawStringRect(rect, this->Title);
+  rect->Delete();
 
   this->Tooltip->Paint(painter);
 
   return true;
 }
 
-//-----------------------------------------------------------------------------
-void vtkChartPie::SetScene(vtkContextScene *scene)
+//------------------------------------------------------------------------------
+void vtkChartPie::SetScene(vtkContextScene* scene)
 {
   this->vtkAbstractContextItem::SetScene(scene);
   this->Tooltip->SetScene(scene);
 }
 
-//-----------------------------------------------------------------------------
-vtkPlot * vtkChartPie::AddPlot(int /* type */)
+//------------------------------------------------------------------------------
+vtkPlot* vtkChartPie::AddPlot(int /* type */)
 {
   if (!this->Private->Plot)
   {
     this->Private->Plot = vtkSmartPointer<vtkPlotPie>::New();
     this->AddItem(this->Private->Plot);
+    // Ensure legend remains on top
+    this->Raise(this->GetItemIndex(this->Legend));
   }
   return this->Private->Plot;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkChartPie::SetPlot(vtkPlotPie* plot)
+{
+  if (this->Private->Plot)
+  {
+    this->RemoveItem(this->Private->Plot);
+  }
+  this->Private->Plot = plot;
+  this->AddItem(this->Private->Plot);
+  // Ensure legend remains on top
+  this->Raise(this->GetItemIndex(this->Legend));
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 vtkPlot* vtkChartPie::GetPlot(vtkIdType index)
 {
   if (index == 0)
@@ -160,7 +160,7 @@ vtkPlot* vtkChartPie::GetPlot(vtkIdType index)
   return nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkChartPie::GetNumberOfPlots()
 {
   if (this->Private->Plot)
@@ -173,44 +173,35 @@ vtkIdType vtkChartPie::GetNumberOfPlots()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkChartPie::SetShowLegend(bool visible)
 {
   this->vtkChart::SetShowLegend(visible);
   this->Legend->SetVisible(visible);
 }
 
-//-----------------------------------------------------------------------------
-vtkChartLegend * vtkChartPie::GetLegend()
+//------------------------------------------------------------------------------
+vtkChartLegend* vtkChartPie::GetLegend()
 {
   return this->Legend;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkChartPie::Hit(const vtkContextMouseEvent &mouse)
+//------------------------------------------------------------------------------
+bool vtkChartPie::Hit(const vtkContextMouseEvent& mouse)
 {
-  vtkVector2i pos(mouse.GetScreenPos());
-  if (pos[0] > this->Point1[0] &&
-      pos[0] < this->Point2[0] &&
-      pos[1] > this->Point1[1] &&
-      pos[1] < this->Point2[1])
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  vtkVector2f pos(mouse.GetScenePos());
+  return pos[0] > this->Point1[0] && pos[0] < this->Point2[0] && pos[1] > this->Point1[1] &&
+    pos[1] < this->Point2[1];
 }
 
-//-----------------------------------------------------------------------------
-bool vtkChartPie::MouseEnterEvent(const vtkContextMouseEvent &)
+//------------------------------------------------------------------------------
+bool vtkChartPie::MouseEnterEvent(const vtkContextMouseEvent&)
 {
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkChartPie::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+//------------------------------------------------------------------------------
+bool vtkChartPie::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
   {
@@ -221,31 +212,31 @@ bool vtkChartPie::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkChartPie::MouseLeaveEvent(const vtkContextMouseEvent &)
+//------------------------------------------------------------------------------
+bool vtkChartPie::MouseLeaveEvent(const vtkContextMouseEvent&)
 {
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkChartPie::MouseButtonPressEvent(const vtkContextMouseEvent &/*mouse*/)
+//------------------------------------------------------------------------------
+bool vtkChartPie::MouseButtonPressEvent(const vtkContextMouseEvent& /*mouse*/)
 {
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkChartPie::MouseButtonReleaseEvent(const vtkContextMouseEvent &/*mouse*/)
+//------------------------------------------------------------------------------
+bool vtkChartPie::MouseButtonReleaseEvent(const vtkContextMouseEvent& /*mouse*/)
 {
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkChartPie::MouseWheelEvent(const vtkContextMouseEvent &, int /*delta*/)
+//------------------------------------------------------------------------------
+bool vtkChartPie::MouseWheelEvent(const vtkContextMouseEvent&, int /*delta*/)
 {
   return true;
 }
 
-bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
+bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent& mouse)
 {
   if (!this->Private->Plot || !this->Private->Plot->GetVisible())
   {
@@ -254,27 +245,25 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
   else
   {
     int dimensions[4];
-    vtkVector2f position(mouse.GetScreenPos().Cast<float>().GetData());
+    vtkVector2f position(mouse.GetScenePos());
     vtkVector2f tolerance(5, 5);
     vtkVector2f plotPos(0, 0);
     this->Private->Plot->GetDimensions(dimensions);
 
-    vtkVector2i pos(mouse.GetScreenPos());
-    if (pos[0] >= dimensions[0] &&
-        pos[0] <= dimensions[0] + dimensions[2] &&
-        pos[1] >= dimensions[1] &&
-        pos[1] <= dimensions[1] + dimensions[3])
+    vtkVector2f pos(mouse.GetScenePos());
+    if (pos[0] >= dimensions[0] && pos[0] <= dimensions[0] + dimensions[2] &&
+      pos[1] >= dimensions[1] && pos[1] <= dimensions[1] + dimensions[3])
     {
-      int labelIndex = this->Private->Plot->GetNearestPoint(position, tolerance,
-                                                            &plotPos);
+      vtkIdType segmentId;
+      int labelIndex =
+        this->Private->Plot->GetNearestPoint(position, tolerance, &plotPos, &segmentId);
       if (labelIndex >= 0)
       {
-        const char *label = this->Private->Plot->GetLabel(labelIndex);
+        auto label = this->Private->Plot->GetLabel(labelIndex);
         std::ostringstream ostr;
         ostr << label << ": " << plotPos.GetY();
         this->Tooltip->SetText(ostr.str().c_str());
-        this->Tooltip->SetPosition(mouse.GetScreenPos()[0] + 2,
-                                   mouse.GetScreenPos()[1] + 2);
+        this->Tooltip->SetPosition(mouse.GetScenePos()[0] + 2, mouse.GetScenePos()[1] + 2);
         return true;
       }
     }
@@ -282,13 +271,14 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
-void vtkChartPie::PrintSelf(ostream &os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkChartPie::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   if (this->Private->Plot)
   {
     os << indent << "Plot: " << endl;
-    this->Private->Plot->PrintSelf(os,indent.GetNextIndent());
+    this->Private->Plot->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

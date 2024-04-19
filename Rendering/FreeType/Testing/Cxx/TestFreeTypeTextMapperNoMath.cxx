@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestFreeTypeTextMapper.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkTextMapper.h"
 
@@ -20,14 +8,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkOverrideInformation.h"
 #include "vtkOverrideInformationCollection.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkStdString.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
-int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
+//------------------------------------------------------------------------------
+int TestFreeTypeTextMapperNoMath(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -35,8 +22,8 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  vtkStdString uncodeFontFile(argv[1]);
-  vtkStdString str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
+  std::string uncodeFontFile(argv[1]);
+  std::string str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
 
   vtkNew<vtkTextMapper> mapper1;
   vtkNew<vtkActor2D> actor1;

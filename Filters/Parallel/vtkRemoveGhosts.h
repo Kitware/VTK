@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRemoveGhosts.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkRemoveGhosts
@@ -20,7 +8,7 @@
  *
  * Removes ghost points, cells and associated data arrays. Works on
  * vtkPolyDatas and vtkUnstructuredGrids.
-*/
+ */
 
 #ifndef vtkRemoveGhosts_h
 #define vtkRemoveGhosts_h
@@ -28,6 +16,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkUnsignedCharArray;
 
@@ -35,26 +24,24 @@ class VTKFILTERSPARALLEL_EXPORT vtkRemoveGhosts : public vtkPassInputTypeAlgorit
 {
 public:
   vtkTypeMacro(vtkRemoveGhosts, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkRemoveGhosts *New();
+  static vtkRemoveGhosts* New();
 
 protected:
   vtkRemoveGhosts();
   ~vtkRemoveGhosts() override;
 
-  int RequestUpdateExtent(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // see algorithm for more info
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkRemoveGhosts(const vtkRemoveGhosts &) = delete;
-  void operator=(const vtkRemoveGhosts &) = delete;
+  vtkRemoveGhosts(const vtkRemoveGhosts&) = delete;
+  void operator=(const vtkRemoveGhosts&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif //_vtkRemoveGhosts_h

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCellSizeFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCellSizeFilter
  * @brief   Computes cell sizes.
@@ -33,7 +21,7 @@
  * and put the value into vtkFieldData arrays named with the corresponding cell
  * data array name. For composite datasets the total sum over all blocks will
  * also be added to the top-level block's field data for the summation.
-*/
+ */
 
 #ifndef vtkCellSizeFilter_h
 #define vtkCellSizeFilter_h
@@ -41,6 +29,7 @@
 #include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDoubleArray;
 class vtkIdList;
@@ -54,7 +43,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkCellSizeFilter* New();
 
-  //@{
+  ///@{
   /**
    * Specify whether or not to compute sizes for vertex and polyvertex
    * cells. The computed value is the number of points in the cell.
@@ -63,9 +52,9 @@ public:
   vtkSetMacro(ComputeVertexCount, bool);
   vtkGetMacro(ComputeVertexCount, bool);
   vtkBooleanMacro(ComputeVertexCount, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether or not to compute sizes for 1D cells
    * cells. The computed value is the length of the cell.
@@ -74,9 +63,9 @@ public:
   vtkSetMacro(ComputeLength, bool);
   vtkGetMacro(ComputeLength, bool);
   vtkBooleanMacro(ComputeLength, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether or not to compute sizes for 2D cells
    * cells. The computed value is the area of the cell.
@@ -85,9 +74,9 @@ public:
   vtkSetMacro(ComputeArea, bool);
   vtkGetMacro(ComputeArea, bool);
   vtkBooleanMacro(ComputeArea, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether or not to compute sizes for 3D cells
    * cells. The computed value is the volume of the cell.
@@ -96,9 +85,9 @@ public:
   vtkSetMacro(ComputeVolume, bool);
   vtkGetMacro(ComputeVolume, bool);
   vtkBooleanMacro(ComputeVolume, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to sum the computed sizes and put the result in
    * a field data array. This option is disabled by default.
@@ -106,9 +95,9 @@ public:
   vtkSetMacro(ComputeSum, bool);
   vtkGetMacro(ComputeSum, bool);
   vtkBooleanMacro(ComputeSum, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the computed arrays. Default names are VertexCount,
    * Length, Area and Volume.
@@ -121,7 +110,7 @@ public:
   vtkGetStringMacro(AreaArrayName);
   vtkSetStringMacro(VolumeArrayName);
   vtkGetStringMacro(VolumeArrayName);
-  //@}
+  ///@}
 
 protected:
   vtkCellSizeFilter();
@@ -134,7 +123,7 @@ protected:
   void IntegrateImageData(vtkImageData* input, vtkImageData* output, double sum[4]);
   void ExecuteBlock(vtkDataSet* input, vtkDataSet* output, double sum[4]);
 
-  //@{
+  ///@{
   /**
    * Specify whether to sum the computed sizes and put the result in
    * a field data array. This option is disabled by default.
@@ -147,21 +136,21 @@ protected:
   double IntegrateGeneral1DCell(vtkDataSet* input, vtkIdList* cellPtIds);
   double IntegrateGeneral2DCell(vtkPointSet* input, vtkIdList* cellPtIds);
   double IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* cellPtIds);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Method to add the computed sum to the field data of the data object.
    */
   void AddSumFieldData(vtkDataObject*, double sum[4]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Method to compute the global sum information. For serial operation this is a no-op.
    */
-  virtual void ComputeGlobalSum(double sum[4]) {(void)sum;};
-  //@}
+  virtual void ComputeGlobalSum(double sum[4]) { (void)sum; }
+  ///@}
 
 private:
   vtkCellSizeFilter(const vtkCellSizeFilter&) = delete;
@@ -179,4 +168,5 @@ private:
   char* VolumeArrayName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

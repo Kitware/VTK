@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPhyloXMLTreeWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPhyloXMLTreeWriter.h"
 
 #include "vtkDataSetAttributes.h"
@@ -26,9 +14,10 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLDataElement.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPhyloXMLTreeWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPhyloXMLTreeWriter::vtkPhyloXMLTreeWriter()
 {
   this->EdgeWeightArrayName = "weight";
@@ -39,7 +28,7 @@ vtkPhyloXMLTreeWriter::vtkPhyloXMLTreeWriter()
   this->Blacklist = vtkSmartPointer<vtkStringArray>::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPhyloXMLTreeWriter::StartFile()
 {
   ostream& os = *(this->Stream);
@@ -49,8 +38,7 @@ int vtkPhyloXMLTreeWriter::StartFile()
   // the elements.
   os << "<phyloxml xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
      << " xmlns=\"http://www.phyloxml.org\" xsi:schemaLocation=\""
-     << "http://www.phyloxml.org http://www.phyloxml.org/1.10/phyloxml.xsd\">"
-     << endl;
+     << "http://www.phyloxml.org http://www.phyloxml.org/1.10/phyloxml.xsd\">" << endl;
 
   os.flush();
   if (os.fail())
@@ -62,7 +50,7 @@ int vtkPhyloXMLTreeWriter::StartFile()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPhyloXMLTreeWriter::EndFile()
 {
   ostream& os = *(this->Stream);
@@ -80,18 +68,16 @@ int vtkPhyloXMLTreeWriter::EndFile()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPhyloXMLTreeWriter::WriteData()
 {
   vtkTree* const input = this->GetInput();
 
-  this->EdgeWeightArray =
-    input->GetEdgeData()->GetAbstractArray(this->EdgeWeightArrayName.c_str());
+  this->EdgeWeightArray = input->GetEdgeData()->GetAbstractArray(this->EdgeWeightArrayName.c_str());
 
-  this->NodeNameArray =
-    input->GetVertexData()->GetAbstractArray(this->NodeNameArrayName.c_str());
+  this->NodeNameArray = input->GetVertexData()->GetAbstractArray(this->NodeNameArrayName.c_str());
 
-  if(this->StartFile() == 0)
+  if (this->StartFile() == 0)
   {
     return 0;
   }
@@ -102,10 +88,8 @@ int vtkPhyloXMLTreeWriter::WriteData()
 
   // PhyloXML supports some optional elements for the entire tree.
   this->WriteTreeLevelElement(input, rootElement, "name", "");
-  this->WriteTreeLevelElement(input, rootElement, "description",
-                              "");
-  this->WriteTreeLevelElement(input, rootElement, "confidence",
-                              "type");
+  this->WriteTreeLevelElement(input, rootElement, "description", "");
+  this->WriteTreeLevelElement(input, rootElement, "confidence", "type");
   this->WriteTreeLevelProperties(input, rootElement);
 
   // Generate PhyloXML for the vertices of the input tree.
@@ -116,27 +100,24 @@ int vtkPhyloXMLTreeWriter::WriteData()
   return 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkPhyloXMLTreeWriter::WriteTreeLevelElement(
-  vtkTree *input, vtkXMLDataElement *rootElement, const char *elementName,
-  const char *attributeName)
+//------------------------------------------------------------------------------
+void vtkPhyloXMLTreeWriter::WriteTreeLevelElement(vtkTree* input, vtkXMLDataElement* rootElement,
+  const char* elementName, const char* attributeName)
 {
   std::string arrayName = "phylogeny.";
   arrayName += elementName;
-  vtkAbstractArray *array =
-    input->GetVertexData()->GetAbstractArray(arrayName.c_str());
+  vtkAbstractArray* array = input->GetVertexData()->GetAbstractArray(arrayName.c_str());
   if (array)
   {
     vtkNew<vtkXMLDataElement> element;
     element->SetName(elementName);
     vtkStdString val = array->GetVariantValue(0).ToString();
-    element->SetCharacterData(val, static_cast<int>(val.length()));
+    element->SetCharacterData(val.c_str(), static_cast<int>(val.length()));
 
     // set the attribute for this element if one was requested.
     if (strcmp(attributeName, "") != 0)
     {
-      const char* attributeValue =
-        this->GetArrayAttribute(array, attributeName);
+      const char* attributeValue = this->GetArrayAttribute(array, attributeName);
       if (strcmp(attributeValue, "") != 0)
       {
         element->SetAttribute(attributeName, attributeValue);
@@ -150,14 +131,13 @@ void vtkPhyloXMLTreeWriter::WriteTreeLevelElement(
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkPhyloXMLTreeWriter::WriteTreeLevelProperties(
-  vtkTree *input, vtkXMLDataElement *element)
+//------------------------------------------------------------------------------
+void vtkPhyloXMLTreeWriter::WriteTreeLevelProperties(vtkTree* input, vtkXMLDataElement* element)
 {
   std::string prefix = "phylogeny.property.";
   for (int i = 0; i < input->GetVertexData()->GetNumberOfArrays(); ++i)
   {
-    vtkAbstractArray *arr = input->GetVertexData()->GetAbstractArray(i);
+    vtkAbstractArray* arr = input->GetVertexData()->GetAbstractArray(i);
     std::string arrName = arr->GetName();
     if (arrName.compare(0, prefix.length(), prefix) == 0)
     {
@@ -166,10 +146,9 @@ void vtkPhyloXMLTreeWriter::WriteTreeLevelProperties(
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkPhyloXMLTreeWriter::WriteCladeElement(vtkTree* const input,
-                                              vtkIdType vertex,
-                                              vtkXMLDataElement *parentElement)
+//------------------------------------------------------------------------------
+void vtkPhyloXMLTreeWriter::WriteCladeElement(
+  vtkTree* input, vtkIdType vertex, vtkXMLDataElement* parentElement)
 {
   // create new clade element for this vertex
   vtkNew<vtkXMLDataElement> cladeElement;
@@ -185,7 +164,7 @@ void vtkPhyloXMLTreeWriter::WriteCladeElement(vtkTree* const input,
   // property elements.
   for (int i = 0; i < input->GetVertexData()->GetNumberOfArrays(); ++i)
   {
-    vtkAbstractArray *array = input->GetVertexData()->GetAbstractArray(i);
+    vtkAbstractArray* array = input->GetVertexData()->GetAbstractArray(i);
     if (array == this->NodeNameArray || array == this->EdgeWeightArray)
     {
       continue;
@@ -205,17 +184,16 @@ void vtkPhyloXMLTreeWriter::WriteCladeElement(vtkTree* const input,
   {
     for (vtkIdType child = 0; child < numChildren; ++child)
     {
-      this->WriteCladeElement(input, input->GetChild(vertex, child),
-                              cladeElement);
+      this->WriteCladeElement(input, input->GetChild(vertex, child), cladeElement);
     }
   }
 
   parentElement->AddNestedElement(cladeElement);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeWriter::WriteBranchLengthAttribute(
-  vtkTree* const input, vtkIdType vertex, vtkXMLDataElement *element)
+  vtkTree* input, vtkIdType vertex, vtkXMLDataElement* element)
 {
   if (!this->EdgeWeightArray)
   {
@@ -239,21 +217,20 @@ void vtkPhyloXMLTreeWriter::WriteBranchLengthAttribute(
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkPhyloXMLTreeWriter::WriteNameElement(vtkIdType vertex,
-                                             vtkXMLDataElement *element)
+//------------------------------------------------------------------------------
+void vtkPhyloXMLTreeWriter::WriteNameElement(vtkIdType vertex, vtkXMLDataElement* element)
 {
   if (!this->NodeNameArray)
   {
     return;
   }
 
-  vtkStdString name = this->NodeNameArray->GetVariantValue(vertex).ToString();
-  if (name.compare("") != 0)
+  std::string name = this->NodeNameArray->GetVariantValue(vertex).ToString();
+  if (!name.empty())
   {
     vtkNew<vtkXMLDataElement> nameElement;
     nameElement->SetName("name");
-    nameElement->SetCharacterData(name, static_cast<int>(name.length()));
+    nameElement->SetCharacterData(name.c_str(), static_cast<int>(name.length()));
     element->AddNestedElement(nameElement);
   }
 
@@ -263,32 +240,30 @@ void vtkPhyloXMLTreeWriter::WriteNameElement(vtkIdType vertex,
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkPhyloXMLTreeWriter::WriteConfidenceElement(vtkTree* const input,
-                                                   vtkIdType vertex,
-                                                   vtkXMLDataElement *element)
+//------------------------------------------------------------------------------
+void vtkPhyloXMLTreeWriter::WriteConfidenceElement(
+  vtkTree* input, vtkIdType vertex, vtkXMLDataElement* element)
 {
-  vtkAbstractArray *confidenceArray =
-    input->GetVertexData()->GetAbstractArray("confidence");
+  vtkAbstractArray* confidenceArray = input->GetVertexData()->GetAbstractArray("confidence");
   if (!confidenceArray)
   {
     return;
   }
 
-  vtkStdString confidence = confidenceArray->GetVariantValue(vertex).ToString();
-  if (confidence.compare("") != 0)
+  std::string confidence = confidenceArray->GetVariantValue(vertex).ToString();
+  if (!confidence.empty())
   {
     vtkNew<vtkXMLDataElement> confidenceElement;
     confidenceElement->SetName("confidence");
 
     // set the type attribute for this element if possible.
     const char* type = this->GetArrayAttribute(confidenceArray, "type");
-    if (strcmp(type, "") != 0)
+    if (*type)
     {
       confidenceElement->SetAttribute("type", type);
     }
 
-    confidenceElement->SetCharacterData(confidence, static_cast<int>(confidence.length()));
+    confidenceElement->SetCharacterData(confidence.c_str(), static_cast<int>(confidence.length()));
     element->AddNestedElement(confidenceElement);
   }
 
@@ -298,13 +273,12 @@ void vtkPhyloXMLTreeWriter::WriteConfidenceElement(vtkTree* const input,
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkPhyloXMLTreeWriter::WriteColorElement(vtkTree* const input,
-                                              vtkIdType vertex,
-                                              vtkXMLDataElement *element)
+//------------------------------------------------------------------------------
+void vtkPhyloXMLTreeWriter::WriteColorElement(
+  vtkTree* input, vtkIdType vertex, vtkXMLDataElement* element)
 {
-  vtkUnsignedCharArray *colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(
-    input->GetVertexData()->GetAbstractArray("color"));
+  vtkUnsignedCharArray* colorArray =
+    vtkArrayDownCast<vtkUnsignedCharArray>(input->GetVertexData()->GetAbstractArray("color"));
   if (!colorArray)
   {
     return;
@@ -340,24 +314,21 @@ void vtkPhyloXMLTreeWriter::WriteColorElement(vtkTree* const input,
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkPhyloXMLTreeWriter::WritePropertyElement(vtkAbstractArray *array,
-                                                 vtkIdType vertex,
-                                                 vtkXMLDataElement *element)
+//------------------------------------------------------------------------------
+void vtkPhyloXMLTreeWriter::WritePropertyElement(
+  vtkAbstractArray* array, vtkIdType vertex, vtkXMLDataElement* element)
 {
   // Search for attribute on this array.
   std::string authority;
   std::string appliesTo;
   std::string unit;
 
-  vtkInformation *info = array->GetInformation();
+  vtkInformation* info = array->GetInformation();
   vtkNew<vtkInformationIterator> infoItr;
   infoItr->SetInformation(info);
-  for (infoItr->InitTraversal(); !infoItr->IsDoneWithTraversal();
-    infoItr->GoToNextItem())
+  for (infoItr->InitTraversal(); !infoItr->IsDoneWithTraversal(); infoItr->GoToNextItem())
   {
-    vtkInformationStringKey* key =
-      vtkInformationStringKey::SafeDownCast(infoItr->GetCurrentKey());
+    vtkInformationStringKey* key = vtkInformationStringKey::SafeDownCast(infoItr->GetCurrentKey());
     if (strcmp(key->GetName(), "authority") == 0)
     {
       authority = info->Get(key);
@@ -374,13 +345,13 @@ void vtkPhyloXMLTreeWriter::WritePropertyElement(vtkAbstractArray *array,
 
   // authority is a required attribute.  Use "VTK:" if one wasn't specified
   // on the array.
-  if (authority.compare("") == 0)
+  if (authority.empty())
   {
     authority = "VTK";
   }
 
   // applies_to is also required.  Use "clade" if one was not specified.
-  if (appliesTo.compare("") == 0)
+  if (appliesTo.empty())
   {
     appliesTo = "clade";
   }
@@ -414,52 +385,43 @@ void vtkPhyloXMLTreeWriter::WritePropertyElement(vtkAbstractArray *array,
   // to an XML-compliant type.
   std::string variantType = array->GetVariantValue(vertex).GetTypeAsString();
   std::string datatype = "xsd:string";
-  if (variantType.compare("short") == 0 ||
-      variantType.compare("long") == 0 ||
-      variantType.compare("float") == 0 ||
-      variantType.compare("double") == 0)
+  if (variantType == "short" || variantType == "long" || variantType == "float" ||
+    variantType == "double")
   {
     datatype = "xsd:";
     datatype += variantType;
   }
-  if (variantType.compare("int") == 0)
+  if (variantType == "int")
   {
     datatype = "xsd:integer";
   }
-  else if (variantType.compare("bit") == 0)
+  else if (variantType == "bit")
   {
     datatype = "xsd:boolean";
   }
-  else if (variantType.compare("char") == 0  ||
-           variantType.compare("signed char") == 0)
+  else if (variantType == "char" || variantType == "signed char")
   {
     datatype = "xsd:byte";
   }
-  else if (variantType.compare("unsigned char") == 0)
+  else if (variantType == "unsigned char")
   {
     datatype = "xsd:unsignedByte";
   }
-  else if (variantType.compare("unsigned short") == 0)
+  else if (variantType == "unsigned short")
   {
     datatype = "xsd:unsignedShort";
   }
-  else if (variantType.compare("unsigned int") == 0)
+  else if (variantType == "unsigned int")
   {
     datatype = "xsd:unsignedInt";
   }
-  else if (variantType.compare("unsigned long") == 0 ||
-           variantType.compare("unsigned __int64") == 0 ||
-           variantType.compare("idtype") == 0)
+  else if (variantType == "unsigned long" || variantType == "idtype")
   {
     datatype = "xsd:unsignedLong";
   }
-  else if (variantType.compare("__int64") == 0)
-  {
-    datatype = "xsd:long";
-  }
 
   // get the value for this property
-  vtkStdString val = array->GetVariantValue(vertex).ToString();
+  std::string val = array->GetVariantValue(vertex).ToString();
 
   // create the new property element and add it to our document.
   vtkNew<vtkXMLDataElement> propertyElement;
@@ -467,49 +429,49 @@ void vtkPhyloXMLTreeWriter::WritePropertyElement(vtkAbstractArray *array,
   propertyElement->SetAttribute("datatype", datatype.c_str());
   propertyElement->SetAttribute("ref", ref.c_str());
   propertyElement->SetAttribute("applies_to", appliesTo.c_str());
-  if (unit.compare("") != 0)
+  if (!unit.empty())
   {
     propertyElement->SetAttribute("unit", unit.c_str());
   }
-  propertyElement->SetCharacterData(val, static_cast<int>(val.length()));
+  propertyElement->SetCharacterData(val.c_str(), static_cast<int>(val.length()));
 
   element->AddNestedElement(propertyElement);
 }
 
-//----------------------------------------------------------------------------
-int vtkPhyloXMLTreeWriter::FillInputPortInformation(int, vtkInformation *info)
+//------------------------------------------------------------------------------
+int vtkPhyloXMLTreeWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTree");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkPhyloXMLTreeWriter::GetInput()
 {
   return vtkTree::SafeDownCast(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree* vtkPhyloXMLTreeWriter::GetInput(int port)
 {
   return vtkTree::SafeDownCast(this->Superclass::GetInput(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPhyloXMLTreeWriter::GetDefaultFileExtension()
 {
   return "xml";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkPhyloXMLTreeWriter::GetDataSetName()
 {
   if (!this->InputInformation)
   {
     return "vtkTree";
   }
-  vtkDataObject *hdInput = vtkDataObject::SafeDownCast(
-    this->InputInformation->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject* hdInput =
+    vtkDataObject::SafeDownCast(this->InputInformation->Get(vtkDataObject::DATA_OBJECT()));
   if (!hdInput)
   {
     return nullptr;
@@ -517,21 +479,20 @@ const char* vtkPhyloXMLTreeWriter::GetDataSetName()
   return hdInput->GetClassName();
 }
 
-//----------------------------------------------------------------------------
-void vtkPhyloXMLTreeWriter::IgnoreArray(const char * arrayName)
+//------------------------------------------------------------------------------
+void vtkPhyloXMLTreeWriter::IgnoreArray(const char* arrayName)
 {
   this->Blacklist->InsertNextValue(arrayName);
 }
 
-//----------------------------------------------------------------------------
-const char* vtkPhyloXMLTreeWriter::GetArrayAttribute(vtkAbstractArray *array,
-                                                     const char *attributeName)
+//------------------------------------------------------------------------------
+const char* vtkPhyloXMLTreeWriter::GetArrayAttribute(
+  vtkAbstractArray* array, const char* attributeName)
 {
-  vtkInformation *info = array->GetInformation();
+  vtkInformation* info = array->GetInformation();
   vtkNew<vtkInformationIterator> infoItr;
   infoItr->SetInformation(info);
-  for (infoItr->InitTraversal(); !infoItr->IsDoneWithTraversal();
-    infoItr->GoToNextItem())
+  for (infoItr->InitTraversal(); !infoItr->IsDoneWithTraversal(); infoItr->GoToNextItem())
   {
     if (strcmp(infoItr->GetCurrentKey()->GetName(), attributeName) == 0)
     {
@@ -546,10 +507,11 @@ const char* vtkPhyloXMLTreeWriter::GetArrayAttribute(vtkAbstractArray *array,
   return "";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPhyloXMLTreeWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "EdgeWeightArrayName: " << this->EdgeWeightArrayName << endl;
   os << indent << "NodeNameArrayName: " << this->NodeNameArrayName << endl;
 }
+VTK_ABI_NAMESPACE_END

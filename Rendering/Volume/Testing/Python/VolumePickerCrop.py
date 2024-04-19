@@ -1,18 +1,42 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkPiecewiseFunction,
+    vtkPlane,
+)
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkIOImage import vtkVolume16Reader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkColorTransferFunction,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkVolume,
+    vtkVolumeProperty,
+)
+from vtkmodules.vtkRenderingVolume import (
+    vtkFixedPointVolumeRayCastMapper,
+    vtkVolumePicker,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.vtkRenderingVolumeOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # volume render a medical data set
 # renderer and interactor
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # read the volume
-v16 = vtk.vtkVolume16Reader()
+v16 = vtkVolume16Reader()
 v16.SetDataDimensions(64, 64)
 v16.SetImageRange(1, 93)
 v16.SetDataByteOrderToLittleEndian()
@@ -21,29 +45,29 @@ v16.SetDataSpacing(3.2, 3.2, 1.5)
 
 #---------------------------------------------------------
 # set up the volume rendering
-volumeMapper = vtk.vtkFixedPointVolumeRayCastMapper()
+volumeMapper = vtkFixedPointVolumeRayCastMapper()
 volumeMapper.SetInputConnection(v16.GetOutputPort())
 volumeMapper.CroppingOn()
 volumeMapper.SetCroppingRegionPlanes(0.0, 141.6, 0.0, 201.6, 0.0, 138.0)
 
-volumeColor = vtk.vtkColorTransferFunction()
+volumeColor = vtkColorTransferFunction()
 volumeColor.AddRGBPoint(0, 0.0, 0.0, 0.0)
 volumeColor.AddRGBPoint(180, 0.3, 0.1, 0.2)
 volumeColor.AddRGBPoint(1000, 1.0, 0.7, 0.6)
 volumeColor.AddRGBPoint(2000, 1.0, 1.0, 0.9)
 
-volumeScalarOpacity = vtk.vtkPiecewiseFunction()
+volumeScalarOpacity = vtkPiecewiseFunction()
 volumeScalarOpacity.AddPoint(0, 0.0)
 volumeScalarOpacity.AddPoint(180, 0.0)
 volumeScalarOpacity.AddPoint(1000, 0.2)
 volumeScalarOpacity.AddPoint(2000, 0.8)
 
-volumeGradientOpacity = vtk.vtkPiecewiseFunction()
+volumeGradientOpacity = vtkPiecewiseFunction()
 volumeGradientOpacity.AddPoint(0, 0.0)
 volumeGradientOpacity.AddPoint(90, 0.5)
 volumeGradientOpacity.AddPoint(100, 1.0)
 
-volumeProperty = vtk.vtkVolumeProperty()
+volumeProperty = vtkVolumeProperty()
 volumeProperty.SetColor(volumeColor)
 volumeProperty.SetScalarOpacity(volumeScalarOpacity)
 volumeProperty.SetGradientOpacity(volumeGradientOpacity)
@@ -53,20 +77,20 @@ volumeProperty.SetAmbient(0.6)
 volumeProperty.SetDiffuse(0.6)
 volumeProperty.SetSpecular(0.1)
 
-volume = vtk.vtkVolume()
+volume = vtkVolume()
 volume.SetMapper(volumeMapper)
 volume.SetProperty(volumeProperty)
 
 #---------------------------------------------------------
 # make a transform and some clipping planes
-transform = vtk.vtkTransform()
+transform = vtkTransform()
 transform.RotateWXYZ(-20, 0.0, -0.7, 0.7)
 
 volume.SetUserTransform(transform)
 
 c = volume.GetCenter()
 
-volumeClip = vtk.vtkPlane()
+volumeClip = vtkPlane()
 volumeClip.SetNormal(0, 1, 0)
 volumeClip.SetOrigin(c[0], c[1], c[2])
 volumeMapper.AddClippingPlane(volumeClip)
@@ -84,7 +108,7 @@ ren.ResetCameraClippingRange()
 renWin.Render()
 #---------------------------------------------------------
 # The cone source points along the x axis
-coneSource = vtk.vtkConeSource()
+coneSource = vtkConeSource()
 coneSource.CappingOn()
 coneSource.SetHeight(12)
 coneSource.SetRadius(5)
@@ -93,7 +117,7 @@ coneSource.SetCenter(6, 0, 0)
 coneSource.SetDirection(-1, 0, 0)
 
 #---------------------------------------------------------
-picker = vtk.vtkVolumePicker()
+picker = vtkVolumePicker()
 picker.SetTolerance(1e-6)
 picker.SetVolumeOpacityIsovalue(0.3)
 
@@ -114,10 +138,10 @@ p = picker.GetPickPosition()
 
 n = picker.GetPickNormal()
 
-coneActor1 = vtk.vtkActor()
+coneActor1 = vtkActor()
 coneActor1.PickableOff()
 
-coneMapper1 = vtk.vtkDataSetMapper()
+coneMapper1 = vtkDataSetMapper()
 coneMapper1.SetInputConnection(coneSource.GetOutputPort())
 
 coneActor1.SetMapper(coneMapper1)
@@ -138,10 +162,10 @@ p = picker.GetPickPosition()
 
 n = picker.GetPickNormal()
 
-coneActor2 = vtk.vtkActor()
+coneActor2 = vtkActor()
 coneActor2.PickableOff()
 
-coneMapper2 = vtk.vtkDataSetMapper()
+coneMapper2 = vtkDataSetMapper()
 coneMapper2.SetInputConnection(coneSource.GetOutputPort())
 
 coneActor2.SetMapper(coneMapper2)
@@ -163,10 +187,10 @@ p = picker.GetPickPosition()
 
 n = picker.GetPickNormal()
 
-coneActor3 = vtk.vtkActor()
+coneActor3 = vtkActor()
 coneActor3.PickableOff()
 
-coneMapper3 = vtk.vtkDataSetMapper()
+coneMapper3 = vtkDataSetMapper()
 coneMapper3.SetInputConnection(coneSource.GetOutputPort())
 
 coneActor3.SetMapper(coneMapper3)
@@ -185,10 +209,10 @@ p = picker.GetPickPosition()
 
 n = picker.GetPickNormal()
 
-coneActor4 = vtk.vtkActor()
+coneActor4 = vtkActor()
 coneActor4.PickableOff()
 
-coneMapper4 = vtk.vtkDataSetMapper()
+coneMapper4 = vtkDataSetMapper()
 coneMapper4.SetInputConnection(coneSource.GetOutputPort())
 
 coneActor4.SetMapper(coneMapper4)
@@ -208,10 +232,10 @@ p = picker.GetPickPosition()
 
 n = picker.GetPickNormal()
 
-coneActor5 = vtk.vtkActor()
+coneActor5 = vtkActor()
 coneActor5.PickableOff()
 
-coneMapper5 = vtk.vtkDataSetMapper()
+coneMapper5 = vtkDataSetMapper()
 coneMapper5.SetInputConnection(coneSource.GetOutputPort())
 
 coneActor5.SetMapper(coneMapper5)
@@ -232,10 +256,10 @@ p = picker.GetPickPosition()
 
 n = picker.GetPickNormal()
 
-coneActor6 = vtk.vtkActor()
+coneActor6 = vtkActor()
 coneActor6.PickableOff()
 
-coneMapper6 = vtk.vtkDataSetMapper()
+coneMapper6 = vtkDataSetMapper()
 coneMapper6.SetInputConnection(coneSource.GetOutputPort())
 
 coneActor6.SetMapper(coneMapper6)
@@ -251,9 +275,8 @@ renWin.Render()
 
 #---------------------------------------------------------
 # test-related code
-def TkCheckAbort(object_binding, event_name):
-    foo = renWin.GetEventPending()
-    if (foo != 0):
+def TkCheckAbort(obj=None, event=""):
+    if renWin.GetEventPending():
         renWin.SetAbortRender(1)
 
 renWin.AddObserver("AbortCheckEvent", TkCheckAbort)

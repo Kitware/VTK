@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParallelCoordinatesRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkParallelCoordinatesRepresentation
  * @brief   Data representation that
@@ -45,14 +29,15 @@
  *
  * @par Thanks:
  *  Developed by David Feng at Sandia National Laboratories
-*/
+ */
 
 #ifndef vtkParallelCoordinatesRepresentation_h
 #define vtkParallelCoordinatesRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkActor2D;
 class vtkArrayData;
@@ -60,7 +45,6 @@ class vtkAxisActor2D;
 class vtkBivariateLinearTableThreshold;
 class vtkCollection;
 class vtkCoordinate;
-class vtkExtractSelectedPolyDataIds;
 class vtkFieldData;
 class vtkDataArray;
 class vtkDataObject;
@@ -99,52 +83,52 @@ public:
   /**
    * Returns the hover text at an x,y location.
    */
-  virtual const char* GetHoverText(vtkView* view, int x, int y);
+  virtual std::string GetHoverString(vtkView* view, int x, int y);
 
-  //@{
+  ///@{
   /**
    * Change the position of the plot
    */
   int SetPositionAndSize(double* position, double* size);
   int GetPositionAndSize(double* position, double* size);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the axis titles
    */
   void SetAxisTitles(vtkStringArray*);
   void SetAxisTitles(vtkAlgorithmOutput*);
-  //@}
+  ///@}
 
   /**
    * Set the title for the entire plot
    */
   void SetPlotTitle(const char*);
 
-  //@{
+  ///@{
   /**
    * Get the number of axes in the plot
    */
-  vtkGetMacro(NumberOfAxes,int);
-  //@}
+  vtkGetMacro(NumberOfAxes, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of samples in the plot
    */
-  vtkGetMacro(NumberOfSamples,int);
-  //@}
+  vtkGetMacro(NumberOfSamples, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of labels to display on each axis
    */
   void SetNumberOfAxisLabels(int num);
-  vtkGetMacro(NumberOfAxisLabels,int);
-  //@}
+  vtkGetMacro(NumberOfAxisLabels, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Move an axis to a particular screen position.  Using these
    * methods requires an Update() before they will work properly.
@@ -154,84 +138,85 @@ public:
   double GetXCoordinateOfPosition(int axis);
   void GetXCoordinatesOfPositions(double* coords);
   int GetPositionNearXCoordinate(double xcoord);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether or not to display using curves
    */
-  vtkSetMacro(UseCurves,vtkTypeBool);
-  vtkGetMacro(UseCurves,vtkTypeBool);
-  vtkBooleanMacro(UseCurves,vtkTypeBool);
-  //@}
+  vtkSetMacro(UseCurves, vtkTypeBool);
+  vtkGetMacro(UseCurves, vtkTypeBool);
+  vtkBooleanMacro(UseCurves, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Resolution of the curves displayed, enabled by setting UseCurves
    */
-  vtkSetMacro(CurveResolution,int);
-  vtkGetMacro(CurveResolution,int);
-  //@}
+  vtkSetMacro(CurveResolution, int);
+  vtkGetMacro(CurveResolution, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access plot properties
    */
-  vtkGetMacro(LineOpacity,double)
-  vtkGetMacro(FontSize,double);
-  vtkGetVector3Macro(LineColor,double);
-  vtkGetVector3Macro(AxisColor,double);
-  vtkGetVector3Macro(AxisLabelColor,double);
-  vtkSetMacro(LineOpacity,double);
-  vtkSetMacro(FontSize,double);
-  vtkSetVector3Macro(LineColor,double);
-  vtkSetVector3Macro(AxisColor,double);
-  vtkSetVector3Macro(AxisLabelColor,double);
-  //@}
+  vtkGetMacro(LineOpacity, double);
+  vtkGetMacro(FontSize, double);
+  vtkGetVector3Macro(LineColor, double);
+  vtkGetVector3Macro(AxisColor, double);
+  vtkGetVector3Macro(AxisLabelColor, double);
+  vtkSetMacro(LineOpacity, double);
+  vtkSetMacro(FontSize, double);
+  vtkSetVector3Macro(LineColor, double);
+  vtkSetVector3Macro(AxisColor, double);
+  vtkSetVector3Macro(AxisLabelColor, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Maximum angle difference (in degrees) of selection using angle/function brushes
    */
-  vtkSetMacro(AngleBrushThreshold,double);
-  vtkGetMacro(AngleBrushThreshold,double);
-  //@}
+  vtkSetMacro(AngleBrushThreshold, double);
+  vtkGetMacro(AngleBrushThreshold, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Maximum angle difference (in degrees) of selection using angle/function brushes
    */
-  vtkSetMacro(FunctionBrushThreshold,double);
-  vtkGetMacro(FunctionBrushThreshold,double);
-  //@}
+  vtkSetMacro(FunctionBrushThreshold, double);
+  vtkGetMacro(FunctionBrushThreshold, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the value range of the axis at a particular screen position
    */
   int GetRangeAtPosition(int position, double range[2]);
   virtual int SetRangeAtPosition(int position, double range[2]);
-  //@}
+  ///@}
 
   /**
    * Reset the axes to their default positions and orders
    */
   void ResetAxes();
 
-  //@{
+  ///@{
   /**
    * Do a selection of the lines.  See the main description for how to use these functions.
    * RangeSelect is currently stubbed out.
    */
   virtual void LassoSelect(int brushClass, int brushOperator, vtkPoints* brushPoints);
-  virtual void AngleSelect(int brushClass, int brushOperator, double *p1, double *p2);
-  virtual void FunctionSelect(int brushClass, int brushOperator, double *p1, double *p2, double *q1, double *q2);
-  virtual void RangeSelect(int brushClass, int brushOperator, double *p1, double *p2);
-  //@}
+  virtual void AngleSelect(int brushClass, int brushOperator, double* p1, double* p2);
+  virtual void FunctionSelect(
+    int brushClass, int brushOperator, double* p1, double* p2, double* q1, double* q2);
+  virtual void RangeSelect(int brushClass, int brushOperator, double* p1, double* p2);
+  ///@}
 
   enum InputPorts
   {
-    INPUT_DATA=0,
+    INPUT_DATA = 0,
     INPUT_TITLES,
     NUM_INPUT_PORTS
   };
@@ -242,19 +227,16 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //@{
+  ///@{
   /**
    * Add/remove the props and actors to/from a view
    */
   bool AddToView(vtkView* view) override;
   bool RemoveFromView(vtkView* view) override;
   void PrepareForRendering(vtkRenderView* view) override;
-  //@}
+  ///@}
 
   /**
    * This function is not actually used, but as left as a stub in case
@@ -265,22 +247,16 @@ protected:
   /**
    * Allocate the cells/points/scalars for a vtkPolyData
    */
-  virtual int AllocatePolyData(vtkPolyData* polyData,
-                               int numLines,
-                               int numPointsPerLine,
-                               int numStrips,
-                               int numPointsPerStrip,
-                               int numQuads,
-                               int numPoints,
-                               int numCellScalars,
-                               int numPointScalars);
+  virtual int AllocatePolyData(vtkPolyData* polyData, int numLines, int numPointsPerLine,
+    int numStrips, int numPointsPerStrip, int numQuads, int numPoints, int numCellScalars,
+    int numPointScalars);
 
   /**
    * Put the axis actors in their correct positions.
    */
   int PlaceAxes();
 
-  //@{
+  ///@{
   /**
    * Place line primitives into a vtkPolyData from the input data.  idsToPlot
    * is a list of which rows/samples should be plotted.  If nullptr, all
@@ -288,13 +264,14 @@ protected:
    */
   virtual int PlaceLines(vtkPolyData* polyData, vtkTable* data, vtkIdTypeArray* idsToPlot);
   virtual int PlaceCurves(vtkPolyData* polyData, vtkTable* data, vtkIdTypeArray* idsToPlot);
-  //@}
+  ///@}
 
   /**
    * Takes the selection list (assumed to be a vtkIdTypeArray) from a vtkSelectionNode
    * and plots lines/curves into polyData for just those row/sample ids.
    */
-  virtual int PlaceSelection(vtkPolyData* polyData, vtkTable* data, vtkSelectionNode* selectionNode);
+  virtual int PlaceSelection(
+    vtkPolyData* polyData, vtkTable* data, vtkSelectionNode* selectionNode);
 
   /**
    * Compute the number of axes and their individual ranges
@@ -311,23 +288,24 @@ protected:
    */
   virtual int ReallocateInternals();
 
-  //@{
+  ///@{
   /**
    * Compute which screen position a point belongs to (returns the left position)
    */
   int ComputePointPosition(double* p);
   int ComputeLinePosition(double* p1, double* p2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Select a set of points using the prescribed operator (add, subtract, etc.) and class
    */
   virtual void SelectRows(vtkIdType brushClass, vtkIdType brushOperator, vtkIdTypeArray* rowIds);
   vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection) override;
   virtual void BuildInverseSelection();
-  virtual vtkPolyDataMapper2D* InitializePlotMapper(vtkPolyData* input, vtkActor2D* actor, bool forceStandard=false);
-  //@}
+  virtual vtkPolyDataMapper2D* InitializePlotMapper(
+    vtkPolyData* input, vtkActor2D* actor, bool forceStandard = false);
+  ///@}
 
   /**
    * Build an s-curve passing through (0,0) and (1,1) with a specified number of
@@ -349,9 +327,9 @@ protected:
   vtkPolyDataMapper2D* GetSelectionMapper(int idx);
   int GetNumberOfSelections();
 
-  vtkSmartPointer<vtkPolyData>         PlotData;
+  vtkSmartPointer<vtkPolyData> PlotData;
   vtkSmartPointer<vtkPolyDataMapper2D> PlotMapper;
-  vtkSmartPointer<vtkActor2D>          PlotActor;
+  vtkSmartPointer<vtkActor2D> PlotActor;
   vtkSmartPointer<vtkTextMapper> PlotTitleMapper;
   vtkSmartPointer<vtkActor2D> PlotTitleActor;
   vtkSmartPointer<vtkTextMapper> FunctionTextMapper;
@@ -403,5 +381,5 @@ private:
   void operator=(const vtkParallelCoordinatesRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

@@ -1,40 +1,14 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 
 #include "exodusII.h"     // for ex_err, ex_block, etc
 #include "exodusII_int.h" // for elem_blk_parm, EX_FATAL, etc
+#include <stdbool.h>
 
 static int64_t get_node(void_int *connect, size_t index, size_t int_size)
 {
@@ -55,7 +29,7 @@ static void put_side(void_int *side_list, size_t index, size_t value, size_t int
 }
 
 /*!
-
+\ingroup Utilities
 The function ex_cvt_nodes_to_sides() is used to convert a side set
 node list to a side set side list. This routine is provided for
 application programs that utilize side sets defined by nodes (as was
@@ -110,7 +84,6 @@ LocalNodeIds).
 
 \param[out]  side_sets_side_list  Returned array containing the sides for all
 side sets.
-
 
 The following code segment will convert side sets described
 by nodes to side sets described by local side numbers:
@@ -214,7 +187,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   int int_size;
   int ids_size;
 
-  struct elem_blk_parm *elem_blk_parms = NULL;
+  struct ex__elem_blk_parm *elem_blk_parms = NULL;
 
   int err_stat = EX_NOERR;
 
@@ -270,7 +243,12 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
+
+  EX_UNUSED(side_sets_elem_index);
+  EX_UNUSED(side_sets_node_index);
 
   /* first check if any side sets are specified */
   /* inquire how many side sets have been stored */
@@ -285,7 +263,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
 
   if (num_side_sets == 0) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no side sets defined in file id %d", exoid);
-    ex_err_fn(exoid, __func__, errmsg, EX_WARN);
+    ex_err_fn(exoid, __func__, errmsg, EX_NOENTITY);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -343,7 +321,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
     for (i = 0; i < tot_num_ss_elem; i++) {
       elems[i] = i; /* init index array to current position */
     }
-    ex_iqsort64(side_sets_elem_list, elems, tot_num_ss_elem);
+    ex__iqsort64(side_sets_elem_list, elems, tot_num_ss_elem);
   }
   else {
     /* Sort side set element list into index array  - non-destructive */
@@ -351,7 +329,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
     for (i = 0; i < tot_num_ss_elem; i++) {
       elems[i] = i; /* init index array to current position */
     }
-    ex_iqsort(side_sets_elem_list, elems, tot_num_ss_elem);
+    ex__iqsort(side_sets_elem_list, elems, tot_num_ss_elem);
   }
 
   /* Allocate space for the element block ids */
@@ -376,7 +354,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   }
 
   /* Allocate space for the element block params */
-  if (!(elem_blk_parms = malloc(num_elem_blks * sizeof(struct elem_blk_parm)))) {
+  if (!(elem_blk_parms = malloc(num_elem_blks * sizeof(struct ex__elem_blk_parm)))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate space for element block params "
              "for file id %d",
@@ -395,7 +373,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
       id = ((int *)elem_blk_ids)[i];
     }
 
-    err_stat = ex_int_get_block_param(exoid, id, ndim, &elem_blk_parms[i]);
+    err_stat = ex__get_block_param(exoid, id, ndim, &elem_blk_parms[i]);
     if (err_stat != EX_NOERR) {
       goto cleanup;
     }
@@ -407,7 +385,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   /* Allocate space for the ss element to element block parameter index array */
   if (!(ss_parm_ndx = malloc(tot_num_ss_elem * int_size))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
-             "ERROR: failed to allocate space for side set elem parms "
+             "ERROR: failed to allocate space for side set elem params "
              "index for file id %d",
              exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
@@ -431,7 +409,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   */
 
   /* Allocate space for same element type flag array*/
-  if (!(same_elem_type = malloc(num_side_sets * sizeof(int)))) {
+  if (!(same_elem_type = calloc(num_side_sets, sizeof(int)))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate space for element type flag "
              "array for file id %d",
@@ -441,7 +419,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
     goto cleanup;
   }
 
-  same_elem_type[0] = EX_TRUE;
+  same_elem_type[0] = true;
   if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
     elem_ctr = ((int64_t *)num_elem_per_set)[0];
     for (i = 0, k = 0; i < tot_num_ss_elem; i++) {
@@ -468,11 +446,11 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
         elem_ctr += ((int64_t *)num_elem_per_set)[++k];
 
         el_type           = elem_blk_parms[j].elem_type_val;
-        same_elem_type[k] = EX_TRUE;
+        same_elem_type[k] = true;
       }
 
       if (el_type != elem_blk_parms[j].elem_type_val) {
-        same_elem_type[k] = EX_FALSE;
+        same_elem_type[k] = false;
       }
     }
 
@@ -510,7 +488,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
 
       /* determine number of nodes per side */
       if (((((int64_t *)num_nodes_per_set)[k] % ((int64_t *)num_elem_per_set)[k]) == 0) &&
-          (same_elem_type[k] == EX_TRUE)) { /* all side set elements are same type */
+          (same_elem_type[k] == true)) { /* all side set elements are same type */
         node_ctr += ((int64_t *)num_nodes_per_set)[k] / ((int64_t *)num_elem_per_set)[k];
       }
       else {
@@ -546,11 +524,11 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
         elem_ctr += ((int *)num_elem_per_set)[++k];
 
         el_type           = elem_blk_parms[j].elem_type_val;
-        same_elem_type[k] = EX_TRUE;
+        same_elem_type[k] = true;
       }
 
       if (el_type != elem_blk_parms[j].elem_type_val) {
-        same_elem_type[k] = EX_FALSE;
+        same_elem_type[k] = false;
       }
     }
 

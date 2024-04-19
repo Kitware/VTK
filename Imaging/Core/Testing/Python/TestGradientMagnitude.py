@@ -1,15 +1,20 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkGESignaReader
+from vtkmodules.vtkImagingGeneral import vtkImageGradientMagnitude
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
-reader = vtk.vtkGESignaReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/E07733S002I009.MR")
-gradient = vtk.vtkImageGradientMagnitude()
+reader = vtkGESignaReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/E07733S002I009.MR")
+gradient = vtkImageGradientMagnitude()
 gradient.SetDimensionality(2)
 gradient.SetInputConnection(reader.GetOutputPort())
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 viewer.SetInputConnection(gradient.GetOutputPort())
 viewer.SetColorWindow(250)
 viewer.SetColorLevel(125)

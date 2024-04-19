@@ -1,30 +1,39 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
 
 import sys
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkPlanes
+from vtkmodules.vtkFiltersCore import (
+    vtkAppendPolyData,
+    vtkClipPolyData,
+    vtkGlyph3D,
+)
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkInteractionWidgets import (
+    vtkBoxRepresentation,
+    vtkBoxWidget2,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkInteractorEventRecorder,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestInteractorEventRecorder(vtk.test.Testing.vtkTest):
+class TestInteractorEventRecorder(vtkmodules.test.Testing.vtkTest):
 
     def testInteractorEventRecorder(self):
 
@@ -33,9 +42,9 @@ class TestInteractorEventRecorder(vtk.test.Testing.vtkTest):
 
         # Create a mace out of filters.
         #
-        sphere = vtk.vtkSphereSource()
-        cone = vtk.vtkConeSource()
-        glyph = vtk.vtkGlyph3D()
+        sphere = vtkSphereSource()
+        cone = vtkConeSource()
+        glyph = vtkGlyph3D()
         glyph.SetInputConnection(sphere.GetOutputPort())
         glyph.SetSourceConnection(cone.GetOutputPort())
         glyph.SetVectorModeToUseNormal()
@@ -44,25 +53,25 @@ class TestInteractorEventRecorder(vtk.test.Testing.vtkTest):
 
         # The sphere and spikes are appended into a single polydata. This just makes things
         # simpler to manage.
-        apd = vtk.vtkAppendPolyData()
+        apd = vtkAppendPolyData()
         apd.AddInputConnection(glyph.GetOutputPort())
         apd.AddInputConnection(sphere.GetOutputPort())
-        maceMapper = vtk.vtkPolyDataMapper()
+        maceMapper = vtkPolyDataMapper()
         maceMapper.SetInputConnection(apd.GetOutputPort())
-        maceActor = vtk.vtkLODActor()
+        maceActor = vtkLODActor()
         maceActor.SetMapper(maceMapper)
         maceActor.VisibilityOn()
 
         # This portion of the code clips the mace with the vtkPlanes implicit function.
         # The clipped region is colored green.
-        planes = vtk.vtkPlanes()
-        clipper = vtk.vtkClipPolyData()
+        planes = vtkPlanes()
+        clipper = vtkClipPolyData()
         clipper.SetInputConnection(apd.GetOutputPort())
         clipper.SetClipFunction(planes)
         clipper.InsideOutOn()
-        selectMapper = vtk.vtkPolyDataMapper()
+        selectMapper = vtkPolyDataMapper()
         selectMapper.SetInputConnection(clipper.GetOutputPort())
-        selectActor = vtk.vtkLODActor()
+        selectActor = vtkLODActor()
         selectActor.SetMapper(selectMapper)
         selectActor.GetProperty().SetColor(0, 1, 0)
         selectActor.VisibilityOff()
@@ -70,13 +79,13 @@ class TestInteractorEventRecorder(vtk.test.Testing.vtkTest):
 
         # Create the RenderWindow, Renderer and both Actors
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
-        #iren = vtk.vtkRenderWindowInteractor()
+        #iren = vtkRenderWindowInteractor()
         #iren.SetRenderWindow(renWin)
         iRen.AddObserver("ExitEvent", sys.exit)
 
@@ -106,17 +115,17 @@ class TestInteractorEventRecorder(vtk.test.Testing.vtkTest):
         # Place the interactor initially. The input to a 3D widget is used to
         # initially position and scale the widget. The EndInteractionEvent is
         # observed which invokes the SelectPolygons callback.
-        boxRep = vtk.vtkBoxRepresentation()
+        boxRep = vtkBoxRepresentation()
         boxRep.SetPlaceFactor(0.75)
         boxRep.PlaceWidget(glyph.GetOutput().GetBounds())
-        boxWidget = vtk.vtkBoxWidget2()
+        boxWidget = vtkBoxWidget2()
         boxWidget.SetInteractor(iRen)
         boxWidget.SetRepresentation(boxRep)
         boxWidget.AddObserver("EndInteractionEvent", SelectPolygons)
         boxWidget.SetPriority(1)
 
         # record events
-        recorder = vtk.vtkInteractorEventRecorder()
+        recorder = vtkInteractorEventRecorder()
         recorder.SetInteractor(iRen)
         recorder.SetFileName(VTK_DATA_ROOT + "/Data/EventRecording.log")
 
@@ -133,8 +142,8 @@ class TestInteractorEventRecorder(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "TestInteractorEventRecorder.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestInteractorEventRecorder, 'test')])
+     vtkmodules.test.Testing.main([(TestInteractorEventRecorder, 'test')])

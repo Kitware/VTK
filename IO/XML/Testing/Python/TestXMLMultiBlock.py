@@ -1,23 +1,29 @@
 #!/usr/bin/env python
 
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.vtkCommonCore import vtkFloatArray
+from vtkmodules.vtkFiltersGeneral import vtkMultiBlockDataGroupFilter
+from vtkmodules.vtkIOXML import (
+    vtkXMLMultiBlockDataReader,
+    vtkXMLMultiBlockDataWriter,
+)
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.util.misc import vtkGetDataRoot
+from vtkmodules.util.misc import vtkGetTempDir
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 VTK_TEMP_DIR = vtkGetTempDir()
 
-w = vtk.vtkRTAnalyticSource()
+w = vtkRTAnalyticSource()
 
-g = vtk.vtkMultiBlockDataGroupFilter()
+g = vtkMultiBlockDataGroupFilter()
 g.AddInputConnection(w.GetOutputPort())
 
 g.Update()
 
 mb = g.GetOutputDataObject(0)
 
-a = vtk.vtkFloatArray()
+a = vtkFloatArray()
 a.SetName("foo")
 a.SetNumberOfTuples(1)
 a.SetValue(0, 10)
@@ -27,12 +33,12 @@ mb.GetFieldData().AddArray(a)
 file_root = VTK_TEMP_DIR + '/testxml'
 file0 = file_root + ".vtm"
 
-wri = vtk.vtkXMLMultiBlockDataWriter()
+wri = vtkXMLMultiBlockDataWriter()
 wri.SetInputData(mb)
 wri.SetFileName(file0)
 wri.Write()
 
-read = vtk.vtkXMLMultiBlockDataReader()
+read = vtkXMLMultiBlockDataReader()
 read.SetFileName(file0)
 read.Update()
 

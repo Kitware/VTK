@@ -1,6 +1,7 @@
 set(classes
   vtkBoundedPointSource
   vtkConnectedPointsFilter
+  vtkConvertToPointCloud
   vtkDensifyPointCloudFilter
   vtkEllipsoidalGaussianKernel
   vtkEuclideanClusterExtraction
@@ -23,7 +24,10 @@ set(classes
   vtkPointInterpolator
   vtkPointInterpolator2D
   vtkPointOccupancyFilter
+  vtkPointSmoothingFilter
+  vtkPoissonDiskSampler
   vtkProbabilisticVoronoiKernel
+  vtkProjectPointsToPlane
   vtkRadiusOutlierRemoval
   vtkSPHCubicKernel
   vtkSPHInterpolator
@@ -40,3 +44,4 @@ set(classes
 
 vtk_module_add_module(VTK::FiltersPoints
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::FiltersPoints)

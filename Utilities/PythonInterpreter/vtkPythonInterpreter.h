@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPythonInterpreter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPythonInterpreter
  * @brief   wrapper for an embedded Python interpreter.
@@ -52,7 +40,7 @@
  * after Finalize especially when concerning with imported modules. Refer to
  * Python docs for details. In short, modules like numpy don't continue to work
  * after a re-initialize. Hence use it with caution.
-*/
+ */
 
 #ifndef vtkPythonInterpreter_h
 #define vtkPythonInterpreter_h
@@ -61,6 +49,10 @@
 #include "vtkPythonInterpreterModule.h" // For export macro
 #include "vtkStdString.h"               // needed for vtkStdString.
 
+#include <utility> // For std::pair
+#include <vector>
+
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPYTHONINTERPRETER_EXPORT vtkPythonInterpreter : public vtkObject
 {
 public:
@@ -91,14 +83,15 @@ public:
   static bool IsInitialized();
 
   /**
-   * Set the program name. This internally calls `Py_SetProgramName`.
+   * Set the program name.
+   *
    * Python uses the program name to determine values for prefix and exec_prefix
    * paths that are used to locate Python standard libraries and hence call this
-   * if you if you know what you are doing.
+   * only if you know what you are doing.
    *
    * If not explicitly overridden, `Initialize` will try to guess a good default
-   * for the `Py_SetProgramName` to  help find Python standard libraries based
-   * on Python libraries used to build VTK.
+   * for the program name to help find the Python standard libraries based on
+   * Python libraries used to build VTK.
    */
   static void SetProgramName(const char* programname);
 
@@ -128,9 +121,9 @@ public:
    * that if Python is initialized again (by calls to Initialize()), then these
    * paths will be re-added.
    */
-  static void PrependPythonPath(const char* path);
+  static void PrependPythonPath(const char* dir);
 
-  //@{
+  ///@{
   /**
    * Prepend custom paths to `sys.path` after attempt to find the `landmark` using the
    * `anchor` prefix provided. If found, the path to the landmark gets added the python path
@@ -146,9 +139,9 @@ public:
    */
   static void PrependPythonPath(
     const char* anchor, const char* landmark, bool add_landmark = false);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * To capture stdin, especially for non-terminal applications, set CaptureStdin
    * to true. In that case vtkCommand::UpdateEvent will be fired with the calldata
@@ -157,18 +150,41 @@ public:
    */
   static void SetCaptureStdin(bool);
   static bool GetCaptureStdin();
-  //@}
+  ///@}
 
-  VTK_LEGACY(static int GetPythonVerboseFlag());
+  ///@{
+  /**
+   * Enable/disable VTK from redirecting Python output to vtkOutputWindow. On by default.
+   */
+  static void SetRedirectOutput(bool redirect);
+  static bool GetRedirectOutput();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the verbosity level at which vtkPythonInterpreter should generate
    * log output. Default value is `vtkLogger::VERBOSITY_TRACE`.
    */
   static void SetLogVerbosity(int);
   static int GetLogVerbosity();
-  //@}
+  ///@}
+
+  /**
+   * Initialize the Python interpreter, forwarding specified args to it.
+   * If programName is set, use it as the interpreter's program name. Otherwise, it
+   * will be set to "<path to python lib>/vtkpython"
+   */
+  static bool InitializeWithArgs(
+    int initsigs, int argc, char* argv[], const char* programName = nullptr);
+
+  /**
+   * Programs using VTK (such as ParaView) can add one or more paths for additional python modules.
+   * libraryPath and landmark are used for each location of additional python modules,
+   * as in the case for ParaView built with external VTK.
+   * landmark is the relative path to the libraryPath such as 'vtkmodules/__init__.py'
+   * for VTK or 'paraview/__init__.py' for ParaView.
+   */
+  static void AddUserPythonPath(const char* libraryPath, const char* landmark);
 
 protected:
   vtkPythonInterpreter();
@@ -176,7 +192,7 @@ protected:
 
   friend struct vtkPythonStdStreamCaptureHelper;
 
-  //@{
+  ///@{
   /**
    * Internal methods used by Python. Don't call directly.
    */
@@ -185,7 +201,7 @@ protected:
   static void WriteStdErr(const char* txt);
   static void FlushStdErr();
   static vtkStdString ReadStdin();
-  //@}
+  ///@}
 
 private:
   vtkPythonInterpreter(const vtkPythonInterpreter&) = delete;
@@ -193,37 +209,33 @@ private:
 
   static bool InitializedOnce;
   static bool CaptureStdin;
+  static bool RedirectOutput;
   /**
    * If true, buffer output to console and sent it to other modules at
    * the end of the operation. If false, send the output as it becomes available.
    */
   static bool ConsoleBuffering;
-  //@{
+  ///@{
   /**
    * Accumulate here output printed to console by the python interpreter.
    */
   static std::string StdErrBuffer;
   static std::string StdOutBuffer;
-  //@}
-
-  /**
-   * Since vtkPythonInterpreter is often used outside CPython executable, e.g.
-   * vtkpython, the default logic to locate Python standard libraries used by
-   * Python (which depends on the executable path) may fail or pickup incorrect
-   * Python libs. This methods address the issue by setting program name to help
-   * guide Python's default prefix/exec_prefix searching logic.
-   */
-  static void SetupPythonPrefix();
-
-  /**
-   * Add paths to VTK's Python modules.
-   */
-  static void SetupVTKPythonPaths();
+  ///@}
 
   /**
    * Verbosity level to use when logging info.
    */
   static int LogVerbosity;
+  ///@{
+
+  /**
+   * Container of pairs used for setting up user python paths for applications using VTK (such as
+   * ParaView). The first element of pair is LibraryPath and second element of pair is Landmark.
+   * Landmark is relative path to the LibraryPath such as 'vtkmodules/__init__.py' for VTK or
+   * 'paraview/__init__.py' for ParaView.
+   */
+  static std::vector<std::pair<std::string, std::string>> UserPythonPaths;
 };
 
 // For tracking global interpreters
@@ -232,6 +244,7 @@ class VTKPYTHONINTERPRETER_EXPORT vtkPythonGlobalInterpreters
 public:
   vtkPythonGlobalInterpreters();
   ~vtkPythonGlobalInterpreters();
+
 private:
   vtkPythonGlobalInterpreters(const vtkPythonGlobalInterpreters&) = delete;
   vtkPythonGlobalInterpreters& operator=(const vtkPythonGlobalInterpreters&) = delete;
@@ -240,4 +253,24 @@ private:
 // This is here to implement the Schwarz counter idiom.
 static vtkPythonGlobalInterpreters vtkPythonInterpreters;
 
+#if defined(_WIN32)
+class VTKPYTHONINTERPRETER_EXPORT vtkWideArgsConverter
+{
+public:
+  vtkWideArgsConverter(int argc, wchar_t* wargv[]);
+  ~vtkWideArgsConverter();
+
+  char** GetArgs() { return &this->Args[0]; }
+  int GetArgCount() { return this->Argc; }
+
+private:
+  int Argc;
+  std::vector<char*> Args;
+  std::vector<char*> MemCache;
+  vtkWideArgsConverter(const vtkWideArgsConverter&) = delete;
+  vtkWideArgsConverter& operator=(const vtkWideArgsConverter&) = delete;
+};
+#endif
+
+VTK_ABI_NAMESPACE_END
 #endif

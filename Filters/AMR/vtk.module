@@ -8,6 +8,10 @@ KIT
   VTK::Parallel
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
@@ -23,6 +27,7 @@ TEST_DEPENDS
   VTK::FiltersCore
   VTK::FiltersGeometry
   VTK::IOAMR
+  VTK::IOXML
   VTK::ImagingCore
   VTK::InteractionStyle
   VTK::TestingCore

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDensifyPolyData.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkDensifyPolyData
@@ -28,7 +16,7 @@
  *
  * The number of subdivisions can be controlled by the parameter
  * NumberOfSubdivisions.
-*/
+ */
 
 #ifndef vtkDensifyPolyData_h
 #define vtkDensifyPolyData_h
@@ -36,28 +24,27 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkDensifyPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDensifyPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkDensifyPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkDensifyPolyData *New();
+  static vtkDensifyPolyData* New();
 
-  //@{
+  ///@{
   /**
    * Number of recursive subdivisions. Initial value is 1.
    */
-  vtkSetMacro( NumberOfSubdivisions, unsigned int );
-  vtkGetMacro( NumberOfSubdivisions, unsigned int );
-  //@}
+  vtkSetMacro(NumberOfSubdivisions, unsigned int);
+  vtkGetMacro(NumberOfSubdivisions, unsigned int);
+  ///@}
 
 protected:
   vtkDensifyPolyData();
   ~vtkDensifyPolyData() override;
 
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   unsigned int NumberOfSubdivisions;
 
@@ -68,6 +55,5 @@ private:
   void operator=(const vtkDensifyPolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

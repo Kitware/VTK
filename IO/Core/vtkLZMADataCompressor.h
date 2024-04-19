@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLZMADataCompressor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLZMADataCompressor
  * @brief   Data compression using LZMA Utils.
@@ -24,19 +12,19 @@
  * and John Patchett (patchett@lanl.gov), Los Alamos National Laboratory
  * (2017)
  *
-*/
+ */
 
 #ifndef vtkLZMADataCompressor_h
 #define vtkLZMADataCompressor_h
 
-#include "vtkIOCoreModule.h" // For export macro
 #include "vtkDataCompressor.h"
+#include "vtkIOCoreModule.h" // For export macro
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkLZMADataCompressor : public vtkDataCompressor
 {
 public:
-  vtkTypeMacro(vtkLZMADataCompressor,vtkDataCompressor);
+  vtkTypeMacro(vtkLZMADataCompressor, vtkDataCompressor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkLZMADataCompressor* New();
 
@@ -55,7 +43,7 @@ public:
   void SetCompressionLevel(int compressionLevel) override;
 
   // Compression level getter required by vtkDataCompressor.
-  int  GetCompressionLevel() override;
+  int GetCompressionLevel() override;
 
 protected:
   vtkLZMADataCompressor();
@@ -64,18 +52,16 @@ protected:
   int CompressionLevel;
 
   // Compression method required by vtkDataCompressor.
-  size_t CompressBuffer(unsigned char const* uncompressedData,
-                        size_t uncompressedSize,
-                        unsigned char* compressedData,
-                        size_t compressionSpace) override;
+  size_t CompressBuffer(unsigned char const* uncompressedData, size_t uncompressedSize,
+    unsigned char* compressedData, size_t compressionSpace) override;
   // Decompression method required by vtkDataCompressor.
-  size_t UncompressBuffer(unsigned char const* compressedData,
-                          size_t compressedSize,
-                          unsigned char* uncompressedData,
-                          size_t uncompressedSize) override;
+  size_t UncompressBuffer(unsigned char const* compressedData, size_t compressedSize,
+    unsigned char* uncompressedData, size_t uncompressedSize) override;
+
 private:
   vtkLZMADataCompressor(const vtkLZMADataCompressor&) = delete;
   void operator=(const vtkLZMADataCompressor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

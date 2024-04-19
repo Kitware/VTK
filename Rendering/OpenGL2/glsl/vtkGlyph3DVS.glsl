@@ -1,19 +1,7 @@
 //VTK::System::Dec
 
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGlyph3DVS.glsl
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // this shader is used to implement lighting in the fragment shader
 // it handles setting up the basic varying variables for the fragment shader
 
@@ -46,6 +34,9 @@ in vec4 vertexMC;
 // clipping plane vars
 //VTK::Clip::Dec
 
+// PointSize on GLES 3.0
+//VTK::PointSizeGLES30::Dec
+
 void main()
 {
   //VTK::Glyph::Impl
@@ -60,4 +51,6 @@ void main()
 
   // frag position in VC
   //VTK::PositionVC::Impl
+
+  //VTK::PointSizeGLES30::Impl
 }

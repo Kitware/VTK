@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOTKernelSmoothing.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOTKernelSmoothing.h"
 
 #include "vtkObjectFactory.h"
@@ -19,11 +7,12 @@
 #include "vtkOTIncludes.h"
 #include "vtkOTUtilities.h"
 
-vtkStandardNewMacro(vtkOTKernelSmoothing);
-
 using namespace OT;
 
-//-----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkOTKernelSmoothing);
+
+//------------------------------------------------------------------------------
 vtkOTKernelSmoothing::vtkOTKernelSmoothing()
 {
   this->PointNumber = 129;
@@ -33,12 +22,10 @@ vtkOTKernelSmoothing::vtkOTKernelSmoothing()
   this->BoundaryCorrection = false;
 }
 
-//-----------------------------------------------------------------------------
-vtkOTKernelSmoothing::~vtkOTKernelSmoothing()
-{
-}
+//------------------------------------------------------------------------------
+vtkOTKernelSmoothing::~vtkOTKernelSmoothing() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTKernelSmoothing::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -49,7 +36,7 @@ void vtkOTKernelSmoothing::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BoundaryCorrection: " << this->BoundaryCorrection << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOTKernelSmoothing::Process(Sample* input)
 {
   double range[2] = { input->getMin()[0], input->getMax()[0] };
@@ -80,11 +67,9 @@ int vtkOTKernelSmoothing::Process(Sample* input)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
-void vtkOTKernelSmoothing::ComputePDF(Sample* input,
-  KernelSmoothing* ks,
-  double* range,
-  const char* pdfName)
+//------------------------------------------------------------------------------
+void vtkOTKernelSmoothing::ComputePDF(
+  Sample* input, KernelSmoothing* ks, double* range, const char* pdfName)
 {
   ks->setBoundaryCorrection(this->BoundaryCorrection);
 
@@ -93,3 +78,4 @@ void vtkOTKernelSmoothing::ComputePDF(Sample* input,
   Sample gridY = dist.getImplementation()->computePDF(range[0], range[1], this->PointNumber, gridX);
   this->AddToOutput(&gridY, pdfName);
 }
+VTK_ABI_NAMESPACE_END

@@ -13,13 +13,14 @@
  *
  * For netcdf4 files, capture state information about the following:
  * - Global: netcdf library version
- * - Global: hdf5 library version
+ * - Global: hdf5 library version | nczarr library versions
  * - Global: any parameters specified by the --with-ncproperties option for ./configure
  * - Per file: superblock version
  * - Per File: was it created by netcdf-4?
  * - Per file: _NCProperties attribute
  *
  * @author Dennis Heimbigner, Ward Fisher
+ *
 */
 
 #ifndef _NCPROVENANCE_
@@ -47,7 +48,7 @@ struct NC_FILE_INFO;
 /**
    For netcdf4 files, capture state information about the following:
    1. Global: netcdf library version
-   2. Global: hdf5 library version
+   2. Global: hdf5 library version | nczarr library version
    3. Per file: superblock version
    4. Per File: was it created by netcdf-4?
    5. Per file: _NCProperties attribute
@@ -68,6 +69,7 @@ extern int NC4_provenance_init(void);
 extern int NC4_provenance_finalize(void);
 
 /* Read and store the provenance from an existing file */
+
 extern int NC4_read_provenance(struct NC_FILE_INFO* file);
 
 /* Write the provenance into a newly created file */

@@ -1,30 +1,18 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestEllipticalButtonSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include <vtkEllipticalButtonSource.h>
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkSmartPointer.h>
 
-int TestEllipticalButtonSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestEllipticalButtonSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
-  vtkSmartPointer<vtkEllipticalButtonSource> ellipticalButtonSource
-    = vtkSmartPointer<vtkEllipticalButtonSource>::New();
+  vtkSmartPointer<vtkEllipticalButtonSource> ellipticalButtonSource =
+    vtkSmartPointer<vtkEllipticalButtonSource>::New();
   ellipticalButtonSource->SetCircumferentialResolution(8);
   ellipticalButtonSource->SetShoulderResolution(8);
   ellipticalButtonSource->SetTextureResolution(8);
@@ -37,7 +25,7 @@ int TestEllipticalButtonSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   ellipticalButtonSource->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
 
   double center[3];
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     center[i] = randomSequence->GetValue();
@@ -61,14 +49,14 @@ int TestEllipticalButtonSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPolyData> polyData = ellipticalButtonSource->GetOutput();
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_FLOAT)
+  if (points->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   ellipticalButtonSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     center[i] = randomSequence->GetValue();
@@ -92,7 +80,7 @@ int TestEllipticalButtonSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   polyData = ellipticalButtonSource->GetOutput();
   points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_DOUBLE)
+  if (points->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

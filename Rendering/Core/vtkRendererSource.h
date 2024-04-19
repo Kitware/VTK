@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRendererSource.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkRendererSource
  * @brief   take a renderer's image and/or depth map into the pipeline
@@ -42,21 +30,22 @@
  * @sa
  * vtkWindowToImageFilter vtkRendererPointCloudSource vtkRenderer
  * vtkImageData vtkDepthImageToPointCloud
-*/
+ */
 
 #ifndef vtkRendererSource_h
 #define vtkRendererSource_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkImageData.h" // makes things a bit easier
+#include "vtkImageData.h"           // makes things a bit easier
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
 class VTKRENDERINGCORE_EXPORT vtkRendererSource : public vtkAlgorithm
 {
 public:
-  static vtkRendererSource *New();
+  static vtkRendererSource* New();
   vtkTypeMacro(vtkRendererSource, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -70,14 +59,14 @@ public:
    */
   void SetInput(vtkRenderer*);
 
-  //@{
+  ///@{
   /**
    * Returns which renderer is being used as the source for the pixel data.
    */
   vtkGetObjectMacro(Input, vtkRenderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the entire RenderWindow as a data source or just the Renderer.
    * The default is zero, just the Renderer.
@@ -85,18 +74,18 @@ public:
   vtkSetMacro(WholeWindow, vtkTypeBool);
   vtkGetMacro(WholeWindow, vtkTypeBool);
   vtkBooleanMacro(WholeWindow, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this flag is on, then filter execution causes a render first.
    */
   vtkSetMacro(RenderFlag, vtkTypeBool);
   vtkGetMacro(RenderFlag, vtkTypeBool);
   vtkBooleanMacro(RenderFlag, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A boolean value to control whether to grab z-buffer
    * (i.e., depth values) along with the image data. The z-buffer data
@@ -105,9 +94,9 @@ public:
   vtkSetMacro(DepthValues, vtkTypeBool);
   vtkGetMacro(DepthValues, vtkTypeBool);
   vtkBooleanMacro(DepthValues, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A boolean value to control whether to grab z-buffer
    * (i.e., depth values) along with the image data. The z-buffer data
@@ -117,9 +106,9 @@ public:
   vtkSetMacro(DepthValuesInScalars, vtkTypeBool);
   vtkGetMacro(DepthValuesInScalars, vtkTypeBool);
   vtkBooleanMacro(DepthValuesInScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A boolean value to control whether to grab only the z-buffer (i.e.,
    * depth values) without the associated image (color scalars) data. If
@@ -131,7 +120,7 @@ public:
   vtkSetMacro(DepthValuesOnly, vtkTypeBool);
   vtkGetMacro(DepthValuesOnly, vtkTypeBool);
   vtkBooleanMacro(DepthValuesOnly, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the output data object for a port on this algorithm.
@@ -141,22 +130,18 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  vtkTypeBool ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkRendererSource();
   ~vtkRendererSource() override;
 
-  void RequestData(vtkInformation* request,
-                   vtkInformationVector** inputVector,
-                   vtkInformationVector* outputVector);
-  virtual void RequestInformation (vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
+  void RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+  virtual void RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
-  vtkRenderer *Input;
+  vtkRenderer* Input;
   vtkTypeBool WholeWindow;
   vtkTypeBool RenderFlag;
   vtkTypeBool DepthValues;
@@ -171,4 +156,5 @@ private:
   void operator=(const vtkRendererSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

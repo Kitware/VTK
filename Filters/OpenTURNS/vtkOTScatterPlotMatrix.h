@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOTScatterPlotMatrix.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkOTScatterPlotMatrix
@@ -23,7 +11,7 @@
  *
  * @sa
  * vtkScatterPlotMatrix vtkOTDensityMap
-*/
+ */
 
 #ifndef vtkOTScatterPlotMatrix_h
 #define vtkOTScatterPlotMatrix_h
@@ -32,6 +20,7 @@
 #include "vtkScatterPlotMatrix.h"
 #include "vtkSmartPointer.h" // For SmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOTDensityMap;
 class vtkScalarsToColors;
 
@@ -61,14 +50,14 @@ public:
    */
   void SetDensityMapColor(int plotType, unsigned int densityLineIndex, const vtkColor4ub& color);
 
-  //@{
+  ///@{
   /**
    * Get/Set a custom color transfer function.
    * If none is provided, a default one will be applied based on the range of the density.
    */
   void SetTransferFunction(vtkScalarsToColors* stc);
   vtkScalarsToColors* GetTransferFunction();
-  //@}
+  ///@}
 
 protected:
   vtkOTScatterPlotMatrix();
@@ -79,10 +68,7 @@ protected:
    * with provided row and column, computed with OpenTURNS
    * if DensityMapVisibility is true and we are not animating
    */
-  virtual void AddSupplementaryPlot(vtkChart* chart,
-    int plotType,
-    vtkStdString row,
-    vtkStdString column,
+  void AddSupplementaryPlot(vtkChart* chart, int plotType, vtkStdString row, vtkStdString column,
     int plotCorner = 0) override;
 
 private:
@@ -91,11 +77,12 @@ private:
 
   class DensityMapSettings;
   std::map<int, DensityMapSettings*> DensityMapsSettings;
-  typedef std::map<std::pair<vtkStdString, vtkStdString>, vtkSmartPointer<vtkOTDensityMap> >
+  typedef std::map<std::pair<std::string, std::string>, vtkSmartPointer<vtkOTDensityMap>>
     DensityMapCacheMap;
   DensityMapCacheMap DensityMapCache;
 
   vtkSmartPointer<vtkScalarsToColors> TransferFunction;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOTScatterPlotMatrix_h

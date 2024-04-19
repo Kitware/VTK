@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPHardwareSelector.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPHardwareSelector
  * @brief   vtkHardwareSelector useful for parallel
@@ -25,14 +13,15 @@
  * triggers the renders. All other processes, simply listen to the StartEvent
  * fired and beginning of the render to ensure that vtkHardwareSelector's
  * CurrentPass is updated appropriately.
-*/
+ */
 
 #ifndef vtkPHardwareSelector_h
 #define vtkPHardwareSelector_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkOpenGLHardwareSelector.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGPARALLEL_EXPORT vtkPHardwareSelector : public vtkOpenGLHardwareSelector
 {
 public:
@@ -40,7 +29,7 @@ public:
   vtkTypeMacro(vtkPHardwareSelector, vtkOpenGLHardwareSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the is the root process. The root processes
    * is the only processes which has the composited result and hence the only
@@ -49,7 +38,7 @@ public:
   vtkSetMacro(ProcessIsRoot, bool);
   vtkGetMacro(ProcessIsRoot, bool);
   vtkBooleanMacro(ProcessIsRoot, bool);
-  //@}
+  ///@}
 
   /**
    * Overridden to only allow the superclass implementation on the root node. On
@@ -75,7 +64,7 @@ private:
   class vtkObserver;
   friend class vtkObserver;
   vtkObserver* Observer;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

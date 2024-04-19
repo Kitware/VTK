@@ -1,51 +1,20 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPickingManager.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*==============================================================================
-
-  Library: MSVTK
-
-  Copyright (c) Kitware Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0.txt
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-
-==============================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware Inc.
+// SPDX-License-Identifier: BSD-3-Clause AND Apache-2.0
 
 // VTK includes
+#include "vtkPickingManager.h"
 #include "vtkAbstractPicker.h"
 #include "vtkAbstractPropPicker.h"
-#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPickingManager.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimeStamp.h"
 
@@ -56,6 +25,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPickingManager);
 
 //------------------------------------------------------------------------------
@@ -68,10 +38,7 @@ public:
   // Callback used to update the current time
   // of the manager when an event occurs in the RenderWindowInteractor.
   // Time is used to know if the cached information is still valid or obsolete.
-  static void UpdateTime(vtkObject *caller,
-                         unsigned long event,
-                         void *clientData,
-                         void *callData);
+  static void UpdateTime(vtkObject* caller, unsigned long event, void* clientData, void* callData);
 
   // Select the best picker based on various criteria such as z-depth,
   // 2D overlay and/or distance to picked point.
@@ -79,8 +46,7 @@ public:
 
   // Compute the selection. The current implementation use the distance
   // between the world coordinates of a pick to the camera's ones.
-  vtkAbstractPicker* ComputePickerSelection(double X, double Y, double Z,
-                                            vtkRenderer* renderer);
+  vtkAbstractPicker* ComputePickerSelection(double X, double Y, double Z, vtkRenderer* renderer);
 
   // Check if a given Observator is associated with a given Picker
   bool IsObjectLinked(vtkAbstractPicker* picker, vtkObject* object);
@@ -104,22 +70,20 @@ public:
   // structure consistent.
   struct less_smartPtrPicker
   {
-    bool operator () (const vtkSmartPointer<vtkAbstractPicker>& first,
-                      const vtkSmartPointer<vtkAbstractPicker>& second) const
+    bool operator()(const vtkSmartPointer<vtkAbstractPicker>& first,
+      const vtkSmartPointer<vtkAbstractPicker>& second) const
     {
       return first < second;
     }
   };
 
-  typedef std::map<vtkSmartPointer<vtkAbstractPicker>,
-                   CollectionType, less_smartPtrPicker > PickerObjectsType;
+  typedef std::map<vtkSmartPointer<vtkAbstractPicker>, CollectionType, less_smartPtrPicker>
+    PickerObjectsType;
 
-  typedef std::pair<vtkSmartPointer<vtkAbstractPicker>,
-                    CollectionType> PickerObjectsPairType;
+  typedef std::pair<vtkSmartPointer<vtkAbstractPicker>, CollectionType> PickerObjectsPairType;
 
   // Associate a given vtkObject to a particular picker.
-  void LinkPickerObject(const PickerObjectsType::iterator& it,
-                        vtkObject* object);
+  void LinkPickerObject(const PickerObjectsType::iterator& it, vtkObject* object);
 
   // Predicate comparing a vtkAbstractPicker*
   // and a vtkSmartPointer<vtkAbstractPicker> using the PickerObjectsType.
@@ -128,9 +92,12 @@ public:
   // a corresponding vtkSmartPointer.
   struct equal_smartPtrPicker
   {
-    equal_smartPtrPicker(vtkAbstractPicker* picker) : Picker(picker) {}
+    equal_smartPtrPicker(vtkAbstractPicker* picker)
+      : Picker(picker)
+    {
+    }
 
-    bool operator () (const PickerObjectsPairType& pickerObjs) const
+    bool operator()(const PickerObjectsPairType& pickerObjs) const
     {
       return this->Picker == pickerObjs.first;
     }
@@ -150,7 +117,7 @@ public:
   // picker has been selected at a state of the rendering.
   vtkSmartPointer<vtkCallbackCommand> TimerCallback;
 
-  vtkPickingManager*  External;
+  vtkPickingManager* External;
 };
 
 //------------------------------------------------------------------------------
@@ -164,15 +131,14 @@ vtkPickingManager::vtkInternal::vtkInternal(vtkPickingManager* external)
   this->TimerCallback = vtkSmartPointer<vtkCallbackCommand>::New();
   this->TimerCallback->SetClientData(this);
   this->TimerCallback->SetCallback(UpdateTime);
-
 }
 
 //------------------------------------------------------------------------------
 vtkPickingManager::vtkInternal::~vtkInternal() = default;
 
 //------------------------------------------------------------------------------
-void vtkPickingManager::vtkInternal::
-CreateDefaultCollection(vtkAbstractPicker* picker, vtkObject* object)
+void vtkPickingManager::vtkInternal::CreateDefaultCollection(
+  vtkAbstractPicker* picker, vtkObject* object)
 {
   CollectionType objects;
   objects.push_back(object);
@@ -181,18 +147,16 @@ CreateDefaultCollection(vtkAbstractPicker* picker, vtkObject* object)
 }
 
 //------------------------------------------------------------------------------
-void vtkPickingManager::vtkInternal::
-LinkPickerObject(const PickerObjectsType::iterator& it, vtkObject* object)
+void vtkPickingManager::vtkInternal::LinkPickerObject(
+  const PickerObjectsType::iterator& it, vtkObject* object)
 {
-  CollectionType::iterator itObj = std::find(it->second.begin(),
-                                             it->second.end(),
-                                             object);
+  CollectionType::iterator itObj = std::find(it->second.begin(), it->second.end(), object);
 
   if (itObj != it->second.end() && object)
   {
-    vtkDebugWithObjectMacro(
-      this->External, "vtkPickingtManager::Internal::LinkPickerObject: "
-      << "Current object already linked with the given picker.");
+    vtkDebugWithObjectMacro(this->External,
+      "vtkPickingtManager::Internal::LinkPickerObject: "
+        << "Current object already linked with the given picker.");
 
     return;
   }
@@ -201,24 +165,21 @@ LinkPickerObject(const PickerObjectsType::iterator& it, vtkObject* object)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPickingManager::vtkInternal::
-IsObjectLinked(vtkAbstractPicker* picker, vtkObject* obj)
+bool vtkPickingManager::vtkInternal::IsObjectLinked(vtkAbstractPicker* picker, vtkObject* obj)
 {
-  if(!picker || !obj)
+  if (!picker || !obj)
   {
     return false;
   }
 
-  PickerObjectsType::iterator itPick = std::find_if(
-    this->Pickers.begin(), this->Pickers.end(), equal_smartPtrPicker(picker));
-  if(itPick == this->Pickers.end())
+  PickerObjectsType::iterator itPick =
+    std::find_if(this->Pickers.begin(), this->Pickers.end(), equal_smartPtrPicker(picker));
+  if (itPick == this->Pickers.end())
   {
     return false;
   }
 
-  CollectionType::iterator itObj = std::find(itPick->second.begin(),
-                                             itPick->second.end(),
-                                             obj);
+  CollectionType::iterator itObj = std::find(itPick->second.begin(), itPick->second.end(), obj);
   return (itObj != itPick->second.end());
 }
 
@@ -230,7 +191,7 @@ vtkAbstractPicker* vtkPickingManager::vtkInternal::SelectPicker()
     return nullptr;
   }
   else if (this->External->GetOptimizeOnInteractorEvents() &&
-           this->CurrentInteractionTime.GetMTime() == this->LastPickingTime)
+    this->CurrentInteractionTime.GetMTime() == this->LastPickingTime)
   {
     return this->LastSelectedPicker;
   }
@@ -240,9 +201,9 @@ vtkAbstractPicker* vtkPickingManager::vtkInternal::SelectPicker()
   double Y = this->External->Interactor->GetEventPosition()[1];
 
   // Get the poked renderer
-  vtkRenderer* renderer = this->External->Interactor->FindPokedRenderer(static_cast<int>(X), static_cast<int>(Y));
-  vtkAbstractPicker* selectedPicker =
-    this->ComputePickerSelection(X, Y, 0., renderer);
+  vtkRenderer* renderer =
+    this->External->Interactor->FindPokedRenderer(static_cast<int>(X), static_cast<int>(Y));
+  vtkAbstractPicker* selectedPicker = this->ComputePickerSelection(X, Y, 0., renderer);
 
   // Keep track of the last picker chosen & last picking time.
   this->LastSelectedPicker = selectedPicker;
@@ -252,8 +213,8 @@ vtkAbstractPicker* vtkPickingManager::vtkInternal::SelectPicker()
 }
 
 //------------------------------------------------------------------------------
-vtkAbstractPicker* vtkPickingManager::vtkInternal::
-ComputePickerSelection(double X, double Y, double Z, vtkRenderer* renderer)
+vtkAbstractPicker* vtkPickingManager::vtkInternal::ComputePickerSelection(
+  double X, double Y, double Z, vtkRenderer* renderer)
 {
   vtkAbstractPicker* closestPicker = nullptr;
   if (!renderer)
@@ -264,17 +225,16 @@ ComputePickerSelection(double X, double Y, double Z, vtkRenderer* renderer)
   double* camPos = renderer->GetActiveCamera()->GetPosition();
   double smallestDistance2 = std::numeric_limits<double>::max();
 
-  for(PickerObjectsType::iterator it = this->Pickers.begin();
-      it != this->Pickers.end(); ++it)
+  for (PickerObjectsType::iterator it = this->Pickers.begin(); it != this->Pickers.end(); ++it)
   {
     int pickResult = it->first->Pick(X, Y, Z, renderer);
     double* pPos = it->first->GetPickPosition();
 
-    if(pickResult > 0) // Keep closest object picked.
+    if (pickResult > 0) // Keep closest object picked.
     {
       double distance2 = vtkMath::Distance2BetweenPoints(camPos, pPos);
 
-      if(smallestDistance2 > distance2)
+      if (smallestDistance2 > distance2)
       {
         smallestDistance2 = distance2;
         closestPicker = it->first;
@@ -286,10 +246,8 @@ ComputePickerSelection(double X, double Y, double Z, vtkRenderer* renderer)
 }
 
 //------------------------------------------------------------------------------
-void vtkPickingManager::vtkInternal::UpdateTime(vtkObject *vtkNotUsed(caller),
-                                                unsigned long vtkNotUsed(event),
-                                                void *clientData,
-                                                void *vtkNotUsed(calldata))
+void vtkPickingManager::vtkInternal::UpdateTime(vtkObject* vtkNotUsed(caller),
+  unsigned long vtkNotUsed(event), void* clientData, void* vtkNotUsed(calldata))
 {
   vtkPickingManager::vtkInternal* self =
     reinterpret_cast<vtkPickingManager::vtkInternal*>(clientData);
@@ -336,8 +294,7 @@ void vtkPickingManager::SetInteractor(vtkRenderWindowInteractor* rwi)
   this->Interactor = rwi;
   if (this->Interactor)
   {
-    this->Interactor->AddObserver(
-      vtkCommand::ModifiedEvent, this->Internal->TimerCallback);
+    this->Interactor->AddObserver(vtkCommand::ModifiedEvent, this->Internal->TimerCallback);
   }
 
   this->Modified();
@@ -356,21 +313,19 @@ void vtkPickingManager::SetOptimizeOnInteractorEvents(bool optimize)
 }
 
 //------------------------------------------------------------------------------
-void vtkPickingManager::AddPicker(vtkAbstractPicker* picker,
-                                  vtkObject* object)
+void vtkPickingManager::AddPicker(vtkAbstractPicker* picker, vtkObject* object)
 {
   if (!picker)
   {
     return;
   }
 
-  // Linke the object if the picker is already registered
+  // Link the object if the picker is already registered
   vtkPickingManager::vtkInternal::PickerObjectsType::iterator it =
-    std::find_if( this->Internal->Pickers.begin(),
-                  this->Internal->Pickers.end(),
-                  vtkPickingManager::vtkInternal::equal_smartPtrPicker(picker));
+    std::find_if(this->Internal->Pickers.begin(), this->Internal->Pickers.end(),
+      vtkPickingManager::vtkInternal::equal_smartPtrPicker(picker));
 
-  if (it != this->Internal->Pickers.end() )
+  if (it != this->Internal->Pickers.end())
   {
     vtkDebugMacro("vtkPickingtManager::AddPicker: "
       << "Picker already in the manager, the object will be linked");
@@ -385,13 +340,11 @@ void vtkPickingManager::AddPicker(vtkAbstractPicker* picker,
 }
 
 //------------------------------------------------------------------------------
-void vtkPickingManager::RemovePicker(vtkAbstractPicker* picker,
-                                     vtkObject* object)
+void vtkPickingManager::RemovePicker(vtkAbstractPicker* picker, vtkObject* object)
 {
   vtkPickingManager::vtkInternal::PickerObjectsType::iterator it =
-    std::find_if( this->Internal->Pickers.begin(),
-                  this->Internal->Pickers.end(),
-                  vtkPickingManager::vtkInternal::equal_smartPtrPicker(picker));
+    std::find_if(this->Internal->Pickers.begin(), this->Internal->Pickers.end(),
+      vtkPickingManager::vtkInternal::equal_smartPtrPicker(picker));
 
   // The Picker does not exist
   if (it == this->Internal->Pickers.end())
@@ -400,9 +353,7 @@ void vtkPickingManager::RemovePicker(vtkAbstractPicker* picker,
   }
 
   vtkPickingManager::vtkInternal::CollectionType::iterator itObj =
-    std::find(it->second.begin(),
-              it->second.end(),
-              object);
+    std::find(it->second.begin(), it->second.end(), object);
 
   // The object is not associated with the given picker.
   if (itObj == it->second.end())
@@ -413,7 +364,7 @@ void vtkPickingManager::RemovePicker(vtkAbstractPicker* picker,
   it->second.erase(itObj);
 
   // Delete the picker when it is not associated with any object anymore.
-  if(it->second.empty())
+  if (it->second.empty())
   {
     this->Internal->Pickers.erase(it);
   }
@@ -422,15 +373,12 @@ void vtkPickingManager::RemovePicker(vtkAbstractPicker* picker,
 //------------------------------------------------------------------------------
 void vtkPickingManager::RemoveObject(vtkObject* object)
 {
-  vtkPickingManager::vtkInternal::PickerObjectsType::iterator it =
-    this->Internal->Pickers.begin();
+  vtkPickingManager::vtkInternal::PickerObjectsType::iterator it = this->Internal->Pickers.begin();
 
-  for(; it != this->Internal->Pickers.end();)
+  for (; it != this->Internal->Pickers.end();)
   {
     vtkPickingManager::vtkInternal::CollectionType::iterator itObj =
-      std::find(it->second.begin(),
-                it->second.end(),
-                object);
+      std::find(it->second.begin(), it->second.end(), object);
 
     if (itObj != it->second.end())
     {
@@ -438,8 +386,7 @@ void vtkPickingManager::RemoveObject(vtkObject* object)
 
       if (it->second.empty())
       {
-        vtkPickingManager::vtkInternal::PickerObjectsType::iterator
-          toRemove = it;
+        vtkPickingManager::vtkInternal::PickerObjectsType::iterator toRemove = it;
         ++it;
         this->Internal->Pickers.erase(toRemove);
         continue;
@@ -465,7 +412,7 @@ bool vtkPickingManager::Pick(vtkAbstractPicker* picker, vtkObject* obj)
 bool vtkPickingManager::Pick(vtkObject* obj)
 {
   vtkAbstractPicker* picker = this->Internal->SelectPicker();
-  if(!picker)
+  if (!picker)
   {
     return false;
   }
@@ -481,11 +428,8 @@ bool vtkPickingManager::Pick(vtkAbstractPicker* picker)
 }
 
 //------------------------------------------------------------------------------
-vtkAssemblyPath* vtkPickingManager::
-GetAssemblyPath(double X, double Y, double Z,
-                vtkAbstractPropPicker* picker,
-                vtkRenderer* renderer,
-                vtkObject* obj)
+vtkAssemblyPath* vtkPickingManager::GetAssemblyPath(double X, double Y, double Z,
+  vtkAbstractPropPicker* picker, vtkRenderer* renderer, vtkObject* obj)
 {
   if (this->Enabled)
   {
@@ -518,9 +462,8 @@ int vtkPickingManager::GetNumberOfObjectsLinked(vtkAbstractPicker* picker)
   }
 
   vtkPickingManager::vtkInternal::PickerObjectsType::iterator it =
-    std::find_if( this->Internal->Pickers.begin(),
-                  this->Internal->Pickers.end(),
-                  vtkPickingManager::vtkInternal::equal_smartPtrPicker(picker));
+    std::find_if(this->Internal->Pickers.begin(), this->Internal->Pickers.end(),
+      vtkPickingManager::vtkInternal::equal_smartPtrPicker(picker));
 
   if (it == this->Internal->Pickers.end())
   {
@@ -538,13 +481,12 @@ void vtkPickingManager::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RenderWindowInteractor: " << this->Interactor << "\n";
   os << indent << "NumberOfPickers: " << this->Internal->Pickers.size() << "\n";
 
-  vtkPickingManager::vtkInternal::PickerObjectsType::iterator it =
-    this->Internal->Pickers.begin();
+  vtkPickingManager::vtkInternal::PickerObjectsType::iterator it = this->Internal->Pickers.begin();
 
-  for(; it != this->Internal->Pickers.end(); ++it)
+  for (; it != this->Internal->Pickers.end(); ++it)
   {
     os << indent << indent << "Picker: " << it->first << "\n";
-    os << indent << indent << "NumberOfObjectsLinked: " << it->second.size()
-       << "\n";
+    os << indent << indent << "NumberOfObjectsLinked: " << it->second.size() << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

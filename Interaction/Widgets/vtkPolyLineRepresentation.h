@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyLineRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPolyLineRepresentation
  * @brief   vtkWidgetRepresentation for a poly line.
@@ -24,19 +12,21 @@
  * Based on vtkCurveRepresentation
  * @sa
  * vtkSplineRepresentation
-*/
+ */
 
 #ifndef vtkPolyLineRepresentation_h
 #define vtkPolyLineRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkCurveRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyLineSource;
-class vtkPoints;
-class vtkPolyData;
+class vtkPointHandleSource;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkPolyLineRepresentation : public vtkCurveRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkPolyLineRepresentation
+  : public vtkCurveRepresentation
 {
 public:
   static vtkPolyLineRepresentation* New();
@@ -51,7 +41,7 @@ public:
    * provides the vtkPolyData and the points and polyline are added to
    * it.
    */
-  void GetPolyData(vtkPolyData *pd) override;
+  void GetPolyData(vtkPolyData* pd) override;
 
   /**
    * Set the number of handles for this widget.
@@ -87,15 +77,50 @@ protected:
   ~vtkPolyLineRepresentation() override;
 
   // The poly line source
-  vtkPolyLineSource *PolyLineSource;
+  vtkNew<vtkPolyLineSource> PolyLineSource;
 
-  // Specialized method to insert a handle on the poly line.
+  /**
+   * Specialized method to insert a handle on the poly line.
+   */
   int InsertHandleOnLine(double* pos) override;
+
+  /**
+   * Delete all the handles.
+   */
+  void ClearHandles();
+
+  /**
+   * Allocate/Reallocate the handles according
+   * to npts.
+   */
+  void AllocateHandles(int npts);
+
+  /**
+   * Create npts default handles.
+   */
+  void CreateDefaultHandles(int npts);
+
+  /**
+   * Recreate the handles according to a
+   * number of points equal to npts.
+   * It uses the current spline to recompute
+   * the positions of the new handles.
+   */
+  void ReconfigureHandles(int npts);
+
+  // Specialized methods to access handles
+  vtkActor* GetHandleActor(int index) override;
+  vtkHandleSource* GetHandleSource(int index) override;
+  int GetHandleIndex(vtkProp* prop) override;
 
 private:
   vtkPolyLineRepresentation(const vtkPolyLineRepresentation&) = delete;
   void operator=(const vtkPolyLineRepresentation&) = delete;
 
+  // Glyphs representing hot spots (e.g., handles)
+  std::vector<vtkSmartPointer<vtkPointHandleSource>> PointHandles;
+  std::vector<vtkSmartPointer<vtkActor>> HandleActors;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

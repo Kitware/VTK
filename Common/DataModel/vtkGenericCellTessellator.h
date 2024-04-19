@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGenericCellTessellator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGenericCellTessellator
  * @brief   helper class to perform cell tessellation
@@ -28,14 +16,14 @@
  * edge is subdivided (as well as all connected 2D and 3D cells). The process
  * repeats until the error metric is satisfied.
  *
- * A significant issue addressed by this algorithm is to insure face
+ * A significant issue addressed by this algorithm is to ensure face
  * compatibility across neighboring cells. That is, diagonals due to face
- * triangulation must match to insure that the mesh is compatible. The
+ * triangulation must match to ensure that the mesh is compatible. The
  * algorithm employs a precomputed table to accelerate the tessellation
  * process. The table was generated with the help of vtkOrderedTriangulator;
  * the basic idea is that the choice of diagonal is made by considering the
  * relative value of the point ids.
-*/
+ */
 
 #ifndef vtkGenericCellTessellator_h
 #define vtkGenericCellTessellator_h
@@ -43,6 +31,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDoubleArray;
 class vtkCollection;
@@ -58,7 +47,7 @@ class vtkGenericDataSet;
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericCellTessellator : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkGenericCellTessellator,vtkObject);
+  vtkTypeMacro(vtkGenericCellTessellator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -74,12 +63,8 @@ public:
    * \pre cellArray_exists: cellArray!=0
    * \pre internalPd_exists: internalPd!=0
    */
-  virtual void TessellateFace(vtkGenericAdaptorCell *cell,
-                              vtkGenericAttributeCollection *att,
-                              vtkIdType index,
-                              vtkDoubleArray *points,
-                              vtkCellArray *cellArray,
-                              vtkPointData *internalPd)=0;
+  virtual void TessellateFace(vtkGenericAdaptorCell* cell, vtkGenericAttributeCollection* att,
+    vtkIdType index, vtkDoubleArray* points, vtkCellArray* cellArray, vtkPointData* internalPd) = 0;
 
   /**
    * Tessellate a 3D `cell'. The result is a set of smaller linear
@@ -91,11 +76,8 @@ public:
    * \pre cellArray_exists: cellArray!=0
    * \pre internalPd_exists: internalPd!=0
    */
-  virtual void Tessellate(vtkGenericAdaptorCell *cell,
-                          vtkGenericAttributeCollection *att,
-                          vtkDoubleArray *points,
-                          vtkCellArray *cellArray,
-                          vtkPointData *internalPd )=0;
+  virtual void Tessellate(vtkGenericAdaptorCell* cell, vtkGenericAttributeCollection* att,
+    vtkDoubleArray* points, vtkCellArray* cellArray, vtkPointData* internalPd) = 0;
 
   /**
    * Triangulate a 2D `cell'. The result is a set of smaller linear triangles
@@ -107,46 +89,43 @@ public:
    * \pre cellArray_exists: cellArray!=0
    * \pre internalPd_exists: internalPd!=0
    */
-  virtual void Triangulate(vtkGenericAdaptorCell *cell,
-                           vtkGenericAttributeCollection *att,
-                           vtkDoubleArray *points,
-                           vtkCellArray *cellArray,
-                           vtkPointData *internalPd)=0;
+  virtual void Triangulate(vtkGenericAdaptorCell* cell, vtkGenericAttributeCollection* att,
+    vtkDoubleArray* points, vtkCellArray* cellArray, vtkPointData* internalPd) = 0;
 
-  //@{
+  ///@{
   /**
    * Specify the list of error metrics used to decide if an edge has to be
    * split or not. It is a collection of vtkGenericSubdivisionErrorMetric-s.
    */
-  virtual void SetErrorMetrics(vtkCollection *someErrorMetrics);
-  vtkGetObjectMacro(ErrorMetrics,vtkCollection);
-  //@}
+  virtual void SetErrorMetrics(vtkCollection* someErrorMetrics);
+  vtkGetObjectMacro(ErrorMetrics, vtkCollection);
+  ///@}
 
   /**
    * Initialize the tessellator with a data set `ds'.
    */
-  virtual void Initialize(vtkGenericDataSet *ds)=0;
+  virtual void Initialize(vtkGenericDataSet* ds) = 0;
 
   /**
    * Init the error metric with the dataset. Should be called in each filter
    * before any tessellation of any cell.
    */
-  void InitErrorMetrics(vtkGenericDataSet *ds);
+  void InitErrorMetrics(vtkGenericDataSet* ds);
 
-  //@{
+  ///@{
   /**
    * If true, measure the quality of the fixed subdivision.
    */
-  vtkGetMacro(Measurement,int);
-  vtkSetMacro(Measurement,int);
-  //@}
+  vtkGetMacro(Measurement, int);
+  vtkSetMacro(Measurement, int);
+  ///@}
 
   /**
    * Get the maximum error measured after the fixed subdivision.
    * \pre errors_exists: errors!=0
    * \pre valid_size: sizeof(errors)==GetErrorMetrics()->GetNumberOfItems()
    */
-  void GetMaxErrors(double *errors);
+  void GetMaxErrors(double* errors);
 
 protected:
   vtkGenericCellTessellator();
@@ -169,9 +148,7 @@ protected:
    * \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    */
-  int RequiresEdgeSubdivision(double *left, double *mid, double *right,
-                              double alpha);
-
+  int RequiresEdgeSubdivision(double* left, double* mid, double* right, double alpha);
 
   /**
    * Update the max error of each error metric according to the error at the
@@ -186,8 +163,8 @@ protected:
    * \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    */
-  virtual void UpdateMaxError(double *leftPoint, double *midPoint,
-                              double *rightPoint, double alpha);
+  virtual void UpdateMaxError(
+    double* leftPoint, double* midPoint, double* rightPoint, double alpha);
 
   /**
    * Reset the maximal error of each error metric. The purpose of the maximal
@@ -198,7 +175,7 @@ protected:
   /**
    * List of error metrics. Collection of vtkGenericSubdivisionErrorMetric
    */
-  vtkCollection *ErrorMetrics;
+  vtkCollection* ErrorMetrics;
 
   /**
    * Send the current cell to error metrics. Should be called at the beginning
@@ -206,15 +183,15 @@ protected:
    * or TessellateFace()
    * \pre cell_exists: cell!=0
    */
-  void SetGenericCell(vtkGenericAdaptorCell *cell);
+  void SetGenericCell(vtkGenericAdaptorCell* cell);
 
   /**
-  * Dataset to be tessellated.
-  */
-  vtkGenericDataSet *DataSet;
+   * Dataset to be tessellated.
+   */
+  vtkGenericDataSet* DataSet;
 
-  int Measurement; // if true, measure the quality of the fixed subdivision.
-  double *MaxErrors; // max error for each error metric, for measuring the
+  int Measurement;   // if true, measure the quality of the fixed subdivision.
+  double* MaxErrors; // max error for each error metric, for measuring the
   // quality of a fixed subdivision.
   int MaxErrorsCapacity;
 
@@ -223,4 +200,5 @@ private:
   void operator=(const vtkGenericCellTessellator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

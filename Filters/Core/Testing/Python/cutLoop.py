@@ -1,6 +1,20 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersCore import vtkClipPolyData
+from vtkmodules.vtkFiltersModeling import vtkSelectPolyData
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,12 +23,12 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Define loop to clip with
 #
-selectionPoints = vtk.vtkPoints()
+selectionPoints = vtkPoints()
 selectionPoints.InsertPoint(0, -0.16553, 0.135971, 0.451972)
 selectionPoints.InsertPoint(1, -0.0880123, -0.134952, 0.4747)
 selectionPoints.InsertPoint(2, 0.00292618, -0.134604, 0.482459)
@@ -44,13 +58,13 @@ selectionPoints.InsertPoint(25, 0.000192443, 0.156264, 0.475307)
 selectionPoints.InsertPoint(26, -0.0392091, 0.000251724, 0.499943)
 selectionPoints.InsertPoint(27, -0.096161, 0.159646, 0.46438)
 
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetPhiResolution(50)
 sphere.SetThetaResolution(100)
 sphere.SetStartPhi(0)
 sphere.SetEndPhi(90)
 
-loop = vtk.vtkSelectPolyData()
+loop = vtkSelectPolyData()
 loop.SetInputConnection(sphere.GetOutputPort())
 loop.SetLoop(selectionPoints)
 loop.GenerateSelectionScalarsOn()
@@ -58,34 +72,34 @@ loop.GenerateSelectionScalarsOn()
 loop.SetSelectionModeToSmallestRegion()
 
 # clips out positive region
-clip = vtk.vtkClipPolyData()
+clip = vtkClipPolyData()
 clip.SetInputConnection(loop.GetOutputPort())
 
-clipMapper = vtk.vtkPolyDataMapper()
+clipMapper = vtkPolyDataMapper()
 clipMapper.SetInputConnection(clip.GetOutputPort())
 
-clipActor = vtk.vtkLODActor()
+clipActor = vtkLODActor()
 clipActor.SetMapper(clipMapper)
 
-loop2 = vtk.vtkSelectPolyData()
+loop2 = vtkSelectPolyData()
 loop2.SetInputConnection(sphere.GetOutputPort())
 loop2.SetLoop(selectionPoints)
 loop2.SetSelectionModeToSmallestRegion()
 
-selectMapper = vtk.vtkPolyDataMapper()
+selectMapper = vtkPolyDataMapper()
 selectMapper.SetInputConnection(loop2.GetOutputPort())
 
-selectActor = vtk.vtkLODActor()
+selectActor = vtkLODActor()
 selectActor.SetMapper(selectMapper)
 selectActor.AddPosition(1, 0, 0)
 selectActor.GetProperty().SetColor(GetRGBColor('peacock'))
 
 # Create graphics stuff
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

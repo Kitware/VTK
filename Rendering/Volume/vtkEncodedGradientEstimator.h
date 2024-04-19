@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkEncodedGradientEstimator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkEncodedGradientEstimator
@@ -29,14 +17,16 @@
  * one byte value.
  * @sa
  * vtkFiniteDifferenceGradientEstimator vtkDirectionEncoder
-*/
+ */
 
 #ifndef vtkEncodedGradientEstimator_h
 #define vtkEncodedGradientEstimator_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
+#include "vtkThreads.h"               // for VTK_MAX_THREADS
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkDirectionEncoder;
 class vtkMultiThreader;
@@ -44,10 +34,10 @@ class vtkMultiThreader;
 class VTKRENDERINGVOLUME_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkEncodedGradientEstimator,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkEncodedGradientEstimator, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the scalar input for which the normals will be
    * calculated. Note that this call does not setup a pipeline
@@ -57,115 +47,115 @@ public:
    * this data object.
    */
   virtual void SetInputData(vtkImageData*);
-  vtkGetObjectMacro( InputData, vtkImageData );
-  //@}
+  vtkGetObjectMacro(InputData, vtkImageData);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scale and bias for the gradient magnitude
    */
-  vtkSetMacro( GradientMagnitudeScale, float );
-  vtkGetMacro( GradientMagnitudeScale, float );
-  vtkSetMacro( GradientMagnitudeBias, float );
-  vtkGetMacro( GradientMagnitudeBias, float );
-  //@}
+  vtkSetMacro(GradientMagnitudeScale, float);
+  vtkGetMacro(GradientMagnitudeScale, float);
+  vtkSetMacro(GradientMagnitudeBias, float);
+  vtkGetMacro(GradientMagnitudeBias, float);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on / off the bounding of the normal computation by
    * the this->Bounds bounding box
    */
-  vtkSetClampMacro( BoundsClip, vtkTypeBool, 0, 1 );
-  vtkGetMacro( BoundsClip, vtkTypeBool );
-  vtkBooleanMacro( BoundsClip, vtkTypeBool );
-  //@}
+  vtkSetClampMacro(BoundsClip, vtkTypeBool, 0, 1);
+  vtkGetMacro(BoundsClip, vtkTypeBool);
+  vtkBooleanMacro(BoundsClip, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the bounds of the computation (used if
    * this->ComputationBounds is 1.) The bounds are specified
    * xmin, xmax, ymin, ymax, zmin, zmax.
    */
-  vtkSetVector6Macro( Bounds, int );
-  vtkGetVectorMacro(  Bounds, int, 6 );
-  //@}
+  vtkSetVector6Macro(Bounds, int);
+  vtkGetVectorMacro(Bounds, int, 6);
+  ///@}
 
   /**
    * Recompute the encoded normals and gradient magnitudes.
    */
-  void  Update( void );
+  void Update();
 
   /**
    * Get the encoded normals.
    */
-  unsigned short  *GetEncodedNormals( void );
+  unsigned short* GetEncodedNormals();
 
-  //@{
+  ///@{
   /**
    * Get the encoded normal at an x,y,z location in the volume
    */
-  int   GetEncodedNormalIndex( vtkIdType xyz_index );
-  int   GetEncodedNormalIndex( int x_index, int y_index, int z_index );
-  //@}
+  int GetEncodedNormalIndex(vtkIdType xyzIndex);
+  int GetEncodedNormalIndex(int xIndex, int yIndex, int zIndex);
+  ///@}
 
   /**
    * Get the gradient magnitudes
    */
-  unsigned char *GetGradientMagnitudes(void);
+  unsigned char* GetGradientMagnitudes();
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of threads to create when encoding normals
    * This defaults to the number of available processors on the machine
    */
-  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( NumberOfThreads, int );
-  //@}
+  vtkSetClampMacro(NumberOfThreads, int, 1, VTK_MAX_THREADS);
+  vtkGetMacro(NumberOfThreads, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the direction encoder used to encode normal directions
    * to fit within two bytes
    */
-  void SetDirectionEncoder( vtkDirectionEncoder *direnc );
-  vtkGetObjectMacro( DirectionEncoder, vtkDirectionEncoder );
-  //@}
+  void SetDirectionEncoder(vtkDirectionEncoder* direnc);
+  vtkGetObjectMacro(DirectionEncoder, vtkDirectionEncoder);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If you don't want to compute gradient magnitudes (but you
    * do want normals for shading) this can be used. Be careful - if
    * if you a non-constant gradient magnitude transfer function and
    * you turn this on, it may crash
    */
-  vtkSetMacro( ComputeGradientMagnitudes, vtkTypeBool );
-  vtkGetMacro( ComputeGradientMagnitudes, vtkTypeBool );
-  vtkBooleanMacro( ComputeGradientMagnitudes, vtkTypeBool );
-  //@}
+  vtkSetMacro(ComputeGradientMagnitudes, vtkTypeBool);
+  vtkGetMacro(ComputeGradientMagnitudes, vtkTypeBool);
+  vtkBooleanMacro(ComputeGradientMagnitudes, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the data in each slice is only contained within a circle circumscribed
    * within the slice, and the slice is square, then don't compute anything
    * outside the circle. This circle through the slices forms a cylinder.
    */
-  vtkSetMacro( CylinderClip, vtkTypeBool );
-  vtkGetMacro( CylinderClip, vtkTypeBool );
-  vtkBooleanMacro( CylinderClip, vtkTypeBool );
-  //@}
+  vtkSetMacro(CylinderClip, vtkTypeBool);
+  vtkGetMacro(CylinderClip, vtkTypeBool);
+  vtkBooleanMacro(CylinderClip, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the time required for the last update in seconds or cpu seconds
    */
-  vtkGetMacro( LastUpdateTimeInSeconds, float );
-  vtkGetMacro( LastUpdateTimeInCPUSeconds, float );
-  //@}
+  vtkGetMacro(LastUpdateTimeInSeconds, float);
+  vtkGetMacro(LastUpdateTimeInCPUSeconds, float);
+  ///@}
 
-  vtkGetMacro( UseCylinderClip, int );
-  int *GetCircleLimits() { return this->CircleLimits; };
+  vtkGetMacro(UseCylinderClip, int);
+  int* GetCircleLimits() { return this->CircleLimits; }
 
-  //@{
+  ///@{
   /**
    * Set / Get the ZeroNormalThreshold - this defines the minimum magnitude
    * of a gradient that is considered sufficient to define a
@@ -174,20 +164,19 @@ public:
    * and you can set the intensity of light for these zero normals in
    * the gradient shader.
    */
-  void SetZeroNormalThreshold( float v );
-  vtkGetMacro( ZeroNormalThreshold, float );
-  //@}
+  void SetZeroNormalThreshold(float v);
+  vtkGetMacro(ZeroNormalThreshold, float);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assume that the data value outside the volume is zero when
    * computing normals.
    */
-  vtkSetClampMacro( ZeroPad, vtkTypeBool, 0, 1 );
-  vtkGetMacro( ZeroPad, vtkTypeBool );
-  vtkBooleanMacro( ZeroPad, vtkTypeBool );
-  //@}
-
+  vtkSetClampMacro(ZeroPad, vtkTypeBool, 0, 1);
+  vtkGetMacro(ZeroPad, vtkTypeBool);
+  vtkBooleanMacro(ZeroPad, vtkTypeBool);
+  ///@}
 
   // These variables should be protected but are being
   // made public to be accessible to the templated function.
@@ -195,20 +184,20 @@ public:
   // this does not work with all compilers
 
   // The input scalar data on which the normals are computed
-  vtkImageData         *InputData;
+  vtkImageData* InputData;
 
   // The encoded normals (2 bytes) and the size of the encoded normals
-  unsigned short        *EncodedNormals;
-  int                   EncodedNormalsSize[3];
+  unsigned short* EncodedNormals;
+  int EncodedNormalsSize[3];
 
   // The magnitude of the gradient array and the size of this array
-  unsigned char         *GradientMagnitudes;
+  unsigned char* GradientMagnitudes;
 
   // The time at which the normals were last built
-  vtkTimeStamp          BuildTime;
+  vtkTimeStamp BuildTime;
 
-  vtkGetVectorMacro( InputSize, int, 3 );
-  vtkGetVectorMacro( InputAspect, float, 3 );
+  vtkGetVectorMacro(InputSize, int, 3);
+  vtkGetVectorMacro(InputAspect, float, 3);
 
 protected:
   vtkEncodedGradientEstimator();
@@ -217,43 +206,42 @@ protected:
   void ReportReferences(vtkGarbageCollector*) override;
 
   // The number of threads to use when encoding normals
-  int                        NumberOfThreads;
+  int NumberOfThreads;
 
-  vtkMultiThreader           *Threader;
+  vtkMultiThreader* Threader;
 
-  vtkDirectionEncoder        *DirectionEncoder;
+  vtkDirectionEncoder* DirectionEncoder;
 
-  virtual void               UpdateNormals( void ) = 0;
+  virtual void UpdateNormals() = 0;
 
-  float                      GradientMagnitudeScale;
-  float                      GradientMagnitudeBias;
+  float GradientMagnitudeScale;
+  float GradientMagnitudeBias;
 
-  float                      LastUpdateTimeInSeconds;
-  float                      LastUpdateTimeInCPUSeconds;
+  float LastUpdateTimeInSeconds;
+  float LastUpdateTimeInCPUSeconds;
 
-  float                      ZeroNormalThreshold;
+  float ZeroNormalThreshold;
 
-  vtkTypeBool                        CylinderClip;
-  int                        *CircleLimits;
-  int                        CircleLimitsSize;
-  int                        UseCylinderClip;
-  void                       ComputeCircleLimits( int size );
+  vtkTypeBool CylinderClip;
+  int* CircleLimits;
+  int CircleLimitsSize;
+  int UseCylinderClip;
+  void ComputeCircleLimits(int size);
 
-  vtkTypeBool                        BoundsClip;
-  int                        Bounds[6];
+  vtkTypeBool BoundsClip;
+  int Bounds[6];
 
-  int                        InputSize[3];
-  float                      InputAspect[3];
+  int InputSize[3];
+  float InputAspect[3];
 
-  vtkTypeBool                        ComputeGradientMagnitudes;
+  vtkTypeBool ComputeGradientMagnitudes;
 
-  vtkTypeBool                        ZeroPad;
+  vtkTypeBool ZeroPad;
 
 private:
   vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&) = delete;
   void operator=(const vtkEncodedGradientEstimator&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif
-

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFixedSizeHandleRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkFixedSizeHandleRepresentation
  * @brief   A marker that has the same size in pixels.
@@ -31,7 +19,7 @@
  *
  * @sa
  * vtkHandleRepresentation vtkHandleWidget
-*/
+ */
 
 #ifndef vtkFixedSizeHandleRepresentation3D_h
 #define vtkFixedSizeHandleRepresentation3D_h
@@ -39,43 +27,43 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolygonalHandleRepresentation3D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSphereSource;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkFixedSizeHandleRepresentation3D : public vtkPolygonalHandleRepresentation3D
+class VTKINTERACTIONWIDGETS_EXPORT vtkFixedSizeHandleRepresentation3D
+  : public vtkPolygonalHandleRepresentation3D
 {
 public:
-
   /**
    * Instantiate this class.
    */
-  static vtkFixedSizeHandleRepresentation3D *New();
+  static vtkFixedSizeHandleRepresentation3D* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtk methods
    */
-  vtkTypeMacro(vtkFixedSizeHandleRepresentation3D,
-               vtkPolygonalHandleRepresentation3D);
+  vtkTypeMacro(vtkFixedSizeHandleRepresentation3D, vtkPolygonalHandleRepresentation3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the object used to render the spherical handle marker
    */
-  vtkGetObjectMacro( SphereSource, vtkSphereSource );
-  //@}
+  vtkGetObjectMacro(SphereSource, vtkSphereSource);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the required handle size in pixels. Defaults to a width of
    * 10 pixels.
    */
-  vtkSetMacro( HandleSizeInPixels, double );
-  vtkGetMacro( HandleSizeInPixels, double );
-  //@}
+  vtkSetMacro(HandleSizeInPixels, double);
+  vtkGetMacro(HandleSizeInPixels, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the acceptable handle size tolerance. During each render, the
    * handle 3D source will be updated to automatically match a display size
@@ -83,9 +71,9 @@ public:
    * handle size is larger than a tolerance. Default value of this
    * tolerance is half a pixel.
    */
-  vtkSetMacro( HandleSizeToleranceInPixels, double );
-  vtkGetMacro( HandleSizeToleranceInPixels, double );
-  //@}
+  vtkSetMacro(HandleSizeToleranceInPixels, double);
+  vtkGetMacro(HandleSizeToleranceInPixels, double);
+  ///@}
 
 protected:
   vtkFixedSizeHandleRepresentation3D();
@@ -99,20 +87,21 @@ protected:
   /**
    * Convenience method to convert from world to display
    */
-  void WorldToDisplay( double w[4], double d[4] );
+  void WorldToDisplay(double w[4], double d[4]);
 
   /**
    * Convenience method to convert from display to world
    */
-  void DisplayToWorld( double d[4], double w[4] );
+  void DisplayToWorld(double d[4], double w[4]);
 
-  vtkSphereSource *                           SphereSource;
-  double                                      HandleSizeInPixels;
-  double                                      HandleSizeToleranceInPixels;
+  vtkSphereSource* SphereSource;
+  double HandleSizeInPixels;
+  double HandleSizeToleranceInPixels;
 
 private:
   vtkFixedSizeHandleRepresentation3D(const vtkFixedSizeHandleRepresentation3D&) = delete;
   void operator=(const vtkFixedSizeHandleRepresentation3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

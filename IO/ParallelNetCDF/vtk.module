@@ -6,8 +6,22 @@ KIT
   VTK::Parallel
 GROUPS
   MPI
+IMPLEMENTS
+  VTK::IONetCDF
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-BSD-3-Clause-Sandia-USGov
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright Sandia Corporation
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
+  BSD-3-Clause-Sandia-USGov
+LICENSE_FILES
+  LICENSE
 DEPENDS
   VTK::CommonExecutionModel
+  VTK::IONetCDF
 PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
@@ -20,4 +34,5 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::ParallelMPI
   VTK::RenderingOpenGL2
+  VTK::RenderingParallel
   VTK::TestingRendering

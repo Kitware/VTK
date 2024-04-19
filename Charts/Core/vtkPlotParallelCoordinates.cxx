@@ -1,66 +1,51 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPlotParallelCoordinates.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkPlotParallelCoordinates.h"
 
+#include "vtkAxis.h"
+#include "vtkBrush.h"
 #include "vtkChartParallelCoordinates.h"
 #include "vtkContext2D.h"
-#include "vtkAxis.h"
-#include "vtkPen.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkVector.h"
-#include "vtkTransform2D.h"
 #include "vtkContextDevice2D.h"
 #include "vtkContextMapper2D.h"
-#include "vtkTable.h"
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkStringArray.h"
-#include "vtkTimeStamp.h"
 #include "vtkInformation.h"
-#include "vtkSmartPointer.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkLookupTable.h"
+#include "vtkPen.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkTimeStamp.h"
+#include "vtkTransform2D.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkVector.h"
 
 // Need to turn some arrays of strings into categories
 #include "vtkStringToCategory.h"
 
 #include "vtkObjectFactory.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
-class vtkPlotParallelCoordinates::Private :
-    public std::vector< std::vector<float> >
+VTK_ABI_NAMESPACE_BEGIN
+class vtkPlotParallelCoordinates::Private : public std::vector<std::vector<float>>
 {
 public:
-  Private()
-  {
-    this->SelectionInitialized = false;
-  }
+  Private() { this->SelectionInitialized = false; }
 
   std::vector<float> AxisPos;
   bool SelectionInitialized;
 };
 
+//------------------------------------------------------------------------------
+vtkStandardNewMacro(vtkPlotParallelCoordinates);
 
-//-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotParallelCoordinates)
-
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotParallelCoordinates::vtkPlotParallelCoordinates()
 {
   this->Storage = new vtkPlotParallelCoordinates::Private;
@@ -69,9 +54,10 @@ vtkPlotParallelCoordinates::vtkPlotParallelCoordinates()
   this->LookupTable = nullptr;
   this->Colors = nullptr;
   this->ScalarVisibility = 0;
+  this->ColorMode = VTK_COLOR_MODE_MAP_SCALARS;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotParallelCoordinates::~vtkPlotParallelCoordinates()
 {
   delete this->Storage;
@@ -79,32 +65,14 @@ vtkPlotParallelCoordinates::~vtkPlotParallelCoordinates()
   {
     this->LookupTable->UnRegister(this);
   }
-  if ( this->Colors != nullptr )
+  if (this->Colors != nullptr)
   {
     this->Colors->UnRegister(this);
   }
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::Update()
-{
-  if (!this->Visible)
-  {
-    return;
-  }
-  // Check if we have an input
-  vtkTable *table = this->Data->GetInput();
-  if (!table)
-  {
-    vtkDebugMacro(<< "Update event called with no input table set.");
-    return;
-  }
-
-  this->UpdateTableCache(table);
-}
-
-//-----------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
+//------------------------------------------------------------------------------
+bool vtkPlotParallelCoordinates::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotParallelCoordinates.");
@@ -123,17 +91,15 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
 
   size_t cols = this->Storage->size();
   size_t rows = this->Storage->at(0).size();
-  vtkVector2f* line = new vtkVector2f[cols];
+  std::vector<vtkVector2f> line(cols);
 
   // Update the axis positions
-  vtkChartParallelCoordinates *parent =
-      vtkChartParallelCoordinates::SafeDownCast(this->Parent);
+  vtkChartParallelCoordinates* parent = vtkChartParallelCoordinates::SafeDownCast(this->Parent);
 
   for (size_t i = 0; i < cols; ++i)
   {
-    this->Storage->AxisPos[i] = parent->GetAxis(int(i)) ?
-                                parent->GetAxis(int(i))->GetPoint1()[0] :
-                                0;
+    this->Storage->AxisPos[i] =
+      parent->GetAxis(int(i)) ? parent->GetAxis(int(i))->GetPoint1()[0] : 0;
   }
 
   vtkIdType selection = 0;
@@ -193,30 +159,35 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
     }
   }
 
-  delete[] line;
-
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::PaintLegend(vtkContext2D *painter,
-                                             const vtkRectf& rect, int)
+//------------------------------------------------------------------------------
+bool vtkPlotParallelCoordinates::PaintLegend(
+  vtkContext2D* painter, const vtkRectf& rect, int legendIndex)
 {
+  if (this->Colors)
+  {
+    this->Brush->SetColor(this->Colors->GetPointer(4 * legendIndex));
+  }
   painter->ApplyPen(this->Pen);
-  painter->DrawLine(rect[0]          , rect[1] + 0.5 * rect[3],
-                    rect[0] + rect[2], rect[1] + 0.5 * rect[3]);
+  painter->ApplyBrush(this->Brush);
+  painter->DrawLine(rect[0], rect[1] + 0.5 * rect[3], rect[0] + rect[2], rect[1] + 0.5 * rect[3]);
+  painter->DrawRect(rect[0], rect[1], rect[2], rect[3]);
   return true;
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::GetBounds(double *)
-{
+//------------------------------------------------------------------------------
+void vtkPlotParallelCoordinates::GetBounds(double*) {}
 
+//------------------------------------------------------------------------------
+bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low, float high)
+{
+  return this->SetSelectionRange(axis, { low, high });
 }
 
-//-----------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
-                                                   float high)
+//------------------------------------------------------------------------------
+bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, std::vector<float> axisSelection)
 {
   if (!this->Selection)
   {
@@ -227,16 +198,24 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
   if (this->Storage->SelectionInitialized)
   {
     // Further refine the selection that has already been made
-    vtkIdTypeArray *array = vtkIdTypeArray::New();
+    vtkIdTypeArray* array = vtkIdTypeArray::New();
     std::vector<float>& col = this->Storage->at(axis);
     for (vtkIdType i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
     {
       vtkIdType id = 0;
       this->Selection->GetTypedTuple(i, &id);
-      if (col[id] >= low && col[id] <= high)
+
+      size_t size = axisSelection.size() - axisSelection.size() % 2;
+      for (size_t j = 0; j < size; j += 2)
       {
-        // Remove this point - no longer selected
-        array->InsertNextValue(id);
+        float low = axisSelection[j];
+        float high = axisSelection[j + 1];
+        if (col[id] >= low && col[id] <= high)
+        {
+          // Remove this point - no longer selected
+          array->InsertNextValue(id);
+          break;
+        }
       }
     }
     this->Selection->DeepCopy(array);
@@ -248,10 +227,17 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
     std::vector<float>& col = this->Storage->at(axis);
     for (size_t i = 0; i < col.size(); ++i)
     {
-      if (col[i] >= low && col[i] <= high)
+      size_t size = axisSelection.size() - axisSelection.size() % 2;
+      for (size_t j = 0; j < size; j += 2)
       {
-        // Remove this point - no longer selected
-        this->Selection->InsertNextValue(static_cast<vtkIdType>(i));
+        float low = axisSelection[j];
+        float high = axisSelection[j + 1];
+        if (col[i] >= low && col[i] <= high)
+        {
+          // Remove this point - no longer selected
+          this->Selection->InsertNextValue(static_cast<vtkIdType>(i));
+          break;
+        }
       }
     }
     this->Storage->SelectionInitialized = true;
@@ -259,7 +245,7 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotParallelCoordinates::ResetSelectionRange()
 {
   this->Storage->SelectionInitialized = false;
@@ -270,19 +256,17 @@ bool vtkPlotParallelCoordinates::ResetSelectionRange()
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotParallelCoordinates::SetInputData(vtkTable* table)
 {
-  if (table == this->Data->GetInput() && (!table ||
-                                          table->GetMTime() < this->BuildTime))
+  if (table == this->Data->GetInput() && (!table || table->GetMTime() < this->BuildTime))
   {
     return;
   }
 
   bool updateVisibility = table != this->Data->GetInput();
   this->vtkPlot::SetInputData(table);
-  vtkChartParallelCoordinates *parent =
-      vtkChartParallelCoordinates::SafeDownCast(this->Parent);
+  vtkChartParallelCoordinates* parent = vtkChartParallelCoordinates::SafeDownCast(this->Parent);
 
   if (parent && table && updateVisibility)
   {
@@ -300,12 +284,17 @@ void vtkPlotParallelCoordinates::SetInputData(vtkTable* table)
   }
 }
 
-//-----------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
+//------------------------------------------------------------------------------
+bool vtkPlotParallelCoordinates::UpdateCache()
 {
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+
   // Each axis is a column in our storage array, they are scaled from 0.0 to 1.0
-  vtkChartParallelCoordinates *parent =
-      vtkChartParallelCoordinates::SafeDownCast(this->Parent);
+  vtkChartParallelCoordinates* parent = vtkChartParallelCoordinates::SafeDownCast(this->Parent);
+  vtkTable* table = this->Data->GetInput();
   if (!parent || !table || table->GetNumberOfColumns() == 0)
   {
     return false;
@@ -323,17 +312,16 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
     vtkAxis* axis = parent->GetAxis(i);
     col.resize(rows);
     vtkSmartPointer<vtkDataArray> data =
-        vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(cols->GetValue(i)));
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(cols->GetValue(i).c_str()));
     if (!data)
     {
-      if (table->GetColumnByName(cols->GetValue(i))->IsA("vtkStringArray"))
+      if (table->GetColumnByName(cols->GetValue(i).c_str())->IsA("vtkStringArray"))
       {
         // We have a different kind of column - attempt to make it into an enum
         vtkStringToCategory* stoc = vtkStringToCategory::New();
         stoc->SetInputData(table);
-        stoc->SetInputArrayToProcess(0, 0, 0,
-                                     vtkDataObject::FIELD_ASSOCIATION_ROWS,
-                                     cols->GetValue(i));
+        stoc->SetInputArrayToProcess(
+          0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, cols->GetValue(i).c_str());
         stoc->SetCategoryArrayName("enumPC");
         stoc->Update();
         vtkTable* table2 = vtkTable::SafeDownCast(stoc->GetOutput());
@@ -345,9 +333,8 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
         if (stringTable && stringTable->GetColumnByName("Strings"))
         {
           vtkStringArray* strings =
-              vtkArrayDownCast<vtkStringArray>(stringTable->GetColumnByName("Strings"));
-          vtkSmartPointer<vtkDoubleArray> arr =
-              vtkSmartPointer<vtkDoubleArray>::New();
+            vtkArrayDownCast<vtkStringArray>(stringTable->GetColumnByName("Strings"));
+          vtkSmartPointer<vtkDoubleArray> arr = vtkSmartPointer<vtkDoubleArray>::New();
           for (vtkIdType j = 0; j < strings->GetNumberOfTuples(); ++j)
           {
             arr->InsertNextValue(j);
@@ -356,7 +343,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
           axis->SetCustomTickPositions(arr, strings);
           if (strings->GetNumberOfTuples() > 1)
           {
-            axis->SetUnscaledRange(0.0, strings->GetNumberOfTuples()-1);
+            axis->SetUnscaledRange(0.0, strings->GetNumberOfTuples() - 1);
           }
           else
           {
@@ -388,7 +375,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
   if (this->ScalarVisibility && !this->ColorArrayName.empty())
   {
     vtkDataArray* c =
-      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName));
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName.c_str()));
     // TODO: Should add support for categorical coloring & try enum lookup
     if (this->Colors)
     {
@@ -401,7 +388,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
       {
         this->CreateDefaultLookupTable();
       }
-      this->Colors = this->LookupTable->MapScalars(c, VTK_COLOR_MODE_MAP_SCALARS, -1);
+      this->Colors = this->LookupTable->MapScalars(c, this->ColorMode, -1);
       // Consistent register and unregisters
       this->Colors->Register(this);
       this->Colors->Delete();
@@ -412,12 +399,12 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
   return true;
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::SetLookupTable(vtkScalarsToColors *lut)
+//------------------------------------------------------------------------------
+void vtkPlotParallelCoordinates::SetLookupTable(vtkScalarsToColors* lut)
 {
-  if ( this->LookupTable != lut )
+  if (this->LookupTable != lut)
   {
-    if ( this->LookupTable)
+    if (this->LookupTable)
     {
       this->LookupTable->UnRegister(this);
     }
@@ -430,20 +417,20 @@ void vtkPlotParallelCoordinates::SetLookupTable(vtkScalarsToColors *lut)
   }
 }
 
-//-----------------------------------------------------------------------------
-vtkScalarsToColors *vtkPlotParallelCoordinates::GetLookupTable()
+//------------------------------------------------------------------------------
+vtkScalarsToColors* vtkPlotParallelCoordinates::GetLookupTable()
 {
-  if ( this->LookupTable == nullptr )
+  if (this->LookupTable == nullptr)
   {
     this->CreateDefaultLookupTable();
   }
   return this->LookupTable;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotParallelCoordinates::CreateDefaultLookupTable()
 {
-  if ( this->LookupTable)
+  if (this->LookupTable)
   {
     this->LookupTable->UnRegister(this);
   }
@@ -453,10 +440,10 @@ void vtkPlotParallelCoordinates::CreateDefaultLookupTable()
   this->LookupTable->Delete();
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::SelectColorArray(const vtkStdString &arrayName)
+//------------------------------------------------------------------------------
+void vtkPlotParallelCoordinates::SelectColorArray(const vtkStdString& arrayName)
 {
-  vtkTable *table = this->Data->GetInput();
+  vtkTable* table = this->Data->GetInput();
   if (!table)
   {
     vtkDebugMacro(<< "SelectColorArray called with no input table set.");
@@ -480,22 +467,22 @@ void vtkPlotParallelCoordinates::SelectColorArray(const vtkStdString &arrayName)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStdString vtkPlotParallelCoordinates::GetColorArrayName()
 {
   return this->ColorArrayName;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotParallelCoordinates::SelectColorArray(vtkIdType arrayNum)
 {
-  vtkTable *table = this->Data->GetInput();
+  vtkTable* table = this->Data->GetInput();
   if (!table)
   {
     vtkDebugMacro(<< "SelectColorArray called with no input table set.");
     return;
   }
-  vtkDataArray *col = vtkArrayDownCast<vtkDataArray>(table->GetColumn(arrayNum));
+  vtkDataArray* col = vtkArrayDownCast<vtkDataArray>(table->GetColumn(arrayNum));
   // TODO: Should add support for categorical coloring & try enum lookup
   if (!col)
   {
@@ -516,8 +503,9 @@ void vtkPlotParallelCoordinates::SelectColorArray(vtkIdType arrayNum)
   }
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::PrintSelf(ostream &os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkPlotParallelCoordinates::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

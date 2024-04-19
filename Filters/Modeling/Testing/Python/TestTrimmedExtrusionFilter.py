@@ -1,26 +1,49 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkLookupTable,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkTriangleFilter
+from vtkmodules.vtkFiltersGeneral import vtkWarpScalar
+from vtkmodules.vtkFiltersGeometry import vtkImageDataGeometryFilter
+from vtkmodules.vtkFiltersModeling import vtkTrimmedExtrusionFilter
+from vtkmodules.vtkIOImage import vtkDEMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCellPicker,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create pipeline. Load terrain data.
 #
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.6, 0)
 lut.SetSaturationRange(1.0, 0)
 lut.SetValueRange(0.5, 1.0)
 
 # Read the data: a height field results
-demReader = vtk.vtkDEMReader()
+demReader = vtkDEMReader()
 demReader.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
 demReader.Update()
 
@@ -29,13 +52,13 @@ hi = demReader.GetOutput().GetScalarRange()[1]
 bds = demReader.GetOutput().GetBounds()
 #print("Bounds: {0}".format(bds))
 
-surface = vtk.vtkImageDataGeometryFilter()
+surface = vtkImageDataGeometryFilter()
 surface.SetInputConnection(demReader.GetOutputPort())
 
-tris = vtk.vtkTriangleFilter()
+tris = vtkTriangleFilter()
 tris.SetInputConnection(surface.GetOutputPort())
 
-warp = vtk.vtkWarpScalar()
+warp = vtkWarpScalar()
 warp.SetInputConnection(tris.GetOutputPort())
 warp.SetScaleFactor(1)
 warp.UseNormalOn()
@@ -43,18 +66,18 @@ warp.SetNormal(0, 0, 1)
 warp.Update()
 
 # Show the terrain
-demMapper = vtk.vtkPolyDataMapper()
+demMapper = vtkPolyDataMapper()
 demMapper.SetInputConnection(warp.GetOutputPort())
 demMapper.SetScalarRange(lo, hi)
 demMapper.SetLookupTable(lut)
 
-demActor = vtk.vtkActor()
+demActor = vtkActor()
 demActor.SetMapper(demMapper)
 
 # Create polygon(s) to extrude
-polygons = vtk.vtkPolyData()
+polygons = vtkPolyData()
 
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 pts.SetNumberOfPoints(14)
 pts.SetPoint(0, 560000, 5110000, 2000)
 pts.SetPoint(1, 560250, 5110000, 2000)
@@ -73,7 +96,7 @@ pts.SetPoint(11, 560150, 5110800, 1950)
 pts.SetPoint(12, 560150, 5111100, 1950)
 pts.SetPoint(13, 559800, 5111100, 1950)
 
-polys = vtk.vtkCellArray()
+polys = vtkCellArray()
 polys.InsertNextCell(4)
 polys.InsertCellPoint(0)
 polys.InsertCellPoint(1)
@@ -96,25 +119,25 @@ polygons.SetPoints(pts)
 polygons.SetPolys(polys)
 
 # Extrude polygon down to surface
-extrude = vtk.vtkTrimmedExtrusionFilter()
+extrude = vtkTrimmedExtrusionFilter()
 extrude.SetInputData(polygons)
 extrude.SetTrimSurfaceConnection(warp.GetOutputPort())
 extrude.SetExtrusionDirection(0,0,1)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(extrude.GetOutputPort())
 mapper.ScalarVisibilityOff()
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Show generating polygons
-polyMapper = vtk.vtkPolyDataMapper()
+polyMapper = vtkPolyDataMapper()
 polyMapper.SetInputData(polygons)
 polyMapper.ScalarVisibilityOff()
 
 # Offset slightly to avoid zbuffer issues
-polyActor = vtk.vtkActor()
+polyActor = vtkActor()
 polyActor.SetMapper(polyMapper)
 polyActor.GetProperty().SetColor(1,0,0)
 polyActor.AddPosition(0,0,10)
@@ -133,10 +156,10 @@ ren.GetActiveCamera().SetPosition(556898, 5.10151e+006, 7906.19)
 
 # added these unused default arguments so that the prototype
 # matches as required in python.
-def reportCamera (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
+def reportCamera(obj=None, event=""):
     print("Camera: {}".format(ren.GetActiveCamera()))
 
-picker = vtk.vtkCellPicker()
+picker = vtkCellPicker()
 picker.AddObserver("EndPickEvent",reportCamera)
 iren.SetPicker(picker)
 

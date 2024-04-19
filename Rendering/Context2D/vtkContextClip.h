@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkContextItem.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkContextClip
@@ -21,25 +9,26 @@
  *
  * This class can be used to clip the rendering of an item inside a rectangular
  * area.
-*/
+ */
 
 #ifndef vtkContextClip_h
 #define vtkContextClip_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
-#include "vtkSmartPointer.h" // Needed for SP ivars.
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkSmartPointer.h"             // Needed for SP ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextClip : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkContextClip, vtkAbstractContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a vtkContextClip object.
    */
-  static vtkContextClip *New();
+  static vtkContextClip* New();
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
@@ -51,7 +40,7 @@ public:
   /**
    * Paint event for the item, called whenever the item needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Set the origin, width and height of the clipping rectangle. These are in
@@ -75,9 +64,8 @@ protected:
   float Dims[4];
 
 private:
-  vtkContextClip(const vtkContextClip &) = delete;
-  void operator=(const vtkContextClip &) = delete;
-
+  vtkContextClip(const vtkContextClip&) = delete;
+  void operator=(const vtkContextClip&) = delete;
 };
 
 inline void vtkContextClip::GetRect(float rect[4])
@@ -88,4 +76,5 @@ inline void vtkContextClip::GetRect(float rect[4])
   rect[3] = this->Dims[3];
 }
 
-#endif //vtkContextClip_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkContextClip_h

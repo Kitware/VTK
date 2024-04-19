@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractPolyDataPiece.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExtractPolyDataPiece.h"
 
 #include "vtkCell.h"
@@ -28,6 +16,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractPolyDataPiece);
 
 //=============================================================================
@@ -37,13 +26,11 @@ vtkExtractPolyDataPiece::vtkExtractPolyDataPiece()
 }
 
 //=============================================================================
-int vtkExtractPolyDataPiece::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
+int vtkExtractPolyDataPiece::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   // get the info object
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
@@ -53,13 +40,11 @@ int vtkExtractPolyDataPiece::RequestUpdateExtent(
 }
 
 //=============================================================================
-void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags,
-                                              vtkIdList *pointOwnership,
-                                              int piece, int numPieces,
-                                              vtkPolyData *input)
+void vtkExtractPolyDataPiece::ComputeCellTags(
+  vtkIntArray* tags, vtkIdList* pointOwnership, int piece, int numPieces, vtkPolyData* input)
 {
   vtkIdType idx, j, numCells, ptId;
-  vtkIdList *cellPtIds;
+  vtkIdList* cellPtIds;
 
   numCells = input->GetNumberOfCells();
 
@@ -96,47 +81,43 @@ void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags,
 
   cellPtIds->Delete();
 
-  //dicer->SetInput(input);
-  //dicer->SetDiceModeToSpecifiedNumberOfPieces();
-  //dicer->SetNumberOfPieces(numPieces);
-  //dicer->Update();
+  // dicer->SetInput(input);
+  // dicer->SetDiceModeToSpecifiedNumberOfPieces();
+  // dicer->SetNumberOfPieces(numPieces);
+  // dicer->Update();
 
-  //intermediate->ShallowCopy(dicer->GetOutput());
-  //intermediate->BuildLinks();
-  //pointScalars = intermediate->GetPointData()->GetScalars();
+  // intermediate->ShallowCopy(dicer->GetOutput());
+  // intermediate->BuildLinks();
+  // pointScalars = intermediate->GetPointData()->GetScalars();
 }
 
 //=============================================================================
-int vtkExtractPolyDataPiece::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkExtractPolyDataPiece::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
-  vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  vtkIntArray *cellTags;
+  vtkPointData *pd = input->GetPointData(), *outPD = output->GetPointData();
+  vtkCellData *cd = input->GetCellData(), *outCD = output->GetCellData();
+  vtkIntArray* cellTags;
   int ghostLevel, piece, numPieces;
   vtkIdType cellId, newCellId;
   vtkIdList *cellPts, *pointMap;
-  vtkIdList *newCellPts = vtkIdList::New();
-  vtkIdList *pointOwnership;
-  vtkCell *cell;
-  vtkPoints *newPoints;
+  vtkIdList* newCellPts = vtkIdList::New();
+  vtkIdList* pointOwnership;
+  vtkCell* cell;
+  vtkPoints* newPoints;
   vtkUnsignedCharArray* cellGhostLevels = nullptr;
   vtkUnsignedCharArray* pointGhostLevels = nullptr;
-  vtkIdType ptId=0, newId, numPts, i;
+  vtkIdType ptId = 0, newId, numPts, i;
   int numCellPts;
-  double *x=nullptr;
+  double* x = nullptr;
 
   // Pipeline update piece will tell us what to generate.
   ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
@@ -168,7 +149,7 @@ int vtkExtractPolyDataPiece::RequestData(
   {
     for (i = 0; i < ghostLevel; i++)
     {
-      this->AddGhostLevel(input, cellTags, i+1);
+      this->AddGhostLevel(input, cellTags, i + 1);
     }
   }
 
@@ -179,17 +160,17 @@ int vtkExtractPolyDataPiece::RequestData(
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
 
-  pointMap = vtkIdList::New(); //maps old point ids into new
+  pointMap = vtkIdList::New(); // maps old point ids into new
   pointMap->SetNumberOfIds(numPts);
-  for (i=0; i < numPts; i++)
+  for (i = 0; i < numPts; i++)
   {
-    pointMap->SetId(i,-1);
+    pointMap->SetId(i, -1);
   }
 
   // Filter the cells
-  for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
+  for (cellId = 0; cellId < input->GetNumberOfCells(); cellId++)
   {
-    if ( cellTags->GetValue(cellId) != -1) // satisfied thresholding
+    if (cellTags->GetValue(cellId) != -1) // satisfied thresholding
     {
       if (cellGhostLevels)
       {
@@ -201,29 +182,29 @@ int vtkExtractPolyDataPiece::RequestData(
       cellPts = cell->GetPointIds();
       numCellPts = cell->GetNumberOfPoints();
 
-      for (i=0; i < numCellPts; i++)
+      for (i = 0; i < numCellPts; i++)
       {
         ptId = cellPts->GetId(i);
-        if ( (newId = pointMap->GetId(ptId)) < 0 )
+        if ((newId = pointMap->GetId(ptId)) < 0)
         {
           x = input->GetPoint(ptId);
           newId = newPoints->InsertNextPoint(x);
           if (pointGhostLevels)
           {
-            pointGhostLevels->InsertNextValue(
-              cellTags->GetValue(pointOwnership->GetId(ptId)) > 0 ? vtkDataSetAttributes::DUPLICATEPOINT : 0);
+            pointGhostLevels->InsertNextValue(cellTags->GetValue(pointOwnership->GetId(ptId)) > 0
+                ? vtkDataSetAttributes::DUPLICATEPOINT
+                : 0);
           }
-          pointMap->SetId(ptId,newId);
-          outPD->CopyData(pd,ptId,newId);
+          pointMap->SetId(ptId, newId);
+          outPD->CopyData(pd, ptId, newId);
         }
-        newCellPts->InsertId(i,newId);
+        newCellPts->InsertId(i, newId);
       }
-      newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
-      outCD->CopyData(cd,cellId,newCellId);
+      newCellId = output->InsertNextCell(cell->GetCellType(), newCellPts);
+      outCD->CopyData(cd, cellId, newCellId);
       newCellPts->Reset();
     } // satisfied thresholding
-  } // for all cells
-
+  }   // for all cells
 
   // Split up points that are not used by cells,
   // and have not been assigned to any piece.
@@ -252,13 +233,12 @@ int vtkExtractPolyDataPiece::RequestData(
         {
           pointGhostLevels->InsertNextValue(0);
         }
-        outPD->CopyData(pd,idx,newId);
+        outPD->CopyData(pd, idx, newId);
       }
     }
   }
 
-  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells()
-                << " number of cells.");
+  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() << " number of cells.");
 
   // now clean up / update ourselves
   pointMap->Delete();
@@ -291,39 +271,37 @@ int vtkExtractPolyDataPiece::RequestData(
 //=============================================================================
 void vtkExtractPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
 }
 
 //=============================================================================
-void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData *input,
-                                            vtkIntArray *cellTags,
-                                            int level)
+void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData* input, vtkIntArray* cellTags, int level)
 {
-  //for layers of ghost cells after the first we have to search
-  //the entire input dataset. in the future we can extend this
-  //function to return the list of cells that we set on our
-  //level so we only have to search that subset for neighbors
+  // for layers of ghost cells after the first we have to search
+  // the entire input dataset. in the future we can extend this
+  // function to return the list of cells that we set on our
+  // level so we only have to search that subset for neighbors
   const vtkIdType numCells = input->GetNumberOfCells();
   vtkNew<vtkIdList> cellPointIds;
   vtkNew<vtkIdList> neighborIds;
   for (vtkIdType idx = 0; idx < numCells; ++idx)
   {
-    if(cellTags->GetValue(idx) == level - 1)
+    if (cellTags->GetValue(idx) == level - 1)
     {
       input->GetCellPoints(idx, cellPointIds);
       const vtkIdType numCellPoints = cellPointIds->GetNumberOfIds();
       for (vtkIdType j = 0; j < numCellPoints; j++)
       {
         const vtkIdType pointId = cellPointIds->GetId(j);
-        input->GetPointCells(pointId,neighborIds);
+        input->GetPointCells(pointId, neighborIds);
 
-        const vtkIdType numNeighbors= neighborIds->GetNumberOfIds();
-        for(vtkIdType k= 0; k < numNeighbors; ++k)
+        const vtkIdType numNeighbors = neighborIds->GetNumberOfIds();
+        for (vtkIdType k = 0; k < numNeighbors; ++k)
         {
           const vtkIdType neighborCellId = neighborIds->GetId(k);
-          if(cellTags->GetValue(neighborCellId) == -1)
+          if (cellTags->GetValue(neighborCellId) == -1)
           {
             cellTags->SetValue(neighborCellId, level);
           }
@@ -332,3 +310,4 @@ void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData *input,
     }
   }
 }
+VTK_ABI_NAMESPACE_END

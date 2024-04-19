@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAppendFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAppendFilter.h"
 
 #include "vtkBoundingBox.h"
-#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkDataSetCollection.h"
-#include "vtkExecutive.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIncrementalOctreePointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -26,14 +14,16 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <string>
+#include <unordered_map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendFilter::vtkAppendFilter()
 {
   this->InputList = nullptr;
@@ -43,7 +33,7 @@ vtkAppendFilter::vtkAppendFilter()
   this->ToleranceIsAbsolute = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendFilter::~vtkAppendFilter()
 {
   if (this->InputList != nullptr)
@@ -53,39 +43,37 @@ vtkAppendFilter::~vtkAppendFilter()
   }
 }
 
-//----------------------------------------------------------------------------
-vtkDataSet *vtkAppendFilter::GetInput(int idx)
+//------------------------------------------------------------------------------
+vtkDataSet* vtkAppendFilter::GetInput(int idx)
 {
   if (idx >= this->GetNumberOfInputConnections(0) || idx < 0)
   {
     return nullptr;
   }
 
-  return vtkDataSet::SafeDownCast(
-    this->GetExecutive()->GetInputData(0, idx));
+  return vtkDataSet::SafeDownCast(this->GetExecutive()->GetInputData(0, idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Remove a dataset from the list of data to append.
-void vtkAppendFilter::RemoveInputData(vtkDataSet *ds)
+void vtkAppendFilter::RemoveInputData(vtkDataSet* ds)
 {
   if (!ds)
   {
     return;
   }
   int numCons = this->GetNumberOfInputConnections(0);
-  for(int i=0; i<numCons; i++)
+  for (int i = 0; i < numCons; i++)
   {
     if (this->GetInput(i) == ds)
     {
-      this->RemoveInputConnection(0,
-        this->GetInputConnection(0, i));
+      this->RemoveInputConnection(0, this->GetInputConnection(0, i));
     }
   }
 }
 
-//----------------------------------------------------------------------------
-vtkDataSetCollection *vtkAppendFilter::GetInputList()
+//------------------------------------------------------------------------------
+vtkDataSetCollection* vtkAppendFilter::GetInputList()
 {
   if (this->InputList)
   {
@@ -104,42 +92,41 @@ vtkDataSetCollection *vtkAppendFilter::GetInputList()
   return this->InputList;
 }
 
-//----------------------------------------------------------------------------
-// Append data sets into single unstructured grid
-int vtkAppendFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+// Helper
+namespace
 {
-  bool reallyMergePoints = false;
-  if (this->MergePoints == 1 &&
-      inputVector[0]->GetNumberOfInformationObjects() > 0 )
+struct RenumberingVisitor
+{
+  // Insert full cell
+  template <typename CellStateT>
+  void operator()(CellStateT& state, vtkIdType* idMap, vtkIdType offset)
   {
-    reallyMergePoints = true;
-
-    // ensure that none of the inputs has ghost-cells.
-    // (originally the code was checking for ghost cells only on 1st input,
-    // that's not sufficient).
-    for (int cc = 0; cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
+    using ValueType = typename CellStateT::ValueType;
+    auto* conn = state.GetConnectivity();
+    const vtkIdType nids = conn->GetNumberOfValues();
+    for (vtkIdType i = 0; i < nids; ++i)
     {
-      vtkDataSet * tempData = vtkDataSet::GetData(inputVector[0], cc);
-      if (tempData->HasAnyGhostCells())
-      {
-        vtkDebugMacro(<< "Ghost cells present, so points will not be merged");
-        reallyMergePoints = false;
-        break;
-      }
+      ValueType tmp = conn->GetValue(i);
+      conn->SetValue(i, idMap[tmp + offset]);
     }
   }
+};
+}
 
+//------------------------------------------------------------------------------
+// Append data sets into single unstructured grid
+int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
   // get the output info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* output =
+    vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDebugMacro(<<"Appending data together");
+  vtkDebugMacro(<< "Appending data together");
 
   // Loop over all data sets, checking to see what data is common to
   // all inputs. Note that data is common if 1) it is the same attribute
@@ -166,15 +153,16 @@ int vtkAppendFilter::RequestData(
     inputUG = vtkUnstructuredGrid::SafeDownCast(dataSet);
   }
 
-  if ( totalNumPts < 1)
+  if (totalNumPts < 1)
   {
-    vtkDebugMacro(<<"No data to append!");
+    vtkDebugMacro(<< "No data to append!");
     return 1;
   }
 
-  if ( numDataSets == 1 && inputUG != nullptr)
+  if (numDataSets == 1 && inputUG != nullptr)
   {
-    vtkDebugMacro(<<"Only a single unstructured grid in the composite dataset and we can shallow copy.");
+    vtkDebugMacro(
+      << "Only a single unstructured grid in the composite dataset and we can shallow copy.");
     output->ShallowCopy(inputUG);
     return 1;
   }
@@ -198,7 +186,7 @@ int vtkAppendFilter::RequestData(
       {
         ps = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
       }
-      if ( ps != nullptr && ps->GetNumberOfPoints() > 0)
+      if (ps != nullptr && ps->GetNumberOfPoints() > 0)
       {
         datatype = ps->GetPoints()->GetDataType();
         break;
@@ -206,13 +194,46 @@ int vtkAppendFilter::RequestData(
     }
     newPts->SetDataType(datatype);
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
   {
     newPts->SetDataType(VTK_FLOAT);
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPts->SetDataType(VTK_DOUBLE);
+  }
+
+  // We look if we really can merge points.
+  // Additionally to having this->MergePoints set to true,
+  // points can be merge if there are not input cells cells OR if global point ids are
+  // available in the inputs.
+  inputs->InitTraversal(iter);
+  dataSet = inputs->GetNextDataSet(iter);
+  vtkIdTypeArray* globalIdsArray =
+    vtkIdTypeArray::SafeDownCast(dataSet->GetPointData()->GetGlobalIds());
+
+  bool reallyMergePoints = false;
+  if (this->MergePoints == 1 && inputVector[0]->GetNumberOfInformationObjects() > 0)
+  {
+    reallyMergePoints = true;
+
+    // If global point ids are present, we merge points sharing same global id
+    if (!globalIdsArray)
+    {
+      // ensure that none of the inputs has ghost-cells.
+      // (originally the code was checking for ghost cells only on 1st input,
+      // that's not sufficient).
+      for (int cc = 0; cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
+      {
+        vtkDataSet* tempData = vtkDataSet::GetData(inputVector[0], cc);
+        if (tempData->HasAnyGhostCells())
+        {
+          vtkDebugMacro(<< "Ghost cells present, so points will not be merged");
+          reallyMergePoints = false;
+          break;
+        }
+      }
+    }
   }
 
   // If we aren't merging points, we need to allocate the points here.
@@ -226,19 +247,18 @@ int vtkAppendFilter::RequestData(
   vtkSmartPointer<vtkIdList> newPtIds = vtkSmartPointer<vtkIdList>::New();
   newPtIds->Allocate(VTK_CELL_SIZE);
 
-  vtkIdType twentieth = (totalNumPts + totalNumCells)/20 + 1;
+  vtkIdType twentieth = (totalNumPts + totalNumCells) / 20 + 1;
 
   // For optionally merging duplicate points
   vtkIdType* globalIndices = new vtkIdType[totalNumPts];
+
   vtkSmartPointer<vtkIncrementalOctreePointLocator> ptInserter;
   if (reallyMergePoints)
   {
     vtkBoundingBox outputBB;
-
     inputs->InitTraversal(iter);
     while ((dataSet = inputs->GetNextDataSet(iter)))
     {
-
       // Union of bounding boxes
       double localBox[6];
       dataSet->GetBounds(localBox);
@@ -262,63 +282,85 @@ int vtkAppendFilter::RequestData(
   }
 
   // append the blocks / pieces in terms of the geometry and topology
+  std::unordered_map<vtkIdType, vtkIdType> addedPointsMap;
   vtkIdType count = 0;
   vtkIdType ptOffset = 0;
   float decimal = 0.0;
   inputs->InitTraversal(iter);
-  int abort = 0;
+  bool abort = false;
+  double p[3];
   while (!abort && (dataSet = inputs->GetNextDataSet(iter)))
   {
     vtkIdType dataSetNumPts = dataSet->GetNumberOfPoints();
     vtkIdType dataSetNumCells = dataSet->GetNumberOfCells();
+    vtkIdTypeArray* dataSetGlobalIdsArray = globalIdsArray
+      ? vtkIdTypeArray::SafeDownCast(dataSet->GetPointData()->GetGlobalIds())
+      : nullptr;
 
     // copy points
     for (vtkIdType ptId = 0; ptId < dataSetNumPts && !abort; ++ptId)
     {
       if (reallyMergePoints)
       {
-        vtkIdType globalPtId = 0;
-        ptInserter->InsertUniquePoint(dataSet->GetPoint(ptId), globalPtId);
-        globalIndices[ptId + ptOffset] = globalPtId;
-        // The point inserter puts the point into newPts, so we don't have to do that here.
+        if (dataSetGlobalIdsArray)
+        {
+          vtkIdType globalId = dataSetGlobalIdsArray->GetValue(ptId);
+          auto it = addedPointsMap.find(globalId);
+          if (it == addedPointsMap.end())
+          {
+            globalIndices[ptId + ptOffset] = newPts->GetNumberOfPoints();
+            dataSet->GetPoint(ptId, p);
+            vtkIdType newPtId = newPts->InsertNextPoint(p);
+            addedPointsMap.emplace(globalId, newPtId);
+          }
+          else
+          {
+            globalIndices[ptId + ptOffset] = it->second;
+          }
+        }
+        else
+        {
+          vtkIdType globalPtId = 0;
+          dataSet->GetPoint(ptId, p);
+          ptInserter->InsertUniquePoint(p, globalPtId);
+          globalIndices[ptId + ptOffset] = globalPtId;
+          // The point inserter puts the point into newPts, so we don't have to do that here.
+        }
       }
       else
       {
         globalIndices[ptId + ptOffset] = ptId + ptOffset;
-        newPts->SetPoint(ptId + ptOffset, dataSet->GetPoint(ptId));
+        dataSet->GetPoint(ptId, p);
+        newPts->SetPoint(ptId + ptOffset, p);
       }
 
       // Update progress
       count++;
-      if ( !(count % twentieth) )
+      if (!(count % twentieth))
       {
         decimal += 0.05;
         this->UpdateProgress(decimal);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
     }
 
     // copy cell
-    vtkUnstructuredGrid *ug = vtkUnstructuredGrid::SafeDownCast(dataSet);
+    vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(dataSet);
     for (vtkIdType cellId = 0; cellId < dataSetNumCells && !abort; ++cellId)
     {
-      newPtIds->Reset ();
-      if (ug && dataSet->GetCellType(cellId) == VTK_POLYHEDRON )
+      newPtIds->Reset();
+      if (ug && dataSet->GetCellType(cellId) == VTK_POLYHEDRON)
       {
-        vtkIdType nfaces;
-        const vtkIdType *facePtIds;
-        ug->GetFaceStream(cellId,nfaces,facePtIds);
-        for(vtkIdType id=0; id < nfaces; ++id)
+        vtkNew<vtkCellArray> faces;
+        ug->GetPolyhedronFaces(cellId, faces);
+        faces->Visit(RenumberingVisitor{}, globalIndices, ptOffset);
+        dataSet->GetCellPoints(cellId, ptIds);
+        for (vtkIdType id = 0; id < ptIds->GetNumberOfIds(); ++id)
         {
-          vtkIdType nPoints = facePtIds[0];
-          newPtIds->InsertNextId(nPoints);
-          for (vtkIdType j = 1; j <= nPoints; ++j)
-          {
-            newPtIds->InsertNextId(globalIndices[facePtIds[j] + ptOffset]);
-          }
-          facePtIds += nPoints + 1;
+          newPtIds->InsertId(id, globalIndices[ptIds->GetId(id) + ptOffset]);
         }
-        output->InsertNextCell(VTK_POLYHEDRON, nfaces, newPtIds->GetPointer(0));
+        output->InsertNextCell(
+          VTK_POLYHEDRON, newPtIds->GetNumberOfIds(), newPtIds->GetPointer(0), faces);
       }
       else
       {
@@ -327,16 +369,16 @@ int vtkAppendFilter::RequestData(
         {
           newPtIds->InsertId(id, globalIndices[ptIds->GetId(id) + ptOffset]);
         }
-        output->InsertNextCell(dataSet->GetCellType(cellId),newPtIds);
+        output->InsertNextCell(dataSet->GetCellType(cellId), newPtIds);
       }
 
       // Update progress
       count++;
-      if ( !(count % twentieth) )
+      if (!(count % twentieth))
       {
         decimal += 0.05;
         this->UpdateProgress(decimal);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
     }
     ptOffset += dataSetNumPts;
@@ -345,7 +387,9 @@ int vtkAppendFilter::RequestData(
   // this filter can copy global ids except for global point ids when merging
   // points (see paraview/paraview#18666).
   // Note, not copying global ids is the default behavior.
-  if (reallyMergePoints == false)
+  // Since paraview/paraview#19961, global point ids can be used for the merging
+  // decision. In this case, they can be merged.
+  if (!reallyMergePoints || (reallyMergePoints && globalIdsArray))
   {
     output->GetPointData()->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
   }
@@ -367,8 +411,8 @@ int vtkAppendFilter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-vtkDataSetCollection* vtkAppendFilter::GetNonEmptyInputs(vtkInformationVector ** inputVector)
+//------------------------------------------------------------------------------
+vtkDataSetCollection* vtkAppendFilter::GetNonEmptyInputs(vtkInformationVector** inputVector)
 {
   vtkDataSetCollection* collection = vtkDataSetCollection::New();
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
@@ -384,7 +428,7 @@ vtkDataSetCollection* vtkAppendFilter::GetNonEmptyInputs(vtkInformationVector **
     {
       if (dataSet->GetNumberOfPoints() <= 0 && dataSet->GetNumberOfCells() <= 0)
       {
-        continue; //no input, just skip
+        continue; // no input, just skip
       }
       collection->AddItem(dataSet);
     }
@@ -393,12 +437,9 @@ vtkDataSetCollection* vtkAppendFilter::GetNonEmptyInputs(vtkInformationVector **
   return collection;
 }
 
-//----------------------------------------------------------------------------
-void vtkAppendFilter::AppendArrays(int attributesType,
-                                   vtkInformationVector **inputVector,
-                                   vtkIdType* globalIds,
-                                   vtkUnstructuredGrid* output,
-                                   vtkIdType totalNumberOfElements)
+//------------------------------------------------------------------------------
+void vtkAppendFilter::AppendArrays(int attributesType, vtkInformationVector** inputVector,
+  vtkIdType* globalIds, vtkUnstructuredGrid* output, vtkIdType totalNumberOfElements)
 {
   // Check if attributesType is supported
   if (attributesType != vtkDataObject::POINT && attributesType != vtkDataObject::CELL)
@@ -412,7 +453,7 @@ void vtkAppendFilter::AppendArrays(int attributesType,
   auto inputs = vtkSmartPointer<vtkDataSetCollection>::Take(this->GetNonEmptyInputs(inputVector));
   vtkCollectionSimpleIterator iter;
   vtkDataSet* dataSet = nullptr;
-  for (dataSet = nullptr, inputs->InitTraversal(iter); (dataSet = inputs->GetNextDataSet(iter)); )
+  for (dataSet = nullptr, inputs->InitTraversal(iter); (dataSet = inputs->GetNextDataSet(iter));)
   {
     if (auto inputData = dataSet->GetAttributes(attributesType))
     {
@@ -426,14 +467,15 @@ void vtkAppendFilter::AppendArrays(int attributesType,
   // copy arrays.
   int inputIndex;
   vtkIdType offset = 0;
-  for (inputIndex = 0, dataSet = nullptr, inputs->InitTraversal(iter); (dataSet = inputs->GetNextDataSet(iter));)
+  for (inputIndex = 0, dataSet = nullptr, inputs->InitTraversal(iter);
+       (dataSet = inputs->GetNextDataSet(iter));)
   {
     if (auto inputData = dataSet->GetAttributes(attributesType))
     {
       const auto numberOfInputTuples = inputData->GetNumberOfTuples();
       if (globalIds != nullptr)
       {
-        for (vtkIdType id=0; id < numberOfInputTuples; ++id)
+        for (vtkIdType id = 0; id < numberOfInputTuples; ++id)
         {
           fieldList.CopyData(inputIndex, inputData, id, outputData, globalIds[offset + id]);
         }
@@ -448,10 +490,9 @@ void vtkAppendFilter::AppendArrays(int attributesType,
   }
 }
 
-//----------------------------------------------------------------------------
-int vtkAppendFilter::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
-                                         vtkInformationVector **inputVector,
-                                         vtkInformationVector *vtkNotUsed(outputVector))
+//------------------------------------------------------------------------------
+int vtkAppendFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   int numInputConnections = this->GetNumberOfInputConnections(0);
 
@@ -459,7 +500,7 @@ int vtkAppendFilter::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
   // send their WHOLE_EXTENT as UPDATE_EXTENT.
   for (int idx = 1; idx < numInputConnections; ++idx)
   {
-    vtkInformation * inputInfo = inputVector[0]->GetInformationObject(idx);
+    vtkInformation* inputInfo = inputVector[0]->GetInformationObject(idx);
     if (inputInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
     {
       int ext[6];
@@ -471,20 +512,20 @@ int vtkAppendFilter::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkAppendFilter::FillInputPortInformation(int, vtkInformation *info)
+//------------------------------------------------------------------------------
+int vtkAppendFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "MergePoints:" << (this->MergePoints?"On":"Off") << "\n";
-  os << indent << "OutputPointsPrecision: "
-     << this->OutputPointsPrecision << "\n";
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "MergePoints:" << (this->MergePoints ? "On" : "Off") << "\n";
+  os << indent << "OutputPointsPrecision: " << this->OutputPointsPrecision << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
+VTK_ABI_NAMESPACE_END

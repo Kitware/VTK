@@ -1,53 +1,37 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestCollapseVerticesByArray.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCollapseVerticesByArray.h"
-#include "vtkVertexListIterator.h"
-#include "vtkEdgeListIterator.h"
-#include "vtkDoubleArray.h"
-#include "vtkStringArray.h"
-#include "vtkIntArray.h"
-#include "vtkVariantArray.h"
-#include "vtkMutableDirectedGraph.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkIntArray.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkVariantArray.h"
+#include "vtkVertexListIterator.h"
 
 int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  typedef
-  vtkSmartPointer<vtkMutableDirectedGraph>    vtkMutableDirectedGraphRefPtr;
-  typedef
-  vtkSmartPointer<vtkCollapseVerticesByArray> vtkCollapseVerticesByArrayRefPtr;
-  typedef vtkSmartPointer<vtkVertexListIterator>
-                                              vtkVertexListIteratorRefPtr;
-  typedef vtkSmartPointer<vtkEdgeListIterator>
-                                              vtkEdgeListIteratorRefPtr;
-  typedef vtkSmartPointer <vtkDoubleArray>    vtkDoubleArrayRefPtr;
-  typedef vtkSmartPointer <vtkIntArray>       vtkIntArrayRefPtr;
-  typedef vtkSmartPointer <vtkStringArray>    vtkStringArrayRefPtr;
-  typedef vtkSmartPointer <vtkVariantArray>   vtkVariantArrayRefPtr;
+  typedef vtkSmartPointer<vtkMutableDirectedGraph> vtkMutableDirectedGraphRefPtr;
+  typedef vtkSmartPointer<vtkCollapseVerticesByArray> vtkCollapseVerticesByArrayRefPtr;
+  typedef vtkSmartPointer<vtkVertexListIterator> vtkVertexListIteratorRefPtr;
+  typedef vtkSmartPointer<vtkEdgeListIterator> vtkEdgeListIteratorRefPtr;
+  typedef vtkSmartPointer<vtkDoubleArray> vtkDoubleArrayRefPtr;
+  typedef vtkSmartPointer<vtkIntArray> vtkIntArrayRefPtr;
+  typedef vtkSmartPointer<vtkStringArray> vtkStringArrayRefPtr;
+  typedef vtkSmartPointer<vtkVariantArray> vtkVariantArrayRefPtr;
 
   int retVal = 0;
 
   // Create an empty graph.
-  vtkMutableDirectedGraphRefPtr inGraph (vtkMutableDirectedGraphRefPtr::New());
+  vtkMutableDirectedGraphRefPtr inGraph(vtkMutableDirectedGraphRefPtr::New());
 
   const int NO_OF_VERTICES = 3;
   vtkIdType vertexIds[NO_OF_VERTICES];
 
-  for(int i=0; i < NO_OF_VERTICES; ++i)
+  for (int i = 0; i < NO_OF_VERTICES; ++i)
   {
     vertexIds[i] = inGraph->AddVertex();
   }
@@ -57,11 +41,11 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   inGraph->AddEdge(vertexIds[2], vertexIds[1]);
 
   // Populate arrays.
-  vtkStringArrayRefPtr idsArray         (vtkStringArrayRefPtr::New());
-  vtkStringArrayRefPtr ownerArray       (vtkStringArrayRefPtr::New());
-  vtkDoubleArrayRefPtr dataTransfer     (vtkDoubleArrayRefPtr::New());
-  vtkDoubleArrayRefPtr avgDataTransfer  (vtkDoubleArrayRefPtr::New());
-  vtkIntArrayRefPtr    capacityArray    (vtkIntArrayRefPtr::New());
+  vtkStringArrayRefPtr idsArray(vtkStringArrayRefPtr::New());
+  vtkStringArrayRefPtr ownerArray(vtkStringArrayRefPtr::New());
+  vtkDoubleArrayRefPtr dataTransfer(vtkDoubleArrayRefPtr::New());
+  vtkDoubleArrayRefPtr avgDataTransfer(vtkDoubleArrayRefPtr::New());
+  vtkIntArrayRefPtr capacityArray(vtkIntArrayRefPtr::New());
 
   // idsArray
   idsArray->SetName("id");
@@ -99,11 +83,10 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   inGraph->GetEdgeData()->AddArray(dataTransfer);
   inGraph->GetEdgeData()->AddArray(avgDataTransfer);
 
-
   vtkCollapseVerticesByArrayRefPtr cvs(vtkCollapseVerticesByArrayRefPtr::New());
-  cvs->SetCountEdgesCollapsed(1);
+  cvs->SetCountEdgesCollapsed(true);
   cvs->SetEdgesCollapsedArray("weight_edges");
-  cvs->SetCountVerticesCollapsed(1);
+  cvs->SetCountVerticesCollapsed(true);
   cvs->SetVerticesCollapsedArray("weight_vertices");
   cvs->SetVertexArray("owner_company");
   cvs->AddAggregateEdgeArray("data_transfer");
@@ -111,9 +94,9 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cvs->Update();
 
   // Check values here.
-  vtkVariantArrayRefPtr resultNoSelfLoop (vtkVariantArrayRefPtr::New());
-  vtkVariantArrayRefPtr resultSelfLoop   (vtkVariantArrayRefPtr::New());
-  vtkVariantArrayRefPtr validResult      (vtkVariantArrayRefPtr::New());
+  vtkVariantArrayRefPtr resultNoSelfLoop(vtkVariantArrayRefPtr::New());
+  vtkVariantArrayRefPtr resultSelfLoop(vtkVariantArrayRefPtr::New());
+  vtkVariantArrayRefPtr validResult(vtkVariantArrayRefPtr::New());
 
   validResult->InsertNextValue("CELL_TOWER_C");
   validResult->InsertNextValue("AT&T");
@@ -130,35 +113,33 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   validResult->InsertNextValue(300);
   validResult->InsertNextValue(1);
 
-  vtkVertexListIteratorRefPtr outVtxLstItr (vtkVertexListIteratorRefPtr::New());
-  vtkEdgeListIteratorRefPtr   outEgeLstItr (vtkEdgeListIteratorRefPtr::New());
+  vtkVertexListIteratorRefPtr outVtxLstItr(vtkVertexListIteratorRefPtr::New());
+  vtkEdgeListIteratorRefPtr outEgeLstItr(vtkEdgeListIteratorRefPtr::New());
 
   outVtxLstItr->SetGraph(cvs->GetOutput());
   outEgeLstItr->SetGraph(cvs->GetOutput());
 
-  vtkSmartPointer<vtkGraph> outGraph (cvs->GetOutput());
+  vtkSmartPointer<vtkGraph> outGraph(cvs->GetOutput());
 
-  while(outVtxLstItr->HasNext())
+  while (outVtxLstItr->HasNext())
   {
     vtkIdType vtxId = outVtxLstItr->Next();
-    for(int i=0; i < outGraph->GetVertexData()->GetNumberOfArrays(); ++i)
+    for (int i = 0; i < outGraph->GetVertexData()->GetNumberOfArrays(); ++i)
     {
       resultNoSelfLoop->InsertNextValue(
-        outGraph->GetVertexData()->GetAbstractArray(i)->
-        GetVariantValue(vtxId));
+        outGraph->GetVertexData()->GetAbstractArray(i)->GetVariantValue(vtxId));
     }
   }
 
-  while(outEgeLstItr->HasNext())
+  while (outEgeLstItr->HasNext())
   {
     vtkEdgeType edge = outEgeLstItr->Next();
-    for(int i=0; i < outGraph->GetEdgeData()->GetNumberOfArrays(); ++i)
+    for (int i = 0; i < outGraph->GetEdgeData()->GetNumberOfArrays(); ++i)
     {
-      resultNoSelfLoop->InsertNextValue(outGraph->GetEdgeData()->
-        GetAbstractArray(i)->GetVariantValue(edge.Id));
+      resultNoSelfLoop->InsertNextValue(
+        outGraph->GetEdgeData()->GetAbstractArray(i)->GetVariantValue(edge.Id));
     }
   }
-
 
   // Checking for self loops.
   cvs->AllowSelfLoopsOn();
@@ -167,51 +148,49 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   outVtxLstItr->SetGraph(cvs->GetOutput());
   outEgeLstItr->SetGraph(cvs->GetOutput());
 
-  while(outVtxLstItr->HasNext())
+  while (outVtxLstItr->HasNext())
   {
     vtkIdType vtxId = outVtxLstItr->Next();
 
-    for(int i=0; i < outGraph->GetVertexData()->GetNumberOfArrays(); ++i)
+    for (int i = 0; i < outGraph->GetVertexData()->GetNumberOfArrays(); ++i)
     {
       resultSelfLoop->InsertNextValue(
-        outGraph->GetVertexData()->GetAbstractArray(i)->
-        GetVariantValue(vtxId));
+        outGraph->GetVertexData()->GetAbstractArray(i)->GetVariantValue(vtxId));
     }
   }
 
-  while(outEgeLstItr->HasNext())
+  while (outEgeLstItr->HasNext())
   {
     vtkEdgeType edge = outEgeLstItr->Next();
 
-    for(int i=0; i < outGraph->GetEdgeData()->GetNumberOfArrays(); ++i)
+    for (int i = 0; i < outGraph->GetEdgeData()->GetNumberOfArrays(); ++i)
     {
-      resultSelfLoop->InsertNextValue(outGraph->GetEdgeData()->
-        GetAbstractArray(i)->GetVariantValue(edge.Id));
+      resultSelfLoop->InsertNextValue(
+        outGraph->GetEdgeData()->GetAbstractArray(i)->GetVariantValue(edge.Id));
     }
   }
 
   // Compare with the valid dataset.
-  for(int i=0; i < resultNoSelfLoop->GetDataSize(); ++i)
+  for (int i = 0; i < resultNoSelfLoop->GetDataSize(); ++i)
   {
-    if(resultNoSelfLoop->GetValue(i) != validResult->GetValue(i))
+    if (resultNoSelfLoop->GetValue(i) != validResult->GetValue(i))
     {
       retVal++;
     }
   }
 
-  for(int i=0; i < resultSelfLoop->GetDataSize(); ++i)
+  for (int i = 0; i < resultSelfLoop->GetDataSize(); ++i)
   {
-    if(resultSelfLoop->GetValue(i) != validResult->GetValue(i))
+    if (resultSelfLoop->GetValue(i) != validResult->GetValue(i))
     {
       retVal++;
     }
   }
 
-  if(retVal !=0)
+  if (retVal != 0)
   {
     cerr << "Data mismatch with the valid dataset." << endl;
   }
 
   return retVal;
 }
-

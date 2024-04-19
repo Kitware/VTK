@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFXAAOptions.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkFXAAOptions
@@ -19,15 +7,17 @@
  *
  *
  * This class encapsulates the settings for vtkOpenGLFXAAFilter.
-*/
+ */
 
 #ifndef vtkFXAAOptions_h
 #define vtkFXAAOptions_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
-class VTKRENDERINGCORE_EXPORT vtkFXAAOptions: public vtkObject
+VTK_ABI_NAMESPACE_BEGIN
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkFXAAOptions : public vtkObject
 {
 public:
   /**
@@ -47,10 +37,10 @@ public:
   };
 
   static vtkFXAAOptions* New();
-  vtkTypeMacro(vtkFXAAOptions, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkFXAAOptions, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Threshold for applying FXAA to a pixel, relative to the maximum luminosity
    * of its 4 immediate neighbors.
@@ -66,11 +56,11 @@ public:
    * - 1/8: High quality (default)
    * - 1/16: Overkill
    */
-  vtkSetClampMacro(RelativeContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(RelativeContrastThreshold, float)
-  //@}
+  vtkSetClampMacro(RelativeContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(RelativeContrastThreshold, float);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Similar to RelativeContrastThreshold, but not scaled by the maximum
    * luminosity.
@@ -84,11 +74,11 @@ public:
    * - 1/16: High quality (default)
    * - 1/12: Upper limit (start of visible unfiltered edges)
    */
-  vtkSetClampMacro(HardContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(HardContrastThreshold, float)
-  //@}
+  vtkSetClampMacro(HardContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(HardContrastThreshold, float);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Subpixel aliasing is corrected by applying a lowpass filter to the current
    * pixel. This is implemented by blending an average of the 3x3 neighborhood
@@ -107,11 +97,11 @@ public:
    * - 7/8: High amount of blending.
    * - 1: Maximum amount of blending.
    */
-  vtkSetClampMacro(SubpixelBlendLimit, float, 0.f, 1.f)
-  vtkGetMacro(SubpixelBlendLimit, float)
-  //@}
+  vtkSetClampMacro(SubpixelBlendLimit, float, 0.f, 1.f);
+  vtkGetMacro(SubpixelBlendLimit, float);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Minimum amount of subpixel aliasing required for subpixel antialiasing to
    * be applied.
@@ -134,11 +124,11 @@ public:
    * - 1/8: High subpixel aliasing removal
    * - 0: Complete subpixel aliasing removal
    */
-  vtkSetClampMacro(SubpixelContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(SubpixelContrastThreshold, float)
-  //@}
+  vtkSetClampMacro(SubpixelContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(SubpixelContrastThreshold, float);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use an improved edge endpoint detection algorithm.
 
@@ -151,12 +141,12 @@ public:
 
    * Default setting is true.
    */
-  vtkSetMacro(UseHighQualityEndpoints, bool)
-  vtkGetMacro(UseHighQualityEndpoints, bool)
-  vtkBooleanMacro(UseHighQualityEndpoints, bool)
-  //@}
+  vtkSetMacro(UseHighQualityEndpoints, bool);
+  vtkGetMacro(UseHighQualityEndpoints, bool);
+  vtkBooleanMacro(UseHighQualityEndpoints, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of iterations for the endpoint search algorithm. Increasing
    * this value will increase runtime, but also properly detect longer edges.
@@ -164,18 +154,18 @@ public:
    * negative directions per iteration. The default value is 12, which will
    * resolve endpoints of edges < 25 pixels long (2 * 12 + 1).
    */
-  vtkSetClampMacro(EndpointSearchIterations, int, 0, VTK_INT_MAX)
-  vtkGetMacro(EndpointSearchIterations, int)
-  //@}
+  vtkSetClampMacro(EndpointSearchIterations, int, 0, VTK_INT_MAX);
+  vtkGetMacro(EndpointSearchIterations, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Debugging options that affect the output color buffer. See
    * vtkFXAAFilterFS.glsl for details. Only one may be active at a time.
    */
-  vtkSetMacro(DebugOptionValue, DebugOption)
-  vtkGetMacro(DebugOptionValue, DebugOption)
-  //@}
+  vtkSetMacro(DebugOptionValue, DebugOption);
+  vtkGetMacro(DebugOptionValue, DebugOption);
+  ///@}
 
 protected:
   vtkFXAAOptions();
@@ -194,4 +184,5 @@ private:
   void operator=(const vtkFXAAOptions&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkFXAAOptions_h

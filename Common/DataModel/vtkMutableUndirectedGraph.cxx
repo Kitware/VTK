@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMutableUndirectedGraph.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkMutableUndirectedGraph.h"
 
@@ -26,51 +10,52 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // class vtkMutableUndirectedGraph
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMutableUndirectedGraph);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMutableUndirectedGraph::vtkMutableUndirectedGraph()
 {
   this->GraphEdge = vtkGraphEdge::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMutableUndirectedGraph::~vtkMutableUndirectedGraph()
 {
   this->GraphEdge->Delete();
 }
 
-//----------------------------------------------------------------------------
-vtkIdType vtkMutableUndirectedGraph::SetNumberOfVertices( vtkIdType numVerts )
+//------------------------------------------------------------------------------
+vtkIdType vtkMutableUndirectedGraph::SetNumberOfVertices(vtkIdType numVerts)
 {
   vtkIdType retval = -1;
 
-  if ( this->GetDistributedGraphHelper() )
+  if (this->GetDistributedGraphHelper())
   {
-    vtkWarningMacro( "SetNumberOfVertices will not work on distributed graphs." );
+    vtkWarningMacro("SetNumberOfVertices will not work on distributed graphs.");
     return retval;
   }
 
-  retval = static_cast<vtkIdType>( this->Internals->Adjacency.size() );
-  this->Internals->Adjacency.resize( numVerts );
+  retval = static_cast<vtkIdType>(this->Internals->Adjacency.size());
+  this->Internals->Adjacency.resize(numVerts);
   return retval;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkMutableUndirectedGraph::AddVertex()
 {
-  if (this->Internals->UsingPedigreeIds
-      && this->GetDistributedGraphHelper() != nullptr)
+  if (this->Internals->UsingPedigreeIds && this->GetDistributedGraphHelper() != nullptr)
   {
-    vtkErrorMacro("Adding vertex without a pedigree ID into a distributed graph that uses pedigree IDs to name vertices");
+    vtkErrorMacro("Adding vertex without a pedigree ID into a distributed graph that uses pedigree "
+                  "IDs to name vertices");
   }
 
   return this->AddVertex(nullptr);
 }
-//----------------------------------------------------------------------------
-vtkIdType vtkMutableUndirectedGraph::AddVertex(vtkVariantArray *propertyArr)
+//------------------------------------------------------------------------------
+vtkIdType vtkMutableUndirectedGraph::AddVertex(vtkVariantArray* propertyArr)
 {
   if (this->GetVertexData()->GetPedigreeIds() != nullptr)
   {
@@ -82,7 +67,7 @@ vtkIdType vtkMutableUndirectedGraph::AddVertex(vtkVariantArray *propertyArr)
   return vertex;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkMutableUndirectedGraph::AddVertex(const vtkVariant& pedigreeId)
 {
   this->Internals->UsingPedigreeIds = true;
@@ -92,35 +77,24 @@ vtkIdType vtkMutableUndirectedGraph::AddVertex(const vtkVariant& pedigreeId)
   return vertex;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEdgeType vtkMutableUndirectedGraph::AddEdge(vtkIdType u, vtkIdType v)
 {
   return this->AddEdge(u, v, nullptr);
 }
 
-//----------------------------------------------------------------------------
-vtkEdgeType vtkMutableUndirectedGraph::AddEdge(vtkIdType u, vtkIdType v,
-                                               vtkVariantArray *propertyArr)
+//------------------------------------------------------------------------------
+vtkEdgeType vtkMutableUndirectedGraph::AddEdge(
+  vtkIdType u, vtkIdType v, vtkVariantArray* propertyArr)
 {
   vtkEdgeType e;
   this->AddEdgeInternal(u, v, false, propertyArr, &e);
   return e;
 }
 
-//----------------------------------------------------------------------------
-vtkEdgeType vtkMutableUndirectedGraph::AddEdge(const vtkVariant& u, vtkIdType v,
-                                               vtkVariantArray *propertyArr)
-{
-  this->Internals->UsingPedigreeIds = true;
-
-  vtkEdgeType e;
-  this->AddEdgeInternal(u, v, false, propertyArr, &e);
-  return e;
-}
-
-//----------------------------------------------------------------------------
-vtkEdgeType vtkMutableUndirectedGraph::AddEdge(vtkIdType u, const vtkVariant& v,
-                                               vtkVariantArray *propertyArr)
+//------------------------------------------------------------------------------
+vtkEdgeType vtkMutableUndirectedGraph::AddEdge(
+  const vtkVariant& u, vtkIdType v, vtkVariantArray* propertyArr)
 {
   this->Internals->UsingPedigreeIds = true;
 
@@ -129,10 +103,9 @@ vtkEdgeType vtkMutableUndirectedGraph::AddEdge(vtkIdType u, const vtkVariant& v,
   return e;
 }
 
-//----------------------------------------------------------------------------
-vtkEdgeType vtkMutableUndirectedGraph::AddEdge(const vtkVariant& u,
-                                               const vtkVariant& v,
-                                               vtkVariantArray *propertyArr)
+//------------------------------------------------------------------------------
+vtkEdgeType vtkMutableUndirectedGraph::AddEdge(
+  vtkIdType u, const vtkVariant& v, vtkVariantArray* propertyArr)
 {
   this->Internals->UsingPedigreeIds = true;
 
@@ -141,20 +114,31 @@ vtkEdgeType vtkMutableUndirectedGraph::AddEdge(const vtkVariant& u,
   return e;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+vtkEdgeType vtkMutableUndirectedGraph::AddEdge(
+  const vtkVariant& u, const vtkVariant& v, vtkVariantArray* propertyArr)
+{
+  this->Internals->UsingPedigreeIds = true;
+
+  vtkEdgeType e;
+  this->AddEdgeInternal(u, v, false, propertyArr, &e);
+  return e;
+}
+
+//------------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::LazyAddVertex()
 {
-  if (this->Internals->UsingPedigreeIds
-      && this->GetDistributedGraphHelper() != nullptr)
+  if (this->Internals->UsingPedigreeIds && this->GetDistributedGraphHelper() != nullptr)
   {
-    vtkErrorMacro("Adding vertex without a pedigree ID into a distributed graph that uses pedigree IDs to name vertices");
+    vtkErrorMacro("Adding vertex without a pedigree ID into a distributed graph that uses pedigree "
+                  "IDs to name vertices");
   }
 
   this->LazyAddVertex(nullptr);
 }
 
-//----------------------------------------------------------------------------
-void vtkMutableUndirectedGraph::LazyAddVertex(vtkVariantArray *propertyArr)
+//------------------------------------------------------------------------------
+void vtkMutableUndirectedGraph::LazyAddVertex(vtkVariantArray* propertyArr)
 {
   if (this->GetVertexData()->GetPedigreeIds() != nullptr)
   {
@@ -164,7 +148,7 @@ void vtkMutableUndirectedGraph::LazyAddVertex(vtkVariantArray *propertyArr)
   this->AddVertexInternal(propertyArr, nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::LazyAddVertex(const vtkVariant& pedigreeId)
 {
   this->Internals->UsingPedigreeIds = true;
@@ -172,49 +156,47 @@ void vtkMutableUndirectedGraph::LazyAddVertex(const vtkVariant& pedigreeId)
   this->AddVertexInternal(pedigreeId, nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::LazyAddEdge(vtkIdType u, vtkIdType v)
 {
   this->LazyAddEdge(u, v, nullptr);
 }
 
-//----------------------------------------------------------------------------
-void vtkMutableUndirectedGraph::LazyAddEdge(vtkIdType u, vtkIdType v,
-                                            vtkVariantArray *propertyArr)
+//------------------------------------------------------------------------------
+void vtkMutableUndirectedGraph::LazyAddEdge(vtkIdType u, vtkIdType v, vtkVariantArray* propertyArr)
 {
   this->AddEdgeInternal(u, v, false, propertyArr, nullptr);
 }
 
-//----------------------------------------------------------------------------
-void vtkMutableUndirectedGraph::LazyAddEdge(const vtkVariant& u, vtkIdType v,
-                                            vtkVariantArray *propertyArr)
-{
-  this->Internals->UsingPedigreeIds = true;
-
-  this->AddEdgeInternal(u, v, false, propertyArr, nullptr);
-}
-
-//----------------------------------------------------------------------------
-void vtkMutableUndirectedGraph::LazyAddEdge(vtkIdType u, const vtkVariant& v,
-                                            vtkVariantArray *propertyArr)
+//------------------------------------------------------------------------------
+void vtkMutableUndirectedGraph::LazyAddEdge(
+  const vtkVariant& u, vtkIdType v, vtkVariantArray* propertyArr)
 {
   this->Internals->UsingPedigreeIds = true;
 
   this->AddEdgeInternal(u, v, false, propertyArr, nullptr);
 }
 
-//----------------------------------------------------------------------------
-void vtkMutableUndirectedGraph::LazyAddEdge(const vtkVariant& u,
-                                            const vtkVariant& v,
-                                            vtkVariantArray *propertyArr)
+//------------------------------------------------------------------------------
+void vtkMutableUndirectedGraph::LazyAddEdge(
+  vtkIdType u, const vtkVariant& v, vtkVariantArray* propertyArr)
 {
   this->Internals->UsingPedigreeIds = true;
 
   this->AddEdgeInternal(u, v, false, propertyArr, nullptr);
 }
 
-//----------------------------------------------------------------------------
-vtkGraphEdge *vtkMutableUndirectedGraph::AddGraphEdge(vtkIdType u, vtkIdType v)
+//------------------------------------------------------------------------------
+void vtkMutableUndirectedGraph::LazyAddEdge(
+  const vtkVariant& u, const vtkVariant& v, vtkVariantArray* propertyArr)
+{
+  this->Internals->UsingPedigreeIds = true;
+
+  this->AddEdgeInternal(u, v, false, propertyArr, nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkGraphEdge* vtkMutableUndirectedGraph::AddGraphEdge(vtkIdType u, vtkIdType v)
 {
   vtkEdgeType e = this->AddEdge(u, v);
   this->GraphEdge->SetSource(e.Source);
@@ -223,32 +205,33 @@ vtkGraphEdge *vtkMutableUndirectedGraph::AddGraphEdge(vtkIdType u, vtkIdType v)
   return this->GraphEdge;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::RemoveVertex(vtkIdType v)
 {
   this->RemoveVertexInternal(v, false);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::RemoveEdge(vtkIdType e)
 {
   this->RemoveEdgeInternal(e, false);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::RemoveVertices(vtkIdTypeArray* arr)
 {
   this->RemoveVerticesInternal(arr, false);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::RemoveEdges(vtkIdTypeArray* arr)
 {
   this->RemoveEdgesInternal(arr, false);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAssignAttribute.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAssignAttribute
  * @brief   Labels/marks a field as an attribute
@@ -43,7 +31,7 @@
  * vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
  * vtkDataSetAttributes vtkDataArray vtkRearrangeFields
  * vtkSplitField vtkMergeFields
-*/
+ */
 
 #ifndef vtkAssignAttribute_h
 #define vtkAssignAttribute_h
@@ -53,18 +41,19 @@
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFieldData;
 
 class VTKFILTERSCORE_EXPORT vtkAssignAttribute : public vtkPassInputTypeAlgorithm
 {
 public:
-  vtkTypeMacro(vtkAssignAttribute,vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkAssignAttribute, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkAssignAttribute.
    */
-  static vtkAssignAttribute *New();
+  static vtkAssignAttribute* New();
 
   /**
    * Label an attribute as another attribute.
@@ -80,21 +69,19 @@ public:
    * Helper method used by other language bindings. Allows the caller to
    * specify arguments as strings instead of enums.
    */
-  void Assign(const char* name, const char* attributeType,
-              const char* attributeLoc);
+  void Assign(const char* name, const char* attributeType, const char* attributeLoc);
 
   // Always keep NUM_ATTRIBUTE_LOCS as the last entry
   enum AttributeLocation
   {
-    POINT_DATA=0,
-    CELL_DATA=1,
-    VERTEX_DATA=2,
-    EDGE_DATA=3,
+    POINT_DATA = 0,
+    CELL_DATA = 1,
+    VERTEX_DATA = 2,
+    EDGE_DATA = 3,
     NUM_ATTRIBUTE_LOCS
   };
 
 protected:
-
   enum FieldType
   {
     NAME,
@@ -104,9 +91,9 @@ protected:
   vtkAssignAttribute();
   ~vtkAssignAttribute() override;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   char* FieldName;
   int FieldTypeAssignment;
@@ -116,9 +103,11 @@ protected:
 
   static char AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12];
   static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20];
+
 private:
   vtkAssignAttribute(const vtkAssignAttribute&) = delete;
   void operator=(const vtkAssignAttribute&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

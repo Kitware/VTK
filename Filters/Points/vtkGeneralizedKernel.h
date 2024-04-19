@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGeneralizedKernel.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGeneralizedKernel
  * @brief   flexible, general interpolation kernels
@@ -58,7 +46,7 @@
  * @sa
  * vtkPointInterpolator vtkPointInterpolator2D vtkGaussianKernel vtkSPHKernel
  * vtkShepardKernel vtkLinearKernel vtkVoronoiKernel
-*/
+ */
 
 #ifndef vtkGeneralizedKernel_h
 #define vtkGeneralizedKernel_h
@@ -66,17 +54,17 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPOINTS_EXPORT vtkGeneralizedKernel : public vtkInterpolationKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for type and printing.
    */
-  vtkTypeMacro(vtkGeneralizedKernel, vtkInterpolationKernel)
+  vtkTypeMacro(vtkGeneralizedKernel, vtkInterpolationKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Based on the kernel style, invoke the appropriate locator method to
@@ -88,7 +76,7 @@ public:
    * ComputeWeights(). Note that ptId is optional in most cases, although in
    * some kernels it is used to facilitate basis computation.
    */
-  vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) override;
+  vtkIdType ComputeBasis(double x[3], vtkIdList* pIds, vtkIdType ptId = 0) override;
 
   /**
    * Given a point x, a list of basis points pIds, and a probability
@@ -104,8 +92,8 @@ public:
    * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
-  virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) = 0;
+  virtual vtkIdType ComputeWeights(
+    double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights) = 0;
 
   /**
    * Given a point x, and a list of basis points pIds, compute interpolation
@@ -116,9 +104,9 @@ public:
    * invoke ComputeWeights() and provide the interpolation basis points pIds
    * directly.
    */
-  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights) override
+  vtkIdType ComputeWeights(double x[3], vtkIdList* pIds, vtkDoubleArray* weights) override
   {
-    return this->ComputeWeights(x,pIds,nullptr,weights);
+    return this->ComputeWeights(x, pIds, nullptr, weights);
   }
 
   /**
@@ -129,11 +117,11 @@ public:
    */
   enum KernelStyle
   {
-    RADIUS=0,
-    N_CLOSEST=1
+    RADIUS = 0,
+    N_CLOSEST = 1
   };
 
-  //@{
+  ///@{
   /**
    * Specify the interpolation basis style. By default, a Radius style is
    * used (i.e., the basis is defined from all points within a specified
@@ -142,42 +130,40 @@ public:
    * as it provides better mathematical properties. However, for convenience
    * some bases are easier to use when the N closest points are taken.
    */
-  vtkSetMacro(KernelFootprint,int);
-  vtkGetMacro(KernelFootprint,int);
-  void SetKernelFootprintToRadius()
-    { this->SetKernelFootprint(RADIUS); }
-  void SetKernelFootprintToNClosest()
-    { this->SetKernelFootprint(N_CLOSEST); }
-  //@}
+  vtkSetMacro(KernelFootprint, int);
+  vtkGetMacro(KernelFootprint, int);
+  void SetKernelFootprintToRadius() { this->SetKernelFootprint(RADIUS); }
+  void SetKernelFootprintToNClosest() { this->SetKernelFootprint(N_CLOSEST); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the interpolation basis style is Radius, then this method specifies
    * the radius within which the basis points must lie.
    */
-  vtkSetClampMacro(Radius,double,0.0,VTK_FLOAT_MAX);
-  vtkGetMacro(Radius,double);
-  //@}
+  vtkSetClampMacro(Radius, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Radius, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the interpolation basis style is NClosest, then this method specifies
    * the number of the closest points used to form the interpolation basis.
    */
-  vtkSetClampMacro(NumberOfPoints,int,1,VTK_INT_MAX);
-  vtkGetMacro(NumberOfPoints,int);
-  //@}
+  vtkSetClampMacro(NumberOfPoints, int, 1, VTK_INT_MAX);
+  vtkGetMacro(NumberOfPoints, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether the interpolation weights should be normalized after they
    * are computed. Generally this is left on as it results in more reasonable
    * behavior.
    */
-  vtkSetMacro(NormalizeWeights,bool);
-  vtkGetMacro(NormalizeWeights,bool);
-  vtkBooleanMacro(NormalizeWeights,bool);
-  //@}
+  vtkSetMacro(NormalizeWeights, bool);
+  vtkGetMacro(NormalizeWeights, bool);
+  vtkBooleanMacro(NormalizeWeights, bool);
+  ///@}
 
 protected:
   vtkGeneralizedKernel();
@@ -193,4 +179,5 @@ private:
   void operator=(const vtkGeneralizedKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

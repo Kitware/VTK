@@ -3,9 +3,9 @@ set(classes
   vtkFreeTypeLabelRenderStrategy
   vtkLabeledDataMapper
   vtkLabeledTreeMapDataMapper
+  vtkLabelHierarchy
   vtkLabelHierarchyAlgorithm
   vtkLabelHierarchyCompositeIterator
-  vtkLabelHierarchy
   vtkLabelHierarchyIterator
   vtkLabelPlacementMapper
   vtkLabelPlacer
@@ -15,3 +15,4 @@ set(classes
 
 vtk_module_add_module(VTK::RenderingLabel
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::RenderingLabel)

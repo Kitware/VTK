@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestLogger.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // Test some generic features of vtkLogger.
 
 #include "vtkLogger.h"
@@ -30,7 +18,7 @@ void log_handler(void* user_data, const vtkLogger::Message& message)
 }
 }
 
-int TestLogger(int, char* [])
+int TestLogger(int, char*[])
 {
   std::string lines;
   vtkLogF(INFO, "changing verbosity to %d", vtkLogger::VERBOSITY_TRACE);
@@ -48,7 +36,7 @@ int TestLogger(int, char* [])
 
     auto month = "May";
     vtkLogIf(2, true, << "Rough winds do shake the darling buds of " << month << ",");
-    vtkLogIfF(2, true, "And %s’s lease hath all too short a date;", "summers");
+    vtkLogIfF(2, true, "And %s's lease hath all too short a date;", "summers");
   }
 
   cerr << "--------------------------------------------" << endl

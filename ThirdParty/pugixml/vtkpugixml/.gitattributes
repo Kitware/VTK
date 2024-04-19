@@ -1,3 +1,4 @@
+tests/data/* -text
+
 * -whitespace
 README.md conflict-marker-size=30
-

@@ -2,4 +2,6 @@ NAME
   VTK::kwiml
 LIBRARY_NAME
   vtkkwiml
+TEST_DEPENDS
+  VTK::TestingCore
 THIRD_PARTY

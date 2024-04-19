@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_UNTIL_HPP
@@ -9,7 +9,7 @@
 #include "bytes.hpp"
 #include "eof.hpp"
 #include "not_at.hpp"
-#include "rule_conjunction.hpp"
+#include "seq.hpp"
 #include "skip_control.hpp"
 #include "star.hpp"
 
@@ -25,7 +25,10 @@ namespace tao
       namespace internal
       {
          template< typename Cond, typename... Rules >
-         struct until;
+         struct until
+            : until< Cond, seq< Rules... > >
+         {
+         };
 
          template< typename Cond >
          struct until< Cond >
@@ -54,10 +57,10 @@ namespace tao
             }
          };
 
-         template< typename Cond, typename... Rules >
-         struct until
+         template< typename Cond, typename Rule >
+         struct until< Cond, Rule >
          {
-            using analyze_t = analysis::generic< analysis::rule_type::seq, star< not_at< Cond >, not_at< eof >, Rules... >, Cond >;
+            using analyze_t = analysis::generic< analysis::rule_type::seq, star< not_at< Cond >, not_at< eof >, Rule >, Cond >;
 
             template< apply_mode A,
                       rewind_mode M,
@@ -73,7 +76,7 @@ namespace tao
                using m_t = decltype( m );
 
                while( !Control< Cond >::template match< A, rewind_mode::required, Action, Control >( in, st... ) ) {
-                  if( !rule_conjunction< Rules... >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) ) {
+                  if( !Control< Rule >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) ) {
                      return false;
                   }
                }

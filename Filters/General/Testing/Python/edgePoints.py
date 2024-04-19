@@ -1,6 +1,18 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersGeneral import vtkEdgePoints
+from vtkmodules.vtkIOImage import vtkVolume16Reader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,12 +21,12 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # create pipeline
 # reader reads slices
-v16 = vtk.vtkVolume16Reader()
+v16 = vtkVolume16Reader()
 v16.SetDataDimensions(64, 64)
 v16.SetDataByteOrderToLittleEndian()
 v16.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
@@ -23,25 +35,25 @@ v16.SetImageRange(30, 50)
 v16.SetDataMask(0x7fff)
 
 # create points on edges
-edgePoints = vtk.vtkEdgePoints()
+edgePoints = vtkEdgePoints()
 edgePoints.SetInputConnection(v16.GetOutputPort())
 edgePoints.SetValue(1150)
 
 #
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(edgePoints.GetOutputPort())
 mapper.ScalarVisibilityOff()
 
-head = vtk.vtkActor()
+head = vtkActor()
 head.SetMapper(mapper)
 head.GetProperty().SetColor(GetRGBColor('raw_sienna'))
 
 # Create the RenderWindow, Renderer and Interactor
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

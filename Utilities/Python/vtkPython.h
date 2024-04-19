@@ -1,23 +1,10 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPython.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef vtkPython_h
 #define vtkPython_h
 
-#include "vtkPythonConfigure.h"
-#include "vtkConfigure.h"
 #include "vtkABI.h"
+#include "vtkPythonConfigure.h"
 
 /*
    Use the real python debugging library if it is provided.
@@ -31,29 +18,29 @@
    and error is triggered. Let's prevent that by setting _CRT_NOFORCE_MANIFEST.
 */
 #if defined(_DEBUG) && !defined(VTK_WINDOWS_PYTHON_DEBUGGABLE)
-# define VTK_PYTHON_UNDEF_DEBUG
+#define VTK_PYTHON_UNDEF_DEBUG
 // Include these low level headers before undefing _DEBUG. Otherwise when doing
 // a debug build against a release build of python the compiler will end up
 // including these low level headers without DEBUG enabled, causing it to try
 // and link release versions of this low level C api.
-# include <basetsd.h>
-# include <assert.h>
-# include <ctype.h>
-# include <errno.h>
-# include <io.h>
-# include <math.h>
-# include <stdarg.h>
-# include <stddef.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <string.h>
-# include <sys/stat.h>
-# include <time.h>
-# include <wchar.h>
-# undef _DEBUG
-# if defined(_MSC_VER)
-#  define _CRT_NOFORCE_MANIFEST 1
-# endif
+#include <assert.h>
+#include <basetsd.h>
+#include <ctype.h>
+#include <errno.h>
+#include <io.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <wchar.h>
+#undef _DEBUG
+#if defined(_MSC_VER)
+#define _CRT_NOFORCE_MANIFEST 1
+#endif
 #endif
 
 /* We used to try to #undef feature macros that Python.h defines
@@ -70,7 +57,7 @@ before _any_ headers that define feature macros, whether or not
 they are system headers.  Do NOT add any #undef lines here.  */
 
 #if defined(_MSC_VER)
-# pragma warning (push, 1)
+#pragma warning(push, 1)
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER >= 1800
@@ -84,12 +71,12 @@ they are system headers.  Do NOT add any #undef lines here.  */
 #endif
 
 #if defined(_MSC_VER)
-# pragma warning (pop)
+#pragma warning(pop)
 #endif
 
 #ifdef VTK_PYTHON_UNDEF_DEBUG
-# define _DEBUG 1
-# undef VTK_PYTHON_UNDEF_DEBUG
+#define _DEBUG 1
+#undef VTK_PYTHON_UNDEF_DEBUG
 #endif
 
 /* undo some macro defs in pyport.h */
@@ -105,10 +92,10 @@ they are system headers.  Do NOT add any #undef lines here.  */
 
 /* This logic is borrowed from mpi4py/vtkmpi4py/src/atimport.h */
 #ifdef VTK_NO_PYTHON_THREADS
-#undef  PyGILState_Ensure
+#undef PyGILState_Ensure
 #define PyGILState_Ensure() ((PyGILState_STATE)0)
-#undef  PyGILState_Release
-#define PyGILState_Release(state) (state)=((PyGILState_STATE)0)
+#undef PyGILState_Release
+#define PyGILState_Release(state) (state) = ((PyGILState_STATE)0)
 #endif
 
 #ifdef __cplusplus
@@ -116,6 +103,7 @@ they are system headers.  Do NOT add any #undef lines here.  */
 // RAII class to manage Python threading using GIL (Global Interpreter Lock).
 // GIL is locked at object creation and unlocked at destruction.
 // Note: behaviour of this class depends on VTK_PYTHON_FULL_THREADSAFE.
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPythonScopeGilEnsurer
 {
 public:
@@ -136,17 +124,17 @@ public:
     this->Force = force;
     this->NoRelease = noRelease;
     if (this->Force)
-      {
+    {
       this->State = PyGILState_Ensure();
-      }
+    }
   }
 
   ~vtkPythonScopeGilEnsurer()
   {
     if (this->Force && !this->NoRelease)
-      {
+    {
       PyGILState_Release(this->State);
-      }
+    }
   }
 
 private:
@@ -158,6 +146,7 @@ private:
   void operator=(const vtkPythonScopeGilEnsurer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // __cplusplus
 
 #endif

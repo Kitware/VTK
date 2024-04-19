@@ -1,22 +1,10 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkObjectIdMap.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkObjectIdMap
  * @brief   class used to assign Id to any VTK object and be able
  * to retrieve it base on its id.
-*/
+ */
 
 #ifndef vtkObjectIdMap_h
 #define vtkObjectIdMap_h
@@ -24,6 +12,7 @@
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKWEBCORE_EXPORT vtkObjectIdMap : public vtkObject
 {
 public:
@@ -56,9 +45,18 @@ public:
   vtkObject* GetActiveObject(const char* objectType);
 
   /**
-   * Remove any internal reference count due to internal Id/Object mapping
+   * Given an object, remove any internal reference count due to
+   * internal Id/Object mapping.
+   * Returns true if the item existed in the map and was deleted.
    */
-  void FreeObject(vtkObject* obj);
+  bool FreeObject(vtkObject* obj);
+
+  /**
+   * Given an id, remove any internal reference count due to
+   * internal Id/Object mapping.
+   * Returns true if the id existed in the map and was deleted.
+   */
+  bool FreeObjectById(vtkTypeUInt32 id);
 
 protected:
   vtkObjectIdMap();
@@ -70,7 +68,7 @@ private:
 
   struct vtkInternals;
   vtkInternals* Internals;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

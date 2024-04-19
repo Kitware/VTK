@@ -1,44 +1,32 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataContourLineInterpolator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPolyDataContourLineInterpolator.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkContourRepresentation.h"
-#include "vtkPolyData.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataCollection.h"
 
-
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkPolyDataContourLineInterpolator::vtkPolyDataContourLineInterpolator()
 {
   this->Polys = vtkPolyDataCollection::New();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataContourLineInterpolator::~vtkPolyDataContourLineInterpolator()
 {
   this->Polys->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Polys: \n";
-  this->Polys->PrintSelf(os,indent.GetNextIndent());
-
+  this->Polys->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

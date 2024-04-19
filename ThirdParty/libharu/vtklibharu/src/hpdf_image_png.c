@@ -19,9 +19,8 @@
 #include "hpdf_utils.h"
 #include "hpdf_image.h"
 
-#ifndef LIBHPDF_HAVE_NOPNGLIB
-/* KITWARE_LIBHARU_CHANGE Use vtk's zlib: */
-#include <vtk_png.h>
+#ifdef LIBHPDF_HAVE_LIBPNG
+#include <vtk_png.h> // XXX(kitware): Use VTK's png
 #include <string.h>
 
 static void
@@ -461,6 +460,7 @@ LoadPngData  (HPDF_Dict     image,
 	/* 16bit images are not supported. */
 	if (bit_depth == 16) {
 		png_set_strip_16(png_ptr);
+		bit_depth = 8;
 	}
 
 	png_read_update_info(png_ptr, info_ptr);
@@ -546,8 +546,10 @@ no_transparent_color_in_palette:
 			ret = HPDF_FAILD_TO_ALLOC_MEM;
 			goto Exit;
 		}
-
+		
+		smask->filter = image->filter;
 		smask->header.obj_class |= HPDF_OSUBCLASS_XOBJECT;
+		
 		ret = HPDF_Dict_AddName (smask, "Type", "XObject");
 		ret += HPDF_Dict_AddName (smask, "Subtype", "Image");
 		ret += HPDF_Dict_AddNumber (smask, "Width", (HPDF_UINT)width);
@@ -706,5 +708,4 @@ PngAfterWrite  (HPDF_Dict obj)
 }
 
 
-#endif /* LIBHPDF_HAVE_NOPNGLIB */
-
+#endif /* LIBHPDF_HAVE_PNGLIB */

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPointDensityFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPointDensityFilter
  * @brief   produce density field from input point cloud
@@ -86,22 +74,23 @@
 #define VTK_DENSITY_FORM_VOLUME_NORM 0
 #define VTK_DENSITY_FORM_NPTS 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 
 class VTKFILTERSPOINTS_EXPORT vtkPointDensityFilter : public vtkImageAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkPointDensityFilter *New();
-  vtkTypeMacro(vtkPointDensityFilter,vtkImageAlgorithm);
+  static vtkPointDensityFilter* New();
+  vtkTypeMacro(vtkPointDensityFilter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the dimensions of the sampling volume. Higher values generally
    * produce better results but may be much slower. Note however that too
@@ -110,74 +99,75 @@ public:
    */
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
-  vtkGetVectorMacro(SampleDimensions,int,3);
-  //@}
+  vtkGetVectorMacro(SampleDimensions, int, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box in which
    * the sampling is performed. If any of the (min,max) bounds values are
    * min >= max, then the bounds will be computed automatically from the input
    * data. Otherwise, the user-specified bounds will be used.
    */
-  vtkSetVector6Macro(ModelBounds,double);
-  vtkGetVectorMacro(ModelBounds,double,6);
-  //@}
+  vtkSetVector6Macro(ModelBounds, double);
+  vtkGetVectorMacro(ModelBounds, double, 6);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the relative amount to pad the model bounds if automatic
    * computation is performed. The padding is the fraction to scale
    * the model bounds in each of the x-y-z directions. By default the
    * padding is 0.10 (i.e., 10% larger in each direction).
    */
-  vtkSetClampMacro(AdjustDistance,double,-1.0,1.0);
-  vtkGetMacro(AdjustDistance,double);
-  //@}
+  vtkSetClampMacro(AdjustDistance, double, -1.0, 1.0);
+  vtkGetMacro(AdjustDistance, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the method to estimate point density. The density can be
    * calculated using a fixed sphere radius; or a sphere radius that is
    * relative to voxel size.
    */
-  vtkSetClampMacro(DensityEstimate,int, VTK_DENSITY_ESTIMATE_FIXED_RADIUS,
-                   VTK_DENSITY_ESTIMATE_RELATIVE_RADIUS);
-  vtkGetMacro(DensityEstimate,int);
+  vtkSetClampMacro(
+    DensityEstimate, int, VTK_DENSITY_ESTIMATE_FIXED_RADIUS, VTK_DENSITY_ESTIMATE_RELATIVE_RADIUS);
+  vtkGetMacro(DensityEstimate, int);
   void SetDensityEstimateToFixedRadius()
-    {this->SetDensityEstimate(VTK_DENSITY_ESTIMATE_FIXED_RADIUS);}
+  {
+    this->SetDensityEstimate(VTK_DENSITY_ESTIMATE_FIXED_RADIUS);
+  }
   void SetDensityEstimateToRelativeRadius()
-    {this->SetDensityEstimate(VTK_DENSITY_ESTIMATE_RELATIVE_RADIUS);}
-  const char *GetDensityEstimateAsString();
-  //@}
+  {
+    this->SetDensityEstimate(VTK_DENSITY_ESTIMATE_RELATIVE_RADIUS);
+  }
+  const char* GetDensityEstimateAsString();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the form by which the density is expressed. Either the density is
    * expressed as (number of points/local sphere volume), or as simply the
    * (number of points) within the local sphere.
    */
-  vtkSetClampMacro(DensityForm,int, VTK_DENSITY_FORM_VOLUME_NORM,
-                   VTK_DENSITY_FORM_NPTS);
-  vtkGetMacro(DensityForm,int);
-  void SetDensityFormToVolumeNormalized()
-    {this->SetDensityForm(VTK_DENSITY_FORM_VOLUME_NORM);}
-  void SetDensityFormToNumberOfPoints()
-    {this->SetDensityForm(VTK_DENSITY_FORM_NPTS);}
-  const char *GetDensityFormAsString();
-  //@}
+  vtkSetClampMacro(DensityForm, int, VTK_DENSITY_FORM_VOLUME_NORM, VTK_DENSITY_FORM_NPTS);
+  vtkGetMacro(DensityForm, int);
+  void SetDensityFormToVolumeNormalized() { this->SetDensityForm(VTK_DENSITY_FORM_VOLUME_NORM); }
+  void SetDensityFormToNumberOfPoints() { this->SetDensityForm(VTK_DENSITY_FORM_NPTS); }
+  const char* GetDensityFormAsString();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the radius variable defining the local sphere used to estimate
    * the density function. The Radius is used when the density estimate is
    ^ set to a fixed radius (i.e., the radius doesn't change).
    */
-  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Radius,double);
-  //@}
+  vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the relative radius factor defining the local sphere used to
    * estimate the density function. The relative sphere radius is equal to
@@ -185,21 +175,21 @@ public:
    * is used when the density estimate is set to relative radius (i.e.,
    * relative to voxel size).
    */
-  vtkSetClampMacro(RelativeRadius,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(RelativeRadius,double);
-  //@}
+  vtkSetClampMacro(RelativeRadius, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(RelativeRadius, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the weighting of point density by a scalar array. By default
    * scalar weighting is off.
    */
-  vtkSetMacro(ScalarWeighting,bool);
-  vtkGetMacro(ScalarWeighting,bool);
-  vtkBooleanMacro(ScalarWeighting,bool);
-  //@}
+  vtkSetMacro(ScalarWeighting, bool);
+  vtkGetMacro(ScalarWeighting, bool);
+  vtkBooleanMacro(ScalarWeighting, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the generation of the gradient vector, gradient magnitude
    * scalar, and function classification scalar. By default this is off. Note
@@ -207,20 +197,20 @@ public:
    * names of these point data arrays are: "Gradient", "Gradient Magnitude",
    * and "Classification".)
    */
-  vtkSetMacro(ComputeGradient,bool);
-  vtkGetMacro(ComputeGradient,bool);
-  vtkBooleanMacro(ComputeGradient,bool);
-  //@}
+  vtkSetMacro(ComputeGradient, bool);
+  vtkGetMacro(ComputeGradient, bool);
+  vtkBooleanMacro(ComputeGradient, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point locator. By default a vtkStaticPointLocator is
    * used. The locator performs efficient searches to locate near a
    * specified interpolation position.
    */
-  void SetLocator(vtkAbstractPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkAbstractPointLocator);
-  //@}
+  void SetLocator(vtkAbstractPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
+  ///@}
 
   /**
    * This enum is used to classify the behavior of the function gradient. Regions
@@ -230,40 +220,36 @@ public:
    */
   enum FunctionClass
   {
-    ZERO=0,
-    NON_ZERO=1
+    ZERO = 0,
+    NON_ZERO = 1
   };
 
 protected:
   vtkPointDensityFilter();
   ~vtkPointDensityFilter() override;
 
-  int SampleDimensions[3]; // dimensions of volume over which to estimate density
-  double ModelBounds[6]; // bounding box of splatting dimensions
-  double AdjustDistance; // how much to pad the model bounds if automatically computed
-  double Origin[3], Spacing[3]; // output geometry
-  int DensityEstimate; // how to compute the density
-  int DensityForm; // how to represent density value
-  double RelativeRadius; // Radius factor for estimating density
-  double Radius; // Actually radius used
-  bool ScalarWeighting; // Are point densities weighted or not?
-  bool ComputeGradient; // Compute the gradient vector and magnitude
-  vtkAbstractPointLocator *Locator; //accelerate point searches
+  int SampleDimensions[3];          // dimensions of volume over which to estimate density
+  double ModelBounds[6];            // bounding box of splatting dimensions
+  double AdjustDistance;            // how much to pad the model bounds if automatically computed
+  double Origin[3], Spacing[3];     // output geometry
+  int DensityEstimate;              // how to compute the density
+  int DensityForm;                  // how to represent density value
+  double RelativeRadius;            // Radius factor for estimating density
+  double Radius;                    // Actually radius used
+  bool ScalarWeighting;             // Are point densities weighted or not?
+  bool ComputeGradient;             // Compute the gradient vector and magnitude
+  vtkAbstractPointLocator* Locator; // accelerate point searches
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) override;
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ComputeModelBounds(vtkDataSet *input, vtkImageData *output,
-                          vtkInformation *outInfo);
+  void ComputeModelBounds(vtkDataSet* input, vtkImageData* output, vtkInformation* outInfo);
 
 private:
   vtkPointDensityFilter(const vtkPointDensityFilter&) = delete;
   void operator=(const vtkPointDensityFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

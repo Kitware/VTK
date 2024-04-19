@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSpanTreeLayoutStrategy.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-//-------------------------------------------------------------------------
-//Copyright 2008 Sandia Corporation.
-//Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-//the U.S. Government retains certain rights in this software.
-//-------------------------------------------------------------------------
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkSpanTreeLayoutStrategy
  *
@@ -57,23 +40,24 @@
  * @par Thanks:
  * Thanks to David Duke from the University of Leeds for providing this
  * implementation.
-*/
+ */
 
 #ifndef vtkSpanTreeLayoutStrategy_h
 #define vtkSpanTreeLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkSpanTreeLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkSpanTreeLayoutStrategy *New();
+  static vtkSpanTreeLayoutStrategy* New();
 
   vtkTypeMacro(vtkSpanTreeLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If set, base the layout on a depth-first spanning tree,
    * rather than the default breadth-first spanning tree.
@@ -84,7 +68,7 @@ public:
   vtkSetMacro(DepthFirstSpanningTree, bool);
   vtkGetMacro(DepthFirstSpanningTree, bool);
   vtkBooleanMacro(DepthFirstSpanningTree, bool);
-  //@}
+  ///@}
 
   /**
    * Perform the layout.
@@ -95,7 +79,7 @@ protected:
   vtkSpanTreeLayoutStrategy();
   ~vtkSpanTreeLayoutStrategy() override;
 
-  vtkGraphLayoutStrategy *TreeLayout;
+  vtkGraphLayoutStrategy* TreeLayout;
   bool DepthFirstSpanningTree;
 
 private:
@@ -103,5 +87,5 @@ private:
   void operator=(const vtkSpanTreeLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

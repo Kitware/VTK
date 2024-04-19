@@ -1,16 +1,5 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
 * @class   vtkOpenVRModel
 * @brief   OpenVR device model
@@ -24,78 +13,32 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkOpenVRModel_h
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
-#include "vtkObject.h"
-#include "vtkOpenGLHelper.h" // ivar
-#include "vtkNew.h" // for ivar
+#include "vtkVRModel.h"
 #include <openvr.h> // for ivars
 
-class vtkOpenVRRenderWindow;
-class vtkRenderWindow;
-class vtkOpenGLVertexBufferObject;
-class vtkTextureObject;
-class vtkMatrix4x4;
-class vtkOpenVRRay;
-
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRModel : public vtkObject
+VTK_ABI_NAMESPACE_BEGIN
+class VTKRENDERINGOPENVR_EXPORT vtkOpenVRModel : public vtkVRModel
 {
 public:
-  static vtkOpenVRModel *New();
-  vtkTypeMacro(vtkOpenVRModel, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkOpenVRModel* New();
+  vtkTypeMacro(vtkOpenVRModel, vtkVRModel);
 
-  bool Build(vtkOpenVRRenderWindow *win);
-  void Render(vtkOpenVRRenderWindow *win,
-    const vr::TrackedDevicePose_t &pose);
-
-  const std::string & GetName() const {
-    return this->ModelName;
-  }
-  void SetName(const std::string & modelName) {
-    this->ModelName = modelName;
-  };
-
-  // show the model
-  void SetVisibility(bool v) {
-    this->Visibility = v;
-  };
-  bool GetVisibility() {
-    return this->Visibility;
-  };
-
-  //Set Ray parameters
-  void SetShowRay(bool v);
-  void SetRayLength(double length);
-  vtkOpenVRRay *GetRay() { return this->Ray; }
-
-  void ReleaseGraphicsResources(vtkRenderWindow *win);
-
-  // the tracked device this model represents if any
-  vr::TrackedDeviceIndex_t TrackedDevice;
-
-  vr::RenderModel_t *RawModel;
+  vr::RenderModel_t* RawModel;
 
 protected:
   vtkOpenVRModel();
-  ~vtkOpenVRModel()  override;
+  ~vtkOpenVRModel() override = default;
 
-  std::string ModelName;
-
-  bool Visibility;
-  bool Loaded;
-  bool FailedToLoad;
-
-  vr::RenderModel_TextureMap_t *RawTexture;
-  vtkOpenGLHelper ModelHelper;
-  vtkOpenGLVertexBufferObject *ModelVBO;
-  vtkNew<vtkTextureObject> TextureObject;
-  vtkNew<vtkMatrix4x4> PoseMatrix;
-
-  //Controller ray
-  vtkNew<vtkOpenVRRay> Ray;
+  void FillModelHelper() override;
+  void SetPositionAndTCoords() override;
+  void CreateTextureObject(vtkOpenGLRenderWindow* win) override;
+  void LoadModelAndTexture(vtkOpenGLRenderWindow* win) override;
+  vr::RenderModel_TextureMap_t* RawTexture;
 
 private:
   vtkOpenVRModel(const vtkOpenVRModel&) = delete;
   void operator=(const vtkOpenVRModel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

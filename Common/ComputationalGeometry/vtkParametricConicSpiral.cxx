@@ -1,24 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParametricConicSpiral.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkParametricConicSpiral.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricConicSpiral);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricConicSpiral::vtkParametricConicSpiral()
 {
   // Preset triangulation parameters
@@ -41,17 +30,16 @@ vtkParametricConicSpiral::vtkParametricConicSpiral()
   this->N = 2;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricConicSpiral::~vtkParametricConicSpiral() = default;
 
-//----------------------------------------------------------------------------
-void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3],
-                                        double Duvw[9])
+//------------------------------------------------------------------------------
+void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   double inv2pi = 1.0 / (2.0 * vtkMath::Pi());
 
@@ -67,23 +55,22 @@ void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3],
 
   // The derivatives are:
   Du[0] = -this->A * (1 - v * inv2pi) * cnv * su;
-  Dv[0] = -this->A * inv2pi * cnv * (1 + cu) - this->A *
-          (1 - v * inv2pi) * snv * this->N * (1 + cu) - this->C * snv * N;
+  Dv[0] = -this->A * inv2pi * cnv * (1 + cu) -
+    this->A * (1 - v * inv2pi) * snv * this->N * (1 + cu) - this->C * snv * N;
   Du[1] = -this->A * (1 - v * inv2pi) * snv * su;
-  Dv[1] = -this->A * inv2pi * snv * (1 + cu) + this->A *
-          (1 - v * inv2pi) * cnv * this->N * (1 + cu) + C * cnv * this->N;
+  Dv[1] = -this->A * inv2pi * snv * (1 + cu) +
+    this->A * (1 - v * inv2pi) * cnv * this->N * (1 + cu) + C * cnv * this->N;
   Du[2] = this->A * (1 - v * inv2pi) * cu;
   Dv[2] = this->B * inv2pi - this->A * inv2pi * su;
 }
 
-//----------------------------------------------------------------------------
-double vtkParametricConicSpiral::EvaluateScalar(double *, double *,
-    double *)
+//------------------------------------------------------------------------------
+double vtkParametricConicSpiral::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricConicSpiral::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -93,3 +80,4 @@ void vtkParametricConicSpiral::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "C: " << this->C << "\n";
   os << indent << "N: " << this->N << "\n";
 }
+VTK_ABI_NAMESPACE_END

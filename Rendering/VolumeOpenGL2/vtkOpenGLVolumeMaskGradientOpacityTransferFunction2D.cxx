@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D.h"
 
@@ -23,21 +11,19 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::
   vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D()
 {
   this->NumberOfColorComponents = 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::InternalUpdate(
-  vtkObject* func,
-  int vtkNotUsed(blendMode),
-  double vtkNotUsed(sampleDistance),
-  double vtkNotUsed(unitDistance),
+//------------------------------------------------------------------------------
+void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::InternalUpdate(vtkObject* func,
+  int vtkNotUsed(blendMode), double vtkNotUsed(sampleDistance), double vtkNotUsed(unitDistance),
   int filterValue)
 {
   if (!func)
@@ -59,10 +45,8 @@ void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::InternalUpdate(
     vtkPiecewiseFunction* gradOp = prop->GetLabelGradientOpacity(i);
     if (gradOp)
     {
-      gradOp->GetTable(0,
-                       (this->LastRange[1] - this->LastRange[0]) * 0.25,
-                       this->TextureWidth,
-                       tmpGradOp);
+      gradOp->GetTable(
+        0, (this->LastRange[1] - this->LastRange[0]) * 0.25, this->TextureWidth, tmpGradOp);
     }
 
     float* tablePtr = this->Table;
@@ -74,19 +58,13 @@ void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::InternalUpdate(
   this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
   this->TextureObject->SetMagnificationFilter(filterValue);
   this->TextureObject->SetMinificationFilter(filterValue);
-  this->TextureObject->Create2DFromRaw(this->TextureWidth,
-                                       this->TextureHeight,
-                                       this->NumberOfColorComponents,
-                                       VTK_FLOAT,
-                                       this->Table);
+  this->TextureObject->Create2DFromRaw(
+    this->TextureWidth, this->TextureHeight, this->NumberOfColorComponents, VTK_FLOAT, this->Table);
 }
 
-//----------------------------------------------------------------------------
-void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::
-  ComputeIdealTextureSize(vtkObject* func,
-                          int& width,
-                          int& height,
-                          vtkOpenGLRenderWindow* vtkNotUsed(renWin))
+//------------------------------------------------------------------------------
+void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::ComputeIdealTextureSize(
+  vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* vtkNotUsed(renWin))
 {
   vtkVolumeProperty* prop = vtkVolumeProperty::SafeDownCast(func);
   if (!prop)
@@ -101,10 +79,9 @@ void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::
   height = labels.empty() ? 1 : *(labels.crbegin()) + 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::PrintSelf(
-  ostream& os,
-  vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

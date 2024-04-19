@@ -5,6 +5,7 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFCheckpointDirectory
 	vtktiff_TIFFCleanup
 	vtktiff_TIFFClientOpen
+	vtktiff_TIFFClientOpenExt
 	vtktiff_TIFFClientdata
 	vtktiff_TIFFClose
 	vtktiff_TIFFComputeStrip
@@ -12,6 +13,7 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFCreateCustomDirectory
 	vtktiff_TIFFCreateDirectory
 	vtktiff_TIFFCreateEXIFDirectory
+	vtktiff_TIFFCreateGPSDirectory
 	vtktiff_TIFFCurrentDirOffset
 	vtktiff_TIFFCurrentDirectory
 	vtktiff_TIFFCurrentRow
@@ -20,23 +22,30 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFDataWidth
 	vtktiff_TIFFDefaultStripSize
 	vtktiff_TIFFDefaultTileSize
+	vtktiff_TIFFDeferStrileArrayWriting
 	vtktiff_TIFFError
 	vtktiff_TIFFErrorExt
+	vtktiff_TIFFErrorExtR
 	vtktiff_TIFFFdOpen
+	vtktiff_TIFFFdOpenExt
 	vtktiff_TIFFFieldDataType
 	vtktiff_TIFFFieldName
 	vtktiff_TIFFFieldPassCount
 	vtktiff_TIFFFieldReadCount
+	vtktiff_TIFFFieldIsAnonymous
 	vtktiff_TIFFFieldTag
 	vtktiff_TIFFFieldWithName
 	vtktiff_TIFFFieldWithTag
 	vtktiff_TIFFFieldWriteCount
+	vtktiff_TIFFFieldSetGetSize
+	vtktiff_TIFFFieldSetGetCountSize
 	vtktiff_TIFFFileName
 	vtktiff_TIFFFileno
 	vtktiff_TIFFFindCODEC
 	vtktiff_TIFFFindField
 	vtktiff_TIFFFlush
 	vtktiff_TIFFFlushData
+	vtktiff_TIFFForceStrileArrayWriting
 	vtktiff_TIFFFreeDirectory
 	vtktiff_TIFFGetBitRevTable
 	vtktiff_TIFFGetClientInfo
@@ -49,12 +58,17 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFGetReadProc
 	vtktiff_TIFFGetSeekProc
 	vtktiff_TIFFGetSizeProc
+	vtktiff_TIFFGetStrileByteCount
+	vtktiff_TIFFGetStrileByteCountWithErr
+	vtktiff_TIFFGetStrileOffset
+	vtktiff_TIFFGetStrileOffsetWithErr
 	vtktiff_TIFFGetTagListCount
 	vtktiff_TIFFGetTagListEntry
 	vtktiff_TIFFGetUnmapFileProc
 	vtktiff_TIFFGetVersion
 	vtktiff_TIFFGetWriteProc
 	vtktiff_TIFFIsBigEndian
+	vtktiff_TIFFIsBigTIFF
 	vtktiff_TIFFIsByteSwapped
 	vtktiff_TIFFIsCODECConfigured
 	vtktiff_TIFFIsMSB2LSB
@@ -66,7 +80,14 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFNumberOfStrips
 	vtktiff_TIFFNumberOfTiles
 	vtktiff_TIFFOpen
+	vtktiff_TIFFOpenExt
 	vtktiff_TIFFOpenW
+	vtktiff_TIFFOpenWExt
+	vtktiff_TIFFOpenOptionsAlloc
+	vtktiff_TIFFOpenOptionsFree
+	vtktiff_TIFFOpenOptionsSetMaxSingleMemAlloc
+	vtktiff_TIFFOpenOptionsSetErrorHandlerExtR
+	vtktiff_TIFFOpenOptionsSetWarningHandlerExtR
 	vtktiff_TIFFPrintDirectory
 	vtktiff_TIFFRGBAImageBegin
 	vtktiff_TIFFRGBAImageEnd
@@ -80,8 +101,10 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFReadCustomDirectory
 	vtktiff_TIFFReadDirectory
 	vtktiff_TIFFReadEXIFDirectory
+	vtktiff_TIFFReadGPSDirectory
 	vtktiff_TIFFReadEncodedStrip
 	vtktiff_TIFFReadEncodedTile
+	vtktiff_TIFFReadFromUserBuffer
 	vtktiff_TIFFReadRGBAImage
 	vtktiff_TIFFReadRGBAImageOriented
 	vtktiff_TIFFReadRGBAStrip
@@ -142,6 +165,7 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFVTileSize64
 	vtktiff_TIFFWarning
 	vtktiff_TIFFWarningExt
+	vtktiff_TIFFWarningExtR
 	vtktiff_TIFFWriteBufferSetup
 	vtktiff_TIFFWriteCheck
 	vtktiff_TIFFWriteCustomDirectory
@@ -157,6 +181,7 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFYCbCrtoRGB
 	vtktiff__TIFFCheckMalloc
 	vtktiff__TIFFCheckRealloc
+	vtktiff__TIFFClampDoubleToUInt32
 	vtktiff__TIFFRewriteField
 	vtktiff__TIFFfree
 	vtktiff__TIFFmalloc
@@ -164,5 +189,7 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff__TIFFmemcpy
 	vtktiff__TIFFmemset
 	vtktiff__TIFFrealloc
-        vtktiff__TIFFMultiply32
-        vtktiff__TIFFMultiply64
+	vtktiff__TIFFMultiply32
+	vtktiff__TIFFMultiply64
+	vtktiff__TIFFGetExifFields
+	vtktiff__TIFFGetGpsFields

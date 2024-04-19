@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleImage.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInteractorStyleImage
  * @brief   interactive manipulation of the camera specialized for images
@@ -54,18 +42,19 @@
  * @sa
  * vtkInteractorStyle vtkInteractorStyleTrackballActor
  * vtkInteractorStyleJoystickCamera vtkInteractorStyleJoystickActor
-*/
+ */
 
 #ifndef vtkInteractorStyleImage_h
 #define vtkInteractorStyleImage_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 // Motion flags
 
 #define VTKIS_WINDOW_LEVEL 1024
-#define VTKIS_SLICE        1025
+#define VTKIS_SLICE 1025
 
 // Style flags
 
@@ -73,24 +62,26 @@
 #define VTKIS_IMAGE3D 3
 #define VTKIS_IMAGE_SLICING 4
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageProperty;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleImage : public vtkInteractorStyleTrackballCamera
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleImage
+  : public vtkInteractorStyleTrackballCamera
 {
 public:
-  static vtkInteractorStyleImage *New();
+  static vtkInteractorStyleImage* New();
   vtkTypeMacro(vtkInteractorStyleImage, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Some useful information for handling window level
    */
-  vtkGetVector2Macro(WindowLevelStartPosition,int);
-  vtkGetVector2Macro(WindowLevelCurrentPosition,int);
-  //@}
+  vtkGetVector2Macro(WindowLevelStartPosition, int);
+  vtkGetVector2Macro(WindowLevelCurrentPosition, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
@@ -102,7 +93,7 @@ public:
   void OnMiddleButtonUp() override;
   void OnRightButtonDown() override;
   void OnRightButtonUp() override;
-  //@}
+  ///@}
 
   /**
    * Override the "fly-to" (f keypress) for images.
@@ -125,7 +116,7 @@ public:
   virtual void StartSlice();
   virtual void EndSlice();
 
-  //@{
+  ///@{
   /**
    * Set/Get current mode to 2D or 3D.  The default is 2D.  In 3D mode,
    * it is possible to rotate the camera to view oblique slices.  In Slicing
@@ -134,15 +125,12 @@ public:
    */
   vtkSetClampMacro(InteractionMode, int, VTKIS_IMAGE2D, VTKIS_IMAGE_SLICING);
   vtkGetMacro(InteractionMode, int);
-  void SetInteractionModeToImage2D() {
-    this->SetInteractionMode(VTKIS_IMAGE2D); }
-  void SetInteractionModeToImage3D() {
-    this->SetInteractionMode(VTKIS_IMAGE3D); }
-  void SetInteractionModeToImageSlicing() {
-    this->SetInteractionMode(VTKIS_IMAGE_SLICING); }
-  //@}
+  void SetInteractionModeToImage2D() { this->SetInteractionMode(VTKIS_IMAGE2D); }
+  void SetInteractionModeToImage3D() { this->SetInteractionMode(VTKIS_IMAGE3D); }
+  void SetInteractionModeToImageSlicing() { this->SetInteractionMode(VTKIS_IMAGE_SLICING); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the orientations that will be used when the X, Y, or Z
    * keys are pressed.  See SetImageOrientation for more information.
@@ -159,7 +147,7 @@ public:
   vtkGetVector3Macro(ZViewRightVector, double);
   vtkSetVector3Macro(ZViewUpVector, double);
   vtkGetVector3Macro(ZViewUpVector, double);
-  //@}
+  ///@}
 
   /**
    * Set the view orientation, in terms of the horizontal and
@@ -170,8 +158,7 @@ public:
    * moving bottom-to-top up the screen.  This method changes
    * the position of the camera to provide the desired view.
    */
-  void SetImageOrientation(const double leftToRight[3],
-                           const double bottomToTop[3]);
+  void SetImageOrientation(const double leftToRight[3], const double bottomToTop[3]);
 
   /**
    * Set the image to use for WindowLevel interaction.
@@ -192,8 +179,7 @@ public:
    * This is the image property of the topmost vtkImageSlice in the
    * renderer or nullptr if no image actors are present.
    */
-  vtkImageProperty *GetCurrentImageProperty() {
-    return this->CurrentImageProperty; }
+  vtkImageProperty* GetCurrentImageProperty() { return this->CurrentImageProperty; }
 
 protected:
   vtkInteractorStyleImage();
@@ -202,7 +188,7 @@ protected:
   int WindowLevelStartPosition[2];
   int WindowLevelCurrentPosition[2];
   double WindowLevelInitial[2];
-  vtkImageProperty *CurrentImageProperty;
+  vtkImageProperty* CurrentImageProperty;
   int CurrentImageNumber;
 
   int InteractionMode;
@@ -218,4 +204,5 @@ private:
   void operator=(const vtkInteractorStyleImage&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

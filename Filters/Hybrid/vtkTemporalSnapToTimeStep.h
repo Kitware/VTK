@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTemporalSnapToTimeStep.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTemporalSnapToTimeStep
  * @brief   modify the time range/steps of temporal data
@@ -27,7 +15,7 @@
  * John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
  * "Time Dependent Processing in a Parallel Pipeline Architecture",
  * IEEE Visualization 2007.
-*/
+ */
 
 #ifndef vtkTemporalSnapToTimeStep_h
 #define vtkTemporalSnapToTimeStep_h
@@ -37,22 +25,24 @@
 
 #include <vector> // used because I am a bad boy. So there.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkPassInputTypeAlgorithm
 {
 public:
-  static vtkTemporalSnapToTimeStep *New();
+  static vtkTemporalSnapToTimeStep* New();
   vtkTypeMacro(vtkTemporalSnapToTimeStep, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum {
-    VTK_SNAP_NEAREST=0,
+  enum
+  {
+    VTK_SNAP_NEAREST = 0,
     VTK_SNAP_NEXTBELOW_OR_EQUAL,
     VTK_SNAP_NEXTABOVE_OR_EQUAL
   };
 
-  vtkSetMacro(SnapMode,int);
-  vtkGetMacro(SnapMode,int);
-  void SetSnapModeToNearest()          { this->SetSnapMode(VTK_SNAP_NEAREST); }
+  vtkSetMacro(SnapMode, int);
+  vtkGetMacro(SnapMode, int);
+  void SetSnapModeToNearest() { this->SetSnapMode(VTK_SNAP_NEAREST); }
   void SetSnapModeToNextBelowOrEqual() { this->SetSnapMode(VTK_SNAP_NEXTBELOW_OR_EQUAL); }
   void SetSnapModeToNextAboveOrEqual() { this->SetSnapMode(VTK_SNAP_NEXTABOVE_OR_EQUAL); }
 
@@ -63,24 +53,20 @@ protected:
   /**
    * see vtkAlgorithm for details
    */
-  vtkTypeBool ProcessRequest(vtkInformation* request,
-                     vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestUpdateExtent(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   std::vector<double> InputTimeValues;
-  int HasDiscrete;
+  vtkTypeBool HasDiscrete;
   int SnapMode;
 
 private:
@@ -88,4 +74,5 @@ private:
   void operator=(const vtkTemporalSnapToTimeStep&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

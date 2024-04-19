@@ -45,6 +45,7 @@ function(vtk_add_gl2ps_test_cxx)
         REQUIRED_FILES
           "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}.ps"
         LABELS "${_vtk_build_test_labels}"
+        ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID"
     )
 
     get_filename_component(TName ${test} NAME_WE)
@@ -70,6 +71,7 @@ function(vtk_add_gl2ps_test_cxx)
         REQUIRED_FILES
           "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
         LABELS "${_vtk_build_test_labels}"
+        ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID"
         )
     if(${RASTERIZE_PDF})
       ExternalData_add_test(VTKData
@@ -87,6 +89,7 @@ function(vtk_add_gl2ps_test_cxx)
         REQUIRED_FILES
         "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster-pdf.png"
         LABELS "${_vtk_build_test_labels}"
+        ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID"
         )
     endif()
   endforeach()

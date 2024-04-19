@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    otherCellTypes.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // .NAME
 // .SECTION Description
@@ -19,33 +7,29 @@
 
 #include "vtkDebugLeaks.h"
 
-#include "vtkCellTypes.h"
 #include "vtkCellType.h"
+#include "vtkCellTypes.h"
+#include "vtkIntArray.h"
 
 void TestOCT()
 {
   // actual test
-  vtkCellTypes *ct = vtkCellTypes::New();
+  vtkCellTypes* ct = vtkCellTypes::New();
   ct->Allocate();
 
   ct->InsertCell(0, VTK_QUAD, 0);
   ct->InsertNextCell(VTK_PIXEL, 1);
 
-  vtkUnsignedCharArray *cellTypes = vtkUnsignedCharArray::New();
-  vtkIntArray *cellLocations = vtkIntArray::New();
+  vtkUnsignedCharArray* cellTypes = vtkUnsignedCharArray::New();
 
-  cellLocations->InsertNextValue (0);
   cellTypes->InsertNextValue(VTK_QUAD);
 
-  cellLocations->InsertNextValue (1);
   cellTypes->InsertNextValue(VTK_PIXEL);
 
-  cellLocations->InsertNextValue (2);
   cellTypes->InsertNextValue(VTK_TETRA);
 
-  ct->SetCellTypes (3, cellTypes, cellLocations);
+  ct->SetCellTypes(3, cellTypes);
 
-  ct->GetCellLocation (1);
   ct->DeleteCell(1);
 
   ct->GetNumberOfTypes();
@@ -60,7 +44,7 @@ void TestOCT()
 
   ct->GetActualMemorySize();
 
-  vtkCellTypes *ct1 = vtkCellTypes::New();
+  vtkCellTypes* ct1 = vtkCellTypes::New();
   ct1->DeepCopy(ct);
 
   ct->Reset();
@@ -68,11 +52,10 @@ void TestOCT()
 
   ct1->Delete();
   ct->Delete();
-  cellLocations->Delete();
   cellTypes->Delete();
 }
 
-int otherCellTypes(int, char *[])
+int otherCellTypes(int, char*[])
 {
   TestOCT();
 

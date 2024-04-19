@@ -20,7 +20,7 @@ set(IOS_DEVICE_ARCHITECTURES "arm64"
 list(REMOVE_DUPLICATES IOS_SIMULATOR_ARCHITECTURES)
 list(REMOVE_DUPLICATES IOS_DEVICE_ARCHITECTURES)
 
-# Check that at least one architure is defined
+# Check that at least one architecture is defined
 list(LENGTH IOS_SIMULATOR_ARCHITECTURES SIMULATOR_ARCHS_NBR)
 list(LENGTH IOS_DEVICE_ARCHITECTURES DEVICE_ARCHS_NBR)
 math(EXPR IOS_ARCHS_NBR ${DEVICE_ARCHS_NBR}+${SIMULATOR_ARCHS_NBR})
@@ -101,6 +101,7 @@ set(module_options
   #DICOM
   FiltersModeling
   FiltersSources
+  ImagingGeneral
   IOGeometry
   IOImage
   IOInfovis
@@ -161,6 +162,7 @@ set(ios_cmake_flags
   -DVTK_GROUP_ENABLE_Qt:STRING=DONT_WANT
   -DVTK_GROUP_ENABLE_Web:STRING=DONT_WANT
   -DVTK_MODULE_ENABLE_VTK_RenderingOpenGL2:STRING=${enable_option_RenderingOpenGL2}
+  -DVTK_MODULE_ENABLE_VTK_ImagingGeneral:STRING=${enable_option_ImagingGeneral}
   -DVTK_MODULE_ENABLE_VTK_InteractionStyle:STRING=${enable_option_InteractionStyle}
   -DVTK_MODULE_ENABLE_VTK_InteractionWidgets:STRING=${enable_option_InteractionWidgets}
   -DVTK_MODULE_ENABLE_VTK_IOXML:STRING=${enable_option_IOXML}

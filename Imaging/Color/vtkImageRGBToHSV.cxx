@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageRGBToHSV.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageRGBToHSV.h"
 
 #include "vtkImageData.h"
@@ -19,9 +7,10 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageRGBToHSV);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageRGBToHSV::vtkImageRGBToHSV()
 {
   this->Maximum = 255.0;
@@ -29,13 +18,11 @@ vtkImageRGBToHSV::vtkImageRGBToHSV()
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
-                             vtkImageData *inData,
-                             vtkImageData *outData,
-                             int outExt[6], int id, T *)
+void vtkImageRGBToHSVExecute(
+  vtkImageRGBToHSV* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -44,7 +31,7 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
   double max = self->GetMaximum();
 
   // find the region to loop over
-  maxC = inData->GetNumberOfScalarComponents()-1;
+  maxC = inData->GetNumberOfScalarComponents() - 1;
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
@@ -55,9 +42,12 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
     while (outSI != outSIEnd)
     {
       // Pixel operation
-      R = static_cast<double>(*inSI) / max; inSI++;
-      G = static_cast<double>(*inSI) / max; inSI++;
-      B = static_cast<double>(*inSI) / max; inSI++;
+      R = static_cast<double>(*inSI) / max;
+      inSI++;
+      G = static_cast<double>(*inSI) / max;
+      inSI++;
+      B = static_cast<double>(*inSI) / max;
+      inSI++;
 
       vtkMath::RGBToHSV(R, G, B, &H, &S, &V);
 
@@ -79,9 +69,12 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
       }
 
       // assign output.
-      *outSI = static_cast<T>(H); outSI++;
-      *outSI = static_cast<T>(S); outSI++;
-      *outSI = static_cast<T>(V); outSI++;
+      *outSI = static_cast<T>(H);
+      outSI++;
+      *outSI = static_cast<T>(S);
+      outSI++;
+      *outSI = static_cast<T>(V);
+      outSI++;
 
       for (idxC = 3; idxC <= maxC; idxC++)
       {
@@ -93,19 +86,17 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkImageRGBToHSV::ThreadedExecute (vtkImageData *inData,
-                                         vtkImageData *outData,
-                                         int outExt[6], int id)
+//------------------------------------------------------------------------------
+void vtkImageRGBToHSV::ThreadedExecute(
+  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData
-  << ", outData = " << outData);
+  vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
 
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
   {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
   }
 
@@ -124,9 +115,7 @@ void vtkImageRGBToHSV::ThreadedExecute (vtkImageData *inData,
   switch (inData->GetScalarType())
   {
     vtkTemplateMacro(
-      vtkImageRGBToHSVExecute( this, inData,
-                               outData, outExt, id,
-                               static_cast<VTK_TT *>(nullptr)));
+      vtkImageRGBToHSVExecute(this, inData, outData, outExt, id, static_cast<VTK_TT*>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -135,8 +124,8 @@ void vtkImageRGBToHSV::ThreadedExecute (vtkImageData *inData,
 
 void vtkImageRGBToHSV::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Maximum: " << this->Maximum << "\n";
 }
-
+VTK_ABI_NAMESPACE_END

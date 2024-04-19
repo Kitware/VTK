@@ -1,119 +1,114 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParticleReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkParticleReader.h"
 
-#include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 #include "vtkByteSwap.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkEndian.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 #include <algorithm>
-#include <vector>
-#include <string>
 #include <sstream>
+#include <string>
+#include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParticleReader);
 
-namespace {
-  // .NAME ParseLine - Read a line of four values of type T filtering out comments.
-  // .SECTION Description
-  // The ParseLine operator scans a string and returns 0 if it finds a
-  // comment symbol. Otherwise it returns 1 and four values corresponding
-  // to the position of the particle (x,y,z) and a scalar s associated with
-  // the particle. It is a good idea to set the values of val to some
-  // predefined value before calling the operator.
-  template < typename T >
-    class ParseLine
+namespace
+{
+// .NAME ParseLine - Read a line of four values of type T filtering out comments.
+// .SECTION Description
+// The ParseLine operator scans a string and returns 0 if it finds a
+// comment symbol. Otherwise it returns 1 and four values corresponding
+// to the position of the particle (x,y,z) and a scalar s associated with
+// the particle. It is a good idea to set the values of val to some
+// predefined value before calling the operator.
+template <typename T>
+class ParseLine
+{
+public:
+  ParseLine()
+    : LookForEndString(false)
   {
-  public:
-    ParseLine (): LookForEndString(false) {};
-    int operator () (std::string &s, T val[4])
+  }
+  int operator()(std::string& s, T val[4])
+  {
+    // Skip over comment lines.
+    std::string::iterator itr;
+    std::string tgt("/*");
+    itr = std::search(s.begin(), s.end(), tgt.begin(), tgt.end());
+    if (itr != s.end())
     {
-      // Skip over comment lines.
-      std::string::iterator itr;
-      std::string tgt("/*");
-      itr = std::search(s.begin(),s.end(),tgt.begin(),tgt.end());
-      if ( itr != s.end() )
+      LookForEndString = true;
+      // continue;
+    }
+    if (LookForEndString)
+    {
+      tgt = "*/";
+      itr = std::search(s.begin(), s.end(), tgt.begin(), tgt.end());
+      if (itr != s.end())
       {
-        LookForEndString = true;
-        //continue;
+        LookForEndString = false;
       }
-      if ( LookForEndString )
-      {
-        tgt = "*/";
-        itr = std::search(s.begin(),s.end(),tgt.begin(),tgt.end());
-        if ( itr != s.end() )
-        {
-          LookForEndString = false;
-        }
-        //continue;
-        return 0;
-      }
-
-      tgt = "//";
-      itr = std::search(s.begin(),s.end(),tgt.begin(),tgt.end());
-      if ( itr != s.end() )
-      {
-        return 0;
-      }
-      tgt = "%";
-      itr = std::search(s.begin(),s.end(),tgt.begin(),tgt.end());
-      if ( itr != s.end() )
-      {
-        return 0;
-      }
-      tgt = "#";
-      itr = std::search(s.begin(),s.end(),tgt.begin(),tgt.end());
-      if ( itr != s.end() )
-      {
-        return 0;
-      }
-      // If comma delimited, replace with tab
-      std::replace(s.begin(),s.end(),',','\t');
-
-      // We have data.
-      std::stringstream is;
-      is << s.c_str();
-      is >> val[0] >> val[1] >> val[2] >> val[3];
-
-      return 1;
+      // continue;
+      return 0;
     }
 
-  private:
-    bool LookForEndString;
+    tgt = "//";
+    itr = std::search(s.begin(), s.end(), tgt.begin(), tgt.end());
+    if (itr != s.end())
+    {
+      return 0;
+    }
+    tgt = "%";
+    itr = std::search(s.begin(), s.end(), tgt.begin(), tgt.end());
+    if (itr != s.end())
+    {
+      return 0;
+    }
+    tgt = "#";
+    itr = std::search(s.begin(), s.end(), tgt.begin(), tgt.end());
+    if (itr != s.end())
+    {
+      return 0;
+    }
+    // If comma delimited, replace with tab
+    std::replace(s.begin(), s.end(), ',', '\t');
 
-  };
+    // We have data.
+    std::stringstream is;
+    is << s;
+    is >> val[0] >> val[1] >> val[2] >> val[3];
 
- // The number of times we output a progress message.
- int const quantum = 20;
- // The ratio of high ASCII characters to low ASCII characters.
- double hiToLowASCII = 0.1;
+    return 1;
+  }
+
+private:
+  bool LookForEndString;
+};
+
+// The number of times we output a progress message.
+int const quantum = 20;
+// The ratio of high ASCII characters to low ASCII characters.
+double hiToLowASCII = 0.1;
 
 }
-//----------------------------------------------------------------------------
-vtkParticleReader::vtkParticleReader() :
-  FileName(nullptr)
+//------------------------------------------------------------------------------
+vtkParticleReader::vtkParticleReader()
+  : FileName(nullptr)
   , File(nullptr)
   , HasScalar(1)
   , FileType(FILE_TYPE_IS_UNKNOWN)
@@ -126,61 +121,50 @@ vtkParticleReader::vtkParticleReader() :
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParticleReader::~vtkParticleReader()
 {
-  if (this->File)
-  {
-    this->File->close();
-    delete this->File;
-    this->File = nullptr;
-  }
+  delete this->File;
+  this->File = nullptr;
 
-  delete [] this->FileName;
+  delete[] this->FileName;
   this->FileName = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParticleReader::OpenFile()
 {
   if (!this->FileName)
   {
-    vtkErrorMacro(<<"FileName must be specified.");
+    vtkErrorMacro(<< "FileName must be specified.");
     return;
   }
 
   // If the file was open close it.
-  if (this->File)
-  {
-    this->File->close();
-    delete this->File;
-    this->File = nullptr;
-  }
+  delete this->File;
+  this->File = nullptr;
 
   // Open the new file.
   vtkDebugMacro(<< "Initialize: opening file " << this->FileName);
+  std::ios_base::openmode mode = ios::in;
 #ifdef _WIN32
-  this->File = new ifstream(this->FileName, ios::in | ios::binary);
-#else
-  this->File = new ifstream(this->FileName, ios::in);
+  mode |= ios::binary;
 #endif
-  if (! this->File || this->File->fail())
+  this->File = new vtksys::ifstream(this->FileName, mode);
+  if (!this->File || this->File->fail())
   {
-    vtkErrorMacro(<< "Initialize: Could not open file " <<
-    this->FileName);
+    vtkErrorMacro(<< "Initialize: Could not open file " << this->FileName);
     return;
   }
 }
 
-//----------------------------------------------------------------------------
-int vtkParticleReader::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkParticleReader::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   if (!this->FileName)
   {
-    vtkErrorMacro(<<"FileName must be specified.");
+    vtkErrorMacro(<< "FileName must be specified.");
     return 0;
   }
 
@@ -190,128 +174,124 @@ int vtkParticleReader::RequestInformation(
     return 0;
   }
   int ft = this->FileType;
-  if ( ft == FILE_TYPE_IS_UNKNOWN )
+  if (ft == FILE_TYPE_IS_UNKNOWN)
   {
     ft = DetermineFileType();
-    if ( ft == FILE_TYPE_IS_UNKNOWN )
+    if (ft == FILE_TYPE_IS_UNKNOWN)
     {
       vtkErrorMacro(<< "File type cannot be determined.");
       return 0;
     }
   }
-  this->File->close();
+
   delete this->File;
   this->File = nullptr;
 
-
   if (ft == FILE_TYPE_IS_BINARY)
   {
-    vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
-                 1);
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
   }
 
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkParticleReader::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkParticleReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   if (!this->FileName)
   {
-    vtkErrorMacro(<<"FileName must be specified.");
+    vtkErrorMacro(<< "FileName must be specified.");
     return 0;
   }
 
   this->OpenFile();
   int ft = this->FileType;
-  if ( ft == FILE_TYPE_IS_UNKNOWN )
+  if (ft == FILE_TYPE_IS_UNKNOWN)
   {
-      ft = DetermineFileType();
-      if ( ft == FILE_TYPE_IS_UNKNOWN )
-      {
-        vtkErrorMacro(<< "File type cannot be determined.");
-        return 0;
-      }
+    ft = DetermineFileType();
+    if (ft == FILE_TYPE_IS_UNKNOWN)
+    {
+      vtkErrorMacro(<< "File type cannot be determined.");
+      return 0;
+    }
   }
 
-  switch ( ft )
+  switch (ft)
   {
-  case FILE_TYPE_IS_TEXT:
-    switch ( this->DataType )
-    {
-    case VTK_FLOAT:
-      return ProduceOutputFromTextFileFloat(outputVector);
-    case VTK_DOUBLE:
-      return ProduceOutputFromTextFileDouble(outputVector);
+    case FILE_TYPE_IS_TEXT:
+      switch (this->DataType)
+      {
+        case VTK_FLOAT:
+          return ProduceOutputFromTextFileFloat(outputVector);
+        case VTK_DOUBLE:
+          return ProduceOutputFromTextFileDouble(outputVector);
+        default:
+        {
+          vtkErrorMacro(<< "Only float or double data can be processed.");
+          return 0;
+        }
+      }
+    case FILE_TYPE_IS_BINARY:
+      switch (this->DataType)
+      {
+        case VTK_FLOAT:
+          return ProduceOutputFromBinaryFileFloat(outputVector);
+        case VTK_DOUBLE:
+          return ProduceOutputFromBinaryFileDouble(outputVector);
+        default:
+        {
+          vtkErrorMacro(<< "Only float or double data can be processed.");
+          return 0;
+        }
+      }
     default:
     {
-      vtkErrorMacro(<<"Only float or double data can be processed.");
+      vtkErrorMacro(<< "The file type was not able to be determined.");
       return 0;
     }
-    }
-  case FILE_TYPE_IS_BINARY:
-    switch ( this->DataType )
-    {
-    case VTK_FLOAT:
-      return ProduceOutputFromBinaryFileFloat(outputVector);
-    case VTK_DOUBLE:
-      return ProduceOutputFromBinaryFileDouble(outputVector);
-    default:
-    {
-      vtkErrorMacro(<<"Only float or double data can be processed.");
-      return 0;
-    }
-    }
-  default:
-  {
-    vtkErrorMacro(<<"The file type was not able to be determined.");
-    return 0;
-  }
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParticleReader::DetermineFileType()
 {
   // This function assumes that the file has been opened.
 
-  this->File->seekg(0,ios::end);
+  this->File->seekg(0, ios::end);
   if (this->File->fail())
   {
     vtkErrorMacro("Could not seek to end of file.");
     return FILE_TYPE_IS_UNKNOWN;
   }
   size_t fileLength = this->File->tellg();
-  if ( fileLength == 0 )
+  if (fileLength == 0)
   {
     vtkErrorMacro("File is empty.");
     return FILE_TYPE_IS_UNKNOWN;
   }
 
-  this->File->seekg(0,ios::beg);
+  this->File->seekg(0, ios::beg);
   if (this->File->fail())
   {
     vtkErrorMacro("Could not seek to start of file.");
     return FILE_TYPE_IS_UNKNOWN;
   }
 
-  size_t sampleSize = fileLength < 5000 ? fileLength: 5000;
+  size_t sampleSize = fileLength < 5000 ? fileLength : 5000;
   // cout << "File length: " << fileLength << " Sample size: " << sampleSize << endl;
-  std::vector <unsigned char> s;
-  for ( size_t i = 0; i < sampleSize; ++i )
+  std::vector<unsigned char> s;
+  for (size_t i = 0; i < sampleSize; ++i)
   {
     char c;
-    this->File->read(&c,sizeof(char));
+    this->File->read(&c, sizeof(char));
     s.push_back(c);
   }
   // If read terminated prematurely then it may have detected
   // a premature EOF character in the data.
   // Assume that the file type is undetermined in this case.
-  if ( s.size() != sampleSize )
+  if (s.size() != sampleSize)
   {
     // cout << "Premature termination" << endl;
     return FILE_TYPE_IS_UNKNOWN;
@@ -320,42 +300,40 @@ int vtkParticleReader::DetermineFileType()
   size_t zero = 0;
   size_t conventionalASCII = 0;
   size_t extendedASCII = 0;
-  size_t controlASCII = 0;
   size_t otherASCII = 0;
-  for ( size_t j = 0; j < s.size(); ++j )
+  for (size_t j = 0; j < s.size(); ++j)
   {
-    if ( s[j] == '\0' )
+    if (s[j] == '\0')
     {
       zero++;
       continue;
     }
     // Conventional ASCII characters.
-    if ( s[j] > 0x1f && s[j] < 0x80 )
+    if (s[j] > 0x1f && s[j] < 0x80)
     {
-     conventionalASCII++;
-     continue;
+      conventionalASCII++;
+      continue;
     }
     // Extended ASCII characters may have been used.
-    if ( s[j] > 0x7f )
+    if (s[j] > 0x7f)
     {
       extendedASCII++;
       continue;
     }
     // Control characters.
-    if ( s[j] == '\n' || s[j] == '\r' || s[j] == '\t' || s[j] == '\f' )
+    if (s[j] == '\n' || s[j] == '\r' || s[j] == '\t' || s[j] == '\f')
     {
-      controlASCII++;
       continue;
     }
     otherASCII++;
   }
 
   // nullptr shouldn't ever appear in a text file.
-  if ( zero != 0 || otherASCII > 0 || conventionalASCII == 0 )
+  if (zero != 0 || otherASCII > 0 || conventionalASCII == 0)
   {
     return FILE_TYPE_IS_BINARY;
   }
-  if ( (double)extendedASCII / (double) conventionalASCII < hiToLowASCII )
+  if ((double)extendedASCII / (double)conventionalASCII < hiToLowASCII)
   {
     return FILE_TYPE_IS_TEXT;
   }
@@ -363,11 +341,11 @@ int vtkParticleReader::DetermineFileType()
   return FILE_TYPE_IS_BINARY;
 }
 
-//----------------------------------------------------------------------------
-int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector* outputVector)
 {
   // Get the size of the file.
-  this->File->seekg(0,ios::end);
+  this->File->seekg(0, ios::end);
   if (this->File->fail())
   {
     vtkErrorMacro("Could not seek to end of file.");
@@ -387,25 +365,25 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
   scalars->Reset();
   scalars->SetName("Scalar");
 
-  this->File->seekg(0,ios::beg);
+  this->File->seekg(0, ios::beg);
 
   this->Alliquot = fileLength / quantum;
   this->Count = 1;
   ParseLine<double> pl;
   char buffer[256];
-  while ( this->File->getline(buffer,256,'\n') )
+  while (this->File->getline(buffer, 256, '\n'))
   {
     s = buffer;
-    if ( !s.empty() )
+    if (!s.empty())
     {
       bytesRead += s.size();
-      this->DoProgressUpdate( bytesRead, fileLength );
+      this->DoProgressUpdate(bytesRead, fileLength);
       double val[4];
-      val[0]=val[1]=val[2]=val[3]=0;
-      if ( pl(s,val) )
+      val[0] = val[1] = val[2] = val[3] = 0;
+      if (pl(s, val))
       {
         points->InsertNextPoint(val[0], val[1], val[2]);
-        if ( this->HasScalar)
+        if (this->HasScalar)
         {
           scalars->InsertNextValue(val[3]);
         }
@@ -417,22 +395,21 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
   vertices->Reset();
 
   this->NumberOfPoints = points->GetNumberOfPoints();
-  for( vtkIdType j = 0; j < (vtkIdType)this->NumberOfPoints; ++j )
+  for (vtkIdType j = 0; j < (vtkIdType)this->NumberOfPoints; ++j)
   {
-    vertices->InsertNextCell( 1 );
-    vertices->InsertCellPoint( j );
+    vertices->InsertNextCell(1);
+    vertices->InsertCellPoint(j);
   }
 
-   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  // get the info object
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   output->SetPoints(points);
   output->SetVerts(vertices);
-  if ( this->HasScalar )
+  if (this->HasScalar)
     output->GetPointData()->SetScalars(scalars);
 
   output->Modified();
@@ -440,11 +417,11 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector* outputVector)
 {
   // Get the size of the file.
-  this->File->seekg(0,ios::end);
+  this->File->seekg(0, ios::end);
   if (this->File->fail())
   {
     vtkErrorMacro("Could not seek to end of file.");
@@ -464,26 +441,26 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   scalars->Reset();
   scalars->SetName("Scalar");
 
-  this->File->seekg(0,ios::beg);
+  this->File->seekg(0, ios::beg);
 
   this->Alliquot = fileLength / quantum;
   this->Count = 1;
   ParseLine<float> pl;
   char buffer[256];
-  while ( this->File->getline(buffer,256,'\n') )
+  while (this->File->getline(buffer, 256, '\n'))
   {
     s = buffer;
-    if ( !s.empty() )
+    if (!s.empty())
     {
       bytesRead += s.size();
-      this->DoProgressUpdate( bytesRead, fileLength );
+      this->DoProgressUpdate(bytesRead, fileLength);
 
       float val[4];
-      val[0]=val[1]=val[2]=val[3]=0;
-      if ( pl(s,val) )
+      val[0] = val[1] = val[2] = val[3] = 0;
+      if (pl(s, val))
       {
         points->InsertNextPoint(val[0], val[1], val[2]);
-        if ( this->HasScalar)
+        if (this->HasScalar)
         {
           scalars->InsertNextValue(val[3]);
         }
@@ -495,22 +472,21 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   vertices->Reset();
 
   this->NumberOfPoints = points->GetNumberOfPoints();
-  for( vtkIdType j = 0; j < (vtkIdType)this->NumberOfPoints; ++j )
+  for (vtkIdType j = 0; j < (vtkIdType)this->NumberOfPoints; ++j)
   {
-    vertices->InsertNextCell( 1 );
-    vertices->InsertCellPoint( j );
+    vertices->InsertNextCell(1);
+    vertices->InsertCellPoint(j);
   }
 
-   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  // get the info object
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   output->SetPoints(points);
   output->SetVerts(vertices);
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
     output->GetPointData()->SetScalars(scalars);
   }
@@ -520,10 +496,8 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   return 1;
 }
 
-
-
-//----------------------------------------------------------------------------
-int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector* outputVector)
 {
 
   unsigned long fileLength, start, next, length, ptIdx, cellPtIdx;
@@ -533,14 +507,14 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
 
   if (!this->FileName)
   {
-    vtkErrorMacro(<<"FileName must be specified.");
+    vtkErrorMacro(<< "FileName must be specified.");
     return 0;
   }
 
   this->OpenFile();
 
   // Get the size of the header from the size of the image
-  this->File->seekg(0,ios::end);
+  this->File->seekg(0, ios::end);
   if (this->File->fail())
   {
     vtkErrorMacro("Could not seek to end of file.");
@@ -548,7 +522,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   }
 
   fileLength = (unsigned long)this->File->tellg();
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
     this->NumberOfPoints = fileLength / (4 * sizeof(double));
   }
@@ -558,12 +532,10 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   }
 
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   if ((unsigned long)numPieces > this->NumberOfPoints)
   {
@@ -575,11 +547,11 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   }
 
   start = static_cast<unsigned long>(piece * this->NumberOfPoints / numPieces);
-  next = static_cast<unsigned long>((piece+1) * this->NumberOfPoints / numPieces);
+  next = static_cast<unsigned long>((piece + 1) * this->NumberOfPoints / numPieces);
 
   length = next - start;
 
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
     data = new double[length * 4];
   }
@@ -589,39 +561,37 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   }
 
   // Seek to the first point in the file.
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
-    this->File->seekg(start*4*sizeof(double), ios::beg);
+    this->File->seekg(start * 4 * sizeof(double), ios::beg);
   }
   else
   {
-    this->File->seekg(start*3*sizeof(double), ios::beg);
+    this->File->seekg(start * 3 * sizeof(double), ios::beg);
   }
   if (this->File->fail())
   {
-    vtkErrorMacro(<< "File operation failed: Seeking to " << start*4);
-    delete [] data;
+    vtkErrorMacro(<< "File operation failed: Seeking to " << start * 4);
+    delete[] data;
     return 0;
   }
 
   // Read the data.
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
-    if ( ! this->File->read((char *)data, length*4*sizeof(double)))
+    if (!this->File->read((char*)data, length * 4 * sizeof(double)))
     {
-      vtkErrorMacro("Could not read points: " << start
-             << " to " << next-1);
-      delete [] data;
+      vtkErrorMacro("Could not read points: " << start << " to " << next - 1);
+      delete[] data;
       return 0;
     }
   }
   else
   {
-    if ( ! this->File->read((char *)data, length*3*sizeof(double)))
+    if (!this->File->read((char*)data, length * 3 * sizeof(double)))
     {
-      vtkErrorMacro("Could not read points: " << start
-             << " to " << next-1);
-      delete [] data;
+      vtkErrorMacro("Could not read points: " << start << " to " << next - 1);
+      delete[] data;
       return 0;
     }
   }
@@ -629,13 +599,13 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   // Swap bytes if necessary.
   if (this->GetSwapBytes())
   {
-    if ( this->HasScalar )
+    if (this->HasScalar)
     {
-      vtkByteSwap::SwapVoidRange(data, length*4, sizeof(double));
+      vtkByteSwap::SwapVoidRange(data, length * 4, sizeof(double));
     }
     else
     {
-      vtkByteSwap::SwapVoidRange(data, length*3, sizeof(double));
+      vtkByteSwap::SwapVoidRange(data, length * 3, sizeof(double));
     }
   }
 
@@ -660,9 +630,9 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   double len = length;
   while (length > 0)
   {
-    if ( cnt % 10 == 0 )
+    if (cnt % 10 == 0)
     {
-     this->UpdateProgress(0.5+((cnt * 1000.0)/len)/2.0);
+      this->UpdateProgress(0.5 + ((cnt * 1000.0) / len) / 2.0);
     }
     cnt++;
     cellLength = 1000;
@@ -675,7 +645,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
     for (cellPtIdx = 0; cellPtIdx < cellLength; ++cellPtIdx)
     {
       points->SetPoint(ptIdx, ptr[0], ptr[1], ptr[2]);
-      if ( this->HasScalar )
+      if (this->HasScalar)
       {
         array->InsertNextValue(ptr[3]);
         ptr += 4;
@@ -688,15 +658,14 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
       ++ptIdx;
     }
   }
-  delete [] data;
+  delete[] data;
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   output->SetPoints(points);
   output->SetVerts(verts);
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
     output->GetPointData()->SetScalars(array);
   }
@@ -704,8 +673,8 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector* outputVector)
 {
 
   unsigned long fileLength, start, next, length, ptIdx, cellPtIdx;
@@ -715,14 +684,14 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
 
   if (!this->FileName)
   {
-    vtkErrorMacro(<<"FileName must be specified.");
+    vtkErrorMacro(<< "FileName must be specified.");
     return 0;
   }
 
   this->OpenFile();
 
   // Get the size of the header from the size of the image
-  this->File->seekg(0,ios::end);
+  this->File->seekg(0, ios::end);
   if (this->File->fail())
   {
     vtkErrorMacro("Could not seek to end of file.");
@@ -730,7 +699,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   }
 
   fileLength = (unsigned long)this->File->tellg();
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
     this->NumberOfPoints = fileLength / (4 * sizeof(float));
   }
@@ -739,14 +708,11 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
     this->NumberOfPoints = fileLength / (3 * sizeof(float));
   }
 
-
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   if ((unsigned long)numPieces > this->NumberOfPoints)
   {
@@ -758,11 +724,11 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   }
 
   start = static_cast<unsigned long>(piece * this->NumberOfPoints / numPieces);
-  next = static_cast<unsigned long>((piece+1) * this->NumberOfPoints / numPieces);
+  next = static_cast<unsigned long>((piece + 1) * this->NumberOfPoints / numPieces);
 
   length = next - start;
 
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
     data = new float[length * 4];
   }
@@ -771,41 +737,38 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
     data = new float[length * 3];
   }
 
-
   // Seek to the first point in the file.
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
-    this->File->seekg(start*4*sizeof(float), ios::beg);
+    this->File->seekg(start * 4 * sizeof(float), ios::beg);
   }
   else
   {
-    this->File->seekg(start*3*sizeof(float), ios::beg);
+    this->File->seekg(start * 3 * sizeof(float), ios::beg);
   }
   if (this->File->fail())
   {
-    vtkErrorMacro(<< "File operation failed: Seeking to " << start*4);
-    delete [] data;
+    vtkErrorMacro(<< "File operation failed: Seeking to " << start * 4);
+    delete[] data;
     return 0;
   }
 
   // Read the data.
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
-    if ( ! this->File->read((char *)data, length*4*sizeof(float)))
+    if (!this->File->read((char*)data, length * 4 * sizeof(float)))
     {
-      vtkErrorMacro("Could not read points: " << start
-             << " to " << next-1);
-      delete [] data;
+      vtkErrorMacro("Could not read points: " << start << " to " << next - 1);
+      delete[] data;
       return 0;
     }
   }
   else
   {
-    if ( ! this->File->read((char *)data, length*3*sizeof(float)))
+    if (!this->File->read((char*)data, length * 3 * sizeof(float)))
     {
-      vtkErrorMacro("Could not read points: " << start
-             << " to " << next-1);
-      delete [] data;
+      vtkErrorMacro("Could not read points: " << start << " to " << next - 1);
+      delete[] data;
       return 0;
     }
   }
@@ -813,13 +776,13 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   // Swap bytes if necessary.
   if (this->GetSwapBytes())
   {
-    if ( this->HasScalar )
+    if (this->HasScalar)
     {
-      vtkByteSwap::SwapVoidRange(data, length*4, sizeof(float));
+      vtkByteSwap::SwapVoidRange(data, length * 4, sizeof(float));
     }
     else
     {
-      vtkByteSwap::SwapVoidRange(data, length*3, sizeof(float));
+      vtkByteSwap::SwapVoidRange(data, length * 3, sizeof(float));
     }
   }
 
@@ -843,9 +806,9 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   double len = length;
   while (length > 0)
   {
-    if ( cnt % 10 == 0 )
+    if (cnt % 10 == 0)
     {
-     this->UpdateProgress(0.5+((cnt * 1000.0)/len)/2.0);
+      this->UpdateProgress(0.5 + ((cnt * 1000.0) / len) / 2.0);
     }
     cnt++;
     cellLength = 1000;
@@ -858,7 +821,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
     for (cellPtIdx = 0; cellPtIdx < cellLength; ++cellPtIdx)
     {
       points->SetPoint(ptIdx, ptr[0], ptr[1], ptr[2]);
-      if ( this->HasScalar )
+      if (this->HasScalar)
       {
         array->InsertNextValue(ptr[3]);
         ptr += 4;
@@ -871,15 +834,14 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
       ++ptIdx;
     }
   }
-  delete [] data;
+  delete[] data;
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   output->SetPoints(points);
   output->SetVerts(verts);
-  if ( this->HasScalar )
+  if (this->HasScalar)
   {
     output->GetPointData()->SetScalars(array);
   }
@@ -887,18 +849,18 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   return 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkParticleReader::DoProgressUpdate( size_t & bytesRead, size_t & fileLength )
+//------------------------------------------------------------------------------
+void vtkParticleReader::DoProgressUpdate(size_t& bytesRead, size_t& fileLength)
 {
-  if ( bytesRead > this->Alliquot )
+  if (bytesRead > this->Alliquot)
   {
-    this->UpdateProgress( bytesRead/(double)fileLength );
+    this->UpdateProgress(bytesRead / (double)fileLength);
     this->Count++;
     this->Alliquot = fileLength / quantum * this->Count;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParticleReader::SetDataByteOrderToBigEndian()
 {
 #ifndef VTK_WORDS_BIGENDIAN
@@ -908,7 +870,7 @@ void vtkParticleReader::SetDataByteOrderToBigEndian()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParticleReader::SetDataByteOrderToLittleEndian()
 {
 #ifdef VTK_WORDS_BIGENDIAN
@@ -918,10 +880,10 @@ void vtkParticleReader::SetDataByteOrderToLittleEndian()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParticleReader::SetDataByteOrder(int byteOrder)
 {
-  if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
+  if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
   {
     this->SetDataByteOrderToBigEndian();
   }
@@ -931,11 +893,11 @@ void vtkParticleReader::SetDataByteOrder(int byteOrder)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkParticleReader::GetDataByteOrder()
 {
 #ifdef VTK_WORDS_BIGENDIAN
-  if ( this->SwapBytes )
+  if (this->SwapBytes)
   {
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
   }
@@ -944,7 +906,7 @@ int vtkParticleReader::GetDataByteOrder()
     return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
   }
 #else
-  if ( this->SwapBytes )
+  if (this->SwapBytes)
   {
     return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
   }
@@ -955,11 +917,11 @@ int vtkParticleReader::GetDataByteOrder()
 #endif
 }
 
-//----------------------------------------------------------------------------
-const char *vtkParticleReader::GetDataByteOrderAsString()
+//------------------------------------------------------------------------------
+const char* vtkParticleReader::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
-  if ( this->SwapBytes )
+  if (this->SwapBytes)
   {
     return "LittleEndian";
   }
@@ -968,7 +930,7 @@ const char *vtkParticleReader::GetDataByteOrderAsString()
     return "BigEndian";
   }
 #else
-  if ( this->SwapBytes )
+  if (this->SwapBytes)
   {
     return "BigEndian";
   }
@@ -979,44 +941,43 @@ const char *vtkParticleReader::GetDataByteOrderAsString()
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParticleReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: " <<
-    (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
   os << indent << "Swap Bytes: " << (this->SwapBytes ? "On\n" : "Off\n");
   os << indent << "Has Scalar: " << (this->HasScalar ? "On\n" : "Off\n");
-  switch ( this->FileType )
+  switch (this->FileType)
   {
-  case FILE_TYPE_IS_UNKNOWN:
-    os << indent << "File type is unknown (The class automatically determines the file type).\n";
-    break;
-  case FILE_TYPE_IS_TEXT:
-    os << indent << "File type is text.\n";
-    break;
-  case FILE_TYPE_IS_BINARY:
-    os << indent << "File type is binary.\n";
-    break;
-  default:
-    os << indent << "File type should never have this value: " << this->FileType << "\n";
-    break;
+    case FILE_TYPE_IS_UNKNOWN:
+      os << indent << "File type is unknown (The class automatically determines the file type).\n";
+      break;
+    case FILE_TYPE_IS_TEXT:
+      os << indent << "File type is text.\n";
+      break;
+    case FILE_TYPE_IS_BINARY:
+      os << indent << "File type is binary.\n";
+      break;
+    default:
+      os << indent << "File type should never have this value: " << this->FileType << "\n";
+      break;
   }
-  switch ( this->DataType )
+  switch (this->DataType)
   {
-  case VTK_FLOAT:
-    os << indent << "Data type is float.\n";
-    break;
-  case VTK_DOUBLE:
-    os << indent << "Data type is double.\n";
-    break;
-  default:
-    os << indent << "Data type should never have this value: " << this->DataType << "\n";
-    break;
+    case VTK_FLOAT:
+      os << indent << "Data type is float.\n";
+      break;
+    case VTK_DOUBLE:
+      os << indent << "Data type is double.\n";
+      break;
+    default:
+      os << indent << "Data type should never have this value: " << this->DataType << "\n";
+      break;
   }
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << "\n";
   os << indent << "Alliquot: " << (unsigned int)this->Alliquot << "\n";
   os << indent << "Count: " << (unsigned int)this->Count << "\n";
-
 }
+VTK_ABI_NAMESPACE_END

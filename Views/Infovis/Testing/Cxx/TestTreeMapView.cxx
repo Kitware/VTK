@@ -1,30 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestTreeMapView.cxx
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkDataRepresentation.h"
-#include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderedTreeAreaRepresentation.h"
 #include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkSplineGraphEdges.h"
 #include "vtkTestUtilities.h"
 #include "vtkTreeMapView.h"
@@ -32,14 +15,13 @@
 #include "vtkXMLTreeReader.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 using std::string;
 
 int TestTreeMapView(int argc, char* argv[])
 {
   VTK_CREATE(vtkTesting, testHelper);
-  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  testHelper->AddArguments(argc, const_cast<const char**>(argv));
   string dataRoot = testHelper->GetDataRoot();
   string treeFileName = dataRoot + "/Data/Infovis/XML/vtkclasses.xml";
   string graphFileName = dataRoot + "/Data/Infovis/XML/vtklibrary.xml";
@@ -73,7 +55,8 @@ int TestTreeMapView(int argc, char* argv[])
   view->SetAreaLabelVisibility(true);
   view->SetAreaSizeArrayName("VertexDegree");
   view->Update();
-  vtkRenderedTreeAreaRepresentation::SafeDownCast(view->GetRepresentation())->SetGraphSplineType(vtkSplineGraphEdges::CUSTOM, 0);
+  vtkRenderedTreeAreaRepresentation::SafeDownCast(view->GetRepresentation())
+    ->SetGraphSplineType(vtkSplineGraphEdges::CUSTOM, 0);
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
@@ -86,7 +69,7 @@ int TestTreeMapView(int argc, char* argv[])
   view->ResetCamera();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if( retVal == vtkRegressionTester::DO_INTERACTOR )
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
@@ -94,7 +77,5 @@ int TestTreeMapView(int argc, char* argv[])
     retVal = vtkRegressionTester::PASSED;
   }
 
- return !retVal;
+  return !retVal;
 }
-
-

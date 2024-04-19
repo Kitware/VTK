@@ -1,6 +1,9 @@
 set(classes
+  vtk3DCursorRepresentation
+  vtk3DCursorWidget
   vtk3DWidget
   vtkAbstractPolygonalHandleRepresentation3D
+  vtkAbstractSplineRepresentation
   vtkAbstractWidget
   vtkAffineRepresentation
   vtkAffineRepresentation2D
@@ -26,6 +29,13 @@ set(classes
   vtkBrokenLineWidget
   vtkButtonRepresentation
   vtkButtonWidget
+  vtkCamera3DRepresentation
+  vtkCamera3DWidget
+  vtkCameraHandleSource
+  vtkCameraOrientationWidget
+  vtkCameraOrientationRepresentation
+  vtkCameraPathRepresentation
+  vtkCameraPathWidget
   vtkCameraRepresentation
   vtkCameraWidget
   vtkCaptionRepresentation
@@ -36,19 +46,26 @@ set(classes
   vtkCheckerboardRepresentation
   vtkCheckerboardWidget
   vtkClosedSurfacePointPlacer
+  vtkCompassRepresentation
+  vtkCompassWidget
   vtkConstrainedPointHandleRepresentation
   vtkContinuousValueWidget
   vtkContinuousValueWidgetRepresentation
   vtkContourLineInterpolator
   vtkContourRepresentation
   vtkContourWidget
+  vtkCoordinateFrameRepresentation
+  vtkCoordinateFrameWidget
   vtkCurveRepresentation
   vtkDijkstraImageContourLineInterpolator
+  vtkDisplaySizedImplicitPlaneWidget
+  vtkDisplaySizedImplicitPlaneRepresentation
   vtkDistanceRepresentation
   vtkDistanceRepresentation2D
   vtkDistanceRepresentation3D
   vtkDistanceWidget
   vtkEllipsoidTensorProbeRepresentation
+  vtkEqualizerContextItem
   vtkEvent
   vtkFinitePlaneRepresentation
   vtkFinitePlaneWidget
@@ -65,6 +82,7 @@ set(classes
   vtkImageTracerWidget
   vtkImplicitCylinderRepresentation
   vtkImplicitCylinderWidget
+  vtkImplicitImageRepresentation
   vtkImplicitPlaneRepresentation
   vtkImplicitPlaneWidget
   vtkImplicitPlaneWidget2
@@ -76,8 +94,12 @@ set(classes
   vtkLineWidget2
   vtkLogoRepresentation
   vtkLogoWidget
+  vtkMagnifierRepresentation
+  vtkMagnifierWidget
   vtkMeasurementCubeHandleRepresentation3D
   vtkOrientationMarkerWidget
+  vtkOrientationRepresentation
+  vtkOrientationWidget
   vtkOrientedGlyphContourRepresentation
   vtkOrientedGlyphFocalPlaneContourRepresentation
   vtkOrientedPolygonalHandleRepresentation3D
@@ -86,6 +108,8 @@ set(classes
   vtkPlaneWidget
   vtkPlaybackRepresentation
   vtkPlaybackWidget
+  vtkPointCloudRepresentation
+  vtkPointCloudWidget
   vtkPointHandleRepresentation2D
   vtkPointHandleRepresentation3D
   vtkPointPlacer
@@ -128,6 +152,8 @@ set(classes
   vtkSplineWidget2
   vtkTensorProbeRepresentation
   vtkTensorProbeWidget
+  vtkTensorRepresentation
+  vtkTensorWidget
   vtkTerrainContourLineInterpolator
   vtkTerrainDataPointPlacer
   vtkTextRepresentation
@@ -142,5 +168,14 @@ set(classes
   vtkXYPlotWidget
   )
 
+# Hand written (de)serialization routines
+set(serialization_helper_sources)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serialization_helper_sources
+    vtkAbstractWidgetSerDesHelper.cxx)
+endif ()
+
 vtk_module_add_module(VTK::InteractionWidgets
-  CLASSES ${classes})
+  CLASSES ${classes}
+  SOURCES ${serialization_helper_sources})
+vtk_add_test_mangling(VTK::InteractionWidgets)

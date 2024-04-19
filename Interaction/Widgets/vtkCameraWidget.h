@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCameraWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCameraWidget
  * @brief   2D widget for saving a series of camera views
@@ -27,16 +15,16 @@
  *
  * @sa
  * vtkBorderWidget vtkCameraInterpolator
-*/
+ */
 
 #ifndef vtkCameraWidget_h
 #define vtkCameraWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraRepresentation;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkCameraWidget : public vtkBorderWidget
 {
@@ -44,23 +32,25 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkCameraWidget *New();
+  static vtkCameraWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
-  vtkTypeMacro(vtkCameraWidget,vtkBorderWidget);
+  vtkTypeMacro(vtkCameraWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkCameraRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkCameraRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -83,4 +73,5 @@ private:
   void operator=(const vtkCameraWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

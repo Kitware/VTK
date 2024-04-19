@@ -1,23 +1,6 @@
-// -*- c++ -*-
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    SLACReaderLinear.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-LANL-California-USGov
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -28,37 +11,26 @@
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSLACReader.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
 
-int SLACMultipleModes(int argc, char *argv[])
+int SLACMultipleModes(int argc, char* argv[])
 {
   // Set up reader.
   vtkNew<vtkSLACReader> reader;
 
-  char *meshFileName = vtkTestUtilities::ExpandDataFileName(
-                         argc,
-                         argv,
-                         "Data/SLAC/pillbox/Pillbox3TenDSlice.ncdf");
-  char *modeFileName0 =
-      vtkTestUtilities::ExpandDataFileName(
-        argc,
-        argv,
-        "Data/SLAC/pillbox/omega3p.l0.m0000.1.3138186e+09.mod");
-  char *modeFileName1 =
-      vtkTestUtilities::ExpandDataFileName(
-        argc,
-        argv,
-        "Data/SLAC/pillbox/omega3p.l0.m0001.1.3138187e+09.mod");
-  char *modeFileName2 =
-      vtkTestUtilities::ExpandDataFileName(
-        argc,
-        argv,
-        "Data/SLAC/pillbox/omega3p.l0.m0002.1.3138189e+09.mod");
+  char* meshFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/pillbox/Pillbox3TenDSlice.ncdf");
+  char* modeFileName0 = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/SLAC/pillbox/omega3p.l0.m0000.1.3138186e+09.mod");
+  char* modeFileName1 = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/SLAC/pillbox/omega3p.l0.m0001.1.3138187e+09.mod");
+  char* modeFileName2 = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/SLAC/pillbox/omega3p.l0.m0002.1.3138189e+09.mod");
   reader->SetMeshFileName(meshFileName);
   delete[] meshFileName;
   reader->AddModeFileName(modeFileName0);
@@ -73,14 +45,13 @@ int SLACMultipleModes(int argc, char *argv[])
   reader->ReadMidpointsOff();
 
   reader->UpdateInformation();
-  double period =
-      reader->GetExecutive()->GetOutputInformation(
-        vtkSLACReader::SURFACE_OUTPUT)->Get(
-        vtkStreamingDemandDrivenPipeline::TIME_RANGE())[1];
+  double period = reader->GetExecutive()
+                    ->GetOutputInformation(vtkSLACReader::SURFACE_OUTPUT)
+                    ->Get(vtkStreamingDemandDrivenPipeline::TIME_RANGE())[1];
 
   reader->ResetPhaseShifts();
-  reader->SetPhaseShift(1, 0.5*period);
-  reader->SetPhaseShift(2, 0.5*period);
+  reader->SetPhaseShift(1, 0.5 * period);
+  reader->SetPhaseShift(2, 0.5 * period);
 
   reader->ResetFrequencyScales();
   reader->SetFrequencyScale(0, 0.75);
@@ -88,8 +59,7 @@ int SLACMultipleModes(int argc, char *argv[])
 
   // Extract geometry that we can render.
   vtkNew<vtkCompositeDataGeometryFilter> geometry;
-  geometry->SetInputConnection(
-        reader->GetOutputPort(vtkSLACReader::SURFACE_OUTPUT));
+  geometry->SetInputConnection(reader->GetOutputPort(vtkSLACReader::SURFACE_OUTPUT));
 
   // Set up rendering stuff.
   vtkNew<vtkPolyDataMapper> mapper;
@@ -108,7 +78,7 @@ int SLACMultipleModes(int argc, char *argv[])
 
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(actor);
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetPosition(-0.75, 0.0, 0.0);
   camera->SetFocalPoint(0.0, 0.0, 0.0);
   camera->SetViewUp(0.0, 1.0, 0.0);
@@ -123,8 +93,7 @@ int SLACMultipleModes(int argc, char *argv[])
   // Change the time to offset the phase.
   geometry->UpdateInformation();
   geometry->GetOutputInformation(0)->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-    0.5*period);
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 0.5 * period);
 
   // Do the test comparison.
   int retVal = vtkRegressionTestImage(renwin);

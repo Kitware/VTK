@@ -4,6 +4,10 @@ LIBRARY_NAME
   vtkWebCore
 GROUPS
   Web
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
 PRIVATE_DEPENDS
@@ -18,8 +22,10 @@ PRIVATE_DEPENDS
   VTK::RenderingCore
   VTK::WebGLExporter
   VTK::vtksys
+  VTK::nlohmannjson
 TEST_LABELS
   VTK::Web
 TEST_DEPENDS
+  VTK::ImagingCore
   VTK::ImagingSources
   VTK::TestingCore

@@ -1,29 +1,17 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWebGLPolyData.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWebGLPolyData
- *
- * PolyData representation for WebGL.
-*/
+ * @brief   PolyData representation for WebGL.
+ */
 
 #ifndef vtkWebGLPolyData_h
 #define vtkWebGLPolyData_h
 
-#include "vtkWebGLObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro
+#include "vtkWebGLObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkMatrix4x4;
 class vtkMapper;
@@ -36,7 +24,7 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLPolyData : public vtkWebGLObject
 public:
   static vtkWebGLPolyData* New();
   vtkTypeMacro(vtkWebGLPolyData, vtkWebGLObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void GenerateBinaryData() override;
   unsigned char* GetBinaryData(int part) override;
@@ -52,10 +40,13 @@ public:
   // Get following data from the actor
   void GetPolygonsFromPointData(vtkTriangleFilter* polydata, vtkActor* actor, int maxSize);
   void GetPolygonsFromCellData(vtkTriangleFilter* polydata, vtkActor* actor, int maxSize);
-  void GetColorsFromPointData(unsigned char* color, vtkPointData* pointdata, vtkPolyData* polydata, vtkActor* actor);
+  void GetColorsFromPointData(
+    unsigned char* color, vtkPointData* pointdata, vtkPolyData* polydata, vtkActor* actor);
 
-  void SetMesh(float* _vertices, int _numberOfVertices, int* _index, int _numberOfIndexes, float* _normals, unsigned char* _colors, float* _tcoords, int maxSize);
-  void SetLine(float* _points, int _numberOfPoints, int* _index, int _numberOfIndex, unsigned char* _colors, int maxSize);
+  void SetMesh(float* _vertices, int _numberOfVertices, int* _index, int _numberOfIndexes,
+    float* _normals, unsigned char* _colors, float* _tcoords, int maxSize);
+  void SetLine(float* _points, int _numberOfPoints, int* _index, int _numberOfIndex,
+    unsigned char* _colors, int maxSize);
   void SetPoints(float* points, int numberOfPoints, unsigned char* colors, int maxSize);
   void SetTransformationMatrix(vtkMatrix4x4* m);
 
@@ -71,4 +62,5 @@ private:
   vtkInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersCore import vtkGlyph3D
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 class StyleBaseSpike(object):
@@ -33,7 +33,7 @@ class StyleBaseSpike(object):
             '''
                 Define a single instance of the NamedColors class here.
             '''
-            self.namedColors = vtk.vtkNamedColors()
+            self.namedColors = vtkNamedColors()
 
         def GetRGBColor(self, colorName):
             '''
@@ -68,12 +68,12 @@ class StyleBaseSpike(object):
 
         # Create a sphere source and actor
 
-        sphere = vtk.vtkSphereSource()
+        sphere = vtkSphereSource()
 
-        sphereMapper = vtk.vtkPolyDataMapper()
+        sphereMapper = vtkPolyDataMapper()
         sphereMapper.SetInputConnection(sphere.GetOutputPort())
 
-        sphereActor = vtk.vtkLODActor()
+        sphereActor = vtkLODActor()
         sphereActor.SetMapper(sphereMapper)
 
         sphereActor.GetProperty().SetDiffuseColor(colors.GetRGBColor('banana'))
@@ -82,20 +82,20 @@ class StyleBaseSpike(object):
 
         # Create the spikes using a cone source and the sphere source
 
-        cone = vtk.vtkConeSource()
+        cone = vtkConeSource()
         cone.SetResolution(20)
 
-        glyph = vtk.vtkGlyph3D()
+        glyph = vtkGlyph3D()
         glyph.SetInputConnection(sphere.GetOutputPort())
         glyph.SetSourceConnection(cone.GetOutputPort())
         glyph.SetVectorModeToUseNormal()
         glyph.SetScaleModeToScaleByVector()
         glyph.SetScaleFactor(0.25)
 
-        spikeMapper = vtk.vtkPolyDataMapper()
+        spikeMapper = vtkPolyDataMapper()
         spikeMapper.SetInputConnection(glyph.GetOutputPort())
 
-        spikeActor = vtk.vtkLODActor()
+        spikeActor = vtkLODActor()
         spikeActor.SetMapper(spikeMapper)
 
         spikeActor.GetProperty().SetDiffuseColor(colors.GetRGBColor('tomato'))
@@ -120,12 +120,12 @@ class StyleBaseSpike(object):
 
         self.renWin.Render()
 
-class TestStyleBaseSpike(vtk.test.Testing.vtkTest):
+class TestStyleBaseSpike(vtkmodules.test.Testing.vtkTest):
 
     def testStyleBaseSpike(self):
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
-        iRen = vtk.vtkRenderWindowInteractor()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
+        iRen = vtkRenderWindowInteractor()
 
         styleBaseSpike = StyleBaseSpike(ren, renWin, iRen)
 
@@ -133,8 +133,8 @@ class TestStyleBaseSpike(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "TestStyleBaseSpike.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestStyleBaseSpike, 'test')])
+     vtkmodules.test.Testing.main([(TestStyleBaseSpike, 'test')])

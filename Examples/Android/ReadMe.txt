@@ -4,7 +4,7 @@ developing your own android applications.
 
 Currently there are three examples here.  NativeVTK is built around the
 Android native interface and does not have any Java code associated with it.
-Any unser interface elements would need to be created in C++ using regular
+Any user interface elements would need to be created in C++ using regular
 VTK widgets or other OpenGL elements. This is best for applications that
 are mainly focused on rendering or visualization with very minimal user
 interface. In this example all the key code is in jni/main.cxx and it will
@@ -40,10 +40,6 @@ To build VTK and these examples follow the steps below.
 
 * Run cmake on vtkandroid with -DVTK_ANDROID_BUILD=ON, if you use the gui add a
 * boolean entry with that name prior to configuring and set it on.
-
-If you want OpenGL ES 3.0 support make sure to change the setting of
-OPENGL_ES_VERSION to 3.0. Volume Rendering requires ES 3.0. Make sure to turn on
-VTK_BUILD_EXAMPLES
 
 * configure and generate as usual
 

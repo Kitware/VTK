@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include <vtkCornerAnnotation.h>
 #include <vtkImageData.h>
 #include <vtkImageMapper.h>
@@ -9,8 +11,10 @@
 #include <vtkSmartPointer.h>
 #include <vtkTextProperty.h>
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
+
+#include <cassert>
 
 namespace
 {
@@ -55,7 +59,7 @@ vtkSmartPointer<vtkActor2D> CreateImageActor(int dim, int displayLocation, bool 
 
 } // namespace
 
-int TestImageAndAnnotations(int argc, char *argv[])
+int TestImageAndAnnotations(int argc, char* argv[])
 {
   // Setup renderer
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -68,8 +72,7 @@ int TestImageAndAnnotations(int argc, char *argv[])
   // Setup render window interactor
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  vtkSmartPointer<vtkInteractorStyleImage> style =
-    vtkSmartPointer<vtkInteractorStyleImage>::New();
+  vtkSmartPointer<vtkInteractorStyleImage> style = vtkSmartPointer<vtkInteractorStyleImage>::New();
   renderWindowInteractor->SetInteractorStyle(style);
 
   // Setup corner annotation
@@ -78,11 +81,35 @@ int TestImageAndAnnotations(int argc, char *argv[])
   cornerAnnotation->SetLinearFontScaleFactor(2);
   cornerAnnotation->SetNonlinearFontScaleFactor(1);
   cornerAnnotation->SetMaximumFontSize(20);
-  cornerAnnotation->SetText(0, "background/opaque"); // lower left
-  cornerAnnotation->SetText(1, "foreground/opaque"); // lower right
+  cornerAnnotation->SetText(0, "background/opaque");      // lower left
+  cornerAnnotation->SetText(1, "foreground/opaque");      // lower right
   cornerAnnotation->SetText(2, "background/transparent"); // upper left
   cornerAnnotation->SetText(3, "foreground/transparent"); // upper right
   cornerAnnotation->GetTextProperty()->SetColor(1, 1, 1);
+
+  double rgba[4] = {};
+  cornerAnnotation->GetTextProperty()->SetBackgroundRGBA(.25, .50, .75, 1.0);
+  cornerAnnotation->GetTextProperty()->GetBackgroundRGBA(rgba);
+
+  assert("SetBackgroundRGBA correctly get/set values" &&
+    (rgba[0] == .25 && rgba[1] == .50 && rgba[2] == .75 && rgba[3] == 1.0));
+
+  {
+    double rgb[3] = {};
+    cornerAnnotation->GetTextProperty()->GetBackgroundColor(rgb);
+
+    assert("SetBackgroundRGBA correctly sets BackgroundColor" &&
+      (rgba[0] == .25 && rgba[1] == .50 && rgba[2] == .75));
+
+    assert("SetBackgroundRGBA correctly sets opacity" &&
+      (cornerAnnotation->GetTextProperty()->GetBackgroundOpacity() == 1));
+  }
+
+  cornerAnnotation->GetTextProperty()->SetBackgroundRGBA(0, 0, 0, 0);
+  cornerAnnotation->GetTextProperty()->GetBackgroundRGBA(rgba);
+
+  assert("SetBackgroundRGBA correctly get/sets values" &&
+    (rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 0 && rgba[3] == 0));
 
   renderer->AddViewProp(cornerAnnotation);
 
@@ -91,28 +118,32 @@ int TestImageAndAnnotations(int argc, char *argv[])
   {
     // lower left: background/opaque
     bool transparent = false;
-    vtkSmartPointer<vtkActor2D> imageActor = CreateImageActor(Dim, VTK_BACKGROUND_LOCATION, transparent);
+    vtkSmartPointer<vtkActor2D> imageActor =
+      CreateImageActor(Dim, VTK_BACKGROUND_LOCATION, transparent);
     imageActor->SetPosition(0, 0);
     renderer->AddActor(imageActor);
   }
   {
     // lower right: foreground/opaque
     bool transparent = false;
-    vtkSmartPointer<vtkActor2D> imageActor = CreateImageActor(Dim, VTK_FOREGROUND_LOCATION, transparent);
+    vtkSmartPointer<vtkActor2D> imageActor =
+      CreateImageActor(Dim, VTK_FOREGROUND_LOCATION, transparent);
     imageActor->SetPosition(Dim, 0);
     renderer->AddActor(imageActor);
   }
   {
     // upper left: background/transparent
     bool transparent = true;
-    vtkSmartPointer<vtkActor2D> imageActor = CreateImageActor(Dim, VTK_BACKGROUND_LOCATION, transparent);
+    vtkSmartPointer<vtkActor2D> imageActor =
+      CreateImageActor(Dim, VTK_BACKGROUND_LOCATION, transparent);
     imageActor->SetPosition(0, Dim);
     renderer->AddActor(imageActor);
   }
   {
     // upper right: foreground/transparent
     bool transparent = true;
-    vtkSmartPointer<vtkActor2D> imageActor = CreateImageActor(Dim, VTK_FOREGROUND_LOCATION, transparent);
+    vtkSmartPointer<vtkActor2D> imageActor =
+      CreateImageActor(Dim, VTK_FOREGROUND_LOCATION, transparent);
     imageActor->SetPosition(Dim, Dim);
     renderer->AddActor(imageActor);
   }
@@ -123,8 +154,8 @@ int TestImageAndAnnotations(int argc, char *argv[])
   renderWindowInteractor->SetRenderWindow(renderWindow);
   renderWindowInteractor->Initialize();
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();
   }

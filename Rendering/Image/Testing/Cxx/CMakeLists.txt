@@ -13,6 +13,8 @@ vtk_add_test_cxx(vtkRenderingImageCxxTests tests
   TestImageSliceMapperOrient3D.cxx
   TestImageSliceMapperOriented3D.cxx
   TestImageResliceMapperOrient3D.cxx
+  TestImageResliceMapperOriented3D.cxx
+  TestImageResliceMapperOrientedFlip.cxx
   TestImageStack.cxx
   TestImageResliceMapperSlab.cxx
   )

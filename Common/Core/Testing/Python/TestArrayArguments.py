@@ -4,26 +4,46 @@ Created on Sept 19, 2010 by David Gobbi
 """
 
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkBitArray,
+    vtkCharArray,
+    vtkDoubleArray,
+    vtkFloatArray,
+    vtkIdTypeArray,
+    vtkIntArray,
+    vtkLongArray,
+    vtkMath,
+    vtkShortArray,
+    vtkSignedCharArray,
+    vtkStringArray,
+    vtkTypeInt64Array,
+    vtkTypeUInt64Array,
+    vtkUnsignedCharArray,
+    vtkUnsignedIntArray,
+    vtkUnsignedLongArray,
+    vtkUnsignedShortArray,
+)
+from vtkmodules.vtkCommonDataModel import vtkDataObject
+from vtkmodules.vtkImagingSources import vtkImageGridSource
+from vtkmodules.test import Testing
 
 arrays = [
-  vtk.vtkFloatArray,
-  vtk.vtkDoubleArray,
-  vtk.vtkSignedCharArray,
-  vtk.vtkShortArray,
-  vtk.vtkIntArray,
-  vtk.vtkLongArray,
-  vtk.vtkTypeInt64Array,
-  vtk.vtkIdTypeArray,
+  vtkFloatArray,
+  vtkDoubleArray,
+  vtkSignedCharArray,
+  vtkShortArray,
+  vtkIntArray,
+  vtkLongArray,
+  vtkTypeInt64Array,
+  vtkIdTypeArray,
 ]
 
 unsignedArrays = [
-  vtk.vtkUnsignedCharArray,
-  vtk.vtkUnsignedShortArray,
-  vtk.vtkUnsignedIntArray,
-  vtk.vtkUnsignedLongArray,
-  vtk.vtkTypeUInt64Array,
+  vtkUnsignedCharArray,
+  vtkUnsignedShortArray,
+  vtkUnsignedIntArray,
+  vtkUnsignedLongArray,
+  vtkTypeUInt64Array,
 ]
 
 class TestArrayArguments(Testing.vtkTest):
@@ -60,7 +80,7 @@ class TestArrayArguments(Testing.vtkTest):
             self.assertEqual(r1, r2)
 
     def testCharArrayArguments(self):
-        a = vtk.vtkCharArray()
+        a = vtkCharArray()
         a.SetNumberOfComponents(3)
         a.SetNumberOfTuples(1)
         ti = "opn"
@@ -73,7 +93,7 @@ class TestArrayArguments(Testing.vtkTest):
         self.assertEqual(d1, d2)
 
     def testBitArrayArguments(self):
-        a = vtk.vtkBitArray()
+        a = vtkBitArray()
         a.SetNumberOfComponents(2)
         a.SetNumberOfTuples(1)
         ti = [0,1]
@@ -84,24 +104,24 @@ class TestArrayArguments(Testing.vtkTest):
 
     def testNDimArrayArguments(self):
         a = [[0,0,0],[0,0,0],[0,0,0]]
-        vtk.vtkMath.Identity3x3(a)
+        vtkMath.Identity3x3(a)
         x = [0.5, 0.2, 0.1]
         y = [0.0, 0.0, 0.0]
-        vtk.vtkMath.Multiply3x3(a, x, y)
+        vtkMath.Multiply3x3(a, x, y)
         self.assertEqual(x, y)
 
     def testInformationVectorKeys(self):
-        a = vtk.vtkImageGridSource()
+        a = vtkImageGridSource()
         spacing = (3.0, 2.0, 1.0)
         a.SetDataSpacing(spacing)
         a.UpdateInformation()
         info = a.GetOutputInformation(0)
-        t = info.Get(vtk.vtkDataObject.SPACING())
+        t = info.Get(vtkDataObject.SPACING())
         self.assertEqual(t, spacing)
 
     def testArrayIterator(self):
         # try a string array
-        a = vtk.vtkStringArray()
+        a = vtkStringArray()
         a.InsertNextValue("hello")
         i = a.NewIterator()
         self.assertEqual(a.GetValue(0), i.GetValue(0))

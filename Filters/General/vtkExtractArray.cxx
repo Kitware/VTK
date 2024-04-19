@@ -1,27 +1,10 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-NVIDIA-USGov
 
-  Program:   Visualization Toolkit
-  Module:    vtkExtractArray.cxx
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
+#include "vtkExtractArray.h"
 #include "vtkArrayData.h"
 #include "vtkCommand.h"
-#include "vtkExtractArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -30,10 +13,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkExtractArray
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractArray);
 
-vtkExtractArray::vtkExtractArray() :
-  Index(0)
+vtkExtractArray::vtkExtractArray()
+  : Index(0)
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
@@ -49,7 +33,7 @@ void vtkExtractArray::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkExtractArray::FillInputPortInformation(int port, vtkInformation* info)
 {
-  switch(port)
+  switch (port)
   {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
@@ -60,15 +44,14 @@ int vtkExtractArray::FillInputPortInformation(int port, vtkInformation* info)
 }
 
 int vtkExtractArray::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
 
-  if(this->Index < 0 || this->Index >= input->GetNumberOfArrays())
+  if (this->Index < 0 || this->Index >= input->GetNumberOfArrays())
   {
-    vtkErrorMacro(<< "Array index " << this->Index << " out-of-range for vtkArrayData containing " << input->GetNumberOfArrays() << " arrays.");
+    vtkErrorMacro(<< "Array index " << this->Index << " out-of-range for vtkArrayData containing "
+                  << input->GetNumberOfArrays() << " arrays.");
     return 0;
   }
 
@@ -76,6 +59,8 @@ int vtkExtractArray::RequestData(
   output->ClearArrays();
   output->AddArray(input->GetArray(this->Index));
 
+  this->CheckAbort();
+
   return 1;
 }
-
+VTK_ABI_NAMESPACE_END

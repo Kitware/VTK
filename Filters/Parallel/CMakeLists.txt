@@ -1,5 +1,7 @@
 set(classes
+  vtkAdaptiveTemporalInterpolator
   vtkAggregateDataSetFilter
+  vtkAlignImageDataSetFilter
   vtkAngularPeriodicFilter
   vtkCollectGraph
   vtkCollectPolyData
@@ -11,15 +13,23 @@ set(classes
   vtkExtractPolyDataPiece
   vtkExtractUnstructuredGridPiece
   vtkExtractUserDefinedPiece
+  vtkGenerateProcessIds
+  vtkHyperTreeGridGhostCellsGenerator
+  vtkPHyperTreeGridProbeFilter
   vtkIntegrateAttributes
+  vtkPeriodicFilter
   vtkPCellDataToPointData
+  vtkPConvertToMultiBlockDataSet
   vtkPExtractDataArraysOverTime
   vtkPExtractExodusGlobalTemporalVariables
   vtkPExtractSelectedArraysOverTime
-  vtkPeriodicFilter
+  vtkPieceRequestFilter
+  vtkPieceScalars
+  vtkPipelineSize
   vtkPKdTree
   vtkPLinearExtrusionFilter
   vtkPMaskPoints
+  vtkPMergeArrays
   vtkPOutlineCornerFilter
   vtkPOutlineFilter
   vtkPOutlineFilterInternals
@@ -28,25 +38,44 @@ set(classes
   vtkPProjectSphereFilter
   vtkPReflectionFilter
   vtkPResampleFilter
-  vtkPSphereSource
-  vtkPYoungsMaterialInterface
-  vtkPassThroughFilter
-  vtkPieceRequestFilter
-  vtkPieceScalars
-  vtkPipelineSize
+  vtkPartitionBalancer
   vtkProcessIdScalars
+  vtkPSphereSource
+  vtkPTextureMapToSphere
+  vtkPYoungsMaterialInterface
   vtkRectilinearGridOutlineFilter
   vtkRemoveGhosts
   vtkTransmitPolyDataPiece
-  vtkTransmitStructuredDataPiece
   vtkTransmitRectilinearGridPiece
+  vtkTransmitStructuredDataPiece
   vtkTransmitStructuredGridPiece
-  vtkTransmitUnstructuredGridPiece
-  vtkUnstructuredGridGhostCellsGenerator)
+  vtkTransmitUnstructuredGridPiece)
 
 set(headers
   vtkBlockDistribution.h)
 
+set(sources
+  vtkHyperTreeGridGhostCellsGeneratorInternals.cxx)
+
+set(private_headers
+  vtkHyperTreeGridGhostCellsGeneratorInternals.h)
+
+
+vtk_object_factory_declare(
+  BASE vtkConvertToMultiBlockDataSet
+  OVERRIDE vtkPConvertToMultiBlockDataSet
+  )
+
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKFILTERSPARALLEL_EXPORT"
+  )
+
 vtk_module_add_module(VTK::FiltersParallel
   CLASSES ${classes}
-  HEADERS ${headers})
+  HEADERS ${headers}
+  SOURCES ${vtk_object_factory_source} ${sources}
+  PRIVATE_HEADERS ${vtk_object_factory_header} ${private_headers}
+  )
+vtk_add_test_mangling(VTK::FiltersParallel)

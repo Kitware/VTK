@@ -1,29 +1,17 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestVRMLImporter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkVRMLImporter.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkVRMLImporter.h"
 
 #include "vtkTestUtilities.h"
 
 // This is testing a bug in vtkVRMLImporter where the importer
 // would delete static data and any future importer would fail
 // The test is defined to pass if it doesn't segfault.
-int TestVRMLImporter( int argc, char * argv [] )
+int TestVRMLImporter(int argc, char* argv[])
 {
   // Now create the RenderWindow, Renderer and Interactor
   vtkRenderer* ren1 = vtkRenderer::New();
@@ -48,7 +36,7 @@ int TestVRMLImporter( int argc, char * argv [] )
   importer->Read();
   importer->Delete();
 
-  delete [] fname;
+  delete[] fname;
 
   iren->Delete();
   renWin->Delete();

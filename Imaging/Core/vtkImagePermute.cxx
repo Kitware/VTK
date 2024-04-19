@@ -1,20 +1,9 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImagePermute.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImagePermute.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImagePermute);
 
 vtkImagePermute::vtkImagePermute()
@@ -26,7 +15,7 @@ vtkImagePermute::vtkImagePermute()
 
 void vtkImagePermute::SetFilteredAxes(int newx, int newy, int newz)
 {
-  static double axes[3][3] = { {1, 0, 0}, {0, 1, 0}, {0, 0, 1} };
+  static double axes[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
   this->SetResliceAxesDirectionCosines(axes[newx], axes[newy], axes[newz]);
 
@@ -37,11 +26,9 @@ void vtkImagePermute::SetFilteredAxes(int newx, int newy, int newz)
 
 void vtkImagePermute::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FilteredAxes: ( "
-     << this->FilteredAxes[0] << ", "
-     << this->FilteredAxes[1] << ", "
-     << this->FilteredAxes[2] << " )\n";
+  os << indent << "FilteredAxes: ( " << this->FilteredAxes[0] << ", " << this->FilteredAxes[1]
+     << ", " << this->FilteredAxes[2] << " )\n";
 }
-
+VTK_ABI_NAMESPACE_END

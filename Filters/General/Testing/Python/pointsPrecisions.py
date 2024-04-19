@@ -1,13 +1,19 @@
 import unittest
 
-from vtk.vtkCommonCore import vtkPoints, vtkDoubleArray, vtkIdList
-from vtk.vtkCommonDataModel import vtkPlane,\
-                                   vtkUnstructuredGrid,\
-                                   vtkStructuredGrid,\
-                                   vtkPolyData
-from vtk.vtkFiltersGeneral import vtkClipDataSet
-from vtk.vtkFiltersGeneral import vtkTableBasedClipDataSet
-import vtk.util.vtkConstants as vtk_const
+from vtkmodules.vtkCommonCore import (
+    vtkPoints,
+    vtkDoubleArray,
+    vtkIdList,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkUnstructuredGrid,
+    vtkStructuredGrid,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersGeneral import vtkClipDataSet
+from vtkmodules.vtkFiltersGeneral import vtkTableBasedClipDataSet
+import vtkmodules.util.vtkConstants as vtk_const
 
 class FiltersLosingPrecisionBase:
     def test_clip(self):
@@ -19,7 +25,7 @@ class FiltersLosingPrecisionBase:
         f.SetClipFunction(p)
         f.SetValue(0)
         f.Update()
-        self.assertEquals(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
+        self.assertEqual(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
 
     def test_tablebasedclip(self):
         p = vtkPlane()
@@ -30,7 +36,7 @@ class FiltersLosingPrecisionBase:
         f.SetClipFunction(p)
         f.SetValue(0)
         f.Update()
-        self.assertEquals(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
+        self.assertEqual(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
 
 class TestUnstructuredGridFiltersLosingPrecision(unittest.TestCase, FiltersLosingPrecisionBase):
     def setUp(self):

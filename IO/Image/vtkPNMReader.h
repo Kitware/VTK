@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPNMReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPNMReader
  * @brief   read pnm (i.e., portable anymap) files
@@ -30,7 +18,7 @@
  * foo.ppm.0, foo.ppm.1, ...). You must also specify the DataExtent.  The
  * fifth and sixth values of the DataExtent specify the beginning and ending
  * files to read.
-*/
+ */
 
 #ifndef vtkPNMReader_h
 #define vtkPNMReader_h
@@ -38,39 +26,34 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkPNMReader : public vtkImageReader
 {
 public:
-  static vtkPNMReader *New();
-  vtkTypeMacro(vtkPNMReader,vtkImageReader);
+  static vtkPNMReader* New();
+  vtkTypeMacro(vtkPNMReader, vtkImageReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int CanReadFile(const char* fname) override;
+  int CanReadFile(VTK_FILEPATH const char* fname) override;
   /**
    * .pnm .pgm .ppm
    */
-  const char* GetFileExtensions() override
-  {
-      return ".pnm .pgm .ppm";
-  }
+  const char* GetFileExtensions() override { return ".pnm .pgm .ppm"; }
 
   /**
    * PNM
    */
-  const char* GetDescriptiveName() override
-  {
-      return "PNM";
-  }
+  const char* GetDescriptiveName() override { return "PNM"; }
 
 protected:
-  vtkPNMReader() {}
-  ~vtkPNMReader() override {}
+  vtkPNMReader() = default;
+  ~vtkPNMReader() override = default;
   void ExecuteInformation() override;
+
 private:
   vtkPNMReader(const vtkPNMReader&) = delete;
   void operator=(const vtkPNMReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

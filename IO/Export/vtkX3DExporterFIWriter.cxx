@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkX3DExporterFIWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen, Kristian Sons
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kristian Sons
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkX3DExporterFIWriter.h"
 
 #include "vtkCellArray.h"
@@ -21,9 +10,10 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkX3D.h"
+#include "vtksys/FStream.hxx"
 
-#include <sstream>
 #include <cassert>
+#include <sstream>
 #include <vector>
 
 //#define ENCODEASSTRING 1
@@ -31,6 +21,7 @@
 using namespace vtkX3D;
 
 /*======================================================================== */
+VTK_ABI_NAMESPACE_BEGIN
 struct NodeInfo
 {
   NodeInfo(int _nodeId)
@@ -46,8 +37,7 @@ struct NodeInfo
 
 /*======================================================================== */
 typedef std::vector<NodeInfo> vtkX3DExporterFINodeInfoStackBase;
-class vtkX3DExporterFINodeInfoStack :
-  public vtkX3DExporterFINodeInfoStackBase
+class vtkX3DExporterFINodeInfoStack : public vtkX3DExporterFINodeInfoStackBase
 {
 };
 
@@ -68,7 +58,7 @@ public:
   int OpenStream();
 
   // Puts a bitstring to the current byte bit by bit
-  void PutBits(const std::string &bitstring);
+  void PutBits(const std::string& bitstring);
   // Puts the integer value to the stream using count bits
   // for encoding
   void PutBits(unsigned int value, unsigned char count);
@@ -94,22 +84,22 @@ private:
   void operator=(const vtkX3DExporterFIByteWriter&) = delete;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkX3DExporterFIByteWriter::~vtkX3DExporterFIByteWriter()
 {
   delete this->Stream;
   this->Stream = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkX3DExporterFIByteWriter::OpenFile(const char* file)
 {
   this->WriteToOutputString = 0;
   this->CurrentByte = 0;
   this->CurrentBytePos = 0;
-  ofstream* fileStream = new ofstream();
-  fileStream->open (file, ios::out | ios::binary);
-  if(fileStream->fail())
+  vtksys::ofstream* fileStream = new vtksys::ofstream();
+  fileStream->open(file, ios::out | ios::binary);
+  if (fileStream->fail())
   {
     delete fileStream;
     return 0;
@@ -121,7 +111,7 @@ int vtkX3DExporterFIByteWriter::OpenFile(const char* file)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkX3DExporterFIByteWriter::OpenStream()
 {
   this->WriteToOutputString = 1;
@@ -131,43 +121,47 @@ int vtkX3DExporterFIByteWriter::OpenStream()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkX3DExporterFIByteWriter::GetStringStream(vtkIdType& size)
 {
   if (this->WriteToOutputString && this->Stream)
   {
-    std::ostringstream *ostr =
-      static_cast<std::ostringstream*>(this->Stream);
+    std::ostringstream* ostr = static_cast<std::ostringstream*>(this->Stream);
 
     size = static_cast<vtkIdType>(ostr->str().size());
     return ostr->str();
   }
 
   size = 0;
-  return nullptr;
+  return std::string();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIByteWriter::TryFlush()
 {
   if (this->CurrentBytePos == 8)
   {
     this->Stream->write((char*)(&(this->CurrentByte)), 1);
+#if defined(__GNUC__) && (__GNUC__ >= 7) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
     this->CurrentByte = 0;
+#pragma GCC diagnostic pop
+#endif
     this->CurrentBytePos = 0;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIByteWriter::FillByte()
 {
-  while (this->CurrentBytePos !=0)
+  while (this->CurrentBytePos != 0)
   {
-    this->PutBit(0);
+    this->PutBit(false);
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIByteWriter::PutBit(bool on)
 {
   assert(this->CurrentBytePos < 8);
@@ -181,7 +175,7 @@ void vtkX3DExporterFIByteWriter::PutBit(bool on)
   TryFlush();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned char vtkX3DExporterFIByteWriter::Append(unsigned int value, unsigned char count)
 {
   assert(this->CurrentBytePos < 8);
@@ -201,21 +195,21 @@ unsigned char vtkX3DExporterFIByteWriter::Append(unsigned int value, unsigned ch
   return count;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIByteWriter::PutBytes(const char* bytes, size_t length)
 {
-  if(this->CurrentBytePos == 0)
+  if (this->CurrentBytePos == 0)
   {
     this->Stream->write(bytes, length);
   }
   else
   {
-    //vtkErrorMacro(<< "Wrong position in vtkX3DExporterFIByteWriter::PutBytes");
+    // vtkErrorMacro(<< "Wrong position in vtkX3DExporterFIByteWriter::PutBytes");
     assert(false);
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIByteWriter::PutBits(unsigned int value, unsigned char count)
 {
   // Can be optimized
@@ -225,23 +219,24 @@ void vtkX3DExporterFIByteWriter::PutBits(unsigned int value, unsigned char count
   }
 }
 
-
-//----------------------------------------------------------------------------
-void vtkX3DExporterFIByteWriter::PutBits(const std::string &bitstring)
+//------------------------------------------------------------------------------
+void vtkX3DExporterFIByteWriter::PutBits(const std::string& bitstring)
 {
   std::string::const_iterator I = bitstring.begin();
-  while(I != bitstring.end())
+  while (I != bitstring.end())
   {
     this->PutBit((*I) == '1');
     ++I;
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #include "vtkX3DExporterFIWriterHelper.h"
 
 /* ------------------------------------------------------------------------- */
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkX3DExporterFIWriter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter()
 {
   this->CloseFile();
@@ -249,7 +244,7 @@ vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter()
   this->Compressor->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkX3DExporterFIWriter::vtkX3DExporterFIWriter()
 {
   this->InfoStack = new vtkX3DExporterFINodeInfoStack();
@@ -260,14 +255,14 @@ vtkX3DExporterFIWriter::vtkX3DExporterFIWriter()
   this->Fastest = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Fastest: " << this->Fastest << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkX3DExporterFIWriter::OpenFile(const char* file)
 {
   std::string t(file);
@@ -287,14 +282,14 @@ int vtkX3DExporterFIWriter::OpenStream()
   return this->Writer->OpenStream();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::CloseFile()
 {
-  if(this->Writer != nullptr)
+  if (this->Writer != nullptr)
   {
-    if(this->WriteToOutputString)
+    if (this->WriteToOutputString)
     {
-      delete [] this->OutputString;
+      delete[] this->OutputString;
       std::string tmpstr = this->Writer->GetStringStream(this->OutputStringLength);
       const char* tmp = tmpstr.c_str();
       this->OutputString = new char[this->OutputStringLength];
@@ -305,7 +300,7 @@ void vtkX3DExporterFIWriter::CloseFile()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::StartDocument()
 {
   const char* external_voc = "urn:external-vocabulary";
@@ -314,40 +309,38 @@ void vtkX3DExporterFIWriter::StartDocument()
   // ITU 12.7 / 12.9: Version of standard: 1 as 16bit
   this->Writer->PutBits("0000000000000001");
   // ITU 12.8: The bit '0' (padding) shall then be appended to the bit stream
-  this->Writer->PutBit(0);
+  this->Writer->PutBit(false);
   // ITU C.2.3
-  this->Writer->PutBit(0); // additional-data
-  this->Writer->PutBit(1); // initial-vocabulary
-  this->Writer->PutBit(0); // notations
-  this->Writer->PutBit(0); // unparsed-entities
-  this->Writer->PutBit(0); // character-encoding-scheme
-  this->Writer->PutBit(0); // standalone
-  this->Writer->PutBit(0); // and version
+  this->Writer->PutBit(false); // additional-data
+  this->Writer->PutBit(true);  // initial-vocabulary
+  this->Writer->PutBit(false); // notations
+  this->Writer->PutBit(false); // unparsed-entities
+  this->Writer->PutBit(false); // character-encoding-scheme
+  this->Writer->PutBit(false); // standalone
+  this->Writer->PutBit(false); // and version
   // ITU C.2.5: padding '000' for optional component initial-vocabulary
   this->Writer->PutBits("000");
   // ITU C.2.5.1: For each of the thirteen optional components:
   // presence ? 1 : 0
   this->Writer->PutBits("1000000000000"); // 'external-vocabulary'
   // ITU C.2.5.2: external-vocabulary is present
-  this->Writer->PutBit(0);
+  this->Writer->PutBit(false);
   // Write "urn:external-vocabulary"
   // ITU C.22.3.1: Length is < 65
-  this->Writer->PutBit(0);
-  //Writer->PutBits("010110"); // = strlen(external_voc) - 1
-  this->Writer->PutBits(
-    static_cast<unsigned int>(strlen(external_voc) - 1), 6);
+  this->Writer->PutBit(false);
+  // Writer->PutBits("010110"); // = strlen(external_voc) - 1
+  this->Writer->PutBits(static_cast<unsigned int>(strlen(external_voc) - 1), 6);
   this->Writer->PutBytes(external_voc, strlen(external_voc));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::EndDocument()
 {
   // ITU C.2.12: The four bits '1111' (termination) are appended
   this->Writer->PutBits("1111");
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::StartNode(int elementID)
 {
   if (!this->InfoStack->empty())
@@ -363,10 +356,10 @@ void vtkX3DExporterFIWriter::StartNode(int elementID)
   this->InfoStack->push_back(NodeInfo(elementID));
 
   // ITU C.3.7.2: element is present
-  this->Writer->PutBit(0);
+  this->Writer->PutBit(false);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::EndNode()
 {
   assert(!this->InfoStack->empty());
@@ -375,9 +368,9 @@ void vtkX3DExporterFIWriter::EndNode()
   {
     vtkX3DExporterFIWriterHelper::EncodeLineFeed(this->Writer);
   }
-  if(!this->InfoStack->back().attributesTerminated)
+  if (!this->InfoStack->back().attributesTerminated)
   {
-    //cout << "Terminated in EndNode: could be wrong" << endl;
+    // cout << "Terminated in EndNode: could be wrong" << endl;
     // ITU C.3.6.2: End of attribute
     this->Writer->PutBits("1111");
   }
@@ -386,21 +379,21 @@ void vtkX3DExporterFIWriter::EndNode()
   this->InfoStack->pop_back();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::CheckNode(bool callerIsAttribute)
 {
-  if(!this->InfoStack->back().isChecked)
+  if (!this->InfoStack->back().isChecked)
   {
     if (callerIsAttribute) // Element has attributes
     {
       // ITU C.3.3: then the bit '1' (presence) is appended
-      this->Writer->PutBit(1);
+      this->Writer->PutBit(true);
       this->InfoStack->back().attributesTerminated = false;
     }
     else // Element has no attributes
     {
       // ITU C.3.3: otherwise, the bit '0' (absence) is appended
-      this->Writer->PutBit(0);
+      this->Writer->PutBit(false);
     }
     // Write Node name (starting at third bit)
     // ITU: C.18.4 If the alternative name-surrogate-index is present,
@@ -417,20 +410,20 @@ void vtkX3DExporterFIWriter::CheckNode(bool callerIsAttribute)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::StartAttribute(int attributeID, bool literal, bool addToTable)
 {
   this->CheckNode();
   // ITU C.3.6.1: Start of attribute
-  this->Writer->PutBit(0);
+  this->Writer->PutBit(false);
   // ITU C.4.3 The value of qualified-name is encoded as described in C.17.
-  vtkX3DExporterFIWriterHelper::EncodeInteger2(this->Writer, attributeID +1);
+  vtkX3DExporterFIWriterHelper::EncodeInteger2(this->Writer, attributeID + 1);
 
   // ITU C.14.3: If the alternative literal-character-string is present,
-  //then the bit '0' (discriminant) is appended
+  // then the bit '0' (discriminant) is appended
   // ITU C.14.4: If the alternative string-index is present,
   // then the bit '1' (discriminant) is appended
-  this->Writer->PutBit(literal ? 0 : 1);
+  this->Writer->PutBit(!literal);
   if (literal)
   {
     // ITU C.14.3.1 If the value of the component add-to-table is TRUE,
@@ -439,12 +432,10 @@ void vtkX3DExporterFIWriter::StartAttribute(int attributeID, bool literal, bool 
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkX3DExporterFIWriter::EndAttribute()
-{
-}
+//------------------------------------------------------------------------------
+void vtkX3DExporterFIWriter::EndAttribute() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d)
 {
   this->StartAttribute(attributeID, true, false);
@@ -455,16 +446,17 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
   double temp[4];
   switch (type)
   {
-    case(SFVEC3F):
-    case(SFCOLOR):
-      size = 3; loc = d;
+    case (SFVEC3F):
+    case (SFCOLOR):
+      size = 3;
+      loc = d;
       break;
-    case(SFROTATION):
+    case (SFROTATION):
       size = 4;
       temp[0] = d[1];
       temp[1] = d[2];
       temp[2] = d[3];
-      temp[3] = vtkMath::RadiansFromDegrees( -d[0] );
+      temp[3] = vtkMath::RadiansFromDegrees(-d[0]);
       loc = temp;
       break;
     default:
@@ -476,22 +468,15 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
   std::ostringstream ss;
   switch (type)
   {
-    case(SFVEC3F):
-    case(SFCOLOR):
-      ss << static_cast<float>( d[0] )
-         << " "
-         << static_cast<float>( d[1] )
-         << " "
-         << static_cast<float>( d[2] );
+    case (SFVEC3F):
+    case (SFCOLOR):
+      ss << static_cast<float>(d[0]) << " " << static_cast<float>(d[1]) << " "
+         << static_cast<float>(d[2]);
       break;
-    case(SFROTATION):
-      ss << static_cast<float>( d[1] )
-         << " "
-         << static_cast<float>( d[2] )
-         << " "
-         << static_cast<float>( d[3] )
-         << " "
-         << static_cast<float>( vtkMath::RadiansFromDegrees( -d[0] ) );
+    case (SFROTATION):
+      ss << static_cast<float>(d[1]) << " " << static_cast<float>(d[2]) << " "
+         << static_cast<float>(d[3]) << " "
+         << static_cast<float>(vtkMath::RadiansFromDegrees(-d[0]));
       break;
     default:
       cout << "UNKNOWN DATATYPE";
@@ -501,75 +486,74 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkDataArray* a)
 {
   this->StartAttribute(attributeID, true, false);
 
 #ifdef ENCODEASSTRING
   std::ostringstream ss;
-  switch(type)
+  switch (type)
   {
-  case (MFVEC3F):
-  case (MFVEC2F):
-    vtkIdType i;
-    for (i = 0; i < a->GetNumberOfTuples(); i++)
-    {
-      double* d = a->GetTuple(i);
-      ss << d[0] << " " << d[1];
-      if (type == MFVEC3F) ss << " " << d[2];
-      ss << ",";
-    }
-    vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, ss.str());
-    break;
-  default:
-    cerr << "UNKNOWN DATATYPE";
-    assert(false);
+    case (MFVEC3F):
+    case (MFVEC2F):
+      vtkIdType i;
+      for (i = 0; i < a->GetNumberOfTuples(); i++)
+      {
+        double* d = a->GetTuple(i);
+        ss << d[0] << " " << d[1];
+        if (type == MFVEC3F)
+          ss << " " << d[2];
+        ss << ",";
+      }
+      vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, ss.str());
+      break;
+    default:
+      cerr << "UNKNOWN DATATYPE";
+      assert(false);
   }
 #else
   std::vector<double> values;
-  switch(type)
+  switch (type)
   {
-  case (MFVEC3F):
-  case (MFVEC2F):
-    vtkIdType i;
-    for (i = 0; i < a->GetNumberOfTuples(); i++)
-    {
-      double* d = a->GetTuple(i);
-      values.push_back(d[0]);
-      values.push_back(d[1]);
-      if (type == MFVEC3F)
+    case (MFVEC3F):
+    case (MFVEC2F):
+      vtkIdType i;
+      for (i = 0; i < a->GetNumberOfTuples(); i++)
       {
-        values.push_back(d[2]);
+        double* d = a->GetTuple(i);
+        values.push_back(d[0]);
+        values.push_back(d[1]);
+        if (type == MFVEC3F)
+        {
+          values.push_back(d[2]);
+        }
       }
-    }
-    if (!this->Fastest && (values.size() > 15))
-    {
-      X3DEncoderFunctions::EncodeQuantizedzlibFloatArray(this->Writer,
-        &(values.front()), values.size(), this->Compressor);
-    }
-    else
-    {
-      vtkX3DExporterFIWriterHelper::EncodeFloatFI(this->Writer,
-        &(values.front()), values.size());
-    }
-    break;
-  default:
-    vtkErrorMacro("UNKNOWN DATATYPE");
-    assert(false);
+      if (!this->Fastest && (values.size() > 15))
+      {
+        X3DEncoderFunctions::EncodeQuantizedzlibFloatArray(
+          this->Writer, &(values.front()), values.size(), this->Compressor);
+      }
+      else
+      {
+        vtkX3DExporterFIWriterHelper::EncodeFloatFI(this->Writer, &(values.front()), values.size());
+      }
+      break;
+    default:
+      vtkErrorMacro("UNKNOWN DATATYPE");
+      assert(false);
   }
 #endif
 }
 
-//----------------------------------------------------------------------------
-void vtkX3DExporterFIWriter::SetField(int attributeID, const double* values,
-  size_t size)
+//------------------------------------------------------------------------------
+void vtkX3DExporterFIWriter::SetField(int attributeID, const double* values, size_t size)
 {
   this->StartAttribute(attributeID, true, false);
   if (!this->Fastest && (size > 15))
   {
-    X3DEncoderFunctions::EncodeQuantizedzlibFloatArray(this->Writer,
-      values, size, this->Compressor);
+    X3DEncoderFunctions::EncodeQuantizedzlibFloatArray(
+      this->Writer, values, size, this->Compressor);
   }
   else
   {
@@ -577,15 +561,13 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, const double* values,
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkX3DExporterFIWriter::SetField(int attributeID,
-  const int* values, size_t size, bool image)
+//------------------------------------------------------------------------------
+void vtkX3DExporterFIWriter::SetField(int attributeID, const int* values, size_t size, bool image)
 {
   this->StartAttribute(attributeID, true, false);
   if (size > 15)
   {
-    X3DEncoderFunctions::EncodeIntegerDeltaZ(this->Writer, values, size,
-      this->Compressor, image);
+    X3DEncoderFunctions::EncodeIntegerDeltaZ(this->Writer, values, size, this->Compressor, image);
   }
   else
   {
@@ -593,70 +575,70 @@ void vtkX3DExporterFIWriter::SetField(int attributeID,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a)
 {
   vtkIdType npts = 0;
-  const vtkIdType *indx = nullptr;
+  const vtkIdType* indx = nullptr;
 
   this->StartAttribute(attributeID, true, false);
 
 #ifdef ENCODEASSTRING
-  switch(type)
+  switch (type)
   {
-  case (MFINT32):
-    int i;
-    for (a->InitTraversal(); a->GetNextCell(npts,indx); )
-    {
-      for (i = 0; i < npts; i++)
+    case (MFINT32):
+      int i;
+      for (a->InitTraversal(); a->GetNextCell(npts, indx);)
       {
-        // treating vtkIdType as int
-        ss << (int)indx[i] << " ";
+        for (i = 0; i < npts; i++)
+        {
+          // treating vtkIdType as int
+          ss << (int)indx[i] << " ";
+        }
+        ss << "-1";
       }
-      ss << "-1";
-    }
-    vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, ss.str());
-    break;
-  default:
-    cerr << "UNKNOWN DATATYPE";
-    assert(false);
+      vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, ss.str());
+      break;
+    default:
+      cerr << "UNKNOWN DATATYPE";
+      assert(false);
   }
 #else
   std::vector<int> values;
-  switch(type)
+  switch (type)
   {
-  case (MFINT32):
-    int i;
-    for (a->InitTraversal(); a->GetNextCell(npts,indx); )
-    {
-      for (i = 0; i < npts; i++)
+    case (MFINT32):
+      int i;
+      for (a->InitTraversal(); a->GetNextCell(npts, indx);)
       {
-        values.push_back(indx[i]);
+        for (i = 0; i < npts; i++)
+        {
+          values.push_back(indx[i]);
+        }
+        values.push_back(-1);
       }
-      values.push_back(-1);
-    }
-    vtkX3DExporterFIWriterHelper::EncodeIntegerFI(this->Writer, &(values.front()), values.size());
-    break;
-  default:
-    cerr << "UNKNOWN DATATYPE";
-    assert(false);
+      vtkX3DExporterFIWriterHelper::EncodeIntegerFI(this->Writer, &(values.front()), values.size());
+      break;
+    default:
+      cerr << "UNKNOWN DATATYPE";
+      assert(false);
   }
 #endif
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int value)
 {
   std::ostringstream ss;
   this->StartAttribute(attributeID, true, false);
 
   // Xj3D writes out single value fields in string encoding. Expected:
-  //FIEncoderFunctions::EncodeFloatFI<float>(this->Writer, &value, 1);
+  // FIEncoderFunctions::EncodeFloatFI<float>(this->Writer, &value, 1);
   ss << value;
   vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, ss.str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, float value)
 {
   std::ostringstream ss;
@@ -664,42 +646,40 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, float value)
   this->StartAttribute(attributeID, true, false);
 
   // Xj3D writes out single value fields in string encoding. Expected:
-  //FIEncoderFunctions::EncodeFloatFI<float>(this->Writer, &value, 1);
+  // FIEncoderFunctions::EncodeFloatFI<float>(this->Writer, &value, 1);
   ss << value;
   vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, ss.str());
 }
 
-//----------------------------------------------------------------------------
-void vtkX3DExporterFIWriter::SetField(int vtkNotUsed(attributeID),
-  double vtkNotUsed(value))
+//------------------------------------------------------------------------------
+void vtkX3DExporterFIWriter::SetField(int vtkNotUsed(attributeID), double vtkNotUsed(value))
 {
   cout << "Function not implemented yet." << endl;
   assert(false);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, bool value)
 {
   this->StartAttribute(attributeID, false);
   vtkX3DExporterFIWriterHelper::EncodeInteger2(this->Writer, value ? 2 : 1);
 }
 
-//----------------------------------------------------------------------------
-void vtkX3DExporterFIWriter::SetField(int attributeID, const char* value,
-  bool vtkNotUsed(mfstring))
+//------------------------------------------------------------------------------
+void vtkX3DExporterFIWriter::SetField(int attributeID, const char* value, bool vtkNotUsed(mfstring))
 {
   this->StartAttribute(attributeID, true, true);
   vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, std::string(value));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 /*void vtkX3DExporterFIWriter::SetField(int attributeID, const std::string &value)
   {
   this->StartAttribute(attributeID, true, true);
   vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, value);
   }*/
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 /*void vtkX3DExporterFIWriter::SetField(int attributeID, int type, std::string value)
   {
   assert(type == MFSTRING);
@@ -707,9 +687,6 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, const char* value,
   this->SetField(attributeID, value);
   }*/
 
-//----------------------------------------------------------------------------
-void vtkX3DExporterFIWriter::Flush()
-{
-
-}
-
+//------------------------------------------------------------------------------
+void vtkX3DExporterFIWriter::Flush() {}
+VTK_ABI_NAMESPACE_END

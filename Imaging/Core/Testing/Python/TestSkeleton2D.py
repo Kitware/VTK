@@ -1,13 +1,22 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkImagingCore import (
+    vtkImageClip,
+    vtkImageMagnify,
+)
+from vtkmodules.vtkImagingMorphological import vtkImageSkeleton2D
+from vtkmodules.vtkImagingSources import vtkImageCanvasSource2D
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # A script to test the threshold filter.
 # Values above 2000 are set to 255.
 # Values below 2000 are set to 0.
 # Image pipeline
-imageCanvas = vtk.vtkImageCanvasSource2D()
+imageCanvas = vtkImageCanvasSource2D()
 imageCanvas.SetScalarTypeToUnsignedChar()
 imageCanvas.SetExtent(0,339,0,339,0,0)
 # background black
@@ -73,25 +82,25 @@ imageCanvas.DrawSegment(230,10,330,110)
 imageCanvas.DrawSegment(231,10,331,110)
 imageCanvas.DrawSegment(230,110,330,10)
 imageCanvas.DrawSegment(231,110,331,10)
-skeleton1 = vtk.vtkImageSkeleton2D()
+skeleton1 = vtkImageSkeleton2D()
 #skeleton1 BypassOn
 skeleton1.SetInputConnection(imageCanvas.GetOutputPort())
 skeleton1.SetPrune(0)
 skeleton1.SetNumberOfIterations(20)
 skeleton1.ReleaseDataFlagOff()
-clip = vtk.vtkImageClip()
+clip = vtkImageClip()
 clip.SetInputConnection(skeleton1.GetOutputPort())
 clip.SetOutputWholeExtent(0,120,0,120,0,0)
-magnify = vtk.vtkImageMagnify()
+magnify = vtkImageMagnify()
 magnify.SetInputConnection(clip.GetOutputPort())
 magnify.SetMagnificationFactors(5,5,1)
 magnify.InterpolateOff()
 magnify.ReleaseDataFlagOff()
-viewer1 = vtk.vtkImageViewer()
+viewer1 = vtkImageViewer()
 viewer1.SetInputConnection(imageCanvas.GetOutputPort())
 viewer1.SetColorWindow(5)
 viewer1.SetColorLevel(1)
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 #viewer SetInputConnection [magnify GetOutputPort]
 viewer.SetInputConnection(skeleton1.GetOutputPort())
 viewer.SetColorWindow(5)

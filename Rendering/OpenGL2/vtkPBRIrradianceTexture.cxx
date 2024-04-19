@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPBRIrradianceTexture.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPBRIrradianceTexture.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
@@ -27,16 +15,17 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPBRIrradianceTexture);
 
-vtkCxxSetObjectMacro(vtkPBRIrradianceTexture, InputCubeMap, vtkOpenGLTexture);
+vtkCxxSetObjectMacro(vtkPBRIrradianceTexture, InputTexture, vtkOpenGLTexture);
 
 //------------------------------------------------------------------------------
 vtkPBRIrradianceTexture::~vtkPBRIrradianceTexture()
 {
-  if (this->InputCubeMap)
+  if (this->InputTexture)
   {
-    this->InputCubeMap->Delete();
+    this->InputTexture->Delete();
   }
 }
 
@@ -48,13 +37,13 @@ void vtkPBRIrradianceTexture::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IrradianceSize: " << this->IrradianceSize << endl;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
-void vtkPBRIrradianceTexture::ReleaseGraphicsResources(vtkWindow *win)
+void vtkPBRIrradianceTexture::ReleaseGraphicsResources(vtkWindow* win)
 {
-  if (this->InputCubeMap)
+  if (this->InputTexture)
   {
-    this->InputCubeMap->ReleaseGraphicsResources(win);
+    this->InputTexture->ReleaseGraphicsResources(win);
   }
   this->Superclass::ReleaseGraphicsResources(win);
 }
@@ -66,26 +55,30 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
   if (!renWin)
   {
     vtkErrorMacro("No render window.");
+    return;
   }
 
-  if (!this->InputCubeMap)
+  if (!this->InputTexture)
   {
     vtkErrorMacro("No input cubemap specified.");
+    return;
   }
 
-  this->InputCubeMap->Render(ren);
+#ifdef GL_ES_VERSION_3_0
+  // Mipmap generation is not supported for most texture formats (like GL_RGB32F)
+  this->InputTexture->MipmapOff();
+  this->InputTexture->InterpolateOff();
+#endif
+  this->InputTexture->Render(ren);
 
   if (this->GetMTime() > this->LoadTime.GetMTime() ||
-    this->InputCubeMap->GetMTime() > this->LoadTime.GetMTime())
+    this->InputTexture->GetMTime() > this->LoadTime.GetMTime())
   {
     if (this->TextureObject == nullptr)
     {
       this->TextureObject = vtkTextureObject::New();
     }
     this->TextureObject->SetContext(renWin);
-    this->TextureObject->SetFormat(GL_RGB);
-    this->TextureObject->SetInternalFormat(GL_RGB16F);
-    this->TextureObject->SetDataType(GL_FLOAT);
     this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
     this->TextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
@@ -93,6 +86,19 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
     this->TextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
     this->TextureObject->CreateCubeFromRaw(
       this->IrradianceSize, this->IrradianceSize, 3, VTK_FLOAT, nullptr);
+#ifdef GL_ES_VERSION_3_0
+    this->TextureObject->SetFormat(GL_RGB);
+    this->TextureObject->SetDataType(GL_UNSIGNED_BYTE);
+    this->TextureObject->SetInternalFormat(GL_RGB8);
+    this->TextureObject->CreateCubeFromRaw(
+      this->IrradianceSize, this->IrradianceSize, 3, VTK_UNSIGNED_CHAR, nullptr);
+#else
+    this->TextureObject->SetFormat(GL_RGB);
+    this->TextureObject->SetDataType(GL_FLOAT);
+    this->TextureObject->SetInternalFormat(GL_RGB16F);
+    this->TextureObject->CreateCubeFromRaw(
+      this->IrradianceSize, this->IrradianceSize, 3, VTK_FLOAT, nullptr);
+#endif
 
     this->RenderWindow = renWin;
 
@@ -105,13 +111,14 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
     std::string FSSource = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
-      "uniform samplerCube cubeMap;\n"
+      "//VTK::TEXTUREINPUT::Decl\n"
       "uniform vec3 shift;\n"
       "uniform vec3 contribX;\n"
       "uniform vec3 contribY;\n"
       "const float PI = 3.14159265359;\n"
-      "vec3 ColorSpaceConvert(vec3 col)\n"
+      "vec3 GetSampleColor(vec3 dir)\n"
       "{\n"
+      "  //VTK::SAMPLING::Decl\n"
       "  //VTK::COLORSPACE::Decl\n"
       "}\n");
 
@@ -123,6 +130,35 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
     else
     {
       vtkShaderProgram::Substitute(FSSource, "//VTK::COLORSPACE::Decl", "return col;");
+    }
+
+    if (this->InputTexture->GetCubeMap())
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::TEXTUREINPUT::Decl",
+        "uniform samplerCube inputTex;\n"
+        "uniform vec3 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
+      );
+
+      vtkShaderProgram::Substitute(FSSource, "//VTK::SAMPLING::Decl",
+        "  dir = normalize(dir);\n"
+        "  vec3 dirv = vec3(dot(dir,floorRight),\n"
+        "    dot(dir,floorPlane),\n"
+        "    dot(dir,floorFront));\n"
+        "  vec3 col = texture(inputTex, dirv).rgb;\n");
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(
+        FSSource, "//VTK::TEXTUREINPUT::Decl", "uniform sampler2D inputTex;");
+
+      vtkShaderProgram::Substitute(FSSource, "//VTK::SAMPLING::Decl",
+        "  dir = normalize(dir);\n"
+        "  float theta = atan(dir.z, dir.x);\n"
+        "  float phi = asin(dir.y);\n"
+        "  vec2 p = vec2(theta * 0.1591 + 0.5, phi * 0.3183 + 0.5);\n"
+        "  vec3 col = texture(inputTex, p).rgb;\n");
     }
 
     std::stringstream fsImpl;
@@ -144,9 +180,10 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
       << this->IrradianceStep
       << ")\n"
          "    {\n"
-         "      vec3 sample = vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));\n"
+         "      vec3 sampleValues = vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), "
+         "cos(theta));\n"
          "      float factor = cos(theta) * sin(theta);\n"
-         "      acc += ColorSpaceConvert(texture(cubeMap, m * sample).rgb) * factor;\n"
+         "      acc += GetSampleColor(m * sampleValues) * factor;\n"
          "      nSamples = nSamples + 1.0;\n"
          "    }\n"
          "  }\n"
@@ -168,8 +205,23 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
     }
     else
     {
-      this->InputCubeMap->GetTextureObject()->Activate();
-      quadHelper.Program->SetUniformi("cubeMap", this->InputCubeMap->GetTextureUnit());
+      this->InputTexture->GetTextureObject()->Activate();
+      quadHelper.Program->SetUniformi("inputTex", this->InputTexture->GetTextureUnit());
+
+      if (this->InputTexture->GetCubeMap())
+      {
+        float plane[3], right[3];
+        for (unsigned int i = 0; i < 3; i++)
+        {
+          plane[i] = ren->GetEnvironmentUp()[i];
+          right[i] = ren->GetEnvironmentRight()[i];
+        }
+        quadHelper.Program->SetUniform3f("floorPlane", plane);
+        quadHelper.Program->SetUniform3f("floorRight", right);
+        float front[3];
+        vtkMath::Cross(plane, right, front);
+        quadHelper.Program->SetUniform3f("floorFront", front);
+      }
 
       float shift[6][3] = { { 1.f, 1.f, 1.f }, { -1.f, 1.f, -1.f }, { -1.f, 1.f, -1.f },
         { -1.f, -1.f, 1.f }, { -1.f, 1.f, 1.f }, { 1.f, 1.f, -1.f } };
@@ -196,7 +248,7 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
         // thus avoids the trigger of the GPU timeout.
         renWin->WaitForCompletion();
       }
-      this->InputCubeMap->GetTextureObject()->Deactivate();
+      this->InputTexture->GetTextureObject()->Deactivate();
     }
     renWin->GetState()->PopFramebufferBindings();
     this->LoadTime.Modified();
@@ -204,3 +256,4 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
 
   this->TextureObject->Activate();
 }
+VTK_ABI_NAMESPACE_END

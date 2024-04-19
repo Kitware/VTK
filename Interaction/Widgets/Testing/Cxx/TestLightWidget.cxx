@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestLightWidget.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // This example tests the vtkLightWidget
 
@@ -1568,7 +1556,7 @@ int TestLightWidget(int, char*[])
   lightWidget->On();
 
   vtkNew<vtkLightRepresentation> lightRep2;
-  double color[3] = {1.0, 1.0, 0.0};
+  double color[3] = { 1.0, 1.0, 0.0 };
   lightRep2->SetLightColor(color);
 
   vtkNew<vtkLightWidget> lightWidget2;

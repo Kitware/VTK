@@ -1,4 +1,11 @@
+# The TDx support has not been moved, this header is here to define nothing,
+# and so allow classes in other modules to safely include it and keep going.
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkTDxConfigure.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h")
+
 set(classes
+  vtkAbstractHyperTreeGridMapper
   vtkAbstractMapper
   vtkAbstractMapper3D
   vtkAbstractPicker
@@ -11,15 +18,19 @@ set(classes
   vtkAvatar
   vtkBackgroundColorMonitor
   vtkBillboardTextActor3D
-  vtkCIEDE2000
   vtkCamera
   vtkCameraActor
   vtkCameraInterpolator
   vtkCellCenterDepthSort
+  vtkCellGraphicsPrimitiveMap
+  vtkCellGridMapper
+  vtkCellGridRenderRequest
   vtkColorTransferFunction
+  vtkCompositeCellGridMapper
   vtkCompositeDataDisplayAttributes
   vtkCompositeDataDisplayAttributesLegacy
   vtkCompositePolyDataMapper
+  vtkCompositePolyDataMapperDelegator
   vtkCoordinate
   vtkCuller
   vtkCullerCollection
@@ -33,13 +44,14 @@ set(classes
   vtkFrustumCoverageCuller
   vtkGPUInfo
   vtkGPUInfoList
-  vtkGenericRenderWindowInteractor
   vtkGenericVertexAttributeMapping
   vtkGlyph3DMapper
   vtkGraphMapper
   vtkGraphToGlyphs
   vtkGraphicsFactory
+  vtkHardwarePicker
   vtkHardwareSelector
+  vtkHardwareWindow
   vtkHierarchicalPolyDataMapper
   vtkImageActor
   vtkImageMapper
@@ -83,6 +95,7 @@ set(classes
   vtkRendererCollection
   vtkRendererDelegate
   vtkRendererSource
+  vtkResizingWindowToImageFilter
   vtkSelectVisiblePoints
   vtkShaderProperty
   vtkSkybox
@@ -151,6 +164,9 @@ set(classes
   vtkAbstractRenderDevice
   vtkRenderWidget)
 
+set(nowrap_classes
+  vtkCIEDE2000)
+
 # needed as we do not have vtkRenderingOpenGLConfigure.h here
 set_source_files_properties(
   vtkRenderWindow.cxx  # dummy out painterdevice adapter
@@ -160,18 +176,37 @@ set_source_files_properties(
 
 set(headers
   vtkGPUInfoListArray.h
-  vtkNoise200x200.h
   vtkPythagoreanQuadruples.h
   vtkRayCastStructures.h
   vtkRenderingCoreEnums.h
+  vtkStateStorage.h
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h"
   vtkTDxMotionEventInfo.h)
+
+set(nowrap_headers
+  vtkNoise200x200.h)
+
+
+# Hand written (de)serialization routines
+set(serialization_helper_sources)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serialization_helper_sources
+    vtkAbstractMapperSerDesHelper.cxx
+    vtkColorTransferFunctionSerDesHelper.cxx
+    vtkDataSetMapperSerDesHelper.cxx)
+endif ()    
 
 vtk_module_add_module(VTK::RenderingCore
   CLASSES ${classes}
-  HEADERS ${headers})
+  NOWRAP_CLASSES ${nowrap_classes}
+  HEADERS ${headers}
+  SOURCES ${serialization_helper_sources}
+  NOWRAP_HEADERS ${nowrap_headers}
+  )
 
 if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
   vtk_module_definitions(VTK::RenderingCore
     PRIVATE
       VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 endif()
+vtk_add_test_mangling(VTK::RenderingCore)

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSimple2DLayoutStrategy.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkSimple2DLayoutStrategy
  * @brief   a simple 2D graph layout
@@ -30,25 +14,26 @@
  * @par Thanks:
  * Thanks to Brian Wylie from Sandia National Laboratories for creating this
  * class.
-*/
+ */
 
 #ifndef vtkSimple2DLayoutStrategy_h
 #define vtkSimple2DLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 
 class VTKINFOVISLAYOUT_EXPORT vtkSimple2DLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkSimple2DLayoutStrategy *New();
+  static vtkSimple2DLayoutStrategy* New();
 
   vtkTypeMacro(vtkSimple2DLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Seed the random number generator used to jitter point positions.
    * This has a significant effect on their final positions when
@@ -56,9 +41,9 @@ public:
    */
   vtkSetClampMacro(RandomSeed, int, 0, VTK_INT_MAX);
   vtkGetMacro(RandomSeed, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of iterations to be used.
    * The higher this number, the more iterations through the algorithm
@@ -69,9 +54,9 @@ public:
    */
   vtkSetClampMacro(MaxNumberOfIterations, int, 0, VTK_INT_MAX);
   vtkGetMacro(MaxNumberOfIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of iterations per layout.
    * The only use for this ivar is for the application
@@ -81,9 +66,9 @@ public:
    */
   vtkSetClampMacro(IterationsPerLayout, int, 0, VTK_INT_MAX);
   vtkGetMacro(IterationsPerLayout, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the initial temperature.  The temperature default is '5'
    * for no particular reason
@@ -92,9 +77,9 @@ public:
    */
   vtkSetClampMacro(InitialTemperature, float, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(InitialTemperature, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Cool-down rate.
    * The higher this number is, the longer it will take to "cool-down",
@@ -105,9 +90,9 @@ public:
    */
   vtkSetClampMacro(CoolDownRate, double, 0.01, VTK_DOUBLE_MAX);
   vtkGetMacro(CoolDownRate, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set Random jitter of the nodes at initialization
    * to on or off.
@@ -117,16 +102,16 @@ public:
    */
   vtkSetMacro(Jitter, bool);
   vtkGetMacro(Jitter, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Manually set the resting distance. Otherwise the
    * distance is computed automatically.
    */
   vtkSetMacro(RestDistance, float);
   vtkGetMacro(RestDistance, float);
-  //@}
+  ///@}
 
   /**
    * This strategy sets up some data structures
@@ -147,31 +132,31 @@ public:
    * I'm an iterative layout so this method lets the caller
    * know if I'm done laying out the graph
    */
-  int IsLayoutComplete() override {return this->LayoutComplete;}
+  int IsLayoutComplete() override { return this->LayoutComplete; }
 
 protected:
   vtkSimple2DLayoutStrategy();
   ~vtkSimple2DLayoutStrategy() override;
 
-  int    MaxNumberOfIterations;  //Maximum number of iterations.
-  float  InitialTemperature;
-  float  CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
+  int MaxNumberOfIterations; // Maximum number of iterations.
+  float InitialTemperature;
+  float CoolDownRate; // Cool-down rate.  Note:  Higher # = Slower rate.
 
 private:
-
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
-  typedef struct
+  struct vtkLayoutEdge_t
   {
     vtkIdType from;
     vtkIdType to;
     float weight;
-  } vtkLayoutEdge;
+  };
+  using vtkLayoutEdge = struct vtkLayoutEdge_t;
 
   // These are for storage of repulsion and attraction
-  vtkFloatArray *RepulsionArray;
-  vtkFloatArray *AttractionArray;
-  vtkLayoutEdge *EdgeArray;
+  vtkFloatArray* RepulsionArray;
+  vtkFloatArray* AttractionArray;
+  vtkLayoutEdge* EdgeArray;
 
   int RandomSeed;
   int IterationsPerLayout;
@@ -185,5 +170,5 @@ private:
   void operator=(const vtkSimple2DLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

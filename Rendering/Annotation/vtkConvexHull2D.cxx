@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    vtkConvexHull2D.cxx
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkConvexHull2D.h"
 
@@ -22,8 +10,8 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointsProjectedHull.h"
-#include "vtkPolygon.h"
 #include "vtkPolyLine.h"
+#include "vtkPolygon.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform.h"
@@ -31,9 +19,10 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConvexHull2D);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvexHull2D::vtkConvexHull2D()
 {
   this->SetNumberOfOutputPorts(2);
@@ -53,15 +42,15 @@ vtkConvexHull2D::vtkConvexHull2D()
   this->HullSource = vtkSmartPointer<vtkPolygon>::New();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvexHull2D::~vtkConvexHull2D()
 {
   this->SetRenderer(nullptr);
 }
 
-//-----------------------------------------------------------------------------
-void vtkConvexHull2D::CalculateBoundingRectangle(vtkPoints* inPoints,
-  vtkPoints* outPoints, double minimumHullSize)
+//------------------------------------------------------------------------------
+void vtkConvexHull2D::CalculateBoundingRectangle(
+  vtkPoints* inPoints, vtkPoints* outPoints, double minimumHullSize)
 {
   minimumHullSize /= 2.0;
   inPoints->ComputeBounds();
@@ -89,15 +78,13 @@ void vtkConvexHull2D::CalculateBoundingRectangle(vtkPoints* inPoints,
   outPoints->SetPoint(3, bounds[0], bounds[3], 0.0);
 }
 
-//-----------------------------------------------------------------------------
-void vtkConvexHull2D::CalculateConvexHull(vtkPoints* inPoints,
-  vtkPoints* outPoints, double minimumHullSize)
+//------------------------------------------------------------------------------
+void vtkConvexHull2D::CalculateConvexHull(
+  vtkPoints* inPoints, vtkPoints* outPoints, double minimumHullSize)
 {
-  if (inPoints->GetNumberOfPoints() == 1 ||
-    inPoints->GetNumberOfPoints() == 2)
+  if (inPoints->GetNumberOfPoints() == 1 || inPoints->GetNumberOfPoints() == 2)
   {
-    vtkConvexHull2D::CalculateBoundingRectangle(inPoints, outPoints,
-     minimumHullSize);
+    vtkConvexHull2D::CalculateBoundingRectangle(inPoints, outPoints, minimumHullSize);
   }
   else if (inPoints->GetNumberOfPoints() >= 3)
   {
@@ -118,8 +105,7 @@ void vtkConvexHull2D::CalculateConvexHull(vtkPoints* inPoints,
 
     if (numHullPoints < 3)
     {
-      vtkConvexHull2D::CalculateBoundingRectangle(hullPoints, outPoints,
-        minimumHullSize);
+      vtkConvexHull2D::CalculateBoundingRectangle(hullPoints, outPoints, minimumHullSize);
       return;
     }
 
@@ -129,10 +115,9 @@ void vtkConvexHull2D::CalculateConvexHull(vtkPoints* inPoints,
     double yScale = std::max(1.0, minimumHullSize / (bounds[3] - bounds[2]));
     if (xScale > 1.0 || yScale > 1.0)
     {
-      double scale[3] = {xScale, yScale, 1.0};
-      double translate[3] = {
-        (bounds[0] + (bounds[1] - bounds[0]) / 2.0),
-        (bounds[2] + (bounds[3] - bounds[2]) / 2.0), 0.0};
+      double scale[3] = { xScale, yScale, 1.0 };
+      double translate[3] = { (bounds[0] + (bounds[1] - bounds[0]) / 2.0),
+        (bounds[2] + (bounds[3] - bounds[2]) / 2.0), 0.0 };
 
       vtkTransform* transform = vtkTransform::New();
       transform->Translate(translate);
@@ -149,75 +134,71 @@ void vtkConvexHull2D::CalculateConvexHull(vtkPoints* inPoints,
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexHull2D::ResizeHullToMinimumInDisplay(vtkPolyData* hullPolyData)
 {
   if (this->Renderer && this->Renderer->IsActiveCameraCreated())
   {
-      double bounds[6];
-      hullPolyData->ComputeBounds();
-      hullPolyData->GetBounds(bounds);
+    double bounds[6];
+    hullPolyData->ComputeBounds();
+    hullPolyData->GetBounds(bounds);
 
-      double leftBottom[2];
-      double rightTop[2];
-      double* coord;
-      this->Coordinate->SetCoordinateSystemToWorld();
-      this->Coordinate->SetValue(bounds[0], bounds[2], 0.0);
-      coord = this->Coordinate->GetComputedDoubleDisplayValue(this->Renderer);
-      leftBottom[0] = coord[0];
-      leftBottom[1] = coord[1];
-      this->Coordinate->SetValue(bounds[1], bounds[3], 0.0);
-      coord = this->Coordinate->GetComputedDoubleDisplayValue(this->Renderer);
-      rightTop[0] = coord[0];
-      rightTop[1] = coord[1];
-      double currentDisplaySize[2] = {rightTop[0] - leftBottom[0],
-        rightTop[1] - leftBottom[1]};
+    double leftBottom[2];
+    double rightTop[2];
+    double* coord;
+    this->Coordinate->SetCoordinateSystemToWorld();
+    this->Coordinate->SetValue(bounds[0], bounds[2], 0.0);
+    coord = this->Coordinate->GetComputedDoubleDisplayValue(this->Renderer);
+    leftBottom[0] = coord[0];
+    leftBottom[1] = coord[1];
+    this->Coordinate->SetValue(bounds[1], bounds[3], 0.0);
+    coord = this->Coordinate->GetComputedDoubleDisplayValue(this->Renderer);
+    rightTop[0] = coord[0];
+    rightTop[1] = coord[1];
+    double currentDisplaySize[2] = { rightTop[0] - leftBottom[0], rightTop[1] - leftBottom[1] };
 
-      if (currentDisplaySize[0] == 0.0 || currentDisplaySize[1] == 0.0)
-      {
-        vtkWarningMacro(<< "Can not scale a hull with zero display area.")
-        return;
-      }
+    if (currentDisplaySize[0] == 0.0 || currentDisplaySize[1] == 0.0)
+    {
+      vtkWarningMacro(<< "Can not scale a hull with zero display area.");
+      return;
+    }
 
-      if (currentDisplaySize[0] < this->MinHullSizeInDisplay ||
-        currentDisplaySize[1] < this->MinHullSizeInDisplay)
-      {
-        double scaleFx = std::max(1.0, this->MinHullSizeInDisplay
-          / currentDisplaySize[0]);
-        double scaleFy = std::max(1.0, this->MinHullSizeInDisplay
-          / currentDisplaySize[1]);
-        double scale[3] = {scaleFx, scaleFy, 1.0};
-        double translate[3] = {
-          (bounds[0] + (bounds[1] - bounds[0]) / 2.0),
-          (bounds[2] + (bounds[3] - bounds[2]) / 2.0), 0.0};
+    if (currentDisplaySize[0] < this->MinHullSizeInDisplay ||
+      currentDisplaySize[1] < this->MinHullSizeInDisplay)
+    {
+      double scaleFx = std::max(1.0, this->MinHullSizeInDisplay / currentDisplaySize[0]);
+      double scaleFy = std::max(1.0, this->MinHullSizeInDisplay / currentDisplaySize[1]);
+      double scale[3] = { scaleFx, scaleFy, 1.0 };
+      double translate[3] = { (bounds[0] + (bounds[1] - bounds[0]) / 2.0),
+        (bounds[2] + (bounds[3] - bounds[2]) / 2.0), 0.0 };
 
-        this->Transform->Identity();
-        this->Transform->Translate(translate);
-        this->Transform->Scale(scale);
-        this->Transform->Translate(-translate[0], -translate[1], -translate[2]);
+      this->Transform->Identity();
+      this->Transform->Translate(translate);
+      this->Transform->Scale(scale);
+      this->Transform->Translate(-translate[0], -translate[1], -translate[2]);
 
-        vtkPoints* outPoints = vtkPoints::New();
-        this->Transform->TransformPoints(hullPolyData->GetPoints(), outPoints);
-        hullPolyData->SetPoints(outPoints);
-        outPoints->Delete();
-      }
+      vtkPoints* outPoints = vtkPoints::New();
+      this->Transform->TransformPoints(hullPolyData->GetPoints(), outPoints);
+      hullPolyData->SetPoints(outPoints);
+      outPoints->Delete();
+    }
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexHull2D::SetRenderer(vtkRenderer* renderer)
 {
   this->Renderer = renderer;
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderer* vtkConvexHull2D::GetRenderer()
 {
   return this->Renderer;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkConvexHull2D::GetMTime()
 {
   if (this->Renderer)
@@ -230,15 +211,14 @@ vtkMTimeType vtkConvexHull2D::GetMTime()
   }
 }
 
-//-----------------------------------------------------------------------------
-int vtkConvexHull2D::RequestData(vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector, vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkConvexHull2D::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get the input and output.
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
-  vtkPolyData* input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPoints* inputPoints = input->GetPoints();
   if (!inputPoints)
   {
@@ -246,25 +226,22 @@ int vtkConvexHull2D::RequestData(vtkInformation *vtkNotUsed(request),
     return 0;
   }
 
-  vtkInformation *outInfo0 = outputVector->GetInformationObject(0);
-  vtkInformation *outInfo1 = outputVector->GetInformationObject(1);
+  vtkInformation* outInfo0 = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo1 = outputVector->GetInformationObject(1);
 
-  vtkPolyData *outputHull = vtkPolyData::SafeDownCast(outInfo0->Get(
-    vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *outputOutline = vtkPolyData::SafeDownCast(outInfo1->Get(
-    vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* outputHull = vtkPolyData::SafeDownCast(outInfo0->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* outputOutline =
+    vtkPolyData::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
 
   // Create filled polygon
   vtkPoints* hullPoints = vtkPoints::New();
   switch (this->HullShape)
   {
     case vtkConvexHull2D::BoundingRectangle:
-      this->CalculateBoundingRectangle(inputPoints, hullPoints,
-        this->MinHullSizeInWorld);
+      this->CalculateBoundingRectangle(inputPoints, hullPoints, this->MinHullSizeInWorld);
       break;
     default: // vtkConvexHull2D::ConvexHull
-      this->CalculateConvexHull(inputPoints, hullPoints,
-        this->MinHullSizeInWorld);
+      this->CalculateConvexHull(inputPoints, hullPoints, this->MinHullSizeInWorld);
       break;
   }
 
@@ -275,7 +252,7 @@ int vtkConvexHull2D::RequestData(vtkInformation *vtkNotUsed(request),
     hullPts[i] = i;
   }
   this->HullSource->Initialize(numHullPoints, hullPts, hullPoints);
-  delete [] hullPts;
+  delete[] hullPts;
 
   vtkCellArray* hullCells = vtkCellArray::New();
   hullCells->InsertNextCell(this->HullSource);
@@ -313,8 +290,7 @@ int vtkConvexHull2D::RequestData(vtkInformation *vtkNotUsed(request),
 
     this->OutlineSource->Initialize(numOutlinePoints + 1, outlinePts, outputHull->GetPoints());
 
-    vtkSmartPointer<vtkPolyData> outlinePolyData =
-      vtkSmartPointer<vtkPolyData>::New();
+    vtkSmartPointer<vtkPolyData> outlinePolyData = vtkSmartPointer<vtkPolyData>::New();
     vtkCellArray* outlineCells = vtkCellArray::New();
     outlineCells->InsertNextCell(this->OutlineSource);
     outlinePolyData->SetPoints(outputHull->GetPoints());
@@ -328,7 +304,7 @@ int vtkConvexHull2D::RequestData(vtkInformation *vtkNotUsed(request),
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvexHull2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -360,3 +336,4 @@ void vtkConvexHull2D::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

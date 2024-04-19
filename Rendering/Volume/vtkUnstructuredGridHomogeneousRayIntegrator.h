@@ -1,26 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridHomogeneousRayIntegrator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*
- * Copyright 2004 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2004 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkUnstructuredGridHomogeneousRayIntegrator
@@ -32,7 +12,7 @@
  * integration.  This is a good method to use when volume rendering scalars
  * that are defined on cells.
  *
-*/
+ */
 
 #ifndef vtkUnstructuredGridHomogeneousRayIntegrator_h
 #define vtkUnstructuredGridHomogeneousRayIntegrator_h
@@ -40,24 +20,23 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVolumeProperty;
 
-class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridHomogeneousRayIntegrator : public vtkUnstructuredGridVolumeRayIntegrator
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridHomogeneousRayIntegrator
+  : public vtkUnstructuredGridVolumeRayIntegrator
 {
 public:
-  vtkTypeMacro(vtkUnstructuredGridHomogeneousRayIntegrator,
-                       vtkUnstructuredGridVolumeRayIntegrator);
-  static vtkUnstructuredGridHomogeneousRayIntegrator *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkUnstructuredGridHomogeneousRayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
+  static vtkUnstructuredGridHomogeneousRayIntegrator* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Initialize(vtkVolume *volume, vtkDataArray *scalars) override;
+  void Initialize(vtkVolume* volume, vtkDataArray* scalars) override;
 
-  void Integrate(vtkDoubleArray *intersectionLengths,
-                         vtkDataArray *nearIntersections,
-                         vtkDataArray *farIntersections,
-                         float color[4]) override;
+  void Integrate(vtkDoubleArray* intersectionLengths, vtkDataArray* nearIntersections,
+    vtkDataArray* farIntersections, float color[4]) override;
 
-  //@{
+  ///@{
   /**
    * For quick lookup, the transfer function is sampled into a table.
    * This parameter sets how big of a table to use.  By default, 1024
@@ -65,30 +44,32 @@ public:
    */
   vtkSetMacro(TransferFunctionTableSize, int);
   vtkGetMacro(TransferFunctionTableSize, int);
-  //@}
+  ///@}
 
 protected:
   vtkUnstructuredGridHomogeneousRayIntegrator();
   ~vtkUnstructuredGridHomogeneousRayIntegrator() override;
 
-  vtkVolume *Volume;
-  vtkVolumeProperty *Property;
+  vtkVolume* Volume;
+  vtkVolumeProperty* Property;
 
-  int      NumComponents;
-  float  **ColorTable;
-  float  **AttenuationTable;
-  double  *TableShift;
-  double  *TableScale;
+  int NumComponents;
+  float** ColorTable;
+  float** AttenuationTable;
+  double* TableShift;
+  double* TableScale;
   vtkTimeStamp TablesBuilt;
 
   int UseAverageColor;
   int TransferFunctionTableSize;
 
-  virtual void GetTransferFunctionTables(vtkDataArray *scalars);
+  virtual void GetTransferFunctionTables(vtkDataArray* scalars);
 
 private:
-  vtkUnstructuredGridHomogeneousRayIntegrator(const vtkUnstructuredGridHomogeneousRayIntegrator&) = delete;
+  vtkUnstructuredGridHomogeneousRayIntegrator(
+    const vtkUnstructuredGridHomogeneousRayIntegrator&) = delete;
   void operator=(const vtkUnstructuredGridHomogeneousRayIntegrator&) = delete;
 };
 
-#endif //vtkUnstructuredGridHomogeneousRayIntegrator_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkUnstructuredGridHomogeneousRayIntegrator_h

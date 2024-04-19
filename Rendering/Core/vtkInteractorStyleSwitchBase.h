@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleSwitchBase.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInteractorStyleSwitchBase
  * @brief   dummy interface class.
@@ -23,19 +11,21 @@
  *
  * @sa
  * vtkInteractorStyleSwitchBase vtkRenderWindowInteractor
-*/
+ */
 
 #ifndef vtkInteractorStyleSwitchBase_h
 #define vtkInteractorStyleSwitchBase_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
-class VTKRENDERINGCORE_EXPORT vtkInteractorStyleSwitchBase
+VTK_ABI_NAMESPACE_BEGIN
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleSwitchBase
   : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleSwitchBase *New();
+  static vtkInteractorStyleSwitchBase* New();
   vtkTypeMacro(vtkInteractorStyleSwitchBase, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -50,4 +40,5 @@ private:
   void operator=(const vtkInteractorStyleSwitchBase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

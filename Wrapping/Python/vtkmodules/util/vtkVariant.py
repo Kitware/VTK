@@ -21,7 +21,6 @@ _variant_type_map = {
     'float' : vtkCommonCore.VTK_FLOAT,
     'double' : vtkCommonCore.VTK_DOUBLE,
     'string' : vtkCommonCore.VTK_STRING,
-    'unicode string' : vtkCommonCore.VTK_UNICODE_STRING,
     'vtkObjectBase' : vtkCommonCore.VTK_OBJECT,
     'vtkObject' : vtkCommonCore.VTK_OBJECT,
 }
@@ -42,7 +41,6 @@ _variant_method_map = {
     vtkCommonCore.VTK_FLOAT : 'ToFloat',
     vtkCommonCore.VTK_DOUBLE : 'ToDouble',
     vtkCommonCore.VTK_STRING : 'ToString',
-    vtkCommonCore.VTK_UNICODE_STRING : 'ToUnicodeString',
     vtkCommonCore.VTK_OBJECT : 'ToVTKObject',
 }
 
@@ -62,7 +60,6 @@ _variant_check_map = {
     vtkCommonCore.VTK_FLOAT : 'IsFloat',
     vtkCommonCore.VTK_DOUBLE : 'IsDouble',
     vtkCommonCore.VTK_STRING : 'IsString',
-    vtkCommonCore.VTK_UNICODE_STRING : 'IsUnicodeString',
     vtkCommonCore.VTK_OBJECT : 'IsVTKObject',
 }
 
@@ -71,7 +68,7 @@ def vtkVariantCreate(v, t):
     """
     Create a vtkVariant of the specified type, where the type is in the
     following format: 'int', 'unsigned int', etc. for numeric types,
-    and 'string' or 'unicode string' for strings.  You can also use an
+    and 'string' for strings.  You can also use an
     integer VTK type constant for the type.
     """
     if not issubclass(type(t), int):
@@ -84,7 +81,7 @@ def vtkVariantExtract(v, t=None):
     """
     Extract the specified value type from the vtkVariant, where the type is
     in the following format: 'int', 'unsigned int', etc. for numeric types,
-    and 'string' or 'unicode string' for strings.  You can also use an
+    and 'string' for strings.  You can also use an
     integer VTK type constant for the type.  Set the type to 'None" to
     extract the value in its native type.
     """
@@ -105,7 +102,7 @@ def vtkVariantCast(v, t):
     """
     Cast the vtkVariant to the specified value type, where the type is
     in the following format: 'int', 'unsigned int', etc. for numeric types,
-    and 'string' or 'unicode string' for strings.  You can also use an
+    and 'string' for strings.  You can also use an
     integer VTK type constant for the type.
     """
     if not issubclass(type(t), int):
@@ -121,11 +118,7 @@ def vtkVariantCast(v, t):
 
 def vtkVariantStrictWeakOrder(s1, s2):
     """
-    Compare variants by type first, and then by value.  When called from
-    within a Python 2 interpreter, the return values are -1, 0, 1 like the
-    cmp() method, for compatibility with the Python 2 list sort() method.
-    This is in contrast with the Python 3 version of this method (and the
-    VTK C++ version), which return true or false.
+    Compare variants by type first, and then by value.
     """
     s1 = vtkCommonCore.vtkVariant(s1)
     s2 = vtkCommonCore.vtkVariant(s2)
@@ -133,23 +126,16 @@ def vtkVariantStrictWeakOrder(s1, s2):
     t1 = s1.GetType()
     t2 = s2.GetType()
 
-    # define a cmp(x, y) for Python 3 that returns (x < y)
-    def vcmp(x, y):
-        if sys.hexversion >= 0x03000000:
-            return (x < y)
-        else:
-            return cmp(x,y)
-
     # check based on type
     if t1 != t2:
-        return vcmp(t1,t2)
+        return t1 < t2
 
     v1 = s1.IsValid()
     v2 = s2.IsValid()
 
     # check based on validity
     if (not v1) or (not v2):
-        return vcmp(v1,v2)
+        return v1 < v2
 
     # extract and compare the values
     r1 = getattr(s1, _variant_method_map[t1])()
@@ -160,37 +146,19 @@ def vtkVariantStrictWeakOrder(s1, s2):
         c1 = r1.GetClassName()
         c2 = r2.GetClassName()
         if c1 != c2:
-            return vcmp(c1,c2)
+            return c1 < c2
         else:
-            return vcmp(r1.__this__,r2.__this__)
+            return r1.__this__ < r2.__this__
 
-    return vcmp(r1, r2)
+    return r1 < r2
 
 
-if sys.hexversion >= 0x03000000:
-    class vtkVariantStrictWeakOrderKey:
-        """A key method (class, actually) for use with sort()"""
-        def __init__(self, obj, *args):
-            self.obj = obj
-        def __lt__(self, other):
-            return vtkVariantStrictWeakOrder(self.obj, other)
-else:
-    class vtkVariantStrictWeakOrderKey:
-        """A key method (class, actually) for use with sort()"""
-        def __init__(self, obj, *args):
-            self.obj = obj
-        def __lt__(self, other):
-            return vtkVariantStrictWeakOrder(self.obj, other) < 0
-        def __gt__(self, other):
-            return vtkVariantStrictWeakOrder(self.obj, other) > 0
-        def __eq__(self, other):
-            return vtkVariantStrictWeakOrder(self.obj, other) == 0
-        def __le__(self, other):
-            return vtkVariantStrictWeakOrder(self.obj, other) <= 0
-        def __ge__(self, other):
-            return vtkVariantStrictWeakOrder(self.obj, other) >= 0
-        def __ne__(self, other):
-            return vtkVariantStrictWeakOrder(self.obj, other) != 0
+class vtkVariantStrictWeakOrderKey:
+    """A key method (class, actually) for use with sort()"""
+    def __init__(self, obj, *args):
+        self.obj = obj
+    def __lt__(self, other):
+        return vtkVariantStrictWeakOrder(self.obj, other)
 
 
 def vtkVariantStrictEquality(s1, s2):

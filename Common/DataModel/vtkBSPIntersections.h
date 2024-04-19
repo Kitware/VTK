@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBSPIntersections.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkBSPIntersections
@@ -29,7 +14,7 @@
  *
  * @sa
  *    vtkBSPCuts  vtkKdTree
-*/
+ */
 
 #ifndef vtkBSPIntersections_h
 #define vtkBSPIntersections_h
@@ -37,6 +22,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTimeStamp;
 class vtkCell;
 class vtkKdNode;
@@ -48,13 +34,13 @@ public:
   vtkTypeMacro(vtkBSPIntersections, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkBSPIntersections *New();
+  static vtkBSPIntersections* New();
 
   /**
    * Define the binary spatial partitioning.
    */
 
-  void SetCuts(vtkBSPCuts *cuts);
+  void SetCuts(vtkBSPCuts* cuts);
   vtkGetObjectMacro(Cuts, vtkBSPCuts);
 
   /**
@@ -62,7 +48,7 @@ public:
    * Return 0 if OK, 1 on error.
    */
 
-  int GetBounds(double *bounds);
+  int GetBounds(double* bounds);
 
   /**
    * The number of regions in the binary spatial partitioning
@@ -85,35 +71,32 @@ public:
 
   int GetRegionDataBounds(int regionID, double bounds[6]);
 
-  //@{
+  ///@{
   /**
    * Determine whether a region of the spatial decomposition
    * intersects an axis aligned box.
    */
-  int IntersectsBox(int regionId, double *x);
-  int IntersectsBox(int regionId, double xmin, double xmax,
-                    double ymin, double ymax,
-                    double zmin, double zmax);
-  //@}
+  int IntersectsBox(int regionId, double* x);
+  int IntersectsBox(int regionId, double x0, double x1, double y0, double y1, double z0, double z1);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute a list of the Ids of all regions that
    * intersect the specified axis aligned box.
    * Returns: the number of ids in the list.
    */
-  int IntersectsBox(int *ids, int len,  double *x);
-  int IntersectsBox(int *ids, int len,  double x0, double x1,
-                    double y0, double y1, double z0, double z1);
-  //@}
+  int IntersectsBox(int* ids, int len, double* x);
+  int IntersectsBox(
+    int* ids, int len, double x0, double x1, double y0, double y1, double z0, double z1);
+  ///@}
 
   /**
    * Determine whether a region of the spatial decomposition
    * intersects a sphere, given the center of the sphere
    * and the square of it's radius.
    */
-  int IntersectsSphere2(int regionId,
-                        double x, double y, double z, double rSquared);
+  int IntersectsSphere2(int regionId, double x, double y, double z, double rSquared);
 
   /**
    * Compute a list of the Ids of all regions that
@@ -121,8 +104,7 @@ public:
    * by it's center and the square of it's radius.
    * Returns: the number of ids in the list.
    */
-  int IntersectsSphere2(int *ids, int len,
-                        double x, double y, double z, double rSquared);
+  int IntersectsSphere2(int* ids, int len, double x, double y, double z, double rSquared);
 
   /**
    * Determine whether a region of the spatial decomposition
@@ -130,7 +112,7 @@ public:
    * know the region that the cell centroid lies in, provide
    * that as the last argument to make the computation quicker.
    */
-  int IntersectsCell(int regionId, vtkCell *cell, int cellRegion=-1);
+  int IntersectsCell(int regionId, vtkCell* cell, int cellRegion = -1);
 
   /**
    * Compute a list of the Ids of all regions that
@@ -139,7 +121,7 @@ public:
    * that as the last argument to make the computation quicker.
    * Returns the number of regions the cell intersects.
    */
-  int IntersectsCell(int *ids, int len, vtkCell *cell, int cellRegion=-1);
+  int IntersectsCell(int* ids, int len, vtkCell* cell, int cellRegion = -1);
 
   /**
    * When computing the intersection of k-d tree regions with other
@@ -156,7 +138,6 @@ public:
   void ComputeIntersectionsUsingDataBoundsOff();
 
 protected:
-
   vtkBSPIntersections();
   ~vtkBSPIntersections() override;
 
@@ -164,40 +145,37 @@ protected:
 
   int BuildRegionList();
 
-  vtkKdNode **GetRegionList(){return this->RegionList;}
+  vtkKdNode** GetRegionList() { return this->RegionList; }
 
-  double CellBoundsCache[6];   // to speed cell intersection queries
+  double CellBoundsCache[6]; // to speed cell intersection queries
 
-  enum {
-    XDIM = 0,  // don't change these values
+  enum
+  {
+    XDIM = 0, // don't change these values
     YDIM = 1,
     ZDIM = 2
   };
 
 private:
+  static int NumberOfLeafNodes(vtkKdNode* kd);
+  static void SetIDRanges(vtkKdNode* kd, int& min, int& max);
 
-  static int NumberOfLeafNodes(vtkKdNode *kd);
-  static void SetIDRanges(vtkKdNode *kd, int &min, int &max);
+  int SelfRegister(vtkKdNode* kd);
 
-  int SelfRegister(vtkKdNode *kd);
+  static void SetCellBounds(vtkCell* cell, double* bounds);
 
-  static void SetCellBounds(vtkCell *cell, double *bounds);
+  int IntersectsBox_(vtkKdNode* node, int* ids, int len, double x0, double x1, double y0, double y1,
+    double z0, double z1);
 
-  int _IntersectsBox(vtkKdNode *node, int *ids, int len,
-                     double x0, double x1,
-                     double y0, double y1,
-                     double z0, double z1);
+  int IntersectsSphere2_(
+    vtkKdNode* node, int* ids, int len, double x, double y, double z, double rSquared);
 
-  int _IntersectsSphere2(vtkKdNode *node, int *ids, int len,
-                         double x, double y, double z, double rSquared);
+  int IntersectsCell_(vtkKdNode* node, int* ids, int len, vtkCell* cell, int cellRegion = -1);
 
-  int _IntersectsCell(vtkKdNode *node, int *ids, int len,
-                      vtkCell *cell, int cellRegion=-1);
-
-  vtkBSPCuts *Cuts;
+  vtkBSPCuts* Cuts;
 
   int NumberOfRegions;
-  vtkKdNode **RegionList;
+  vtkKdNode** RegionList;
 
   vtkTimeStamp RegionListBuildTime;
 
@@ -206,4 +184,5 @@ private:
   vtkBSPIntersections(const vtkBSPIntersections&) = delete;
   void operator=(const vtkBSPIntersections&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

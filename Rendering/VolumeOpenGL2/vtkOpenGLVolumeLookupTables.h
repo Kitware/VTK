@@ -1,21 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLVolumeLookupTables.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*=============================================================================
-Copyright and License information
-=============================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkOpenGLVolumeLookupTables
  * @brief Internal class that manages multiple lookup tables
@@ -24,17 +8,16 @@ Copyright and License information
 
 #ifndef vtkOpenGLVolumeLookupTables_h
 #define vtkOpenGLVolumeLookupTables_h
-#ifndef __VTK_WRAP__
 
 #include "vtkObject.h"
 
-// STL includes
-#include <vector>
+#include <vector> // for std::vector
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 
-template<class T>
+template <class T>
 class vtkOpenGLVolumeLookupTables : public vtkObject
 {
 public:
@@ -65,7 +48,7 @@ public:
 
 protected:
   vtkOpenGLVolumeLookupTables() = default;
-  virtual ~vtkOpenGLVolumeLookupTables() override;
+  ~vtkOpenGLVolumeLookupTables() override;
 
   std::vector<T*> Tables;
 
@@ -74,8 +57,8 @@ private:
   void operator=(const vtkOpenGLVolumeLookupTables&) = delete;
 };
 
-#include "vtkOpenGLVolumeLookupTables.txx"
+VTK_ABI_NAMESPACE_END
+#include "vtkOpenGLVolumeLookupTables.txx" // template implementations
 
-#endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeLookupTables_h
 // VTK-HeaderTest-Exclude: vtkOpenGLVolumeLookupTables.h

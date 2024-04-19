@@ -1,36 +1,25 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPointSetCellIterator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkPointSetCellIterator.h"
 
-#include "vtkPointSet.h"
-#include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkIdList.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
 
-vtkStandardNewMacro(vtkPointSetCellIterator)
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkPointSetCellIterator);
 
 //------------------------------------------------------------------------------
-void vtkPointSetCellIterator::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPointSetCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PointSet: " << this->PointSet << endl;
 }
 
 //------------------------------------------------------------------------------
-void vtkPointSetCellIterator::SetPointSet(vtkPointSet *ds)
+void vtkPointSetCellIterator::SetPointSet(vtkPointSet* ds)
 {
   this->PointSet = ds;
   this->PointSetPoints = ds ? ds->GetPoints() : nullptr;
@@ -44,8 +33,7 @@ void vtkPointSetCellIterator::SetPointSet(vtkPointSet *ds)
 //------------------------------------------------------------------------------
 bool vtkPointSetCellIterator::IsDoneWithTraversal()
 {
-  return this->PointSet == nullptr
-      || this->CellId >= this->PointSet->GetNumberOfCells();
+  return this->PointSet == nullptr || this->CellId >= this->PointSet->GetNumberOfCells();
 }
 
 //------------------------------------------------------------------------------
@@ -62,10 +50,9 @@ void vtkPointSetCellIterator::IncrementToNextCell()
 
 //------------------------------------------------------------------------------
 vtkPointSetCellIterator::vtkPointSetCellIterator()
-  : vtkCellIterator(),
-    PointSet(nullptr),
-    PointSetPoints(nullptr),
-    CellId(0)
+  : PointSet(nullptr)
+  , PointSetPoints(nullptr)
+  , CellId(0)
 {
 }
 
@@ -93,6 +80,7 @@ void vtkPointSetCellIterator::FetchPointIds()
 //------------------------------------------------------------------------------
 void vtkPointSetCellIterator::FetchPoints()
 {
-  vtkIdList *pointIds = this->GetPointIds();
+  vtkIdList* pointIds = this->GetPointIds();
   this->PointSetPoints->GetPoints(pointIds, this->Points);
 }
+VTK_ABI_NAMESPACE_END

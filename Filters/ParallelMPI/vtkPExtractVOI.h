@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPExtractVOI.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPExtractGrid
  * @brief   Extract VOI and/or sub-sample a distributed
@@ -26,15 +14,16 @@
  *
  * @sa
  *  vtkExtractVOI
-*/
+ */
 
 #ifndef vtkPExtractVOI_h
 #define vtkPExtractVOI_h
 
-#include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkExtractVOI.h"
+#include "vtkFiltersParallelMPIModule.h" // For export macro
 
 // Forward Declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 class vtkMPIController;
@@ -43,21 +32,19 @@ class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractVOI : public vtkExtractVOI
 {
 public:
   static vtkPExtractVOI* New();
-  vtkTypeMacro(vtkPExtractVOI,vtkExtractVOI);
+  vtkTypeMacro(vtkPExtractVOI, vtkExtractVOI);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPExtractVOI();
-  virtual ~vtkPExtractVOI();
+  ~vtkPExtractVOI() override;
 
   // Standard VTK Pipeline methods
-  virtual int RequestData(
-      vtkInformation*, vtkInformationVector**,vtkInformationVector*) override;
-  virtual int RequestInformation(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  virtual int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  void SetController(vtkMPIController*);
   vtkMPIController* Controller;
 
 private:
@@ -65,4 +52,5 @@ private:
   void operator=(const vtkPExtractVOI&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

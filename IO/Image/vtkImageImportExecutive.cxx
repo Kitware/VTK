@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageImportExecutive.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageImportExecutive.h"
 
 #include "vtkInformationIntegerKey.h"
@@ -20,23 +8,30 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkImageImport.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkImageImport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageImportExecutive);
 
-//----------------------------------------------------------------------------
-vtkTypeBool vtkImageImportExecutive::ProcessRequest(vtkInformation* request,
-                                            vtkInformationVector** inInfoVec,
-                                            vtkInformationVector* outInfoVec)
+//------------------------------------------------------------------------------
+void vtkImageImportExecutive::PrintSelf(ostream& os, vtkIndent indent)
 {
-  if(this->Algorithm && request->Has(REQUEST_INFORMATION()))
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkImageImportExecutive::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
+{
+  if (this->Algorithm && request->Has(REQUEST_INFORMATION()))
   {
     // Invoke the callback
-    vtkImageImport *ii = vtkImageImport::SafeDownCast(this->Algorithm);
+    vtkImageImport* ii = vtkImageImport::SafeDownCast(this->Algorithm);
     ii->InvokeUpdateInformationCallbacks();
   }
 
   return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkConeSource.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkConeSource
  * @brief   generate polygonal cone
@@ -25,7 +13,7 @@
  * resolution number of sides) is created. It also is possible to control
  * whether the bottom of the cone is capped with a (resolution-sided)
  * polygon, and to specify the height and radius of the cone.
-*/
+ */
 
 #ifndef vtkConeSource_h
 #define vtkConeSource_h
@@ -35,10 +23,11 @@
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkConeSource : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkConeSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkConeSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -46,54 +35,54 @@ public:
    * capping on. The cone is centered at the origin and points down
    * the x-axis.
    */
-  static vtkConeSource *New();
+  static vtkConeSource* New();
 
-  //@{
+  ///@{
   /**
    * Set the height of the cone. This is the height along the cone in
    * its specified direction.
    */
-  vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX)
-  vtkGetMacro(Height,double);
-  //@}
+  vtkSetClampMacro(Height, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Height, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the base radius of the cone.
    */
-  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX)
-  vtkGetMacro(Radius,double);
-  //@}
+  vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of facets used to represent the cone.
    */
-  vtkSetClampMacro(Resolution,int,0,VTK_CELL_SIZE)
-  vtkGetMacro(Resolution,int);
-  //@}
+  vtkSetClampMacro(Resolution, int, 0, VTK_CELL_SIZE);
+  vtkGetMacro(Resolution, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the center of the cone. It is located at the middle of the axis of
    * the cone. Warning: this is not the center of the base of the cone!
    * The default is 0,0,0.
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVectorMacro(Center,double,3);
-  //@}
+  vtkSetVector3Macro(Center, double);
+  vtkGetVectorMacro(Center, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the orientation vector of the cone. The vector does not have
    * to be normalized. The direction goes from the center of the base toward
    * the apex. The default is (1,0,0).
    */
-  vtkSetVector3Macro(Direction,double);
-  vtkGetVectorMacro(Direction,double,3);
-  //@}
+  vtkSetVector3Macro(Direction, double);
+  vtkGetVectorMacro(Direction, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the angle of the cone. This is the angle between the axis of the cone
    * and a generatrix. Warning: this is not the aperture! The aperture is
@@ -101,35 +90,35 @@ public:
    * As a side effect, the angle plus height sets the base radius of the cone.
    * Angle is expressed in degrees.
    */
-  void SetAngle (double angle);
-  double GetAngle ();
-  //@}
+  void SetAngle(double angle);
+  double GetAngle();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off whether to cap the base of the cone with a polygon.
    */
-  vtkSetMacro(Capping,vtkTypeBool);
-  vtkGetMacro(Capping,vtkTypeBool);
-  vtkBooleanMacro(Capping,vtkTypeBool);
-  //@}
+  vtkSetMacro(Capping, vtkTypeBool);
+  vtkGetMacro(Capping, vtkTypeBool);
+  vtkBooleanMacro(Capping, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
-  //@}
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
 
 protected:
-  vtkConeSource(int res=6);
-  ~vtkConeSource() override {}
+  vtkConeSource(int res = 6);
+  ~vtkConeSource() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double Height;
   double Radius;
@@ -144,6 +133,5 @@ private:
   void operator=(const vtkConeSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

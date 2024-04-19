@@ -1,25 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenQubeMoleculeSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-  =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenQubeMoleculeSource.h"
 
 #include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMolecule.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenQubeElectronicData.h"
-#include "vtkMolecule.h"
 
 #include <openqube/basisset.h>
 #include <openqube/basissetloader.h>
@@ -27,18 +15,19 @@
 
 #include <vector>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenQubeMoleculeSource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenQubeMoleculeSource::vtkOpenQubeMoleculeSource()
-  : vtkDataReader(),
-    FileName(nullptr),
-    CleanUpBasisSet(false)
+  : vtkDataReader()
+  , FileName(nullptr)
+  , CleanUpBasisSet(false)
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOpenQubeMoleculeSource::~vtkOpenQubeMoleculeSource()
 {
   this->SetFileName(nullptr);
@@ -49,23 +38,22 @@ vtkOpenQubeMoleculeSource::~vtkOpenQubeMoleculeSource()
   }
 }
 
-//----------------------------------------------------------------------------
-vtkMolecule *vtkOpenQubeMoleculeSource::GetOutput()
+//------------------------------------------------------------------------------
+vtkMolecule* vtkOpenQubeMoleculeSource::GetOutput()
 {
   return vtkMolecule::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
-void vtkOpenQubeMoleculeSource::SetOutput(vtkMolecule *output)
+//------------------------------------------------------------------------------
+void vtkOpenQubeMoleculeSource::SetOutput(vtkMolecule* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
-void vtkOpenQubeMoleculeSource::SetBasisSet(OpenQube::BasisSet *b)
+//------------------------------------------------------------------------------
+void vtkOpenQubeMoleculeSource::SetBasisSet(OpenQube::BasisSet* b)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): setting BasisSet to " << b);
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting BasisSet to " << b);
   if (this->BasisSet != b)
   {
     if (this->CleanUpBasisSet)
@@ -78,24 +66,21 @@ void vtkOpenQubeMoleculeSource::SetBasisSet(OpenQube::BasisSet *b)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOpenQubeMoleculeSource::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  vtkMolecule *output = vtkMolecule::SafeDownCast
-    (vtkDataObject::GetData(outputVector));
+  vtkMolecule* output = vtkMolecule::SafeDownCast(vtkDataObject::GetData(outputVector));
 
   if (!output)
   {
-    vtkWarningMacro(<<"vtkOpenQubeMoleculeSource does not have a vtkMolecule "
-                  "as output.");
+    vtkWarningMacro(<< "vtkOpenQubeMoleculeSource does not have a vtkMolecule "
+                       "as output.");
     return 1;
   }
 
   // Obtain basis set
-  OpenQube::BasisSet *basisSet = 0;
+  OpenQube::BasisSet* basisSet = 0;
   if (this->BasisSet)
   {
     basisSet = this->BasisSet;
@@ -104,7 +89,7 @@ int vtkOpenQubeMoleculeSource::RequestData(
   {
     if (!this->FileName)
     {
-      vtkWarningMacro(<<"No FileName or OpenQube::BasisSet specified.");
+      vtkWarningMacro(<< "No FileName or OpenQube::BasisSet specified.");
       return 1;
     }
     // We're creating the BasisSet, so we need to clean it up
@@ -114,17 +99,17 @@ int vtkOpenQubeMoleculeSource::RequestData(
     OpenQube::BasisSetLoader::MatchBasisSet(this->FileName, basisName);
     if (!basisName[0])
     {
-      vtkErrorMacro(<< "OpenQube cannot find matching basis set file for '"
-                    << this->FileName << "'");
+      vtkErrorMacro(<< "OpenQube cannot find matching basis set file for '" << this->FileName
+                    << "'");
       return 1;
     }
     basisSet = OpenQube::BasisSetLoader::LoadBasisSet(basisName);
     this->BasisSet = basisSet;
-    vtkDebugMacro(<<"Loaded basis set file: "<< basisName);
+    vtkDebugMacro(<< "Loaded basis set file: " << basisName);
   }
 
   // Populate vtkMolecule
-  const OpenQube::Molecule &oqmol = basisSet->moleculeRef();
+  const OpenQube::Molecule& oqmol = basisSet->moleculeRef();
   this->CopyOQMoleculeToVtkMolecule(&oqmol, output);
 
   // Add ElectronicData
@@ -135,25 +120,24 @@ int vtkOpenQubeMoleculeSource::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkOpenQubeMoleculeSource::FillOutputPortInformation(int,
-                                                         vtkInformation *info)
+//------------------------------------------------------------------------------
+int vtkOpenQubeMoleculeSource::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMolecule");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenQubeMoleculeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "FileName: " << this->FileName << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenQubeMoleculeSource::CopyOQMoleculeToVtkMolecule(
-  const OpenQube::Molecule *oqmol, vtkMolecule *mol)
+  const OpenQube::Molecule* oqmol, vtkMolecule* mol)
 {
   mol->Initialize();
   // Copy atoms
@@ -168,3 +152,4 @@ void vtkOpenQubeMoleculeSource::CopyOQMoleculeToVtkMolecule(
 
   // TODO copy bonds (OQ doesn't currently have bonds)
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageRFFT.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageRFFT
  * @brief    Reverse Fast Fourier Transform.
@@ -30,52 +18,37 @@
  *
  * @sa
  * vtkImageExtractComponenents
-*/
+ */
 
 #ifndef vtkImageRFFT_h
 #define vtkImageRFFT_h
 
-
-#include "vtkImagingFourierModule.h" // For export macro
 #include "vtkImageFourierFilter.h"
+#include "vtkImagingFourierModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGFOURIER_EXPORT vtkImageRFFT : public vtkImageFourierFilter
 {
 public:
-  static vtkImageRFFT *New();
-  vtkTypeMacro(vtkImageRFFT,vtkImageFourierFilter);
+  static vtkImageRFFT* New();
+  vtkTypeMacro(vtkImageRFFT, vtkImageFourierFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkImageRFFT() {}
-  ~vtkImageRFFT() override {}
+  vtkImageRFFT() = default;
+  ~vtkImageRFFT() override = default;
 
-  int IterativeRequestInformation(vtkInformation* in,
-                                          vtkInformation* out) override;
-  int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out) override;
+  int IterativeRequestInformation(vtkInformation* in, vtkInformation* out) override;
+  int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;
 
-  void ThreadedRequestData(
-    vtkInformation* vtkNotUsed( request ),
-    vtkInformationVector** inputVector,
-    vtkInformationVector* vtkNotUsed( outputVector ),
-    vtkImageData ***inDataVec,
-    vtkImageData **outDataVec,
-    int outExt[6],
-    int threadId) override;
+  void ThreadedRequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
+    vtkInformationVector* vtkNotUsed(outputVector), vtkImageData*** inDataVec,
+    vtkImageData** outDataVec, int outExt[6], int threadId) override;
+
 private:
   vtkImageRFFT(const vtkImageRFFT&) = delete;
   void operator=(const vtkImageRFFT&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-
-
-
-
-
-
-
-
-// VTK-HeaderTest-Exclude: vtkImageRFFT.h

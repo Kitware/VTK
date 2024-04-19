@@ -1,57 +1,51 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOStreamWrapper.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSystemIncludes.h" // Cannot include vtkOStreamWrapper.h directly.
 
 #include "vtkIOStream.h"
 #include "vtkIndent.h"
 #include "vtkLargeInteger.h"
-#include "vtkStdString.h"
 #include "vtkObjectBase.h"
 #include "vtkSmartPointerBase.h"
+#include "vtkStdString.h"
 
 #include <string>
 
-#define VTKOSTREAM_OPERATOR(type) \
-  vtkOStreamWrapper& vtkOStreamWrapper::operator << (type a) \
-    { this->ostr << a; return *this; }
+#define VTKOSTREAM_OPERATOR(type)                                                                  \
+  vtkOStreamWrapper& vtkOStreamWrapper::operator<<(type a)                                         \
+  {                                                                                                \
+    this->ostr << a;                                                                               \
+    return *this;                                                                                  \
+  }
 
-#define VTKOSTREAM_OPERATOR_FUNC(arg) \
-  vtkOStreamWrapper& vtkOStreamWrapper::operator << (arg) \
-    { this->ostr << a; return *this; }
+#define VTKOSTREAM_OPERATOR_FUNC(arg)                                                              \
+  vtkOStreamWrapper& vtkOStreamWrapper::operator<<(arg)                                            \
+  {                                                                                                \
+    this->ostr << a;                                                                               \
+    return *this;                                                                                  \
+  }
 
-//----------------------------------------------------------------------------
-vtkOStreamWrapper::vtkOStreamWrapper(ostream& os): ostr(os)
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkOStreamWrapper::vtkOStreamWrapper(ostream& os)
+  : ostr(os)
 {
 }
 
-//----------------------------------------------------------------------------
-vtkOStreamWrapper::vtkOStreamWrapper(vtkOStreamWrapper& r): ostr(r.ostr)
-{
-}
+//------------------------------------------------------------------------------
+vtkOStreamWrapper::vtkOStreamWrapper(vtkOStreamWrapper&) = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOStreamWrapper::~vtkOStreamWrapper() = default;
 
-//----------------------------------------------------------------------------
-vtkOStreamWrapper& vtkOStreamWrapper::operator << (const EndlType&)
+//------------------------------------------------------------------------------
+vtkOStreamWrapper& vtkOStreamWrapper::operator<<(const EndlType&)
 {
   this->ostr << endl;
   return *this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 VTKOSTREAM_OPERATOR(const vtkIndent&);
 VTKOSTREAM_OPERATOR(vtkObjectBase&);
 VTKOSTREAM_OPERATOR(const vtkLargeInteger&);
@@ -80,14 +74,14 @@ VTKOSTREAM_OPERATOR_FUNC(float* (*a)(void*));
 VTKOSTREAM_OPERATOR_FUNC(const char* (*a)(void*));
 VTKOSTREAM_OPERATOR_FUNC(void (*a)(void*, int*));
 
-//----------------------------------------------------------------------------
-vtkOStreamWrapper& vtkOStreamWrapper::operator << (std_string const& s)
+//------------------------------------------------------------------------------
+vtkOStreamWrapper& vtkOStreamWrapper::operator<<(std_string const& s)
 {
   this->ostr << reinterpret_cast<std::string const&>(s);
   return *this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #if defined(__IBMCPP__)
 vtkOStreamWrapper& vtkOStreamWrapper::WriteInternal(const char* a)
 {
@@ -101,34 +95,34 @@ vtkOStreamWrapper& vtkOStreamWrapper::WriteInternal(void* a)
 }
 #endif
 
-//----------------------------------------------------------------------------
-vtkOStreamWrapper& vtkOStreamWrapper::write(const char* str,
-                                            unsigned long size)
+//------------------------------------------------------------------------------
+vtkOStreamWrapper& vtkOStreamWrapper::write(const char* str, unsigned long size)
 {
   this->ostr.write(str, size);
   return *this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 ostream& vtkOStreamWrapper::GetOStream()
 {
   return this->ostr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOStreamWrapper::operator ostream&()
 {
   return this->ostr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOStreamWrapper::operator int()
 {
-  return this->ostr? 1:0;
+  return this->ostr ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOStreamWrapper::flush()
 {
   this->ostr.flush();
 }
+VTK_ABI_NAMESPACE_END

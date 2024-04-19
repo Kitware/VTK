@@ -1,50 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMNITagPointWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*=========================================================================
-
-Copyright (c) 2006 Atamai, Inc.
-
-Use, modification and redistribution of the software, in source or
-binary forms, are permitted provided that the following terms and
-conditions are met:
-
-1) Redistribution of the source code, in verbatim or modified
-   form, must retain the above copyright notice, this license,
-   the following disclaimer, and any notices that refer to this
-   license and/or the following disclaimer.
-
-2) Redistribution in binary form must include the above copyright
-   notice, a copy of this license and the following disclaimer
-   in the documentation or with other materials provided with the
-   distribution.
-
-3) Modified copies of the source code must be clearly marked as such,
-   and must not be misrepresented as verbatim copies of the source code.
-
-THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE SOFTWARE "AS IS"
-WITHOUT EXPRESSED OR IMPLIED WARRANTY INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE.  IN NO EVENT SHALL ANY COPYRIGHT HOLDER OR OTHER PARTY WHO MAY
-MODIFY AND/OR REDISTRIBUTE THE SOFTWARE UNDER THE TERMS OF THIS LICENSE
-BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, LOSS OF DATA OR DATA BECOMING INACCURATE
-OR LOSS OF PROFIT OR BUSINESS INTERRUPTION) ARISING IN ANY WAY OUT OF
-THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGES.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) 2006 Atamai, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMNITagPointWriter
  * @brief   A writer for MNI tag point files.
@@ -60,7 +16,7 @@ POSSIBILITY OF SUCH DAMAGES.
  * vtkMINCImageReader vtkMNIObjectReader vtkMNITransformReader
  * @par Thanks:
  * Thanks to David Gobbi for contributing this class to VTK.
-*/
+ */
 
 #ifndef vtkMNITagPointWriter_h
 #define vtkMNITagPointWriter_h
@@ -68,6 +24,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkPointSet;
 class vtkStringArray;
@@ -78,78 +35,74 @@ class vtkPoints;
 class VTKIOMINC_EXPORT vtkMNITagPointWriter : public vtkWriter
 {
 public:
-  vtkTypeMacro(vtkMNITagPointWriter,vtkWriter);
+  vtkTypeMacro(vtkMNITagPointWriter, vtkWriter);
 
-  static vtkMNITagPointWriter *New();
+  static vtkMNITagPointWriter* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the extension for this file format.
    */
-  virtual const char* GetFileExtensions() {
-    return ".tag"; }
+  virtual const char* GetFileExtensions() { return ".tag"; }
 
   /**
    * Get the name of this file format.
    */
-  virtual const char* GetDescriptiveName() {
-    return "MNI tags"; }
+  virtual const char* GetDescriptiveName() { return "MNI tags"; }
 
-  //@{
+  ///@{
   /**
    * Set the points (unless you set them as inputs).
    */
-  virtual void SetPoints(int port, vtkPoints *points);
-  virtual void SetPoints(vtkPoints *points) {
-    this->SetPoints(0, points); }
-  virtual vtkPoints *GetPoints(int port);
-  virtual vtkPoints *GetPoints() {
-    return this->GetPoints(0); }
-  //@}
+  virtual void SetPoints(int port, vtkPoints* points);
+  virtual void SetPoints(vtkPoints* points) { this->SetPoints(0, points); }
+  virtual vtkPoints* GetPoints(int port);
+  virtual vtkPoints* GetPoints() { return this->GetPoints(0); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the labels (unless the input PointData has an
    * array called LabelText). Labels are optional.
    */
-  virtual void SetLabelText(vtkStringArray *a);
+  virtual void SetLabelText(vtkStringArray* a);
   vtkGetObjectMacro(LabelText, vtkStringArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the weights (unless the input PointData has an
    * array called Weights).  Weights are optional.
    */
-  virtual void SetWeights(vtkDoubleArray *a);
+  virtual void SetWeights(vtkDoubleArray* a);
   vtkGetObjectMacro(Weights, vtkDoubleArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the structure ids (unless the input PointData has
    * an array called StructureIds).  These are optional.
    */
-  virtual void SetStructureIds(vtkIntArray *a);
+  virtual void SetStructureIds(vtkIntArray* a);
   vtkGetObjectMacro(StructureIds, vtkIntArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the structure ids (unless the input PointData has
    * an array called PatientIds).  These are optional.
    */
-  virtual void SetPatientIds(vtkIntArray *a);
+  virtual void SetPatientIds(vtkIntArray* a);
   vtkGetObjectMacro(PatientIds, vtkIntArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set comments to be added to the file.
    */
   vtkSetStringMacro(Comments);
   vtkGetStringMacro(Comments);
-  //@}
+  ///@}
 
   /**
    * Write the file.
@@ -161,44 +114,43 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of vtk polygon data file to write.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
 protected:
   vtkMNITagPointWriter();
   ~vtkMNITagPointWriter() override;
 
-  vtkPoints *Points[2];
-  vtkStringArray *LabelText;
-  vtkDoubleArray *Weights;
-  vtkIntArray *StructureIds;
-  vtkIntArray *PatientIds;
-  char *Comments;
+  vtkPoints* Points[2];
+  vtkStringArray* LabelText;
+  vtkDoubleArray* Weights;
+  vtkIntArray* StructureIds;
+  vtkIntArray* PatientIds;
+  char* Comments;
 
   void WriteData() override {}
-  virtual void WriteData(vtkPointSet *inputs[2]);
+  virtual void WriteData(vtkPointSet* inputs[2]);
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* FileName;
 
   int FileType;
 
-  ostream *OpenFile();
-  void CloseFile(ostream *fp);
+  ostream* OpenFile();
+  void CloseFile(ostream* fp);
 
 private:
   vtkMNITagPointWriter(const vtkMNITagPointWriter&) = delete;
   void operator=(const vtkMNITagPointWriter&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

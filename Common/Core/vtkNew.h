@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkNew.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkNew
  * @brief   Allocate and hold a VTK object.
@@ -39,7 +27,7 @@
  *
  * @sa
  * vtkSmartPointer vtkWeakPointer
-*/
+ */
 
 #ifndef vtkNew_h
 #define vtkNew_h
@@ -49,15 +37,19 @@
 
 #include <type_traits> // for is_base_of
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBase;
 
 template <class T>
 class vtkNew
 {
   // Allow other smart pointers friend access:
-  template <typename U> friend class vtkNew;
-  template <typename U> friend class vtkSmartPointer;
-  template <typename U> friend class vtkWeakPointer;
+  template <typename U>
+  friend class vtkNew;
+  template <typename U>
+  friend class vtkSmartPointer;
+  template <typename U>
+  friend class vtkWeakPointer;
 
   // These static asserts only fire when the function calling CheckTypes is
   // used. Thus, this smart pointer class may still be used as a member variable
@@ -67,22 +59,23 @@ class vtkNew
   static void CheckTypes() noexcept
   {
     static_assert(vtk::detail::IsComplete<T>::value,
-                  "vtkNew<T>'s T type has not been defined. Missing include?");
+      "vtkNew<T>'s T type has not been defined. Missing include?");
     static_assert(vtk::detail::IsComplete<U>::value,
-                  "Cannot store an object with undefined type in "
-                  "vtkNew. Missing include?");
+      "Cannot store an object with undefined type in "
+      "vtkNew. Missing include?");
     static_assert(std::is_base_of<T, U>::value,
-                  "Argument type is not compatible with vtkNew<T>'s "
-                  "T type.");
+      "Argument type is not compatible with vtkNew<T>'s "
+      "T type.");
     static_assert(std::is_base_of<vtkObjectBase, T>::value,
-                  "vtkNew can only be used with subclasses of vtkObjectBase.");
+      "vtkNew can only be used with subclasses of vtkObjectBase.");
   }
 
 public:
   /**
    * Create a new T on construction.
    */
-  vtkNew() : Object(T::New())
+  vtkNew()
+    : Object(T::New())
   {
     vtkNew::CheckTypes();
   }
@@ -92,30 +85,27 @@ public:
    * reference. The argument is reset to nullptr.
    * @{
    */
-  vtkNew(vtkNew &&o) noexcept
+  vtkNew(vtkNew&& o) noexcept
     : Object(o.Object)
   {
     o.Object = nullptr;
   }
 
   template <typename U>
-  vtkNew(vtkNew<U> &&o) noexcept
+  vtkNew(vtkNew<U>&& o) noexcept
     : Object(o.Object)
   {
     vtkNew::CheckTypes<U>();
 
     o.Object = nullptr;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Deletes reference to instance of T.
    */
-  ~vtkNew()
-  {
-    this->Reset();
-  }
+  ~vtkNew() { this->Reset(); }
 
   void Reset()
   {
@@ -126,46 +116,42 @@ public:
       obj->Delete();
     }
   }
-  //@}
+  ///@}
 
   /**
    * Enable pointer-like dereference syntax. Returns a pointer to the contained
    * object.
    */
-  T* operator->() const noexcept
-  {
-    return this->Object;
-  }
+  T* operator->() const noexcept { return this->Object; }
 
-  //@{
+  ///@{
   /**
    * Get a raw pointer to the contained object. When using this function be
    * careful that the reference count does not drop to 0 when using the pointer
    * returned. This will happen when the vtkNew object goes out of
    * scope for example.
    */
-  T* GetPointer() const noexcept
-  {
-    return this->Object;
-  }
-  T* Get() const noexcept
-  {
-    return this->Object;
-  }
-  operator T* () const noexcept
-  {
-    return static_cast<T*>(this->Object);
-  }
-  //@}
+  T* GetPointer() const noexcept { return this->Object; }
+  T* Get() const noexcept { return this->Object; }
+  operator T*() const noexcept { return static_cast<T*>(this->Object); }
+  ///@}
   /**
    * Dereference the pointer and return a reference to the contained object.
    * When using this function be careful that the reference count does not
    * drop to 0 when using the pointer returned.
    * This will happen when the vtkNew object goes out of scope for example.
    */
-  T& operator*() const noexcept
+  T& operator*() const noexcept { return *static_cast<T*>(this->Object); }
+
+  /**
+   * Move assignment operator.
+   */
+  vtkNew<T>& operator=(vtkNew<T>&& other) noexcept
   {
-    return *static_cast<T*>(this->Object);
+    this->Reset();
+    this->Object = other.Object;
+    other.Object = nullptr;
+    return *this;
   }
 
 private:
@@ -174,5 +160,6 @@ private:
   T* Object;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkNew.h

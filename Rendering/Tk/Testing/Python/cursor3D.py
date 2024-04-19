@@ -9,23 +9,36 @@ This little example shows how a cursor can be created in
 
 import sys
 from functools import partial
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkPiecewiseFunction
+from vtkmodules.vtkFiltersGeneral import vtkAxes
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOImage import vtkSLCReader
+from vtkmodules.vtkImagingCore import vtkImageMagnify
+from vtkmodules.vtkImagingHybrid import vtkImageCursor3D
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkColorTransferFunction,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+    vtkVolume,
+    vtkVolumeProperty,
+)
+from vtkmodules.vtkRenderingVolume import vtkFixedPointVolumeRayCastMapper
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.vtkRenderingVolumeOpenGL2
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-    from Tkinter import Pack
-else:
-    # for Python3
-    import tkinter
-    from tkinter import Pack
+import tkinter
+from tkinter import Pack
 
 #from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
-from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
-from vtk.tk.vtkTkImageViewerWidget import vtkTkImageViewerWidget
+from vtkmodules.tk.vtkTkRenderWidget import vtkTkRenderWidget
+from vtkmodules.tk.vtkTkImageViewerWidget import vtkTkImageViewerWidget
 
 # Tkinter constants.
 E = tkinter.E
@@ -118,15 +131,15 @@ class Cursor3DViewer(Testing.vtkTest):
             self.tkrw.Render()
 
         # Pipeline stuff.
-        reader = vtk.vtkSLCReader()
+        reader = vtkSLCReader()
         reader.SetFileName(VTK_DATA_ROOT + "/Data/neghip.slc")
         # Cursor stuff
 
-        magnify = vtk.vtkImageMagnify()
+        magnify = vtkImageMagnify()
         magnify.SetInputConnection(reader.GetOutputPort())
         magnify.SetMagnificationFactors(IMAGE_MAG_X, IMAGE_MAG_Y ,IMAGE_MAG_Z)
 
-        imageCursor = vtk.vtkImageCursor3D()
+        imageCursor = vtkImageCursor3D()
         imageCursor.SetInputConnection(magnify.GetOutputPort())
         imageCursor.SetCursorPosition(
                 CURSOR_X*IMAGE_MAG_X,
@@ -135,31 +148,31 @@ class Cursor3DViewer(Testing.vtkTest):
         imageCursor.SetCursorValue(255)
         imageCursor.SetCursorRadius(50*IMAGE_MAG_X)
 
-        axes = vtk.vtkAxes()
+        axes = vtkAxes()
         axes.SymmetricOn()
         axes.SetOrigin(CURSOR_X, CURSOR_Y, CURSOR_Z)
         axes.SetScaleFactor(50.0)
 
-        axes_mapper = vtk.vtkPolyDataMapper()
+        axes_mapper = vtkPolyDataMapper()
         axes_mapper.SetInputConnection(axes.GetOutputPort())
 
-        axesActor = vtk.vtkActor()
+        axesActor = vtkActor()
         axesActor.SetMapper(axes_mapper)
         axesActor.GetProperty().SetAmbient(0.5)
 
         # Image viewer stuff.
-        viewer = vtk.vtkImageViewer()
+        viewer = vtkImageViewer()
         viewer.SetInputConnection(imageCursor.GetOutputPort())
         viewer.SetZSlice(CURSOR_Z*IMAGE_MAG_Z)
         viewer.SetColorWindow(256)
         viewer.SetColorLevel(128)
 
         # Create transfer functions for opacity and color.
-        opacity_transfer_function = vtk.vtkPiecewiseFunction()
+        opacity_transfer_function = vtkPiecewiseFunction()
         opacity_transfer_function.AddPoint(20, 0.0)
         opacity_transfer_function.AddPoint(255, 0.2)
 
-        color_transfer_function = vtk.vtkColorTransferFunction()
+        color_transfer_function = vtkColorTransferFunction()
         color_transfer_function.AddRGBPoint(0, 0, 0, 0)
         color_transfer_function.AddRGBPoint(64, 1, 0, 0)
         color_transfer_function.AddRGBPoint(128, 0, 0, 1)
@@ -167,38 +180,38 @@ class Cursor3DViewer(Testing.vtkTest):
         color_transfer_function.AddRGBPoint(255, 0, .2, 0)
 
         # Create properties, mappers, volume actors, and ray cast function.
-        volume_property = vtk.vtkVolumeProperty()
+        volume_property = vtkVolumeProperty()
         volume_property.SetColor(color_transfer_function)
 #         volume_property.SetColor(color_transfer_function[0],
 #                                  color_transfer_function[1],
 #                                  color_transfer_function[2])
         volume_property.SetScalarOpacity(opacity_transfer_function)
 
-        volume_mapper = vtk.vtkFixedPointVolumeRayCastMapper()
+        volume_mapper = vtkFixedPointVolumeRayCastMapper()
         volume_mapper.SetInputConnection(reader.GetOutputPort())
 
-        volume = vtk.vtkVolume()
+        volume = vtkVolume()
         volume.SetMapper(volume_mapper)
         volume.SetProperty(volume_property)
 
         # Create outline.
-        outline = vtk.vtkOutlineFilter()
+        outline = vtkOutlineFilter()
         outline.SetInputConnection(reader.GetOutputPort())
 
-        outline_mapper = vtk.vtkPolyDataMapper()
+        outline_mapper = vtkPolyDataMapper()
         outline_mapper.SetInputConnection(outline.GetOutputPort())
 
-        outlineActor = vtk.vtkActor()
+        outlineActor = vtkActor()
         outlineActor.SetMapper(outline_mapper)
         outlineActor.GetProperty().SetColor(1, 1, 1)
 
         # Create the renderer.
-        ren = vtk.vtkRenderer()
+        ren = vtkRenderer()
         ren.AddActor(axesActor)
         ren.AddVolume(volume)
         ren.SetBackground(0.1, 0.2, 0.4)
 
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
         renWin.SetSize(256, 256)
 

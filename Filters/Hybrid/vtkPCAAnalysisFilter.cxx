@@ -1,81 +1,76 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPCAAnalysisFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPCAAnalysisFilter.h"
 #include "vtkExecutive.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkTransformPolyDataFilter.h"
 #include "vtkPolyData.h"
-#include "vtkMath.h"
-#include "vtkFloatArray.h"
+#include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Matrix ops. Some taken from vtkThinPlateSplineTransform.cxx
 static inline double** NewMatrix(int rows, int cols)
 {
-  double *matrix = new double[rows*cols];
-  double **m = new double *[rows];
-  for(int i = 0; i < rows; i++) {
-    m[i] = &matrix[i*cols];
+  double* matrix = new double[rows * cols];
+  double** m = new double*[rows];
+  for (int i = 0; i < rows; i++)
+  {
+    m[i] = &matrix[i * cols];
   }
   return m;
 }
 
-//------------------------------------------------------------------------
-static inline void DeleteMatrix(double **m)
+//------------------------------------------------------------------------------
+static inline void DeleteMatrix(double** m)
 {
-  delete [] *m;
-  delete [] m;
+  delete[] * m;
+  delete[] m;
 }
 
-//------------------------------------------------------------------------
-static inline void MatrixMultiply(double **a, double **b, double **c,
-                                  int arows, int acols,
-                                  int brows, int bcols)
+//------------------------------------------------------------------------------
+static inline void MatrixMultiply(
+  double** a, double** b, double** c, int arows, int acols, int brows, int bcols)
 {
-  if(acols != brows)  {
+  if (acols != brows)
+  {
     return; // acols must equal br otherwise we can't proceed
   }
 
   // c must have size arows*bcols (we assume this)
 
-  for(int i = 0; i < arows; i++) {
-    for(int j = 0; j < bcols; j++) {
+  for (int i = 0; i < arows; i++)
+  {
+    for (int j = 0; j < bcols; j++)
+    {
       c[i][j] = 0.0;
-      for(int k = 0; k < acols; k++) {
-        c[i][j] += a[i][k]*b[k][j];
+      for (int k = 0; k < acols; k++)
+      {
+        c[i][j] += a[i][k] * b[k][j];
       }
     }
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Subtracting the mean column from the observation matrix is equal
 // to subtracting the mean shape from all shapes.
 // The mean column is equal to the Procrustes mean (it is also returned)
-static inline void SubtractMeanColumn(double **m, double *mean, int rows, int cols)
+static inline void SubtractMeanColumn(double** m, double* mean, int rows, int cols)
 {
-  int r,c;
+  int r, c;
   double csum;
-  for (r = 0; r < rows; r++) {
+  for (r = 0; r < rows; r++)
+  {
     csum = 0.0F;
-    for (c = 0; c < cols; c++) {
+    for (c = 0; c < cols; c++)
+    {
       csum += m[r][c];
     }
     // calculate average value of row
@@ -85,72 +80,79 @@ static inline void SubtractMeanColumn(double **m, double *mean, int rows, int co
     mean[r] = csum;
 
     // average value is subtracted from all elements in the row
-    for (c = 0; c < cols; c++) {
+    for (c = 0; c < cols; c++)
+    {
       m[r][c] -= csum;
     }
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Normalise all columns to have length 1
 // meaning that all eigenvectors are normalised
-static inline void NormaliseColumns(double **m, int rows, int cols)
+static inline void NormaliseColumns(double** m, int rows, int cols)
 {
-  for (int c = 0; c < cols; c++) {
+  for (int c = 0; c < cols; c++)
+  {
     double cl = 0;
-    for (int r = 0; r < rows; r++) {
+    for (int r = 0; r < rows; r++)
+    {
       cl += m[r][c] * m[r][c];
     }
     cl = sqrt(cl);
 
     // If cl == 0 something is rotten, don't do anything now
-    if (cl != 0) {
-      for (int r = 0; r < rows; r++) {
+    if (cl != 0)
+    {
+      for (int r = 0; r < rows; r++)
+      {
         m[r][c] /= cl;
       }
     }
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Here it is assumed that a rows >> a cols
 // Output matrix is [a cols X a cols]
-static inline void SmallCovarianceMatrix(double **a, double **c,
-                                         int arows, int acols)
+static inline void SmallCovarianceMatrix(double** a, double** c, int arows, int acols)
 {
   const int s = acols;
 
   // c must have size acols*acols (we assume this)
-  for(int i = 0; i < acols; i++) {
-    for(int j = 0; j < acols; j++) {
+  for (int i = 0; i < acols; i++)
+  {
+    for (int j = 0; j < acols; j++)
+    {
       // Use symmetry
-      if (i <= j) {
+      if (i <= j)
+      {
         c[i][j] = 0.0;
-        for(int k = 0; k < arows; k++) {
-          c[i][j] += a[k][i]*a[k][j];
+        for (int k = 0; k < arows; k++)
+        {
+          c[i][j] += a[k][i] * a[k][j];
         }
-        c[i][j] /= (s-1);
+        c[i][j] /= (s - 1);
         c[j][i] = c[i][j];
       }
     }
   }
 }
 
-//------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static inline double* NewVector(int length)
 {
-  double *vec = new double[length];
+  double* vec = new double[length];
   return vec;
 }
 
-//------------------------------------------------------------------------
-static inline void DeleteVector(double *v)
+//------------------------------------------------------------------------------
+static inline void DeleteVector(double* v)
 {
-  delete [] v;
+  delete[] v;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // protected
 vtkPCAAnalysisFilter::vtkPCAAnalysisFilter()
 {
@@ -159,39 +161,40 @@ vtkPCAAnalysisFilter::vtkPCAAnalysisFilter()
   this->meanshape = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // protected
 vtkPCAAnalysisFilter::~vtkPCAAnalysisFilter()
 {
-  if (this->Evals) {
+  if (this->Evals)
+  {
     this->Evals->Delete();
   }
-  if (this->evecMat2) {
+  if (this->evecMat2)
+  {
     DeleteMatrix(this->evecMat2);
     this->evecMat2 = nullptr;
   }
-  if (this->meanshape) {
+  if (this->meanshape)
+  {
     DeleteVector(this->meanshape);
     this->meanshape = nullptr;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // protected
-int vtkPCAAnalysisFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkPCAAnalysisFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkMultiBlockDataSet *mbInput = vtkMultiBlockDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkMultiBlockDataSet* mbInput =
+    vtkMultiBlockDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDebugMacro(<<"Execute()");
+  vtkDebugMacro(<< "Execute()");
   int i;
 
   // Clean up from previous computation
@@ -209,7 +212,7 @@ int vtkPCAAnalysisFilter::RequestData(
   const int N_SETS = mbInput->GetNumberOfBlocks();
 
   vtkPointSet* input = nullptr;
-  for (i=0; i<N_SETS; i++)
+  for (i = 0; i < N_SETS; i++)
   {
     input = vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
     if (input)
@@ -223,15 +226,14 @@ int vtkPCAAnalysisFilter::RequestData(
     return 1;
   }
 
-  vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkMultiBlockDataSet* output =
+    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPointSet *tmpInput;
+  vtkPointSet* tmpInput;
   // copy the inputs across
-  for(i=0;i<N_SETS;i++)
+  for (i = 0; i < N_SETS; i++)
   {
-    tmpInput =
-      vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
+    tmpInput = vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
     vtkPointSet* outputBlock = nullptr;
     if (tmpInput)
     {
@@ -241,33 +243,32 @@ int vtkPCAAnalysisFilter::RequestData(
     output->SetBlock(i, outputBlock);
     if (outputBlock)
     {
-        outputBlock->Delete();
+      outputBlock->Delete();
     }
   }
 
   // the number of points is determined by the first input (they must all be the same)
   const int N_POINTS = input->GetNumberOfPoints();
 
-  vtkDebugMacro(<<"N_POINTS is " <<N_POINTS);
+  vtkDebugMacro(<< "N_POINTS is " << N_POINTS);
 
-  if(N_POINTS == 0)
+  if (N_POINTS == 0)
   {
-    vtkErrorMacro(<<"No points!");
+    vtkErrorMacro(<< "No points!");
     return 1;
   }
 
   // all the inputs must have the same number of points to consider executing
-  for(i=1;i<N_SETS;i++)
+  for (i = 1; i < N_SETS; i++)
   {
-    tmpInput =
-      vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
+    tmpInput = vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
     if (!tmpInput)
     {
       continue;
     }
-    if(tmpInput->GetNumberOfPoints() != N_POINTS)
+    if (tmpInput->GetNumberOfPoints() != N_POINTS)
     {
-      vtkErrorMacro(<<"The inputs have different numbers of points!");
+      vtkErrorMacro(<< "The inputs have different numbers of points!");
       return 1;
     }
   }
@@ -279,47 +280,50 @@ int vtkPCAAnalysisFilter::RequestData(
   const int n = N_POINTS;
 
   // Observation Matrix [number of points * 3 X number of shapes]
-  double **D = NewMatrix(3*n, s);
+  double** D = NewMatrix(3 * n, s);
 
   for (i = 0; i < n; i++)
   {
     for (int j = 0; j < s; j++)
     {
-      tmpInput =
-        vtkPointSet::SafeDownCast(mbInput->GetBlock(j));
+      if (this->CheckAbort())
+      {
+        break;
+      }
+      tmpInput = vtkPointSet::SafeDownCast(mbInput->GetBlock(j));
       if (!tmpInput)
       {
         continue;
       }
       double p[3];
       tmpInput->GetPoint(i, p);
-      D[i*3  ][j] = p[0];
-      D[i*3+1][j] = p[1];
-      D[i*3+2][j] = p[2];
+      D[i * 3][j] = p[0];
+      D[i * 3 + 1][j] = p[1];
+      D[i * 3 + 2][j] = p[2];
     }
   }
 
   // The mean shape is also calculated
-  meanshape = NewVector(3*n);
+  meanshape = NewVector(3 * n);
 
-  SubtractMeanColumn(D, meanshape, 3*n, s);
+  SubtractMeanColumn(D, meanshape, 3 * n, s);
 
   // Covariance matrix of dim [s x s]
-  double **T = NewMatrix(s, s);
-  SmallCovarianceMatrix(D, T, 3*n, s);
+  double** T = NewMatrix(s, s);
+  SmallCovarianceMatrix(D, T, 3 * n, s);
 
-  double *ev       = NewVector(s);
-  double **evecMat = NewMatrix(s, s);
+  double* ev = NewVector(s);
+  double** evecMat = NewMatrix(s, s);
 
   vtkMath::JacobiN(T, s, ev, evecMat);
 
   // Compute eigenvecs of DD' instead of T which is D'D
   // evecMat2 of dim [3*n x s]
-  evecMat2 = NewMatrix(3*n, s);
-  MatrixMultiply(D, evecMat, evecMat2, 3*n, s, s, s);
+  evecMat2 = NewMatrix(3 * n, s);
+  MatrixMultiply(D, evecMat, evecMat2, 3 * n, s, s, s);
 
   // Normalise eigenvectors
-  NormaliseColumns(evecMat2, 3*n, s);
+  NormaliseColumns(evecMat2, 3 * n, s);
 
   this->Evals->SetNumberOfValues(s);
 
@@ -328,16 +332,15 @@ int vtkPCAAnalysisFilter::RequestData(
   {
     this->Evals->SetValue(j, ev[j]);
 
-    vtkPointSet* block = vtkPointSet::SafeDownCast(
-      output->GetBlock(j));
+    vtkPointSet* block = vtkPointSet::SafeDownCast(output->GetBlock(j));
 
     if (block)
     {
       for (i = 0; i < n; i++)
       {
-        double x = evecMat2[i*3  ][j];
-        double y = evecMat2[i*3+1][j];
-        double z = evecMat2[i*3+2][j];
+        double x = evecMat2[i * 3][j];
+        double y = evecMat2[i * 3 + 1][j];
+        double z = evecMat2[i * 3 + 2][j];
 
         block->GetPoints()->SetPoint(i, x, y, z);
       }
@@ -352,23 +355,21 @@ int vtkPCAAnalysisFilter::RequestData(
   return 1;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // public
-void vtkPCAAnalysisFilter::GetParameterisedShape(vtkFloatArray *b, vtkPointSet* shape)
+void vtkPCAAnalysisFilter::GetParameterisedShape(vtkFloatArray* b, vtkPointSet* shape)
 {
   vtkPointSet* output = nullptr;
 
-  vtkMultiBlockDataSet *mbOutput = this->GetOutput();
+  vtkMultiBlockDataSet* mbOutput = this->GetOutput();
 
   int numBlocks = mbOutput->GetNumberOfBlocks();
 
-  int i,j;
+  int i, j;
 
-  for(i=0;i<numBlocks;i++)
+  for (i = 0; i < numBlocks; i++)
   {
-    output =
-      vtkPointSet::SafeDownCast(mbOutput->GetBlock(i));
+    output = vtkPointSet::SafeDownCast(mbOutput->GetBlock(i));
     if (output)
     {
       break;
@@ -377,7 +378,7 @@ void vtkPCAAnalysisFilter::GetParameterisedShape(vtkFloatArray *b, vtkPointSet* 
 
   if (!output)
   {
-    vtkErrorMacro(<<"No valid output block was found.");
+    vtkErrorMacro(<< "No valid output block was found.");
     return;
   }
 
@@ -385,53 +386,56 @@ void vtkPCAAnalysisFilter::GetParameterisedShape(vtkFloatArray *b, vtkPointSet* 
 
   const int n = output->GetNumberOfPoints();
 
-  if(shape->GetNumberOfPoints() != n)
+  if (shape->GetNumberOfPoints() != n)
   {
-    vtkErrorMacro(<<"Input shape does not have the correct number of points");
+    vtkErrorMacro(<< "Input shape does not have the correct number of points");
     return;
   }
 
-  double *shapevec = NewVector(n*3);
+  double* shapevec = NewVector(n * 3);
 
   // b is weighted by the eigenvals
   // make weight vector for speed reasons
-  double *w = NewVector(bsize);
-  for (i = 0; i < bsize; i++) {
-    w[i] =sqrt(this->Evals->GetValue(i)) * b->GetValue(i);
+  double* w = NewVector(bsize);
+  for (i = 0; i < bsize; i++)
+  {
+    w[i] = sqrt(this->Evals->GetValue(i)) * b->GetValue(i);
   }
-  for (j = 0; j < n*3; j++) {
+  for (j = 0; j < n * 3; j++)
+  {
     shapevec[j] = meanshape[j];
 
-    for (i = 0; i < bsize; i++) {
+    for (i = 0; i < bsize; i++)
+    {
       shapevec[j] += w[i] * evecMat2[j][i];
     }
   }
 
   // Copy shape
-  for (i = 0; i < n; i++) {
-    shape->GetPoints()->SetPoint(i,shapevec[i*3  ], shapevec[i*3+1], shapevec[i*3+2]);
+  for (i = 0; i < n; i++)
+  {
+    shape->GetPoints()->SetPoint(i, shapevec[i * 3], shapevec[i * 3 + 1], shapevec[i * 3 + 2]);
   }
 
   DeleteVector(shapevec);
   DeleteVector(w);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // public
-void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray *b, int bsize)
+void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet* shape, vtkFloatArray* b, int bsize)
 {
   vtkPointSet* output = nullptr;
 
-  vtkMultiBlockDataSet *mbOutput = this->GetOutput();
+  vtkMultiBlockDataSet* mbOutput = this->GetOutput();
 
   int numBlocks = mbOutput->GetNumberOfBlocks();
 
-  int i,j;
+  int i, j;
 
-  for(i=0;i<numBlocks;i++)
+  for (i = 0; i < numBlocks; i++)
   {
-    output =
-      vtkPointSet::SafeDownCast(mbOutput->GetBlock(i));
+    output = vtkPointSet::SafeDownCast(mbOutput->GetBlock(i));
     if (output)
     {
       break;
@@ -440,42 +444,42 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
 
   if (!output)
   {
-    vtkErrorMacro(<<"No valid output block was found.");
+    vtkErrorMacro(<< "No valid output block was found.");
     return;
   }
 
   // Local variant of b for fast access.
-  double *bloc = NewVector(bsize);
+  double* block = NewVector(bsize);
 
   const int n = output->GetNumberOfPoints();
 
-  if(shape->GetNumberOfPoints() != n)
+  if (shape->GetNumberOfPoints() != n)
   {
-    vtkErrorMacro(<<"Input shape does not have the correct number of points");
-    DeleteVector(bloc);
+    vtkErrorMacro(<< "Input shape does not have the correct number of points");
+    DeleteVector(block);
     return;
   }
 
-  double *shapevec = NewVector(n*3);
+  double* shapevec = NewVector(n * 3);
 
   // Copy shape and subtract mean shape
   for (i = 0; i < n; i++)
   {
     double p[3];
     shape->GetPoint(i, p);
-    shapevec[i*3  ] = p[0] - meanshape[i*3];
-    shapevec[i*3+1] = p[1] - meanshape[i*3+1];
-    shapevec[i*3+2] = p[2] - meanshape[i*3+2];
+    shapevec[i * 3] = p[0] - meanshape[i * 3];
+    shapevec[i * 3 + 1] = p[1] - meanshape[i * 3 + 1];
+    shapevec[i * 3 + 2] = p[2] - meanshape[i * 3 + 2];
   }
 
   for (i = 0; i < bsize; i++)
   {
-    bloc[i] = 0;
+    block[i] = 0;
 
     // Project the shape onto eigenvector i
-    for (j = 0; j < n*3; j++)
+    for (j = 0; j < n * 3; j++)
     {
-      bloc[i] += shapevec[j] * evecMat2[j][i];
+      block[i] += shapevec[j] * evecMat2[j][i];
     }
   }
 
@@ -484,45 +488,45 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
   for (i = 0; i < bsize; i++)
   {
     if (this->Evals->GetValue(i))
-      b->SetValue(i, bloc[i]/sqrt(this->Evals->GetValue(i)));
+      b->SetValue(i, block[i] / sqrt(this->Evals->GetValue(i)));
     else
       b->SetValue(i, 0);
   }
 
   DeleteVector(shapevec);
-  DeleteVector(bloc);
+  DeleteVector(block);
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // public
 void vtkPCAAnalysisFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  this->Evals->PrintSelf(os,indent.GetNextIndent());
+  this->Superclass::PrintSelf(os, indent);
+  this->Evals->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // public
 int vtkPCAAnalysisFilter::GetModesRequiredFor(double proportion)
 {
   int i;
 
   double eigen_total = 0.0F;
-  for(i=0;i<this->Evals->GetNumberOfTuples();i++)
+  for (i = 0; i < this->Evals->GetNumberOfTuples(); i++)
   {
     eigen_total += this->Evals->GetValue(i);
   }
 
   double running_total = 0.0F;
-  for(i=0;i<this->Evals->GetNumberOfTuples();i++)
+  for (i = 0; i < this->Evals->GetNumberOfTuples(); i++)
   {
-    running_total += this->Evals->GetValue(i)/eigen_total;
-    if(running_total>=proportion)
+    running_total += this->Evals->GetValue(i) / eigen_total;
+    if (running_total >= proportion)
     {
-      return i+1;
+      return i + 1;
     }
   }
 
   return Evals->GetNumberOfTuples();
 }
+VTK_ABI_NAMESPACE_END

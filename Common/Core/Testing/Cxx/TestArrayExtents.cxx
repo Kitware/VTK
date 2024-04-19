@@ -1,43 +1,27 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    ArrayExtents.cxx
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include <vtkArrayCoordinates.h>
 #include <vtkArrayExtents.h>
 
+#include "vtkSetGet.h"
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include "vtkSetGet.h"
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-  { \
-    std::ostringstream buffer; \
-    buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw std::runtime_error(buffer.str()); \
-  } \
-}
+#define test_expression(expression)                                                                \
+  do                                                                                               \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+    {                                                                                              \
+      std::ostringstream buffer;                                                                   \
+      buffer << "Expression failed at line " << __LINE__ << ": " << #expression;                   \
+      throw std::runtime_error(buffer.str());                                                      \
+    }                                                                                              \
+  } while (false)
 
-int TestArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayExtents(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
@@ -49,7 +33,7 @@ int TestArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(slice.GetSize() == 6);
 
     vtkArrayCoordinates coordinates;
-    for(vtkArrayExtents::SizeT n = 0; n != slice.GetSize(); ++n)
+    for (vtkArrayExtents::SizeT n = 0; n != slice.GetSize(); ++n)
     {
       slice.GetLeftToRightCoordinatesN(n, coordinates);
       cerr << coordinates << endl;
@@ -73,7 +57,7 @@ int TestArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;

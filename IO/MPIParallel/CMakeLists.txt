@@ -1,6 +1,6 @@
 set(classes
-  vtkPWindBladeReader
-  vtkMPIMultiBlockPLOT3DReader)
+  vtkMPIMultiBlockPLOT3DReader
+  vtkPWindBladeReader)
 
 vtk_object_factory_declare(
   BASE      vtkWindBladeReader
@@ -18,3 +18,4 @@ vtk_module_add_module(VTK::IOMPIParallel
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source}
   PRIVATE_HEADERS ${vtk_object_factory_header})
+vtk_add_test_mangling(VTK::IOMPIParallel)

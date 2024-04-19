@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTimeStamp.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTimeStamp
  * @brief   record modification and/or execution time
@@ -21,7 +9,7 @@
  * Classes use this object to record modified and/or execution time.
  * There is built in support for the binary < and > comparison
  * operators between two vtkTimeStamp objects.
-*/
+ */
 
 #ifndef vtkTimeStamp_h
 #define vtkTimeStamp_h
@@ -29,12 +17,13 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkTimeStamp
 {
 public:
-  vtkTimeStamp() {this->ModifiedTime = 0;};
-  static vtkTimeStamp *New();
-  void Delete() {delete this;};
+  vtkTimeStamp() { this->ModifiedTime = 0; }
+  static vtkTimeStamp* New();
+  void Delete() { delete this; }
 
   /**
    * Set this objects time to the current time. The current time is
@@ -51,26 +40,25 @@ public:
   /**
    * Return this object's Modified time.
    */
-  vtkMTimeType GetMTime() const {return this->ModifiedTime;};
+  vtkMTimeType GetMTime() const { return this->ModifiedTime; }
 
-  //@{
+  ///@{
   /**
    * Support comparisons of time stamp objects directly.
    */
-  bool operator>(vtkTimeStamp& ts) {
-    return (this->ModifiedTime > ts.ModifiedTime);};
-  bool operator<(vtkTimeStamp& ts) {
-    return (this->ModifiedTime < ts.ModifiedTime);};
-  //@}
+  bool operator>(vtkTimeStamp& ts) { return (this->ModifiedTime > ts.ModifiedTime); }
+  bool operator<(vtkTimeStamp& ts) { return (this->ModifiedTime < ts.ModifiedTime); }
+  ///@}
 
   /**
    * Allow for typecasting to unsigned long.
    */
-  operator vtkMTimeType() const {return this->ModifiedTime;};
+  operator vtkMTimeType() const { return this->ModifiedTime; }
 
 private:
   vtkMTimeType ModifiedTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTimeStamp.h

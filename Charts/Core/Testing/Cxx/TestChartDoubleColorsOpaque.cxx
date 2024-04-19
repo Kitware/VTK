@@ -1,36 +1,24 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestChartDoubleColors.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkRenderWindow.h"
+#include "vtkAxis.h"
 #include "vtkChartXY.h"
-#include "vtkPlotPoints.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkDoubleArray.h"
+#include "vtkLookupTable.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkPen.h"
 #include "vtkPlotBar.h"
 #include "vtkPlotLine.h"
-#include "vtkLookupTable.h"
-#include "vtkTable.h"
-#include "vtkDoubleArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
-#include "vtkPen.h"
+#include "vtkPlotPoints.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
-#include "vtkAxis.h"
-#include "vtkMath.h"
+#include "vtkTable.h"
 
-//----------------------------------------------------------------------------
-int TestChartDoubleColorsOpaque(int, char *[])
+//------------------------------------------------------------------------------
+int TestChartDoubleColorsOpaque(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -89,7 +77,7 @@ int TestChartDoubleColorsOpaque(int, char *[])
   vtkNew<vtkPlotLine> line;
   chart->AddPlot(line);
   line->SetInputData(table, 0, 2);
-  line->SetColor(1.0, 0.0, 0.0);
+  line->SetColorF(1.0, 0.0, 0.0);
   // Put this plot in a different corner - it is orders of magnitude smaller.
   chart->SetPlotCorner(line, 1);
   vtkNew<vtkPlotBar> bar;

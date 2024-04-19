@@ -1,26 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSortDataArray.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*
- * Copyright 2003 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2003 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkSortDataArray
@@ -61,7 +41,7 @@
  *
  * @sa
  * vtkSortFieldData
-*/
+ */
 
 #ifndef vtkSortDataArray_h
 #define vtkSortDataArray_h
@@ -69,40 +49,38 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkAbstractArray;
-
 
 class VTKCOMMONCORE_EXPORT vtkSortDataArray : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods for instantiating, managing type, and printing
    * information about this class.
    */
-  static vtkSortDataArray *New();
+  static vtkSortDataArray* New();
   vtkTypeMacro(vtkSortDataArray, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Sorts the given array in ascending order. For this method, the keys must
    * be single-component tuples.
    */
-  static void Sort(vtkIdList *keys)
-    {vtkSortDataArray::Sort(keys,0);}
-  static void Sort(vtkAbstractArray *keys)
-    {vtkSortDataArray::Sort(keys,0);}
+  static void Sort(vtkIdList* keys) { vtkSortDataArray::Sort(keys, 0); }
+  static void Sort(vtkAbstractArray* keys) { vtkSortDataArray::Sort(keys, 0); }
 
-  //@{
+  ///@{
   /**
    * Sorts the given array in either ascending (dir=0) or descending (dir!=0)
    * order. For this method, the keys must be single-component tuples.
    */
-  static void Sort(vtkIdList *keys, int dir);
-  static void Sort(vtkAbstractArray *keys, int dir);
-  //@}
+  static void Sort(vtkIdList* keys, int dir);
+  static void Sort(vtkAbstractArray* keys, int dir);
+  ///@}
 
   /**
    * Sorts the given key/value pairs based on the keys (the keys are expected
@@ -110,21 +88,25 @@ public:
    * Obviously, the two arrays must be of equal size. Sorts in ascending
    * order.
    */
-  static void Sort(vtkAbstractArray *keys, vtkAbstractArray *values)
-    {vtkSortDataArray::Sort(keys,values,0);}
-  static void Sort(vtkAbstractArray *keys, vtkIdList *values)
-    {vtkSortDataArray::Sort(keys,values,0);}
+  static void Sort(vtkAbstractArray* keys, vtkAbstractArray* values)
+  {
+    vtkSortDataArray::Sort(keys, values, 0);
+  }
+  static void Sort(vtkAbstractArray* keys, vtkIdList* values)
+  {
+    vtkSortDataArray::Sort(keys, values, 0);
+  }
 
-  //@{
+  ///@{
   /**
    * Sorts the given key/value pairs based on the keys (the keys are expected
    * to be 1-tuples, values may have number of components >= 1).
    * Obviously, the two arrays must be of equal size. Sorts in either
    * ascending (dir=0) or descending (dir=1) order.
    */
-  static void Sort(vtkAbstractArray *keys, vtkAbstractArray *values, int dir);
-  static void Sort(vtkAbstractArray *keys, vtkIdList *values, int dir);
-  //@}
+  static void Sort(vtkAbstractArray* keys, vtkAbstractArray* values, int dir);
+  static void Sort(vtkAbstractArray* keys, vtkIdList* values, int dir);
+  ///@}
 
   /**
    * Sorts the given data array using the specified component as a key.
@@ -133,8 +115,10 @@ public:
    * monotonically increasing. Where two tuples have the same value for
    * the \a k-th component, their order in the final result is unspecified.
    */
-  static void SortArrayByComponent( vtkAbstractArray* arr, int k)
-    {vtkSortDataArray::SortArrayByComponent(arr,k,0);}
+  static void SortArrayByComponent(vtkAbstractArray* arr, int k)
+  {
+    vtkSortDataArray::SortArrayByComponent(arr, k, 0);
+  }
 
   /**
    * Sorts the given data array using the specified component as a key.
@@ -143,9 +127,9 @@ public:
    * (dir=0) or descending (dir=1). Where two tuples have the same value for
    * the \a k-th component, their order in the final result is unspecified.
    */
-  static void SortArrayByComponent( vtkAbstractArray* arr, int k, int dir);
+  static void SortArrayByComponent(vtkAbstractArray* arr, int k, int dir);
 
-  //@{
+  ///@{
   /**
    * The following are general functions which can be used to produce an
    * ordering, and/or sort various types of VTK arrays. Don't use these
@@ -168,15 +152,14 @@ public:
    * order. The user is responsible for taking ownership of the sort indices
    * (i.e., free the idx array).
    */
-  static vtkIdType *InitializeSortIndices(vtkIdType numKeys);
-  static void GenerateSortIndices(int dataType, void *dataIn, vtkIdType numKeys,
-                                  int numComp, int k, vtkIdType *idx);
-  static void ShuffleArray(vtkIdType *idx, int dataType, vtkIdType numKeys,
-                           int numComp, vtkAbstractArray *arr,
-                           void *dataIn, int dir);
-  static void ShuffleIdList(vtkIdType *idx, vtkIdType sze, vtkIdList *arrayIn,
-                            vtkIdType *dataIn, int dir);
-  //@}
+  static vtkIdType* InitializeSortIndices(vtkIdType numKeys);
+  static void GenerateSortIndices(
+    int dataType, void* dataIn, vtkIdType numKeys, int numComp, int k, vtkIdType* idx);
+  static void ShuffleArray(vtkIdType* idx, int dataType, vtkIdType numKeys, int numComp,
+    vtkAbstractArray* arr, void* dataIn, int dir);
+  static void ShuffleIdList(
+    vtkIdType* idx, vtkIdType sze, vtkIdList* arrayIn, vtkIdType* dataIn, int dir);
+  ///@}
 
 protected:
   vtkSortDataArray();
@@ -184,17 +167,17 @@ protected:
 
   // A more efficient sort for single component arrays. This is delegated to
   // by the methods above (if appropriate).
-  static void GenerateSort1Indices(int dataType, void *dataIn, vtkIdType numKeys,
-                                   vtkIdType *idx);
+  static void GenerateSort1Indices(int dataType, void* dataIn, vtkIdType numKeys, vtkIdType* idx);
 
   // A more efficient shuffle for single component arrays. This is delegated to
   // by the methods above (if appropriate).
-  static void Shuffle1Array(vtkIdType *idx, int dataType, vtkIdType numKeys,
-                            vtkAbstractArray *arr, void *dataIn, int dir);
+  static void Shuffle1Array(
+    vtkIdType* idx, int dataType, vtkIdType numKeys, vtkAbstractArray* arr, void* dataIn, int dir);
 
 private:
-  vtkSortDataArray(const vtkSortDataArray &) = delete;
-  void operator=(const vtkSortDataArray &) = delete;
+  vtkSortDataArray(const vtkSortDataArray&) = delete;
+  void operator=(const vtkSortDataArray&) = delete;
 };
 
-#endif //vtkSortDataArray_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkSortDataArray_h

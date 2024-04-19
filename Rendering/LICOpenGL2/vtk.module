@@ -3,12 +3,17 @@ NAME
 LIBRARY_NAME
   vtkRenderingLICOpenGL2
 IMPLEMENTABLE
-KIT
-  VTK::OpenGL
+GROUPS
+  Rendering
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::RenderingCore
   VTK::RenderingOpenGL2
 PRIVATE_DEPENDS
   VTK::CommonMath
@@ -18,7 +23,6 @@ PRIVATE_DEPENDS
   VTK::IOXML
   VTK::ImagingCore
   VTK::ImagingSources
-  VTK::RenderingCore
   VTK::glew
   VTK::opengl
   VTK::vtksys

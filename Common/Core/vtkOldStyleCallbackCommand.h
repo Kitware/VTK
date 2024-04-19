@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOldStyleCallbackCommand.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOldStyleCallbackCommand
  * @brief   supports legacy function callbacks for VTK
@@ -29,52 +17,47 @@
  *
  * @sa
  * vtkCommand vtkCallbackCommand
-*/
+ */
 
 #ifndef vtkOldStyleCallbackCommand_h
 #define vtkOldStyleCallbackCommand_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCommand.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 // the old style void fund(void *) callbacks
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkOldStyleCallbackCommand : public vtkCommand
 {
 public:
-  vtkTypeMacro(vtkOldStyleCallbackCommand,vtkCommand);
+  vtkTypeMacro(vtkOldStyleCallbackCommand, vtkCommand);
 
-  static vtkOldStyleCallbackCommand *New()
-    {return new vtkOldStyleCallbackCommand;};
+  static vtkOldStyleCallbackCommand* New() { return new vtkOldStyleCallbackCommand; }
 
   /**
    * Satisfy the superclass API for callbacks.
    */
-  void Execute(vtkObject *invoker,
-               unsigned long eid,
-               void *calldata) override;
+  void Execute(vtkObject* invoker, unsigned long eid, void* calldata) override;
 
-  //@{
+  ///@{
   /**
    * Methods to set and get client and callback information.
    */
-  void SetClientData(void *cd)
-    {this->ClientData = cd;};
-  void SetCallback(void (*f)(void *clientdata))
-    {this->Callback = f;};
-  void SetClientDataDeleteCallback(void (*f)(void *))
-    {this->ClientDataDeleteCallback = f;};
-  //@}
+  void SetClientData(void* cd) { this->ClientData = cd; }
+  void SetCallback(void (*f)(void* clientdata)) { this->Callback = f; }
+  void SetClientDataDeleteCallback(void (*f)(void*)) { this->ClientDataDeleteCallback = f; }
+  ///@}
 
-  void *ClientData;
-  void (*Callback)(void *);
-  void (*ClientDataDeleteCallback)(void *);
+  void* ClientData;
+  void (*Callback)(void*);
+  void (*ClientDataDeleteCallback)(void*);
 
 protected:
   vtkOldStyleCallbackCommand();
   ~vtkOldStyleCallbackCommand() override;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif /* vtkOldStyleCallbackCommand_h */
 
 // VTK-HeaderTest-Exclude: vtkOldStyleCallbackCommand.h

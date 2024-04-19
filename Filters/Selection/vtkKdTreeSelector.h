@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkKdTreeSelector.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkKdTreeSelector
  * @brief   Selects point ids using a kd-tree.
@@ -26,7 +11,7 @@
  * input point set and uses that tree for selection.  The output is a
  * vtkSelection containing the ids found in the kd-tree using the specified
  * bounds.
-*/
+ */
 
 #ifndef vtkKdTreeSelector_h
 #define vtkKdTreeSelector_h
@@ -34,6 +19,7 @@
 #include "vtkFiltersSelectionModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkKdTree;
 
 class VTKFILTERSSELECTION_EXPORT vtkKdTreeSelector : public vtkSelectionAlgorithm
@@ -43,7 +29,7 @@ public:
   vtkTypeMacro(vtkKdTreeSelector, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The kd-tree to use to find selected ids.
    * The kd-tree must be initialized with the desired set of points.
@@ -51,9 +37,9 @@ public:
    */
   void SetKdTree(vtkKdTree* tree);
   vtkGetObjectMacro(KdTree, vtkKdTree);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The bounds of the form (xmin,xmax,ymin,ymax,zmin,zmax).
    * To perform a search in 2D, use the bounds
@@ -61,9 +47,9 @@ public:
    */
   vtkSetVector6Macro(SelectionBounds, double);
   vtkGetVector6Macro(SelectionBounds, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The field name to use when generating the selection.
    * If set, creates a VALUES selection.
@@ -72,9 +58,9 @@ public:
    */
   vtkSetStringMacro(SelectionFieldName);
   vtkGetStringMacro(SelectionFieldName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The field attribute to use when generating the selection.
    * If set, creates a PEDIGREEIDS or GLOBALIDS selection.
@@ -85,9 +71,9 @@ public:
    */
   vtkSetMacro(SelectionAttribute, int);
   vtkGetMacro(SelectionAttribute, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to only allow up to one value in the result.
    * The item selected is closest to the center of the bounds,
@@ -97,9 +83,9 @@ public:
   vtkSetMacro(SingleSelection, bool);
   vtkGetMacro(SingleSelection, bool);
   vtkBooleanMacro(SingleSelection, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The threshold for the single selection.
    * A single point is added to the selection if it is within
@@ -108,7 +94,7 @@ public:
    */
   vtkSetMacro(SingleSelectionThreshold, double);
   vtkGetMacro(SingleSelectionThreshold, double);
-  //@}
+  ///@}
 
   vtkMTimeType GetMTime() override;
 
@@ -124,17 +110,14 @@ protected:
   double SingleSelectionThreshold;
   int SelectionAttribute;
 
-  int FillInputPortInformation(
-    int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkKdTreeSelector(const vtkKdTreeSelector&) = delete;
   void operator=(const vtkKdTreeSelector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

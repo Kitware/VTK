@@ -1,23 +1,12 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    vtkOverlappingAMRAlgorithm.cxx
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOverlappingAMRAlgorithm.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkInformation.h"
-#include "vtkCompositeDataPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOverlappingAMRAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -33,7 +22,7 @@ vtkOverlappingAMRAlgorithm::~vtkOverlappingAMRAlgorithm() = default;
 //------------------------------------------------------------------------------
 void vtkOverlappingAMRAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
@@ -45,24 +34,23 @@ vtkOverlappingAMR* vtkOverlappingAMRAlgorithm::GetOutput()
 //------------------------------------------------------------------------------
 vtkOverlappingAMR* vtkOverlappingAMRAlgorithm::GetOutput(int port)
 {
-  vtkDataObject *output =
-      vtkCompositeDataPipeline::SafeDownCast(
-          this->GetExecutive())->GetCompositeOutputData(port);
-  return( vtkOverlappingAMR::SafeDownCast(output));
+  vtkDataObject* output =
+    vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->GetCompositeOutputData(port);
+  return (vtkOverlappingAMR::SafeDownCast(output));
 }
 
 //------------------------------------------------------------------------------
 int vtkOverlappingAMRAlgorithm::FillOutputPortInformation(
-    int vtkNotUsed(port),vtkInformation* info)
+  int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkOverlappingAMR");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkOverlappingAMR");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkOverlappingAMRAlgorithm::FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info )
+int vtkOverlappingAMRAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkOverlappingAMR");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkOverlappingAMR");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

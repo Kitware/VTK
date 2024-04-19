@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGroupLeafVertices.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkGroupLeafVertices.h"
 
@@ -34,25 +18,23 @@
 #include "vtkTree.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
-#include "vtkUnicodeStringArray.h"
 
 #include <map>
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 // Forward function reference (definition at bottom :)
-static int splitString(const vtkStdString& input,
-                       std::vector<vtkStdString>& results);
+static int splitString(const vtkStdString& input, std::vector<vtkStdString>& results);
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkGroupLeafVerticesCompare
 {
 public:
   bool operator()(
-    const std::pair<vtkIdType, vtkVariant>& a,
-    const std::pair<vtkIdType, vtkVariant>& b) const
+    const std::pair<vtkIdType, vtkVariant>& a, const std::pair<vtkIdType, vtkVariant>& b) const
   {
     if (a.first != b.first)
     {
@@ -62,22 +44,21 @@ public:
   }
 };
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename T>
 vtkVariant vtkGroupLeafVerticesGetValue(T* arr, vtkIdType index)
 {
   return vtkVariant(arr[index]);
 }
 
-//---------------------------------------------------------------------------
-static vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr,
-                                                 vtkIdType i)
+//------------------------------------------------------------------------------
+static vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr, vtkIdType i)
 {
   vtkVariant val;
-  switch(arr->GetDataType())
+  switch (arr->GetDataType())
   {
-    vtkSuperExtraExtendedTemplateMacro(val = vtkGroupLeafVerticesGetValue(
-      static_cast<VTK_TT*>(arr->GetVoidPointer(0)), i));
+    vtkExtraExtendedTemplateMacro(
+      val = vtkGroupLeafVerticesGetValue(static_cast<VTK_TT*>(arr->GetVoidPointer(0)), i));
   }
   return val;
 }
@@ -100,19 +81,15 @@ void vtkGroupLeafVertices::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkGroupLeafVertices::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Storing the inputTable and outputTree handles
-  vtkTree *input = vtkTree::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTree *output = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* input = vtkTree::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* output = vtkTree::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Check for corner case of 'empty' tree
   if (input->GetNumberOfVertices() == 0)
@@ -126,10 +103,10 @@ int vtkGroupLeafVertices::RequestData(
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
   // Get the input and builder vertex and edge data.
-  vtkDataSetAttributes *inputVertexData = input->GetVertexData();
-  vtkDataSetAttributes *inputEdgeData = input->GetEdgeData();
-  vtkDataSetAttributes *builderVertexData = builder->GetVertexData();
-  vtkDataSetAttributes *builderEdgeData = builder->GetEdgeData();
+  vtkDataSetAttributes* inputVertexData = input->GetVertexData();
+  vtkDataSetAttributes* inputEdgeData = input->GetEdgeData();
+  vtkDataSetAttributes* builderVertexData = builder->GetVertexData();
+  vtkDataSetAttributes* builderEdgeData = builder->GetEdgeData();
   builderVertexData->CopyAllocate(inputVertexData);
   builderEdgeData->CopyAllocate(inputEdgeData);
 
@@ -142,24 +119,23 @@ int vtkGroupLeafVertices::RequestData(
   }
 
   // Get the builder's group array.
-  char *groupname = arr->GetName();
-  vtkAbstractArray *outputGroupArr = builderVertexData->GetAbstractArray(groupname);
+  char* groupname = arr->GetName();
+  vtkAbstractArray* outputGroupArr = builderVertexData->GetAbstractArray(groupname);
   if (outputGroupArr == nullptr)
   {
     vtkErrorMacro(<< "Could not find the group array in the builder.");
     return 0;
   }
 
-
   // Get the (optional) name field.  Right now this will cause a warning
   // if the array is not set.
   vtkAbstractArray* inputNameArr = this->GetInputAbstractArrayToProcess(1, inputVector);
 
   // Get the builder's name array.
-  vtkAbstractArray *outputNameArr = nullptr;
+  vtkAbstractArray* outputNameArr = nullptr;
   if (inputNameArr)
   {
-    char *name = inputNameArr->GetName();
+    char* name = inputNameArr->GetName();
     outputNameArr = builderVertexData->GetAbstractArray(name);
     if (outputNameArr == nullptr)
     {
@@ -170,7 +146,7 @@ int vtkGroupLeafVertices::RequestData(
 
   // Get the pedigree id array on the vertices
   vtkAbstractArray* pedigreeIdArr = builderVertexData->GetPedigreeIds();
-  if(!pedigreeIdArr)
+  if (!pedigreeIdArr)
   {
     vtkErrorMacro(<< "Pedigree ids not assigned to vertices on input graph.");
     return 0;
@@ -178,9 +154,10 @@ int vtkGroupLeafVertices::RequestData(
 
   // Get the domain array. If none exists, create one, and initialize
   bool addInputDomain = false;
-  vtkStringArray* domainArr = vtkArrayDownCast<vtkStringArray>(builderVertexData->GetAbstractArray("domain"));
+  vtkStringArray* domainArr =
+    vtkArrayDownCast<vtkStringArray>(builderVertexData->GetAbstractArray("domain"));
   int group_index = 0;
-  if(!domainArr)
+  if (!domainArr)
   {
     domainArr = vtkStringArray::New();
     domainArr->SetNumberOfTuples(builderVertexData->GetNumberOfTuples());
@@ -197,31 +174,31 @@ int vtkGroupLeafVertices::RequestData(
     vtkSmartPointer<vtkIdList> groupIds = vtkSmartPointer<vtkIdList>::New();
     domainArr->LookupValue(this->GroupDomain, groupIds);
 
-    if(pedigreeIdArr->IsNumeric())
+    if (pedigreeIdArr->IsNumeric())
     {
-      for(vtkIdType i=0; i<groupIds->GetNumberOfIds(); ++i)
+      for (vtkIdType i = 0; i < groupIds->GetNumberOfIds(); ++i)
       {
         vtkVariant v = pedigreeIdArr->GetVariantValue(i);
         bool ok;
         int num = v.ToInt(&ok);
-        if(ok)
+        if (ok)
         {
           group_index = (num > group_index) ? num : group_index;
         }
       }
     }
-    else if(vtkArrayDownCast<vtkStringArray>(pedigreeIdArr) ||
-            vtkArrayDownCast<vtkVariantArray>(pedigreeIdArr))
+    else if (vtkArrayDownCast<vtkStringArray>(pedigreeIdArr) ||
+      vtkArrayDownCast<vtkVariantArray>(pedigreeIdArr))
     {
-      for(vtkIdType i=0; i<groupIds->GetNumberOfIds(); ++i)
+      for (vtkIdType i = 0; i < groupIds->GetNumberOfIds(); ++i)
       {
         std::vector<vtkStdString> tokens;
         vtkVariant v = pedigreeIdArr->GetVariantValue(i);
         splitString(v.ToString(), tokens);
-        vtkVariant last = tokens[tokens.size()-1];
+        vtkVariant last = tokens[tokens.size() - 1];
         bool ok;
         int num = last.ToInt(&ok);
-        if(ok)
+        if (ok)
         {
           group_index = (num > group_index) ? num : group_index;
         }
@@ -236,12 +213,10 @@ int vtkGroupLeafVertices::RequestData(
 
   // Copy everything into the new tree, adding group nodes.
   // Make a map of (parent id, group-by string) -> group vertex id.
-  std::map<std::pair<vtkIdType, vtkVariant>,
-    vtkIdType, vtkGroupLeafVerticesCompare> group_vertices;
-  std::vector< std::pair<vtkIdType, vtkIdType> > vertStack;
-  vertStack.push_back(std::make_pair(input->GetRoot(), builder->AddVertex()));
-  vtkSmartPointer<vtkOutEdgeIterator> it =
-  vtkSmartPointer<vtkOutEdgeIterator>::New();
+  std::map<std::pair<vtkIdType, vtkVariant>, vtkIdType, vtkGroupLeafVerticesCompare> group_vertices;
+  std::vector<std::pair<vtkIdType, vtkIdType>> vertStack;
+  vertStack.emplace_back(input->GetRoot(), builder->AddVertex());
+  vtkSmartPointer<vtkOutEdgeIterator> it = vtkSmartPointer<vtkOutEdgeIterator>::New();
 
   while (!vertStack.empty())
   {
@@ -258,7 +233,7 @@ int vtkGroupLeafVertices::RequestData(
 
       // If the input vertices do not have a "domain" attribute,
       // we need to set one.
-      if(addInputDomain)
+      if (addInputDomain)
       {
         domainArr->InsertValue(child, pedigreeIdArr->GetName());
       }
@@ -269,7 +244,7 @@ int vtkGroupLeafVertices::RequestData(
         // and recurse.
         vtkEdgeType e = builder->AddEdge(v, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-        vertStack.push_back(std::make_pair(tree_child, child));
+        vertStack.emplace_back(tree_child, child);
       }
       else
       {
@@ -294,7 +269,7 @@ int vtkGroupLeafVertices::RequestData(
           for (vtkIdType i = 0; i < ncol; i++)
           {
             vtkAbstractArray* arr2 = builderVertexData->GetAbstractArray(i);
-            if(arr2 == pedigreeIdArr || arr2 == domainArr)
+            if (arr2 == pedigreeIdArr || arr2 == domainArr)
             {
               continue;
             }
@@ -315,7 +290,7 @@ int vtkGroupLeafVertices::RequestData(
               vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr2);
               for (int j = 0; j < comps; j++)
               {
-                data->InsertValue(group_vertex + j - 1, vtkStdString(""));
+                data->InsertValue(group_vertex + j - 1, vtkStdString());
               }
             }
             else if (vtkArrayDownCast<vtkVariantArray>(arr2))
@@ -324,14 +299,6 @@ int vtkGroupLeafVertices::RequestData(
               for (int j = 0; j < comps; j++)
               {
                 data->InsertValue(group_vertex + j - 1, vtkVariant());
-              }
-            }
-            else if (vtkArrayDownCast<vtkUnicodeStringArray>(arr2))
-            {
-              vtkUnicodeStringArray* data = vtkArrayDownCast<vtkUnicodeStringArray>(arr2);
-              for (int j = 0; j < comps; j++)
-              {
-                data->InsertValue(group_vertex + j - 1, vtkUnicodeString::from_utf8(""));
               }
             }
             else
@@ -352,9 +319,9 @@ int vtkGroupLeafVertices::RequestData(
           {
             outputGroupArr->InsertVariantValue(group_vertex, groupVal);
           }
-          if(pedigreeIdArr != outputNameArr && pedigreeIdArr != outputGroupArr)
+          if (pedigreeIdArr != outputNameArr && pedigreeIdArr != outputGroupArr)
           {
-            if(pedigreeIdArr->IsNumeric())
+            if (pedigreeIdArr->IsNumeric())
             {
               pedigreeIdArr->InsertVariantValue(group_vertex, group_index);
             }
@@ -369,7 +336,7 @@ int vtkGroupLeafVertices::RequestData(
         }
         vtkEdgeType e = builder->AddEdge(group_vertex, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-        vertStack.push_back(std::make_pair(tree_child, child));
+        vertStack.emplace_back(tree_child, child);
       }
     }
   }
@@ -377,18 +344,16 @@ int vtkGroupLeafVertices::RequestData(
   // Move the structure to the output
   if (!output->CheckedShallowCopy(builder))
   {
-    vtkErrorMacro(<<"Invalid tree structure!");
+    vtkErrorMacro(<< "Invalid tree structure!");
     return 0;
   }
 
   return 1;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-static int
-splitString(const vtkStdString& input,
-            std::vector<vtkStdString>& results)
+static int splitString(const vtkStdString& input, std::vector<vtkStdString>& results)
 {
   if (input.empty())
   {
@@ -411,21 +376,42 @@ splitString(const vtkStdString& input,
       char characterToAppend;
       switch (thisCharacter)
       {
-        case '0': characterToAppend = '\0'; break;
-        case 'a': characterToAppend = '\a'; break;
-        case 'b': characterToAppend = '\b'; break;
-        case 't': characterToAppend = '\t'; break;
-        case 'n': characterToAppend = '\n'; break;
-        case 'v': characterToAppend = '\v'; break;
-        case 'f': characterToAppend = '\f'; break;
-        case 'r': characterToAppend = '\r'; break;
-        case '\\': characterToAppend = '\\'; break;
-        default:  characterToAppend = thisCharacter; break;
+        case '0':
+          characterToAppend = '\0';
+          break;
+        case 'a':
+          characterToAppend = '\a';
+          break;
+        case 'b':
+          characterToAppend = '\b';
+          break;
+        case 't':
+          characterToAppend = '\t';
+          break;
+        case 'n':
+          characterToAppend = '\n';
+          break;
+        case 'v':
+          characterToAppend = '\v';
+          break;
+        case 'f':
+          characterToAppend = '\f';
+          break;
+        case 'r':
+          characterToAppend = '\r';
+          break;
+        case '\\':
+          characterToAppend = '\\';
+          break;
+        default:
+          characterToAppend = thisCharacter;
+          break;
       }
 
       currentField += characterToAppend;
       lastCharacter = thisCharacter;
-      if (lastCharacter == '\\') lastCharacter = 0;
+      if (lastCharacter == '\\')
+        lastCharacter = 0;
     }
     else
     {
@@ -443,9 +429,9 @@ splitString(const vtkStdString& input,
         // which case it's normal text and we won't even get here.
         if (!currentField.empty())
         {
-          results.push_back(currentField);
+          results.emplace_back(currentField);
         }
-        currentField = vtkStdString();
+        currentField = {};
       }
       else
       {
@@ -457,6 +443,7 @@ splitString(const vtkStdString& input,
     }
   }
 
-  results.push_back(currentField);
+  results.emplace_back(currentField);
   return static_cast<int>(results.size());
 }
+VTK_ABI_NAMESPACE_END

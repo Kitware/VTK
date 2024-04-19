@@ -1,19 +1,24 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkMetaImageReader
+from vtkmodules.vtkInteractionImage import vtkImageViewer2
+from vtkmodules.vtkRenderingCore import vtkRenderWindowInteractor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This scripts shows a compressed spectrum of an image.
 # Image pipeline
-reader = vtk.vtkMetaImageReader()
+reader = vtkMetaImageReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/foot/foot.mha")
 
-viewer = vtk.vtkImageViewer2()
+viewer = vtkImageViewer2()
 viewer.SetInputConnection(reader.GetOutputPort())
 viewer.SetColorWindow(255)
 viewer.SetColorLevel(127.5)
 
-viewInt = vtk.vtkRenderWindowInteractor()
+viewInt = vtkRenderWindowInteractor()
 viewer.SetupInteractor(viewInt)
 viewer.Render()
 

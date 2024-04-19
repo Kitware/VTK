@@ -1,6 +1,21 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersCore import vtkGlyph3D
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,23 +24,23 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create a sphere source and actor
 #
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 
-sphereMapper = vtk.vtkPolyDataMapper()
+sphereMapper = vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphere.GetOutputPort())
 
-sphereActor = vtk.vtkLODActor()
+sphereActor = vtkLODActor()
 sphereActor.SetMapper(sphereMapper)
 sphereActor.GetProperty().SetDiffuseColor(GetRGBColor('banana'))
 sphereActor.GetProperty().SetSpecular(.4)
@@ -33,20 +48,20 @@ sphereActor.GetProperty().SetSpecularPower(20)
 
 # create the spikes using a cone source and the sphere source
 #
-cone = vtk.vtkConeSource()
+cone = vtkConeSource()
 cone.SetResolution(20)
 
-glyph = vtk.vtkGlyph3D()
+glyph = vtkGlyph3D()
 glyph.SetInputConnection(sphere.GetOutputPort())
 glyph.SetSourceConnection(cone.GetOutputPort())
 glyph.SetVectorModeToUseNormal()
 glyph.SetScaleModeToScaleByVector()
 glyph.SetScaleFactor(0.25)
 
-spikeMapper = vtk.vtkPolyDataMapper()
+spikeMapper = vtkPolyDataMapper()
 spikeMapper.SetInputConnection(glyph.GetOutputPort())
 
-spikeActor = vtk.vtkLODActor()
+spikeActor = vtkLODActor()
 spikeActor.SetMapper(spikeMapper)
 spikeActor.GetProperty().SetDiffuseColor(GetRGBColor('tomato'))
 spikeActor.GetProperty().SetSpecular(.4)

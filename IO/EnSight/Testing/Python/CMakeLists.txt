@@ -2,6 +2,7 @@ vtk_add_test_python(
   EnSight6Elements.py
   EnSight6ElementsBin.py
   EnSight6OfficeBin.py
+  EnSight6TemporalGeometryChange.py,NO_VALID
   EnSightBlow1ASCII.py
   EnSightBlow1Bin.py
   EnSightBlow2ASCII.py
@@ -10,9 +11,15 @@ vtk_add_test_python(
   EnSightBlow4Bin.py
   EnSightBlow5ASCII.py
   EnSightCompound.py
+  EnSightGoldAsymTensor.py
+  EnSightGoldAsymTensorBin.py
   EnSightGoldElements.py
   EnSightGoldElementsBin.py
   EnSightGoldEmptyParts.py,NO_VALID,NO_RT
+  EnSightGoldFortran.py
+  EnSightGoldRigidBody.py
+  EnSightGoldUndefAndPartialAscii.py,NO_VALID,NO_RT
+  EnSightGoldUndefAndPartialBin.py,NO_VALID,NO_RT
   EnSightIronProtASCII.py
   EnSightIronProtBin.py
   EnSightMandelbrot.py
@@ -25,5 +32,6 @@ vtk_add_test_python(
   EnSightSelectArrays.py
   EnSightTensorsInversion.py
   EnSightTensorsInversionBin.py
+  EnSightTimeChange.py,NO_VALID,NO_RT
   nacaBinary.py
   )

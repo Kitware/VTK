@@ -21,22 +21,25 @@ Created on Aug 19, 2010 by David Gobbi
 """
 
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkObject,
+    vtkVariantArray,
+)
+from vtkmodules.test import Testing
 
-class vtkCustomObject(vtk.vtkObject):
+class vtkCustomObject(vtkObject):
     pass
 
 class TestGhost(Testing.vtkTest):
     def testGhostForDict(self):
         """Ghost an object to save the dict"""
-        o = vtk.vtkObject()
+        o = vtkObject()
         o.customattr = 'hello'
-        a = vtk.vtkVariantArray()
+        a = vtkVariantArray()
         a.InsertNextValue(o)
         i = id(o)
         del o
-        o = vtk.vtkObject()
+        o = vtkObject()
         o = a.GetValue(0).ToVTKObject()
         # make sure the id has changed, but dict the same
         self.assertEqual(o.customattr, 'hello')
@@ -45,11 +48,11 @@ class TestGhost(Testing.vtkTest):
     def testGhostForClass(self):
         """Ghost an object to save the class"""
         o = vtkCustomObject()
-        a = vtk.vtkVariantArray()
+        a = vtkVariantArray()
         a.InsertNextValue(o)
         i = id(o)
         del o
-        o = vtk.vtkObject()
+        o = vtkObject()
         o = a.GetValue(0).ToVTKObject()
         # make sure the id has changed, but class the same
         self.assertEqual(o.__class__, vtkCustomObject)

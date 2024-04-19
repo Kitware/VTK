@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWebApplication.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWebApplication
  * @brief   defines ParaViewWeb application interface.
@@ -19,15 +7,16 @@
  * vtkWebApplication defines the core interface for a ParaViewWeb application.
  * This exposes methods that make it easier to manage views and rendered images
  * from views.
-*/
+ */
 
 #ifndef vtkWebApplication_h
 #define vtkWebApplication_h
 
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports
-#include <string> // needed for std::string
+#include <string>             // needed for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectIdMap;
 class vtkRenderWindow;
 class vtkUnsignedCharArray;
@@ -40,43 +29,43 @@ public:
   vtkTypeMacro(vtkWebApplication, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the encoding to be used for rendered images.
    */
   enum
   {
-    ENCODING_NONE=0,
-    ENCODING_BASE64=1
+    ENCODING_NONE = 0,
+    ENCODING_BASE64 = 1
   };
   vtkSetClampMacro(ImageEncoding, int, ENCODING_NONE, ENCODING_BASE64);
   vtkGetMacro(ImageEncoding, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the compression to be used for rendered images.
    */
   enum
   {
-    COMPRESSION_NONE=0,
-    COMPRESSION_PNG=1,
-    COMPRESSION_JPEG=2
+    COMPRESSION_NONE = 0,
+    COMPRESSION_PNG = 1,
+    COMPRESSION_JPEG = 2
   };
   vtkSetClampMacro(ImageCompression, int, COMPRESSION_NONE, COMPRESSION_JPEG);
   vtkGetMacro(ImageCompression, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of worker threads to use for image encoding.  Calling this
    * method with a number greater than 32 or less than zero will have no effect.
    */
   void SetNumberOfEncoderThreads(vtkTypeUInt32);
   vtkTypeUInt32 GetNumberOfEncoderThreads();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Render a view and obtain the rendered image.
    */
@@ -85,7 +74,7 @@ public:
   const char* StillRenderToString(vtkRenderWindow* view, vtkMTimeType time = 0, int quality = 100);
   vtkUnsignedCharArray* StillRenderToBuffer(
     vtkRenderWindow* view, vtkMTimeType time = 0, int quality = 100);
-  //@}
+  ///@}
 
   /**
    * StillRenderToString() need not necessary returns the most recently rendered
@@ -98,20 +87,19 @@ public:
    * Communicate mouse interaction to a view.
    * Returns true if the interaction changed the view state, otherwise returns false.
    */
-  bool HandleInteractionEvent(
-    vtkRenderWindow* view, vtkWebInteractionEvent* event);
+  bool HandleInteractionEvent(vtkRenderWindow* view, vtkWebInteractionEvent* event);
 
   /**
    * Invalidate view cache
    */
   void InvalidateCache(vtkRenderWindow* view);
 
-  //@{
+  ///@{
   /**
    * Return the MTime of the last array exported by StillRenderToString.
    */
   vtkGetMacro(LastStillRenderToMTime, vtkMTimeType);
-  //@}
+  ///@}
 
   /**
    * Return the Meta data description of the input scene in JSON format.
@@ -124,7 +112,7 @@ public:
    * Return the binary data given the part index
    * and the webGL object piece id in the scene.
    */
-  const char* GetWebGLBinaryData(vtkRenderWindow *view, const char* id, int partIndex);
+  const char* GetWebGLBinaryData(vtkRenderWindow* view, const char* id, int partIndex);
 
   vtkObjectIdMap* GetObjectIdMap();
 
@@ -150,7 +138,7 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

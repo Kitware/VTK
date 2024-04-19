@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    VTXvtkVTU.h
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * VTXvtkVTU.h : class that supports UnstructuredMesh schema in VTK XML
@@ -37,11 +25,12 @@ namespace vtx
 {
 namespace schema
 {
+VTK_ABI_NAMESPACE_BEGIN
 class VTXvtkVTU : public VTXvtkBase
 {
 public:
   VTXvtkVTU(const std::string& schema, adios2::IO& io, adios2::Engine& engine);
-  ~VTXvtkVTU();
+  ~VTXvtkVTU() override;
 
 private:
   /** Could be extended in a container, this is a per-rank ImageData */
@@ -50,22 +39,21 @@ private:
   /** BlockIDs carried by current rank */
   std::vector<size_t> BlockIDs;
 
-  void DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step) final;
-  void ReadPiece(const size_t step, const size_t pieceID) final;
+  void DoFill(vtkMultiBlockDataSet* multiBlock, size_t step) final;
+  void ReadPiece(size_t step, size_t pieceID) final;
 
   void Init() final;
 
 #define declare_type(T)                                                                            \
-  void SetBlocks(adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)     \
-    final;
+  void SetBlocks(adios2::Variable<T> variable, types::DataArray& dataArray, size_t step) final;
   VTK_IO_ADIOS2_VTX_ARRAY_TYPE(declare_type)
 #undef declare_type
 
-  template<class T>
-  void SetBlocksCommon(
-    adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
+  template <class T>
+  void SetBlocksCommon(adios2::Variable<T> variable, types::DataArray& dataArray, size_t step);
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace schema
 } // end namespace vtx
 

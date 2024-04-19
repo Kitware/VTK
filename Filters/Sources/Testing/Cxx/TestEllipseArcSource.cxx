@@ -1,27 +1,15 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestEllipseArcSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-#include <vtkEllipseArcSource.h>
-#include <vtkPolyData.h>
-#include <vtkNew.h>
-#include <vtkPolyDataMapper.h>
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include <vtkActor.h>
+#include <vtkEllipseArcSource.h>
+#include <vtkNew.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
-int TestEllipseArcSource(int vtkNotUsed(argc), char * vtkNotUsed(argv)[])
+int TestEllipseArcSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkEllipseArcSource> source;
   source->SetCenter(0.0, 0.0, 0.0);

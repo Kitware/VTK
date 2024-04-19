@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDelaunay3D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDelaunay3D
  * @brief   create 3D Delaunay triangulation of input points
@@ -89,7 +77,7 @@
  *
  * @sa
  * vtkDelaunay2D vtkGaussianSplatter vtkUnstructuredGrid
-*/
+ */
 
 #ifndef vtkDelaunay3D_h
 #define vtkDelaunay3D_h
@@ -97,6 +85,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkPointLocator;
 class vtkPointSet;
@@ -107,16 +96,16 @@ class vtkIncrementalPointLocator;
 class VTKFILTERSCORE_EXPORT vtkDelaunay3D : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDelaunay3D,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkDelaunay3D, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 2.5;
    * BoundingTriangulation turned off.
    */
-  static vtkDelaunay3D *New();
+  static vtkDelaunay3D* New();
 
-  //@{
+  ///@{
   /**
    * Specify alpha (or distance) value to control output of this filter.  For
    * a non-zero alpha value, only verts, edges, faces, or tetra contained
@@ -126,85 +115,85 @@ public:
    * when Alpha is non-zero. (By default all tets, triangles, lines and verts
    * satisfying the alpha shape criterion are output.)
    */
-  vtkSetClampMacro(Alpha,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Alpha,double);
-  //@}
+  vtkSetClampMacro(Alpha, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Alpha, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether tetrahedra are output for non-zero alpha values.
    */
-  vtkSetMacro(AlphaTets,vtkTypeBool);
-  vtkGetMacro(AlphaTets,vtkTypeBool);
-  vtkBooleanMacro(AlphaTets,vtkTypeBool);
-  //@}
+  vtkSetMacro(AlphaTets, vtkTypeBool);
+  vtkGetMacro(AlphaTets, vtkTypeBool);
+  vtkBooleanMacro(AlphaTets, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether triangles are output for non-zero alpha values.
    */
-  vtkSetMacro(AlphaTris,vtkTypeBool);
-  vtkGetMacro(AlphaTris,vtkTypeBool);
-  vtkBooleanMacro(AlphaTris,vtkTypeBool);
-  //@}
+  vtkSetMacro(AlphaTris, vtkTypeBool);
+  vtkGetMacro(AlphaTris, vtkTypeBool);
+  vtkBooleanMacro(AlphaTris, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether lines are output for non-zero alpha values.
    */
-  vtkSetMacro(AlphaLines,vtkTypeBool);
-  vtkGetMacro(AlphaLines,vtkTypeBool);
-  vtkBooleanMacro(AlphaLines,vtkTypeBool);
-  //@}
+  vtkSetMacro(AlphaLines, vtkTypeBool);
+  vtkGetMacro(AlphaLines, vtkTypeBool);
+  vtkBooleanMacro(AlphaLines, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether vertices are output for non-zero alpha values.
    */
-  vtkSetMacro(AlphaVerts,vtkTypeBool);
-  vtkGetMacro(AlphaVerts,vtkTypeBool);
-  vtkBooleanMacro(AlphaVerts,vtkTypeBool);
-  //@}
+  vtkSetMacro(AlphaVerts, vtkTypeBool);
+  vtkGetMacro(AlphaVerts, vtkTypeBool);
+  vtkBooleanMacro(AlphaVerts, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a tolerance to control discarding of closely spaced points.
    * This tolerance is specified as a fraction of the diagonal length of
    * the bounding box of the points.
    */
-  vtkSetClampMacro(Tolerance,double,0.0,1.0);
-  vtkGetMacro(Tolerance,double);
-  //@}
+  vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
+  vtkGetMacro(Tolerance, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a multiplier to control the size of the initial, bounding
    * Delaunay triangulation.
    */
-  vtkSetClampMacro(Offset,double,2.5,VTK_DOUBLE_MAX);
-  vtkGetMacro(Offset,double);
-  //@}
+  vtkSetClampMacro(Offset, double, 2.5, VTK_DOUBLE_MAX);
+  vtkGetMacro(Offset, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether bounding triangulation points (and associated
    * triangles) are included in the output. (These are introduced as an
    * initial triangulation to begin the triangulation process. This feature
    * is nice for debugging output.)
    */
-  vtkSetMacro(BoundingTriangulation,vtkTypeBool);
-  vtkGetMacro(BoundingTriangulation,vtkTypeBool);
-  vtkBooleanMacro(BoundingTriangulation,vtkTypeBool);
-  //@}
+  vtkSetMacro(BoundingTriangulation, vtkTypeBool);
+  vtkGetMacro(BoundingTriangulation, vtkTypeBool);
+  vtkBooleanMacro(BoundingTriangulation, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get a spatial locator for merging points. By default,
    * an instance of vtkPointLocator is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
-  //@}
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The
@@ -224,8 +213,8 @@ public:
    * at the end of the Mesh's point list. That is, InsertPoint() assumes that
    * you will be inserting points between (0,numPtsToInsert-1).
    */
-  vtkUnstructuredGrid *InitPointInsertion(double center[3], double length,
-                                          vtkIdType numPts, vtkPoints* &pts);
+  vtkUnstructuredGrid* InitPointInsertion(
+    double center[3], double length, vtkIdType numPts, vtkPoints*& points);
 
   /**
    * This is a helper method used with InitPointInsertion() to create
@@ -237,8 +226,8 @@ public:
    * tetrahedra (or tetra faces and edges).The holeTetras id list lists all the
    * tetrahedra that are deleted (invalid) in the mesh structure.
    */
-  void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
-                   vtkIdType id, double x[3], vtkIdList *holeTetras);
+  void InsertPoint(
+    vtkUnstructuredGrid* Mesh, vtkPoints* points, vtkIdType id, double x[3], vtkIdList* holeTetras);
 
   /**
    * Invoke this method after all points have been inserted. The purpose of
@@ -253,21 +242,21 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
-  //@}
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
 
 protected:
   vtkDelaunay3D();
   ~vtkDelaunay3D() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double Alpha;
   vtkTypeBool AlphaTets;
@@ -279,34 +268,32 @@ protected:
   double Offset;
   int OutputPointsPrecision;
 
-  vtkIncrementalPointLocator *Locator;  //help locate points faster
+  vtkIncrementalPointLocator* Locator; // help locate points faster
 
-  vtkTetraArray *TetraArray; //used to keep track of circumspheres/neighbors
-  int FindTetra(vtkUnstructuredGrid *Mesh, double x[3], vtkIdType tetId,
-                int depth);
+  vtkTetraArray* TetraArray; // used to keep track of circumspheres/neighbors
+  int FindTetra(vtkUnstructuredGrid* Mesh, double x[3], vtkIdType tetraId, int depth);
   int InSphere(double x[3], vtkIdType tetraId);
-  void InsertTetra(vtkUnstructuredGrid *Mesh, vtkPoints *pts,
-                   vtkIdType tetraId);
+  void InsertTetra(vtkUnstructuredGrid* Mesh, vtkPoints* points, vtkIdType tetraId);
 
-  int NumberOfDuplicatePoints; //keep track of bad data
+  int NumberOfDuplicatePoints; // keep track of bad data
   int NumberOfDegeneracies;
 
   // Keep track of number of references to points to avoid new/delete calls
-  int *References;
+  int* References;
 
-  vtkIdType FindEnclosingFaces(double x[3], vtkUnstructuredGrid *Mesh,
-                               vtkIdList *tetras, vtkIdList *faces,
-                               vtkIncrementalPointLocator *Locator);
+  vtkIdType FindEnclosingFaces(double x[3], vtkUnstructuredGrid* Mesh, vtkIdList* tetras,
+    vtkIdList* faces, vtkIncrementalPointLocator* Locator);
 
   int FillInputPortInformation(int, vtkInformation*) override;
-private: //members added for performance
-  vtkIdList *Tetras; //used in InsertPoint
-  vtkIdList *Faces;  //used in InsertPoint
-  vtkIdList *CheckedTetras; //used by InsertPoint
 
-private:
+private:                    // members added for performance
+  vtkIdList* Tetras;        // used in InsertPoint
+  vtkIdList* Faces;         // used in InsertPoint
+  vtkIdList* CheckedTetras; // used by InsertPoint
+
   vtkDelaunay3D(const vtkDelaunay3D&) = delete;
   void operator=(const vtkDelaunay3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

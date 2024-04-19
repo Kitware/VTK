@@ -1,23 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMarchingContourFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkMarchingContourFilter.h"
 
 #include "vtkCell.h"
 #include "vtkContourFilter.h"
 #include "vtkContourValues.h"
 #include "vtkImageMarchingCubes.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMarchingCubes.h"
@@ -29,10 +18,11 @@
 #include "vtkScalarTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
-#include "vtkIncrementalPointLocator.h"
+#include "vtkTrivialProducer.h"
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMarchingContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -54,12 +44,12 @@ vtkMarchingContourFilter::vtkMarchingContourFilter()
 vtkMarchingContourFilter::~vtkMarchingContourFilter()
 {
   this->ContourValues->Delete();
-  if ( this->Locator )
+  if (this->Locator)
   {
     this->Locator->UnRegister(this);
     this->Locator = nullptr;
   }
-  if ( this->ScalarTree )
+  if (this->ScalarTree)
   {
     this->ScalarTree->Delete();
   }
@@ -69,18 +59,18 @@ vtkMarchingContourFilter::~vtkMarchingContourFilter()
 // then this object is modified as well.
 vtkMTimeType vtkMarchingContourFilter::GetMTime()
 {
-  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
   if (this->ContourValues)
   {
     time = this->ContourValues->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
   if (this->Locator)
   {
     time = this->Locator->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
   return mTime;
@@ -89,42 +79,38 @@ vtkMTimeType vtkMarchingContourFilter::GetMTime()
 //
 // General contouring filter.  Handles arbitrary input.
 //
-int vtkMarchingContourFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkMarchingContourFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataArray *inScalars;
+  vtkDataArray* inScalars;
   vtkIdType numCells;
 
   vtkDebugMacro(<< "Executing marching contour filter");
 
   numCells = input->GetNumberOfCells();
   inScalars = input->GetPointData()->GetScalars();
-  if ( ! inScalars || numCells < 1 )
+  if (!inScalars || numCells < 1)
   {
-    vtkErrorMacro(<<"No data to contour");
+    vtkErrorMacro(<< "No data to contour");
     return 1;
   }
 
   // If structured points, use more efficient algorithms
-  if ( (input->GetDataObjectType() == VTK_STRUCTURED_POINTS))
+  if ((input->GetDataObjectType() == VTK_STRUCTURED_POINTS))
   {
     if (inScalars->GetDataType() != VTK_BIT)
     {
       int dim = input->GetCell(0)->GetCellDimension();
 
-      if ( input->GetCell(0)->GetCellDimension() >= 2 )
+      if (input->GetCell(0)->GetCellDimension() >= 2)
       {
         vtkDebugMacro(<< "Structured Points");
         this->StructuredPointsContour(dim, input, output);
@@ -133,13 +119,13 @@ int vtkMarchingContourFilter::RequestData(
     }
   }
 
-  if ( (input->GetDataObjectType() == VTK_IMAGE_DATA))
+  if ((input->GetDataObjectType() == VTK_IMAGE_DATA))
   {
     if (inScalars->GetDataType() != VTK_BIT)
     {
       int dim = input->GetCell(0)->GetCellDimension();
 
-      if ( input->GetCell(0)->GetCellDimension() >= 2 )
+      if (input->GetCell(0)->GetCellDimension() >= 2)
       {
         vtkDebugMacro(<< "Image");
         this->ImageContour(dim, input, output);
@@ -154,51 +140,52 @@ int vtkMarchingContourFilter::RequestData(
   return 1;
 }
 
-void vtkMarchingContourFilter::StructuredPointsContour(int dim,
-                                                       vtkDataSet *input,
-                                                       vtkPolyData *thisOutput)
+void vtkMarchingContourFilter::StructuredPointsContour(
+  int dim, vtkDataSet* input, vtkPolyData* thisOutput)
 {
-  vtkPolyData *output;
-  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
-  double *values=this->ContourValues->GetValues();
+  vtkPolyData* output;
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
+  double* values = this->ContourValues->GetValues();
 
-  if ( dim == 2 ) //marching squares
+  if (dim == 2) // marching squares
   {
-    vtkMarchingSquares *msquares;
+    vtkMarchingSquares* msquares;
     int i;
 
     msquares = vtkMarchingSquares::New();
-    msquares->SetInputData((vtkImageData *)input);
+    msquares->SetInputData((vtkImageData*)input);
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
-    for (i=0; i < numContours; i++)
+    for (i = 0; i < numContours; i++)
     {
-      msquares->SetValue(i,values[i]);
+      msquares->SetValue(i, values[i]);
     }
 
+    msquares->SetContainerAlgorithm(this);
     msquares->Update();
     output = msquares->GetOutput();
     output->Register(this);
     msquares->Delete();
   }
 
-  else //marching cubes
+  else // marching cubes
   {
-    vtkMarchingCubes *mcubes;
+    vtkMarchingCubes* mcubes;
     int i;
 
     mcubes = vtkMarchingCubes::New();
-    mcubes->SetInputData((vtkImageData *)input);
-    mcubes->SetComputeNormals (this->ComputeNormals);
-    mcubes->SetComputeGradients (this->ComputeGradients);
-    mcubes->SetComputeScalars (this->ComputeScalars);
+    mcubes->SetInputData((vtkImageData*)input);
+    mcubes->SetComputeNormals(this->ComputeNormals);
+    mcubes->SetComputeGradients(this->ComputeGradients);
+    mcubes->SetComputeScalars(this->ComputeScalars);
     mcubes->SetDebug(this->Debug);
     mcubes->SetNumberOfContours(numContours);
-    for (i=0; i < numContours; i++)
+    for (i = 0; i < numContours; i++)
     {
-      mcubes->SetValue(i,values[i]);
+      mcubes->SetValue(i, values[i]);
     }
 
+    mcubes->SetContainerAlgorithm(this);
     mcubes->Update();
     output = mcubes->GetOutput();
     output->Register(this);
@@ -210,75 +197,84 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim,
   output->UnRegister(this);
 }
 
-void vtkMarchingContourFilter::DataSetContour(vtkDataSet *input,
-                                              vtkPolyData *output)
+void vtkMarchingContourFilter::DataSetContour(vtkDataSet* input, vtkPolyData* output)
 {
-  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
-  double *values=this->ContourValues->GetValues();
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
+  double* values = this->ContourValues->GetValues();
 
-  vtkContourFilter *contour = vtkContourFilter::New();
-  contour->SetInputData((vtkImageData *)input);
-  contour->SetComputeNormals (this->ComputeNormals);
-  contour->SetComputeGradients (this->ComputeGradients);
-  contour->SetComputeScalars (this->ComputeScalars);
+  vtkContourFilter* contour = vtkContourFilter::New();
+  contour->SetInputData((vtkImageData*)input);
+  contour->SetComputeNormals(this->ComputeNormals);
+  contour->SetComputeGradients(this->ComputeGradients);
+  contour->SetComputeScalars(this->ComputeScalars);
   contour->SetDebug(this->Debug);
   contour->SetNumberOfContours(numContours);
-  for (int i=0; i < numContours; i++)
+  for (int i = 0; i < numContours; i++)
   {
-    contour->SetValue(i,values[i]);
+    contour->SetValue(i, values[i]);
   }
 
+  contour->SetContainerAlgorithm(this);
   contour->Update();
   output->ShallowCopy(contour->GetOutput());
   this->SetOutput(output);
   contour->Delete();
 }
 
-void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
-                                            vtkPolyData *output)
+void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet* input, vtkPolyData* output)
 {
-  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
-  double *values=this->ContourValues->GetValues();
-  vtkPolyData *contourOutput;
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
+  double* values = this->ContourValues->GetValues();
+  vtkPolyData* contourOutput;
 
-  if ( dim == 2 ) //marching squares
+  vtkNew<vtkTrivialProducer> producer;
+  producer->SetOutput(input);
+  producer->SetContainerAlgorithm(this);
+  // Explicitly update the update extent in the trivial producer to prevent
+  // an error when downstream algorithms request a different extent.
+  producer->UpdateWholeExtent();
+
+  if (dim == 2) // marching squares
   {
-    vtkMarchingSquares *msquares;
+    vtkMarchingSquares* msquares;
     int i;
 
     msquares = vtkMarchingSquares::New();
-    msquares->SetInputData((vtkImageData *)input);
+    msquares->SetInputConnection(producer->GetOutputPort());
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
-    for (i=0; i < numContours; i++)
+    for (i = 0; i < numContours; i++)
     {
-      msquares->SetValue(i,values[i]);
+      msquares->SetValue(i, values[i]);
     }
 
     contourOutput = msquares->GetOutput();
+    msquares->SetContainerAlgorithm(this);
     msquares->Update();
     output->ShallowCopy(contourOutput);
     msquares->Delete();
   }
 
-  else //image marching cubes
+  else // image marching cubes
   {
-    vtkImageMarchingCubes *mcubes;
+    vtkImageMarchingCubes* mcubes;
     int i;
 
     mcubes = vtkImageMarchingCubes::New();
-    mcubes->SetInputData((vtkImageData *)input);
-    mcubes->SetComputeNormals (this->ComputeNormals);
-    mcubes->SetComputeGradients (this->ComputeGradients);
-    mcubes->SetComputeScalars (this->ComputeScalars);
+
+    mcubes->SetInputConnection(producer->GetOutputPort());
+    mcubes->SetComputeNormals(this->ComputeNormals);
+    mcubes->SetComputeGradients(this->ComputeGradients);
+    mcubes->SetComputeScalars(this->ComputeScalars);
     mcubes->SetDebug(this->Debug);
     mcubes->SetNumberOfContours(numContours);
-    for (i=0; i < numContours; i++)
+    for (i = 0; i < numContours; i++)
     {
-      mcubes->SetValue(i,values[i]);
+      mcubes->SetValue(i, values[i]);
     }
 
     contourOutput = mcubes->GetOutput();
+    mcubes->SetContainerAlgorithm(this);
     mcubes->Update();
     output->ShallowCopy(contourOutput);
     mcubes->Delete();
@@ -287,18 +283,18 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
 
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
-void vtkMarchingContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
+void vtkMarchingContourFilter::SetLocator(vtkIncrementalPointLocator* locator)
 {
-  if ( this->Locator == locator )
+  if (this->Locator == locator)
   {
     return;
   }
-  if ( this->Locator )
+  if (this->Locator)
   {
     this->Locator->UnRegister(this);
     this->Locator = nullptr;
   }
-  if ( locator )
+  if (locator)
   {
     locator->Register(this);
   }
@@ -308,13 +304,13 @@ void vtkMarchingContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
 
 void vtkMarchingContourFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == nullptr )
+  if (this->Locator == nullptr)
   {
     this->Locator = vtkMergePoints::New();
   }
 }
 
-int vtkMarchingContourFilter::FillInputPortInformation(int, vtkInformation *info)
+int vtkMarchingContourFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
@@ -322,16 +318,16 @@ int vtkMarchingContourFilter::FillInputPortInformation(int, vtkInformation *info
 
 void vtkMarchingContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
   os << indent << "Use Scalar Tree: " << (this->UseScalarTree ? "On\n" : "Off\n");
 
-  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
+  this->ContourValues->PrintSelf(os, indent.GetNextIndent());
 
-  if ( this->Locator )
+  if (this->Locator)
   {
     os << indent << "Locator: " << this->Locator << "\n";
   }
@@ -340,3 +336,4 @@ void vtkMarchingContourFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

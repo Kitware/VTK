@@ -1,29 +1,18 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageEuclideanToPolar.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageEuclideanToPolar.h"
 
-#include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
 {
   this->SetNumberOfInputPorts(1);
@@ -31,13 +20,11 @@ vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
   this->ThetaMaximum = 255.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
-                                     vtkImageData *inData,
-                                     vtkImageData *outData,
-                                     int outExt[6], int id, T *)
+void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar* self, vtkImageData* inData,
+  vtkImageData* outData, int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -71,7 +58,7 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
         {
           Theta += thetaMax;
         }
-        R = sqrt(X*X + Y*Y);
+        R = sqrt(X * X + Y * Y);
       }
 
       *outSI = static_cast<T>(Theta);
@@ -84,21 +71,17 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkImageEuclideanToPolar::ThreadedExecute (vtkImageData *inData,
-                                       vtkImageData *outData,
-                                       int outExt[6], int id)
+//------------------------------------------------------------------------------
+void vtkImageEuclideanToPolar::ThreadedExecute(
+  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData
-                << ", outData = " << outData);
+  vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
 
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
   {
-    vtkErrorMacro(<< "Execute: input ScalarType, "
-                  << inData->GetScalarType()
-                  << ", must match out ScalarType "
-                  << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
   }
 
@@ -111,10 +94,8 @@ void vtkImageEuclideanToPolar::ThreadedExecute (vtkImageData *inData,
 
   switch (inData->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageEuclideanToPolarExecute( this,
-                                       inData, outData, outExt, id,
-                                       static_cast<VTK_TT *>(nullptr)));
+    vtkTemplateMacro(vtkImageEuclideanToPolarExecute(
+      this, inData, outData, outExt, id, static_cast<VTK_TT*>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -123,7 +104,8 @@ void vtkImageEuclideanToPolar::ThreadedExecute (vtkImageData *inData,
 
 void vtkImageEuclideanToPolar::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Maximum Angle: " << this->ThetaMaximum << "\n";
 }
+VTK_ABI_NAMESPACE_END

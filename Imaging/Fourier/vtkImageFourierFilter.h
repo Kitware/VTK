@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageFourierFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageFourierFilter
  * @brief   Superclass that implements complex numbers.
@@ -20,76 +8,97 @@
  * this superclass is a container for methods that manipulate these structure
  * including fast Fourier transforms.  Complex numbers may become a class.
  * This should really be a helper class.
-*/
+ */
 
 #ifndef vtkImageFourierFilter_h
 #define vtkImageFourierFilter_h
 
-
-#include "vtkImagingFourierModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
+#include "vtkImagingFourierModule.h" // For export macro
 
 /*******************************************************************
                         COMPLEX number stuff
 *******************************************************************/
 
+VTK_ABI_NAMESPACE_BEGIN
+struct vtkImageComplex_t
+{
+  double Real;
+  double Imag;
+};
+using vtkImageComplex = struct vtkImageComplex_t;
 
-typedef struct{
-    double Real;
-    double Imag;
-} vtkImageComplex;
+#define vtkImageComplexEuclidSet(C, R, I)                                                          \
+  do                                                                                               \
+  {                                                                                                \
+    (C).Real = (R);                                                                                \
+    (C).Imag = (I);                                                                                \
+  } while (false)
 
+#define vtkImageComplexPolarSet(C, M, P)                                                           \
+  do                                                                                               \
+  {                                                                                                \
+    (C).Real = (M)*cos(P);                                                                         \
+    (C).Imag = (M)*sin(P);                                                                         \
+  } while (false)
 
-#define vtkImageComplexEuclidSet(C, R, I) \
-  (C).Real = (R); \
-  (C).Imag = (I)
+#define vtkImageComplexPrint(C)                                                                    \
+  do                                                                                               \
+  {                                                                                                \
+    printf("(%.3f, %.3f)", (C).Real, (C).Imag);                                                    \
+  } while (false)
 
-#define vtkImageComplexPolarSet(C, M, P) \
-  (C).Real = (M)*cos(P); \
-  (C).Imag = (M)*sin(P)
+#define vtkImageComplexScale(cOut, S, cIn)                                                         \
+  do                                                                                               \
+  {                                                                                                \
+    (cOut).Real = (cIn).Real * (S);                                                                \
+    (cOut).Imag = (cIn).Imag * (S);                                                                \
+  } while (false)
 
-#define vtkImageComplexPrint(C) \
-  printf("(%.3f, %.3f)", (C).Real, (C).Imag)
+#define vtkImageComplexConjugate(cIn, cOut)                                                        \
+  do                                                                                               \
+  {                                                                                                \
+    (cOut).Imag = (cIn).Imag * -1.0;                                                               \
+    (cOut).Real = (cIn).Real;                                                                      \
+  } while (false)
 
-#define vtkImageComplexScale(cOut, S, cIn) \
-  (cOut).Real = (cIn).Real * (S); \
-  (cOut).Imag = (cIn).Imag * (S)
+#define vtkImageComplexAdd(C1, C2, cOut)                                                           \
+  do                                                                                               \
+  {                                                                                                \
+    (cOut).Real = (C1).Real + (C2).Real;                                                           \
+    (cOut).Imag = (C1).Imag + (C2).Imag;                                                           \
+  } while (false)
 
-#define vtkImageComplexConjugate(cIn, cOut) \
-  (cOut).Imag = (cIn).Imag * -1.0;    \
-  (cOut).Real = (cIn).Real
+#define vtkImageComplexSubtract(C1, C2, cOut)                                                      \
+  do                                                                                               \
+  {                                                                                                \
+    (cOut).Real = (C1).Real - (C2).Real;                                                           \
+    (cOut).Imag = (C1).Imag - (C2).Imag;                                                           \
+  } while (false)
 
-#define vtkImageComplexAdd(C1, C2, cOut) \
-  (cOut).Real = (C1).Real + (C2).Real; \
-  (cOut).Imag = (C1).Imag + (C2).Imag
-
-#define vtkImageComplexSubtract(C1, C2, cOut) \
-  (cOut).Real = (C1).Real - (C2).Real; \
-  (cOut).Imag = (C1).Imag - (C2).Imag
-
-#define vtkImageComplexMultiply(C1, C2, cOut) \
-{ \
-  vtkImageComplex _vtkImageComplexMultiplyTemp; \
-  _vtkImageComplexMultiplyTemp.Real = (C1).Real*(C2).Real-(C1).Imag*(C2).Imag;\
-  _vtkImageComplexMultiplyTemp.Imag = (C1).Real*(C2).Imag+(C1).Imag*(C2).Real;\
-  cOut = _vtkImageComplexMultiplyTemp; \
-}
+#define vtkImageComplexMultiply(C1, C2, cOut)                                                      \
+  {                                                                                                \
+    vtkImageComplex vtkImageComplex_tMultiplyTemp;                                                 \
+    vtkImageComplex_tMultiplyTemp.Real = (C1).Real * (C2).Real - (C1).Imag * (C2).Imag;            \
+    vtkImageComplex_tMultiplyTemp.Imag = (C1).Real * (C2).Imag + (C1).Imag * (C2).Real;            \
+    cOut = vtkImageComplex_tMultiplyTemp;                                                          \
+  }
 
 // This macro calculates exp(cIn) and puts the result in cOut
-#define vtkImageComplexExponential(cIn, cOut) \
-{ \
-  double tmp = exp(cIn.Real); \
-  cOut.Real = tmp * cos(cIn.Imag); \
-  cOut.Imag = tmp * sin(cIn.Imag); \
-}
+#define vtkImageComplexExponential(cIn, cOut)                                                      \
+  {                                                                                                \
+    double tmp = exp(cIn.Real);                                                                    \
+    cOut.Real = tmp * cos(cIn.Imag);                                                               \
+    cOut.Imag = tmp * sin(cIn.Imag);                                                               \
+  }
 
 /******************* End of COMPLEX number stuff ********************/
 
 class VTKIMAGINGFOURIER_EXPORT vtkImageFourierFilter : public vtkImageDecomposeFilter
 {
 public:
-  vtkTypeMacro(vtkImageFourierFilter,vtkImageDecomposeFilter);
-
+  vtkTypeMacro(vtkImageFourierFilter, vtkImageDecomposeFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // public for templated functions of this object
 
@@ -98,42 +107,34 @@ public:
    * The contents of the input array are changed.
    * (It is engineered for no decimation)
    */
-  void ExecuteFft(vtkImageComplex *in, vtkImageComplex *out, int N);
-
+  void ExecuteFft(vtkImageComplex* in, vtkImageComplex* out, int N);
 
   /**
    * This function calculates the whole fft of an array.
    * The contents of the input array are changed.
    * (It is engineered for no decimation)
    */
-  void ExecuteRfft(vtkImageComplex *in, vtkImageComplex *out, int N);
+  void ExecuteRfft(vtkImageComplex* in, vtkImageComplex* out, int N);
 
 protected:
-  vtkImageFourierFilter() {}
-  ~vtkImageFourierFilter() override {}
+  vtkImageFourierFilter() = default;
+  ~vtkImageFourierFilter() override = default;
 
-  void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out,
-                       int N, int bsize, int fb);
-  void ExecuteFftStepN(vtkImageComplex *p_in, vtkImageComplex *p_out,
-                       int N, int bsize, int n, int fb);
-  void ExecuteFftForwardBackward(vtkImageComplex *in, vtkImageComplex *out,
-                                 int N, int fb);
+  void ExecuteFftStep2(vtkImageComplex* p_in, vtkImageComplex* p_out, int N, int bsize, int fb);
+  void ExecuteFftStepN(
+    vtkImageComplex* p_in, vtkImageComplex* p_out, int N, int bsize, int n, int fb);
+  void ExecuteFftForwardBackward(vtkImageComplex* in, vtkImageComplex* out, int N, int fb);
 
   /**
    * Override to change extent splitting rules.
    */
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkImageFourierFilter(const vtkImageFourierFilter&) = delete;
   void operator=(const vtkImageFourierFilter&) = delete;
 };
 
-
-
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-// VTK-HeaderTest-Exclude: vtkImageFourierFilter.h

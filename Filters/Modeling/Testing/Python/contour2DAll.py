@@ -1,42 +1,43 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOImage import vtkSLCReader
+from vtkmodules.vtkImagingCore import (
+    vtkImageCast,
+    vtkImageClip,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class contour2DAll(vtk.test.Testing.vtkTest):
+class contour2DAll(vtkmodules.test.Testing.vtkTest):
 
     def testContour2DAll(self):
 
         # Create the RenderWindow, Renderer and both Actors
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.SetMultiSamples(0)
         renWin.AddRenderer(ren)
 
         # create pipeline
         #
-        slc = vtk.vtkSLCReader()
+        slc = vtkSLCReader()
         slc.SetFileName(VTK_DATA_ROOT + "/Data/nut.slc")
         slc.Update()
 
@@ -52,35 +53,35 @@ class contour2DAll(vtk.test.Testing.vtkTest):
 
         for idx, vtkType in enumerate(types):
 
-            clip.append(vtk.vtkImageClip())
+            clip.append(vtkImageClip())
             clip[idx].SetInputConnection(slc.GetOutputPort())
             clip[idx].SetOutputWholeExtent(-1000, 1000, -1000, 1000, i, i)
 
             i += 2
 
-            cast.append(vtk.vtkImageCast())
+            cast.append(vtkImageCast())
             eval("cast[idx].SetOutputScalarTypeTo" + vtkType)
             cast[idx].SetInputConnection(clip[idx].GetOutputPort())
             cast[idx].ClampOverflowOn()
 
-            iso.append(vtk.vtkContourFilter())
-            iso[idx] = vtk.vtkContourFilter()
+            iso.append(vtkContourFilter())
+            iso[idx] = vtkContourFilter()
             iso[idx].SetInputConnection(cast[idx].GetOutputPort())
             iso[idx].GenerateValues(1, 30, 30)
 
-            mapper.append(vtk.vtkPolyDataMapper())
+            mapper.append(vtkPolyDataMapper())
             mapper[idx].SetInputConnection(iso[idx].GetOutputPort())
             mapper[idx].SetColorModeToMapScalars()
 
-            actor.append(vtk.vtkActor())
+            actor.append(vtkActor())
             actor[idx].SetMapper(mapper[idx])
             ren.AddActor(actor[idx])
 
-        outline = vtk.vtkOutlineFilter()
+        outline = vtkOutlineFilter()
         outline.SetInputConnection(slc.GetOutputPort())
-        outlineMapper = vtk.vtkPolyDataMapper()
+        outlineMapper = vtkPolyDataMapper()
         outlineMapper.SetInputConnection(outline.GetOutputPort())
-        outlineActor = vtk.vtkActor()
+        outlineActor = vtkActor()
         outlineActor.SetMapper(outlineMapper)
         outlineActor.VisibilityOff()
         #
@@ -99,13 +100,13 @@ class contour2DAll(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "contour2DAll.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(contour2DAll, 'test')])
+     vtkmodules.test.Testing.main([(contour2DAll, 'test')])

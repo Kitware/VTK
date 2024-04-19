@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTree.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHyperTree
  * @brief   A data object structured as a tree.
@@ -53,7 +41,7 @@
  * Attributes are associated with (all) cells, not with points. The
  * attributes that are associated with coarses, it's used for LoD
  * (Level-of-Detail). The attributes on coarse cells can be given by the
- * code or/and computed by the use of a specifc filter exploiting the
+ * code or/and computed by the use of a specific filter exploiting the
  * values from its children (which can be leaves or not).
  *
  * The geometry is implicitly given by the size of the root node on each
@@ -130,7 +118,7 @@
  * completed for to improve IO XML by Jacques-Bernard Lekien 2018-19
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTree_h
 #define vtkHyperTree_h
@@ -139,14 +127,13 @@
 #include "vtkObject.h"
 
 #include <cassert> // Used internally
-#include <memory> // std::shared_ptr
+#include <memory>  // std::shared_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
-class vtkUnsignedLongArray;
-
 class vtkIdList;
-
 class vtkHyperTreeGridScales;
+class vtkTypeInt64Array;
 
 //=============================================================================
 struct vtkHyperTreeData
@@ -166,7 +153,7 @@ struct vtkHyperTreeData
   // Offset start for the implicit global index mapping fixed by
   // SetGlobalIndexStart after create a tree.
   // If you don't choose implicit global index mapping then this
-  // value is -1. Then, you must to describ explicit global index
+  // value is -1. Then, you must to descrieb explicit global index
   // mapping by using then SetGlobalIndexFromLocal for each cell
   // in tree.
   // The extra cost is equivalent to the cost of a field of values
@@ -179,8 +166,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTree : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperTree, vtkObject);
-
-  void PrintSelf( ostream&, vtkIndent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Restore the initial state: only one vertice is then a leaf:
@@ -189,7 +175,8 @@ public:
    * @param dimension
    * @param numberOfChildren
    */
-  void Initialize( unsigned char, unsigned char, unsigned char );
+  void Initialize(
+    unsigned char branchFactor, unsigned char dimension, unsigned char numberOfChildren);
 
   /**
    * Restore a state from read data, without using a cursor
@@ -203,52 +190,87 @@ public:
    * valid level.
    * @param isParent: a binary decomposition tree by level with
    * constraint all describe children. It is useless to declare
-   * all the lastest values to False, especially the last level
+   * all the latest values to False, especially the last level
    * may not be defined.
    * @param isMasked: a binary mask corresponding. It is useless
    * to declare all the latest values to False.
    * @param outIsMasked: the mask of hypertree grid including
    * this hypertree which is a vtkBitArray.
    */
-  virtual void InitializeForReader(
-    vtkIdType numberOfLevels,
-    vtkIdType nbVertices,
-    vtkIdType nbVerticesOfLastLevel,
-    vtkBitArray* isParent,
-    vtkBitArray* isMasked,
-    vtkBitArray* outIsMasked
-  ) = 0;
+  virtual void InitializeForReader(vtkIdType numberOfLevels, vtkIdType nbVertices,
+    vtkIdType nbVerticesOfLastLevel, vtkBitArray* isParent, vtkBitArray* isMasked,
+    vtkBitArray* outIsMasked) = 0;
 
   /**
-   * Initialize a state from write data.
-   * Call after create the hypertree grid.
+   * This method builds the indexing of this tree given a breadth first order
+   * descriptor. This descriptor is the same bit array that would be created by
+   * `ComputeBreadthFirstOrderDescriptor`. The current tree is ready to use
+   * after calling this method.
    *
-   * @param inIsMasked: the mask of hypertree grid including
-   * this hypertree which is a vtkBitArray.
-   * @param nbVerticesbyLevel: the number of vertices in tree
-   * (coarse and leaves) by each level.
-   * @param isParent: modify the vtkBitArray, a binary decomposition
-   * tree by level with constraint all describe children. It is
-   * useless to declare all the lastest values to False, especially
-   * the last level may not be defined.
-   * @param isMasked: modify the vtkBitArray, a binary mask
-   * corresponding. It is useless to declare all the latest values
-   * to False.
+   * @param descriptor is a binary descriptor, in breadth first order, that describes
+   * the tree topology. If vertex of index `id` in breadth first order has
+   * children, then the corresponding value in `descriptor` is one. Otherwise, it
+   * is set to zero. Remember that arrays are appended, meaning that the index
+   * in `descriptor` corresponding to `id` in the current tree
+   * would be the size of `descriptor`
+   * before calling this method, plus `id`.
+   *
+   * @param numberOfBits: Number of bits to be read in the descriptor to build
+   * the tree. Remember that the last depth of the tree is not encoded in the
+   * descriptor, as we know that they are full of zeros (because leaves have no children).
+   *
+   * @param startIndex: Input descriptor is being read starting at this index.
    */
-  virtual void GetByLevelForWriter(
-    vtkBitArray* inIsMasked,
-    vtkUnsignedLongArray* nbVerticesbyLevel,
-    vtkBitArray* isParent,
-    vtkBitArray* isMasked,
-    vtkIdList* ids
-  ) = 0;
+  virtual void BuildFromBreadthFirstOrderDescriptor(
+    vtkBitArray* descriptor, vtkIdType numberOfBits, vtkIdType startIndex = 0) = 0;
+
+  /**
+   * This method computes the breadth first order descriptor of the current
+   * tree. It takes as input the input mask `inputMask` which should be provided
+   * by the `vtkHyperTreeGrid` in which this `vtkHyperTree` lies. In addition to
+   * computing the descriptor, it computes the mapping between the current
+   * memory layout of this tree with the breadth first order version of it.
+   *
+   * Outputs are `numberOfVerticesPerDepth`, `descriptor` and
+   * `breadthFirstIdMap`. Each of those arrays are appended with new data, so
+   * one can create one unique big array for an entire `vtkHyperTreeGrid`
+   * concatenating breadth first order description and mapping of concatenated
+   * trees.
+   *
+   * @param inputMask the mask provided by `vtkHyperTreeGrid`.
+   *
+   * @param numberOfVerticesPerDepth is self explanatory: from depth 0 to the maximum
+   * depth of the tree, it stores the number of vertices at each depth. If the
+   * input tree has masked subtrees such that getting rid of those subtrees
+   * reduces the depth, then `numberOfVerticesPerDepth` will take this smaller
+   * depth into account rather than adding zeros. In other words,
+   * `numberOfVerticesPerDepth` cannot have zero values.
+   *
+   * @param descriptor is a binary descriptor, in breadth first order, that describes
+   * the tree topology. If vertex of index `id` in breadth first order has
+   * children, then the corresponding value in `descriptor` is one. Otherwise, it
+   * is set to zero. Remember that arrays are appended, meaning that the index
+   * in `descriptor` corresponding to `id` in the current tree
+   * would be the size of `descriptor`
+   * before calling this method, plus `id`.
+   *
+   * @param breadthFirstIdMap maps breadth first ordering to current indexing of the
+   * current tree. In other word, the value at appended position `id` in this
+   * array gives the corresponding index in the current tree.
+   *
+   * @warning Masked subtrees of the input are ignored, so the topology of the
+   * output tree can differ from the input depending on that.
+   */
+  virtual void ComputeBreadthFirstOrderDescriptor(vtkBitArray* inputMask,
+    vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
+    vtkIdList* breadthFirstIdMap) = 0;
 
   /**
    * Copy the structure by sharing the decomposition description
    * of the tree.
    * \pre ht_exist: ht!=nullptr
    */
-  void CopyStructure( vtkHyperTree* ht );
+  void CopyStructure(vtkHyperTree* ht);
 
   /**
    * Return a freeze instance (a priori compact but potentially
@@ -257,28 +279,32 @@ public:
    * The mode parameter will allow to propose different instances.
    * Today, there is none, the freeze call does not do anything.
    */
-  virtual vtkHyperTree* Freeze( const char* mode ) = 0;
+  virtual vtkHyperTree* Freeze(const char* mode) = 0;
 
-  //@{
+  ///@{
   /**
    * Set/Get tree index in hypertree grid.
    * Services for internal use between hypertree grid and hypertree.
    */
-  void SetTreeIndex( vtkIdType treeIndex ) {
+  void SetTreeIndex(vtkIdType treeIndex)
+  {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
     this->Datas->TreeIndex = treeIndex;
   }
-  vtkIdType GetTreeIndex() const {
+  vtkIdType GetTreeIndex() const
+  {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
     return this->Datas->TreeIndex;
   }
-  //@}
+  ///@}
 
   /**
    * Return the number of levels.
    */
   unsigned int GetNumberOfLevels() const
   {
-    assert( "post: result_greater_or_equal_to_one" &&
-            this->Datas->NumberOfLevels >= 1 );
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
+    assert("post: result_greater_or_equal_to_one" && this->Datas->NumberOfLevels >= 1);
     return this->Datas->NumberOfLevels;
   }
 
@@ -287,6 +313,7 @@ public:
    */
   vtkIdType GetNumberOfVertices() const
   {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
     return this->Datas->NumberOfVertices;
   }
 
@@ -295,6 +322,7 @@ public:
    */
   vtkIdType GetNumberOfNodes() const
   {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
     return this->Datas->NumberOfNodes;
   }
 
@@ -303,52 +331,43 @@ public:
    */
   vtkIdType GetNumberOfLeaves() const
   {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
     return this->Datas->NumberOfVertices - this->Datas->NumberOfNodes;
   }
 
   /**
    * Return the branch factor of the tree.
    */
-  int GetBranchFactor() const
-  {
-    return this->BranchFactor;
-  }
+  int GetBranchFactor() const { return this->BranchFactor; }
 
   /**
    * Return the spatial dimension of the tree.
    */
-  int GetDimension() const
-  {
-    return this->Dimension;
-  }
+  int GetDimension() const { return this->Dimension; }
 
   /**
    * Return the number of children per node of the tree.
-   * This value is branchfactoring scale spatial dimenion (f^d).
+   * This value is branchfactoring scale spatial dimension (f^d).
    */
-  vtkIdType GetNumberOfChildren() const
-  {
-    return this->NumberOfChildren;
-  }
+  vtkIdType GetNumberOfChildren() const { return this->NumberOfChildren; }
 
-  //@{
+  ///@{
   /**
    * Set/Get scale of the tree in each direction for the ground
    * level (0).
    */
-  void GetScale( double s[3] ) const;
+  void GetScale(double s[3]) const;
 
-  double GetScale( unsigned int d ) const;
-  //@}
+  double GetScale(unsigned int d) const;
+  ///@}
 
   /**
    * In an hypertree, all cells are the same size by level. This
-   * fonction initialize this cache system is particular used by
-   * the symetric filter.
+   * function initializes this cache system and is particularly
+   * used by the symmetric filter.
    */
   std::shared_ptr<vtkHyperTreeGridScales> InitializeScales(
-    const double *scales,
-    bool reinitialize = false ) const;
+    const double* scales, bool reinitialize = false) const;
 
   /**
    * Return an instance of an implementation of a hypertree for
@@ -360,9 +379,7 @@ public:
    * is returning).
    */
   VTK_NEWINSTANCE
-  static vtkHyperTree* CreateInstance(
-    unsigned char branchFactor,
-    unsigned char dimension );
+  static vtkHyperTree* CreateInstance(unsigned char branchFactor, unsigned char dimension);
   /**
    * Return memory used in bytes.
    * NB: Ignore the attribute array because its size is added by the data set.
@@ -376,16 +393,16 @@ public:
   unsigned int GetActualMemorySize()
   {
     // in kilibytes
-    return static_cast<unsigned int>( this->GetActualMemorySizeBytes() / 1024 );
+    return static_cast<unsigned int>(this->GetActualMemorySizeBytes() / 1024);
   }
 
   /**
-   * Return if implicit global index maping has been used.
+   * Return if implicit global index mapping has been used.
    * If true, the initialize has been done by SetGlobalIndexStart (one call
    * by hypertree).
    * If false, the initialize has been done by SetGlobalIndexFromLocal (one
    * call by cell of hypertree).
-   * GetGlobalIndexFromLocel get the good value of global index mapping for
+   * GetGlobalIndexFromLocal get the good value of global index mapping for
    * one cell what ever the initialize metho used.
    */
   virtual bool IsGlobalIndexImplicit() = 0;
@@ -409,14 +426,15 @@ public:
    * SetGlobalIndexFromLocal.
    * \pre not_global_index_start_if_use_global_index_from_local
    */
-  virtual void SetGlobalIndexStart( vtkIdType start ) = 0;
+  virtual void SetGlobalIndexStart(vtkIdType start) = 0;
 
   /**
    * Get the start global index for the current tree for implicit global
    * index mapping.
    */
-  vtkIdType GetGlobalIndexStart( ) const
+  vtkIdType GetGlobalIndexStart() const
   {
+    assert("pre: datas_non_nullptr" && this->Datas != nullptr);
     return this->Datas->GlobalIndexStart;
   }
 
@@ -429,7 +447,7 @@ public:
    * SetGlobalIndexStart.
    * \pre not_global_index_from_local_if_use_global_index_start
    */
-  virtual void SetGlobalIndexFromLocal( vtkIdType index, vtkIdType global ) = 0;
+  virtual void SetGlobalIndexFromLocal(vtkIdType index, vtkIdType global) = 0;
 
   /**
    * Get the global id of a local node identified by index.
@@ -439,7 +457,7 @@ public:
    * \pre not_positive_start_index (case implicit global index mapping)
    * \pre not_positive_global_index (case explicit global index mapping)
    */
-  virtual vtkIdType GetGlobalIndexFromLocal( vtkIdType index ) const = 0;
+  virtual vtkIdType GetGlobalIndexFromLocal(vtkIdType index) const = 0;
 
   /**
    * Return the maximum value reached by global index mapping
@@ -451,22 +469,22 @@ public:
    * Return if a vertice identified by index in tree as being leaf.
    * \pre not_valid_index
    */
-  virtual bool IsLeaf( vtkIdType index ) const = 0;
+  virtual bool IsLeaf(vtkIdType index) const = 0;
 
   /**
    * Subdivide a vertice, only if its a leaf.
    * \pre not_valide_index
    * \pre not_leaf
    */
-  virtual void SubdivideLeaf( vtkIdType index, unsigned int level ) = 0;
+  virtual void SubdivideLeaf(vtkIdType index, unsigned int level) = 0;
 
   /**
    * Return if a vertice identified by index in tree as a terminal node.
-   * For this, all childrens mus be all leaves.
+   * For this, all children must be all leaves.
    * \pre not_valid_index
    * \pre not_valid_child_index
    */
-  virtual bool IsTerminalNode( vtkIdType index ) const = 0;
+  virtual bool IsTerminalNode(vtkIdType index) const = 0;
 
   /**
    * Return the elder child index, local index node of first child, of
@@ -475,52 +493,50 @@ public:
    * Public only for entry: vtkHyperTreeGridEntry,
    * vtkHyperTreeGridGeometryEntry, vtkHyperTreeGridGeometryLevelEntry
    */
-  virtual vtkIdType GetElderChildIndex( unsigned int index_parent ) const = 0;
+  virtual vtkIdType GetElderChildIndex(unsigned int index_parent) const = 0;
 
-  //@{
+  /**
+   * Return the elder child index array, internals of the tree structure
+   * Should be used with great care, for consulting and not modifying.
+   */
+  virtual const unsigned int* GetElderChildIndexArray(size_t& nbElements) const = 0;
+
+  ///@{
   /**
    * In an hypertree, all cells are the same size by level. This
-   * fonction initializes this cache system is particulary used by
-   * the symetric filter.
-   * Here, you set a scales since extern description (sharing).
+   * function initializes this cache system and is particularly used
+   * by the symmetric filter.
+   * Here, you set 'scales' since extern description (sharing).
    */
-  void SetScales ( std::shared_ptr<vtkHyperTreeGridScales> scales ) const {
-    this->Scales = scales;
-  }
-  //@}
+  void SetScales(std::shared_ptr<vtkHyperTreeGridScales> scales) const { this->Scales = scales; }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the existence scales.
    */
-  bool HasScales ( ) const {
-    return ( this->Scales != nullptr );
-  }
-  //@}
+  bool HasScales() const { return (this->Scales != nullptr); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return all scales.
    */
-  std::shared_ptr<vtkHyperTreeGridScales> GetScales ( ) const {
-    assert( this->Scales != nullptr );
+  std::shared_ptr<vtkHyperTreeGridScales> GetScales() const
+  {
+    assert(this->Scales != nullptr);
     return this->Scales;
   }
-  //@}
+  ///@}
 
 protected:
-  vtkHyperTree()
-    : BranchFactor(2)
-    , Dimension(3)
-    , NumberOfChildren(8)
-  {
-  }
+  vtkHyperTree();
 
-  virtual ~vtkHyperTree() override {}
+  ~vtkHyperTree() override = default;
 
   virtual void InitializePrivate() = 0;
-  virtual void PrintSelfPrivate( ostream& os, vtkIndent indent ) = 0;
-  virtual void CopyStructurePrivate( vtkHyperTree* ht ) = 0;
+  virtual void PrintSelfPrivate(ostream& os, vtkIndent indent) = 0;
+  virtual void CopyStructurePrivate(vtkHyperTree* ht) = 0;
 
   //-- Global information
 
@@ -534,17 +550,20 @@ protected:
   unsigned char NumberOfChildren;
 
   //-- Local information
-  std::shared_ptr< vtkHyperTreeData > Datas;
+  std::shared_ptr<vtkHyperTreeData> Datas;
 
   // Storage of pre-computed per-level cell scales
   // In hypertree grid, one description by hypertree.
   // In Uniform hypertree grid, one description by hypertree grid
-  // (all cells, differents hypertree, are identicals by level).
-  mutable std::shared_ptr< vtkHyperTreeGridScales > Scales;
+  // (all cells, different hypertree, are identical by level).
+  mutable std::shared_ptr<vtkHyperTreeGridScales> Scales;
 
 private:
+  void InitializeBase(
+    unsigned char branchFactor, unsigned char dimension, unsigned char numberOfChildren);
   vtkHyperTree(const vtkHyperTree&) = delete;
   void operator=(const vtkHyperTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    Timingtests.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
 To add a test you must define a subclass of vtkRTTest and implement the
@@ -25,7 +13,7 @@ existing tests to get an idea of what to do.
 /*=========================================================================
 The main entry point
 =========================================================================*/
-int main( int argc, char *argv[] )
+int main(int argc, char* argv[])
 {
   // create the timing framework
   vtkRenderTimings a;
@@ -34,13 +22,12 @@ int main( int argc, char *argv[] )
   a.TestsToRun.push_back(new surfaceTest("Surface", false, false));
   a.TestsToRun.push_back(new surfaceTest("SurfaceColored", true, false));
   a.TestsToRun.push_back(new surfaceTest("SurfaceWithNormals", false, true));
-  a.TestsToRun.push_back(
-    new surfaceTest("SurfaceColoredWithNormals", true, true));
+  a.TestsToRun.push_back(new surfaceTest("SurfaceColoredWithNormals", true, true));
 
   a.TestsToRun.push_back(new glyphTest("Glyphing"));
 
   a.TestsToRun.push_back(new moleculeTest("Molecule"));
-  a.TestsToRun.push_back(new moleculeTest("MoleculeAtomsOnly",true));
+  a.TestsToRun.push_back(new moleculeTest("MoleculeAtomsOnly", true));
 
   a.TestsToRun.push_back(new volumeTest("Volume", false));
   a.TestsToRun.push_back(new volumeTest("VolumeWithShading", true));

@@ -1,29 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkQuadric
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkFiltersTexture import vtkImplicitTextureCoords
+from vtkmodules.vtkImagingHybrid import vtkBooleanTexture
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class quadricCut(vtk.test.Testing.vtkTest):
+class quadricCut(vtkmodules.test.Testing.vtkTest):
 
     def testQuadricCut(self):
 
@@ -33,7 +32,7 @@ class quadricCut(vtk.test.Testing.vtkTest):
 
         def makeBooleanTexture(caseNumber, resolution, thickness):
             #global solidTexture, clearTexture, edgeTexture
-            booleanTexturecaseNumber = vtk.vtkBooleanTexture()
+            booleanTexturecaseNumber = vtkBooleanTexture()
 
             booleanTexturecaseNumber.SetXSize(resolution)
             booleanTexturecaseNumber.SetYSize(resolution)
@@ -222,40 +221,40 @@ class quadricCut(vtk.test.Testing.vtkTest):
         positions.append((0, -2, 0))
         positions.append((2, -2, 0))
 
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
         # define two elliptical cylinders
-        quadric1 = vtk.vtkQuadric()
+        quadric1 = vtkQuadric()
         quadric1.SetCoefficients(1, 2, 0, 0, 0, 0, 0, 0, 0, -.07)
 
-        quadric2 = vtk.vtkQuadric()
+        quadric2 = vtkQuadric()
         quadric2.SetCoefficients(2, 1, 0, 0, 0, 0, 0, 0, 0, -.07)
 
         # create a sphere for all to use
-        aSphere = vtk.vtkSphereSource()
+        aSphere = vtkSphereSource()
         aSphere.SetPhiResolution(50)
         aSphere.SetThetaResolution(50)
 
         # create texture coordinates for all
-        tcoords = vtk.vtkImplicitTextureCoords()
+        tcoords = vtkImplicitTextureCoords()
         tcoords.SetInputConnection(aSphere.GetOutputPort())
         tcoords.SetRFunction(quadric1)
         tcoords.SetSFunction(quadric2)
 
-        aMapper = vtk.vtkDataSetMapper()
+        aMapper = vtkDataSetMapper()
         aMapper.SetInputConnection(tcoords.GetOutputPort())
 
         # create a mapper, sphere and texture map for each case
         aTexture = []
         anActor = []
         for i in range(0, 16):
-            aTexture.append(vtk.vtkTexture())
+            aTexture.append(vtkTexture())
             aTexture[i].SetInputData(makeBooleanTexture(i, 256, 1).GetOutput())
             aTexture[i].InterpolateOff()
             aTexture[i].RepeatOff()
-            anActor.append(vtk.vtkActor())
+            anActor.append(vtkActor())
             anActor[i].SetMapper(aMapper)
             anActor[i].SetTexture(aTexture[i])
             anActor[i].SetPosition(positions[i])
@@ -270,13 +269,13 @@ class quadricCut(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "quadricCut.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(quadricCut, 'test')])
+     vtkmodules.test.Testing.main([(quadricCut, 'test')])

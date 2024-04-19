@@ -1,9 +1,12 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright © Copyright © 2017 Kitware, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
+
 //
 //  VTKViewerTests.m
 //  VTKViewerTests
 //
 //  Created by Max Smolens on 6/19/17.
-//  Copyright © 2017 Kitware, Inc. All rights reserved.
 //
 
 #import <XCTest/XCTest.h>

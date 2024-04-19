@@ -1,25 +1,41 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkStripper,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersGeneral import vtkWarpLens
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOImage import vtkPNGReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # load in the texture map
 #
-pngReader = vtk.vtkPNGReader()
+pngReader = vtkPNGReader()
 pngReader.SetFileName(VTK_DATA_ROOT + "/Data/camscene.png")
 pngReader.Update()
 
 xWidth = pngReader.GetOutput().GetDimensions()[0]
 yHeight = pngReader.GetOutput().GetDimensions()[1]
 
-wl = vtk.vtkWarpLens()
+wl = vtkWarpLens()
 wl.SetInputConnection(pngReader.GetOutputPort())
 wl.SetPrincipalPoint(2.4507, 1.7733)
 wl.SetFormatWidth(4.792)
@@ -31,20 +47,20 @@ wl.SetK2(0.0003102)
 wl.SetP1(1.953e-005)
 wl.SetP2(-9.655e-005)
 
-gf = vtk.vtkGeometryFilter()
+gf = vtkGeometryFilter()
 gf.SetInputConnection(wl.GetOutputPort())
 
-tf = vtk.vtkTriangleFilter()
+tf = vtkTriangleFilter()
 tf.SetInputConnection(gf.GetOutputPort())
 
-strip = vtk.vtkStripper()
+strip = vtkStripper()
 strip.SetInputConnection(tf.GetOutputPort())
 strip.SetMaximumLength(250)
 
-dsm = vtk.vtkPolyDataMapper()
+dsm = vtkPolyDataMapper()
 dsm.SetInputConnection(strip.GetOutputPort())
 
-planeActor = vtk.vtkActor()
+planeActor = vtkActor()
 planeActor.SetMapper(dsm)
 
 # Add the actors to the renderer, set the background and size

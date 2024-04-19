@@ -1,30 +1,52 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkLookupTable,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkTriangleFilter
+from vtkmodules.vtkFiltersGeneral import vtkWarpScalar
+from vtkmodules.vtkFiltersGeometry import vtkImageDataGeometryFilter
+from vtkmodules.vtkFiltersModeling import vtkFitToHeightMapFilter
+from vtkmodules.vtkIOImage import vtkDEMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer
 #
-ren0 = vtk.vtkRenderer()
+ren0 = vtkRenderer()
 ren0.SetViewport(0,0,0.5,1)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0.5,0,1,1)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren0 )
 renWin.AddRenderer( ren1 )
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create pipeline. Load terrain data.
 #
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.6, 0)
 lut.SetSaturationRange(1.0, 0)
 lut.SetValueRange(0.5, 1.0)
 
 # Read the data: a height field results
-demReader = vtk.vtkDEMReader()
+demReader = vtkDEMReader()
 demReader.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
 demReader.Update()
 
@@ -33,31 +55,31 @@ hi = demReader.GetOutput().GetScalarRange()[1]
 bds = demReader.GetOutput().GetBounds()
 #print("Bounds: {0}".format(bds))
 
-surface = vtk.vtkImageDataGeometryFilter()
+surface = vtkImageDataGeometryFilter()
 surface.SetInputConnection(demReader.GetOutputPort())
 
-tris = vtk.vtkTriangleFilter()
+tris = vtkTriangleFilter()
 tris.SetInputConnection(surface.GetOutputPort())
 
-warp = vtk.vtkWarpScalar()
+warp = vtkWarpScalar()
 warp.SetInputConnection(tris.GetOutputPort())
 warp.SetScaleFactor(1)
 warp.UseNormalOn()
 warp.SetNormal(0, 0, 1)
 
 # Show the terrain
-demMapper = vtk.vtkPolyDataMapper()
+demMapper = vtkPolyDataMapper()
 demMapper.SetInputConnection(warp.GetOutputPort())
 demMapper.SetScalarRange(lo, hi)
 demMapper.SetLookupTable(lut)
 
-demActor = vtk.vtkActor()
+demActor = vtkActor()
 demActor.SetMapper(demMapper)
 
 # Create polygon(s) to fit. z-values are arbitrary.
-polygons = vtk.vtkPolyData()
+polygons = vtkPolyData()
 
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 pts.SetNumberOfPoints(14)
 pts.SetPoint(0, 560000, 5110000, 0)
 pts.SetPoint(1, 560250, 5110000, 0)
@@ -76,7 +98,7 @@ pts.SetPoint(11, 560150, 5110800, 0)
 pts.SetPoint(12, 560150, 5111100, 0)
 pts.SetPoint(13, 559800, 5111100, 0)
 
-polys = vtk.vtkCellArray()
+polys = vtkCellArray()
 polys.InsertNextCell(4)
 polys.InsertCellPoint(0)
 polys.InsertCellPoint(1)
@@ -99,34 +121,34 @@ polygons.SetPoints(pts)
 polygons.SetPolys(polys)
 
 # Fit polygons to surface
-fit = vtk.vtkFitToHeightMapFilter()
+fit = vtkFitToHeightMapFilter()
 fit.SetInputData(polygons)
 fit.SetHeightMapConnection(demReader.GetOutputPort())
 fit.SetFittingStrategyToPointProjection()
 fit.UseHeightMapOffsetOn()
 fit.Update()
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(fit.GetOutputPort())
 mapper.ScalarVisibilityOff()
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetColor(1,0,0)
 
 # Fit polygons to surface (cell strategy)
-fit2 = vtk.vtkFitToHeightMapFilter()
+fit2 = vtkFitToHeightMapFilter()
 fit2.SetInputData(polygons)
 fit2.SetHeightMapConnection(demReader.GetOutputPort())
 fit2.SetFittingStrategyToCellAverageHeight()
 fit2.UseHeightMapOffsetOn()
 fit2.Update()
 
-mapper2 = vtk.vtkPolyDataMapper()
+mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection(fit2.GetOutputPort())
 mapper2.ScalarVisibilityOff()
 
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
 actor2.GetProperty().SetColor(1,0,0)
 

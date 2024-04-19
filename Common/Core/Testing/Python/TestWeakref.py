@@ -10,28 +10,21 @@ Prabhu Ramachandran <prabhu_r at users dot sf dot net>
 
 """
 
-import sys
-import vtk
-from vtk.test import Testing
-try:
-    import weakref
-except ImportError:
-    print("No weakref in this version of Python.  Time to upgrade?")
-    print("Python version:", sys.version)
-    from vtk.test import Testing
-    Testing.skip()
+from vtkmodules.vtkCommonCore import vtkObject
+from vtkmodules.test import Testing
+import weakref
 
 
 class TestWeakref(Testing.vtkTest):
     def testWeakref(self):
-        o = vtk.vtkObject()
+        o = vtkObject()
         ref = weakref.ref(o)
         self.assertEqual(ref().GetClassName(), 'vtkObject')
         del o
         self.assertEqual(ref(), None)
 
     def testProxy(self):
-        o = vtk.vtkObject()
+        o = vtkObject()
         proxy = weakref.proxy(o)
         self.assertEqual(proxy.GetClassName(), 'vtkObject')
         del o

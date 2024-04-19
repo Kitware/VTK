@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBridgeCell.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBridgeCell
  * @brief   Implementation of vtkGenericAdaptorCell
@@ -20,7 +8,7 @@
  * used for testing and evaluating the Generic.
  * @sa
  * vtkGenericAdaptorCell, vtkBridgeDataSet
-*/
+ */
 
 #ifndef vtkBridgeCell_h
 #define vtkBridgeCell_h
@@ -28,6 +16,7 @@
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericAdaptorCell.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkBridgeDataSet;
 class vtkBridgeCellIterator;
@@ -35,8 +24,8 @@ class vtkBridgeCellIterator;
 class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeCell : public vtkGenericAdaptorCell
 {
 public:
-  static vtkBridgeCell *New();
-  vtkTypeMacro(vtkBridgeCell,vtkGenericAdaptorCell);
+  static vtkBridgeCell* New();
+  vtkTypeMacro(vtkBridgeCell, vtkGenericAdaptorCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -81,14 +70,14 @@ public:
    * \pre a_exists: a!=0
    * \post positive_result: result>=0
    */
-  int GetAttributeOrder(vtkGenericAttribute *a) override;
+  int GetAttributeOrder(vtkGenericAttribute* a) override;
 
   /**
    * Does the attribute `a' have no higher-order interpolation for the cell?
    * \pre a_exists: a!=0
    * \post definition: result==(GetAttributeOrder()==1)
    */
-  vtkTypeBool IsAttributeLinear(vtkGenericAttribute *a);
+  vtkTypeBool IsAttributeLinear(vtkGenericAttribute* a);
 
   /**
    * Is the cell primary (i.e. not composite) ?
@@ -111,7 +100,7 @@ public:
    * \pre valid_dim_range: (dim==-1) || ((dim>=0)&&(dim<GetDimension()))
    * \post positive_result: result>=0
    */
-  int GetNumberOfBoundaries(int dim=-1) override;
+  int GetNumberOfBoundaries(int dim = -1) override;
 
   /**
    * Accumulated number of DOF nodes of the current cell. A DOF node is
@@ -131,13 +120,13 @@ public:
    * Return the points of cell into `it'.
    * \pre it_exists: it!=0
    */
-  void GetPointIterator(vtkGenericPointIterator *it) override;
+  void GetPointIterator(vtkGenericPointIterator* it) override;
 
   /**
    * Create an empty cell iterator.
    * \post result_exists: result!=0
    */
-  vtkGenericCellIterator *NewCellIterator() override;
+  vtkGenericCellIterator* NewCellIterator() override;
 
   /**
    * Return in `boundaries' the cells of dimension `dim' (or all dimensions
@@ -145,10 +134,9 @@ public:
    * \pre valid_dim_range: (dim==-1) || ((dim>=0)&&(dim<GetDimension()))
    * \pre boundaries_exist: boundaries!=0
    */
-  void GetBoundaryIterator(vtkGenericCellIterator *boundaries,
-                                   int dim=-1) override;
+  void GetBoundaryIterator(vtkGenericCellIterator* boundaries, int dim = -1) override;
 
-  //@{
+  ///@{
   /**
    * Number of cells (dimension>boundary->GetDimension()) of the dataset
    * that share the boundary `boundary' of `this'.
@@ -159,9 +147,9 @@ public:
    * \pre boundary: HasBoundary(boundary)
    * \post positive_result: result>=0
    */
-  int CountNeighbors(vtkGenericAdaptorCell *boundary) override;
-  void CountEdgeNeighbors( int* sharing ) override;
-  //@}
+  int CountNeighbors(vtkGenericAdaptorCell* boundary) override;
+  void CountEdgeNeighbors(int* sharing) override;
+  ///@}
 
   /**
    * Put into `neighbors' the cells (dimension>boundary->GetDimension())
@@ -173,8 +161,7 @@ public:
    * \pre boundary: HasBoundary(boundary)
    * \pre neighbors_exist: neighbors!=0
    */
-  void GetNeighbors(vtkGenericAdaptorCell *boundary,
-                            vtkGenericCellIterator *neighbors) override;
+  void GetNeighbors(vtkGenericAdaptorCell* boundary, vtkGenericCellIterator* neighbors) override;
 
   /**
    * Compute the closest boundary of the current sub-cell `subId' for point
@@ -183,9 +170,7 @@ public:
    * GetDimension()-1.
    * \pre positive_subId: subId>=0
    */
-  int FindClosestBoundary(int subId,
-                                  double pcoords[3],
-                                  vtkGenericCellIterator* &boundary) override;
+  int FindClosestBoundary(int subId, double pcoords[3], vtkGenericCellIterator*& boundary) override;
 
   /**
    * Is `x' inside the current cell? It also evaluate parametric coordinates
@@ -198,22 +183,17 @@ public:
    * \post positive_distance: result!=-1 implies (closestPoint!=0 implies
    * dist2>=0)
    */
-  int EvaluatePosition(const double x[3],
-                               double *closestPoint,
-                               int &subId,
-                               double pcoords[3],
-                               double &dist2) override;
+  int EvaluatePosition(
+    const double x[3], double* closestPoint, int& subId, double pcoords[3], double& dist2) override;
 
-/**
- * Determine global coordinates `x' from sub-cell `subId' and parametric
- * coordinates `pcoords' in the cell.
- * \pre positive_subId: subId>=0
- * \pre clamped_pcoords: (0<=pcoords[0])&&(pcoords[0]<=1)&&(0<=pcoords[1])
- * &&(pcoords[1]<=1)&&(0<=pcoords[2])&&(pcoords[2]<=1)
- */
-  void EvaluateLocation(int subId,
-                                double pcoords[3],
-                                double x[3]) override;
+  /**
+   * Determine global coordinates `x' from sub-cell `subId' and parametric
+   * coordinates `pcoords' in the cell.
+   * \pre positive_subId: subId>=0
+   * \pre clamped_pcoords: (0<=pcoords[0])&&(pcoords[0]<=1)&&(0<=pcoords[1])
+   * &&(pcoords[1]<=1)&&(0<=pcoords[2])&&(pcoords[2]<=1)
+   */
+  void EvaluateLocation(int subId, double pcoords[3], double x[3]) override;
 
   /**
    * Interpolate the attribute `a' at local position `pcoords' of the cell into
@@ -225,8 +205,7 @@ public:
    * \pre val_exists: val!=0
    * \pre valid_size: sizeof(val)==a->GetNumberOfComponents()
    */
-  void InterpolateTuple(vtkGenericAttribute *a, double pcoords[3],
-                                double *val) override;
+  void InterpolateTuple(vtkGenericAttribute* a, double pcoords[3], double* val) override;
 
   /**
    * Interpolate the whole collection of attributes `c' at local position
@@ -238,8 +217,7 @@ public:
    * \pre val_exists: val!=0
    * \pre valid_size: sizeof(val)==c->GetNumberOfPointCenteredComponents()
    */
-  void InterpolateTuple(vtkGenericAttributeCollection *c, double pcoords[3],
-                                double *val) override;
+  void InterpolateTuple(vtkGenericAttributeCollection* c, double pcoords[3], double* val) override;
 #if 0
   /**
    * Generate a contour (contouring primitives) for each `values' or with
@@ -341,13 +319,8 @@ public:
    * the intersection occurs.
    * \pre positive_tolerance: tol>0
    */
-  int IntersectWithLine(double p1[3],
-                                double p2[3],
-                                double tol,
-                                double &t,
-                                double x[3],
-                                double pcoords[3],
-                                int &subId) override;
+  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId) override;
 
   /**
    * Compute derivatives `derivs' of the attribute `attribute' (from its
@@ -361,10 +334,8 @@ public:
    * \pre derivs_exists: derivs!=0
    * \pre valid_size: sizeof(derivs)>=attribute->GetNumberOfComponents()*3
    */
-  void Derivatives(int subId,
-                           double pcoords[3],
-                           vtkGenericAttribute *attribute,
-                           double *derivs) override;
+  void Derivatives(
+    int subId, double pcoords[3], vtkGenericAttribute* attribute, double* derivs) override;
 
   /**
    * Compute the bounding box of the current cell in `bounds' in global
@@ -379,7 +350,7 @@ public:
    * \post result_exists: result!=0
    * \post valid_size: sizeof(result)>=6
    */
-  double *GetBounds() override;
+  double* GetBounds() override;
 
   /**
    * Bounding box diagonal squared of the current cell.
@@ -416,9 +387,9 @@ public:
    * ((!IsPrimary()) && (result==0))
    * result!=0 implies sizeof(result)==GetNumberOfPoints()
    */
-  double *GetParametricCoords() override;
+  double* GetParametricCoords() override;
 #if 0
-  //@{
+  ///@{
   /**
    * Tessellate the cell if it is not linear or if at least one attribute of
    * `attributes' is not linear. The output are linear cells of the same
@@ -439,15 +410,15 @@ public:
   // For the internals of the tessellation algorithm (the hash table in particular)
   int IsFaceOnBoundary(vtkIdType faceId) override;
   int IsOnBoundary() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Put into `id' the list of ids the point of the cell.
    * \pre id_exists: id!=0
    * \pre valid_size: sizeof(id)==GetNumberOfPoints();
    */
-  void GetPointIds(vtkIdType *id) override;
+  void GetPointIds(vtkIdType* id) override;
 #if 0
   virtual void TriangulateFace(vtkGenericAttributeCollection *attributes,
                                vtkGenericCellTessellator *tess,
@@ -456,7 +427,7 @@ public:
                                vtkPointData *pd,
                                vtkCellData *cd );
 #endif
-  //@}
+  ///@}
 
   /**
    * Return the ids of the vertices defining face `faceId'.
@@ -464,8 +435,12 @@ public:
    * \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
    * \post result_exists: result!=0
    * \post valid_size: sizeof(result)>=GetNumberOfVerticesOnFace(faceId)
+   *
+   * @note The return type changed. It used to be int*, it is now const vtkIdType*.
+   * This is so ids are unified between vtkCell and vtkPoints, and so vtkCell ids
+   * can be used as inputs in algorithms such as vtkPolygon::ComputeNormal.
    */
-  int *GetFaceArray(int faceId) override;
+  const vtkIdType* GetFaceArray(vtkIdType faceId) override;
 
   /**
    * Return the number of vertices defining face `faceId'
@@ -481,8 +456,11 @@ public:
    * \pre valid_edgeId_range: edgeId>=0 && edgeId<this->GetNumberOfBoundaries(1)
    * \post result_exists: result!=0
    * \post valid_size: sizeof(result)==2
+   *
+   * @note The return type changed. It used to be int*, it is now const vtkIdType*.
+   * This is so ids are unified between vtkCell and vtkPoints.
    */
-  int *GetEdgeArray(int edgeId) override;
+  const vtkIdType* GetEdgeArray(vtkIdType edgeId) override;
 
   /**
    * Used internally for the Bridge.
@@ -490,23 +468,21 @@ public:
    * \pre ds_exists: ds!=0
    * \pre valid_cellid: (cellid>=0) && (cellid<ds->GetNumberOfCells())
    */
-  void Init(vtkBridgeDataSet *ds,
-            vtkIdType cellid);
+  void Init(vtkBridgeDataSet* ds, vtkIdType cellid);
 
   /**
    * Used internally for the Bridge.
    * Initialize the cell from a cell `c' and an `id'.
    * \pre c_exists: c!=0
    */
-  void InitWithCell(vtkCell *c,
-                    vtkIdType id);
+  void InitWithCell(vtkCell* c, vtkIdType id);
 
   /**
    * Recursive copy of `other' into `this'.
    * \pre other_exists: other!=0
    * \pre other_differ: this!=other
    */
-  void DeepCopy(vtkBridgeCell *other);
+  void DeepCopy(vtkBridgeCell* other);
 
 protected:
   vtkBridgeCell();
@@ -521,7 +497,7 @@ protected:
   /**
    * Compute the weights for parametric coordinates `pcoords'.
    */
-  void InterpolationFunctions(const double pcoords[3], double *weights);
+  void InterpolationFunctions(const double pcoords[3], double* weights);
 
   friend class vtkBridgeDataSet;
   friend class vtkBridgeAttribute;
@@ -531,13 +507,13 @@ protected:
   friend class vtkBridgeCellIteratorOnCellBoundaries;
   friend class vtkBridgePointIteratorOnCell;
 
-  vtkCell *Cell;
-  vtkBridgeDataSet *DataSet;
+  vtkCell* Cell;
+  vtkBridgeDataSet* DataSet;
   vtkIdType Id; // what does it mean for boundary cells?
   int BoolIsInDataSet;
-  vtkBridgeCellIterator *InternalIterator; // used in Contour
+  vtkBridgeCellIterator* InternalIterator; // used in Contour
 
-  double *Weights; // interpolation functions
+  double* Weights; // interpolation functions
   int WeightsCapacity;
 
 private:
@@ -545,4 +521,5 @@ private:
   void operator=(const vtkBridgeCell&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

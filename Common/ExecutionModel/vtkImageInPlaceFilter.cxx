@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageInPlaceFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageInPlaceFilter.h"
 
 #include "vtkImageData.h"
@@ -22,28 +10,24 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkImageInPlaceFilter::vtkImageInPlaceFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageInPlaceFilter::~vtkImageInPlaceFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-int vtkImageInPlaceFilter::RequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkImageInPlaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the data object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkImageData *output =
-    vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageData *input =
-    vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData* input = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int *inExt, *outExt;
   inExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
@@ -59,8 +43,8 @@ int vtkImageInPlaceFilter::RequestData(
   outSize = outSize * (outExt[3] - outExt[2] + 1);
   outSize = outSize * (outExt[5] - outExt[4] + 1);
   if (inSize == outSize &&
-      (vtkDataObject::GetGlobalReleaseDataFlag() ||
-       inInfo->Get(vtkDemandDrivenPipeline::RELEASE_DATA())))
+    (vtkDataObject::GetGlobalReleaseDataFlag() ||
+      inInfo->Get(vtkDemandDrivenPipeline::RELEASE_DATA())))
   {
     // pass the data
     output->GetPointData()->PassData(input->GetPointData());
@@ -70,25 +54,22 @@ int vtkImageInPlaceFilter::RequestData(
   {
     output->SetExtent(outExt);
     output->AllocateScalars(outInfo);
-    this->CopyData(input,output,outExt);
+    this->CopyData(input, output, outExt);
   }
 
   return 1;
 }
 
-void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
-                                     vtkImageData *outData,
-                                     int* outExt)
+void vtkImageInPlaceFilter::CopyData(vtkImageData* inData, vtkImageData* outData, int* outExt)
 {
-  char *inPtr = static_cast<char *>(inData->GetScalarPointerForExtent(outExt));
-  char *outPtr =
-    static_cast<char *>(outData->GetScalarPointerForExtent(outExt));
+  char* inPtr = static_cast<char*>(inData->GetScalarPointerForExtent(outExt));
+  char* outPtr = static_cast<char*>(outData->GetScalarPointerForExtent(outExt));
   int rowLength, size;
   vtkIdType inIncX, inIncY, inIncZ;
   vtkIdType outIncX, outIncY, outIncZ;
   int idxY, idxZ, maxY, maxZ;
 
-  rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
+  rowLength = (outExt[1] - outExt[0] + 1) * inData->GetNumberOfScalarComponents();
   size = inData->GetScalarSize();
   rowLength *= size;
   maxY = outExt[3] - outExt[2];
@@ -99,8 +80,8 @@ void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // adjust increments for this loop
-  inIncY = inIncY*size + rowLength;
-  outIncY = outIncY*size + rowLength;
+  inIncY = inIncY * size + rowLength;
+  outIncY = outIncY * size + rowLength;
   inIncZ *= size;
   outIncZ *= size;
 
@@ -109,7 +90,7 @@ void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
   {
     for (idxY = 0; idxY <= maxY; idxY++)
     {
-      memcpy(outPtr,inPtr,rowLength);
+      memcpy(outPtr, inPtr, rowLength);
       outPtr += outIncY;
       inPtr += inIncY;
     }
@@ -118,8 +99,9 @@ void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageInPlaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -7,6 +7,7 @@
 #include "mpi-22.h"
 #include "mpi-30.h"
 #include "mpi-31.h"
+#include "mpi-40.h"
 
 /* These types are difficult to implement portably */
 #undef PyMPI_HAVE_MPI_REAL2
@@ -24,7 +25,7 @@
 #endif /* MPICH2 < 1.1.0 */
 
 #ifndef ROMIO_VERSION
-#include "mpich2-io.h"
+#include "mpi-io.h"
 #endif
 
 #if MPI_VERSION < 3 && defined(MPICH2_NUMVERSION)

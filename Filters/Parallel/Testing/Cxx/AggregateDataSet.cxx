@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    AggregateDataSet.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Tests vtkAggregateDataSetFilter.
 
@@ -34,9 +22,9 @@
 #include "vtkRTAnalyticSource.h"
 #include "vtkThresholdPoints.h"
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
-int AggregateDataSet(int argc, char *argv[])
+int AggregateDataSet(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
@@ -47,7 +35,7 @@ int AggregateDataSet(int argc, char *argv[])
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv, 1);
 
   int retVal = EXIT_SUCCESS;
@@ -66,7 +54,7 @@ int AggregateDataSet(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  int numProcs=contr->GetNumberOfProcesses();
+  int numProcs = contr->GetNumberOfProcesses();
 
   // Create and execute pipeline
   vtkRTAnalyticSource* wavelet = vtkRTAnalyticSource::New();
@@ -86,15 +74,17 @@ int AggregateDataSet(int argc, char *argv[])
 
   if (me % 2 == 0 && vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 1408)
   {
-    vtkGenericWarningMacro("Wrong number of polydata points on process " << me
-                           << ". Should be 1408 but is " <<
-                           vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
+    vtkGenericWarningMacro("Wrong number of polydata points on process "
+      << me << ". Should be 1408 but is "
+      << vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
     retVal = EXIT_FAILURE;
   }
-  else if (me % 2 != 0 && vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 0)
+  else if (me % 2 != 0 &&
+    vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 0)
   {
-    vtkGenericWarningMacro("Wrong number of polydata points on process " << me << ". Should be 0 but is " <<
-                           vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
+    vtkGenericWarningMacro("Wrong number of polydata points on process "
+      << me << ". Should be 0 but is "
+      << vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
     retVal = EXIT_FAILURE;
   }
 
@@ -104,7 +94,7 @@ int AggregateDataSet(int argc, char *argv[])
   aggregate->SetInputConnection(threshold->GetOutputPort());
 
   vtkContourFilter* contour = vtkContourFilter::New();
-  double scalar_range[2] = {50, 400};
+  double scalar_range[2] = { 50, 400 };
   contour->GenerateValues(5, scalar_range);
   contour->SetInputConnection(aggregate->GetOutputPort());
   mapper->SetInputConnection(contour->GetOutputPort());
@@ -113,14 +103,16 @@ int AggregateDataSet(int argc, char *argv[])
   if (me % 2 == 0 && vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 5082)
   {
     vtkGenericWarningMacro("Wrong number of unstructured grid points on process "
-                           << me << ". Should be 5082 but is " <<
-                           vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
+      << me << ". Should be 5082 but is "
+      << vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
     retVal = EXIT_FAILURE;
   }
-  else if (me % 2 != 0 && vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 0)
+  else if (me % 2 != 0 &&
+    vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 0)
   {
-    vtkGenericWarningMacro("Wrong number of unstructured grid points on process " << me << ". Should be 0 but is " <<
-                           vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
+    vtkGenericWarningMacro("Wrong number of unstructured grid points on process "
+      << me << ". Should be 0 but is "
+      << vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
     retVal = EXIT_FAILURE;
   }
 

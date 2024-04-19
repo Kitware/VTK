@@ -1,19 +1,6 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestTreeHeatmapAutoCollapse.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkTreeHeatmapItem.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDendrogramItem.h"
 #include "vtkDoubleArray.h"
@@ -22,19 +9,19 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTree.h"
+#include "vtkTreeHeatmapItem.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkContextInteractorStyle.h"
 #include "vtkContextActor.h"
+#include "vtkContextInteractorStyle.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
-#include "vtkNew.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTreeHeatmapAutoCollapse(int argc, char* argv[])
 {
   vtkNew<vtkMutableDirectedGraph> graph;

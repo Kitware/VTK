@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPExtractHistogram2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkPExtractHistogram2D
  * @brief   compute a 2D histogram between two columns
@@ -34,14 +18,16 @@
  * @par Thanks:
  *  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
  *------------------------------------------------------------------------------
-*/
+ */
 
 #ifndef vtkPExtractHistogram2D_h
 #define vtkPExtractHistogram2D_h
 
-#include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkExtractHistogram2D.h"
+#include "vtkFiltersParallelImagingModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
+class vtkDataSetAttributes;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
@@ -53,7 +39,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
 protected:
   vtkPExtractHistogram2D();
@@ -61,16 +47,16 @@ protected:
 
   vtkMultiProcessController* Controller;
 
-  int ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2) override;
+  int ComputeBinExtents(
+    vtkDataSetAttributes* rowData, vtkDataArray* col1, vtkDataArray* col2) override;
 
   // Execute the calculations required by the Learn option.
-  void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta ) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
 
 private:
   vtkPExtractHistogram2D(const vtkPExtractHistogram2D&) = delete;
   void operator=(const vtkPExtractHistogram2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

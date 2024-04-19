@@ -1,0 +1,18 @@
+NAME
+  VTK::CommonPython
+LIBRARY_NAME
+  vtkCommonPython
+CONDITION
+  VTK_WRAP_PYTHON
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  VTK::WrappingPythonCore
+TEST_DEPENDS
+  VTK::TestingCore

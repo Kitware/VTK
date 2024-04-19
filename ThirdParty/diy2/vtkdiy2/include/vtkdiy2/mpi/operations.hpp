@@ -8,9 +8,9 @@ namespace mpi
   //! \addtogroup MPI
   //!@{
   template<class U>
-  struct maximum { const U& operator()(const U& x, const U& y) const { return std::max(x,y); } };
+  struct maximum { const U& operator()(const U& x, const U& y) const { return (std::max)(x,y); } };
   template<class U>
-  struct minimum { const U& operator()(const U& x, const U& y) const { return std::min(x,y); } };
+  struct minimum { const U& operator()(const U& x, const U& y) const { return (std::min)(x,y); } };
   //!@}
 
 namespace detail

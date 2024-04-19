@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestStringToCategory.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkActor.h"
 #include "vtkCircularLayoutStrategy.h"
@@ -26,16 +10,15 @@
 #include "vtkGraphMapper.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkStringToCategory.h"
 #include "vtkTestUtilities.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestStringToCategory(int argc, char* argv[])
 {
@@ -59,8 +42,8 @@ int TestStringToCategory(int argc, char* argv[])
   edgeString->SetName("edge string");
   for (vtkIdType i = 0; i < 10; ++i)
   {
-    graph->AddEdge(i, (i+1)%10);
-    graph->AddEdge(i, (i+3)%10);
+    graph->AddEdge(i, (i + 1) % 10);
+    graph->AddEdge(i, (i + 3) % 10);
     if (i % 2)
     {
       edgeString->InsertNextValue("edge type 1");
@@ -76,12 +59,14 @@ int TestStringToCategory(int argc, char* argv[])
 
   VTK_CREATE(vtkStringToCategory, vertexCategory);
   vertexCategory->SetInputData(graph);
-  vertexCategory->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "vertex string");
+  vertexCategory->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "vertex string");
   vertexCategory->SetCategoryArrayName("vertex category");
 
   VTK_CREATE(vtkStringToCategory, edgeCategory);
   edgeCategory->SetInputConnection(vertexCategory->GetOutputPort());
-  edgeCategory->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_EDGES, "edge string");
+  edgeCategory->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_EDGES, "edge string");
   edgeCategory->SetCategoryArrayName("edge category");
 
   VTK_CREATE(vtkCircularLayoutStrategy, strategy);

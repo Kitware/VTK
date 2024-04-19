@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBiomTableReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBiomTableReader
  * @brief   read vtkTable from a .biom input file
@@ -20,7 +8,7 @@
  * The output of this reader is a single vtkTable data object.
  * @sa
  * vtkTable vtkTableReader vtkDataReader
-*/
+ */
 
 #ifndef vtkBiomTableReader_h
 #define vtkBiomTableReader_h
@@ -28,30 +16,30 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 class vtkVariant;
 
 class VTKIOINFOVIS_EXPORT vtkBiomTableReader : public vtkTableReader
 {
 public:
-  static vtkBiomTableReader *New();
-  vtkTypeMacro(vtkBiomTableReader,vtkTableReader);
+  static vtkBiomTableReader* New();
+  vtkTypeMacro(vtkBiomTableReader, vtkTableReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output of this reader.
    */
-  vtkTable *GetOutput();
-  vtkTable *GetOutput(int idx);
-  void SetOutput(vtkTable *output);
-  //@}
+  vtkTable* GetOutput();
+  vtkTable* GetOutput(int idx);
+  void SetOutput(vtkTable* output);
+  ///@}
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
+  int ReadMeshSimple(VTK_FILEPATH const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkBiomTableReader();
@@ -80,4 +68,5 @@ private:
   void operator=(const vtkBiomTableReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

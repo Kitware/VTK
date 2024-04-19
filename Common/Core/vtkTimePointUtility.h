@@ -1,29 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTimePointUtility.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkTimePointUtility
  * @brief   performs common time operations
  *
  *
  * vtkTimePointUtility is provides methods to perform common time operations.
-*/
+ */
 
 #ifndef vtkTimePointUtility_h
 #define vtkTimePointUtility_h
@@ -31,54 +15,49 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkTimePointUtility : public vtkObject
 {
 public:
-  static vtkTimePointUtility *New();
-  vtkTypeMacro(vtkTimePointUtility,vtkObject);
+  static vtkTimePointUtility* New();
+  vtkTypeMacro(vtkTimePointUtility, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the time point for 12:00am on a specified day.
    */
-  static vtkTypeUInt64 DateToTimePoint(
-    int year, int month, int day);
+  static vtkTypeUInt64 DateToTimePoint(int year, int month, int day);
 
   /**
    * Return the time point for a time of day (the number of milliseconds from 12:00am.
    * The hour should be from 0-23.
    */
-  static vtkTypeUInt64 TimeToTimePoint(
-    int hour, int minute, int second, int millis = 0);
+  static vtkTypeUInt64 TimeToTimePoint(int hour, int minute, int second, int millis = 0);
 
   /**
    * Return the time point for a date and time.
    */
   static vtkTypeUInt64 DateTimeToTimePoint(
-    int year, int month, int day,
-    int hour, int minute, int sec, int millis = 0);
+    int year, int month, int day, int hour, int minute, int sec, int millis = 0);
 
   /**
    * Retrieve the year, month, and day of a time point.
    * Everything but the first argument are output parameters.
    */
-  static void GetDate(vtkTypeUInt64 time,
-    int& year, int& month, int& day);
+  static void GetDate(vtkTypeUInt64 time, int& year, int& month, int& day);
 
   /**
    * Retrieve the hour, minute, second, and milliseconds of a time point.
    * Everything but the first argument are output parameters.
    */
-  static void GetTime(vtkTypeUInt64 time,
-    int& hour, int& minute, int& second, int& millis);
+  static void GetTime(vtkTypeUInt64 time, int& hour, int& minute, int& second, int& millis);
 
   /**
    * Retrieve the date and time of a time point.
    * Everything but the first argument are output parameters.
    */
-  static void GetDateTime(vtkTypeUInt64 time,
-    int& year, int& month, int& day,
-    int& hour, int& minute, int& second, int& millis);
+  static void GetDateTime(vtkTypeUInt64 time, int& year, int& month, int& day, int& hour,
+    int& minute, int& second, int& millis);
 
   /**
    * Retrieve the year from a time point.
@@ -115,7 +94,8 @@ public:
    */
   static int GetMillisecond(vtkTypeUInt64 time);
 
-  enum {
+  enum
+  {
     ISO8601_DATETIME_MILLIS = 0,
     ISO8601_DATETIME = 1,
     ISO8601_DATE = 2,
@@ -161,16 +141,16 @@ public:
    * 03:04:05
    * </PRE>
    */
-  static const char* TimePointToISO8601(
-    vtkTypeUInt64, int format = ISO8601_DATETIME_MILLIS);
+  static const char* TimePointToISO8601(vtkTypeUInt64, int format = ISO8601_DATETIME_MILLIS);
 
 protected:
-  vtkTimePointUtility() {}
-  ~vtkTimePointUtility() override {}
+  vtkTimePointUtility() = default;
+  ~vtkTimePointUtility() override = default;
 
 private:
   vtkTimePointUtility(const vtkTimePointUtility&) = delete;
   void operator=(const vtkTimePointUtility&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

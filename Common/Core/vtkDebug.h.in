@@ -1,0 +1,12 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#ifndef vtkDebug_h
+#define vtkDebug_h
+
+/* Debug leaks support.  */
+#cmakedefine VTK_DEBUG_LEAKS
+
+/* Print warning on vtkArrayDispatch failure.  */
+#cmakedefine VTK_WARN_ON_DISPATCH_FAILURE
+
+#endif

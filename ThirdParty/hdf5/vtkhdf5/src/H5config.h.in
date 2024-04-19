@@ -3,9 +3,6 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
-/* Define if C++ compiler recognizes offsetof */
-#undef CXX_HAVE_OFFSETOF
-
 /* Define if this is a debug build. */
 #undef DEBUG_BUILD
 
@@ -15,9 +12,15 @@
 /* Define if dev_t is a scalar */
 #undef DEV_T_IS_SCALAR
 
+/* Define if new references for dimension scales were requested */
+#undef DIMENSION_SCALES_WITH_NEW_REF
+
 /* Define if your system is IBM ppc64le and cannot convert some long double
    values correctly. */
 #undef DISABLE_SOME_LDOUBLE_CONV
+
+/* Define the examples directory */
+#undef EXAMPLESDIR
 
 /* Define to dummy `main' function (if any) required to link to the Fortran
    libraries. */
@@ -72,6 +75,9 @@
 /* Define to 1 if you have the `alarm' function. */
 #undef HAVE_ALARM
 
+/* Define to 1 if you have the <arpa/inet.h> header file. */
+#undef HAVE_ARPA_INET_H
+
 /* Define to 1 if you have the `asprintf' function. */
 #undef HAVE_ASPRINTF
 
@@ -82,17 +88,17 @@
    and unions */
 #undef HAVE_C99_DESIGNATED_INITIALIZER
 
-/* Define if the compiler understands the __func__ keyword */
-#undef HAVE_C99_FUNC
+/* Define to 1 if you have the `clock_gettime' function. */
+#undef HAVE_CLOCK_GETTIME
 
 /* Define if the function stack tracing code is to be compiled in */
 #undef HAVE_CODESTACK
 
+/* Define to 1 if you have the <curl/curl.h> header file. */
+#undef HAVE_CURL_CURL_H
+
 /* Define if Darwin or Mac OS X */
 #undef HAVE_DARWIN
-
-/* Define to 1 if you have the `difftime' function. */
-#undef HAVE_DIFFTIME
 
 /* Define if the direct I/O virtual file driver (VFD) should be compiled */
 #undef HAVE_DIRECT
@@ -130,15 +136,6 @@
 /* Define to 1 if you have the `fork' function. */
 #undef HAVE_FORK
 
-/* Define to 1 if you have the `frexpf' function. */
-#undef HAVE_FREXPF
-
-/* Define to 1 if you have the `frexpl' function. */
-#undef HAVE_FREXPL
-
-/* Define if the compiler understands the __FUNCTION__ keyword */
-#undef HAVE_FUNCTION
-
 /* Determine if INTEGER*16 is available */
 #undef HAVE_Fortran_INTEGER_SIZEOF_16
 
@@ -160,8 +157,8 @@
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
-/* Define if the compiler understands inline */
-#undef HAVE_INLINE
+/* Define to 1 if you have the <hdfs.h> header file. */
+#undef HAVE_HDFS_H
 
 /* Define if parallel library will contain instrumentation to detect correct
    optimization operation */
@@ -173,14 +170,23 @@
 /* Define to 1 if you have the `ioctl' function. */
 #undef HAVE_IOCTL
 
-/* Define to 1 if you have the <io.h> header file. */
-#undef HAVE_IO_H
+/* Define to 1 if you have the `crypto' library (-lcrypto). */
+#undef HAVE_LIBCRYPTO
+
+/* Define to 1 if you have the `curl' library (-lcurl). */
+#undef HAVE_LIBCURL
 
 /* Define to 1 if you have the `dl' library (-ldl). */
 #undef HAVE_LIBDL
 
 /* Define to 1 if you have the `dmalloc' library (-ldmalloc). */
 #undef HAVE_LIBDMALLOC
+
+/* Proceed to build with libhdfs */
+#undef HAVE_LIBHDFS
+
+/* Define to 1 if you have the `jvm' library (-ljvm). */
+#undef HAVE_LIBJVM
 
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
@@ -200,14 +206,20 @@
 /* Define to 1 if you have the `z' library (-lz). */
 #undef HAVE_LIBZ
 
-/* Define to 1 if you have the `longjmp' function. */
-#undef HAVE_LONGJMP
+/* Define to 1 if you have the `lstat' function. */
+#undef HAVE_LSTAT
 
-/* Define to 1 if you have the <mach/mach_time.h> header file. */
-#undef HAVE_MACH_MACH_TIME_H
+/* Define if the map API (H5M) should be compiled */
+#undef HAVE_MAP_API
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <mfu.h> header file. */
+#undef HAVE_MFU_H
+
+/* Define whether the Mirror virtual file driver (VFD) will be compiled */
+#undef HAVE_MIRROR_VFD
 
 /* Define if we have MPE support */
 #undef HAVE_MPE
@@ -221,14 +233,35 @@
 /* Define if MPI_Info_c2f and MPI_Info_f2c exist */
 #undef HAVE_MPI_MULTI_LANG_Info
 
+/* Define to 1 if you have the <netdb.h> header file. */
+#undef HAVE_NETDB_H
+
+/* Define to 1 if you have the <netinet/in.h> header file. */
+#undef HAVE_NETINET_IN_H
+
+/* Define to 1 if you have the <openssl/evp.h> header file. */
+#undef HAVE_OPENSSL_EVP_H
+
+/* Define to 1 if you have the <openssl/hmac.h> header file. */
+#undef HAVE_OPENSSL_HMAC_H
+
+/* Define to 1 if you have the <openssl/sha.h> header file. */
+#undef HAVE_OPENSSL_SHA_H
+
 /* Define if we have parallel support */
 #undef HAVE_PARALLEL
+
+/* Define if we have support for writing to filtered datasets in parallel */
+#undef HAVE_PARALLEL_FILTERED_WRITES
 
 /* Define if both pread and pwrite exist. */
 #undef HAVE_PREADWRITE
 
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
+
+/* Define to 1 if you have the <pwd.h> header file. */
+#undef HAVE_PWD_H
 
 /* Define to 1 if you have the <quadmath.h> header file. */
 #undef HAVE_QUADMATH_H
@@ -239,11 +272,9 @@
 /* Define to 1 if you have the `rand_r' function. */
 #undef HAVE_RAND_R
 
-/* Define to 1 if you have the `setjmp' function. */
-#undef HAVE_SETJMP
-
-/* Define to 1 if you have the <setjmp.h> header file. */
-#undef HAVE_SETJMP_H
+/* Define whether the Read-Only S3 virtual file driver (VFD) should be
+   compiled */
+#undef HAVE_ROS3_VFD
 
 /* Define to 1 if you have the `setsysinfo' function. */
 #undef HAVE_SETSYSINFO
@@ -251,29 +282,17 @@
 /* Define to 1 if you have the `siglongjmp' function. */
 #undef HAVE_SIGLONGJMP
 
-/* Define to 1 if you have the `signal' function. */
-#undef HAVE_SIGNAL
-
 /* Define to 1 if you have the `sigprocmask' function. */
 #undef HAVE_SIGPROCMASK
 
 /* Define to 1 if you have the `sigsetjmp' function. */
 #undef HAVE_SIGSETJMP
 
-/* Define to 1 if you have the `snprintf' function. */
-#undef HAVE_SNPRINTF
-
 /* Define to 1 if you have the `srandom' function. */
 #undef HAVE_SRANDOM
 
 /* Define if struct stat has the st_blocks field */
 #undef HAVE_STAT_ST_BLOCKS
-
-/* Define to 1 if you have the <stdbool.h> header file. */
-#undef HAVE_STDBOOL_H
-
-/* Define to 1 if you have the <stddef.h> header file. */
-#undef HAVE_STDDEF_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -290,12 +309,6 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the `strtoll' function. */
-#undef HAVE_STRTOLL
-
-/* Define to 1 if you have the `strtoull' function. */
-#undef HAVE_STRTOULL
-
 /* Define if struct text_info is defined */
 #undef HAVE_STRUCT_TEXT_INFO
 
@@ -304,9 +317,6 @@
 
 /* Define to 1 if you have the `symlink' function. */
 #undef HAVE_SYMLINK
-
-/* Define to 1 if you have the `system' function. */
-#undef HAVE_SYSTEM
 
 /* Define to 1 if you have the <sys/file.h> header file. */
 #undef HAVE_SYS_FILE_H
@@ -317,11 +327,11 @@
 /* Define to 1 if you have the <sys/resource.h> header file. */
 #undef HAVE_SYS_RESOURCE_H
 
+/* Define to 1 if you have the <sys/socket.h> header file. */
+#undef HAVE_SYS_SOCKET_H
+
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
-
-/* Define to 1 if you have the <sys/timeb.h> header file. */
-#undef HAVE_SYS_TIMEB_H
 
 /* Define to 1 if you have the <sys/time.h> header file. */
 #undef HAVE_SYS_TIME_H
@@ -362,9 +372,6 @@
 /* Define if your system has window style path name. */
 #undef HAVE_WINDOW_PATH
 
-/* Define to 1 if you have the <winsock2.h> header file. */
-#undef HAVE_WINSOCK2_H
-
 /* Define to 1 if you have the <zlib.h> header file. */
 #undef HAVE_ZLIB_H
 
@@ -374,11 +381,8 @@
 /* Define to 1 if you have the `_scrsize' function. */
 #undef HAVE__SCRSIZE
 
-/* Define if the compiler understands __inline */
-#undef HAVE___INLINE
-
-/* Define if the compiler understands __inline__ */
-#undef HAVE___INLINE__
+/* Define if the library will ignore file locks when disabled */
+#undef IGNORE_DISABLED_FILE_LOCKS
 
 /* Define if the high-level library headers should be included in hdf5.h */
 #undef INCLUDE_HL
@@ -577,17 +581,23 @@
    PTHREAD_SCOPE_SYSTEM) call. */
 #undef SYSTEM_SCOPE_THREADS
 
-/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#undef TIME_WITH_SYS_TIME
-
 /* Define using v1.10 public API symbols by default */
 #undef USE_110_API_DEFAULT
+
+/* Define using v1.12 public API symbols by default */
+#undef USE_112_API_DEFAULT
+
+/* Define using v1.14 public API symbols by default */
+#undef USE_114_API_DEFAULT
 
 /* Define using v1.6 public API symbols by default */
 #undef USE_16_API_DEFAULT
 
 /* Define using v1.8 public API symbols by default */
 #undef USE_18_API_DEFAULT
+
+/* Define if the library will use file locking */
+#undef USE_FILE_LOCKING
 
 /* Define if a memory checking tool will be used on the library, to cause
    library to be very picky about memory operations and also disable the
@@ -597,7 +607,7 @@
 /* Version number of package */
 #undef VERSION
 
-/* Data accuracy is prefered to speed during data conversions */
+/* Data accuracy is preferred to speed during data conversions */
 #undef WANT_DATA_ACCURACY
 
 /* Check exception handling functions during data conversions */
@@ -621,17 +631,8 @@
 /* Define for large files, on AIX-style hosts. */
 #undef _LARGE_FILES
 
-/* Define to empty if `const' does not conform to ANSI C. */
-#undef const
-
 /* Define to `long int' if <sys/types.h> does not define. */
 #undef off_t
-
-/* Define to `long' if <sys/types.h> does not define. */
-#undef ptrdiff_t
-
-/* Define to `unsigned long' if <sys/types.h> does not define. */
-#undef size_t
 
 /* Define to `long' if <sys/types.h> does not define. */
 #undef ssize_t

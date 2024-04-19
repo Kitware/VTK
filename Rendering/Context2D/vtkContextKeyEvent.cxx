@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkContextScene.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkContextKeyEvent.h"
 
@@ -19,11 +7,10 @@
 
 #include <cassert>
 
-vtkContextKeyEvent::vtkContextKeyEvent()
-{
-}
+VTK_ABI_NAMESPACE_BEGIN
+vtkContextKeyEvent::vtkContextKeyEvent() = default;
 
-void vtkContextKeyEvent::SetInteractor(vtkRenderWindowInteractor *interactor)
+void vtkContextKeyEvent::SetInteractor(vtkRenderWindowInteractor* interactor)
 {
   this->Interactor = interactor;
 }
@@ -45,3 +32,4 @@ char vtkContextKeyEvent::GetKeyCode() const
     return 0;
   }
 }
+VTK_ABI_NAMESPACE_END

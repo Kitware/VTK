@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkNetCDFCAMReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkNetCDFCAMReader
  * @brief   Read unstructured NetCDF CAM files.
@@ -23,7 +11,7 @@
  * cells.  The reader requires 2 NetCDF files: the main file has all
  * attributes, the connectivity file has point positions and cell
  * connectivity information.
-*/
+ */
 
 #ifndef vtkNetCDFCAMReader_h
 #define vtkNetCDFCAMReader_h
@@ -31,14 +19,15 @@
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkDataArraySelection;
 
 class VTKIONETCDF_EXPORT vtkNetCDFCAMReader : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkNetCDFCAMReader *New();
-  vtkTypeMacro(vtkNetCDFCAMReader,vtkUnstructuredGridAlgorithm);
+  static vtkNetCDFCAMReader* New();
+  vtkTypeMacro(vtkNetCDFCAMReader, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -47,15 +36,15 @@ public:
    * files, the result is not definitive.  Invalid files may still return 1
    * although a valid file will never return 0.
    */
-  static int CanReadFile(const char* fileName);
+  static int CanReadFile(VTK_FILEPATH const char* fileName);
 
-  void SetFileName(const char* fileName);
-  vtkGetStringMacro(FileName);
+  void SetFileName(VTK_FILEPATH const char* fileName);
+  vtkGetFilePathMacro(FileName);
 
-  void SetConnectivityFileName(const char* fileName);
-  vtkGetStringMacro(ConnectivityFileName);
+  void SetConnectivityFileName(VTK_FILEPATH const char* fileName);
+  vtkGetFilePathMacro(ConnectivityFileName);
 
-  //@{
+  ///@{
   /**
    * Set whether to read a single layer, midpoint layers or interface layers.
    * VERTICAL_DIMENSION_SINGLE_LAYER (0) indicates that only a single
@@ -77,9 +66,9 @@ public:
   };
   vtkSetClampMacro(VerticalDimension, int, 0, 2);
   vtkGetMacro(VerticalDimension, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If SingleXXXLayer is 1, we'll load only the layer specified by
    * XXXLayerIndex.  Otherwise, we load all layers. We do that for
@@ -99,9 +88,9 @@ public:
   vtkSetMacro(InterfaceLayerIndex, int);
   vtkGetMacro(InterfaceLayerIndex, int);
   vtkGetVector2Macro(InterfaceLayersRange, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The following methods allow selective reading of variables.
    * By default, ALL data variables on the nodes are read.
@@ -112,40 +101,36 @@ public:
   void SetPointArrayStatus(const char* name, int status);
   void DisableAllPointArrays();
   void EnableAllPointArrays();
-  //@}
+  ///@}
 
 protected:
   vtkNetCDFCAMReader();
   ~vtkNetCDFCAMReader() override;
 
-  int RequestInformation(vtkInformation*, vtkInformationVector**,
-                         vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Returns true for success.  Based on the piece, number of pieces,
    * number of levels of cells, and the number of cells per level, gives
    * a partitioned space of levels and cells.
    */
-  bool GetPartitioning(
-    size_t piece, size_t numPieces,size_t numCellLevels, size_t numCellsPerLevel,
-    size_t & beginCellLevel, size_t & endCellLevel, size_t & beginCell, size_t & endCell);
+  bool GetPartitioning(size_t piece, size_t numPieces, size_t numCellLevels,
+    size_t numCellsPerLevel, size_t& beginCellLevel, size_t& endCellLevel, size_t& beginCell,
+    size_t& endCell);
 
   void BuildVarArray();
-  static void SelectionCallback(vtkObject* caller, unsigned long eid,
-                                void* clientdata, void* calldata);
-
+  static void SelectionCallback(
+    vtkObject* caller, unsigned long eid, void* clientdata, void* calldata);
 
 private:
   vtkNetCDFCAMReader(const vtkNetCDFCAMReader&) = delete;
   void operator=(const vtkNetCDFCAMReader&) = delete;
 
-  //@{
+  ///@{
   /**
    * The file name of the file that contains all of the point
    * data (coordinates and fields).
@@ -153,19 +138,19 @@ private:
   char* FileName;
   char* CurrentFileName;
   vtkSetStringMacro(CurrentFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The file name that contains the cell connectivity information.
    */
   char* ConnectivityFileName;
   char* CurrentConnectivityFileName;
   vtkSetStringMacro(CurrentConnectivityFileName);
-  //@}
+  ///@}
 
   int VerticalDimension;
-  double * TimeSteps;
+  double* TimeSteps;
   size_t NumberOfTimeSteps;
   vtkDataArraySelection* PointDataArraySelection;
   vtkCallbackCommand* SelectionObserver;
@@ -179,7 +164,8 @@ private:
   int InterfaceLayersRange[2];
 
   class Internal;
-  Internal *Internals;
+  Internal* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

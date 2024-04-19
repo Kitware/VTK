@@ -1,0 +1,36 @@
+NAME
+  VTK::IOHDF
+LIBRARY_NAME
+  vtkIOHDF
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersCore
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::CommonSystem
+  VTK::hdf5
+  VTK::IOCore
+  VTK::vtksys
+  VTK::FiltersTemporal
+TEST_DEPENDS
+  VTK::FiltersGeneral
+  VTK::FiltersHybrid
+  VTK::FiltersPoints
+  VTK::FiltersSources
+  VTK::FiltersTemporal
+  VTK::hdf5
+  VTK::ImagingCore
+  VTK::IOGeometry
+  VTK::IOXML
+  VTK::TestingCore
+  VTK::TestingRendering

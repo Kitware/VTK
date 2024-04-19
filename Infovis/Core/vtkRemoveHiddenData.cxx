@@ -1,28 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRemoveHiddenData.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkRemoveHiddenData.h"
 
 #include "vtkAnnotation.h"
 #include "vtkAnnotationLayers.h"
 #include "vtkCellData.h"
 #include "vtkConvertSelection.h"
+#include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelectedGraph.h"
 #include "vtkExtractSelectedRows.h"
@@ -32,15 +17,14 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkDataSet.h"
 #include "vtkScalarsToColors.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkSelection.h"
-#include "vtkSelectionNode.h"
 
-
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRemoveHiddenData);
 
 vtkRemoveHiddenData::vtkRemoveHiddenData()
@@ -71,10 +55,8 @@ int vtkRemoveHiddenData::FillInputPortInformation(int port, vtkInformation* info
   return 1;
 }
 
-int vtkRemoveHiddenData::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkRemoveHiddenData::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -88,8 +70,8 @@ int vtkRemoveHiddenData::RequestData(
   vtkAnnotationLayers* annotations = nullptr;
   if (annotationsInfo)
   {
-    annotations = vtkAnnotationLayers::SafeDownCast(
-      annotationsInfo->Get(vtkDataObject::DATA_OBJECT()));
+    annotations =
+      vtkAnnotationLayers::SafeDownCast(annotationsInfo->Get(vtkDataObject::DATA_OBJECT()));
   }
 
   // Nothing to do if no input annotations
@@ -112,9 +94,9 @@ int vtkRemoveHiddenData::RequestData(
     // Only if the annotation is both enabled AND hidden will
     // its selection get added
     if (ann->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
-        ann->GetInformation()->Get(vtkAnnotation::ENABLE())==1 &&
-        ann->GetInformation()->Has(vtkAnnotation::HIDE()) &&
-        ann->GetInformation()->Get(vtkAnnotation::HIDE())==1 )
+      ann->GetInformation()->Get(vtkAnnotation::ENABLE()) == 1 &&
+      ann->GetInformation()->Has(vtkAnnotation::HIDE()) &&
+      ann->GetInformation()->Get(vtkAnnotation::HIDE()) == 1)
     {
       selection->Union(ann->GetSelection());
       numHiddenAnnotations++;
@@ -122,7 +104,7 @@ int vtkRemoveHiddenData::RequestData(
   }
 
   // Nothing to do if no hidden annotations
-  if(numHiddenAnnotations == 0)
+  if (numHiddenAnnotations == 0)
   {
     output->ShallowCopy(input);
     return 1;
@@ -133,7 +115,7 @@ int vtkRemoveHiddenData::RequestData(
   for (unsigned int i = 0; i < selection->GetNumberOfNodes(); ++i)
   {
     vtkSelectionNode* node = selection->GetNode(i);
-    node->GetProperties()->Set(vtkSelectionNode::INVERSE(),1);
+    node->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
   }
 
   if (graph)
@@ -159,9 +141,8 @@ int vtkRemoveHiddenData::RequestData(
   return 1;
 }
 
-
-
 void vtkRemoveHiddenData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

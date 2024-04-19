@@ -1,34 +1,25 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkActor.h"
 #include "vtkElevationFilter.h"
 #include "vtkGLTFExporter.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <cstdlib>
 
-namespace {
-size_t fileSize(const std::string & filename)
+namespace
+{
+size_t fileSize(const std::string& filename)
 {
   size_t size = 0;
-  FILE* f = fopen(filename.c_str(), "r");
+  FILE* f = vtksys::SystemTools::Fopen(filename, "r");
   if (f)
   {
     fseek(f, 0, SEEK_END);
@@ -44,10 +35,10 @@ size_t fileSize(const std::string & filename)
 }
 }
 
-int TestGLTFExporter(int argc, char *argv[])
+int TestGLTFExporter(int argc, char* argv[])
 {
-  char *tempDir = vtkTestUtilities::GetArgOrEnvOrDefault(
-    "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  char* tempDir =
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!tempDir)
   {
     std::cout << "Could not determine temporary directory.\n";
@@ -56,8 +47,7 @@ int TestGLTFExporter(int argc, char *argv[])
   std::string testDirectory = tempDir;
   delete[] tempDir;
 
-  std::string filename = testDirectory
-    + std::string("/") + std::string("Export");
+  std::string filename = testDirectory + std::string("/") + std::string("Export");
 
   vtkNew<vtkSphereSource> sphere;
   vtkNew<vtkElevationFilter> elev;
@@ -74,6 +64,7 @@ int TestGLTFExporter(int argc, char *argv[])
 
   filename += ".gltf";
 
+  mapper->SetInterpolateScalarsBeforeMapping(true); // To generate texture
   vtkNew<vtkGLTFExporter> exporter;
   exporter->SetRenderWindow(window);
   exporter->SetFileName(filename.c_str());
@@ -88,6 +79,19 @@ int TestGLTFExporter(int argc, char *argv[])
   {
     return EXIT_FAILURE;
   }
+  exporter->SetSaveNaNValues(false);
+  exporter->Write();
+  size_t noNaNValueSize = fileSize(filename);
+  // GLTF File size and not texture file size.
+  size_t correctNoNaNValueSize = correctSize - 16;
+  if (noNaNValueSize != correctNoNaNValueSize)
+  {
+    std::cerr
+      << "Error: file should not contain NaN value color in texture, when SaveNaNValues is false"
+      << std::endl;
+    return EXIT_FAILURE;
+  }
+  exporter->SetSaveNaNValues(true);
 
   actor->VisibilityOff();
   exporter->Write();
@@ -100,7 +104,8 @@ int TestGLTFExporter(int argc, char *argv[])
   if (noDataSize >= correctSize)
   {
     std::cerr << "Error: file should contain data for a visible actor"
-      "and not for a hidden one." << std::endl;
+                 "and not for a hidden one."
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -115,7 +120,8 @@ int TestGLTFExporter(int argc, char *argv[])
   if (size > noDataSize)
   {
     std::cerr << "Error: file should not contain geometry"
-      " (actor has no mapper)" << std::endl;
+                 " (actor has no mapper)"
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -130,7 +136,8 @@ int TestGLTFExporter(int argc, char *argv[])
   if (size > noDataSize)
   {
     std::cerr << "Error: file should not contain geometry"
-      " (mapper has no input)" << std::endl;
+                 " (mapper has no input)"
+              << std::endl;
     return EXIT_FAILURE;
   }
 

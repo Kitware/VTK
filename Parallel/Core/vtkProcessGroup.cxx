@@ -1,24 +1,6 @@
-// -*- c++ -*-
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProcessGroup.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkProcessGroup.h"
 
 #include "vtkCommunicator.h"
@@ -27,10 +9,11 @@
 
 #include <algorithm>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProcessGroup);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkProcessGroup::vtkProcessGroup()
 {
   this->Communicator = nullptr;
@@ -44,7 +27,7 @@ vtkProcessGroup::~vtkProcessGroup()
   this->SetCommunicator(nullptr);
 }
 
-void vtkProcessGroup::PrintSelf(ostream &os, vtkIndent indent)
+void vtkProcessGroup::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -57,13 +40,13 @@ void vtkProcessGroup::PrintSelf(ostream &os, vtkIndent indent)
   os << endl;
 }
 
-//-----------------------------------------------------------------------------
-void vtkProcessGroup::Initialize(vtkMultiProcessController *controller)
+//------------------------------------------------------------------------------
+void vtkProcessGroup::Initialize(vtkMultiProcessController* controller)
 {
   this->Initialize(controller->GetCommunicator());
 }
 
-void vtkProcessGroup::Initialize(vtkCommunicator *communicator)
+void vtkProcessGroup::Initialize(vtkCommunicator* communicator)
 {
   this->SetCommunicator(communicator);
 
@@ -74,11 +57,11 @@ void vtkProcessGroup::Initialize(vtkCommunicator *communicator)
   }
 }
 
-//-----------------------------------------------------------------------------
-void vtkProcessGroup::SetCommunicator(vtkCommunicator *communicator)
+//------------------------------------------------------------------------------
+void vtkProcessGroup::SetCommunicator(vtkCommunicator* communicator)
 {
   // Adjust ProcessIds array.
-  int *newProcessIds = nullptr;
+  int* newProcessIds = nullptr;
   int newNumberOfProcessIds = 0;
   if (communicator)
   {
@@ -91,17 +74,17 @@ void vtkProcessGroup::SetCommunicator(vtkCommunicator *communicator)
   }
   if (this->ProcessIds)
   {
-    std::copy(newProcessIds, newProcessIds+newNumberOfProcessIds,
-               this->ProcessIds);
+    std::copy(newProcessIds, newProcessIds + newNumberOfProcessIds, this->ProcessIds);
   }
-  if (this->Communicator) delete[] this->ProcessIds;
+  if (this->Communicator)
+    delete[] this->ProcessIds;
   this->ProcessIds = newProcessIds;
   this->NumberOfProcessIds = newNumberOfProcessIds;
 
   vtkSetObjectBodyMacro(Communicator, vtkCommunicator, communicator);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProcessGroup::GetLocalProcessId()
 {
   if (this->Communicator)
@@ -114,17 +97,18 @@ int vtkProcessGroup::GetLocalProcessId()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProcessGroup::FindProcessId(int processId)
 {
   for (int i = 0; i < this->NumberOfProcessIds; i++)
   {
-    if (this->ProcessIds[i] == processId) return i;
+    if (this->ProcessIds[i] == processId)
+      return i;
   }
   return -1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProcessGroup::AddProcessId(int processId)
 {
   int loc = this->FindProcessId(processId);
@@ -137,22 +121,23 @@ int vtkProcessGroup::AddProcessId(int processId)
   return loc;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProcessGroup::RemoveProcessId(int processId)
 {
   int loc = this->FindProcessId(processId);
-  if (loc < 0) return 0;
+  if (loc < 0)
+    return 0;
 
   this->NumberOfProcessIds--;
   for (int i = loc; i < this->NumberOfProcessIds; i++)
   {
-    this->ProcessIds[i] = this->ProcessIds[i+1];
+    this->ProcessIds[i] = this->ProcessIds[i + 1];
   }
   this->Modified();
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProcessGroup::RemoveAllProcessIds()
 {
   if (this->NumberOfProcessIds > 0)
@@ -162,8 +147,8 @@ void vtkProcessGroup::RemoveAllProcessIds()
   }
 }
 
-//-----------------------------------------------------------------------------
-void vtkProcessGroup::Copy(vtkProcessGroup *group)
+//------------------------------------------------------------------------------
+void vtkProcessGroup::Copy(vtkProcessGroup* group)
 {
   this->SetCommunicator(group->Communicator);
   this->NumberOfProcessIds = group->NumberOfProcessIds;
@@ -172,3 +157,4 @@ void vtkProcessGroup::Copy(vtkProcessGroup *group)
     this->ProcessIds[i] = group->ProcessIds[i];
   }
 }
+VTK_ABI_NAMESPACE_END

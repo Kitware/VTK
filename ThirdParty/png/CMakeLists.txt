@@ -1,7 +1,19 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkpng/LICENSE"
-    VERSION       "1.6.37"
+    LICENSE_FILES
+      "vtkpng/LICENSE"
+    SPDX_LICENSE_IDENTIFIER
+      "Libpng"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright (c) 1995-2019 The PNG Reference Library Authors."
+      "Copyright (c) 2018-2019 Cosmin Truta."
+      "Copyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson."
+      "Copyright (c) 1996-1997 Andreas Dilger."
+      "Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc."
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/png.git@for/vtk-20210727-1.6.37"
+    VERSION
+      "1.6.37"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE PNG

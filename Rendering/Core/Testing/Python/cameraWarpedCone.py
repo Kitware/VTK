@@ -1,23 +1,33 @@
 #!/usr/bin/env python
 
-import vtk
+from vtkmodules.vtkCommonMath import vtkMatrix4x4
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # create a rendering window and renderer
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
 renWin.SetSize(300,300)
 
 # create an actor and give it cone geometry
-cone = vtk.vtkConeSource()
+cone = vtkConeSource()
 cone.SetResolution(8)
-coneMapper = vtk.vtkPolyDataMapper()
+coneMapper = vtkPolyDataMapper()
 coneMapper.SetInputConnection(cone.GetOutputPort())
-coneActor = vtk.vtkActor()
+coneActor = vtkActor()
 coneActor.SetMapper(coneMapper)
 
 # create a transform and distort the camera using it
-mat = vtk.vtkMatrix4x4()
+mat = vtkMatrix4x4()
 mat.SetElement(0,0,0.5)
 mat.SetElement(0,1,0)
 mat.SetElement(0,2,0)
@@ -35,7 +45,7 @@ mat.SetElement(3,1,0)
 mat.SetElement(3,2,0)
 mat.SetElement(3,3,1)
 
-trans = vtk.vtkTransform()
+trans = vtkTransform()
 trans.SetMatrix(mat)
 
 # assign our actor to the renderer

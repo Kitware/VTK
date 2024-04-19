@@ -1,13 +1,17 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOMINC import vtkMINCImageReader
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
-reader = vtk.vtkMINCImageReader()
+reader = vtkMINCImageReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/t3_grid_0.mnc")
 
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 viewer.SetInputConnection(reader.GetOutputPort())
 viewer.SetColorWindow(65535)
 viewer.SetColorLevel(0)

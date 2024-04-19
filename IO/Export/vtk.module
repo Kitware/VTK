@@ -2,11 +2,20 @@ NAME
   VTK::IOExport
 LIBRARY_NAME
   vtkIOExport
-KIT
-  VTK::IO
 IMPLEMENTABLE
 GROUPS
   Rendering
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-BSD-3-Clause-LANL-USGov
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) 2007, Los Alamos National Security, LLC
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
+  BSD-3-Clause-LANL-USGov
+LICENSE_FILES
+  LICENSE
 DEPENDS
   VTK::CommonCore
   VTK::IOCore
@@ -15,15 +24,20 @@ DEPENDS
   VTK::RenderingContext2D
   VTK::RenderingCore
   VTK::RenderingFreeType
+  VTK::RenderingVtkJS
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonMath
   VTK::CommonTransforms
+  VTK::DomainsChemistry
+  VTK::FiltersCore
   VTK::FiltersGeometry
   VTK::IOImage
+  VTK::IOGeometry
   VTK::ImagingCore
-  VTK::jsoncpp
+  VTK::nlohmannjson
   VTK::libharu
+  VTK::utf8
 TEST_DEPENDS
   VTK::ChartsCore
   VTK::CommonColor

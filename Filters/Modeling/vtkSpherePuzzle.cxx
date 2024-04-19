@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSpherePuzzle.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSpherePuzzle.h"
 
 #include "vtkAppendPolyData.h"
@@ -30,9 +18,10 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSpherePuzzle);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct a new puzzle.
 vtkSpherePuzzle::vtkSpherePuzzle()
 {
@@ -43,7 +32,7 @@ vtkSpherePuzzle::vtkSpherePuzzle()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct a new puzzle.
 vtkSpherePuzzle::~vtkSpherePuzzle()
 {
@@ -51,7 +40,7 @@ vtkSpherePuzzle::~vtkSpherePuzzle()
   this->Transform = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::Reset()
 {
   int idx;
@@ -65,52 +54,49 @@ void vtkSpherePuzzle::Reset()
   this->Transform->Identity();
   for (idx = 0; idx < 4; ++idx)
   {
-    this->Colors[0 + idx*8*3] = 255;
-    this->Colors[1 + idx*8*3] = 0;
-    this->Colors[2 + idx*8*3] = 0;
+    this->Colors[0 + idx * 8 * 3] = 255;
+    this->Colors[1 + idx * 8 * 3] = 0;
+    this->Colors[2 + idx * 8 * 3] = 0;
 
-    this->Colors[3 + idx*8*3] = 255;
-    this->Colors[4 + idx*8*3] = 175;
-    this->Colors[5 + idx*8*3] = 0;
+    this->Colors[3 + idx * 8 * 3] = 255;
+    this->Colors[4 + idx * 8 * 3] = 175;
+    this->Colors[5 + idx * 8 * 3] = 0;
 
-    this->Colors[6 + idx*8*3] = 255;
-    this->Colors[7 + idx*8*3] = 255;
-    this->Colors[8 + idx*8*3] = 0;
+    this->Colors[6 + idx * 8 * 3] = 255;
+    this->Colors[7 + idx * 8 * 3] = 255;
+    this->Colors[8 + idx * 8 * 3] = 0;
 
-    this->Colors[9 + idx*8*3] = 0;
-    this->Colors[10 + idx*8*3] = 255;
-    this->Colors[11 + idx*8*3] = 0;
+    this->Colors[9 + idx * 8 * 3] = 0;
+    this->Colors[10 + idx * 8 * 3] = 255;
+    this->Colors[11 + idx * 8 * 3] = 0;
 
-    this->Colors[12 + idx*8*3] = 0;
-    this->Colors[13 + idx*8*3] = 255;
-    this->Colors[14 + idx*8*3] = 255;
+    this->Colors[12 + idx * 8 * 3] = 0;
+    this->Colors[13 + idx * 8 * 3] = 255;
+    this->Colors[14 + idx * 8 * 3] = 255;
 
-    this->Colors[15 + idx*8*3] = 0;
-    this->Colors[16 + idx*8*3] = 0;
-    this->Colors[17 + idx*8*3] = 255;
+    this->Colors[15 + idx * 8 * 3] = 0;
+    this->Colors[16 + idx * 8 * 3] = 0;
+    this->Colors[17 + idx * 8 * 3] = 255;
 
-    this->Colors[18 + idx*8*3] = 175;
-    this->Colors[19 + idx*8*3] = 0;
-    this->Colors[20 + idx*8*3] = 255;
+    this->Colors[18 + idx * 8 * 3] = 175;
+    this->Colors[19 + idx * 8 * 3] = 0;
+    this->Colors[20 + idx * 8 * 3] = 255;
 
-    this->Colors[21 + idx*8*3] = 255;
-    this->Colors[22 + idx*8*3] = 50;
-    this->Colors[23 + idx*8*3] = 150;
+    this->Colors[21 + idx * 8 * 3] = 255;
+    this->Colors[22 + idx * 8 * 3] = 50;
+    this->Colors[23 + idx * 8 * 3] = 150;
   }
 }
 
-//----------------------------------------------------------------------------
-int vtkSpherePuzzle::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkSpherePuzzle::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // We are about to create/destroy a lot of objects.  Defer garbage
   // collection until we are done.
@@ -118,11 +104,11 @@ int vtkSpherePuzzle::RequestData(
 
   int i, j, k, num;
   int color;
-  vtkAppendPolyData *append = vtkAppendPolyData::New();
-  vtkSphereSource *sphere = vtkSphereSource::New();
-  vtkTransformFilter *tf = vtkTransformFilter::New();
-  vtkUnsignedCharArray *scalars = vtkUnsignedCharArray::New();
-  vtkPolyData *tmp;
+  vtkAppendPolyData* append = vtkAppendPolyData::New();
+  vtkSphereSource* sphere = vtkSphereSource::New();
+  vtkTransformFilter* tf = vtkTransformFilter::New();
+  vtkUnsignedCharArray* scalars = vtkUnsignedCharArray::New();
+  vtkPolyData* tmp;
   int count = 0;
   unsigned char r, g, b;
 
@@ -130,9 +116,11 @@ int vtkSpherePuzzle::RequestData(
 
   sphere->SetPhiResolution(4);
   sphere->SetThetaResolution(4);
+  sphere->SetContainerAlgorithm(this);
 
   tf->SetTransform(this->Transform);
   tf->SetInputConnection(sphere->GetOutputPort());
+  tf->SetContainerAlgorithm(this);
 
   for (j = 0; j < 4; ++j)
   {
@@ -140,9 +128,9 @@ int vtkSpherePuzzle::RequestData(
     {
       color = this->State[count] * 3;
       sphere->SetStartTheta((360.0 * (double)(i) / 8.0));
-      sphere->SetEndTheta((360.0 * (double)(i+1) / 8.0));
+      sphere->SetEndTheta((360.0 * (double)(i + 1) / 8.0));
       sphere->SetStartPhi((180.0 * (double)(j) / 4.0));
-      sphere->SetEndPhi((180.0 * (double)(j+1) / 4.0));
+      sphere->SetEndPhi((180.0 * (double)(j + 1) / 4.0));
       tmp = vtkPolyData::New();
       if (this->PieceMask[count])
       { // Spheres original output is transforms input. Put it back.
@@ -159,8 +147,8 @@ int vtkSpherePuzzle::RequestData(
       for (k = 0; k < num; ++k)
       {
         r = this->Colors[color];
-        g = this->Colors[color+1];
-        b = this->Colors[color+2];
+        g = this->Colors[color + 1];
+        b = this->Colors[color + 2];
         // Lighten the active pieces
         if (this->Active && this->PieceMask[count])
         {
@@ -180,6 +168,7 @@ int vtkSpherePuzzle::RequestData(
     }
   }
 
+  append->SetContainerAlgorithm(this);
   append->Update();
 
   // Move the data to the output.
@@ -199,7 +188,7 @@ int vtkSpherePuzzle::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::MarkHorizontal(int section)
 {
   int i;
@@ -212,11 +201,11 @@ void vtkSpherePuzzle::MarkHorizontal(int section)
   section = section * 8;
   for (i = 0; i < 8; ++i)
   {
-    this->PieceMask[i+section] = 1;
+    this->PieceMask[i + section] = 1;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::MarkVertical(int section)
 {
   int i, j, offset;
@@ -230,12 +219,12 @@ void vtkSpherePuzzle::MarkVertical(int section)
     offset = (section + i) % 8;
     for (j = 0; j < 4; ++j)
     {
-      this->PieceMask[offset+(j*8)] = 0;
+      this->PieceMask[offset + (j * 8)] = 0;
     }
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::MoveHorizontal(int slab, int percentage, int rightFlag)
 {
   int offset;
@@ -262,10 +251,10 @@ void vtkSpherePuzzle::MoveHorizontal(int slab, int percentage, int rightFlag)
   { // Just do the state change.
     if (rightFlag)
     {
-      tmp = this->State[offset+7];
+      tmp = this->State[offset + 7];
       for (i = 7; i > 0; --i)
       {
-        this->State[i+offset] = this->State[i-1+offset];
+        this->State[i + offset] = this->State[i - 1 + offset];
       }
       this->State[offset] = tmp;
     }
@@ -274,9 +263,9 @@ void vtkSpherePuzzle::MoveHorizontal(int slab, int percentage, int rightFlag)
       tmp = this->State[offset];
       for (i = 0; i < 7; ++i)
       {
-        this->State[i+offset] = this->State[i+1+offset];
+        this->State[i + offset] = this->State[i + 1 + offset];
       }
-      this->State[offset+7] = tmp;
+      this->State[offset + 7] = tmp;
     }
     return;
   }
@@ -285,15 +274,14 @@ void vtkSpherePuzzle::MoveHorizontal(int slab, int percentage, int rightFlag)
   // This does not change the state.  It is ust for animating
   // the move.
   // Setup the pieces that are involved in the move.
-  if ( ! rightFlag)
+  if (!rightFlag)
   {
     percentage = -percentage;
   }
-  this->Transform->RotateZ(((double)(percentage) / 100.0)
-                           * (360.0 / 8.0) );
+  this->Transform->RotateZ(((double)(percentage) / 100.0) * (360.0 / 8.0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::MoveVertical(int half, int percentage, int rightFlag)
 {
   int tmp;
@@ -312,46 +300,45 @@ void vtkSpherePuzzle::MoveVertical(int half, int percentage, int rightFlag)
     return;
   }
 
-  off0 = (4+half) % 8;
-  off1 = (5+half) % 8;
-  off2 = (6+half) % 8;
-  off3 = (7+half) % 8;
+  off0 = (4 + half) % 8;
+  off1 = (5 + half) % 8;
+  off2 = (6 + half) % 8;
+  off3 = (7 + half) % 8;
 
   // Move 100 percent changes state.
   if (percentage >= 100)
   { // Just do the state change.
     tmp = this->State[off0];
-    this->State[off0] = this->State[24+off3];
-    this->State[24+off3] = tmp;
+    this->State[off0] = this->State[24 + off3];
+    this->State[24 + off3] = tmp;
 
     tmp = this->State[off1];
-    this->State[off1] = this->State[24+off2];
-    this->State[24+off2] = tmp;
+    this->State[off1] = this->State[24 + off2];
+    this->State[24 + off2] = tmp;
 
     tmp = this->State[off2];
-    this->State[off2] = this->State[24+off1];
-    this->State[24+off1] = tmp;
+    this->State[off2] = this->State[24 + off1];
+    this->State[24 + off1] = tmp;
 
     tmp = this->State[off3];
-    this->State[off3] = this->State[24+off0];
-    this->State[24+off0] = tmp;
+    this->State[off3] = this->State[24 + off0];
+    this->State[24 + off0] = tmp;
 
+    tmp = this->State[8 + off0];
+    this->State[8 + off0] = this->State[16 + off3];
+    this->State[16 + off3] = tmp;
 
-    tmp = this->State[8+off0];
-    this->State[8+off0] = this->State[16+off3];
-    this->State[16+off3] = tmp;
+    tmp = this->State[8 + off1];
+    this->State[8 + off1] = this->State[16 + off2];
+    this->State[16 + off2] = tmp;
 
-    tmp = this->State[8+off1];
-    this->State[8+off1] = this->State[16+off2];
-    this->State[16+off2] = tmp;
+    tmp = this->State[8 + off2];
+    this->State[8 + off2] = this->State[16 + off1];
+    this->State[16 + off1] = tmp;
 
-    tmp = this->State[8+off2];
-    this->State[8+off2] = this->State[16+off1];
-    this->State[16+off1] = tmp;
-
-    tmp = this->State[8+off3];
-    this->State[8+off3] = this->State[16+off0];
-    this->State[16+off0] = tmp;
+    tmp = this->State[8 + off3];
+    this->State[8 + off3] = this->State[16 + off0];
+    this->State[16 + off0] = tmp;
     return;
   }
 
@@ -361,13 +348,12 @@ void vtkSpherePuzzle::MoveVertical(int half, int percentage, int rightFlag)
   {
     percentage = -percentage;
   }
-  theta = (double)(half) * vtkMath::Pi() / 4.0;
-  this->Transform->RotateWXYZ(((double)(percentage)/100.0)*(360.0/2.0),
-                              sin(theta), -cos(theta), 0.0);
-
+  theta = (double)(half)*vtkMath::Pi() / 4.0;
+  this->Transform->RotateWXYZ(
+    ((double)(percentage) / 100.0) * (360.0 / 2.0), sin(theta), -cos(theta), 0.0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkSpherePuzzle::SetPoint(double x, double y, double z)
 {
   double pt[3];
@@ -397,8 +383,8 @@ int vtkSpherePuzzle::SetPoint(double x, double y, double z)
   // Compute the piece the point is in.
   xi = (int)(theta * 8.0 / 360.0);
   yi = (int)(phi * 8 / 360.0);
-  xn = (theta/(360.0/8.0)) - (double)(xi);
-  yn = (phi/(360.0/8.0)) - (double)(yi);
+  xn = (theta / (360.0 / 8.0)) - (double)(xi);
+  yn = (phi / (360.0 / 8.0)) - (double)(yi);
 
   vtkDebugMacro("point: " << x << ", " << y << ", " << z);
   vtkDebugMacro("theta: " << theta << ",  phi: " << phi);
@@ -416,7 +402,7 @@ int vtkSpherePuzzle::SetPoint(double x, double y, double z)
   {
     this->VerticalFlag = 1;
     this->RightFlag = (yn < yp);
-    this->Section = xi+2;
+    this->Section = xi + 2;
     this->MarkVertical(this->Section);
     return this->Section + this->VerticalFlag * 10 + this->RightFlag * 100;
   }
@@ -424,7 +410,7 @@ int vtkSpherePuzzle::SetPoint(double x, double y, double z)
   {
     this->VerticalFlag = 1;
     this->RightFlag = (yp < yn);
-    this->Section = xi+7;
+    this->Section = xi + 7;
     this->MarkVertical(this->Section);
     return this->Section + this->VerticalFlag * 10 + this->RightFlag * 100;
   }
@@ -436,10 +422,10 @@ int vtkSpherePuzzle::SetPoint(double x, double y, double z)
   return this->Section + this->VerticalFlag * 10 + this->RightFlag * 100;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::MovePoint(int percentage)
 {
-  if ( ! this->Active)
+  if (!this->Active)
   {
     return;
   }
@@ -455,11 +441,11 @@ void vtkSpherePuzzle::MovePoint(int percentage)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSpherePuzzle::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "State: " << this->State[0];
   for (idx = 1; idx < 16; ++idx)
@@ -468,3 +454,4 @@ void vtkSpherePuzzle::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << endl;
 }
+VTK_ABI_NAMESPACE_END

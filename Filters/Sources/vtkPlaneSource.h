@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPlaneSource.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPlaneSource
  * @brief   create an array of quadrilaterals located in a plane
@@ -43,7 +31,7 @@
  * The normal to the plane will point in the direction of the cross product
  * of the first axis (Origin->Point1) with the second (Origin->Point2). This
  * also affects the normals to the generated polygons.
-*/
+ */
 
 #ifndef vtkPlaneSource_h
 #define vtkPlaneSource_h
@@ -51,70 +39,84 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkPlaneSource : public vtkPolyDataAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkPlaneSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPlaneSource, vtkPolyDataAlgorithm);
 
   /**
    * Construct plane perpendicular to z-axis, resolution 1x1, width
    * and height 1.0, and centered at the origin.
    */
-  static vtkPlaneSource *New();
+  static vtkPlaneSource* New();
 
-  //@{
+  ///@{
   /**
    * Specify the resolution of the plane along the first axes.
    */
-  vtkSetMacro(XResolution,int);
-  vtkGetMacro(XResolution,int);
-  //@}
+  vtkSetMacro(XResolution, int);
+  vtkGetMacro(XResolution, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the resolution of the plane along the second axes.
    */
-  vtkSetMacro(YResolution,int);
-  vtkGetMacro(YResolution,int);
-  //@}
+  vtkSetMacro(YResolution, int);
+  vtkGetMacro(YResolution, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of x-y subdivisions in the plane.
    */
-  void SetResolution(const int xR, const int yR);
-  void GetResolution(int& xR,int& yR) {
-    xR=this->XResolution; yR=this->YResolution;};
-  //@}
+  void SetResolution(int xR, int yR);
+  void GetResolution(int& xR, int& yR)
+  {
+    xR = this->XResolution;
+    yR = this->YResolution;
+  }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the origin of the plane.
    */
-  vtkSetVector3Macro(Origin,double);
-  vtkGetVectorMacro(Origin,double,3);
-  //@}
+  vtkSetVector3Macro(Origin, double);
+  vtkGetVectorMacro(Origin, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the first axis of the plane.
    */
   void SetPoint1(double x, double y, double z);
   void SetPoint1(double pnt[3]);
-  vtkGetVectorMacro(Point1,double,3);
-  //@}
+  vtkGetVectorMacro(Point1, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the second axis of the plane.
    */
   void SetPoint2(double x, double y, double z);
   void SetPoint2(double pnt[3]);
-  vtkGetVectorMacro(Point2,double,3);
-  //@}
+  vtkGetVectorMacro(Point2, double, 3);
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * Convenience methods to retrieve the axes of the plane; that is
+   * axis a1 is the vector (Point1-Origin), and axis a2 is the vector
+   * (Point2-Origin).
+   */
+  void GetAxis1(double a1[3]);
+  void GetAxis2(double a2[3]);
+  ///@}
+
+  ///@{
   /**
    * Set/Get the center of the plane. Works in conjunction with the plane
    * normal to position the plane. Don't use this method to define the plane.
@@ -122,10 +124,10 @@ public:
    */
   void SetCenter(double x, double y, double z);
   void SetCenter(double center[3]);
-  vtkGetVectorMacro(Center,double,3);
-  //@}
+  vtkGetVectorMacro(Center, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the plane normal. Works in conjunction with the plane center to
    * orient the plane. Don't use this method to define the plane. Instead, use
@@ -133,8 +135,8 @@ public:
    */
   void SetNormal(double nx, double ny, double nz);
   void SetNormal(double n[3]);
-  vtkGetVectorMacro(Normal,double,3);
-  //@}
+  vtkGetVectorMacro(Normal, double, 3);
+  ///@}
 
   /**
    * Translate the plane in the direction of the normal by the
@@ -143,21 +145,28 @@ public:
    */
   void Push(double distance);
 
-  //@{
+  /**
+   * Rotate plane at center around a given axis
+   * If the absolute value of the angle is inferior to the defined EPSILON, then don't
+   * rotate
+   */
+  void Rotate(double angle, double rotationAxis[3]);
+
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
-  //@}
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
 
 protected:
   vtkPlaneSource();
-  ~vtkPlaneSource() override {}
+  ~vtkPlaneSource() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int XResolution;
   int YResolution;
@@ -169,9 +178,11 @@ protected:
   int OutputPointsPrecision;
 
   int UpdatePlane(double v1[3], double v2[3]);
+
 private:
   vtkPlaneSource(const vtkPlaneSource&) = delete;
   void operator=(const vtkPlaneSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

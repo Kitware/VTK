@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 /*****************************************************************************
  *
@@ -79,7 +52,9 @@ int ex_put_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, cons
   int         status;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   switch (map_type) {
   case EX_NODE_MAP:
@@ -123,7 +98,7 @@ int ex_put_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, cons
   }
 
   /* Check for duplicate map id entry */
-  status = ex_id_lkup(exoid, map_type, map_id);
+  status = ex__id_lkup(exoid, map_type, map_id);
   if (status != -EX_LOOKUPFAIL) { /* found the map id */
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: %s %" PRId64 " already defined in file id %d",
              ex_name_of_object(map_type), map_id, exoid);
@@ -142,10 +117,10 @@ int ex_put_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, cons
 
   /* Keep track of the total number of maps defined using a counter stored
      in a linked list keyed by exoid.
-     NOTE: ex_get_file_item  is used to find the number of maps
+     NOTE: ex__get_file_item  is used to find the number of maps
      for a specific file and returns that value.
   */
-  cur_num_maps = ex_get_file_item(exoid, ex_get_counter_list(map_type));
+  cur_num_maps = ex__get_file_item(exoid, ex__get_counter_list(map_type));
   if (cur_num_maps >= num_maps) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: exceeded number of %ss (%d) specified in file id %d",
              ex_name_of_object(map_type), num_maps, exoid);
@@ -153,9 +128,9 @@ int ex_put_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, cons
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  /*   NOTE: ex_inc_file_item  is used to find the number of maps
+  /*   NOTE: ex__inc_file_item  is used to find the number of maps
        for a specific file and returns that value incremented. */
-  cur_num_maps = ex_inc_file_item(exoid, ex_get_counter_list(map_type));
+  cur_num_maps = ex__inc_file_item(exoid, ex__get_counter_list(map_type));
 
   /* write out information to previously defined variable */
 
@@ -220,10 +195,10 @@ int ex_put_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, cons
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define map %s in file id %d", vmap, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
     }
-    ex_compress_variable(exoid, varid, 1);
+    ex__compress_variable(exoid, varid, 1);
 
-    if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) { /* exit define mode */
-      varid = -1;                                              /* force early exit */
+    if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) { /* exit define mode */
+      varid = -1;                                               /* force early exit */
     }
 
     if (varid == -1) { /* we couldn't define variable and have prepared error message. */

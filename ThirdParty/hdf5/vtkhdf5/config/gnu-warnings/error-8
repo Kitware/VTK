@@ -1,0 +1,22 @@
+-Werror=cast-function-type
+#
+# For GCC 8, promote maybe-initialized warnings to an error.  GCC 8
+# reports 0 maybe-uninitialized warnings where earlier versions
+# make many false reports.  GCC 8 seems to analyze calls to static
+# in order to detect initializations that occur there.  It's possible
+# that GCC 8 only performs that analysis at -O3, though.
+#
+#
+# NOTE: File Driver files are not compatible with these warnings as errors
+#     H5FDlog.c,
+#       -Werror=maybe-uninitialized
+-Wmaybe-uninitialized
+# NOTE: src/ files are not compatible with these warnings as errors
+#     src/H5Shyper.c,src/H5SL.c,src/H5Shyper.c
+#       -Werror=maybe-uninitialized
+# NOTE: Test files are not compatible with these warnings as errors
+#     test/cache_common.c,
+#       -Werror=maybe-uninitialized
+# NOTE: hl/src/ files are not compatible with these warnings as errors
+#     hl/src/H5DS.c,
+#       -Werror=maybe-uninitialized

@@ -1,0 +1,23 @@
+vtk_module_test_data(
+  Data/BCDirichletStructured.cgns
+  Data/BCNeumannUnstructured.cgns
+  Data/bc_struct.cgns
+  Data/BoxWithFaceData.cgns
+  Data/channelBump_solution.cgns
+  Data/EngineSector.cgns
+  Data/Example_fields.cgns
+  Data/Example_grids.cgns
+  Data/Example_mixed.cgns
+  Data/Example_nface_n.cgns
+  Data/Example_ngon_pe.cgns
+  Data/Example_ngon_2d_base.cgns
+  Data/MissingBase.cgns
+  Data/MixedElementNodes.cgns
+  Data/TemporalBox.cgns
+  Data/TemporalBox_1.cgns
+  Data/TemporalBox_2.cgns
+  Data/test_cylinder.cgns
+  Data/test_node_and_cell.cgns
+  Data/UserDefinedData.cgns)
+
+add_subdirectory(Cxx)

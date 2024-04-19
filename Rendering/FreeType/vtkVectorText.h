@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVectorText.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkVectorText
  * @brief   create polygonal text
@@ -30,39 +18,41 @@
  *
  * @sa
  * vtkTextMapper vtkCaptionActor2D
-*/
+ */
 
 #ifndef vtkVectorText_h
 #define vtkVectorText_h
 
-#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkRenderingFreeTypeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGFREETYPE_EXPORT vtkVectorText : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkVectorText *New();
-  vtkTypeMacro(vtkVectorText,vtkPolyDataAlgorithm);
+  static vtkVectorText* New();
+  vtkTypeMacro(vtkVectorText, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the text to be drawn.
    */
   vtkSetStringMacro(Text);
   vtkGetStringMacro(Text);
-  //@}
+  ///@}
 
 protected:
   vtkVectorText();
   ~vtkVectorText() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  char *Text;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  char* Text;
 
 private:
   vtkVectorText(const vtkVectorText&) = delete;
   void operator=(const vtkVectorText&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

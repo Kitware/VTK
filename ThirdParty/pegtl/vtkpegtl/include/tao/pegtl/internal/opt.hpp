@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_OPT_HPP
@@ -8,7 +8,6 @@
 
 #include "../config.hpp"
 
-#include "duseltronik.hpp"
 #include "seq.hpp"
 #include "skip_control.hpp"
 #include "trivial.hpp"
@@ -25,7 +24,10 @@ namespace tao
       namespace internal
       {
          template< typename... Rules >
-         struct opt;
+         struct opt
+            : opt< seq< Rules... > >
+         {
+         };
 
          template<>
          struct opt<>
@@ -33,10 +35,10 @@ namespace tao
          {
          };
 
-         template< typename... Rules >
-         struct opt
+         template< typename Rule >
+         struct opt< Rule >
          {
-            using analyze_t = analysis::generic< analysis::rule_type::opt, Rules... >;
+            using analyze_t = analysis::generic< analysis::rule_type::opt, Rule >;
 
             template< apply_mode A,
                       rewind_mode,
@@ -48,7 +50,7 @@ namespace tao
                       typename... States >
             static bool match( Input& in, States&&... st )
             {
-               duseltronik< seq< Rules... >, A, rewind_mode::required, Action, Control >::match( in, st... );
+               Control< Rule >::template match< A, rewind_mode::required, Action, Control >( in, st... );
                return true;
             }
          };

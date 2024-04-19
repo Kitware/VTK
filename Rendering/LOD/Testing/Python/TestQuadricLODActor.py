@@ -1,6 +1,20 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersSources import (
+    vtkPlaneSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLOD import vtkQuadricLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,32 +23,32 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Test the quadric decimation LOD actor
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # pipeline stuff
 #
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetPhiResolution(150)
 sphere.SetThetaResolution(150)
 
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetXResolution(150)
 plane.SetYResolution(150)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(sphere.GetOutputPort())
 mapper.SetInputConnection(plane.GetOutputPort())
 
-actor = vtk.vtkQuadricLODActor()
+actor = vtkQuadricLODActor()
 actor.SetMapper(mapper)
 actor.DeferLODConstructionOff()
 actor.GetProperty().SetRepresentationToWireframe()

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStructuredImplicitConnectivity.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkStructuredImplicitConnectivity
  * a distributed structured dataset that is implicitly connected among
@@ -34,7 +22,7 @@
  *  <li> node-center fields must match across processes. </li>
  * </ul>
  *
-*/
+ */
 
 #ifndef vtkStructuredImplicitConnectivity_h
 #define vtkStructuredImplicitConnectivity_h
@@ -43,6 +31,7 @@
 #include "vtkObject.h"
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkImageData;
 class vtkMPIController;
@@ -51,26 +40,29 @@ class vtkPointData;
 class vtkPoints;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 class CommunicationManager;
 struct DomainMetaData;
 struct StructuredGrid;
 
+VTK_ABI_NAMESPACE_END
 } // END namespace detail
 } // END namespace vtk
 
-class VTKFILTERSPARALLELMPI_EXPORT vtkStructuredImplicitConnectivity :
-  public vtkObject
+VTK_ABI_NAMESPACE_BEGIN
+class VTKFILTERSPARALLELMPI_EXPORT vtkStructuredImplicitConnectivity : public vtkObject
 {
 public:
   static vtkStructuredImplicitConnectivity* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkStructuredImplicitConnectivity,vtkObject);
+  vtkTypeMacro(vtkStructuredImplicitConnectivity, vtkObject);
 
   /**
    * \brief Sets the whole extent for the distributed structured domain.
@@ -88,12 +80,7 @@ public:
   // \pre gridID >= 0. The code uses values of gridID < -1 as flag internally.
   // \pre vtkStructuredExtent::Smaller(extent,wholeExtent) == true.
   // \note A rank with no or an empty grid, should not call this method.
-  void RegisterGrid(
-        const int gridID,
-        int extent[6],
-        vtkPoints* gridPnts,
-        vtkPointData* pointData
-        );
+  void RegisterGrid(int gridID, int extent[6], vtkPoints* gridPnts, vtkPointData* pointData);
 
   // \brief Registers the rectilinear grid dataset belonging to this process.
   // \param gridID the ID of the in this rank.
@@ -105,14 +92,8 @@ public:
   // \pre gridID >= 0. The code uses values of gridID < -1 as flag internally.
   // \pre vtkStructuredExtent::Smaller(extent,wholeExtent) == true.
   // \note A rank with no or an empty grid, should not call this method.
-  void RegisterRectilinearGrid(
-        const int gridID,
-        int extent[6],
-        vtkDataArray* xcoords,
-        vtkDataArray* ycoords,
-        vtkDataArray* zcoords,
-        vtkPointData* pointData
-        );
+  void RegisterRectilinearGrid(int gridID, int extent[6], vtkDataArray* xcoords,
+    vtkDataArray* ycoords, vtkDataArray* zcoords, vtkPointData* pointData);
 
   /**
    * \brief Finds implicit connectivity for a distributed structured dataset.
@@ -142,26 +123,27 @@ public:
    * \param gridID the ID of the grid
    * \param grid pointer to data-structure where to store the output.
    */
-  void GetOutputStructuredGrid(const int gridID, vtkStructuredGrid* grid);
+  void GetOutputStructuredGrid(int gridID, vtkStructuredGrid* grid);
 
   /**
    * \brief Gets the output uniform grid instance on this process.
    * \param gridID the ID of the grid.
    * \param grid pointer to data-structure where to store the output.
    */
-  void GetOutputImageData(const int gridID, vtkImageData* grid);
+  void GetOutputImageData(int gridID, vtkImageData* grid);
 
   /**
    * \brief Gets the output rectilinear grid instance on this process.
    * \param gridID the ID of the grid.
    * \param grid pointer to data-structure where to store the output.
    */
-  void GetOutputRectilinearGrid(const int gridID, vtkRectilinearGrid* grid);
+  void GetOutputRectilinearGrid(int gridID, vtkRectilinearGrid* grid);
 
 protected:
   vtkStructuredImplicitConnectivity();
-  virtual ~vtkStructuredImplicitConnectivity();
+  ~vtkStructuredImplicitConnectivity() override;
 
+  void SetController(vtkMPIController*);
   vtkMPIController* Controller;
 
   vtk::detail::DomainMetaData* DomainInfo;
@@ -187,7 +169,7 @@ protected:
   /**
    * \brief Allocates send/rcv buffers needed to carry out the communication.
    */
-  void AllocateBuffers(const int dim);
+  void AllocateBuffers(int dim);
 
   /**
    * \brief Computes the neighbors with implicit connectivity.
@@ -203,14 +185,14 @@ protected:
    * \brief Grows grid along a given dimension.
    * \param dim the dimension in query.
    */
-  void GrowGrid(const int dim);
+  void GrowGrid(int dim);
 
   /**
    * \brief Updates the list of neighbors after growing the grid along the
    * given dimension dim.
    * \param dim the dimension in query.
    */
-  void UpdateNeighborList(const int dim);
+  void UpdateNeighborList(int dim);
 
   /**
    * \brief Gets whether there is implicit connectivity across all processes.
@@ -228,4 +210,5 @@ private:
   vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&) = delete;
   void operator=(const vtkStructuredImplicitConnectivity&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

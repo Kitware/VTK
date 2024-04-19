@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractSelectedArraysOverTime.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkExtractSelectedArraysOverTime
  * @brief   extracts a selection over time.
@@ -27,7 +15,7 @@
  *
  * The output is a vtkMultiBlockDataSet. See vtkExtractDataArraysOverTime for
  * details on how the output is structured.
-*/
+ */
 
 #ifndef vtkExtractSelectedArraysOverTime_h
 #define vtkExtractSelectedArraysOverTime_h
@@ -36,6 +24,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkExtractDataArraysOverTime;
@@ -51,12 +40,12 @@ public:
   vtkTypeMacro(vtkExtractSelectedArraysOverTime, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the number of time steps
    */
   vtkGetMacro(NumberOfTimeSteps, int);
-  //@}
+  ///@}
 
   /**
    * Convenience method to specify the selection connection (2nd input
@@ -67,16 +56,16 @@ public:
     this->SetInputConnection(1, algOutput);
   }
 
-  //@{
+  ///@{
   /**
    * Set/get the vtkExtractSelection instance used to obtain
    * array values at each time step. By default, vtkExtractSelection is used.
    */
   virtual void SetSelectionExtractor(vtkExtractSelection*);
   vtkExtractSelection* GetSelectionExtractor();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Instead of breaking a selection into a separate time-history
    * table for each (block,ID)-tuple, you may call
@@ -90,7 +79,7 @@ public:
   vtkSetMacro(ReportStatisticsOnly, bool);
   vtkGetMacro(ReportStatisticsOnly, bool);
   vtkBooleanMacro(ReportStatisticsOnly, bool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractSelectedArraysOverTime();
@@ -144,4 +133,5 @@ private:
   bool IsExecuting;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

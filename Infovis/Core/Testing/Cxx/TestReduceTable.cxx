@@ -1,39 +1,27 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestReduceTable.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkReduceTable.h"
 
-#include "vtkIntArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIntArray.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestReduceTable(int, char*[])
 {
   vtkNew<vtkTable> table;
 
   vtkNew<vtkStringArray> indexColumn;
   indexColumn->SetNumberOfTuples(6);
-  indexColumn->SetValue(0,  "a");
-  indexColumn->SetValue(1,  "b");
-  indexColumn->SetValue(2,  "b");
-  indexColumn->SetValue(3,  "c");
-  indexColumn->SetValue(4,  "c");
-  indexColumn->SetValue(5,  "c");
+  indexColumn->SetValue(0, "a");
+  indexColumn->SetValue(1, "b");
+  indexColumn->SetValue(2, "b");
+  indexColumn->SetValue(3, "c");
+  indexColumn->SetValue(4, "c");
+  indexColumn->SetValue(5, "c");
 
   vtkNew<vtkDoubleArray> meanColumn;
   meanColumn->SetNumberOfTuples(6);
@@ -75,7 +63,7 @@ int TestReduceTable(int, char*[])
   filter->SetReductionMethodForColumn(3, vtkReduceTable::MODE);
   filter->Update();
 
-  vtkTable *output = filter->GetOutput();
+  vtkTable* output = filter->GetOutput();
 
   if (output->GetValue(0, 1) != 1)
   {

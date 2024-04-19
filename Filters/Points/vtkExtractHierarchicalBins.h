@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractHierarchicalBins.h
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See LICENSE file for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-CLAUSE
 /**
  * @class   vtkExtractHierarchicalBins
  * @brief   manipulate the output of
@@ -35,7 +23,7 @@
  * vtkFiltersPointsFilter vtkRadiusOutlierRemoval vtkStatisticalOutlierRemoval
  * vtkThresholdPoints vtkImplicitFunction vtkExtractGeometry
  * vtkFitImplicitFunction
-*/
+ */
 
 #ifndef vtkExtractHierarchicalBins_h
 #define vtkExtractHierarchicalBins_h
@@ -43,24 +31,24 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPointCloudFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHierarchicalBinningFilter;
 class vtkPointSet;
-
 
 class VTKFILTERSPOINTS_EXPORT vtkExtractHierarchicalBins : public vtkPointCloudFilter
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkExtractHierarchicalBins *New();
-  vtkTypeMacro(vtkExtractHierarchicalBins,vtkPointCloudFilter);
+  static vtkExtractHierarchicalBins* New();
+  vtkTypeMacro(vtkExtractHierarchicalBins, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the level to extract. If non-negative, with a negative bin
    * number, then all points at this level are extracted and sent to the
@@ -71,11 +59,11 @@ public:
    * vtkHierarchicalBinningFilter will clamp the level to the maximum
    * possible level of the binning filter.
    */
-  vtkSetMacro(Level,int);
-  vtkGetMacro(Level,int);
-  //@}
+  vtkSetMacro(Level, int);
+  vtkGetMacro(Level, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the bin number to extract. If a non-negative value, then the
    * points from the bin number specified are extracted. If negative, then
@@ -85,20 +73,19 @@ public:
    * greater than the associated vtkHierarchicalBinningFilter will clamp the
    * bin to the maximum possible bin of the binning filter.
    */
-  vtkSetMacro(Bin,int);
-  vtkGetMacro(Bin,int);
-  //@}
+  vtkSetMacro(Bin, int);
+  vtkGetMacro(Bin, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the vtkHierarchicalBinningFilter to query for relevant
    * information. Make sure that this filter has executed prior to the execution of
    * this filter. (This is generally a safe bet if connected in a pipeline.)
    */
   virtual void SetBinningFilter(vtkHierarchicalBinningFilter*);
-  vtkGetObjectMacro(BinningFilter,vtkHierarchicalBinningFilter);
-  //@}
-
+  vtkGetObjectMacro(BinningFilter, vtkHierarchicalBinningFilter);
+  ///@}
 
 protected:
   vtkExtractHierarchicalBins();
@@ -107,20 +94,19 @@ protected:
   // Users can extract points from a particular level or bin.
   int Level;
   int Bin;
-  vtkHierarchicalBinningFilter *BinningFilter;
+  vtkHierarchicalBinningFilter* BinningFilter;
 
   // for the binning filter
   void ReportReferences(vtkGarbageCollector*) override;
 
-
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
-  int FilterPoints(vtkPointSet *input) override;
+  int FilterPoints(vtkPointSet* input) override;
 
 private:
   vtkExtractHierarchicalBins(const vtkExtractHierarchicalBins&) = delete;
   void operator=(const vtkExtractHierarchicalBins&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

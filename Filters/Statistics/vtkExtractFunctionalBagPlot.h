@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractFunctionalBagPlot.h
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkExtractFunctionalBagPlot
  *
@@ -25,7 +14,7 @@
  *
  * @sa
  * vtkFunctionalBagPlot vtkHighestDensityRegionsStatistics
-*/
+ */
 
 #ifndef vtkExtractFunctionalBagPlot_h
 #define vtkExtractFunctionalBagPlot_h
@@ -33,7 +22,7 @@
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSTATISTICS_EXPORT vtkExtractFunctionalBagPlot : public vtkTableAlgorithm
 {
 public:
@@ -44,31 +33,30 @@ public:
   // Density value for the median quartile.
   vtkSetMacro(DensityForP50, double);
 
-  //@{
+  ///@{
   /**
    * Density value for the user defined quartile.
    */
   vtkSetMacro(DensityForPUser, double);
   vtkSetMacro(PUser, int);
-  //@}
+  ///@}
 
 protected:
   vtkExtractFunctionalBagPlot();
   ~vtkExtractFunctionalBagPlot() override;
 
-  int RequestData(vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char *P50String;
-  char *PUserString;
+  char* P50String;
+  char* PUserString;
   double DensityForP50;
   double DensityForPUser;
   int PUser;
 
 private:
-  vtkExtractFunctionalBagPlot( const vtkExtractFunctionalBagPlot& ) = delete;
-  void operator = ( const vtkExtractFunctionalBagPlot& ) = delete;
+  vtkExtractFunctionalBagPlot(const vtkExtractFunctionalBagPlot&) = delete;
+  void operator=(const vtkExtractFunctionalBagPlot&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkExtractFunctionalBagPlot_h

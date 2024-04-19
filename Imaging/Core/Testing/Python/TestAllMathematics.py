@@ -1,29 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkImagingMath import vtkImageMathematics
+from vtkmodules.vtkImagingSources import vtkImageEllipsoidSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor2D,
+    vtkImageMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestAllMathematics(vtk.test.Testing.vtkTest):
+class TestAllMathematics(vtkmodules.test.Testing.vtkTest):
 
     def testAllMathematics(self):
 
@@ -32,9 +28,9 @@ class TestAllMathematics(vtk.test.Testing.vtkTest):
 
         # Image pipeline
 
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
 
-        sphere1 = vtk.vtkImageEllipsoidSource()
+        sphere1 = vtkImageEllipsoidSource()
         sphere1.SetCenter(40, 20, 0)
         sphere1.SetRadius(30, 30, 0)
         sphere1.SetInValue(.75)
@@ -43,7 +39,7 @@ class TestAllMathematics(vtk.test.Testing.vtkTest):
         sphere1.SetWholeExtent(0, 99, 0, 74, 0, 0)
         sphere1.Update()
 
-        sphere2 = vtk.vtkImageEllipsoidSource()
+        sphere2 = vtkImageEllipsoidSource()
         sphere2.SetCenter(60, 30, 0)
         sphere2.SetRadius(20, 20, 20)
         sphere2.SetInValue(.2)
@@ -62,19 +58,19 @@ class TestAllMathematics(vtk.test.Testing.vtkTest):
         imager = list()
 
         for idx, operator in enumerate(mathematics):
-            mathematic.append(vtk.vtkImageMathematics())
+            mathematic.append(vtkImageMathematics())
             mathematic[idx].SetInput1Data(sphere1.GetOutput())
             mathematic[idx].SetInput2Data(sphere2.GetOutput())
             eval('mathematic[idx].SetOperationTo' + operator + '()')
             mathematic[idx].SetConstantK(.3)
             mathematic[idx].SetConstantC(.75)
-            mapper.append(vtk.vtkImageMapper())
+            mapper.append(vtkImageMapper())
             mapper[idx].SetInputConnection(mathematic[idx].GetOutputPort())
             mapper[idx].SetColorWindow(2.0)
             mapper[idx].SetColorLevel(.75)
-            actor.append(vtk.vtkActor2D())
+            actor.append(vtkActor2D())
             actor[idx].SetMapper(mapper[idx])
-            imager.append(vtk.vtkRenderer())
+            imager.append(vtkRenderer())
             imager[idx].AddActor2D(actor[idx])
             renWin.AddRenderer(imager[idx])
 
@@ -98,13 +94,13 @@ class TestAllMathematics(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "TestAllMathematics.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestAllMathematics, 'test')])
+     vtkmodules.test.Testing.main([(TestAllMathematics, 'test')])

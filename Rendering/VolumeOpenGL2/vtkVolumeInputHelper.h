@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVolumeInputHelper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkVolumeInputHelper
  * @brief Convenience container for internal structures specific to a volume
@@ -29,13 +17,14 @@
  */
 #ifndef vtkVolumeInputHelper_h
 #define vtkVolumeInputHelper_h
-#ifndef __VTK_WRAP__
 #include <map>
 
 #include "vtkOpenGLVolumeLookupTables.h"
-#include "vtkSmartPointer.h" // For SmartPointer
-#include "vtkTimeStamp.h"    // For TimeStamp
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
+#include "vtkSmartPointer.h"                 // For SmartPointer
+#include "vtkTimeStamp.h"                    // For TimeStamp
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLVolumeGradientOpacityTable;
 class vtkOpenGLVolumeOpacityTable;
 class vtkOpenGLVolumeRGBTable;
@@ -46,20 +35,18 @@ class vtkVolume;
 class vtkVolumeTexture;
 class vtkWindow;
 
-class vtkVolumeInputHelper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkVolumeInputHelper
 {
 public:
   vtkVolumeInputHelper() = default;
   vtkVolumeInputHelper(vtkSmartPointer<vtkVolumeTexture> tex, vtkVolume* vol);
 
-  void RefreshTransferFunction(vtkRenderer* ren,
-                               const int uniformIndex,
-                               const int blendMode,
-                               const float samplingDist);
+  void RefreshTransferFunction(
+    vtkRenderer* ren, int uniformIndex, int blendMode, float samplingDist);
   void ForceTransferInit();
 
-  void ActivateTransferFunction(vtkShaderProgram* prog, const int blendMode);
-  void DeactivateTransferFunction(const int blendMode);
+  void ActivateTransferFunction(vtkShaderProgram* prog, int blendMode);
+  void DeactivateTransferFunction(int blendMode);
 
   void ReleaseGraphicsResources(vtkWindow* window);
 
@@ -82,15 +69,11 @@ public:
   /**
    * Transfer function internal structures and helpers.
    */
-  vtkSmartPointer<
-    vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeGradientOpacityTable>>
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeGradientOpacityTable>>
     GradientOpacityTables;
-  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeOpacityTable>>
-    OpacityTables;
-  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeRGBTable>>
-    RGBTables;
-  vtkSmartPointer<
-    vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeTransferFunction2D>>
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeOpacityTable>> OpacityTables;
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeRGBTable>> RGBTables;
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeTransferFunction2D>>
     TransferFunctions2D;
 
   /**
@@ -117,26 +100,17 @@ public:
   std::string GradientCacheName;
 
 protected:
-  void InitializeTransferFunction(vtkRenderer* ren, const int index);
+  void InitializeTransferFunction(vtkRenderer* ren, int index);
 
-  void CreateTransferFunction1D(vtkRenderer* ren, const int index);
-  void CreateTransferFunction2D(vtkRenderer* ren, const int index);
+  void CreateTransferFunction1D(vtkRenderer* ren, int index);
+  void CreateTransferFunction2D(vtkRenderer* ren, int index);
 
-  void UpdateTransferFunctions(vtkRenderer* ren,
-                               const int blendMode,
-                               const float samplingDist);
-  int UpdateOpacityTransferFunction(vtkRenderer* ren,
-                                    vtkVolume* vol,
-                                    unsigned int component,
-                                    const int blendMode,
-                                    const float samplingDist);
-  int UpdateColorTransferFunction(vtkRenderer* ren,
-                                  vtkVolume* vol,
-                                  unsigned int component);
-  int UpdateGradientOpacityTransferFunction(vtkRenderer* ren,
-                                            vtkVolume* vol,
-                                            unsigned int component,
-                                            const float samplingDist);
+  void UpdateTransferFunctions(vtkRenderer* ren, int blendMode, float samplingDist);
+  int UpdateOpacityTransferFunction(
+    vtkRenderer* ren, vtkVolume* vol, unsigned int component, int blendMode, float samplingDist);
+  int UpdateColorTransferFunction(vtkRenderer* ren, vtkVolume* vol, unsigned int component);
+  int UpdateGradientOpacityTransferFunction(
+    vtkRenderer* ren, vtkVolume* vol, unsigned int component, float samplingDist);
   void UpdateTransferFunction2D(vtkRenderer* ren, unsigned int component);
 
   void ReleaseGraphicsTransfer1D(vtkWindow* window);
@@ -146,6 +120,6 @@ protected:
   bool InitializeTransfer = true;
 };
 
-#endif
+VTK_ABI_NAMESPACE_END
 #endif // vtkVolumeInputHelper_h
 // VTK-HeaderTest-Exclude: vtkVolumeInputHelper.h

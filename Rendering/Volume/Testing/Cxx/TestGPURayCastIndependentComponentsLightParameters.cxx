@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastIndependentComponentsLightParameters.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Description
 // This test creates a vtkImageData with three components.
@@ -33,11 +21,11 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-int TestGPURayCastIndependentComponentsLightParameters(int argc, char *argv[])
+int TestGPURayCastIndependentComponentsLightParameters(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  int dims[3] = {100, 100, 100};
+  int dims[3] = { 100, 100, 100 };
 
   // Create a vtkImageData with two components
   vtkNew<vtkImageData> image;
@@ -46,12 +34,15 @@ int TestGPURayCastIndependentComponentsLightParameters(int argc, char *argv[])
 
   // Fill the first half rectangular parallelopiped along X with the
   // first component values and the second half with second component values
-  double * ptr = static_cast<double *> (image->GetScalarPointer(0, 0, 0));
+  double* ptr = static_cast<double*>(image->GetScalarPointer(0, 0, 0));
 
   double center1[3], center2[3], center3[3];
-  center1[0] = dims[0]/3; center2[0] = center1[0]*2; center3[0] = dims[0]/2;
-  center1[1] = center2[1] = dims[1]/2; center3[1] = dims[1]/3;
-  center1[2] = center2[2] = center3[2] = dims[2]/2;
+  center1[0] = dims[0] / 3;
+  center2[0] = center1[0] * 2;
+  center3[0] = dims[0] / 2;
+  center1[1] = center2[1] = dims[1] / 2;
+  center3[1] = dims[1] / 3;
+  center1[2] = center2[2] = center3[2] = dims[2] / 2;
 
   double radius;
   radius = center1[0];

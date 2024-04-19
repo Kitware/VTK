@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWendlandQuinticKernel.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWendlandQuinticKernel
  * @brief   a quintic SPH interpolation kernel
@@ -32,7 +20,7 @@
  *
  * @sa
  * vtkSPHKernel vtkSPHInterpolator
-*/
+ */
 
 #ifndef vtkWendlandQuinticKernel_h
 #define vtkWendlandQuinticKernel_h
@@ -41,30 +29,29 @@
 #include "vtkSPHKernel.h"
 #include <algorithm> // For std::min()
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
-
 
 class VTKFILTERSPOINTS_EXPORT vtkWendlandQuinticKernel : public vtkSPHKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkWendlandQuinticKernel *New();
-  vtkTypeMacro(vtkWendlandQuinticKernel,vtkSPHKernel);
+  static vtkWendlandQuinticKernel* New();
+  vtkTypeMacro(vtkWendlandQuinticKernel, vtkSPHKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Produce the computational parameters for the kernel. Invoke this method
    * after setting initial values like SpatialStep.
    */
-  void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) override;
+  void Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd) override;
 
-  //@{
+  ///@{
   /**
    * Compute weighting factor given a normalized distance from a sample point.
    * Note that the formulation is slightly different to avoid an extra operation
@@ -72,37 +59,36 @@ public:
    */
   double ComputeFunctionWeight(const double d) override
   {
-    if ( d >= 2.0 )
+    if (d >= 2.0)
     {
       return 0.0;
     }
     else
     {
-      double tmp = 1.0 - 0.5*d;
-      return (tmp*tmp*tmp*tmp) * (1.0 + 2.0*d);
+      double tmp = 1.0 - 0.5 * d;
+      return (tmp * tmp * tmp * tmp) * (1.0 + 2.0 * d);
     }
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute weighting factor for derivative quantities given a normalized
    * distance from a sample point.
    */
   double ComputeDerivWeight(const double d) override
   {
-    if ( d >= 2.0 )
+    if (d >= 2.0)
     {
       return 0.0;
     }
     else
     {
-      double tmp = 1.0 - 0.5*d;
-      return -2.0*(tmp*tmp*tmp) * (1.0 + 2.0*d) +
-        2.0*(tmp*tmp*tmp*tmp);
+      double tmp = 1.0 - 0.5 * d;
+      return -2.0 * (tmp * tmp * tmp) * (1.0 + 2.0 * d) + 2.0 * (tmp * tmp * tmp * tmp);
     }
   }
-  //@}
+  ///@}
 
 protected:
   vtkWendlandQuinticKernel();
@@ -113,4 +99,5 @@ private:
   void operator=(const vtkWendlandQuinticKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

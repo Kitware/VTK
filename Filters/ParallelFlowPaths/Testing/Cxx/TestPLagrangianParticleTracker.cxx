@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPLagrangianParticleTracker.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-    This software is distributed WITHOUT ANY WARRANTY; without even
-    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-    PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
@@ -27,11 +15,11 @@
 #include "vtkPointSource.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRTAnalyticSource.h"
 #include "vtkRungeKutta2.h"
 #include "vtkTrivialProducer.h"
 
@@ -43,7 +31,7 @@ struct PLagrangianParticleTrackerArgs_tmp
 };
 
 // This will be called by all processes
-void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void *arg)
+void MainPLagrangianParticleTracker(vtkMultiProcessController* controller, void* arg)
 {
   PLagrangianParticleTrackerArgs_tmp* args =
     reinterpret_cast<PLagrangianParticleTrackerArgs_tmp*>(arg);
@@ -112,12 +100,12 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
   flowVel->SetNumberOfTuples(waveletImg->GetNumberOfCells());
   flowVel->SetName("FlowVelocity");
 
-  vtkNew<vtkDoubleArray> flowDens ;
+  vtkNew<vtkDoubleArray> flowDens;
   flowDens->SetNumberOfComponents(1);
   flowDens->SetNumberOfTuples(waveletImg->GetNumberOfCells());
   flowDens->SetName("FlowDensity");
 
-  vtkNew<vtkDoubleArray> flowDynVisc ;
+  vtkNew<vtkDoubleArray> flowDynVisc;
   flowDynVisc->SetNumberOfComponents(1);
   flowDynVisc->SetNumberOfTuples(waveletImg->GetNumberOfCells());
   flowDynVisc->SetName("FlowDynamicViscosity");
@@ -151,20 +139,19 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
 
   // Create Integration Model
   vtkNew<vtkLagrangianMatidaIntegrationModel> integrationModel;
-  integrationModel->SetInputArrayToProcess(0, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "InitialVelocity");
-  integrationModel->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "");
-  integrationModel->SetInputArrayToProcess(3, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
-  integrationModel->SetInputArrayToProcess(4, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDensity");
-  integrationModel->SetInputArrayToProcess(5, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
-  integrationModel->SetInputArrayToProcess(6, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
-  integrationModel->SetInputArrayToProcess(7, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
+  integrationModel->SetInputArrayToProcess(
+    0, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "InitialVelocity");
+  integrationModel->SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "");
+  integrationModel->SetInputArrayToProcess(
+    3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
+  integrationModel->SetInputArrayToProcess(
+    4, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDensity");
+  integrationModel->SetInputArrayToProcess(
+    5, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
+  integrationModel->SetInputArrayToProcess(
+    6, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
+  integrationModel->SetInputArrayToProcess(
+    7, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
   integrationModel->SetNumberOfTrackedUserData(17);
 
   // Put in tracker
@@ -196,8 +183,7 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
   else
   {
     renderWindow->Render();
-    *(args->retVal) =
-      vtkRegressionTester::Test(args->argc, args->argv, renderWindow, 10);
+    *(args->retVal) = vtkRegressionTester::Test(args->argc, args->argv, renderWindow, 10);
     for (int i = 1; i < numProcs; i++)
     {
       controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);

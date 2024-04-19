@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLUnstructuredGridReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLUnstructuredGridReader
  * @brief   Read VTK XML UnstructuredGrid files.
@@ -24,7 +12,7 @@
  *
  * @sa
  * vtkXMLPUnstructuredGridReader
-*/
+ */
 
 #ifndef vtkXMLUnstructuredGridReader_h
 #define vtkXMLUnstructuredGridReader_h
@@ -32,23 +20,24 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLUnstructuredDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 class vtkIdTypeArray;
 
 class VTKIOXML_EXPORT vtkXMLUnstructuredGridReader : public vtkXMLUnstructuredDataReader
 {
 public:
-  vtkTypeMacro(vtkXMLUnstructuredGridReader,vtkXMLUnstructuredDataReader);
+  vtkTypeMacro(vtkXMLUnstructuredGridReader, vtkXMLUnstructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkXMLUnstructuredGridReader *New();
+  static vtkXMLUnstructuredGridReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
-  vtkUnstructuredGrid *GetOutput();
-  vtkUnstructuredGrid *GetOutput(int idx);
-  //@}
+  vtkUnstructuredGrid* GetOutput();
+  vtkUnstructuredGrid* GetOutput(int idx);
+  ///@}
 
 protected:
   vtkXMLUnstructuredGridReader();
@@ -66,8 +55,7 @@ protected:
   int ReadPieceData() override;
 
   // Read a data array whose tuples correspond to cells.
-  int ReadArrayForCells(vtkXMLDataElement* da,
-    vtkAbstractArray* outArray) override;
+  int ReadArrayForCells(vtkXMLDataElement* da, vtkAbstractArray* outArray) override;
 
   // Get the number of cells in the given piece.  Valid after
   // UpdateInformation.
@@ -91,4 +79,5 @@ private:
   void operator=(const vtkXMLUnstructuredGridReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

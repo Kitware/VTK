@@ -11,6 +11,7 @@ endif()
 
 vtk_add_test_cxx(vtkIOExportCxxTests tests
   X3DTest.cxx,NO_DATA,NO_VALID
+  TestJSONRenderWindowExporter.cxx,NO_DATA,NO_VALID
   TestOBJExporter.cxx,NO_DATA,NO_VALID
   TestGLTFExporter.cxx,NO_DATA,NO_VALID
   TestSingleVTPExporter.cxx,NO_DATA,NO_VALID
@@ -19,6 +20,7 @@ vtk_add_test_cxx(vtkIOExportCxxTests tests
   UnitTestRIB.cxx,NO_DATA,NO_VALID
   )
 vtk_test_cxx_executable(vtkIOExportCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
 

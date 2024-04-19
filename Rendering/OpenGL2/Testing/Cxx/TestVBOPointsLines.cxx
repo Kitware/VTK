@@ -1,35 +1,23 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkActor.h"
 #include "vtkCellArray.h"
+#include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkCellArray.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTrivialProducer.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
-int TestVBOPointsLines(int, char *[])
+//------------------------------------------------------------------------------
+int TestVBOPointsLines(int, char*[])
 {
   // Initialize everything
   vtkNew<vtkActor> actor;
@@ -48,10 +36,10 @@ int TestVBOPointsLines(int, char *[])
   points->SetPoint(0, 0, 0, 0);
   points->SetPoint(1, 1, 0, 0);
   points->SetPoint(2, 0, 1, 0);
-  points->SetPoint(3, 1, 1,-1);
+  points->SetPoint(3, 1, 1, -1);
   points->SetPoint(4, 1, 2, 1);
-  points->SetPoint(5, 4, 1,-9);
-  points->SetPoint(6, 3,-2, 1);
+  points->SetPoint(5, 4, 1, -9);
+  points->SetPoint(6, 3, -2, 1);
 
   vtkNew<vtkCellArray> verts;
   verts->InsertNextCell(1);

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPointSetAlgorithm.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPointSetAlgorithm
  * @brief   Superclass for algorithms that produce output of the same type as input
@@ -27,14 +15,15 @@
  * isn't the case then please override this method in your subclass.
  * You should implement the subclass's algorithm into
  * RequestData( request, inputVec, outputVec).
-*/
+ */
 
 #ifndef vtkPointSetAlgorithm_h
 #define vtkPointSetAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointSet;
 class vtkPolyData;
 class vtkStructuredGrid;
@@ -43,34 +32,34 @@ class vtkUnstructuredGrid;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPointSetAlgorithm : public vtkAlgorithm
 {
 public:
-  static vtkPointSetAlgorithm *New();
-  vtkTypeMacro(vtkPointSetAlgorithm,vtkAlgorithm);
+  static vtkPointSetAlgorithm* New();
+  vtkTypeMacro(vtkPointSetAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkPointSet* GetOutput();
   vtkPointSet* GetOutput(int);
-  //@}
+  ///@}
 
   /**
    * Get the output as vtkPolyData.
    */
-  vtkPolyData *GetPolyDataOutput();
+  vtkPolyData* GetPolyDataOutput();
 
   /**
    * Get the output as vtkStructuredGrid.
    */
-  vtkStructuredGrid *GetStructuredGridOutput();
+  vtkStructuredGrid* GetStructuredGridOutput();
 
   /**
    * Get the output as vtkUnstructuredGrid.
    */
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  vtkUnstructuredGrid* GetUnstructuredGridOutput();
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -80,71 +69,75 @@ public:
   void SetInputData(int, vtkDataObject*);
   void SetInputData(vtkPointSet*);
   void SetInputData(int, vtkPointSet*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use AddInputConnection() to
    * setup a pipeline connection.
    */
-  void AddInputData(vtkDataObject *);
+  void AddInputData(vtkDataObject*);
   void AddInputData(vtkPointSet*);
   void AddInputData(int, vtkPointSet*);
   void AddInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
   // this method is not recommended for use, but lots of old style filters
   // use it
-  vtkDataObject *GetInput();
+  vtkDataObject* GetInput();
 
   /**
    * see vtkAlgorithm for details
    */
-  vtkTypeBool ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 protected:
   vtkPointSetAlgorithm();
-  ~vtkPointSetAlgorithm() override {}
+  ~vtkPointSetAlgorithm() override = default;
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+  virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int ExecuteInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*) {return 1;};
-
-  /**
-   * This is called by the superclass.
-   * This is the method you should override.
-   */
-  virtual int RequestData(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*) {return 1;};
-
-  //@{
-  /**
-   * This is called by the superclass.
-   * This is the method you should override.
-   */
-  virtual int ComputeInputUpdateExtent(vtkInformation*,
-                                       vtkInformationVector**,
-                                       vtkInformationVector*)
+  virtual int ExecuteInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
-      return 1;
-  };
-  //@}
+    return 1;
+  }
+
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+  {
+    return 1;
+  }
+
+  ///@{
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
+  virtual int ComputeInputUpdateExtent(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+  {
+    return 1;
+  }
+  ///@}
+
+  virtual int ComputeInputUpdateTime(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+  {
+    return 1;
+  }
 
   // see algorithm for more info
   int FillOutputPortInformation(int port, vtkInformation* info) override;
@@ -155,4 +148,5 @@ private:
   void operator=(const vtkPointSetAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

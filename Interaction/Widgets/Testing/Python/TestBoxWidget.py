@@ -1,29 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkPlanes
+from vtkmodules.vtkFiltersCore import (
+    vtkAppendPolyData,
+    vtkClipPolyData,
+    vtkGlyph3D,
+)
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkInteractionWidgets import vtkBoxWidget
+from vtkmodules.vtkRenderingCore import (
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestBoxWidget(vtk.test.Testing.vtkTest):
+class TestBoxWidget(vtkmodules.test.Testing.vtkTest):
 
     def testBoxWidget(self):
 
@@ -33,31 +38,31 @@ class TestBoxWidget(vtk.test.Testing.vtkTest):
 
         # create a sphere source
         #
-        sphere = vtk.vtkSphereSource()
-        cone = vtk.vtkConeSource()
-        glyph = vtk.vtkGlyph3D()
+        sphere = vtkSphereSource()
+        cone = vtkConeSource()
+        glyph = vtkGlyph3D()
         glyph.SetInputConnection(sphere.GetOutputPort())
         glyph.SetSourceConnection(cone.GetOutputPort())
         glyph.SetVectorModeToUseNormal()
         glyph.SetScaleModeToScaleByVector()
         glyph.SetScaleFactor(0.25)
-        apd = vtk.vtkAppendPolyData()
+        apd = vtkAppendPolyData()
         apd.AddInputConnection(glyph.GetOutputPort())
         apd.AddInputConnection(sphere.GetOutputPort())
-        maceMapper = vtk.vtkPolyDataMapper()
+        maceMapper = vtkPolyDataMapper()
         maceMapper.SetInputConnection(apd.GetOutputPort())
-        maceActor = vtk.vtkLODActor()
+        maceActor = vtkLODActor()
         maceActor.SetMapper(maceMapper)
         maceActor.VisibilityOn()
 
-        planes = vtk.vtkPlanes()
-        clipper = vtk.vtkClipPolyData()
+        planes = vtkPlanes()
+        clipper = vtkClipPolyData()
         clipper.SetInputConnection(apd.GetOutputPort())
         clipper.SetClipFunction(planes)
         clipper.InsideOutOn()
-        selectMapper = vtk.vtkPolyDataMapper()
+        selectMapper = vtkPolyDataMapper()
         selectMapper.SetInputConnection(clipper.GetOutputPort())
-        selectActor = vtk.vtkLODActor()
+        selectActor = vtkLODActor()
         selectActor.SetMapper(selectMapper)
         selectActor.GetProperty().SetColor(0, 1, 0)
         selectActor.VisibilityOff()
@@ -65,13 +70,13 @@ class TestBoxWidget(vtk.test.Testing.vtkTest):
 
         # Create the RenderWindow, Renderer and both Actors
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
-        boxWidget = vtk.vtkBoxWidget()
+        boxWidget = vtkBoxWidget()
         boxWidget.SetInteractor(iRen)
 
         ren.AddActor(maceActor)
@@ -103,8 +108,8 @@ class TestBoxWidget(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "TestBoxWidget.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestBoxWidget, 'test')])
+     vtkmodules.test.Testing.main([(TestBoxWidget, 'test')])

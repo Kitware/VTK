@@ -6,8 +6,9 @@ to moderate size data files that cover a spectrum of file format features.
 from __future__ import print_function
 
 import sys
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import VTK_ERROR
+from vtkmodules.vtkIOXdmf3 import vtkXdmf3Reader
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 smallFiles = [
@@ -58,8 +59,8 @@ if "--do_big_files" in sys.argv:
 
 if __name__ == "__main__":
   for fname in testfilenames:
-    xr = vtk.vtkXdmf3Reader()
-    afname = "" + str(VTK_DATA_ROOT) + "/Data/XDMF/" + fname
+    xr = vtkXdmf3Reader()
+    afname = VTK_DATA_ROOT + "/Data/XDMF/" + fname
     print ("Trying %s" % afname)
     xr.CanReadFile(afname)
     xr.SetFileName(afname)
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     ds = xr.GetOutputDataObject(0)
     if not ds:
       print("Got zero output from known good file")
-      sys.exit(vtk.VTK_ERROR)
+      sys.exit(VTK_ERROR)
     #if res != vtk.VTK_OK:
     #  print "Could not read", afname
     #  sys.exit(vtk.VTK_ERROR)

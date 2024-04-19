@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkClientServerSynchronizedRenderers.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkClientServerSynchronizedRenderers
  *
  * vtkClientServerSynchronizedRenderers is a vtkSynchronizedRenderers subclass
  * designed to be used in 2 processes, client-server mode.
-*/
+ */
 
 #ifndef vtkClientServerSynchronizedRenderers_h
 #define vtkClientServerSynchronizedRenderers_h
@@ -25,8 +13,9 @@
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkSynchronizedRenderers.h"
 
-class VTKRENDERINGPARALLEL_EXPORT vtkClientServerSynchronizedRenderers :
-  public vtkSynchronizedRenderers
+VTK_ABI_NAMESPACE_BEGIN
+class VTKRENDERINGPARALLEL_EXPORT vtkClientServerSynchronizedRenderers
+  : public vtkSynchronizedRenderers
 {
 public:
   static vtkClientServerSynchronizedRenderers* New();
@@ -43,7 +32,7 @@ protected:
 private:
   vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&) = delete;
   void operator=(const vtkClientServerSynchronizedRenderers&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractTimeSteps.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-    This software is distributed WITHOUT ANY WARRANTY; without even
-    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-    PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExtractTimeSteps.h"
 
 #include "vtkDataObject.h"
@@ -21,20 +9,22 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
-#include <vector>
 #include <cmath>
+#include <vector>
 
-
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractTimeSteps);
 
-vtkExtractTimeSteps::vtkExtractTimeSteps() :
-  UseRange(false), TimeStepInterval(1), TimeEstimationMode(PREVIOUS_TIMESTEP)
+vtkExtractTimeSteps::vtkExtractTimeSteps()
+  : UseRange(false)
+  , TimeStepInterval(1)
+  , TimeEstimationMode(PREVIOUS_TIMESTEP)
 {
   this->Range[0] = 0;
   this->Range[1] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractTimeSteps::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -60,27 +50,25 @@ void vtkExtractTimeSteps::PrintSelf(ostream& os, vtkIndent indent)
     os << std::endl;
   }
 
-  os << indent << "UseRange: " << (this->UseRange ? "true" : "false")
-     << std::endl;
-  os << indent << "Range: " << this->Range[0] << ", " << this->Range[1]
-     << std::endl;
+  os << indent << "UseRange: " << (this->UseRange ? "true" : "false") << std::endl;
+  os << indent << "Range: " << this->Range[0] << ", " << this->Range[1] << std::endl;
   os << indent << "TimeStepInterval: " << this->TimeStepInterval << std::endl;
   os << indent << "TimeEstimationMode: ";
   switch (this->TimeEstimationMode)
   {
-  case PREVIOUS_TIMESTEP:
-    os << "Previous Timestep" << std::endl;
-    break;
-  case NEXT_TIMESTEP:
-    os << "Next Timestep" << std::endl;
-    break;
-  case NEAREST_TIMESTEP:
-    os << "Nearest Timestep" << std::endl;
-    break;
+    case PREVIOUS_TIMESTEP:
+      os << "Previous Timestep" << std::endl;
+      break;
+    case NEXT_TIMESTEP:
+      os << "Next Timestep" << std::endl;
+      break;
+    case NEAREST_TIMESTEP:
+      os << "Nearest Timestep" << std::endl;
+      break;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractTimeSteps::AddTimeStepIndex(int timeStepIndex)
 {
   if (this->TimeStepIndices.insert(timeStepIndex).second)
@@ -89,14 +77,14 @@ void vtkExtractTimeSteps::AddTimeStepIndex(int timeStepIndex)
   }
 }
 
-void vtkExtractTimeSteps::SetTimeStepIndices(int count, const int *timeStepIndices)
+void vtkExtractTimeSteps::SetTimeStepIndices(int count, const int* timeStepIndices)
 {
   this->TimeStepIndices.clear();
   this->TimeStepIndices.insert(timeStepIndices, timeStepIndices + count);
   this->Modified();
 }
 
-void vtkExtractTimeSteps::GetTimeStepIndices(int *timeStepIndices) const
+void vtkExtractTimeSteps::GetTimeStepIndices(int* timeStepIndices) const
 {
   std::copy(this->TimeStepIndices.begin(), this->TimeStepIndices.end(), timeStepIndices);
 }
@@ -117,18 +105,15 @@ void vtkExtractTimeSteps::GenerateTimeStepIndices(int begin, int end, int step)
 namespace
 {
 
-void getTimeSteps(vtkInformation* inInfo, const std::set<int>& timeStepIndices,
-    bool useRange, int* range, int timeStepInterval, std::vector<double>& outTimes)
+void getTimeSteps(vtkInformation* inInfo, const std::set<int>& timeStepIndices, bool useRange,
+  int* range, int timeStepInterval, std::vector<double>& outTimes)
 {
-  double *inTimes =
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  int numTimes =
-    inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  double* inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  int numTimes = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
   if (!useRange)
   {
-    for (std::set<int>::iterator it = timeStepIndices.begin();
-         it != timeStepIndices.end(); ++it)
+    for (std::set<int>::iterator it = timeStepIndices.begin(); it != timeStepIndices.end(); ++it)
     {
       if (*it >= 0 && *it < numTimes)
       {
@@ -153,26 +138,25 @@ void getTimeSteps(vtkInformation* inInfo, const std::set<int>& timeStepIndices,
 
 }
 
-//----------------------------------------------------------------------------
-int vtkExtractTimeSteps::RequestInformation(vtkInformation*,
-                                            vtkInformationVector **inputVector,
-                                            vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkExtractTimeSteps::RequestInformation(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
-  if (!this->TimeStepIndices.empty() &&
-      inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+  if (!this->TimeStepIndices.empty() && inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
 
     std::vector<double> outTimes;
-    getTimeSteps(inInfo, this->TimeStepIndices, this->UseRange, this->Range, this->TimeStepInterval, outTimes);
+    getTimeSteps(
+      inInfo, this->TimeStepIndices, this->UseRange, this->Range, this->TimeStepInterval, outTimes);
 
     if (!outTimes.empty())
     {
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &outTimes[0],
-                  static_cast<int>(outTimes.size()));
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), outTimes.data(),
+        static_cast<int>(outTimes.size()));
 
       double range[2] = { outTimes.front(), outTimes.back() };
       outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
@@ -182,21 +166,25 @@ int vtkExtractTimeSteps::RequestInformation(vtkInformation*,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractTimeSteps::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-                                           vtkInformationVector **inputVector,
-                                           vtkInformationVector *outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
-    double updateTime =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-
+    double updateTime = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
     std::vector<double> outTimes;
-    getTimeSteps(inInfo, this->TimeStepIndices, this->UseRange, this->Range, this->TimeStepInterval, outTimes);
+    getTimeSteps(
+      inInfo, this->TimeStepIndices, this->UseRange, this->Range, this->TimeStepInterval, outTimes);
+
+    if (outTimes.empty())
+    {
+      vtkErrorMacro("Input has no time steps.");
+      return 0;
+    }
 
     double inputTime;
     if (updateTime >= outTimes.back())
@@ -219,36 +207,34 @@ int vtkExtractTimeSteps::RequestUpdateExtent(vtkInformation* vtkNotUsed(request)
       {
         switch (this->TimeEstimationMode)
         {
-        default:
-        case PREVIOUS_TIMESTEP:
-          inputTime = *leindex;
-          break;
-        case NEXT_TIMESTEP:
-          inputTime = *gtindex;
-          break;
-        case NEAREST_TIMESTEP:
-          if (std::abs(updateTime - *leindex) <= std::abs(*gtindex - updateTime))
-          {
+          default:
+          case PREVIOUS_TIMESTEP:
             inputTime = *leindex;
-          }
-          else
-          {
+            break;
+          case NEXT_TIMESTEP:
             inputTime = *gtindex;
-          }
-          break;
+            break;
+          case NEAREST_TIMESTEP:
+            if (std::abs(updateTime - *leindex) <= std::abs(*gtindex - updateTime))
+            {
+              inputTime = *leindex;
+            }
+            else
+            {
+              inputTime = *gtindex;
+            }
+            break;
         }
       }
     }
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), inputTime);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), inputTime);
   }
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkExtractTimeSteps::RequestData(vtkInformation *,
-                                     vtkInformationVector **inputVector,
-                                     vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkExtractTimeSteps::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDataObject* inData = vtkDataObject::GetData(inputVector[0], 0);
   vtkDataObject* outData = vtkDataObject::GetData(outputVector, 0);
@@ -257,5 +243,8 @@ int vtkExtractTimeSteps::RequestData(vtkInformation *,
   {
     outData->ShallowCopy(inData);
   }
+
+  this->CheckAbort();
   return 1;
 }
+VTK_ABI_NAMESPACE_END

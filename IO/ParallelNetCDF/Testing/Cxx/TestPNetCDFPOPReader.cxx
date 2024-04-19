@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestProStarReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test of vtkPNetCDFPOPReader
 // .SECTION Description
 // Tests the vtkPNetCDFPOPReader.
@@ -25,30 +13,28 @@
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRectilinearGrid.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
-int TestPNetCDFPOPReader( int argc, char *argv[] )
+int TestPNetCDFPOPReader(int argc, char* argv[])
 {
   vtkMPIController* controller = vtkMPIController::New();
 
   controller->Initialize(&argc, &argv, 0);
-  controller->SetGlobalController(controller);
+  vtkMPIController::SetGlobalController(controller);
 
   // Read file name.
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/NetCDF/test.pop.nc");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/NetCDF/test.pop.nc");
 
   // Create the reader.
-  vtkSmartPointer<vtkPNetCDFPOPReader> reader =
-    vtkSmartPointer<vtkPNetCDFPOPReader>::New();
+  vtkSmartPointer<vtkPNetCDFPOPReader> reader = vtkSmartPointer<vtkPNetCDFPOPReader>::New();
   reader->SetFileName(fname);
   reader->SetStride(2, 3, 4);
-  delete [] fname;
+  delete[] fname;
   reader->Update();
   vtkRectilinearGrid* grid = vtkRectilinearGrid::SafeDownCast(reader->GetOutput());
   grid->GetPointData()->SetScalars(grid->GetPointData()->GetArray("DYE01"));
@@ -70,7 +56,7 @@ int TestPNetCDFPOPReader( int argc, char *argv[] )
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   vtkRenderer* ren = vtkRenderer::New();
   renWin->AddRenderer(ren);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   vtkCamera* camera = ren->GetActiveCamera();
@@ -78,15 +64,15 @@ int TestPNetCDFPOPReader( int argc, char *argv[] )
   camera->Zoom(8);
 
   ren->AddActor(actor);
-  ren->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
+  ren->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

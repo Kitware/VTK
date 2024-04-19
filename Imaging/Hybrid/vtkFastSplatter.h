@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFastSplatter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkFastSplatter
  * @brief   A splatter optimized for splatting single kernels.
@@ -40,43 +25,50 @@
  * close enough such that it's convolution with the splat image would overlap
  * the extents.
  *
-*/
+ */
 
 #ifndef vtkFastSplatter_h
 #define vtkFastSplatter_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGHYBRID_EXPORT vtkFastSplatter : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkFastSplatter, vtkImageAlgorithm);
-  static vtkFastSplatter *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkFastSplatter* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / get the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box in which
    * the sampling is performed. If any of the (min,max) bounds values are
    * min >= max, then the bounds will be computed automatically from the input
    * data. Otherwise, the user-specified bounds will be used.
    */
-  vtkSetVector6Macro(ModelBounds,double);
-  vtkGetVectorMacro(ModelBounds,double,6);
-  //@}
+  vtkSetVector6Macro(ModelBounds, double);
+  vtkGetVectorMacro(ModelBounds, double, 6);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the dimensions of the output image
    */
-  vtkSetVector3Macro( OutputDimensions, int );
-  vtkGetVector3Macro( OutputDimensions, int );
-  //@}
+  vtkSetVector3Macro(OutputDimensions, int);
+  vtkGetVector3Macro(OutputDimensions, int);
+  ///@}
 
-  enum { NoneLimit, ClampLimit, ScaleLimit, FreezeScaleLimit };
+  enum
+  {
+    NoneLimit,
+    ClampLimit,
+    ScaleLimit,
+    FreezeScaleLimit
+  };
 
-  //@{
+  ///@{
   /**
    * Set/get the way voxel values will be limited.  If this is set to None (the
    * default), the output can have arbitrarily large values.  If set to clamp,
@@ -89,9 +81,9 @@ public:
   void SetLimitModeToClamp() { this->SetLimitMode(ClampLimit); }
   void SetLimitModeToScale() { this->SetLimitMode(ScaleLimit); }
   void SetLimitModeToFreezeScale() { this->SetLimitMode(FreezeScaleLimit); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * See the LimitMode method.
    */
@@ -99,15 +91,15 @@ public:
   vtkGetMacro(MinValue, double);
   vtkSetMacro(MaxValue, double);
   vtkGetMacro(MaxValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This returns the number of points splatted (as opposed to
    * discarded for being outside the image) during the previous pass.
    */
   vtkGetMacro(NumberOfPointsSplatted, int);
-  //@}
+  ///@}
 
   /**
    * Convenience function for connecting the splat algorithm source.
@@ -128,18 +120,12 @@ protected:
   double MaxValue;
   double FrozenScale;
 
-  vtkImageData *Buckets;
+  vtkImageData* Buckets;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int RequestInformation(vtkInformation *,
-                                 vtkInformationVector **,
-                                 vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*) override;
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Used internally for converting points in world space to indices in
   // the output image.
@@ -156,31 +142,31 @@ protected:
   double LastDataMaxValue;
 
 private:
-  vtkFastSplatter(const vtkFastSplatter &) = delete;
-  void operator=(const vtkFastSplatter &) = delete;
+  vtkFastSplatter(const vtkFastSplatter&) = delete;
+  void operator=(const vtkFastSplatter&) = delete;
 };
 
 //-----------------------------------------------------------------------------
 
-template<class T>
-void vtkFastSplatterClamp(T *array, vtkIdType arraySize,
-                          T minValue, T maxValue)
+template <class T>
+void vtkFastSplatterClamp(T* array, vtkIdType arraySize, T minValue, T maxValue)
 {
   for (vtkIdType i = 0; i < arraySize; i++)
   {
-    if (array[i] < minValue) array[i] = minValue;
-    if (array[i] > maxValue) array[i] = maxValue;
+    if (array[i] < minValue)
+      array[i] = minValue;
+    if (array[i] > maxValue)
+      array[i] = maxValue;
   }
 }
 
 //-----------------------------------------------------------------------------
 
-template<class T>
-void vtkFastSplatterScale(T *array, int numComponents, vtkIdType numTuples,
-                          T minValue, T maxValue,
-                          double *dataMinValue, double *dataMaxValue)
+template <class T>
+void vtkFastSplatterScale(T* array, int numComponents, vtkIdType numTuples, T minValue, T maxValue,
+  double* dataMinValue, double* dataMaxValue)
 {
-  T *a;
+  T* a;
   T min, max;
   *dataMinValue = 0;
   *dataMaxValue = 0;
@@ -188,19 +174,21 @@ void vtkFastSplatterScale(T *array, int numComponents, vtkIdType numTuples,
   for (int c = 0; c < numComponents; c++)
   {
     // Find the min and max values in the array.
-    a = array+c;
+    a = array + c;
     min = max = *a;
     a += numComponents;
     for (t = 1; t < numTuples; t++, a += numComponents)
     {
-      if (min > *a) min = *a;
-      if (max < *a) max = *a;
+      if (min > *a)
+        min = *a;
+      if (max < *a)
+        max = *a;
     }
 
     // Bias everything so that 0 is really the minimum.
     if (min != 0)
     {
-      for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
+      for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
       {
         *a -= min;
       }
@@ -209,16 +197,16 @@ void vtkFastSplatterScale(T *array, int numComponents, vtkIdType numTuples,
     // Scale the values.
     if (max != min)
     {
-      for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
+      for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
       {
-        *a = ((maxValue-minValue)*(*a))/(max-min);
+        *a = ((maxValue - minValue) * (*a)) / (max - min);
       }
     }
 
     // Bias everything again so that it lies in the correct range.
     if (minValue != 0)
     {
-      for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
+      for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
       {
         *a += minValue;
       }
@@ -231,16 +219,13 @@ void vtkFastSplatterScale(T *array, int numComponents, vtkIdType numTuples,
   }
 }
 
-
 //-----------------------------------------------------------------------------
 
-template<class T>
-void vtkFastSplatterFrozenScale(T *array,
-                                int numComponents, vtkIdType numTuples,
-                                T minValue, T maxValue,
-                                double min, double max)
+template <class T>
+void vtkFastSplatterFrozenScale(
+  T* array, int numComponents, vtkIdType numTuples, T minValue, T maxValue, double min, double max)
 {
-  T *a;
+  T* a;
 
   vtkIdType t;
   for (int c = 0; c < numComponents; c++)
@@ -248,7 +233,7 @@ void vtkFastSplatterFrozenScale(T *array,
     // Bias everything so that 0 is really the minimum.
     if (min != 0)
     {
-      for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
+      for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
       {
         *a -= static_cast<T>(min);
       }
@@ -257,16 +242,16 @@ void vtkFastSplatterFrozenScale(T *array,
     // Scale the values.
     if (max != min)
     {
-      for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
+      for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
       {
-        *a = static_cast<T>(((maxValue-minValue)*(*a))/(max-min));
+        *a = static_cast<T>(((maxValue - minValue) * (*a)) / (max - min));
       }
     }
 
     // Bias everything again so that it lies in the correct range.
     if (minValue != 0)
     {
-      for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
+      for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
       {
         *a += minValue;
       }
@@ -274,4 +259,5 @@ void vtkFastSplatterFrozenScale(T *array,
   }
 }
 
-#endif //vtkFastSplatter_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkFastSplatter_h

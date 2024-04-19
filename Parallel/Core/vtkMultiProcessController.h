@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMultiProcessController.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMultiProcessController
  * @brief   Multiprocessing communication superclass
@@ -44,16 +32,17 @@
  * @sa
  * vtkMPIController
  * vtkCommunicator vtkMPICommunicator
-*/
+ */
 
 #ifndef vtkMultiProcessController_h
 #define vtkMultiProcessController_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 #include "vtkCommunicator.h" // Needed for direct access to communicator
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkCollection;
 class vtkDataObject;
@@ -64,20 +53,19 @@ class vtkMultiProcessStream;
 class vtkOutputWindow;
 class vtkProcessGroup;
 class vtkProcess;
+class vtkDataArraySelection;
 
 // The type of function that gets called when new processes are initiated.
-typedef void (*vtkProcessFunctionType)(vtkMultiProcessController *controller,
-                                       void *userData);
+typedef void (*vtkProcessFunctionType)(vtkMultiProcessController* controller, void* userData);
 
 // The type of function that gets called when an RMI is triggered.
-typedef void (*vtkRMIFunctionType)(void *localArg,
-                                   void *remoteArg, int remoteArgLength,
-                                   int remoteProcessId);
+typedef void (*vtkRMIFunctionType)(
+  void* localArg, void* remoteArg, int remoteArgLength, int remoteProcessId);
 
 class VTKPARALLELCORE_EXPORT vtkMultiProcessController : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkMultiProcessController,vtkObject);
+  vtkTypeMacro(vtkMultiProcessController, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -85,31 +73,31 @@ public:
    * If a subclass needs to initialize process communication (i.e. MPI)
    * it would over ride this method.
    */
-  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(argv))=0;
+  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(argv)) = 0;
 
   /**
    * This method is for setting up the processes.
    * If a subclass needs to initialize process communication (i.e. MPI)
    * it would over ride this method.  Provided for initialization outside vtk.
    */
-  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(argv),
-                          int initializedExternally)=0;
+  virtual void Initialize(
+    int* vtkNotUsed(argc), char*** vtkNotUsed(argv), int initializedExternally) = 0;
 
   /**
    * This method is for cleaning up.
    * If a subclass needs to clean up process communication (i.e. MPI)
    * it would over ride this method.
    */
-  virtual void Finalize()=0;
+  virtual void Finalize() = 0;
 
   /**
    * This method is for cleaning up.
    * If a subclass needs to clean up process communication (i.e. MPI)
    * it would over ride this method.  Provided for finalization outside vtk.
    */
-  virtual void Finalize(int finalizedExternally)=0;
+  virtual void Finalize(int finalizedExternally) = 0;
 
-  //@{
+  ///@{
   /**
    * Set the number of processes you will be using.  This defaults
    * to the maximum number available.  If you set this to a value
@@ -117,7 +105,7 @@ public:
    */
   void SetNumberOfProcesses(int num);
   int GetNumberOfProcesses();
-  //@}
+  ///@}
 
   /**
    * Set the SingleMethod to f() and the UserData of the
@@ -125,14 +113,14 @@ public:
    * when SingleMethodExecute is called.  All the processes will
    * start by calling this function.
    */
-  void SetSingleMethod(vtkProcessFunctionType, void *data);
+  void SetSingleMethod(vtkProcessFunctionType, void* data);
 
   /**
    * Object-oriented flavor of SetSingleMethod(). Instead of passing
    * some function pointer and user data, a vtkProcess object is passed
    * where the method to execute is Execute() and the data the object itself.
    */
-  void SetSingleProcessObject(vtkProcess *p);
+  void SetSingleProcessObject(vtkProcess* p);
 
   /**
    * Execute the SingleMethod (as define by SetSingleMethod) using
@@ -147,7 +135,7 @@ public:
    * when MultipleMethodExecute is called.  This is for having each
    * process start with a different function and data argument.
    */
-  void SetMultipleMethod(int index, vtkProcessFunctionType, void *data);
+  void SetMultipleMethod(int index, vtkProcessFunctionType, void* data);
 
   /**
    * Execute the MultipleMethods (as define by calling SetMultipleMethod
@@ -167,7 +155,7 @@ public:
    * It is better if you hang on to the controller passed as an argument to the
    * SingleMethod or MultipleMethod functions.
    */
-  static vtkMultiProcessController *GetGlobalController();
+  static vtkMultiProcessController* GetGlobalController();
 
   /**
    * This method can be used to tell the controller to create
@@ -187,8 +175,7 @@ public:
    * the controller regardless of whether they are in the group.  nullptr is
    * returned on all process not in the group.
    */
-  virtual vtkMultiProcessController *CreateSubController(
-                                                        vtkProcessGroup *group);
+  virtual vtkMultiProcessController* CreateSubController(vtkProcessGroup* group);
 
   /**
    * Partitions this controller based on a coloring.  That is, each process
@@ -200,8 +187,7 @@ public:
    * each process that represents the local partition.  This is basically the
    * same operation as MPI_Comm_split.
    */
-  virtual vtkMultiProcessController *PartitionController(int localColor,
-                                                         int localKey);
+  virtual vtkMultiProcessController* PartitionController(int localColor, int localKey);
 
   //------------------ RMIs --------------------
 
@@ -217,7 +203,7 @@ public:
    * unregister the callback. RemoveRMI() should be preferred over
    * RemoveFirstRMI() since it avoid accidental removal of callbacks.
    */
-  virtual unsigned long AddRMI(vtkRMIFunctionType, void *localArg, int tag);
+  virtual unsigned long AddRMI(vtkRMIFunctionType, void* localArg, int tag);
 
   /**
    * Remove the first RMI matching the tag.
@@ -233,8 +219,13 @@ public:
   /**
    * Take an RMI away.
    */
-  virtual void RemoveRMI(vtkRMIFunctionType f, void *arg, int tag)
-    {(void)f; (void)arg; (void)tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");};
+  virtual void RemoveRMI(vtkRMIFunctionType f, void* arg, int tag)
+  {
+    (void)f;
+    (void)arg;
+    (void)tag;
+    vtkErrorMacro("RemoveRMI Not Implemented Yet");
+  }
 
   /**
    * These methods are a part of the newer API to add multiple rmi callbacks.
@@ -258,7 +249,7 @@ public:
   /**
    * A method to trigger a method invocation in another process.
    */
-  void TriggerRMI(int remoteProcessId, void *arg, int argLength, int tag);
+  void TriggerRMI(int remoteProcessId, void* arg, int argLength, int tag);
 
   /**
    * A convenience method.  Called on process 0 to break "ProcessRMIs" loop
@@ -269,17 +260,20 @@ public:
   /**
    * Convenience method when the arg is a string.
    */
-  void TriggerRMI(int remoteProcessId, const char *arg, int tag)
-    { this->TriggerRMI(remoteProcessId, (void*)arg,
-                       static_cast<int>(strlen(arg))+1, tag); }
+  void TriggerRMI(int remoteProcessId, const char* arg, int tag)
+  {
+    this->TriggerRMI(remoteProcessId, (void*)arg, static_cast<int>(strlen(arg)) + 1, tag);
+  }
 
   /**
    * Convenience method when there is no argument.
    */
   void TriggerRMI(int remoteProcessId, int tag)
-    { this->TriggerRMI(remoteProcessId, nullptr, 0, tag); }
+  {
+    this->TriggerRMI(remoteProcessId, nullptr, 0, tag);
+  }
 
-  //@{
+  ///@{
   /**
    * This is a convenicence method to trigger an RMI call on all the "children"
    * of the current node. The children of the current node can be determined by
@@ -288,20 +282,16 @@ public:
    * designed to be used when trigger an RMI call on all satellites from the
    * root node.
    */
-  void TriggerRMIOnAllChildren(void *arg, int argLength, int tag);
-  void TriggerRMIOnAllChildren(const char *arg, int tag)
+  void TriggerRMIOnAllChildren(void* arg, int argLength, int tag);
+  void TriggerRMIOnAllChildren(const char* arg, int tag)
   {
-    this->TriggerRMIOnAllChildren(
-      (void*)arg, static_cast<int>(strlen(arg))+1, tag);
+    this->TriggerRMIOnAllChildren((void*)arg, static_cast<int>(strlen(arg)) + 1, tag);
   }
-  void TriggerRMIOnAllChildren(int tag)
-  {
-    this->TriggerRMIOnAllChildren(nullptr, 0, tag);
-  }
+  void TriggerRMIOnAllChildren(int tag) { this->TriggerRMIOnAllChildren(nullptr, 0, tag); }
   void BroadcastTriggerRMIOnAllChildren(void* arg, int argLength, int tag);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Calling this method gives control to the controller to start
    * processing RMIs. Possible return values are:
@@ -315,10 +305,10 @@ public:
    */
   int ProcessRMIs(int reportErrors, int dont_loop = 0);
   int ProcessRMIs();
-  int BroadcastProcessRMIs(int reportErrors, int dont_loop=0);
-  //@}
+  int BroadcastProcessRMIs(int reportErrors, int dont_loop = 0);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Setting this flag to 1 will cause the ProcessRMIs loop to return.
    * This also causes vtkUpStreamPorts to return from
@@ -326,26 +316,26 @@ public:
    */
   vtkSetMacro(BreakFlag, int);
   vtkGetMacro(BreakFlag, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Setting this flag to 1 will cause the TriggerRMIOnAllChildren to use
    * a collective broadcast operation to communicate the RMI tag to the
    * satellites.
    */
-  vtkSetMacro(BroadcastTriggerRMI,bool);
-  vtkGetMacro(BroadcastTriggerRMI,bool);
-  vtkBooleanMacro(BroadcastTriggerRMI,bool);
-  //@}
+  vtkSetMacro(BroadcastTriggerRMI, bool);
+  vtkGetMacro(BroadcastTriggerRMI, bool);
+  vtkBooleanMacro(BroadcastTriggerRMI, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the communicator associated with this controller.
    * A default communicator is created in constructor.
    */
   vtkGetObjectMacro(Communicator, vtkCommunicator);
-  //@}
+  ///@}
 
   /**
    * Accessor to some default tags.
@@ -363,15 +353,15 @@ public:
 
   enum Consts
   {
-    ANY_SOURCE     = -1,
+    ANY_SOURCE = -1,
     INVALID_SOURCE = -2
   };
 
   enum Tags
   {
-    RMI_TAG        = 1,
-    RMI_ARG_TAG    = 2,
-    BREAK_RMI_TAG  = 3,
+    RMI_TAG = 1,
+    RMI_ARG_TAG = 2,
+    BREAK_RMI_TAG = 3,
     XML_WRITER_DATA_INFO = 4
   };
 
@@ -380,11 +370,11 @@ public:
    */
   void Barrier();
 
-  static void SetGlobalController(vtkMultiProcessController *controller);
+  static void SetGlobalController(vtkMultiProcessController* controller);
 
   //------------------ Communication --------------------
 
-  //@{
+  ///@{
   /**
    * This method sends data to another process.  Tag eliminates ambiguity
    * when multiple sends or receives exist in the same process.
@@ -396,10 +386,8 @@ public:
   int Send(const short* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const unsigned short* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const unsigned int* data, vtkIdType length, int remoteProcessId, int tag);
-  int Send(const unsigned long* data, vtkIdType length, int remoteProcessId,
-           int tag);
-  int Send(const long* data, vtkIdType length, int remoteProcessId,
-           int tag);
+  int Send(const unsigned long* data, vtkIdType length, int remoteProcessId, int tag);
+  int Send(const long* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const signed char* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const char* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const unsigned char* data, vtkIdType length, int remoteProcessId, int tag);
@@ -407,9 +395,9 @@ public:
   int Send(const double* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const long long* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const unsigned long long* data, vtkIdType length, int remoteProcessId, int tag);
-  int Send(vtkDataObject *data, int remoteId, int tag);
-  int Send(vtkDataArray *data, int remoteId, int tag);
-  //@}
+  int Send(vtkDataObject* data, int remoteId, int tag);
+  int Send(vtkDataArray* data, int remoteId, int tag);
+  ///@}
 
   /**
    * Send a stream to another process. vtkMultiProcessStream makes it possible
@@ -420,7 +408,7 @@ public:
    */
   int Send(const vtkMultiProcessStream& stream, int remoteId, int tag);
 
-  //@{
+  ///@{
   /**
    * This method receives data from a corresponding send. It blocks
    * until the receive is finished.  It calls methods in "data"
@@ -435,8 +423,7 @@ public:
   int Receive(short* data, vtkIdType maxlength, int remoteProcessId, int tag);
   int Receive(unsigned short* data, vtkIdType maxlength, int remoteProcessId, int tag);
   int Receive(long* data, vtkIdType maxlength, int remoteProcessId, int tag);
-  int Receive(unsigned long* data, vtkIdType maxlength, int remoteProcessId,
-              int tag);
+  int Receive(unsigned long* data, vtkIdType maxlength, int remoteProcessId, int tag);
   int Receive(char* data, vtkIdType maxlength, int remoteProcessId, int tag);
   int Receive(unsigned char* data, vtkIdType maxlength, int remoteProcessId, int tag);
   int Receive(signed char* data, vtkIdType maxlength, int remoteProcessId, int tag);
@@ -446,14 +433,14 @@ public:
   int Receive(unsigned long long* data, vtkIdType maxLength, int remoteProcessId, int tag);
   int Receive(vtkDataObject* data, int remoteId, int tag);
   int Receive(vtkDataArray* data, int remoteId, int tag);
-  //@}
+  ///@}
 
   /**
    * Receive a stream from the other processes.
    */
   int Receive(vtkMultiProcessStream& stream, int remoteId, int tag);
 
-  vtkDataObject *ReceiveDataObject(int remoteId, int tag);
+  vtkDataObject* ReceiveDataObject(int remoteId, int tag);
 
   /**
    * Returns the number of words received by the most recent Receive().
@@ -465,67 +452,82 @@ public:
    */
   vtkIdType GetCount();
 
-
   //---------------------- Collective Operations ----------------------
 
-  //@{
+  ///@{
   /**
    * Broadcast sends the array in the process with id \c srcProcessId to all of
    * the other processes.  All processes must call these method with the same
    * arguments in order for it to complete.
    */
-  int Broadcast(int *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(int* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(unsigned int *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(unsigned int* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(short *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(short* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(unsigned short *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(unsigned short* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(long *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(long* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(unsigned long *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(unsigned long* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(unsigned char *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(unsigned char* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(char *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(char* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(signed char *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(signed char* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(float *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(float* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(double *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(double* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(long long *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(long long* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(unsigned long long *data, vtkIdType length, int srcProcessId) {
+  int Broadcast(unsigned long long* data, vtkIdType length, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-  int Broadcast(vtkDataObject *data, int srcProcessId) {
+  int Broadcast(vtkDataObject* data, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, srcProcessId);
   }
-  int Broadcast(vtkDataArray *data, int srcProcessId) {
+  int Broadcast(vtkDataArray* data, int srcProcessId)
+  {
     return this->Communicator->Broadcast(data, srcProcessId);
   }
-  //@}
+  ///@}
 
-  int Broadcast(vtkMultiProcessStream& stream, int srcProcessId) {
+  int Broadcast(vtkMultiProcessStream& stream, int srcProcessId)
+  {
     return this->Communicator->Broadcast(stream, srcProcessId);
   }
 
-  //@{
+  ///@{
   /**
    * Gather collects arrays in the process with id \c destProcessId.  Each
    * process (including the destination) sends the contents of its send buffer
@@ -535,97 +537,102 @@ public:
    * sendBuffers.  The \c recvBuffer (on the destination process) must be of
    * length length*numProcesses.  Gather is the inverse operation of Scatter.
    */
-  int Gather(const int *sendBuffer, int *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(const int* sendBuffer, int* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const unsigned int *sendBuffer, unsigned int *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(
+    const unsigned int* sendBuffer, unsigned int* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const short *sendBuffer, short *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(const short* sendBuffer, short* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const unsigned short *sendBuffer, unsigned short *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(const unsigned short* sendBuffer, unsigned short* recvBuffer, vtkIdType length,
+    int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const long *sendBuffer, long *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(const long* sendBuffer, long* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const unsigned long *sendBuffer, unsigned long *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(
+    const unsigned long* sendBuffer, unsigned long* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const unsigned char *sendBuffer, unsigned char *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(
+    const unsigned char* sendBuffer, unsigned char* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const char *sendBuffer, char *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(const char* sendBuffer, char* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const signed char *sendBuffer, signed char *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(
+    const signed char* sendBuffer, signed char* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const float *sendBuffer, float *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(const float* sendBuffer, float* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const double *sendBuffer, double *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(const double* sendBuffer, double* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const long long *sendBuffer, long long *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(
+    const long long* sendBuffer, long long* recvBuffer, vtkIdType length, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->Communicator->Gather(sendBuffer, recvBuffer, length,
-                                      destProcessId);
+  int Gather(const unsigned long long* sendBuffer, unsigned long long* recvBuffer, vtkIdType length,
+    int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, length, destProcessId);
   }
-  int Gather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-             int destProcessId) {
+  int Gather(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int destProcessId)
+  {
     return this->Communicator->Gather(sendBuffer, recvBuffer, destProcessId);
   }
-  //@}
+  ///@}
 
   /**
    * Gathers vtkDataObject (\c sendBuffer) from all ranks to the \c destProcessId.
    * @param[in] sendBuffer - data object to send from local process. Can be null if
    * not sending any data from the current process.
    * @param[out] recvBuffer - vector of data objects to receive data on the receiving
-   * rank (identified by \c destProcessId). This may be
-   * empty or filled with data object instances. If empty,
-   * data objects will be created as needed. If not empty,
-   * existing data object will be used.
+   * rank (identified by \c destProcessId).
    * @param[in] destProcessId - process id to gather on.
    * @return - 1 on success, 0 on failure.
    */
-  int Gather(vtkDataObject* sendBuffer,
-    std::vector<vtkSmartPointer<vtkDataObject> >& recvBuffer,
+  int Gather(vtkDataObject* sendBuffer, std::vector<vtkSmartPointer<vtkDataObject>>& recvBuffer,
     int destProcessId)
   {
     return this->Communicator->Gather(sendBuffer, recvBuffer, destProcessId);
   }
 
-  //@{
+  /**
+   * Gathers vtkMultiProcessStream (\c sendBuffer) from all ranks to the \c
+   * destProcessId.
+   * @param[in]  sendBuffer - vtkMultiProcessStream to send from local process.
+   * @param[out] recvBuffer - vector of vtkMultiProcessStream instances received
+   *             on the receiving rank (identified by \c destProcessId).
+   * @param[in]  destProcessId - process id to gather on.
+   * @return     1 on success, 0 on failure.
+   */
+  int Gather(const vtkMultiProcessStream& sendBuffer,
+    std::vector<vtkMultiProcessStream>& recvBuffer, int destProcessId)
+  {
+    return this->Communicator->Gather(sendBuffer, recvBuffer, destProcessId);
+  }
+
+  ///@{
   /**
    * GatherV is the vector variant of Gather.  It extends the functionality of
    * Gather by allowing a varying count of data from each process.
@@ -637,134 +644,115 @@ public:
    * \c recvLengths is an array containing the amount \c destProcessId
    * receives from each process, in rank order.
    */
-  int GatherV(const int* sendBuffer, int* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const int* sendBuffer, int* recvBuffer, vtkIdType sendLength, vtkIdType* recvLengths,
+    vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const unsigned int* sendBuffer, unsigned int* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const unsigned int* sendBuffer, unsigned int* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const short* sendBuffer, short* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const short* sendBuffer, short* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const unsigned short* sendBuffer, unsigned short* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const unsigned short* sendBuffer, unsigned short* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const long* sendBuffer, long* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const long* sendBuffer, long* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const char* sendBuffer, char* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const char* sendBuffer, char* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const signed char* sendBuffer, signed char* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const signed char* sendBuffer, signed char* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const float* sendBuffer, float* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const float* sendBuffer, float* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const double* sendBuffer, double* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const double* sendBuffer, double* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  int GatherV(const long long* sendBuffer, long long* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
+  int GatherV(const long long* sendBuffer, long long* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
   int GatherV(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       sendLength, recvLengths,
-                                       offsets, destProcessId);
-  }
-  //@}
-
-  int GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-              vtkIdType *recvLengths, vtkIdType *offsets, int destProcessId) {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       recvLengths, offsets,
-                                       destProcessId);
-  }
-  int GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-              vtkIdTypeArray* recvLengths,
-              vtkIdTypeArray* offsets,
-              int destProcessId)
+    vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets, int destProcessId)
   {
-    return this->Communicator->GatherV(sendBuffer, recvBuffer,
-                                       recvLengths, offsets, destProcessId);
+    return this->Communicator->GatherV(
+      sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
+  }
+  ///@}
+
+  int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkIdType* recvLengths,
+    vtkIdType* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(sendBuffer, recvBuffer, recvLengths, offsets, destProcessId);
+  }
+  int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkIdTypeArray* recvLengths,
+    vtkIdTypeArray* offsets, int destProcessId)
+  {
+    return this->Communicator->GatherV(sendBuffer, recvBuffer, recvLengths, offsets, destProcessId);
   }
 
-
-  //@{
+  ///@{
   /**
    * This special form of GatherV will automatically determine \c recvLengths
    * and \c offsets to tightly pack the data in the \c recvBuffer in process
    * order.  It will also resize \c recvBuffer in order to accommodate the
    * incoming data (unlike the other GatherV variants).
    */
-  int GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-              int destProcessId) {
+  int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int destProcessId)
+  {
     return this->Communicator->GatherV(sendBuffer, recvBuffer, destProcessId);
   }
-  int GatherV(vtkDataObject* sendData, vtkSmartPointer<vtkDataObject>* recvData,
-              int destProcessId)
+  int GatherV(vtkDataObject* sendData, vtkSmartPointer<vtkDataObject>* recvData, int destProcessId)
   {
     return this->Communicator->GatherV(sendData, recvData, destProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Scatter takes an array in the process with id \c srcProcessId and
    * distributes it.  Each process (including the source) receives a portion of
@@ -772,78 +760,72 @@ public:
    * receives the second \c length values, and so on.  Scatter is the inverse
    * operation of Gather.
    */
-  int Scatter(const int *sendBuffer, int *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(const int* sendBuffer, int* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const unsigned int *sendBuffer, unsigned int *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(
+    const unsigned int* sendBuffer, unsigned int* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const short *sendBuffer, short *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(const short* sendBuffer, short* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const unsigned short *sendBuffer, unsigned short *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(const unsigned short* sendBuffer, unsigned short* recvBuffer, vtkIdType length,
+    int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const long *sendBuffer, long *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(const long* sendBuffer, long* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const unsigned long *sendBuffer, unsigned long *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(
+    const unsigned long* sendBuffer, unsigned long* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const unsigned char *sendBuffer, unsigned char *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(
+    const unsigned char* sendBuffer, unsigned char* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const char *sendBuffer, char *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(const char* sendBuffer, char* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const signed char *sendBuffer, signed char *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(
+    const signed char* sendBuffer, signed char* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const float *sendBuffer, float *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(const float* sendBuffer, float* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const double *sendBuffer, double *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(const double* sendBuffer, double* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const long long *sendBuffer, long long *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(
+    const long long* sendBuffer, long long* recvBuffer, vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
-              vtkIdType length, int srcProcessId) {
-    return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
-                                       srcProcessId);
+  int Scatter(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
+    vtkIdType length, int srcProcessId)
+  {
+    return this->Communicator->Scatter(sendBuffer, recvBuffer, length, srcProcessId);
   }
-  int Scatter(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-              int srcProcessId) {
+  int Scatter(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int srcProcessId)
+  {
     return this->Communicator->Scatter(sendBuffer, recvBuffer, srcProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * ScatterV is the vector variant of Scatter.  It extends the functionality of
    * Scatter by allowing a varying count of data to each process.
@@ -851,251 +833,249 @@ public:
    * distributes it.  Each process (including the source) receives a portion of
    * the send buffer defined by the \c sendLengths and \c offsets arrays.
    */
-  int ScatterV(const int *sendBuffer, int *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const int* sendBuffer, int* recvBuffer, vtkIdType* sendLengths, vtkIdType* offsets,
+    vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const unsigned int *sendBuffer, unsigned int *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const unsigned int* sendBuffer, unsigned int* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const short *sendBuffer, short *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const short* sendBuffer, short* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const unsigned short *sendBuffer, unsigned short *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const unsigned short* sendBuffer, unsigned short* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const long *sendBuffer, long *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const long* sendBuffer, long* recvBuffer, vtkIdType* sendLengths, vtkIdType* offsets,
+    vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const unsigned long *sendBuffer, unsigned long *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const unsigned long* sendBuffer, unsigned long* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const unsigned char *sendBuffer, unsigned char *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const unsigned char* sendBuffer, unsigned char* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const char *sendBuffer, char *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const char* sendBuffer, char* recvBuffer, vtkIdType* sendLengths, vtkIdType* offsets,
+    vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const signed char *sendBuffer, signed char *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const signed char* sendBuffer, signed char* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const float *sendBuffer, float *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const float* sendBuffer, float* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const double *sendBuffer, double *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const double* sendBuffer, double* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const long long *sendBuffer, long long *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const long long* sendBuffer, long long* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  int ScatterV(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->Communicator->ScatterV(sendBuffer, recvBuffer,
-                                        sendLengths, offsets, recvLength,
-                                        srcProcessId);
+  int ScatterV(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
+    vtkIdType* sendLengths, vtkIdType* offsets, vtkIdType recvLength, int srcProcessId)
+  {
+    return this->Communicator->ScatterV(
+      sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Same as gather except that the result ends up on all processes.
    */
-  int AllGather(const int *sendBuffer, int *recvBuffer, vtkIdType length) {
+  int AllGather(const int* sendBuffer, int* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const unsigned int *sendBuffer, unsigned int *recvBuffer, vtkIdType length) {
+  int AllGather(const unsigned int* sendBuffer, unsigned int* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const short *sendBuffer, short *recvBuffer, vtkIdType length) {
+  int AllGather(const short* sendBuffer, short* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const unsigned short *sendBuffer, unsigned short *recvBuffer, vtkIdType length) {
+  int AllGather(const unsigned short* sendBuffer, unsigned short* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const long *sendBuffer, long *recvBuffer, vtkIdType length) {
+  int AllGather(const long* sendBuffer, long* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const unsigned long *sendBuffer,
-                unsigned long *recvBuffer, vtkIdType length) {
+  int AllGather(const unsigned long* sendBuffer, unsigned long* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const unsigned char *sendBuffer,
-                unsigned char *recvBuffer, vtkIdType length) {
+  int AllGather(const unsigned char* sendBuffer, unsigned char* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const char *sendBuffer, char *recvBuffer, vtkIdType length) {
+  int AllGather(const char* sendBuffer, char* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const signed char *sendBuffer, signed char *recvBuffer, vtkIdType length) {
+  int AllGather(const signed char* sendBuffer, signed char* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const float *sendBuffer, float *recvBuffer, vtkIdType length) {
+  int AllGather(const float* sendBuffer, float* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const double *sendBuffer,
-                double *recvBuffer, vtkIdType length) {
+  int AllGather(const double* sendBuffer, double* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const long long *sendBuffer, long long *recvBuffer, vtkIdType length) {
+  int AllGather(const long long* sendBuffer, long long* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(const unsigned long long *sendBuffer, unsigned long long *recvBuffer, vtkIdType length) {
+  int AllGather(
+    const unsigned long long* sendBuffer, unsigned long long* recvBuffer, vtkIdType length)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-  int AllGather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer) {
+  int AllGather(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer)
+  {
     return this->Communicator->AllGather(sendBuffer, recvBuffer);
   }
-  //@}
+  ///@}
 
-  //@{
+  /**
+   * Gathers vtkDataObject (\c sendBuffer) from all ranks to all raks.
+   * @param[in] sendBuffer - data object to send from local process. Can be null if
+   * not sending any data from the current process.
+   * @param[out] recvBuffer - vector of data objects to receive data.
+   * @return - 1 on success, 0 on failure.
+   */
+  int AllGather(vtkDataObject* sendBuffer, std::vector<vtkSmartPointer<vtkDataObject>>& recvBuffer)
+  {
+    return this->Communicator->AllGather(sendBuffer, recvBuffer);
+  }
+
+  /**
+   * Gathers vtkMultiProcessStream (\c sendBuffer) from all ranks to the \c
+   * destProcessId.
+   * @param[in]  sendBuffer - vtkMultiProcessStream to send from local process.
+   * @param[out] recvBuffer - vector of vtkMultiProcessStream instances * received.
+   * @return     1 on success, 0 on failure.
+   */
+  int AllGather(
+    const vtkMultiProcessStream& sendBuffer, std::vector<vtkMultiProcessStream>& recvBuffer)
+  {
+    return this->Communicator->AllGather(sendBuffer, recvBuffer);
+  }
+
+  ///@{
   /**
    * Same as GatherV except that the result is placed in all processes.
    */
-  int AllGatherV(const int* sendBuffer, int* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const int* sendBuffer, int* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const unsigned int* sendBuffer, unsigned int* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const unsigned int* sendBuffer, unsigned int* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const short* sendBuffer, short* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const short* sendBuffer, short* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const unsigned short* sendBuffer, unsigned short* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const unsigned short* sendBuffer, unsigned short* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const long* sendBuffer, long* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const long* sendBuffer, long* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const char* sendBuffer, char* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const char* sendBuffer, char* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const signed char* sendBuffer, signed char* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const signed char* sendBuffer, signed char* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const float* sendBuffer, float* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const float* sendBuffer, float* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const double* sendBuffer, double* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const double* sendBuffer, double* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(const long long* sendBuffer, long long* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+  int AllGatherV(const long long* sendBuffer, long long* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
   int AllGatherV(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          sendLength, recvLengths,
-                                          offsets);
+    vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, sendLength, recvLengths, offsets);
   }
-  int AllGatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-                 vtkIdType *recvLengths, vtkIdType *offsets) {
-    return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
-                                          recvLengths, offsets);
+  int AllGatherV(
+    vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkIdType* recvLengths, vtkIdType* offsets)
+  {
+    return this->Communicator->AllGatherV(sendBuffer, recvBuffer, recvLengths, offsets);
   }
-  //@}
+  ///@}
 
   /**
    * This special form of AllGatherV will automatically determine \c recvLengths
@@ -1103,330 +1083,340 @@ public:
    * order.  It will also resize \c recvBuffer in order to accommodate the
    * incoming data (unlike the other GatherV variants).
    */
-  int AllGatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer) {
+  int AllGatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer)
+  {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer);
   }
 
-  //@{
+  ///@{
   /**
    * Reduce an array to the given destination process.  This version of Reduce
    * takes an identifier defined in the
    * vtkCommunicator::StandardOperations enum to define the operation.
    */
-  int Reduce(const int *sendBuffer, int *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(
+    const int* sendBuffer, int* recvBuffer, vtkIdType length, int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const unsigned int *sendBuffer, unsigned int *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const unsigned int* sendBuffer, unsigned int* recvBuffer, vtkIdType length,
+    int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const short *sendBuffer, short *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(
+    const short* sendBuffer, short* recvBuffer, vtkIdType length, int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const unsigned short *sendBuffer, unsigned short *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const unsigned short* sendBuffer, unsigned short* recvBuffer, vtkIdType length,
+    int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const long *sendBuffer, long *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(
+    const long* sendBuffer, long* recvBuffer, vtkIdType length, int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const unsigned long *sendBuffer, unsigned long *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const unsigned long* sendBuffer, unsigned long* recvBuffer, vtkIdType length,
+    int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const unsigned char *sendBuffer, unsigned char *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const unsigned char* sendBuffer, unsigned char* recvBuffer, vtkIdType length,
+    int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const char *sendBuffer, char *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(
+    const char* sendBuffer, char* recvBuffer, vtkIdType length, int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const signed char *sendBuffer, signed char *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const signed char* sendBuffer, signed char* recvBuffer, vtkIdType length,
+    int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const float *sendBuffer, float *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(
+    const float* sendBuffer, float* recvBuffer, vtkIdType length, int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const double *sendBuffer, double *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const double* sendBuffer, double* recvBuffer, vtkIdType length, int operation,
+    int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const long long *sendBuffer, long long *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const long long* sendBuffer, long long* recvBuffer, vtkIdType length, int operation,
+    int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const unsigned long long* sendBuffer, unsigned long long* recvBuffer, vtkIdType length,
+    int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-             int operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer,
-                                      operation, destProcessId);
+  int Reduce(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, operation, destProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Reduce an array to the given destination process.  This version of Reduce
    * takes a custom operation as a subclass of vtkCommunicator::Operation.
    */
-  int Reduce(const int *sendBuffer, int *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const int* sendBuffer, int* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const unsigned int *sendBuffer, unsigned int *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const unsigned int* sendBuffer, unsigned int* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const short *sendBuffer, short *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const short* sendBuffer, short* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const unsigned short *sendBuffer, unsigned short *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const unsigned short* sendBuffer, unsigned short* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const long *sendBuffer, long *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const long* sendBuffer, long* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const unsigned long *sendBuffer, unsigned long *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const unsigned long* sendBuffer, unsigned long* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const unsigned char *sendBuffer, unsigned char *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const unsigned char* sendBuffer, unsigned char* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const char *sendBuffer, char *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const char* sendBuffer, char* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const signed char *sendBuffer, signed char *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const signed char* sendBuffer, signed char* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const float *sendBuffer, float *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const float* sendBuffer, float* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const double *sendBuffer, double *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const double* sendBuffer, double* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const long long *sendBuffer, long long *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const long long* sendBuffer, long long* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
-             vtkIdType length, vtkCommunicator::Operation *operation,
-             int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
-                                      operation, destProcessId);
+  int Reduce(const unsigned long long* sendBuffer, unsigned long long* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length, operation, destProcessId);
   }
-  int Reduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-             vtkCommunicator::Operation *operation, int destProcessId) {
-    return this->Communicator->Reduce(sendBuffer, recvBuffer,
-                                      operation, destProcessId);
+  int Reduce(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
+    vtkCommunicator::Operation* operation, int destProcessId)
+  {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, operation, destProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Same as Reduce except that the result is placed in all of the processes.
    */
-  int AllReduce(const int *sendBuffer, int *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const int* sendBuffer, int* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const unsigned int *sendBuffer, unsigned int *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(
+    const unsigned int* sendBuffer, unsigned int* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const short *sendBuffer, short *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const short* sendBuffer, short* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const unsigned short *sendBuffer, unsigned short *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(
+    const unsigned short* sendBuffer, unsigned short* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const long *sendBuffer, long *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const long* sendBuffer, long* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const unsigned long *sendBuffer, unsigned long *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(
+    const unsigned long* sendBuffer, unsigned long* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const unsigned char *sendBuffer, unsigned char *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(
+    const unsigned char* sendBuffer, unsigned char* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const char *sendBuffer, char *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const char* sendBuffer, char* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const signed char *sendBuffer, signed char *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(
+    const signed char* sendBuffer, signed char* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const float *sendBuffer, float *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const float* sendBuffer, float* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const double *sendBuffer, double *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const double* sendBuffer, double* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const long long *sendBuffer, long long *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const long long* sendBuffer, long long* recvBuffer, vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
+    vtkIdType length, int operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-                int operation) {
+  int AllReduce(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int operation)
+  {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
   }
-  //@}
+  ///@}
 
-  int AllReduce(const int *sendBuffer, int *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(
+    const int* sendBuffer, int* recvBuffer, vtkIdType length, vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const unsigned int *sendBuffer, unsigned int *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const unsigned int* sendBuffer, unsigned int* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const short *sendBuffer, short *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const short* sendBuffer, short* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const unsigned short *sendBuffer, unsigned short *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const unsigned short* sendBuffer, unsigned short* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const long *sendBuffer, long *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const long* sendBuffer, long* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const unsigned long *sendBuffer, unsigned long *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const unsigned long* sendBuffer, unsigned long* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const unsigned char *sendBuffer, unsigned char *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const unsigned char* sendBuffer, unsigned char* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const char *sendBuffer, char *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const char* sendBuffer, char* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const signed char *sendBuffer, signed char *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const signed char* sendBuffer, signed char* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const float *sendBuffer, float *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const float* sendBuffer, float* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const double *sendBuffer, double *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const double* sendBuffer, double* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const long long *sendBuffer, long long *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const long long* sendBuffer, long long* recvBuffer, vtkIdType length,
+    vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
-                vtkIdType length, vtkCommunicator::Operation *operation) {
-    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
-                                         operation);
+  int AllReduce(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
+    vtkIdType length, vtkCommunicator::Operation* operation)
+  {
+    return this->Communicator->AllReduce(sendBuffer, recvBuffer, length, operation);
   }
-  int AllReduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-                vtkCommunicator::Operation *operation) {
+  int AllReduce(
+    vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkCommunicator::Operation* operation)
+  {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
   }
 
-  //@{
+  ///@{
   /**
    * Convenience methods to reduce bounds.
    */
   int Reduce(const vtkBoundingBox& sendBuffer, vtkBoundingBox& recvBuffer, int destProcessId);
   int AllReduce(const vtkBoundingBox& sendBuffer, vtkBoundingBox& recvBuffer);
-  //@}
+  ///@}
+
+  ///@{
+  /**
+   * Convenience methods to reduce vtkDataArraySelection.
+   */
+  int Reduce(
+    vtkDataArraySelection* sendBuffer, vtkDataArraySelection* recvBuffer, int destProcessId);
+  int AllReduce(vtkDataArraySelection* sendBuffer, vtkDataArraySelection* recvBuffer);
+  ///@}
+
+  /**
+   * Check if this controller implements a probe operation
+   */
+  virtual bool CanProbe() { return this->Communicator->CanProbe(); }
+
+  /**
+   * Blocking test for checking for a message tagged with tag from source process (if
+   * source == ANY_SOURCE check for any message). Rank in actualSource is rank sending
+   * a message.
+   *
+   * Check if implemented in the current communicator using the CanProbe method before
+   * using.
+   *
+   * Returns 1 on success and 0 on failure.
+   */
+  virtual int Probe(int source, int tag, int* actualSource)
+  {
+    return this->Communicator->Probe(source, tag, actualSource);
+  }
 
   // Internally implemented RMI to break the process loop.
 
@@ -1439,24 +1429,23 @@ protected:
    * modify the behaviour eg. MPIController provides ability to use SSend
    * instead of Send.
    */
-  virtual void TriggerRMIInternal(int remoteProcessId,
-    void* arg, int argLength, int rmiTag, bool propagate);
+  virtual void TriggerRMIInternal(
+    int remoteProcessId, void* arg, int argLength, int rmiTag, bool propagate);
 
-  vtkProcessFunctionType      SingleMethod;
-  void                       *SingleData;
+  vtkProcessFunctionType SingleMethod;
+  void* SingleData;
 
-  void GetMultipleMethod(int index, vtkProcessFunctionType &func, void *&data);
+  void GetMultipleMethod(int index, vtkProcessFunctionType& func, void*& data);
 
   // This is a flag that can be used by the ports to break
   // their update loop. (same as ProcessRMIs)
   int BreakFlag;
 
-  void ProcessRMI(int remoteProcessId, void *arg, int argLength, int rmiTag);
+  void ProcessRMI(int remoteProcessId, void* arg, int argLength, int rmiTag);
 
   // This method implements "GetGlobalController".
   // It needs to be virtual and static.
-  virtual vtkMultiProcessController *GetLocalController();
-
+  virtual vtkMultiProcessController* GetLocalController();
 
   // This flag can force deep copies during send.
   int ForceDeepCopy;
@@ -1489,13 +1478,10 @@ private:
   unsigned long RMICount;
 
   class vtkInternal;
-  vtkInternal *Internal;
-
+  vtkInternal* Internal;
 };
 
-
-inline int vtkMultiProcessController::Send(vtkDataObject *data,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(vtkDataObject* data, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1507,8 +1493,7 @@ inline int vtkMultiProcessController::Send(vtkDataObject *data,
   }
 }
 
-inline int vtkMultiProcessController::Send(vtkDataArray *data,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(vtkDataArray* data, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1520,8 +1505,8 @@ inline int vtkMultiProcessController::Send(vtkDataArray *data,
   }
 }
 
-inline int vtkMultiProcessController::Send(const int* data, vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const int* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1533,8 +1518,8 @@ inline int vtkMultiProcessController::Send(const int* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Send(const short* data, vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const short* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1546,8 +1531,8 @@ inline int vtkMultiProcessController::Send(const short* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Send(const unsigned short* data, vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const unsigned short* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1559,8 +1544,8 @@ inline int vtkMultiProcessController::Send(const unsigned short* data, vtkIdType
   }
 }
 
-inline int vtkMultiProcessController::Send(const unsigned int* data, vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const unsigned int* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1572,10 +1557,8 @@ inline int vtkMultiProcessController::Send(const unsigned int* data, vtkIdType l
   }
 }
 
-inline int vtkMultiProcessController::Send(const unsigned long* data,
-                                           vtkIdType length,
-                                           int remoteProcessId,
-                                           int tag)
+inline int vtkMultiProcessController::Send(
+  const unsigned long* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1587,10 +1570,8 @@ inline int vtkMultiProcessController::Send(const unsigned long* data,
   }
 }
 
-inline int vtkMultiProcessController::Send(const long* data,
-                                           vtkIdType length,
-                                           int remoteProcessId,
-                                           int tag)
+inline int vtkMultiProcessController::Send(
+  const long* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1602,8 +1583,8 @@ inline int vtkMultiProcessController::Send(const long* data,
   }
 }
 
-inline int vtkMultiProcessController::Send(const signed char* data, vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const signed char* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1615,8 +1596,8 @@ inline int vtkMultiProcessController::Send(const signed char* data, vtkIdType le
   }
 }
 
-inline int vtkMultiProcessController::Send(const char* data, vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const char* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1628,9 +1609,8 @@ inline int vtkMultiProcessController::Send(const char* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Send(const unsigned char* data,
-                                           vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const unsigned char* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1642,8 +1622,8 @@ inline int vtkMultiProcessController::Send(const unsigned char* data,
   }
 }
 
-inline int vtkMultiProcessController::Send(const float* data, vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const float* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1655,8 +1635,8 @@ inline int vtkMultiProcessController::Send(const float* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Send(const double* data, vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const double* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1668,9 +1648,8 @@ inline int vtkMultiProcessController::Send(const double* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Send(const long long* data,
-                                           vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const long long* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1682,9 +1661,8 @@ inline int vtkMultiProcessController::Send(const long long* data,
   }
 }
 
-inline int vtkMultiProcessController::Send(const unsigned long long* data,
-                                           vtkIdType length,
-                                           int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Send(
+  const unsigned long long* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1696,8 +1674,8 @@ inline int vtkMultiProcessController::Send(const unsigned long long* data,
   }
 }
 
-inline int vtkMultiProcessController::Send(const vtkMultiProcessStream& stream,
-  int remoteId, int tag)
+inline int vtkMultiProcessController::Send(
+  const vtkMultiProcessStream& stream, int remoteId, int tag)
 {
   if (this->Communicator)
   {
@@ -1706,8 +1684,7 @@ inline int vtkMultiProcessController::Send(const vtkMultiProcessStream& stream,
   return 0;
 }
 
-inline int vtkMultiProcessController::Receive(vtkDataObject* data,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(vtkDataObject* data, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1719,8 +1696,7 @@ inline int vtkMultiProcessController::Receive(vtkDataObject* data,
   }
 }
 
-inline vtkDataObject* vtkMultiProcessController::ReceiveDataObject(
-  int remoteProcessId, int tag)
+inline vtkDataObject* vtkMultiProcessController::ReceiveDataObject(int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1732,8 +1708,7 @@ inline vtkDataObject* vtkMultiProcessController::ReceiveDataObject(
   }
 }
 
-inline int vtkMultiProcessController::Receive(vtkDataArray* data,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(vtkDataArray* data, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1745,8 +1720,8 @@ inline int vtkMultiProcessController::Receive(vtkDataArray* data,
   }
 }
 
-inline int vtkMultiProcessController::Receive(int* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  int* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1758,8 +1733,8 @@ inline int vtkMultiProcessController::Receive(int* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Receive(unsigned int* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  unsigned int* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1771,8 +1746,8 @@ inline int vtkMultiProcessController::Receive(unsigned int* data, vtkIdType leng
   }
 }
 
-inline int vtkMultiProcessController::Receive(short* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  short* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1784,8 +1759,8 @@ inline int vtkMultiProcessController::Receive(short* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Receive(unsigned short* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  unsigned short* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1797,8 +1772,8 @@ inline int vtkMultiProcessController::Receive(unsigned short* data, vtkIdType le
   }
 }
 
-inline int vtkMultiProcessController::Receive(long* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  long* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1810,11 +1785,8 @@ inline int vtkMultiProcessController::Receive(long* data, vtkIdType length,
   }
 }
 
-
-inline int vtkMultiProcessController::Receive(unsigned long* data,
-                                              vtkIdType length,
-                                              int remoteProcessId,
-                                              int tag)
+inline int vtkMultiProcessController::Receive(
+  unsigned long* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1826,8 +1798,8 @@ inline int vtkMultiProcessController::Receive(unsigned long* data,
   }
 }
 
-inline int vtkMultiProcessController::Receive(char* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  char* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1839,9 +1811,8 @@ inline int vtkMultiProcessController::Receive(char* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Receive(unsigned char* data,
-                                              vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  unsigned char* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1853,8 +1824,8 @@ inline int vtkMultiProcessController::Receive(unsigned char* data,
   }
 }
 
-inline int vtkMultiProcessController::Receive(signed char* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  signed char* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1866,9 +1837,8 @@ inline int vtkMultiProcessController::Receive(signed char* data, vtkIdType lengt
   }
 }
 
-
-inline int vtkMultiProcessController::Receive(float* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  float* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1880,8 +1850,8 @@ inline int vtkMultiProcessController::Receive(float* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Receive(double* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  double* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1893,8 +1863,8 @@ inline int vtkMultiProcessController::Receive(double* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Receive(long long* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  long long* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1906,8 +1876,8 @@ inline int vtkMultiProcessController::Receive(long long* data, vtkIdType length,
   }
 }
 
-inline int vtkMultiProcessController::Receive(unsigned long long* data, vtkIdType length,
-                                              int remoteProcessId, int tag)
+inline int vtkMultiProcessController::Receive(
+  unsigned long long* data, vtkIdType length, int remoteProcessId, int tag)
 {
   if (this->Communicator)
   {
@@ -1919,8 +1889,7 @@ inline int vtkMultiProcessController::Receive(unsigned long long* data, vtkIdTyp
   }
 }
 
-inline int vtkMultiProcessController::Receive(vtkMultiProcessStream& stream,
-  int remoteId, int tag)
+inline int vtkMultiProcessController::Receive(vtkMultiProcessStream& stream, int remoteId, int tag)
 {
   if (this->Communicator)
   {
@@ -1946,4 +1915,5 @@ inline vtkIdType vtkMultiProcessController::GetCount()
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

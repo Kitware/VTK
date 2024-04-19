@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkFieldData.h"
@@ -25,14 +27,10 @@ public:
   vtkTestAlgorithm(const vtkTestAlgorithm&) = delete;
   void operator=(const vtkTestAlgorithm&) = delete;
 
-  vtkTypeMacro(vtkTestAlgorithm, vtkPassInputTypeAlgorithm)
+  vtkTypeMacro(vtkTestAlgorithm, vtkPassInputTypeAlgorithm);
 
 protected:
-  vtkTestAlgorithm()
-    : Superclass()
-  {
-    this->SetNumberOfOutputPorts(2);
-  }
+  vtkTestAlgorithm() { this->SetNumberOfOutputPorts(2); }
 
   int FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info) override
   {
@@ -112,7 +110,7 @@ void AddPerBlockFieldData(vtkCompositeDataSet* data)
       array->SetValue(0, iter->GetCurrentFlatIndex());
       array->SetName("compositeIndexBasedData");
       fd->AddArray(array);
-      std::cout << "Assinging field data " << iter->GetCurrentFlatIndex() << std::endl;
+      std::cout << "Assigning field data " << iter->GetCurrentFlatIndex() << std::endl;
     }
   }
 }
@@ -222,15 +220,14 @@ int TestComposite(std::string& inputDataFile, bool isAMR)
 
 int TestMultiOutputSimpleFilter(int argc, char* argv[])
 {
-  char const *tmp = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/AMR/HierarchicalBoxDataset.v1.1.vthb");
+  char const* tmp =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/AMR/HierarchicalBoxDataset.v1.1.vthb");
   std::string inputAMR = tmp;
-  delete [] tmp;
+  delete[] tmp;
 
-  tmp = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/many_blocks/many_blocks.vtm");
+  tmp = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/many_blocks/many_blocks.vtm");
   std::string inputMultiblock = tmp;
-  delete [] tmp;
+  delete[] tmp;
 
   int retVal = TestComposite(inputAMR, true);
 

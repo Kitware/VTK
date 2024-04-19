@@ -1,30 +1,18 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCityGMLReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCityGMLReader.h"
-
 
 #include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkCollection.h"
 #include "vtkContourTriangulator.h"
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkFieldData.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
+#include "vtkMathUtilities.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
@@ -38,18 +26,21 @@
 #include "vtkTransformFilter.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
-#include "vtksys/SystemTools.hxx"
 #include "vtk_pugixml.h"
+#include "vtksys/SystemTools.hxx"
 
+#include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <unordered_map>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <sstream>
+#include <unordered_map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCityGMLReader::Implementation
 {
 public:
@@ -60,7 +51,6 @@ public:
     MATERIAL
   };
 
-public:
   Implementation(vtkCityGMLReader* reader, int lod, int useTransparencyAsOpacity)
   {
     this->Initialize(reader, lod, useTransparencyAsOpacity);
@@ -89,13 +79,21 @@ public:
       info.ImageURI = textureNode.child("app:imageURI");
 
       auto targetNode = textureNode.child("app:target");
-      while(targetNode)
+      while (targetNode)
       {
         auto texCoordList = targetNode.first_child();
-        for (auto textureCoordinates: texCoordList.children())
+        for (auto textureCoordinates : texCoordList.children())
         {
           info.TextureCoordinates = textureCoordinates;
           const char* polyId = textureCoordinates.attribute("ring").value();
+          // in the Berlin 3D dataset
+          // https://www.businesslocationcenter.de/en/economic-atlas/download-portal/
+          // app:textureCoordinates ring attribute is prefixed by a #,
+          // while gml:LinearRing gml:id attribute is not
+          if (polyId[0] == '#')
+          {
+            ++polyId;
+          }
           this->PolyIdToTextureCoordinates[polyId] = info;
         }
         targetNode = targetNode.next_sibling("app:target");
@@ -108,17 +106,17 @@ public:
     std::ostringstream ostr;
     ostr << "//app:Appearance//app:X3DMaterial";
     auto xnodes = doc.select_nodes(ostr.str().c_str());
-    for (auto xnode: xnodes)
+    for (auto xnode : xnodes)
     {
       auto node = xnode.node();
       node = node.first_child();
       Material material;
-      for(; std::string(node.name()) != "app:target"; node = node.next_sibling())
+      for (; std::string(node.name()) != "app:target"; node = node.next_sibling())
       {
         const char* value = node.child_value();
         std::istringstream iss(value);
-        std::array<float, 3> color;
-        for (size_t i = 0; i < color.size() && ! iss.eof(); ++i)
+        std::array<double, 3> color;
+        for (size_t i = 0; i < color.size(); ++i)
         {
           iss >> color[i];
         }
@@ -132,8 +130,13 @@ public:
         }
         else if (std::string(node.name()) == "app:transparency")
         {
-          float transparency = this->UseTransparencyAsOpacity ? 1 - color[0] : color[0];
+          double transparency = this->UseTransparencyAsOpacity ? 1 - color[0] : color[0];
           material.Transparency = transparency;
+        }
+        else if (std::string(node.name()) == "app:shininess")
+        {
+          double shininess = color[0];
+          material.Shininess = shininess;
         }
       }
       this->Materials.push_back(material);
@@ -150,37 +153,34 @@ public:
   void InitializeImplicitGeometry()
   {
     this->RelativeGeometryIdToDataSet.clear();
-    if (! this->RelativeGeometryDataSets)
+    if (!this->RelativeGeometryDataSets)
     {
       this->RelativeGeometryDataSets = vtkSmartPointer<vtkMultiBlockDataSet>::New();
     }
     this->RelativeGeometryDataSets->Initialize();
   }
 
-
-  void CacheImplicitGeometry(pugi::xml_document& doc,
-                             const char* gmlNamespace, const char* feature)
+  void CacheImplicitGeometry(pugi::xml_document& doc, const char* gmlNamespace, const char* feature)
   {
-    auto xmultiSurface = doc.select_nodes(
-      (std::string("//") + gmlNamespace + ":" + feature +
-       "/" + gmlNamespace + ":lod" + std::to_string(this->LOD) + "ImplicitRepresentation/"
-       "core:ImplicitGeometry/core:relativeGMLGeometry/gml:MultiSurface").c_str());
+    auto xmultiSurface = doc.select_nodes((std::string("//") + gmlNamespace + ":" + feature + "/" +
+      gmlNamespace + ":lod" + std::to_string(this->LOD) +
+      "ImplicitRepresentation/"
+      "core:ImplicitGeometry/core:relativeGMLGeometry/gml:MultiSurface")
+                                            .c_str());
     for (auto it = xmultiSurface.begin(); it != xmultiSurface.end(); ++it)
     {
       pugi::xml_node node = it->node();
       const char* id = node.attribute("gml:id").value();
       this->ReadMultiSurface(node, this->RelativeGeometryDataSets);
-      this->RelativeGeometryIdToDataSet[id] =
-        this->RelativeGeometryDataSets->GetBlock(
-          this->RelativeGeometryDataSets->GetNumberOfBlocks() - 1);
+      this->RelativeGeometryIdToDataSet[id] = this->RelativeGeometryDataSets->GetBlock(
+        this->RelativeGeometryDataSets->GetNumberOfBlocks() - 1);
     }
   }
 
   void ReadImplicitGeometry(
     const pugi::xml_node& implicitGeometryNode, vtkMultiBlockDataSet* output, const char* element)
   {
-    std::istringstream iss(
-      implicitGeometryNode.child("core:transformationMatrix").child_value());
+    std::istringstream iss(implicitGeometryNode.child("core:transformationMatrix").child_value());
     double m[16];
     for (int i = 0; i < 16; ++i)
     {
@@ -188,9 +188,10 @@ public:
     }
     vtkNew<vtkMatrix4x4> matrix;
     matrix->DeepCopy(m);
-    const char* posString =
-      implicitGeometryNode.child(
-        "core:referencePoint").child("gml:Point").child("gml:pos").child_value();
+    const char* posString = implicitGeometryNode.child("core:referencePoint")
+                              .child("gml:Point")
+                              .child("gml:pos")
+                              .child_value();
     iss.str(posString);
     vtkNew<vtkTransform> transform;
     transform->PostMultiply();
@@ -204,8 +205,7 @@ public:
       }
       transform->Translate(t);
     }
-    pugi::xml_node relativeGeometryNode =
-      implicitGeometryNode.child("core:relativeGMLGeometry");
+    pugi::xml_node relativeGeometryNode = implicitGeometryNode.child("core:relativeGMLGeometry");
     const char* href = relativeGeometryNode.attribute("xlink:href").value();
     const char* id = nullptr;
     if (*href == 0)
@@ -220,9 +220,7 @@ public:
     auto it = this->RelativeGeometryIdToDataSet.find(id);
     if (it == this->RelativeGeometryIdToDataSet.end())
     {
-      vtkWarningWithObjectMacro(
-        this->Reader, <<
-        "Cannot find cached multi surface for id=" << id);
+      vtkWarningWithObjectMacro(this->Reader, << "Cannot find cached multi surface for id=" << id);
       return;
     }
     vtkNew<vtkTransformFilter> transformFilter;
@@ -230,22 +228,23 @@ public:
     transformFilter->SetInputDataObject(it->second);
     transformFilter->Update();
     vtkDataObject* obj = transformFilter->GetOutputDataObject(0);
-    this->SetField(obj, "element", element);
+    vtkCityGMLReader::Implementation::SetField(obj, "element", element);
     output->SetBlock(output->GetNumberOfBlocks(), obj);
   }
 
   void ReadImplicitGeometry(pugi::xml_document& doc, vtkMultiBlockDataSet* output,
-                            const char* gmlNamespace, const char* feature)
+    const char* gmlNamespace, const char* feature)
   {
     vtkNew<vtkMultiBlockDataSet> b;
-    this->SetField(b, "element", "grp:CityObjectGroup");
-    auto ximplicitGeometry = doc.select_nodes(
-      (std::string("//")  + gmlNamespace + ":" + feature +
-       "/" + gmlNamespace + ":" + "lod" + std::to_string(this->LOD) +
-       "ImplicitRepresentation/core:ImplicitGeometry").c_str());
+    vtkCityGMLReader::Implementation::SetField(b, "element", "grp:CityObjectGroup");
+    auto ximplicitGeometry =
+      doc.select_nodes((std::string("//") + gmlNamespace + ":" + feature + "/" + gmlNamespace +
+        ":" + "lod" + std::to_string(this->LOD) + "ImplicitRepresentation/core:ImplicitGeometry")
+                         .c_str());
     for (auto it = ximplicitGeometry.begin(); it != ximplicitGeometry.end(); ++it)
     {
-      this->ReadImplicitGeometry(it->node(), b, (std::string(gmlNamespace) + ":" + feature).c_str());
+      this->ReadImplicitGeometry(
+        it->node(), b, (std::string(gmlNamespace) + ":" + feature).c_str());
     }
     if (b->GetNumberOfBlocks())
     {
@@ -253,69 +252,59 @@ public:
     }
   }
 
-  bool IsNewPolygonNeeded(PolygonType polygonType,
-                       size_t materialIndex,
-                       std::unordered_map<size_t, vtkPolyData*>& materialIndexToPolyData,
-                       const std::string& imageURI,
-                       std::unordered_map<std::string, vtkPolyData*>& imageURIToPolyData)
+  bool IsNewPolygonNeeded(PolygonType polygonType, size_t materialIndex,
+    std::unordered_map<size_t, vtkPolyData*>& materialIndexToPolyData, const std::string& imageURI,
+    std::unordered_map<std::string, vtkPolyData*>& imageURIToPolyData)
   {
-    switch(polygonType)
+    switch (polygonType)
     {
-    case PolygonType::MATERIAL:
-      return materialIndexToPolyData.find(materialIndex) == materialIndexToPolyData.end();
-    case PolygonType::NONE:
-    case PolygonType::TEXTURE:
-    default:
-      // for NONE imageURI is empty string
-      return imageURIToPolyData.find(imageURI) == imageURIToPolyData.end();
+      case PolygonType::MATERIAL:
+        return materialIndexToPolyData.find(materialIndex) == materialIndexToPolyData.end();
+      case PolygonType::NONE:
+      case PolygonType::TEXTURE:
+      default:
+        // for NONE imageURI is empty string
+        return imageURIToPolyData.find(imageURI) == imageURIToPolyData.end();
     }
   }
 
-  void SavePolygon(PolygonType polygonType,
-                   size_t materialIndex,
-                   std::unordered_map<size_t, vtkPolyData*>& materialIndexToPolyData,
-                   const std::string& imageURI,
-                   std::unordered_map<std::string, vtkPolyData*>& imageURIToPolyData,
-                   vtkPolyData* polyData)
+  void SavePolygon(PolygonType polygonType, size_t materialIndex,
+    std::unordered_map<size_t, vtkPolyData*>& materialIndexToPolyData, const std::string& imageURI,
+    std::unordered_map<std::string, vtkPolyData*>& imageURIToPolyData, vtkPolyData* polyData)
   {
-    switch(polygonType)
+    switch (polygonType)
     {
-    case PolygonType::MATERIAL:
-      materialIndexToPolyData[materialIndex] = polyData;
-      break;
-    case PolygonType::NONE:
-    case PolygonType::TEXTURE:
-    default:
-      // for NONE imageURI is empty string
-      imageURIToPolyData[imageURI] = polyData;
-      break;
+      case PolygonType::MATERIAL:
+        materialIndexToPolyData[materialIndex] = polyData;
+        break;
+      case PolygonType::NONE:
+      case PolygonType::TEXTURE:
+      default:
+        // for NONE imageURI is empty string
+        imageURIToPolyData[imageURI] = polyData;
+        break;
     }
   }
 
-  vtkPolyData* GetPolygon(PolygonType polygonType,
-                   size_t materialIndex,
-                   std::unordered_map<size_t, vtkPolyData*>& materialIndexToPolyData,
-                   const std::string& imageURI,
-                   std::unordered_map<std::string, vtkPolyData*>& imageURIToPolyData)
+  vtkPolyData* GetPolygon(PolygonType polygonType, size_t materialIndex,
+    std::unordered_map<size_t, vtkPolyData*>& materialIndexToPolyData, const std::string& imageURI,
+    std::unordered_map<std::string, vtkPolyData*>& imageURIToPolyData)
   {
-    switch(polygonType)
+    switch (polygonType)
     {
-    case PolygonType::MATERIAL:
-      return materialIndexToPolyData[materialIndex];
-    case PolygonType::NONE:
-    case PolygonType::TEXTURE:
-    default:
-      // for NONE imageURI is empty string
-      return imageURIToPolyData[imageURI];
+      case PolygonType::MATERIAL:
+        return materialIndexToPolyData[materialIndex];
+      case PolygonType::NONE:
+      case PolygonType::TEXTURE:
+      default:
+        // for NONE imageURI is empty string
+        return imageURIToPolyData[imageURI];
     }
   }
-
 
   PolygonType GetPolygonInfo(const char* id, const char* exteriorId, size_t* index,
-                             std::string* imageURI, std::string* tcoordsString)
+    std::string* imageURI, std::string* tcoordsString)
   {
-    std::vector<int> components;
-    ParseGMLId(id, &components);
     if (GetPolygonTextureInfo(exteriorId, imageURI, tcoordsString))
       return PolygonType::TEXTURE;
     if (GetPolygonMaterialInfo(id, index))
@@ -325,14 +314,14 @@ public:
 
   bool GetPolygonMaterialInfo(const char* id, size_t* index)
   {
-      auto materialIndexIt = this->PolyIdToMaterialIndex.find(id);
-      bool hasMaterial = false;
-      if (materialIndexIt != this->PolyIdToMaterialIndex.end())
-      {
-        hasMaterial = true;
-        *index = materialIndexIt->second;
-      }
-      return hasMaterial;
+    auto materialIndexIt = this->PolyIdToMaterialIndex.find(id);
+    bool hasMaterial = false;
+    if (materialIndexIt != this->PolyIdToMaterialIndex.end())
+    {
+      hasMaterial = true;
+      *index = materialIndexIt->second;
+    }
+    return hasMaterial;
   }
 
   /**
@@ -342,7 +331,7 @@ public:
     const char* exteriorId, std::string* imageURI, std::string* tcoordsString)
   {
     bool hasTexture = false;
-    if(this->PolyIdToTextureCoordinates.find(exteriorId) != this->PolyIdToTextureCoordinates.end())
+    if (this->PolyIdToTextureCoordinates.find(exteriorId) != this->PolyIdToTextureCoordinates.end())
     {
       hasTexture = true;
       TextureInfo info = this->PolyIdToTextureCoordinates[exteriorId];
@@ -355,74 +344,172 @@ public:
   /**
    * Return true if the texture is found, false otherwise
    */
-  vtkIdType TCoordsFromString(const std::string& textureCoordinates,
-                                   vtkDoubleArray* output)
+  vtkIdType TCoordsFromString(const std::string& textureCoordinates, vtkDoubleArray* output)
   {
     std::istringstream iss(textureCoordinates);
     float textureValue[2];
     vtkIdType count = 0;
-    for (iss >> textureValue[0] >> textureValue[1]; ! iss.eof();
+    for (iss >> textureValue[0] >> textureValue[1]; !iss.fail();
          iss >> textureValue[0] >> textureValue[1])
     {
       output->InsertTuple(output->GetNumberOfTuples(), textureValue);
       ++count;
     }
+    // first point is repeated in the last position
+    count = count - 1;
+    output->SetNumberOfTuples(output->GetNumberOfTuples() - 1);
     return count;
   }
 
-  void ReadLinearRingPolygon(pugi::xml_node nodeRing,
-                             vtkPoints* points, vtkCellArray* polys)
+  void ReadLinearRingPolygon(pugi::xml_node nodeRing, vtkPoints* points, vtkCellArray* polys)
   {
     vtkIdType i = 0;
-    vtkIdType n = std::distance(nodeRing.begin(), nodeRing.end());
     vtkNew<vtkPolygon> poly;
-
-    poly->GetPointIds()->SetNumberOfIds(n - 1);
-    // go over all gml:pos children
-    for (pugi::xml_node pos: nodeRing.children())
+    vtkIdList* polyPointIds = poly->GetPointIds();
+    pugi::xml_node posList = nodeRing.child("gml:posList");
+    if (posList)
     {
-      // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeates the last point in a
-      // polygon (there are n points). We only read the first n - 1.
-      if (i == n - 1)
+      std::istringstream iss(posList.child_value());
+      bool validPoint = true;
+      do
       {
-        break;
+        double p[3] = { 0., 0., 0. };
+        for (vtkIdType j = 0; j < 3; ++j)
+        {
+          iss >> p[j];
+          if (iss.fail())
+          {
+            if (j)
+            {
+              std::ostringstream oss;
+              oss << "Number of values have to be multiple of three. Extra " << j
+                  << " values. See: " << posList.child_value();
+              throw std::runtime_error(oss.str());
+            }
+            else
+            {
+              std::ostringstream oss;
+              double* pFirst = points->GetPoint(0);
+              double* pLast = points->GetPoint(polyPointIds->GetNumberOfIds() - 1);
+              if (!vtkMathUtilities::FuzzyCompare(pFirst[0], pLast[0]) ||
+                !vtkMathUtilities::FuzzyCompare(pFirst[1], pLast[1]) ||
+                !vtkMathUtilities::FuzzyCompare(pFirst[2], pLast[2]))
+              {
+                oss << "gml:posList: First point (" << pFirst[0] << ", " << pFirst[1] << ", "
+                    << pFirst[2] << ") is not equal with last point (" << pLast[0] << ", "
+                    << pLast[1] << ", " << pLast[2] << "). File may be corrupted.";
+                throw std::runtime_error(oss.str());
+              }
+            }
+            validPoint = false;
+            break;
+          }
+        }
+        if (validPoint)
+        {
+          points->InsertNextPoint(p);
+          polyPointIds->InsertId(i, points->GetNumberOfPoints() - 1);
+          ++i;
+        }
+      } while (validPoint);
+      // gml:posList repeats the last point in a
+      // polygon (there are n points). We only need the first n - 1.
+      polyPointIds->SetNumberOfIds(polyPointIds->GetNumberOfIds() - 1);
+      points->SetNumberOfPoints(points->GetNumberOfPoints() - 1);
+      polys->InsertNextCell(poly);
+    }
+    else
+    {
+      vtkIdType n = std::distance(nodeRing.begin(), nodeRing.end());
+      polyPointIds->SetNumberOfIds(n - 1);
+      // go over all gml:pos children
+      for (pugi::xml_node pos : nodeRing.children())
+      {
+        // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeats the last point in a
+        // polygon (there are n points). We only read the first n - 1.
+        if (i == n - 1)
+        {
+          break;
+        }
+        std::istringstream iss(pos.child_value());
+        double p[3];
+        for (vtkIdType j = 0; j < 3; ++j)
+        {
+          iss >> p[j];
+        }
+        points->InsertNextPoint(p);
+        polyPointIds->SetId(i, points->GetNumberOfPoints() - 1);
+        ++i;
       }
-      std::istringstream iss(pos.child_value());
-      double p[3];
+      polys->InsertNextCell(poly);
+    }
+  }
+
+  void ReadLinearRingLines(pugi::xml_node nodeRing, vtkPoints* points, vtkCellArray* lines)
+  {
+    pugi::xml_node posList = nodeRing.child("gml:posList");
+    if (posList)
+    {
+      vtkNew<vtkLine> line;
+      std::istringstream iss(posList.child_value());
+      bool validPoint = true;
+      double p[3] = { 0., 0., 0. };
       for (vtkIdType j = 0; j < 3; ++j)
       {
         iss >> p[j];
+        if (iss.fail())
+        {
+          std::ostringstream oss;
+          oss << "Number of values have to be multiple of three. Extra " << j
+              << " values. See: " << posList.child_value();
+          throw std::runtime_error(oss.str());
+        }
       }
       points->InsertNextPoint(p);
-      poly->GetPointIds()->SetId(i, points->GetNumberOfPoints() - 1);
-      ++i;
-    }
-    polys->InsertNextCell(poly);
-  }
-
-  void ReadLinearRingLines(pugi::xml_node nodeRing,
-                           vtkPoints* points, vtkCellArray* lines)
-  {
-    std::array<double, 3> p;
-    // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeates the first point at the end
-    vtkIdType n = std::distance(nodeRing.begin(), nodeRing.end());
-
-    auto it = nodeRing.begin();
-    {
-      std::istringstream iss(it->child_value());
-      for (size_t j = 0; j < p.size(); ++j)
+      vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
+      do
       {
-        iss >> p[j];
-      }
+        std::fill(p, p + 3, 0);
+        for (vtkIdType j = 0; j < 3; ++j)
+        {
+          iss >> p[j];
+          if (iss.fail())
+          {
+            if (j)
+            {
+              std::ostringstream oss;
+              oss << "Number of values have to be multiple of three. Extra " << j
+                  << " values. See: " << posList.child_value();
+              throw std::runtime_error(oss.str());
+            }
+            validPoint = false;
+            break;
+          }
+        }
+        if (validPoint)
+        {
+          line->GetPointIds()->SetId(0, points->GetNumberOfPoints() - 1);
+          points->InsertNextPoint(p);
+          line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
+          lines->InsertNextCell(line);
+        }
+      } while (validPoint);
+      // first point is repeated in the last position
+      // one point less
+      points->SetNumberOfPoints(points->GetNumberOfPoints() - 1);
+      // point the last point of the last cell to the first point
+      vtkNew<vtkIdList> cell;
+      lines->GetCellAtId(lines->GetNumberOfCells() - 1, cell);
+      cell->SetId(1, firstPointIndex);
+      lines->ReplaceCellAtId(lines->GetNumberOfCells() - 1, cell);
     }
-    points->InsertNextPoint(&p[0]);
-    vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
-    vtkIdType i = 1;
-    for (++it; it != nodeRing.end(); ++it, ++i)
+    else
     {
-      vtkNew<vtkLine> line;
-      // the last point is the same as the first point
-      if (i < n - 1)
+      std::array<double, 3> p;
+      // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeats the first point at the end
+      vtkIdType n = std::distance(nodeRing.begin(), nodeRing.end());
+
+      auto it = nodeRing.begin();
       {
         std::istringstream iss(it->child_value());
         for (size_t j = 0; j < p.size(); ++j)
@@ -430,17 +517,33 @@ public:
           iss >> p[j];
         }
       }
-      line->GetPointIds()->SetId(0, points->GetNumberOfPoints() - 1);
-      if (i < n - 1)
+      points->InsertNextPoint(p.data());
+      vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
+      vtkIdType i = 1;
+      for (++it; it != nodeRing.end(); ++it, ++i)
       {
-        points->InsertNextPoint(&p[0]);
-        line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
+        vtkNew<vtkLine> line;
+        // the last point is the same as the first point
+        if (i < n - 1)
+        {
+          std::istringstream iss(it->child_value());
+          for (size_t j = 0; j < p.size(); ++j)
+          {
+            iss >> p[j];
+          }
+        }
+        line->GetPointIds()->SetId(0, points->GetNumberOfPoints() - 1);
+        if (i < n - 1)
+        {
+          points->InsertNextPoint(p.data());
+          line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
+        }
+        else
+        {
+          line->GetPointIds()->SetId(1, firstPointIndex);
+        }
+        lines->InsertNextCell(line);
       }
-      else
-      {
-        line->GetPointIds()->SetId(1, firstPointIndex);
-      }
-      lines->InsertNextCell(line);
     }
   }
 
@@ -450,23 +553,23 @@ public:
   void ParseGMLId(const char* idC, std::vector<int>* components)
   {
     std::string id(idC);
-    size_t uPrev = id.find("_"), u;
-    while ((u = id.find("_", uPrev + 1)) != std::string::npos)
+    size_t uPrev = id.find_first_of("_-"), u;
+    char* strEnd;
+    while ((u = id.find_first_of("_-", uPrev + 1)) != std::string::npos)
     {
-      int value = atoi(id.substr(uPrev + 1, u - uPrev - 1).c_str());
+      int value = std::strtol(id.substr(uPrev + 1, u - uPrev - 1).c_str(), &strEnd, 16);
       components->push_back(value);
       uPrev = u;
     }
     u = id.size();
-    int value = atoi(id.substr(uPrev + 1, u - uPrev - 1).c_str());
+    int value = std::strtol(id.substr(uPrev + 1, u - uPrev - 1).c_str(), &strEnd, 16);
     components->push_back(value);
   }
-
 
   static void SetField(vtkDataObject* obj, const char* name, const char* value)
   {
     vtkFieldData* fd = obj->GetFieldData();
-    if (! fd)
+    if (!fd)
     {
       vtkNew<vtkFieldData> newfd;
       obj->SetFieldData(newfd);
@@ -478,34 +581,29 @@ public:
     fd->AddArray(sa);
   }
 
-  static void SetField(vtkDataObject* obj, const char* name, float* value, vtkIdType size)
+  static void SetField(vtkDataObject* obj, const char* name, double* value, vtkIdType components)
   {
     vtkFieldData* fd = obj->GetFieldData();
-    if (! fd)
+    if (!fd)
     {
       vtkNew<vtkFieldData> newfd;
       obj->SetFieldData(newfd);
     }
-    vtkNew<vtkFloatArray> da;
-    da->SetNumberOfTuples(size);
-    for (vtkIdType i = 0; i < size; ++i)
-    {
-      da->SetValue(i, value[i]);
-    }
+    vtkNew<vtkDoubleArray> da;
+    da->SetNumberOfTuples(1);
+    da->SetNumberOfComponents(components);
+    da->SetTypedTuple(0, value);
     da->SetName(name);
     fd->AddArray(da);
   }
-
 
   /**
    * This can read gml:MultiSurface and gml:CompositeSurface with texture
    * read from app:ParameterizedTexture
    */
-  void ReadMultiSurface(
-    const pugi::xml_node& multiSurfaceNode, vtkMultiBlockDataSet* output)
+  void ReadMultiSurface(const pugi::xml_node& multiSurfaceNode, vtkMultiBlockDataSet* output)
   {
-    // a multi surface can have several materials. The remaining polygons can have
-    // several textures.
+    // A multi surface can have several materials and several textures.
     // We create a polydata for each material and texture and one for
     // no material and texture.
     std::unordered_map<size_t, vtkPolyData*> materialIndexToPolyData;
@@ -514,8 +612,7 @@ public:
     // used to prevent polydata from being deleted until the end of the function
     vtkNew<vtkCollection> polyDataList;
 
-    auto xpoly = multiSurfaceNode.select_nodes(
-      "gml:surfaceMember/gml:Polygon");
+    auto xpoly = multiSurfaceNode.select_nodes("gml:surfaceMember/gml:Polygon");
     const char* exteriorId = nullptr;
     for (auto it = xpoly.begin(); it != xpoly.end(); ++it)
     {
@@ -526,48 +623,56 @@ public:
       std::string imageURI;
       std::string tcoordsString;
       size_t materialIndex = 0;
-      pugi::xml_node nodeExteriorRing =
-        nodePolygon.child("gml:exterior").child("gml:LinearRing");
-      exteriorId = nodeExteriorRing.attribute("gml:id").value();
+      pugi::xml_node nodeExteriorRing = nodePolygon.child("gml:exterior").child("gml:LinearRing");
+      pugi::xml_attribute gmlIdAttribute = nodeExteriorRing.attribute("gml:id");
+      exteriorId = gmlIdAttribute.value();
 
       // fill in texture coordinates for the this polygon
-      PolygonType polygonType = this->GetPolygonInfo(
-        id, exteriorId, &materialIndex, &imageURI, &tcoordsString);
-      if (IsNewPolygonNeeded(polygonType, materialIndex, materialIndexToPolyData,
-                             imageURI, imageURIToPolyData))
+      PolygonType polygonType =
+        this->GetPolygonInfo(id, exteriorId, &materialIndex, &imageURI, &tcoordsString);
+      if (IsNewPolygonNeeded(
+            polygonType, materialIndex, materialIndexToPolyData, imageURI, imageURIToPolyData))
       {
         vtkNew<vtkPolyData> polyData;
         vtkNew<vtkPoints> points;
         points->SetDataType(VTK_DOUBLE);
         vtkNew<vtkCellArray> cells;
-        this->SetField(polyData, "gml_id", exteriorId);
+        if (gmlIdAttribute)
+        {
+          vtkCityGMLReader::Implementation::SetField(polyData, "gml_id", exteriorId);
+        }
         polyData->SetPoints(points);
         nodeInterior ? polyData->SetLines(cells) : polyData->SetPolys(cells);
         switch (polygonType)
         {
-        case PolygonType::TEXTURE:
-          this->SetField(polyData, "texture_uri", imageURI.c_str());
-          break;
-        case PolygonType::MATERIAL:
+          case PolygonType::TEXTURE:
+            vtkCityGMLReader::Implementation::SetField(polyData, "texture_uri", imageURI.c_str());
+            break;
+          case PolygonType::MATERIAL:
           {
             Material material = this->Materials[materialIndex];
-            this->SetField(polyData, "diffuse_color", &material.Diffuse[0], 3);
-            this->SetField(polyData, "specular_color", &material.Specular[0], 3);
-            this->SetField(polyData, "transparency", &material.Transparency, 1);
+            vtkCityGMLReader::Implementation::SetField(
+              polyData, "diffuse_color", material.Diffuse.data(), 3);
+            vtkCityGMLReader::Implementation::SetField(
+              polyData, "specular_color", material.Specular.data(), 3);
+            vtkCityGMLReader::Implementation::SetField(
+              polyData, "transparency", &material.Transparency, 1);
+            vtkCityGMLReader::Implementation::SetField(
+              polyData, "shininess", &material.Shininess, 1);
             break;
           }
-        case PolygonType::NONE:
-        default:
-          // no fields to set
-          break;
+          case PolygonType::NONE:
+          default:
+            // no fields to set
+            break;
         }
-        SavePolygon(polygonType, materialIndex, materialIndexToPolyData,
-                    imageURI, imageURIToPolyData, polyData);
+        SavePolygon(polygonType, materialIndex, materialIndexToPolyData, imageURI,
+          imageURIToPolyData, polyData);
         ++polyDataCount;
         polyDataList->AddItem(polyData);
       }
-      vtkPolyData* polyData = GetPolygon(polygonType, materialIndex, materialIndexToPolyData,
-                                         imageURI, imageURIToPolyData);
+      vtkPolyData* polyData = GetPolygon(
+        polygonType, materialIndex, materialIndexToPolyData, imageURI, imageURIToPolyData);
       vtkIdType exteriorTcoordsCount = 0;
 
       vtkNew<vtkPolyData> exteriorContour;
@@ -575,7 +680,8 @@ public:
       exteriorPoints->SetDataType(VTK_DOUBLE);
       vtkNew<vtkCellArray> exteriorCells;
       exteriorContour->SetPoints(exteriorPoints);
-      if (polygonType == PolygonType::TEXTURE)
+      bool hasTexture = (polygonType == PolygonType::TEXTURE);
+      if (hasTexture)
       {
         vtkNew<vtkDoubleArray> exteriorTcoords;
         exteriorTcoords->SetNumberOfComponents(2);
@@ -601,22 +707,20 @@ public:
         interiorContour->SetLines(interiorCells);
         interiorContour->GetPointData()->SetTCoords(interiorTCoords);
         // exterior and all interior polygons have texture
-        bool hasTexture = (polygonType == PolygonType::TEXTURE);
         while (nodeInterior)
         {
           auto nodeInteriorRing = nodeInterior.child("gml:LinearRing");
           const char* interiorId = nodeInteriorRing.attribute("gml:id").value();
           std::string interiorImageURI;
           std::string interiorTCoordsString;
-          bool interiorHasTexture = this->GetPolygonTextureInfo(
-            interiorId, &interiorImageURI, &interiorTCoordsString);
+          bool interiorHasTexture =
+            this->GetPolygonTextureInfo(interiorId, &interiorImageURI, &interiorTCoordsString);
           if (hasTexture != interiorHasTexture)
           {
-            vtkWarningWithObjectMacro
-              (this->Reader,
-               << "Exterior (" << hasTexture << ") and interior ("
-               << interiorHasTexture << ") polygons have different texture specifications: "
-               << exteriorId << ", " << interiorId);
+            vtkWarningWithObjectMacro(this->Reader,
+              << "Exterior (" << hasTexture << ") and interior (" << interiorHasTexture
+              << ") polygons have different texture specifications: " << exteriorId << ", "
+              << interiorId);
             hasTexture = false;
           }
           if (hasTexture)
@@ -627,7 +731,7 @@ public:
           nodeInterior = nodeInterior.next_sibling("gml:interior");
         }
 
-        if (! hasTexture)
+        if (!hasTexture)
         {
           interiorContour->GetPointData()->RemoveArray("tcoords");
           polyData->GetPointData()->RemoveArray("tcoords");
@@ -636,21 +740,18 @@ public:
         {
           if (exteriorTcoordsCount != exteriorPoints->GetNumberOfPoints())
           {
-            vtkWarningWithObjectMacro
-              (this->Reader,
-               << "Tcoords count (" << exteriorTcoordsCount << ") does not match point count ("
-               << exteriorPoints->GetNumberOfPoints() << "): "
-               << exteriorId);
+            vtkWarningWithObjectMacro(this->Reader,
+              << "Tcoords count (" << exteriorTcoordsCount << ") does not match point count ("
+              << exteriorPoints->GetNumberOfPoints() << "): " << exteriorId);
           }
         }
-
 
         // compute transform to rotate to XY plane
         vtkNew<vtkPolygon> exteriorPolygon;
         exteriorPolygon->Initialize(exteriorPoints->GetNumberOfPoints(), exteriorPoints);
         double exteriorPolygonNormal[3];
         exteriorPolygon->ComputeNormal(exteriorPoints, exteriorPolygonNormal);
-        double zAxis[3] = {0, 0, 1};
+        double zAxis[3] = { 0, 0, 1 };
         double rotationAxis[3];
         vtkMath::Cross(exteriorPolygonNormal, zAxis, rotationAxis);
         double angleRad = vtkMath::AngleBetweenVectors(exteriorPolygonNormal, zAxis);
@@ -679,7 +780,6 @@ public:
           xyPoints->SetPoint(pointId, p);
         }
 
-
         vtkNew<vtkContourTriangulator> triangulator;
         triangulator->SetInputConnection(transformFilter->GetOutputPort());
 
@@ -687,8 +787,7 @@ public:
         transformBackFilter->SetTransform(transform->GetInverse());
         transformBackFilter->SetInputConnection(triangulator->GetOutputPort());
         transformBackFilter->Update();
-        vtkPolyData* polyWithHoles =
-          vtkPolyData::SafeDownCast(transformBackFilter->GetOutput());
+        vtkPolyData* polyWithHoles = vtkPolyData::SafeDownCast(transformBackFilter->GetOutput());
 
         vtkNew<vtkAppendPolyData> appendPolyWithHoles;
         appendPolyWithHoles->AddInputData(polyData);
@@ -696,14 +795,34 @@ public:
         appendPolyWithHoles->Update();
         vtkPolyData* newPolyData = vtkPolyData::SafeDownCast(appendPolyWithHoles->GetOutput());
 
-        SavePolygon(polygonType, materialIndex, materialIndexToPolyData,
-                    imageURI, imageURIToPolyData, newPolyData);
+        SavePolygon(polygonType, materialIndex, materialIndexToPolyData, imageURI,
+          imageURIToPolyData, newPolyData);
         polyDataList->AddItem(newPolyData);
       }
       else
       {
         this->ReadLinearRingPolygon(nodeExteriorRing, exteriorPoints, exteriorCells);
         exteriorContour->SetPolys(exteriorCells);
+        if (exteriorTcoordsCount != exteriorPoints->GetNumberOfPoints())
+        {
+          if (hasTexture)
+          {
+            vtkWarningWithObjectMacro(this->Reader,
+              << "Tcoords count (" << exteriorTcoordsCount << ") does not match point count ("
+              << exteriorPoints->GetNumberOfPoints() << "): " << exteriorId);
+            // fill in with the last texcoord value
+            if (exteriorTcoordsCount < exteriorPoints->GetNumberOfPoints())
+            {
+              vtkDataArray* exteriorTcoords = exteriorContour->GetPointData()->GetTCoords();
+              double* lastTex = exteriorTcoords->GetTuple(exteriorTcoords->GetNumberOfTuples());
+              for (int i = 0; i < exteriorPoints->GetNumberOfPoints() - exteriorTcoordsCount; ++i)
+              {
+                exteriorTcoords->InsertTuple(exteriorTcoords->GetNumberOfTuples(), lastTex);
+              }
+            }
+          }
+        }
+
         // polygon can be concave
         vtkNew<vtkTriangleFilter> triangulate;
         triangulate->SetInputDataObject(exteriorContour);
@@ -713,8 +832,8 @@ public:
         append->AddInputConnection(triangulate->GetOutputPort());
         append->Update();
         vtkPolyData* newPolyData = vtkPolyData::SafeDownCast(append->GetOutput());
-        SavePolygon(polygonType, materialIndex, materialIndexToPolyData,
-                    imageURI, imageURIToPolyData, newPolyData);
+        SavePolygon(polygonType, materialIndex, materialIndexToPolyData, imageURI,
+          imageURIToPolyData, newPolyData);
         polyDataList->AddItem(newPolyData);
       }
     }
@@ -722,12 +841,12 @@ public:
     if (polyDataCount > 1)
     {
       vtkNew<vtkMultiBlockDataSet> b;
-      for (const auto& p: imageURIToPolyData)
+      for (const auto& p : imageURIToPolyData)
       {
         vtkPolyData* data = p.second;
         b->SetBlock(b->GetNumberOfBlocks(), data);
       }
-      for (auto p: materialIndexToPolyData)
+      for (auto p : materialIndexToPolyData)
       {
         vtkPolyData* data = p.second;
         b->SetBlock(b->GetNumberOfBlocks(), data);
@@ -755,22 +874,32 @@ public:
   }
 
   void ReadMultiSurfaceGroup(pugi::xml_document& doc, vtkMultiBlockDataSet* output,
-                             const char* gmlNamespace, const char* feature)
+    const char* gmlNamespace, const char* feature, float progressStart, float progressEnd,
+    size_t beginNodeIndex = 0, size_t endNodeIndex = std::numeric_limits<int>::max())
   {
     std::ostringstream ostr;
-    ostr << "//" << gmlNamespace << ":" << feature;
+    std::string element = std::string(gmlNamespace) + ":" + feature;
+    ostr << "//" << element;
+    auto nodes = doc.select_nodes(ostr.str().c_str());
+    int size = std::distance(nodes.begin(), nodes.end());
 
-    auto xFeature = doc.select_nodes(ostr.str().c_str());
-    for (auto itFeature = xFeature.begin(); itFeature != xFeature.end(); ++itFeature)
+    endNodeIndex = std::min(endNodeIndex, nodes.size());
+    for (size_t i = beginNodeIndex; i < endNodeIndex; ++i)
     {
+      auto featureNode = nodes[i];
+      if (i % 1024 == 0)
+      {
+        this->Reader->UpdateProgress(progressStart + (progressEnd - progressStart) * i / size);
+      }
+
       vtkNew<vtkMultiBlockDataSet> groupBlock;
       ostr.str("");
-      ostr <<  "descendant::" << gmlNamespace
+      ostr << "descendant::" << gmlNamespace
            << ":lod" + std::to_string(this->LOD) + "Geometry/gml:MultiSurface |"
            << "descendant::" << gmlNamespace
            << ":lod" + std::to_string(this->LOD) + "MultiSurface/gml:MultiSurface";
 
-      auto xMultiSurface = itFeature->node().select_nodes(ostr.str().c_str());
+      auto xMultiSurface = featureNode.node().select_nodes(ostr.str().c_str());
       for (auto it = xMultiSurface.begin(); it != xMultiSurface.end(); ++it)
       {
         pugi::xml_node node = it->node();
@@ -779,7 +908,13 @@ public:
       if (groupBlock->GetNumberOfBlocks())
       {
         output->SetBlock(output->GetNumberOfBlocks(), groupBlock);
-        this->SetField(groupBlock, "element", ostr.str().c_str());
+        vtkCityGMLReader::Implementation::SetField(groupBlock, "element", element.c_str());
+        pugi::xml_attribute gmlIdAttribute = featureNode.node().attribute("gml:id");
+        auto gmlId = gmlIdAttribute.value();
+        if (gmlId)
+        {
+          vtkCityGMLReader::Implementation::SetField(groupBlock, "gml_id", gmlId);
+        }
       }
     }
   }
@@ -791,24 +926,22 @@ public:
     vtkNew<vtkCellArray> polys;
 
     pugi::xpath_node_set xrelief;
-    xrelief = doc.select_nodes(
-      ("//dem:ReliefFeature//dem:TINRelief[number(child::dem:lod) = " +
-       std::to_string(this->LOD) + "]//gml:TriangulatedSurface").c_str());
+    xrelief = doc.select_nodes(("//dem:ReliefFeature//dem:TINRelief[number(child::dem:lod) = " +
+      std::to_string(this->LOD) + "]//gml:TriangulatedSurface")
+                                 .c_str());
     for (auto itSurface = xrelief.begin(); itSurface != xrelief.end(); ++itSurface)
     {
       pugi::xpath_node_set xtriangle;
-      xtriangle = itSurface->node().select_nodes(
-        "//gml:Triangle//gml:LinearRing/gml:posList");
-
+      xtriangle = itSurface->node().select_nodes("//gml:Triangle//gml:LinearRing/gml:posList");
 
       vtkNew<vtkTriangle> triangle;
       for (auto it = xtriangle.begin(); it != xtriangle.end(); ++it)
       {
         pugi::xml_node node = it->node();
         std::istringstream iss(node.child_value());
-        // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeates the last point in a
+        // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeats the last point in a
         // triangle (there are 4 points). We only read the first 3.
-        for(vtkIdType i = 0; i < 3; ++i)
+        for (vtkIdType i = 0; i < 3; ++i)
         {
           double p[3];
           for (vtkIdType j = 0; j < 3; ++j)
@@ -826,7 +959,7 @@ public:
         vtkNew<vtkPolyData> polyData;
         polyData->SetPoints(points);
         polyData->SetPolys(polys);
-        this->SetField(polyData, "element", "dem:ReliefFeature");
+        vtkCityGMLReader::Implementation::SetField(polyData, "element", "dem:ReliefFeature");
         output->SetBlock(output->GetNumberOfBlocks(), polyData);
       }
     }
@@ -835,14 +968,14 @@ public:
   void ReadWaterBody(pugi::xml_document& doc, vtkMultiBlockDataSet* output)
   {
     vtkNew<vtkMultiBlockDataSet> b;
-    this->SetField(b, "element", "wtr:WaterBody");
-    auto xWaterSurface = doc.select_nodes(
-      ("//wtr:WaterBody//wtr:WaterSurface/wtr:lod" + std::to_string(this->LOD) +
-       "Surface/gml:CompositeSurface").c_str());
+    vtkCityGMLReader::Implementation::SetField(b, "element", "wtr:WaterBody");
+    auto xWaterSurface = doc.select_nodes(("//wtr:WaterBody//wtr:WaterSurface/wtr:lod" +
+      std::to_string(this->LOD) + "Surface/gml:CompositeSurface")
+                                            .c_str());
     this->ReadMultiSurface(xWaterSurface.begin()->node(), b);
-    auto xWaterGroundSurface = doc.select_nodes(
-      ("//wtr:WaterBody//wtr:WaterGroundSurface/wtr:lod" + std::to_string(this->LOD) +
-       "Surface/gml:CompositeSurface").c_str());
+    auto xWaterGroundSurface = doc.select_nodes(("//wtr:WaterBody//wtr:WaterGroundSurface/wtr:lod" +
+      std::to_string(this->LOD) + "Surface/gml:CompositeSurface")
+                                                  .c_str());
     this->ReadMultiSurface(xWaterGroundSurface.begin()->node(), b);
     if (b->GetNumberOfBlocks())
     {
@@ -851,12 +984,9 @@ public:
   }
 
 private:
-
   struct TextureInfo
   {
-    TextureInfo()
-    {
-    }
+    TextureInfo() = default;
     pugi::xml_node ImageURI;
     pugi::xml_node TextureCoordinates;
   };
@@ -869,12 +999,12 @@ private:
       std::fill(this->Specular.begin(), this->Specular.end(), 1.0);
       this->Transparency = 1.0;
     }
-    std::array<float, 3> Diffuse;
-    std::array<float, 3> Specular;
-    float Transparency;
+    std::array<double, 3> Diffuse;
+    std::array<double, 3> Specular;
+    double Transparency;
+    double Shininess;
   };
 
-private:
   vtkCityGMLReader* Reader;
   int LOD;
   int UseTransparencyAsOpacity;
@@ -887,11 +1017,9 @@ private:
   vtkSmartPointer<vtkMultiBlockDataSet> RelativeGeometryDataSets;
 };
 
-
-
 vtkStandardNewMacro(vtkCityGMLReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCityGMLReader::vtkCityGMLReader()
 {
   this->FileName = nullptr;
@@ -899,65 +1027,85 @@ vtkCityGMLReader::vtkCityGMLReader()
   this->UseTransparencyAsOpacity = false;
   this->Impl = new Implementation(this, this->LOD, this->UseTransparencyAsOpacity);
   this->SetNumberOfInputPorts(0);
+  this->NumberOfBuildings = this->EndBuildingIndex = std::numeric_limits<int>::max();
+  this->BeginBuildingIndex = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCityGMLReader::~vtkCityGMLReader()
 {
   delete this->Impl;
-  delete [] this->FileName;
+  delete[] this->FileName;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCityGMLReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
+  int beginBuildingIndex = 0, endBuildingIndex = std::numeric_limits<int>::max();
+  if (this->NumberOfBuildings != std::numeric_limits<int>::max())
+  {
+    beginBuildingIndex = 0;
+    endBuildingIndex = this->NumberOfBuildings;
+  }
+  if (this->BeginBuildingIndex != 0 || this->EndBuildingIndex != std::numeric_limits<int>::max())
+  {
+    if (this->NumberOfBuildings != std::numeric_limits<int>::max())
+    {
+      vtkWarningMacro("Both NumberOfBuildings and (BeginBuildingIndex, EndBuildingIndex)"
+                      " are set. Using the latter form.");
+    }
+    beginBuildingIndex = this->BeginBuildingIndex;
+    endBuildingIndex = this->EndBuildingIndex;
+  }
+
   this->Impl->Initialize(this, this->LOD, this->UseTransparencyAsOpacity);
   pugi::xml_document doc;
   pugi::xml_parse_result result = doc.load_file(this->FileName);
   this->UpdateProgress(0.2);
 
-  if (! result)
+  if (!result)
   {
     std::ostringstream ostr;
-    ostr << "XML [" << this->FileName << "] parsed with errors: "
-         << result.description()
+    ostr << "XML [" << this->FileName << "] parsed with errors: " << result.description()
          << ". Error offset: " << result.offset << "]\n\n";
     vtkErrorMacro(<< ostr.str());
     return 0;
   }
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkMultiBlockDataSet* output =
+    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   try
   {
     this->Impl->CacheParameterizedTexture(doc);
     this->Impl->CacheX3DMaterial(doc);
     this->UpdateProgress(0.3);
-    this->UpdateProgress(0.4);
     this->Impl->ReadReliefFeature(doc, output);
     this->Impl->ReadWaterBody(doc, output);
     this->Impl->CacheImplicitGeometry(doc, "veg", "SolitaryVegetationObject");
     this->Impl->ReadImplicitGeometry(doc, output, "veg", "SolitaryVegetationObject");
     this->Impl->InitializeImplicitGeometry();
-    this->UpdateProgress(0.6);
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "brid", "Bridge");
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "tun", "Tunnel");
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Railway");
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Road");
-    this->UpdateProgress(0.8);
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "bldg", "Building");
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "frn", "CityFurniture");
+    this->UpdateProgress(0.4);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "brid", "Bridge", 0.4, 0.425);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "tun", "Tunnel", 0.425, 0.45);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Railway", 0.45, 0.475);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Road", 0.475, 0.5);
+    this->UpdateProgress(0.5);
+    this->Impl->ReadMultiSurfaceGroup(
+      doc, output, "bldg", "Building", 0.5, 0.875, beginBuildingIndex, endBuildingIndex);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "frn", "CityFurniture", 0.875, 0.9);
+    this->UpdateProgress(0.9);
     this->Impl->CacheImplicitGeometry(doc, "frn", "CityFurniture");
     this->Impl->ReadImplicitGeometry(doc, output, "frn", "CityFurniture");
     this->Impl->InitializeImplicitGeometry();
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "gen", "GenericCityObject");
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "luse", "LandUse");
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "gen", "GenericCityObject", 0.9, 0.95);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "luse", "LandUse", 0.95, 1.0);
+    if (!output->GetNumberOfBlocks())
+    {
+      vtkWarningMacro("There is no data on LOD " << this->LOD << ". Try a different LOD.");
+    }
   }
   catch (pugi::xpath_exception& e)
   {
@@ -972,9 +1120,9 @@ int vtkCityGMLReader::RequestData(
   return 1;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCityGMLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

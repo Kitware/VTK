@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCellValidator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCellValidator
  * @brief   validates cells in a dataset
@@ -66,14 +54,15 @@
  *
  * @sa
  * vtkCellQuality
-*/
+ */
 
 #ifndef vtkCellValidator_h
 #define vtkCellValidator_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkGenericCell;
 class vtkEmptyCell;
@@ -103,6 +92,7 @@ class vtkQuadraticWedge;
 class vtkQuadraticPyramid;
 class vtkBiQuadraticQuad;
 class vtkTriQuadraticHexahedron;
+class vtkTriQuadraticPyramid;
 class vtkQuadraticLinearQuad;
 class vtkQuadraticLinearWedge;
 class vtkBiQuadraticQuadraticWedge;
@@ -117,45 +107,45 @@ class vtkLagrangeQuadrilateral;
 class vtkLagrangeTetra;
 class vtkLagrangeHexahedron;
 class vtkLagrangeWedge;
+class vtkBezierCurve;
+class vtkBezierTriangle;
+class vtkBezierQuadrilateral;
+class vtkBezierTetra;
+class vtkBezierHexahedron;
+class vtkBezierWedge;
 
 class VTKFILTERSGENERAL_EXPORT vtkCellValidator : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkCellValidator,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkCellValidator, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Construct to compute the validity of cells.
-  static vtkCellValidator *New();
+  static vtkCellValidator* New();
 
   enum State : short
-    {
-      Valid = 0x0,
-      WrongNumberOfPoints = 0x01,
-      IntersectingEdges = 0x02,
-      IntersectingFaces = 0x04,
-      NoncontiguousEdges = 0x08,
-      Nonconvex = 0x10,
-      FacesAreOrientedIncorrectly = 0x20,
-    };
+  {
+    Valid = 0x0,
+    WrongNumberOfPoints = 0x01,
+    IntersectingEdges = 0x02,
+    IntersectingFaces = 0x04,
+    NoncontiguousEdges = 0x08,
+    Nonconvex = 0x10,
+    FacesAreOrientedIncorrectly = 0x20,
+  };
 
-  friend inline State operator &(State a, State b)
+  friend inline State operator&(State a, State b)
   {
     return static_cast<State>(static_cast<short>(a) & static_cast<short>(b));
   }
-  friend inline State operator |(State a, State b)
+  friend inline State operator|(State a, State b)
   {
     return static_cast<State>(static_cast<short>(a) | static_cast<short>(b));
   }
-  friend inline State& operator&=(State& a, State b)
-  {
-    return a = a & b;
-  }
+  friend inline State& operator&=(State& a, State b) { return a = a & b; }
 
-  friend inline State& operator|=(State& a, State b)
-  {
-    return a = a | b;
-  }
+  friend inline State& operator|=(State& a, State b) { return a = a | b; }
 
   static void PrintState(State state, ostream& os, vtkIndent indent);
 
@@ -189,6 +179,7 @@ public:
   static State Check(vtkQuadraticPyramid*, double tolerance);
   static State Check(vtkBiQuadraticQuad*, double tolerance);
   static State Check(vtkTriQuadraticHexahedron*, double tolerance);
+  static State Check(vtkTriQuadraticPyramid*, double tolerance);
   static State Check(vtkQuadraticLinearQuad*, double tolerance);
   static State Check(vtkQuadraticLinearWedge*, double tolerance);
   static State Check(vtkBiQuadraticQuadraticWedge*, double tolerance);
@@ -203,8 +194,14 @@ public:
   static State Check(vtkLagrangeTetra*, double tolerance);
   static State Check(vtkLagrangeHexahedron*, double tolerance);
   static State Check(vtkLagrangeWedge*, double tolerance);
+  static State Check(vtkBezierCurve*, double tolerance);
+  static State Check(vtkBezierTriangle*, double tolerance);
+  static State Check(vtkBezierQuadrilateral*, double tolerance);
+  static State Check(vtkBezierTetra*, double tolerance);
+  static State Check(vtkBezierHexahedron*, double tolerance);
+  static State Check(vtkBezierWedge*, double tolerance);
 
-  //@{
+  ///@{
   /**
    * Set/Get the tolerance. This value is used as an epsilon for floating point
    * equality checks throughout the cell checking process. The default value is
@@ -212,27 +209,26 @@ public:
    */
   vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkCellValidator();
-  ~vtkCellValidator() override {}
+  ~vtkCellValidator() override = default;
 
   double Tolerance;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   static bool NoIntersectingEdges(vtkCell* cell, double tolerance);
   static bool NoIntersectingFaces(vtkCell* cell, double tolerance);
   static bool ContiguousEdges(vtkCell* twoDimensionalCell, double tolerance);
   static bool Convex(vtkCell* cell, double tolerance);
-  static bool FacesAreOrientedCorrectly(vtkCell* threeDimensionalCell,
-                                        double tolerance);
+  static bool FacesAreOrientedCorrectly(vtkCell* threeDimensionalCell, double tolerance);
 
 private:
   vtkCellValidator(const vtkCellValidator&) = delete;
   void operator=(const vtkCellValidator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

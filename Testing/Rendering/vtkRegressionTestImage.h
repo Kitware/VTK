@@ -1,20 +1,7 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRegressionTestImage.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef vtkRegressionTestImage_h
 #define vtkRegressionTestImage_h
-#ifndef __VTK_WRAP__
 
 // Includes and a macro necessary for saving the image produced by a cxx
 // example program. This capability is critical for regression testing.
@@ -22,25 +9,39 @@
 
 #include "vtkTesting.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRegressionTester : public vtkTesting
 {
 protected:
-  vtkRegressionTester() {}
-  ~vtkRegressionTester() override {}
+  vtkRegressionTester() = default;
+  ~vtkRegressionTester() override = default;
+
 private:
   vtkRegressionTester(const vtkRegressionTester&) = delete;
   void operator=(const vtkRegressionTester&) = delete;
 };
 
-// 0.15 threshold is arbitrary but found to
+// 0.05 threshold is arbitrary but found to
 // allow most graphics system variances to pass
 // when they should and fail when they should
-#define vtkRegressionTestImage(rw) \
-vtkTesting::Test(argc, argv, rw, 0.15)
+#define vtkRegressionTestImage(rw) vtkTesting::Test(argc, argv, rw, 0.05)
 
-#define vtkRegressionTestImageThreshold(rw, t) \
-vtkTesting::Test(argc, argv, rw, t)
+#define vtkRegressionTestImageThreshold(rw, t) vtkTesting::Test(argc, argv, rw, t)
 
-#endif
+#define vtkRegressionTestPassForMesaLessThan(rw, major, minor, patch)                              \
+  do                                                                                               \
+  {                                                                                                \
+    int mesaVersion[3] = {};                                                                       \
+    if (vtkTesting::GetMesaVersion(rw, mesaVersion))                                               \
+    {                                                                                              \
+      if (mesaVersion[0] < major || (mesaVersion[0] == major && mesaVersion[1] < minor) ||         \
+        (mesaVersion[0] == major && mesaVersion[1] == minor && mesaVersion[2] < patch))            \
+      {                                                                                            \
+        return EXIT_SUCCESS;                                                                       \
+      }                                                                                            \
+    }                                                                                              \
+  } while (false)
+
+VTK_ABI_NAMESPACE_END
 #endif // vtkRegressionTestImage_h
 // VTK-HeaderTest-Exclude: vtkRegressionTestImage.h

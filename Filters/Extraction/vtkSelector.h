@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSelector.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSelector.h
  * @brief   Computes the portion of a dataset which is inside a selection
@@ -27,6 +15,9 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
+#include <set> // for std::set
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkDataObject;
 class vtkSelectionNode;
@@ -37,7 +28,7 @@ class vtkUniformGridAMR;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkSelector : public vtkObject
 {
-  public:
+public:
   vtkTypeMacro(vtkSelector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -68,17 +59,17 @@ class VTKFILTERSEXTRACTION_EXPORT vtkSelector : public vtkObject
    */
   virtual void Execute(vtkDataObject* input, vtkDataObject* output);
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the array to use for the insidedness array to add to
    * the output in `Execute` call.
    */
   vtkSetMacro(InsidednessArrayName, std::string);
   vtkGetMacro(InsidednessArrayName, std::string);
-  //@}
+  ///@}
 protected:
   vtkSelector();
-  virtual ~vtkSelector() override;
+  ~vtkSelector() override;
 
   // Contains the selection criteria.
   vtkSelectionNode* Node = nullptr;
@@ -127,9 +118,12 @@ protected:
    * processed. If the selector cannot make an exact determination for the given
    * level and index, it should return `INHERIT`. Note, returning `INCLUDE` or
    * `EXCLUDE` has impact on all nodes in the subtree unless any of the node
-   * explicitly overrides the block selection mode.
+   * explicitly overrides the block selection mode. isDataObjectTree is true for vtkDataObjectTree
+   * and false for vtkUniformGridAMR. When isDataObjectTree == true, we treat compositeIndex == 0
+   * differently.
    */
-  virtual SelectionMode GetBlockSelection(unsigned int compositeIndex);
+  virtual SelectionMode GetBlockSelection(
+    unsigned int compositeIndex, bool isDataObjectTree = true);
 
   /**
    * Creates an array suitable for storing insideness. The array is named using
@@ -139,9 +133,19 @@ protected:
 
   /**
    * Given a data object and selected points, return an array indicating the
-   * insidedness of cells that contain at least one of the selected points.*/
+   * insidedness of cells that contain at least one of the selected points.
+   */
   vtkSmartPointer<vtkSignedCharArray> ComputeCellsContainingSelectedPoints(
     vtkDataObject* data, vtkSignedCharArray* selectedPoints);
+
+  /**
+   * Handle expanding to connected cells or point, if requested. This method is
+   * called in `Execute`. Subclass that override `Execute` should ensure they
+   * call this method to handle expanding to connected elements, as requested.
+   *
+   * Note: this method will modify `output`.
+   */
+  void ExpandToConnectedElements(vtkDataObject* output);
 
 private:
   vtkSelector(const vtkSelector&) = delete;
@@ -151,6 +155,10 @@ private:
   void ProcessAMR(vtkUniformGridAMR* input, vtkCompositeDataSet* output);
   void ProcessDataObjectTree(vtkDataObjectTree* input, vtkDataObjectTree* output,
     SelectionMode inheritedSelectionMode, unsigned int compositeIndex = 0);
+  void ProcessSelectors(vtkCompositeDataSet* input);
+
+  std::set<unsigned int> SubsetCompositeIds;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLInstanceCulling.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkOpenGLInstanceCulling
@@ -61,18 +49,19 @@
  * vtkOpenGLBufferObject* buffer2 = culling->GetLODBuffer(2);
  *
  * @endcode
-*/
+ */
 
 #ifndef vtkOpenGLInstanceCulling_h
 #define vtkOpenGLInstanceCulling_h
 
 #include "vtkObject.h"
-#include "vtkOpenGLHelper.h" // For vtkOpenGLHelper
+#include "vtkOpenGLHelper.h"           // For vtkOpenGLHelper
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkSmartPointer.h" // For smart pointer
+#include "vtkSmartPointer.h"           // For smart pointer
 
-#include <vector>
+#include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLIndexBufferObject;
 class vtkOpenGLBufferObject;
 class vtkPolyData;
@@ -81,8 +70,9 @@ class vtkOpenGLShaderCache;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLInstanceCulling : public vtkObject
 {
 public:
-  static vtkOpenGLInstanceCulling *New();
-  vtkTypeMacro(vtkOpenGLInstanceCulling, vtkObject)
+  static vtkOpenGLInstanceCulling* New();
+  vtkTypeMacro(vtkOpenGLInstanceCulling, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   struct InstanceLOD
   {
@@ -94,10 +84,7 @@ public:
     int NumberOfInstances;
 
     // used for sorting
-    bool operator < (const InstanceLOD& other) const
-    {
-        return this->Distance < other.Distance;
-    }
+    bool operator<(const InstanceLOD& other) const { return this->Distance < other.Distance; }
   };
 
   /**
@@ -142,18 +129,16 @@ public:
   /**
    * Run the culling program and generate LOD buffers.
    */
-  void RunCullingShaders(vtkIdType numInstances,
-    vtkOpenGLBufferObject* matrixBuffer,
-    vtkOpenGLBufferObject* colorBuffer,
-    vtkOpenGLBufferObject* normalBuffer);
+  void RunCullingShaders(vtkIdType numInstances, vtkOpenGLBufferObject* matrixBuffer,
+    vtkOpenGLBufferObject* colorBuffer, vtkOpenGLBufferObject* normalBuffer);
 
-  //@{
+  ///@{
   /**
    * Overload color with unique color per LOD.
    */
   vtkSetMacro(ColorLOD, bool);
   vtkGetMacro(ColorLOD, bool);
-  //@}
+  ///@}
 
 protected:
   vtkOpenGLInstanceCulling() = default;
@@ -163,8 +148,8 @@ protected:
   void UploadCurrentState(InstanceLOD& lod, vtkPolyData* pd);
 
 private:
-  vtkOpenGLInstanceCulling(const vtkOpenGLInstanceCulling &) = delete;
-  void operator=(const vtkOpenGLInstanceCulling &) = delete;
+  vtkOpenGLInstanceCulling(const vtkOpenGLInstanceCulling&) = delete;
+  void operator=(const vtkOpenGLInstanceCulling&) = delete;
 
   vtkOpenGLHelper CullingHelper;
   std::vector<InstanceLOD> LODList;
@@ -172,6 +157,5 @@ private:
   bool ColorLOD = false;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLInstanceCulling_h
-
-// VTK-HeaderTest-Exclude: vtkOpenGLInstanceCulling.h

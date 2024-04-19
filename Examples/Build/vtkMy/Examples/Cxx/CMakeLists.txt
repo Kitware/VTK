@@ -1,2 +1,4 @@
 add_subdirectory(Ex1)
-add_subdirectory(Ex2)
+if (TARGET VTK::RenderingOpenGL2)
+  add_subdirectory(Ex2)
+endif ()

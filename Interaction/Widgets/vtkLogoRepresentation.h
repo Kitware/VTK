@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLogoRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLogoRepresentation
  * @brief   represent the vtkLogoWidget
@@ -24,14 +12,15 @@
  *
  * @sa
  * vtkLogoWidget
-*/
+ */
 
 #ifndef vtkLogoRepresentation_h
 #define vtkLogoRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkImageProperty;
 class vtkTexture;
@@ -41,68 +30,67 @@ class vtkPolyDataMapper2D;
 class vtkTexturedActor2D;
 class vtkProperty2D;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkLogoRepresentation : public vtkBorderRepresentation
 {
 public:
   /**
    * Instantiate this class.
    */
-  static vtkLogoRepresentation *New();
+  static vtkLogoRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
-  vtkTypeMacro(vtkLogoRepresentation,vtkBorderRepresentation);
+  vtkTypeMacro(vtkLogoRepresentation, vtkBorderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/retrieve the image to display in the balloon.
    */
-  virtual void SetImage(vtkImageData *img);
-  vtkGetObjectMacro(Image,vtkImageData);
-  //@}
+  virtual void SetImage(vtkImageData* img);
+  vtkGetObjectMacro(Image, vtkImageData);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the image property (relevant only if an image is shown).
    */
-  virtual void SetImageProperty(vtkProperty2D *p);
-  vtkGetObjectMacro(ImageProperty,vtkProperty2D);
-  //@}
+  virtual void SetImageProperty(vtkProperty2D* p);
+  vtkGetObjectMacro(ImageProperty, vtkProperty2D);
+  ///@}
 
   /**
    * Satisfy the superclasses' API.
    */
   void BuildRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * These methods are necessary to make this representation behave as
    * a vtkProp.
    */
-  void GetActors2D(vtkPropCollection *pc) override;
+  void GetActors2D(vtkPropCollection* pc) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOverlay(vtkViewport*) override;
-  //@}
+  ///@}
 
 protected:
   vtkLogoRepresentation();
   ~vtkLogoRepresentation() override;
 
   // data members
-  vtkImageData  *Image;
-  vtkProperty2D *ImageProperty;
+  vtkImageData* Image;
+  vtkProperty2D* ImageProperty;
 
   // Represent the image
-  vtkTexture          *Texture;
-  vtkPoints           *TexturePoints;
-  vtkPolyData         *TexturePolyData;
-  vtkPolyDataMapper2D *TextureMapper;
-  vtkTexturedActor2D          *TextureActor;
+  vtkTexture* Texture;
+  vtkPoints* TexturePoints;
+  vtkPolyData* TexturePolyData;
+  vtkPolyDataMapper2D* TextureMapper;
+  vtkTexturedActor2D* TextureActor;
 
   // Helper methods
   virtual void AdjustImageSize(double o[2], double borderSize[2], double imageSize[2]);
@@ -112,4 +100,5 @@ private:
   void operator=(const vtkLogoRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

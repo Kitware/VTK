@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestDynamic2DLabelMapper.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This tests vtkDynamic2DLabelMapper
 
 #include "vtkActor.h"
@@ -24,16 +12,15 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 #include "vtkVariant.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestDynamic2DLabelMapper(int argc, char* argv[])
 {
@@ -48,8 +35,8 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
   for (vtkIdType i = 0; i < numPoints; ++i)
   {
     double v = 20.0 * static_cast<double>(i) / numPoints;
-    x[0] = v*cos(v);
-    x[1] = v*sin(v);
+    x[0] = v * cos(v);
+    x[1] = v * sin(v);
     x[2] = 0;
     pts->SetPoint(i, x);
 

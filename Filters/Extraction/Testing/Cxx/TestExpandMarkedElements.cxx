@@ -1,6 +1,8 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkCellData.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkExpandMarkedElements.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -47,8 +49,11 @@ int TestExpandMarkedElements(int argc, char* argv[])
   vtkNew<vtkExpandMarkedElements> filter;
   filter->SetInputDataObject(mb);
   filter->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "MarkedCells");
+  filter->RemoveIntermediateLayersOn();
+  filter->RemoveSeedOn();
+  filter->SetNumberOfLayers(3);
 
-  vtkNew<vtkCompositePolyDataMapper2> mapper;
+  vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputConnection(filter->GetOutputPort());
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SelectColorArray("MarkedCells");

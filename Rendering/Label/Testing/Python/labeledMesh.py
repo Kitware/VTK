@@ -1,16 +1,39 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkCellCenters,
+    vtkIdFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkActor2D,
+    vtkPolyDataMapper,
+    vtkPolyDataMapper2D,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkSelectVisiblePoints,
+)
+from vtkmodules.vtkRenderingLabel import vtkLabeledDataMapper
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # demonstrate use of point labeling and the selection window
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create a selection window
@@ -21,13 +44,13 @@ ymin = 200
 yLength = 100
 ymax = ymin + yLength
 
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 pts.InsertPoint(0, xmin, ymin, 0)
 pts.InsertPoint(1, xmax, ymin, 0)
 pts.InsertPoint(2, xmax, ymax, 0)
 pts.InsertPoint(3, xmin, ymax, 0)
 
-rect = vtk.vtkCellArray()
+rect = vtkCellArray()
 rect.InsertNextCell(5)
 rect.InsertCellPoint(0)
 rect.InsertCellPoint(1)
@@ -35,40 +58,40 @@ rect.InsertCellPoint(2)
 rect.InsertCellPoint(3)
 rect.InsertCellPoint(0)
 
-selectRect = vtk.vtkPolyData()
+selectRect = vtkPolyData()
 selectRect.SetPoints(pts)
 selectRect.SetLines(rect)
 
-rectMapper = vtk.vtkPolyDataMapper2D()
+rectMapper = vtkPolyDataMapper2D()
 rectMapper.SetInputData(selectRect)
 
-rectActor = vtk.vtkActor2D()
+rectActor = vtkActor2D()
 rectActor.SetMapper(rectMapper)
 
 # Create asphere
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 
-sphereMapper = vtk.vtkPolyDataMapper()
+sphereMapper = vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphere.GetOutputPort())
 
-sphereActor = vtk.vtkActor()
+sphereActor = vtkActor()
 sphereActor.SetMapper(sphereMapper)
 
 # Generate ids for labeling
-ids = vtk.vtkIdFilter()
+ids = vtkIdFilter()
 ids.SetInputConnection(sphere.GetOutputPort())
 ids.PointIdsOn()
 ids.CellIdsOn()
 ids.FieldDataOn()
 
 # Create labels for points
-visPts = vtk.vtkSelectVisiblePoints()
+visPts = vtkSelectVisiblePoints()
 visPts.SetInputConnection(ids.GetOutputPort())
 visPts.SetRenderer(ren1)
 visPts.SelectionWindowOn()
 visPts.SetSelection(xmin, xmin + xLength, ymin, ymin + yLength)
 
-ldm = vtk.vtkLabeledDataMapper()
+ldm = vtkLabeledDataMapper()
 ldm.SetInputConnection(visPts.GetOutputPort())
 #    ldm.SetLabelFormat.("%g")
 #    ldm.SetLabelModeToLabelScalars()
@@ -76,20 +99,20 @@ ldm.SetInputConnection(visPts.GetOutputPort())
 ldm.SetLabelModeToLabelFieldData()
 #    ldm.SetLabeledComponent(0)
 
-pointLabels = vtk.vtkActor2D()
+pointLabels = vtkActor2D()
 pointLabels.SetMapper(ldm)
 
 # Create labels for cells
-cc = vtk.vtkCellCenters()
+cc = vtkCellCenters()
 cc.SetInputConnection(ids.GetOutputPort())
 
-visCells = vtk.vtkSelectVisiblePoints()
+visCells = vtkSelectVisiblePoints()
 visCells.SetInputConnection(cc.GetOutputPort())
 visCells.SetRenderer(ren1)
 visCells.SelectionWindowOn()
 visCells.SetSelection(xmin, xmin + xLength, ymin, ymin + yLength)
 
-cellMapper = vtk.vtkLabeledDataMapper()
+cellMapper = vtkLabeledDataMapper()
 cellMapper.SetInputConnection(visCells.GetOutputPort())
 #    cellMapper.SetLabelFormat("%g")
 #    cellMapper.SetLabelModeToLabelScalars()
@@ -97,7 +120,7 @@ cellMapper.SetInputConnection(visCells.GetOutputPort())
 cellMapper.SetLabelModeToLabelFieldData()
 cellMapper.GetLabelTextProperty().SetColor(0, 1, 0)
 
-cellLabels = vtk.vtkActor2D()
+cellLabels = vtkActor2D()
 cellLabels.SetMapper(cellMapper)
 
 # Add the actors to the renderer, set the background and size

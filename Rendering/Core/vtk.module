@@ -7,6 +7,17 @@ KIT
   VTK::Rendering
 GROUPS
   Rendering
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-BSD-3-Clause-Sandia-USGov
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright Sandia Corporation
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
+  BSD-3-Clause-Sandia-USGov
+LICENSE_FILES
+  LICENSE
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
@@ -29,15 +40,17 @@ TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersProgrammable
   VTK::FiltersSources
-  VTK::IOExodus
-  VTK::IOExport
+  VTK::FiltersTexture
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::IOImage
   VTK::IOLegacy
   VTK::IOParallel
   VTK::IOXML
-  VTK::ImagingSources
-  VTK::InteractionStyle
   VTK::RenderingAnnotation
-  VTK::RenderingFreeType
   VTK::RenderingOpenGL2
+  # Enable for webgpu tests
+  # VTK::RenderingWebGPU
   VTK::TestingCore
   VTK::TestingRendering
+INCLUDE_MARSHAL

@@ -1,27 +1,18 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImplicitFunction.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImplicitFunction.h"
 
 #include "vtkAbstractTransform.h"
 #include "vtkArrayDispatch.h"
-#include "vtkAssume.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
+#include "vtkSMPTools.h"
 #include "vtkTransform.h"
 
-vtkCxxSetObjectMacro(vtkImplicitFunction,Transform,vtkAbstractTransform);
+#include <algorithm>
+
+VTK_ABI_NAMESPACE_BEGIN
+vtkCxxSetObjectMacro(vtkImplicitFunction, Transform, vtkAbstractTransform);
 
 vtkImplicitFunction::vtkImplicitFunction()
 {
@@ -30,60 +21,73 @@ vtkImplicitFunction::vtkImplicitFunction()
 
 vtkImplicitFunction::~vtkImplicitFunction()
 {
-  //static_cast needed since otherwise the
-  //call to SetTransform becomes ambiguous
+  // static_cast needed since otherwise the
+  // call to SetTransform becomes ambiguous
   this->SetTransform(static_cast<vtkAbstractTransform*>(nullptr));
 }
 
-namespace {
+namespace
+{
 
-template <class Func> struct FunctionWorker {
+template <class Func>
+struct FunctionWorker
+{
   Func F;
-  FunctionWorker(Func f) : F(f) {}
+  FunctionWorker(Func f)
+    : F(f)
+  {
+  }
   template <typename SourceArray, typename DestinationArray>
   void operator()(SourceArray* input, DestinationArray* output)
   {
-    VTK_ASSUME(input->GetNumberOfComponents() == 3);
-    VTK_ASSUME(output->GetNumberOfComponents() == 1);
-
     vtkIdType numTuples = input->GetNumberOfTuples();
     output->SetNumberOfTuples(numTuples);
 
-    vtkDataArrayAccessor<SourceArray> src(input);
-    vtkDataArrayAccessor<DestinationArray> dest(output);
+    const auto srcTuples = vtk::DataArrayTupleRange<3>(input);
+    auto dstValues = vtk::DataArrayValueRange<1>(output);
 
-    for (vtkIdType tIdx = 0; tIdx < numTuples; ++tIdx)
-    {
-      double in[3];
-      in[0] = static_cast<double>(src.Get(tIdx, 0));
-      in[1] = static_cast<double>(src.Get(tIdx, 1));
-      in[2] = static_cast<double>(src.Get(tIdx, 2));
-      dest.Set(tIdx, 0, this->F(in));
-    }
+    using DstValueT = typename decltype(dstValues)::ValueType;
+    vtkSMPTools::For(0, numTuples, [&](vtkIdType begin, vtkIdType end) {
+      double tuple[3];
+      for (vtkIdType pointId = begin; pointId < end; ++pointId)
+      {
+        // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+        // we do that since the input points can be implicit points, and GetTypedTuple is faster
+        // than accessing the component of the TupleReference using GetTypedComponent internally.
+        srcTuples.GetTuple(pointId, tuple);
+        dstValues[pointId] = static_cast<DstValueT>(this->F(tuple));
+      }
+    });
   }
 };
 
-class SimpleFunction {
+class SimpleFunction
+{
 public:
-  SimpleFunction(vtkImplicitFunction* function) : Function(function) {}
-  double operator()(double in[3])
+  SimpleFunction(vtkImplicitFunction* function)
+    : Function(function)
   {
-    return this->Function->EvaluateFunction(in);
   }
+  double operator()(double in[3]) { return this->Function->EvaluateFunction(in); }
+
 private:
   vtkImplicitFunction* Function;
 };
 
-class TransformFunction {
+class TransformFunction
+{
 public:
-  TransformFunction(vtkImplicitFunction* function,
-                    vtkAbstractTransform* transform)
-      : Function(function), Transform(transform) {}
+  TransformFunction(vtkImplicitFunction* function, vtkAbstractTransform* transform)
+    : Function(function)
+    , Transform(transform)
+  {
+  }
   double operator()(double in[3])
   {
-    Transform->TransformPoint(in, in);
+    this->Transform->TransformPoint(in, in);
     return this->Function->EvaluateFunction(in);
   }
+
 private:
   vtkImplicitFunction* Function;
   vtkAbstractTransform* Transform;
@@ -91,8 +95,7 @@ private:
 
 } // end anon namespace
 
-void vtkImplicitFunction::FunctionValue(vtkDataArray* input,
-                                        vtkDataArray* output)
+void vtkImplicitFunction::FunctionValue(vtkDataArray* input, vtkDataArray* output)
 {
   if (!this->Transform)
   {
@@ -100,12 +103,12 @@ void vtkImplicitFunction::FunctionValue(vtkDataArray* input,
   }
   else // pass point through transform
   {
-    FunctionWorker<TransformFunction> worker(
-        TransformFunction(this, this->Transform));
+    FunctionWorker<TransformFunction> worker(TransformFunction(this, this->Transform));
     typedef vtkTypeList::Create<float, double> InputTypes;
     typedef vtkTypeList::Create<float, double> OutputTypes;
-    typedef vtkArrayDispatch::Dispatch2ByValueType<InputTypes, OutputTypes>
-        MyDispatch;
+    typedef vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+      InputTypes, OutputTypes>
+      MyDispatch;
     if (!MyDispatch::Execute(input, output, worker))
     {
       worker(input, output); // Use vtkDataArray API if dispatch fails.
@@ -113,10 +116,8 @@ void vtkImplicitFunction::FunctionValue(vtkDataArray* input,
   }
 }
 
-void vtkImplicitFunction::EvaluateFunction(vtkDataArray* input,
-                                           vtkDataArray* output)
+void vtkImplicitFunction::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
 {
-
   // defend against uninitialized output datasets.
   output->SetNumberOfComponents(1);
   output->SetNumberOfTuples(input->GetNumberOfTuples());
@@ -124,8 +125,9 @@ void vtkImplicitFunction::EvaluateFunction(vtkDataArray* input,
   FunctionWorker<SimpleFunction> worker(SimpleFunction(this));
   typedef vtkTypeList::Create<float, double> InputTypes;
   typedef vtkTypeList::Create<float, double> OutputTypes;
-  typedef vtkArrayDispatch::Dispatch2ByValueType<InputTypes, OutputTypes>
-      MyDispatch;
+  typedef vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays, InputTypes,
+    OutputTypes>
+    MyDispatch;
   if (!MyDispatch::Execute(input, output, worker))
   {
     worker(input, output); // Use vtkDataArray API if dispatch fails.
@@ -136,14 +138,14 @@ void vtkImplicitFunction::EvaluateFunction(vtkDataArray* input,
 // transformed through transform (if provided).
 double vtkImplicitFunction::FunctionValue(const double x[3])
 {
-  if ( ! this->Transform )
+  if (!this->Transform)
   {
-    return this->EvaluateFunction(const_cast<double *>(x));
+    return this->EvaluateFunction(const_cast<double*>(x));
   }
-  else //pass point through transform
+  else // pass point through transform
   {
     double pt[3];
-    this->Transform->TransformPoint(x,pt);
+    this->Transform->TransformPoint(x, pt);
     return this->EvaluateFunction(pt);
   }
 
@@ -176,24 +178,24 @@ double vtkImplicitFunction::FunctionValue(const double x[3])
 // x[3] is transformed through transform (if provided).
 void vtkImplicitFunction::FunctionGradient(const double x[3], double g[3])
 {
-  if ( ! this->Transform )
+  if (!this->Transform)
   {
-    this->EvaluateGradient(const_cast<double *>(x),g);
+    this->EvaluateGradient(const_cast<double*>(x), g);
   }
-  else //pass point through transform
+  else // pass point through transform
   {
     double pt[3];
     double A[3][3];
     this->Transform->Update();
-    this->Transform->InternalTransformDerivative(x,pt,A);
-    this->EvaluateGradient(static_cast<double *>(pt),g);
+    this->Transform->InternalTransformDerivative(x, pt, A);
+    this->EvaluateGradient(static_cast<double*>(pt), g);
 
     // The gradient must be transformed using the same math as is
     // use for a normal to a surface: it must be multiplied by the
     // inverse of the transposed inverse of the Jacobian matrix of
     // the transform, which is just the transpose of the Jacobian.
-    vtkMath::Transpose3x3(A,A);
-    vtkMath::Multiply3x3(A,g,g);
+    vtkMath::Transpose3x3(A, A);
+    vtkMath::Multiply3x3(A, g, g);
 
     /* If the determinant of the Jacobian matrix is negative,
        then the gradient points in the opposite direction.  This
@@ -216,13 +218,13 @@ void vtkImplicitFunction::FunctionGradient(const double x[3], double g[3])
 // then this object is modified as well.
 vtkMTimeType vtkImplicitFunction::GetMTime()
 {
-  vtkMTimeType mTime=this->vtkObject::GetMTime();
+  vtkMTimeType mTime = this->vtkObject::GetMTime();
   vtkMTimeType TransformMTime;
 
-  if ( this->Transform != nullptr )
+  if (this->Transform != nullptr)
   {
     TransformMTime = this->Transform->GetMTime();
-    mTime = ( TransformMTime > mTime ? TransformMTime : mTime );
+    mTime = (TransformMTime > mTime ? TransformMTime : mTime);
   }
 
   return mTime;
@@ -230,12 +232,12 @@ vtkMTimeType vtkImplicitFunction::GetMTime()
 
 void vtkImplicitFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->Transform )
+  if (this->Transform)
   {
     os << indent << "Transform:\n";
-    this->Transform->PrintSelf(os,indent.GetNextIndent());
+    this->Transform->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -250,4 +252,4 @@ void vtkImplicitFunction::SetTransform(const double elements[16])
   this->SetTransform(transform);
   transform->Delete();
 }
-
+VTK_ABI_NAMESPACE_END

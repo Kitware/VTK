@@ -1,30 +1,18 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPHardwareSelector.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPHardwareSelector.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
-#include "vtkRenderer.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPHardwareSelector::vtkObserver : public vtkCommand
 {
 public:
   static vtkObserver* New() { return new vtkObserver(); }
-  void Execute(vtkObject *, unsigned long eventId,
-               void *) override
+  void Execute(vtkObject*, unsigned long eventId, void*) override
   {
     if (eventId == vtkCommand::StartEvent)
     {
@@ -38,10 +26,10 @@ public:
   vtkPHardwareSelector* Target;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPHardwareSelector);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPHardwareSelector::vtkPHardwareSelector()
 {
   this->ProcessIsRoot = false;
@@ -49,14 +37,14 @@ vtkPHardwareSelector::vtkPHardwareSelector()
   this->Observer->Target = this;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPHardwareSelector::~vtkPHardwareSelector()
 {
   this->Observer->Target = nullptr;
   this->Observer->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPHardwareSelector::CaptureBuffers()
 {
   if (this->ProcessIsRoot)
@@ -70,8 +58,7 @@ bool vtkPHardwareSelector::CaptureBuffers()
   rwin->AddObserver(vtkCommand::StartEvent, this->Observer);
   rwin->AddObserver(vtkCommand::EndEvent, this->Observer);
 
-  for (this->CurrentPass = MIN_KNOWN_PASS;
-    this->CurrentPass < MAX_KNOWN_PASS; this->CurrentPass++)
+  for (this->CurrentPass = MIN_KNOWN_PASS; this->CurrentPass < MAX_KNOWN_PASS; this->CurrentPass++)
   {
     if (this->PassRequired(this->CurrentPass))
     {
@@ -86,12 +73,10 @@ bool vtkPHardwareSelector::CaptureBuffers()
   return false;
 }
 
-//----------------------------------------------------------------------------
-void vtkPHardwareSelector::StartRender()
-{
-}
+//------------------------------------------------------------------------------
+void vtkPHardwareSelector::StartRender() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPHardwareSelector::EndRender()
 {
   this->CurrentPass++;
@@ -103,7 +88,7 @@ void vtkPHardwareSelector::EndRender()
     }
   }
 
-  if (this->CurrentPass>=MAX_KNOWN_PASS)
+  if (this->CurrentPass >= MAX_KNOWN_PASS)
   {
     vtkRenderWindow* rwin = this->Renderer->GetRenderWindow();
     rwin->RemoveObserver(this->Observer);
@@ -112,9 +97,10 @@ void vtkPHardwareSelector::EndRender()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "ProcessIsRoot: " << this->ProcessIsRoot << endl;
 }
+VTK_ABI_NAMESPACE_END

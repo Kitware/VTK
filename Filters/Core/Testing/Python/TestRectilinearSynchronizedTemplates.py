@@ -1,30 +1,41 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkRectilinearSynchronizedTemplates
+from vtkmodules.vtkIOLegacy import vtkRectilinearGridReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create pipeline - rectilinear grid
 #
-rgridReader = vtk.vtkRectilinearGridReader()
-rgridReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/RectGrid2.vtk")
+rgridReader = vtkRectilinearGridReader()
+rgridReader.SetFileName(VTK_DATA_ROOT + "/Data/RectGrid2.vtk")
 rgridReader.Update()
-contour = vtk.vtkRectilinearSynchronizedTemplates()
+contour = vtkRectilinearSynchronizedTemplates()
 contour.SetInputConnection(rgridReader.GetOutputPort())
 contour.SetValue(0,1)
 contour.ComputeScalarsOff()
 contour.ComputeNormalsOn()
 contour.ComputeGradientsOn()
-cMapper = vtk.vtkPolyDataMapper()
+cMapper = vtkPolyDataMapper()
 cMapper.SetInputConnection(contour.GetOutputPort())
-cActor = vtk.vtkActor()
+cActor = vtkActor()
 cActor.SetMapper(cMapper)
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.SetSize(200,200)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 ren1.AddActor(cActor)
 iren.Initialize()

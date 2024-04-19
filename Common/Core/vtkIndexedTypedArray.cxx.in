@@ -1,0 +1,38 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+// Instantiate superclass first to give the template a DLL interface.
+#define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
+
+#include "vtkIndexed@VTK_TYPE_NAME@Array.h"
+
+#include "vtkObjectFactory.h"
+
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkIndexed@VTK_TYPE_NAME@Array);
+vtkStandardExtendedNewMacro(vtkIndexed@VTK_TYPE_NAME@Array);
+
+//------------------------------------------------------------------------------
+vtkIndexed@VTK_TYPE_NAME@Array::vtkIndexed@VTK_TYPE_NAME@Array() = default;
+
+//------------------------------------------------------------------------------
+vtkIndexed@VTK_TYPE_NAME@Array::~vtkIndexed@VTK_TYPE_NAME@Array() = default;
+
+//------------------------------------------------------------------------------
+void vtkIndexed@VTK_TYPE_NAME@Array::ConstructBackend(vtkIdList* indexes, vtkDataArray* array)
+{
+  this->RealSuperclass::ConstructBackend(indexes, array);
+}
+
+//------------------------------------------------------------------------------
+void vtkIndexed@VTK_TYPE_NAME@Array::ConstructBackend(vtkDataArray* indexes, vtkDataArray* array)
+{
+  this->RealSuperclass::ConstructBackend(indexes, array);
+}
+
+//------------------------------------------------------------------------------
+void vtkIndexed@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->RealSuperclass::PrintSelf(os, indent);
+}
+VTK_ABI_NAMESPACE_END

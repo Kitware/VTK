@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOBJExporter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOBJExporter
  * @brief   export a scene into Wavefront format.
@@ -23,71 +11,70 @@
  *
  * @sa
  * vtkExporter
-*/
+ */
 
 #ifndef vtkOBJExporter_h
 #define vtkOBJExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
-#include <fstream> // For ofstream
-#include <map> // For map
-#include <vector> // For string
+#include "vtkIOExportModule.h" // For export macro
+#include <fstream>             // For ofstream
+#include <map>                 // For map
+#include <vector>              // For string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkTexture;
 
 class VTKIOEXPORT_EXPORT vtkOBJExporter : public vtkExporter
 {
 public:
-  static vtkOBJExporter *New();
-  vtkTypeMacro(vtkOBJExporter,vtkExporter);
+  static vtkOBJExporter* New();
+  vtkTypeMacro(vtkOBJExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the prefix of the files to write out. The resulting filenames
    * will have .obj and .mtl appended to them.
    */
-  vtkSetStringMacro(FilePrefix);
-  vtkGetStringMacro(FilePrefix);
-  //@}
+  vtkSetFilePathMacro(FilePrefix);
+  vtkGetFilePathMacro(FilePrefix);
+  ///@}
 
-  //@{
+  ///@{
   /**
-  * Specify comment string that will be written to the obj file header.
-  */
+   * Specify comment string that will be written to the obj file header.
+   */
   vtkSetStringMacro(OBJFileComment);
   vtkGetStringMacro(OBJFileComment);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
-  * Specify comment string that will be written to the mtl file header.
-  */
+   * Specify comment string that will be written to the mtl file header.
+   */
   vtkSetStringMacro(MTLFileComment);
   vtkGetStringMacro(MTLFileComment);
-  //@}
+  ///@}
 
 protected:
   vtkOBJExporter();
   ~vtkOBJExporter() override;
 
   void WriteData() override;
-  void WriteAnActor(vtkActor *anActor,
-                    std::ofstream &fpObj,
-                    std::ofstream &fpMat,
-                    std::string &modelName,
-                    int &id);
-  char *FilePrefix;
-  char *OBJFileComment;
-  char *MTLFileComment;
+  void WriteAnActor(
+    vtkActor* anActor, std::ostream& fpObj, std::ostream& fpMat, std::string& modelName, int& id);
+  char* FilePrefix;
+  char* OBJFileComment;
+  char* MTLFileComment;
   bool FlipTexture;
-  std::map<std::string, vtkTexture *> TextureFileMap;
+  std::map<std::string, vtkTexture*> TextureFileMap;
+
 private:
   vtkOBJExporter(const vtkOBJExporter&) = delete;
   void operator=(const vtkOBJExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

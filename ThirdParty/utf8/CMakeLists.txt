@@ -1,7 +1,14 @@
 vtk_module_third_party(
   INTERNAL
     HEADER_ONLY
-    LICENSE_FILES "vtkutf8/LICENSE"
+    LICENSE_FILES
+      "vtkutf8/LICENSE"
+    SPDX_LICENSE_IDENTIFIER
+      "BSL-1.0"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright 2006 Nemanja Trifunovic"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/utfcpp.git@for/vtk-20181015-2.3.4"
     VERSION       "2.3.4"
     STANDARD_INCLUDE_DIRS
   EXTERNAL

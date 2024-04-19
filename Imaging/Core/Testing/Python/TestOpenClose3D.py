@@ -1,20 +1,26 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkPNGReader
+from vtkmodules.vtkImagingCore import vtkImageThreshold
+from vtkmodules.vtkImagingMorphological import vtkImageOpenClose3D
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Tst the OpenClose3D filter.
 # Image pipeline
-reader = vtk.vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
-thresh = vtk.vtkImageThreshold()
+reader = vtkPNGReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
+thresh = vtkImageThreshold()
 thresh.SetInputConnection(reader.GetOutputPort())
 thresh.SetOutputScalarTypeToUnsignedChar()
 thresh.ThresholdByUpper(2000.0)
 thresh.SetInValue(255)
 thresh.SetOutValue(0)
 thresh.ReleaseDataFlagOff()
-my_close = vtk.vtkImageOpenClose3D()
+my_close = vtkImageOpenClose3D()
 my_close.SetInputConnection(thresh.GetOutputPort())
 my_close.SetOpenValue(0)
 my_close.SetCloseValue(255)
@@ -27,7 +33,7 @@ my_close.GetOutput()
 my_close.GetCloseValue()
 my_close.GetOpenValue()
 #my_close AddObserver ProgressEvent {set pro [my_close GetProgress]; puts "Completed $pro"; flush stdout}
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 viewer.SetInputConnection(my_close.GetOutputPort())
 viewer.SetColorWindow(255)
 viewer.SetColorLevel(127.5)

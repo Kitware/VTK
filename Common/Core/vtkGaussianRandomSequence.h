@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGaussianRandomSequence.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGaussianRandomSequence
  * @brief   Gaussian sequence of pseudo random numbers
@@ -20,7 +9,7 @@
  * standard deviation=1)
  *
  * This is just an interface.
-*/
+ */
 
 #ifndef vtkGaussianRandomSequence_h
 #define vtkGaussianRandomSequence_h
@@ -28,16 +17,17 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkRandomSequence.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkGaussianRandomSequence : public vtkRandomSequence
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro(vtkGaussianRandomSequence,vtkRandomSequence);
+  vtkTypeMacro(vtkGaussianRandomSequence, vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Convenient method to return a value given the mean and standard deviation
@@ -46,6 +36,14 @@ public:
    * be overridden by a subclass.
    */
   virtual double GetScaledValue(double mean, double standardDeviation);
+
+  /**
+   * Return the next value in the sequence given the mean and standard
+   * deviation of the Gaussian.
+   *
+   * \see vtkGaussianRandomSequence::GetScaledValue
+   */
+  double GetNextScaledValue(double mean, double standardDeviation);
 
 protected:
   vtkGaussianRandomSequence();
@@ -56,4 +54,5 @@ private:
   void operator=(const vtkGaussianRandomSequence&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // #ifndef vtkGaussianRandomSequence_h

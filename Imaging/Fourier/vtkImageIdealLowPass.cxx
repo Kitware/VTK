@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageIdealLowPass.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageIdealLowPass.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -21,16 +9,16 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageIdealLowPass);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageIdealLowPass::vtkImageIdealLowPass()
 {
   this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_DOUBLE_MAX;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageIdealLowPass::SetXCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[0])
@@ -40,7 +28,7 @@ void vtkImageIdealLowPass::SetXCutOff(double cutOff)
   this->CutOff[0] = cutOff;
   this->Modified();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageIdealLowPass::SetYCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[1])
@@ -50,7 +38,7 @@ void vtkImageIdealLowPass::SetYCutOff(double cutOff)
   this->CutOff[1] = cutOff;
   this->Modified();
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageIdealLowPass::SetZCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[2])
@@ -61,20 +49,15 @@ void vtkImageIdealLowPass::SetZCutOff(double cutOff)
   this->Modified();
 }
 
-
-//----------------------------------------------------------------------------
-void vtkImageIdealLowPass::ThreadedRequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector),
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  int ext[6], int id)
+//------------------------------------------------------------------------------
+void vtkImageIdealLowPass::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
+  vtkImageData*** inData, vtkImageData** outData, int ext[6], int id)
 {
   int idx0, idx1, idx2;
   int min0, max0;
-  double *inPtr;
-  double *outPtr;
+  double* inPtr;
+  double* outPtr;
   int wholeExtent[6];
   double spacing[3];
   vtkIdType inInc0, inInc1, inInc2;
@@ -86,17 +69,15 @@ void vtkImageIdealLowPass::ThreadedRequestData(
   unsigned long count = 0;
   unsigned long target;
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   // Error checking
   if (inData[0][0]->GetNumberOfScalarComponents() != 2)
   {
-    vtkErrorMacro("Expecting 2 components not "
-                  << inData[0][0]->GetNumberOfScalarComponents());
+    vtkErrorMacro("Expecting 2 components not " << inData[0][0]->GetNumberOfScalarComponents());
     return;
   }
-  if (inData[0][0]->GetScalarType() != VTK_DOUBLE ||
-      outData[0]->GetScalarType() != VTK_DOUBLE)
+  if (inData[0][0]->GetScalarType() != VTK_DOUBLE || outData[0]->GetScalarType() != VTK_DOUBLE)
   {
     vtkErrorMacro("Expecting input and output to be of type double");
     return;
@@ -105,8 +86,8 @@ void vtkImageIdealLowPass::ThreadedRequestData(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   inData[0][0]->GetSpacing(spacing);
 
-  inPtr = static_cast<double *>(inData[0][0]->GetScalarPointerForExtent(ext));
-  outPtr = static_cast<double *>(outData[0]->GetScalarPointerForExtent(ext));
+  inPtr = static_cast<double*>(inData[0][0]->GetScalarPointerForExtent(ext));
+  outPtr = static_cast<double*>(outData[0]->GetScalarPointerForExtent(ext));
 
   inData[0][0]->GetContinuousIncrements(ext, inInc0, inInc1, inInc2);
   outData[0]->GetContinuousIncrements(ext, outInc0, outInc1, outInc2);
@@ -116,7 +97,7 @@ void vtkImageIdealLowPass::ThreadedRequestData(
   mid0 = static_cast<double>(wholeExtent[0] + wholeExtent[1] + 1) / 2.0;
   mid1 = static_cast<double>(wholeExtent[2] + wholeExtent[3] + 1) / 2.0;
   mid2 = static_cast<double>(wholeExtent[4] + wholeExtent[5] + 1) / 2.0;
-  if ( this->CutOff[0] == 0.0)
+  if (this->CutOff[0] == 0.0)
   {
     norm0 = VTK_DOUBLE_MAX;
   }
@@ -124,7 +105,7 @@ void vtkImageIdealLowPass::ThreadedRequestData(
   {
     norm0 = 1.0 / ((spacing[0] * 2.0 * mid0) * this->CutOff[0]);
   }
-  if ( this->CutOff[1] == 0.0)
+  if (this->CutOff[1] == 0.0)
   {
     norm1 = VTK_DOUBLE_MAX;
   }
@@ -132,7 +113,7 @@ void vtkImageIdealLowPass::ThreadedRequestData(
   {
     norm1 = 1.0 / ((spacing[1] * 2.0 * mid1) * this->CutOff[1]);
   }
-  if ( this->CutOff[2] == 0.0)
+  if (this->CutOff[2] == 0.0)
   {
     norm2 = VTK_DOUBLE_MAX;
   }
@@ -141,8 +122,7 @@ void vtkImageIdealLowPass::ThreadedRequestData(
     norm2 = 1.0 / ((spacing[2] * 2.0 * mid2) * this->CutOff[2]);
   }
 
-  target = static_cast<unsigned long>(
-    (ext[5]-ext[4]+1)*(ext[3]-ext[2]+1)/50.0);
+  target = static_cast<unsigned long>((ext[5] - ext[4] + 1) * (ext[3] - ext[2] + 1) / 50.0);
   target++;
 
   // loop over all the pixels (keeping track of normalized distance to origin.
@@ -162,9 +142,9 @@ void vtkImageIdealLowPass::ThreadedRequestData(
     {
       if (!id)
       {
-        if (!(count%target))
+        if (!(count % target))
         {
-          this->UpdateProgress(count/(50.0*target));
+          this->UpdateProgress(count / (50.0 * target));
         }
         count++;
       }
@@ -219,10 +199,9 @@ void vtkImageIdealLowPass::ThreadedRequestData(
 
 void vtkImageIdealLowPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "CutOff: ( "
-     << this->CutOff[0] << ", "
-     << this->CutOff[1] << ", "
+  os << indent << "CutOff: ( " << this->CutOff[0] << ", " << this->CutOff[1] << ", "
      << this->CutOff[2] << " )\n";
 }
+VTK_ABI_NAMESPACE_END

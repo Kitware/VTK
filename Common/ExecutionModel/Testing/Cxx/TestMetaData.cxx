@@ -1,25 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestMetaData.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // This test verifies that information keys are copied up & down the
 // pipeline properly and NeedToExecute/StoreMetaData functions as expected.
 
 #include "vtkInformation.h"
 #include "vtkInformationDataObjectMetaDataKey.h"
-#include "vtkInformationIntegerRequestKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerRequestKey.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -33,8 +21,8 @@
 class MySource : public vtkPolyDataAlgorithm
 {
 public:
-  static MySource *New();
-  vtkTypeMacro(vtkPolyDataAlgorithm,vtkAlgorithm);
+  static MySource* New();
+  vtkTypeMacro(vtkPolyDataAlgorithm, vtkAlgorithm);
 
   static vtkInformationDataObjectMetaDataKey* META_DATA();
   static vtkInformationIntegerRequestKey* REQUEST();
@@ -54,9 +42,8 @@ protected:
     this->Result = -1;
   }
 
-  int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector* outputVector) override
+  int RequestInformation(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override
   {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     vtkPolyData* pd = vtkPolyData::New();
@@ -64,15 +51,13 @@ protected:
     pd->Delete();
     return 1;
   }
-  int RequestData(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector* outputVector) override
+  int RequestData(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override
   {
     // Here we verify that a request set at the end of the pipeline
     // made it to here properly.
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    if (!outInfo->Has(REQUEST()) ||
-        outInfo->Get(REQUEST()) != this->Result)
+    if (!outInfo->Has(REQUEST()) || outInfo->Get(REQUEST()) != this->Result)
     {
       this->Failed = true;
     }
@@ -89,8 +74,8 @@ vtkInformationKeyMacro(MySource, DATA, Integer);
 class vtkInformationMyRequestKey : public vtkInformationIntegerRequestKey
 {
 public:
-  vtkInformationMyRequestKey(const char* name, const char* location) :
-    vtkInformationIntegerRequestKey(name, location)
+  vtkInformationMyRequestKey(const char* name, const char* location)
+    : vtkInformationIntegerRequestKey(name, location)
   {
     this->DataKey = MySource::DATA();
   }

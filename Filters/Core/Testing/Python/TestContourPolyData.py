@@ -1,21 +1,22 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkIOXML import vtkXMLPolyDataReader
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Explicitly test contouring of vtkPolyData
 class TestContourPolyData(Testing.vtkTest):
   def testAll(self):
-    reader = vtk.vtkXMLPolyDataReader()
-    reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/disk_out_ref_surface.vtp")
+    reader = vtkXMLPolyDataReader()
+    reader.SetFileName(VTK_DATA_ROOT + "/Data/disk_out_ref_surface.vtp")
     reader.SetPointArrayStatus("Temp", 1);
     reader.SetPointArrayStatus("Pres", 1);
     reader.Update();
 
     input = reader.GetOutput()
 
-    cf = vtk.vtkContourFilter()
+    cf = vtkContourFilter()
     cf.SetInputData(input)
     cf.SetValue(0,400)
     cf.SetInputArrayToProcess(0, 0, 0, 0, "Temp");

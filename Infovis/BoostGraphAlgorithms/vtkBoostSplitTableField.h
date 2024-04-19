@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBoostSplitTableField.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBoostSplitTableField
  * @brief   "Splits" one-or-more table fields by duplicating rows containing delimited data.
@@ -49,7 +37,7 @@
  * If the input table is missing a field specified by AddField(), it is an error.
  * If no fields are specified, no splitting is performed.
  * If the delimiter for a field is an empty string, no splitting is performed on that field.
-*/
+ */
 
 #ifndef vtkBoostSplitTableField_h
 #define vtkBoostSplitTableField_h
@@ -57,6 +45,7 @@
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostSplitTableField : public vtkTableAlgorithm
@@ -71,22 +60,19 @@ public:
 
 protected:
   vtkBoostSplitTableField();
-  ~vtkBoostSplitTableField();
+  ~vtkBoostSplitTableField() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkStringArray* Fields;
   vtkStringArray* Delimiters;
 
 private:
-
   class implementation;
 
   vtkBoostSplitTableField(const vtkBoostSplitTableField&) = delete;
   void operator=(const vtkBoostSplitTableField&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

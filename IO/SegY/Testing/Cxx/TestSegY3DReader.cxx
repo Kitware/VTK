@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestSegY2DReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test of vtkSegYReader
 // .SECTION Description
 //
@@ -43,8 +31,7 @@ int TestSegY3DReader(int argc, char* argv[])
 
   // Read file name.
   char* fname;
-  fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/waha8.sgy");
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/waha8.sgy");
 
   vtkNew<vtkColorTransferFunction> lut;
   lut->AddRGBPoint(-127, 0.23, 0.30, 0.75);

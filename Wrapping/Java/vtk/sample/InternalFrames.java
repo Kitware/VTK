@@ -152,7 +152,7 @@ public class InternalFrames extends JFrame {
     }
 
     public void actionPerformed(ActionEvent ev) {
-      theDesktop.add(new VTKFrame(340, 200), new Integer(layer));
+      theDesktop.add(new VTKFrame(340, 200), Integer.valueOf(layer));
     }
   }
 

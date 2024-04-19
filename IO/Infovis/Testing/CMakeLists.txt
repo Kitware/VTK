@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/csvWithBOM.csv
   Data/Infovis/DimacsGraphs/,REGEX:.*
   Data/Infovis/XML/example_phylo.xml
   Data/Infovis/clustered-graph.tlp
@@ -17,9 +18,12 @@ vtk_module_test_data(
   Data/delimitedUTF16.txt
   Data/delimitedUTF16BE.txt
   Data/delimitedUTF16LE.txt
-  Data/fixedwidth.txt)
+  Data/fixedwidth.txt
+  Data/vehicle_data.csv)
 
-add_subdirectory(Cxx)
+if (NOT vtk_testing_cxx_disabled)
+  add_subdirectory(Cxx)
+endif ()
 
 if (VTK_WRAP_PYTHON)
   add_subdirectory(Python)

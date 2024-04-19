@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridCellCenters.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHyperTreeGridCellCenters
  * @brief   generate points at center of hyper
@@ -39,14 +27,15 @@
  * This class was modified by Jacques-Bernard Lekien, 2018
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridCellCenters_h
 #define vtkHyperTreeGridCellCenters_h
 
-#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkCellCenters.h"
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
@@ -57,18 +46,17 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridCellCenters : public vtkCellCen
 {
 public:
   static vtkHyperTreeGridCellCenters* New();
-  vtkTypeMacro( vtkHyperTreeGridCellCenters, vtkCellCenters );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkHyperTreeGridCellCenters, vtkCellCenters);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkHyperTreeGridCellCenters();
   ~vtkHyperTreeGridCellCenters() override;
 
-  vtkTypeBool ProcessRequest( vtkInformation* request,
-                      vtkInformationVector** inputVector,
-                      vtkInformationVector* outputVector ) override;
-  int FillInputPortInformation( int, vtkInformation* ) override;
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Main routine to process individual trees in the grid
@@ -78,7 +66,7 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridNonOrientedGeometryCursor* );
+  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedGeometryCursor*);
 
   vtkHyperTreeGrid* Input;
   vtkPolyData* Output;
@@ -98,4 +86,5 @@ private:
   void operator=(const vtkHyperTreeGridCellCenters&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridCellCenters_h

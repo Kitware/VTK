@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationIdTypeKey.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInformationIdTypeKey
  * @brief   Key for vtkIdType values in vtkInformation.
  *
  * vtkInformationIdTypeKey is used to represent keys for vtkIdType values
  * in vtkInformation.
-*/
+ */
 
 #ifndef vtkInformationIdTypeKey_h
 #define vtkInformationIdTypeKey_h
@@ -28,10 +16,11 @@
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkInformationIdTypeKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationIdTypeKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationIdTypeKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationIdTypeKey(const char* name, const char* location);
@@ -42,19 +31,19 @@ public:
    * name and a location. This method is provided for wrappers. Use the
    * constructor directly from C++ instead.
    */
-  static vtkInformationIdTypeKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationIdTypeKey* MakeKey(const char* name, const char* location)
   {
     return new vtkInformationIdTypeKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
    */
   void Set(vtkInformation* info, vtkIdType);
   vtkIdType Get(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information
@@ -81,4 +70,5 @@ private:
   void operator=(const vtkInformationIdTypeKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

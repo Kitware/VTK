@@ -8,14 +8,36 @@ readonly name="tiff"
 readonly ownership="Tiff Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/tiff.git"
-readonly tag="for/vtk-20190719-4.0.10"
+readonly tag="for/vtk-20231025-4.6.0"
 readonly paths="
 .gitattributes
 CMakeLists.txt
 ChangeLog
-COPYRIGHT
 README.md
 README.kitware.md
+LICENSE.md
+
+cmake/AutotoolsCompat.cmake
+cmake/CXXLibrary.cmake
+cmake/CompilerChecks.cmake
+cmake/DeflateCodec.cmake
+cmake/FindCMath.cmake
+cmake/IncludeChecks.cmake
+cmake/InternalCodecs.cmake
+cmake/JBIGCodec.cmake
+cmake/JPEGCodec.cmake
+cmake/LERCCodec.cmake
+cmake/LZMACodec.cmake
+cmake/LargeFileSupport.cmake
+cmake/LibraryFeatures.cmake
+cmake/LinkerChecks.cmake
+cmake/PixarLogCodec.cmake
+cmake/ProcessorChecks.cmake
+cmake/SymbolChecks.cmake
+cmake/TypeSizeChecks.cmake
+cmake/WebPCodec.cmake
+cmake/WindowsSupport.cmake
+cmake/ZSTDCodec.cmake
 
 libtiff/CMakeLists.txt
 libtiff/libtiff.def
@@ -24,11 +46,13 @@ libtiff/*.c
 libtiff/*.h
 libtiff/tif_config.h.cmake.in
 libtiff/tiffconf.h.cmake.in
+libtiff/tiffvers.h.cmake.in
 
 port/CMakeLists.txt
 port/dummy.c
+port/getopt.c
 port/libport.h
-port/snprintf.c
+port/libport_config.h.cmake.in
 "
 
 extract_source () {

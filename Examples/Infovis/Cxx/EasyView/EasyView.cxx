@@ -1,18 +1,15 @@
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
-
-#include "ui_EasyView.h"
 #include "EasyView.h"
+#include "ui_EasyView.h"
 
 // VTK includes
-#include <vtkAnnotationLink.h>
-#include <vtkDataObjectToTable.h>
-#include <vtkDataRepresentation.h>
 #include "vtkGenericOpenGLRenderWindow.h"
+#include <vtkAnnotationLink.h>
+#include <vtkAttributeDataToTableFilter.h>
+#include <vtkDataRepresentation.h>
 #include <vtkGraphLayoutView.h>
 #include <vtkQtTableView.h>
 #include <vtkQtTreeView.h>
@@ -32,8 +29,7 @@
 #include <QTreeView>
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // Constructor
 EasyView::EasyView()
@@ -41,13 +37,13 @@ EasyView::EasyView()
   this->ui = new Ui_EasyView;
   this->ui->setupUi(this);
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
-  this->ui->vtkGraphViewWidget->SetRenderWindow(renderWindow);
+  this->ui->vtkGraphViewWidget->setRenderWindow(renderWindow);
 
-  this->XMLReader    = vtkSmartPointer<vtkXMLTreeReader>::New();
-  this->GraphView    = vtkSmartPointer<vtkGraphLayoutView>::New();
-  this->TreeView     = vtkSmartPointer<vtkQtTreeView>::New();
-  this->TableView    = vtkSmartPointer<vtkQtTableView>::New();
-  this->ColumnView   = vtkSmartPointer<vtkQtTreeView>::New();
+  this->XMLReader = vtkSmartPointer<vtkXMLTreeReader>::New();
+  this->GraphView = vtkSmartPointer<vtkGraphLayoutView>::New();
+  this->TreeView = vtkSmartPointer<vtkQtTreeView>::New();
+  this->TableView = vtkSmartPointer<vtkQtTableView>::New();
+  this->ColumnView = vtkSmartPointer<vtkQtTreeView>::New();
   this->ColumnView->SetUseColumnView(1);
 
   // Tell the table view to sort selections that it receives (but does
@@ -60,8 +56,8 @@ EasyView::EasyView()
   this->ui->columnFrame->layout()->addWidget(this->ColumnView->GetWidget());
 
   // Graph View needs to get my render window
-  this->GraphView->SetInteractor(this->ui->vtkGraphViewWidget->GetInteractor());
-  this->GraphView->SetRenderWindow(this->ui->vtkGraphViewWidget->GetRenderWindow());
+  this->GraphView->SetInteractor(this->ui->vtkGraphViewWidget->interactor());
+  this->GraphView->SetRenderWindow(this->ui->vtkGraphViewWidget->renderWindow());
 
   // Set up the theme on the graph view :)
   vtkViewTheme* theme = vtkViewTheme::CreateNeonTheme();
@@ -75,8 +71,8 @@ EasyView::EasyView()
   // Apply application stylesheet
   QString css = "* { font: bold italic 18px \"Calibri\"; color: midnightblue }";
   css += "QTreeView { font: bold italic 16px \"Calibri\"; color: midnightblue }";
-  //qApp->setStyleSheet(css); // Seems to cause a bug on some systems
-                              // But at least it's here as an example
+  // qApp->setStyleSheet(css); // Seems to cause a bug on some systems
+  // But at least it's here as an example
 
   this->GraphView->Render();
 };
@@ -85,7 +81,7 @@ EasyView::EasyView()
 void EasyView::SetupAnnotationLink()
 {
   // Create a selection link and have all the views use it
-  VTK_CREATE(vtkAnnotationLink,annLink);
+  VTK_CREATE(vtkAnnotationLink, annLink);
   this->TreeView->GetRepresentation()->SetAnnotationLink(annLink);
   this->TreeView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
   this->TableView->GetRepresentation()->SetAnnotationLink(annLink);
@@ -101,7 +97,7 @@ void EasyView::SetupAnnotationLink()
   this->GraphView->Update();
   theme->Delete();
 
-  VTK_CREATE(vtkViewUpdater,updater);
+  VTK_CREATE(vtkViewUpdater, updater);
   updater->AddView(this->TreeView);
   updater->AddView(this->TableView);
   updater->AddView(this->ColumnView);
@@ -109,10 +105,7 @@ void EasyView::SetupAnnotationLink()
   updater->AddAnnotationLink(annLink);
 }
 
-EasyView::~EasyView()
-{
-
-}
+EasyView::~EasyView() {}
 
 // Action to be taken upon graph file open
 void EasyView::slotOpenXMLFile()
@@ -122,10 +115,7 @@ void EasyView::slotOpenXMLFile()
 
   // Open the text data file
   QString fileName = QFileDialog::getOpenFileName(
-    this,
-    "Select the text data file",
-    QDir::homePath(),
-    "XML Files (*.xml);;All Files (*.*)");
+    this, "Select the text data file", QDir::homePath(), "XML Files (*.xml);;All Files (*.*)");
 
   if (fileName.isNull())
   {
@@ -134,7 +124,7 @@ void EasyView::slotOpenXMLFile()
   }
 
   // Create XML reader
-  this->XMLReader->SetFileName( fileName.toLatin1() );
+  this->XMLReader->SetFileName(fileName.toUtf8().data());
   this->XMLReader->ReadTagNameOff();
   this->XMLReader->Update();
 
@@ -153,7 +143,6 @@ void EasyView::slotOpenXMLFile()
   treeStrat->SetLogSpacingValue(1);
   this->GraphView->SetLayoutStrategy(treeStrat);
 
-
   // Set the input to the graph view
   this->GraphView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
 
@@ -167,9 +156,9 @@ void EasyView::slotOpenXMLFile()
   this->ColumnView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
 
   // Extract a table and give to table view
-  VTK_CREATE(vtkDataObjectToTable, toTable);
+  VTK_CREATE(vtkAttributeDataToTableFilter, toTable);
   toTable->SetInputConnection(this->XMLReader->GetOutputPort());
-  toTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
+  toTable->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_VERTICES);
   this->TableView->SetRepresentationFromInputConnection(toTable->GetOutputPort());
 
   this->SetupAnnotationLink();
@@ -190,6 +179,7 @@ void EasyView::slotOpenXMLFile()
   this->GraphView->Render();
 }
 
-void EasyView::slotExit() {
+void EasyView::slotExit()
+{
   qApp->exit();
 }

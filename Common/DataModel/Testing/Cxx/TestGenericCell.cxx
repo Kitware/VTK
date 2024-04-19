@@ -1,61 +1,52 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGenericCell.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGenericCell.h"
+#include "vtkHigherOrderHexahedron.h"
+#include "vtkHigherOrderQuadrilateral.h"
+#include "vtkHigherOrderWedge.h"
 #include "vtkMath.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestErrorObserver.h"
 
-int TestGenericCell(int , char *[])
+int TestGenericCell(int, char*[])
 {
   int rval = 0;
-  vtkGenericCell *cell = vtkGenericCell::New();
-  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver =
-    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  auto cell = vtkSmartPointer<vtkGenericCell>::New();
+  auto errorObserver = vtkSmartPointer<vtkTest::ErrorObserver>::New();
   cell->AddObserver(vtkCommand::ErrorEvent, errorObserver);
-  for(int i=0; i<VTK_NUMBER_OF_CELL_TYPES;++i)
+  for (int i = 0; i < VTK_NUMBER_OF_CELL_TYPES; ++i)
   {
-    cell->SetCellType( i );
-    if( cell->RequiresInitialization() )
+    cell->SetCellType(i);
+    if (cell->RequiresInitialization())
     {
       cell->Initialize();
     }
-    cell->Print( cout );
-    int numPts   = cell->GetNumberOfPoints();
+    int numPts = cell->GetNumberOfPoints();
     int numEdges = cell->GetNumberOfEdges();
     int numFaces = cell->GetNumberOfFaces();
+
+    cell->Print(cout);
+
     double center[3];
     int a = cell->GetParametricCenter(center);
     (void)a;
-    double *pcoords = cell->GetParametricCoords();
-    if( cell->GetCellType() != VTK_EMPTY_CELL
-     && cell->GetCellType() != VTK_POLY_VERTEX // FIXME
-     && cell->GetCellType() != VTK_POLY_LINE // FIXME
-     && cell->GetCellType() != VTK_TRIANGLE_STRIP // FIXME
-     && cell->GetCellType() != VTK_POLYGON // FIXME
-     && cell->GetCellType() != VTK_CONVEX_POINT_SET // FIXME
-     && cell->GetCellType() != VTK_POLYHEDRON) // FIXME
+    double* pcoords = cell->GetParametricCoords();
+    if (cell->GetCellType() != VTK_EMPTY_CELL && cell->GetCellType() != VTK_POLY_VERTEX // FIXME
+      && cell->GetCellType() != VTK_POLY_LINE                                           // FIXME
+      && cell->GetCellType() != VTK_TRIANGLE_STRIP                                      // FIXME
+      && cell->GetCellType() != VTK_POLYGON                                             // FIXME
+      && cell->GetCellType() != VTK_CONVEX_POINT_SET                                    // FIXME
+      && cell->GetCellType() != VTK_POLYHEDRON)                                         // FIXME
     {
-      double m[3] = {0., 0., 0.};
+      double m[3] = { 0., 0., 0. };
       // We add all the points since
       // Those on the corner points indeed define the parametric center
-      // The dof node (center mid points) by definition have the same parametric center
+      // The dof node (center mid-points) by definition have the same parametric center
       // and taking into account the center point only add a 0 vector to the sum
       // therefore we do not need to differentiate corner from the rest in this sum:
-      for(int j=0; j<numPts; ++j)
+      for (int j = 0; j < numPts; ++j)
       {
-        double *point = pcoords + 3*j;
+        double* point = pcoords + 3 * j;
         m[0] += point[0];
         m[1] += point[1];
         m[2] += point[2];
@@ -65,9 +56,8 @@ int TestGenericCell(int , char *[])
         m[0] /= numPts;
         m[1] /= numPts;
         m[2] /= numPts;
-        if( fabs( center[0] - m[0] ) > 1e-6
-         || fabs( center[1] - m[1] ) > 1e-6
-         || fabs( center[2] - m[2] ) > 1e-6)
+        if (fabs(center[0] - m[0]) > 1e-6 || fabs(center[1] - m[1]) > 1e-6 ||
+          fabs(center[2] - m[2]) > 1e-6)
         {
           cerr << "Cell: " << i << endl;
           cerr << "Center: " << center[0] << "," << center[1] << "," << center[2] << endl;
@@ -83,25 +73,21 @@ int TestGenericCell(int , char *[])
     int l = cell->IsLinear();
     (void)l;
 
-    for(int e=0; e<numEdges; ++e)
+    for (int e = 0; e < numEdges; ++e)
     {
-      vtkCell *c = cell->GetEdge(e);
-      c->Print( cout );
+      vtkCell* c = cell->GetEdge(e);
+      c->Print(cout);
     }
-    for(int f=0; f<numFaces; ++f)
+    for (int f = 0; f < numFaces; ++f)
     {
-      vtkCell *c = cell->GetFace(f);
-      c->Print( cout );
+      vtkCell* c = cell->GetFace(f);
+      c->Print(cout);
     }
-    if( cell->GetCellType() != i && cell->GetCellType() != VTK_EMPTY_CELL )
+    if (cell->GetCellType() != i && cell->GetCellType() != VTK_EMPTY_CELL)
     {
       ++rval;
     }
   }
 
-  cell->Delete();
-
   return rval;
 }
-
-

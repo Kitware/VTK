@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGPUInfoList.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkGPUInfoList
@@ -22,21 +10,22 @@
  * calls. This an abstract class. Concrete classes are OS specific.
  * @sa
  * vtkGPUInfo vtkDirectXGPUInfoList vtkCoreGraphicsGPUInfoList
-*/
+ */
 
 #ifndef vtkGPUInfoList_h
 #define vtkGPUInfoList_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGPUInfoListArray; // STL Pimpl
 class vtkGPUInfo;
 
 class VTKRENDERINGCORE_EXPORT vtkGPUInfoList : public vtkObject
 {
 public:
-  static vtkGPUInfoList *New();
+  static vtkGPUInfoList* New();
   vtkTypeMacro(vtkGPUInfoList, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -65,23 +54,24 @@ public:
    * \pre valid_index: i>=0 && i<GetNumberOfGPUs()
    * \post result_exists: result!=0
    */
-  virtual vtkGPUInfo *GetGPUInfo(int i);
+  virtual vtkGPUInfo* GetGPUInfo(int i);
 
 protected:
-  //@{
+  ///@{
   /**
    * Default constructor. Set Probed to false. Set Array to NULL.
    */
   vtkGPUInfoList();
   ~vtkGPUInfoList() override;
-  //@}
+  ///@}
 
   bool Probed;
-  vtkGPUInfoListArray *Array;
+  vtkGPUInfoListArray* Array;
 
 private:
   vtkGPUInfoList(const vtkGPUInfoList&) = delete;
   void operator=(const vtkGPUInfoList&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,53 +1,67 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkTubeFilter
+from vtkmodules.vtkFiltersModeling import vtkRibbonFilter
+from vtkmodules.vtkIOImage import vtkPNGReader
+from vtkmodules.vtkIOLegacy import vtkPolyDataReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create pipeline
 #
-reader = vtk.vtkPolyDataReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/vtk.vtk")
+reader = vtkPolyDataReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/vtk.vtk")
 # Read a ruler texture
-r = vtk.vtkPNGReader()
-r.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/ruler.png")
-atext = vtk.vtkTexture()
+r = vtkPNGReader()
+r.SetFileName(VTK_DATA_ROOT + "/Data/ruler.png")
+atext = vtkTexture()
 atext.SetInputConnection(r.GetOutputPort())
 atext.InterpolateOn()
 # produce some ribbons
-ribbon = vtk.vtkRibbonFilter()
+ribbon = vtkRibbonFilter()
 ribbon.SetInputConnection(reader.GetOutputPort())
 ribbon.SetWidth(0.1)
 ribbon.SetGenerateTCoordsToUseLength()
 ribbon.SetTextureLength(1.0)
 ribbon.UseDefaultNormalOn()
 ribbon.SetDefaultNormal(0,0,1)
-ribbonMapper = vtk.vtkPolyDataMapper()
+ribbonMapper = vtkPolyDataMapper()
 ribbonMapper.SetInputConnection(ribbon.GetOutputPort())
-ribbonActor = vtk.vtkActor()
+ribbonActor = vtkActor()
 ribbonActor.SetMapper(ribbonMapper)
 ribbonActor.GetProperty().SetColor(1,1,0)
 ribbonActor.SetTexture(atext)
 # produce some tubes
-tuber = vtk.vtkTubeFilter()
+tuber = vtkTubeFilter()
 tuber.SetInputConnection(reader.GetOutputPort())
 tuber.SetRadius(0.1)
 tuber.SetNumberOfSides(12)
 tuber.SetGenerateTCoordsToUseLength()
 tuber.SetTextureLength(0.5)
 tuber.CappingOn()
-tubeMapper = vtk.vtkPolyDataMapper()
+tubeMapper = vtkPolyDataMapper()
 tubeMapper.SetInputConnection(tuber.GetOutputPort())
-tubeActor = vtk.vtkActor()
+tubeActor = vtkActor()
 tubeActor.SetMapper(tubeMapper)
 tubeActor.GetProperty().SetColor(1,1,0)
 tubeActor.SetTexture(atext)
 tubeActor.AddPosition(5,0,0)
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

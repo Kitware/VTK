@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestJPEGReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test of vtkJPEGReader
 // .SECTION Description
 //
@@ -24,10 +12,10 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-int TestJPEGReader(int argc, char *argv[])
+int TestJPEGReader(int argc, char* argv[])
 {
 
-  if ( argc <= 1 )
+  if (argc <= 1)
   {
     cout << "Usage: " << argv[0] << " <jpeg file>" << endl;
     return EXIT_FAILURE;
@@ -35,13 +23,12 @@ int TestJPEGReader(int argc, char *argv[])
 
   std::string filename = argv[1];
 
-  vtkSmartPointer<vtkJPEGReader> JPEGReader =
-    vtkSmartPointer<vtkJPEGReader>::New();
+  vtkSmartPointer<vtkJPEGReader> JPEGReader = vtkSmartPointer<vtkJPEGReader>::New();
 
   // Check the image can be read
   if (!JPEGReader->CanReadFile(filename.c_str()))
   {
-    cerr << "CanReadFile failed for " << filename.c_str() << "\n";
+    cerr << "CanReadFile failed for " << filename << "\n";
     return EXIT_FAILURE;
   }
 
@@ -56,10 +43,8 @@ int TestJPEGReader(int argc, char *argv[])
   const char* descriptiveName = JPEGReader->GetDescriptiveName();
   cout << "Descriptive name: " << descriptiveName << endl;
 
-
   // Visualize
-  vtkSmartPointer<vtkImageViewer> imageViewer =
-    vtkSmartPointer<vtkImageViewer>::New();
+  vtkSmartPointer<vtkImageViewer> imageViewer = vtkSmartPointer<vtkImageViewer>::New();
   imageViewer->SetInputConnection(JPEGReader->GetOutputPort());
   imageViewer->SetColorWindow(256);
   imageViewer->SetColorLevel(127.5);

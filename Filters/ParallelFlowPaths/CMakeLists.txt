@@ -14,11 +14,6 @@ set(parallel_overrides
   ParticlePathFilter
   StreaklineFilter)
 
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND classes vtkPTemporalStreamTracer)
-  list(APPEND parallel_overrides TemporalStreamTracer)
-endif()
-
 foreach (parallel_override IN LISTS parallel_overrides)
   vtk_object_factory_declare(
     BASE      vtk${parallel_override}
@@ -34,3 +29,4 @@ vtk_module_add_module(VTK::FiltersParallelFlowPaths
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source}
   HEADERS ${vtk_object_factory_header})
+vtk_add_test_mangling(VTK::FiltersParallelFlowPaths)

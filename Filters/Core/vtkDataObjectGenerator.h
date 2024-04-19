@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataObjectGenerator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDataObjectGenerator
  * @brief   produces simple (composite or atomic) data
@@ -32,95 +20,89 @@
  * "HB[ (UF1)(UF1)(UF1) ]" will create a vtkHierarchicalBoxDataSet representing
  * an octree that is three levels deep, in which the firstmost cell in each level
  * is refined.
-*/
+ */
 
 #ifndef vtkDataObjectGenerator_h
 #define vtkDataObjectGenerator_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInternalStructureCache;
 
-class VTKFILTERSCORE_EXPORT vtkDataObjectGenerator
-: public vtkDataObjectAlgorithm
+class VTKFILTERSCORE_EXPORT vtkDataObjectGenerator : public vtkDataObjectAlgorithm
 {
- public:
-  static vtkDataObjectGenerator *New();
-  vtkTypeMacro(vtkDataObjectGenerator,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+public:
+  static vtkDataObjectGenerator* New();
+  vtkTypeMacro(vtkDataObjectGenerator, vtkDataObjectAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The string that will be parsed to specify a dataobject structure.
    */
   vtkSetStringMacro(Program);
   vtkGetStringMacro(Program);
-  //@}
+  ///@}
 
 protected:
   vtkDataObjectGenerator();
   ~vtkDataObjectGenerator() override;
 
-  int RequestData(vtkInformation *req,
-                  vtkInformationVector **inV,
-                  vtkInformationVector *outV) override;
-  int RequestDataObject(vtkInformation *req,
-                  vtkInformationVector **inV,
-                  vtkInformationVector *outV) override;
-  int RequestInformation(vtkInformation *req,
-                  vtkInformationVector **inV,
-                  vtkInformationVector *outV) override;
-  int RequestUpdateExtent(vtkInformation *req,
-                  vtkInformationVector **inV,
-                  vtkInformationVector *outV) override;
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** inV, vtkInformationVector* outV) override;
+  int RequestDataObject(
+    vtkInformation* req, vtkInformationVector** inV, vtkInformationVector* outV) override;
+  int RequestInformation(
+    vtkInformation* req, vtkInformationVector** inV, vtkInformationVector* outV) override;
+  int RequestUpdateExtent(
+    vtkInformation* req, vtkInformationVector** inV, vtkInformationVector* outV) override;
 
-  //the string to parse to create a structure
-  char *Program;
-  //a record of the structure
-  vtkInternalStructureCache *Structure;
+  // the string to parse to create a structure
+  char* Program;
+  // a record of the structure
+  vtkInternalStructureCache* Structure;
 
-  //Helper for RequestDataObject
-  vtkDataObject *
-    CreateOutputDataObjects(vtkInternalStructureCache *structure);
-  //Helper for RequestData
-  vtkDataObject *
-    FillOutputDataObjects(vtkInternalStructureCache *structure,
-                          int level,
-                          int stripe=0);
+  // Helper for RequestDataObject
+  vtkDataObject* CreateOutputDataObjects(vtkInternalStructureCache* structure);
+  // Helper for RequestData
+  vtkDataObject* FillOutputDataObjects(
+    vtkInternalStructureCache* structure, int level, int stripe = 0);
 
-  //to determine which composite data stripe to fill in
+  // to determine which composite data stripe to fill in
   vtkIdType Rank;
   vtkIdType Processors;
 
-  //create the templated atomic data sets
-  void MakeImageData1(vtkDataSet *ds);
-  void MakeImageData2(vtkDataSet *ds);
-  void MakeUniformGrid1(vtkDataSet *ds);
-  void MakeRectilinearGrid1(vtkDataSet *ds);
-  void MakeStructuredGrid1(vtkDataSet *ds);
-  void MakePolyData1(vtkDataSet *ds);
-  void MakePolyData2(vtkDataSet *ds);
-  void MakeUnstructuredGrid1(vtkDataSet *ds);
-  void MakeUnstructuredGrid2(vtkDataSet *ds);
-  void MakeUnstructuredGrid3(vtkDataSet *ds);
-  void MakeUnstructuredGrid4(vtkDataSet *ds);
+  // create the templated atomic data sets
+  void MakeImageData1(vtkDataSet* ds);
+  void MakeImageData2(vtkDataSet* ds);
+  void MakeUniformGrid1(vtkDataSet* ds);
+  void MakeRectilinearGrid1(vtkDataSet* ds);
+  void MakeStructuredGrid1(vtkDataSet* ds);
+  void MakePolyData1(vtkDataSet* ds);
+  void MakePolyData2(vtkDataSet* ds);
+  void MakeUnstructuredGrid1(vtkDataSet* ds);
+  void MakeUnstructuredGrid2(vtkDataSet* ds);
+  void MakeUnstructuredGrid3(vtkDataSet* ds);
+  void MakeUnstructuredGrid4(vtkDataSet* ds);
 
-  //used to spatially separate sub data sets within composites
-  double XOffset; //increases for each dataset index
-  double YOffset; //increases for each sub data set
-  double ZOffset; //increases for each group index
+  // used to spatially separate sub data sets within composites
+  double XOffset; // increases for each dataset index
+  double YOffset; // increases for each sub data set
+  double ZOffset; // increases for each group index
 
-  //used to filling in point and cell values with unique Ids
+  // used to filling in point and cell values with unique Ids
   vtkIdType CellIdCounter;
   vtkIdType PointIdCounter;
 
-  //assign point and cell values to each point and cell
-  void MakeValues(vtkDataSet *ds);
+  // assign point and cell values to each point and cell
+  void MakeValues(vtkDataSet* ds);
 
 private:
   vtkDataObjectGenerator(const vtkDataObjectGenerator&) = delete;
   void operator=(const vtkDataObjectGenerator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

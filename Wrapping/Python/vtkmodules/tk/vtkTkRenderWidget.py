@@ -46,12 +46,7 @@ from __future__ import absolute_import
 import math, os, sys
 from vtkmodules.vtkRenderingCore import vtkCellPicker, vtkProperty, vtkRenderWindow
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-else:
-    # for Python3
-    import tkinter
+import tkinter
 
 from .vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 
@@ -445,6 +440,9 @@ def vtkRenderWidgetConeExample():
 
     from vtkmodules.vtkFiltersSources import vtkConeSource
     from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+    # load implementations for rendering and interaction factory classes
+    import vtkmodules.vtkRenderingOpenGL2
+    import vtkmodules.vtkInteractionStyle
 
     # create root window
     root = tkinter.Tk()

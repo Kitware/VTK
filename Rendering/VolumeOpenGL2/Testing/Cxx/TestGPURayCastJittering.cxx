@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastJittering.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /** Tests stochastic jittering by rendering a volume exhibiting aliasing due
  * to a big sampling distance (low sampling frequency), a.k.a. wood-grain
  * artifacts. The expected output is 'filtered' due to the noise introduced
@@ -32,21 +20,19 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSphereSource.h>
 #include <vtkStructuredPointsReader.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>
 
-
-static const char* TestGPURayCastJitteringLog =
-"# StreamVersion 1\n"
-"EnterEvent 298 27 0 0 0 0 0\n"
-"MouseWheelForwardEvent 200 142 0 0 0 0 0\n"
-"LeaveEvent 311 71 0 0 0 0 0\n";
+static const char* TestGPURayCastJitteringLog = "# StreamVersion 1\n"
+                                                "EnterEvent 298 27 0 0 0 0 0\n"
+                                                "MouseWheelForwardEvent 200 142 0 0 0 0 0\n"
+                                                "LeaveEvent 311 71 0 0 0 0 0\n";
 
 int TestGPURayCastJittering(int argc, char* argv[])
 {
@@ -59,12 +45,12 @@ int TestGPURayCastJittering(int argc, char* argv[])
 
   vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren);
-  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
+  vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
   assert(oglRen); // This test should only be enabled for OGL2 backend.
   // This will print details about why depth peeling is unsupported:
-  oglRen->SetDebug(1);
+  oglRen->SetDebug(true);
   bool supported = oglRen->IsDualDepthPeelingSupported();
-  oglRen->SetDebug(0);
+  oglRen->SetDebug(false);
   if (!supported)
   {
     std::cerr << "Skipping test; volume peeling not supported.\n";
@@ -73,8 +59,7 @@ int TestGPURayCastJittering(int argc, char* argv[])
 
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                       argc, argv, "Data/ironProt.vtk");
+  char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
   vtkNew<vtkStructuredPointsReader> reader;
   reader->SetFileName(volumeFile);
   delete[] volumeFile;
@@ -167,8 +152,7 @@ int TestGPURayCastJittering(int argc, char* argv[])
   renWin->Render();
   iren->Initialize();
 
-  int rv = vtkTesting::InteractorEventLoop(argc, argv, iren,
-    TestGPURayCastJitteringLog);
+  int rv = vtkTesting::InteractorEventLoop(argc, argv, iren, TestGPURayCastJitteringLog);
 
   return rv;
 }

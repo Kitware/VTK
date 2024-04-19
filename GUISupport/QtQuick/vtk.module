@@ -1,0 +1,27 @@
+NAME
+  VTK::GUISupportQtQuick
+LIBRARY_NAME
+  vtkGUISupportQtQuick
+GROUPS
+  Qt
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::GUISupportQt
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::InteractionStyle
+  VTK::InteractionWidgets
+  VTK::RenderingOpenGL2
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::IOImage
+  VTK::IOXML
+  VTK::RenderingVolumeOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
+EXCLUDE_WRAP

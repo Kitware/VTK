@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRendererNode.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkRendererNode.h"
 
 #include "vtkActor.h"
@@ -23,56 +11,41 @@
 #include "vtkLightCollection.h"
 #include "vtkLightNode.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRendererNode.h"
 #include "vtkRenderWindow.h"
-#include "vtkViewNodeCollection.h"
+#include "vtkRenderer.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRendererNode);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRendererNode::vtkRendererNode()
 {
   this->Size[0] = 0;
   this->Size[1] = 0;
+  this->Viewport[0] = 0.0;
+  this->Viewport[1] = 0.0;
+  this->Viewport[2] = 1.0;
+  this->Viewport[3] = 1.0;
+  this->Scale[0] = 1;
+  this->Scale[1] = 1;
 }
 
-//----------------------------------------------------------------------------
-vtkRendererNode::~vtkRendererNode()
-{
-}
+//------------------------------------------------------------------------------
+vtkRendererNode::~vtkRendererNode() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
-void vtkRendererNode::Synchronize(bool prepass)
-{
-  if (prepass)
-  {
-    vtkRenderer *mine = vtkRenderer::SafeDownCast
-      (this->GetRenderable());
-    if (!mine)
-    {
-      return;
-    }
-    int *tmp = mine->GetSize();
-    this->Size[0] = tmp[0];
-    this->Size[1] = tmp[1];
-  }
-}
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRendererNode::Build(bool prepass)
 {
   if (prepass)
   {
-    vtkRenderer *mine = vtkRenderer::SafeDownCast
-      (this->GetRenderable());
+    vtkRenderer* mine = vtkRenderer::SafeDownCast(this->GetRenderable());
     if (!mine)
     {
       return;
@@ -82,7 +55,15 @@ void vtkRendererNode::Build(bool prepass)
     this->AddMissingNodes(mine->GetLights());
     this->AddMissingNodes(mine->GetActors());
     this->AddMissingNodes(mine->GetVolumes());
+
+    // make sure we have a camera setup
+    if (!mine->IsActiveCameraCreated())
+    {
+      mine->GetActiveCamera();
+      mine->ResetCamera();
+    }
     this->AddMissingNode(mine->GetActiveCamera());
     this->RemoveUnusedNodes();
   }
 }
+VTK_ABI_NAMESPACE_END

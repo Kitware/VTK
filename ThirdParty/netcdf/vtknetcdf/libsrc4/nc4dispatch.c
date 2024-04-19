@@ -11,6 +11,7 @@
 
 #include "config.h"
 #include <stdlib.h>
+#include "netcdf.h"
 #include "nc4internal.h"
 #include "nc4dispatch.h"
 #include "nc.h"

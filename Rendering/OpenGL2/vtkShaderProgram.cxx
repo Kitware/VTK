@@ -1,34 +1,26 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkShaderProgram.h"
 #include "vtkObjectFactory.h"
 
-#include "vtk_glew.h"
-#include "vtkShader.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkShader.h"
 #include "vtkTransformFeedback.h"
 #include "vtkTypeTraits.h"
+#include "vtk_glew.h"
+#include "vtksys/FStream.hxx"
 
 #include <cassert>
 #include <iostream>
 #include <sstream>
 #include <vtksys/SystemTools.hxx>
 
-namespace {
+VTK_ABI_NAMESPACE_BEGIN
+namespace
+{
 
 inline GLenum convertTypeToGL(int type)
 {
@@ -62,14 +54,17 @@ inline GLenum convertTypeToGL(int type)
 
 } // end anon namespace
 
-typedef std::map<const char *, int, vtkShaderProgram::cmp_str>::iterator IterT;
+typedef std::map<const char*, int, vtkShaderProgram::cmp_str>::iterator IterT;
 
-vtkStandardNewMacro(vtkShaderProgram)
+vtkStandardNewMacro(vtkShaderProgram);
 
-vtkCxxSetObjectMacro(vtkShaderProgram,VertexShader,vtkShader)
-vtkCxxSetObjectMacro(vtkShaderProgram,FragmentShader,vtkShader)
-vtkCxxSetObjectMacro(vtkShaderProgram,GeometryShader,vtkShader)
-vtkCxxSetObjectMacro(vtkShaderProgram, TransformFeedback, vtkTransformFeedback)
+vtkCxxSetObjectMacro(vtkShaderProgram, VertexShader, vtkShader);
+vtkCxxSetObjectMacro(vtkShaderProgram, FragmentShader, vtkShader);
+vtkCxxSetObjectMacro(vtkShaderProgram, GeometryShader, vtkShader);
+vtkCxxSetObjectMacro(vtkShaderProgram, ComputeShader, vtkShader);
+vtkCxxSetObjectMacro(vtkShaderProgram, TessControlShader, vtkShader);
+vtkCxxSetObjectMacro(vtkShaderProgram, TessEvaluationShader, vtkShader);
+vtkCxxSetObjectMacro(vtkShaderProgram, TransformFeedback, vtkTransformFeedback);
 
 vtkShaderProgram::vtkShaderProgram()
 {
@@ -79,6 +74,12 @@ vtkShaderProgram::vtkShaderProgram()
   this->FragmentShader->SetType(vtkShader::Fragment);
   this->GeometryShader = vtkShader::New();
   this->GeometryShader->SetType(vtkShader::Geometry);
+  this->ComputeShader = vtkShader::New();
+  this->ComputeShader->SetType(vtkShader::Compute);
+  this->TessControlShader = vtkShader::New();
+  this->TessControlShader->SetType(vtkShader::TessControl);
+  this->TessEvaluationShader = vtkShader::New();
+  this->TessEvaluationShader->SetType(vtkShader::TessEvaluation);
 
   this->TransformFeedback = nullptr;
 
@@ -88,6 +89,9 @@ vtkShaderProgram::vtkShaderProgram()
   this->VertexShaderHandle = 0;
   this->FragmentShaderHandle = 0;
   this->GeometryShaderHandle = 0;
+  this->ComputeShaderHandle = 0;
+  this->TessControlShaderHandle = 0;
+  this->TessEvaluationShaderHandle = 0;
   this->Linked = false;
   this->Bound = false;
 
@@ -112,6 +116,21 @@ vtkShaderProgram::~vtkShaderProgram()
     this->GeometryShader->Delete();
     this->GeometryShader = nullptr;
   }
+  if (this->ComputeShader)
+  {
+    this->ComputeShader->Delete();
+    this->ComputeShader = nullptr;
+  }
+  if (this->TessControlShader)
+  {
+    this->TessControlShader->Delete();
+    this->TessControlShader = nullptr;
+  }
+  if (this->TessEvaluationShader)
+  {
+    this->TessEvaluationShader->Delete();
+    this->TessEvaluationShader = nullptr;
+  }
   if (this->TransformFeedback)
   {
     this->TransformFeedback->Delete();
@@ -121,8 +140,8 @@ vtkShaderProgram::~vtkShaderProgram()
 }
 
 // Process the string, and return a version with replacements.
-bool vtkShaderProgram::Substitute(std::string &source, const std::string &search,
-             const std::string &replace, bool all)
+bool vtkShaderProgram::Substitute(
+  std::string& source, const std::string& search, const std::string& replace, bool all)
 {
   std::string::size_type pos = 0;
   bool replaced = false;
@@ -140,32 +159,26 @@ bool vtkShaderProgram::Substitute(std::string &source, const std::string &search
 }
 
 // Process the string, and return a version with replacements.
-bool vtkShaderProgram::Substitute(vtkShader* shader,
-                                  const std::string &search,
-                                  const std::string &replace,
-                                  bool all)
+bool vtkShaderProgram::Substitute(
+  vtkShader* shader, const std::string& search, const std::string& replace, bool all)
 {
   if (!shader)
-    {
+  {
     return false;
-    }
+  }
   std::string source = shader->GetSource();
-  bool replaced = vtkShaderProgram::Substitute(source,
-                                               search,
-                                               replace,
-                                               all);
+  bool replaced = vtkShaderProgram::Substitute(source, search, replace, all);
   if (!replaced)
-    {
+  {
     return false;
-    }
+  }
   shader->SetSource(source);
   return true;
 }
 
-
-template <class T> bool vtkShaderProgram::SetAttributeArray(const char *name,
-                                                const T &array, int tupleSize,
-                                                NormalizeOption normalize)
+template <class T>
+bool vtkShaderProgram::SetAttributeArray(
+  const char* name, const T& array, int tupleSize, NormalizeOption normalize)
 {
   if (array.empty())
   {
@@ -173,11 +186,10 @@ template <class T> bool vtkShaderProgram::SetAttributeArray(const char *name,
     return false;
   }
   int type = vtkTypeTraits<typename T::value_type>::VTKTypeID();
-  return this->SetAttributeArrayInternal(name, &array[0], type, tupleSize,
-                                         normalize);
+  return this->SetAttributeArrayInternal(name, &array[0], type, tupleSize, normalize);
 }
 
-bool vtkShaderProgram::AttachShader(const vtkShader *shader)
+bool vtkShaderProgram::AttachShader(const vtkShader* shader)
 {
   if (shader->GetHandle() == 0)
   {
@@ -206,8 +218,8 @@ bool vtkShaderProgram::AttachShader(const vtkShader *shader)
   {
     if (this->VertexShaderHandle != 0)
     {
-      glDetachShader(static_cast<GLuint>(this->Handle),
-                     static_cast<GLuint>(this->VertexShaderHandle));
+      glDetachShader(
+        static_cast<GLuint>(this->Handle), static_cast<GLuint>(this->VertexShaderHandle));
     }
     this->VertexShaderHandle = shader->GetHandle();
   }
@@ -215,21 +227,69 @@ bool vtkShaderProgram::AttachShader(const vtkShader *shader)
   {
     if (this->FragmentShaderHandle != 0)
     {
-      glDetachShader(static_cast<GLuint>(this->Handle),
-                     static_cast<GLuint>(this->FragmentShaderHandle));
+      glDetachShader(
+        static_cast<GLuint>(this->Handle), static_cast<GLuint>(this->FragmentShaderHandle));
     }
     this->FragmentShaderHandle = shader->GetHandle();
   }
   else if (shader->GetType() == vtkShader::Geometry)
   {
-    if (this->GeometryShaderHandle != 0)
-    {
-      glDetachShader(static_cast<GLuint>(this->Handle),
-                     static_cast<GLuint>(this->GeometryShaderHandle));
-    }
 // only use GS if supported
 #ifdef GL_GEOMETRY_SHADER
+    if (this->GeometryShaderHandle != 0)
+    {
+      glDetachShader(
+        static_cast<GLuint>(this->Handle), static_cast<GLuint>(this->GeometryShaderHandle));
+    }
     this->GeometryShaderHandle = shader->GetHandle();
+#else
+    this->Error = "Geometry shaders are not supported in this build of VTK";
+    return false;
+#endif
+  }
+  else if (shader->GetType() == vtkShader::Compute)
+  {
+// only use CS if supported
+#ifdef GL_COMPUTE_SHADER
+    if (this->ComputeShaderHandle != 0)
+    {
+      glDetachShader(
+        static_cast<GLuint>(this->Handle), static_cast<GLuint>(this->ComputeShaderHandle));
+    }
+    this->ComputeShaderHandle = shader->GetHandle();
+#else
+    this->Error = "Compute shaders are not supported in this build of VTK";
+    return false;
+#endif
+  }
+  else if (shader->GetType() == vtkShader::TessControl)
+  {
+// only use TCS if supported
+#ifdef GL_TESS_CONTROL_SHADER
+    if (this->TessControlShaderHandle != 0)
+    {
+      glDetachShader(
+        static_cast<GLuint>(this->Handle), static_cast<GLuint>(this->TessControlShaderHandle));
+    }
+    this->TessControlShaderHandle = shader->GetHandle();
+#else
+    this->Error = "Tessellation shaders are not supported in this build of VTK";
+    return false;
+#endif
+  }
+  else if (shader->GetType() == vtkShader::TessEvaluation)
+  {
+// only use TES if supported
+#ifdef GL_TESS_EVALUATION_SHADER
+    if (this->TessEvaluationShaderHandle != 0)
+    {
+      glDetachShader(
+        static_cast<GLuint>(this->Handle), static_cast<GLuint>(this->TessEvaluationShaderHandle));
+    }
+    this->TessEvaluationShaderHandle = shader->GetHandle();
+#else
+    this->Error = "Tessellation shaders are not supported in this build of VTK";
+    return false;
 #endif
   }
   else
@@ -238,13 +298,12 @@ bool vtkShaderProgram::AttachShader(const vtkShader *shader)
     return false;
   }
 
-  glAttachShader(static_cast<GLuint>(this->Handle),
-                 static_cast<GLuint>(shader->GetHandle()));
+  glAttachShader(static_cast<GLuint>(this->Handle), static_cast<GLuint>(shader->GetHandle()));
   this->Linked = false;
   return true;
 }
 
-bool vtkShaderProgram::DetachShader(const vtkShader *shader)
+bool vtkShaderProgram::DetachShader(const vtkShader* shader)
 {
   if (shader->GetHandle() == 0)
   {
@@ -271,8 +330,7 @@ bool vtkShaderProgram::DetachShader(const vtkShader *shader)
       }
       else
       {
-        glDetachShader(static_cast<GLuint>(this->Handle),
-                       static_cast<GLuint>(shader->GetHandle()));
+        glDetachShader(static_cast<GLuint>(this->Handle), static_cast<GLuint>(shader->GetHandle()));
         this->VertexShaderHandle = 0;
         this->Linked = false;
         return true;
@@ -285,14 +343,13 @@ bool vtkShaderProgram::DetachShader(const vtkShader *shader)
       }
       else
       {
-        glDetachShader(static_cast<GLuint>(this->Handle),
-                       static_cast<GLuint>(shader->GetHandle()));
+        glDetachShader(static_cast<GLuint>(this->Handle), static_cast<GLuint>(shader->GetHandle()));
         this->FragmentShaderHandle = 0;
         this->Linked = false;
         return true;
       }
-#ifdef GL_GEOMETRY_SHADER
     case vtkShader::Geometry:
+#ifdef GL_GEOMETRY_SHADER
       if (this->GeometryShaderHandle != shader->GetHandle())
       {
         this->Error = "The supplied shader was not attached to this program.";
@@ -300,12 +357,68 @@ bool vtkShaderProgram::DetachShader(const vtkShader *shader)
       }
       else
       {
-        glDetachShader(static_cast<GLuint>(this->Handle),
-                       static_cast<GLuint>(shader->GetHandle()));
+        glDetachShader(static_cast<GLuint>(this->Handle), static_cast<GLuint>(shader->GetHandle()));
         this->GeometryShaderHandle = 0;
         this->Linked = false;
         return true;
       }
+#else
+      this->Error = "Geometry shaders are not supported in this build of VTK";
+      return false;
+#endif
+    case vtkShader::Compute:
+#ifdef GL_COMPUTE_SHADER
+      if (this->ComputeShaderHandle != shader->GetHandle())
+      {
+        this->Error = "The supplied shader was not attached to this program.";
+        return false;
+      }
+      else
+      {
+        glDetachShader(static_cast<GLuint>(this->Handle), static_cast<GLuint>(shader->GetHandle()));
+        this->ComputeShaderHandle = 0;
+        this->Linked = false;
+        return true;
+      }
+#else
+      this->Error = "Compute shaders are not supported in this build of VTK";
+      return false;
+#endif
+    case vtkShader::TessControl:
+#ifdef GL_TESS_CONTROL_SHADER
+      if (this->TessControlShaderHandle != shader->GetHandle())
+      {
+        this->Error = "The supplied shader was not attached to this program.";
+        return false;
+      }
+      else
+      {
+        glDetachShader(static_cast<GLuint>(this->Handle), static_cast<GLuint>(shader->GetHandle()));
+        this->TessControlShaderHandle = 0;
+        this->Linked = false;
+        return true;
+      }
+#else
+      this->Error = "Tessellation control shaders are not supported in this build of VTK";
+      return false;
+#endif
+    case vtkShader::TessEvaluation:
+#ifdef GL_TESS_EVALUATION_SHADER
+      if (this->TessEvaluationShaderHandle != shader->GetHandle())
+      {
+        this->Error = "The supplied shader was not attached to this program.";
+        return false;
+      }
+      else
+      {
+        glDetachShader(static_cast<GLuint>(this->Handle), static_cast<GLuint>(shader->GetHandle()));
+        this->TessEvaluationShaderHandle = 0;
+        this->Linked = false;
+        return true;
+      }
+#else
+      this->Error = "Tessellation evaluation shaders are not supported in this build of VTK";
+      return false;
 #endif
     case vtkShader::Unknown:
     default:
@@ -317,12 +430,12 @@ void vtkShaderProgram::ClearMaps()
 {
   for (IterT i = this->UniformLocs.begin(); i != this->UniformLocs.end(); ++i)
   {
-    free(const_cast<char *>(i->first));
+    free(const_cast<char*>(i->first));
   }
   this->UniformLocs.clear();
   for (IterT i = this->AttributeLocs.begin(); i != this->AttributeLocs.end(); ++i)
   {
-    free(const_cast<char *>(i->first));
+    free(const_cast<char*>(i->first));
   }
   this->AttributeLocs.clear();
   this->UniformGroupMTimes.clear();
@@ -369,8 +482,7 @@ bool vtkShaderProgram::Link()
       // in vtkOpenGLShaderCache.cxx
       std::ostringstream dst;
       dst << "fragOutput" << i;
-      glBindFragDataLocation(static_cast<GLuint>(this->Handle), i,
-        dst.str().c_str());
+      glBindFragDataLocation(static_cast<GLuint>(this->Handle), i, dst.str().c_str());
     }
   }
 #endif
@@ -384,7 +496,7 @@ bool vtkShaderProgram::Link()
     glGetProgramiv(static_cast<GLuint>(this->Handle), GL_INFO_LOG_LENGTH, &length);
     if (length > 1)
     {
-      char *logMessage = new char[length];
+      char* logMessage = new char[length];
       glGetProgramInfoLog(static_cast<GLuint>(this->Handle), length, nullptr, logMessage);
       this->Error = logMessage;
       delete[] logMessage;
@@ -399,26 +511,43 @@ bool vtkShaderProgram::Bind()
 {
   if (this->FileNamePrefixForDebugging != nullptr && this->FileNamePrefixForDebugging[0] != 0)
   {
-    const char* exts[3] = { "VS.glsl", "FS.glsl", "GS.glsl" };
-    vtkShader* shaders[3] = { this->VertexShader, this->FragmentShader, this->GeometryShader };
-    for (int cc = 0; cc < 3; cc++)
+    const char* exts[5] = {
+      "VS.glsl",
+      "TCS.glsl",
+      "TES.glsl",
+      "GS.glsl",
+      "FS.glsl",
+    };
+    vtkShader* shaders[5] = { this->VertexShader, this->TessControlShader,
+      this->TessEvaluationShader, this->GeometryShader, this->FragmentShader };
+    std::string sources[5] = {};
+    for (int cc = 0; cc < 5; cc++)
     {
+      sources[cc] = shaders[cc]->GetSource();
       std::string fname = this->FileNamePrefixForDebugging;
       fname += exts[cc];
       if (vtksys::SystemTools::FileExists(fname))
       {
-        std::ifstream ifp(fname.c_str());
+        vtksys::ifstream ifp(fname.c_str());
         assert(ifp);
         std::string source((std::istreambuf_iterator<char>(ifp)), std::istreambuf_iterator<char>());
         shaders[cc]->SetSource(source);
       }
       else
       {
-        std::ofstream ofp(fname.c_str());
-        ofp << shaders[cc]->GetSource().c_str();
+        vtksys::ofstream ofp(fname.c_str());
+        ofp << shaders[cc]->GetSource();
       }
     }
-    this->CompileShader();
+    if (!this->CompileShader())
+    {
+      // fallback to previous source code.
+      vtkWarningMacro(<< "Falling back to last working source code");
+      for (int cc = 0; cc < 5; cc++)
+      {
+        shaders[cc]->SetSource(sources[cc]);
+      }
+    }
   }
   if (!this->Linked && !this->Link())
   {
@@ -433,60 +562,75 @@ bool vtkShaderProgram::Bind()
 // return 0 if there is an issue
 int vtkShaderProgram::CompileShader()
 {
-  if (!this->GetVertexShader()->Compile())
+  if (!this->GetVertexShader()->GetSource().empty() && !this->GetVertexShader()->Compile())
   {
-    int lineNum = 1;
-    std::istringstream stream(this->GetVertexShader()->GetSource());
-    std::stringstream sstm;
-    std::string aline;
-    while (std::getline(stream, aline))
-    {
-      sstm << lineNum << ": " << aline << "\n";
-      lineNum++;
-    }
-    vtkErrorMacro(<< sstm.str());
-    vtkErrorMacro(<< this->GetVertexShader()->GetError());
+    this->ReportShaderError(this->GetVertexShader());
     return 0;
   }
-  if (!this->GetFragmentShader()->Compile())
+  if (!this->GetFragmentShader()->GetSource().empty() && !this->GetFragmentShader()->Compile())
   {
-    int lineNum = 1;
-    std::istringstream stream(this->GetFragmentShader()->GetSource());
-    std::stringstream sstm;
-    std::string aline;
-    while (std::getline(stream, aline))
-    {
-      sstm << lineNum << ": " << aline << "\n";
-      lineNum++;
-    }
-    vtkErrorMacro(<< sstm.str());
-    vtkErrorMacro(<< this->GetFragmentShader()->GetError());
+    this->ReportShaderError(this->GetFragmentShader());
     return 0;
   }
-#ifdef GL_GEOMETRY_SHADER
-  if (!this->GetGeometryShader()->GetSource().empty() &&
-      !this->GetGeometryShader()->Compile())
+  if (!this->GetGeometryShader()->GetSource().empty() && !this->GetGeometryShader()->Compile())
   {
-    int lineNum = 1;
-    std::istringstream stream(this->GetGeometryShader()->GetSource());
-    std::stringstream sstm;
-    std::string aline;
-    while (std::getline(stream, aline))
-    {
-      sstm << lineNum << ": " << aline << "\n";
-      lineNum++;
-    }
-    vtkErrorMacro(<< sstm.str());
-    vtkErrorMacro(<< this->GetGeometryShader()->GetError());
+    this->ReportShaderError(this->GetGeometryShader());
     return 0;
   }
   if (!this->GetGeometryShader()->GetSource().empty() &&
-      !this->AttachShader(this->GetGeometryShader()))
+    !this->AttachShader(this->GetGeometryShader()))
   {
     vtkErrorMacro(<< this->GetError());
     return 0;
   }
-#endif
+  if (!this->GetComputeShader()->GetSource().empty())
+  {
+    if (!this->GetComputeShader()->Compile())
+    {
+      this->ReportShaderError(this->GetComputeShader());
+      return 0;
+    }
+    if (!this->AttachShader(this->GetComputeShader()))
+    {
+      vtkErrorMacro(<< this->GetError());
+      return 0;
+    }
+
+    if (!this->Link())
+    {
+      vtkErrorMacro(<< "Links failed: " << this->GetError());
+      return 0;
+    }
+
+    this->Compiled = true;
+    return 1;
+  }
+  if (!this->GetTessControlShader()->GetSource().empty())
+  {
+    if (!this->GetTessControlShader()->Compile())
+    {
+      this->ReportShaderError(this->GetTessControlShader());
+      return 0;
+    }
+    if (!this->AttachShader(this->GetTessControlShader()))
+    {
+      vtkErrorMacro(<< this->GetError());
+      return 0;
+    }
+  }
+  if (!this->GetTessEvaluationShader()->GetSource().empty())
+  {
+    if (!this->GetTessEvaluationShader()->Compile())
+    {
+      this->ReportShaderError(this->GetTessEvaluationShader());
+      return 0;
+    }
+    if (!this->AttachShader(this->GetTessEvaluationShader()))
+    {
+      vtkErrorMacro(<< this->GetError());
+      return 0;
+    }
+  }
   if (!this->AttachShader(this->GetVertexShader()))
   {
     vtkErrorMacro(<< this->GetError());
@@ -520,7 +664,7 @@ void vtkShaderProgram::Release()
   this->Bound = false;
 }
 
-void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow *win)
+void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Release();
 
@@ -529,13 +673,17 @@ void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow *win)
     this->DetachShader(this->VertexShader);
     this->DetachShader(this->FragmentShader);
     this->DetachShader(this->GeometryShader);
+    this->DetachShader(this->TessControlShader);
+    this->DetachShader(this->TessEvaluationShader);
     this->VertexShader->Cleanup();
     this->FragmentShader->Cleanup();
     this->GeometryShader->Cleanup();
+    this->TessControlShader->Cleanup();
+    this->TessEvaluationShader->Cleanup();
     this->Compiled = false;
   }
 
-  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(win);
+  vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(win);
   if (renWin && renWin->GetShaderCache()->GetLastShaderBound() == this)
   {
     renWin->GetShaderCache()->ClearLastShaderBound();
@@ -552,9 +700,10 @@ void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow *win)
   {
     this->TransformFeedback->ReleaseGraphicsResources();
   }
+  this->Modified();
 }
 
-bool vtkShaderProgram::EnableAttributeArray(const char *name)
+bool vtkShaderProgram::EnableAttributeArray(const char* name)
 {
   GLint location = static_cast<GLint>(this->FindAttributeArray(name));
   if (location == -1)
@@ -566,7 +715,7 @@ bool vtkShaderProgram::EnableAttributeArray(const char *name)
   return true;
 }
 
-bool vtkShaderProgram::DisableAttributeArray(const char *name)
+bool vtkShaderProgram::DisableAttributeArray(const char* name)
 {
   GLint location = static_cast<GLint>(this->FindAttributeArray(name));
   if (location == -1)
@@ -578,12 +727,10 @@ bool vtkShaderProgram::DisableAttributeArray(const char *name)
   return true;
 }
 
-#define BUFFER_OFFSET(i) (reinterpret_cast<char *>(i))
+#define BUFFER_OFFSET(i) (reinterpret_cast<char*>(i))
 
-bool vtkShaderProgram::UseAttributeArray(const char *name, int offset,
-                                      size_t stride, int elementType,
-                                      int elementTupleSize,
-                                      NormalizeOption normalize)
+bool vtkShaderProgram::UseAttributeArray(const char* name, int offset, size_t stride,
+  int elementType, int elementTupleSize, NormalizeOption normalize)
 {
   GLint location = static_cast<GLint>(this->FindAttributeArray(name));
   if (location == -1)
@@ -593,12 +740,12 @@ bool vtkShaderProgram::UseAttributeArray(const char *name, int offset,
     return false;
   }
   glVertexAttribPointer(location, elementTupleSize, convertTypeToGL(elementType),
-                        normalize == Normalize ? GL_TRUE : GL_FALSE,
-                        static_cast<GLsizei>(stride), BUFFER_OFFSET(offset));
+    normalize == Normalize ? GL_TRUE : GL_FALSE, static_cast<GLsizei>(stride),
+    BUFFER_OFFSET(offset));
   return true;
 }
 
-bool vtkShaderProgram::SetUniformi(const char *name, int i)
+bool vtkShaderProgram::SetUniformi(const char* name, int i)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -611,7 +758,7 @@ bool vtkShaderProgram::SetUniformi(const char *name, int i)
   return true;
 }
 
-bool vtkShaderProgram::SetUniformf(const char *name, float f)
+bool vtkShaderProgram::SetUniformf(const char* name, float f)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -624,8 +771,7 @@ bool vtkShaderProgram::SetUniformf(const char *name, float f)
   return true;
 }
 
-bool vtkShaderProgram::SetUniformMatrix(const char *name,
-                                    vtkMatrix4x4 *matrix)
+bool vtkShaderProgram::SetUniformMatrix(const char* name, vtkMatrix4x4* matrix)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -643,8 +789,7 @@ bool vtkShaderProgram::SetUniformMatrix(const char *name,
   return true;
 }
 
-bool vtkShaderProgram::SetUniformMatrix3x3(const char *name,
-                                           float *matrix)
+bool vtkShaderProgram::SetUniformMatrix3x3(const char* name, float* matrix)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -657,16 +802,12 @@ bool vtkShaderProgram::SetUniformMatrix3x3(const char *name,
   return true;
 }
 
-bool vtkShaderProgram::SetUniformMatrix4x4(const char *name,
-                                           float *matrix)
+bool vtkShaderProgram::SetUniformMatrix4x4(const char* name, float* matrix)
 {
-  return this->SetUniformMatrix4x4v(name,1,matrix);
+  return this->SetUniformMatrix4x4v(name, 1, matrix);
 }
 
-bool vtkShaderProgram::SetUniformMatrix4x4v(
-  const char *name,
-  const int count,
-  float *matrix)
+bool vtkShaderProgram::SetUniformMatrix4x4v(const char* name, int count, float* matrix)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -679,8 +820,7 @@ bool vtkShaderProgram::SetUniformMatrix4x4v(
   return true;
 }
 
-bool vtkShaderProgram::SetUniformMatrix(const char *name,
-                                    vtkMatrix3x3 *matrix)
+bool vtkShaderProgram::SetUniformMatrix(const char* name, vtkMatrix3x3* matrix)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -698,8 +838,7 @@ bool vtkShaderProgram::SetUniformMatrix(const char *name,
   return true;
 }
 
-bool vtkShaderProgram::SetUniform1fv(const char *name, const int count,
-                                    const float *v)
+bool vtkShaderProgram::SetUniform1fv(const char* name, int count, const float* v)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -708,12 +847,11 @@ bool vtkShaderProgram::SetUniform1fv(const char *name, const int count,
     this->Error += name;
     return false;
   }
-  glUniform1fv(location, count, static_cast<const GLfloat *>(v));
+  glUniform1fv(location, count, static_cast<const GLfloat*>(v));
   return true;
 }
 
-bool vtkShaderProgram::SetUniform1iv(const char *name, const int count,
-                                    const int *v)
+bool vtkShaderProgram::SetUniform1iv(const char* name, int count, const int* v)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -722,12 +860,11 @@ bool vtkShaderProgram::SetUniform1iv(const char *name, const int count,
     this->Error += name;
     return false;
   }
-  glUniform1iv(location, count, static_cast<const GLint *>(v));
+  glUniform1iv(location, count, static_cast<const GLint*>(v));
   return true;
 }
 
-bool vtkShaderProgram::SetUniform3fv(const char *name, const int count,
-                                    const float *f)
+bool vtkShaderProgram::SetUniform3fv(const char* name, int count, const float* f)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -736,12 +873,11 @@ bool vtkShaderProgram::SetUniform3fv(const char *name, const int count,
     this->Error += name;
     return false;
   }
-  glUniform3fv(location, count, (const GLfloat *)f);
+  glUniform3fv(location, count, (const GLfloat*)f);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform3fv(const char *name, const int count,
-                                    const float (*v)[3])
+bool vtkShaderProgram::SetUniform3fv(const char* name, int count, const float (*v)[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -750,12 +886,11 @@ bool vtkShaderProgram::SetUniform3fv(const char *name, const int count,
     this->Error += name;
     return false;
   }
-  glUniform3fv(location, count, (const GLfloat *)v);
+  glUniform3fv(location, count, (const GLfloat*)v);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform4fv(const char *name, const int count,
-                                    const float *f)
+bool vtkShaderProgram::SetUniform4fv(const char* name, int count, const float* f)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -764,12 +899,11 @@ bool vtkShaderProgram::SetUniform4fv(const char *name, const int count,
     this->Error += name;
     return false;
   }
-  glUniform4fv(location, count, (const GLfloat *)f);
+  glUniform4fv(location, count, (const GLfloat*)f);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform4fv(const char *name, const int count,
-                                    const float (*v)[4])
+bool vtkShaderProgram::SetUniform4fv(const char* name, int count, const float (*v)[4])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -778,11 +912,11 @@ bool vtkShaderProgram::SetUniform4fv(const char *name, const int count,
     this->Error += name;
     return false;
   }
-  glUniform4fv(location, count, (const GLfloat *)v);
+  glUniform4fv(location, count, (const GLfloat*)v);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform2f(const char *name, const float v[2])
+bool vtkShaderProgram::SetUniform2f(const char* name, const float v[2])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -795,8 +929,7 @@ bool vtkShaderProgram::SetUniform2f(const char *name, const float v[2])
   return true;
 }
 
-bool vtkShaderProgram::SetUniform2fv(const char *name, const int count,
-                                    const float *f)
+bool vtkShaderProgram::SetUniform2fv(const char* name, int count, const float* f)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -805,12 +938,11 @@ bool vtkShaderProgram::SetUniform2fv(const char *name, const int count,
     this->Error += name;
     return false;
   }
-  glUniform2fv(location, count, (const GLfloat *)f);
+  glUniform2fv(location, count, (const GLfloat*)f);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform2fv(const char *name, const int count,
-                                    const float (*f)[2])
+bool vtkShaderProgram::SetUniform2fv(const char* name, int count, const float (*f)[2])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -819,11 +951,11 @@ bool vtkShaderProgram::SetUniform2fv(const char *name, const int count,
     this->Error += name;
     return false;
   }
-  glUniform2fv(location, count, (const GLfloat *)f);
+  glUniform2fv(location, count, (const GLfloat*)f);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform3f(const char *name, const float v[3])
+bool vtkShaderProgram::SetUniform3f(const char* name, const float v[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -836,7 +968,7 @@ bool vtkShaderProgram::SetUniform3f(const char *name, const float v[3])
   return true;
 }
 
-bool vtkShaderProgram::SetUniform3f(const char *name, const double v[3])
+bool vtkShaderProgram::SetUniform3f(const char* name, const double v[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -846,17 +978,13 @@ bool vtkShaderProgram::SetUniform3f(const char *name, const double v[3])
     return false;
   }
 
-  float tmp[3] = {
-    static_cast<float>(v[0]),
-    static_cast<float>(v[1]),
-    static_cast<float>(v[2])
-  };
+  float tmp[3] = { static_cast<float>(v[0]), static_cast<float>(v[1]), static_cast<float>(v[2]) };
 
   glUniform3fv(location, 1, tmp);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform4f(const char *name, const float v[4])
+bool vtkShaderProgram::SetUniform4f(const char* name, const float v[4])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -869,7 +997,7 @@ bool vtkShaderProgram::SetUniform4f(const char *name, const float v[4])
   return true;
 }
 
-bool vtkShaderProgram::SetUniform2i(const char *name, const int v[2])
+bool vtkShaderProgram::SetUniform2i(const char* name, const int v[2])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -882,8 +1010,7 @@ bool vtkShaderProgram::SetUniform2i(const char *name, const int v[2])
   return true;
 }
 
-bool vtkShaderProgram::SetUniform3uc(const char *name,
-                                    const unsigned char v[3])
+bool vtkShaderProgram::SetUniform3uc(const char* name, const unsigned char v[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -892,13 +1019,12 @@ bool vtkShaderProgram::SetUniform3uc(const char *name,
     this->Error += name;
     return false;
   }
-  float colorf[3] = {v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f};
+  float colorf[3] = { v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f };
   glUniform3fv(location, 1, colorf);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform4uc(const char *name,
-                                    const unsigned char v[4])
+bool vtkShaderProgram::SetUniform4uc(const char* name, const unsigned char v[4])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -907,14 +1033,13 @@ bool vtkShaderProgram::SetUniform4uc(const char *name,
     this->Error += name;
     return false;
   }
-  float colorf[4] = {v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f, v[3] / 255.0f};
+  float colorf[4] = { v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f, v[3] / 255.0f };
   glUniform4fv(location, 1, colorf);
   return true;
 }
 
-bool vtkShaderProgram::SetAttributeArrayInternal(
-    const char *name, void *buffer, int type, int tupleSize,
-    vtkShaderProgram::NormalizeOption normalize)
+bool vtkShaderProgram::SetAttributeArrayInternal(const char* name, void* buffer, int type,
+  int tupleSize, vtkShaderProgram::NormalizeOption normalize)
 {
   if (type == -1)
   {
@@ -929,13 +1054,13 @@ bool vtkShaderProgram::SetAttributeArrayInternal(
     this->Error += name;
     return false;
   }
-  const GLvoid *data = static_cast<const GLvoid *>(buffer);
+  const GLvoid* data = static_cast<const GLvoid*>(buffer);
   glVertexAttribPointer(location, tupleSize, convertTypeToGL(type),
-                        normalize == Normalize ? GL_TRUE : GL_FALSE, 0, data);
+    normalize == Normalize ? GL_TRUE : GL_FALSE, 0, data);
   return true;
 }
 
-int vtkShaderProgram::FindAttributeArray(const char *cname)
+int vtkShaderProgram::FindAttributeArray(const char* cname)
 {
   if (cname == nullptr || !this->Linked)
   {
@@ -947,9 +1072,8 @@ int vtkShaderProgram::FindAttributeArray(const char *cname)
   IterT iter = this->AttributeLocs.find(cname);
   if (iter == this->AttributeLocs.end())
   {
-    loc = glGetAttribLocation(static_cast<GLuint>(Handle),
-                              static_cast<const GLchar *>(cname));
-    const char *allocStr = strdup(cname);
+    loc = glGetAttribLocation(static_cast<GLuint>(Handle), static_cast<const GLchar*>(cname));
+    const char* allocStr = strdup(cname);
     this->AttributeLocs.insert(std::make_pair(allocStr, static_cast<int>(loc)));
   }
   else
@@ -959,7 +1083,7 @@ int vtkShaderProgram::FindAttributeArray(const char *cname)
   return loc;
 }
 
-int vtkShaderProgram::FindUniform(const char *cname)
+int vtkShaderProgram::FindUniform(const char* cname)
 {
   if (cname == nullptr || !this->Linked)
   {
@@ -971,9 +1095,8 @@ int vtkShaderProgram::FindUniform(const char *cname)
   IterT iter = this->UniformLocs.find(cname);
   if (iter == this->UniformLocs.end())
   {
-    loc = static_cast<int>(glGetUniformLocation(static_cast<GLuint>(Handle),
-                                                (const GLchar *)cname));
-    const char *allocStr = strdup(cname);
+    loc = static_cast<int>(glGetUniformLocation(static_cast<GLuint>(Handle), (const GLchar*)cname));
+    const char* allocStr = strdup(cname);
     this->UniformLocs.insert(std::make_pair(allocStr, static_cast<int>(loc)));
   }
   else
@@ -983,7 +1106,7 @@ int vtkShaderProgram::FindUniform(const char *cname)
   return loc;
 }
 
-bool vtkShaderProgram::IsUniformUsed(const char *cname)
+bool vtkShaderProgram::IsUniformUsed(const char* cname)
 {
   int result = this->FindUniform(cname);
 
@@ -994,8 +1117,8 @@ bool vtkShaderProgram::IsUniformUsed(const char *cname)
   return (result != -1);
 }
 
-// ----------------------------------------------------------------------------
-bool vtkShaderProgram::IsAttributeUsed(const char *cname)
+//------------------------------------------------------------------------------
+bool vtkShaderProgram::IsAttributeUsed(const char* cname)
 {
   int result = this->FindAttributeArray(cname);
 
@@ -1006,10 +1129,27 @@ bool vtkShaderProgram::IsAttributeUsed(const char *cname)
   return (result != -1);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkShaderProgram::ReportShaderError(vtkShader* shader)
+{
+  int lineNum = 1;
+  std::istringstream stream(shader->GetSource());
+  std::stringstream sstm;
+  std::string aline;
+  while (std::getline(stream, aline))
+  {
+    sstm << lineNum << ": " << aline << "\n";
+    lineNum++;
+  }
+  vtkErrorMacro(<< sstm.str());
+  vtkErrorMacro(<< shader->GetError());
+}
+
+//------------------------------------------------------------------------------
 void vtkShaderProgram::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "FileNamePrefixForDebugging: "
      << (this->FileNamePrefixForDebugging ? this->FileNamePrefixForDebugging : "(null)") << endl;
 }
+VTK_ABI_NAMESPACE_END

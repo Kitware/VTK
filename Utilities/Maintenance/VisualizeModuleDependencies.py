@@ -12,7 +12,26 @@ Typical usage would be as follows:
 
 import os, sys
 from collections import defaultdict
-import vtk
+from vtkmodules.vtkCommonCore import vtkStringArray
+from vtkmodules.vtkCommonDataModel import vtkMutableDirectedGraph
+from vtkmodules.vtkFiltersCore import vtkGlyph3D
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkGraphToPolyData,
+)
+from vtkmodules.vtkInfovisLayout import (
+    vtkGraphLayout,
+    vtkSimple2DLayoutStrategy,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+)
+from vtkmodules.vtkViewsCore import vtkViewTheme
+from vtkmodules.vtkViewsInfovis import vtkGraphLayoutView
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 def GetProgramParameters():
     import argparse
@@ -38,25 +57,6 @@ def GetProgramParameters():
     vtkSourceDir = args.vtkSourceDir
     moduleList = [x.strip() for x in args.moduleList.split(',')]
     moduleTreeDepth = args.moduleTreeDepth
-    return (vtkSourceDir, moduleList, moduleTreeDepth)
-
-def GetProgramParametersOld():
-    '''
-    Used for Python versions < 2.7
-    '''
-    if len(sys.argv) < 3:
-        s = 'Usage: ' + sys.argv[0] + ' vtkSourceDir moduleList [moduleTreeDepth]'
-        print(s)
-        exit(0)
-    args = dict()
-    args['vtkSourceDir'] = sys.argv[1]
-    args['moduleList'] = sys.argv[2]
-    args['moduleTreeDepth'] = 0
-    if len(sys.argv) > 3:
-        args['moduleTreeDepth'] = int(sys.argv[3])
-    vtkSourceDir = args['vtkSourceDir']
-    moduleList = [x.strip() for x in args['moduleList'].split(',')]
-    moduleTreeDepth = args['moduleTreeDepth']
     return (vtkSourceDir, moduleList, moduleTreeDepth)
 
 def FindModuleFiles(path):
@@ -213,9 +213,9 @@ def GenerateVTKGraph(graph):
     Take the vertices and edge list in the graph parameter
     and return a VTK graph.
     '''
-    g = vtk.vtkMutableDirectedGraph()
+    g = vtkMutableDirectedGraph()
     # Label the vertices
-    labels = vtk.vtkStringArray()
+    labels = vtkStringArray()
     labels.SetNumberOfComponents(1)
     labels.SetName("Labels")
 
@@ -240,20 +240,20 @@ def DisplayGraph(graph):
     '''
     Display the graph.
     '''
-    theme = vtk.vtkViewTheme()
+    theme = vtkViewTheme()
     theme.SetBackgroundColor(0, 0, .1)
     theme.SetBackgroundColor2(0, 0, .5)
 
     # Layout the graph
     # Pick a strategy you like.
     # strategy = vtk.vtkCircularLayoutStrategy()
-    strategy = vtk.vtkSimple2DLayoutStrategy()
+    strategy = vtkSimple2DLayoutStrategy()
     # strategy = vtk.vtkRandomLayoutStrategy()
-    layout = vtk.vtkGraphLayout()
+    layout = vtkGraphLayout()
     layout.SetLayoutStrategy(strategy)
     layout.SetInputData(graph)
 
-    view = vtk.vtkGraphLayoutView()
+    view = vtkGraphLayoutView()
     view.AddRepresentationFromInputConnection(layout.GetOutputPort())
     # Tell the view to use the vertex layout we provide.
     view.SetLayoutStrategyToPassThrough()
@@ -264,7 +264,7 @@ def DisplayGraph(graph):
 
     # Manually create an actor containing the glyphed arrows.
     # Get the edge geometry
-    edgeGeom = vtk.vtkGraphToPolyData()
+    edgeGeom = vtkGraphToPolyData()
     edgeGeom.SetInputConnection(layout.GetOutputPort())
     edgeGeom.EdgeGlyphOutputOn()
 
@@ -278,21 +278,21 @@ def DisplayGraph(graph):
 #        arrowSource.SetGlyphTypeToEdgeArrow()
 #        arrowSource.SetScale(0.075)
     # Or use a cone.
-    coneSource = vtk.vtkConeSource()
+    coneSource = vtkConeSource()
     coneSource.SetRadius(0.025)
     coneSource.SetHeight(0.1)
     coneSource.SetResolution(12)
 
     # Use Glyph3D to repeat the glyph on all edges.
-    arrowGlyph = vtk.vtkGlyph3D()
+    arrowGlyph = vtkGlyph3D()
     arrowGlyph.SetInputConnection(0, edgeGeom.GetOutputPort(1))
 #        arrowGlyph.SetInputConnection(1, arrowSource.GetOutputPort())
     arrowGlyph.SetInputConnection(1, coneSource.GetOutputPort())
 
     # Add the edge arrow actor to the view.
-    arrowMapper = vtk.vtkPolyDataMapper()
+    arrowMapper = vtkPolyDataMapper()
     arrowMapper.SetInputConnection(arrowGlyph.GetOutputPort())
-    arrowActor = vtk.vtkActor()
+    arrowActor = vtkActor()
     arrowActor.SetMapper(arrowMapper)
     view.GetRenderer().AddActor(arrowActor)
 
@@ -304,12 +304,7 @@ def DisplayGraph(graph):
     view.GetInteractor().Start()
 
 def main():
-    ver = list(sys.version_info[0:2])
-    ver = ver[0] + ver[1] / 10.0
-    if ver >= 2.7:
-        vtkSourceDir, moduleList, moduleTreeDepth = GetProgramParameters()
-    else:
-        vtkSourceDir, moduleList, moduleTreeDepth = GetProgramParametersOld()
+    vtkSourceDir, moduleList, moduleTreeDepth = GetProgramParameters()
 
     # Parse the module files making a dictionary of each module and its
     # dependencies or what it implements.

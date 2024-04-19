@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMarchingCubesTriangleCases.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef vtkMarchingCubesTriangleCases_h
 #define vtkMarchingCubesTriangleCases_h
 //
@@ -20,12 +8,13 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
-typedef int EDGE_LIST;
+VTK_ABI_NAMESPACE_BEGIN
 struct VTKCOMMONDATAMODEL_EXPORT vtkMarchingCubesTriangleCases
 {
-  EDGE_LIST edges[16];
+  int edges[16];
   static vtkMarchingCubesTriangleCases* GetCases();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkMarchingCubesTriangleCases.h

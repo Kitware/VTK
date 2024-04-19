@@ -1,39 +1,55 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkCone,
+    vtkImplicitSum,
+    vtkSphere,
+)
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This example demonstrates adding two implicit models
 # to produce an (unexpected!) result
 # first we load in the standard vtk packages into tcl
-geomObject1 = vtk.vtkCone()
-geomObject2 = vtk.vtkSphere()
+geomObject1 = vtkCone()
+geomObject2 = vtkSphere()
 geomObject2.SetRadius(0.5)
 geomObject2.SetCenter(0.5,0,0)
-sum = vtk.vtkImplicitSum()
+sum = vtkImplicitSum()
 sum.SetNormalizeByWeight(1)
 sum.AddFunction(geomObject1,2)
 sum.AddFunction(geomObject2,1)
-sample = vtk.vtkSampleFunction()
+sample = vtkSampleFunction()
 sample.SetImplicitFunction(sum)
 sample.SetSampleDimensions(60,60,60)
 sample.ComputeNormalsOn()
-surface = vtk.vtkContourFilter()
+surface = vtkContourFilter()
 surface.SetInputConnection(sample.GetOutputPort())
 surface.SetValue(0,0.0)
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(surface.GetOutputPort())
 mapper.ScalarVisibilityOff()
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetDiffuseColor(0.2,0.4,0.6)
 actor.GetProperty().SetSpecular(0.4)
 actor.GetProperty().SetDiffuse(0.7)
 actor.GetProperty().SetSpecularPower(40)
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

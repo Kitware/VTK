@@ -1,22 +1,9 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWebGLDataSet.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWebGLDataSet
- *
- * vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
-*/
+ * @brief   vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
+ */
 
 #ifndef vtkWebGLDataSet_h
 #define vtkWebGLDataSet_h
@@ -25,21 +12,22 @@
 #include "vtkWebGLExporterModule.h" // needed for export macro
 
 #include "vtkWebGLObject.h" // Needed for the enum
-#include <string> // needed for md5
+#include <string>           // needed for md5
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKWEBGLEXPORTER_EXPORT vtkWebGLDataSet : public vtkObject
 {
 public:
   static vtkWebGLDataSet* New();
-  vtkTypeMacro(vtkWebGLDataSet, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkWebGLDataSet, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetVertices(float* v, int size);
   void SetIndexes(short* i, int size);
   void SetNormals(float* n);
   void SetColors(unsigned char* c);
   void SetPoints(float* p, int size);
-  void SetTCoords(float *t);
+  void SetTCoords(float* t);
   void SetMatrix(float* m);
   void SetType(WebGLObjectTypes t);
 
@@ -66,8 +54,8 @@ protected:
   float* points;
   float* tcoords;
   unsigned char* colors;
-  unsigned char* binary;   // Data in binary
-  int binarySize;          // Size of the data in binary
+  unsigned char* binary; // Data in binary
+  int binarySize;        // Size of the data in binary
   bool hasChanged;
   std::string MD5;
 
@@ -76,4 +64,5 @@ private:
   void operator=(const vtkWebGLDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPResampleToImage.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPResampleToImage
  * @brief   sample dataset on a uniform grid in parallel
@@ -20,7 +8,7 @@
  * a uniform grid. It internally uses vtkProbeFilter to do the probing.
  * @sa
  * vtkResampleToImage vtkProbeFilter
-*/
+ */
 
 #ifndef vtkPResampleToImage_h
 #define vtkPResampleToImage_h
@@ -28,6 +16,7 @@
 #include "vtkFiltersParallelDIY2Module.h" // For export macro
 #include "vtkResampleToImage.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkImageData;
 class vtkMultiProcessController;
@@ -38,29 +27,29 @@ public:
   vtkTypeMacro(vtkPResampleToImage, vtkResampleToImage);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPResampleToImage *New();
+  static vtkPResampleToImage* New();
 
-  //@{
+  ///@{
   /**
    * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   vtkPResampleToImage();
-  ~vtkPResampleToImage();
+  ~vtkPResampleToImage() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkMultiProcessController *Controller;
+  vtkMultiProcessController* Controller;
 
 private:
   vtkPResampleToImage(const vtkPResampleToImage&) = delete;
   void operator=(const vtkPResampleToImage&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -2,4 +2,4 @@
 
 __all__ = ['colors', 'misc', 'vtkConstants', 'vtkImageExportToArray',
            'vtkImageImportFromArray', 'vtkMethodParser', 'vtkVariant',
-           'numpy_support']
+           'numpy_support', 'pickle_support']

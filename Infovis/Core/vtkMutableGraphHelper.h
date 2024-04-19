@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMutableGraphHelper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMutableGraphHelper
  * @brief   Helper class for building a directed or
@@ -29,15 +14,16 @@
  *
  * @sa
  * vtkGraph vtkMutableDirectedGraph vtkMutableUndirectedGraph
-*/
+ */
 
 #ifndef vtkMutableGraphHelper_h
 #define vtkMutableGraphHelper_h
 
+#include "vtkGraph.h"             // For vtkEdgeType
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkGraph.h" // For vtkEdgeType
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkGraph;
 class vtkGraphEdge;
@@ -47,11 +33,11 @@ class vtkMutableUndirectedGraph;
 class VTKINFOVISCORE_EXPORT vtkMutableGraphHelper : public vtkObject
 {
 public:
-  static vtkMutableGraphHelper *New();
+  static vtkMutableGraphHelper* New();
   vtkTypeMacro(vtkMutableGraphHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the underlying graph that you want to modify with this helper.
    * The graph must be an instance of vtkMutableDirectedGraph or
@@ -59,7 +45,7 @@ public:
    */
   void SetGraph(vtkGraph* g);
   vtkGraph* GetGraph();
-  //@}
+  ///@}
 
   /**
    * Add an edge to the underlying mutable graph.
@@ -111,4 +97,5 @@ private:
   void operator=(const vtkMutableGraphHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

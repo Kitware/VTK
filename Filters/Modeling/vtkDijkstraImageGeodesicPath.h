@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDijkstraImageGeodesicPath.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDijkstraImageGeodesicPath
  * @brief   Dijkstra algorithm to compute the graph geodesic.
@@ -45,83 +33,81 @@
  *
  * @par Thanks:
  * The class was contributed by Dean Inglis.
-*/
+ */
 
 #ifndef vtkDijkstraImageGeodesicPath_h
 #define vtkDijkstraImageGeodesicPath_h
 
-#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDijkstraGraphGeodesicPath.h"
+#include "vtkFiltersModelingModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
-class VTKFILTERSMODELING_EXPORT vtkDijkstraImageGeodesicPath :
-                           public vtkDijkstraGraphGeodesicPath
+class VTKFILTERSMODELING_EXPORT vtkDijkstraImageGeodesicPath : public vtkDijkstraGraphGeodesicPath
 {
 public:
-
   /**
    * Instantiate the class
    */
-  static vtkDijkstraImageGeodesicPath *New();
+  static vtkDijkstraImageGeodesicPath* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for printing and determining type information.
    */
-  vtkTypeMacro( vtkDijkstraImageGeodesicPath, vtkDijkstraGraphGeodesicPath );
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
-  //@}
+  vtkTypeMacro(vtkDijkstraImageGeodesicPath, vtkDijkstraGraphGeodesicPath);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the image object which is used as a cost function.
    */
-  void SetInputData( vtkDataObject* );
+  void SetInputData(vtkDataObject*);
   vtkImageData* GetInputAsImageData();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Image cost weight.
    */
-  void SetImageWeight( double );
-  vtkGetMacro( ImageWeight, double );
-  //@}
+  void SetImageWeight(double);
+  vtkGetMacro(ImageWeight, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Edge length cost weight.
    */
-  void SetEdgeLengthWeight( double );
-  vtkGetMacro( EdgeLengthWeight, double );
-  //@}
+  void SetEdgeLengthWeight(double);
+  vtkGetMacro(EdgeLengthWeight, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Curvature cost weight.
    */
-  vtkSetClampMacro( CurvatureWeight, double, 0.0, 1.0 );
-  vtkGetMacro( CurvatureWeight, double );
-  //@}
+  vtkSetClampMacro(CurvatureWeight, double, 0.0, 1.0);
+  vtkGetMacro(CurvatureWeight, double);
+  ///@}
 
 protected:
   vtkDijkstraImageGeodesicPath();
   ~vtkDijkstraImageGeodesicPath() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Build a graph description of the image
-  void BuildAdjacency( vtkDataSet *inData ) override;
+  void BuildAdjacency(vtkDataSet* inData) override;
 
   // Update static costs without rebuilding adjacencyh when static weights change
-  void UpdateStaticCosts( vtkImageData *image );
+  void UpdateStaticCosts(vtkImageData* image);
 
   // Override parent class methods.
-  double CalculateStaticEdgeCost( vtkDataSet *inData , vtkIdType u, vtkIdType v) override;
-  double CalculateDynamicEdgeCost( vtkDataSet *inData , vtkIdType u, vtkIdType v) override;
+  double CalculateStaticEdgeCost(vtkDataSet* inData, vtkIdType u, vtkIdType v) override;
+  double CalculateDynamicEdgeCost(vtkDataSet* inData, vtkIdType u, vtkIdType v) override;
 
   double PixelSize;
   double ImageWeight;
@@ -132,8 +118,7 @@ protected:
 private:
   vtkDijkstraImageGeodesicPath(const vtkDijkstraImageGeodesicPath&) = delete;
   void operator=(const vtkDijkstraImageGeodesicPath&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

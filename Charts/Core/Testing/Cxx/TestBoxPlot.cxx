@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestBoxPlot.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAxis.h"
 #include "vtkChartBox.h"
@@ -22,14 +10,14 @@
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPlotBox.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-//----------------------------------------------------------------------------
-int TestBoxPlot(int , char* [])
+//------------------------------------------------------------------------------
+int TestBoxPlot(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -59,11 +47,11 @@ int TestBoxPlot(int , char* [])
   const double scale = 1e02;
   for (int i = 0; i < numParam; i++)
   {
-    inputBoxPlotTable->SetValue(0, i, (i/2) * scale); //Q0
-    inputBoxPlotTable->SetValue(1, i, (2*i + 2 - i) * scale); //Q1
-    inputBoxPlotTable->SetValue(2, i, (2*i + 4) * scale); //Q2
-    inputBoxPlotTable->SetValue(3, i, (2*i + 7) * scale); //Q3
-    inputBoxPlotTable->SetValue(4, i, (2*i + 8) * scale); //Q4
+    inputBoxPlotTable->SetValue(0, i, (i / 2) * scale);         // Q0
+    inputBoxPlotTable->SetValue(1, i, (2 * i + 2 - i) * scale); // Q1
+    inputBoxPlotTable->SetValue(2, i, (2 * i + 4) * scale);     // Q2
+    inputBoxPlotTable->SetValue(3, i, (2 * i + 7) * scale);     // Q3
+    inputBoxPlotTable->SetValue(4, i, (2 * i + 8) * scale);     // Q4
   }
 
   vtkNew<vtkLookupTable> lookup;
@@ -88,7 +76,7 @@ int TestBoxPlot(int , char* [])
   labels->SetValue(4, "Param 4");
   chart->GetPlot(0)->SetLabels(labels);
 
-  // Manually change the color of one serie
+  // Manually change the color of one series
   double rgb[3] = { 0.5, 0.5, 0.5 };
   vtkPlotBox::SafeDownCast(chart->GetPlot(0))->SetColumnColor("P1", rgb);
 

@@ -1,22 +1,30 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkImagingGeneral import (
+    vtkImageGradient,
+    vtkImageNormalize,
+)
+from vtkmodules.vtkImagingSources import vtkImageSinusoidSource
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This script is for testing the normalize filter.
 # Image pipeline
-cos = vtk.vtkImageSinusoidSource()
+cos = vtkImageSinusoidSource()
 cos.SetWholeExtent(0,225,0,225,0,20)
 cos.SetAmplitude(250)
 cos.SetDirection(1,1,1)
 cos.SetPeriod(20)
 cos.ReleaseDataFlagOff()
-gradient = vtk.vtkImageGradient()
+gradient = vtkImageGradient()
 gradient.SetInputConnection(cos.GetOutputPort())
 gradient.SetDimensionality(3)
-norm = vtk.vtkImageNormalize()
+norm = vtkImageNormalize()
 norm.SetInputConnection(gradient.GetOutputPort())
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 #viewer DebugOn
 viewer.SetInputConnection(norm.GetOutputPort())
 viewer.SetZSlice(10)

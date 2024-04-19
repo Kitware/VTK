@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSynchronizedRenderers.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSynchronizedRenderers.h"
 
 #include "vtkBoundingBox.h"
@@ -38,7 +26,8 @@
 
 #include <cassert>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSynchronizedRenderers::vtkObserver : public vtkCommand
 {
 public:
@@ -49,23 +38,23 @@ public:
     return obs;
   }
 
-  void Execute(vtkObject *, unsigned long eventId, void *) override
+  void Execute(vtkObject*, unsigned long eventId, void*) override
   {
     if (this->Target && this->Target->GetAutomaticEventHandling())
     {
       switch (eventId)
       {
-      case vtkCommand::StartEvent:
-        this->Target->HandleStartRender();
-        break;
+        case vtkCommand::StartEvent:
+          this->Target->HandleStartRender();
+          break;
 
-      case vtkCommand::EndEvent:
-        this->Target->HandleEndRender();
-        break;
+        case vtkCommand::EndEvent:
+          this->Target->HandleEndRender();
+          break;
 
-      case vtkCommand::AbortCheckEvent:
-        this->Target->HandleAbortRender();
-        break;
+        case vtkCommand::AbortCheckEvent:
+          this->Target->HandleAbortRender();
+          break;
       }
     }
   }
@@ -74,11 +63,9 @@ public:
 };
 
 vtkStandardNewMacro(vtkSynchronizedRenderers);
-vtkCxxSetObjectMacro(vtkSynchronizedRenderers, ParallelController,
-  vtkMultiProcessController);
-vtkCxxSetObjectMacro(vtkSynchronizedRenderers, CaptureDelegate,
-  vtkSynchronizedRenderers);
-//----------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkSynchronizedRenderers, ParallelController, vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkSynchronizedRenderers, CaptureDelegate, vtkSynchronizedRenderers);
+//------------------------------------------------------------------------------
 vtkSynchronizedRenderers::vtkSynchronizedRenderers()
   : LastBackground{ 0, 0, 0 }
   , LastBackgroundAlpha(0)
@@ -104,7 +91,7 @@ vtkSynchronizedRenderers::vtkSynchronizedRenderers()
   this->AutomaticEventHandling = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSynchronizedRenderers::~vtkSynchronizedRenderers()
 {
   this->SetCaptureDelegate(nullptr);
@@ -124,10 +111,10 @@ vtkSynchronizedRenderers::~vtkSynchronizedRenderers()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::SetRenderer(vtkRenderer* renderer)
 {
-  if (this->Renderer  != renderer)
+  if (this->Renderer != renderer)
   {
     if (this->Renderer)
     {
@@ -135,12 +122,12 @@ void vtkSynchronizedRenderers::SetRenderer(vtkRenderer* renderer)
     }
 
     // The renderer should be OpenGL ...
-    vtkOpenGLRenderer *glRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+    vtkOpenGLRenderer* glRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
 
-    if(renderer && !glRenderer)
+    if (renderer && !glRenderer)
     {
-        vtkErrorMacro("Received non OpenGL renderer");
-        assert(false);
+      vtkErrorMacro("Received non OpenGL renderer");
+      assert(false);
     }
 
     vtkSetObjectBodyMacro(Renderer, vtkOpenGLRenderer, glRenderer);
@@ -153,14 +140,12 @@ void vtkSynchronizedRenderers::SetRenderer(vtkRenderer* renderer)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::HandleStartRender()
 {
-  if (!this->Renderer || !this->ParallelRendering ||
-    !this->ParallelController)
+  if (!this->Renderer || !this->ParallelRendering || !this->ParallelController)
   {
-    if (this->CaptureDelegate &&
-      this->CaptureDelegate->GetAutomaticEventHandling() == false)
+    if (this->CaptureDelegate && !this->CaptureDelegate->GetAutomaticEventHandling())
     {
       this->CaptureDelegate->HandleStartRender();
     }
@@ -199,21 +184,19 @@ void vtkSynchronizedRenderers::HandleStartRender()
   this->Renderer->GetViewport(this->LastViewport);
   if (this->ImageReductionFactor > 1)
   {
-    this->Renderer->SetViewport(
-      this->LastViewport[0]/this->ImageReductionFactor,
-      this->LastViewport[1]/this->ImageReductionFactor,
-      this->LastViewport[2]/this->ImageReductionFactor,
-      this->LastViewport[3]/this->ImageReductionFactor);
+    this->Renderer->SetViewport(this->LastViewport[0] / this->ImageReductionFactor,
+      this->LastViewport[1] / this->ImageReductionFactor,
+      this->LastViewport[2] / this->ImageReductionFactor,
+      this->LastViewport[3] / this->ImageReductionFactor);
   }
 
-  if (this->CaptureDelegate &&
-    this->CaptureDelegate->GetAutomaticEventHandling() == false)
+  if (this->CaptureDelegate && !this->CaptureDelegate->GetAutomaticEventHandling())
   {
     this->CaptureDelegate->HandleStartRender();
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::MasterStartRender()
 {
   RendererInfo renInfo;
@@ -225,7 +208,7 @@ void vtkSynchronizedRenderers::MasterStartRender()
   this->ParallelController->Broadcast(stream, this->RootProcessId);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::SlaveStartRender()
 {
   vtkMultiProcessStream stream;
@@ -237,17 +220,15 @@ void vtkSynchronizedRenderers::SlaveStartRender()
   this->SetImageReductionFactor(renInfo.ImageReductionFactor);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::HandleEndRender()
 {
-  if (this->CaptureDelegate &&
-    this->CaptureDelegate->GetAutomaticEventHandling() == false)
+  if (this->CaptureDelegate && !this->CaptureDelegate->GetAutomaticEventHandling())
   {
     this->CaptureDelegate->HandleEndRender();
   }
 
-  if (!this->Renderer || !this->ParallelRendering ||
-    !this->ParallelController)
+  if (!this->Renderer || !this->ParallelRendering || !this->ParallelController)
   {
     return;
   }
@@ -292,19 +273,14 @@ void vtkSynchronizedRenderers::HandleEndRender()
   this->UseFXAA = false;
 }
 
-//----------------------------------------------------------------------------
-void vtkSynchronizedRenderers::MasterEndRender()
-{
-}
+//------------------------------------------------------------------------------
+void vtkSynchronizedRenderers::MasterEndRender() {}
 
-//----------------------------------------------------------------------------
-void vtkSynchronizedRenderers::SlaveEndRender()
-{
-}
+//------------------------------------------------------------------------------
+void vtkSynchronizedRenderers::SlaveEndRender() {}
 
-//----------------------------------------------------------------------------
-vtkSynchronizedRenderers::vtkRawImage&
-vtkSynchronizedRenderers::CaptureRenderedImage()
+//------------------------------------------------------------------------------
+vtkSynchronizedRenderers::vtkRawImage& vtkSynchronizedRenderers::CaptureRenderedImage()
 {
   vtkRawImage& rawImage = this->Image;
   if (!rawImage.IsValid())
@@ -322,7 +298,7 @@ vtkSynchronizedRenderers::CaptureRenderedImage()
   return rawImage;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::PushImageToScreen()
 {
   vtkRawImage& rawImage = this->Image;
@@ -331,9 +307,12 @@ void vtkSynchronizedRenderers::PushImageToScreen()
     return;
   }
 
-  rawImage.PushToViewport(this->Renderer);
+  // If this->FixBackground is true, the rawImage was generated using a black
+  // background. Such an image can be blended. If this->FixBackground is not
+  // true, then the image simply replaces the existing image.
+  rawImage.PushToViewport(this->Renderer, /*blend=*/this->FixBackground);
 
-  vtkHardwareSelector *sel = this->Renderer->GetSelector();
+  vtkHardwareSelector* sel = this->Renderer->GetSelector();
   if (sel)
   {
     sel->SavePixelBuffer(sel->GetCurrentPass());
@@ -351,7 +330,7 @@ void vtkSynchronizedRenderers::PushImageToScreen()
 }
 
 ////----------------------------------------------------------------------------
-//void vtkSynchronizedRenderers::ResetCamera()
+// void vtkSynchronizedRenderers::ResetCamera()
 //{
 //  if (!this->ParallelController)
 //    {
@@ -367,9 +346,8 @@ void vtkSynchronizedRenderers::PushImageToScreen()
 //    }
 //}
 
-//----------------------------------------------------------------------------
-void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
-  double bounds[6])
+//------------------------------------------------------------------------------
+void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(double bounds[6])
 {
   // get local bounds.
   double local_bounds[6];
@@ -383,13 +361,11 @@ void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
 
   if (this->ParallelController->IsA("vtkMPIController"))
   {
-    double min_bounds[3] = {bounds[0], bounds[2], bounds[4]};
-    double max_bounds[3] = {bounds[1], bounds[3], bounds[5]};
+    double min_bounds[3] = { bounds[0], bounds[2], bounds[4] };
+    double max_bounds[3] = { bounds[1], bounds[3], bounds[5] };
     double min_result[3], max_result[3];
-    this->ParallelController->AllReduce(min_bounds, min_result, 3,
-      vtkCommunicator::MIN_OP);
-    this->ParallelController->AllReduce(max_bounds, max_result, 3,
-      vtkCommunicator::MAX_OP);
+    this->ParallelController->AllReduce(min_bounds, min_result, 3, vtkCommunicator::MIN_OP);
+    this->ParallelController->AllReduce(max_bounds, max_result, 3, vtkCommunicator::MAX_OP);
     bounds[0] = min_result[0];
     bounds[2] = min_result[1];
     bounds[4] = min_result[2];
@@ -420,21 +396,19 @@ void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "ImageReductionFactor: "
-    << this->ImageReductionFactor << endl;
+  os << indent << "ImageReductionFactor: " << this->ImageReductionFactor << endl;
   os << indent << "WriteBackImages: " << this->WriteBackImages << endl;
   os << indent << "FixBackground: " << this->FixBackground << endl;
   os << indent << "RootProcessId: " << this->RootProcessId << endl;
   os << indent << "ParallelRendering: " << this->ParallelRendering << endl;
-  os << indent << "AutomaticEventHandling: "
-    << this->AutomaticEventHandling << endl;
+  os << indent << "AutomaticEventHandling: " << this->AutomaticEventHandling << endl;
   os << indent << "CaptureDelegate: ";
-  if(this->CaptureDelegate==nullptr)
+  if (this->CaptureDelegate == nullptr)
   {
     os << "(none)" << endl;
   }
@@ -444,7 +418,7 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Renderer: ";
-  if(this->Renderer==nullptr)
+  if (this->Renderer == nullptr)
   {
     os << "(none)" << endl;
   }
@@ -454,7 +428,7 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "ParallelController: ";
-  if(this->ParallelController==nullptr)
+  if (this->ParallelController == nullptr)
   {
     os << "(none)" << endl;
   }
@@ -462,70 +436,39 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << this->ParallelController << endl;
   }
-
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // ** INFO OBJECT METHODS ***
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::RendererInfo::Save(vtkMultiProcessStream& stream)
 {
-  stream << 1023
-         << this->ImageReductionFactor
-         << this->Draw
-         << this->CameraParallelProjection
-         << this->Viewport[0] << this->Viewport[1]
-         << this->Viewport[2] << this->Viewport[3]
-         << this->CameraPosition[0]
-         << this->CameraPosition[1]
-         << this->CameraPosition[2]
-         << this->CameraFocalPoint[0]
-         << this->CameraFocalPoint[1]
-         << this->CameraFocalPoint[2]
-         << this->CameraViewUp[0]
-         << this->CameraViewUp[1]
-         << this->CameraViewUp[2]
-         << this->CameraWindowCenter[0]
-         << this->CameraWindowCenter[1]
-         << this->CameraClippingRange[0]
-         << this->CameraClippingRange[1]
-         << this->CameraViewAngle
-         << this->CameraParallelScale
-         << this->EyeTransformMatrix[0]
-         << this->EyeTransformMatrix[1]
-         << this->EyeTransformMatrix[2]
-         << this->EyeTransformMatrix[3]
-         << this->EyeTransformMatrix[4]
-         << this->EyeTransformMatrix[5]
-         << this->EyeTransformMatrix[6]
-         << this->EyeTransformMatrix[7]
-         << this->EyeTransformMatrix[8]
-         << this->EyeTransformMatrix[9]
-         << this->EyeTransformMatrix[10]
-         << this->EyeTransformMatrix[11]
-         << this->EyeTransformMatrix[12]
-         << this->EyeTransformMatrix[13]
-         << this->EyeTransformMatrix[14]
-         << this->EyeTransformMatrix[15]
-         << this->ModelTransformMatrix[0]
-         << this->ModelTransformMatrix[1]
-         << this->ModelTransformMatrix[2]
-         << this->ModelTransformMatrix[3]
-         << this->ModelTransformMatrix[4]
-         << this->ModelTransformMatrix[5]
-         << this->ModelTransformMatrix[6]
-         << this->ModelTransformMatrix[7]
-         << this->ModelTransformMatrix[8]
-         << this->ModelTransformMatrix[9]
-         << this->ModelTransformMatrix[10]
-         << this->ModelTransformMatrix[11]
-         << this->ModelTransformMatrix[12]
-         << this->ModelTransformMatrix[13]
-         << this->ModelTransformMatrix[14]
-         << this->ModelTransformMatrix[15];
+  stream << 1023 << this->ImageReductionFactor << this->Draw << this->CameraParallelProjection
+         << this->Viewport[0] << this->Viewport[1] << this->Viewport[2] << this->Viewport[3]
+         << this->CameraPosition[0] << this->CameraPosition[1] << this->CameraPosition[2]
+         << this->CameraFocalPoint[0] << this->CameraFocalPoint[1] << this->CameraFocalPoint[2]
+         << this->CameraViewUp[0] << this->CameraViewUp[1] << this->CameraViewUp[2]
+         << this->CameraWindowCenter[0] << this->CameraWindowCenter[1]
+         << this->CameraClippingRange[0] << this->CameraClippingRange[1] << this->CameraViewAngle
+         << this->CameraParallelScale << this->EyeTransformMatrix[0] << this->EyeTransformMatrix[1]
+         << this->EyeTransformMatrix[2] << this->EyeTransformMatrix[3]
+         << this->EyeTransformMatrix[4] << this->EyeTransformMatrix[5]
+         << this->EyeTransformMatrix[6] << this->EyeTransformMatrix[7]
+         << this->EyeTransformMatrix[8] << this->EyeTransformMatrix[9]
+         << this->EyeTransformMatrix[10] << this->EyeTransformMatrix[11]
+         << this->EyeTransformMatrix[12] << this->EyeTransformMatrix[13]
+         << this->EyeTransformMatrix[14] << this->EyeTransformMatrix[15]
+         << this->ModelTransformMatrix[0] << this->ModelTransformMatrix[1]
+         << this->ModelTransformMatrix[2] << this->ModelTransformMatrix[3]
+         << this->ModelTransformMatrix[4] << this->ModelTransformMatrix[5]
+         << this->ModelTransformMatrix[6] << this->ModelTransformMatrix[7]
+         << this->ModelTransformMatrix[8] << this->ModelTransformMatrix[9]
+         << this->ModelTransformMatrix[10] << this->ModelTransformMatrix[11]
+         << this->ModelTransformMatrix[12] << this->ModelTransformMatrix[13]
+         << this->ModelTransformMatrix[14] << this->ModelTransformMatrix[15];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSynchronizedRenderers::RendererInfo::Restore(vtkMultiProcessStream& stream)
 {
   int tag;
@@ -534,64 +477,31 @@ bool vtkSynchronizedRenderers::RendererInfo::Restore(vtkMultiProcessStream& stre
   {
     return false;
   }
-  stream >> this->ImageReductionFactor
-         >> this->Draw
-         >> this->CameraParallelProjection
-         >> this->Viewport[0]
-         >> this->Viewport[1]
-         >> this->Viewport[2]
-         >> this->Viewport[3]
-         >> this->CameraPosition[0]
-         >> this->CameraPosition[1]
-         >> this->CameraPosition[2]
-         >> this->CameraFocalPoint[0]
-         >> this->CameraFocalPoint[1]
-         >> this->CameraFocalPoint[2]
-         >> this->CameraViewUp[0]
-         >> this->CameraViewUp[1]
-         >> this->CameraViewUp[2]
-         >> this->CameraWindowCenter[0]
-         >> this->CameraWindowCenter[1]
-         >> this->CameraClippingRange[0]
-         >> this->CameraClippingRange[1]
-         >> this->CameraViewAngle
-         >> this->CameraParallelScale
-         >> this->EyeTransformMatrix[0]
-         >> this->EyeTransformMatrix[1]
-         >> this->EyeTransformMatrix[2]
-         >> this->EyeTransformMatrix[3]
-         >> this->EyeTransformMatrix[4]
-         >> this->EyeTransformMatrix[5]
-         >> this->EyeTransformMatrix[6]
-         >> this->EyeTransformMatrix[7]
-         >> this->EyeTransformMatrix[8]
-         >> this->EyeTransformMatrix[9]
-         >> this->EyeTransformMatrix[10]
-         >> this->EyeTransformMatrix[11]
-         >> this->EyeTransformMatrix[12]
-         >> this->EyeTransformMatrix[13]
-         >> this->EyeTransformMatrix[14]
-         >> this->EyeTransformMatrix[15]
-         >> this->ModelTransformMatrix[0]
-         >> this->ModelTransformMatrix[1]
-         >> this->ModelTransformMatrix[2]
-         >> this->ModelTransformMatrix[3]
-         >> this->ModelTransformMatrix[4]
-         >> this->ModelTransformMatrix[5]
-         >> this->ModelTransformMatrix[6]
-         >> this->ModelTransformMatrix[7]
-         >> this->ModelTransformMatrix[8]
-         >> this->ModelTransformMatrix[9]
-         >> this->ModelTransformMatrix[10]
-         >> this->ModelTransformMatrix[11]
-         >> this->ModelTransformMatrix[12]
-         >> this->ModelTransformMatrix[13]
-         >> this->ModelTransformMatrix[14]
-         >> this->ModelTransformMatrix[15];
+  stream >> this->ImageReductionFactor >> this->Draw >> this->CameraParallelProjection >>
+    this->Viewport[0] >> this->Viewport[1] >> this->Viewport[2] >> this->Viewport[3] >>
+    this->CameraPosition[0] >> this->CameraPosition[1] >> this->CameraPosition[2] >>
+    this->CameraFocalPoint[0] >> this->CameraFocalPoint[1] >> this->CameraFocalPoint[2] >>
+    this->CameraViewUp[0] >> this->CameraViewUp[1] >> this->CameraViewUp[2] >>
+    this->CameraWindowCenter[0] >> this->CameraWindowCenter[1] >> this->CameraClippingRange[0] >>
+    this->CameraClippingRange[1] >> this->CameraViewAngle >> this->CameraParallelScale >>
+    this->EyeTransformMatrix[0] >> this->EyeTransformMatrix[1] >> this->EyeTransformMatrix[2] >>
+    this->EyeTransformMatrix[3] >> this->EyeTransformMatrix[4] >> this->EyeTransformMatrix[5] >>
+    this->EyeTransformMatrix[6] >> this->EyeTransformMatrix[7] >> this->EyeTransformMatrix[8] >>
+    this->EyeTransformMatrix[9] >> this->EyeTransformMatrix[10] >> this->EyeTransformMatrix[11] >>
+    this->EyeTransformMatrix[12] >> this->EyeTransformMatrix[13] >> this->EyeTransformMatrix[14] >>
+    this->EyeTransformMatrix[15] >> this->ModelTransformMatrix[0] >>
+    this->ModelTransformMatrix[1] >> this->ModelTransformMatrix[2] >>
+    this->ModelTransformMatrix[3] >> this->ModelTransformMatrix[4] >>
+    this->ModelTransformMatrix[5] >> this->ModelTransformMatrix[6] >>
+    this->ModelTransformMatrix[7] >> this->ModelTransformMatrix[8] >>
+    this->ModelTransformMatrix[9] >> this->ModelTransformMatrix[10] >>
+    this->ModelTransformMatrix[11] >> this->ModelTransformMatrix[12] >>
+    this->ModelTransformMatrix[13] >> this->ModelTransformMatrix[14] >>
+    this->ModelTransformMatrix[15];
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::RendererInfo::CopyFrom(vtkRenderer* ren)
 {
   vtkCamera* cam = ren->GetActiveCamera();
@@ -606,30 +516,29 @@ void vtkSynchronizedRenderers::RendererInfo::CopyFrom(vtkRenderer* ren)
   this->CameraViewAngle = cam->GetViewAngle();
   this->CameraParallelScale = cam->GetParallelScale();
 
-  vtkMatrix4x4 *eyeTransformationMatrix = cam->GetEyeTransformMatrix();
-  vtkMatrix4x4 *modelTransformationMatrix = cam->GetModelTransformMatrix();
-  for(int i=0; i < 4; ++i)
+  vtkMatrix4x4* eyeTransformationMatrix = cam->GetEyeTransformMatrix();
+  vtkMatrix4x4* modelTransformationMatrix = cam->GetModelTransformMatrix();
+  for (int i = 0; i < 4; ++i)
   {
-    for(int j=0; j < 4; ++j)
+    for (int j = 0; j < 4; ++j)
     {
-       this->EyeTransformMatrix[i*4 + j] = eyeTransformationMatrix->GetElement(i, j);
-       this->ModelTransformMatrix[i*4 + j] = modelTransformationMatrix->GetElement(i, j);
+      this->EyeTransformMatrix[i * 4 + j] = eyeTransformationMatrix->GetElement(i, j);
+      this->ModelTransformMatrix[i * 4 + j] = modelTransformationMatrix->GetElement(i, j);
     }
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
 {
   vtkCamera* cam = ren->GetActiveCamera();
   ren->SetDraw(this->Draw);
   cam->SetParallelProjection(this->CameraParallelProjection);
-  //ren->SetViewport(this->Viewport);
+  // ren->SetViewport(this->Viewport);
   cam->SetPosition(this->CameraPosition);
   cam->SetFocalPoint(this->CameraFocalPoint);
   cam->SetViewUp(this->CameraViewUp);
-  cam->SetWindowCenter(this->CameraWindowCenter[0],
-                       this->CameraWindowCenter[1]);
+  cam->SetWindowCenter(this->CameraWindowCenter[0], this->CameraWindowCenter[1]);
   cam->SetClippingRange(this->CameraClippingRange);
   cam->SetViewAngle(this->CameraViewAngle);
   cam->SetParallelScale(this->CameraParallelScale);
@@ -637,12 +546,12 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
   // We reuse vtkMatrix4x4 objects present on the camera and then use
   // vtkMatrix4x4::SetElement(). This avoids modifying the mtime of the
   // camera unless anything truly changed.
-  vtkMatrix4x4 *eyeTransformationMatrix = cam->GetEyeTransformMatrix();
-  vtkMatrix4x4 *modelTransformationMatrix = cam->GetModelTransformMatrix();
+  vtkMatrix4x4* eyeTransformationMatrix = cam->GetEyeTransformMatrix();
+  vtkMatrix4x4* modelTransformationMatrix = cam->GetModelTransformMatrix();
   assert(eyeTransformationMatrix && modelTransformationMatrix);
-  for(int i=0; i < 4; ++i)
+  for (int i = 0; i < 4; ++i)
   {
-    for(int j=0; j < 4; ++j)
+    for (int j = 0; j < 4; ++j)
     {
       eyeTransformationMatrix->SetElement(i, j, this->EyeTransformMatrix[i * 4 + j]);
       modelTransformationMatrix->SetElement(i, j, this->ModelTransformMatrix[i * 4 + j]);
@@ -654,20 +563,18 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
 // vtkSynchronizedRenderers::vtkRawImage Methods
 //****************************************************************************
 
-//----------------------------------------------------------------------------
-void vtkSynchronizedRenderers::vtkRawImage::Initialize(
-  int dx, int dy, vtkUnsignedCharArray* data)
+//------------------------------------------------------------------------------
+void vtkSynchronizedRenderers::vtkRawImage::Initialize(int dx, int dy, vtkUnsignedCharArray* data)
 {
   this->Data = data;
   this->Size[0] = dx;
   this->Size[1] = dy;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::vtkRawImage::Allocate(int dx, int dy, int numcomps)
 {
-  if (dx*dy <= this->Data->GetNumberOfTuples() &&
-    this->Data->GetNumberOfComponents() == numcomps)
+  if (dx * dy <= this->Data->GetNumberOfTuples() && this->Data->GetNumberOfComponents() == numcomps)
   {
     this->Size[0] = dx;
     this->Size[1] = dy;
@@ -676,12 +583,12 @@ void vtkSynchronizedRenderers::vtkRawImage::Allocate(int dx, int dy, int numcomp
 
   this->Data = vtkSmartPointer<vtkUnsignedCharArray>::New();
   this->Data->SetNumberOfComponents(numcomps);
-  this->Data->SetNumberOfTuples(dx*dy);
+  this->Data->SetNumberOfTuples(dx * dy);
   this->Size[0] = dx;
   this->Size[1] = dy;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
 {
   if (!this->IsValid())
@@ -692,12 +599,9 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
 
   vtkImageData* img = vtkImageData::New();
   img->SetDimensions(this->Size[0], this->Size[1], 1);
-  img->AllocateScalars(VTK_UNSIGNED_CHAR,
-                       this->Data->GetNumberOfComponents());
-  memcpy(img->GetScalarPointer(),
-    this->GetRawPtr()->GetVoidPointer(0),
-    sizeof(unsigned char)*this->Size[0]*this->Size[1]*
-    this->Data->GetNumberOfComponents());
+  img->AllocateScalars(VTK_UNSIGNED_CHAR, this->Data->GetNumberOfComponents());
+  memcpy(img->GetScalarPointer(), this->GetRawPtr()->GetVoidPointer(0),
+    sizeof(unsigned char) * this->Size[0] * this->Size[1] * this->Data->GetNumberOfComponents());
 
   vtkPNGWriter* writer = vtkPNGWriter::New();
   writer->SetFileName(filename);
@@ -707,8 +611,8 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
   img->Delete();
 }
 
-//----------------------------------------------------------------------------
-bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
+//------------------------------------------------------------------------------
+bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren, bool blend)
 {
   if (!this->IsValid())
   {
@@ -726,18 +630,17 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
     return false;
   }
 
-  vtkOpenGLState *ostate =
-    static_cast<vtkOpenGLRenderWindow *>(ren->GetVTKWindow())->GetState();
+  vtkOpenGLState* ostate = static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow())->GetState();
   ostate->vtkglEnable(GL_SCISSOR_TEST);
   ostate->vtkglViewport(low_point[0], low_point[1], size[0], size[1]);
   ostate->vtkglScissor(low_point[0], low_point[1], size[0], size[1]);
 
   ren->Clear();
-  return this->PushToFrameBuffer(ren);
+  return this->PushToFrameBuffer(ren, blend);
 }
 
-//----------------------------------------------------------------------------
-bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
+//------------------------------------------------------------------------------
+bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer* ren, bool blend)
 {
   if (!this->IsValid())
   {
@@ -747,32 +650,38 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
 
   vtkOpenGLClearErrorMacro();
   vtkOpenGLRenderUtilities::MarkDebugEvent("vtkRawImage::PushToViewport begin");
-  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
-  vtkOpenGLState *ostate = renWin->GetState();
+  vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
+  vtkOpenGLState* ostate = renWin->GetState();
 
   // framebuffers have their color premultiplied by alpha.
   vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
-  ostate->vtkglEnable(GL_BLEND);
-  ostate->vtkglBlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
-    GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-
+  vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
+  if (blend)
+  {
+    vtkLogF(TRACE, "PushToFrameBuffer: using blend");
+    ostate->vtkglEnable(GL_BLEND);
+    ostate->vtkglBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  }
+  else
+  {
+    ostate->vtkglDisable(GL_BLEND);
+    vtkLogF(TRACE, "PushToFrameBuffer: not-using blend");
+  }
 
   int size[2], low_point[2];
   ren->GetTiledSizeAndOrigin(&size[0], &size[1], &low_point[0], &low_point[1]);
 
-  renWin->DrawPixels(
-      low_point[0], low_point[1], low_point[0] + size[0]-1, low_point[1] + size[1]-1,
-      0, 0, this->GetWidth()-1, this->GetHeight()-1,
-      this->GetWidth(), this->GetHeight(),
-      this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
-      this->GetRawPtr()->GetVoidPointer(0));
+  renWin->DrawPixels(low_point[0], low_point[1], low_point[0] + size[0] - 1,
+    low_point[1] + size[1] - 1, 0, 0, this->GetWidth() - 1, this->GetHeight() - 1, this->GetWidth(),
+    this->GetHeight(), this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
+    this->GetRawPtr()->GetVoidPointer(0));
 
   vtkOpenGLStaticCheckErrorMacro("failed after PushToFrameBuffer");
   vtkOpenGLRenderUtilities::MarkDebugEvent("vtkRawImage::PushToViewport end");
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
 {
   double viewport[4];
@@ -785,8 +694,8 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
   int viewport_in_pixels[4];
   viewport_in_pixels[0] = static_cast<int>(window_size[0] * viewport[0]);
   viewport_in_pixels[1] = static_cast<int>(window_size[1] * viewport[1]);
-  viewport_in_pixels[2] = static_cast<int>(window_size[0] * viewport[2])-1;
-  viewport_in_pixels[3] = static_cast<int>(window_size[1] * viewport[3])-1;
+  viewport_in_pixels[2] = static_cast<int>(window_size[0] * viewport[2]) - 1;
+  viewport_in_pixels[3] = static_cast<int>(window_size[1] * viewport[3]) - 1;
 
   // we need to ensure that the size computation is always done in pixels,
   // otherwise we end up with rounding issues. In short, avoid doing
@@ -799,29 +708,25 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
   // using RGBA always?
   this->Resize(image_size[0], image_size[1], 4);
 
-  ren->GetRenderWindow()->GetRGBACharPixelData(
-    viewport_in_pixels[0], viewport_in_pixels[1],
-    viewport_in_pixels[2], viewport_in_pixels[3],
-    ren->GetRenderWindow()->GetDoubleBuffer()? 0 : 1,
-    this->GetRawPtr(),
-    /*right=*/ ren->GetActiveCamera()->GetLeftEye()==0);
+  ren->GetRenderWindow()->GetRGBACharPixelData(viewport_in_pixels[0], viewport_in_pixels[1],
+    viewport_in_pixels[2], viewport_in_pixels[3], 0, this->GetRawPtr(),
+    /*right=*/ren->GetActiveCamera()->GetLeftEye() == 0);
 
   // if selecting then pass the processed pixel buffer
-  vtkHardwareSelector *sel = ren->GetSelector();
+  vtkHardwareSelector* sel = ren->GetSelector();
   if (sel)
   {
-    unsigned char *passdata = sel->GetPixelBuffer(sel->GetCurrentPass());
-    unsigned char *destdata = static_cast<unsigned char *>(
-      this->GetRawPtr()->GetVoidPointer(0));
+    unsigned char* passdata = sel->GetPixelBuffer(sel->GetCurrentPass());
+    unsigned char* destdata = static_cast<unsigned char*>(this->GetRawPtr()->GetVoidPointer(0));
     if (passdata && destdata)
     {
-      unsigned int *area = sel->GetArea();
+      unsigned int* area = sel->GetArea();
       unsigned int passwidth = area[2] - area[0] + 1;
       for (int y = 0; y < image_size[1]; ++y)
       {
         for (int x = 0; x < image_size[0]; ++x)
         {
-          unsigned char *pdptr = passdata + (y * passwidth + x) * 3;
+          unsigned char* pdptr = passdata + (y * passwidth + x) * 3;
           destdata[0] = pdptr[0];
           destdata[1] = pdptr[1];
           destdata[2] = pdptr[2];
@@ -837,6 +742,8 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
 
 vtkRenderer* vtkSynchronizedRenderers::GetRenderer()
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Render of " << this->Renderer );
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Render of "
+                << this->Renderer);
   return this->Renderer;
 }
+VTK_ABI_NAMESPACE_END

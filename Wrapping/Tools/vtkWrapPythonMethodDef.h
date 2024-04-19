@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWrapPythonMethodDef.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkWrapPythonMethodDef_h
 #define vtkWrapPythonMethodDef_h
@@ -22,13 +10,11 @@
 
 /* check whether a method is wrappable */
 int vtkWrapPython_MethodCheck(
-  ClassInfo *data, FunctionInfo *currentFunction, HierarchyInfo *hinfo);
+  const ClassInfo* data, const FunctionInfo* currentFunction, const HierarchyInfo* hinfo);
 
 /* print out all methods and the method table */
-void vtkWrapPython_GenerateMethods(
-  FILE *fp, const char *classname, ClassInfo *data,
-  FileInfo *finfo, HierarchyInfo *hinfo,
-  int is_vtkobject, int do_constructors);
+void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* data,
+  FileInfo* finfo, const HierarchyInfo* hinfo, int is_vtkobject, int do_constructors);
 
 #endif /* vtkWrapPythonMethodDef_h */
 /* VTK-HeaderTest-Exclude: vtkWrapPythonMethodDef.h */

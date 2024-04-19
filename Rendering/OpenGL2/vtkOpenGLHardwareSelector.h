@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLHardwareSelector.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOpenGLHardwareSelector
  * @brief   implements the device specific code of
@@ -22,14 +10,15 @@
  *
  * @sa
  * vtkHardwareSelector
-*/
+ */
 
 #ifndef vtkOpenGLHardwareSelector_h
 #define vtkOpenGLHardwareSelector_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkHardwareSelector.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHardwareSelector : public vtkHardwareSelector
 {
 public:
@@ -69,12 +58,12 @@ protected:
 
   // Called internally before each prop is rendered
   // for device specific configuration/preparation etc.
-  void BeginRenderProp(vtkRenderWindow *) override;
-  void EndRenderProp(vtkRenderWindow *) override;
+  void BeginRenderProp(vtkRenderWindow*) override;
+  void EndRenderProp(vtkRenderWindow*) override;
 
   void SavePixelBuffer(int passNo) override;
 
-  bool OriginalMultisample;
+  int OriginalMultiSample;
   bool OriginalBlending;
 
 private:
@@ -82,4 +71,5 @@ private:
   void operator=(const vtkOpenGLHardwareSelector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

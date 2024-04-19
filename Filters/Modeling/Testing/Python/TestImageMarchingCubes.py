@@ -1,7 +1,20 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersGeneral import vtkImageMarchingCubes
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOImage import vtkImageReader2
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 from math import cos, sin, pi
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -10,15 +23,15 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create pipeline
@@ -29,7 +42,7 @@ direction = [
   0, cos(angle), -sin(angle),
   0, -sin(angle), -cos(angle)
 ]
-reader = vtk.vtkImageReader2()
+reader = vtkImageReader2()
 reader.SetDataScalarTypeToUnsignedShort()
 reader.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
 reader.SetDataExtent(0, 63, 0, 63, 1, 93)
@@ -37,26 +50,26 @@ reader.SetDataSpacing(3.2, 3.2, 1.5)
 reader.SetDataOrigin(0.0, 0.0, 0.0)
 reader.SetDataDirection(direction)
 
-iso = vtk.vtkImageMarchingCubes()
+iso = vtkImageMarchingCubes()
 iso.SetInputConnection(reader.GetOutputPort())
 iso.SetValue(0, 1150)
 iso.SetInputMemoryLimit(100)
 
-isoMapper = vtk.vtkPolyDataMapper()
+isoMapper = vtkPolyDataMapper()
 isoMapper.SetInputConnection(iso.GetOutputPort())
 isoMapper.ScalarVisibilityOff()
 
-isoActor = vtk.vtkActor()
+isoActor = vtkActor()
 isoActor.SetMapper(isoMapper)
 isoActor.GetProperty().SetColor(GetRGBColor('antique_white'))
 
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(reader.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 outlineActor.VisibilityOff()
 

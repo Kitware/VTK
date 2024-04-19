@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRange.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkRange_h
 #define vtkRange_h
@@ -25,6 +13,7 @@
 
 namespace vtk
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * Generate an iterable STL proxy object for a VTK container.
@@ -82,16 +71,15 @@ namespace vtk
  * ```
  */
 template <typename IterablePtr, typename... Options>
-auto Range(IterablePtr iterable, Options&&... opts)
--> typename detail::IterableTraits<
-       typename detail::StripPointers<IterablePtr>::type
-   >::RangeType
+auto Range(IterablePtr iterable, Options&&... opts) ->
+  typename detail::IterableTraits<typename detail::StripPointers<IterablePtr>::type>::RangeType
 {
   using Iterable = typename detail::StripPointers<IterablePtr>::type;
   using RangeType = typename detail::IterableTraits<Iterable>::RangeType;
-  return RangeType{iterable, std::forward<Options>(opts)...};
+  return RangeType{ iterable, std::forward<Options>(opts)... };
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk
 
 #endif // vtkRange_h

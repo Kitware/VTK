@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Program:   ParaView
-  Module:    vtkXMLCompositeDataWriter.h
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLCompositeDataWriter
  * @brief   Writer for multi-group datasets
@@ -21,15 +10,16 @@
  * data files are meta-files that point to a list of serial VTK XML files.
  * @sa
  * vtkXMLPCompositeDataWriter
-*/
+ */
 
 #ifndef vtkXMLCompositeDataWriter_h
 #define vtkXMLCompositeDataWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
+#include "vtkStdString.h"   // needed for vtkStdString.
 #include "vtkXMLWriter.h"
-#include "vtkStdString.h" // needed for vtkStdString.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkCompositeDataSet;
 class vtkXMLDataElement;
@@ -38,7 +28,7 @@ class vtkXMLCompositeDataWriterInternals;
 class VTKIOXML_EXPORT vtkXMLCompositeDataWriter : public vtkXMLWriter
 {
 public:
-  vtkTypeMacro(vtkXMLCompositeDataWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkXMLCompositeDataWriter, vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -50,28 +40,27 @@ public:
    * Get/Set the number of pieces into which the inputs are split.
    */
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of ghost levels to be written.
    */
   vtkGetMacro(GhostLevel, int);
   vtkSetMacro(GhostLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set whether this instance will write the meta-file.
    */
   vtkGetMacro(WriteMetaFile, int);
   virtual void SetWriteMetaFile(int flag);
-  //@}
+  ///@}
 
   /**
    * See the vtkAlgorithm for a description of what these do
    */
-  vtkTypeBool ProcessRequest(vtkInformation*,
-                     vtkInformationVector**,
-                     vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkXMLCompositeDataWriter();
@@ -93,10 +82,8 @@ protected:
   // see algorithm for more info
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(
-    vtkInformation*  , vtkInformationVector** , vtkInformationVector*) override;
-  int RequestUpdateExtent(
-    vtkInformation*  , vtkInformationVector** , vtkInformationVector*);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   int WriteData() override;
   const char* GetDataSetName() override;
@@ -127,8 +114,8 @@ protected:
 
   // Methods to help construct internal file names.
   void SplitFileName();
-  const char* GetFilePrefix();
-  const char* GetFilePath();
+  VTK_FILEPATH const char* GetFilePrefix();
+  VTK_FILEPATH const char* GetFilePath();
 
   /**
    * Returns the default extension to use for the given dataset type.
@@ -163,8 +150,7 @@ protected:
   int WriteMetaFile;
 
   // Callback registered with the InternalProgressObserver.
-  static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
-                                       void*);
+  static void ProgressCallbackFunction(vtkObject*, unsigned long, void*, void*);
   // Progress callback from internal writer.
   virtual void ProgressCallback(vtkAlgorithm* w);
 
@@ -180,8 +166,8 @@ protected:
    * This function returns 0 if no files were written from
    * compositeData.
    */
-  virtual int WriteComposite(vtkCompositeDataSet* compositeData,
-    vtkXMLDataElement* element, int &writerIdx)=0;
+  virtual int WriteComposite(
+    vtkCompositeDataSet* compositeData, vtkXMLDataElement* element, int& writerIdx) = 0;
 
   /**
    * Internal method to write a non vtkCompositeDataSet subclass as
@@ -194,8 +180,7 @@ protected:
    * this->ErrorCode is set on error.
    */
   virtual int WriteNonCompositeData(
-    vtkDataObject* dObj, vtkXMLDataElement* element,
-    int& writerIdx, const char* fileName);
+    vtkDataObject* dObj, vtkXMLDataElement* element, int& writerIdx, const char* fileName);
 
   /**
    * Utility function to remove any already written files
@@ -208,4 +193,5 @@ private:
   void operator=(const vtkXMLCompositeDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

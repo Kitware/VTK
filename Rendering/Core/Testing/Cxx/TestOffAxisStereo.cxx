@@ -1,42 +1,29 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    SurfacePlusEdges.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // This test draws a sphere in anaglyphic stereo (red-blue) mode using deering
 // frustum.
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkConeSource.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkConeSource.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, var) \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-int TestOffAxisStereo(int argc, char *argv[])
+int TestOffAxisStereo(int argc, char* argv[])
 {
-  double bottomLeft[3]  = {-1.0, -1.0, -10.0};
-  double bottomRight[3] = { 1.0, -1.0, -10.0};
-  double topRight[3]    = { 1.0,  1.0, -10.0};
+  double bottomLeft[3] = { -1.0, -1.0, -10.0 };
+  double bottomRight[3] = { 1.0, -1.0, -10.0 };
+  double topRight[3] = { 1.0, 1.0, -10.0 };
 
   VTK_CREATE(vtkSphereSource, sphere1);
   sphere1->SetCenter(0.6, 0.0, -15.0);
@@ -66,7 +53,7 @@ int TestOffAxisStereo(int argc, char *argv[])
   renderer->AddActor(actor2);
   renderer->SetAmbient(1.0, 1.0, 1.0);
 
-  double eyePosition[3] = {0.0, 0.0, 10.0};
+  double eyePosition[3] = { 0.0, 0.0, 10.0 };
 
   // Introduce scale to test out calculation of clipping range
   // by vtkRenderer.
@@ -75,7 +62,7 @@ int TestOffAxisStereo(int argc, char *argv[])
   scaleMatrix->SetElement(1, 1, 1);
   scaleMatrix->SetElement(2, 2, 1);
 
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetScreenBottomLeft(bottomLeft);
   camera->SetScreenBottomRight(bottomRight);
   camera->SetScreenTopRight(topRight);

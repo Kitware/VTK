@@ -197,7 +197,7 @@ v1h_get_nc_type(v1hs *gsp, nc_type *typep)
     status =  ncx_get_uint32((const void**)(&gsp->pos), &type);
     if(status != NC_NOERR)
 		return status;
-
+/* Fix 35382
 	assert(type == NC_BYTE
 		|| type == NC_CHAR
 		|| type == NC_SHORT
@@ -210,8 +210,10 @@ v1h_get_nc_type(v1hs *gsp, nc_type *typep)
 		|| type == NC_INT64
 		|| type == NC_UINT64
 		|| type == NC_STRING);
-
-	/* else */
+*/
+    if(type == NC_NAT || type > NC_MAX_ATOMIC_TYPE)
+        return NC_EINVAL;
+    else
 	*typep = (nc_type) type;
 
     return NC_NOERR;
@@ -761,7 +763,7 @@ v1h_get_NC_attr(v1hs *gsp, NC_attr **attrpp)
 	}
 
 	status = v1h_get_NC_attrV(gsp, attrp);
-    if(status != NC_NOERR)
+        if(status != NC_NOERR)
 	{
 		free_NC_attr(attrp); /* frees strp */
 		return status;

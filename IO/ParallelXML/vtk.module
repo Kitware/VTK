@@ -6,13 +6,18 @@ KIT
   VTK::Parallel
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
+  VTK::CommonCore
   VTK::IOXML
 PRIVATE_DEPENDS
-  VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::CommonMisc
+  VTK::IOCore
   VTK::ParallelCore
   VTK::vtksys
 TEST_DEPENDS

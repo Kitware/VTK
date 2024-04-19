@@ -7,22 +7,27 @@ KIT
   VTK::IO
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::IOCore
   VTK::IOLegacy
+  VTK::nlohmannjson
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
   VTK::CommonTransforms
   VTK::FiltersGeneral
   VTK::FiltersHybrid
+  VTK::FiltersVerdict
   VTK::ImagingCore
   VTK::IOImage
   VTK::RenderingCore
-  VTK::jsoncpp
   VTK::vtksys
   VTK::zlib
 TEST_DEPENDS
@@ -32,7 +37,9 @@ TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersSources
   VTK::IOAMR
+  VTK::IOCityGML
   VTK::IOImage
+  VTK::IOImport
   VTK::IOLegacy
   VTK::InteractionStyle
   VTK::RenderingOpenGL2

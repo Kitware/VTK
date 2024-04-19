@@ -1,6 +1,26 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkDelaunay2D,
+    vtkExtractEdges,
+    vtkTubeFilter,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,13 +29,13 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Create a constrained Delaunay triangulation (i.e., edges and polygons defined)
 # Generate the input points and constrained edges/polygons
 #
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.InsertPoint(0, 1, 4, 0)
 points.InsertPoint(1, 3, 4, 0)
 points.InsertPoint(2, 7, 4, 0)
@@ -57,7 +77,7 @@ points.InsertPoint(37, 4, 6, 0)
 points.InsertPoint(38, 3, 9, 0)
 points.InsertPoint(39, 2, 9, 0)
 
-polys = vtk.vtkCellArray()
+polys = vtkCellArray()
 polys.InsertNextCell(12)
 polys.InsertCellPoint(0)
 polys.InsertCellPoint(1)
@@ -101,30 +121,30 @@ polys.InsertCellPoint(14)
 polys.InsertCellPoint(13)
 polys.InsertCellPoint(12)
 
-polyData = vtk.vtkPolyData()
+polyData = vtkPolyData()
 polyData.SetPoints(points)
 polyData.SetPolys(polys)
 
 # triangulate them
 #
-del1 = vtk.vtkDelaunay2D()
+del1 = vtkDelaunay2D()
 del1.SetInputData(polyData)
 del1.SetSourceData(polyData)
-mapMesh = vtk.vtkPolyDataMapper()
+mapMesh = vtkPolyDataMapper()
 mapMesh.SetInputConnection(del1.GetOutputPort())
-meshActor = vtk.vtkActor()
+meshActor = vtkActor()
 meshActor.SetMapper(mapMesh)
 
 # tubes around mesh
-extract = vtk.vtkExtractEdges()
+extract = vtkExtractEdges()
 extract.SetInputConnection(del1.GetOutputPort())
-tubes = vtk.vtkTubeFilter()
+tubes = vtkTubeFilter()
 tubes.SetInputConnection(extract.GetOutputPort())
 tubes.SetRadius(0.1)
 tubes.SetNumberOfSides(6)
-mapEdges = vtk.vtkPolyDataMapper()
+mapEdges = vtkPolyDataMapper()
 mapEdges.SetInputConnection(tubes.GetOutputPort())
-edgeActor = vtk.vtkActor()
+edgeActor = vtkActor()
 edgeActor.SetMapper(mapEdges)
 edgeActor.GetProperty().SetColor(GetRGBColor('peacock'))
 edgeActor.GetProperty().SetSpecularColor(1, 1, 1)
@@ -135,10 +155,10 @@ edgeActor.GetProperty().SetDiffuse(0.8)
 
 # Create graphics objects
 # Create the rendering window, renderer, and interactive renderer
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size
@@ -154,4 +174,4 @@ renWin.SetSize(450, 300)
 ren1.GetActiveCamera().Zoom(2)
 
 iren.Initialize()
-#iren.Start()
+iren.Start()

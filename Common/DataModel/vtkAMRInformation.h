@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAMRInformation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAMRInformation
  * @brief   Meta data that describes the structure of an AMR data set
  *
  *
- * vtkAMRInformation encaspulates the following meta information for an AMR data set
+ * vtkAMRInformation encapsulates the following meta information for an AMR data set
  * - a list of vtkAMRBox objects
  * - Refinement ratio between AMR levels
  * - Grid spacing for each level
@@ -26,20 +14,20 @@
  *
  * @sa
  * vtkOverlappingAMR, vtkAMRBox
-*/
+ */
 
 #ifndef vtkAMRInformation_h
 #define vtkAMRInformation_h
 
+#include "vtkAMRBox.h"                //for storing AMR Boxes
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkAMRBox.h" //for storing AMR Boxes
 #include "vtkSmartPointer.h" //for ivars
-#include <vector> //for storing AMR Boxes
-
+#include <vector>            //for storing AMR Boxes
 
 typedef std::vector<vtkAMRBox> vtkAMRBoxList;
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedIntArray;
 class vtkIntArray;
 class vtkDoubleArray;
@@ -62,29 +50,31 @@ public:
    */
   void Initialize(int numLevels, const int* blocksPerLevel);
 
-  //@{
+  ///@{
   /**
    * returns the value of vtkUniformGrid::GridDescription() of any block
    */
-  vtkGetMacro( GridDescription, int );
+  vtkGetMacro(GridDescription, int);
   void SetGridDescription(int description);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the AMR dataset origin
    * The origin is essentially the minimum of all the grids.
    */
-  void GetOrigin( double origin[3] );
+  void GetOrigin(double origin[3]);
   double* GetOrigin();
   void SetOrigin(const double* origin);
-  //@}
+  ///@}
 
   /**
    * Return the number of levels
    */
   unsigned int GetNumberOfLevels() const
-  { return static_cast<unsigned int>(this->NumBlocks.size()-1);}
+  {
+    return static_cast<unsigned int>(this->NumBlocks.size() - 1);
+  }
 
   /**
    * Returns the number of datasets at the given levelx
@@ -94,14 +84,12 @@ public:
   /**
    * Returns total number of datasets
    */
-  unsigned int GetTotalNumberOfBlocks()
-  { return this->NumBlocks.back();}
+  unsigned int GetTotalNumberOfBlocks() { return this->NumBlocks.back(); }
 
   /**
    * Returns the single index from a pair of indices
    */
-  int GetIndex(unsigned int level, unsigned int id) const
-  { return this->NumBlocks[level] + id;}
+  int GetIndex(unsigned int level, unsigned int id) const { return this->NumBlocks[level] + id; }
 
   /**
    * Returns the an index pair given a single index
@@ -130,27 +118,27 @@ public:
 
   bool HasSpacing(unsigned int level);
 
-  //@{
+  ///@{
   /**
    * Methods to set and get the AMR box at a given position
    */
   void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box);
   const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id) const;
-  //@}
+  ///@}
 
   /**
    * return the amr box coarsened to the previous level
    */
   bool GetCoarsenedAMRBox(unsigned int level, unsigned int id, vtkAMRBox& box) const;
 
-  //@{
+  ///@{
   /**
    * Get/Set the SourceIndex of a block. Typically, this is a file-type specific index
    * that can be used by a reader to load a particular file block
    */
   int GetAMRBlockSourceIndex(int index);
   void SetAMRBlockSourceIndex(int index, int sourceId);
-  //@}
+  ///@}
 
   /**
    * This method computes the refinement ratio at each level.
@@ -184,7 +172,7 @@ public:
   /**
    * Set the spacing at a given level
    */
-  void SetSpacing(unsigned int level,const double* h);
+  void SetSpacing(unsigned int level, const double* h);
 
   /**
    * Return whether parent child information has been generated
@@ -196,14 +184,14 @@ public:
    * of parents the block has followed by its parent ids in level-1.
    * If none exits it returns nullptr.
    */
-  unsigned int *GetParents(unsigned int level, unsigned int index, unsigned int& numParents);
+  unsigned int* GetParents(unsigned int level, unsigned int index, unsigned int& numParents);
 
   /**
    * Return a pointer to Children of a block.  The first entry is the number
    * of children the block has followed by its children ids in level+1.
    * If none exits it returns nullptr.
    */
-  unsigned int *GetChildren(unsigned int level, unsigned int index, unsigned int& numChildren);
+  unsigned int* GetChildren(unsigned int level, unsigned int index, unsigned int& numChildren);
 
   /**
    * Prints the parents and children of a requested block (Debug Routine)
@@ -226,7 +214,7 @@ public:
    * (level,index).  If it is, set cellIdx to the cell index and return
    * true; otherwise return false
    */
-  bool FindCell(double q[3],unsigned int level, unsigned int index,int &cellIdx);
+  bool FindCell(double q[3], unsigned int level, unsigned int index, int& cellIdx);
 
   /**
    * find the grid that contains the point q at the specified level
@@ -241,15 +229,16 @@ public:
   /**
    * Returns internal arrays.
    */
-  const std::vector<int>& GetNumBlocks() const
-  { return this->NumBlocks;}
+  const std::vector<int>& GetNumBlocks() const { return this->NumBlocks; }
 
-  std::vector<std::vector<unsigned int> >& GetChildrenAtLevel(unsigned int i)
-  { return this->AllChildren[i];}
+  std::vector<std::vector<unsigned int>>& GetChildrenAtLevel(unsigned int i)
+  {
+    return this->AllChildren[i];
+  }
 
-  void DeepCopy(vtkAMRInformation *other);
+  void DeepCopy(vtkAMRInformation* other);
 
- private:
+private:
   vtkAMRInformation();
   ~vtkAMRInformation() override;
   vtkAMRInformation(const vtkAMRInformation&) = delete;
@@ -257,34 +246,38 @@ public:
 
   bool HasValidOrigin();
   bool HasValidBounds();
-  void UpdateBounds(const int level, const int id);
+  void UpdateBounds(int level, int id);
   void AllocateBoxes(unsigned int n);
   void GenerateBlockLevel();
-  void CalculateParentChildRelationShip( unsigned int level,
-                                        std::vector<std::vector<unsigned int> >& children,
-                                        std::vector<std::vector<unsigned int> >& parents );
+  void CalculateParentChildRelationShip(unsigned int level,
+    std::vector<std::vector<unsigned int>>& children,
+    std::vector<std::vector<unsigned int>>& parents);
 
   //-------------------------------------------------------------------------
   // Essential information that determines an AMR structure. Must be copied
   //-------------------------------------------------------------------------
-  int GridDescription; //example: VTK_XYZ_GRID
-  double Origin[3]; //the origin of the whole data set
+  int GridDescription; // example: VTK_XYZ_GRID
+  double Origin[3];    // the origin of the whole data set
   vtkAMRBoxList Boxes; // vtkAMRBoxes, one per data set
-  std::vector<int> NumBlocks; //NumBlocks[i] stores the total number of blocks from level 0 to level i-1
+  std::vector<int>
+    NumBlocks; // NumBlocks[i] stores the total number of blocks from level 0 to level i-1
 
-  vtkSmartPointer<vtkIntArray> SourceIndex; //Typically, this maps to a file block index used by the reader
-  vtkSmartPointer<vtkDoubleArray> Spacing; //The grid spacing for all levels
-  double Bounds[6]; //the bounds of the entire domain
+  vtkSmartPointer<vtkIntArray>
+    SourceIndex; // Typically, this maps to a file block index used by the reader
+  vtkSmartPointer<vtkDoubleArray> Spacing; // The grid spacing for all levels
+  double Bounds[6];                        // the bounds of the entire domain
 
   //-------------------------------------------------------------------------
   // Auxiliary information that be computed
   //-------------------------------------------------------------------------
-  vtkSmartPointer<vtkIntArray> Refinement; //refinement ratio between two adjacent levels
-  vtkSmartPointer<vtkUnsignedIntArray> BlockLevel; //only necessary if need to call ComputeIndexPair
+  vtkSmartPointer<vtkIntArray> Refinement;         // refinement ratio between two adjacent levels
+  vtkSmartPointer<vtkUnsignedIntArray> BlockLevel; // only necessary if need to call
+                                                   // ComputeIndexPair
 
-  //parent child information
-  std::vector<std::vector<std::vector<unsigned int> > > AllChildren;
-  std::vector<std::vector<std::vector<unsigned int> > > AllParents;
+  // parent child information
+  std::vector<std::vector<std::vector<unsigned int>>> AllChildren;
+  std::vector<std::vector<std::vector<unsigned int>>> AllParents;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

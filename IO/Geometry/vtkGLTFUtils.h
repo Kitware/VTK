@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGLTFUtils.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @brief   Helper functions for glTF parsing and validation.
@@ -26,19 +14,28 @@
 #ifndef vtkGLTFUtils_h
 #define vtkGLTFUtils_h
 
-#include "vtk_jsoncpp_fwd.h" // For Json forward declaration
+#include "vtkABINamespace.h"
+
+#include <vtk_nlohmannjson.h>
+#include VTK_NLOHMANN_JSON(json.hpp)
 
 #include <string> // For string
 #include <vector> // For vector
 
+VTK_ABI_NAMESPACE_BEGIN
+class vtkResourceStream;
+class vtkURILoader;
+VTK_ABI_NAMESPACE_END
+
 namespace vtkGLTFUtils
 {
+VTK_ABI_NAMESPACE_BEGIN
 using ChunkInfoType = std::pair<std::string, uint32_t>;
 // Binary glTF constants
-const uint32_t GLBWordSize = 4;
-const uint32_t GLBHeaderSize = 12;
-const uint32_t GLBChunkHeaderSize = 8;
-const uint32_t GLBVersion = 2;
+static constexpr uint32_t GLBWordSize = 4;
+static constexpr uint32_t GLBHeaderSize = 12;
+static constexpr uint32_t GLBChunkHeaderSize = 8;
+static constexpr uint32_t GLBVersion = 2;
 
 /**
  * Checks various binary glTF elements for validity.
@@ -51,75 +48,67 @@ bool ValidateGLBFile(const std::string& magic, uint32_t version, uint32_t fileLe
 /**
  * Extract all header information from a binary glTF file
  */
-bool ExtractGLBFileInformation(const std::string& fileName, std::string& magic, uint32_t& version,
-  uint32_t& fileLength, std::vector<vtkGLTFUtils::ChunkInfoType>& chunkInfo);
+bool ExtractGLBFileInformation(vtkResourceStream* stream, uint32_t& version, uint32_t& fileLength,
+  uint32_t glbStart, std::vector<vtkGLTFUtils::ChunkInfoType>& chunkInfo);
 
 /**
  * Get int value from Json variable, with existence and type checks.
  */
-bool GetIntValue(const Json::Value& root, int& value);
+bool GetIntValue(const nlohmann::json& root, const std::string& key, int& value);
 
 /**
  * Get int value from Json variable, with existence and type checks.
  */
-bool GetUIntValue(const Json::Value& root, unsigned int& value);
+bool GetUIntValue(const nlohmann::json& root, const std::string& key, unsigned int& value);
 
 /**
  * Get double value from Json variable, with existence and type checks.
  */
-bool GetDoubleValue(const Json::Value& root, double& value);
+bool GetDoubleValue(const nlohmann::json& root, const std::string& key, double& value);
 
 /**
  * Get string value from Json variable, with existence and type checks.
  */
-bool GetStringValue(const Json::Value& root, std::string& value);
+bool GetStringValue(const nlohmann::json& root, const std::string& key, std::string& value);
 
 /**
  * Get bool value from Json variable, with existence and type checks.
  */
-bool GetBoolValue(const Json::Value& root, bool& value);
+bool GetBoolValue(const nlohmann::json& root, const std::string& key, bool& value);
 
 /**
  * Get int array from Json variable, with existence and type checks.
  */
-bool GetIntArray(const Json::Value& root, std::vector<int>& value);
+bool GetIntArray(const nlohmann::json& root, const std::string& key, std::vector<int>& value);
 
 /**
  * Get int array from Json variable, with existence and type checks.
  */
-bool GetUIntArray(const Json::Value& root, std::vector<unsigned int>& value);
+bool GetUIntArray(
+  const nlohmann::json& root, const std::string& key, std::vector<unsigned int>& value);
 
 /**
  * Get float array from Json variable, with existence and type checks.
  */
-bool GetFloatArray(const Json::Value& root, std::vector<float>& value);
+bool GetFloatArray(const nlohmann::json& root, const std::string& key, std::vector<float>& value);
 
 /**
  * Get double array from Json variable, with existence and type checks.
  */
-bool GetDoubleArray(const Json::Value& root, std::vector<double>& value);
+bool GetDoubleArray(const nlohmann::json& root, const std::string& key, std::vector<double>& value);
 
 /**
  * Check document version. Currently supporting glTF 2.0 only.
  */
-bool CheckVersion(const Json::Value& glTFAsset);
-
-/**
- * Compute the path to a resource from its path as specified in the glTF file, and the glTF
- * file's path.
- */
-std::string GetResourceFullPath(const std::string& resourcePath, const std::string& glTFFilePath);
+bool CheckVersion(const nlohmann::json& glTFAsset);
 
 /**
  * Load binary buffer from uri information. Uri can be a base 64 data-uri or file path.
  */
-bool GetBinaryBufferFromUri(const std::string& uri, const std::string& glTFFileName,
-  std::vector<char>& buffer, size_t bufferSize);
+bool GetBinaryBufferFromUri(
+  const std::string& uri, vtkURILoader* loader, std::vector<char>& buffer, size_t bufferSize);
 
-/**
- * Extract MIME-Type from data-uri
- */
-std::string GetDataUriMimeType(const std::string& uri);
+VTK_ABI_NAMESPACE_END
 }
 
 #endif

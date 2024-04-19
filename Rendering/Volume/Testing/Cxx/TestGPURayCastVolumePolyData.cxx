@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastVolumePolyData.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This test covers additive method.
 // This test volume renders a synthetic dataset with unsigned char values,
 // with the additive method.
@@ -39,7 +27,7 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-int TestGPURayCastVolumePolyData(int argc, char *argv[])
+int TestGPURayCastVolumePolyData(int argc, char* argv[])
 {
   double scalarRange[2];
 
@@ -48,12 +36,11 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
-  delete [] volumeFile;
+  delete[] volumeFile;
 
   // Add outline filter
   vtkNew<vtkOutlineFilter> outlineFilter;
@@ -103,13 +90,13 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
   im->GetOrigin(origin);
   im->GetSpacing(spacing);
 
-  center[0] = origin[0] + spacing[0]*dims[0]/2.0;
-  center[1] = origin[1] + spacing[1]*dims[1]/2.0;
-  center[2] = origin[2] + spacing[2]*dims[2]/2.0;
+  center[0] = origin[0] + spacing[0] * dims[0] / 2.0;
+  center[1] = origin[1] + spacing[1] * dims[1] / 2.0;
+  center[2] = origin[2] + spacing[2] * dims[2] / 2.0;
 
   vtkNew<vtkSphereSource> sphereSource;
   sphereSource->SetCenter(center);
-  sphereSource->SetRadius(dims[1]/3.0);
+  sphereSource->SetRadius(dims[1] / 3.0);
   vtkNew<vtkPolyDataMapper> sphereMapper;
   vtkNew<vtkActor> sphereActor;
   sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
@@ -124,8 +111,8 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

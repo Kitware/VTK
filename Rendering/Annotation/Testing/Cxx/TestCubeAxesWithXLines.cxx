@@ -1,45 +1,33 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestCubeWithXLines.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware SAS 2011
 
 #include "vtkBYUReader.h"
 #include "vtkCamera.h"
 #include "vtkCubeAxesActor.h"
-#include "vtkLight.h"
 #include "vtkLODActor.h"
+#include "vtkLight.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
-int TestCubeAxesWithXLines( int argc, char * argv [] )
+//------------------------------------------------------------------------------
+int TestCubeAxesWithXLines(int argc, char* argv[])
 {
   vtkNew<vtkBYUReader> fohe;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
   fohe->SetGeometryFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkPolyDataNormals> normals;
   normals->SetInputConnection(fohe->GetOutputPort());
@@ -59,7 +47,7 @@ int TestCubeAxesWithXLines( int argc, char * argv [] )
 
   vtkNew<vtkActor> outlineActor;
   outlineActor->SetMapper(mapOutline);
-  outlineActor->GetProperty()->SetColor(0.0 ,0.0 ,0.0);
+  outlineActor->GetProperty()->SetColor(0.0, 0.0, 0.0);
 
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange(1.0, 100.0);
@@ -86,9 +74,9 @@ int TestCubeAxesWithXLines( int argc, char * argv [] )
 
   ren2->AddViewProp(foheActor);
   ren2->AddViewProp(outlineActor);
-  ren2->SetGradientBackground( true );
-  ren2->SetBackground(.1,.1,.1);
-  ren2->SetBackground2(.8,.8,.8);
+  ren2->SetGradientBackground(true);
+  ren2->SetBackground(.1, .1, .1);
+  ren2->SetBackground2(.8, .8, .8);
 
   normals->Update();
 
@@ -105,7 +93,7 @@ int TestCubeAxesWithXLines( int argc, char * argv [] )
   axes2->SetCornerOffset(0.0);
 
   // Draw X (outer) grid lines
-  axes2->SetDrawXGridlines(1);
+  axes2->SetDrawXGridlines(true);
 
   // Use red color for X axis lines, gridlines, title, and labels
   axes2->GetTitleTextProperty(0)->SetColor(1., 0., 0.);
@@ -116,8 +104,8 @@ int TestCubeAxesWithXLines( int argc, char * argv [] )
   ren2->AddViewProp(axes2);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

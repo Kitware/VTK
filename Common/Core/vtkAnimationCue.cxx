@@ -1,25 +1,14 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAnimationCue.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAnimationCue.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAnimationCue);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAnimationCue::vtkAnimationCue()
 {
   this->StartTime = this->EndTime = 0.0;
@@ -30,10 +19,36 @@ vtkAnimationCue::vtkAnimationCue()
   this->ClockTime = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAnimationCue::~vtkAnimationCue() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool vtkAnimationCue::CheckStartCue(double currenttime)
+{
+  if (this->Direction == PlayDirection::FORWARD)
+  {
+    return currenttime >= this->StartTime && this->CueState == vtkAnimationCue::UNINITIALIZED;
+  }
+  else
+  {
+    return currenttime <= this->EndTime && this->CueState == vtkAnimationCue::UNINITIALIZED;
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkAnimationCue::CheckEndCue(double currenttime)
+{
+  if (this->Direction == PlayDirection::FORWARD)
+  {
+    return currenttime >= this->EndTime && this->CueState == vtkAnimationCue::ACTIVE;
+  }
+  else
+  {
+    return currenttime <= this->StartTime && this->CueState == vtkAnimationCue::ACTIVE;
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkAnimationCue::StartCueInternal()
 {
   vtkAnimationCue::AnimationCueInfo info;
@@ -45,7 +60,7 @@ void vtkAnimationCue::StartCueInternal()
   this->InvokeEvent(vtkCommand::StartAnimationCueEvent, &info);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::EndCueInternal()
 {
   vtkAnimationCue::AnimationCueInfo info;
@@ -57,16 +72,15 @@ void vtkAnimationCue::EndCueInternal()
   this->InvokeEvent(vtkCommand::EndAnimationCueEvent, &info);
 }
 
-//----------------------------------------------------------------------------
-void vtkAnimationCue::TickInternal(
-  double currenttime, double deltatime, double clocktime)
+//------------------------------------------------------------------------------
+void vtkAnimationCue::TickInternal(double currenttime, double deltatime, double clocktime)
 {
   vtkAnimationCue::AnimationCueInfo info;
   info.StartTime = this->StartTime;
   info.EndTime = this->EndTime;
   info.DeltaTime = deltatime;
   info.AnimationTime = currenttime;
-  info.ClockTime =clocktime;
+  info.ClockTime = clocktime;
 
   this->AnimationTime = currenttime;
   this->DeltaTime = deltatime;
@@ -79,13 +93,11 @@ void vtkAnimationCue::TickInternal(
   this->ClockTime = 0;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::Tick(double currenttime, double deltatime, double clocktime)
 {
   // Check to see if we have crossed the Cue start.
-  if (currenttime >= this->StartTime &&
-    this->CueState == vtkAnimationCue::UNINITIALIZED)
+  if (this->CheckStartCue(currenttime))
   {
     this->CueState = vtkAnimationCue::ACTIVE;
     this->StartCueInternal();
@@ -99,27 +111,27 @@ void vtkAnimationCue::Tick(double currenttime, double deltatime, double clocktim
     {
       this->TickInternal(currenttime, deltatime, clocktime);
     }
-    if (currenttime >= this->EndTime)
-    {
-      this->EndCueInternal();
-      this->CueState = vtkAnimationCue::INACTIVE;
-    }
+  }
+  if (this->CheckEndCue(currenttime))
+  {
+    this->EndCueInternal();
+    this->CueState = vtkAnimationCue::INACTIVE;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::SetTimeMode(int mode)
 {
   this->TimeMode = mode;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::Initialize()
 {
   this->CueState = vtkAnimationCue::UNINITIALIZED;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::Finalize()
 {
   if (this->CueState == vtkAnimationCue::ACTIVE)
@@ -129,7 +141,7 @@ void vtkAnimationCue::Finalize()
   this->CueState = vtkAnimationCue::INACTIVE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAnimationCue::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -140,4 +152,8 @@ void vtkAnimationCue::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AnimationTime: " << this->AnimationTime << endl;
   os << indent << "DeltaTime: " << this->DeltaTime << endl;
   os << indent << "ClockTime: " << this->ClockTime << endl;
+  os << indent
+     << "Direction: " << (this->Direction == PlayDirection::BACKWARD ? "Backward" : "Forward")
+     << endl;
 }
+VTK_ABI_NAMESPACE_END

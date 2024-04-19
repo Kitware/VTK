@@ -1,18 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestQVTKOpenGLWidget.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-// Tests QVTKOpenGLWidget/QVTKOpenGLWindow/QVTKOpenGLNativeWidget
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+// Tests QVTKOpenGLStereoWidget/QVTKOpenGLWindow/QVTKOpenGLNativeWidget
 
 #include "TestQtCommon.h"
 
@@ -54,7 +42,7 @@ int TestQtWidget(int argc, char* argv[])
   detail::set_render_window(widgetOrWindow, window);
 
   vtkNew<vtkRenderer> ren;
-  ren->SetGradientBackground(1);
+  ren->SetGradientBackground(true);
   ren->SetBackground2(0.7, 0.7, 0.7);
   window->AddRenderer(ren);
 
@@ -68,8 +56,8 @@ int TestQtWidget(int argc, char* argv[])
   detail::show(widgetOrWindow, QSize(300, 300));
   detail::process_events_and_wait(1000); // let's wait a little longer for the resize
 
-  int* windowSize = window->GetSize();
-  int* screenSize = window->GetScreenSize();
+  const int* windowSize = window->GetSize();
+  const int* screenSize = window->GetScreenSize();
   if (screenSize[0] < windowSize[0] || screenSize[1] < windowSize[1])
   {
     std::cout << "Expected vtkGenericOpenGLRenderWindow::GetScreenSize() "
@@ -80,11 +68,11 @@ int TestQtWidget(int argc, char* argv[])
 
   vtktesting->SetRenderWindow(window);
 
-  int retVal = vtktesting->RegressionTest(10);
+  int retVal = vtktesting->RegressionTest(0.05);
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:
-      return app.exec();
+      return QApplication::exec();
     case vtkTesting::FAILED:
     case vtkTesting::NOT_RUN:
       return EXIT_FAILURE;

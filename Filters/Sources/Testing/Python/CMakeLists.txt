@@ -1,18 +1,20 @@
 vtk_add_test_python(
+  coneResolution.py
+  glyph2D.py
   Disk.py
   OSCone.py
   TestButtonSource.py
+# TestEllipseArcSourceResolution.py #19221
+  TestExponentialPointSource.py
+  TestGlyphScaling.py
+  TestPlatonicNormals.py
+  TestPlatonicSolids.py
+  TestRegularPolygonSource.py
   TestStaticCellLocatorLineIntersection.py
   TestStaticPointLocatorLineIntersection.py
-  TestRegularPolygonSource.py
-  coneResolution.py
-  glyph2D.py
-  TestPlatonicSolids.py,NO_RT
-  TestGlyphScaling.py
-  TestEllipseArcSourceResolution.py
   )
-if(Module_vtkRenderingTk)
+if(TARGET VTK::RenderingTk)
   vtk_add_test_python(
-    squadViewer.py,NO_RT
+    squadViewer.py
     )
 endif()

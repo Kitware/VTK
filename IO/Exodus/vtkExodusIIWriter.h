@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExodusIIWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkExodusIIWriter
@@ -63,19 +48,20 @@
  * @warning
  *     We use the terms "point" and "node" interchangeably.
  *     Also, we use the terms "element" and "cell" interchangeably.
-*/
+ */
 
 #ifndef vtkExodusIIWriter_h
 #define vtkExodusIIWriter_h
 
 #include "vtkIOExodusModule.h" // For export macro
+#include "vtkSmartPointer.h"   // For vtkSmartPointer
 #include "vtkWriter.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
 
-#include <vector> // STL Header
 #include <map>    // STL Header
 #include <string> // STL Header
+#include <vector> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkModelMetadata;
 class vtkDoubleArray;
 class vtkIntArray;
@@ -84,9 +70,9 @@ class vtkUnstructuredGrid;
 class VTKIOEXODUS_EXPORT vtkExodusIIWriter : public vtkWriter
 {
 public:
-  static vtkExodusIIWriter *New ();
-  vtkTypeMacro(vtkExodusIIWriter,vtkWriter);
-  void PrintSelf (ostream& os, vtkIndent indent) override;
+  static vtkExodusIIWriter* New();
+  vtkTypeMacro(vtkExodusIIWriter, vtkWriter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Specify the vtkModelMetadata object which contains the Exodus file
@@ -98,7 +84,7 @@ public:
    * find it and use it.
    */
 
-  void SetModelMetadata (vtkModelMetadata*);
+  void SetModelMetadata(vtkModelMetadata*);
   vtkGetObjectMacro(ModelMetadata, vtkModelMetadata);
 
   /**
@@ -108,8 +94,8 @@ public:
    * If not set, this class will make up a file name.
    */
 
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
 
   /**
    * If StoreDoubles is ON, the floating point fields in the Exodus file
@@ -129,11 +115,11 @@ public:
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
 
-   /**
-    * By default, the integer array containing the global Block Ids of the
-    * cells is not included when the new Exodus II file is written out.  If
-    * you do want to include this array, set WriteOutBlockIdArray to ON.
-    */
+  /**
+   * By default, the integer array containing the global Block Ids of the
+   * cells is not included when the new Exodus II file is written out.  If
+   * you do want to include this array, set WriteOutBlockIdArray to ON.
+   */
 
   vtkSetMacro(WriteOutBlockIdArray, vtkTypeBool);
   vtkGetMacro(WriteOutBlockIdArray, vtkTypeBool);
@@ -181,14 +167,14 @@ public:
   vtkBooleanMacro(IgnoreMetaDataWarning, bool);
 
 protected:
-  vtkExodusIIWriter ();
-  ~vtkExodusIIWriter () override;
+  vtkExodusIIWriter();
+  ~vtkExodusIIWriter() override;
 
   vtkModelMetadata* ModelMetadata;
 
-  char *BlockIdArrayName;
+  char* BlockIdArrayName;
 
-  char *FileName;
+  char* FileName;
   int fid;
 
   int NumberOfProcesses;
@@ -209,18 +195,18 @@ protected:
   bool TopologyChanged;
   bool IgnoreMetaDataWarning;
 
-  vtkDataObject *OriginalInput;
-  std::vector< vtkSmartPointer<vtkUnstructuredGrid> > FlattenedInput;
-  std::vector< vtkSmartPointer<vtkUnstructuredGrid> > NewFlattenedInput;
+  vtkDataObject* OriginalInput;
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> FlattenedInput;
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> NewFlattenedInput;
 
-  std::vector< vtkStdString > FlattenedNames;
-  std::vector< vtkStdString > NewFlattenedNames;
+  std::vector<vtkStdString> FlattenedNames;
+  std::vector<vtkStdString> NewFlattenedNames;
 
-  std::vector< vtkIntArray* > BlockIdList;
+  std::vector<vtkIntArray*> BlockIdList;
 
   struct Block
   {
-    Block ()
+    Block()
     {
       this->Name = nullptr;
       this->Type = 0;
@@ -233,8 +219,8 @@ protected:
       this->OutputIndex = -1;
       this->NumAttributes = 0;
       this->BlockAttributes = nullptr;
-    };
-    const char *Name;
+    }
+    const char* Name;
     int Type;
     int NumElements;
     int ElementStartIndex;
@@ -245,7 +231,7 @@ protected:
     // std::vector<int> CellIndex;
     int OutputIndex;
     int NumAttributes;
-    float *BlockAttributes; // Owned by metamodel or null.  Don't delete.
+    float* BlockAttributes; // Owned by metamodel or null.  Don't delete.
   };
   std::map<int, Block> BlockInfoMap;
   int NumCells, NumPoints, MaxId;
@@ -270,102 +256,93 @@ protected:
   int NumberOfScalarElementArrays;
   int NumberOfScalarNodeArrays;
 
-  std::vector< std::vector<int> > CellToElementOffset;
+  std::vector<std::vector<int>> CellToElementOffset;
 
   // By BlockId, and within block ID by element variable, with variables
   // appearing in the same order in which they appear in OutputElementArrayNames
 
-  int *BlockElementVariableTruthTable;
+  int* BlockElementVariableTruthTable;
   int AllVariablesDefinedInAllBlocks;
 
   int BlockVariableTruthValue(int blockIdx, int varIdx);
 
-  char *StrDupWithNew (const char *s);
-  void StringUppercase (std::string& str);
+  char* StrDupWithNew(const char* s);
+  void StringUppercase(std::string& str);
 
-  vtkTypeBool ProcessRequest (vtkInformation* request,
-                      vtkInformationVector** inputVector,
-                      vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestInformation (vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
-  virtual int RequestUpdateExtent (vtkInformation* request,
-                                   vtkInformationVector** inputVector,
-                                   vtkInformationVector* outputVector);
+  virtual int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
-  int FillInputPortInformation (int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData (vtkInformation* request,
-                   vtkInformationVector** inputVector,
-                   vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  void WriteData () override;
+  void WriteData() override;
 
-  int FlattenHierarchy (vtkDataObject* input, const char *name, bool& changed);
+  int FlattenHierarchy(vtkDataObject* input, const char* name, bool& changed);
 
-  int CreateNewExodusFile ();
-  void CloseExodusFile ();
+  int CreateNewExodusFile();
+  void CloseExodusFile();
 
-  int IsDouble ();
-  void RemoveGhostCells ();
-  int CheckParametersInternal (int NumberOfProcesses, int MyRank);
-  virtual int CheckParameters ();
+  int IsDouble();
+  void RemoveGhostCells();
+  int CheckParametersInternal(int numberOfProcesses, int myRank);
+  virtual int CheckParameters();
   // If writing in parallel multiple time steps exchange after each time step
   // if we should continue the execution. Pass local continueExecution as a
   // parameter and return the global continueExecution.
   virtual int GlobalContinueExecuting(int localContinueExecution);
-  int CheckInputArrays ();
+  int CheckInputArrays();
   virtual void CheckBlockInfoMap();
-  int ConstructBlockInfoMap ();
-  int ConstructVariableInfoMaps ();
-  int ParseMetadata ();
-  int CreateDefaultMetadata ();
-  char *GetCellTypeName (int t);
+  int ConstructBlockInfoMap();
+  int ConstructVariableInfoMaps();
+  int ParseMetadata();
+  int CreateDefaultMetadata();
+  char* GetCellTypeName(int t);
 
-  int CreateBlockIdMetadata(vtkModelMetadata *em);
-  int CreateBlockVariableMetadata (vtkModelMetadata* em);
-  int CreateSetsMetadata (vtkModelMetadata* em);
+  int CreateBlockIdMetadata(vtkModelMetadata* em);
+  int CreateBlockVariableMetadata(vtkModelMetadata* em);
+  int CreateSetsMetadata(vtkModelMetadata* em);
 
-  void ConvertVariableNames (std::map<std::string, VariableInfo>& variableMap);
-  char **FlattenOutVariableNames (
-            int nScalarArrays,
-            const std::map<std::string, VariableInfo>& variableMap);
-  std::string CreateNameForScalarArray (const char *root,
-                                           int component,
-                                           int numComponents);
+  void ConvertVariableNames(std::map<std::string, VariableInfo>& variableMap);
+  char** FlattenOutVariableNames(
+    int nScalarArrays, const std::map<std::string, VariableInfo>& variableMap);
+  std::string CreateNameForScalarArray(const char* root, int component, int numComponents);
 
-  std::map<vtkIdType, vtkIdType> *LocalNodeIdMap;
-  std::map<vtkIdType, vtkIdType> *LocalElementIdMap;
+  std::map<vtkIdType, vtkIdType>* LocalNodeIdMap;
+  std::map<vtkIdType, vtkIdType>* LocalElementIdMap;
 
   vtkIdType GetNodeLocalId(vtkIdType id);
   vtkIdType GetElementLocalId(vtkIdType id);
   int GetElementType(vtkIdType id);
 
-  int WriteInitializationParameters ();
-  int WriteInformationRecords ();
-  int WritePoints ();
-  int WriteCoordinateNames ();
-  int WriteGlobalPointIds ();
-  int WriteBlockInformation ();
-  int WriteGlobalElementIds ();
-  int WriteVariableArrayNames ();
-  int WriteNodeSetInformation ();
-  int WriteSideSetInformation ();
-  int WriteProperties ();
-  int WriteNextTimeStep ();
-  vtkIntArray* GetBlockIdArray (
-    const char* BlockIdArrayName, vtkUnstructuredGrid* input);
-  static bool SameTypeOfCells (vtkIntArray* cellToBlockId,
-                               vtkUnstructuredGrid* input);
+  int WriteInitializationParameters();
+  int WriteInformationRecords();
+  int WritePoints();
+  int WriteCoordinateNames();
+  int WriteGlobalPointIds();
+  int WriteBlockInformation();
+  int WriteGlobalElementIds();
+  int WriteVariableArrayNames();
+  int WriteNodeSetInformation();
+  int WriteSideSetInformation();
+  int WriteProperties();
+  int WriteNextTimeStep();
+  vtkIntArray* GetBlockIdArray(const char* BlockIdArrayName, vtkUnstructuredGrid* input);
+  static bool SameTypeOfCells(vtkIntArray* cellToBlockId, vtkUnstructuredGrid* input);
 
-  double ExtractGlobalData (const char *name, int comp, int ts);
-  int WriteGlobalData (int timestep, vtkDataArray *buffer);
-  void ExtractCellData (const char *name, int comp, vtkDataArray *buffer);
-  int WriteCellData (int timestep, vtkDataArray *buffer);
-  void ExtractPointData (const char *name, int comp, vtkDataArray *buffer);
-  int WritePointData (int timestep, vtkDataArray *buffer);
+  double ExtractGlobalData(const char* name, int comp, int ts);
+  int WriteGlobalData(int timestep, vtkDataArray* buffer);
+  void ExtractCellData(const char* name, int comp, vtkDataArray* buffer);
+  int WriteCellData(int timestep, vtkDataArray* buffer);
+  void ExtractPointData(const char* name, int comp, vtkDataArray* buffer);
+  int WritePointData(int timestep, vtkDataArray* buffer);
 
   /**
    * Get the maximum length name in the input data set. If it is smaller
@@ -374,8 +351,9 @@ protected:
   virtual unsigned int GetMaxNameLength();
 
 private:
-  vtkExodusIIWriter (const vtkExodusIIWriter&) = delete;
-  void operator= (const vtkExodusIIWriter&) = delete;
+  vtkExodusIIWriter(const vtkExodusIIWriter&) = delete;
+  void operator=(const vtkExodusIIWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLookupTableWithEnabling.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLookupTableWithEnabling
  * @brief   A lookup table that allows for an
@@ -28,61 +16,58 @@
  * Indices of EnabledArray must map directly to those of the array passed
  * to MapScalars().
  *
-*/
+ */
 
 #ifndef vtkLookupTableWithEnabling_h
 #define vtkLookupTableWithEnabling_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkLookupTable.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 
 class VTKRENDERINGCORE_EXPORT vtkLookupTableWithEnabling : public vtkLookupTable
 {
 public:
-  static vtkLookupTableWithEnabling *New();
+  static vtkLookupTableWithEnabling* New();
 
-  vtkTypeMacro(vtkLookupTableWithEnabling,vtkLookupTable);
+  vtkTypeMacro(vtkLookupTableWithEnabling, vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * This must be set before MapScalars() is called.
    * Indices of this array must map directly to those in the scalars array
    * passed to MapScalars().
    * Values of 0 in the array indicate the color should be desaturatated.
    */
-  vtkGetObjectMacro(EnabledArray,vtkDataArray);
-  virtual void SetEnabledArray(vtkDataArray *enabledArray);
-  //@}
+  vtkGetObjectMacro(EnabledArray, vtkDataArray);
+  virtual void SetEnabledArray(vtkDataArray* enabledArray);
+  ///@}
 
   /**
    * Map a set of scalars through the lookup table.
    */
-  void MapScalarsThroughTable2(void *input, unsigned char *output,
-                               int inputDataType, int numberOfValues,
-                               int inputIncrement, int outputIncrement) override;
+  void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
+    int numberOfValues, int inputIncrement, int outputFormat) override;
 
   /**
    * A convenience method for taking a color and desaturating it.
    */
-  virtual void DisableColor(unsigned char r, unsigned char g, unsigned char b,
-                   unsigned char *rd, unsigned char *gd, unsigned char *bd);
+  virtual void DisableColor(unsigned char r, unsigned char g, unsigned char b, unsigned char* rd,
+    unsigned char* gd, unsigned char* bd);
 
 protected:
-  vtkLookupTableWithEnabling(int sze=256, int ext=256);
+  vtkLookupTableWithEnabling(int sze = 256, int ext = 256);
   ~vtkLookupTableWithEnabling() override;
 
-  vtkDataArray *EnabledArray;
+  vtkDataArray* EnabledArray;
 
 private:
   vtkLookupTableWithEnabling(const vtkLookupTableWithEnabling&) = delete;
   void operator=(const vtkLookupTableWithEnabling&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-

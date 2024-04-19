@@ -1,16 +1,18 @@
 import os, sys
 
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-else:
-    # for Python3
-    import tkinter
+import tkinter
 
-from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
+from vtkmodules.tk.vtkTkRenderWidget import vtkTkRenderWidget
 
 
 class TestTkRenderWidget(Testing.vtkTest):
@@ -23,17 +25,17 @@ class TestTkRenderWidget(Testing.vtkTest):
     root = tkinter.Tk()
 
     # create a rendering window and renderer
-    ren = vtk.vtkRenderer()
+    ren = vtkRenderer()
     tkrw = vtkTkRenderWidget(root, width=300, height=300)
     tkrw.pack()
     tkrw.GetRenderWindow().AddRenderer(ren)
 
     # create an actor and give it cone geometry
-    cs = vtk.vtkConeSource()
+    cs = vtkConeSource()
     cs.SetResolution(8)
-    map = vtk.vtkPolyDataMapper()
+    map = vtkPolyDataMapper()
     map.SetInputConnection(cs.GetOutputPort())
-    act = vtk.vtkActor()
+    act = vtkActor()
     act.SetMapper(map)
 
     # assign our actor to the renderer

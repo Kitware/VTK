@@ -1,23 +1,26 @@
-#include "vtkBiDimensionalWidget.h"
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkBiDimensionalRepresentation2D.h"
+#include "vtkBiDimensionalWidget.h"
 
 #include <cstdlib>
 #include <iostream>
 
 #include "WidgetTestingMacros.h"
 
-int vtkBiDimensionalWidgetTest1(int , char * [] )
+int vtkBiDimensionalWidgetTest1(int, char*[])
 {
-  vtkSmartPointer< vtkBiDimensionalWidget > node1 = vtkSmartPointer< vtkBiDimensionalWidget >::New();
+  vtkSmartPointer<vtkBiDimensionalWidget> node1 = vtkSmartPointer<vtkBiDimensionalWidget>::New();
 
-  EXERCISE_BASIC_ABSTRACT_METHODS ( node1 );
+  EXERCISE_BASIC_ABSTRACT_METHODS(node1);
 
   std::cout << "Measure Valid = " << node1->IsMeasureValid() << std::endl;
 
   node1->SetProcessEvents(1);
   node1->SetProcessEvents(0);
 
-   vtkSmartPointer<vtkBiDimensionalRepresentation2D> rep1 = vtkSmartPointer<vtkBiDimensionalRepresentation2D>::New();
+  vtkSmartPointer<vtkBiDimensionalRepresentation2D> rep1 =
+    vtkSmartPointer<vtkBiDimensionalRepresentation2D>::New();
   node1->SetRepresentation(rep1);
 
   return EXIT_SUCCESS;

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPExtractRectilinearGrid.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPExtractRectilinearGrid
  * @brief   Extract VOI and/or sub-sample a distributed
@@ -26,39 +14,37 @@
  *
  * @sa
  *  vtkExtractRectilinearGrid
-*/
+ */
 
 #ifndef vtkPExtractRectilinearGrid_h
 #define vtkPExtractRectilinearGrid_h
 
-#include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkExtractRectilinearGrid.h"
+#include "vtkFiltersParallelMPIModule.h" // For export macro
 
 // Forward Declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 class vtkMPIController;
 
-class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractRectilinearGrid :
-  public vtkExtractRectilinearGrid
+class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractRectilinearGrid : public vtkExtractRectilinearGrid
 {
 public:
   static vtkPExtractRectilinearGrid* New();
-  vtkTypeMacro(vtkPExtractRectilinearGrid,vtkExtractRectilinearGrid);
+  vtkTypeMacro(vtkPExtractRectilinearGrid, vtkExtractRectilinearGrid);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPExtractRectilinearGrid();
-  virtual ~vtkPExtractRectilinearGrid();
+  ~vtkPExtractRectilinearGrid() override;
 
   // Standard VTK Pipeline methods
-  virtual int RequestData(
-      vtkInformation*, vtkInformationVector**,vtkInformationVector*) override;
-  virtual int RequestInformation(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  virtual int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  void SetController(vtkMPIController*);
   vtkMPIController* Controller;
 
 private:
@@ -66,4 +52,5 @@ private:
   void operator=(const vtkPExtractRectilinearGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTKPEXTRACTRECTILINEARGRID_H_ */

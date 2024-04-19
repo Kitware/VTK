@@ -1,27 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
 
 import sys
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkIOImage import vtkVolume16Reader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 import sys
@@ -35,14 +32,14 @@ sys.dont_write_bytecode = True
 
 import SliceOrder
 
-class skinOrder(vtk.test.Testing.vtkTest):
+class skinOrder(vtkmodules.test.Testing.vtkTest):
 
     def testSkinOrder(self):
 
         # Create the RenderWindow, Renderer and Interactor
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
         RESOLUTION = 64
@@ -57,7 +54,7 @@ class skinOrder(vtk.test.Testing.vtkTest):
         endZ = END_SLICE - 1
         origin = (RESOLUTION / 2.0) * PIXEL_SIZE * -1.0
 
-        math = vtk.vtkMath()
+        math = vtkMath()
 
         orders = ["ap", "pa", "si", "iss", "lr", "rl"]
         sliceOrder = SliceOrder.SliceOrder()
@@ -75,7 +72,7 @@ class skinOrder(vtk.test.Testing.vtkTest):
                     [0.650247, 0.700527, 0.752458]]
 
         for idx, order in enumerate(orders):
-            reader.append(vtk.vtkVolume16Reader())
+            reader.append(vtkVolume16Reader())
             reader[idx].SetDataDimensions(RESOLUTION, RESOLUTION)
             reader[idx].SetFilePrefix(VTK_DATA_ROOT + '/Data/headsq/quarter')
             reader[idx].SetDataSpacing(PIXEL_SIZE, PIXEL_SIZE, 1.5)
@@ -102,16 +99,16 @@ class skinOrder(vtk.test.Testing.vtkTest):
             reader[idx].SetDataByteOrderToLittleEndian()
             reader[idx].GetExecutive().SetReleaseDataFlag(0, 1)
 
-            iso.append(vtk.vtkContourFilter())
+            iso.append(vtkContourFilter())
             iso[idx].SetInputConnection(reader[idx].GetOutputPort())
             iso[idx].SetValue(0, 550.5)
             iso[idx].ComputeScalarsOff()
             iso[idx].ReleaseDataFlagOn()
 
-            mapper.append(vtk.vtkPolyDataMapper())
+            mapper.append(vtkPolyDataMapper())
             mapper[idx].SetInputConnection(iso[idx].GetOutputPort())
 
-            actor.append(vtk.vtkActor())
+            actor.append(vtkActor())
             actor[idx].SetMapper(mapper[idx])
 #            r = math.Random(.5, 1)
 #            g = math.Random(.5, 1)
@@ -135,14 +132,14 @@ class skinOrder(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
 
         renWin.Render()
 
         img_file = "skinOrder.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(skinOrder, 'test')])
+     vtkmodules.test.Testing.main([(skinOrder, 'test')])

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAttributeClustering2DLayoutStrategy.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkAttributeClustering2DLayoutStrategy
  * @brief   a simple fast 2D graph layout
@@ -28,16 +12,17 @@
  * @par Thanks:
  * Thanks to Godzilla for not eating my computer so that this class
  * could be written.
-*/
+ */
 
 #ifndef vtkAttributeClustering2DLayoutStrategy_h
 #define vtkAttributeClustering2DLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
-#include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
+#include "vtkSmartPointer.h" // Required for smart pointer internal ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFastSplatter;
 class vtkImageData;
 class vtkIntArray;
@@ -46,21 +31,21 @@ class vtkFloatArray;
 class VTKINFOVISLAYOUT_EXPORT vtkAttributeClustering2DLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkAttributeClustering2DLayoutStrategy *New();
+  static vtkAttributeClustering2DLayoutStrategy* New();
 
   vtkTypeMacro(vtkAttributeClustering2DLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The name of the array on the vertices, whose values will be used for
    * determining clusters.
    */
   vtkGetStringMacro(VertexAttribute);
   void SetVertexAttribute(const char*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Seed the random number generator used to jitter point positions.
    * This has a significant effect on their final positions when
@@ -68,9 +53,9 @@ public:
    */
   vtkSetClampMacro(RandomSeed, int, 0, VTK_INT_MAX);
   vtkGetMacro(RandomSeed, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of iterations to be used.
    * The higher this number, the more iterations through the algorithm
@@ -81,9 +66,9 @@ public:
    */
   vtkSetClampMacro(MaxNumberOfIterations, int, 0, VTK_INT_MAX);
   vtkGetMacro(MaxNumberOfIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of iterations per layout.
    * The only use for this ivar is for the application
@@ -93,9 +78,9 @@ public:
    */
   vtkSetClampMacro(IterationsPerLayout, int, 0, VTK_INT_MAX);
   vtkGetMacro(IterationsPerLayout, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the initial temperature.  The temperature default is '5'
    * for no particular reason
@@ -104,9 +89,9 @@ public:
    */
   vtkSetClampMacro(InitialTemperature, float, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(InitialTemperature, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Cool-down rate.
    * The higher this number is, the longer it will take to "cool-down",
@@ -117,16 +102,16 @@ public:
    */
   vtkSetClampMacro(CoolDownRate, double, 0.01, VTK_DOUBLE_MAX);
   vtkGetMacro(CoolDownRate, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Manually set the resting distance. Otherwise the
    * distance is computed automatically.
    */
   vtkSetMacro(RestDistance, float);
   vtkGetMacro(RestDistance, float);
-  //@}
+  ///@}
 
   /**
    * This strategy sets up some data structures
@@ -147,24 +132,23 @@ public:
    * I'm an iterative layout so this method lets the caller
    * know if I'm done laying out the graph
    */
-  int IsLayoutComplete() override {return this->LayoutComplete;}
+  int IsLayoutComplete() override { return this->LayoutComplete; }
 
 protected:
   vtkAttributeClustering2DLayoutStrategy();
   ~vtkAttributeClustering2DLayoutStrategy() override;
 
-  int    MaxNumberOfIterations;  //Maximum number of iterations.
-  float  InitialTemperature;
-  float  CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
+  int MaxNumberOfIterations; // Maximum number of iterations.
+  float InitialTemperature;
+  float CoolDownRate; // Cool-down rate.  Note:  Higher # = Slower rate.
 
 private:
-
   // This class 'has a' vtkFastSplatter for the density grid
-  vtkSmartPointer<vtkFastSplatter>        DensityGrid;
-  vtkSmartPointer<vtkImageData>           SplatImage;
-  vtkSmartPointer<vtkFloatArray>          RepulsionArray;
-  vtkSmartPointer<vtkFloatArray>          AttractionArray;
-  vtkSmartPointer<vtkIntArray>            EdgeCountArray;
+  vtkSmartPointer<vtkFastSplatter> DensityGrid;
+  vtkSmartPointer<vtkImageData> SplatImage;
+  vtkSmartPointer<vtkFloatArray> RepulsionArray;
+  vtkSmartPointer<vtkFloatArray> AttractionArray;
+  vtkSmartPointer<vtkIntArray> EdgeCountArray;
 
   int RandomSeed;
   int IterationsPerLayout;
@@ -176,8 +160,8 @@ private:
   char* VertexAttribute;
 
   // Private helper methods
-  void GenerateCircularSplat(vtkImageData *splat, int x, int y);
-  void GenerateGaussianSplat(vtkImageData *splat, int x, int y);
+  void GenerateCircularSplat(vtkImageData* splat, int x, int y);
+  void GenerateGaussianSplat(vtkImageData* splat, int x, int y);
   void ResolveCoincidentVertices();
 
   class Internals;
@@ -187,5 +171,5 @@ private:
   void operator=(const vtkAttributeClustering2DLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

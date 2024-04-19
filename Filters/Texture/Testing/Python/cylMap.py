@@ -1,43 +1,60 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkDelaunay3D
+from vtkmodules.vtkFiltersSources import vtkPointSource
+from vtkmodules.vtkFiltersTexture import (
+    vtkTextureMapToCylinder,
+    vtkTransformTextureCoords,
+)
+from vtkmodules.vtkIOImage import vtkBMPReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Generate texture coordinates on a "random" sphere.
 # create some random points in a sphere
 #
-sphere = vtk.vtkPointSource()
+sphere = vtkPointSource()
 sphere.SetNumberOfPoints(25)
 # triangulate the points
 #
-del1 = vtk.vtkDelaunay3D()
+del1 = vtkDelaunay3D()
 del1.SetInputConnection(sphere.GetOutputPort())
 del1.SetTolerance(0.01)
 # texture map the sphere (using cylindrical coordinate system)
 #
-tmapper = vtk.vtkTextureMapToCylinder()
+tmapper = vtkTextureMapToCylinder()
 tmapper.SetInputConnection(del1.GetOutputPort())
 tmapper.PreventSeamOn()
-xform = vtk.vtkTransformTextureCoords()
+xform = vtkTransformTextureCoords()
 xform.SetInputConnection(tmapper.GetOutputPort())
 xform.SetScale(4,4,1)
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(xform.GetOutputPort())
 # load in the texture map and assign to actor
 #
-bmpReader = vtk.vtkBMPReader()
-bmpReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/masonry.bmp")
-atext = vtk.vtkTexture()
+bmpReader = vtkBMPReader()
+bmpReader.SetFileName(VTK_DATA_ROOT + "/Data/masonry.bmp")
+atext = vtkTexture()
 atext.SetInputConnection(bmpReader.GetOutputPort())
 atext.InterpolateOn()
-triangulation = vtk.vtkActor()
+triangulation = vtkActor()
 triangulation.SetMapper(mapper)
 triangulation.SetTexture(atext)
 # Create rendering stuff
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

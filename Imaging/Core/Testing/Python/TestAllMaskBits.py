@@ -1,40 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkTIFFReader
+from vtkmodules.vtkImagingCore import vtkImageShrink3D
+from vtkmodules.vtkImagingMath import vtkImageMaskBits
+from vtkmodules.vtkRenderingCore import (
+    vtkActor2D,
+    vtkImageMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestAllMaskBits(vtk.test.Testing.vtkTest):
+class TestAllMaskBits(vtkmodules.test.Testing.vtkTest):
 
     def testAllMaskBits(self):
 
         # This script calculates the luminance of an image
 
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
 
 
         # Image pipeline
 
-        image1 = vtk.vtkTIFFReader()
+        image1 = vtkTIFFReader()
         image1.SetFileName(VTK_DATA_ROOT + "/Data/beach.tif")
 
         # "beach.tif" image contains ORIENTATION tag which is
@@ -45,7 +42,7 @@ class TestAllMaskBits(vtk.test.Testing.vtkTest):
         # SetOrientationType method with parameter value of 4.
         image1.SetOrientationType(4)
 
-        shrink = vtk.vtkImageShrink3D()
+        shrink = vtkImageShrink3D()
         shrink.SetInputConnection(image1.GetOutputPort())
         shrink.SetShrinkFactors(2, 2, 1)
 
@@ -58,12 +55,12 @@ class TestAllMaskBits(vtk.test.Testing.vtkTest):
 
         for idx, op in enumerate(operators):
             if op != "ByPass":
-                operator.update({idx: vtk.vtkImageMaskBits()})
+                operator.update({idx: vtkImageMaskBits()})
                 operator[idx].SetInputConnection(shrink.GetOutputPort())
                 eval('operator[' + str(idx) + '].SetOperationTo' + op + '()')
                 operator[idx].SetMasks(255, 255, 0)
 
-            mapper.update({idx: vtk.vtkImageMapper()})
+            mapper.update({idx: vtkImageMapper()})
             if op != "ByPass":
                 mapper[idx].SetInputConnection(operator[idx].GetOutputPort())
             else:
@@ -71,10 +68,10 @@ class TestAllMaskBits(vtk.test.Testing.vtkTest):
             mapper[idx].SetColorWindow(255)
             mapper[idx].SetColorLevel(127.5)
 
-            actor.update({idx: vtk.vtkActor2D()})
+            actor.update({idx: vtkActor2D()})
             actor[idx].SetMapper(mapper[idx])
 
-            imager.update({idx: vtk.vtkRenderer()})
+            imager.update({idx: vtkRenderer()})
             imager[idx].AddActor2D(actor[idx])
 
             renWin.AddRenderer(imager[idx])
@@ -96,13 +93,13 @@ class TestAllMaskBits(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "TestAllMaskBits.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestAllMaskBits, 'test')])
+     vtkmodules.test.Testing.main([(TestAllMaskBits, 'test')])

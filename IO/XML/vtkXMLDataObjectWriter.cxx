@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLDataObjectWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLDataObjectWriter.h"
 
 #include "vtkAlgorithmOutput.h"
@@ -33,9 +21,10 @@
 #include "vtkXMLTableWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLDataObjectWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataObjectWriter::vtkXMLDataObjectWriter()
 {
   // Setup a callback for the internal writer to report progress.
@@ -44,25 +33,25 @@ vtkXMLDataObjectWriter::vtkXMLDataObjectWriter()
   this->InternalProgressObserver->SetClientData(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataObjectWriter::~vtkXMLDataObjectWriter()
 {
   this->InternalProgressObserver->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkXMLDataObjectWriter::GetInput()
 {
   return static_cast<vtkDataSet*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLWriter* vtkXMLDataObjectWriter::NewWriter(int dataset_type)
 {
   // Create a writer based on the data set type.
@@ -88,12 +77,11 @@ vtkXMLWriter* vtkXMLDataObjectWriter::NewWriter(int dataset_type)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLDataObjectWriter::WriteInternal()
 {
   // Create a writer based on the data set type.
-  vtkXMLWriter* writer =
-    vtkXMLDataObjectWriter::NewWriter(this->GetInput()->GetDataObjectType());
+  vtkXMLWriter* writer = vtkXMLDataObjectWriter::NewWriter(this->GetInput()->GetDataObjectType());
   if (writer)
   {
     writer->SetInputConnection(this->GetInputConnection(0, 0));
@@ -106,6 +94,7 @@ int vtkXMLDataObjectWriter::WriteInternal()
     writer->SetBlockSize(this->GetBlockSize());
     writer->SetDataMode(this->GetDataMode());
     writer->SetEncodeAppendedData(this->GetEncodeAppendedData());
+    writer->SetWriteTimeValue(this->GetWriteTimeValue());
     writer->SetHeaderType(this->GetHeaderType());
     writer->SetIdType(this->GetIdType());
     writer->AddObserver(vtkCommand::ProgressEvent, this->InternalProgressObserver);
@@ -121,27 +110,25 @@ int vtkXMLDataObjectWriter::WriteInternal()
 
   // Make sure we got a valid writer for the data set.
   vtkErrorMacro("Cannot write dataset type: "
-                << this->GetInput()->GetDataObjectType() << " which is a "
-                << this->GetInput()->GetClassName());
+    << this->GetInput()->GetDataObjectType() << " which is a " << this->GetInput()->GetClassName());
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLDataObjectWriter::GetDataSetName()
 {
   return "DataSet";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLDataObjectWriter::GetDefaultFileExtension()
 {
   return "vtk";
 }
 
-//----------------------------------------------------------------------------
-void vtkXMLDataObjectWriter::ProgressCallbackFunction(vtkObject* caller,
-                                                   unsigned long,
-                                                   void* clientdata, void*)
+//------------------------------------------------------------------------------
+void vtkXMLDataObjectWriter::ProgressCallbackFunction(
+  vtkObject* caller, unsigned long, void* clientdata, void*)
 {
   vtkAlgorithm* w = vtkAlgorithm::SafeDownCast(caller);
   if (w)
@@ -150,12 +137,12 @@ void vtkXMLDataObjectWriter::ProgressCallbackFunction(vtkObject* caller,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLDataObjectWriter::ProgressCallback(vtkAlgorithm* w)
 {
   float width = this->ProgressRange[1] - this->ProgressRange[0];
   float internalProgress = w->GetProgress();
-  float progress = this->ProgressRange[0] + internalProgress*width;
+  float progress = this->ProgressRange[0] + internalProgress * width;
   this->UpdateProgressDiscrete(progress);
   if (this->AbortExecute)
   {
@@ -163,10 +150,10 @@ void vtkXMLDataObjectWriter::ProgressCallback(vtkAlgorithm* w)
   }
 }
 
-//----------------------------------------------------------------------------
-int vtkXMLDataObjectWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+//------------------------------------------------------------------------------
+int vtkXMLDataObjectWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

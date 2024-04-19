@@ -1,19 +1,24 @@
 vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestArcSource.cxx,NO_VALID
+  TestArrowSource.cxx
+  TestCapsuleSource.cxx,NO_VALID
   TestCellTypeSource.cxx,NO_VALID
   TestConeSource.cxx,NO_VALID
   TestCubeSource.cxx,NO_VALID
   TestCylinderSource.cxx,NO_VALID
   TestDiskSource.cxx,NO_VALID
-  TestEllipticalButtonSource.cxx,NO_VALID
   TestEllipseArcSource.cxx
+  TestEllipticalButtonSource.cxx,NO_VALID
   TestFrustumSource.cxx,NO_VALID
   TestGlyphSource2D.cxx,NO_VALID
+  TestGlyphSource2DResolution.cxx,
+  TestHyperTreeGridPreConfiguredSource.cxx
   TestLineSource.cxx,NO_VALID
   TestMultiBlock.cxx
   TestOutlineCornerSource.cxx,NO_VALID
   TestOutlineSource.cxx,NO_VALID
   TestParametricFunctionSource.cxx,NO_VALID
+  TestPartitionedDataSetSource.cxx,NO_VALID
   TestPlaneSource.cxx,NO_VALID
   TestPlatonicSolidSource.cxx,NO_VALID
   TestPointSource.cxx,NO_VALID
@@ -23,12 +28,35 @@ vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestRandomHyperTreeGridSource.cxx
   TestRectangularButtonSource.cxx,NO_VALID
   TestRegularPolygonSource.cxx,NO_VALID
+  TestSpatioTemporalHarmonicsSource.cxx
   TestSphereSource.cxx,NO_VALID
   TestSuperquadricSource.cxx,NO_VALID
   TestTessellatedBoxSource.cxx,NO_VALID
   TestTextSource.cxx,NO_VALID
   TestTexturedSphereSource.cxx,NO_VALID
-  TestGlyphSource2DResolution.cxx,
   )
+
 vtk_test_cxx_executable(vtkFiltersSourcesCxxTests tests
-  RENDERING_FACTORY)
+  DISABLE_FLOATING_POINT_EXCEPTIONS
+  RENDERING_FACTORY
+  )
+
+if(TARGET VTK::ParallelMPI)
+   set(vtkFiltersSourcesCxxTests-MPI_NUMPROCS 2)
+   vtk_add_test_mpi(vtkFiltersSourcesCxxTests-MPI tests_mpi_2
+     TESTING_DATA
+     TestSpatioTemporalHarmonicsSourceDistributed.cxx
+   )
+   set(vtkFiltersSourcesCxxTests-MPI_NUMPROCS 3)
+   vtk_add_test_mpi(vtkFiltersSourcesCxxTests-MPI tests_mpi_3
+     TESTING_DATA
+     TestRandomHyperTreeGridSourceMPI3,TestRandomHyperTreeGridSourceDistributed.cxx
+   )
+   set(tests_mpi
+     ${tests_mpi_2}
+     ${tests_mpi_3}
+   )
+  vtk_test_cxx_executable(vtkFiltersSourcesCxxTests-MPI tests_mpi
+    RENDERING_FACTORY
+  )
+endif()

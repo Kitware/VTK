@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStructuredGridGeometryFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkStructuredGridGeometryFilter
  * @brief   extract geometry for structured grid
@@ -39,7 +27,7 @@
  *
  * @sa
  * vtkGeometryFilter vtkExtractGrid vtkStructuredGrid
-*/
+ */
 
 #ifndef vtkStructuredGridGeometryFilter_h
 #define vtkStructuredGridGeometryFilter_h
@@ -47,20 +35,21 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkStructuredGridGeometryFilter *New();
-  vtkTypeMacro(vtkStructuredGridGeometryFilter,vtkPolyDataAlgorithm);
+  static vtkStructuredGridGeometryFilter* New();
+  vtkTypeMacro(vtkStructuredGridGeometryFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the extent in topological coordinate range (imin,imax, jmin,jmax,
    * kmin,kmax).
    */
-  vtkGetVectorMacro(Extent,int,6);
-  //@}
+  vtkGetVectorMacro(Extent, int, 6);
+  ///@}
 
   /**
    * Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
@@ -74,18 +63,18 @@ public:
 
 protected:
   vtkStructuredGridGeometryFilter();
-  ~vtkStructuredGridGeometryFilter() override {}
+  ~vtkStructuredGridGeometryFilter() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int Extent[6];
+
 private:
   vtkStructuredGridGeometryFilter(const vtkStructuredGridGeometryFilter&) = delete;
   void operator=(const vtkStructuredGridGeometryFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

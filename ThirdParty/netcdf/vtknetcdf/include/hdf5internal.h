@@ -1,4 +1,4 @@
-/* Copyright 2018-2018 University Corporation for Atmospheric
+/* Copyright 2018-2022 University Corporation for Atmospheric
    Research/Unidata. */
 /**
  * @file This header file contains macros, types, and prototypes for
@@ -17,10 +17,11 @@
 #include "ncdimscale.h"
 #include "nc4dispatch.h"
 #include "hdf5dispatch.h"
+#include "netcdf_filter.h"
 
 #define NC_MAX_HDF5_NAME (NC_MAX_NAME + 10)
 
-/* These have to do with creating chuncked datasets in HDF5. */
+/* These have to do with creating chunked datasets in HDF5. */
 #define NC_HDF5_UNLIMITED_DIMSIZE (0)
 #define NC_HDF5_CHUNKSIZE_FACTOR (10)
 #define NC_HDF5_MIN_CHUNK_SIZE (2)
@@ -28,8 +29,10 @@
 #define NC_EMPTY_SCALE "NC_EMPTY_SCALE"
 
 /* This is an attribute I had to add to handle multidimensional
- * coordinate variables. */
-#define COORDINATES "_Netcdf4Coordinates"
+ * coordinate variables. See nc4internal.h:NC_ATT_COORDINATES.
+ * in nc4internal.h.
+ */
+#define COORDINATES NC_ATT_COORDINATES
 #define COORDINATES_LEN (NC_MAX_NAME * 5)
 
 /* This is used when the user defines a non-coordinate variable with
@@ -38,26 +41,30 @@
 
 /* An attribute in the HDF5 root group of this name means that the
  * file must follow strict netCDF classic format rules. */
-#define NC3_STRICT_ATT_NAME "_nc3_strict"
+#define NC3_STRICT_ATT_NAME NC_ATT_NC3_STRICT_NAME
 
 /* If this attribute is present on a dimscale variable, use the value
  * as the netCDF dimid. */
-#define NC_DIMID_ATT_NAME "_Netcdf4Dimid"
+#define NC_DIMID_ATT_NAME NC_ATT_DIMID_NAME /*See nc4internal.h*/
 
 /** This is the name of the class HDF5 dimension scale attribute. */
-#define HDF5_DIMSCALE_CLASS_ATT_NAME "CLASS"
+#define HDF5_DIMSCALE_CLASS_ATT_NAME NC_ATT_CLASS /*See nc4internal.h*/
 
 /** This is the name of the name HDF5 dimension scale attribute. */
-#define HDF5_DIMSCALE_NAME_ATT_NAME "NAME"
+#define HDF5_DIMSCALE_NAME_ATT_NAME NC_ATT_NAME
+
+/* forward */
+struct NCauth;
 
 /** Struct to hold HDF5-specific info for the file. */
 typedef struct NC_HDF5_FILE_INFO {
    hid_t hdfid;
-#ifdef ENABLE_BYTERANGE
-   struct HTTP {
-	NCURI* uri; /* Parse of the incoming path, if url */
-	int iosp; /* We are using the S3 rawvirtual file driver */
-   } http;
+#if defined(ENABLE_BYTERANGE)
+   int byterange;
+   NCURI* uri; /* Parse of the incoming path, if url */
+#if defined(ENABLE_HDF5_ROS3) || defined(ENABLE_S3_SDK)
+   struct NCauth* auth;
+#endif
 #endif
 } NC_HDF5_FILE_INFO_T;
 
@@ -85,6 +92,10 @@ typedef struct NC_HDF5_VAR_INFO
 {
     hid_t hdf_datasetid;
     HDF5_OBJID_T *dimscale_hdf5_objids;
+    nc_bool_t dimscale;          /**< True if var is a dimscale. */
+    nc_bool_t *dimscale_attached;  /**< Array of flags that are true if dimscale is attached for that dim index. */
+    int flags;
+#       define NC_HDF5_VAR_FILTER_MISSING 1 /* if any filter is missing */
 } NC_HDF5_VAR_INFO_T;
 
 /* Struct to hold HDF5-specific info for a field. */
@@ -104,6 +115,7 @@ typedef struct NC_HDF5_TYPE_INFO
 /* Logging and debugging. */
 void reportopenobjects(int log, hid_t);
 int hdf5_set_log_level();
+void nc_log_hdf5(void);
 
 /* These functions deal with HDF5 dimension scales. */
 int rec_detach_scales(NC_GRP_INFO_T *grp, int dimid, hid_t dimscaleid);
@@ -130,6 +142,7 @@ int nc4_get_hdf_typeid(NC_FILE_INFO_T *h5, nc_type xtype,
 int nc4_close_hdf5_file(NC_FILE_INFO_T *h5, int abort, NC_memio *memio);
 int nc4_rec_grp_HDF5_del(NC_GRP_INFO_T *grp);
 int nc4_enddef_netcdf4_file(NC_FILE_INFO_T *h5);
+int nc4_HDF5_close_type(NC_TYPE_INFO_T* type);
 
 /* Break & reform coordinate variables */
 int nc4_break_coord_var(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *coord_var, NC_DIM_INFO_T *dim);
@@ -146,9 +159,6 @@ extern int nc4_create_dim_wo_var(NC_DIM_INFO_T *dim);
  * name, but the var is not a coord var of that dim. */
 extern int nc4_give_var_secret_name(NC_VAR_INFO_T *var);
 
-/* Get the fill value for a var. */
-int nc4_get_fill_value(NC_FILE_INFO_T *h5, NC_VAR_INFO_T *var, void **fillp);
-
 /* Find file, group, var, and att info, doing lazy reads if needed. */
 int nc4_hdf5_find_grp_var_att(int ncid, int varid, const char *name, int attnum,
                               int use_name, char *norm_name, NC_FILE_INFO_T **h5,
@@ -159,12 +169,53 @@ int nc4_hdf5_find_grp_var_att(int ncid, int varid, const char *name, int attnum,
 int nc4_hdf5_find_grp_h5_var(int ncid, int varid, NC_FILE_INFO_T **h5,
                              NC_GRP_INFO_T **grp, NC_VAR_INFO_T **var);
 
+int nc4_HDF5_close_att(NC_ATT_INFO_T *att);
+
 /* Perform lazy read of the rest of the metadata for a var. */
 int nc4_get_var_meta(NC_VAR_INFO_T *var);
+
+/* Get the file chunk cache settings from HDF5. */
+int nc4_hdf5_get_chunk_cache(int ncid, size_t *sizep, size_t *nelemsp,
+			     float *preemptionp);
+/* Filter Dispatch Entries */
+int NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int filterid, size_t nparams, const unsigned int *params);
+int NC4_hdf5_inq_var_filter_ids(int ncid, int varid, size_t* nfiltersp, unsigned int *filterids);
+int NC4_hdf5_inq_var_filter_info(int ncid, int varid, unsigned int filterid, size_t* nparamsp, unsigned int *params);
+int NC4_hdf5_inq_filter_avail(int ncid, unsigned id);
+
+/* Filterlist management */
+
+/* The NC_VAR_INFO_T->filters field is an NClist of this struct */
+struct NC_HDF5_Filter {
+    int flags;             /**< Flags describing state of this filter. */
+#       define NC_HDF5_FILTER_MISSING 1 /* Filter implementation is not accessible */
+    unsigned int filterid; /**< ID for arbitrary filter. */
+    size_t nparams;        /**< nparams for arbitrary filter. */
+    unsigned int* params;  /**< Params for arbitrary filter. */
+};
+
+int NC4_hdf5_filter_initialize(void);
+int NC4_hdf5_filter_finalize(void);
+int NC4_hdf5_filter_remove(NC_VAR_INFO_T* var, unsigned int id);
+int NC4_hdf5_filter_lookup(NC_VAR_INFO_T* var, unsigned int id, struct NC_HDF5_Filter** fi);
+int NC4_hdf5_addfilter(NC_VAR_INFO_T* var, unsigned int id, size_t nparams, const unsigned int* params, int flags);
+int NC4_hdf5_filter_freelist(NC_VAR_INFO_T* var);
+int NC4_hdf5_find_missing_filter(NC_VAR_INFO_T* var, unsigned int* idp);
+
+/* Add an attribute to the attribute list. */
+int nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
+		size_t len, const void *data, nc_type mem_type, int force);
 
 /* Support functions for provenance info (defined in nc4hdf.c) */
 extern int NC4_hdf5get_libversion(unsigned*,unsigned*,unsigned*);/*libsrc4/nc4hdf.c*/
 extern int NC4_hdf5get_superblock(struct NC_FILE_INFO*, int*);/*libsrc4/nc4hdf.c*/
 extern int NC4_isnetcdf4(struct NC_FILE_INFO*); /*libsrc4/nc4hdf.c*/
+
+extern int nc4_find_default_chunksizes2(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var);
+
+EXTERNL hid_t nc4_H5Fopen(const char *filename, unsigned flags, hid_t fapl_id);
+EXTERNL hid_t nc4_H5Fcreate(const char *filename, unsigned flags, hid_t fcpl_id, hid_t fapl_id);
+
+int hdf5set_format_compatibility(hid_t fapl_id);
 
 #endif /* _HDF5INTERNAL_ */

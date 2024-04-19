@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolygonBuilder.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPolygonBuilder
  *
@@ -20,20 +8,21 @@
  *  It is assumed that the input triangles form a simple polygon. It is
  *  currently used to compute polygons for slicing.
  *
-*/
+ */
 
 #ifndef vtkPolygonBuilder_h
 #define vtkPolygonBuilder_h
 
 #include "vtkCommonMiscModule.h" // For export macro
-#include <map> //for private data members
-#include <vector> // for private data members
-#include <utility> //for private data members
-#include "vtkType.h" //for basic types
-#include <cstddef> //for size_t
-#include "vtkObject.h"
 #include "vtkIdList.h"
+#include "vtkObject.h"
+#include "vtkType.h" //for basic types
+#include <cstddef>   //for size_t
+#include <map>       //for private data members
+#include <utility>   //for private data members
+#include <vector>    // for private data members
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdListCollection;
 
 class VTKCOMMONMISC_EXPORT vtkPolygonBuilder
@@ -59,9 +48,9 @@ public:
   void Reset();
 
 private:
-  typedef std::pair<vtkIdType,vtkIdType> Edge;
-  typedef std::map<Edge,size_t> EdgeHistogram;
-  typedef std::multimap<vtkIdType,vtkIdType> EdgeMap;
+  typedef std::pair<vtkIdType, vtkIdType> Edge;
+  typedef std::map<Edge, size_t> EdgeHistogram;
+  typedef std::multimap<vtkIdType, vtkIdType> EdgeMap;
   typedef std::vector<vtkIdType> Triangle;
   typedef std::vector<Triangle> Triangles;
   typedef std::map<vtkIdType, Triangles> TriangleMap;
@@ -72,5 +61,6 @@ private:
   EdgeMap Edges;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPolygonBuilder.h

@@ -1,0 +1,31 @@
+NAME
+  VTK::IOChemistry
+LIBRARY_NAME
+  vtkIOChemistry
+DESCRIPTION
+  File readers used in chemistry
+IMPLEMENTABLE
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::CommonSystem
+  VTK::DomainsChemistry
+  VTK::RenderingCore
+  VTK::vtksys
+  VTK::zlib
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::DomainsChemistry
+  VTK::FiltersGeometry
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestCoincidentGraphLayoutView.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataRepresentation.h"
@@ -27,21 +11,21 @@
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkPoints.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLTreeReader.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <sstream>
 
-template<typename T> std::string ToString(const T& x)
+template <typename T>
+std::string ToString(const T& x)
 {
   std::ostringstream oss;
   oss << x;
@@ -54,11 +38,11 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   VTK_CREATE(vtkPoints, points);
   VTK_CREATE(vtkDoubleArray, pointData);
   pointData->SetNumberOfComponents(3);
-  points->SetData(static_cast<vtkDataArray *>(pointData));
+  points->SetData(static_cast<vtkDataArray*>(pointData));
   graph->SetPoints(points);
   vtkIdType i = 0;
 
-  for(i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
   {
     graph->AddVertex();
     points->InsertNextPoint(0.0, 0.0, 0.0);
@@ -81,17 +65,16 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   graph->AddVertex();
   points->InsertNextPoint(3.0, 0.0, 0.0);
 
-  for(i = 1; i < 10; i++)
+  for (i = 1; i < 10; i++)
   {
     graph->AddEdge(0, i);
   }
 
-  for(i = 10; i < 17; i++)
+  for (i = 10; i < 17; i++)
   {
     graph->AddEdge(i, i + 1);
   }
   graph->AddEdge(0, 10);
-
 
   VTK_CREATE(vtkStringArray, name);
   name->SetName("name");

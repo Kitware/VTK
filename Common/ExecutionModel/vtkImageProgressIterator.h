@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageProgressIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageProgressIterator
  * @brief   a simple image iterator with progress
@@ -21,16 +9,17 @@
  *
  * @sa
  * vtkImageData vtkImageIterator
-*/
+ */
 
 #ifndef vtkImageProgressIterator_h
 #define vtkImageProgressIterator_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageIterator.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 
-template<class DType>
+template <class DType>
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator : public vtkImageIterator<DType>
 {
 public:
@@ -41,8 +30,7 @@ public:
    * and extent to iterate over. The passes progress object will
    * receive any UpdateProgress calls if the thread id is zero
    */
-  vtkImageProgressIterator(vtkImageData *imgd, int *ext,
-                           vtkAlgorithm *po, int id);
+  vtkImageProgressIterator(vtkImageData* imgd, int* ext, vtkAlgorithm* po, int id);
 
   /**
    * Move the iterator to the next span, may call UpdateProgress on the
@@ -57,18 +45,18 @@ public:
   vtkTypeBool IsAtEnd();
 
 protected:
-  vtkAlgorithm     *Algorithm;
-  unsigned long     Count;
-  unsigned long     Count2;
-  unsigned long     Target;
-  int               ID;
+  vtkAlgorithm* Algorithm;
+  unsigned long Count;
+  unsigned long Count2;
+  unsigned long Target;
+  int ID;
 };
 
 #ifndef vtkImageProgressIterator_cxx
 vtkExternTemplateMacro(
-  extern template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator
-)
+  extern template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator);
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkImageProgressIterator.h

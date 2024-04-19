@@ -1,27 +1,15 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestTreeDifferenceFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkTreeDifferenceFilter.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
+#include "vtkTreeDifferenceFilter.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTreeDifferenceFilter(int, char*[])
 {
   // create tree 1
@@ -98,7 +86,7 @@ int TestTreeDifferenceFilter(int, char*[])
 
   vtkNew<vtkTree> outputTree;
   outputTree->ShallowCopy(filter->GetOutput());
-  vtkDoubleArray *diff = vtkArrayDownCast<vtkDoubleArray>(
+  vtkDoubleArray* diff = vtkArrayDownCast<vtkDoubleArray>(
     outputTree->GetEdgeData()->GetAbstractArray("weight differences"));
 
   if (diff->GetValue(0) != -1.0)

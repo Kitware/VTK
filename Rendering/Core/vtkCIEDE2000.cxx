@@ -1,41 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCIEDE2000.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*=========================================================================
-The MIT License (MIT)
-
-Copyright (c) 2015 Greg Fiumara
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-=========================================================================*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) 2015 Greg Fiumara
+// SPDX-License-Identifier: BSD-3-Clause AND MIT
 #include "vtkCIEDE2000.h"
 
 #include <algorithm> // std::min, std::max
@@ -48,8 +13,9 @@ SOFTWARE.
 
 namespace CIEDE2000
 {
+VTK_ABI_NAMESPACE_BEGIN
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static const int COLORSPACE_SIZE_X = 17;
 static const int COLORSPACE_SIZE_Y = 17;
 static const int COLORSPACE_SIZE_Z = 17;
@@ -62,7 +28,7 @@ typedef int PositionComponent;
 typedef std::array<PositionComponent, 3> Position;
 typedef double Distance;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline static void getPosition(const double rgb[3], Position& pos)
 {
   pos[0] = static_cast<PositionComponent>(rgb[0] * (COLORSPACE_SIZE_X - 1) + 0.5);
@@ -70,7 +36,7 @@ inline static void getPosition(const double rgb[3], Position& pos)
   pos[2] = static_cast<PositionComponent>(rgb[2] * (COLORSPACE_SIZE_Z - 1) + 0.5);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline static void getRGBColor(const Position& pos, double rgb[3])
 {
   rgb[0] = pos[0] / static_cast<double>(COLORSPACE_SIZE_X - 1);
@@ -78,7 +44,7 @@ inline static void getRGBColor(const Position& pos, double rgb[3])
   rgb[2] = pos[2] / static_cast<double>(COLORSPACE_SIZE_Z - 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void MapColor(double rgb[3])
 {
   Position pos;
@@ -86,7 +52,7 @@ void MapColor(double rgb[3])
   getRGBColor(pos, rgb);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline static void getLabColor(const Position& pos, double _lab[3])
 {
   double rgb[3];
@@ -95,13 +61,13 @@ inline static void getLabColor(const Position& pos, double _lab[3])
   vtkMath::RGBToLab(rgb, _lab);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 inline static int getIndex(const Position& pos)
 {
   return pos[0] + COLORSPACE_SIZE_X * (pos[1] + COLORSPACE_SIZE_Y * pos[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double GetCIEDeltaE2000(const double lab1[3], const double lab2[3])
 {
   // The three constants used in the CIEDE2000 measure
@@ -238,7 +204,7 @@ double GetCIEDeltaE2000(const double lab1[3], const double lab2[3])
   return deltaE;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double CorrectedDistance(std::vector<Node>& path)
 {
   double distance = 0.0;
@@ -258,7 +224,7 @@ double CorrectedDistance(std::vector<Node>& path)
   return distance;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double GetColorPath(
   const double rgb1[3], const double rgb2[3], std::vector<Node>& path, bool forceExactSupportColors)
 {
@@ -277,7 +243,7 @@ double GetColorPath(
   // deleting the old entry and re-inserting the new entry.
   // The set is sorted first by the distance from the seed node, so that the
   // first entry always is the node that can be reached shortest.
-  std::set<std::pair<Distance, Position> > front;
+  std::set<std::pair<Distance, Position>> front;
 
   // Start backwards and use the second color as seed
   distances[getIndex(pos2)] = static_cast<Distance>(0);
@@ -396,6 +362,7 @@ double GetColorPath(
   // Return the overall length of the path
   return pathDistance;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_END
 } // namespace CIEDE2000

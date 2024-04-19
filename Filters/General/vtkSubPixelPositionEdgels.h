@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSubPixelPositionEdgels.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSubPixelPositionEdgels
  * @brief   adjust edgel locations based on gradients.
@@ -32,7 +20,7 @@
  *
  * @sa
  * vtkImageData vtkImageGradient vtkLinkEdgels
-*/
+ */
 
 #ifndef vtkSubPixelPositionEdgels_h
 #define vtkSubPixelPositionEdgels_h
@@ -40,25 +28,26 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredPoints;
 class vtkDataArray;
 
 class VTKFILTERSGENERAL_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkSubPixelPositionEdgels *New();
-  vtkTypeMacro(vtkSubPixelPositionEdgels,vtkPolyDataAlgorithm);
+  static vtkSubPixelPositionEdgels* New();
+  vtkTypeMacro(vtkSubPixelPositionEdgels, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the gradient data for doing the position adjustments.
    */
-  void SetGradMapsData(vtkStructuredPoints *gm);
-  vtkStructuredPoints *GetGradMaps();
-  //@}
+  void SetGradMapsData(vtkStructuredPoints* gm);
+  vtkStructuredPoints* GetGradMaps();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods can make the positioning look for a target scalar value
    * instead of looking for a maximum.
@@ -68,28 +57,28 @@ public:
   vtkBooleanMacro(TargetFlag, vtkTypeBool);
   vtkSetMacro(TargetValue, double);
   vtkGetMacro(TargetValue, double);
-  //@}
+  ///@}
 
 protected:
   vtkSubPixelPositionEdgels();
   ~vtkSubPixelPositionEdgels() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void Move(int xdim, int ydim, int zdim, int x, int y,
-            float *img, vtkDataArray *inVecs,
-            double *result, int z, double *aspect, double *resultNormal);
-  void Move(int xdim, int ydim, int zdim, int x, int y,
-            double *img, vtkDataArray *inVecs,
-            double *result, int z, double *aspect, double *resultNormal);
+  void Move(int xdim, int ydim, int zdim, int x, int y, float* img, vtkDataArray* inVecs,
+    double* result, int z, double* aspect, double* resultNormal);
+  void Move(int xdim, int ydim, int zdim, int x, int y, double* img, vtkDataArray* inVecs,
+    double* result, int z, double* aspect, double* resultNormal);
   // extension for target instead of maximum
   vtkTypeBool TargetFlag;
   double TargetValue;
+
 private:
   vtkSubPixelPositionEdgels(const vtkSubPixelPositionEdgels&) = delete;
   void operator=(const vtkSubPixelPositionEdgels&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

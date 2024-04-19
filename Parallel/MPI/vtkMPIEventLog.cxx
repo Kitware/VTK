@@ -1,38 +1,30 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMPIEventLog.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkMPIEventLog.h"
+
+// clang-format off
+#include "vtk_mpi.h" // required before "mpe.h" to avoid "C vs C++" conflicts
+#include "mpe.h"
+// clang-format on
+
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
-#include "mpi.h" // required before "mpe.h" to avoid "C vs C++" conflicts
-#include "mpe.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkMPIEventLog::LastEventId = 0;
 
 vtkStandardNewMacro(vtkMPIEventLog);
 
 void vtkMPIEventLog::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 vtkMPIEventLog::vtkMPIEventLog()
 {
 
   this->Active = 0;
-
 }
 
 void vtkMPIEventLog::InitializeLogging()
@@ -48,10 +40,9 @@ void vtkMPIEventLog::FinalizeLogging(const char* fname)
 int vtkMPIEventLog::SetDescription(const char* name, const char* desc)
 {
   int err, processId;
-  if ( (err = MPI_Comm_rank(MPI_COMM_WORLD,&processId))
-       != MPI_SUCCESS)
+  if ((err = MPI_Comm_rank(MPI_COMM_WORLD, &processId)) != MPI_SUCCESS)
   {
-    char *msg = vtkMPIController::ErrorString(err);
+    char* msg = vtkMPIController::ErrorString(err);
     vtkErrorMacro("MPI error occurred: " << msg);
     delete[] msg;
     return 0;
@@ -62,8 +53,8 @@ int vtkMPIEventLog::SetDescription(const char* name, const char* desc)
   {
     this->BeginId = MPE_Log_get_event_number();
     this->EndId = MPE_Log_get_event_number();
-    MPE_Describe_state(this->BeginId, this->EndId, const_cast<char*>(name),
-                       const_cast<char*>(desc));
+    MPE_Describe_state(
+      this->BeginId, this->EndId, const_cast<char*>(name), const_cast<char*>(desc));
   }
   MPI_Bcast(&this->BeginId, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast(&this->EndId, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -92,7 +83,5 @@ void vtkMPIEventLog::StopLogging()
   MPE_Log_event(this->EndId, 0, "end");
 }
 
-vtkMPIEventLog::~vtkMPIEventLog()
-{
-}
-
+vtkMPIEventLog::~vtkMPIEventLog() {}
+VTK_ABI_NAMESPACE_END

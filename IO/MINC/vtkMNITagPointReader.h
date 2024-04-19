@@ -1,50 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMNITagPointReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*=========================================================================
-
-Copyright (c) 2006 Atamai, Inc.
-
-Use, modification and redistribution of the software, in source or
-binary forms, are permitted provided that the following terms and
-conditions are met:
-
-1) Redistribution of the source code, in verbatim or modified
-   form, must retain the above copyright notice, this license,
-   the following disclaimer, and any notices that refer to this
-   license and/or the following disclaimer.
-
-2) Redistribution in binary form must include the above copyright
-   notice, a copy of this license and the following disclaimer
-   in the documentation or with other materials provided with the
-   distribution.
-
-3) Modified copies of the source code must be clearly marked as such,
-   and must not be misrepresented as verbatim copies of the source code.
-
-THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE SOFTWARE "AS IS"
-WITHOUT EXPRESSED OR IMPLIED WARRANTY INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE.  IN NO EVENT SHALL ANY COPYRIGHT HOLDER OR OTHER PARTY WHO MAY
-MODIFY AND/OR REDISTRIBUTE THE SOFTWARE UNDER THE TERMS OF THIS LICENSE
-BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, LOSS OF DATA OR DATA BECOMING INACCURATE
-OR LOSS OF PROFIT OR BUSINESS INTERRUPTION) ARISING IN ANY WAY OUT OF
-THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGES.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) 2006 Atamai, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMNITagPointReader
  * @brief   A reader for MNI tag files.
@@ -60,15 +16,15 @@ POSSIBILITY OF SUCH DAMAGES.
  * vtkMINCImageReader vtkMNIObjectReader vtkMNITransformReader
  * @par Thanks:
  * Thanks to David Gobbi for contributing this class.
-*/
+ */
 
 #ifndef vtkMNITagPointReader_h
 #define vtkMNITagPointReader_h
 
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkStdString.h" // needed for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkPoints;
 class vtkStringArray;
@@ -78,35 +34,33 @@ class vtkIntArray;
 class VTKIOMINC_EXPORT vtkMNITagPointReader : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkMNITagPointReader,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkMNITagPointReader, vtkPolyDataAlgorithm);
 
-  static vtkMNITagPointReader *New();
+  static vtkMNITagPointReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the file name.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
   /**
    * Get the extension for this file format.
    */
-  virtual const char* GetFileExtensions() {
-    return ".tag"; }
+  virtual const char* GetFileExtensions() { return ".tag"; }
 
   /**
    * Get the name of this file format.
    */
-  virtual const char* GetDescriptiveName() {
-    return "MNI tags"; }
+  virtual const char* GetDescriptiveName() { return "MNI tags"; }
 
   /**
    * Test whether the specified file can be read.
    */
-  virtual int CanReadFile(const char* name);
+  virtual int CanReadFile(VTK_FILEPATH const char* name);
 
   /**
    * Get the number of volumes specified by the file, which will be
@@ -121,81 +75,73 @@ public:
    * second output ports of the reader.  This method will return
    * nullptr if there is no data.
    */
-  virtual vtkPoints *GetPoints(int port);
-  virtual vtkPoints *GetPoints() { return this->GetPoints(0); }
+  virtual vtkPoints* GetPoints(int port);
+  virtual vtkPoints* GetPoints() { return this->GetPoints(0); }
 
   /**
    * Get the labels.  These same labels are provided in the output
    * point sets, as the PointData data array named "LabelText".
    * This will return nullptr if there were no labels in the file.
    */
-  virtual vtkStringArray *GetLabelText();
+  virtual vtkStringArray* GetLabelText();
 
   /**
    * Get the weights.  These are also provided in the output
    * point sets, as the PointData data array named "Weights".
    * This will return nullptr if there were no weights in the file.
    */
-  virtual vtkDoubleArray *GetWeights();
+  virtual vtkDoubleArray* GetWeights();
 
   /**
    * Get the structure ids.  These are also provided in the output
    * point sets, as the PointData data array named "StructureIds".
    * This will return nullptr if there were no ids in the file.
    */
-  virtual vtkIntArray *GetStructureIds();
+  virtual vtkIntArray* GetStructureIds();
 
   /**
    * Get the patient ids.  These are also provided in the output
    * point sets, as the PointData data array named "PatientIds".
    * This will return nullptr if there were no ids in the file.
    */
-  virtual vtkIntArray *GetPatientIds();
+  virtual vtkIntArray* GetPatientIds();
 
   /**
    * Get any comments that are included in the file.
    */
-  virtual const char *GetComments();
+  virtual const char* GetComments();
 
 protected:
   vtkMNITagPointReader();
   ~vtkMNITagPointReader() override;
 
-  char *FileName;
+  char* FileName;
   int NumberOfVolumes;
 
   int LineNumber;
-  char *Comments;
+  char* Comments;
 
-  int ReadLine(istream &infile, std::string &linetext,
-               std::string::iterator &pos);
-  int ReadLineAfterComments(istream &infile, std::string &linetext,
-                            std::string::iterator &pos);
-  int SkipWhitespace(istream &infile,  std::string &linetext,
-                     std::string::iterator &pos, int nl);
-  int ParseLeftHandSide(istream &infile, std::string &linetext,
-                        std::string::iterator &pos,
-                        std::string &identifier);
-  int ParseStringValue(istream &infile, std::string &linetext,
-                       std::string::iterator &pos,
-                       std::string &data);
-  int ParseIntValues(istream &infile, std::string &linetext,
-                     std::string::iterator &pos,
-                     int *values, int count);
-  int ParseFloatValues(istream &infile, std::string &linetext,
-                       std::string::iterator &pos,
-                       double *values, int count);
+  int ReadLine(istream& infile, std::string& linetext, std::string::iterator& pos);
+  int ReadLineAfterComments(istream& infile, std::string& linetext, std::string::iterator& pos);
+  int SkipWhitespace(istream& infile, std::string& linetext, std::string::iterator& pos, int nl);
+  int ParseLeftHandSide(
+    istream& infile, std::string& linetext, std::string::iterator& pos, std::string& identifier);
+  int ParseStringValue(
+    istream& infile, std::string& linetext, std::string::iterator& pos, std::string& data);
+  int ParseIntValues(
+    istream& infile, std::string& linetext, std::string::iterator& pos, int* values, int count);
+  int ParseFloatValues(
+    istream& infile, std::string& linetext, std::string::iterator& pos, double* values, int count);
 
-  virtual int ReadFile(vtkPolyData *output1, vtkPolyData *output2);
+  virtual int ReadFile(vtkPolyData* output1, vtkPolyData* output2);
 
-  int RequestData(vtkInformation* request,
-                          vtkInformationVector** inInfo,
-                          vtkInformationVector* outInfo) override;
+  int RequestData(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
 private:
   vtkMNITagPointReader(const vtkMNITagPointReader&) = delete;
   void operator=(const vtkMNITagPointReader&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

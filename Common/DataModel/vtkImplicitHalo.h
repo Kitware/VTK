@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImplicitHalo.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImplicitHalo
  * @brief   implicit function for an halo
@@ -27,7 +15,7 @@
  * vtkShadowMapPass.
  * @warning
  * It does not implement the gradient.
-*/
+ */
 
 #ifndef vtkImplicitHalo_h
 #define vtkImplicitHalo_h
@@ -35,53 +23,54 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitHalo : public vtkImplicitFunction
 {
 public:
   /**
    * Center=(0.0,0.0,0.0), Radius=1.0, FadeOut=0.01
    */
-  static vtkImplicitHalo *New();
+  static vtkImplicitHalo* New();
 
-  vtkTypeMacro(vtkImplicitHalo,vtkImplicitFunction);
+  vtkTypeMacro(vtkImplicitHalo, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Evaluate the equation.
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate normal. Not implemented.
    */
   void EvaluateGradient(double x[3], double g[3]) override;
 
-  //@{
+  ///@{
   /**
    * Radius of the sphere.
    */
-  vtkSetMacro(Radius,double);
-  vtkGetMacro(Radius,double);
-  //@}
+  vtkSetMacro(Radius, double);
+  vtkGetMacro(Radius, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Center of the sphere.
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVector3Macro(Center,double);
-  //@}
+  vtkSetVector3Macro(Center, double);
+  vtkGetVector3Macro(Center, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * FadeOut ratio. Valid values are between 0.0 and 1.0.
    */
-  vtkSetMacro(FadeOut,double);
-  vtkGetMacro(FadeOut,double);
-  //@}
+  vtkSetMacro(FadeOut, double);
+  vtkGetMacro(FadeOut, double);
+  ///@}
 
 protected:
   vtkImplicitHalo();
@@ -96,4 +85,5 @@ private:
   void operator=(const vtkImplicitHalo&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

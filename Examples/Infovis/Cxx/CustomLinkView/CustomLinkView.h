@@ -1,18 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    CustomLinkView.h
-  Language:  C++
-
-  Copyright 2007 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-  license for use of this work by or on behalf of the
-  U.S. Government. Redistribution and use in source and binary forms, with
-  or without modification, are permitted provided that this Notice and any
-  statement of authorship are reproduced on all copies.
-
-=========================================================================*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2007 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 // .NAME CustomLinkView - Shows custom way of linking multiple views.
 //
 // .SECTION Description
@@ -29,13 +17,14 @@
 #ifndef CustomLinkView_H
 #define CustomLinkView_H
 
-#include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
+#include "vtkSmartPointer.h" // Required for smart pointer internal ivars.
 
 #include <QMainWindow>
 
 // Forward Qt class declarations
 class Ui_CustomLinkView;
 
+VTK_ABI_NAMESPACE_BEGIN
 // Forward VTK class declarations
 class vtkCommand;
 class vtkEventQtSlotConnect;
@@ -44,52 +33,49 @@ class vtkObject;
 class vtkQtTableView;
 class vtkQtTreeView;
 class vtkXMLTreeReader;
+VTK_ABI_NAMESPACE_END
 
 class CustomLinkView : public QMainWindow
 {
   Q_OBJECT
 
 public:
-
   // Constructor/Destructor
   CustomLinkView();
   ~CustomLinkView() override;
 
-public slots:
+public Q_SLOTS:
 
   virtual void slotOpenXMLFile();
   virtual void slotExit();
 
 protected:
+protected Q_SLOTS:
 
-protected slots:
-
-public slots:
+public Q_SLOTS:
   // Qt signal (produced by vtkEventQtSlotConnect) will be connected to
   // this slot.
   // Full signature of the slot could be:
   // MySlot(vtkObject* caller, unsigned long vtk_event,
- //         void* clientData, void* callData, vtkCommand*)
+  //         void* clientData, void* callData, vtkCommand*)
   void selectionChanged(vtkObject*, unsigned long, void*, void* callData);
 
 private:
-
   // Methods
   void SetupCustomLink();
 
-
   // Members
-  vtkSmartPointer<vtkXMLTreeReader>       XMLReader;
-  vtkSmartPointer<vtkGraphLayoutView>     GraphView;
-  vtkSmartPointer<vtkQtTreeView>          TreeView;
-  vtkSmartPointer<vtkQtTableView>         TableView;
-  vtkSmartPointer<vtkQtTreeView>          ColumnView;
+  vtkSmartPointer<vtkXMLTreeReader> XMLReader;
+  vtkSmartPointer<vtkGraphLayoutView> GraphView;
+  vtkSmartPointer<vtkQtTreeView> TreeView;
+  vtkSmartPointer<vtkQtTableView> TableView;
+  vtkSmartPointer<vtkQtTreeView> ColumnView;
 
   // This class converts a vtkEvent to QT signal.
-  vtkSmartPointer<vtkEventQtSlotConnect>  Connections;
+  vtkSmartPointer<vtkEventQtSlotConnect> Connections;
 
   // Designer form
-  Ui_CustomLinkView *ui;
+  Ui_CustomLinkView* ui;
 };
 
 #endif // CustomLinkView_H

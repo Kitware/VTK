@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLDataObjectWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLDataObjectWriter
  * @brief   Write any type of VTK XML file.
@@ -24,7 +12,7 @@
  * vtkXMLImageDataWriter vtkXMLStructuredGridWriter
  * vtkXMLRectilinearGridWriter vtkXMLPolyDataWriter
  * vtkXMLUnstructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLDataObjectWriter_h
 #define vtkXMLDataObjectWriter_h
@@ -32,12 +20,13 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 
 class VTKIOXML_EXPORT vtkXMLDataObjectWriter : public vtkXMLWriter
 {
 public:
-  vtkTypeMacro(vtkXMLDataObjectWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkXMLDataObjectWriter, vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLDataObjectWriter* New();
 
@@ -69,8 +58,7 @@ protected:
   const char* GetDefaultFileExtension() override;
 
   // Callback registered with the InternalProgressObserver.
-  static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
-                                       void*);
+  static void ProgressCallbackFunction(vtkObject*, unsigned long, void*, void*);
   // Progress callback from internal writer.
   virtual void ProgressCallback(vtkAlgorithm* w);
 
@@ -82,4 +70,5 @@ private:
   void operator=(const vtkXMLDataObjectWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

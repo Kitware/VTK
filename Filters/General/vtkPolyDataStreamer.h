@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataStreamer.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPolyDataStreamer
  * @brief   Streamer appends input pieces to the output.
@@ -28,7 +16,7 @@
  * ghost cells properly (i.e. you might see seames between the pieces).
  * @sa
  * vtkAppendFilter
-*/
+ */
 
 #ifndef vtkPolyDataStreamer_h
 #define vtkPolyDataStreamer_h
@@ -36,28 +24,26 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStreamerBase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAppendPolyData;
 
 class VTKFILTERSGENERAL_EXPORT vtkPolyDataStreamer : public vtkStreamerBase
 {
 public:
-  static vtkPolyDataStreamer *New();
+  static vtkPolyDataStreamer* New();
 
-  vtkTypeMacro(vtkPolyDataStreamer,vtkStreamerBase);
+  vtkTypeMacro(vtkPolyDataStreamer, vtkStreamerBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the number of pieces to divide the problem into.
    */
   void SetNumberOfStreamDivisions(int num);
-  int GetNumberOfStreamDivisions()
-  {
-    return this->NumberOfPasses;
-  }
-  //@}
+  int GetNumberOfStreamDivisions() { return this->NumberOfPasses; }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default, this option is off.  When it is on, cell scalars are generated
    * based on which piece they are in.
@@ -65,8 +51,7 @@ public:
   vtkSetMacro(ColorByPiece, vtkTypeBool);
   vtkGetMacro(ColorByPiece, vtkTypeBool);
   vtkBooleanMacro(ColorByPiece, vtkTypeBool);
-  //@}
-
+  ///@}
 
 protected:
   vtkPolyDataStreamer();
@@ -76,15 +61,14 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int ExecutePass(vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) override;
+  int ExecutePass(vtkInformationVector** inputVector, vtkInformationVector* outputVector) override;
 
-  int PostExecute(vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) override;
+  int PostExecute(vtkInformationVector** inputVector, vtkInformationVector* outputVector) override;
 
   vtkTypeBool ColorByPiece;
+
 private:
   vtkPolyDataStreamer(const vtkPolyDataStreamer&) = delete;
   void operator=(const vtkPolyDataStreamer&) = delete;
@@ -92,4 +76,5 @@ private:
   vtkAppendPolyData* Append;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

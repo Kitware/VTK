@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExplicitStructuredGridToUnstructuredGrid.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExplicitStructuredGridToUnstructuredGrid.h"
 
 #include "vtkCellArray.h"
@@ -27,12 +15,18 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExplicitStructuredGridToUnstructuredGrid);
 
-//----------------------------------------------------------------------------
-int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(vtkInformation*,
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector)
+//------------------------------------------------------------------------------
+void vtkExplicitStructuredGridToUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
+int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Retrieve input and output
   vtkExplicitStructuredGrid* input = vtkExplicitStructuredGrid::GetData(inputVector[0], 0);
@@ -42,10 +36,8 @@ int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(vtkInformation*,
   output->GetFieldData()->ShallowCopy(input->GetFieldData());
 
   // Copy input point data to output
-  vtkDataSetAttributes* inPointData =
-    static_cast<vtkDataSetAttributes*>(input->GetPointData());
-  vtkDataSetAttributes* outPointData =
-    static_cast<vtkDataSetAttributes*>(output->GetPointData());
+  vtkDataSetAttributes* inPointData = static_cast<vtkDataSetAttributes*>(input->GetPointData());
+  vtkDataSetAttributes* outPointData = static_cast<vtkDataSetAttributes*>(output->GetPointData());
   if (outPointData && inPointData)
   {
     outPointData->DeepCopy(inPointData);
@@ -54,10 +46,8 @@ int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(vtkInformation*,
   output->SetPoints(input->GetPoints());
 
   // Initialize output cell data
-  vtkDataSetAttributes* inCellData =
-    static_cast<vtkDataSetAttributes*>(input->GetCellData());
-  vtkDataSetAttributes* outCellData =
-    static_cast<vtkDataSetAttributes*>(output->GetCellData());
+  vtkDataSetAttributes* inCellData = static_cast<vtkDataSetAttributes*>(input->GetCellData());
+  vtkDataSetAttributes* outCellData = static_cast<vtkDataSetAttributes*>(output->GetCellData());
   outCellData->CopyAllocate(inCellData);
 
   vtkIdType nbCells = input->GetNumberOfCells();
@@ -86,8 +76,13 @@ int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(vtkInformation*,
   vtkNew<vtkCellArray> cells;
   cells->AllocateEstimate(nbCells, 8);
   int i, j, k;
+  vtkIdType checkAbortInterval = std::min(nbCells / 10 + 1, (vtkIdType)1000);
   for (vtkIdType cellId = 0; cellId < nbCells; cellId++)
   {
+    if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     if (input->IsCellVisible(cellId))
     {
       vtkNew<vtkIdList> ptIds;
@@ -116,10 +111,11 @@ int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(vtkInformation*,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridToUnstructuredGrid::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkExplicitStructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

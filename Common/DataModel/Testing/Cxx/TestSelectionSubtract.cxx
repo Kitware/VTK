@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestSelectionSubtract
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // .NAME
 // .SECTION Description
@@ -24,13 +12,10 @@
 #include "vtkSmartPointer.h"
 
 #include <iostream>
-using namespace std;
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #define DEBUG 0
-
 
 #if DEBUG
 // ------------------------------------------------------------------------------------------------
@@ -38,28 +23,30 @@ static void PrintSelectionNodes(vtkSmartPointer<vtkSelection>& sel, const char* 
 {
   vtkIdType numNodes = sel->GetNumberOfNodes();
 
-  if(tag)
+  if (tag)
   {
     cout << tag << endl;
   }
 
-  for(int iNode=0; iNode < numNodes; iNode++)
+  for (int iNode = 0; iNode < numNodes; iNode++)
   {
-    if(tag) cout << "\t";
+    if (tag)
+      cout << "\t";
     cout << "Node: " << iNode << endl;
     vtkIdType listSize = sel->GetNode(iNode)->GetSelectionList()->GetNumberOfTuples();
-    for(int iVal=0; iVal < listSize; iVal++)
+    for (int iVal = 0; iVal < listSize; iVal++)
     {
-      if(tag) cout << "\t";
-      cout << "\t" << iVal << "\t" << sel->GetNode(iNode)->GetSelectionList()->GetVariantValue(iVal) << endl;
+      if (tag)
+        cout << "\t";
+      cout << "\t" << iVal << "\t" << sel->GetNode(iNode)->GetSelectionList()->GetVariantValue(iVal)
+           << endl;
     }
   }
 }
 #endif
 
-
 // ------------------------------------------------------------------------------------------------
-int TestSelectionSubtract(int,char *[])
+int TestSelectionSubtract(int, char*[])
 {
   // Create a selection, sel1, of PEDIGREEIDS containing {1, 2, 3}
   VTK_CREATE(vtkSelection, sel1);
@@ -104,7 +91,7 @@ int TestSelectionSubtract(int,char *[])
   // Correctness check.
   bool failed = false;
   cout << "Check # of nodes == 1 ....... ";
-  if(sel1->GetNumberOfNodes() != 1)
+  if (sel1->GetNumberOfNodes() != 1)
   {
     cout << "FAILED" << endl;
     failed = true;
@@ -115,7 +102,7 @@ int TestSelectionSubtract(int,char *[])
   }
 
   cout << "Check # of tuples == 1 ...... ";
-  if(sel1->GetNode(0)->GetSelectionList()->GetNumberOfTuples() != 1)
+  if (sel1->GetNode(0)->GetSelectionList()->GetNumberOfTuples() != 1)
   {
     cout << "FAILED" << endl;
     failed = true;
@@ -126,7 +113,7 @@ int TestSelectionSubtract(int,char *[])
   }
 
   cout << "Check selection value is 2 .. ";
-  if(sel1->GetNode(0)->GetSelectionList()->GetVariantValue(0) != 2)
+  if (sel1->GetNode(0)->GetSelectionList()->GetVariantValue(0) != 2)
   {
     cout << "FAILED" << endl;
     failed = true;

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGenericProbeFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGenericProbeFilter
  * @brief   sample data values at specified point locations
@@ -37,55 +25,57 @@
  *
  * @sa
  * vtkGenericProbeFilter vtkProbeFilter vtkGenericDataSet
-*/
+ */
 
 #ifndef vtkGenericProbeFilter_h
 #define vtkGenericProbeFilter_h
 
-#include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGenericModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkGenericDataSet;
 
 class VTKFILTERSGENERIC_EXPORT vtkGenericProbeFilter : public vtkDataSetAlgorithm
 {
 public:
-  static vtkGenericProbeFilter *New();
-  vtkTypeMacro(vtkGenericProbeFilter,vtkDataSetAlgorithm);
+  static vtkGenericProbeFilter* New();
+  vtkTypeMacro(vtkGenericProbeFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the point locations used to probe input. A generic dataset
    * type is assumed.
    */
-  void SetSourceData(vtkGenericDataSet *source);
-  vtkGenericDataSet *GetSource();
-  //@}
+  void SetSourceData(vtkGenericDataSet* source);
+  vtkGenericDataSet* GetSource();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the list of point ids in the output that contain attribute data
    * interpolated from the source.
    */
   vtkGetObjectMacro(ValidPoints, vtkIdTypeArray);
-  //@}
+  ///@}
 
 protected:
   vtkGenericProbeFilter();
   ~vtkGenericProbeFilter() override;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  vtkIdTypeArray *ValidPoints;
+  vtkIdTypeArray* ValidPoints;
 
 private:
   vtkGenericProbeFilter(const vtkGenericProbeFilter&) = delete;
   void operator=(const vtkGenericProbeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

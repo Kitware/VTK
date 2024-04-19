@@ -1,17 +1,6 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestInterpolationDerivs.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
 #define VTK_EPSILON 1e-10
 
 // Subclass of vtkCell
@@ -46,38 +35,38 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
 
-// New bi-class from gebbert
+// Bi/Tri linear quadratic cells
 #include "vtkBiQuadraticQuad.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkBiQuadraticTriangle.h"
+#include "vtkCubicLine.h"
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkQuadraticLinearWedge.h"
 #include "vtkTriQuadraticHexahedron.h"
+#include "vtkTriQuadraticPyramid.h"
 
-// New Bi-Class
-#include "vtkBiQuadraticTriangle.h"
-#include "vtkCubicLine.h"
-
+#include <vector>
 
 template <class TCell>
 int TestOneInterpolationDerivs(double eps = VTK_EPSILON)
 {
-  TCell *cell = TCell::New();
+  auto cell = vtkSmartPointer<TCell>::New();
   int numPts = cell->GetNumberOfPoints();
   int dim = cell->GetCellDimension();
-  double *derivs = new double[dim*numPts];
-  double *coords = cell->GetParametricCoords();
+  std::vector<double> derivs(dim * numPts);
+  double* coords = cell->GetParametricCoords();
   int r = 0;
-  for(int i=0;i<numPts;++i)
+  for (int i = 0; i < numPts; ++i)
   {
-    double *point = coords + 3*i;
+    double* point = coords + 3 * i;
     double sum = 0.;
-    cell->InterpolateDerivs(point, derivs); // static function
-    for(int j=0;j<dim*numPts;j++)
+    cell->InterpolateDerivs(point, derivs.data()); // static function
+    for (int j = 0; j < dim * numPts; j++)
     {
       sum += derivs[j];
     }
-    if( fabs(sum) > eps )
+    if (fabs(sum) > eps)
     {
       ++r;
     }
@@ -86,46 +75,44 @@ int TestOneInterpolationDerivs(double eps = VTK_EPSILON)
   // Let's test zero condition on the center point:
   double center[3];
   cell->GetParametricCenter(center);
-  cell->InterpolateDerivs(center, derivs); // static function
+  cell->InterpolateDerivs(center, derivs.data()); // static function
   double sum = 0.;
-  for(int j=0;j<dim*numPts;j++)
+  for (int j = 0; j < dim * numPts; j++)
   {
     sum += derivs[j];
   }
-  if( fabs(sum) > eps )
+  if (fabs(sum) > eps)
   {
     ++r;
   }
 
-  cell->Delete();
-  delete[] derivs;
   return r;
 }
 
-int TestInterpolationDerivs(int, char *[])
+int TestInterpolationDerivs(int, char*[])
 {
   int r = 0;
 
   // Subclasses of vtkCell3D
-  //r += TestOneInterpolationDerivs<vtkEmptyCell>(); // not implemented
-  //r += TestOneInterpolationDerivs<vtkGenericCell>(); // not implemented
-  //r += TestOneInterpolationDerivs<vtkLine>();
+  // r += TestOneInterpolationDerivs<vtkEmptyCell>(); // not implemented
+  // r += TestOneInterpolationDerivs<vtkGenericCell>(); // not implemented
+  // r += TestOneInterpolationDerivs<vtkLine>();
   r += TestOneInterpolationDerivs<vtkPixel>();
-  //r += TestOneInterpolationDerivs<vtkPolygon>(); // not implemented
-  //r += TestOneInterpolationDerivs<vtkPolyLine>(); // not implemented
-  //r += TestOneInterpolationDerivs<vtkPolyVertex>(); // not implemented
+  // r += TestOneInterpolationDerivs<vtkPolygon>(); // not implemented
+  // r += TestOneInterpolationDerivs<vtkPolyLine>(); // not implemented
+  // r += TestOneInterpolationDerivs<vtkPolyVertex>(); // not implemented
   r += TestOneInterpolationDerivs<vtkQuad>();
   r += TestOneInterpolationDerivs<vtkTriangle>();
-  //r += TestOneInterpolationDerivs<vtkTriangleStrip>(); // not implemented
-  //r += TestOneInterpolationDerivs<vtkVertex>();
+  // r += TestOneInterpolationDerivs<vtkTriangleStrip>(); // not implemented
+  // r += TestOneInterpolationDerivs<vtkVertex>();
 
   // Subclasses of vtkCell3D
-  //r += TestOneInterpolationDerivs<vtkConvexPointSet>(); // not implemented
+  // r += TestOneInterpolationDerivs<vtkConvexPointSet>(); // not implemented
   r += TestOneInterpolationDerivs<vtkHexagonalPrism>();
   r += TestOneInterpolationDerivs<vtkHexahedron>();
   r += TestOneInterpolationDerivs<vtkPentagonalPrism>(1.e-05);
   r += TestOneInterpolationDerivs<vtkPyramid>();
-  //r += TestOneInterpolationDerivs<vtkTetra>();
+  // r += TestOneInterpolationDerivs<vtkTetra>();
   r += TestOneInterpolationDerivs<vtkVoxel>();
   r += TestOneInterpolationDerivs<vtkWedge>();
 
@@ -138,17 +125,16 @@ int TestInterpolationDerivs(int, char *[])
   r += TestOneInterpolationDerivs<vtkQuadraticTriangle>();
   r += TestOneInterpolationDerivs<vtkQuadraticWedge>();
 
-
-  // New bi-class
+  // Bi/Tri linear quadratic cells
   r += TestOneInterpolationDerivs<vtkBiQuadraticQuad>();
   r += TestOneInterpolationDerivs<vtkBiQuadraticQuadraticHexahedron>();
   r += TestOneInterpolationDerivs<vtkBiQuadraticQuadraticWedge>();
+  r += TestOneInterpolationDerivs<vtkBiQuadraticTriangle>();
+  r += TestOneInterpolationDerivs<vtkCubicLine>();
   r += TestOneInterpolationDerivs<vtkQuadraticLinearQuad>();
   r += TestOneInterpolationDerivs<vtkQuadraticLinearWedge>();
   r += TestOneInterpolationDerivs<vtkTriQuadraticHexahedron>();
-  r += TestOneInterpolationDerivs<vtkBiQuadraticTriangle>();
-  r += TestOneInterpolationDerivs<vtkCubicLine>();
-
+  r += TestOneInterpolationDerivs<vtkTriQuadraticPyramid>();
 
   return r;
 }

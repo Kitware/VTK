@@ -1,0 +1,37 @@
+NAME
+  VTK::RenderingCellGrid
+LIBRARY_NAME
+  vtkRenderingCellGrid
+IMPLEMENTABLE
+KIT
+  VTK::OpenGL
+GROUPS
+  Rendering
+IMPLEMENTS
+  VTK::RenderingCore
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersCellGrid
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::glew
+  VTK::opengl
+PRIVATE_DEPENDS
+  VTK::CommonExecutionModel
+  VTK::CommonColor
+  VTK::fmt
+  VTK::nlohmannjson
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::IOCellGrid
+  VTK::IOImage
+  VTK::ImagingGeneral
+  VTK::InteractionStyle
+  VTK::RenderingImage
+  VTK::TestingCore
+  VTK::TestingRendering

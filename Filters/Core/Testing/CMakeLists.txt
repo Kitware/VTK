@@ -4,13 +4,28 @@ vtk_module_test_data(
   Data/beach.jpg
   Data/can.ex2
   Data/cow.vtp
+  Data/degenerate_triangles.vtp
   Data/delaunay3d.vtu
   Data/disk_out_ref_surface.vtp
   Data/explicitStructuredGrid.vtu
+  Data/explicitStructuredGridEmpty.vtu
+  Data/sliding_multi_block_end.vtm
+  Data/sliding_multi_block_end/sliding_multi_block_end_0_0.vtu
+  Data/sliding_multi_block_end/sliding_multi_block_end_1_0.vtu
+  Data/sliding_multi_block_end/sliding_multi_block_end_2_0.vtu
+  Data/sliding_multi_block_end/sliding_multi_block_end_3_0.vtu
+  Data/sliding_multi_block_start.vtm
+  Data/sliding_multi_block_start/sliding_multi_block_start_0_0.vtu
+  Data/sliding_multi_block_start/sliding_multi_block_start_1_0.vtu
+  Data/sliding_multi_block_start/sliding_multi_block_start_2_0.vtu
+  Data/sliding_multi_block_start/sliding_multi_block_start_3_0.vtu
+  Data/slightlyRotated.vtu
   Data/tex_debug.jpg
   Data/wavelet300Arrays.vti)
 
-add_subdirectory(Cxx)
+if (NOT vtk_testing_cxx_disabled)
+  add_subdirectory(Cxx)
+endif ()
 
 if (VTK_WRAP_PYTHON)
   vtk_module_test_data(

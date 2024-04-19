@@ -94,7 +94,7 @@ typedef  signed int          HPDF_BOOL;
 typedef  unsigned long       HPDF_STATUS;
 
 
-/*  charactor-code type (16bit)
+/*  character-code type (16bit)
  */
 typedef  HPDF_UINT16         HPDF_CID;
 typedef  HPDF_UINT16         HPDF_UNICODE;
@@ -213,9 +213,9 @@ typedef struct _HPDF_TextWidth {
 /*------ dash mode ----------------------------------------------------------*/
 
 typedef struct _HPDF_DashMode {
-    HPDF_UINT16  ptn[8];
-    HPDF_UINT    num_ptn;
-    HPDF_UINT    phase;
+    HPDF_REAL  ptn[8];
+    HPDF_UINT  num_ptn;
+    HPDF_REAL  phase;
 } HPDF_DashMode;
 
 
@@ -291,7 +291,7 @@ typedef struct _HPDF_CMYKColor {
 typedef enum _HPDF_LineCap {
     HPDF_BUTT_END = 0,
     HPDF_ROUND_END,
-    HPDF_PROJECTING_SCUARE_END,
+    HPDF_PROJECTING_SQUARE_END,
     HPDF_LINECAP_EOF
 } HPDF_LineCap;
 
@@ -561,7 +561,7 @@ typedef enum  _HPDF_EncoderType {
 typedef enum _HPDF_ByteType {
     HPDF_BYTE_TYPE_SINGLE = 0,
     HPDF_BYTE_TYPE_LEAD,
-    HPDF_BYTE_TYPE_TRIAL,
+    HPDF_BYTE_TYPE_TRAIL,
     HPDF_BYTE_TYPE_UNKNOWN
 } HPDF_ByteType;
 

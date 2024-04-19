@@ -8,16 +8,16 @@ readonly name="freetype"
 readonly ownership="Freetype Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/freetype.git"
-readonly tag="for/vtk-20190606-2.10.0"
+readonly tag="for/vtk-20220414-2.12.0"
 readonly paths="
 include
 src
 
 docs/FTL.TXT
-docs/LICENSE.TXT
+LICENSE.TXT
 
 builds/unix/ftsystem.c
-builds/unix/ftconfig.in
+builds/unix/ftconfig.h.in
 builds/windows/ftdebug.c
 
 CMakeLists.vtk.txt

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCommonInformationKeyManager.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCommonInformationKeyManager
  * @brief   Manages key types in vtkCommon.
@@ -20,7 +8,7 @@
  * subclass of vtkInformationKey defined in the vtkCommon library.
  * It makes sure that the table of keys is created before and
  * destroyed after it is used.
-*/
+ */
 
 #ifndef vtkCommonInformationKeyManager_h
 #define vtkCommonInformationKeyManager_h
@@ -30,6 +18,7 @@
 
 #include "vtkDebugLeaksManager.h" // DebugLeaks exists longer than info keys.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationKey;
 
 class VTKCOMMONCORE_EXPORT vtkCommonInformationKeyManager
@@ -48,9 +37,8 @@ public:
 
 private:
   // Unimplemented
-  vtkCommonInformationKeyManager(const vtkCommonInformationKeyManager&);
-  vtkCommonInformationKeyManager& operator=(
-    const vtkCommonInformationKeyManager&);
+  vtkCommonInformationKeyManager(const vtkCommonInformationKeyManager&) = delete;
+  vtkCommonInformationKeyManager& operator=(const vtkCommonInformationKeyManager&) = delete;
 
   static void ClassInitialize();
   static void ClassFinalize();
@@ -62,5 +50,6 @@ private:
 // initialized before and destroyed after it is used.
 static vtkCommonInformationKeyManager vtkCommonInformationKeyManagerInstance;
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkCommonInformationKeyManager.h

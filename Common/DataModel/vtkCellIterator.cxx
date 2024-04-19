@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCellIterator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCellIterator.h"
 
@@ -21,7 +9,8 @@
 #include "vtkPoints.h"
 
 //------------------------------------------------------------------------------
-void vtkCellIterator::PrintSelf(ostream &os, vtkIndent indent)
+VTK_ABI_NAMESPACE_BEGIN
+void vtkCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "CacheFlags: ";
   switch (this->CacheFlags)
@@ -87,6 +76,8 @@ int vtkCellIterator::GetCellDimension()
     case VTK_POLY_LINE:
     case VTK_QUADRATIC_EDGE:
     case VTK_CUBIC_LINE:
+    case VTK_LAGRANGE_CURVE:
+    case VTK_BEZIER_CURVE:
       return 1;
     case VTK_TRIANGLE:
     case VTK_QUAD:
@@ -96,6 +87,12 @@ int vtkCellIterator::GetCellDimension()
     case VTK_QUADRATIC_TRIANGLE:
     case VTK_QUADRATIC_QUAD:
     case VTK_QUADRATIC_POLYGON:
+    case VTK_BIQUADRATIC_QUAD:
+    case VTK_BIQUADRATIC_TRIANGLE:
+    case VTK_LAGRANGE_TRIANGLE:
+    case VTK_LAGRANGE_QUADRILATERAL:
+    case VTK_BEZIER_TRIANGLE:
+    case VTK_BEZIER_QUADRILATERAL:
       return 2;
     case VTK_TETRA:
     case VTK_VOXEL:
@@ -108,6 +105,16 @@ int vtkCellIterator::GetCellDimension()
     case VTK_QUADRATIC_HEXAHEDRON:
     case VTK_QUADRATIC_WEDGE:
     case VTK_QUADRATIC_PYRAMID:
+    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+    case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+    case VTK_TRIQUADRATIC_HEXAHEDRON:
+    case VTK_TRIQUADRATIC_PYRAMID:
+    case VTK_LAGRANGE_TETRAHEDRON:
+    case VTK_LAGRANGE_HEXAHEDRON:
+    case VTK_LAGRANGE_WEDGE:
+    case VTK_BEZIER_TETRAHEDRON:
+    case VTK_BEZIER_HEXAHEDRON:
+    case VTK_BEZIER_WEDGE:
       return 3;
     default:
       vtkNew<vtkGenericCell> cell;
@@ -117,19 +124,19 @@ int vtkCellIterator::GetCellDimension()
 }
 
 //------------------------------------------------------------------------------
-void vtkCellIterator::GetCell(vtkGenericCell *cell)
+void vtkCellIterator::GetCell(vtkGenericCell* cell)
 {
   cell->SetCellType(this->GetCellType());
   cell->SetPointIds(this->GetPointIds());
   cell->SetPoints(this->GetPoints());
 
-  cell->SetFaces(nullptr);
   if (cell->RequiresExplicitFaceRepresentation())
   {
-    vtkIdList *faces = this->GetFaces();
-    if (faces->GetNumberOfIds() != 0)
+    vtkCellArray* faces = this->GetCellFaces();
+
+    if (faces->GetNumberOfCells() != 0)
     {
-      cell->SetFaces(faces->GetPointer(0));
+      cell->SetCellFaces(faces);
     }
   }
 
@@ -141,8 +148,8 @@ void vtkCellIterator::GetCell(vtkGenericCell *cell)
 
 //------------------------------------------------------------------------------
 vtkCellIterator::vtkCellIterator()
-  : CellType(VTK_EMPTY_CELL),
-    CacheFlags(UninitializedFlag)
+  : CellType(VTK_EMPTY_CELL)
+  , CacheFlags(UninitializedFlag)
 {
   this->Points = this->PointsContainer;
   this->PointIds = this->PointIdsContainer;
@@ -151,3 +158,4 @@ vtkCellIterator::vtkCellIterator()
 
 //------------------------------------------------------------------------------
 vtkCellIterator::~vtkCellIterator() = default;
+VTK_ABI_NAMESPACE_END

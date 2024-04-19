@@ -10,10 +10,14 @@ vtk_module_test_data(
   Data/combq.bin
   Data/combxyz.bin
   Data/earth.ppm
+  Data/mb_with_pieces/,REGEX:.*\.vtu
+  Data/mb_with_pieces.vtm
   Data/quadraticTetra01.vtu
   Data/textureRGBA.png)
 
-add_subdirectory(Cxx)
+if (NOT vtk_testing_cxx_disabled)
+  add_subdirectory(Cxx)
+endif ()
 
 if (VTK_WRAP_PYTHON)
   vtk_module_test_data(

@@ -1,15 +1,27 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonExecutionModel import vtkCompositeDataPipeline
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkIOEnSight import vtkGenericEnSightReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkHierarchicalPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create a rendering window and renderer
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetBackground(0,0,0)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.SetSize(300,300)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # camera parameters
 camera = ren1.GetActiveCamera()
@@ -18,20 +30,20 @@ camera.SetFocalPoint(33,33,33)
 camera.SetViewUp(0.157687,0.942832,-0.293604)
 camera.SetViewAngle(30)
 camera.SetClippingRange(124.221,363.827)
-reader = vtk.vtkGenericEnSightReader()
+reader = vtkGenericEnSightReader()
 # Make sure all algorithms use the composite data pipeline
-cdp = vtk.vtkCompositeDataPipeline()
+cdp = vtkCompositeDataPipeline()
 reader.SetDefaultExecutivePrototype(cdp)
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/ironProt_bin.case")
-Contour0 = vtk.vtkContourFilter()
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/ironProt_bin.case")
+Contour0 = vtkContourFilter()
 Contour0.SetInputConnection(reader.GetOutputPort())
 Contour0.SetValue(0,200)
 Contour0.SetComputeScalars(1)
-mapper = vtk.vtkHierarchicalPolyDataMapper()
+mapper = vtkHierarchicalPolyDataMapper()
 mapper.SetInputConnection(Contour0.GetOutputPort())
 mapper.SetScalarRange(0,1)
 mapper.SetScalarVisibility(1)
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetRepresentationToSurface()
 actor.GetProperty().SetInterpolationToGouraud()

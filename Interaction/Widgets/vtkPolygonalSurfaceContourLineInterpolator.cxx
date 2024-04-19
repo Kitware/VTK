@@ -1,65 +1,49 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolygonalSurfaceContourLineInterpolator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPolygonalSurfaceContourLineInterpolator.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkContourRepresentation.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
-#include "vtkPointData.h"
-#include "vtkCellArray.h"
 #include "vtkCell.h"
-#include "vtkMath.h"
-#include "vtkPolygonalSurfacePointPlacer.h"
-#include "vtkIdList.h"
+#include "vtkCellArray.h"
+#include "vtkContourRepresentation.h"
 #include "vtkDijkstraGraphGeodesicPath.h"
+#include "vtkIdList.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolygonalSurfacePointPlacer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolygonalSurfaceContourLineInterpolator);
 
-//----------------------------------------------------------------------
-vtkPolygonalSurfaceContourLineInterpolator
-::vtkPolygonalSurfaceContourLineInterpolator()
+//------------------------------------------------------------------------------
+vtkPolygonalSurfaceContourLineInterpolator ::vtkPolygonalSurfaceContourLineInterpolator()
 {
   this->LastInterpolatedVertexIds[0] = -1;
   this->LastInterpolatedVertexIds[1] = -1;
-  this->DistanceOffset               = 0.0;
+  this->DistanceOffset = 0.0;
   this->DijkstraGraphGeodesicPath = vtkDijkstraGraphGeodesicPath::New();
 }
 
-//----------------------------------------------------------------------
-vtkPolygonalSurfaceContourLineInterpolator
-::~vtkPolygonalSurfaceContourLineInterpolator()
+//------------------------------------------------------------------------------
+vtkPolygonalSurfaceContourLineInterpolator ::~vtkPolygonalSurfaceContourLineInterpolator()
 {
   this->DijkstraGraphGeodesicPath->Delete();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolygonalSurfaceContourLineInterpolator::UpdateNode(
-    vtkRenderer *, vtkContourRepresentation *,
-    double * vtkNotUsed(node), int vtkNotUsed(idx) )
+  vtkRenderer*, vtkContourRepresentation*, double* vtkNotUsed(node), int vtkNotUsed(idx))
 {
   return 0;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
-                          vtkRenderer *,
-                          vtkContourRepresentation *rep,
-                          int idx1, int idx2 )
+  vtkRenderer*, vtkContourRepresentation* rep, int idx1, int idx2)
 {
-  vtkPolygonalSurfacePointPlacer *placer =
+  vtkPolygonalSurfacePointPlacer* placer =
     vtkPolygonalSurfacePointPlacer::SafeDownCast(rep->GetPointPlacer());
   if (!placer)
   {
@@ -67,12 +51,12 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   }
 
   double p1[3], p2[3], p[3];
-  rep->GetNthNodeWorldPosition( idx1, p1 );
-  rep->GetNthNodeWorldPosition( idx2, p2 );
+  rep->GetNthNodeWorldPosition(idx1, p1);
+  rep->GetNthNodeWorldPosition(idx2, p2);
 
   typedef vtkPolygonalSurfacePointPlacer::Node NodeType;
-  NodeType *nodeBegin = placer->GetNodeAtWorldPosition(p1);
-  NodeType *nodeEnd   = placer->GetNodeAtWorldPosition(p2);
+  NodeType* nodeBegin = placer->GetNodeAtWorldPosition(p1);
+  NodeType* nodeEnd = placer->GetNodeAtWorldPosition(p2);
   if (nodeBegin->PolyData != nodeEnd->PolyData)
   {
     return 1;
@@ -88,14 +72,14 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   }
   else
   {
-    vtkCell *cellBegin = nodeBegin->PolyData->GetCell(nodeBegin->CellId);
-    vtkPoints *cellBeginPoints = cellBegin->GetPoints();
+    vtkCell* cellBegin = nodeBegin->PolyData->GetCell(nodeBegin->CellId);
+    vtkPoints* cellBeginPoints = cellBegin->GetPoints();
 
     minDistance = VTK_DOUBLE_MAX;
     for (int i = 0; i < cellBegin->GetNumberOfPoints(); i++)
     {
       cellBeginPoints->GetPoint(i, p);
-      double distance = vtkMath::Distance2BetweenPoints( p, p1 );
+      double distance = vtkMath::Distance2BetweenPoints(p, p1);
       if (distance < minDistance)
       {
         beginVertId = cellBegin->GetPointId(i);
@@ -104,28 +88,28 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
     }
   }
 
-    if (nodeEnd->CellId == -1)
-    {
-      // If no cell is specified, use the pointid instead
-      endVertId = nodeEnd->PointId;
-    }
-    else
-    {
-      vtkCell *cellEnd   = nodeEnd->PolyData->GetCell(nodeEnd->CellId);
-      vtkPoints *cellEndPoints   = cellEnd->GetPoints();
+  if (nodeEnd->CellId == -1)
+  {
+    // If no cell is specified, use the pointid instead
+    endVertId = nodeEnd->PointId;
+  }
+  else
+  {
+    vtkCell* cellEnd = nodeEnd->PolyData->GetCell(nodeEnd->CellId);
+    vtkPoints* cellEndPoints = cellEnd->GetPoints();
 
-      minDistance = VTK_DOUBLE_MAX;
-      for (int i = 0; i < cellEnd->GetNumberOfPoints(); i++)
+    minDistance = VTK_DOUBLE_MAX;
+    for (int i = 0; i < cellEnd->GetNumberOfPoints(); i++)
+    {
+      cellEndPoints->GetPoint(i, p);
+      double distance = vtkMath::Distance2BetweenPoints(p, p2);
+      if (distance < minDistance)
       {
-        cellEndPoints->GetPoint(i, p);
-        double distance = vtkMath::Distance2BetweenPoints( p, p2 );
-        if (distance < minDistance)
-        {
-          endVertId = cellEnd->GetPointId(i);
-          minDistance = distance;
-        }
+        endVertId = cellEnd->GetPointId(i);
+        minDistance = distance;
       }
     }
+  }
 
   if (beginVertId == -1 || endVertId == -1)
   {
@@ -133,29 +117,28 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
     return 0;
   }
 
-
   // Now compute the shortest path through the surface mesh along its
   // edges using Dijkstra.
 
-  this->DijkstraGraphGeodesicPath->SetInputData( nodeBegin->PolyData );
-  this->DijkstraGraphGeodesicPath->SetStartVertex( endVertId );
-  this->DijkstraGraphGeodesicPath->SetEndVertex( beginVertId );
+  this->DijkstraGraphGeodesicPath->SetInputData(nodeBegin->PolyData);
+  this->DijkstraGraphGeodesicPath->SetStartVertex(endVertId);
+  this->DijkstraGraphGeodesicPath->SetEndVertex(beginVertId);
   this->DijkstraGraphGeodesicPath->Update();
 
-  vtkPolyData *pd = this->DijkstraGraphGeodesicPath->GetOutput();
+  vtkPolyData* pd = this->DijkstraGraphGeodesicPath->GetOutput();
 
   // We assume there's only one cell of course
   vtkIdType npts = 0;
-  const vtkIdType *pts = nullptr;
+  const vtkIdType* pts = nullptr;
   pd->GetLines()->InitTraversal();
-  pd->GetLines()->GetNextCell( npts, pts );
+  pd->GetLines()->GetNextCell(npts, pts);
 
   // Get the vertex normals if there is a height offset. The offset at
   // each node of the graph is in the direction of the vertex normal.
 
-  vtkIdList *vertexIds = this->DijkstraGraphGeodesicPath->GetIdList();
+  vtkIdList* vertexIds = this->DijkstraGraphGeodesicPath->GetIdList();
   double vertexNormal[3];
-  vtkDataArray *vertexNormals = nullptr;
+  vtkDataArray* vertexNormals = nullptr;
   if (this->DistanceOffset != 0.0)
   {
     vertexNormals = nodeBegin->PolyData->GetPointData()->GetNormals();
@@ -163,7 +146,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
 
   for (int n = 0; n < npts; n++)
   {
-    pd->GetPoint( pts[n], p );
+    pd->GetPoint(pts[n], p);
 
     // This is the id of the point on the polygonal surface.
     const vtkIdType ptId = vertexIds->GetId(n);
@@ -172,7 +155,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
     // offset is specified.
     if (vertexNormals)
     {
-      vertexNormals->GetTuple( ptId, vertexNormal );
+      vertexNormals->GetTuple(ptId, vertexNormal);
       p[0] += vertexNormal[0] * this->DistanceOffset;
       p[1] += vertexNormal[1] * this->DistanceOffset;
       p[2] += vertexNormal[2] * this->DistanceOffset;
@@ -180,7 +163,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
 
     // Add this point as an intermediate node of the contour. Store tehe
     // ptId if necessary.
-    rep->AddIntermediatePointWorldPosition( idx1, p, ptId );
+    rep->AddIntermediatePointWorldPosition(idx1, p, ptId);
   }
 
   this->LastInterpolatedVertexIds[0] = beginVertId;
@@ -193,9 +176,9 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   return 1;
 }
 
-//----------------------------------------------------------------------
-void vtkPolygonalSurfaceContourLineInterpolator
-::GetContourPointIds( vtkContourRepresentation *rep, vtkIdList *ids )
+//------------------------------------------------------------------------------
+void vtkPolygonalSurfaceContourLineInterpolator ::GetContourPointIds(
+  vtkContourRepresentation* rep, vtkIdList* ids)
 {
   // Get the number of points in the contour and pre-allocate size
 
@@ -215,9 +198,9 @@ void vtkPolygonalSurfaceContourLineInterpolator
   int idx = 0;
   for (int i = 0; i < nNodes; i++)
   {
-    vtkContourRepresentationNode *node = rep->GetNthNode(i);
+    vtkContourRepresentationNode* node = rep->GetNthNode(i);
     ids->SetId(idx++, node->PointId);
-    const int nIntermediatePts = static_cast< int >(node->Points.size());
+    const int nIntermediatePts = static_cast<int>(node->Points.size());
 
     for (int j = 0; j < nIntermediatePts; j++)
     {
@@ -226,11 +209,11 @@ void vtkPolygonalSurfaceContourLineInterpolator
   }
 }
 
-//----------------------------------------------------------------------
-void vtkPolygonalSurfaceContourLineInterpolator::PrintSelf(
-                              ostream& os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkPolygonalSurfaceContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "DistanceOffset: " << this->DistanceOffset << endl;
 }
+VTK_ABI_NAMESPACE_END

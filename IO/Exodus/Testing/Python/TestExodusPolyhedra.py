@@ -1,11 +1,26 @@
 #!/usr/bin/env python
 
-from vtk import *
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersGeneral import (
+    vtkShrinkFilter,
+    vtkTransformFilter,
+)
+from vtkmodules.vtkIOExodus import vtkExodusIIReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 rdr = vtkExodusIIReader()
-rdr.SetFileName(str(VTK_DATA_ROOT) + "/Data/dodecahedron.exo")
+rdr.SetFileName(VTK_DATA_ROOT + "/Data/dodecahedron.exo")
 rdr.Update()
 
 tfm = vtkTransformFilter()
@@ -17,7 +32,7 @@ tfm.SetTransform(xfm)
 tfm.Update()
 
 rd2 = vtkExodusIIReader()
-rd2.SetFileName(str(VTK_DATA_ROOT) + "/Data/cube-1.exo")
+rd2.SetFileName(VTK_DATA_ROOT + "/Data/cube-1.exo")
 rd2.Update()
 
 shr = vtkShrinkFilter()

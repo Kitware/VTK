@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestVector.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkChartXY.h"
 #include "vtkColorTransferFunction.h"
@@ -25,7 +13,7 @@
 #include <iostream>
 #include <map>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkRangeHandlesCallBack : public vtkCommand
 {
 public:
@@ -53,7 +41,7 @@ public:
   double Range[2];
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestRangeHandlesItemEvents(int, char*[])
 {
   vtkNew<vtkColorTransferFunction> transferFunction;
@@ -68,7 +56,7 @@ int TestRangeHandlesItemEvents(int, char*[])
   rangeHandles->GetHandlesRange(range);
   if (range[0] != 50 || range[1] != 200)
   {
-    std::cerr << "Unexepected range in range handle : [" << range[0] << ", " << range[1]
+    std::cerr << "Unexpected range in range handle : [" << range[0] << ", " << range[1]
               << "]. Expecting : [50, 200]." << std::endl;
     return EXIT_FAILURE;
   }
@@ -115,7 +103,7 @@ int TestRangeHandlesItemEvents(int, char*[])
 
   if (cbk->Range[0] != 69.25 || cbk->Range[1] != 200)
   {
-    std::cerr << "Unexepected range in range handle : [" << cbk->Range[0] << ", " << cbk->Range[1]
+    std::cerr << "Unexpected range in range handle : [" << cbk->Range[0] << ", " << cbk->Range[1]
               << "]. Expecting : [69.25, 200]." << std::endl;
     return EXIT_FAILURE;
   }
@@ -143,7 +131,7 @@ int TestRangeHandlesItemEvents(int, char*[])
 
   if (cbk->Range[0] != 50 || cbk->Range[1] != 120.75)
   {
-    std::cerr << "Unexepected range in range handle : [" << cbk->Range[0] << ", " << cbk->Range[1]
+    std::cerr << "Unexpected range in range handle : [" << cbk->Range[0] << ", " << cbk->Range[1]
               << "]. Expecting : [50, 120.75]." << std::endl;
     return EXIT_FAILURE;
   }

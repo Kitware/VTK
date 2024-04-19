@@ -1,44 +1,28 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestTreeMapLayoutStrategy.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkActor.h"
 #include "vtkCirclePackFrontChainLayoutStrategy.h"
+#include "vtkCirclePackLayout.h"
+#include "vtkCirclePackToPolyData.h"
 #include "vtkIntArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTree.h"
 #include "vtkTreeFieldAggregator.h"
-#include "vtkCirclePackLayout.h"
-#include "vtkCirclePackToPolyData.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input, double posX, double posY, vtkRenderer* ren)
+void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input, double posX,
+  double posY, vtkRenderer* ren)
 {
   VTK_CREATE(vtkCirclePackLayout, layout);
   layout->SetLayoutStrategy(strategy);
@@ -51,7 +35,7 @@ void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input
   double pnt[2];
   pnt[0] = cinfo[0];
   pnt[1] = cinfo[1];
-  if(((int) layout->FindVertex(pnt)) != (vda->GetNumberOfTuples() - 1))
+  if (((int)layout->FindVertex(pnt)) != (vda->GetNumberOfTuples() - 1))
   {
     cout << "GetBoundingCircle() and FindVertex() returned incorrect id" << endl;
     exit(1);
@@ -61,7 +45,7 @@ void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input
   poly->SetInputConnection(layout->GetOutputPort());
   VTK_CREATE(vtkPolyDataMapper, mapper);
   mapper->SetInputConnection(poly->GetOutputPort());
-  mapper->SetScalarRange(0,600);
+  mapper->SetScalarRange(0, 600);
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SelectColorArray("size");
   VTK_CREATE(vtkActor, actor);
@@ -69,6 +53,18 @@ void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input
   actor->SetPosition(posX, posY, 0);
   ren->AddActor(actor);
 }
+
+const int values[] = { 1, 100, 1, 400, 500, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  400, 1, 100, 1, 400, 500, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 1, 400, 500, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 400, 1, 100, 1, 400, 500, 1, 1, 1, 1, 77, 1, 1, 1, 1, 1, 1,
+  100, 1, 400, 500, 1, 1, 1, 1, 1, 15, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 400, 1, 100, 1, 400,
+  500, 1, 1, 1, 1, 99, 1, 1, 1, 1, 1, 1, 100, 1, 400, 500, 1, 1, 1, 1, 1, 1, 107, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 432, 1, 100, 1, 400, 500, 1, 1, 259, 1, 1, 1, 1, 1, 1, 242, 1, 100, 306, 400,
+  500, 1, 1, 1, 1, 1, 1, 91, 1, 1, 46, 1, 1, 1, 1, 1, 1, 1, 1, 1, 400, 1, 100, 1, 400, 500, 1, 1, 1,
+  1, 1, 47, 1, 1, 1, 1, 1, 100, 1, 400, 500, 1, 1, 1, 150, 1, 90, 1, 1, 1, 1, 10, 1, 1, 456, 1, 1,
+  1, 1, 1, 40, 1, 100, 1, 400, 500, 1, 1, 1, 1, 1, 1, 1, 98, 1, 1, 1, 100, 1, 400, 500, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 105, 1, 1, 1, 15, 1, 1, 1, 410, 1, 320, 1, 410, 450, 1, 1, 136, 1, 1, 1, 1,
+  458, 1, 1 };
 
 int TestCirclePackLayoutStrategy(int argc, char* argv[])
 {
@@ -80,566 +76,11 @@ int TestCirclePackLayoutStrategy(int argc, char* argv[])
   builder->GetVertexData()->AddArray(sizeArr);
   builder->AddVertex();
   sizeArr->InsertNextValue(0);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(77);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(15);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(99);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(107);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(432);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(259);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(242);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(306);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(91);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(46);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(47);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(150);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(90);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(10);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(456);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(40);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(98);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(100);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(400);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(500);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(105);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(15);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(410);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(320);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(410);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(450);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(136);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(458);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
-  builder->AddChild(0);
-  sizeArr->InsertNextValue(1);
+  for (auto value : values)
+  {
+    builder->AddChild(0);
+    sizeArr->InsertNextValue(value);
+  }
 
   VTK_CREATE(vtkTree, tree);
   if (!tree->CheckedShallowCopy(builder))

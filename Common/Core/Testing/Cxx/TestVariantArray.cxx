@@ -1,32 +1,16 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
-  Program:   Visualization Toolkit
-  Module:    TestVariantArray.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
-
-#include "vtkIntArray.h"
-#include "vtkStringArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkVariantArray.h"
 #include "vtkArrayIterator.h"
 #include "vtkArrayIteratorTemplate.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkVariantArray.h"
 
 #include <time.h>
 #include <vector>
@@ -46,11 +30,9 @@ void PrintArrays(vector<double> vec, vtkVariantArray* arr)
 
 int TestLookup()
 {
-  vtkSmartPointer<vtkVariantArray> array =
-    vtkSmartPointer<vtkVariantArray>::New();
+  vtkSmartPointer<vtkVariantArray> array = vtkSmartPointer<vtkVariantArray>::New();
 
-  vtkSmartPointer<vtkIdList> idList =
-    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
 
   array->SetNumberOfValues(4);
   array->SetValue(0, "a");
@@ -61,8 +43,7 @@ int TestLookup()
   array->LookupValue("a", idList);
   if (idList->GetNumberOfIds() != 3)
   {
-    cerr << "Expected 3 a's, found " << idList->GetNumberOfIds()
-         << " of them\n";
+    cerr << "Expected 3 a's, found " << idList->GetNumberOfIds() << " of them\n";
     return 1;
   }
 
@@ -75,8 +56,7 @@ int TestLookup()
   array->LookupValue("b", idList);
   if (idList->GetNumberOfIds() != 1)
   {
-    cerr << "Expected 1 b, found " << idList->GetNumberOfIds()
-         << " of them\n";
+    cerr << "Expected 1 b, found " << idList->GetNumberOfIds() << " of them\n";
     return 1;
   }
 
@@ -91,8 +71,7 @@ int TestLookup()
   array->LookupValue("a", idList);
   if (idList->GetNumberOfIds() != 2)
   {
-    cerr << "Expected 2 a's, found " << idList->GetNumberOfIds()
-         << " of them\n";
+    cerr << "Expected 2 a's, found " << idList->GetNumberOfIds() << " of them\n";
     return 1;
   }
 
@@ -105,8 +84,7 @@ int TestLookup()
   array->LookupValue("b", idList);
   if (idList->GetNumberOfIds() != 2)
   {
-    cerr << "Expected 2 b's, found " << idList->GetNumberOfIds()
-         << " of them\n";
+    cerr << "Expected 2 b's, found " << idList->GetNumberOfIds() << " of them\n";
     return 1;
   }
 
@@ -131,7 +109,6 @@ int TestVariantArray(int, char*[])
   double prob = 1.0 - 1.0 / size;
 
   vtkVariantArray* arr = vtkVariantArray::New();
-  vector<double> vec;
 
   // Resizing
   // * vtkTypeBool Allocate(vtkIdType sz);
@@ -232,6 +209,7 @@ int TestVariantArray(int, char*[])
   cerr << "Performing insert operations." << endl;
   vtkIdType id = 0;
   bool empty = true;
+  vector<double> vec;
   while (empty || vtkMath::Random() < prob)
   {
     empty = false;
@@ -334,9 +312,8 @@ int TestVariantArray(int, char*[])
     exit(1);
   }
 
-  if (arr->GetActualMemorySize() == 0
-    || arr->GetDataTypeSize() == 0
-    || arr->GetElementComponentSize() == 0)
+  if (arr->GetActualMemorySize() == 0 || arr->GetDataTypeSize() == 0 ||
+    arr->GetElementComponentSize() == 0)
   {
     cerr << "One of the size functions returned zero." << endl;
     exit(1);
@@ -344,8 +321,8 @@ int TestVariantArray(int, char*[])
 
   if (arr->GetNumberOfValues() != static_cast<vtkIdType>(vec.size()))
   {
-    cerr << "Sizes do not match ("
-         << arr->GetNumberOfValues() << " != " << vec.size() << ")" << endl;
+    cerr << "Sizes do not match (" << arr->GetNumberOfValues() << " != " << vec.size() << ")"
+         << endl;
     exit(1);
   }
 
@@ -361,8 +338,8 @@ int TestVariantArray(int, char*[])
   }
 
   cerr << "Check using an iterator." << endl;
-  vtkArrayIteratorTemplate<vtkVariant>* iter
-    = static_cast<vtkArrayIteratorTemplate<vtkVariant>*>(arr->NewIterator());
+  vtkArrayIteratorTemplate<vtkVariant>* iter =
+    static_cast<vtkArrayIteratorTemplate<vtkVariant>*>(arr->NewIterator());
   for (vtkIdType i = 0; i < iter->GetNumberOfValues(); i++)
   {
     double arrVal = iter->GetValue(i).ToDouble();
@@ -409,4 +386,3 @@ int TestVariantArray(int, char*[])
 
   return 0;
 }
-

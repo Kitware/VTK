@@ -15,7 +15,7 @@ import vtk.vtkObject;
 
 /**
  * @author    Joachim Pouderoux - joachim.pouderoux@kitware.com, Kitware SAS 2012
- * @copyright This work was supported by CEA/CESTA
+ * @thanks    This work was supported by CEA/CESTA
  *            Commissariat a l'Energie Atomique et aux Energies Alternatives,
  *            15 avenue des Sablieres, CS 60001, 33116 Le Barp, France.
  */

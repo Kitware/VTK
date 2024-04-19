@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationUnsignedLongKey.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInformationUnsignedLongKey
  * @brief   Key for unsigned long values in vtkInformation.
  *
  * vtkInformationUnsignedLongKey is used to represent keys for unsigned long values
  * in vtkInformation.
-*/
+ */
 
 #ifndef vtkInformationUnsignedLongKey_h
 #define vtkInformationUnsignedLongKey_h
@@ -28,10 +16,11 @@
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkInformationUnsignedLongKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationUnsignedLongKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationUnsignedLongKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationUnsignedLongKey(const char* name, const char* location);
@@ -42,19 +31,20 @@ public:
    * name and a location. This method is provided for wrappers. Use the
    * constructor directly from C++ instead.
    */
-  static vtkInformationUnsignedLongKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationUnsignedLongKey* MakeKey(
+    const char* name, const char* location)
   {
     return new vtkInformationUnsignedLongKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
    */
   void Set(vtkInformation* info, unsigned long);
   unsigned long Get(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information
@@ -81,4 +71,5 @@ private:
   void operator=(const vtkInformationUnsignedLongKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

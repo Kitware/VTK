@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTree.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkTree.h"
 
@@ -28,20 +12,21 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTree);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree::vtkTree()
 {
   this->Root = -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTree::~vtkTree() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkTree::GetChild(vtkIdType v, vtkIdType i)
 {
-  const vtkOutEdgeType *edges;
+  const vtkOutEdgeType* edges;
   vtkIdType nedges;
   this->GetOutEdges(v, edges, nedges);
   if (i < nedges)
@@ -51,10 +36,10 @@ vtkIdType vtkTree::GetChild(vtkIdType v, vtkIdType i)
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkTree::GetParent(vtkIdType v)
 {
-  const vtkInEdgeType *edges;
+  const vtkInEdgeType* edges;
   vtkIdType nedges;
   this->GetInEdges(v, edges, nedges);
   if (nedges > 0)
@@ -64,10 +49,10 @@ vtkIdType vtkTree::GetParent(vtkIdType v)
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEdgeType vtkTree::GetParentEdge(vtkIdType v)
 {
-  const vtkInEdgeType *edges;
+  const vtkInEdgeType* edges;
   vtkIdType nedges;
   this->GetInEdges(v, edges, nedges);
   if (nedges > 0)
@@ -77,7 +62,7 @@ vtkEdgeType vtkTree::GetParentEdge(vtkIdType v)
   return vtkEdgeType();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkTree::GetLevel(vtkIdType vertex)
 {
   if (vertex < 0 || vertex >= this->GetNumberOfVertices())
@@ -93,33 +78,33 @@ vtkIdType vtkTree::GetLevel(vtkIdType vertex)
   return level;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTree::IsLeaf(vtkIdType vertex)
 {
   return (this->GetNumberOfChildren(vertex) == 0);
 }
 
-//----------------------------------------------------------------------------
-vtkTree *vtkTree::GetData(vtkInformation *info)
+//------------------------------------------------------------------------------
+vtkTree* vtkTree::GetData(vtkInformation* info)
 {
-  return info? vtkTree::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
+  return info ? vtkTree::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
-//----------------------------------------------------------------------------
-vtkTree *vtkTree::GetData(vtkInformationVector *v, int i)
+//------------------------------------------------------------------------------
+vtkTree* vtkTree::GetData(vtkInformationVector* v, int i)
 {
   return vtkTree::GetData(v->GetInformationObject(i));
 }
 
-//----------------------------------------------------------------------------
-bool vtkTree::IsStructureValid(vtkGraph *g)
+//------------------------------------------------------------------------------
+bool vtkTree::IsStructureValid(vtkGraph* g)
 {
   if (!g)
   {
     return false;
   }
 
-  vtkTree *tree = vtkTree::SafeDownCast(g);
+  vtkTree* tree = vtkTree::SafeDownCast(g);
   if (tree)
   {
     // Since a tree has the additional root property, we need
@@ -171,8 +156,7 @@ bool vtkTree::IsStructureValid(vtkGraph *g)
   std::vector<bool> visited(g->GetNumberOfVertices(), false);
   std::vector<vtkIdType> stack;
   stack.push_back(root);
-  vtkSmartPointer<vtkOutEdgeIterator> outIter =
-    vtkSmartPointer<vtkOutEdgeIterator>::New();
+  vtkSmartPointer<vtkOutEdgeIterator> outIter = vtkSmartPointer<vtkOutEdgeIterator>::New();
   while (!stack.empty())
   {
     vtkIdType v = stack.back();
@@ -207,15 +191,16 @@ bool vtkTree::IsStructureValid(vtkGraph *g)
   return true;
 }
 
-//----------------------------------------------------------------------------
-void vtkTree::ReorderChildren(vtkIdType parent, vtkIdTypeArray *children)
+//------------------------------------------------------------------------------
+void vtkTree::ReorderChildren(vtkIdType parent, vtkIdTypeArray* children)
 {
   this->ReorderOutVertices(parent, children);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTree::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Root: " << this->Root << endl;
 }
+VTK_ABI_NAMESPACE_END

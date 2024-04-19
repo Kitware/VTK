@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestTemporalArrayOperatorFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-    This software is distributed WITHOUT ANY WARRANTY; without even
-    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-    PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include <vtkDoubleArray.h>
 #include <vtkImageData.h>
 #include <vtkInformation.h>
@@ -32,9 +20,8 @@ public:
 protected:
   vtkTemporalRTAnalyticSource() = default;
 
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override
   {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     double range[2] = { 0, 5 };
@@ -96,8 +83,8 @@ int TestTemporalArrayOperatorFilter(int, char*[])
 
   operatorFilter->SetFirstTimeStepIndex(3);
   operatorFilter->SetSecondTimeStepIndex(0);
-  operatorFilter->SetInputArrayToProcess(0, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "timeData");
+  operatorFilter->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "timeData");
   operatorFilter->SetOperator(vtkTemporalArrayOperatorFilter::ADD);
 
   operatorFilter->UpdateInformation();
@@ -105,8 +92,7 @@ int TestTemporalArrayOperatorFilter(int, char*[])
     vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 2);
   operatorFilter->Update();
 
-  vtkDataSet* diff =
-    vtkDataSet::SafeDownCast(operatorFilter->GetOutputDataObject(0));
+  vtkDataSet* diff = vtkDataSet::SafeDownCast(operatorFilter->GetOutputDataObject(0));
 
   double range[2];
   diff->GetPointData()->GetArray("timeData")->GetRange(range);

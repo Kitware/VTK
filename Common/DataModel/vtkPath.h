@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPath.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPath
  * @brief   concrete dataset representing a path defined by Bezier
@@ -19,7 +7,7 @@
  *
  * vtkPath provides a container for paths composed of line segments,
  * 2nd-order (quadratic) and 3rd-order (cubic) Bezier curves.
-*/
+ */
 
 #ifndef vtkPath_h
 #define vtkPath_h
@@ -27,20 +15,21 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPath : public vtkPointSet
 {
 public:
-  static vtkPath *New();
+  static vtkPath* New();
 
-  vtkTypeMacro(vtkPath,vtkPointSet);
+  vtkTypeMacro(vtkPath, vtkPointSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_PATH;}
+  int GetDataObjectType() override { return VTK_PATH; }
 
   /**
    * Enumeration of recognized control point types:
@@ -64,41 +53,41 @@ public:
     CUBIC_CURVE
   };
 
-  //@{
+  ///@{
   /**
    * Insert the next control point in the path.
    */
   void InsertNextPoint(float pts[3], int code);
   void InsertNextPoint(double pts[3], int code);
   void InsertNextPoint(double x, double y, double z, int code);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the array of control point codes:
    */
-  void SetCodes(vtkIntArray *);
-  vtkIntArray *GetCodes();
-  //@}
+  void SetCodes(vtkIntArray*);
+  vtkIntArray* GetCodes();
+  ///@}
 
   /**
    * vtkPath doesn't use cells. These methods return trivial values.
    */
   vtkIdType GetNumberOfCells() override { return 0; }
   using vtkDataSet::GetCell;
-  vtkCell *GetCell(vtkIdType)  override  { return nullptr; }
-  void GetCell(vtkIdType, vtkGenericCell *) override;
-  int GetCellType(vtkIdType)   override  { return 0; }
+  vtkCell* GetCell(vtkIdType) override { return nullptr; }
+  void GetCell(vtkIdType, vtkGenericCell*) override;
+  int GetCellType(vtkIdType) override { return 0; }
 
   /**
    * vtkPath doesn't use cells, this method just clears ptIds.
    */
-  void GetCellPoints(vtkIdType, vtkIdList *ptIds) override;
+  void GetCellPoints(vtkIdType, vtkIdList* ptIds) override;
 
   /**
    * vtkPath doesn't use cells, this method just clears cellIds.
    */
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override;
+  void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override;
 
   /**
    * Return the maximum cell size in this poly data.
@@ -106,10 +95,16 @@ public:
   int GetMaxCellSize() override { return 0; }
 
   /**
+   * Get the maximum spatial dimensionality of the data
+   * which is the maximum dimension of all cells.
+   */
+  int GetMaxSpatialDimension() override { return 0; }
+
+  /**
    * Method allocates initial storage for points. Use this method before the
    * method vtkPath::InsertNextPoint().
    */
-  void Allocate(vtkIdType size=1000, int extSize=1000);
+  void Allocate(vtkIdType size = 1000, int extSize = 1000);
 
   /**
    * Begin inserting data all over again. Memory is not freed but otherwise
@@ -117,13 +112,13 @@ public:
    */
   void Reset();
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkPath* GetData(vtkInformation* info);
-  static vtkPath* GetData(vtkInformationVector* v, int i=0);
-  //@}
+  static vtkPath* GetData(vtkInformationVector* v, int i = 0);
+  ///@}
 
 protected:
   vtkPath();
@@ -134,4 +129,5 @@ private:
   void operator=(const vtkPath&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

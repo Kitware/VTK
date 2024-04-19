@@ -14,7 +14,7 @@ public class vtkJoglPanelComponent extends vtkAbstractJoglComponent<GLJPanel> {
   }
 
   public vtkJoglPanelComponent(vtkRenderWindow renderWindow) {
-    this(renderWindow, new GLCapabilities(GLProfile.getDefault()));
+    this(renderWindow, new GLCapabilities(GLProfile.getMaximum(true)));
   }
 
   public vtkJoglPanelComponent(vtkRenderWindow renderWindow, GLCapabilities capabilities) {

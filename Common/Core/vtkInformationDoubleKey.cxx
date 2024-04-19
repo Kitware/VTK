@@ -1,52 +1,39 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationDoubleKey.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkInformationDoubleKey.h"
 
 #include "vtkInformation.h"
 
-
-//----------------------------------------------------------------------------
-vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* location):
-  vtkInformationKey(name, location)
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* location)
+  : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationDoubleKey::~vtkInformationDoubleKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
-class vtkInformationDoubleValue: public vtkObjectBase
+//------------------------------------------------------------------------------
+class vtkInformationDoubleValue : public vtkObjectBase
 {
 public:
   vtkBaseTypeMacro(vtkInformationDoubleValue, vtkObjectBase);
   double Value;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
 {
-  if(vtkInformationDoubleValue* oldv =
-     static_cast<vtkInformationDoubleValue *>(
-       this->GetAsObjectBase(info)))
+  if (vtkInformationDoubleValue* oldv =
+        static_cast<vtkInformationDoubleValue*>(this->GetAsObjectBase(info)))
   {
     if (oldv->Value != value)
     {
@@ -69,16 +56,15 @@ void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkInformationDoubleKey::Get(vtkInformation* info)
 {
   vtkInformationDoubleValue* v =
-    static_cast<vtkInformationDoubleValue *>(
-      this->GetAsObjectBase(info));
-  return v?v->Value:0;
+    static_cast<vtkInformationDoubleValue*>(this->GetAsObjectBase(info));
+  return v ? v->Value : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   if (this->Has(from))
@@ -91,24 +77,24 @@ void vtkInformationDoubleKey::ShallowCopy(vtkInformation* from, vtkInformation* 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationDoubleKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
-  if(this->Has(info))
+  if (this->Has(info))
   {
     os << this->Get(info);
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkInformationDoubleKey::GetWatchAddress(vtkInformation* info)
 {
-  if(vtkInformationDoubleValue* v =
-     static_cast<vtkInformationDoubleValue *>(
-       this->GetAsObjectBase(info)))
+  if (vtkInformationDoubleValue* v =
+        static_cast<vtkInformationDoubleValue*>(this->GetAsObjectBase(info)))
   {
     return &v->Value;
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

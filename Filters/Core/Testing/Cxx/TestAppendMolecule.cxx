@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestAppendMolecule.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
@@ -23,12 +11,15 @@
 #include "vtkUnsignedShortArray.h"
 
 #define CheckNumbers(name, first, second)                                                          \
-  if (first != second)                                                                             \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects " << second  \
-         << endl;                                                                                  \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (first != second)                                                                           \
+    {                                                                                              \
+      cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects "          \
+           << second << endl;                                                                      \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 // Used to creates different atoms and data for each molecule
 static int NB_OF_MOL = 0;
@@ -64,14 +55,8 @@ void AddAtomData(vtkMolecule* molecule)
   molecule->GetBondData()->AddArray(stringData);
 }
 
-int CheckMolecule(vtkMolecule* molecule,
-  int nbAtoms,
-  int nbBonds,
-  int nbOfAtomArrays,
-  int nbOfBondArrays,
-  vtkDoubleArray* values,
-  int nbGhostAtoms,
-  int nbGhostBonds)
+int CheckMolecule(vtkMolecule* molecule, int nbAtoms, int nbBonds, int nbOfAtomArrays,
+  int nbOfBondArrays, vtkDoubleArray* values, int nbGhostAtoms, int nbGhostBonds)
 {
   CheckNumbers("atoms", molecule->GetNumberOfAtoms(), nbAtoms);
   CheckNumbers("bonds", molecule->GetNumberOfBonds(), nbBonds);
@@ -126,7 +111,7 @@ int CheckMolecule(vtkMolecule* molecule,
   return EXIT_SUCCESS;
 }
 
-int TestAppendMolecule(int, char* [])
+int TestAppendMolecule(int, char*[])
 {
   // --------------------------------------------------------------------------
   // Simple test : 2 molecules, no data
@@ -222,14 +207,8 @@ int TestAppendMolecule(int, char* [])
   expectedResultValues->InsertNextValue(
     fullMolecule2->GetAtomData()->GetArray("Data")->GetTuple1(2));
 
-  int res = CheckMolecule(resultFullMolecule,
-    nbOfExpectedAtoms,
-    nbOfExpectedBonds,
-    nbOfExpectedArrays,
-    nbOfExpectedBondArrays,
-    expectedResultValues,
-    1,
-    1);
+  int res = CheckMolecule(resultFullMolecule, nbOfExpectedAtoms, nbOfExpectedBonds,
+    nbOfExpectedArrays, nbOfExpectedBondArrays, expectedResultValues, 1, 1);
   if (res == EXIT_FAILURE)
   {
     return EXIT_FAILURE;
@@ -259,14 +238,8 @@ int TestAppendMolecule(int, char* [])
   expectedResultValues->InsertNextValue(
     fullMolecule3->GetAtomData()->GetArray("Data")->GetTuple1(2));
 
-  res = CheckMolecule(resultFullMolecule,
-    nbOfExpectedAtoms,
-    nbOfExpectedBonds,
-    nbOfExpectedArrays,
-    nbOfExpectedBondArrays,
-    expectedResultValues,
-    2,
-    2);
+  res = CheckMolecule(resultFullMolecule, nbOfExpectedAtoms, nbOfExpectedBonds, nbOfExpectedArrays,
+    nbOfExpectedBondArrays, expectedResultValues, 2, 2);
   if (res == EXIT_FAILURE)
   {
     return EXIT_FAILURE;
@@ -290,12 +263,6 @@ int TestAppendMolecule(int, char* [])
   expectedResultValues->InsertValue(
     4, fullMolecule3->GetAtomData()->GetArray("Data")->GetTuple1(1));
 
-  return CheckMolecule(resultFullMolecule,
-    nbOfExpectedAtoms,
-    nbOfExpectedBonds,
-    nbOfExpectedArrays,
-    nbOfExpectedBondArrays,
-    expectedResultValues,
-    0,
-    0);
+  return CheckMolecule(resultFullMolecule, nbOfExpectedAtoms, nbOfExpectedBonds, nbOfExpectedArrays,
+    nbOfExpectedBondArrays, expectedResultValues, 0, 0);
 }

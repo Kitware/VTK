@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWin32VideoSource.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWin32VideoSource
  * @brief   Video-for-Windows video digitizer
@@ -26,7 +14,7 @@
  *
  * @sa
  * vtkVideoSource vtkMILVideoSource
-*/
+ */
 
 #ifndef vtkWin32VideoSource_h
 #define vtkWin32VideoSource_h
@@ -34,13 +22,14 @@
 #include "vtkIOVideoModule.h" // For export macro
 #include "vtkVideoSource.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWin32VideoSourceInternal;
 
 class VTKIOVIDEO_EXPORT vtkWin32VideoSource : public vtkVideoSource
 {
 public:
-  static vtkWin32VideoSource *New();
-  vtkTypeMacro(vtkWin32VideoSource,vtkVideoSource);
+  static vtkWin32VideoSource* New();
+  vtkTypeMacro(vtkWin32VideoSource, vtkVideoSource);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -63,14 +52,13 @@ public:
    */
   void Grab() override;
 
-  //@{
+  ///@{
   /**
    * Request a particular frame size (set the third value to 1).
    */
   void SetFrameSize(int x, int y, int z) override;
-  void SetFrameSize(int dim[3]) override {
-    this->SetFrameSize(dim[0], dim[1], dim[2]); };
-  //@}
+  void SetFrameSize(int dim[3]) override { this->SetFrameSize(dim[0], dim[1], dim[2]); }
+  ///@}
 
   /**
    * Request a particular frame rate (default 30 frames per second).
@@ -82,14 +70,14 @@ public:
    */
   void SetOutputFormat(int format) override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off the preview (overlay) window.
    */
   void SetPreview(int p);
-  vtkBooleanMacro(Preview,int);
-  vtkGetMacro(Preview,int);
-  //@}
+  vtkBooleanMacro(Preview, int);
+  vtkGetMacro(Preview, int);
+  ///@}
 
   /**
    * Bring up a modal dialog box for video format selection.
@@ -113,27 +101,26 @@ public:
    */
   void ReleaseSystemResources() override;
 
-  //@{
+  ///@{
   /**
    * For internal use only
    */
   void LocalInternalGrab(void*);
   void OnParentWndDestroy();
-  //@}
+  ///@}
 
 protected:
   vtkWin32VideoSource();
-  ~vtkWin32VideoSource();
+  ~vtkWin32VideoSource() override;
 
   char WndClassName[16];
   int BitMapSize;
   int Preview;
 
-  vtkWin32VideoSourceInternal *Internal;
+  vtkWin32VideoSourceInternal* Internal;
 
   void CheckBuffer();
-  void UnpackRasterLine(char *outptr, char *inptr,
-                        int start, int count) override;
+  void UnpackRasterLine(char* outptr, char* inptr, int start, int count) override;
 
   void DoVFWFormatSetup();
   void DoVFWFormatCheck();
@@ -143,9 +130,5 @@ private:
   void operator=(const vtkWin32VideoSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-
-
-

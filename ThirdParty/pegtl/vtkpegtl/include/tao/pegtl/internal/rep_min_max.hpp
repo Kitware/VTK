@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_REP_MIN_MAX_HPP
@@ -8,9 +8,7 @@
 
 #include "../config.hpp"
 
-#include "duseltronik.hpp"
 #include "not_at.hpp"
-#include "rule_conjunction.hpp"
 #include "seq.hpp"
 #include "skip_control.hpp"
 #include "trivial.hpp"
@@ -27,7 +25,10 @@ namespace tao
       namespace internal
       {
          template< unsigned Min, unsigned Max, typename... Rules >
-         struct rep_min_max;
+         struct rep_min_max
+            : rep_min_max< Min, Max, seq< Rules... > >
+         {
+         };
 
          template< unsigned Min, unsigned Max >
          struct rep_min_max< Min, Max >
@@ -36,16 +37,16 @@ namespace tao
             static_assert( Min <= Max, "invalid rep_min_max rule (maximum number of repetitions smaller than minimum)" );
          };
 
-         template< typename Rule, typename... Rules >
-         struct rep_min_max< 0, 0, Rule, Rules... >
-            : not_at< Rule, Rules... >
+         template< typename Rule >
+         struct rep_min_max< 0, 0, Rule >
+            : not_at< Rule >
          {
          };
 
-         template< unsigned Min, unsigned Max, typename... Rules >
-         struct rep_min_max
+         template< unsigned Min, unsigned Max, typename Rule >
+         struct rep_min_max< Min, Max, Rule >
          {
-            using analyze_t = analysis::counted< analysis::rule_type::seq, Min, Rules... >;
+            using analyze_t = analysis::counted< analysis::rule_type::seq, Min, Rule >;
 
             static_assert( Min <= Max, "invalid rep_min_max rule (maximum number of repetitions smaller than minimum)" );
 
@@ -63,16 +64,16 @@ namespace tao
                using m_t = decltype( m );
 
                for( unsigned i = 0; i != Min; ++i ) {
-                  if( !rule_conjunction< Rules... >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) ) {
+                  if( !Control< Rule >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) ) {
                      return false;
                   }
                }
                for( unsigned i = Min; i != Max; ++i ) {
-                  if( !duseltronik< seq< Rules... >, A, rewind_mode::required, Action, Control >::match( in, st... ) ) {
+                  if( !Control< Rule >::template match< A, rewind_mode::required, Action, Control >( in, st... ) ) {
                      return m( true );
                   }
                }
-               return m( duseltronik< not_at< Rules... >, A, m_t::next_rewind_mode, Action, Control >::match( in, st... ) );  // NOTE that not_at<> will always rewind.
+               return m( Control< not_at< Rule > >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) );  // NOTE that not_at<> will always rewind.
             }
          };
 

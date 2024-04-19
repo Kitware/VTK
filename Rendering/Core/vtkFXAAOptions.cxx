@@ -1,41 +1,24 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFXAAOptions.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkFXAAOptions.h"
 
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkFXAAOptions)
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkFXAAOptions);
 
 //------------------------------------------------------------------------------
-void vtkFXAAOptions::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkFXAAOptions::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "RelativeContrastThreshold: "
-     << this->RelativeContrastThreshold << "\n";
-  os << indent << "HardContrastThreshold: "
-     << this->HardContrastThreshold << "\n";
-  os << indent << "SubpixelBlendLimit: " <<
-        this->SubpixelBlendLimit << "\n";
-  os << indent << "SubpixelContrastThreshold: "
-     << this->SubpixelContrastThreshold << "\n";
-  os << indent << "EndpointSearchIterations: "
-     << this->EndpointSearchIterations << "\n";
-  os << indent << "UseHighQualityEndpoints: "
-     << this->UseHighQualityEndpoints << "\n";
+  os << indent << "RelativeContrastThreshold: " << this->RelativeContrastThreshold << "\n";
+  os << indent << "HardContrastThreshold: " << this->HardContrastThreshold << "\n";
+  os << indent << "SubpixelBlendLimit: " << this->SubpixelBlendLimit << "\n";
+  os << indent << "SubpixelContrastThreshold: " << this->SubpixelContrastThreshold << "\n";
+  os << indent << "EndpointSearchIterations: " << this->EndpointSearchIterations << "\n";
+  os << indent << "UseHighQualityEndpoints: " << this->UseHighQualityEndpoints << "\n";
 
   os << indent << "DebugOptionValue: ";
   switch (this->DebugOptionValue)
@@ -70,15 +53,16 @@ void vtkFXAAOptions::PrintSelf(std::ostream &os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkFXAAOptions::vtkFXAAOptions()
-  : RelativeContrastThreshold(1.f/8.f),
-    HardContrastThreshold(1.f/16.f),
-    SubpixelBlendLimit(3.f/4.f),
-    SubpixelContrastThreshold(1.f/4.f),
-    EndpointSearchIterations(12),
-    UseHighQualityEndpoints(true),
-    DebugOptionValue(vtkFXAAOptions::FXAA_NO_DEBUG)
+  : RelativeContrastThreshold(1.f / 8.f)
+  , HardContrastThreshold(1.f / 16.f)
+  , SubpixelBlendLimit(3.f / 4.f)
+  , SubpixelContrastThreshold(1.f / 4.f)
+  , EndpointSearchIterations(12)
+  , UseHighQualityEndpoints(true)
+  , DebugOptionValue(vtkFXAAOptions::FXAA_NO_DEBUG)
 {
 }
 
 //------------------------------------------------------------------------------
 vtkFXAAOptions::~vtkFXAAOptions() = default;
+VTK_ABI_NAMESPACE_END

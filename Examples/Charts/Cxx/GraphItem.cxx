@@ -1,29 +1,17 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    GraphItem.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCommand.h"
-#include "vtkRandomGraphSource.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkGraph.h"
 #include "vtkGraphItem.h"
-#include "vtkVariant.h"
-#include "vtkRenderer.h"
+#include "vtkRandomGraphSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
+#include "vtkVariant.h"
 
 #include "vtkObjectFactory.h"
 
@@ -34,9 +22,9 @@
 class GraphAnimate : public vtkCommand
 {
 public:
-  static GraphAnimate *New() { return new GraphAnimate(); }
+  static GraphAnimate* New() { return new GraphAnimate(); }
   vtkTypeMacro(GraphAnimate, vtkCommand);
-  void Execute(vtkObject *, unsigned long, void *) override
+  void Execute(vtkObject*, unsigned long, void*) override
   {
     this->GraphItem->UpdatePositions();
     this->View->Render();
@@ -46,8 +34,8 @@ public:
   vtkContextView* View;
 };
 
-//----------------------------------------------------------------------------
-int main(int, char *[])
+//------------------------------------------------------------------------------
+int main(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();

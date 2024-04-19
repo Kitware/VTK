@@ -1,7 +1,11 @@
 from __future__ import print_function
 
 import sys
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkIdList,
+    vtkVariant,
+)
+from vtkmodules.vtkIOGeoJSON import vtkGeoJSONReader
 
 def load_geojson(input_string, feature_properties={}):
   '''Parses input_string with vtkGeoJSONReader, returns vtkPolyData
@@ -9,7 +13,7 @@ def load_geojson(input_string, feature_properties={}):
   feature_properties is a dictionary of name-default_values
   to attach as cell data in the returned vtkPolyData.
   '''
-  reader = vtk.vtkGeoJSONReader()
+  reader = vtkGeoJSONReader()
   #reader.DebugOn()
   reader.StringInputModeOn()
   reader.SetStringInput(input_string)
@@ -59,7 +63,7 @@ if __name__ == '__main__'  :
   ]
 }
 """
-  prop0_default = vtk.vtkVariant('default')
+  prop0_default = vtkVariant('default')
   feature_properties = {'prop0': prop0_default}
   polydata = load_geojson(input_string, feature_properties)
   if polydata is None:
@@ -86,7 +90,7 @@ if __name__ == '__main__'  :
     num_errors += 1
   else:
     # Check number of points in the (first) polyline
-    id_list = vtk.vtkIdList()
+    id_list = vtkIdList()
     polydata.GetLines().GetCell(0, id_list)
     if id_list.GetNumberOfIds() != 4:
       print('Wrong number of points in line 0: returned %s, should be %s' % \
@@ -100,7 +104,7 @@ if __name__ == '__main__'  :
     num_errors += 1
   else:
     # Check number of points in the (first) polygon
-    id_list = vtk.vtkIdList()
+    id_list = vtkIdList()
     polydata.GetPolys().GetCell(0, id_list)
     if id_list.GetNumberOfIds() != 4:
       print('Wrong number of points in poly 0: returned %s, should be %s' % \

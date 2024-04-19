@@ -1,0 +1,16 @@
+NAME
+  VTK::RenderingVtkJS
+LIBRARY_NAME
+  vtkRenderingVtkJS
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::RenderingSceneGraph
+  VTK::jsoncpp
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::RenderingCore

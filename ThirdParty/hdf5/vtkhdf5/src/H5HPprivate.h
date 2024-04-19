@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -14,8 +14,8 @@
 /*
  * This file contains private information about the H5HP module
  */
-#ifndef _H5HPprivate_H
-#define _H5HPprivate_H
+#ifndef H5HPprivate_H
+#define H5HPprivate_H
 
 /**************************************/
 /* Public headers needed by this file */
@@ -39,13 +39,13 @@ typedef struct H5HP_t H5HP_t;
 /* Typedef for objects which can be inserted into heaps */
 /* This _must_ be the first field in objects which can be inserted into heaps */
 typedef struct H5HP_info_t {
-    size_t heap_loc;                    /* Location of object in heap */
-}H5HP_info_t;
+    size_t heap_loc; /* Location of object in heap */
+} H5HP_info_t;
 
 /* Typedef for type of heap to create */
 typedef enum {
-    H5HP_MIN_HEAP,      /* Minimum values in heap are at the "top" */
-    H5HP_MAX_HEAP       /* Maximum values in heap are at the "top" */
+    H5HP_MIN_HEAP, /* Minimum values in heap are at the "top" */
+    H5HP_MAX_HEAP  /* Maximum values in heap are at the "top" */
 } H5HP_type_t;
 
 /**********/
@@ -56,14 +56,13 @@ typedef enum {
 /* Private routines */
 /********************/
 H5_DLL H5HP_t *H5HP_create(H5HP_type_t heap_type);
-H5_DLL herr_t H5HP_insert(H5HP_t *heap, int val, void *obj);
+H5_DLL herr_t  H5HP_insert(H5HP_t *heap, int val, void *obj);
 H5_DLL ssize_t H5HP_count(const H5HP_t *heap);
-H5_DLL herr_t H5HP_top(const H5HP_t *heap, int *val);
-H5_DLL herr_t H5HP_remove(H5HP_t *heap, int *val, void **ptr);
-H5_DLL herr_t H5HP_change(H5HP_t *heap, int val, void *obj);
-H5_DLL herr_t H5HP_incr(H5HP_t *heap, unsigned amt, void *obj);
-H5_DLL herr_t H5HP_decr(H5HP_t *heap, unsigned amt, void *obj);
-H5_DLL herr_t H5HP_close(H5HP_t *heap);
+H5_DLL herr_t  H5HP_top(const H5HP_t *heap, int *val);
+H5_DLL herr_t  H5HP_remove(H5HP_t *heap, int *val, void **ptr);
+H5_DLL herr_t  H5HP_change(H5HP_t *heap, int val, void *obj);
+H5_DLL herr_t  H5HP_incr(H5HP_t *heap, unsigned amt, void *obj);
+H5_DLL herr_t  H5HP_decr(H5HP_t *heap, unsigned amt, void *obj);
+H5_DLL herr_t  H5HP_close(H5HP_t *heap);
 
-#endif /* _H5HPprivate_H */
-
+#endif /* H5HPprivate_H */

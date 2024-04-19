@@ -1,0 +1,27 @@
+NAME
+  VTK::IOOMF
+LIBRARY_NAME
+  vtkIOOMF
+DESCRIPTION
+  The base OMF Reader library
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersCore
+  VTK::FiltersTexture
+  VTK::IOImage
+  VTK::jsoncpp
+  VTK::RenderingCore
+  VTK::vtksys
+  VTK::zlib
+TEST_DEPENDS
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

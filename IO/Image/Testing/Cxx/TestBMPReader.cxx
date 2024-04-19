@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestBMPReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test of vtkBMPReader
 // .SECTION Description
 //
@@ -26,10 +14,10 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-int TestBMPReader(int argc, char *argv[])
+int TestBMPReader(int argc, char* argv[])
 {
 
-  if ( argc <= 1 )
+  if (argc <= 1)
   {
     cout << "Usage: " << argv[0] << " <bmp file>" << endl;
     return EXIT_FAILURE;
@@ -37,13 +25,12 @@ int TestBMPReader(int argc, char *argv[])
 
   std::string filename = argv[1];
 
-  vtkSmartPointer<vtkBMPReader> BMPReader =
-    vtkSmartPointer<vtkBMPReader>::New();
+  vtkSmartPointer<vtkBMPReader> BMPReader = vtkSmartPointer<vtkBMPReader>::New();
 
   // Check the image can be read
   if (!BMPReader->CanReadFile(filename.c_str()))
   {
-    cerr << "CanReadFile failed for " << filename.c_str() << "\n";
+    cerr << "CanReadFile failed for " << filename << "\n";
     return EXIT_FAILURE;
   }
 
@@ -65,30 +52,27 @@ int TestBMPReader(int argc, char *argv[])
   lookupTable->Print(cout);
 
   const unsigned char* colors = BMPReader->GetColors();
-  unsigned char const * first = reinterpret_cast<unsigned char *>(&colors);
-  unsigned char const * last = reinterpret_cast<unsigned char *>(&colors + 1);
+  unsigned char const* first = reinterpret_cast<unsigned char*>(&colors);
+  unsigned char const* last = reinterpret_cast<unsigned char*>(&colors + 1);
   cout << "colors: ";
-  while( first != last )
-    {
+  while (first != last)
+  {
     cout << (int)*first << ' ';
     ++first;
-    }
+  }
   cout << std::endl;
 
   int allow8BitBMP = 1;
   BMPReader->SetAllow8BitBMP(allow8BitBMP);
   cout << "allow8BitBMP: " << BMPReader->GetAllow8BitBMP() << endl;
 
-
   // Visualize
-  vtkSmartPointer<vtkImageMapToColors> map =
-    vtkSmartPointer<vtkImageMapToColors>::New();
+  vtkSmartPointer<vtkImageMapToColors> map = vtkSmartPointer<vtkImageMapToColors>::New();
   map->SetInputConnection(BMPReader->GetOutputPort());
   map->SetLookupTable(BMPReader->GetLookupTable());
   map->SetOutputFormatToRGB();
 
-  vtkSmartPointer<vtkImageViewer> imageViewer =
-    vtkSmartPointer<vtkImageViewer>::New();
+  vtkSmartPointer<vtkImageViewer> imageViewer = vtkSmartPointer<vtkImageViewer>::New();
   imageViewer->SetInputConnection(map->GetOutputPort());
   imageViewer->SetColorWindow(256);
   imageViewer->SetColorLevel(127.5);

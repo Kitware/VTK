@@ -1,0 +1,80 @@
+{
+  "actions": [
+    {
+      "name": "/actions/vtk/in/Elevation",
+      "type": "vector2"
+    },
+    {
+      "name": "/actions/vtk/in/ComplexGestureAction",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/ComplexGestureAction_Event2",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/Movement",
+      "type": "vector2"
+    },
+    {
+      "name": "/actions/vtk/in/NextCameraPose",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/PositionProp",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/ShowMenu",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/StartElevation",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/StartMovement",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/TriggerAction",
+      "type": "boolean"
+    }
+  ],
+  "default_bindings": [
+    {
+      "binding_url": "vtk_openvr_binding_hpmotioncontroller.json",
+      "controller_type": "hpmotioncontroller"
+    },
+    {
+      "binding_url": "vtk_openvr_binding_knuckles.json",
+      "controller_type": "knuckles"
+    },
+    {
+      "binding_url": "vtk_openvr_binding_oculus_touch.json",
+      "controller_type": "oculus_touch"
+    },
+    {
+      "binding_url": "vtk_openvr_binding_vive_controller.json",
+      "controller_type": "vive_controller"
+    }
+  ],
+  "localization": [
+    {
+      "/actions/vtk/in/BackThickCrop": "Move Thick Crop Back",
+      "/actions/vtk/in/Elevation": "Trackpad Elevation",
+      "/actions/vtk/in/ForwardThickCrop": "Move Thick Crop Forward",
+      "/actions/vtk/in/ComplexGestureAction": "Complex Gesture Action",
+      "/actions/vtk/in/ComplexGestureAction_Event2": "Another Complex Gesture Action (workaround specific to OpenVR)",
+      "/actions/vtk/in/Movement": "Movement",
+      "/actions/vtk/in/NextCameraPose": "Next Camera Pose",
+      "/actions/vtk/in/PositionProp": "Position Prop",
+      "/actions/vtk/in/ShowMenu": "Show Menu",
+      "/actions/vtk/in/ShowNavigationPanel": "Show Navigation Panel",
+      "/actions/vtk/in/StartElevation": "Start Elevation",
+      "/actions/vtk/in/StartMovement": "Start Movement",
+      "/actions/vtk/in/TriggerAction": "Trigger Action",
+      "language_tag": "en_US"
+    }
+  ]
+}

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestImageDataOrientation2.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // .NAME Test orientation for image data
 // .SECTION Description
@@ -19,23 +7,23 @@
 // non-identity direction matrix and extracting points of the image data
 // that fall within a sphere.
 
+#include "vtkDebugLeaks.h"
 #include "vtkGlyph3D.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
-#include "vtkSphereSource.h"
+#include "vtkRenderer.h"
 #include "vtkSelectEnclosedPoints.h"
+#include "vtkSphereSource.h"
 #include "vtkThresholdPoints.h"
 
-int TestImageDataOrientation2(int argc,char *argv[])
+int TestImageDataOrientation2(int argc, char* argv[])
 {
   // Standard rendering classes
   vtkNew<vtkRenderer> renderer;
@@ -45,12 +33,8 @@ int TestImageDataOrientation2(int argc,char *argv[])
   iren->SetRenderWindow(renWin);
 
   // Create an oriented image data
-  double angle = -vtkMath::Pi()/4;
-  double direction[9] = {
-    cos(angle), sin(angle), 0,
-    -sin(angle), cos(angle), 0,
-    0, 0, 1
-  };
+  double angle = -vtkMath::Pi() / 4;
+  double direction[9] = { cos(angle), sin(angle), 0, -sin(angle), cos(angle), 0, 0, 0, 1 };
   vtkNew<vtkImageData> image;
   image->SetExtent(0, 6, 0, 10, 0, 10);
   image->SetOrigin(-0.4, 0.2, -0.6);
@@ -77,9 +61,8 @@ int TestImageDataOrientation2(int argc,char *argv[])
   // Now extract points
   vtkNew<vtkThresholdPoints> thresh;
   thresh->SetInputConnection(select->GetOutputPort());
-  thresh->SetInputArrayToProcess(0,0,0,
-                                 vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                                 "SelectedPoints");
+  thresh->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "SelectedPoints");
   thresh->ThresholdByUpper(0.5);
 
   // Show points as glyphs
@@ -96,16 +79,16 @@ int TestImageDataOrientation2(int argc,char *argv[])
 
   vtkNew<vtkActor> pointsActor;
   pointsActor->SetMapper(pointsMapper);
-  pointsActor->GetProperty()->SetColor(0,0,1);
+  pointsActor->GetProperty()->SetColor(0, 0, 1);
 
   // Add actors
-//  renderer->AddActor(sphereActor);
+  //  renderer->AddActor(sphereActor);
   renderer->AddActor(pointsActor);
 
   // Standard testing code.
-  renWin->SetSize(400,400);
+  renWin->SetSize(400, 400);
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

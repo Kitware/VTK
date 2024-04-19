@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPostgreSQLDatabasePrivate.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkPostgreSQLDatabasePrivate
@@ -31,57 +15,53 @@
  *
  * You should never have to deal with this class outside of
  * vtkPostgreSQLDatabase and vtkPostgreSQLQuery.
-*/
+ */
 
 #ifndef vtkPostgreSQLDatabasePrivate_h
 #define vtkPostgreSQLDatabasePrivate_h
 
-#include "vtkStdString.h"
-#include "vtkType.h"
 #include "vtkTimeStamp.h"
+#include "vtkType.h"
 
 #include <libpq-fe.h>
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPostgreSQLDatabasePrivate
 {
- public:
-  vtkPostgreSQLDatabasePrivate()
-  {
-      this->Connection = nullptr;
-  }
+public:
+  vtkPostgreSQLDatabasePrivate() { this->Connection = nullptr; }
 
   /**
    * Destroy the database connection. Any uncommitted transaction will be aborted.
    */
-    virtual ~vtkPostgreSQLDatabasePrivate()
+  virtual ~vtkPostgreSQLDatabasePrivate()
+  {
+    if (this->Connection)
     {
-      if (this->Connection)
-      {
-        PQfinish(this->Connection);
-      }
+      PQfinish(this->Connection);
     }
+  }
 
-    // Given a Postgres column type OID, return a VTK array type (see vtkType.h).
-    int GetVTKTypeFromOID( Oid pgtype )
+  // Given a Postgres column type OID, return a VTK array type (see vtkType.h).
+  int GetVTKTypeFromOID(Oid pgtype)
+  {
+    std::map<Oid, int>::const_iterator it = this->DataTypeMap.find(pgtype);
+    if (it == this->DataTypeMap.end())
     {
-      std::map<Oid,int>::const_iterator it = this->DataTypeMap.find( pgtype );
-      if ( it == this->DataTypeMap.end() )
-      {
-        return VTK_STRING;
-      }
-      return it->second;
+      return VTK_STRING;
     }
-
-
+    return it->second;
+  }
 
   // This is the actual database connection.  It will be nullptr if no
   // connection is open.
-  PGconn  *Connection;
+  PGconn* Connection;
 
   // Map Postgres column types to VTK types.
-  std::map<Oid,int> DataTypeMap;
+  std::map<Oid, int> DataTypeMap;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPostgreSQLDatabasePrivate_h
 // VTK-HeaderTest-Exclude: vtkPostgreSQLDatabasePrivate.h

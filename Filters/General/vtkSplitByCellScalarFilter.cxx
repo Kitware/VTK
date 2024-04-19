@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSplitByCellScalarFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSplitByCellScalarFilter.h"
 
 #include "vtkCell.h"
@@ -32,31 +20,30 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplitByCellScalarFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSplitByCellScalarFilter::vtkSplitByCellScalarFilter()
 {
   this->PassAllPoints = true;
   // by default process active cells scalars
-  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS,
-                               vtkDataSetAttributes::SCALARS);
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSplitByCellScalarFilter::~vtkSplitByCellScalarFilter() = default;
 
-//----------------------------------------------------------------------------
-int vtkSplitByCellScalarFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the input and output
   vtkDataSet* input = vtkDataSet::GetData(inputVector[0], 0);
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
 
-  vtkDataArray *inScalars = this->GetInputArrayToProcess(0, inputVector);
+  vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
 
   if (!inScalars)
   {
@@ -64,8 +51,10 @@ int vtkSplitByCellScalarFilter::RequestData(
     return 1;
   }
 
+  vtkCellData* inCD = input->GetCellData();
+
   double range[2];
-  inScalars->GetRange(range);
+  inCD->GetRange(inScalars->GetName(), range);
 
   vtkIdType nbCells = input->GetNumberOfCells();
 
@@ -87,23 +76,21 @@ int vtkSplitByCellScalarFilter::RequestData(
     return 1;
   }
 
-  vtkPointData *inPD = input->GetPointData();
-  vtkCellData *inCD = input->GetCellData();
-  vtkPointSet *inputPS = vtkPointSet::SafeDownCast(input);
+  vtkPointData* inPD = input->GetPointData();
+  vtkPointSet* inputPS = vtkPointSet::SafeDownCast(input);
   vtkPolyData* inputPD = vtkPolyData::SafeDownCast(input);
   vtkUnstructuredGrid* inputUG = vtkUnstructuredGrid::SafeDownCast(input);
 
   // Create one UnstructuredGrid block per scalar ids
   std::vector<vtkPointSet*> blocks(nbBlocks);
-  std::map<vtkIdType,int >::const_iterator it = scalarValuesToBlockId.begin();
+  std::map<vtkIdType, int>::const_iterator it = scalarValuesToBlockId.begin();
   bool passAllPoints = inputPS && inputPS->GetPoints() && this->PassAllPoints;
   for (int i = 0; i < nbBlocks; i++, ++it)
   {
     vtkSmartPointer<vtkPointSet> ds;
-    ds.TakeReference(inputPD ?
-      static_cast<vtkPointSet*>(vtkPolyData::New()) :
-      static_cast<vtkPointSet*>(vtkUnstructuredGrid::New()));
-    if(passAllPoints)
+    ds.TakeReference(inputPD ? static_cast<vtkPointSet*>(vtkPolyData::New())
+                             : static_cast<vtkPointSet*>(vtkUnstructuredGrid::New()));
+    if (passAllPoints)
     {
       ds->SetPoints(inputPS->GetPoints());
       ds->GetPointData()->ShallowCopy(inPD);
@@ -130,9 +117,9 @@ int vtkSplitByCellScalarFilter::RequestData(
   }
 
   vtkSmartPointer<vtkIdList> newCellPts = vtkSmartPointer<vtkIdList>::New();
-  std::vector<std::map<vtkIdType, vtkIdType> > pointMaps(nbBlocks);
+  std::vector<std::map<vtkIdType, vtkIdType>> pointMaps(nbBlocks);
 
-  int abortExecute = this->GetAbortExecute();
+  bool abortExecute = this->CheckAbort();
   vtkIdType progressInterval = nbCells / 100;
 
   // Check that the scalars of each cell satisfy the threshold criterion
@@ -141,7 +128,7 @@ int vtkSplitByCellScalarFilter::RequestData(
     if (cellId % progressInterval == 0)
     {
       this->UpdateProgress(static_cast<double>(cellId) / nbCells);
-      abortExecute = this->GetAbortExecute();
+      abortExecute = this->CheckAbort();
     }
     int cellType = input->GetCellType(cellId);
     vtkIdType v = static_cast<vtkIdType>(inScalars->GetTuple1(cellId));
@@ -226,18 +213,18 @@ int vtkSplitByCellScalarFilter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkSplitByCellScalarFilter::FillInputPortInformation(int, vtkInformation *info)
+//------------------------------------------------------------------------------
+int vtkSplitByCellScalarFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSplitByCellScalarFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Pass All Points: "
-     << (this->GetPassAllPoints() ? "On" : "Off") << std::endl;
+  os << indent << "Pass All Points: " << (this->GetPassAllPoints() ? "On" : "Off") << std::endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSimpleScalarTree.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSimpleScalarTree
  * @brief   organize data according to scalar values (used to accelerate contouring operations)
@@ -50,6 +38,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkScalarTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarNode;
 class vtkSimpleScalarTree;
 
@@ -60,48 +49,48 @@ public:
    * Instantiate scalar tree with maximum level of 20 and branching
    * factor of three.
    */
-  static vtkSimpleScalarTree *New();
+  static vtkSimpleScalarTree* New();
 
-  //@{
+  ///@{
   /**
    * Standard type related macros and PrintSelf() method.
    */
-  vtkTypeMacro(vtkSimpleScalarTree,vtkScalarTree);
+  vtkTypeMacro(vtkSimpleScalarTree, vtkScalarTree);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * This method is used to copy data members when cloning an instance of the
    * class. It does not copy heavy data.
    */
-  void ShallowCopy(vtkScalarTree *stree) override;
+  void ShallowCopy(vtkScalarTree* stree) override;
 
-  //@{
+  ///@{
   /**
    * Set the branching factor for the tree. This is the number of
    * children per tree node. Smaller values (minimum is 2) mean deeper
    * trees and more memory overhead. Larger values mean shallower
    * trees, less memory usage, but worse performance.
    */
-  vtkSetClampMacro(BranchingFactor,int,2,VTK_INT_MAX);
-  vtkGetMacro(BranchingFactor,int);
-  //@}
+  vtkSetClampMacro(BranchingFactor, int, 2, VTK_INT_MAX);
+  vtkGetMacro(BranchingFactor, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the level of the scalar tree. This value may change each time the
    * scalar tree is built and the branching factor changes.
    */
-  vtkGetMacro(Level,int);
-  //@}
+  vtkGetMacro(Level, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the maximum allowable level for the tree.
    */
-  vtkSetClampMacro(MaxLevel,int,1,VTK_INT_MAX);
-  vtkGetMacro(MaxLevel,int);
-  //@}
+  vtkSetClampMacro(MaxLevel, int, 1, VTK_INT_MAX);
+  vtkGetMacro(MaxLevel, int);
+  ///@}
 
   /**
    * Construct the scalar tree from the dataset provided. Checks build times
@@ -126,8 +115,7 @@ public:
    * exhausted. Make sure that InitTraversal() has been invoked first or
    * you'll get erratic behavior.
    */
-  vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
-                               vtkDataArray *cellScalars) override;
+  vtkCell* GetNextCell(vtkIdType& cellId, vtkIdList*& ptIds, vtkDataArray* cellScalars) override;
 
   // The following methods supports parallel (threaded) traversal. Basically
   // batches of cells (which are a portion of the whole dataset) are available for
@@ -145,8 +133,7 @@ public:
    * also returns the number of cell ids in the array. Make sure to
    * call GetNumberOfCellBatches() beforehand.
    */
-  const vtkIdType* GetCellBatch(vtkIdType batchNum,
-                                vtkIdType& numCells) override;
+  const vtkIdType* GetCellBatch(vtkIdType batchNum, vtkIdType& numCells) override;
 
 protected:
   vtkSimpleScalarTree();
@@ -154,25 +141,25 @@ protected:
 
   int MaxLevel;
   int Level;
-  int BranchingFactor; //number of children per node
-  vtkScalarNode *Tree; //pointerless scalar range tree
-  int TreeSize; //allocated size of tree
-  vtkIdType LeafOffset; //offset to leaf nodes of tree
+  int BranchingFactor;  // number of children per node
+  vtkScalarNode* Tree;  // pointerless scalar range tree
+  int TreeSize;         // allocated size of tree
+  vtkIdType LeafOffset; // offset to leaf nodes of tree
 
 private:
-  vtkIdType NumCells; //the number of cells in this dataset
-  vtkIdType TreeIndex; //traversal location within tree
-  int       ChildNumber; //current child in traversal
-  vtkIdType CellId; //current cell id being examined
-  int       FindStartLeaf(vtkIdType index, int level);
-  int       FindNextLeaf(vtkIdType index,int level);
+  vtkIdType NumCells;  // the number of cells in this dataset
+  vtkIdType TreeIndex; // traversal location within tree
+  int ChildNumber;     // current child in traversal
+  vtkIdType CellId;    // current cell id being examined
+  int FindStartLeaf(vtkIdType index, int level);
+  int FindNextLeaf(vtkIdType index, int level);
 
-  vtkIdType *CandidateCells; //to support parallel computing
-  vtkIdType  NumCandidates;
+  vtkIdType* CandidateCells; // to support parallel computing
+  vtkIdType NumCandidates;
 
-private:
   vtkSimpleScalarTree(const vtkSimpleScalarTree&) = delete;
   void operator=(const vtkSimpleScalarTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

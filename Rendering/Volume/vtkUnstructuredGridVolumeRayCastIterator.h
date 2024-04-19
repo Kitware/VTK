@@ -1,19 +1,5 @@
-// -*- c++ -*-
-
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridVolumeRayCastIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkUnstructuredGridVolumeRayCastIterator
@@ -28,14 +14,15 @@
  * @sa
  * vtkUnstructuredGridVolumeRayCastFunction
  *
-*/
+ */
 
 #ifndef vtkUnstructuredGridVolumeRayCastIterator_h
 #define vtkUnstructuredGridVolumeRayCastIterator_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
 class vtkDataArray;
@@ -44,7 +31,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastIterator : publi
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayCastIterator, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initializes the iteration to the start of the ray at the given screen
@@ -63,22 +50,20 @@ public:
    * returned.  0 is returned if and only if no more intersections are to
    * be found.
    */
-  virtual vtkIdType GetNextIntersections(vtkIdList *intersectedCells,
-                                         vtkDoubleArray *intersectionLengths,
-                                         vtkDataArray *scalars,
-                                         vtkDataArray *nearIntersections,
-                                         vtkDataArray *farIntersections) = 0;
+  virtual vtkIdType GetNextIntersections(vtkIdList* intersectedCells,
+    vtkDoubleArray* intersectionLengths, vtkDataArray* scalars, vtkDataArray* nearIntersections,
+    vtkDataArray* farIntersections) = 0;
 
-  //@{
+  ///@{
   /**
    * Set/get the bounds of the cast ray (in viewing coordinates).  By
    * default the range is [0,1].
    */
   vtkSetVector2Macro(Bounds, double);
   vtkGetVector2Macro(Bounds, double);
-  //@}
+  ///@}
 
-  // Descrption:
+  // Description:
   // Set/get the maximum number of intersections returned with a call to
   // GetNextIntersections.  Set to 32 by default.
   vtkSetMacro(MaxNumberOfIntersections, vtkIdType);
@@ -93,9 +78,10 @@ protected:
   vtkIdType MaxNumberOfIntersections;
 
 private:
-  vtkUnstructuredGridVolumeRayCastIterator(const vtkUnstructuredGridVolumeRayCastIterator&) = delete;
+  vtkUnstructuredGridVolumeRayCastIterator(
+    const vtkUnstructuredGridVolumeRayCastIterator&) = delete;
   void operator=(const vtkUnstructuredGridVolumeRayCastIterator&) = delete;
 };
 
-#endif //vtkUnstructuredGridRayCastIterator_h
-
+VTK_ABI_NAMESPACE_END
+#endif // vtkUnstructuredGridRayCastIterator_h

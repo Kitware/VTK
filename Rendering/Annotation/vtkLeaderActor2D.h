@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLeaderActor2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLeaderActor2D
  * @brief   create a leader with optional label and arrows
@@ -38,14 +26,16 @@
  *
  * @sa
  * vtkAxisActor2D vtkActor2D vtkCoordinate vtkTextProperty
-*/
+ */
 
 #ifndef vtkLeaderActor2D_h
 #define vtkLeaderActor2D_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkCellArray;
 class vtkPolyData;
@@ -53,18 +43,18 @@ class vtkPolyDataMapper2D;
 class vtkTextMapper;
 class vtkTextProperty;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkLeaderActor2D : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkLeaderActor2D : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkLeaderActor2D,vtkActor2D);
+  vtkTypeMacro(vtkLeaderActor2D, vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object.
    */
-  static vtkLeaderActor2D *New();
+  static vtkLeaderActor2D* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get a radius which can be used to curve the leader.  If a radius is
    * specified whose absolute value is greater than one half the distance
@@ -77,189 +67,212 @@ public:
    * the distance between (Position,Position2); this avoids issues relative
    * to coordinate system transformations.
    */
-  vtkSetMacro(Radius,double);
-  vtkGetMacro(Radius,double);
-  //@}
+  vtkSetMacro(Radius, double);
+  vtkGetMacro(Radius, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the label for the leader. If the label is an empty string, then
    * it will not be drawn.
    */
   vtkSetStringMacro(Label);
   vtkGetStringMacro(Label);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property of the label.
    */
-  virtual void SetLabelTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
-  //@}
+  virtual void SetLabelTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the factor that controls the overall size of the fonts used
    * to label the leader.
    */
   vtkSetClampMacro(LabelFactor, double, 0.1, 2.0);
   vtkGetMacro(LabelFactor, double);
-  //@}
+  ///@}
 
   // Enums defined to support methods for control of arrow placement and
   // and appearance of arrow heads.
-  enum {VTK_ARROW_NONE=0,VTK_ARROW_POINT1,VTK_ARROW_POINT2,VTK_ARROW_BOTH};
-  enum {VTK_ARROW_FILLED=0,VTK_ARROW_OPEN,VTK_ARROW_HOLLOW};
+  enum
+  {
+    VTK_ARROW_NONE = 0,
+    VTK_ARROW_POINT1,
+    VTK_ARROW_POINT2,
+    VTK_ARROW_BOTH
+  };
+  enum
+  {
+    VTK_ARROW_FILLED = 0,
+    VTK_ARROW_OPEN,
+    VTK_ARROW_HOLLOW
+  };
 
-  //@{
+  ///@{
   /**
    * Control whether arrow heads are drawn on the leader. Arrows may be
    * drawn on one end, both ends, or not at all.
    */
-  vtkSetClampMacro(ArrowPlacement,int,VTK_ARROW_NONE,VTK_ARROW_BOTH);
-  vtkGetMacro(ArrowPlacement,int);
-  void SetArrowPlacementToNone() {this->SetArrowPlacement(VTK_ARROW_NONE);}
-  void SetArrowPlacementToPoint1() {this->SetArrowPlacement(VTK_ARROW_POINT1);}
-  void SetArrowPlacementToPoint2() {this->SetArrowPlacement(VTK_ARROW_POINT2);}
-  void SetArrowPlacementToBoth() {this->SetArrowPlacement(VTK_ARROW_BOTH);}
-  //@}
+  vtkSetClampMacro(ArrowPlacement, int, VTK_ARROW_NONE, VTK_ARROW_BOTH);
+  vtkGetMacro(ArrowPlacement, int);
+  void SetArrowPlacementToNone() { this->SetArrowPlacement(VTK_ARROW_NONE); }
+  void SetArrowPlacementToPoint1() { this->SetArrowPlacement(VTK_ARROW_POINT1); }
+  void SetArrowPlacementToPoint2() { this->SetArrowPlacement(VTK_ARROW_POINT2); }
+  void SetArrowPlacementToBoth() { this->SetArrowPlacement(VTK_ARROW_BOTH); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the appearance of the arrow heads. A solid arrow head is a filled
    * triangle; a open arrow looks like a "V"; and a hollow arrow looks like a
    * non-filled triangle.
    */
-  vtkSetClampMacro(ArrowStyle,int,VTK_ARROW_FILLED,VTK_ARROW_HOLLOW);
-  vtkGetMacro(ArrowStyle,int);
-  void SetArrowStyleToFilled() {this->SetArrowStyle(VTK_ARROW_FILLED);}
-  void SetArrowStyleToOpen() {this->SetArrowStyle(VTK_ARROW_OPEN);}
-  void SetArrowStyleToHollow() {this->SetArrowStyle(VTK_ARROW_HOLLOW);}
-  //@}
+  vtkSetClampMacro(ArrowStyle, int, VTK_ARROW_FILLED, VTK_ARROW_HOLLOW);
+  vtkGetMacro(ArrowStyle, int);
+  void SetArrowStyleToFilled() { this->SetArrowStyle(VTK_ARROW_FILLED); }
+  void SetArrowStyleToOpen() { this->SetArrowStyle(VTK_ARROW_OPEN); }
+  void SetArrowStyleToHollow() { this->SetArrowStyle(VTK_ARROW_HOLLOW); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the arrow length and base width (in normalized viewport
    * coordinates).
    */
-  vtkSetClampMacro(ArrowLength,double,0.0,1.0);
-  vtkGetMacro(ArrowLength,double);
-  vtkSetClampMacro(ArrowWidth,double,0.0,1.0);
-  vtkGetMacro(ArrowWidth,double);
-  //@}
+  vtkSetClampMacro(ArrowLength, double, 0.0, 1.0);
+  vtkGetMacro(ArrowLength, double);
+  vtkSetClampMacro(ArrowWidth, double, 0.0, 1.0);
+  vtkGetMacro(ArrowWidth, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Limit the minimum and maximum size of the arrows. These values are
    * expressed in pixels and clamp the minimum/maximum possible size for the
    * width/length of the arrow head. (When clamped, the ratio between length
    * and width is preserved.)
    */
-  vtkSetClampMacro(MinimumArrowSize,double,1.0,VTK_FLOAT_MAX);
-  vtkGetMacro(MinimumArrowSize,double);
-  vtkSetClampMacro(MaximumArrowSize,double,1.0,VTK_FLOAT_MAX);
-  vtkGetMacro(MaximumArrowSize,double);
-  //@}
+  vtkSetClampMacro(MinimumArrowSize, double, 1.0, VTK_FLOAT_MAX);
+  vtkGetMacro(MinimumArrowSize, double);
+  vtkSetClampMacro(MaximumArrowSize, double, 1.0, VTK_FLOAT_MAX);
+  vtkGetMacro(MaximumArrowSize, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable auto-labelling. In this mode, the label is automatically updated
    * based on distance (in world coordinates) between the two end points; or
    * if a curved leader is being generated, the angle in degrees between the
    * two points.
    */
-  vtkSetMacro(AutoLabel,vtkTypeBool);
-  vtkGetMacro(AutoLabel,vtkTypeBool);
-  vtkBooleanMacro(AutoLabel,vtkTypeBool);
-  //@}
+  vtkSetMacro(AutoLabel, vtkTypeBool);
+  vtkGetMacro(AutoLabel, vtkTypeBool);
+  vtkBooleanMacro(AutoLabel, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the format to use for auto-labelling.
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Obtain the length of the leader if the leader is not curved,
    * otherwise obtain the angle that the leader circumscribes.
    */
-  vtkGetMacro(Length,double);
-  vtkGetMacro(Angle,double);
-  //@}
+  vtkGetMacro(Length, double);
+  vtkGetMacro(Angle, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp and vtkActor2D superclasses.
    */
   int RenderOverlay(vtkViewport* viewport) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *) override {return 0;}
-  //@}
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
-  void ReleaseGraphicsResources(vtkWindow *) override;
-  void ShallowCopy(vtkProp *prop) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  void ShallowCopy(vtkProp* prop) override;
+
+  ///@{
+  /**
+   * By default the LeaderActor2D controls the font size of the label. If this
+   * option is set to true, it will instead use whatever font size is set in the
+   * vtkTextProperty, allowing external control of the font size.
+   */
+  vtkSetMacro(UseFontSizeFromProperty, vtkTypeBool);
+  vtkGetMacro(UseFontSizeFromProperty, vtkTypeBool);
+  vtkBooleanMacro(UseFontSizeFromProperty, vtkTypeBool);
+  ///@}
 
 protected:
   vtkLeaderActor2D();
   ~vtkLeaderActor2D() override;
 
   // Internal helper methods
-  virtual void BuildLeader(vtkViewport *viewport);
-  int SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapper,
-                  int *targetSize, double factor, int *stringSize);
-  int ClipLeader(double xL[3], int stringSize[2], double p1[3], double ray[3],
-                 double c1[3], double c2[3]);
-  void BuildCurvedLeader(double p1[3], double p2[3], double ray[3], double rayLength,
-                         double theta, vtkViewport *viewport, int viewportChanged);
+  virtual void BuildLeader(vtkViewport* viewport);
+  int SetFontSize(vtkViewport* viewport, vtkTextMapper* textMapper, const int* targetSize,
+    double factor, int* stringSize);
+  int ClipLeader(
+    double xL[3], int stringSize[2], double p1[3], double ray[3], double c1[3], double c2[3]);
+  void BuildCurvedLeader(double p1[3], double p2[3], double ray[3], double rayLength, double theta,
+    vtkViewport* viewport, int viewportChanged);
   int InStringBox(double center[3], int stringSize[2], double x[3]);
-
 
   // Characteristics of the leader
   double Radius;
   double Length;
   double Angle;
 
-  vtkTypeBool              AutoLabel;
-  char            *LabelFormat;
-  char            *Label;
-  double           LabelFactor;
-  vtkTextMapper   *LabelMapper;
-  vtkActor2D      *LabelActor;
-  vtkTextProperty *LabelTextProperty;
+  vtkTypeBool AutoLabel;
+  char* LabelFormat;
+  char* Label;
+  double LabelFactor;
+  vtkTextMapper* LabelMapper;
+  vtkActor2D* LabelActor;
+  vtkTextProperty* LabelTextProperty;
 
-  int    ArrowPlacement;
-  int    ArrowStyle;
+  vtkTypeBool UseFontSizeFromProperty;
+
+  int ArrowPlacement;
+  int ArrowStyle;
   double ArrowLength;
   double ArrowWidth;
   double MinimumArrowSize;
   double MaximumArrowSize;
 
-  vtkPoints           *LeaderPoints;
-  vtkCellArray        *LeaderLines;
-  vtkCellArray        *LeaderArrows;
-  vtkPolyData         *Leader;
-  vtkPolyDataMapper2D *LeaderMapper;
-  vtkActor2D          *LeaderActor;
+  vtkPoints* LeaderPoints;
+  vtkCellArray* LeaderLines;
+  vtkCellArray* LeaderArrows;
+  vtkPolyData* Leader;
+  vtkPolyDataMapper2D* LeaderMapper;
+  vtkActor2D* LeaderActor;
 
   // Internal ivars for tracking whether to rebuild
   int LastPosition[2];
   int LastPosition2[2];
   int LastSize[2];
-  vtkTimeStamp  BuildTime;
+  vtkTimeStamp BuildTime;
 
 private:
   vtkLeaderActor2D(const vtkLeaderActor2D&) = delete;
   void operator=(const vtkLeaderActor2D&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_CONTRIB_RAW_STRING_HPP
@@ -16,7 +16,6 @@
 #include "../internal/eol.hpp"
 #include "../internal/must.hpp"
 #include "../internal/not_at.hpp"
-#include "../internal/rule_conjunction.hpp"
 #include "../internal/seq.hpp"
 #include "../internal/skip_control.hpp"
 #include "../internal/star.hpp"
@@ -156,7 +155,7 @@ namespace tao
                using m_t = decltype( m );
 
                while( !Control< Cond >::template match< A, rewind_mode::required, Action, Control >( in, marker_size, st... ) ) {
-                  if( in.empty() || ( !rule_conjunction< Rules... >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) ) ) {
+                  if( in.empty() || ( !Control< seq< Rules... > >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) ) ) {
                      return false;
                   }
                }

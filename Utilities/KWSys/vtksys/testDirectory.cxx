@@ -19,7 +19,7 @@ file Copyright.txt or https://cmake.org/licensing#kwsys for details.  */
 
 #include <testSystemTools.h>
 
-int _doLongPathTest()
+static int _doLongPathTest()
 {
   using namespace kwsys;
   static const int LONG_PATH_THRESHOLD = 512;
@@ -57,7 +57,11 @@ int _doLongPathTest()
 
     Directory testdir;
     // Set res to failure if the directory doesn't load
-    res += !testdir.Load(testdirpath);
+    std::string errorMessage = "";
+    res += !testdir.Load(testdirpath, &errorMessage);
+    if (errorMessage != "") {
+      std::cerr << "Failed to list directory: " << errorMessage << std::endl;
+    }
     // Increment res failure if the directory appears empty
     res += testdir.GetNumberOfFiles() == 0;
     // Increment res failures if the path has changed from
@@ -73,7 +77,35 @@ int _doLongPathTest()
   return res;
 }
 
-int _copyDirectoryTest()
+static int _nonExistentDirectoryTest()
+{
+  using namespace kwsys;
+  int res = 0;
+  std::string testdirpath(TEST_SYSTEMTOOLS_BINARY_DIR
+                          "/directory_testing/doesnt_exist/");
+  std::string errorMessage;
+  Directory testdir;
+
+  errorMessage = "foo";
+  // Increment res failure if directory lists
+  res += testdir.Load(testdirpath, &errorMessage) ? 1 : 0;
+#if !defined(_WIN32) || defined(__CYGWIN__)
+  // Increment res failure if errorMessage is unmodified
+  res += (errorMessage == "foo");
+#endif
+
+  errorMessage = "foo";
+  // Increment res failure if directory has files
+  res += (testdir.GetNumberOfFilesInDirectory(testdirpath, &errorMessage) > 0);
+#if !defined(_WIN32) || defined(__CYGWIN__)
+  // Increment res failure if errorMessage is unmodified
+  res += (errorMessage == "foo");
+#endif
+
+  return res;
+}
+
+static int _copyDirectoryTest()
 {
   using namespace kwsys;
   const std::string source(TEST_SYSTEMTOOLS_BINARY_DIR
@@ -88,9 +120,9 @@ int _copyDirectoryTest()
     std::cerr << destination << " shouldn't exist before test" << std::endl;
     return 2;
   }
-  const bool copysuccess = SystemTools::CopyADirectory(source, destination);
+  const Status copysuccess = SystemTools::CopyADirectory(source, destination);
   const bool destinationexists = SystemTools::PathExists(destination);
-  if (copysuccess) {
+  if (copysuccess.IsSuccess()) {
     std::cerr << "CopyADirectory should have returned false" << std::endl;
     SystemTools::RemoveADirectory(destination);
     return 3;
@@ -106,5 +138,6 @@ int _copyDirectoryTest()
 
 int testDirectory(int, char* [])
 {
-  return _doLongPathTest() + _copyDirectoryTest();
+  return _doLongPathTest() + _nonExistentDirectoryTest() +
+    _copyDirectoryTest();
 }

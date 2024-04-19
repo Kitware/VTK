@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAssembly.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAssembly
  * @brief   create hierarchies of vtkProp3Ds (transformable props)
@@ -52,14 +40,15 @@
  *
  * @sa
  * vtkActor vtkTransform vtkMapper vtkPolyDataMapper vtkPropAssembly
-*/
+ */
 
 #ifndef vtkAssembly_h
 #define vtkAssembly_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAssemblyPaths;
 class vtkProp3DCollection;
 class vtkMapper;
@@ -69,7 +58,7 @@ class vtkActor;
 class VTKRENDERINGCORE_EXPORT vtkAssembly : public vtkProp3D
 {
 public:
-  static vtkAssembly *New();
+  static vtkAssembly* New();
 
   vtkTypeMacro(vtkAssembly, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -77,30 +66,29 @@ public:
   /**
    * Add a part to the list of parts.
    */
-  void AddPart(vtkProp3D *);
+  void AddPart(vtkProp3D*);
 
   /**
    * Remove a part from the list of parts,
    */
-  void RemovePart(vtkProp3D *);
+  void RemovePart(vtkProp3D*);
 
   /**
    * Return the parts (direct descendants) of this assembly.
    */
-  vtkProp3DCollection *GetParts()
-    { return this->Parts; }
+  vtkProp3DCollection* GetParts() { return this->Parts; }
 
-  //@{
+  ///@{
   /**
    * For some exporters and other other operations we must be
    * able to collect all the actors or volumes. These methods
    * are used in that process.
    */
-  void GetActors(vtkPropCollection *) override;
-  void GetVolumes(vtkPropCollection *) override;
-  //@}
+  void GetActors(vtkPropCollection*) override;
+  void GetVolumes(vtkPropCollection*) override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Render this assembly and all its parts.
    * The rendering process is recursive.
@@ -109,10 +97,10 @@ public:
    * assemblies; that is, assemblies that only serve to group and transform
    * its parts.
    */
-  int RenderOpaqueGeometry(vtkViewport *ren) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *ren) override;
-  int RenderVolumetricGeometry(vtkViewport *ren) override;
-  //@}
+  int RenderOpaqueGeometry(vtkViewport* ren) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* ren) override;
+  int RenderVolumetricGeometry(vtkViewport* ren) override;
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
@@ -124,9 +112,9 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * Methods to traverse the parts of an assembly. Each part (starting from
    * the root) will appear properly transformed and with the correct
@@ -140,16 +128,15 @@ public:
    * list is exhausted.
    */
   void InitPathTraversal() override;
-  vtkAssemblyPath *GetNextPath() override;
+  vtkAssemblyPath* GetNextPath() override;
   int GetNumberOfPaths() override;
-  //@}
+  ///@}
 
   /**
    * Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  void GetBounds(double bounds[6])
-    { this->vtkProp3D::GetBounds( bounds ); }
-  double *GetBounds() VTK_SIZEHINT(6) override;
+  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds(bounds); }
+  double* GetBounds() VTK_SIZEHINT(6) override;
 
   /**
    * Override default GetMTime method to also consider all of the
@@ -160,7 +147,7 @@ public:
   /**
    * Shallow copy of an assembly. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE DO NOT USE THIS
@@ -168,23 +155,24 @@ public:
    * BuildPaths() method. Paths consist of an ordered sequence of actors,
    * with transformations properly concatenated.
    */
-  void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path) override;
+  void BuildPaths(vtkAssemblyPaths* paths, vtkAssemblyPath* path) override;
 
 protected:
   vtkAssembly();
   ~vtkAssembly() override;
 
   // Keep a list of direct descendants of the assembly hierarchy
-  vtkProp3DCollection *Parts;
+  vtkProp3DCollection* Parts;
 
   // Support the BuildPaths() method. Caches last paths built for
   // performance.
   vtkTimeStamp PathTime;
-  virtual void UpdatePaths(); //apply transformations and properties recursively
+  virtual void UpdatePaths(); // apply transformations and properties recursively
 
 private:
   vtkAssembly(const vtkAssembly&) = delete;
   void operator=(const vtkAssembly&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

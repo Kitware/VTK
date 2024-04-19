@@ -1,0 +1,20 @@
+NAME
+  VTK::RenderingZSpace
+LIBRARY_NAME
+  vtkRenderingZSpace
+LICENSE_FILES
+  ThirdParty/LICENSE
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause AND BSD-3-Clause-Clear
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (C) 2022 – 2023 zSpace, Inc.
+CONDITION
+  WIN32
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersSources
+  VTK::RenderingOpenGL2
+  VTK::ViewsInfovis

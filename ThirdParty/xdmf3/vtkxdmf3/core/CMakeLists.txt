@@ -171,7 +171,7 @@ target_include_directories(vtkxdmfcore
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../CMake/VersionSuite>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-    "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkxdfm3/core>")
+    "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkxdmf3/core>")
 target_link_libraries(vtkxdmfcore
   PUBLIC
     VTK::libxml2

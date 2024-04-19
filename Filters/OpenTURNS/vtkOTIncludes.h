@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOTIncludes.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef vtkOTIncludes_h
 #define vtkOTIncludes_h
 
 #if defined(__GNUC__) && !defined(__INTEL_COMPILER)
- #pragma GCC diagnostic ignored "-Woverloaded-virtual"
- #pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
 #include "openturns/DistributionFactoryImplementation.hxx"
@@ -30,7 +18,7 @@
 #include "openturns/Triangular.hxx"
 
 #if defined(__GNUC__) && !defined(__INTEL_COMPILER)
- #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
 #endif

@@ -1,18 +1,5 @@
-// -*- c++ -*-
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTemporalStatistics.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkStreamerBase
@@ -28,34 +15,32 @@
  * the index for the current pass. Finally, PostExecute() is called
  * after the last pass and can be used to cleanup any internal data
  * structures and create the actual output.
-*/
+ */
 
 #ifndef vtkStreamerBase_h
 #define vtkStreamerBase_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkStreamerBase : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkStreamerBase, vtkAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * see vtkAlgorithm for details
    */
-  vtkTypeBool ProcessRequest(vtkInformation*,
-                     vtkInformationVector**,
-                     vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkStreamerBase();
   ~vtkStreamerBase() override;
 
-  virtual int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*)
+  virtual int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
     return 1;
   }
@@ -64,34 +49,28 @@ protected:
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*) = 0;
+  virtual int RequestUpdateExtent(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) = 0;
 
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   // This method is called during each execution pass. Subclasses
   // should implement this to do actual work.
-  virtual int ExecutePass(vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) = 0;
+  virtual int ExecutePass(
+    vtkInformationVector** inputVector, vtkInformationVector* outputVector) = 0;
 
   // This method is called after streaming is completed. Subclasses
   // can override this method to perform cleanup.
-  virtual int PostExecute(vtkInformationVector **,
-                          vtkInformationVector *)
-  {
-    return 1;
-  }
+  virtual int PostExecute(vtkInformationVector**, vtkInformationVector*) { return 1; }
 
   unsigned int NumberOfPasses;
   unsigned int CurrentIndex;
 
 private:
-  vtkStreamerBase(const vtkStreamerBase &) = delete;
-  void operator=(const vtkStreamerBase &) = delete;
-
+  vtkStreamerBase(const vtkStreamerBase&) = delete;
+  void operator=(const vtkStreamerBase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif //_vtkStreamerBase_h

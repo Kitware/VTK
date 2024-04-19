@@ -1,11 +1,19 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkRenderingCore import (
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingAnnotation import vtkLeaderActor2D
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create pipeline
 #
-leader = vtk.vtkLeaderActor2D()
+leader = vtkLeaderActor2D()
 leader.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
 leader.GetPositionCoordinate().SetValue(0.1, 0.1)
 leader.GetPosition2Coordinate().SetCoordinateSystemToNormalizedViewport()
@@ -13,7 +21,7 @@ leader.GetPosition2Coordinate().SetValue(0.75, 0.23)
 leader.SetArrowStyleToFilled()
 leader.SetLabel("")
 
-leader2 = vtk.vtkLeaderActor2D()
+leader2 = vtkLeaderActor2D()
 leader2.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
 leader2.GetPositionCoordinate().SetValue(0.9, 0.1)
 leader2.GetPosition2Coordinate().SetCoordinateSystemToNormalizedViewport()
@@ -22,7 +30,7 @@ leader2.SetArrowStyleToOpen()
 leader2.SetArrowPlacementToPoint1()
 leader2.SetLabel("Leader2")
 
-leader3 = vtk.vtkLeaderActor2D()
+leader3 = vtkLeaderActor2D()
 leader3.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
 leader3.GetPositionCoordinate().SetValue(0.1, 0.9)
 leader3.GetPosition2Coordinate().SetCoordinateSystemToNormalizedViewport()
@@ -30,7 +38,7 @@ leader3.GetPosition2Coordinate().SetValue(0.6, 0.3)
 leader3.SetArrowStyleToHollow()
 leader3.SetLabel("Leader3")
 
-leader4 = vtk.vtkLeaderActor2D()
+leader4 = vtkLeaderActor2D()
 leader4.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
 leader4.GetPositionCoordinate().SetValue(0.1, 0.75)
 leader4.GetPosition2Coordinate().SetCoordinateSystemToNormalizedViewport()
@@ -43,10 +51,10 @@ leader4.AutoLabelOn()
 # Create graphics stuff
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(leader)

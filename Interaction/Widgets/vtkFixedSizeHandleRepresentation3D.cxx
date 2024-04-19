@@ -1,31 +1,20 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFixedSizeHandleRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkFixedSizeHandleRepresentation3D.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkSphereSource.h"
-#include "vtkRenderer.h"
-#include "vtkMath.h"
-#include "vtkTransformPolyDataFilter.h"
-#include "vtkTransform.h"
 #include "vtkCamera.h"
 #include "vtkInteractorObserver.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkTransform.h"
+#include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedSizeHandleRepresentation3D);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFixedSizeHandleRepresentation3D::vtkFixedSizeHandleRepresentation3D()
 {
   // Instantiate a handle template shape as a sphere
@@ -40,20 +29,19 @@ vtkFixedSizeHandleRepresentation3D::vtkFixedSizeHandleRepresentation3D()
   this->HandleSizeToleranceInPixels = 0.5;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFixedSizeHandleRepresentation3D::~vtkFixedSizeHandleRepresentation3D()
 {
   this->SphereSource->Delete();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFixedSizeHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "HandleSizeInPixels: " << this->HandleSizeInPixels << endl;
-  os << indent << "HandleSizeToleranceInPixels: "
-     << this->HandleSizeToleranceInPixels << endl;
+  os << indent << "HandleSizeToleranceInPixels: " << this->HandleSizeToleranceInPixels << endl;
   os << indent << "SphereSource: " << this->SphereSource << endl;
   if (this->SphereSource)
   {
@@ -61,10 +49,9 @@ void vtkFixedSizeHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent
   }
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert a given point from world to display coords.
-void vtkFixedSizeHandleRepresentation3D
-::WorldToDisplay( double w[4], double d[4] )
+void vtkFixedSizeHandleRepresentation3D ::WorldToDisplay(double w[4], double d[4])
 {
   vtkRenderer* viewport = this->GetRenderer();
   viewport->SetWorldPoint(w);
@@ -72,10 +59,9 @@ void vtkFixedSizeHandleRepresentation3D
   viewport->GetDisplayPoint(d);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Convert a given point from display to world coords.
-void vtkFixedSizeHandleRepresentation3D
-::DisplayToWorld( double d[4], double w[4] )
+void vtkFixedSizeHandleRepresentation3D ::DisplayToWorld(double d[4], double w[4])
 {
   d[3] = 1.0;
   vtkRenderer* viewport = this->GetRenderer();
@@ -84,11 +70,10 @@ void vtkFixedSizeHandleRepresentation3D
   viewport->GetWorldPoint(w);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
 {
-  if (!this->GetRenderer() ||
-      !this->GetRenderer()->GetActiveCamera())
+  if (!this->GetRenderer() || !this->GetRenderer()->GetActiveCamera())
   {
     return;
   }
@@ -121,17 +106,16 @@ void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
   w_p[2] = w_c[2] + currRadius * v_u[2];
   w_p[3] = 1.0;
 
-  this->WorldToDisplay( w_p, d_p );
+  this->WorldToDisplay(w_p, d_p);
 
   // Size in Pixels
-  const double currentSizeInPixels =
-    sqrt(vtkMath::Distance2BetweenPoints(d_p ,d_c));
+  const double currentSizeInPixels = sqrt(vtkMath::Distance2BetweenPoints(d_p, d_c));
   const double displayRadius = this->HandleSizeInPixels / 2.0;
   const double radiusTolerance = this->HandleSizeToleranceInPixels / 2.0;
 
   // The current size in pixels is not within the tolerance of the desired
   // size. Recompute the required 3D sphere size to achieve this.
-  if(fabs(currentSizeInPixels - displayRadius) > radiusTolerance)
+  if (fabs(currentSizeInPixels - displayRadius) > radiusTolerance)
   {
     // Adjust size
     // Computing radius in physical units which will result in a
@@ -146,7 +130,7 @@ void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
     this->DisplayToWorld(d_x, w_x);
 
     // computed radius in world coords
-    const double w_r = sqrt(vtkMath::Distance2BetweenPoints(w_x ,w_c));
+    const double w_r = sqrt(vtkMath::Distance2BetweenPoints(w_x, w_c));
 
     // Generate a handle with a radius of w_r in physical units
     this->SphereSource->SetRadius(w_r);
@@ -155,3 +139,4 @@ void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
     this->SetHandle(this->SphereSource->GetOutput());
   }
 }
+VTK_ABI_NAMESPACE_END

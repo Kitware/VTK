@@ -1,29 +1,19 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLVolumeGradientOpacityTable.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkOpenGLVolumeGradientOpacityTable_h
 #define vtkOpenGLVolumeGradientOpacityTable_h
-#ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
 //----------------------------------------------------------------------------
-class vtkOpenGLVolumeGradientOpacityTable : public vtkOpenGLVolumeLookupTable
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLVolumeGradientOpacityTable
+  : public vtkOpenGLVolumeLookupTable
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeGradientOpacityTable, vtkOpenGLVolumeLookupTable);
@@ -38,19 +28,13 @@ protected:
    * Update the internal texture object using the gradient opacity transfer
    * function
    */
-  void InternalUpdate(vtkObject* func,
-                      int blendMode,
-                      double sampleDistance,
-                      double unitDistance,
-                      int filterValue) override;
+  void InternalUpdate(vtkObject* func, int blendMode, double sampleDistance, double unitDistance,
+    int filterValue) override;
 
 private:
-  vtkOpenGLVolumeGradientOpacityTable(
-    const vtkOpenGLVolumeGradientOpacityTable&) = delete;
-  vtkOpenGLVolumeGradientOpacityTable& operator=(
-    const vtkOpenGLVolumeGradientOpacityTable&) = delete;
+  vtkOpenGLVolumeGradientOpacityTable(const vtkOpenGLVolumeGradientOpacityTable&) = delete;
+  void operator=(const vtkOpenGLVolumeGradientOpacityTable&) = delete;
 };
 
-#endif // __VTK_WRAP__
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLVolumeGradientOpacityTable_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeGradientOpacityTable.h

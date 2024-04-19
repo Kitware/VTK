@@ -1,4 +1,6 @@
-# Rotation-invariant Pattern Detection
+# MomentInvariants Architecture
+
+## Rotation-invariant Pattern Detection
 For pattern detection, the orientation of the pattern is usually not known a priory. The process should not be decelerated more than necessary while the pattern detection algorithm looks for all possible rotated copies of the template. Therefore, rotation invariance is a critical requirement.
 Moment invariants can achieve rotation invariance without the need for point to point correlations, which are difficult to generate in smooth fields. For an introduction, we recommend
 
@@ -38,7 +40,7 @@ Langbein et al. have generalized the definition of the moment tensor to tensor v
 where $x^{\otimes o}$ denotes the $o$-th tensor power of the vector $x$.
 -->
 
-# Extensions
+## Extensions
 The **MomentInvariants** module contains actually a bunch of extra algorithms and helper classes.
 
 The class **vtkMomentsHelper** provides functions for the moments computation that will be needed by vtkComputeMoments and vtkMomentInvariants.
@@ -50,7 +52,7 @@ For further visualization, it also produces two output fields that encode the ra
 The second input, i.e. the grid, steers the resolution of the balls. It is helpful if its extent is a multiple of the first input's. Then, the circles are centered nicely.
 The spheres/circles are good for 2D visualizations, because they can be laid over a visualization of the field.
 The balls are good for 3D volume rendering or steering of the seeding of visualization elements.
-The 2D visualzation is described in
+The 2D visualization is described in
 
 *Bujack, R., Hotz, I., Scheuermann, G., & Hitzer, E. (2015). Moment invariants for 2D flow fields via normalization in detail. IEEE transactions on visualization and computer graphics, 21(8), 916-929*
 

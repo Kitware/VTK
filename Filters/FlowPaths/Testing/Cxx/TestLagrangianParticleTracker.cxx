@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestLagrangianParticleTracker.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-    This software is distributed WITHOUT ANY WARRANTY; without even
-    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-    PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkLagrangianMatidaIntegrationModel.h"
 
 #include "vtkActor.h"
@@ -88,12 +76,12 @@ int TestLagrangianParticleTracker(int, char*[])
   flowVel->SetNumberOfTuples(waveletImg->GetNumberOfCells());
   flowVel->SetName("FlowVelocity");
 
-  vtkNew<vtkDoubleArray> flowDens ;
+  vtkNew<vtkDoubleArray> flowDens;
   flowDens->SetNumberOfComponents(1);
   flowDens->SetNumberOfTuples(waveletImg->GetNumberOfCells());
   flowDens->SetName("FlowDensity");
 
-  vtkNew<vtkDoubleArray> flowDynVisc ;
+  vtkNew<vtkDoubleArray> flowDynVisc;
   flowDynVisc->SetNumberOfComponents(1);
   flowDynVisc->SetNumberOfTuples(waveletImg->GetNumberOfCells());
   flowDynVisc->SetName("FlowDynamicViscosity");
@@ -119,8 +107,7 @@ int TestLagrangianParticleTracker(int, char*[])
   surfaceTypeTerm->SetNumberOfComponents(1);
   surfaceTypeTerm->SetName("SurfaceType");
   surfaceTypeTerm->SetNumberOfTuples(surfacePd->GetNumberOfCells());
-  surfaceTypeTerm->FillComponent(0,
-    vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_TERM);
+  surfaceTypeTerm->FillComponent(0, vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_TERM);
   surfacePd->GetCellData()->AddArray(surfaceTypeTerm);
 
   // Create plane passThrough
@@ -136,8 +123,7 @@ int TestLagrangianParticleTracker(int, char*[])
   surfaceTypePass->SetNumberOfComponents(1);
   surfaceTypePass->SetName("SurfaceType");
   surfaceTypePass->SetNumberOfTuples(passPd->GetNumberOfCells());
-  surfaceTypePass->FillComponent(0,
-    vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_PASS);
+  surfaceTypePass->FillComponent(0, vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_PASS);
   passPd->GetCellData()->AddArray(surfaceTypePass);
 
   // Create plane passThrough
@@ -153,8 +139,7 @@ int TestLagrangianParticleTracker(int, char*[])
   surfaceTypeBounce->SetNumberOfComponents(1);
   surfaceTypeBounce->SetName("SurfaceType");
   surfaceTypeBounce->SetNumberOfTuples(bouncePd->GetNumberOfCells());
-  surfaceTypeBounce->FillComponent(0,
-    vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_BOUNCE);
+  surfaceTypeBounce->FillComponent(0, vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_BOUNCE);
   bouncePd->GetCellData()->AddArray(surfaceTypeBounce);
 
   vtkNew<vtkMultiBlockDataGroupFilter> groupSurface;
@@ -177,21 +162,38 @@ int TestLagrangianParticleTracker(int, char*[])
 
   // Create Integration Model
   vtkNew<vtkLagrangianMatidaIntegrationModel> integrationModel;
-  integrationModel->SetInputArrayToProcess(0, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "InitialVelocity");
-  integrationModel->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceType");
-  integrationModel->SetInputArrayToProcess(3, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
-  integrationModel->SetInputArrayToProcess(4, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDensity");
-  integrationModel->SetInputArrayToProcess(5, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
-  integrationModel->SetInputArrayToProcess(6, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
-  integrationModel->SetInputArrayToProcess(7, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
+  integrationModel->SetInputArrayToProcess(
+    0, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "InitialVelocity");
+  integrationModel->SetInputArrayToProcess(
+    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceType");
+  integrationModel->SetInputArrayToProcess(
+    3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
+  integrationModel->SetInputArrayToProcess(
+    4, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDensity");
+  integrationModel->SetInputArrayToProcess(
+    5, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
+  integrationModel->SetInputArrayToProcess(
+    6, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
+  integrationModel->SetInputArrayToProcess(
+    7, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
   integrationModel->SetNumberOfTrackedUserData(13);
+
+  vtkNew<vtkLagrangianMatidaIntegrationModel> integrationModelCopy;
+  integrationModelCopy->SetInputArrayToProcess(
+    0, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "InitialVelocity");
+  integrationModelCopy->SetInputArrayToProcess(
+    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceType");
+  integrationModelCopy->SetInputArrayToProcess(
+    3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
+  integrationModelCopy->SetInputArrayToProcess(
+    4, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDensity");
+  integrationModelCopy->SetInputArrayToProcess(
+    5, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
+  integrationModelCopy->SetInputArrayToProcess(
+    6, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
+  integrationModelCopy->SetInputArrayToProcess(
+    7, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
+  integrationModelCopy->SetNumberOfTrackedUserData(13);
 
   // Put in tracker
   vtkNew<vtkLagrangianParticleTracker> tracker;
@@ -224,16 +226,14 @@ int TestLagrangianParticleTracker(int, char*[])
   tracker->SetMaximumNumberOfSteps(150);
   tracker->SetSourceConnection(groupSeed->GetOutputPort());
   tracker->SetSurfaceData(surfacePd);
-  tracker->SetCellLengthComputationMode(
-    vtkLagrangianParticleTracker::STEP_CUR_CELL_VEL_DIR);
+  tracker->SetCellLengthComputationMode(vtkLagrangianParticleTracker::STEP_CUR_CELL_VEL_DIR);
   tracker->AdaptiveStepReintegrationOn();
   tracker->GenerateParticlePathsOutputOff();
   tracker->Update();
   tracker->GenerateParticlePathsOutputOn();
   tracker->SetInputConnection(ugFlow->GetOutputPort());
   tracker->SetMaximumNumberOfSteps(30);
-  tracker->SetCellLengthComputationMode(
-    vtkLagrangianParticleTracker::STEP_CUR_CELL_DIV_THEO);
+  tracker->SetCellLengthComputationMode(vtkLagrangianParticleTracker::STEP_CUR_CELL_DIV_THEO);
   tracker->Update();
   tracker->SetMaximumNumberOfSteps(-1);
   tracker->SetMaximumIntegrationTime(10.0);
@@ -243,8 +243,7 @@ int TestLagrangianParticleTracker(int, char*[])
   tracker->SetMaximumNumberOfSteps(300);
   tracker->SetMaximumIntegrationTime(-1.0);
   tracker->SetSurfaceConnection(groupSurface->GetOutputPort());
-  tracker->SetCellLengthComputationMode(
-    vtkLagrangianParticleTracker::STEP_LAST_CELL_VEL_DIR);
+  tracker->SetCellLengthComputationMode(vtkLagrangianParticleTracker::STEP_CUR_CELL_VEL_DIR);
   tracker->AdaptiveStepReintegrationOff();
   tracker->Update();
   if (tracker->GetStepFactor() != 0.1)
@@ -272,7 +271,8 @@ int TestLagrangianParticleTracker(int, char*[])
     std::cerr << "Incorrect MaximumIntegrationTime" << std::endl;
     return EXIT_FAILURE;
   }
-  if (tracker->GetCellLengthComputationMode() != vtkLagrangianParticleTracker::STEP_LAST_CELL_VEL_DIR)
+  if (tracker->GetCellLengthComputationMode() !=
+    vtkLagrangianParticleTracker::STEP_CUR_CELL_VEL_DIR)
   {
     std::cerr << "Incorrect CellLengthComputationMode" << std::endl;
     return EXIT_FAILURE;
@@ -299,6 +299,34 @@ int TestLagrangianParticleTracker(int, char*[])
     return EXIT_FAILURE;
   }
 
+  vtkPolyData* streams = vtkPolyData::SafeDownCast(tracker->GetOutput());
+  vtkMultiBlockDataSet* mbInter = vtkMultiBlockDataSet::SafeDownCast(tracker->GetOutput(1));
+  int nPointsStream = streams->GetNumberOfPoints();
+  int nPointsInter = mbInter->GetNumberOfPoints();
+
+  if (nPointsStream != 1659 || nPointsInter != 172)
+  {
+    std::cerr << "Unexpected number of points" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Check that changing integration model do not causes issues
+  tracker->SetIntegrationModel(integrationModelCopy);
+  if (tracker->GetIntegrationModel() != integrationModelCopy)
+  {
+    std::cerr << "Incorrect Integration Model Copy" << std::endl;
+    return EXIT_FAILURE;
+  }
+  tracker->Update();
+
+  streams = vtkPolyData::SafeDownCast(tracker->GetOutput());
+  mbInter = vtkMultiBlockDataSet::SafeDownCast(tracker->GetOutput(1));
+  if (nPointsStream != streams->GetNumberOfPoints() || nPointsInter != mbInter->GetNumberOfPoints())
+  {
+    std::cerr << "Unexpected number of points after changing the integration model" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   // Glyph for interaction points
   vtkNew<vtkSphereSource> sphereGlyph;
   sphereGlyph->SetRadius(0.1);
@@ -312,13 +340,11 @@ int TestLagrangianParticleTracker(int, char*[])
 
   vtkNew<vtkGlyph3D> glyph;
   glyph->SetSourceConnection(sphereGlyph->GetOutputPort());
-  vtkMultiBlockDataSet* mbInter = vtkMultiBlockDataSet::SafeDownCast(
-    tracker->GetOutput(1));
   glyph->SetInputData(mbInter->GetBlock(1));
 
   // Setup actor and mapper
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputData(vtkPolyData::SafeDownCast(tracker->GetOutput()));
+  mapper->SetInputData(streams);
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);

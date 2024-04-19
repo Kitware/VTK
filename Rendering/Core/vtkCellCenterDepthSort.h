@@ -1,26 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCellCenterDepthSort.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*
- * Copyright 2003 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2003 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkCellCenterDepthSort
@@ -34,7 +14,7 @@
  * camera transformed into object space.  It then performs an ordinary sort
  * on the result.
  *
-*/
+ */
 
 #ifndef vtkCellCenterDepthSort_h
 #define vtkCellCenterDepthSort_h
@@ -42,6 +22,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkVisibilitySort.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 
 class vtkCellCenterDepthSortStack;
@@ -50,32 +31,33 @@ class VTKRENDERINGCORE_EXPORT vtkCellCenterDepthSort : public vtkVisibilitySort
 {
 public:
   vtkTypeMacro(vtkCellCenterDepthSort, vtkVisibilitySort);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  static vtkCellCenterDepthSort *New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkCellCenterDepthSort* New();
 
   void InitTraversal() override;
-  vtkIdTypeArray *GetNextCells() override;
+  vtkIdTypeArray* GetNextCells() override;
 
 protected:
   vtkCellCenterDepthSort();
   ~vtkCellCenterDepthSort() override;
 
-  vtkIdTypeArray *SortedCells;
-  vtkIdTypeArray *SortedCellPartition;
+  vtkIdTypeArray* SortedCells;
+  vtkIdTypeArray* SortedCellPartition;
 
-  vtkFloatArray *CellCenters;
-  vtkFloatArray *CellDepths;
-  vtkFloatArray *CellPartitionDepths;
+  vtkFloatArray* CellCenters;
+  vtkFloatArray* CellDepths;
+  vtkFloatArray* CellPartitionDepths;
 
-  virtual float *ComputeProjectionVector();
+  virtual float* ComputeProjectionVector();
   virtual void ComputeCellCenters();
   virtual void ComputeDepths();
 
 private:
-  vtkCellCenterDepthSortStack *ToSort;
+  vtkCellCenterDepthSortStack* ToSort;
 
-  vtkCellCenterDepthSort(const vtkCellCenterDepthSort &) = delete;
-  void operator=(const vtkCellCenterDepthSort &) = delete;
+  vtkCellCenterDepthSort(const vtkCellCenterDepthSort&) = delete;
+  void operator=(const vtkCellCenterDepthSort&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

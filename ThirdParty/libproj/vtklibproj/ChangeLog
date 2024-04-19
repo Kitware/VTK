@@ -215,7 +215,7 @@
 
 	* src/cs2cs.c: Support -I when there is no +to projection.
 
-	* src/PJ_ob_tran.c: Propogate ctx into sub-projection (#225).
+	* src/PJ_ob_tran.c: Propagate ctx into sub-projection (#225).
 
 2013-10-03  Frank Warmerdam  <warmerdam@pobox.com>
 
@@ -293,7 +293,7 @@
 
 	* src/geodesic.{c,h}: sync relative to GeographicLib 1.31. (#216)
 
-	* src/pj_fileapi.c, etc: Implement a virtual file api accessable
+	* src/pj_fileapi.c, etc: Implement a virtual file api accessible
 	through the context for init file and grid shift file access.
 
 	* src/mk_cheby.c: reformat, add braces to avoid warnings.
@@ -415,7 +415,7 @@
 
 2012-02-08  Frank Warmerdam  <warmerdam@pobox.com>
 
-	* src/pj_apply_gridshift.c: Ensure that one amoung many points
+	* src/pj_apply_gridshift.c: Ensure that one among many points
 	falling outside the grid areas will not cause the remainder to not
 	be datum shifted in a way that is hard to diagnose. (#45)
 
@@ -564,7 +564,7 @@
 
 2011-01-11  Frank Warmerdam  <warmerdam@pobox.com>
 
-	* src/PJ_goode.c: fix propogation of es and ctx to sub-projections.
+	* src/PJ_goode.c: fix propagation of es and ctx to sub-projections.
 
 2010-10-19  Frank Warmerdam  <warmerdam@pobox.com>
 
@@ -601,7 +601,7 @@
 2010-03-16  Frank Warmerdam  <warmerdam@pobox.com>
 
 	* src/pj_transform.c, src/pj_init.c, src/projects.h, src/pj_gridlist.c,
-	src/pj_apply_gridshit.c: rework the translation of nadgrids parameters
+	src/pj_apply_gridshift.c: rework the translation of nadgrids parameters
 	into a list of gridshift files to avoid use of static "lastnadgrids"
 	information which screws up multithreading.  Changes the PJ structure.
 
@@ -739,7 +739,7 @@
 	* src/PJ_gstmerc.c: Correction of a bug in inv() function :
 	the projected origin coordinates where descaled.
 
-	* nad/testIGNF: Add a comment on the mandatory existance of the world grid
+	* nad/testIGNF: Add a comment on the mandatory existence of the world grid
 	in order to make the test.
 
 	* ChangeLog: this comments
@@ -934,7 +934,7 @@
 	* src/projects.h: Ensure that WIN32 is defined on win32 systems.
 
 	* src/pj_open_lib.c: support drive letter prefixes on absolute
-	paths.  Support either \ or / as a dir delimeter on windows (bug 1499)
+	paths.  Support either \ or / as a dir delimiter on windows (bug 1499)
 
 2007-03-07  Frank Warmerdam  <warmerdam@pobox.com>
 
@@ -1067,7 +1067,7 @@ Rel. 4.5.0 2006-04-21
 
 2006-01-12  Frank Warmerdam  <warmerdam@pobox.com>
 
-	* geocent.c: Make global variables static. Amoung other things
+	* geocent.c: Make global variables static. Among other things
 	this avoids conflicts for apps that link in geotrans.
 
 2005-12-04  Frank Warmerdam  <warmerdam@pobox.com>
@@ -1466,7 +1466,7 @@ Rel. 4.4.4 2001/09/15
 
 	See http://bugzilla.remotesensing.org/show_bug.cgi?id=17
 
-	* nad/epsg: commited new updates with fixed units for us state plane
+	* nad/epsg: committed new updates with fixed units for us state plane
 	zones in feet, as reported by Marc-Andre.
 
 2001-08-23  Frank Warmerdam  <warmerdam@pobox.com>
@@ -1707,7 +1707,7 @@ Rel. 4.3.2 94/10/30 Base-line
 	Thanks to: Alejo Hausner (ah@cs.princeton.edu)
 
 95/9/10
-	Some minor file/internal name changes to facilitate xport to primative
+	Some minor file/internal name changes to facilitate xport to primitive
 	systems.  Documented entries unchanged.
 
 Rel. 4.3.1 94/2/16 Base-line
@@ -1794,7 +1794,7 @@ Rel. 4.2.2 93/9/30 Base-line
 	DOS distribution.
 
 93/11/28
-	Added "Final" figure line to begining of -V option ouput.  Allows
+	Added "Final" figure line to beginning of -V option output.  Allows
 	user to see results of +ellps and +R_V, etc. arguments.  "Feature,"
 	not an error.  Mod to proj.c.
 
@@ -1893,7 +1893,7 @@ Rel. 4.1.3 93/4/15 Base-line
 93/8/19
 	Minor general corrections.
 	Added nadcon conversion procedures and nad2nad program.
-	Projects.h modified to reflect nadcon prototypes and stuctures.
+	Projects.h modified to reflect nadcon prototypes and structures.
 	pj_open_lib extracted from pj_init and made global for use in nad_init.
 
 93/8/25

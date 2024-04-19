@@ -1,27 +1,42 @@
 #!/usr/bin/env python
+from vtkmodules.vtkFiltersParallel import vtkRectilinearGridOutlineFilter
+from vtkmodules.vtkIOXML import vtkXMLRectilinearGridReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
+
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create pipeline
 #
-reader = vtk.vtkXMLRectilinearGridReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/RectGrid2.vtr")
+reader = vtkXMLRectilinearGridReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/RectGrid2.vtr")
 
-outline = vtk.vtkRectilinearGridOutlineFilter()
+outline = vtkRectilinearGridOutlineFilter()
 outline.SetInputConnection(reader.GetOutputPort())
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineMapper.SetNumberOfPieces(2)
 outlineMapper.SetPiece(1)
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
-outlineActor.GetProperty().SetColor(black)
+outlineActor.GetProperty().SetColor(0.0, 0.0, 0.0)
 # Graphics stuff
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

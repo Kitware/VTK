@@ -4,14 +4,18 @@ LIBRARY_NAME
   vtkFiltersParallelDIY2
 KIT
   VTK::Parallel
-GROUPS
-  MPI
 IMPLEMENTS
   VTK::FiltersCore
   VTK::FiltersParallel
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
+  VTK::CommonMath
   VTK::FiltersCore
   VTK::FiltersParallel
+  VTK::ParallelDIY
 OPTIONAL_DEPENDS
   VTK::ParallelMPI
 PRIVATE_DEPENDS
@@ -21,7 +25,6 @@ PRIVATE_DEPENDS
   VTK::ImagingCore
   VTK::IOXML
   VTK::ParallelCore
-  VTK::ParallelDIY
 TEST_DEPENDS
   VTK::diy2
   VTK::FiltersGeometry
@@ -30,6 +33,8 @@ TEST_DEPENDS
   VTK::IOXML
   VTK::ParallelCore
   VTK::IOExodus
+  VTK::IOIOSS
+  VTK::IOParallelXML
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingCore

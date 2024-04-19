@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHoverWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHoverWidget
  * @brief   invoke a vtkTimerEvent when hovering
@@ -65,40 +53,41 @@
  *
  * @sa
  * vtkAbstractWidget
-*/
+ */
 
 #ifndef vtkHoverWidget_h
 #define vtkHoverWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkHoverWidget : public vtkAbstractWidget
+VTK_ABI_NAMESPACE_BEGIN
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkHoverWidget : public vtkAbstractWidget
 {
 public:
   /**
    * Instantiate this class.
    */
-  static vtkHoverWidget *New();
+  static vtkHoverWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for a VTK class.
    */
-  vtkTypeMacro(vtkHoverWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkHoverWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the hovering interval (in milliseconds). If after moving the
    * mouse the pointer stays over a vtkProp for this duration, then a
    * vtkTimerEvent::TimerEvent is invoked.
    */
-  vtkSetClampMacro(TimerDuration,int,1,100000);
-  vtkGetMacro(TimerDuration,int);
-  //@}
+  vtkSetClampMacro(TimerDuration, int, 1, 100000);
+  vtkGetMacro(TimerDuration, int);
+  ///@}
 
   /**
    * The method for activating and deactivating this widget. This method
@@ -111,8 +100,7 @@ public:
    * that the superclasses vtkAbstractWidget::GetRepresentation()
    * method returns nullptr.
    */
-  void CreateDefaultRepresentation() override
-    {this->WidgetRep = nullptr;}
+  void CreateDefaultRepresentation() override { this->WidgetRep = nullptr; }
 
 protected:
   vtkHoverWidget();
@@ -120,7 +108,12 @@ protected:
 
   // The state of the widget
 
-  enum {Start=0,Timing,TimedOut};
+  enum
+  {
+    Start = 0,
+    Timing,
+    TimedOut
+  };
 
   int WidgetState;
 
@@ -131,21 +124,22 @@ protected:
 
   // Subclasses of this class invoke these methods. If a non-zero
   // value is returned, a subclass is handling the event.
-  virtual int SubclassHoverAction() {return 0;}
-  virtual int SubclassEndHoverAction() {return 0;}
-  virtual int SubclassSelectAction() {return 0;}
+  virtual int SubclassHoverAction() { return 0; }
+  virtual int SubclassEndHoverAction() { return 0; }
+  virtual int SubclassSelectAction() { return 0; }
 
-  //@{
+  ///@{
   /**
    * Helper methods for creating and destroying timers.
    */
   int TimerId;
   int TimerDuration;
-  //@}
+  ///@}
 
 private:
   vtkHoverWidget(const vtkHoverWidget&) = delete;
   void operator=(const vtkHoverWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

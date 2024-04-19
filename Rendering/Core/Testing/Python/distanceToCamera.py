@@ -8,12 +8,33 @@
 # array.
 # Zooming in and out in each renderer will change the color
 # of the hexahedron.
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    VTK_HEXAHEDRON,
+    vtkCellArray,
+    vtkPolyData,
+    vtkUnstructuredGrid,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkDistanceToCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-pts = vtk.vtkPoints()
-values = vtk.vtkFloatArray()
+pts = vtkPoints()
+values = vtkFloatArray()
 values.SetName('values')
 for z in [0,1]:
   for y in [0,1]:
@@ -29,36 +50,36 @@ quadcells = [[0,1,3,2],[4,5,7,6],[0,1,5,4],[1,3,7,5],[3,2,6,7],[0,2,6,4]]
 hexacells = [[0,1,3,2,4,5,7,6]]
 
 # Set up the polydata based pipeline
-poly = vtk.vtkPolyData()
+poly = vtkPolyData()
 poly.SetPoints(pts)
 poly.GetPointData().SetScalars(values)
-verts = vtk.vtkCellArray()
+verts = vtkCellArray()
 for cell in quadcells:
   verts.InsertNextCell(len(cell))
   for p in cell:
     verts.InsertCellPoint(p)
 #poly.SetVerts(verts)
-lines = vtk.vtkCellArray()
+lines = vtkCellArray()
 for cell in linecells:
   lines.InsertNextCell(len(cell))
   for p in cell:
     lines.InsertCellPoint(p)
 #poly.SetLines(lines)
-quads = vtk.vtkCellArray()
+quads = vtkCellArray()
 for cell in quadcells:
   quads.InsertNextCell(len(cell))
   for p in cell:
     quads.InsertCellPoint(p)
 poly.SetPolys(quads)
-polyD2C = vtk.vtkDistanceToCamera()
+polyD2C = vtkDistanceToCamera()
 polyD2C.SetInputData(poly)
-polyMapper = vtk.vtkPolyDataMapper()
+polyMapper = vtkPolyDataMapper()
 polyMapper.SetInputConnection(polyD2C.GetOutputPort())
 polyMapper.SetScalarModeToUsePointFieldData()
 polyMapper.SelectColorArray('DistanceToCamera')
-polyActor = vtk.vtkActor()
+polyActor = vtkActor()
 polyActor.SetMapper(polyMapper)
-polyRenderer = vtk.vtkRenderer()
+polyRenderer = vtkRenderer()
 polyRenderer.AddViewProp(polyActor)
 polyRenderer.SetBackground(.2,.2,.2)
 polyRenderer.SetViewport(0.,0.,0.5,1.0)
@@ -68,23 +89,23 @@ polyRenderer.GetActiveCamera().SetPosition(-2,-4,6)
 polyRenderer.ResetCamera()
 
 # Set up the unstructured grid based pipeline
-ug = vtk.vtkUnstructuredGrid()
+ug = vtkUnstructuredGrid()
 ug.SetPoints(pts)
 for cell in hexacells:
-  ug.InsertNextCell(vtk.VTK_HEXAHEDRON,len(cell),cell)
+  ug.InsertNextCell(VTK_HEXAHEDRON,len(cell),cell)
 ug.GetPointData().SetScalars(values)
-ugD2C = vtk.vtkDistanceToCamera()
+ugD2C = vtkDistanceToCamera()
 ugD2C.SetInputData(ug)
 ugD2C.SetDistanceArrayName('d2c')
 ugD2C.ScalingOn()
 ugD2C.SetInputArrayToProcess(0,0,0,0,'values')
-ugMapper = vtk.vtkDataSetMapper()
+ugMapper = vtkDataSetMapper()
 ugMapper.SetInputConnection(ugD2C.GetOutputPort())
 ugMapper.SetScalarModeToUsePointFieldData()
 ugMapper.SelectColorArray('d2c')
-ugActor = vtk.vtkActor()
+ugActor = vtkActor()
 ugActor.SetMapper(ugMapper)
-ugRenderer = vtk.vtkRenderer()
+ugRenderer = vtkRenderer()
 ugRenderer.AddViewProp(ugActor)
 ugRenderer.SetBackground(.4,.4,.4)
 ugRenderer.SetViewport(0.5,0.,1.0,1.0)
@@ -94,12 +115,12 @@ ugRenderer.GetActiveCamera().SetPosition(-2,-4,6)
 ugRenderer.ResetCamera()
 
 # Render both
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetSize(600,300)
 renWin.AddRenderer(polyRenderer)
 renWin.AddRenderer(ugRenderer)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Test zoomed out

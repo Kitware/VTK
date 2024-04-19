@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMotionFXCFGReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef vtkMotionFXCFGReader_h
 #define vtkMotionFXCFGReader_h
 
@@ -36,6 +24,7 @@
  * The reader uses PEGTL (https://github.com/taocpp/PEGTL)
  * to define and parse the grammar for the CFG file.
  */
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOMOTIONFX_EXPORT vtkMotionFXCFGReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -43,24 +32,24 @@ public:
   vtkTypeMacro(vtkMotionFXCFGReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the filename.
    */
-  void SetFileName(const char* fname);
-  const char* GetFileName() const
+  void SetFileName(VTK_FILEPATH const char* fname);
+  VTK_FILEPATH const char* GetFileName() const
   {
     return this->FileName.empty() ? nullptr : this->FileName.c_str();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the time resolution for timesteps produced by the reader.
    */
   vtkSetClampMacro(TimeResolution, int, 1, VTK_INT_MAX);
   vtkGetMacro(TimeResolution, int);
-  //@}
+  ///@}
 
 protected:
   vtkMotionFXCFGReader();
@@ -87,4 +76,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

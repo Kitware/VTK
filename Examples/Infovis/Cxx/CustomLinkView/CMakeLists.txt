@@ -14,9 +14,9 @@ set(Hdrs
 set(Rcs
   Icons/icons.qrc)
 
-find_package(Qt5 COMPONENTS Widgets)
-if (NOT TARGET Qt5::Widgets)
-  message("Skipping example: ${Qt5_NOT_FOUND_MESSAGE}")
+find_package("Qt${VTK_QT_VERSION}" COMPONENTS Widgets)
+if (NOT TARGET "Qt${VTK_QT_VERSION}::Widgets")
+  message("Skipping example: ${Qt${VTK_QT_VERSION}_NOT_FOUND_MESSAGE}")
   return ()
 endif ()
 
@@ -24,12 +24,8 @@ add_executable(CustomLinkView MACOSX_BUNDLE
   ${Srcs} ${Hdrs} ${UIs} ${Rcs})
 target_link_libraries(CustomLinkView
   PRIVATE
-    ${vtk_modules}
-    VTK::GUISupportQt
-    VTK::ViewsQt
-    Qt5::Widgets)
+    ${VTK_LIBRARIES}
+    "Qt${VTK_QT_VERSION}::Widgets")
 vtk_module_autoinit(
   TARGETS CustomLinkView
-  MODULES ${vtk_modules}
-          VTK::GUISupportQt
-          VTK::ViewsQt)
+  MODULES ${VTK_LIBRARIES})

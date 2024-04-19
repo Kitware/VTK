@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderPassCollection.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkRenderPassCollection
  * @brief   an ordered list of RenderPasses
@@ -22,43 +10,44 @@
  *
  * @sa
  * vtkRenderPass vtkCollection
-*/
+ */
 
 #ifndef vtkRenderPassCollection_h
 #define vtkRenderPassCollection_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderPass;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkRenderPassCollection : public vtkCollection
 {
- public:
-  static vtkRenderPassCollection *New();
-  vtkTypeMacro(vtkRenderPassCollection,vtkCollection);
+public:
+  static vtkRenderPassCollection* New();
+  vtkTypeMacro(vtkRenderPassCollection, vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add an RenderPass to the bottom of the list.
    */
-  void AddItem(vtkRenderPass *pass);
+  void AddItem(vtkRenderPass* pass);
 
   /**
    * Get the next RenderPass in the list.
    */
-  vtkRenderPass *GetNextRenderPass();
+  vtkRenderPass* GetNextRenderPass();
 
   /**
    * Get the last RenderPass in the list.
    */
-  vtkRenderPass *GetLastRenderPass();
+  vtkRenderPass* GetLastRenderPass();
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
-  vtkRenderPass *GetNextRenderPass(vtkCollectionSimpleIterator &cookie);
+  vtkRenderPass* GetNextRenderPass(vtkCollectionSimpleIterator& cookie);
 
 protected:
   vtkRenderPassCollection();
@@ -66,11 +55,11 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o);
+  void AddItem(vtkObject* o);
 
-private:
   vtkRenderPassCollection(const vtkRenderPassCollection&) = delete;
   void operator=(const vtkRenderPassCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

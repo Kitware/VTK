@@ -1,6 +1,21 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkStripper
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkFiltersTexture import vtkTextureMapToSphere
+from vtkmodules.vtkIOImage import vtkJPEGReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkProperty,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 #
@@ -8,38 +23,38 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 #
 
 # renderer and interactor
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # read the volume
-reader = vtk.vtkJPEGReader()
+reader = vtkJPEGReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/beach.jpg")
 
 #---------------------------------------------------------
 # Do the surface rendering
-sphereSource = vtk.vtkSphereSource()
+sphereSource = vtkSphereSource()
 sphereSource.SetRadius(100)
 
-textureSphere = vtk.vtkTextureMapToSphere()
+textureSphere = vtkTextureMapToSphere()
 textureSphere.SetInputConnection(sphereSource.GetOutputPort())
 
-sphereStripper = vtk.vtkStripper()
+sphereStripper = vtkStripper()
 sphereStripper.SetInputConnection(textureSphere.GetOutputPort())
 sphereStripper.SetMaximumLength(5)
 
-sphereMapper = vtk.vtkPolyDataMapper()
+sphereMapper = vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphereStripper.GetOutputPort())
 sphereMapper.ScalarVisibilityOff()
 
-sphereTexture = vtk.vtkTexture()
+sphereTexture = vtkTexture()
 sphereTexture.SetInputConnection(reader.GetOutputPort())
-sphereProperty = vtk.vtkProperty()
+sphereProperty = vtkProperty()
 # sphereProperty.BackfaceCullingOn()
 
-sphere = vtk.vtkActor()
+sphere = vtkActor()
 sphere.SetMapper(sphereMapper)
 sphere.SetTexture(sphereTexture)
 sphere.SetProperty(sphereProperty)
@@ -56,9 +71,8 @@ ren.ResetCameraClippingRange()
 renWin.Render()
 #---------------------------------------------------------
 # test-related code
-def TkCheckAbort (object_binding, event_name):
-    foo = renWin.GetEventPending()
-    if (foo != 0):
+def TkCheckAbort(obj=None, event=""):
+    if renWin.GetEventPending():
         renWin.SetAbortRender(1)
 
 iren.Initialize()

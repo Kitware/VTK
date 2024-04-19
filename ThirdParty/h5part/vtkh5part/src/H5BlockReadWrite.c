@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <hdf5.h>
+#include <vtk_hdf5.h>
 #include "H5Part.h"
 #include "H5PartErrors.h"
 #include "H5PartPrivate.h"

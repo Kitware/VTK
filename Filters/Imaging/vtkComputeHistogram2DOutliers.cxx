@@ -1,32 +1,16 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkComputeHistogram2DOutliers.cxx
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkComputeHistogram2DOutliers.h"
 //------------------------------------------------------------------------------
 #include "vtkCollection.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkImageData.h"
-#include "vtkImageMedian3D.h"
-#include "vtkImageGradientMagnitude.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkImageData.h"
+#include "vtkImageGradientMagnitude.h"
+#include "vtkImageMedian3D.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
@@ -37,6 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSortDataArray.h"
 #include "vtkTable.h"
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkComputeHistogram2DOutliers);
 //------------------------------------------------------------------------------
 vtkComputeHistogram2DOutliers::vtkComputeHistogram2DOutliers()
@@ -50,30 +35,26 @@ vtkComputeHistogram2DOutliers::vtkComputeHistogram2DOutliers()
 //------------------------------------------------------------------------------
 vtkComputeHistogram2DOutliers::~vtkComputeHistogram2DOutliers() = default;
 //------------------------------------------------------------------------------
-int vtkComputeHistogram2DOutliers::RequestData(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkComputeHistogram2DOutliers::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the output
-  vtkInformation *outSelectionInfo = outputVector->GetInformationObject(OUTPUT_SELECTED_ROWS);
-  vtkSelection* outputSelection = vtkSelection::SafeDownCast(
-    outSelectionInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outSelectionInfo = outputVector->GetInformationObject(OUTPUT_SELECTED_ROWS);
+  vtkSelection* outputSelection =
+    vtkSelection::SafeDownCast(outSelectionInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkInformation *outTableInfo = outputVector->GetInformationObject(OUTPUT_SELECTED_TABLE_DATA);
-  vtkTable* outputTable = vtkTable::SafeDownCast(
-    outTableInfo->Get(vtkDataObject::DATA_OBJECT()));
-
+  vtkInformation* outTableInfo = outputVector->GetInformationObject(OUTPUT_SELECTED_TABLE_DATA);
+  vtkTable* outputTable = vtkTable::SafeDownCast(outTableInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // get the input table data
-  vtkInformation *inDataInfo = inputVector[INPUT_TABLE_DATA]->GetInformationObject(0);
+  vtkInformation* inDataInfo = inputVector[INPUT_TABLE_DATA]->GetInformationObject(0);
   if (!inDataInfo)
   {
     vtkErrorMacro("no input data information.");
     return 0;
   }
 
-  vtkTable *inData = vtkTable::SafeDownCast(inDataInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* inData = vtkTable::SafeDownCast(inDataInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!inData)
   {
     vtkErrorMacro("no input data table.");
@@ -87,10 +68,11 @@ int vtkComputeHistogram2DOutliers::RequestData(
   if (numHistograms > 0)
   {
     // get the data objects for the input
-    for (int i=0; i<numHistograms; i++)
+    for (int i = 0; i < numHistograms; i++)
     {
       vtkImageData* im = vtkImageData::SafeDownCast(
-        inputVector[INPUT_HISTOGRAMS_IMAGE_DATA]->GetInformationObject(i)->Get(vtkDataObject::DATA_OBJECT()));
+        inputVector[INPUT_HISTOGRAMS_IMAGE_DATA]->GetInformationObject(i)->Get(
+          vtkDataObject::DATA_OBJECT()));
       if (!im)
       {
         vtkErrorMacro("invalid input histogram.");
@@ -102,15 +84,16 @@ int vtkComputeHistogram2DOutliers::RequestData(
   // if there wasn't anything on that port, try the vtkMultiBlockDataSet port
   else
   {
-    vtkInformation *inHistogramInfo = inputVector[INPUT_HISTOGRAMS_MULTIBLOCK]->GetInformationObject(0);
+    vtkInformation* inHistogramInfo =
+      inputVector[INPUT_HISTOGRAMS_MULTIBLOCK]->GetInformationObject(0);
     if (inHistogramInfo)
     {
-      vtkMultiBlockDataSet* ds = vtkMultiBlockDataSet::SafeDownCast(
-        inHistogramInfo->Get(vtkDataObject::DATA_OBJECT()));
+      vtkMultiBlockDataSet* ds =
+        vtkMultiBlockDataSet::SafeDownCast(inHistogramInfo->Get(vtkDataObject::DATA_OBJECT()));
 
       if (ds)
       {
-        for (int i=0; i<(int)ds->GetNumberOfBlocks(); i++)
+        for (int i = 0; i < (int)ds->GetNumberOfBlocks(); i++)
         {
           vtkImageData* im = vtkImageData::SafeDownCast(ds->GetBlock(i));
           if (im)
@@ -130,7 +113,7 @@ int vtkComputeHistogram2DOutliers::RequestData(
 
   // compute the thresholds that contain outliers
   vtkSmartPointer<vtkCollection> outlierThresholds = vtkSmartPointer<vtkCollection>::New();
-  if (!this->ComputeOutlierThresholds(histograms,outlierThresholds))
+  if (!this->CheckAbort() && !this->ComputeOutlierThresholds(histograms, outlierThresholds))
   {
     vtkErrorMacro("Error during outlier bin computation.");
     return 0;
@@ -138,25 +121,25 @@ int vtkComputeHistogram2DOutliers::RequestData(
 
   // take the computed outlier thresholds and extract the input table rows that match
   vtkSmartPointer<vtkIdTypeArray> outlierRowIds = vtkSmartPointer<vtkIdTypeArray>::New();
-  if (outlierThresholds->GetNumberOfItems() >= 0 &&
-      !this->FillOutlierIds(inData,outlierThresholds,outlierRowIds,outputTable))
+  if (!this->CheckAbort() &&
+    (outlierThresholds->GetNumberOfItems() >= 0 &&
+      !this->FillOutlierIds(inData, outlierThresholds, outlierRowIds, outputTable)))
   {
     vtkErrorMacro("Error during outlier row retrieval.");
     return 0;
   }
 
   // print out the table, just for grins
-  //outputTable->Dump();
+  // outputTable->Dump();
 
   // generate the selection based on the outlier row ids
   if (outputSelection->GetNumberOfNodes() == 0)
   {
     vtkSmartPointer<vtkSelectionNode> newNode = vtkSmartPointer<vtkSelectionNode>::New();
     newNode->GetProperties()->Set(
-//      vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::PEDIGREEIDS);
+      //      vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::PEDIGREEIDS);
       vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
-    newNode->GetProperties()->Set(
-      vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::ROW);
+    newNode->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::ROW);
     outputSelection->AddNode(newNode);
   }
 
@@ -168,8 +151,7 @@ int vtkComputeHistogram2DOutliers::RequestData(
   return 1;
 }
 //------------------------------------------------------------------------------
-int vtkComputeHistogram2DOutliers::FillInputPortInformation(int port,
-                                                            vtkInformation* info)
+int vtkComputeHistogram2DOutliers::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == vtkComputeHistogram2DOutliers::INPUT_TABLE_DATA)
   {
@@ -194,8 +176,7 @@ int vtkComputeHistogram2DOutliers::FillInputPortInformation(int port,
 }
 
 //------------------------------------------------------------------------------
-int vtkComputeHistogram2DOutliers::FillOutputPortInformation(int port,
-                                                             vtkInformation* info)
+int vtkComputeHistogram2DOutliers::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == vtkComputeHistogram2DOutliers::OUTPUT_SELECTED_ROWS)
   {
@@ -214,7 +195,7 @@ int vtkComputeHistogram2DOutliers::FillOutputPortInformation(int port,
 //------------------------------------------------------------------------------
 void vtkComputeHistogram2DOutliers::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << "PreferredNumberOfOutliers: " << this->PreferredNumberOfOutliers << endl;
 }
 //------------------------------------------------------------------------------
@@ -224,7 +205,8 @@ void vtkComputeHistogram2DOutliers::PrintSelf(ostream& os, vtkIndent indent)
 // find outliers, and grows the percentage if there are too outliers.  The
 // growth process is geometric until it finds enough, then it backtracks and
 // goes linear.  Very slow.
-int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(vtkCollection* histograms, vtkCollection* thresholds)
+int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(
+  vtkCollection* histograms, vtkCollection* thresholds)
 {
   if (!histograms || !thresholds)
     return 0;
@@ -234,12 +216,15 @@ int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(vtkCollection* histo
   // compute the maximum bin count
   double maxVal = 0.0;
   double r[2];
-  for (int i=0; i<numHistograms; i++)
+  for (int i = 0; i < numHistograms; i++)
   {
     vtkImageData* histogram = vtkImageData::SafeDownCast(histograms->GetItemAsObject(i));
-    histogram->GetPointData()->GetScalars()->GetRange(r,0);
+    vtkPointData* pd = histogram->GetPointData();
+    pd->GetRange(pd->GetScalars()->GetName(), r, 0);
     if (r[1] > maxVal)
+    {
       maxVal = r[1];
+    }
   }
 
   double pctThreshold = .01;
@@ -252,29 +237,35 @@ int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(vtkCollection* histo
   int numOutliers = 0;
   while (pctThreshold < 1.0)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     int tmpNumOutliers = 0;
     vtkSmartPointer<vtkCollection> tmpThresholdCollection = vtkSmartPointer<vtkCollection>::New();
     // compute outlier ids in all of the histograms
-    for (int i=0; i<numHistograms; i++)
+    for (int i = 0; i < numHistograms; i++)
     {
       vtkSmartPointer<vtkDoubleArray> tmpThresholds = vtkSmartPointer<vtkDoubleArray>::New();
       tmpThresholds->SetNumberOfComponents(4);
 
       vtkImageData* histogram = vtkImageData::SafeDownCast(histograms->GetItemAsObject(i));
-      tmpNumOutliers += this->ComputeOutlierThresholds(histogram,tmpThresholds,pctThreshold*maxVal);
+      tmpNumOutliers +=
+        this->ComputeOutlierThresholds(histogram, tmpThresholds, pctThreshold * maxVal);
       tmpThresholdCollection->AddItem(tmpThresholds);
     }
 
     // Did the number of outliers get closer to the preferred number?  If so, keep them.
     if (abs(tmpNumOutliers - this->PreferredNumberOfOutliers) <=
-        abs(numOutliers - this->PreferredNumberOfOutliers))
+      abs(numOutliers - this->PreferredNumberOfOutliers))
     {
       thresholds->RemoveAllItems();
-      for (int j=0; j<tmpThresholdCollection->GetNumberOfItems(); j++)
+      for (int j = 0; j < tmpThresholdCollection->GetNumberOfItems(); j++)
         thresholds->AddItem(tmpThresholdCollection->GetItemAsObject(j));
       numOutliers = tmpNumOutliers;
     }
-    // got farther from the preferred number, and still in the first pass.  initiate second, slower pass.
+    // got farther from the preferred number, and still in the first pass.  initiate second, slower
+    // pass.
     else if (!growingSlower)
     {
       growingSlower = true;
@@ -296,46 +287,48 @@ int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(vtkCollection* histo
 // This function actually detects outliers, given a percentage threshold.
 // It does a 3x3 median filter operation to find out what pixels disappear,
 // and if they disappear and are small enough, the pixel is accepted as an outlier.
-int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(vtkImageData* histogram, vtkDoubleArray* thresholds, double threshold)
+int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(
+  vtkImageData* histogram, vtkDoubleArray* thresholds, double threshold)
 {
   if (!histogram || !thresholds)
     return 0;
 
   vtkSmartPointer<vtkImageMedian3D> median = vtkSmartPointer<vtkImageMedian3D>::New();
   median->SetInputData(histogram);
-  median->SetKernelSize(3,3,1);
+  median->SetKernelSize(3, 3, 1);
   median->Update();
 
   vtkDataArray* histArray = histogram->GetPointData()->GetScalars();
   vtkDataArray* filtArray = median->GetOutput()->GetPointData()->GetScalars();
 
-  int dims[3] = { 0,0,0 };
-  double sp[3] = { 0,0,0 };
-  double o[3] = {0,0,0};
+  int dims[3] = { 0, 0, 0 };
+  double sp[3] = { 0, 0, 0 };
+  double o[3] = { 0, 0, 0 };
   histogram->GetDimensions(dims);
   histogram->GetSpacing(sp);
   histogram->GetOrigin(o);
 
-  int x,y,numOutliers=0;
-  double hval,fval;
-  for (int j=0; j<histArray->GetNumberOfTuples(); j++)
+  int x, y, numOutliers = 0;
+  double hval, fval;
+  for (int j = 0; j < histArray->GetNumberOfTuples(); j++)
   {
     hval = histArray->GetTuple1(j);
     fval = filtArray->GetTuple1(j);
 
-    if (hval < threshold && hval-fval > 0.0)
+    if (hval < threshold && hval - fval > 0.0)
     {
       x = j % dims[0];
       y = j / dims[0];
-      thresholds->InsertNextTuple4(o[0] + x*sp[0], o[0] + (x+1)*sp[0],
-                                   o[1] + y*sp[1], o[1] + (y+1)*sp[1]);
+      thresholds->InsertNextTuple4(
+        o[0] + x * sp[0], o[0] + (x + 1) * sp[0], o[1] + y * sp[1], o[1] + (y + 1) * sp[1]);
       numOutliers += (int)hval;
     }
   }
   return numOutliers;
 }
 //------------------------------------------------------------------------------
-int vtkComputeHistogram2DOutliers::FillOutlierIds(vtkTable* data, vtkCollection* thresholds, vtkIdTypeArray *rowIds, vtkTable* outTable)
+int vtkComputeHistogram2DOutliers::FillOutlierIds(
+  vtkTable* data, vtkCollection* thresholds, vtkIdTypeArray* rowIds, vtkTable* outTable)
 {
   if (!data || !thresholds || !rowIds || !outTable)
   {
@@ -349,7 +342,7 @@ int vtkComputeHistogram2DOutliers::FillOutlierIds(vtkTable* data, vtkCollection*
   }
   // if there's something to threshold, there better be the correct
   // number of threshold arrays
-  else if (data->GetNumberOfColumns()-1 != thresholds->GetNumberOfItems())
+  else if (data->GetNumberOfColumns() - 1 != thresholds->GetNumberOfItems())
   {
     return 0;
   }
@@ -359,23 +352,26 @@ int vtkComputeHistogram2DOutliers::FillOutlierIds(vtkTable* data, vtkCollection*
   // store the matching rows in a vtkIdList since this list
   // can check for uniqueness, and I don't want duplicate rows.
   vtkSmartPointer<vtkIdList> uniqueRowIds = vtkSmartPointer<vtkIdList>::New();
-  for (int i=0; i<numColumns-1; i++)
+  for (int i = 0; i < numColumns - 1; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataArray* col1 = vtkArrayDownCast<vtkDataArray>(data->GetColumn(i));
-    vtkDataArray* col2 = vtkArrayDownCast<vtkDataArray>(data->GetColumn(i+1));
+    vtkDataArray* col2 = vtkArrayDownCast<vtkDataArray>(data->GetColumn(i + 1));
 
     vtkDoubleArray* currThresholds = vtkDoubleArray::SafeDownCast(thresholds->GetItemAsObject(i));
-    for (int j=0; j<currThresholds->GetNumberOfTuples(); j++)
+    for (int j = 0; j < currThresholds->GetNumberOfTuples(); j++)
     {
-      double *t = currThresholds->GetTuple(j);
+      double* t = currThresholds->GetTuple(j);
 
-      for (int k=0; k<col1->GetNumberOfTuples(); k++)
+      for (int k = 0; k < col1->GetNumberOfTuples(); k++)
       {
-        double v1 = col1->GetComponent(k,0);
-        double v2 = col2->GetComponent(k,0);
+        double v1 = col1->GetComponent(k, 0);
+        double v2 = col2->GetComponent(k, 0);
 
-        if (v1 >= t[0] && v1 < t[1] &&
-            v2 >= t[2] && v2 < t[3])
+        if (v1 >= t[0] && v1 < t[1] && v2 >= t[2] && v2 < t[3])
         {
           uniqueRowIds->InsertUniqueId(k);
         }
@@ -384,7 +380,7 @@ int vtkComputeHistogram2DOutliers::FillOutlierIds(vtkTable* data, vtkCollection*
   }
 
   rowIds->Initialize();
-  for (int i=0; i<uniqueRowIds->GetNumberOfIds(); i++)
+  for (int i = 0; i < uniqueRowIds->GetNumberOfIds(); i++)
   {
     rowIds->InsertNextValue(uniqueRowIds->GetId(i));
   }
@@ -394,7 +390,7 @@ int vtkComputeHistogram2DOutliers::FillOutlierIds(vtkTable* data, vtkCollection*
 
   // initialize the output table
   outTable->Initialize();
-  for (int i=0; i<numColumns; i++)
+  for (int i = 0; i < numColumns; i++)
   {
     vtkDataArray* a = vtkDataArray::CreateDataArray(data->GetColumn(i)->GetDataType());
     a->SetNumberOfComponents(data->GetColumn(i)->GetNumberOfComponents());
@@ -403,13 +399,12 @@ int vtkComputeHistogram2DOutliers::FillOutlierIds(vtkTable* data, vtkCollection*
     a->Delete();
   }
 
-  for (int i=0; i<rowIds->GetNumberOfTuples(); i++)
+  for (int i = 0; i < rowIds->GetNumberOfTuples(); i++)
   {
     outTable->InsertNextRow(data->GetRow(rowIds->GetValue(i)));
   }
 
   return 1;
-
 }
 //------------------------------------------------------------------------------
 vtkTable* vtkComputeHistogram2DOutliers::GetOutputTable()
@@ -418,3 +413,4 @@ vtkTable* vtkComputeHistogram2DOutliers::GetOutputTable()
     this->Update();
   return vtkTable::SafeDownCast(this->GetOutputDataObject(OUTPUT_SELECTED_TABLE_DATA));
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPDataWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLPDataWriter.h"
 
 #include "vtkCallbackCommand.h"
@@ -25,19 +13,20 @@
 
 #include <vtksys/SystemTools.hxx>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLPDataWriter::vtkXMLPDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPDataWriter::~vtkXMLPDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataWriter::WritePData(vtkIndent indent)
 {
   vtkDataSet* input = this->GetInputAsDataSet();
@@ -50,15 +39,15 @@ void vtkXMLPDataWriter::WritePData(vtkIndent indent)
     this->DataMode = vtkXMLWriter::Binary;
   }
 
-  vtkFieldData *fieldData = input->GetFieldData();
+  vtkFieldData* fieldData = input->GetFieldData();
 
   vtkInformation* meta = input->GetInformation();
-  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
-  if ((fieldData && fieldData->GetNumberOfArrays()) || hasTime)
+  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) != 0;
+  if ((fieldData && fieldData->GetNumberOfArrays()) || (hasTime && this->GetWriteTimeValue()))
   {
     vtkNew<vtkFieldData> fieldDataCopy;
     fieldDataCopy->ShallowCopy(fieldData);
-    if (hasTime)
+    if (hasTime && this->GetWriteTimeValue())
     {
       vtkNew<vtkDoubleArray> time;
       time->SetNumberOfTuples(1);
@@ -79,7 +68,7 @@ void vtkXMLPDataWriter::WritePData(vtkIndent indent)
   this->WritePCellData(input->GetCellData(), indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPDataWriter::WritePieceInternal()
 {
   int piece = this->GetCurrentPiece();
@@ -99,7 +88,7 @@ int vtkXMLPDataWriter::WritePieceInternal()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPDataWriter::WritePiece(int index)
 {
   // Create the writer for the piece.  Its configuration should match
@@ -124,6 +113,7 @@ int vtkXMLPDataWriter::WritePiece(int index)
   pWriter->SetEncodeAppendedData(this->EncodeAppendedData);
   pWriter->SetHeaderType(this->HeaderType);
   pWriter->SetBlockSize(this->BlockSize);
+  pWriter->SetWriteTimeValue(this->GetWriteTimeValue());
 
   // Write the piece.
   int result = pWriter->Write();
@@ -136,13 +126,14 @@ int vtkXMLPDataWriter::WritePiece(int index)
   return result;
 }
 
-//----------------------------------------------------------------------------
-void vtkXMLPDataWriter::WritePrimaryElementAttributes(std::ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent))
+//------------------------------------------------------------------------------
+void vtkXMLPDataWriter::WritePrimaryElementAttributes(
+  std::ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent))
 {
   this->WriteScalarAttribute("GhostLevel", this->GhostLevel);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataWriter::SetupPieceFileNameExtension()
 {
   this->Superclass::SetupPieceFileNameExtension();
@@ -155,3 +146,4 @@ void vtkXMLPDataWriter::SetupPieceFileNameExtension()
   strcpy(this->PieceFileNameExtension + 1, ext);
   writer->Delete();
 }
+VTK_ABI_NAMESPACE_END

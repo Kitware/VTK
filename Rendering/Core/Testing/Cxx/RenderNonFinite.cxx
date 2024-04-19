@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    SurfacePlusEdges.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 // This test draws a stick with non-finite values.  The topology of the stick is
 // as follows.
@@ -46,30 +31,28 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkDiscretizableColorTransferFunction.h"
 #include "vtkDoubleArray.h"
-#include "vtkLookupTable.h"
 #include "vtkLogLookupTable.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, var) \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
 // Create the data described above.
 static vtkSmartPointer<vtkPolyData> CreateData()
 {
   const int cellsHigh = 6;
   const int pointsHigh = cellsHigh + 1;
-  const double pointValues[pointsHigh] = {
-    vtkMath::NegInf(), 0.0, 0.5, vtkMath::Nan(), 0.5, 1.0, vtkMath::Inf()
-  };
+  const double pointValues[pointsHigh] = { vtkMath::NegInf(), 0.0, 0.5, vtkMath::Nan(), 0.5, 1.0,
+    vtkMath::Inf() };
 
   VTK_CREATE(vtkPolyData, polyData);
 
@@ -78,8 +61,7 @@ static vtkSmartPointer<vtkPolyData> CreateData()
   {
     for (int x = 0; x < 2; x++)
     {
-      points->InsertNextPoint(static_cast<double>(x),
-                              static_cast<double>(y), 0.0);
+      points->InsertNextPoint(static_cast<double>(x), static_cast<double>(y), 0.0);
     }
   }
   polyData->SetPoints(points);
@@ -88,10 +70,10 @@ static vtkSmartPointer<vtkPolyData> CreateData()
   for (int c = 0; c < cellsHigh; c++)
   {
     cells->InsertNextCell(4);
-    cells->InsertCellPoint(2*c);
-    cells->InsertCellPoint(2*c+1);
-    cells->InsertCellPoint(2*c+3);
-    cells->InsertCellPoint(2*c+2);
+    cells->InsertCellPoint(2 * c);
+    cells->InsertCellPoint(2 * c + 1);
+    cells->InsertCellPoint(2 * c + 3);
+    cells->InsertCellPoint(2 * c + 2);
   }
   polyData->SetPolys(cells);
 
@@ -138,31 +120,29 @@ static vtkSmartPointer<vtkColorTransferFunction> CreateColorTransferFunction()
 
   ctf->SetColorSpaceToHSV();
   ctf->HSVWrapOff();
-  ctf->AddHSVSegment(0.0, 0.6, 1.0, 1.0,
-                     1.0, 0.0, 1.0, 1.0);
+  ctf->AddHSVSegment(0.0, 0.6, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0);
   ctf->SetNanColor(1.0, 0.0, 1.0);
 
   return ctf;
 }
 
-static vtkSmartPointer<vtkDiscretizableColorTransferFunction> CreateDiscretizableColorTransferFunction()
+static vtkSmartPointer<vtkDiscretizableColorTransferFunction>
+CreateDiscretizableColorTransferFunction()
 {
   VTK_CREATE(vtkDiscretizableColorTransferFunction, ctf);
 
   ctf->DiscretizeOn();
   ctf->SetColorSpaceToHSV();
   ctf->HSVWrapOff();
-  ctf->AddHSVSegment(0.0, 0.6, 1.0, 1.0,
-                     1.0, 0.0, 1.0, 1.0);
+  ctf->AddHSVSegment(0.0, 0.6, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0);
   ctf->SetNanColor(1.0, 0.0, 1.0);
   ctf->Build();
 
   return ctf;
 }
 
-static vtkSmartPointer<vtkRenderer> CreateRenderer(vtkPolyData *input,
-                                                   vtkScalarsToColors *lut,
-                                                   int interpolate)
+static vtkSmartPointer<vtkRenderer> CreateRenderer(
+  vtkPolyData* input, vtkScalarsToColors* lut, int interpolate)
 {
   VTK_CREATE(vtkPolyDataMapper, mapper);
   mapper->SetInputData(input);
@@ -180,16 +160,16 @@ static vtkSmartPointer<vtkRenderer> CreateRenderer(vtkPolyData *input,
 }
 
 const int NUM_RENDERERS = 8;
-static void AddRenderer(vtkRenderer *renderer, vtkRenderWindow *renwin)
+static void AddRenderer(vtkRenderer* renderer, vtkRenderWindow* renwin)
 {
   static int rencount = 0;
-  renderer->SetViewport(static_cast<double>(rencount)/NUM_RENDERERS, 0.0,
-                        static_cast<double>(rencount+1)/NUM_RENDERERS, 1.0);
+  renderer->SetViewport(static_cast<double>(rencount) / NUM_RENDERERS, 0.0,
+    static_cast<double>(rencount + 1) / NUM_RENDERERS, 1.0);
   renwin->AddRenderer(renderer);
   rencount++;
 }
 
-int RenderNonFinite(int argc, char *argv[])
+int RenderNonFinite(int argc, char* argv[])
 {
   vtkSmartPointer<vtkPolyData> input = CreateData();
 

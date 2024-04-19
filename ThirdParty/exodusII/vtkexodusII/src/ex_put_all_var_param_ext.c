@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 /*****************************************************************************
  *
@@ -46,7 +19,7 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for ex_get_dimension, etc
+#include "exodusII_int.h" // for ex__get_dimension, etc
 
 static int  define_dimension(int exoid, const char *DIMENSION, int count, const char *label,
                              int *dimid);
@@ -64,7 +37,7 @@ static int  ex_define_vars(int exoid, ex_entity_type obj_type, const char *entit
 
 #define EX_GET_IDS_STATUS(TNAME, NUMVAR, DNAME, DID, DVAL, VIDS, EIDS, VSTAT, VSTATVAL)            \
   if (NUMVAR > 0) {                                                                                \
-    status = ex_get_dimension(exoid, DNAME, TNAME "s", &DVAL, &DID, __func__);                     \
+    status = ex__get_dimension(exoid, DNAME, TNAME "s", &DVAL, &DID, __func__);                    \
     if (status != NC_NOERR)                                                                        \
       goto error_ret;                                                                              \
                                                                                                    \
@@ -130,7 +103,9 @@ int ex_put_all_var_param_ext(int exoid, const ex_var_params *vp)
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   /* inquire previously defined dimensions  */
 
@@ -191,7 +166,7 @@ int ex_put_all_var_param_ext(int exoid, const ex_var_params *vp)
       ex_err_fn(exoid, __func__, errmsg, status);
       goto error_ret; /* exit define mode and return */
     }
-    ex_compress_variable(exoid, varid, 2);
+    ex__compress_variable(exoid, varid, 2);
 
     /* Now define global variable name variable */
     if (define_variable_name_variable(exoid, VAR_NAME_GLO_VAR, dimid, "global") != NC_NOERR) {
@@ -215,7 +190,7 @@ int ex_put_all_var_param_ext(int exoid, const ex_var_params *vp)
           ex_err_fn(exoid, __func__, errmsg, status);
           goto error_ret; /* exit define mode and return */
         }
-        ex_compress_variable(exoid, varid, 2);
+        ex__compress_variable(exoid, varid, 2);
       }
     }
 
@@ -284,7 +259,7 @@ int ex_put_all_var_param_ext(int exoid, const ex_var_params *vp)
   /* leave define mode  */
 
   in_define = 0;
-  if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
     goto error_ret;
   }
 
@@ -342,7 +317,7 @@ int ex_put_all_var_param_ext(int exoid, const ex_var_params *vp)
 /* Fatal error: exit definition mode and return */
 error_ret:
   if (in_define == 1) {
-    ex_leavedef(exoid, __func__);
+    ex__leavedef(exoid, __func__);
   }
   free(eblk_ids);
   free(edblk_ids);
@@ -413,6 +388,7 @@ static int define_variable_name_variable(int exoid, const char *VARIABLE, int di
       ex_err_fn(exoid, __func__, errmsg, status);
     }
   }
+  ex__set_compact_storage(exoid, variable);
 #if NC_HAS_HDF5
   nc_def_var_fill(exoid, variable, 0, &fill);
 #endif
@@ -513,7 +489,7 @@ static int define_truth_table(ex_entity_type obj_type, int exoid, int num_ent, i
 
           /* Determine number of entities in entity */
           /* Need way to make this more generic... */
-          status = nc_inq_dimid(exoid, ex_dim_num_entries_in_object(obj_type, i + 1), &dims[1]);
+          status = nc_inq_dimid(exoid, ex__dim_num_entries_in_object(obj_type, i + 1), &dims[1]);
           if (status != NC_NOERR) {
             snprintf(errmsg, MAX_ERR_LENGTH,
                      "ERROR: failed to locate number of entities in %s %" PRId64 " in file id %d",
@@ -527,7 +503,7 @@ static int define_truth_table(ex_entity_type obj_type, int exoid, int num_ent, i
            * that the index of the EXODUS variable (which is part of
            * the name of the netCDF variable) will begin at 1 instead of 0
            */
-          status = nc_def_var(exoid, ex_name_var_of_object(obj_type, j, i + 1), nc_flt_code(exoid),
+          status = nc_def_var(exoid, ex__name_var_of_object(obj_type, j, i + 1), nc_flt_code(exoid),
                               2, dims, &varid);
           if (status != NC_NOERR) {
             if (status != NC_ENAMEINUSE) {
@@ -538,7 +514,7 @@ static int define_truth_table(ex_entity_type obj_type, int exoid, int num_ent, i
               return (status);
             }
           }
-          ex_compress_variable(exoid, varid, 2);
+          ex__compress_variable(exoid, varid, 2);
         }
       }    /* if */
       k++; /* increment truth table pointer */
@@ -589,6 +565,7 @@ static int ex_define_vars(int exoid, ex_entity_type obj_type, const char *entity
       ex_err_fn(exoid, __func__, errmsg, status);
       return status;
     }
+    ex__set_compact_storage(exoid, *truth_table_var);
   }
   return NC_NOERR;
 }

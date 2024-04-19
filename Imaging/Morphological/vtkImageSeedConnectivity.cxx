@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageSeedConnectivity.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageSeedConnectivity.h"
 
 #include "vtkImageConnector.h"
@@ -21,9 +9,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSeedConnectivity);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSeedConnectivity::vtkImageSeedConnectivity()
 {
   this->InputConnectValue = 255;
@@ -34,17 +23,17 @@ vtkImageSeedConnectivity::vtkImageSeedConnectivity()
   this->Dimensionality = 3;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSeedConnectivity::~vtkImageSeedConnectivity()
 {
   this->Connector->Delete();
   this->RemoveAllSeeds();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSeedConnectivity::RemoveAllSeeds()
 {
-  vtkImageConnectorSeed *temp;
+  vtkImageConnectorSeed* temp;
   while (this->Seeds)
   {
     temp = this->Seeds;
@@ -53,11 +42,11 @@ void vtkImageSeedConnectivity::RemoveAllSeeds()
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkImageSeedConnectivity::AddSeed(int num, int *index)
+//------------------------------------------------------------------------------
+void vtkImageSeedConnectivity::AddSeed(int num, int* index)
 {
   int idx, newIndex[3];
-  vtkImageConnectorSeed *seed;
+  vtkImageConnectorSeed* seed;
 
   if (num > 3)
   {
@@ -77,7 +66,7 @@ void vtkImageSeedConnectivity::AddSeed(int num, int *index)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSeedConnectivity::AddSeed(int i0, int i1, int i2)
 {
   int index[3];
@@ -88,7 +77,7 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1, int i2)
   this->AddSeed(3, index);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
 {
   int index[2];
@@ -98,35 +87,28 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
   this->AddSeed(2, index);
 }
 
-//----------------------------------------------------------------------------
-int vtkImageSeedConnectivity::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
+//------------------------------------------------------------------------------
+int vtkImageSeedConnectivity::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-              inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
-              6);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
 
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkImageSeedConnectivity::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkImageSeedConnectivity::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkImageData *inData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData *outData = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* inData = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* outData = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkImageConnectorSeed *seed;
+  vtkImageConnectorSeed* seed;
   int idx0, idx1, idx2;
   vtkIdType inInc0, inInc1, inInc2;
   vtkIdType outInc0, outInc1, outInc2;
@@ -136,12 +118,10 @@ int vtkImageSeedConnectivity::RequestData(
   unsigned char temp1, temp2;
   int temp;
 
-  outData->SetExtent(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  outData->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   outData->AllocateScalars(outInfo);
 
-  if (inData->GetScalarType() != VTK_UNSIGNED_CHAR ||
-      outData->GetScalarType() != VTK_UNSIGNED_CHAR)
+  if (inData->GetScalarType() != VTK_UNSIGNED_CHAR || outData->GetScalarType() != VTK_UNSIGNED_CHAR)
   {
     vtkErrorMacro("Execute: Both input and output must have scalar type UnsignedChar");
     return 1;
@@ -149,16 +129,14 @@ int vtkImageSeedConnectivity::RequestData(
 
   // Pick an intermediate value (In some cases, we could eliminate the last threshold.)
   temp1 = 1;
-  while (temp1 == this->InputConnectValue ||
-         temp1 == this->OutputUnconnectedValue ||
-         temp1 == this->OutputConnectedValue)
+  while (temp1 == this->InputConnectValue || temp1 == this->OutputUnconnectedValue ||
+    temp1 == this->OutputConnectedValue)
   {
     ++temp1;
   }
   temp2 = temp1 + 1;
-  while (temp2 == this->InputConnectValue ||
-         temp2 == this->OutputUnconnectedValue ||
-         temp2 == this->OutputConnectedValue)
+  while (temp2 == this->InputConnectValue || temp2 == this->OutputUnconnectedValue ||
+    temp2 == this->OutputConnectedValue)
   {
     ++temp2;
   }
@@ -168,10 +146,8 @@ int vtkImageSeedConnectivity::RequestData(
   inData->GetIncrements(inInc0, inInc1, inInc2);
   this->GetOutput()->GetExtent(min0, max0, min1, max1, min2, max2);
   outData->GetIncrements(outInc0, outInc1, outInc2);
-  inPtr2 = static_cast<unsigned char *>(
-    inData->GetScalarPointer(min0,min1,min2));
-  outPtr2 = static_cast<unsigned char *>(
-    outData->GetScalarPointer(min0,min1,min2));
+  inPtr2 = static_cast<unsigned char*>(inData->GetScalarPointer(min0, min1, min2));
+  outPtr2 = static_cast<unsigned char*>(outData->GetScalarPointer(min0, min1, min2));
   for (idx2 = min2; idx2 <= max2; ++idx2)
   {
     inPtr1 = inPtr2;
@@ -222,8 +198,7 @@ int vtkImageSeedConnectivity::RequestData(
     {
       seed->Index[2] = max2;
     }
-    outPtr0 = static_cast<unsigned char *>(
-      outData->GetScalarPointer(seed->Index));
+    outPtr0 = static_cast<unsigned char*>(outData->GetScalarPointer(seed->Index));
     for (idx0 = temp; idx0 <= max0; ++idx0)
     {
       if (*outPtr0 == temp1)
@@ -248,8 +223,7 @@ int vtkImageSeedConnectivity::RequestData(
   // connect
   this->Connector->SetUnconnectedValue(temp1);
   this->Connector->SetConnectedValue(temp2);
-  this->Connector->MarkData(outData, this->Dimensionality,
-                            this->GetOutput()->GetExtent());
+  this->Connector->MarkData(outData, this->Dimensionality, this->GetOutput()->GetExtent());
 
   this->UpdateProgress(0.9);
   if (this->AbortExecute)
@@ -259,8 +233,7 @@ int vtkImageSeedConnectivity::RequestData(
 
   //-------
   // Threshold to convert intermediate values into OutputUnconnectedValues
-  outPtr2 = static_cast<unsigned char *>(
-    outData->GetScalarPointer(min0,min1,min2));
+  outPtr2 = static_cast<unsigned char*>(outData->GetScalarPointer(min0, min1, min2));
   for (idx2 = min2; idx2 <= max2; ++idx2)
   {
     outPtr1 = outPtr2;
@@ -281,7 +254,7 @@ int vtkImageSeedConnectivity::RequestData(
       }
       outPtr1 += outInc1;
     }
-     outPtr2 += outInc2;
+    outPtr2 += outInc2;
   }
 
   return 1;
@@ -289,9 +262,9 @@ int vtkImageSeedConnectivity::RequestData(
 
 void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->Connector )
+  if (this->Connector)
   {
     os << indent << "Connector: " << this->Connector << "\n";
   }
@@ -305,3 +278,4 @@ void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputConnectedValue: " << this->OutputConnectedValue << "\n";
   os << indent << "OutputUnconnectedValue: " << this->OutputUnconnectedValue << "\n";
 }
+VTK_ABI_NAMESPACE_END

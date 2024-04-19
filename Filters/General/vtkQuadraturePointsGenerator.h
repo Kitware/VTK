@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQuadraturePointsGenerator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkQuadraturePointsGenerator
  *
@@ -25,49 +13,58 @@
  * its own dictionary.
  *
  * @sa
- * vtkQuadraturePointInterpolator, vtkQuadratureSchemeDefinition, vtkInformationQuadratureSchemeDefinitionVectorKey
-*/
+ * vtkQuadraturePointInterpolator, vtkQuadratureSchemeDefinition,
+ * vtkInformationQuadratureSchemeDefinitionVectorKey
+ */
 
 #ifndef vtkQuadraturePointsGenerator_h
 #define vtkQuadraturePointsGenerator_h
 
+#include "vtkDataSetAlgorithm.h"
+#include "vtkDeprecation.h"          // for deprecation
 #include "vtkFiltersGeneralModule.h" // For export macro
-#include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+class vtkDataSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
 class vtkInformation;
 class vtkInformationVector;
 
-class VTKFILTERSGENERAL_EXPORT vtkQuadraturePointsGenerator : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkQuadraturePointsGenerator : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkQuadraturePointsGenerator,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkQuadraturePointsGenerator, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkQuadraturePointsGenerator *New();
+  static vtkQuadraturePointsGenerator* New();
 
 protected:
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** input, vtkInformationVector* output) override;
 
-  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output) override;
-
+  ///@{
   /**
    * Generate the point set .
    */
-  int Generate(vtkUnstructuredGrid *usgIn,
-                vtkDataArray* offsets,
-                vtkPolyData *pdOut);
+  int Generate(vtkDataSet* datasetIn, vtkDataArray* offsets, vtkPolyData* pdOut);
+  VTK_DEPRECATED_IN_9_4_0("Uses the vtkDataSet version instead.")
+  int Generate(vtkUnstructuredGrid* usgIn, vtkDataArray* offsets, vtkPolyData* pdOut);
+  ///@}
 
-  int GenerateField(vtkUnstructuredGrid *usgIn,
-                vtkDataArray* data,
-                vtkDataArray* offsets,
-                vtkPolyData* pdOut);
+  int GenerateField(
+    vtkDataSet* datasetIn, vtkDataArray* data, vtkDataArray* offsets, vtkPolyData* pdOut);
+  VTK_DEPRECATED_IN_9_4_0("Uses the vtkDataSet version instead.")
+  int GenerateField(
+    vtkUnstructuredGrid* usgIn, vtkDataArray* data, vtkDataArray* offsets, vtkPolyData* pdOut);
 
   vtkQuadraturePointsGenerator();
   ~vtkQuadraturePointsGenerator() override;
+
 private:
-  vtkQuadraturePointsGenerator(const vtkQuadraturePointsGenerator &) = delete;
-  void operator=(const vtkQuadraturePointsGenerator &) = delete;
+  vtkQuadraturePointsGenerator(const vtkQuadraturePointsGenerator&) = delete;
+  void operator=(const vtkQuadraturePointsGenerator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

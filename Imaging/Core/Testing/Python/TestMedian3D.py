@@ -1,17 +1,22 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkPNGReader
+from vtkmodules.vtkImagingGeneral import vtkImageMedian3D
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Test the median filter.
 # Image pipeline
-reader = vtk.vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
-median = vtk.vtkImageMedian3D()
+reader = vtkPNGReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
+median = vtkImageMedian3D()
 median.SetInputConnection(reader.GetOutputPort())
 median.SetKernelSize(7,7,1)
 median.ReleaseDataFlagOff()
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 #viewer DebugOn
 viewer.SetInputConnection(median.GetOutputPort())
 viewer.SetColorWindow(2000)

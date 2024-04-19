@@ -1,22 +1,6 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkMultiCorrelativeStatistics.h
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2010 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
-  -------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2010 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkMultiCorrelativeStatistics
  * @brief   A class for multivariate linear correlation
@@ -73,7 +57,7 @@ PURPOSE.  See the above copyright notice for more information.
  * Sandia National Laboratories for implementing this class.
  * Updated by Philippe Pebay, Kitware SAS 2012
  * Updated by Tristan Coulange and Joachim Pouderoux, Kitware SAS 2013
-*/
+ */
 
 #ifndef vtkMultiCorrelativeStatistics_h
 #define vtkMultiCorrelativeStatistics_h
@@ -81,6 +65,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkMultiBlockDataSet;
 class vtkOrderStatistics;
@@ -90,68 +75,75 @@ class VTKFILTERSSTATISTICS_EXPORT vtkMultiCorrelativeStatistics : public vtkStat
 {
 public:
   vtkTypeMacro(vtkMultiCorrelativeStatistics, vtkStatisticsAlgorithm);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkMultiCorrelativeStatistics* New();
 
   /**
    * Given a collection of models, calculate aggregate model
    */
-  void Aggregate( vtkDataObjectCollection*,
-                          vtkMultiBlockDataSet* ) override;
+  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override;
 
-  //@{
+  ///@{
   /**
    * If set to true, the covariance matrix is replaced by
    * the Median Absolute Deviation matrix.
    * Default is false.
    */
-  vtkSetMacro( MedianAbsoluteDeviation, bool );
-  vtkGetMacro( MedianAbsoluteDeviation, bool );
-  vtkBooleanMacro( MedianAbsoluteDeviation, bool );
-  //@}
+  vtkSetMacro(MedianAbsoluteDeviation, bool);
+  vtkGetMacro(MedianAbsoluteDeviation, bool);
+  vtkBooleanMacro(MedianAbsoluteDeviation, bool);
+  ///@}
+
+  ///@{
+  /** If there is a ghost array in the input, then ghosts matching `GhostsToSkip` mask
+   * will be skipped. It is set to 0xff by default (every ghosts types are skipped).
+   *
+   * @sa
+   * vtkDataSetAttributes
+   * vtkFieldData
+   * vtkPointData
+   * vtkCellData
+   */
+  vtkSetMacro(GhostsToSkip, unsigned char);
+  vtkGetMacro(GhostsToSkip, unsigned char);
+  ///@}
 
 protected:
   vtkMultiCorrelativeStatistics();
   ~vtkMultiCorrelativeStatistics() override;
 
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
   /**
    * Execute the calculations required by the Learn option.
    */
-  void Learn( vtkTable*,
-              vtkTable*,
-              vtkMultiBlockDataSet* ) override;
+  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive( vtkMultiBlockDataSet* ) override;
+  void Derive(vtkMultiBlockDataSet*) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess( vtkTable*,
-               vtkMultiBlockDataSet*,
-               vtkTable* ) override;
+  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test( vtkTable*,
-             vtkMultiBlockDataSet*,
-             vtkTable* ) override { return; }
+  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
 
   /**
    * Provide the appropriate assessment functor.
    */
-  void SelectAssessFunctor( vtkTable* inData,
-                            vtkDataObject* inMeta,
-                            vtkStringArray* rowNames,
-                            AssessFunctor*& dfunc ) override;
+  void SelectAssessFunctor(vtkTable* inData, vtkDataObject* inMeta, vtkStringArray* rowNames,
+    AssessFunctor*& dfunc) override;
 
   /**
    * Computes the median of inData with vtkOrderStatistics.
    */
-  virtual void ComputeMedian( vtkTable* inData, vtkTable* outData );
+  virtual void ComputeMedian(vtkTable* inData, vtkTable* outData);
 
   /**
    * Return a new vtkOrderStatistics instance.
@@ -161,11 +153,17 @@ protected:
 
   bool MedianAbsoluteDeviation;
 
+  /**
+   * Storing the number of ghosts in the input to avoid computing this value multiple times.
+   */
+  vtkIdType NumberOfGhosts;
+
+  unsigned char GhostsToSkip;
+
 private:
-  vtkMultiCorrelativeStatistics( const vtkMultiCorrelativeStatistics& ) = delete;
-  void operator = ( const vtkMultiCorrelativeStatistics& ) = delete;
+  vtkMultiCorrelativeStatistics(const vtkMultiCorrelativeStatistics&) = delete;
+  void operator=(const vtkMultiCorrelativeStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

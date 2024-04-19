@@ -1,28 +1,17 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGarbageCollectorManager.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGarbageCollectorManager.h"
 
 #include "vtkGarbageCollector.h"
 
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
+VTK_ABI_NAMESPACE_BEGIN
 static unsigned int vtkGarbageCollectorManagerCount;
 
 vtkGarbageCollectorManager::vtkGarbageCollectorManager()
 {
-  if(++vtkGarbageCollectorManagerCount == 1)
+  if (++vtkGarbageCollectorManagerCount == 1)
   {
     vtkGarbageCollector::ClassInitialize();
   }
@@ -30,8 +19,9 @@ vtkGarbageCollectorManager::vtkGarbageCollectorManager()
 
 vtkGarbageCollectorManager::~vtkGarbageCollectorManager()
 {
-  if(--vtkGarbageCollectorManagerCount == 0)
+  if (--vtkGarbageCollectorManagerCount == 0)
   {
     vtkGarbageCollector::ClassFinalize();
   }
 }
+VTK_ABI_NAMESPACE_END

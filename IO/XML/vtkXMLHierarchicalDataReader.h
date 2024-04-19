@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Program:   ParaView
-  Module:    vtkXMLHierarchicalDataReader.h
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLHierarchicalDataReader
  * @brief   Reader for hierarchical datasets
@@ -24,7 +13,7 @@
  * for that level. If the number of sub-blocks is larger than the
  * number of processors, each processor will possibly have more than
  * 1 sub-block.
-*/
+ */
 
 #ifndef vtkXMLHierarchicalDataReader_h
 #define vtkXMLHierarchicalDataReader_h
@@ -32,13 +21,14 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLMultiGroupDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHierarchicalDataSet;
 
 class VTKIOXML_EXPORT vtkXMLHierarchicalDataReader : public vtkXMLMultiGroupDataReader
 {
 public:
   static vtkXMLHierarchicalDataReader* New();
-  vtkTypeMacro(vtkXMLHierarchicalDataReader,vtkXMLMultiGroupDataReader);
+  vtkTypeMacro(vtkXMLHierarchicalDataReader, vtkXMLMultiGroupDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -46,14 +36,12 @@ protected:
   ~vtkXMLHierarchicalDataReader() override;
 
   // Get the name of the data set being read.
-  const char* GetDataSetName() override
-  {
-    return "vtkHierarchicalDataSet";
-  }
+  const char* GetDataSetName() override { return "vtkHierarchicalDataSet"; }
 
 private:
   vtkXMLHierarchicalDataReader(const vtkXMLHierarchicalDataReader&) = delete;
   void operator=(const vtkXMLHierarchicalDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPCAAnalysisFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPCAAnalysisFilter
  * @brief   Performs principal component analysis of a set of aligned pointsets
@@ -45,7 +33,7 @@
  *
  * @sa
  * vtkProcrustesAlignmentFilter
-*/
+ */
 
 #ifndef vtkPCAAnalysisFilter_h
 #define vtkPCAAnalysisFilter_h
@@ -53,13 +41,14 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkPointSet;
 
 class VTKFILTERSHYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSetAlgorithm
 {
- public:
-  vtkTypeMacro(vtkPCAAnalysisFilter,vtkMultiBlockDataSetAlgorithm);
+public:
+  vtkTypeMacro(vtkPCAAnalysisFilter, vtkMultiBlockDataSetAlgorithm);
 
   /**
    * Prints information about the state of the filter.
@@ -69,14 +58,14 @@ class VTKFILTERSHYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSet
   /**
    * Creates with similarity transform.
    */
-  static vtkPCAAnalysisFilter *New();
+  static vtkPCAAnalysisFilter* New();
 
-  //@{
+  ///@{
   /**
    * Get the vector of eigenvalues sorted in descending order
    */
   vtkGetObjectMacro(Evals, vtkFloatArray);
-  //@}
+  ///@}
 
   /**
    * Fills the shape with:
@@ -91,7 +80,7 @@ class VTKFILTERSHYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSet
    * This function assumes that shape is already allocated
    * with the right size, it just moves the points.
    */
-  void GetParameterisedShape(vtkFloatArray *b, vtkPointSet* shape);
+  void GetParameterisedShape(vtkFloatArray* b, vtkPointSet* shape);
 
   /**
    * Return the bsize parameters b that best model the given shape
@@ -103,7 +92,7 @@ class VTKFILTERSHYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSet
    * ...
    * + b[bsize-1] * sqrt(eigenvalue[bsize-1]) * eigenvector[bsize-1]
    */
-  void GetShapeParameters(vtkPointSet *shape, vtkFloatArray *b, int bsize);
+  void GetShapeParameters(vtkPointSet* shape, vtkFloatArray* b, int bsize);
 
   /**
    * Retrieve how many modes are necessary to model the given proportion of the variation.
@@ -118,22 +107,21 @@ protected:
   /**
    * Usual data generation method.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkPCAAnalysisFilter(const vtkPCAAnalysisFilter&) = delete;
   void operator=(const vtkPCAAnalysisFilter&) = delete;
 
   // Eigenvalues
-  vtkFloatArray *Evals;
+  vtkFloatArray* Evals;
 
   // Matrix where each column is an eigenvector
-  double **evecMat2;
+  double** evecMat2;
 
   // The mean shape in a vector
-  double *meanshape;
+  double* meanshape;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

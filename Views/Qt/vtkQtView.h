@@ -1,14 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtView.h
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkQtView
  * @brief   Superclass for Qt widget-based views.
@@ -18,21 +10,23 @@
  * into the VTK view framework. Not much here yet, but in the future there
  * could be methods around selection, event-handling, drag-and-drop, etc.
  *
-*/
+ */
 
 #ifndef vtkQtView_h
 #define vtkQtView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkView.h"
+#include "vtkViewsQtModule.h" // For export macro
 
 #include <QObject> // Needed to hook into Qt
 
-class VTKVIEWSQT_EXPORT vtkQtView : public QObject, public vtkView
+VTK_ABI_NAMESPACE_BEGIN
+class VTKVIEWSQT_EXPORT vtkQtView
+  : public QObject
+  , public vtkView
 {
-Q_OBJECT
+  Q_OBJECT
 public:
-
   vtkTypeMacro(vtkQtView, vtkView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -42,7 +36,7 @@ public:
    * to GetWidget(): something like this
    * this->ui->box->layout()->addWidget(this->View->GetWidget());
    */
-  virtual QWidget* GetWidget()=0;
+  virtual QWidget* GetWidget() = 0;
 
   /**
    * Calls QApplication::processEvents().  This is useful if you are using QWidgets
@@ -62,7 +56,7 @@ public:
    * be determined from the filename.  Qt's image format support may vary, usually
    * bmp, jpg, ppm, or png is a safe choice.  Returns false if there was a failure.
    */
-  virtual bool SaveImage(const char* fileName);
+  virtual bool SaveImage(VTK_FILEPATH const char* fileName);
 
 protected:
   vtkQtView();
@@ -71,8 +65,8 @@ protected:
 private:
   vtkQtView(const vtkQtView&) = delete;
   void operator=(const vtkQtView&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtView.h

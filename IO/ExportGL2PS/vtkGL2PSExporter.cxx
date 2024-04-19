@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGL2PSExporter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkGL2PSExporter.h"
 
@@ -23,8 +11,9 @@
 
 #include <vector>
 
-vtkAbstractObjectFactoryNewMacro(vtkGL2PSExporter)
-vtkCxxSetObjectMacro(vtkGL2PSExporter, RasterExclusions, vtkPropCollection)
+VTK_ABI_NAMESPACE_BEGIN
+vtkAbstractObjectFactoryNewMacro(vtkGL2PSExporter);
+vtkCxxSetObjectMacro(vtkGL2PSExporter, RasterExclusions, vtkPropCollection);
 
 vtkGL2PSExporter::vtkGL2PSExporter()
 {
@@ -52,8 +41,8 @@ vtkGL2PSExporter::vtkGL2PSExporter()
 vtkGL2PSExporter::~vtkGL2PSExporter()
 {
   this->SetRasterExclusions(nullptr);
-  delete [] this->FilePrefix;
-  delete [] this->Title;
+  delete[] this->FilePrefix;
+  delete[] this->Title;
 }
 
 int vtkGL2PSExporter::GetGL2PSOptions()
@@ -103,7 +92,7 @@ int vtkGL2PSExporter::GetGL2PSSort()
   switch (this->Sort)
   {
     default:
-      vtkDebugMacro(<<"Invalid sort settings, using NO_SORT.");
+      vtkDebugMacro(<< "Invalid sort settings, using NO_SORT.");
       VTK_FALLTHROUGH;
     case NO_SORT:
       return GL2PS_NO_SORT;
@@ -119,7 +108,7 @@ int vtkGL2PSExporter::GetGL2PSFormat()
   switch (this->FileFormat)
   {
     default:
-      vtkDebugMacro(<<"Invalid output format. Using postscript.");
+      vtkDebugMacro(<< "Invalid output format. Using postscript.");
       VTK_FALLTHROUGH;
     case PS_FILE:
       return GL2PS_PS;
@@ -134,12 +123,12 @@ int vtkGL2PSExporter::GetGL2PSFormat()
   }
 }
 
-const char *vtkGL2PSExporter::GetFileExtension()
+const char* vtkGL2PSExporter::GetFileExtension()
 {
   switch (this->FileFormat)
   {
     default:
-      vtkDebugMacro(<<"Invalid output format. Using postscript.");
+      vtkDebugMacro(<< "Invalid output format. Using postscript.");
       VTK_FALLTHROUGH;
     case PS_FILE:
       return "ps";
@@ -156,7 +145,7 @@ const char *vtkGL2PSExporter::GetFileExtension()
 
 void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   if (this->FilePrefix)
   {
@@ -167,30 +156,19 @@ void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "FilePrefix: (null)\n";
   }
 
-  os << indent << "FileFormat: "
-     << this->GetFileFormatAsString() << "\n";
-  os << indent << "Sort: "
-     << this->GetSortAsString() << "\n";
-  os << indent << "Compress: "
-     << (this->Compress ? "On\n" : "Off\n");
-  os << indent << "DrawBackground: "
-     << (this->DrawBackground ? "On\n" : "Off\n");
-  os << indent << "SimpleLineOffset: "
-     << (this->SimpleLineOffset ? "On\n" : "Off\n");
-  os << indent << "Silent: "
-     << (this->Silent ? "On\n" : "Off\n");
-  os << indent << "BestRoot: "
-     << (this->BestRoot ? "On\n" : "Off\n");
-  os << indent << "Text: "
-     << (this->Text ? "On\n" : "Off\n");
-  os << indent << "Landscape: "
-     << (this->Landscape ? "On\n" : "Off\n");
-  os << indent << "PS3Shading: "
-     << (this->PS3Shading ? "On\n" : "Off\n");
-  os << indent << "OcclusionCull: "
-     << (this->OcclusionCull ? "On\n" : "Off\n");
-  os << indent << "Write3DPropsAsRasterImage: "
-     << (this->Write3DPropsAsRasterImage ? "On\n" : "Off\n");
+  os << indent << "FileFormat: " << this->GetFileFormatAsString() << "\n";
+  os << indent << "Sort: " << this->GetSortAsString() << "\n";
+  os << indent << "Compress: " << (this->Compress ? "On\n" : "Off\n");
+  os << indent << "DrawBackground: " << (this->DrawBackground ? "On\n" : "Off\n");
+  os << indent << "SimpleLineOffset: " << (this->SimpleLineOffset ? "On\n" : "Off\n");
+  os << indent << "Silent: " << (this->Silent ? "On\n" : "Off\n");
+  os << indent << "BestRoot: " << (this->BestRoot ? "On\n" : "Off\n");
+  os << indent << "Text: " << (this->Text ? "On\n" : "Off\n");
+  os << indent << "Landscape: " << (this->Landscape ? "On\n" : "Off\n");
+  os << indent << "PS3Shading: " << (this->PS3Shading ? "On\n" : "Off\n");
+  os << indent << "OcclusionCull: " << (this->OcclusionCull ? "On\n" : "Off\n");
+  os << indent
+     << "Write3DPropsAsRasterImage: " << (this->Write3DPropsAsRasterImage ? "On\n" : "Off\n");
   if (this->RasterExclusions)
   {
     os << indent << "RasterExclusions:\n";
@@ -201,3 +179,4 @@ void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "RasterExclusions: (null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

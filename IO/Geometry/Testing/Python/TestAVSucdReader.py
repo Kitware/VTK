@@ -1,29 +1,39 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOGeometry import vtkAVSucdReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Read some AVS UCD data in ASCII form
-r = vtk.vtkAVSucdReader()
-r.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/cellsnd.ascii.inp")
-AVSMapper = vtk.vtkDataSetMapper()
+r = vtkAVSucdReader()
+r.SetFileName(VTK_DATA_ROOT + "/Data/cellsnd.ascii.inp")
+AVSMapper = vtkDataSetMapper()
 AVSMapper.SetInputConnection(r.GetOutputPort())
-AVSActor = vtk.vtkActor()
+AVSActor = vtkActor()
 AVSActor.SetMapper(AVSMapper)
 # Read some AVS UCD data in binary form
-r2 = vtk.vtkAVSucdReader()
-r2.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/cellsnd.bin.inp")
-AVSMapper2 = vtk.vtkDataSetMapper()
+r2 = vtkAVSucdReader()
+r2.SetFileName(VTK_DATA_ROOT + "/Data/cellsnd.bin.inp")
+AVSMapper2 = vtkDataSetMapper()
 AVSMapper2.SetInputConnection(r2.GetOutputPort())
-AVSActor2 = vtk.vtkActor()
+AVSActor2 = vtkActor()
 AVSActor2.SetMapper(AVSMapper2)
 AVSActor2.AddPosition(5,0,0)
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

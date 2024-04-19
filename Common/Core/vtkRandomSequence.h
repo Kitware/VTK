@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRandomSequence.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkRandomSequence
  * @brief   Generate a sequence of random numbers.
@@ -26,7 +15,7 @@
  * "Object-Oriented Software Construction", 2nd Edition, by Bertrand Meyer.
  * chapter 23, "Principles of class design", "Pseudo-random number
  * generators: a design exercise", page 754--755.
-*/
+ */
 
 #ifndef vtkRandomSequence_h
 #define vtkRandomSequence_h
@@ -34,16 +23,17 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkRandomSequence : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro(vtkRandomSequence,vtkObject);
+  vtkTypeMacro(vtkRandomSequence, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Initialize the sequence with a seed.
@@ -60,6 +50,11 @@ public:
    */
   virtual void Next() = 0;
 
+  /**
+   * Advance the sequence and return the new value.
+   */
+  double GetNextValue();
+
 protected:
   vtkRandomSequence();
   ~vtkRandomSequence() override;
@@ -69,4 +64,5 @@ private:
   void operator=(const vtkRandomSequence&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // #ifndef vtkRandomSequence_h

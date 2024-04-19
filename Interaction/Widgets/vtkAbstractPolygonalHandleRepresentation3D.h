@@ -1,20 +1,9 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAbstractPolygonalHandleRepresentation3D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAbstractPolygonalHandleRepresentation3D
- * @brief   represent a user defined handle geometry in 3D while maintaining a fixed orientation w.r.t the camera.
+ * @brief   represent a user defined handle geometry in 3D while maintaining a fixed orientation
+ * w.r.t the camera.
  *
  * This class serves as the geometrical representation of a vtkHandleWidget.
  * The handle can be represented by an arbitrary polygonal data (vtkPolyData),
@@ -26,14 +15,15 @@
  * camera. This is done by using vtkFollowers internally to render the actors.
  * @sa
  * vtkPolygonalHandleRepresentation3D vtkHandleRepresentation vtkHandleWidget
-*/
+ */
 
 #ifndef vtkAbstractPolygonalHandleRepresentation3D_h
 #define vtkAbstractPolygonalHandleRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProperty;
 class vtkPolyDataMapper;
 class vtkCellPicker;
@@ -47,127 +37,126 @@ class vtkFollower;
 class vtkVectorText;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkAbstractPolygonalHandleRepresentation3D
-                           : public vtkHandleRepresentation
+  : public vtkHandleRepresentation
 {
 public:
-
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkAbstractPolygonalHandleRepresentation3D,vtkHandleRepresentation);
+  vtkTypeMacro(vtkAbstractPolygonalHandleRepresentation3D, vtkHandleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   using vtkHandleRepresentation::Translate;
 
-  //@{
+  ///@{
   /**
    * Set the position of the point in world and display coordinates.
    */
   void SetWorldPosition(double p[3]) override;
   void SetDisplayPosition(double p[3]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the handle polydata.
    */
-  void SetHandle( vtkPolyData * );
-  vtkPolyData * GetHandle();
-  //@}
+  void SetHandle(vtkPolyData*);
+  vtkPolyData* GetHandle();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the handle properties when unselected and selected.
    */
   void SetProperty(vtkProperty*);
   void SetSelectedProperty(vtkProperty*);
-  vtkGetObjectMacro(Property,vtkProperty);
-  vtkGetObjectMacro(SelectedProperty,vtkProperty);
-  //@}
+  vtkGetObjectMacro(Property, vtkProperty);
+  vtkGetObjectMacro(SelectedProperty, vtkProperty);
+  ///@}
 
   /**
    * Get the transform used to transform the generic handle polydata before
    * placing it in the render window
    */
-  virtual vtkAbstractTransform * GetTransform();
+  virtual vtkAbstractTransform* GetTransform();
 
-  //@{
+  ///@{
   /**
    * Methods to make this class properly act like a vtkWidgetRepresentation.
    */
   void BuildRepresentation() override;
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;
-  int ComputeInteractionState(int X, int Y, int modify=0) override;
-  //@}
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
-  void ShallowCopy(vtkProp *prop) override;
-  void DeepCopy(vtkProp *prop) override;
-  void GetActors(vtkPropCollection *) override;
-  void ReleaseGraphicsResources(vtkWindow *) override;
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  void ShallowCopy(vtkProp* prop) override;
+  void DeepCopy(vtkProp* prop) override;
+  void GetActors(vtkPropCollection*) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  double *GetBounds() override;
-  //@}
+  double* GetBounds() override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A label may be associated with the seed. The string can be set via
    * SetLabelText. The visibility of the label can be turned on / off.
    */
-  vtkSetMacro( LabelVisibility, vtkTypeBool );
-  vtkGetMacro( LabelVisibility, vtkTypeBool );
-  vtkBooleanMacro( LabelVisibility, vtkTypeBool );
-  virtual void SetLabelText( const char * label );
-  virtual char * GetLabelText();
-  //@}
+  vtkSetMacro(LabelVisibility, vtkTypeBool);
+  vtkGetMacro(LabelVisibility, vtkTypeBool);
+  vtkBooleanMacro(LabelVisibility, vtkTypeBool);
+  virtual void SetLabelText(const char* label);
+  virtual char* GetLabelText();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Scale text (font size along each dimension).
    */
-  virtual void SetLabelTextScale( double scale[3] );
+  virtual void SetLabelTextScale(double scale[3]);
   void SetLabelTextScale(double x, double y, double z)
   {
-    double scale[3] = {x, y, z};
+    double scale[3] = { x, y, z };
     this->SetLabelTextScale(scale);
   }
-  virtual double * GetLabelTextScale();
-  //@}
+  virtual double* GetLabelTextScale();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the label text actor
    */
-  vtkGetObjectMacro( LabelTextActor, vtkFollower );
-  //@}
+  vtkGetObjectMacro(LabelTextActor, vtkFollower);
+  ///@}
 
   /**
    * The handle may be scaled uniformly in all three dimensions using this
    * API. The handle can also be scaled interactively using the right
    * mouse button.
    */
-  virtual void SetUniformScale( double scale );
+  virtual void SetUniformScale(double scale);
 
-  //@{
+  ///@{
   /**
    * Toggle the visibility of the handle on and off
    */
-  vtkSetMacro( HandleVisibility, vtkTypeBool );
-  vtkGetMacro( HandleVisibility, vtkTypeBool );
-  vtkBooleanMacro( HandleVisibility, vtkTypeBool );
-  //@}
+  vtkSetMacro(HandleVisibility, vtkTypeBool);
+  vtkGetMacro(HandleVisibility, vtkTypeBool);
+  vtkBooleanMacro(HandleVisibility, vtkTypeBool);
+  ///@}
 
   void Highlight(int highlight) override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off smooth motion of the handle. See the documentation of
    * MoveFocusRequest for details. By default, SmoothMotion is ON. However,
@@ -179,39 +168,39 @@ public:
    * inherent restrictions on handle placement might conflict with a request
    * for smooth motion of the handles.
    */
-  vtkSetMacro( SmoothMotion, vtkTypeBool );
-  vtkGetMacro( SmoothMotion, vtkTypeBool );
-  vtkBooleanMacro( SmoothMotion, vtkTypeBool );
-  //@}
+  vtkSetMacro(SmoothMotion, vtkTypeBool);
+  vtkGetMacro(SmoothMotion, vtkTypeBool);
+  vtkBooleanMacro(SmoothMotion, vtkTypeBool);
+  ///@}
 
   /*
-  * Register internal Pickers within PickingManager
-  */
+   * Register internal Pickers within PickingManager
+   */
   void RegisterPickers() override;
 
 protected:
   vtkAbstractPolygonalHandleRepresentation3D();
   ~vtkAbstractPolygonalHandleRepresentation3D() override;
 
-  vtkActor                   * Actor;
-  vtkPolyDataMapper          * Mapper;
-  vtkTransformPolyDataFilter * HandleTransformFilter;
-  vtkMatrixToLinearTransform * HandleTransform;
-  vtkMatrix4x4               * HandleTransformMatrix;
-  vtkCellPicker              * HandlePicker;
-  double                       LastPickPosition[3];
-  double                       LastEventPosition[2];
-  int                          ConstraintAxis;
-  vtkProperty                * Property;
-  vtkProperty                * SelectedProperty;
-  int                          WaitingForMotion;
-  int                          WaitCount;
-  vtkTypeBool                  HandleVisibility;
+  vtkActor* Actor;
+  vtkPolyDataMapper* Mapper;
+  vtkTransformPolyDataFilter* HandleTransformFilter;
+  vtkMatrixToLinearTransform* HandleTransform;
+  vtkMatrix4x4* HandleTransformMatrix;
+  vtkCellPicker* HandlePicker;
+  double LastPickPosition[3];
+  double LastEventPosition[2];
+  int ConstraintAxis;
+  vtkProperty* Property;
+  vtkProperty* SelectedProperty;
+  int WaitingForMotion;
+  int WaitCount;
+  vtkTypeBool HandleVisibility;
 
   // Methods to manipulate the cursor
-  virtual void Translate(const double* p1, const double* p2) override;
-  virtual void Scale(const double *p1, const double *p2, const double eventPos[2]);
-  virtual void MoveFocus(const double *p1, const double *p2);
+  void Translate(const double* p1, const double* p2) override;
+  virtual void Scale(const double* p1, const double* p2, const double eventPos[2]);
+  virtual void MoveFocus(const double* p1, const double* p2);
 
   void CreateDefaultProperties();
 
@@ -219,15 +208,15 @@ protected:
   // world coordinates), the new display position of the handle center is
   // populated into requestedDisplayPos. This is again only a request for the
   // new display position. It is up to the point placer to deduce the
-  // appropriate world co-ordinates that this display position will map into.
+  // appropriate world coordinates that this display position will map into.
   // The placer may even disallow such a movement.
   // If "SmoothMotion" is OFF, the returned requestedDisplayPos is the same
   // as the event position, ie the location of the mouse cursor. If its OFF,
   // incremental offsets as described above are used to compute it.
-  void MoveFocusRequest( const double *p1, const double *p2,
-                         const double eventPos[2], double requestedDisplayPos[3] );
+  void MoveFocusRequest(
+    const double* p1, const double* p2, const double eventPos[2], double requestedDisplayPos[3]);
 
-  int DetermineConstraintAxis(int constraint, double *x, double *startPickPos);
+  int DetermineConstraintAxis(int constraint, double* x, double* startPickPos);
 
   /**
    * Update the actor position. Different subclasses handle this differently.
@@ -246,18 +235,18 @@ protected:
   virtual void UpdateLabel();
 
   // Handle the label.
-  vtkTypeBool        LabelVisibility;
-  vtkFollower       *LabelTextActor;
-  vtkPolyDataMapper *LabelTextMapper;
-  vtkVectorText     *LabelTextInput;
-  bool               LabelAnnotationTextScaleInitialized;
-  vtkTypeBool        SmoothMotion;
+  vtkTypeBool LabelVisibility;
+  vtkFollower* LabelTextActor;
+  vtkPolyDataMapper* LabelTextMapper;
+  vtkVectorText* LabelTextInput;
+  bool LabelAnnotationTextScaleInitialized;
+  vtkTypeBool SmoothMotion;
 
 private:
-  vtkAbstractPolygonalHandleRepresentation3D(const vtkAbstractPolygonalHandleRepresentation3D&) = delete;
+  vtkAbstractPolygonalHandleRepresentation3D(
+    const vtkAbstractPolygonalHandleRepresentation3D&) = delete;
   void operator=(const vtkAbstractPolygonalHandleRepresentation3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

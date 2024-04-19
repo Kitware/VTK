@@ -3,10 +3,15 @@ NAME
 LIBRARY_NAME
   vtkDomainsChemistry
 DESCRIPTION
-  File readers and algorithms used in chemistry
+  Algorithms used in chemistry
 IMPLEMENTABLE
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause AND MIT
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (C) 2006-2008,2010 The Blue Obelisk Project (http://www.blueobelisk.org/)
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
@@ -25,7 +30,7 @@ TEST_DEPENDS
   VTK::DomainsChemistryOpenGL2
   VTK::FiltersGeometry
   VTK::InteractionStyle
-  VTK::IOGeometry
+  VTK::IOChemistry
   VTK::IOLegacy
   VTK::RenderingOpenGL2
   VTK::TestingCore

@@ -1,72 +1,97 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import (
+    vtkAppendPolyData,
+    vtkDataSetToDataObjectFilter,
+    vtkProbeFilter,
+    vtkStructuredGridOutlineFilter,
+    vtkTubeFilter,
+)
+from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersSources import (
+    vtkGlyphSource2D,
+    vtkLineSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingAnnotation import vtkXYPlotActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create pipeline
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
-pl3d.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-pl3d.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+pl3d = vtkMultiBlockPLOT3DReader()
+pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
 output = pl3d.GetOutput().GetBlock(0)
 # create three line probes
-line = vtk.vtkLineSource()
+line = vtkLineSource()
 line.SetResolution(30)
-transL1 = vtk.vtkTransform()
+transL1 = vtkTransform()
 transL1.Translate(3.7,0.0,28.37)
 transL1.Scale(5,5,5)
 transL1.RotateY(90)
-tf = vtk.vtkTransformPolyDataFilter()
+tf = vtkTransformPolyDataFilter()
 tf.SetInputConnection(line.GetOutputPort())
 tf.SetTransform(transL1)
-probe = vtk.vtkProbeFilter()
+probe = vtkProbeFilter()
 probe.SetInputConnection(tf.GetOutputPort())
 probe.SetSourceData(output)
 probe.Update()
-transL2 = vtk.vtkTransform()
+transL2 = vtkTransform()
 transL2.Translate(9.2,0.0,31.20)
 transL2.Scale(5,5,5)
 transL2.RotateY(90)
-tf2 = vtk.vtkTransformPolyDataFilter()
+tf2 = vtkTransformPolyDataFilter()
 tf2.SetInputConnection(line.GetOutputPort())
 tf2.SetTransform(transL2)
-probe2 = vtk.vtkProbeFilter()
+probe2 = vtkProbeFilter()
 probe2.SetInputConnection(tf2.GetOutputPort())
 probe2.SetSourceData(output)
 probe2.Update()
-transL3 = vtk.vtkTransform()
+transL3 = vtkTransform()
 transL3.Translate(13.27,0.0,33.40)
 transL3.Scale(4.5,4.5,4.5)
 transL3.RotateY(90)
-tf3 = vtk.vtkTransformPolyDataFilter()
+tf3 = vtkTransformPolyDataFilter()
 tf3.SetInputConnection(line.GetOutputPort())
 tf3.SetTransform(transL3)
-probe3 = vtk.vtkProbeFilter()
+probe3 = vtkProbeFilter()
 probe3.SetInputConnection(tf3.GetOutputPort())
 probe3.SetSourceData(output)
 probe3.Update()
-appendF = vtk.vtkAppendPolyData()
+appendF = vtkAppendPolyData()
 appendF.AddInputConnection(probe.GetOutputPort())
 appendF.AddInputConnection(probe2.GetOutputPort())
 appendF.AddInputConnection(probe3.GetOutputPort())
-tuber = vtk.vtkTubeFilter()
+tuber = vtkTubeFilter()
 tuber.SetInputConnection(appendF.GetOutputPort())
 tuber.SetRadius(0.1)
-lineMapper = vtk.vtkPolyDataMapper()
+lineMapper = vtkPolyDataMapper()
 lineMapper.SetInputConnection(tuber.GetOutputPort())
-lineActor = vtk.vtkActor()
+lineActor = vtkActor()
 lineActor.SetMapper(lineMapper)
 # probe the line and plot it
-triangle = vtk.vtkGlyphSource2D()
+triangle = vtkGlyphSource2D()
 triangle.SetGlyphTypeToTriangle()
 triangle.Update()
-cross = vtk.vtkGlyphSource2D()
+cross = vtkGlyphSource2D()
 cross.SetGlyphTypeToCross()
 cross.Update()
-xyplot = vtk.vtkXYPlotActor()
+xyplot = vtkXYPlotActor()
 xyplot.AddDataSetInputConnection(probe.GetOutputPort())
 xyplot.AddDataSetInputConnection(probe2.GetOutputPort())
 xyplot.AddDataSetInputConnection(probe3.GetOutputPort())
@@ -98,9 +123,9 @@ tprop.SetColor(xyplot.GetProperty().GetColor())
 xyplot.SetAxisTitleTextProperty(tprop)
 xyplot.SetAxisLabelTextProperty(tprop)
 xyplot.SetLabelFormat("%-#6.2f")
-vertexGlyph = vtk.vtkSphereSource()
+vertexGlyph = vtkSphereSource()
 vertexGlyph.Update()
-xyplot2 = vtk.vtkXYPlotActor()
+xyplot2 = vtkXYPlotActor()
 xyplot2.AddDataSetInputConnection(probe.GetOutputPort())
 xyplot2.AddDataSetInputConnection(probe2.GetOutputPort())
 xyplot2.AddDataSetInputConnection(probe3.GetOutputPort())
@@ -137,18 +162,18 @@ xyplot2.SetAxisTitleTextProperty(tprop)
 xyplot2.SetAxisLabelTextProperty(tprop)
 xyplot2.SetLabelFormat(xyplot.GetLabelFormat())
 #Okay exercise data object stuff
-ds2do = vtk.vtkDataSetToDataObjectFilter()
+ds2do = vtkDataSetToDataObjectFilter()
 ds2do.SetInputConnection(probe.GetOutputPort())
 ds2do.ModernTopologyOff() # Backwards compatibility
-ds2do2 = vtk.vtkDataSetToDataObjectFilter()
+ds2do2 = vtkDataSetToDataObjectFilter()
 ds2do2.SetInputConnection(probe.GetOutputPort())
 ds2do2.ModernTopologyOff() # Backwards compatibility
 ds2do2.Update()
-ds2do3 = vtk.vtkDataSetToDataObjectFilter()
+ds2do3 = vtkDataSetToDataObjectFilter()
 ds2do3.SetInputConnection(probe.GetOutputPort())
 ds2do3.ModernTopologyOff() # Backwards compatibility
 ds2do3.Update()
-xyplot3 = vtk.vtkXYPlotActor()
+xyplot3 = vtkXYPlotActor()
 xyplot3.AddDataObjectInputConnection(ds2do.GetOutputPort())
 xyplot3.SetDataObjectXComponent(0,2)
 xyplot3.SetDataObjectYComponent(0,5)
@@ -186,22 +211,22 @@ xyplot3.SetAxisTitleTextProperty(tprop)
 xyplot3.SetAxisLabelTextProperty(tprop)
 xyplot3.SetLabelFormat("%4.f")
 # draw an outline
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 outline.SetInputData(output)
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 outlineActor.GetProperty().SetColor(0,0,0)
 # Create graphics stuff
 #
-ren1 = vtk.vtkRenderer()
-ren2 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+ren2 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 ren1.SetBackground(0.6784,0.8471,0.9020)
 ren1.SetViewport(0,0,.5,1)

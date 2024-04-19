@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLUniformGridAMRWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLUniformGridAMRWriter.h"
 
 #include "vtkAMRBox.h"
@@ -25,24 +13,24 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLUniformGridAMRWriter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLUniformGridAMRWriter::vtkXMLUniformGridAMRWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLUniformGridAMRWriter::~vtkXMLUniformGridAMRWriter() = default;
 
-//----------------------------------------------------------------------------
-int vtkXMLUniformGridAMRWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+//------------------------------------------------------------------------------
+int vtkXMLUniformGridAMRWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUniformGridAMR");
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeData,
-    vtkXMLDataElement* parent, int &writerIdx)
+//------------------------------------------------------------------------------
+int vtkXMLUniformGridAMRWriter::WriteComposite(
+  vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& writerIdx)
 {
   vtkUniformGridAMR* amr = vtkUniformGridAMR::SafeDownCast(compositeData);
   assert(amr != nullptr);
@@ -52,7 +40,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
   // For vtkOverlappingAMR, we need to add additional meta-data to the XML.
   if (oamr)
   {
-    const double *origin = oamr->GetOrigin();
+    const double* origin = oamr->GetOrigin();
     // I cannot decide what case to use. The other VTK-XML format used mixed
     // case for attributes, but the composite files are using all lower case
     // attributes. For consistency, I'm sticking with that.
@@ -60,22 +48,22 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
     const char* gridDescription = "";
     switch (oamr->GetGridDescription())
     {
-    case VTK_XY_PLANE:
-      gridDescription = "XY";
-      break;
+      case VTK_XY_PLANE:
+        gridDescription = "XY";
+        break;
 
-    case VTK_YZ_PLANE:
-      gridDescription = "YZ";
-      break;
+      case VTK_YZ_PLANE:
+        gridDescription = "YZ";
+        break;
 
-    case VTK_XZ_PLANE:
-      gridDescription = "XZ";
-      break;
+      case VTK_XZ_PLANE:
+        gridDescription = "XZ";
+        break;
 
-    case VTK_XYZ_GRID:
-    default:
-      gridDescription = "XYZ";
-      break;
+      case VTK_XYZ_GRID:
+      default:
+        gridDescription = "XYZ";
+        break;
     }
     parent->SetAttribute("grid_description", gridDescription);
   }
@@ -83,7 +71,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
   unsigned int numLevels = amr->GetNumberOfLevels();
 
   // Iterate over each level.
-  for (unsigned int level=0; level < numLevels; level++)
+  for (unsigned int level = 0; level < numLevels; level++)
   {
     vtkSmartPointer<vtkXMLDataElement> block = vtkSmartPointer<vtkXMLDataElement>::New();
     block->SetName("Block");
@@ -100,12 +88,11 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
     }
 
     unsigned int numDS = amr->GetNumberOfDataSets(level);
-    for (unsigned int cc=0; cc < numDS; cc++)
+    for (unsigned int cc = 0; cc < numDS; cc++)
     {
       vtkUniformGrid* ug = amr->GetDataSet(level, cc);
 
-      vtkSmartPointer<vtkXMLDataElement> datasetXML =
-        vtkSmartPointer<vtkXMLDataElement>::New();
+      vtkSmartPointer<vtkXMLDataElement> datasetXML = vtkSmartPointer<vtkXMLDataElement>::New();
       datasetXML->SetName("DataSet");
       datasetXML->SetIntAttribute("index", cc);
       if (oamr)
@@ -129,12 +116,12 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
         datasetXML->SetVectorAttribute("amr_box", 6, box_buffer);
       }
 
-      vtkStdString fileName = this->CreatePieceFileName(writerIdx);
+      std::string fileName = this->CreatePieceFileName(writerIdx);
       if (!fileName.empty())
       {
         // if fileName is empty, it implies that no file is written out for this
         // node, so don't add a filename attribute for it.
-        datasetXML->SetAttribute("file", fileName);
+        datasetXML->SetAttribute("file", fileName.c_str());
       }
       block->AddNestedElement(datasetXML);
 
@@ -153,8 +140,9 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLUniformGridAMRWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

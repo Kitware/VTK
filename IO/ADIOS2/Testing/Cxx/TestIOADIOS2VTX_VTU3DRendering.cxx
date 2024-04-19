@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestIOADIOS2VTX_VTU3DRendering.cxx
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /*
  * TestIOADIOS2VTX_VTU3DRendering.cxx : simple rendering test for unstructured
@@ -27,6 +10,7 @@
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
+#include "ADIOSTestUtilities.h"
 #include "vtkADIOS2VTXReader.h"
 
 #include <numeric> //std::iota
@@ -38,9 +22,11 @@
 #include "vtkDataSetMapper.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
+#endif
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkMultiProcessController.h"
@@ -57,6 +43,7 @@
 
 namespace
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 MPI_Comm MPIGetComm()
 {
   MPI_Comm comm = MPI_COMM_NULL;
@@ -80,6 +67,7 @@ int MPIGetRank()
   MPI_Comm_rank(comm, &rank);
   return rank;
 }
+#endif
 
 void WriteBP(const std::string& fileName)
 {
@@ -107,18 +95,21 @@ void WriteBP(const std::string& fileName)
     4.5472, 0.5, 0.915457, 5.38782, 0.5, -0.255387, 5.5, 6.97152e-13, 0.251323, 6, 0.5, 0.118984,
     5.5, 1, 0.251323, 5.61218, 0.5, 0.744613, 4.5, 0.5, 0.421259, 5.5, 0.5, 0.247968 };
 
+  const std::vector<std::int32_t> material = { 1, 2, 3 , 4 , 5 , 6, 7, 8, 9, 10,
+                                               10, 10, 10, 10, 10, 10 };
   // clang-format on
 
   std::vector<double> sol(45);
   std::iota(sol.begin(), sol.end(), 1.);
 
-  adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF);
+  ADIOS_OPEN(fs, fileName);
   fs.write("types", 11);
   fs.write("connectivity", connectivity.data(), {}, {}, { 16, 9 });
+  fs.write("material", material.data(), {}, {}, { 16 });
   fs.write("vertices", vertices.data(), {}, {}, { 45, 3 });
   fs.write("sol", sol.data(), {}, {}, { 45 });
 
-    const std::string vtuXML = R"(
+  const std::string vtuXML = R"(
   <VTKFile type="UnstructuredGrid">
     <UnstructuredGrid>
       <Piece>
@@ -132,26 +123,35 @@ void WriteBP(const std::string& fileName)
         <PointData>
           <DataArray Name="sol" />
         </PointData>
+        <CellData>
+          <DataArray Name="material" />
+        </CellData>
       </Piece>
     </UnstructuredGrid>
   </VTKFile>)";
 
-    fs.write_attribute("vtk.xml", vtuXML);
-    fs.close();
+  fs.write_attribute("vtk.xml", vtuXML);
+  fs.close();
 }
 
 } // end empty namespace
 
 int TestIOADIOS2VTX_VTU3DRendering(int argc, char* argv[])
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> mpiController;
   mpiController->Initialize(&argc, &argv, 0);
   vtkMultiProcessController::SetGlobalController(mpiController);
   const int rank = MPIGetRank();
+#else
+  (void)argc;
+  (void)argv;
+  const int rank = 0;
+#endif
 
   vtkNew<vtkTesting> testing;
   const std::string rootDirectory(testing->GetTempDirectory());
-  const std::string fileName = rootDirectory + "/testVTU.bp";
+  const std::string fileName = rootDirectory + "/testVTU3D.bp";
   if (rank == 0)
   {
     WriteBP(fileName);
@@ -196,7 +196,9 @@ int TestIOADIOS2VTX_VTU3DRendering(int argc, char* argv[])
   renderWindowInteractor->SetRenderWindow(renderWindow);
   renderWindow->Render();
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   mpiController->Finalize();
+#endif
 
   return EXIT_SUCCESS;
 }

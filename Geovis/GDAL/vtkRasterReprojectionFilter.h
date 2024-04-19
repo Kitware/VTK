@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRasterReprojectionFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-   This software is distributed WITHOUT ANY WARRANTY; without even
-   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-   PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkRasterReprojectionFilter
  * @brief Transform a VTK image data to a different projection.
@@ -26,15 +14,15 @@
 #include "vtkGeovisGDALModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-class VTKGEOVISGDAL_EXPORT vtkRasterReprojectionFilter
-  : public vtkImageAlgorithm
+VTK_ABI_NAMESPACE_BEGIN
+class VTKGEOVISGDAL_EXPORT vtkRasterReprojectionFilter : public vtkImageAlgorithm
 {
 public:
   static vtkRasterReprojectionFilter* New();
   vtkTypeMacro(vtkRasterReprojectionFilter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the map-projection string for the input image data.
    * This should *only* be used for nonstandard image inputs,
@@ -45,17 +33,17 @@ public:
    */
   vtkSetStringMacro(InputProjection);
   vtkGetStringMacro(InputProjection);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the map-projection string for the output image data.
    */
   vtkSetStringMacro(OutputProjection);
   vtkGetStringMacro(OutputProjection);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the width and height of the output image.
    * It is recommended to leave this variable unset, in which case,
@@ -65,9 +53,9 @@ public:
    */
   vtkSetVector2Macro(OutputDimensions, int);
   vtkGetVector2Macro(OutputDimensions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The data value to use internally to represent blank points in GDAL
    * datasets. By default, this will be set to the minimum value for the input
@@ -75,9 +63,9 @@ public:
    */
   vtkSetMacro(NoDataValue, double);
   vtkGetMacro(NoDataValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the maximum error, measured in input pixels, that is allowed
    * in approximating the GDAL reprojection transformation.
@@ -85,9 +73,9 @@ public:
    */
   vtkSetClampMacro(MaxError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(MaxError, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the pixel resampling algorithm. Choices range between 0 and 6:
    * 0 = Nearest Neighbor (default)
@@ -99,23 +87,20 @@ public:
    * 6 = Mode
    */
   vtkSetClampMacro(ResamplingAlgorithm, int, 0, 6);
-  //@}
+  ///@}
 
 protected:
   vtkRasterReprojectionFilter();
-  ~vtkRasterReprojectionFilter();
+  ~vtkRasterReprojectionFilter() override;
 
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestUpdateExtent(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
@@ -136,4 +121,5 @@ private:
   void operator=(const vtkRasterReprojectionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkRasterReprojectionFilter_h

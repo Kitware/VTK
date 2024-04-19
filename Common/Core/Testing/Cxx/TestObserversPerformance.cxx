@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestSmartPointer.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test speed of Observers.
 // .SECTION Description
 // Probe the speed of vtkObject::AddObserver, vtkObject::InvokeEvent and
@@ -49,13 +37,11 @@ static const int VERBOSE_MODE = CDash;
 class vtkSimpleCommand : public vtkCommand
 {
 public:
-  static vtkSimpleCommand* New() { return new vtkSimpleCommand();}
+  static vtkSimpleCommand* New() { return new vtkSimpleCommand(); }
   vtkTypeMacro(vtkSimpleCommand, vtkCommand);
 
-  void Execute(vtkObject*, unsigned long, void*) override
-  {
-      this->MTime.Modified();
-  }
+  void Execute(vtkObject*, unsigned long, void*) override { vtkSimpleCommand::MTime.Modified(); }
+
 protected:
   static vtkTimeStamp MTime;
 };
@@ -76,7 +62,9 @@ int TestObserversPerformance(int, char*[])
   {
     if (VERBOSE_MODE & Csv)
     {
-      std::cout << eventCount << " events:" << "\n" << ",";
+      std::cout << eventCount << " events:"
+                << "\n"
+                << ",";
       for (int observerCount = 1; observerCount <= maxObserverCount; observerCount *= 10)
       {
         std::cout << observerCount << ",";
@@ -112,11 +100,11 @@ double StressInvoke(const int observerCount, const int eventCount, const int inv
   if (VERBOSE_MODE & Details)
   {
     std::cout << "StressInvoke " << invokeCount << " invokes "
-              << "on " << eventCount << " events observed by "
-              << observerCount / eventCount << " observers each." << std::endl;
+              << "on " << eventCount << " events observed by " << observerCount / eventCount
+              << " observers each." << std::endl;
   }
   vtkObject* volcano = vtkObject::New();
-  std::vector<vtkSmartPointer<vtkSimpleCommand> > observers;
+  std::vector<vtkSmartPointer<vtkSimpleCommand>> observers;
   vtkNew<vtkTimerLog> totalTimer;
   vtkNew<vtkTimerLog> addTimer;
   vtkNew<vtkTimerLog> invokeTimer;
@@ -129,7 +117,7 @@ double StressInvoke(const int observerCount, const int eventCount, const int inv
     {
       vtkNew<vtkSimpleCommand> observer;
       volcano->AddObserver(event + 1000, observer.GetPointer());
-      observers.push_back(observer.GetPointer());
+      observers.emplace_back(observer.GetPointer());
     }
   }
   addTimer->StopTimer();
@@ -149,10 +137,14 @@ double StressInvoke(const int observerCount, const int eventCount, const int inv
   totalTimer->StopTimer();
   if (VERBOSE_MODE & Details)
   {
-    std::cout << "     Add: " << addTimer->GetElapsedTime() << " seconds" << "\n"
-              << "     Invoke: " << invokeTimer->GetElapsedTime() << " seconds" << "\n"
-              << "     Remove: " << removeTimer->GetElapsedTime() << " seconds" << "\n"
-              << ">>>> Total: " << totalTimer->GetElapsedTime() << " seconds" << "\n";
+    std::cout << "     Add: " << addTimer->GetElapsedTime() << " seconds"
+              << "\n"
+              << "     Invoke: " << invokeTimer->GetElapsedTime() << " seconds"
+              << "\n"
+              << "     Remove: " << removeTimer->GetElapsedTime() << " seconds"
+              << "\n"
+              << ">>>> Total: " << totalTimer->GetElapsedTime() << " seconds"
+              << "\n";
   }
   return totalTimer->GetElapsedTime();
 }
@@ -168,10 +160,9 @@ double TestStressInvoke(int observerCount, int eventCount, int invokeCount)
   meanDuration /= STRESS_COUNT;
   if (VERBOSE_MODE == CDash)
   {
-    std::cout << "<DartMeasurement name=\"StressInvoke-"
-              << observerCount << "-" << eventCount << "-" << invokeCount
-              << "\" type=\"numeric/double\">"
-              << meanDuration << "</DartMeasurement>" << std::endl;
+    std::cout << "<DartMeasurement name=\"StressInvoke-" << observerCount << "-" << eventCount
+              << "-" << invokeCount << "\" type=\"numeric/double\">" << meanDuration
+              << "</DartMeasurement>" << std::endl;
   }
   return meanDuration;
 }

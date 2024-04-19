@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataTangents.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPolyDataTangents
  * @brief   compute tangents for triangulated polydata
@@ -27,6 +15,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkIdList;
 class vtkPolyData;
@@ -39,7 +28,7 @@ public:
 
   static vtkPolyDataTangents* New();
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of point tangents.
    * Default is true.
@@ -47,9 +36,9 @@ public:
   vtkSetMacro(ComputePointTangents, bool);
   vtkGetMacro(ComputePointTangents, bool);
   vtkBooleanMacro(ComputePointTangents, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of cell tangents.
    * Default is false.
@@ -57,7 +46,7 @@ public:
   vtkSetMacro(ComputeCellTangents, bool);
   vtkGetMacro(ComputeCellTangents, bool);
   vtkBooleanMacro(ComputeCellTangents, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataTangents() = default;
@@ -73,4 +62,5 @@ private:
   void operator=(const vtkPolyDataTangents&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

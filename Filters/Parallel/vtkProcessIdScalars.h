@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProcessIdScalars.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkProcessIdScalars
  * @brief   Sets cell or point scalars to the processor rank.
@@ -22,65 +10,72 @@
  * streaming or distributed pipelines.
  *
  * @sa
- * vtkPolyDataStreamer
-*/
+ * vtkPolyDataStreamer vtkGenerateProcessIds
+ */
 
 #ifndef vtkProcessIdScalars_h
 #define vtkProcessIdScalars_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
+#include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkIntArray;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLEL_EXPORT vtkProcessIdScalars : public vtkDataSetAlgorithm
+class VTK_DEPRECATED_IN_9_3_0(
+  "Use `vtkGenerateProcessIds` instead") VTKFILTERSPARALLEL_EXPORT vtkProcessIdScalars
+  : public vtkDataSetAlgorithm
 {
 public:
-  static vtkProcessIdScalars *New();
+  static vtkProcessIdScalars* New();
 
-  vtkTypeMacro(vtkProcessIdScalars,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkProcessIdScalars, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
   /**
    * Option to centerate cell scalars of points scalars.  Default is point
-   * scalars.
+   * scalars (0).
    */
-  void SetScalarModeToCellData() {this->SetCellScalarsFlag(1);}
-  void SetScalarModeToPointData() {this->SetCellScalarsFlag(0);}
-  int GetScalarMode() {return this->CellScalarsFlag;}
+  void SetScalarModeToCellData() { this->SetCellScalarsFlag(1); }
+  void SetScalarModeToPointData() { this->SetCellScalarsFlag(0); }
+  vtkSetMacro(CellScalarsFlag, int);
+  int GetScalarMode() { return this->CellScalarsFlag; }
+  ///@}
 
-  // Dscription:
-  // This option uses a random mapping between pieces and scalar values.
-  // The scalar values are chosen between 0 and 1.  By default, random
-  // mode is off.
+  ///@{
+  /**
+   * This option uses a random mapping between pieces and scalar values.
+   * The scalar values are chosen between 0 and 1.  By default, random
+   * mode is off.
+   */
   vtkSetMacro(RandomMode, vtkTypeBool);
   vtkGetMacro(RandomMode, vtkTypeBool);
   vtkBooleanMacro(RandomMode, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
-
+  ///@}
 
 protected:
   vtkProcessIdScalars();
   ~vtkProcessIdScalars() override;
 
   // Append the pieces.
-  int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkIntArray *MakeProcessIdScalars(int piece, vtkIdType numScalars);
-  vtkFloatArray *MakeRandomScalars(int piece, vtkIdType numScalars);
+  vtkIntArray* MakeProcessIdScalars(int piece, vtkIdType numScalars);
+  vtkFloatArray* MakeRandomScalars(int piece, vtkIdType numScalars);
 
-  vtkSetMacro(CellScalarsFlag,int);
   int CellScalarsFlag;
   vtkTypeBool RandomMode;
 
@@ -91,4 +86,5 @@ private:
   void operator=(const vtkProcessIdScalars&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

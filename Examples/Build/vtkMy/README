@@ -3,7 +3,7 @@ Introduction:
 
 This directory demonstrates how to organize a local source repository
 where local VTK classes can be compiled and wrapped into
-C++/Java/Python libraries without interfering with the main VTK
+C++/Python libraries without interfering with the main VTK
 source dir.
 
 It might be good thing to sort local classes into different 'package'
@@ -54,12 +54,7 @@ were to choose vtksb, then you should take care of the following:
 
   - Search for the vtkmy string and replace it with vtksb in all files.
   - In the same way, replace VTKMY by VTKSB.
-  - Rename all vtkmy* files *and* directories to vtksb* (this should
-    only concern files like vtkmy*Win32Header.h for example).
-  - In all *Win32Header.h files and VTK headers, change
-    VTK_MY_*_EXPORT to VTK_SB_*_EXPORT. Sorry for the inconvenience, but
-    the wrappers expect this symbol to start with VTK_, thus
-    VTKMY_*_EXPORT could not be used.
+  - In all VTK headers, change VTKMY_*_EXPORT to VTKSB_*_EXPORT.
 
 Any prefix should work, but make sure that your class names start with
 'vtk', otherwise the wrappers will fail (hence the vtksb or vtkmy

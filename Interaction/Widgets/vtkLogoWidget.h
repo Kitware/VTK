@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLogoWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLogoWidget
  * @brief   2D widget for placing and manipulating a logo
@@ -24,16 +12,16 @@
  *
  * @sa
  * vtkBorderWidget
-*/
+ */
 
 #ifndef vtkLogoWidget_h
 #define vtkLogoWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLogoRepresentation;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkLogoWidget : public vtkBorderWidget
 {
@@ -41,23 +29,25 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkLogoWidget *New();
+  static vtkLogoWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
-  vtkTypeMacro(vtkLogoWidget,vtkBorderWidget);
+  vtkTypeMacro(vtkLogoWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkLogoRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkLogoRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -73,4 +63,5 @@ private:
   void operator=(const vtkLogoWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

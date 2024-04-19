@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPolygon.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // .NAME
 // .SECTION Description
@@ -19,20 +7,20 @@
 
 #include "vtkIdList.h"
 #include "vtkNew.h"
-#include "vtkPolygon.h"
 #include "vtkPoints.h"
+#include "vtkPolygon.h"
 
 // #define VISUAL_DEBUG 1
 
 #ifdef VISUAL_DEBUG
+#include <vtkActor.h>
 #include <vtkCellArray.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
-#include <vtkActor.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #endif
 
 #include <vector>
@@ -48,33 +36,32 @@ bool ValidTessellation(vtkPolygon* polygon, vtkIdList* outTris)
   // Check that all of the edges of the polygon are represented
   std::vector<bool> edges(polygon->GetNumberOfPoints(), false);
 
-  for (int i=0; i<polygon->GetNumberOfPoints(); i++)
+  for (int i = 0; i < polygon->GetNumberOfPoints(); i++)
   {
     vtkIdType edge[2] = { polygon->GetPointId(i),
-                          polygon->GetPointId((i+1)%polygon->GetNumberOfPoints()) };
-    for (int j=0; j<outTris->GetNumberOfIds(); j+=3)
+      polygon->GetPointId((i + 1) % polygon->GetNumberOfPoints()) };
+    for (int j = 0; j < outTris->GetNumberOfIds(); j += 3)
     {
-      for (int k=0;k<3;k++)
+      for (int k = 0; k < 3; k++)
       {
-        vtkIdType triedge[2] =
-          { polygon->PointIds->GetId(outTris->GetId(j+k)),
-            polygon->PointIds->GetId(outTris->GetId(j+((k+1)%3))) };
+        vtkIdType triedge[2] = { polygon->PointIds->GetId(outTris->GetId(j + k)),
+          polygon->PointIds->GetId(outTris->GetId(j + ((k + 1) % 3))) };
 
         if ((triedge[0] == edge[0] && triedge[1] == edge[1]) ||
-            (triedge[0] == edge[1] && triedge[1] == edge[0]))
+          (triedge[0] == edge[1] && triedge[1] == edge[0]))
         {
           edges[i] = true;
           break;
         }
       }
-      if (edges[i] == true)
+      if (edges[i])
         break;
     }
-    if (edges[i] == false)
+    if (!edges[i])
       break;
   }
 
-  for (std::size_t i=0; i<edges.size(); i++)
+  for (std::size_t i = 0; i < edges.size(); i++)
   {
     if (!edges[i])
     {
@@ -85,7 +72,7 @@ bool ValidTessellation(vtkPolygon* polygon, vtkIdList* outTris)
   return true;
 }
 
-int TestPolygonBoundedTriangulate(int,char *[])
+int TestPolygonBoundedTriangulate(int, char*[])
 {
   vtkNew<vtkPolygon> polygon;
 
@@ -102,7 +89,7 @@ int TestPolygonBoundedTriangulate(int,char *[])
   polygon->GetPointIds()->SetNumberOfIds(polygon->GetPoints()->GetNumberOfPoints());
   for (vtkIdType i = 0; i < polygon->GetPoints()->GetNumberOfPoints(); i++)
   {
-    polygon->GetPointIds()->SetId(i,i);
+    polygon->GetPointIds()->SetId(i, i);
   }
 
   vtkNew<vtkIdList> outTris;
@@ -117,11 +104,9 @@ int TestPolygonBoundedTriangulate(int,char *[])
 
 #ifdef VISUAL_DEBUG
   vtkNew<vtkCellArray> triangles;
-  for (vtkIdType i=0; i < outTris->GetNumberOfIds(); i+=3)
+  for (vtkIdType i = 0; i < outTris->GetNumberOfIds(); i += 3)
   {
-    vtkIdType t[3] = { outTris->GetId(i),
-                       outTris->GetId(i+1),
-                       outTris->GetId(i+2) };
+    vtkIdType t[3] = { outTris->GetId(i), outTris->GetId(i + 1), outTris->GetId(i + 2) };
     triangles->InsertNextCell(3, t);
   }
 

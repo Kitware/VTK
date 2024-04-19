@@ -3,10 +3,4 @@
  */
 
 #include "../libtiff/vtk_tiff_mangle.h"
-
-void
-libport_dummy_function()
-{
-        return;
-}
-
+void libport_dummy_function() { return; }

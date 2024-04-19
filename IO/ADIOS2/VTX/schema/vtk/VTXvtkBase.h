@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    VTXvtkBase.h
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * VTXvtkBase.h : abstract class for schemas of type
@@ -38,6 +26,7 @@ namespace vtx
 {
 namespace schema
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 class VTXvtkBase : public VTXSchema
 {
@@ -46,7 +35,7 @@ public:
     const std::string& type, const std::string& schema, adios2::IO& io, adios2::Engine& engine);
 
   // can't use = default, due to forward class not defined
-  virtual ~VTXvtkBase();
+  ~VTXvtkBase() override;
 
 protected:
   std::vector<types::Piece> Pieces;
@@ -55,17 +44,18 @@ protected:
   const static std::set<std::string> SpecialNames;
   const static std::map<types::DataSetType, std::string> DataSetTypes;
 
-  virtual void DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step) = 0;
-  virtual void ReadPiece(const size_t step, const size_t pieceID) = 0;
+  void DoFill(vtkMultiBlockDataSet* multiBlock, size_t step) override = 0;
+  void ReadPiece(size_t step, size_t pieceID) override = 0;
 
-  bool ReadDataSets(const types::DataSetType type, const size_t step, const size_t pieceID);
+  bool ReadDataSets(types::DataSetType type, size_t step, size_t pieceID);
 
-  virtual void Init() = 0;
+  void Init() override = 0;
   void InitTimes() final;
 
-  std::string DataSetType(const types::DataSetType type) const noexcept;
+  std::string DataSetType(types::DataSetType type) const noexcept;
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace schema
 } // end namespace vtx
 

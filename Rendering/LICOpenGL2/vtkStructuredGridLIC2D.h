@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStructuredGridLIC2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkStructuredGridLIC2D
  *
@@ -37,7 +25,7 @@
  * GL_ARB_draw_buffers
  * GL_EXT_framebuffer_object
  * GL_ARB_pixel_buffer_object
-*/
+ */
 
 #ifndef vtkStructuredGridLIC2D_h
 #define vtkStructuredGridLIC2D_h
@@ -46,41 +34,41 @@
 #include "vtkStructuredGridAlgorithm.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageNoiseSource;
 class vtkOpenGLHelper;
 class vtkRenderWindow;
 
-class VTKRENDERINGLICOPENGL2_EXPORT vtkStructuredGridLIC2D
-  : public vtkStructuredGridAlgorithm
+class VTKRENDERINGLICOPENGL2_EXPORT vtkStructuredGridLIC2D : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkStructuredGridLIC2D* New();
   vtkTypeMacro(vtkStructuredGridLIC2D, vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the context. Context must be a vtkOpenGLRenderWindow.
    * This does not increase the reference count of the
    * context to avoid reference loops.
-   * SetContext() may raise an error is the OpenGL context does not support the
+   * SetContext() may raise an error if the OpenGL context does not support the
    * required OpenGL extensions. Return 0 upon failure and 1 upon success.
    */
-  int SetContext( vtkRenderWindow * context );
-  vtkRenderWindow * GetContext();
-  //@}
+  int SetContext(vtkRenderWindow* context);
+  vtkRenderWindow* GetContext();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Number of steps. Initial value is 1.
    * class invariant: Steps>0.
    * In term of visual quality, the greater the better.
    */
-  vtkSetMacro(Steps,int);
-  vtkGetMacro(Steps,int);
-  //@}
+  vtkSetMacro(Steps, int);
+  vtkGetMacro(Steps, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Step size.
    * WE ARE NOT SURE YET about the space where we define the step.
@@ -93,27 +81,27 @@ public:
    * but GPU only supports float. This value will be converted to
    * float in the execution of the algorithm.
    */
-  vtkSetMacro(StepSize,double);
-  vtkGetMacro(StepSize,double);
-  //@}
+  vtkSetMacro(StepSize, double);
+  vtkGetMacro(StepSize, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The magnification factor. Default is 1
    */
   vtkSetClampMacro(Magnification, int, 1, VTK_INT_MAX);
   vtkGetMacro(Magnification, int);
-  //@}
+  ///@}
 
   /**
    * Check if FBO is started properly.
    */
-  int   GetFBOSuccess() { return this->FBOSuccess; }
+  int GetFBOSuccess() { return this->FBOSuccess; }
 
   /**
    * Check if LIC runs properly.
    */
-  int   GetLICSuccess() { return this->LICSuccess; }
+  int GetLICSuccess() { return this->LICSuccess; }
 
 protected:
   vtkStructuredGridLIC2D();
@@ -125,8 +113,7 @@ protected:
    * port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  int FillInputPortInformation(int port,
-                               vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Fill the output port information objects for this algorithm.
@@ -134,51 +121,46 @@ protected:
    * each port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  int FillOutputPortInformation(int port,
-                                vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestInformation(vtkInformation *request,
-         vtkInformationVector **inputVector,
-         vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestUpdateExtent (vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector) override;
+  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   /**
    * Stolen from vtkImageAlgorithm. Should be in vtkStructuredGridAlgorithm.
    */
-  void AllocateOutputData(vtkDataObject *output,
-                          vtkInformation *outInfo);
+  void AllocateOutputData(vtkDataObject* output, vtkInformation* outInfo);
 
   /**
    * Stolen from vtkImageData. Should be in vtkStructuredGrid.
    */
-  void AllocateScalars(vtkStructuredGrid *sg, vtkInformation *outInfo);
+  void AllocateScalars(vtkStructuredGrid* sg, vtkInformation* outInfo);
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int    Steps;
+  int Steps;
   double StepSize;
-  int    Magnification;
+  int Magnification;
   vtkWeakPointer<vtkRenderWindow> Context;
 
   vtkImageNoiseSource* NoiseSource;
-  bool   OwnWindow;
-  int    FBOSuccess;
-  int    LICSuccess;
-  vtkOpenGLHelper *LICProgram;
+  bool OwnWindow;
+  int FBOSuccess;
+  int LICSuccess;
+  vtkOpenGLHelper* LICProgram;
 
 private:
   vtkStructuredGridLIC2D(const vtkStructuredGridLIC2D&) = delete;
   void operator=(const vtkStructuredGridLIC2D&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,28 +1,17 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageSlabReslice.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageSlabReslice.h"
 
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkObjectFactory.h"
-#include "vtkImageData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSlabReslice);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSlabReslice::vtkImageSlabReslice()
 {
   // Input is 3D, output is a 2D projection within the slab.
@@ -39,24 +28,22 @@ vtkImageSlabReslice::vtkImageSlabReslice()
   this->SlabResolution = 1; // mm or world coords
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageSlabReslice::~vtkImageSlabReslice() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageSlabReslice::RequestInformation(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  this->NumBlendSamplePoints = 2*(static_cast<
-      int >(this->SlabThickness/(2.0 * this->SlabResolution))) + 1;
+  this->NumBlendSamplePoints =
+    2 * (static_cast<int>(this->SlabThickness / (2.0 * this->SlabResolution))) + 1;
 
   this->SlabNumberOfSlices = this->NumBlendSamplePoints;
   this->SlabMode = this->BlendMode;
 
   this->Superclass::RequestInformation(request, inputVector, outputVector);
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   double spacing[3];
   outInfo->Get(vtkDataObject::SPACING(), spacing);
   spacing[2] = this->SlabResolution;
@@ -65,14 +52,14 @@ int vtkImageSlabReslice::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageSlabReslice::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Blend mode: " <<  this->BlendMode << endl;
+  os << indent << "Blend mode: " << this->BlendMode << endl;
   os << indent << "SlabResolution (world units): " << this->SlabResolution << endl;
   os << indent << "SlabThickness (world units): " << this->SlabThickness << endl;
-  os << indent << "Max Number of slices blended: "
-     << this->NumBlendSamplePoints << endl;
+  os << indent << "Max Number of slices blended: " << this->NumBlendSamplePoints << endl;
 }
+VTK_ABI_NAMESPACE_END

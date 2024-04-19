@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStreamingDemandDrivenPipeline.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkStreamingDemandDrivenPipeline
  * @brief   Executive supporting partial updates.
@@ -21,17 +9,19 @@
  * the style of pipeline update that is provided by the old-style VTK
  * 4.x pipeline.  Instead of always updating an entire data set, this
  * executive supports asking for pieces or sub-extents.
-*/
+ */
 
 #ifndef vtkStreamingDemandDrivenPipeline_h
 #define vtkStreamingDemandDrivenPipeline_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkDemandDrivenPipeline.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_UPDATE_EXTENT_COMBINE 1
 #define VTK_UPDATE_EXTENT_REPLACE 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIdTypeKey;
@@ -43,29 +33,29 @@ class vtkInformationStringKey;
 class vtkInformationStringKey;
 class vtkInformationUnsignedLongKey;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkStreamingDemandDrivenPipeline : public vtkDemandDrivenPipeline
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkStreamingDemandDrivenPipeline
+  : public vtkDemandDrivenPipeline
 {
 public:
   static vtkStreamingDemandDrivenPipeline* New();
-  vtkTypeMacro(vtkStreamingDemandDrivenPipeline,vtkDemandDrivenPipeline);
+  vtkTypeMacro(vtkStreamingDemandDrivenPipeline, vtkDemandDrivenPipeline);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Generalized interface for asking the executive to fulfill update
    * requests.
    */
-  vtkTypeBool ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
-  //@{
+  ///@{
   /**
    * Bring the outputs up-to-date.
    */
   vtkTypeBool Update() override;
   vtkTypeBool Update(int port) override;
   virtual vtkTypeBool UpdateWholeExtent();
-  //@}
+  ///@}
 
   /**
    * This method enables the passing of data requests to the algorithm
@@ -98,27 +88,27 @@ public:
    */
   int PropagateUpdateExtent(int outputPort);
 
-  //@{
+  ///@{
   /**
    * Propagate time through the pipeline. this is a special pass
    * only necessary if there is temporal meta data that must be updated
    */
   int PropagateTime(int outputPort);
   int UpdateTimeDependentInformation(int outputPort);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the whole extent of an output port.  The whole extent is
    * meta data for structured data sets.  It gets set by the algorithm
    * during the update information pass.
    */
-  static int SetWholeExtent(vtkInformation *, int extent[6]);
-  static void GetWholeExtent(vtkInformation *, int extent[6]);
-  static int* GetWholeExtent(vtkInformation *) VTK_SIZEHINT(6);
-  //@}
+  static int SetWholeExtent(vtkInformation*, int extent[6]);
+  static void GetWholeExtent(vtkInformation*, int extent[6]);
+  static int* GetWholeExtent(vtkInformation*) VTK_SIZEHINT(6);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This request flag indicates whether the requester can handle more
    * data than requested for the given port.  Right now it is used in
@@ -129,7 +119,7 @@ public:
    */
   int SetRequestExactExtent(int port, int flag);
   int GetRequestExactExtent(int port);
-  //@}
+  ///@}
 
   /**
    * Key defining a request to propagate the update extent upstream.
@@ -234,25 +224,58 @@ public:
    * key to record the bounds of a dataset.
    * \ingroup InformationKeys
    */
-  static vtkInformationDoubleVectorKey *BOUNDS();
+  static vtkInformationDoubleVectorKey* BOUNDS();
 
-  //@{
+  /**
+   * Key to tell whether the data has all its time steps generated.
+   * It is typically used for in situ, where you want to be able to visualize
+   * a simulation while it is running. It effectively tells the downstream
+   * algorithms integrating over all the timesteps
+   * that the current set of available timesteps is not necessarily
+   * complete. As a result, they will produce a valid output for each requested timestep
+   * and keep some cache helping them to retrieve upcoming timesteps as they arrive.
+   *
+   * @note One should check the actual value of this key. Possible values are listed
+   * in `NO_PRIOR_TEMPORAL_ACCESS_STATES`.
+   */
+  static vtkInformationIntegerKey* NO_PRIOR_TEMPORAL_ACCESS();
+
+  /**
+   * States that the information key `NO_PRIOR_TEMPORAL_ACCESS` can have.
+   */
+  enum NO_PRIOR_TEMPORAL_ACCESS_STATES
+  {
+    /**
+     * Notifies that the current `UPDATE_TIME_STEP()` is to be integrated in the
+     * output of the current `vtkAlgorithm`.
+     */
+    NO_PRIOR_TEMPORAL_ACCESS_CONTINUE = 1,
+
+    /**
+     * Notifies that the filter should reset its internal state.
+     * This bit should be activated if one wants to rerun the time steps
+     * from scratch. It does not need to be set on the first update of the pipeline.
+     */
+    NO_PRIOR_TEMPORAL_ACCESS_RESET = 2
+  };
+
+  ///@{
   /**
    * Get/Set the update extent for output ports that use 3D extents.
    */
-  static void GetUpdateExtent(vtkInformation *, int extent[6]);
-  static int* GetUpdateExtent(vtkInformation *);
-  //@}
-  //@{
+  static void GetUpdateExtent(vtkInformation*, int extent[6]);
+  static int* GetUpdateExtent(vtkInformation*);
+  ///@}
+  ///@{
   /**
    * Set/Get the update piece, update number of pieces, and update
    * number of ghost levels for an output port.  Similar to update
    * extent in 3D.
    */
-  static int GetUpdatePiece(vtkInformation *);
-  static int GetUpdateNumberOfPieces(vtkInformation *);
-  static int GetUpdateGhostLevel(vtkInformation *);
-  //@}
+  static int GetUpdatePiece(vtkInformation*);
+  static int GetUpdateNumberOfPieces(vtkInformation*);
+  static int GetUpdateGhostLevel(vtkInformation*);
+  ///@}
 
 protected:
   vtkStreamingDemandDrivenPipeline();
@@ -272,44 +295,34 @@ protected:
 
   // Does the time request correspond to what is in the data?
   // Returns 0 if yes, 1 otherwise.
-  virtual int NeedToExecuteBasedOnTime(vtkInformation* outInfo,
-                                       vtkDataObject* dataObject);
+  virtual int NeedToExecuteBasedOnTime(vtkInformation* outInfo, vtkDataObject* dataObject);
 
   // Setup default information on the output after the algorithm
   // executes information.
-  int ExecuteInformation(vtkInformation* request,
-                                 vtkInformationVector** inInfoVec,
-                                 vtkInformationVector* outInfoVec) override;
+  int ExecuteInformation(vtkInformation* request, vtkInformationVector** inInfoVec,
+    vtkInformationVector* outInfoVec) override;
 
   // Copy information for the given request.
   void CopyDefaultInformation(vtkInformation* request, int direction,
-                                      vtkInformationVector** inInfoVec,
-                                      vtkInformationVector* outInfoVec) override;
+    vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec) override;
 
   // Helper to check output information before propagating it to inputs.
-  virtual int VerifyOutputInformation(int outputPort,
-                                      vtkInformationVector** inInfoVec,
-                                      vtkInformationVector* outInfoVec);
-
+  virtual int VerifyOutputInformation(
+    int outputPort, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec);
 
   // Override this check to account for update extent.
-  int NeedToExecuteData(int outputPort,
-                                vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec) override;
+  int NeedToExecuteData(
+    int outputPort, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec) override;
 
   // Override these to handle the continue-executing option.
-  void ExecuteDataStart(vtkInformation* request,
-                                vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec) override;
-  void ExecuteDataEnd(vtkInformation* request,
-                              vtkInformationVector** inInfoVec,
-                              vtkInformationVector* outInfoVec) override;
+  void ExecuteDataStart(vtkInformation* request, vtkInformationVector** inInfoVec,
+    vtkInformationVector* outInfoVec) override;
+  void ExecuteDataEnd(vtkInformation* request, vtkInformationVector** inInfoVec,
+    vtkInformationVector* outInfoVec) override;
 
   // Override this to handle cropping and ghost levels.
-  void MarkOutputsGenerated(vtkInformation* request,
-                                    vtkInformationVector** inInfoVec,
-                                    vtkInformationVector* outInfoVec) override;
-
+  void MarkOutputsGenerated(vtkInformation* request, vtkInformationVector** inInfoVec,
+    vtkInformationVector* outInfoVec) override;
 
   // Remove update/whole extent when resetting pipeline information.
   void ResetPipelineInformation(int port, vtkInformation*) override;
@@ -318,10 +331,10 @@ protected:
   // request.
   int ContinueExecuting;
 
-  vtkInformation *UpdateExtentRequest;
-  vtkInformation *UpdateTimeRequest;
-  vtkInformation *TimeDependentInformationRequest;
-  vtkInformationIterator *InformationIterator;
+  vtkInformation* UpdateExtentRequest;
+  vtkInformation* UpdateTimeRequest;
+  vtkInformation* TimeDependentInformationRequest;
+  vtkInformationIterator* InformationIterator;
 
   // did the most recent PUE do anything ?
   int LastPropogateUpdateExtentShortCircuited;
@@ -331,4 +344,5 @@ private:
   void operator=(const vtkStreamingDemandDrivenPipeline&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

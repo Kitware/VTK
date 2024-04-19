@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 /*****************************************************************************
  *
@@ -55,21 +28,24 @@
 static void write_dummy_names(int exoid, ex_entity_type obj_type, int num)
 {
   if (num > 0) {
-    size_t start[2], count[2];
+    size_t start[3], count[3];
     char * text = "";
     int    varid;
     size_t num_entity;
     size_t i;
 
-    ex_get_dimension(exoid, ex_dim_num_objects(obj_type), ex_name_of_object(obj_type), &num_entity,
-                     &varid, __func__);
+    ex__get_dimension(exoid, ex__dim_num_objects(obj_type), ex_name_of_object(obj_type),
+                      &num_entity, &varid, __func__);
 
     for (i = 0; i < num_entity; i++) {
       start[0] = i;
       count[0] = 1;
 
       start[1] = 0;
-      count[1] = strlen(text) + 1;
+      count[1] = 1;
+
+      start[2] = 0;
+      count[2] = 1;
 
       nc_put_vara_text(exoid, varid, start, count, text);
     }
@@ -97,6 +73,7 @@ static int ex_write_object_names(int exoid, const char *type, const char *dimens
       ex_err_fn(exoid, __func__, errmsg, status);
       return (status); /* exit define mode and return */
     }
+    ex__set_compact_storage(exoid, varid);
 #if NC_HAS_HDF5
     nc_def_var_fill(exoid, varid, 0, &fill);
 #endif
@@ -111,8 +88,8 @@ static int ex_write_object_params(int exoid, const char *type, const char *dimen
   int  dim[2];
   int  varid;
   int  status;
-  int  int_type;
   char errmsg[MAX_ERR_LENGTH];
+  int  sixty_four_kb = 64 * 1024;
 
   /* Can have nonzero model->num_elem_blk even if model->num_elem == 0 */
   if (count > 0) {
@@ -131,17 +108,26 @@ static int ex_write_object_params(int exoid, const char *type, const char *dimen
       ex_err_fn(exoid, __func__, errmsg, status);
       return (status); /* exit define mode and return */
     }
+    if (4 * count < sixty_four_kb) {
+      ex__set_compact_storage(exoid, varid);
+    }
 
     /* type id array */
-    int_type = NC_INT;
+    int int_type = NC_INT;
+    int int_size = 4;
     if (ex_int64_status(exoid) & EX_IDS_INT64_DB) {
       int_type = NC_INT64;
+      int_size = 8;
     }
+
     if ((status = nc_def_var(exoid, id_array_dim_name, int_type, 1, dim, &varid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define %s id array in file id %d", type,
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       return (status); /* exit define mode and return */
+    }
+    if (int_size * count < sixty_four_kb) {
+      ex__set_compact_storage(exoid, varid);
     }
 
     /*   store property name as attribute of property array variable */
@@ -225,6 +211,8 @@ static void invalidate_id_status(int exoid, const char *var_stat, const char *va
 }
 
 /*!
+\ingroup ModelDescription
+
  * writes the initialization parameters to the EXODUS file
  * \param     exoid     exodus file id
  * \param     model     finite element model parameters
@@ -244,9 +232,10 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
   int rootid = exoid & EX_FILE_ID_MASK;
-
-  ex_check_valid_file_id(exoid, __func__);
 
   if (rootid == exoid && nc_inq_dimid(exoid, DIM_NUM_DIM, &temp) == NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: initialization already done for file id %d", exoid);
@@ -297,10 +286,10 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
     goto error_ret;
   }
   {
-    struct ex_file_item *file = ex_find_file_item(exoid);
-    file->time_varid          = temp;
+    struct ex__file_item *file = ex__find_file_item(exoid);
+    file->time_varid           = temp;
   }
-  ex_compress_variable(exoid, temp, 2);
+  ex__compress_variable(exoid, temp, 2);
 
   if (model->num_dim > 0) {
     if ((status = nc_def_dim(exoid, DIM_NUM_DIM, model->num_dim, &numdimdim)) != NC_NOERR) {
@@ -443,7 +432,7 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex_compress_variable(exoid, temp, 2);
+      ex__compress_variable(exoid, temp, 2);
     }
 
     if (model->num_dim > 1) {
@@ -454,7 +443,7 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex_compress_variable(exoid, temp, 2);
+      ex__compress_variable(exoid, temp, 2);
     }
 
     if (model->num_dim > 2) {
@@ -465,7 +454,7 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex_compress_variable(exoid, temp, 2);
+      ex__compress_variable(exoid, temp, 2);
     }
   }
 
@@ -525,14 +514,14 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
   }
 
   /* leave define mode */
-  if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* Fill the id and status arrays with EX_INVALID_ID */
   {
-    int *invalid_ids = NULL;
-    int  maxset      = model->num_elem_blk;
+    int *  invalid_ids = NULL;
+    size_t maxset      = model->num_elem_blk;
     if (maxset < model->num_edge_blk) {
       maxset = model->num_edge_blk;
     }
@@ -612,6 +601,6 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  ex_leavedef(exoid, __func__);
+  ex__leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

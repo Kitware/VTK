@@ -1,30 +1,14 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkConvertSelectionDomain.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkConvertSelectionDomain.h"
 
 #include "vtkAbstractArray.h"
 #include "vtkAnnotation.h"
 #include "vtkAnnotationLayers.h"
 #include "vtkCellData.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkGraph.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
@@ -41,26 +25,25 @@
 
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConvertSelectionDomain);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvertSelectionDomain::vtkConvertSelectionDomain()
 {
   this->SetNumberOfInputPorts(3);
   this->SetNumberOfOutputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkConvertSelectionDomain::~vtkConvertSelectionDomain() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 static void vtkConvertSelectionDomainFindDomains(
-  vtkDataSetAttributes* dsa,
-  std::set<vtkStdString> & domains)
+  vtkDataSetAttributes* dsa, std::set<std::string>& domains)
 {
   if (dsa->GetAbstractArray("domain"))
   {
-    vtkStringArray* domainArr = vtkArrayDownCast<vtkStringArray>(
-      dsa->GetAbstractArray("domain"));
+    vtkStringArray* domainArr = vtkArrayDownCast<vtkStringArray>(dsa->GetAbstractArray("domain"));
     if (!domainArr)
     {
       return; // Do nothing if the array isn't a string array
@@ -68,7 +51,7 @@ static void vtkConvertSelectionDomainFindDomains(
     vtkIdType numTuples = domainArr->GetNumberOfTuples();
     for (vtkIdType i = 0; i < numTuples; ++i)
     {
-      vtkStdString d = domainArr->GetValue(i);
+      std::string d = domainArr->GetValue(i);
       if (domains.count(d) == 0)
       {
         domains.insert(d);
@@ -81,25 +64,18 @@ static void vtkConvertSelectionDomainFindDomains(
   }
 }
 
-static void vtkConvertSelectionDomainConvertAnnotationDomain(
-  vtkAnnotation* annIn,
-  vtkAnnotation* annOut,
-  std::set<vtkStdString>& domains1,
-  std::set<vtkStdString>& domains2,
-  vtkDataSetAttributes* dsa1,
-  vtkDataSetAttributes* dsa2,
-  int fieldType1, int fieldType2,
+static void vtkConvertSelectionDomainConvertAnnotationDomain(vtkAnnotation* annIn,
+  vtkAnnotation* annOut, std::set<std::string>& domains1, std::set<std::string>& domains2,
+  vtkDataSetAttributes* dsa1, vtkDataSetAttributes* dsa2, int fieldType1, int fieldType2,
   vtkMultiBlockDataSet* maps)
 {
   vtkSelection* inputSel = annIn->GetSelection();
-  vtkSmartPointer<vtkSelection> outputSel =
-    vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelection> outputSel = vtkSmartPointer<vtkSelection>::New();
   // Iterate over all input selections
   for (unsigned int c = 0; c < inputSel->GetNumberOfNodes(); ++c)
   {
     vtkSelectionNode* curInput = inputSel->GetNode(c);
-    vtkSmartPointer<vtkSelectionNode> curOutput =
-      vtkSmartPointer<vtkSelectionNode>::New();
+    vtkSmartPointer<vtkSelectionNode> curOutput = vtkSmartPointer<vtkSelectionNode>::New();
     vtkAbstractArray* inArr = curInput->GetSelectionList();
 
     // Start with a shallow copy of the input selection.
@@ -107,8 +83,7 @@ static void vtkConvertSelectionDomainConvertAnnotationDomain(
 
     // I don't know how to handle this type of selection,
     // so pass it through.
-    if (!inArr || !inArr->GetName() ||
-        curInput->GetContentType() != vtkSelectionNode::PEDIGREEIDS)
+    if (!inArr || !inArr->GetName() || curInput->GetContentType() != vtkSelectionNode::PEDIGREEIDS)
     {
       outputSel->AddNode(curOutput);
       continue;
@@ -140,7 +115,7 @@ static void vtkConvertSelectionDomainConvertAnnotationDomain(
       if (table)
       {
         fromArr = table->GetColumnByName(inArr->GetName());
-        std::set<vtkStdString>::iterator it, itEnd;
+        std::set<std::string>::iterator it, itEnd;
         if (dsa1)
         {
           it = domains1.begin();
@@ -207,8 +182,7 @@ static void vtkConvertSelectionDomainConvertAnnotationDomain(
   {
     vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
     node->SetContentType(vtkSelectionNode::INDICES);
-    vtkSmartPointer<vtkIdTypeArray> inds =
-      vtkSmartPointer<vtkIdTypeArray>::New();
+    vtkSmartPointer<vtkIdTypeArray> inds = vtkSmartPointer<vtkIdTypeArray>::New();
     node->SetSelectionList(inds);
     outputSel->AddNode(node);
   }
@@ -217,11 +191,9 @@ static void vtkConvertSelectionDomainConvertAnnotationDomain(
   annOut->SetSelection(outputSel);
 }
 
-//----------------------------------------------------------------------------
-int vtkConvertSelectionDomain::RequestData(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+//------------------------------------------------------------------------------
+int vtkConvertSelectionDomain::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Retrieve the input and output.
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -233,8 +205,8 @@ int vtkConvertSelectionDomain::RequestData(
   vtkAnnotationLayers* outputAnn = vtkAnnotationLayers::SafeDownCast(output);
 
   outInfo = outputVector->GetInformationObject(1);
-  vtkSelection* outputCurrentSel = vtkSelection::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkSelection* outputCurrentSel =
+    vtkSelection::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // If we have no mapping table, we are done.
   vtkInformation* mapInfo = inputVector[1]->GetInformationObject(0);
@@ -259,8 +231,8 @@ int vtkConvertSelectionDomain::RequestData(
     createdInput = true;
   }
 
-  vtkMultiBlockDataSet* maps = vtkMultiBlockDataSet::SafeDownCast(
-    mapInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkMultiBlockDataSet* maps =
+    vtkMultiBlockDataSet::SafeDownCast(mapInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataObject* data = dataInfo->Get(vtkDataObject::DATA_OBJECT());
 
   vtkDataSetAttributes* dsa1 = nullptr;
@@ -287,8 +259,8 @@ int vtkConvertSelectionDomain::RequestData(
     fieldType1 = vtkSelectionNode::ROW;
   }
 
-  std::set<vtkStdString> domains1;
-  std::set<vtkStdString> domains2;
+  std::set<std::string> domains1;
+  std::set<std::string> domains2;
   if (dsa1)
   {
     vtkConvertSelectionDomainFindDomains(dsa1, domains1);
@@ -300,20 +272,16 @@ int vtkConvertSelectionDomain::RequestData(
 
   for (unsigned int a = 0; a < inputAnn->GetNumberOfAnnotations(); ++a)
   {
-    vtkSmartPointer<vtkAnnotation> ann =
-      vtkSmartPointer<vtkAnnotation>::New();
-    vtkConvertSelectionDomainConvertAnnotationDomain(
-      inputAnn->GetAnnotation(a), ann,
-      domains1, domains2, dsa1, dsa2, fieldType1, fieldType2, maps);
+    vtkSmartPointer<vtkAnnotation> ann = vtkSmartPointer<vtkAnnotation>::New();
+    vtkConvertSelectionDomainConvertAnnotationDomain(inputAnn->GetAnnotation(a), ann, domains1,
+      domains2, dsa1, dsa2, fieldType1, fieldType2, maps);
     outputAnn->AddAnnotation(ann);
   }
 
   if (inputAnn->GetCurrentAnnotation())
   {
-    vtkSmartPointer<vtkAnnotation> ann =
-      vtkSmartPointer<vtkAnnotation>::New();
-    vtkConvertSelectionDomainConvertAnnotationDomain(
-      inputAnn->GetCurrentAnnotation(), ann,
+    vtkSmartPointer<vtkAnnotation> ann = vtkSmartPointer<vtkAnnotation>::New();
+    vtkConvertSelectionDomainConvertAnnotationDomain(inputAnn->GetCurrentAnnotation(), ann,
       domains1, domains2, dsa1, dsa2, fieldType1, fieldType2, maps);
     outputAnn->SetCurrentAnnotation(ann);
   }
@@ -336,9 +304,8 @@ int vtkConvertSelectionDomain::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkConvertSelectionDomain::FillInputPortInformation(
-  int port, vtkInformation* info)
+//------------------------------------------------------------------------------
+int vtkConvertSelectionDomain::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
   {
@@ -361,9 +328,8 @@ int vtkConvertSelectionDomain::FillInputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkConvertSelectionDomain::FillOutputPortInformation(
-  int port, vtkInformation* info)
+//------------------------------------------------------------------------------
+int vtkConvertSelectionDomain::FillOutputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillOutputPortInformation(port, info);
   if (port == 1)
@@ -373,9 +339,9 @@ int vtkConvertSelectionDomain::FillOutputPortInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkConvertSelectionDomain::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-
+VTK_ABI_NAMESPACE_END

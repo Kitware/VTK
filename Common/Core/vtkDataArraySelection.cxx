@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataArraySelection.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDataArraySelection.h"
 #include "vtkObjectFactory.h"
 
@@ -20,9 +8,10 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataArraySelection);
 
-class vtkDataArraySelectionInternals
+class vtkDataArraySelection::vtkInternals
 {
 public:
   using ArraySettingPair = std::pair<std::string, bool>;
@@ -41,20 +30,35 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArraySelection::vtkDataArraySelection()
+  : Internal(new vtkDataArraySelection::vtkInternals())
+  , UnknownArraySetting(0)
 {
-  this->Internal = new vtkDataArraySelectionInternals;
-  this->UnknownArraySetting = 0;
 }
 
-//----------------------------------------------------------------------------
-vtkDataArraySelection::~vtkDataArraySelection()
+//------------------------------------------------------------------------------
+vtkDataArraySelection::~vtkDataArraySelection() = default;
+
+//------------------------------------------------------------------------------
+void vtkDataArraySelection::DeepCopy(const vtkDataArraySelection* other)
 {
-  delete this->Internal;
+  if (!this->IsEqual(other))
+  {
+    this->UnknownArraySetting = other->UnknownArraySetting;
+    this->Internal->Arrays = other->Internal->Arrays;
+    this->Modified();
+  }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool vtkDataArraySelection::IsEqual(const vtkDataArraySelection* other) const
+{
+  return (this->UnknownArraySetting == other->UnknownArraySetting &&
+    this->Internal->Arrays == other->Internal->Arrays);
+}
+
+//------------------------------------------------------------------------------
 void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -62,29 +66,29 @@ void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Arrays: " << this->GetNumberOfArrays() << "\n";
   vtkIndent nindent = indent.GetNextIndent();
   int cc;
-  for ( cc = 0; cc < this->GetNumberOfArrays(); cc ++ )
+  for (cc = 0; cc < this->GetNumberOfArrays(); cc++)
   {
-    os << nindent << "Array: " << this->GetArrayName(cc) << " is: "
-      << (this->GetArraySetting(cc)?"enabled":"disabled")
-      << " (" << this->ArrayIsEnabled(this->GetArrayName(cc)) << ")" <<  endl;
+    os << nindent << "Array: " << this->GetArrayName(cc)
+       << " is: " << (this->GetArraySetting(cc) ? "enabled" : "disabled") << " ("
+       << this->ArrayIsEnabled(this->GetArrayName(cc)) << ")" << endl;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArraySelection::EnableArray(const char* name)
 {
   vtkDebugMacro("Enabling array \"" << name << "\".");
   this->SetArraySetting(name, 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArraySelection::DisableArray(const char* name)
 {
   vtkDebugMacro("Disabling array \"" << name << "\".");
   this->SetArraySetting(name, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArraySelection::SetArraySetting(const char* name, int setting)
 {
   vtkDebugMacro("Setting array \"" << name << " = " << setting << "\".");
@@ -101,12 +105,12 @@ void vtkDataArraySelection::SetArraySetting(const char* name, int setting)
   }
   else if (name)
   {
-    internal.Arrays.push_back(vtkDataArraySelectionInternals::ArraySettingPair(name, status));
+    internal.Arrays.emplace_back(name, status);
     this->Modified();
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataArraySelection::ArrayIsEnabled(const char* name) const
 {
   auto iter = this->Internal->Find(name);
@@ -119,14 +123,14 @@ int vtkDataArraySelection::ArrayIsEnabled(const char* name) const
   return this->UnknownArraySetting;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataArraySelection::ArrayExists(const char* name) const
 {
   // Check if there is a specific entry for this array.
   return this->Internal->Find(name) != this->Internal->Arrays.end() ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArraySelection::EnableAllArrays()
 {
   vtkDebugMacro("Enabling all arrays.");
@@ -140,13 +144,13 @@ void vtkDataArraySelection::EnableAllArrays()
     }
   }
 
-  if(modified)
+  if (modified)
   {
     this->Modified();
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArraySelection::DisableAllArrays()
 {
   vtkDebugMacro("Disabling all arrays.");
@@ -160,19 +164,19 @@ void vtkDataArraySelection::DisableAllArrays()
     }
   }
 
-  if(modified)
+  if (modified)
   {
     this->Modified();
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataArraySelection::GetNumberOfArrays() const
 {
   return static_cast<int>(this->Internal->Arrays.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataArraySelection::GetNumberOfArraysEnabled() const
 {
   int numArrays = 0;
@@ -184,7 +188,7 @@ int vtkDataArraySelection::GetNumberOfArraysEnabled() const
   return numArrays;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataArraySelection::GetArrayName(int index) const
 {
   try
@@ -197,7 +201,7 @@ const char* vtkDataArraySelection::GetArrayName(int index) const
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataArraySelection::GetArrayIndex(const char* name) const
 {
   auto iter = this->Internal->Find(name);
@@ -209,7 +213,7 @@ int vtkDataArraySelection::GetArrayIndex(const char* name) const
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataArraySelection::GetEnabledArrayIndex(const char* name) const
 {
   int index = 0;
@@ -227,7 +231,7 @@ int vtkDataArraySelection::GetEnabledArrayIndex(const char* name) const
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataArraySelection::GetArraySetting(int index) const
 {
   if (index >= 0 && index < this->GetNumberOfArrays())
@@ -238,7 +242,7 @@ int vtkDataArraySelection::GetArraySetting(int index) const
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArraySelection::RemoveAllArrays()
 {
   vtkDebugMacro("Removing all arrays.");
@@ -249,7 +253,7 @@ void vtkDataArraySelection::RemoveAllArrays()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataArraySelection::AddArray(const char* name, bool state)
 {
   vtkDebugMacro("Adding array \"" << name << "\".");
@@ -260,11 +264,11 @@ int vtkDataArraySelection::AddArray(const char* name, bool state)
   {
     return 0;
   }
-  this->Internal->Arrays.push_back(vtkDataArraySelectionInternals::ArraySettingPair(name, state));
+  this->Internal->Arrays.emplace_back(name, state);
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArraySelection::RemoveArrayByIndex(int index)
 {
   if (index >= 0 && index < static_cast<int>(this->Internal->Arrays.size()))
@@ -273,8 +277,8 @@ void vtkDataArraySelection::RemoveArrayByIndex(int index)
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkDataArraySelection::RemoveArrayByName(const char *name)
+//------------------------------------------------------------------------------
+void vtkDataArraySelection::RemoveArrayByName(const char* name)
 {
   auto iter = this->Internal->Find(name);
   if (iter != this->Internal->Arrays.end())
@@ -283,27 +287,24 @@ void vtkDataArraySelection::RemoveArrayByName(const char *name)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArraySelection::SetArrays(const char* const* names, int numArrays)
 {
   this->SetArraysWithDefault(names, numArrays, 1);
 }
 
-//----------------------------------------------------------------------------
-void vtkDataArraySelection::SetArraysWithDefault(const char* const* names,
-                                                 int numArrays,
-                                                 int defaultStatus)
+//------------------------------------------------------------------------------
+void vtkDataArraySelection::SetArraysWithDefault(
+  const char* const* names, int numArrays, int defaultStatus)
 {
   // This function is called only by the filter owning the selection.
   // It should not call Modified() because array settings are not
   // changed.
 
-  vtkDebugMacro("Settings arrays to given list of " << numArrays
-                << " arrays.");
+  vtkDebugMacro("Settings arrays to given list of " << numArrays << " arrays.");
 
   // Create a new map for this set of arrays.
-  vtkDataArraySelectionInternals* newInternal =
-    new vtkDataArraySelectionInternals;
+  vtkInternals* newInternal = new vtkInternals;
 
   newInternal->Arrays.reserve(numArrays);
 
@@ -312,25 +313,23 @@ void vtkDataArraySelection::SetArraysWithDefault(const char* const* names,
   {
     // Fill in the setting.  Use the old value if available.
     // Otherwise, use the given default.
-    bool setting = defaultStatus ? true : false;
+    bool setting = defaultStatus != 0;
     auto iter = this->Internal->Find(names[i]);
     if (iter != this->Internal->Arrays.end())
     {
       setting = iter->second;
     }
-    newInternal->Arrays.push_back(
-      vtkDataArraySelectionInternals::ArraySettingPair(names[i], setting));
+    newInternal->Arrays.emplace_back(names[i], setting);
   }
 
   // Delete the old map and save the new one.
-  delete this->Internal;
-  this->Internal = newInternal;
+  this->Internal.reset(newInternal);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataArraySelection::CopySelections(vtkDataArraySelection* selections)
 {
-  if(this == selections)
+  if (this == selections)
   {
     return;
   }
@@ -352,8 +351,7 @@ void vtkDataArraySelection::CopySelections(vtkDataArraySelection* selections)
         needUpdate = 1;
         break;
       }
-      if (selections->ArrayIsEnabled(arrayName) !=
-          this->ArrayIsEnabled(arrayName))
+      if (selections->ArrayIsEnabled(arrayName) != this->ArrayIsEnabled(arrayName))
       {
         needUpdate = 1;
         break;
@@ -371,8 +369,8 @@ void vtkDataArraySelection::CopySelections(vtkDataArraySelection* selections)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
-void vtkDataArraySelection::Union(vtkDataArraySelection* other)
+//------------------------------------------------------------------------------
+void vtkDataArraySelection::Union(vtkDataArraySelection* other, bool skipModified)
 {
   auto& internal = *this->Internal;
   const auto& ointernal = *other->Internal;
@@ -388,8 +386,9 @@ void vtkDataArraySelection::Union(vtkDataArraySelection* other)
     }
   }
 
-  if (modified)
+  if (modified && !skipModified)
   {
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

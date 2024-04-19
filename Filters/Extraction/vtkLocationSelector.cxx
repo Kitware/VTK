@@ -1,33 +1,25 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLocationSelector.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkLocationSelector.h"
 
 #include "vtkDataSetAttributes.h"
 #include "vtkGenericCell.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
+#include "vtkSelector.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLocationSelector::vtkInternals
 {
 public:
@@ -36,8 +28,13 @@ public:
   {
   }
 
-  virtual ~vtkInternals() {}
+  virtual ~vtkInternals() = default;
   virtual bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) = 0;
+  virtual bool Execute(vtkDataObject* dataObject, vtkSignedCharArray* insidednessArray)
+  {
+    auto ds = vtkDataSet::SafeDownCast(dataObject);
+    return ds && this->Execute(ds, insidednessArray);
+  }
 
 protected:
   vtkSmartPointer<vtkDataArray> SelectionList;
@@ -89,9 +86,9 @@ public:
         ptId = dataset->FindPoint(location);
         if (ptId >= 0)
         {
-          double *x = dataset->GetPoint(ptId);
+          double* x = dataset->GetPoint(ptId);
           double distance = vtkMath::Distance2BetweenPoints(x, location);
-          if (distance > radius*radius)
+          if (distance > radius * radius)
           {
             ptId = -1;
           }
@@ -134,7 +131,7 @@ public:
       int subId;
 
       double pcoords[3];
-      auto cid = dataset->FindCell(coords, nullptr, cell, 0, 0.0, subId, pcoords, &weights[0]);
+      auto cid = dataset->FindCell(coords, nullptr, cell, 0, 0.0, subId, pcoords, weights.data());
       if (cid >= 0 && cid < numCells)
       {
         insidednessArray->SetValue(cid, 1);
@@ -143,21 +140,64 @@ public:
     insidednessArray->Modified();
     return true;
   }
+
+  bool Execute(vtkDataObject* dataObject, vtkSignedCharArray* insidednessArray) override
+  {
+    vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(dataObject);
+    if (htg)
+    {
+      return this->Execute(htg, insidednessArray);
+    }
+    else
+    {
+      return this->vtkLocationSelector::vtkInternals::Execute(dataObject, insidednessArray);
+    }
+  }
+
+  bool Execute(vtkHyperTreeGrid* htg, vtkSignedCharArray* insidednessArray)
+  {
+    if (!htg)
+    {
+      vtkErrorWithObjectMacro(
+        nullptr, "The vtkHyperTreeGrid passed to the execute method is a nullptr.");
+      return false;
+    }
+
+    // setup locator
+    vtkNew<vtkHyperTreeGridGeometricLocator> locator;
+    locator->SetHTG(htg);
+
+    // fill insidedness array with zeros
+    auto inside = vtk::DataArrayValueRange<1>(insidednessArray);
+    vtkSMPTools::Fill(inside.begin(), inside.end(), 0);
+
+    // locate positions
+    std::array<double, 3> location;
+    for (vtkIdType iCell = 0; iCell < this->SelectionList->GetNumberOfTuples(); ++iCell)
+    {
+      this->SelectionList->GetTuple(iCell, location.data());
+      vtkIdType id = locator->Search(location.data());
+      if (id > -1)
+      {
+        inside[id] = static_cast<signed char>(true);
+      }
+    }
+    insidednessArray->Modified();
+    return true;
+  }
 };
 
 vtkStandardNewMacro(vtkLocationSelector);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLocationSelector::vtkLocationSelector()
   : Internals(nullptr)
 {
 }
 
-//----------------------------------------------------------------------------
-vtkLocationSelector::~vtkLocationSelector()
-{
-}
+//------------------------------------------------------------------------------
+vtkLocationSelector::~vtkLocationSelector() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLocationSelector::Initialize(vtkSelectionNode* node)
 {
   this->Superclass::Initialize(node);
@@ -207,24 +247,23 @@ void vtkLocationSelector::Initialize(vtkSelectionNode* node)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLocationSelector::Finalize()
 {
   this->Internals.reset();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkLocationSelector::ComputeSelectedElements(
   vtkDataObject* input, vtkSignedCharArray* insidednessArray)
 {
   assert(input != nullptr && insidednessArray != nullptr);
-  vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
-  return (this->Internals != nullptr && ds != nullptr) ? this->Internals->Execute(ds, insidednessArray)
-                                                       : false;
+  return this->Internals && this->Internals->Execute(input, insidednessArray);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLocationSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

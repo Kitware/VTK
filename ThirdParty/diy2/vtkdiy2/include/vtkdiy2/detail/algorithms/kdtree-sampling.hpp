@@ -276,7 +276,7 @@ compute_local_samples(Block* b, const diy::ReduceProxy& srp, int dim) const
     // compute and enqueue local samples
     Samples samples;
     size_t points_size = (b->*points_).size();
-    size_t n = std::min(points_size, samples_);
+    size_t n = (std::min)(points_size, samples_);
     samples.reserve(n);
     for (size_t i = 0; i < n; ++i)
     {

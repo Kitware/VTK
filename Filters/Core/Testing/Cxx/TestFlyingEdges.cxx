@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestFlyingEdges.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Description
 // This test creates a wavelet dataset and creates isosurfaces using
@@ -21,20 +9,18 @@
 #include "vtkFlyingEdges3D.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkTesting.h"
 
-int TestFlyingEdges(int argc, char *argv[])
+int TestFlyingEdges(int argc, char* argv[])
 {
   // Create the sample dataset
   vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-63, 64,
-                          -63, 64,
-                          -63, 64);
+  wavelet->SetWholeExtent(-63, 64, -63, 64, -63, 64);
   wavelet->SetCenter(0.0, 0.0, 0.0);
   wavelet->Update();
 
@@ -48,7 +34,7 @@ int TestFlyingEdges(int argc, char *argv[])
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(flyingEdges->GetOutputPort());
-  mapper->SetScalarRange(128,225);
+  mapper->SetScalarRange(128, 225);
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
   vtkNew<vtkRenderer> ren;

@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Program:   ParaView
-  Module:    vtkPlot3DMetaReader.h
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPlot3DMetaReader
  * @brief   reads meta-files points to PLOT3D files
@@ -35,30 +24,38 @@
  *
  * \verbatim
  * {
- * "auto-detect-format" : true // Tells the reader to try to figure out the format automatically. Only works
- *                             // with binary file. This is on by default, negating the need for most other
- *                             // options for binary files (format, byte-order, precision, multi-grid,
+ * "auto-detect-format" : true // Tells the reader to try to figure out the format automatically.
+ * Only works
+ *                             // with binary file. This is on by default, negating the need for
+ * most other
+ *                             // options for binary files (format, byte-order, precision,
+ * multi-grid,
  *                             // blanking, 2D).
  * "format" : "binary",  // Is this a binary or ascii file, values : binary, ascii
- * "byte-order" : "big", // Byte order for binary files, values : little, big (denoting little or big endian)
- * "precision" : 32,     // Precision of floating point values, can be 32 or 64 (bits)
+ * "byte-order" : "big", // Byte order for binary files, values : little, big (denoting little or
+ * big endian) "precision" : 32,     // Precision of floating point values, can be 32 or 64 (bits)
  * "multi-grid" : false, // Is this a multi-grid file, values: true, false
  * "language" : "C",     // Which language was this file written in, values : C, fortran. This is
  *                       // used to determine if an binary PLOT3D file contains byte counts, used by
  *                       // Fortran IO routines.
  * "blanking" : false,   // Does this file have blanking information (iblanks), values : true, false
  * "2D" : false,         // Is this a 2D dataset, values : true, false
- * "R" : 8.314,          // The value of the gas constant, default is 1.0. Set this according to the dimensions you use
- * "gamma" : 1.4,        // Ratio of specific heats. Default is 1.4.
- * "functions": [ 110, 200, 201 ],  // Additional derived values to calculate. This is an array of integers formatted
+ * "R" : 8.314,          // The value of the gas constant, default is 1.0. Set this according to the
+ * dimensions you use "gamma" : 1.4,        // Ratio of specific heats. Default is 1.4. "functions":
+ * [ 110, 200, 201 ],  // Additional derived values to calculate. This is an array of integers
+ * formatted
  *                                  // as [ value, value, value, ...]
- * "filenames" : [     // List of xyz (geometry) and q (value) file names along with the time values.
+ * "filenames" : [     // List of xyz (geometry) and q (value) file names along with the time
+ * values.
  *                     // This is an array which contains items in the format:
- *                     // {"time" : values, "xyz" : "xyz file name", "q" : "q file name", "function" : "function file name"}
- *                     // Note that q and function are optional. Also, you can repeat the same file name for xyz or q
- *                     // if they don't change over time. The reader will not read files unnecessarily.
- *  { "time" : 3.5, "xyz" : "combxyz.bin", "q" : "combq.1.bin", "function" : "combf.1.bin" },
- *  { "time" : 4.5, "xyz" : "combxyz.bin", "q" : "combq.2.bin", "function" : "combf.2.bin" }
+ *                     // {"time" : values, "xyz" : "xyz file name", "q" : "q file name", "function"
+ * : "function file name"}
+ *                     // Note that q and function are optional. Also, you can repeat the same file
+ * name for xyz or q
+ *                     // if they don't change over time. The reader will not read files
+ * unnecessarily. { "time" : 3.5, "xyz" : "combxyz.bin", "q" : "combq.1.bin", "function" :
+ * "combf.1.bin" }, { "time" : 4.5, "xyz" : "combxyz.bin", "q" : "combq.2.bin", "function" :
+ * "combf.2.bin" }
  * ],
  * "function-names" : ["density", "velocity_x", "temperature"]
  *                   // list of names of functions in function files
@@ -73,7 +70,7 @@
  *
  * @sa
  * vtkMultiBlockPLOT3DReader
-*/
+ */
 
 #ifndef vtkPlot3DMetaReader_h
 #define vtkPlot3DMetaReader_h
@@ -83,6 +80,7 @@
 
 #include "vtk_jsoncpp_fwd.h" // For forward declarations
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkPlot3DMetaReaderInternals;
 
 class vtkMultiBlockPLOT3DReader;
@@ -94,26 +92,22 @@ public:
   vtkTypeMacro(vtkPlot3DMetaReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the meta PLOT3D filename. See the class documentation for
    * format details.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
 protected:
   vtkPlot3DMetaReader();
   ~vtkPlot3DMetaReader() override;
 
-  int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*) override;
-
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* FileName;
 
@@ -139,4 +133,5 @@ private:
   vtkPlot3DMetaReaderInternals* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

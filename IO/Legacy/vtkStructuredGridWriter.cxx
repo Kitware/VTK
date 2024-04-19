@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStructuredGridWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkStructuredGridWriter.h"
 
 #include "vtkInformation.h"
@@ -20,27 +8,27 @@
 #include "vtkUnsignedCharArray.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
-# include <unistd.h> /* unlink */
+#include <unistd.h> /* unlink */
 #else
-# include <io.h> /* unlink */
+#include <io.h> /* unlink */
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredGridWriter);
 
 void vtkStructuredGridWriter::WriteData()
 {
-  ostream *fp;
-  vtkStructuredGrid *input= vtkStructuredGrid::SafeDownCast(this->GetInput());
+  ostream* fp;
+  vtkStructuredGrid* input = vtkStructuredGrid::SafeDownCast(this->GetInput());
   int dim[3];
 
-  vtkDebugMacro(<<"Writing vtk structured grid...");
+  vtkDebugMacro(<< "Writing vtk structured grid...");
 
-  if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
+  if (!(fp = this->OpenVTKFile()) || !this->WriteHeader(fp))
   {
     if (fp)
     {
-      vtkErrorMacro("Ran out of disk space; deleting file: "
-                    << this->FileName);
+      vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
       this->CloseVTKFile(fp);
       unlink(this->FileName);
     }
@@ -64,9 +52,8 @@ void vtkStructuredGridWriter::WriteData()
   {
     int extent[6];
     input->GetExtent(extent);
-    *fp << "EXTENT "
-        << extent[0] << " " << extent[1] << " " << extent[2] << " "
-        << extent[3] << " " << extent[4] << " " << extent[5] << "\n";
+    *fp << "EXTENT " << extent[0] << " " << extent[1] << " " << extent[2] << " " << extent[3] << " "
+        << extent[4] << " " << extent[5] << "\n";
   }
   else
   {
@@ -100,8 +87,7 @@ void vtkStructuredGridWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-int vtkStructuredGridWriter::FillInputPortInformation(int,
-                                                      vtkInformation *info)
+int vtkStructuredGridWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
@@ -119,5 +105,6 @@ vtkStructuredGrid* vtkStructuredGridWriter::GetInput(int port)
 
 void vtkStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

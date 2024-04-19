@@ -1,5 +1,10 @@
-cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
 project(Medical)
+
+include(GNUInstallDirs)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 
 find_package(VTK
   COMPONENTS
@@ -56,6 +61,15 @@ if (BUILD_TESTING)
   if (TARGET VTK::TestingRendering)
 
     ######## Regression Testing ########
+    set(ExternalData_BINARY_ROOT ${CMAKE_CURRENT_BINARY_DIR}/ExternalData)
+
+    list(APPEND ExternalData_URL_TEMPLATES
+      # Data published by Girder
+      "https://data.kitware.com/api/v1/file/hashsum/%(algo)/%(hash)/download"
+
+      # Data published by developers using git-gitlab-push.
+      "https://www.vtk.org/files/ExternalData/%(algo)/%(hash)"
+    )
     include(ExternalData)
 
     ExternalData_Expand_Arguments(MedicalData _
@@ -68,6 +82,9 @@ if (BUILD_TESTING)
           ${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing/Data/headsq/quarter
           -V DATA{${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data/Baseline/${test}.png}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+      set_property(TEST "MedicalExampleCxx-${test}"
+        PROPERTY
+          ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
     endforeach()
 
     ExternalData_Add_Target(MedicalData)

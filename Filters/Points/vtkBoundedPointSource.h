@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBoundedPointSource.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBoundedPointSource
  * @brief   create a random cloud of points within a
@@ -24,7 +12,7 @@
  * vtkPolyVertex cell as well as random scalar values within a specified
  * range. The class is typically used for debugging and testing, as well as
  * seeding streamlines.
-*/
+ */
 
 #ifndef vtkBoundedPointSource_h
 #define vtkBoundedPointSource_h
@@ -32,46 +20,47 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPOINTS_EXPORT vtkBoundedPointSource : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information and printing.
    */
-  static vtkBoundedPointSource *New();
-  vtkTypeMacro(vtkBoundedPointSource,vtkPolyDataAlgorithm);
+  static vtkBoundedPointSource* New();
+  vtkTypeMacro(vtkBoundedPointSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of points to generate.
    */
-  vtkSetClampMacro(NumberOfPoints,vtkIdType,1,VTK_ID_MAX);
-  vtkGetMacro(NumberOfPoints,vtkIdType);
-  //@}
+  vtkSetClampMacro(NumberOfPoints, vtkIdType, 1, VTK_ID_MAX);
+  vtkGetMacro(NumberOfPoints, vtkIdType);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the bounding box for the point distribution. By default the bounds is
    * (-1,1,-1,1,-1,1).
    */
-  vtkSetVector6Macro(Bounds,double);
-  vtkGetVectorMacro(Bounds,double,6);
-  //@}
+  vtkSetVector6Macro(Bounds, double);
+  vtkGetVectorMacro(Bounds, double, 6);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
-  //@}
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to produce a vtkPolyVertex cell to go along with the
    * output vtkPoints generated. By default a cell is NOT produced. Some filters
@@ -80,9 +69,9 @@ public:
   vtkSetMacro(ProduceCellOutput, bool);
   vtkGetMacro(ProduceCellOutput, bool);
   vtkBooleanMacro(ProduceCellOutput, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to produce random point scalars in the output. By default
    * this is off.
@@ -90,22 +79,22 @@ public:
   vtkSetMacro(ProduceRandomScalars, bool);
   vtkGetMacro(ProduceRandomScalars, bool);
   vtkBooleanMacro(ProduceRandomScalars, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the range in which the random scalars should be produced. By default the
    * scalar range is (0,1).
    */
-  vtkSetVector2Macro(ScalarRange,double);
-  vtkGetVectorMacro(ScalarRange,double,2);
-  //@}
+  vtkSetVector2Macro(ScalarRange, double);
+  vtkGetVectorMacro(ScalarRange, double, 2);
+  ///@}
 
 protected:
   vtkBoundedPointSource();
-  ~vtkBoundedPointSource() override {}
+  ~vtkBoundedPointSource() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkIdType NumberOfPoints;
   double Bounds[6];
@@ -119,4 +108,5 @@ private:
   void operator=(const vtkBoundedPointSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

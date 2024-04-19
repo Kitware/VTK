@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPanoramicProjectionPass.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPanoramicProjectionPass
  * @brief   Render pass that render the scene in a cubemap and project
@@ -33,6 +21,7 @@
 #include "vtkImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLQuadHelper;
 class vtkTextureObject;
@@ -54,14 +43,14 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the cubemap textures resolution used to render (offscreen) all directions.
    * Default is 300.
    */
   vtkGetMacro(CubeResolution, unsigned int);
   vtkSetMacro(CubeResolution, unsigned int);
-  //@}
+  ///@}
 
   /**
    * Enumeration of projection types.
@@ -69,10 +58,10 @@ public:
   enum : int
   {
     Equirectangular = 1, /**< Equirectangular projection */
-    Azimuthal = 2 /**< Azimuthal equidistant projection */
+    Azimuthal = 2        /**< Azimuthal equidistant projection */
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the type of projection.
    * Equirectangular projection maps meridians to vertical straight lines and circles of latitude to
@@ -85,9 +74,9 @@ public:
   vtkSetClampMacro(ProjectionType, int, Equirectangular, Azimuthal);
   void SetProjectionTypeToEquirectangular() { this->SetProjectionType(Equirectangular); }
   void SetProjectionTypeToAzimuthal() { this->SetProjectionType(Azimuthal); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the vertical angle of projection.
    * 180 degrees is a half sphere, 360 degrees is a full sphere,
@@ -96,7 +85,18 @@ public:
    */
   vtkGetMacro(Angle, double);
   vtkSetClampMacro(Angle, double, 90.0, 360.0);
-  //@}
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the interpolation mode.
+   * If true, the projection of the cubemap use hardware interpolation.
+   * Default is off.
+   */
+  vtkGetMacro(Interpolate, bool);
+  vtkSetMacro(Interpolate, bool);
+  vtkBooleanMacro(Interpolate, bool);
+  ///@}
 
 protected:
   vtkPanoramicProjectionPass() = default;
@@ -118,10 +118,12 @@ protected:
   unsigned int CubeResolution = 300;
   int ProjectionType = Equirectangular;
   double Angle = 180.0;
+  bool Interpolate = false;
 
 private:
   vtkPanoramicProjectionPass(const vtkPanoramicProjectionPass&) = delete;
   void operator=(const vtkPanoramicProjectionPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

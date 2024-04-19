@@ -1,39 +1,28 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMatrixToLinearTransform.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkMatrixToLinearTransform.h"
 
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMatrixToLinearTransform);
-vtkCxxSetObjectMacro(vtkMatrixToLinearTransform,Input,vtkMatrix4x4);
+vtkCxxSetObjectMacro(vtkMatrixToLinearTransform, Input, vtkMatrix4x4);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatrixToLinearTransform::vtkMatrixToLinearTransform()
 {
   this->Input = nullptr;
   this->InverseFlag = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatrixToLinearTransform::~vtkMatrixToLinearTransform()
 {
   this->SetInput(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrixToLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Update();
@@ -43,14 +32,14 @@ void vtkMatrixToLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InverseFlag: " << this->InverseFlag << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrixToLinearTransform::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrixToLinearTransform::InternalUpdate()
 {
   if (this->Input)
@@ -67,11 +56,10 @@ void vtkMatrixToLinearTransform::InternalUpdate()
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkMatrixToLinearTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
+//------------------------------------------------------------------------------
+void vtkMatrixToLinearTransform::InternalDeepCopy(vtkAbstractTransform* gtrans)
 {
-  vtkMatrixToLinearTransform *transform =
-    static_cast<vtkMatrixToLinearTransform *>(gtrans);
+  vtkMatrixToLinearTransform* transform = static_cast<vtkMatrixToLinearTransform*>(gtrans);
 
   this->SetInput(transform->Input);
 
@@ -81,13 +69,13 @@ void vtkMatrixToLinearTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
   }
 }
 
-//----------------------------------------------------------------------------
-vtkAbstractTransform *vtkMatrixToLinearTransform::MakeTransform()
+//------------------------------------------------------------------------------
+vtkAbstractTransform* vtkMatrixToLinearTransform::MakeTransform()
 {
   return vtkMatrixToLinearTransform::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the MTime
 vtkMTimeType vtkMatrixToLinearTransform::GetMTime()
 {
@@ -103,3 +91,4 @@ vtkMTimeType vtkMatrixToLinearTransform::GetMTime()
   }
   return mtime;
 }
+VTK_ABI_NAMESPACE_END

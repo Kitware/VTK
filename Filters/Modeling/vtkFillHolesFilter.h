@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFillHolesFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkFillHolesFilter
  * @brief   identify and fill holes in meshes
@@ -34,7 +22,7 @@
  * @warning
  * Note this filter only operates on polygons and triangle strips.
  * Vertices and polylines are passed through untouched.
-*/
+ */
 
 #ifndef vtkFillHolesFilter_h
 #define vtkFillHolesFilter_h
@@ -42,21 +30,22 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractTransform;
 
 class VTKFILTERSMODELING_EXPORT vtkFillHolesFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information and printing.
    */
-  static vtkFillHolesFilter *New();
-  vtkTypeMacro(vtkFillHolesFilter,vtkPolyDataAlgorithm);
+  static vtkFillHolesFilter* New();
+  vtkTypeMacro(vtkFillHolesFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum hole size to fill. This is represented as a radius
    * to the bounding circumsphere containing the hole.  Note that this is an
@@ -65,13 +54,13 @@ public:
    */
   vtkSetClampMacro(HoleSize, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(HoleSize, double);
-  //@}
+  ///@}
 
 protected:
   vtkFillHolesFilter();
   ~vtkFillHolesFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double HoleSize;
 
@@ -80,4 +69,5 @@ private:
   void operator=(const vtkFillHolesFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

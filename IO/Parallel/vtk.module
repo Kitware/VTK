@@ -7,6 +7,10 @@ KIT
   VTK::Parallel
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
@@ -15,7 +19,6 @@ DEPENDS
   VTK::IOGeometry
   VTK::IOImage
   VTK::IOLegacy
-  VTK::IONetCDF
   VTK::jsoncpp
 PRIVATE_DEPENDS
   VTK::CommonMisc
@@ -24,16 +27,16 @@ PRIVATE_DEPENDS
   VTK::FiltersExtraction
   VTK::FiltersParallel
   VTK::ParallelCore
-  VTK::exodusII
-  VTK::netcdf
   VTK::vtksys
 TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::ImagingCore
   VTK::InteractionImage
+  VTK::ParallelCore
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingCore
   VTK::TestingRendering
 TEST_OPTIONAL_DEPENDS
   VTK::ParallelMPI
+  VTK::IOEnSight

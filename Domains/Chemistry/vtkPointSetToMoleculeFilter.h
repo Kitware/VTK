@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPointSetToMoleculeFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /*
  * @class vtkPointSetToMoleculeFilter
  * @brief Converts a pointset into a molecule.
@@ -29,13 +17,15 @@
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKDOMAINSCHEMISTRY_EXPORT vtkPointSetToMoleculeFilter : public vtkMoleculeAlgorithm
 {
 public:
   static vtkPointSetToMoleculeFilter* New();
   vtkTypeMacro(vtkPointSetToMoleculeFilter, vtkMoleculeAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set if the filter should look for lines in input cells and convert them
    * into bonds.
@@ -44,7 +34,7 @@ public:
   vtkGetMacro(ConvertLinesIntoBonds, bool);
   vtkSetMacro(ConvertLinesIntoBonds, bool);
   vtkBooleanMacro(ConvertLinesIntoBonds, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPointSetToMoleculeFilter();
@@ -55,9 +45,11 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   bool ConvertLinesIntoBonds;
+
 private:
   vtkPointSetToMoleculeFilter(const vtkPointSetToMoleculeFilter&) = delete;
   void operator=(const vtkPointSetToMoleculeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

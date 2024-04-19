@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractGrid.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExtractStructuredGridHelper.h"
 
 // VTK includes
@@ -32,8 +20,8 @@
 #include <vector>
 
 // Some useful extent macros
-#define EMIN(ext, dim) (ext[2*dim])
-#define EMAX(ext, dim) (ext[2*dim+1])
+#define EMIN(ext, dim) (ext[2 * dim])
+#define EMAX(ext, dim) (ext[2 * dim + 1])
 #define IMIN(ext) (ext[0])
 #define IMAX(ext) (ext[1])
 #define JMIN(ext) (ext[2])
@@ -49,6 +37,7 @@ namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Index mapping works as:
 // inputExtent = Mapping[dim][outputExtent - this->OutputWholeExtent[2*dim]]
@@ -57,68 +46,70 @@ struct vtkIndexMap
   std::vector<int> Mapping[3];
 };
 
+VTK_ABI_NAMESPACE_END
 } // End namespace detail
 } // End namespace vtk
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractStructuredGridHelper);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractStructuredGridHelper::vtkExtractStructuredGridHelper()
 {
   this->IndexMap = new vtk::detail::vtkIndexMap;
   this->Invalidate();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractStructuredGridHelper::~vtkExtractStructuredGridHelper()
 {
   delete this->IndexMap;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractStructuredGridHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractStructuredGridHelper::Invalidate()
 {
-  this->VOI[0]= 0;
-  this->VOI[1]=-1;
-  this->VOI[2]= 0;
-  this->VOI[3]=-1;
-  this->VOI[4]= 0;
-  this->VOI[5]=-1;
-  this->InputWholeExtent[0]= 0;
-  this->InputWholeExtent[1]=-1;
-  this->InputWholeExtent[2]= 0;
-  this->InputWholeExtent[3]=-1;
-  this->InputWholeExtent[4]= 0;
-  this->InputWholeExtent[5]=-1;
+  this->VOI[0] = 0;
+  this->VOI[1] = -1;
+  this->VOI[2] = 0;
+  this->VOI[3] = -1;
+  this->VOI[4] = 0;
+  this->VOI[5] = -1;
+  this->InputWholeExtent[0] = 0;
+  this->InputWholeExtent[1] = -1;
+  this->InputWholeExtent[2] = 0;
+  this->InputWholeExtent[3] = -1;
+  this->InputWholeExtent[4] = 0;
+  this->InputWholeExtent[5] = -1;
   this->SampleRate[0] = 0;
   this->SampleRate[1] = 0;
   this->SampleRate[2] = 0;
   this->IncludeBoundary = true;
 
-  this->OutputWholeExtent[0]= 0;
-  this->OutputWholeExtent[1]=-1;
-  this->OutputWholeExtent[2]= 0;
-  this->OutputWholeExtent[3]=-1;
-  this->OutputWholeExtent[4]= 0;
-  this->OutputWholeExtent[5]=-1;
+  this->OutputWholeExtent[0] = 0;
+  this->OutputWholeExtent[1] = -1;
+  this->OutputWholeExtent[2] = 0;
+  this->OutputWholeExtent[3] = -1;
+  this->OutputWholeExtent[4] = 0;
+  this->OutputWholeExtent[5] = -1;
 
-  for(int i=0; i < 3; ++i)
+  for (int i = 0; i < 3; ++i)
   {
-    this->IndexMap->Mapping[ i ].clear();
+    this->IndexMap->Mapping[i].clear();
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractStructuredGridHelper::Initialize(
-      int inVoi[6], int wholeExtent[6], int sampleRate[3], bool includeBoundary)
+  int inVoi[6], int wholeExtent[6], int sampleRate[3], bool includeBoundary)
 {
-  assert("pre: nullptr index map" && (this->IndexMap != nullptr) );
+  assert("pre: nullptr index map" && (this->IndexMap != nullptr));
 
   // Copy the VOI because we'll clamp it later:
   int voi[6];
@@ -126,9 +117,9 @@ void vtkExtractStructuredGridHelper::Initialize(
 
   // Have the parameters actually changed?
   if (std::equal(voi, voi + 6, this->VOI) &&
-      std::equal(wholeExtent, wholeExtent + 6, this->InputWholeExtent) &&
-      std::equal(sampleRate, sampleRate + 3, this->SampleRate) &&
-      includeBoundary == this->IncludeBoundary)
+    std::equal(wholeExtent, wholeExtent + 6, this->InputWholeExtent) &&
+    std::equal(sampleRate, sampleRate + 3, this->SampleRate) &&
+    includeBoundary == this->IncludeBoundary)
   {
     // Nope.
     return;
@@ -139,9 +130,9 @@ void vtkExtractStructuredGridHelper::Initialize(
   {
     this->Invalidate();
     vtkWarningMacro("Invalid volume of interest: ["
-                    << " [ " << voi[0] << ", " << voi[1] << " ], "
-                    << " [ " << voi[2] << ", " << voi[3] << " ], "
-                    << " [ " << voi[4] << ", " << voi[5] << " ] ]");
+      << " [ " << voi[0] << ", " << voi[1] << " ], "
+      << " [ " << voi[2] << ", " << voi[3] << " ], "
+      << " [ " << voi[4] << ", " << voi[5] << " ] ]");
     return;
   }
 
@@ -151,33 +142,30 @@ void vtkExtractStructuredGridHelper::Initialize(
   std::copy(sampleRate, sampleRate + 3, this->SampleRate);
   this->IncludeBoundary = includeBoundary;
 
-  vtkBoundingBox wExtB(wholeExtent[0], wholeExtent[1], wholeExtent[2],
-                       wholeExtent[3], wholeExtent[4], wholeExtent[5]);
-  vtkBoundingBox voiB(voi[0],voi[1],voi[2],voi[3],voi[4],voi[5]);
+  vtkBoundingBox wExtB(
+    wholeExtent[0], wholeExtent[1], wholeExtent[2], wholeExtent[3], wholeExtent[4], wholeExtent[5]);
+  vtkBoundingBox voiB(voi[0], voi[1], voi[2], voi[3], voi[4], voi[5]);
 
-  if(!wExtB.Intersects(voiB))
+  if (!wExtB.Intersects(voiB))
   {
     this->Invalidate();
-    vtkDebugMacro(<< "Extent ["
-                  << wholeExtent[0] << ", " << wholeExtent[1] << ", "
-                  << wholeExtent[2] << ", " << wholeExtent[3] << ", "
-                  << wholeExtent[4] << ", " << wholeExtent[5]
-                  << "] does not contain VOI ["
-                  << voi[0] << ", " << voi[1] << ", " << voi[2] << ", "
-                  << voi[3] << ", " << voi[4] << ", " << voi[5] << "].");
+    vtkDebugMacro(<< "Extent [" << wholeExtent[0] << ", " << wholeExtent[1] << ", "
+                  << wholeExtent[2] << ", " << wholeExtent[3] << ", " << wholeExtent[4] << ", "
+                  << wholeExtent[5] << "] does not contain VOI [" << voi[0] << ", " << voi[1]
+                  << ", " << voi[2] << ", " << voi[3] << ", " << voi[4] << ", " << voi[5] << "].");
     return;
   }
 
   // Clamp VOI to Whole Extent
-  vtkStructuredExtent::Clamp(voi,wholeExtent);
+  vtkStructuredExtent::Clamp(voi, wholeExtent);
 
   // Create mapping between output extent and input extent.
   // Compute the output whole extent in the process.
-  for(int dim=0; dim < 3; ++dim)
+  for (int dim = 0; dim < 3; ++dim)
   {
     // +2: +1 to include start/end points, +1 in case we need to append an
     // extra point for includeBoundary edge cases.
-    this->IndexMap->Mapping[dim].resize(voi[2*dim+1]-voi[2*dim]+2);
+    this->IndexMap->Mapping[dim].resize(voi[2 * dim + 1] - voi[2 * dim] + 2);
 
     int outIdx = 0;
     // the start inIdx should account for the extent index offset
@@ -189,8 +177,7 @@ void vtkExtractStructuredGridHelper::Initialize(
       inIdx += sampleRate[dim];
     } // END for all points in this dimension, strided by the sample rate
 
-    if (includeBoundary &&
-        this->IndexMap->Mapping[dim][outIdx-1] != idxSize)
+    if (includeBoundary && this->IndexMap->Mapping[dim][outIdx - 1] != idxSize)
     {
       this->IndexMap->Mapping[dim][outIdx++] = idxSize;
     }
@@ -198,77 +185,72 @@ void vtkExtractStructuredGridHelper::Initialize(
 
     // Preserve the extent range when sample rate is 1, otherwise extents start
     // at 0 if downsampling.
-    int offset = this->SampleRate[dim] == 1 ? voi[2*dim] : 0;
+    int offset = this->SampleRate[dim] == 1 ? voi[2 * dim] : 0;
 
     // Update output whole extent
-    this->OutputWholeExtent[2*dim]   = offset;
-    this->OutputWholeExtent[2*dim+1] = offset +
-        static_cast<int>( this->IndexMap->Mapping[dim].size()-1 );
+    this->OutputWholeExtent[2 * dim] = offset;
+    this->OutputWholeExtent[2 * dim + 1] =
+      offset + static_cast<int>(this->IndexMap->Mapping[dim].size() - 1);
   } // END for all dimensions
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExtractStructuredGridHelper::IsValid() const
 {
   return this->OutputWholeExtent[0] <= this->OutputWholeExtent[1] &&
-         this->OutputWholeExtent[2] <= this->OutputWholeExtent[3] &&
-         this->OutputWholeExtent[4] <= this->OutputWholeExtent[5];
+    this->OutputWholeExtent[2] <= this->OutputWholeExtent[3] &&
+    this->OutputWholeExtent[4] <= this->OutputWholeExtent[5];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractStructuredGridHelper::GetMappedIndex(int dim, int outIdx)
 {
   // Sanity Checks
   assert("pre: dimension dim is out-of-bounds!" && dim >= 0 && dim < 3);
-  assert("pre: point index out-of-bounds!" &&
-         outIdx >= 0 && outIdx < this->GetSize(dim));
+  assert("pre: point index out-of-bounds!" && outIdx >= 0 && outIdx < this->GetSize(dim));
   return this->IndexMap->Mapping[dim][outIdx];
 }
 
-//-----------------------------------------------------------------------------
-int vtkExtractStructuredGridHelper::GetMappedIndexFromExtentValue(int dim,
-                                                                  int outExtVal)
+//------------------------------------------------------------------------------
+int vtkExtractStructuredGridHelper::GetMappedIndexFromExtentValue(int dim, int outExtVal)
 {
   // Sanity Checks
   assert("pre: dimension dim is out-of-bounds!" && dim >= 0 && dim < 3);
-  assert("pre: extent value out-of-bounds!" &&
-         outExtVal >= this->OutputWholeExtent[2 * dim] &&
-         outExtVal <= this->OutputWholeExtent[2 * dim + 1]);
+  assert("pre: extent value out-of-bounds!" && outExtVal >= this->OutputWholeExtent[2 * dim] &&
+    outExtVal <= this->OutputWholeExtent[2 * dim + 1]);
   int outIdx = outExtVal - this->OutputWholeExtent[2 * dim];
   return this->IndexMap->Mapping[dim][outIdx];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractStructuredGridHelper::GetMappedExtentValue(int dim, int outExtVal)
 {
   // Sanity Checks
   assert("pre: dimension dim is out-of-bounds!" && dim >= 0 && dim < 3);
-  assert("pre: extent value out-of-bounds!" &&
-         outExtVal >= this->OutputWholeExtent[2 * dim] &&
-         outExtVal <= this->OutputWholeExtent[2 * dim + 1]);
+  assert("pre: extent value out-of-bounds!" && outExtVal >= this->OutputWholeExtent[2 * dim] &&
+    outExtVal <= this->OutputWholeExtent[2 * dim + 1]);
   int outIdx = outExtVal - this->OutputWholeExtent[2 * dim];
   return this->IndexMap->Mapping[dim][outIdx] + this->InputWholeExtent[2 * dim];
 }
 
-//-----------------------------------------------------------------------------
-int vtkExtractStructuredGridHelper::GetMappedExtentValueFromIndex(int dim,
-                                                                  int outIdx)
+//------------------------------------------------------------------------------
+int vtkExtractStructuredGridHelper::GetMappedExtentValueFromIndex(int dim, int outIdx)
 {
   // Sanity Checks
   assert("pre: dimension dim is out-of-bounds!" && dim >= 0 && dim < 3);
-  assert("pre: point index out-of-bounds!" &&
-         outIdx >= 0 && outIdx < this->GetSize(dim));
+  assert("pre: point index out-of-bounds!" && outIdx >= 0 && outIdx < this->GetSize(dim));
   return this->IndexMap->Mapping[dim][outIdx] + this->InputWholeExtent[2 * dim];
 }
 
-//-----------------------------------------------------------------------------
-int vtkExtractStructuredGridHelper::GetSize(const int dim)
+//------------------------------------------------------------------------------
+int vtkExtractStructuredGridHelper::GetSize(int dim)
 {
-  assert("pre: dimension dim is out-of-bounds!" && (dim >= 0) && (dim < 3) );
-  return( static_cast<int>( this->IndexMap->Mapping[ dim ].size() ) );
+  assert("pre: dimension dim is out-of-bounds!" && (dim >= 0) && (dim < 3));
+  return (static_cast<int>(this->IndexMap->Mapping[dim].size()));
 }
+VTK_ABI_NAMESPACE_END
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 int roundToInt(double r)
@@ -277,45 +259,44 @@ int roundToInt(double r)
 }
 }
 
-//-----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+//------------------------------------------------------------------------------
 void vtkExtractStructuredGridHelper::ComputeBeginAndEnd(
-        int inExt[6], int voi[6], int begin[3], int end[3])
+  int inExt[6], int voi[6], int begin[3], int end[3])
 {
-  vtkBoundingBox inExtB(inExt[0],inExt[1],inExt[2],inExt[3],inExt[4],inExt[5]);
-  vtkBoundingBox uExtB(voi[0],voi[1],voi[2],voi[3],voi[4],voi[5]);
-  std::fill(begin,begin+3,0);
-  std::fill(end,end+3,-1);
+  vtkBoundingBox inExtB(inExt[0], inExt[1], inExt[2], inExt[3], inExt[4], inExt[5]);
+  vtkBoundingBox uExtB(voi[0], voi[1], voi[2], voi[3], voi[4], voi[5]);
+  std::fill(begin, begin + 3, 0);
+  std::fill(end, end + 3, -1);
 
   int uExt[6];
-  if( uExtB.IntersectBox(inExtB) )
+  if (uExtB.IntersectBox(inExtB))
   {
 
-    for(int i=0; i < 6; ++i)
+    for (int i = 0; i < 6; ++i)
     {
-      uExt[i] = static_cast<int>( roundToInt(uExtB.GetBound(i) ) );
+      uExt[i] = static_cast<int>(roundToInt(uExtB.GetBound(i)));
     }
 
     // Find the first and last indices in the map that are
     // within data extents. These are the extents of the
     // output data.
-    for(int dim=0; dim < 3; ++dim)
+    for (int dim = 0; dim < 3; ++dim)
     {
-      for(int idx=0; idx < this->GetSize(dim); ++idx)
+      for (int idx = 0; idx < this->GetSize(dim); ++idx)
       {
         int extVal = this->GetMappedExtentValueFromIndex(dim, idx);
-        if (extVal >= uExt[2*dim] &&
-            extVal <= uExt[2*dim+1] )
+        if (extVal >= uExt[2 * dim] && extVal <= uExt[2 * dim + 1])
         {
           begin[dim] = idx;
           break;
         }
       } // END for all indices with
 
-      for(int idx=this->GetSize(dim)-1; idx >= 0; --idx)
+      for (int idx = this->GetSize(dim) - 1; idx >= 0; --idx)
       {
         int extVal = this->GetMappedExtentValueFromIndex(dim, idx);
-        if (extVal <= uExt[2*dim+1] &&
-            extVal >= uExt[2*dim] )
+        if (extVal <= uExt[2 * dim + 1] && extVal >= uExt[2 * dim])
         {
           end[dim] = idx;
           break;
@@ -327,17 +308,15 @@ void vtkExtractStructuredGridHelper::ComputeBeginAndEnd(
   } // END if box intersects
 }
 
-//-----------------------------------------------------------------------------
-void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
-          int inExt[6], int outExt[6],
-          vtkPointData* pd, vtkPoints* inpnts,
-          vtkPointData* outPD, vtkPoints* outpnts)
+//------------------------------------------------------------------------------
+void vtkExtractStructuredGridHelper::CopyPointsAndPointData(int inExt[6], int outExt[6],
+  vtkPointData* pd, vtkPoints* inpnts, vtkPointData* outPD, vtkPoints* outpnts)
 {
-  assert("pre: nullptr input point-data!" && (pd != nullptr) );
-  assert("pre: nullptr output point-data!" && (outPD != nullptr) );
+  assert("pre: nullptr input point-data!" && (pd != nullptr));
+  assert("pre: nullptr output point-data!" && (outPD != nullptr));
 
   // short-circuit
-  if( (pd->GetNumberOfArrays()==0) && (inpnts==nullptr) )
+  if ((pd->GetNumberOfArrays() == 0) && (inpnts == nullptr))
   {
     // nothing to copy
     return;
@@ -350,17 +329,16 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
 
   // Check if we can use some optimizations:
   bool canCopyRange = I(this->SampleRate) == 1;
-  bool useMapping = !(I(this->SampleRate) == 1 &&
-                      J(this->SampleRate) == 1 &&
-                      K(this->SampleRate) == 1);
+  bool useMapping =
+    !(I(this->SampleRate) == 1 && J(this->SampleRate) == 1 && K(this->SampleRate) == 1);
 
-  if( inpnts != nullptr )
+  if (inpnts != nullptr)
   {
-    assert("pre: output points data-structure is nullptr!" && (outpnts != nullptr) );
-    outpnts->SetDataType( inpnts->GetDataType() );
-    outpnts->SetNumberOfPoints( outSize );
+    assert("pre: output points data-structure is nullptr!" && (outpnts != nullptr));
+    outpnts->SetDataType(inpnts->GetDataType());
+    outpnts->SetNumberOfPoints(outSize);
   }
-  outPD->CopyAllocate(pd,outSize,outSize);
+  outPD->CopyAllocate(pd, outSize, outSize);
 
   // Lists for batching copy operations:
   vtkNew<vtkIdList> srcIds;
@@ -374,13 +352,13 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
 
   int ijk[3];
   int src_ijk[3];
-  for( K(ijk)=KMIN(outExt); K(ijk) <= KMAX(outExt); ++K(ijk) )
+  for (K(ijk) = KMIN(outExt); K(ijk) <= KMAX(outExt); ++K(ijk))
   {
-    K(src_ijk) = useMapping ? this->GetMappedExtentValue(2,K(ijk)) : K(ijk);
+    K(src_ijk) = useMapping ? this->GetMappedExtentValue(2, K(ijk)) : K(ijk);
 
-    for( J(ijk)=JMIN(outExt); J(ijk) <= JMAX(outExt); ++J(ijk) )
+    for (J(ijk) = JMIN(outExt); J(ijk) <= JMAX(outExt); ++J(ijk))
     {
-      J(src_ijk) = useMapping ? this->GetMappedExtentValue(1,J(ijk)) : J(ijk);
+      J(src_ijk) = useMapping ? this->GetMappedExtentValue(1, J(ijk)) : J(ijk);
 
       if (canCopyRange)
       {
@@ -388,17 +366,13 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
         I(ijk) = IMIN(outExt);
         I(src_ijk) = I(ijk);
 
-        vtkIdType srcStart =
-            vtkStructuredData::ComputePointIdForExtent(inExt, src_ijk);
-        vtkIdType dstStart =
-            vtkStructuredData::ComputePointIdForExtent(outExt, ijk);
+        vtkIdType srcStart = vtkStructuredData::ComputePointIdForExtent(inExt, src_ijk);
+        vtkIdType dstStart = vtkStructuredData::ComputePointIdForExtent(outExt, ijk);
         vtkIdType num = IMAX(outExt) - IMIN(outExt) + 1;
 
-          // Sanity checks
-          assert( "pre: srcStart out of bounds" && (srcStart >= 0) &&
-                  (srcStart < inSize) );
-          assert( "pre: dstStart out of bounds" && (dstStart >= 0) &&
-                  (dstStart < outSize) );
+        // Sanity checks
+        assert("pre: srcStart out of bounds" && (srcStart >= 0) && (srcStart < inSize));
+        assert("pre: dstStart out of bounds" && (dstStart >= 0) && (dstStart < outSize));
 
         if (inpnts != nullptr)
         {
@@ -408,28 +382,23 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
       }
       else // canCopyRange
       {
-        for( I(ijk)=IMIN(outExt); I(ijk) <= IMAX(outExt); ++I(ijk) )
+        for (I(ijk) = IMIN(outExt); I(ijk) <= IMAX(outExt); ++I(ijk))
         {
-          I(src_ijk) = useMapping ? this->GetMappedExtentValue(0,I(ijk))
-                                  : I(ijk);
+          I(src_ijk) = useMapping ? this->GetMappedExtentValue(0, I(ijk)) : I(ijk);
 
-          vtkIdType srcIdx =
-              vtkStructuredData::ComputePointIdForExtent(inExt,src_ijk);
-          vtkIdType targetIdx =
-              vtkStructuredData::ComputePointIdForExtent(outExt,ijk);
+          vtkIdType srcIdx = vtkStructuredData::ComputePointIdForExtent(inExt, src_ijk);
+          vtkIdType targetIdx = vtkStructuredData::ComputePointIdForExtent(outExt, ijk);
 
           // Sanity checks
-          assert( "pre: srcIdx out of bounds" && (srcIdx >= 0) &&
-                  (srcIdx < inSize) );
-          assert( "pre: targetIdx out of bounds" && (targetIdx >= 0) &&
-                  (targetIdx < outSize) );
+          assert("pre: srcIdx out of bounds" && (srcIdx >= 0) && (srcIdx < inSize));
+          assert("pre: targetIdx out of bounds" && (targetIdx >= 0) && (targetIdx < outSize));
 
           srcIds->InsertNextId(srcIdx);
           dstIds->InsertNextId(targetIdx);
 
         } // END for all i
 
-        if( inpnts != nullptr )
+        if (inpnts != nullptr)
         {
           outpnts->InsertPoints(dstIds, srcIds, inpnts);
         } // END if
@@ -442,19 +411,17 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
     } // END for all j
 
   } // END for all k
-
 }
 
-//-----------------------------------------------------------------------------
-void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
-                                                  vtkCellData* cd,
-                                                  vtkCellData* outCD)
+//------------------------------------------------------------------------------
+void vtkExtractStructuredGridHelper::CopyCellData(
+  int inExt[6], int outExt[6], vtkCellData* cd, vtkCellData* outCD)
 {
-  assert("pre: nullptr input cell-data!" && (cd != nullptr) );
-  assert("pre: nullptr output cell-data!" && (outCD != nullptr) );
+  assert("pre: nullptr input cell-data!" && (cd != nullptr));
+  assert("pre: nullptr output cell-data!" && (outCD != nullptr));
 
   // short-circuit
-  if( cd->GetNumberOfArrays()==0 )
+  if (cd->GetNumberOfArrays() == 0)
   {
     // nothing to copy
     return;
@@ -464,19 +431,18 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
   vtkIdType inSize = vtkStructuredData::GetNumberOfCells(inExt);
   vtkIdType outSize = vtkStructuredData::GetNumberOfCells(outExt);
   (void)inSize; // Prevent warnings, this is only used in debug builds.
-  outCD->CopyAllocate(cd,outSize,outSize);
+  outCD->CopyAllocate(cd, outSize, outSize);
 
   // Check if we can use some optimizations:
   bool canCopyRange = I(this->SampleRate) == 1;
-  bool useMapping = !(I(this->SampleRate) == 1 &&
-                      J(this->SampleRate) == 1 &&
-                      K(this->SampleRate) == 1);
+  bool useMapping =
+    !(I(this->SampleRate) == 1 && J(this->SampleRate) == 1 && K(this->SampleRate) == 1);
 
   int inpCellExt[6];
-  vtkStructuredData::GetCellExtentFromPointExtent(inExt,inpCellExt);
+  vtkStructuredData::GetCellExtentFromPointExtent(inExt, inpCellExt);
 
   int outCellExt[6];
-  vtkStructuredData::GetCellExtentFromPointExtent(outExt,outCellExt);
+  vtkStructuredData::GetCellExtentFromPointExtent(outExt, outCellExt);
 
   // clamp outCellExt using inpCellExt. This is needed for the case where outExt
   // is the outer face of the dataset along any of the dimensions.
@@ -498,20 +464,20 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
 
   int ijk[3];
   int src_ijk[3];
-  for( K(ijk)=KMIN(outCellExt); K(ijk) <= KMAX(outCellExt); ++K(ijk) )
+  for (K(ijk) = KMIN(outCellExt); K(ijk) <= KMAX(outCellExt); ++K(ijk))
   {
     K(src_ijk) = useMapping ? this->GetMappedExtentValue(2, K(ijk)) : K(ijk);
     if (K(src_ijk) == KMAX(this->InputWholeExtent) &&
-        KMIN(this->InputWholeExtent) != KMAX(this->InputWholeExtent))
+      KMIN(this->InputWholeExtent) != KMAX(this->InputWholeExtent))
     {
       --K(src_ijk);
     }
 
-    for( J(ijk)=JMIN(outCellExt); J(ijk) <= JMAX(outCellExt); ++J(ijk) )
+    for (J(ijk) = JMIN(outCellExt); J(ijk) <= JMAX(outCellExt); ++J(ijk))
     {
       J(src_ijk) = useMapping ? this->GetMappedExtentValue(1, J(ijk)) : J(ijk);
       if (J(src_ijk) == JMAX(this->InputWholeExtent) &&
-          JMIN(this->InputWholeExtent) != JMAX(this->InputWholeExtent))
+        JMIN(this->InputWholeExtent) != JMAX(this->InputWholeExtent))
       {
         --J(src_ijk);
       }
@@ -524,39 +490,32 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
 
         // NOTE: since we are operating on cell extents, ComputePointID below
         // really returns the cell ID
-        vtkIdType srcStart =
-          vtkStructuredData::ComputePointIdForExtent(inpCellExt, src_ijk);
-        vtkIdType dstStart =
-          vtkStructuredData::ComputePointIdForExtent(outCellExt, ijk);
+        vtkIdType srcStart = vtkStructuredData::ComputePointIdForExtent(inpCellExt, src_ijk);
+        vtkIdType dstStart = vtkStructuredData::ComputePointIdForExtent(outCellExt, ijk);
         vtkIdType num = IMAX(outCellExt) - IMIN(outCellExt) + 1;
 
         // Sanity checks
-        assert( "pre: srcStart out of bounds" && (srcStart >= 0) &&
-                (srcStart < inSize) );
-        assert( "pre: dstStart out of bounds" && (dstStart >= 0) &&
-                (dstStart < outSize) );
+        assert("pre: srcStart out of bounds" && (srcStart >= 0) && (srcStart < inSize));
+        assert("pre: dstStart out of bounds" && (dstStart >= 0) && (dstStart < outSize));
 
         outCD->CopyData(cd, dstStart, num, srcStart);
       }
       else // canCopyRange
       {
-        for( I(ijk)=IMIN(outCellExt); I(ijk) <= IMAX(outCellExt); ++I(ijk) )
+        for (I(ijk) = IMIN(outCellExt); I(ijk) <= IMAX(outCellExt); ++I(ijk))
         {
-          I(src_ijk) = useMapping ? this->GetMappedExtentValue(0, I(ijk))
-                                  : I(ijk);
+          I(src_ijk) = useMapping ? this->GetMappedExtentValue(0, I(ijk)) : I(ijk);
           if (I(src_ijk) == IMAX(this->InputWholeExtent) &&
-              IMIN(this->InputWholeExtent) != IMAX(this->InputWholeExtent))
+            IMIN(this->InputWholeExtent) != IMAX(this->InputWholeExtent))
           {
             --I(src_ijk);
           }
 
           // NOTE: since we are operating on cell extents, ComputePointID below
           // really returns the cell ID
-          vtkIdType srcIdx =
-              vtkStructuredData::ComputePointIdForExtent(inpCellExt, src_ijk);
+          vtkIdType srcIdx = vtkStructuredData::ComputePointIdForExtent(inpCellExt, src_ijk);
 
-          vtkIdType targetIdx =
-              vtkStructuredData::ComputePointIdForExtent(outCellExt, ijk);
+          vtkIdType targetIdx = vtkStructuredData::ComputePointIdForExtent(outCellExt, ijk);
 
           srcIds->InsertNextId(srcIdx);
           dstIds->InsertNextId(targetIdx);
@@ -566,9 +525,9 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
         srcIds->Reset();
         dstIds->Reset();
 
-      }// END else canCopyRange
-    } // END for all j
-  } // END for all k
+      } // END else canCopyRange
+    }   // END for all j
+  }     // END for all k
 }
 
 //------------------------------------------------------------------------------
@@ -595,11 +554,10 @@ void vtkExtractStructuredGridHelper::GetPartitionedVOI(const int globalVOI[6],
   //
   // This method calculates the PartitionedVOI.
 
-
   // Start with filter's VOI (Ex: [3, 17] | [3, 17] )
   std::copy(globalVOI, globalVOI + 6, partitionedVOI);
 
-  // Clamp to paritioned data (Ex: [3, 10] | [10, 17] )
+  // Clamp to partitioned data (Ex: [3, 10] | [10, 17] )
   vtkStructuredExtent::Clamp(partitionedVOI, partitionedExtent);
 
   // Adjust for spacing: (Ex: [3, 9] | [11, 17] )
@@ -632,10 +590,9 @@ void vtkExtractStructuredGridHelper::GetPartitionedVOI(const int globalVOI[6],
 }
 
 //------------------------------------------------------------------------------
-void vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
-    const int globalVOI[6], const int partitionedVOI[6],
-    const int outputWholeExtent[6], const int sampleRate[3],
-    bool includeBoundary, int partitionedOutputExtent[6])
+void vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(const int globalVOI[6],
+  const int partitionedVOI[6], const int outputWholeExtent[6], const int sampleRate[3],
+  bool includeBoundary, int partitionedOutputExtent[6])
 {
   // 1D Example:
   //   InputWholeExtent = [0, 20]
@@ -672,20 +629,19 @@ void vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
       // so we'll adjust the minimum
       // Ex: 0 | 4
       EMIN(partitionedOutputExtent, dim) =
-          (EMIN(partitionedVOI, dim) - EMIN(globalVOI, dim)) / sampleRate[dim];
+        (EMIN(partitionedVOI, dim) - EMIN(globalVOI, dim)) / sampleRate[dim];
 
       if (includeBoundary && EMAX(partitionedVOI, dim) == EMAX(globalVOI, dim))
       {
         int length = EMAX(partitionedVOI, dim) - EMIN(globalVOI, dim);
         EMAX(partitionedOutputExtent, dim) = length / sampleRate[dim];
-        EMAX(partitionedOutputExtent, dim) +=
-            ((length % sampleRate[dim]) == 0) ? 0 : 1;
+        EMAX(partitionedOutputExtent, dim) += ((length % sampleRate[dim]) == 0) ? 0 : 1;
       }
-      else {
+      else
+      {
         // Ex: 3 | 7
         EMAX(partitionedOutputExtent, dim) =
-            (EMAX(partitionedVOI, dim) - EMIN(globalVOI, dim)) /
-            sampleRate[dim];
+          (EMAX(partitionedVOI, dim) - EMIN(globalVOI, dim)) / sampleRate[dim];
       }
 
       // Account for any offsets in the OutputWholeExtent:
@@ -694,3 +650,4 @@ void vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

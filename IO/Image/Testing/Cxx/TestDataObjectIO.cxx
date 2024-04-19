@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestDataObjectIO.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGenericDataObjectReader.h"
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkImageData.h"
@@ -28,20 +16,22 @@ void InitializeData(vtkImageData* Data)
 
 bool CompareData(vtkImageData* Output, vtkImageData* Input)
 {
-  if(memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
+  if (memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)) != 0)
     return false;
 
-  const int point_count = Input->GetDimensions()[0] * Input->GetDimensions()[1] * Input->GetDimensions()[2];
-  for(int point = 0; point != point_count; ++point)
+  const int point_count =
+    Input->GetDimensions()[0] * Input->GetDimensions()[1] * Input->GetDimensions()[2];
+  for (int point = 0; point != point_count; ++point)
   {
-    if(memcmp(Input->GetPoint(point), Output->GetPoint(point), 3 * sizeof(double)))
+    // NOLINTNEXTLINE(bugprone-suspicious-memory-comparison)
+    if (memcmp(Input->GetPoint(point), Output->GetPoint(point), 3 * sizeof(double)) != 0)
       return false;
   }
 
   return true;
 }
 
-template<typename DataT>
+template <typename DataT>
 bool TestDataObjectSerialization()
 {
   DataT* const output_data = DataT::New();
@@ -59,9 +49,9 @@ bool TestDataObjectSerialization()
   reader->SetFileName(filename);
   reader->Update();
 
-  vtkDataObject *obj = reader->GetOutput();
+  vtkDataObject* obj = reader->GetOutput();
   DataT* const input_data = DataT::SafeDownCast(obj);
-  if(!input_data)
+  if (!input_data)
   {
     reader->Delete();
     output_data->Delete();
@@ -80,7 +70,7 @@ int TestDataObjectIO(int /*argc*/, char* /*argv*/[])
 {
   int result = 0;
 
-  if(!TestDataObjectSerialization<vtkImageData>())
+  if (!TestDataObjectSerialization<vtkImageData>())
   {
     cerr << "Error: failure serializing vtkImageData" << endl;
     result = 1;

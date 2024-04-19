@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMergeTables.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkMergeTables.h"
 
@@ -28,8 +12,9 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeTables);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMergeTables::vtkMergeTables()
 {
   this->FirstTablePrefix = nullptr;
@@ -42,31 +27,26 @@ vtkMergeTables::vtkMergeTables()
   this->SetNumberOfOutputPorts(1);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMergeTables::~vtkMergeTables()
 {
   this->SetFirstTablePrefix(nullptr);
   this->SetSecondTablePrefix(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMergeTables::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get input tables
   vtkInformation* table1Info = inputVector[0]->GetInformationObject(0);
-  vtkTable* table1 = vtkTable::SafeDownCast(
-    table1Info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* table1 = vtkTable::SafeDownCast(table1Info->Get(vtkDataObject::DATA_OBJECT()));
   vtkInformation* table2Info = inputVector[1]->GetInformationObject(0);
-  vtkTable* table2 = vtkTable::SafeDownCast(
-    table2Info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* table2 = vtkTable::SafeDownCast(table2Info->Get(vtkDataObject::DATA_OBJECT()));
 
   // Get output table
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkTable* output = vtkTable::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* output = vtkTable::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!this->FirstTablePrefix || !this->SecondTablePrefix)
   {
@@ -96,11 +76,12 @@ int vtkMergeTables::RequestData(
     vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
     newCol->DeepCopy(col);
     newCol->SetName(newName);
-    if(newName!=name)
+    if (newName != name)
     {
       delete[] newName;
     }
-    //vtkWarningMacro("adding column " << newCol->GetName() << " of size " << newCol->GetNumberOfTuples());
+    // vtkWarningMacro("adding column " << newCol->GetName() << " of size " <<
+    // newCol->GetNumberOfTuples());
     output->AddColumn(newCol);
     newCol->Delete();
   }
@@ -154,7 +135,7 @@ int vtkMergeTables::RequestData(
         strcat(newName, name);
       }
       newCol->SetName(newName);
-      if(newName!=name)
+      if (newName != name)
       {
         delete[] newName;
       }
@@ -184,7 +165,8 @@ int vtkMergeTables::RequestData(
   for (int c = 0; c < tempTable->GetNumberOfColumns(); c++)
   {
     vtkAbstractArray* col = tempTable->GetColumn(c);
-    //vtkWarningMacro("adding column " << col->GetName() << " of size " << col->GetNumberOfTuples());
+    // vtkWarningMacro("adding column " << col->GetName() << " of size " <<
+    // col->GetNumberOfTuples());
     output->AddColumn(col);
   }
   tempTable->Delete();
@@ -199,12 +181,10 @@ int vtkMergeTables::RequestData(
     for (vtkIdType i = 0; i < toMerge->GetNumberOfValues(); i += 3)
     {
       mergeColumns->SetInputArrayToProcess(
-        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS,
-        toMerge->GetValue(i).c_str());
+        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, toMerge->GetValue(i).c_str());
       mergeColumns->SetInputArrayToProcess(
-        1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS,
-        toMerge->GetValue(i+1).c_str());
-      mergeColumns->SetMergedColumnName(toMerge->GetValue(i+2).c_str());
+        1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, toMerge->GetValue(i + 1).c_str());
+      mergeColumns->SetMergedColumnName(toMerge->GetValue(i + 2).c_str());
       mergeColumns->Update();
       temp->ShallowCopy(mergeColumns->GetOutput());
     }
@@ -218,13 +198,10 @@ int vtkMergeTables::RequestData(
   // Clean up pipeline information
   int piece = -1;
   int npieces = -1;
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
   {
-    piece = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    npieces = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    npieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   }
   output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), npieces);
   output->GetInformation()->Set(vtkDataObject::DATA_PIECE_NUMBER(), piece);
@@ -232,16 +209,17 @@ int vtkMergeTables::RequestData(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMergeTables::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FirstTablePrefix: "
-     << (this->FirstTablePrefix ? this->FirstTablePrefix : "(null)") << endl;
-  os << indent << "SecondTablePrefix: "
-     << (this->SecondTablePrefix ? this->SecondTablePrefix : "(null)") << endl;
-  os << indent << "MergeColumnsByName: "
-     << (this->MergeColumnsByName ? "on" : "off") << endl;
-  os << indent << "PrefixAllButMerged: "
-     << (this->PrefixAllButMerged ? "on" : "off") << endl;
+  os << indent
+     << "FirstTablePrefix: " << (this->FirstTablePrefix ? this->FirstTablePrefix : "(null)")
+     << endl;
+  os << indent
+     << "SecondTablePrefix: " << (this->SecondTablePrefix ? this->SecondTablePrefix : "(null)")
+     << endl;
+  os << indent << "MergeColumnsByName: " << (this->MergeColumnsByName ? "on" : "off") << endl;
+  os << indent << "PrefixAllButMerged: " << (this->PrefixAllButMerged ? "on" : "off") << endl;
 }
+VTK_ABI_NAMESPACE_END

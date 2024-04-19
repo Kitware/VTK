@@ -1,19 +1,7 @@
 //VTK::System::Dec
 
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataWideLineGS.glsl
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // Template for the polydata mappers geometry shader
 
 // VC position of this fragment
@@ -53,18 +41,30 @@ layout(triangle_strip, max_vertices = 4) out;
 
 void main()
 {
-  // compute the lines direction
-  vec2 normal = normalize(
+  // compute the line direction
+  vec2 direction =
     gl_in[1].gl_Position.xy/gl_in[1].gl_Position.w -
-    gl_in[0].gl_Position.xy/gl_in[0].gl_Position.w);
+    gl_in[0].gl_Position.xy/gl_in[0].gl_Position.w;
+  float lineLength = length(direction);
+  direction = direction / lineLength;
 
-  // rotate 90 degrees
-  normal = vec2(-1.0*normal.y,normal.x);
+  // compute the normal by rotating by 90 degrees the direction
+  vec2 normal = vec2(-1.0*direction.y,direction.x);
+
+  vec2 _lineVertices[2];
+  _lineVertices[0] = gl_in[0].gl_Position.xy;
+  _lineVertices[1] = gl_in[1].gl_Position.xy;
 
   //VTK::Normal::Start
 
+  // Make the line have a minimal screenspace size so it is always visible
+  float screenDelta = length(lineWidthNVC) - lineLength;
+  screenDelta = max(0.f, screenDelta);
+  _lineVertices[0] = _lineVertices[0] - 0.25 * direction * screenDelta * gl_in[1].gl_Position.w;
+  _lineVertices[1] = _lineVertices[1] + 0.25 * direction * screenDelta * gl_in[1].gl_Position.w;
+
   for (int j = 0; j < 4; j++)
-    {
+  {
     int i = j/2;
 
     //VTK::PrimID::Impl
@@ -87,10 +87,11 @@ void main()
     //VTK::PositionVC::Impl
 
     gl_Position = vec4(
-      gl_in[i].gl_Position.xy + (lineWidthNVC*normal)*((j+1)%2 - 0.5)*gl_in[i].gl_Position.w,
+      _lineVertices[i] + (lineWidthNVC * normal) * ((j + 1) % 2 - 0.5) * gl_in[i].gl_Position.w,
       gl_in[i].gl_Position.z,
       gl_in[i].gl_Position.w);
     EmitVertex();
-    }
+  }
+
   EndPrimitive();
 }

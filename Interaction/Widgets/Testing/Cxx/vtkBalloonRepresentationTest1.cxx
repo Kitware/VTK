@@ -1,17 +1,20 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkBalloonRepresentation.h"
 
 #include <cstdlib>
 #include <iostream>
 
 #include "vtkImageData.h"
-#include "vtkTextProperty.h"
 #include "vtkProperty2D.h"
+#include "vtkTextProperty.h"
 
 #include "WidgetTestingMacros.h"
 
-int vtkBalloonRepresentationTest1(int , char * [] )
+int vtkBalloonRepresentationTest1(int, char*[])
 {
-  vtkSmartPointer< vtkBalloonRepresentation > node1 = vtkSmartPointer< vtkBalloonRepresentation >::New();
+  vtkSmartPointer<vtkBalloonRepresentation> node1 =
+    vtkSmartPointer<vtkBalloonRepresentation>::New();
 
   EXERCISE_BASIC_REPRESENTATION_METHODS(vtkBalloonRepresentation, node1);
 

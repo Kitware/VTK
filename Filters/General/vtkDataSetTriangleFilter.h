@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataSetTriangleFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDataSetTriangleFilter
  * @brief   triangulate any type of dataset
@@ -29,7 +17,7 @@
  *
  * @sa
  * vtkOrderedTriangulator vtkTriangleFilter
-*/
+ */
 
 #ifndef vtkDataSetTriangleFilter_h
 #define vtkDataSetTriangleFilter_h
@@ -37,16 +25,17 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOrderedTriangulator;
 
 class VTKFILTERSGENERAL_EXPORT vtkDataSetTriangleFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkDataSetTriangleFilter *New();
-  vtkTypeMacro(vtkDataSetTriangleFilter,vtkUnstructuredGridAlgorithm);
+  static vtkDataSetTriangleFilter* New();
+  vtkTypeMacro(vtkDataSetTriangleFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * When On this filter will cull all 1D and 2D cells from the output.
    * The default is Off.
@@ -54,23 +43,23 @@ public:
   vtkSetMacro(TetrahedraOnly, vtkTypeBool);
   vtkGetMacro(TetrahedraOnly, vtkTypeBool);
   vtkBooleanMacro(TetrahedraOnly, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkDataSetTriangleFilter();
   ~vtkDataSetTriangleFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Used to triangulate 3D cells
-  vtkOrderedTriangulator *Triangulator;
+  vtkOrderedTriangulator* Triangulator;
 
   // Different execute methods depending on whether input is structured or not
-  void StructuredExecute(vtkDataSet *, vtkUnstructuredGrid *);
-  void UnstructuredExecute(vtkDataSet *, vtkUnstructuredGrid *);
+  void StructuredExecute(vtkDataSet*, vtkUnstructuredGrid*);
+  void UnstructuredExecute(vtkDataSet*, vtkUnstructuredGrid*);
 
   vtkTypeBool TetrahedraOnly;
 
@@ -79,6 +68,5 @@ private:
   void operator=(const vtkDataSetTriangleFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestDiagram.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGraphItem.h"
 
 #include "vtkBrush.h"
@@ -33,22 +21,24 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphItem);
 vtkCxxSetObjectMacro(vtkGraphItem, Graph, vtkGraph);
 
-struct vtkGraphItem::Internals {
+struct vtkGraphItem::Internals
+{
   std::vector<float> VertexSizes;
   std::vector<vtkVector2f> VertexPositions;
   std::vector<vtkColor4ub> VertexColors;
   std::vector<int> VertexMarkers;
 
-  std::vector<std::vector<vtkVector2f> > EdgePositions;
-  std::vector<std::vector<vtkColor4ub> > EdgeColors;
+  std::vector<std::vector<vtkVector2f>> EdgePositions;
+  std::vector<std::vector<vtkColor4ub>> EdgeColors;
   std::vector<float> EdgeWidths;
 
   bool Animating;
   bool AnimationCallbackInitialized;
-  vtkRenderWindowInteractor *Interactor;
+  vtkRenderWindowInteractor* Interactor;
   vtkNew<vtkCallbackCommand> AnimationCallback;
   int TimerId;
   bool GravityPointSet;
@@ -98,7 +88,7 @@ vtkGraphItem::~vtkGraphItem()
   }
 }
 
-vtkIncrementalForceLayout *vtkGraphItem::GetLayout()
+vtkIncrementalForceLayout* vtkGraphItem::GetLayout()
 {
   return this->Layout;
 }
@@ -110,7 +100,7 @@ vtkColor4ub vtkGraphItem::VertexColor(vtkIdType vtkNotUsed(item))
 
 vtkVector2f vtkGraphItem::VertexPosition(vtkIdType item)
 {
-  double *p = this->Graph->GetPoints()->GetPoint(item);
+  double* p = this->Graph->GetPoints()->GetPoint(item);
   return vtkVector2f(static_cast<float>(p[0]), static_cast<float>(p[1]));
 }
 
@@ -136,15 +126,15 @@ vtkColor4ub vtkGraphItem::EdgeColor(vtkIdType vtkNotUsed(edgeIdx), vtkIdType vtk
 
 vtkVector2f vtkGraphItem::EdgePosition(vtkIdType edgeIdx, vtkIdType point)
 {
-  double *p;
+  double* p;
   if (point == 0)
   {
-    vtkPoints *points = this->Graph->GetPoints();
+    vtkPoints* points = this->Graph->GetPoints();
     p = points->GetPoint(this->Graph->GetSourceVertex(edgeIdx));
   }
   else if (point == this->NumberOfEdgePoints(edgeIdx) - 1)
   {
-    vtkPoints *points = this->Graph->GetPoints();
+    vtkPoints* points = this->Graph->GetPoints();
     p = points->GetPoint(this->Graph->GetTargetVertex(edgeIdx));
   }
   else
@@ -162,8 +152,8 @@ float vtkGraphItem::EdgeWidth(vtkIdType vtkNotUsed(line), vtkIdType vtkNotUsed(p
 void vtkGraphItem::RebuildBuffers()
 {
   vtkIdType numEdges = this->NumberOfEdges();
-  this->Internal->EdgePositions = std::vector<std::vector<vtkVector2f> >(numEdges);
-  this->Internal->EdgeColors = std::vector<std::vector<vtkColor4ub> >(numEdges);
+  this->Internal->EdgePositions = std::vector<std::vector<vtkVector2f>>(numEdges);
+  this->Internal->EdgeColors = std::vector<std::vector<vtkColor4ub>>(numEdges);
   this->Internal->EdgeWidths = std::vector<float>(numEdges);
   for (vtkIdType edgeIdx = 0; edgeIdx < numEdges; ++edgeIdx)
   {
@@ -183,7 +173,8 @@ void vtkGraphItem::RebuildBuffers()
   this->Internal->VertexColors = std::vector<vtkColor4ub>(numVertices);
   this->Internal->VertexSizes = std::vector<float>(numVertices);
   this->Internal->VertexMarkers = std::vector<int>(numVertices);
-  vtkMarkerUtilities::GenerateMarker(this->Sprite, this->VertexMarker(0), static_cast<int>(this->VertexSize(0)));
+  vtkMarkerUtilities::GenerateMarker(
+    this->Sprite, this->VertexMarker(0), static_cast<int>(this->VertexSize(0)));
   for (vtkIdType vertexIdx = 0; vertexIdx < numVertices; ++vertexIdx)
   {
     this->Internal->VertexPositions[vertexIdx] = this->VertexPosition(vertexIdx);
@@ -193,14 +184,13 @@ void vtkGraphItem::RebuildBuffers()
   }
 }
 
-void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
+void vtkGraphItem::PaintBuffers(vtkContext2D* painter)
 {
   if (this->Internal->EdgePositions.empty())
   {
     return;
   }
-  vtkIdType numEdges = static_cast<vtkIdType>(
-    this->Internal->EdgePositions.size());
+  vtkIdType numEdges = static_cast<vtkIdType>(this->Internal->EdgePositions.size());
   for (vtkIdType edgeIdx = 0; edgeIdx < numEdges; ++edgeIdx)
   {
     if (this->Internal->EdgePositions[edgeIdx].empty())
@@ -209,8 +199,8 @@ void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
     }
     painter->GetPen()->SetWidth(this->Internal->EdgeWidths[edgeIdx]);
     painter->DrawPoly(this->Internal->EdgePositions[edgeIdx][0].GetData(),
-                      static_cast<int>(this->Internal->EdgePositions[edgeIdx].size()),
-                      this->Internal->EdgeColors[edgeIdx][0].GetData(), 4);
+      static_cast<int>(this->Internal->EdgePositions[edgeIdx].size()),
+      this->Internal->EdgeColors[edgeIdx][0].GetData(), 4);
   }
 
   if (this->Internal->VertexPositions.empty())
@@ -219,10 +209,9 @@ void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
   }
   painter->GetPen()->SetWidth(this->Internal->VertexSizes[0]);
   painter->GetBrush()->SetTextureProperties(vtkBrush::Linear);
-  painter->DrawPointSprites(this->Sprite,
-                            this->Internal->VertexPositions[0].GetData(),
-                            static_cast<int>(this->Internal->VertexPositions.size()),
-                            this->Internal->VertexColors[0].GetData(), 4);
+  painter->DrawPointSprites(this->Sprite, this->Internal->VertexPositions[0].GetData(),
+    static_cast<int>(this->Internal->VertexPositions.size()),
+    this->Internal->VertexColors[0].GetData(), 4);
 }
 
 vtkIdType vtkGraphItem::NumberOfVertices()
@@ -266,7 +255,7 @@ bool vtkGraphItem::IsDirty()
   return false;
 }
 
-bool vtkGraphItem::Paint(vtkContext2D *painter)
+bool vtkGraphItem::Paint(vtkContext2D* painter)
 {
   if (this->IsDirty())
   {
@@ -281,20 +270,18 @@ bool vtkGraphItem::Paint(vtkContext2D *painter)
   return true;
 }
 
-void vtkGraphItem::ProcessEvents(vtkObject *vtkNotUsed(caller), unsigned long event,
-                                 void *clientData, void *callerData)
+void vtkGraphItem::ProcessEvents(
+  vtkObject* vtkNotUsed(caller), unsigned long event, void* clientData, void* callerData)
 {
-  vtkGraphItem *self =
-      reinterpret_cast<vtkGraphItem *>(clientData);
+  vtkGraphItem* self = reinterpret_cast<vtkGraphItem*>(clientData);
   switch (event)
   {
     case vtkCommand::TimerEvent:
     {
       // We must filter the events to ensure we actually get the timer event we
       // created. I would love signals and slots...
-      int timerId = *static_cast<int *>(callerData);   // Seems to work.
-      if (self->Internal->Animating &&
-          timerId == static_cast<int>(self->Internal->TimerId))
+      int timerId = *static_cast<int*>(callerData); // Seems to work.
+      if (self->Internal->Animating && timerId == static_cast<int>(self->Internal->TimerId))
       {
         self->UpdateLayout();
         vtkIdType v = self->HitVertex(self->Internal->LastMousePos);
@@ -308,7 +295,7 @@ void vtkGraphItem::ProcessEvents(vtkObject *vtkNotUsed(caller), unsigned long ev
   }
 }
 
-void vtkGraphItem::StartLayoutAnimation(vtkRenderWindowInteractor *interactor)
+void vtkGraphItem::StartLayoutAnimation(vtkRenderWindowInteractor* interactor)
 {
   // Start a simple repeating timer
   if (!this->Internal->Animating && interactor)
@@ -317,9 +304,7 @@ void vtkGraphItem::StartLayoutAnimation(vtkRenderWindowInteractor *interactor)
     {
       this->Internal->AnimationCallback->SetClientData(this);
       this->Internal->AnimationCallback->SetCallback(vtkGraphItem::ProcessEvents);
-      interactor->AddObserver(vtkCommand::TimerEvent,
-                              this->Internal->AnimationCallback,
-                              0);
+      interactor->AddObserver(vtkCommand::TimerEvent, this->Internal->AnimationCallback, 0);
       this->Internal->Interactor = interactor;
       this->Internal->AnimationCallbackInitialized = true;
     }
@@ -328,7 +313,8 @@ void vtkGraphItem::StartLayoutAnimation(vtkRenderWindowInteractor *interactor)
     this->Internal->TimerId = interactor->CreateRepeatingTimer(1000 / 60);
     if (!this->Internal->GravityPointSet)
     {
-      vtkVector2f screenPos(this->Scene->GetSceneWidth()/2.0f, this->Scene->GetSceneHeight()/2.0f);
+      vtkVector2f screenPos(
+        this->Scene->GetSceneWidth() / 2.0f, this->Scene->GetSceneHeight() / 2.0f);
       vtkVector2f pos = this->MapFromScene(screenPos);
       this->Layout->SetGravityPoint(pos);
       this->Internal->GravityPointSet = true;
@@ -349,7 +335,7 @@ void vtkGraphItem::UpdateLayout()
   if (this->Graph)
   {
     this->Layout->SetGraph(this->Graph);
-    this->Layout->SetAlpha(this->Layout->GetAlpha()*this->Internal->LayoutAlphaCoolDown);
+    this->Layout->SetAlpha(this->Layout->GetAlpha() * this->Internal->LayoutAlphaCoolDown);
     this->Layout->UpdatePositions();
     this->Graph->Modified();
     if (this->Internal->Animating && this->Layout->GetAlpha() < this->Internal->LayoutAlphaStop)
@@ -359,12 +345,13 @@ void vtkGraphItem::UpdateLayout()
   }
 }
 
-vtkIdType vtkGraphItem::HitVertex(const vtkVector2f &pos)
+vtkIdType vtkGraphItem::HitVertex(const vtkVector2f& pos)
 {
   vtkIdType numVert = static_cast<vtkIdType>(this->Internal->VertexPositions.size());
   for (vtkIdType v = 0; v < numVert; ++v)
   {
-    if ((pos - this->Internal->VertexPositions[v]).Norm() < this->Internal->VertexSizes[v]/this->Internal->CurrentScale[0]/2.0)
+    if ((pos - this->Internal->VertexPositions[v]).Norm() <
+      this->Internal->VertexSizes[v] / this->Internal->CurrentScale[0] / 2.0)
     {
       return v;
     }
@@ -372,7 +359,7 @@ vtkIdType vtkGraphItem::HitVertex(const vtkVector2f &pos)
   return -1;
 }
 
-bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent &event)
+bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent& event)
 {
   this->Internal->LastMousePos = event.GetPos();
   if (event.GetButton() == vtkContextMouseEvent::NO_BUTTON)
@@ -384,7 +371,7 @@ bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent &event)
       this->Tooltip->SetVisible(false);
       return true;
     }
-    vtkStdString text = this->VertexTooltip(v);
+    std::string text = this->VertexTooltip(v);
     if (text.empty())
     {
       this->Tooltip->SetVisible(false);
@@ -400,7 +387,8 @@ bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent &event)
     if (this->Layout->GetFixed() >= 0)
     {
       this->Layout->SetAlpha(this->Internal->LayoutAlphaStart);
-      this->Graph->GetPoints()->SetPoint(this->Layout->GetFixed(), event.GetPos()[0], event.GetPos()[1], 0.0);
+      this->Graph->GetPoints()->SetPoint(
+        this->Layout->GetFixed(), event.GetPos()[0], event.GetPos()[1], 0.0);
     }
     return true;
   }
@@ -415,18 +403,18 @@ bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent &event)
   return false;
 }
 
-bool vtkGraphItem::MouseEnterEvent(const vtkContextMouseEvent &vtkNotUsed(event))
+bool vtkGraphItem::MouseEnterEvent(const vtkContextMouseEvent& vtkNotUsed(event))
 {
   return true;
 }
 
-bool vtkGraphItem::MouseLeaveEvent(const vtkContextMouseEvent &vtkNotUsed(event))
+bool vtkGraphItem::MouseLeaveEvent(const vtkContextMouseEvent& vtkNotUsed(event))
 {
   this->Tooltip->SetVisible(false);
   return true;
 }
 
-bool vtkGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent &event)
+bool vtkGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent& event)
 {
   this->Tooltip->SetVisible(false);
   if (event.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
@@ -446,7 +434,7 @@ bool vtkGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent &event)
   return false;
 }
 
-bool vtkGraphItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
+bool vtkGraphItem::MouseButtonReleaseEvent(const vtkContextMouseEvent& event)
 {
   if (event.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
   {
@@ -456,7 +444,7 @@ bool vtkGraphItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
   return false;
 }
 
-bool vtkGraphItem::MouseWheelEvent(const vtkContextMouseEvent &event, int vtkNotUsed(delta))
+bool vtkGraphItem::MouseWheelEvent(const vtkContextMouseEvent& event, int vtkNotUsed(delta))
 {
   if (this->Tooltip->GetVisible())
   {
@@ -468,7 +456,7 @@ bool vtkGraphItem::MouseWheelEvent(const vtkContextMouseEvent &event, int vtkNot
   return false;
 }
 
-bool vtkGraphItem::Hit(const vtkContextMouseEvent &event)
+bool vtkGraphItem::Hit(const vtkContextMouseEvent& event)
 {
   vtkIdType v = this->HitVertex(event.GetPos());
   return (v >= 0);
@@ -480,8 +468,7 @@ void vtkGraphItem::PlaceTooltip(vtkIdType v)
   {
     vtkVector2f pos = this->Internal->VertexPositions[v];
     this->Tooltip->SetPosition(
-          pos[0] + 5/this->Internal->CurrentScale[0],
-          pos[1] + 5/this->Internal->CurrentScale[1]);
+      pos[0] + 5 / this->Internal->CurrentScale[0], pos[1] + 5 / this->Internal->CurrentScale[1]);
   }
   else
   {
@@ -489,7 +476,7 @@ void vtkGraphItem::PlaceTooltip(vtkIdType v)
   }
 }
 
-void vtkGraphItem::PrintSelf(ostream &os, vtkIndent indent)
+void vtkGraphItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << "Graph: " << (this->Graph ? "" : "(null)") << std::endl;
@@ -499,3 +486,4 @@ void vtkGraphItem::PrintSelf(ostream &os, vtkIndent indent)
   }
   os << "GraphBuildTime: " << this->GraphBuildTime << std::endl;
 }
+VTK_ABI_NAMESPACE_END

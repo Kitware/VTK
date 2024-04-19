@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    VTXHelper.cxx
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * VTXHelper.cxx
@@ -27,17 +15,22 @@
 #include <numeric> //std::accumulate
 #include <sstream>
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
+#endif
 #include "vtkMultiProcessController.h"
 
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 namespace vtx
 {
 namespace helper
 {
+VTK_ABI_NAMESPACE_BEGIN
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 MPI_Comm MPIGetComm()
 {
   MPI_Comm comm = MPI_COMM_NULL;
@@ -52,21 +45,30 @@ MPI_Comm MPIGetComm()
   }
   return comm;
 }
+#endif
 
 int MPIGetRank()
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   MPI_Comm comm = MPIGetComm();
   int rank;
   MPI_Comm_rank(comm, &rank);
   return rank;
+#else
+  return 0;
+#endif
 }
 
 int MPIGetSize()
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   MPI_Comm comm = MPIGetComm();
   int size;
   MPI_Comm_size(comm, &size);
   return size;
+#else
+  return 1;
+#endif
 }
 
 pugi::xml_document XMLDocument(
@@ -162,7 +164,7 @@ pugi::xml_attribute XMLAttribute(const std::string attributeName, const pugi::xm
 }
 
 types::DataSet XMLInitDataSet(
-  const pugi::xml_node& dataSetNode, const std::set<std::string>& specialNames)
+  const pugi::xml_node& dataSetNode, const std::set<std::string>& specialNames, const bool persist)
 {
   types::DataSet dataSet;
 
@@ -173,13 +175,19 @@ types::DataSet XMLInitDataSet(
     auto result = dataSet.emplace(xmlName.value(), types::DataArray());
     types::DataArray& dataArray = result.first->second;
 
+    // set if persist, overwritten by special names
+    if (persist)
+    {
+      dataArray.Persist = true;
+    }
+
     // handle special names
     const std::string name(xmlName.value());
     auto itSpecialName = specialNames.find(name);
-    const bool isSpecialName = (itSpecialName != specialNames.end()) ? true : false;
+    const bool isSpecialName = itSpecialName != specialNames.end();
     if (isSpecialName)
     {
-      const std::string specialName = *itSpecialName;
+      const std::string& specialName = *itSpecialName;
       if (specialName == "connectivity")
       {
         dataArray.IsIdType = true;
@@ -189,6 +197,15 @@ types::DataSet XMLInitDataSet(
       {
         dataArray.HasTuples = true;
         dataArray.Persist = true;
+
+        const pugi::xml_attribute xmlOrder = XMLAttribute("Ordering", dataArrayNode, true,
+          "when parsing vertices \"Order\" attribute in ADIOS2 VTK XML schema", false);
+        const std::string order(xmlOrder.value());
+        // XXXX, YYYY, ZZZZ struct of arrays
+        if (order == "SOA")
+        {
+          dataArray.IsSOA = true;
+        }
       }
       else if (specialName == "types")
       {
@@ -251,7 +268,7 @@ types::DataSet XMLInitDataSet(
 
 std::string FileToString(const std::string& fileName)
 {
-  std::ifstream file(fileName);
+  vtksys::ifstream file(fileName.c_str());
   std::stringstream schemaSS;
   schemaSS << file.rdbuf();
   return schemaSS.str();
@@ -264,7 +281,7 @@ std::string SetToCSV(const std::set<std::string>& input) noexcept
   {
     csv += el + ", ";
   }
-  if (input.size() > 0)
+  if (!input.empty())
   {
     csv.pop_back();
     csv.pop_back();
@@ -277,16 +294,6 @@ std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
 {
   return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<std::size_t>());
 }
-
-// allowed types
-template vtkSmartPointer<vtkDataArray> NewDataArray<int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<long long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long long int>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<float>();
-template vtkSmartPointer<vtkDataArray> NewDataArray<double>();
 
 adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape)
 {
@@ -327,14 +334,14 @@ vtkSmartPointer<vtkIdTypeArray> NewDataArrayIdType()
 
 std::string GetFileName(const std::string& fileName) noexcept
 {
-  const std::string output =
+  std::string output =
     EndsWith(fileName, ".bp.dir") ? fileName.substr(0, fileName.size() - 4) : fileName;
   return output;
 }
 
 std::string GetEngineType(const std::string& fileName) noexcept
 {
-  const std::string engineType = vtksys::SystemTools::FileIsDirectory(fileName) ? "BP4" : "BP3";
+  std::string engineType = vtksys::SystemTools::FileIsDirectory(fileName) ? "BP4" : "BP3";
   return engineType;
 }
 
@@ -347,5 +354,6 @@ bool EndsWith(const std::string& input, const std::string& ends) noexcept
   return false;
 }
 
+VTK_ABI_NAMESPACE_END
 } // end helper namespace
 } // end adios2vtk namespace

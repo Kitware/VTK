@@ -34,7 +34,8 @@ public class vtkSettings
       {
       if ( paths[cc].endsWith("vtk.jar") )
         {
-        lpath = paths[cc].substring(0, paths[cc].length()-"vtk.jar".length()-1);
+        lpath = paths[cc].substring(0, paths[cc].length()-"vtk.jar".length());
+        lpath = lpath + "@jnilib_relative_path@";
         }
       }
     if ( lpath == null )

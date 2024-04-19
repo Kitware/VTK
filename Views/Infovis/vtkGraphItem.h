@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestDiagram.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGraphItem
  * @brief   A 2D graphics item for rendering a graph.
@@ -23,18 +11,19 @@
  * a set of virtual functions. To influence the rendering of the graph,
  * subclass this item and override the property functions you wish to
  * customize.
-*/
+ */
 
 #ifndef vtkGraphItem_h
 #define vtkGraphItem_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
+#include "vtkColor.h"  // For color types in API
+#include "vtkNew.h"    // For vtkNew ivars
 #include "vtkVector.h" // For vector types in API
-#include "vtkColor.h" // For color types in API
-#include "vtkNew.h" // For vtkNew ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 class vtkImageData;
 class vtkIncrementalForceLayout;
@@ -44,30 +33,30 @@ class vtkTooltipItem;
 class VTKVIEWSINFOVIS_EXPORT vtkGraphItem : public vtkContextItem
 {
 public:
-  static vtkGraphItem *New();
+  static vtkGraphItem* New();
   vtkTypeMacro(vtkGraphItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The graph that this item draws.
    */
-  virtual void SetGraph(vtkGraph *graph);
+  virtual void SetGraph(vtkGraph* graph);
   vtkGetObjectMacro(Graph, vtkGraph);
-  //@}
+  ///@}
 
   /**
    * Exposes the incremental graph layout for updating parameters.
    */
-  virtual vtkIncrementalForceLayout *GetLayout();
+  virtual vtkIncrementalForceLayout* GetLayout();
 
-  //@{
+  ///@{
   /**
    * Begins or ends the layout animation.
    */
-  virtual void StartLayoutAnimation(vtkRenderWindowInteractor *interactor);
+  virtual void StartLayoutAnimation(vtkRenderWindowInteractor* interactor);
   virtual void StopLayoutAnimation();
-  //@}
+  ///@}
 
   /**
    * Incrementally updates the graph layout.
@@ -82,7 +71,7 @@ protected:
    * Paints the graph. This method will call RebuildBuffers()
    * if the graph is dirty, then call PaintBuffers().
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Builds a cache of data from the graph by calling the virtual functions
@@ -95,11 +84,11 @@ protected:
    * Efficiently draws the contents of the buffers built in RebuildBuffers.
    * This occurs once per frame.
    */
-  virtual void PaintBuffers(vtkContext2D *painter);
+  virtual void PaintBuffers(vtkContext2D* painter);
 
   /**
    * Returns true if the underlying vtkGraph has been modified since the last
-   * RebuildBuffers, signalling a new RebuildBuffers is needed. When the graph
+   * RebuildBuffers, signaling a new RebuildBuffers is needed. When the graph
    * was modified, it assumes the buffers will be rebuilt, so it updates
    * the modified time of the last build. Override this function if you have
    * a subclass that uses any information in addition to the vtkGraph to determine
@@ -185,30 +174,30 @@ protected:
   /**
    * Process events and dispatch to the appropriate member functions.
    */
-  static void ProcessEvents(vtkObject *caller, unsigned long event,
-                            void *clientData, void *callerData);
+  static void ProcessEvents(
+    vtkObject* caller, unsigned long event, void* clientData, void* callerData);
 
   /**
    * Return index of hit vertex, or -1 if no hit.
    */
-  virtual vtkIdType HitVertex(const vtkVector2f &pos);
+  virtual vtkIdType HitVertex(const vtkVector2f& pos);
 
-  //@{
+  ///@{
   /**
    * Handle mouse events.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &event) override;
-  bool MouseLeaveEvent(const vtkContextMouseEvent &event) override;
-  bool MouseEnterEvent(const vtkContextMouseEvent &event) override;
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &event) override;
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &event) override;
-  bool MouseWheelEvent(const vtkContextMouseEvent &event, int delta) override;
-  //@}
+  bool MouseMoveEvent(const vtkContextMouseEvent& event) override;
+  bool MouseLeaveEvent(const vtkContextMouseEvent& event) override;
+  bool MouseEnterEvent(const vtkContextMouseEvent& event) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& event) override;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& event) override;
+  bool MouseWheelEvent(const vtkContextMouseEvent& event, int delta) override;
+  ///@}
 
   /**
    * Whether this graph item is hit.
    */
-  bool Hit(const vtkContextMouseEvent &event) override;
+  bool Hit(const vtkContextMouseEvent& event) override;
 
   /**
    * Change the position of the tooltip based on the vertex hovered.
@@ -220,13 +209,14 @@ private:
   void operator=(const vtkGraphItem&) = delete;
 
   struct Internals;
-  Internals *Internal;
+  Internals* Internal;
 
-  vtkGraph *Graph;
+  vtkGraph* Graph;
   vtkMTimeType GraphBuildTime;
   vtkNew<vtkImageData> Sprite;
   vtkNew<vtkIncrementalForceLayout> Layout;
   vtkNew<vtkTooltipItem> Tooltip;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

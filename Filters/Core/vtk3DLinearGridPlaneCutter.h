@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtk3DLinearGridPlaneCutter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtk3DLinearGridPlaneCutter
  * @brief   fast plane cutting of vtkUnstructuredGrid containing 3D linear cells
@@ -32,8 +20,8 @@
  * the cut surface. Otherwise when point merging is not required, a fast path
  * process produces independent triangles representing the cut surface.
  *
- * This algorithm is fast because it is threaded, and may perform oeprations (in a
- * preprocessing step) to accelerate the plane cutting.
+ * This algorithm is fast because it is threaded, and may perform operations
+ * (in a preprocessing step) to accelerate the plane cutting.
  *
  * Because this filter may build an initial data structure during a
  * preprocessing step, the first execution of the filter may take longer than
@@ -65,34 +53,34 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkCutter vtkFlyingEdgesPlaneCutter vtkPlaneCutter vtkPlane vtkSphereTree
+ * vtkCutter vtkFlyingEdgesPlaneCutter vtkPlaneCutter vtkPlane
  * vtkContour3DLinearGrid
  */
 
 #ifndef vtk3DLinearGridPlaneCutter_h
 #define vtk3DLinearGridPlaneCutter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlane;
 class vtkUnstructuredGrid;
-class vtkSphereTree;
 class vtkPolyData;
 
 class VTKFILTERSCORE_EXPORT vtk3DLinearGridPlaneCutter : public vtkDataObjectAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type info, and printing.
    */
-  static vtk3DLinearGridPlaneCutter *New();
-  vtkTypeMacro(vtk3DLinearGridPlaneCutter,vtkDataObjectAlgorithm);
+  static vtk3DLinearGridPlaneCutter* New();
+  vtkTypeMacro(vtk3DLinearGridPlaneCutter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the plane (an implicit function) to perform the cutting. The
    * definition of the plane (its origin and normal) is controlled via this
@@ -100,41 +88,41 @@ public:
    */
   virtual void SetPlane(vtkPlane*);
   vtkGetObjectMacro(Plane, vtkPlane);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to merge coincident points. Merging can take extra time
    * and produces fewer output points, creating a "watertight" output
    * surface. On the other hand, merging reduced output data size and may be
    * just as fast especially for smaller data. By default this is off.
    */
-  vtkSetMacro(MergePoints,vtkTypeBool);
-  vtkGetMacro(MergePoints,vtkTypeBool);
-  vtkBooleanMacro(MergePoints,vtkTypeBool);
-  //@}
+  vtkSetMacro(MergePoints, bool);
+  vtkGetMacro(MergePoints, bool);
+  vtkBooleanMacro(MergePoints, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to interpolate input attributes onto the cut
    * plane. By default this option is on.
    */
-  vtkSetMacro(InterpolateAttributes,vtkTypeBool);
-  vtkGetMacro(InterpolateAttributes,vtkTypeBool);
-  vtkBooleanMacro(InterpolateAttributes,vtkTypeBool);
-  //@}
+  vtkSetMacro(InterpolateAttributes, bool);
+  vtkGetMacro(InterpolateAttributes, bool);
+  vtkBooleanMacro(InterpolateAttributes, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. The normal generated is simply the
    * cut plane normal. The normal, if generated, is defined by cell data
    * associated with the output polygons. By default computing of normals is
    * off.
    */
-  vtkSetMacro(ComputeNormals, vtkTypeBool);
-  vtkGetMacro(ComputeNormals, vtkTypeBool);
-  vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  vtkSetMacro(ComputeNormals, bool);
+  vtkGetMacro(ComputeNormals, bool);
+  vtkBooleanMacro(ComputeNormals, bool);
+  ///@}
 
   /**
    * Overloaded GetMTime() because of delegation to the helper
@@ -142,7 +130,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points. See the
    * documentation for the vtkAlgorithm::Precision enum for an explanation of
@@ -150,9 +138,9 @@ public:
    */
   void SetOutputPointsPrecision(int precision);
   int GetOutputPointsPrecision() const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force sequential processing (i.e. single thread) of the contouring
    * process. By default, sequential processing is off. Note this flag only
@@ -161,17 +149,16 @@ public:
    * filter always runs in serial mode.) This flag is typically used for
    * benchmarking purposes.
    */
-  vtkSetMacro(SequentialProcessing,vtkTypeBool)
-  vtkGetMacro(SequentialProcessing,vtkTypeBool);
-  vtkBooleanMacro(SequentialProcessing,vtkTypeBool);
-  //@}
+  vtkSetMacro(SequentialProcessing, bool);
+  vtkGetMacro(SequentialProcessing, bool);
+  vtkBooleanMacro(SequentialProcessing, bool);
+  ///@}
 
   /**
    *  Return the number of threads actually used during execution. This is
    *  valid only after algorithm execution.
    */
-  int GetNumberOfThreadsUsed()
-  {return this->NumberOfThreadsUsed;}
+  int GetNumberOfThreadsUsed() { return this->NumberOfThreadsUsed; }
 
   /**
    * Inform the user as to whether large ids were used during filter
@@ -181,8 +168,7 @@ public:
    * computation. Note that LargeIds are only available on 64-bit
    * architectures.)
    */
-  bool GetLargeIds()
-  {return this->LargeIds;}
+  bool GetLargeIds() { return this->LargeIds; }
 
   /**
    * Returns true if the data object passed in is fully supported by this
@@ -196,30 +182,28 @@ protected:
   vtk3DLinearGridPlaneCutter();
   ~vtk3DLinearGridPlaneCutter() override;
 
-  vtkPlane *Plane;
-  vtkTypeBool MergePoints;
-  vtkTypeBool InterpolateAttributes;
-  vtkTypeBool ComputeNormals;
+  vtkPlane* Plane;
+  bool MergePoints;
+  bool InterpolateAttributes;
+  bool ComputeNormals;
   int OutputPointsPrecision;
-  vtkTypeBool SequentialProcessing;
+  bool SequentialProcessing;
   int NumberOfThreadsUsed;
-  bool LargeIds; //indicate whether integral ids are large(==true) or not
+  bool LargeIds; // indicate whether integral ids are large(==true) or not
 
   // Process the data: input unstructured grid and output polydata
-  int ProcessPiece(vtkUnstructuredGrid *input, vtkPlane *plane, vtkPolyData *output);
+  int ProcessPiece(vtkUnstructuredGrid* input, vtkPlane* plane, vtkPolyData* output);
 
-  int RequestDataObject(vtkInformation* request,
-                        vtkInformationVector** inputVector,
-                        vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtk3DLinearGridPlaneCutter(const vtk3DLinearGridPlaneCutter&) = delete;
   void operator=(const vtk3DLinearGridPlaneCutter&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif

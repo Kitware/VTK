@@ -3,9 +3,7 @@
  *	See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "config.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,6 +15,9 @@
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
+#ifdef HAVE_DIRENT_H
+#include <dirent.h>
+#endif
 #ifdef _WIN32
 #include <windows.h>
 #include <winbase.h>
@@ -26,7 +27,9 @@
 #include "ncdispatch.h"
 #include "nc3internal.h"
 #include "netcdf_mem.h"
-#include "ncwinpath.h"
+#include "ncpathmgr.h"
+#include "ncrc.h"
+#include "ncbytes.h"
 
 #undef DEBUG
 
@@ -195,6 +198,8 @@ memio_new(const char* path, int ioflags, off_t initialsize, ncio** nciopp, NCMEM
     if(nciopp && nciop) *nciopp = nciop;
     else {
         if(nciop->path != NULL) free((char*)nciop->path);
+	/* Fix 38699 */
+	nciop->path = NULL;
         free(nciop);
     }
     memio->alloc = (size_t)initialsize;
@@ -216,6 +221,8 @@ fail:
     if(memio != NULL) free(memio);
     if(nciop != NULL) {
         if(nciop->path != NULL) free((char*)nciop->path);
+	/* Fix 38699 */
+	nciop->path = NULL;
         free(nciop);
     }
     goto done;
@@ -525,6 +532,8 @@ memio_close(ncio* nciop, int doUnlink)
     /* do cleanup  */
     if(memio != NULL) free(memio);
     if(nciop->path != NULL) free((char*)nciop->path);
+    /* Fix 38699 */
+    nciop->path = NULL;
     free(nciop);
     return status;
 }
@@ -703,48 +712,16 @@ readfile(const char* path, NC_memio* memio)
 {
     int status = NC_NOERR;
     FILE* f = NULL;
-    size_t filesize = 0;
-    size_t count = 0;
-    char* memory = NULL;
-    char* p = NULL;
+    NCbytes* buf = ncbytesnew();
 
-    /* Open the file for reading */
-#ifdef _MSC_VER
-    f = NCfopen(path,"rb");
-#else
-    f = NCfopen(path,"r");
-#endif
-    if(f == NULL)
-	{status = errno; goto done;}
-    /* get current filesize */
-    if(fseek(f,0,SEEK_END) < 0)
-	{status = errno; goto done;}
-    filesize = (size_t)ftell(f);
-    /* allocate memory */
-    memory = malloc((size_t)filesize);
-    if(memory == NULL)
-	{status = NC_ENOMEM; goto done;}
-    /* move pointer back to beginning of file */
-    rewind(f);
-    count = filesize;
-    p = memory;
-    while(count > 0) {
-        size_t actual;
-        actual = fread(p,1,count,f);
-	if(actual == 0 || ferror(f))
-	    {status = NC_EIO; goto done;}	 
-	count -= actual;
-	p += actual;
-    }
+    if((status = NC_readfile(path,buf))) goto done;
     if(memio) {
-	memio->size = (size_t)filesize;
-	memio->memory = memory;
-	memory = NULL;
+	memio->size = ncbyteslength(buf);
+	memio->memory = ncbytesextract(buf);
     }
 
 done:
-    if(memory != NULL)
-	free(memory);
+    ncbytesfree(buf);
     if(f != NULL) fclose(f);
     return status;    
 }
@@ -754,30 +731,10 @@ static int
 writefile(const char* path, NCMEMIO* memio)
 {
     int status = NC_NOERR;
-    FILE* f = NULL;
-    size_t count = 0;
-    char* p = NULL;
 
-    /* Open/create the file for writing*/
-#ifdef _MSC_VER
-    f = NCfopen(path,"wb");
-#else
-    f = NCfopen(path,"w");
-#endif
-    if(f == NULL)
-        {status = errno; goto done;}
-    rewind(f);
-    count = memio->size;
-    p = memio->memory;
-    while(count > 0) {
-        size_t actual;
-        actual = fwrite(p,1,count,f);
-	if(actual == 0 || ferror(f))
-	    {status = NC_EIO; goto done;}	 
-	count -= actual;
-	p += actual;
+    if(memio) {
+        if((status = NC_writefile(path,memio->size,memio->memory))) goto done;
     }
 done:
-    if(f != NULL) fclose(f);
     return status;    
 }

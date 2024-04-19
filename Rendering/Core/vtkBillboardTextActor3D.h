@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBillboardTextActor3D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkBillboardTextActor3D
  * @brief Renders pixel-aligned text, facing the camera, anchored at a 3D point.
@@ -20,11 +8,12 @@
 #ifndef vtkBillboardTextActor3D_h
 #define vtkBillboardTextActor3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkProp3D.h"
 #include "vtkNew.h" // For.... vtkNew!
-#include "vtkSmartPointer.h" // For.... vtkSmartPointer!
+#include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"        // For.... vtkSmartPointer!
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkImageData;
 class vtkPolyData;
@@ -34,19 +23,35 @@ class vtkTextProperty;
 class vtkTextRenderer;
 class vtkTexture;
 
-class VTKRENDERINGCORE_EXPORT vtkBillboardTextActor3D: public vtkProp3D
+class VTKRENDERINGCORE_EXPORT vtkBillboardTextActor3D : public vtkProp3D
 {
 public:
   static vtkBillboardTextActor3D* New();
-  vtkTypeMacro(vtkBillboardTextActor3D, vtkProp3D)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkBillboardTextActor3D, vtkProp3D);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * For some exporters and other other operations we must be
+   * able to collect all the actors or volumes. These methods
+   * are used in that process.
+   * In case the viewport is not a consumer of this prop:
+   * call UpdateGeometry() first for updated viewport-specific
+   * billboard geometry.
+   */
+  void GetActors(vtkPropCollection*) override;
+
+  /**
+   * Updates the billboard geometry without performing any rendering,
+   * to assist GetActors().
+   */
+  void UpdateGeometry(vtkViewport* vp);
 
   /**
    * The UTF-8 encoded string to display.
    * @{
    */
-  void SetInput(const char *in);
-  vtkGetStringMacro(Input)
+  void SetInput(const char* in);
+  vtkGetStringMacro(Input);
   /** @} */
 
   /**
@@ -54,16 +59,16 @@ public:
    * Use display coordinates.
    * @{
    */
-  vtkGetVector2Macro(DisplayOffset, int)
-  vtkSetVector2Macro(DisplayOffset, int)
+  vtkGetVector2Macro(DisplayOffset, int);
+  vtkSetVector2Macro(DisplayOffset, int);
   /** @} */
 
   /**
    * The vtkTextProperty object that controls the rendered text.
    * @{
    */
-  void SetTextProperty(vtkTextProperty *tprop);
-  vtkGetObjectMacro(TextProperty, vtkTextProperty)
+  void SetTextProperty(vtkTextProperty* tprop);
+  vtkGetObjectMacro(TextProperty, vtkTextProperty);
   /** @} */
 
   /**
@@ -88,23 +93,23 @@ public:
   /**
    * Check/update geometry/texture in opaque pass, since it only happens once.
    */
-  int RenderOpaqueGeometry(vtkViewport *vp) override;
+  int RenderOpaqueGeometry(vtkViewport* vp) override;
 
   /**
    * Just render in translucent pass, since it can execute multiple times
    * (depth peeling, for instance).
    */
-  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* vp) override;
 
-  void ReleaseGraphicsResources(vtkWindow *win) override;
-  double *GetBounds() override;
+  void ReleaseGraphicsResources(vtkWindow* win) override;
+  double* GetBounds() override;
   using Superclass::GetBounds;
 
   /**
    * Returns the anchor position in display coordinates, with depth in NDC.
    * Valid after calling RenderOpaqueGeometry.
    */
-  vtkGetVector3Macro(AnchorDC, double)
+  vtkGetVector3Macro(AnchorDC, double);
 
 protected:
   vtkBillboardTextActor3D();
@@ -112,13 +117,13 @@ protected:
 
   bool InputIsValid();
 
-  void UpdateInternals(vtkRenderer *ren);
+  void UpdateInternals(vtkRenderer* ren);
 
-  bool TextureIsStale(vtkRenderer *ren);
-  void GenerateTexture(vtkRenderer *ren);
+  bool TextureIsStale(vtkRenderer* ren);
+  void GenerateTexture(vtkRenderer* ren);
 
-  bool QuadIsStale(vtkRenderer *ren);
-  void GenerateQuad(vtkRenderer *ren);
+  bool QuadIsStale(vtkRenderer* ren);
+  void GenerateQuad(vtkRenderer* ren);
 
   // Used by the opaque pass to tell the translucent pass not to render.
   void Invalidate();
@@ -128,8 +133,8 @@ protected:
   void PreRender();
 
   // Text specification:
-  char *Input;
-  vtkTextProperty *TextProperty;
+  char* Input;
+  vtkTextProperty* TextProperty;
 
   // Offset in display coordinates.
   int DisplayOffset[2];
@@ -158,4 +163,5 @@ private:
   void operator=(const vtkBillboardTextActor3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkBillboardTextActor3D_h

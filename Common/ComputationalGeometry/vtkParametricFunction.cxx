@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParametricFunction.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkParametricFunction.h"
 
-
-//----------------------------------------------------------------------------
-vtkParametricFunction::vtkParametricFunction() :
-    MinimumU(0.0)
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkParametricFunction::vtkParametricFunction()
+  : MinimumU(0.0)
   , MaximumU(1.0)
   , MinimumV(0.0)
   , MaximumV(1.0)
@@ -34,15 +22,13 @@ vtkParametricFunction::vtkParametricFunction() :
 {
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricFunction::~vtkParametricFunction() = default;
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Minimum U: " << this->MinimumU << "\n";
   os << indent << "Maximum U: " << this->MaximumU << "\n";
@@ -64,3 +50,4 @@ void vtkParametricFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ClockwiseOrdering: " << this->ClockwiseOrdering << "\n";
   os << indent << "Derivatives Available: " << this->DerivativesAvailable << "\n";
 }
+VTK_ABI_NAMESPACE_END

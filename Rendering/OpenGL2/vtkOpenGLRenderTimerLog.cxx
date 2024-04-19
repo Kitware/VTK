@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLRenderTimerLog.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkOpenGLRenderTimerLog.h"
 
@@ -22,22 +10,22 @@
 #include <cassert>
 #include <utility>
 
-vtkStandardNewMacro(vtkOpenGLRenderTimerLog)
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkOpenGLRenderTimerLog);
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderTimerLog::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkOpenGLRenderTimerLog::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "CurrentFrame: "
-     << this->CurrentFrame.ChildCount << " events logged\n"
+  os << indent << "CurrentFrame: " << this->CurrentFrame.ChildCount << " events logged\n"
      << indent << "PendingFrames: " << this->PendingFrames.size() << " frames\n"
      << indent << "ReadyFrames: " << this->ReadyFrames.size() << " frames\n"
      << indent << "TimerPool: " << this->TimerPool.size() << " free timers\n";
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLRenderTimerLog::IsSupported()
+bool vtkOpenGLRenderTimerLog::IsSupported() VTK_FUTURE_CONST
 {
   return vtkOpenGLRenderTimer::IsSupported();
 }
@@ -66,14 +54,14 @@ void vtkOpenGLRenderTimerLog::MarkFrame()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderTimerLog::MarkStartEvent(const std::string &name)
+void vtkOpenGLRenderTimerLog::MarkStartEvent(const std::string& name)
 {
   if (!this->DoLogging())
   {
     return;
   }
 
-  OGLEvent &event = this->NewEvent();
+  OGLEvent& event = this->NewEvent();
   event.Name = name;
   event.Timer = this->NewTimer();
   event.Timer->Start();
@@ -87,7 +75,7 @@ void vtkOpenGLRenderTimerLog::MarkEndEvent()
     return;
   }
 
-  OGLEvent *event = this->DeepestOpenEvent();
+  OGLEvent* event = this->DeepestOpenEvent();
   if (event)
   {
     event->Timer->Stop();
@@ -140,7 +128,6 @@ void vtkOpenGLRenderTimerLog::ReleaseGraphicsResources()
 vtkOpenGLRenderTimerLog::vtkOpenGLRenderTimerLog()
   : MinTimerPoolSize(32)
 {
-
 }
 
 //------------------------------------------------------------------------------
@@ -155,7 +142,7 @@ vtkOpenGLRenderTimerLog::~vtkOpenGLRenderTimerLog()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLRenderTimerLog::DoLogging()
+bool vtkOpenGLRenderTimerLog::DoLogging() VTK_FUTURE_CONST
 {
   if (!this->LoggingEnabled)
   {
@@ -173,8 +160,7 @@ bool vtkOpenGLRenderTimerLog::DoLogging()
 }
 
 //------------------------------------------------------------------------------
-vtkRenderTimerLog::Frame
-vtkOpenGLRenderTimerLog::Convert(const OGLFrame &oglFrame)
+vtkRenderTimerLog::Frame vtkOpenGLRenderTimerLog::Convert(const OGLFrame& oglFrame)
 {
   Frame frame;
   frame.Events.reserve(oglFrame.Events.size());
@@ -187,8 +173,7 @@ vtkOpenGLRenderTimerLog::Convert(const OGLFrame &oglFrame)
 }
 
 //------------------------------------------------------------------------------
-vtkRenderTimerLog::Event
-vtkOpenGLRenderTimerLog::Convert(const OGLEvent &oglEvent)
+vtkRenderTimerLog::Event vtkOpenGLRenderTimerLog::Convert(const OGLEvent& oglEvent)
 {
   Event event;
   event.Name = oglEvent.Name;
@@ -208,16 +193,16 @@ vtkOpenGLRenderTimerLog::Convert(const OGLEvent &oglEvent)
 vtkOpenGLRenderTimerLog::OGLEvent& vtkOpenGLRenderTimerLog::NewEvent()
 {
   ++this->CurrentFrame.ChildCount;
-  OGLEvent *openEvent = this->DeepestOpenEvent();
+  OGLEvent* openEvent = this->DeepestOpenEvent();
 
   if (openEvent)
   {
-    openEvent->Events.push_back(OGLEvent());
+    openEvent->Events.emplace_back();
     return openEvent->Events.back();
   }
   else
   {
-    this->CurrentFrame.Events.push_back(OGLEvent());
+    this->CurrentFrame.Events.emplace_back();
     return this->CurrentFrame.Events.back();
   }
 }
@@ -225,10 +210,10 @@ vtkOpenGLRenderTimerLog::OGLEvent& vtkOpenGLRenderTimerLog::NewEvent()
 //------------------------------------------------------------------------------
 vtkOpenGLRenderTimerLog::OGLEvent* vtkOpenGLRenderTimerLog::DeepestOpenEvent()
 {
-  OGLEvent *openEvent = nullptr;
+  OGLEvent* openEvent = nullptr;
   if (!this->CurrentFrame.Events.empty())
   {
-    OGLEvent &lastTopEvent = this->CurrentFrame.Events.back();
+    OGLEvent& lastTopEvent = this->CurrentFrame.Events.back();
     if (!lastTopEvent.Timer->Stopped())
     {
       openEvent = &this->WalkOpenEvents(lastTopEvent);
@@ -238,8 +223,7 @@ vtkOpenGLRenderTimerLog::OGLEvent* vtkOpenGLRenderTimerLog::DeepestOpenEvent()
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLRenderTimerLog::OGLEvent &
-vtkOpenGLRenderTimerLog::WalkOpenEvents(OGLEvent &event)
+vtkOpenGLRenderTimerLog::OGLEvent& vtkOpenGLRenderTimerLog::WalkOpenEvents(OGLEvent& event)
 {
   assert(event.Timer->Started() && !event.Timer->Stopped());
   if (event.Events.empty())
@@ -247,7 +231,7 @@ vtkOpenGLRenderTimerLog::WalkOpenEvents(OGLEvent &event)
     return event;
   }
 
-  OGLEvent &lastChild = event.Events.back();
+  OGLEvent& lastChild = event.Events.back();
   if (lastChild.Timer->Stopped())
   {
     return event;
@@ -257,7 +241,7 @@ vtkOpenGLRenderTimerLog::WalkOpenEvents(OGLEvent &event)
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLRenderTimer *vtkOpenGLRenderTimerLog::NewTimer()
+vtkOpenGLRenderTimer* vtkOpenGLRenderTimerLog::NewTimer()
 {
   if (this->TimerPool.empty())
   {
@@ -265,21 +249,21 @@ vtkOpenGLRenderTimer *vtkOpenGLRenderTimerLog::NewTimer()
   }
   else
   {
-    vtkOpenGLRenderTimer *result = this->TimerPool.front();
+    vtkOpenGLRenderTimer* result = this->TimerPool.front();
     this->TimerPool.pop();
     return result;
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderTimerLog::ReleaseTimer(vtkOpenGLRenderTimer *timer)
+void vtkOpenGLRenderTimerLog::ReleaseTimer(vtkOpenGLRenderTimer* timer)
 {
   timer->Reset();
   this->TimerPool.push(timer);
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderTimerLog::ReleaseOGLFrame(OGLFrame &frame)
+void vtkOpenGLRenderTimerLog::ReleaseOGLFrame(OGLFrame& frame)
 {
   for (auto event : frame.Events)
   {
@@ -288,7 +272,7 @@ void vtkOpenGLRenderTimerLog::ReleaseOGLFrame(OGLFrame &frame)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderTimerLog::ReleaseOGLEvent(OGLEvent &event)
+void vtkOpenGLRenderTimerLog::ReleaseOGLEvent(OGLEvent& event)
 {
   this->ReleaseTimer(event.Timer);
   event.Timer = nullptr;
@@ -323,7 +307,7 @@ void vtkOpenGLRenderTimerLog::CheckPendingFrames()
 {
   while (!this->PendingFrames.empty())
   {
-    OGLFrame &frame = this->PendingFrames.front();
+    OGLFrame& frame = this->PendingFrames.front();
     if (this->IsFrameReady(frame))
     {
       this->ReadyFrames.push(this->Convert(frame));
@@ -337,8 +321,7 @@ void vtkOpenGLRenderTimerLog::CheckPendingFrames()
   }
 
   while (this->FrameLimit > 0 &&
-         this->PendingFrames.size() + this->ReadyFrames.size() >
-         this->FrameLimit)
+    this->PendingFrames.size() + this->ReadyFrames.size() > this->FrameLimit)
   {
     if (!this->ReadyFrames.empty())
     {
@@ -357,7 +340,7 @@ void vtkOpenGLRenderTimerLog::CheckPendingFrames()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLRenderTimerLog::IsFrameReady(OGLFrame &frame)
+bool vtkOpenGLRenderTimerLog::IsFrameReady(OGLFrame& frame)
 {
   for (auto event : frame.Events)
   {
@@ -370,7 +353,7 @@ bool vtkOpenGLRenderTimerLog::IsFrameReady(OGLFrame &frame)
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLRenderTimerLog::IsEventReady(OGLEvent &event)
+bool vtkOpenGLRenderTimerLog::IsEventReady(OGLEvent& event)
 {
   if (!event.Timer->Ready())
   {
@@ -389,22 +372,23 @@ bool vtkOpenGLRenderTimerLog::IsEventReady(OGLEvent &event)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderTimerLog::ForceCloseFrame(OGLFrame &frame)
+void vtkOpenGLRenderTimerLog::ForceCloseFrame(OGLFrame& frame)
 {
-  for (auto event: frame.Events)
+  for (auto event : frame.Events)
   {
     this->ForceCloseEvent(event);
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderTimerLog::ForceCloseEvent(OGLEvent &event)
+void vtkOpenGLRenderTimerLog::ForceCloseEvent(OGLEvent& event)
 {
   if (!event.Timer->Started())
   {
-    vtkWarningMacro("Timer for event '" << event.Name << "' was never started? "
-                    "This is an internal error. Timing results will be "
-                    "unreliable.");
+    vtkWarningMacro("Timer for event '" << event.Name
+                                        << "' was never started? "
+                                           "This is an internal error. Timing results will be "
+                                           "unreliable.");
 
     // If this somehow happens, start the timer so it will not clog the pending
     // queue:
@@ -413,10 +397,11 @@ void vtkOpenGLRenderTimerLog::ForceCloseEvent(OGLEvent &event)
 
   if (!event.Timer->Stopped())
   {
-    vtkWarningMacro("Timer for event '" << event.Name << "' was never stopped. "
-                    "Ensure that all events have an end mark (the issue may "
-                    "be with a different event). Timing results will be "
-                    "unreliable.");
+    vtkWarningMacro("Timer for event '" << event.Name
+                                        << "' was never stopped. "
+                                           "Ensure that all events have an end mark (the issue may "
+                                           "be with a different event). Timing results will be "
+                                           "unreliable.");
     event.Timer->Stop();
   }
 
@@ -425,3 +410,4 @@ void vtkOpenGLRenderTimerLog::ForceCloseEvent(OGLEvent &event)
     this->ForceCloseEvent(subEvent);
   }
 }
+VTK_ABI_NAMESPACE_END

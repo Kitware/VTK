@@ -1,64 +1,83 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkPlane
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkFiltersGeneral import (
+    vtkClipDataSet,
+    vtkDataSetTriangleFilter,
+    vtkShrinkFilter,
+)
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
+from vtkmodules.vtkIOLegacy import vtkUnstructuredGridReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # read the football dataset:
 #
-reader = vtk.vtkUnstructuredGridReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/PentaHexa.vtk")
+reader = vtkUnstructuredGridReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/PentaHexa.vtk")
 reader.Update()
 # Clip
 #
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetNormal(1,1,0)
-clip = vtk.vtkClipDataSet()
+clip = vtkClipDataSet()
 clip.SetInputConnection(reader.GetOutputPort())
 clip.SetClipFunction(plane)
 clip.GenerateClipScalarsOn()
-g = vtk.vtkDataSetSurfaceFilter()
+g = vtkDataSetSurfaceFilter()
 g.SetInputConnection(clip.GetOutputPort())
-map = vtk.vtkPolyDataMapper()
+map = vtkPolyDataMapper()
 map.SetInputConnection(g.GetOutputPort())
-clipActor = vtk.vtkActor()
+clipActor = vtkActor()
 clipActor.SetMapper(map)
 # Contour
 #
-contour = vtk.vtkContourFilter()
+contour = vtkContourFilter()
 contour.SetInputConnection(reader.GetOutputPort())
 contour.SetValue(0,0.125)
 contour.SetValue(1,0.25)
 contour.SetValue(2,0.5)
 contour.SetValue(3,0.75)
 contour.SetValue(4,1.0)
-g2 = vtk.vtkDataSetSurfaceFilter()
+g2 = vtkDataSetSurfaceFilter()
 g2.SetInputConnection(contour.GetOutputPort())
-map2 = vtk.vtkPolyDataMapper()
+map2 = vtkPolyDataMapper()
 map2.SetInputConnection(g2.GetOutputPort())
 map2.ScalarVisibilityOff()
-contourActor = vtk.vtkActor()
+contourActor = vtkActor()
 contourActor.SetMapper(map2)
 contourActor.GetProperty().SetColor(1,0,0)
 contourActor.GetProperty().SetRepresentationToWireframe()
 # Triangulate
-tris = vtk.vtkDataSetTriangleFilter()
+tris = vtkDataSetTriangleFilter()
 tris.SetInputConnection(reader.GetOutputPort())
-shrink = vtk.vtkShrinkFilter()
+shrink = vtkShrinkFilter()
 shrink.SetInputConnection(tris.GetOutputPort())
 shrink.SetShrinkFactor(.8)
-map3 = vtk.vtkDataSetMapper()
+map3 = vtkDataSetMapper()
 map3.SetInputConnection(shrink.GetOutputPort())
 map3.SetScalarRange(0,26)
-triActor = vtk.vtkActor()
+triActor = vtkActor()
 triActor.SetMapper(map3)
 triActor.AddPosition(2,0,0)
 # Create graphics stuff
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

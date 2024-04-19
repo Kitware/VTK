@@ -1,40 +1,29 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLTextActor.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkOpenGLTextActor.h"
 
 #include "vtkCoordinate.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLGL2PSHelper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkViewport.h"
 
-vtkStandardNewMacro(vtkOpenGLTextActor)
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkOpenGLTextActor);
 
 //------------------------------------------------------------------------------
-void vtkOpenGLTextActor::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkOpenGLTextActor::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-int vtkOpenGLTextActor::RenderOverlay(vtkViewport *viewport)
+int vtkOpenGLTextActor::RenderOverlay(vtkViewport* viewport)
 {
   // Render to GL2PS if capturing:
-  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  vtkOpenGLGL2PSHelper* gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
   if (gl2ps)
   {
     switch (gl2ps->GetActiveState())
@@ -58,8 +47,7 @@ vtkOpenGLTextActor::vtkOpenGLTextActor() = default;
 vtkOpenGLTextActor::~vtkOpenGLTextActor() = default;
 
 //------------------------------------------------------------------------------
-int vtkOpenGLTextActor::RenderGL2PS(vtkViewport *viewport,
-                                    vtkOpenGLGL2PSHelper *gl2ps)
+int vtkOpenGLTextActor::RenderGL2PS(vtkViewport* viewport, vtkOpenGLGL2PSHelper* gl2ps)
 {
   std::string input = (this->Input && this->Input[0]) ? this->Input : "";
   if (input.empty())
@@ -67,7 +55,7 @@ int vtkOpenGLTextActor::RenderGL2PS(vtkViewport *viewport,
     return 0;
   }
 
-  vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
   if (!ren)
   {
     vtkWarningMacro("Viewport is not a renderer.");
@@ -75,15 +63,16 @@ int vtkOpenGLTextActor::RenderGL2PS(vtkViewport *viewport,
   }
 
   // Figure out position:
-  vtkCoordinate *coord = this->GetActualPositionCoordinate();
-  double *textPos2 = coord->GetComputedDoubleDisplayValue(ren);
+  vtkCoordinate* coord = this->GetActualPositionCoordinate();
+  double* textPos2 = coord->GetComputedDoubleDisplayValue(ren);
   double pos[3];
   pos[0] = textPos2[0];
   pos[1] = textPos2[1];
   pos[2] = -1.;
 
-  vtkTextProperty *tprop = this->GetScaledTextProperty();
+  vtkTextProperty* tprop = this->GetScaledTextProperty();
   gl2ps->DrawString(input, tprop, pos, pos[2] + 1e-6, ren);
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMergeColumns.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkMergeColumns
  * @brief   merge two columns into a single column
@@ -37,7 +21,7 @@
  * If the arrays are numeric, the values are summed in the merged column.
  * If the arrays are strings, the values are concatenated.  The strings are
  * separated by a space if they are both nonempty.
-*/
+ */
 
 #ifndef vtkMergeColumns_h
 #define vtkMergeColumns_h
@@ -45,20 +29,21 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkMergeColumns : public vtkTableAlgorithm
 {
 public:
   static vtkMergeColumns* New();
-  vtkTypeMacro(vtkMergeColumns,vtkTableAlgorithm);
+  vtkTypeMacro(vtkMergeColumns, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The name to give the merged column created by this filter.
    */
   vtkSetStringMacro(MergedColumnName);
   vtkGetStringMacro(MergedColumnName);
-  //@}
+  ///@}
 
 protected:
   vtkMergeColumns();
@@ -66,15 +51,12 @@ protected:
 
   char* MergedColumnName;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkMergeColumns(const vtkMergeColumns&) = delete;
   void operator=(const vtkMergeColumns&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

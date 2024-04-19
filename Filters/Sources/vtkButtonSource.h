@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkButtonSource.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkButtonSource
  * @brief   abstract class for creating various button types
@@ -39,7 +27,7 @@
  * @warning
  * The button is defined in the x-y plane. Use vtkTransformPolyDataFilter
  * or vtkGlyph3D to orient the button in a different direction.
-*/
+ */
 
 #ifndef vtkButtonSource_h
 #define vtkButtonSource_h
@@ -47,83 +35,79 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-#define VTK_TEXTURE_STYLE_FIT_IMAGE    0
+#define VTK_TEXTURE_STYLE_FIT_IMAGE 0
 #define VTK_TEXTURE_STYLE_PROPORTIONAL 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkButtonSource : public vtkPolyDataAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkButtonSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkButtonSource, vtkPolyDataAlgorithm);
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the origin (center) of the button.
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVectorMacro(Center,double,3);
-  //@}
+  vtkSetVector3Macro(Center, double);
+  vtkGetVectorMacro(Center, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the style of the texture region: whether to size it
    * according to the x-y dimensions of the texture, or whether to make
    * the texture region proportional to the width/height of the button.
    */
-  vtkSetClampMacro(TextureStyle,int,VTK_TEXTURE_STYLE_FIT_IMAGE,
-                                    VTK_TEXTURE_STYLE_PROPORTIONAL);
-  vtkGetMacro(TextureStyle,int);
-  void SetTextureStyleToFitImage()
-    {this->SetTextureStyle(VTK_TEXTURE_STYLE_FIT_IMAGE);}
-  void SetTextureStyleToProportional()
-    {this->SetTextureStyle(VTK_TEXTURE_STYLE_PROPORTIONAL);}
-  //@}
+  vtkSetClampMacro(TextureStyle, int, VTK_TEXTURE_STYLE_FIT_IMAGE, VTK_TEXTURE_STYLE_PROPORTIONAL);
+  vtkGetMacro(TextureStyle, int);
+  void SetTextureStyleToFitImage() { this->SetTextureStyle(VTK_TEXTURE_STYLE_FIT_IMAGE); }
+  void SetTextureStyleToProportional() { this->SetTextureStyle(VTK_TEXTURE_STYLE_PROPORTIONAL); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the texture dimension. This needs to be set if the texture
    * style is set to fit the image.
    */
-  vtkSetVector2Macro(TextureDimensions,int);
-  vtkGetVector2Macro(TextureDimensions,int);
-  //@}
+  vtkSetVector2Macro(TextureDimensions, int);
+  vtkGetVector2Macro(TextureDimensions, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the default texture coordinate to set the shoulder region to.
    */
-  vtkSetVector2Macro(ShoulderTextureCoordinate,double);
-  vtkGetVector2Macro(ShoulderTextureCoordinate,double);
-  //@}
+  vtkSetVector2Macro(ShoulderTextureCoordinate, double);
+  vtkGetVector2Macro(ShoulderTextureCoordinate, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether the button is single or double sided. A double sided
    * button can be viewed from two sides...it looks sort of like a "pill."
    * A single-sided button is meant to viewed from a single side; it looks
    * like a "clam-shell."
    */
-  vtkSetMacro(TwoSided,vtkTypeBool);
-  vtkGetMacro(TwoSided,vtkTypeBool);
-  vtkBooleanMacro(TwoSided,vtkTypeBool);
-  //@}
+  vtkSetMacro(TwoSided, vtkTypeBool);
+  vtkGetMacro(TwoSided, vtkTypeBool);
+  vtkBooleanMacro(TwoSided, vtkTypeBool);
+  ///@}
 
 protected:
   vtkButtonSource();
-  ~vtkButtonSource() override {}
+  ~vtkButtonSource() override = default;
 
   double Center[3];
   double ShoulderTextureCoordinate[2];
-  int    TextureStyle;
-  int    TextureDimensions[2];
-  vtkTypeBool    TwoSided;
+  int TextureStyle;
+  int TextureDimensions[2];
+  vtkTypeBool TwoSided;
 
 private:
   vtkButtonSource(const vtkButtonSource&) = delete;
   void operator=(const vtkButtonSource&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

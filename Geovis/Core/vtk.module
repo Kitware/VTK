@@ -4,26 +4,21 @@ LIBRARY_NAME
   vtkGeovisCore
 GROUPS
   Rendering
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-BSD-3-Clause-Sandia-USGov
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright Sandia Corporation
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
+  BSD-3-Clause-Sandia-USGov
+LICENSE_FILES
+  LICENSE
 DEPENDS
   VTK::CommonCore
-  VTK::CommonDataModel
-  VTK::CommonExecutionModel
   VTK::CommonTransforms
-  VTK::InfovisCore
-  VTK::InteractionStyle
-  VTK::InteractionWidgets
-  VTK::RenderingCore
-  VTK::ViewsCore
   VTK::libproj
-PRIVATE_DEPENDS
-  VTK::CommonSystem
-  VTK::FiltersCore
-  VTK::FiltersGeneral
-  VTK::IOImage
-  VTK::IOXML
-  VTK::ImagingCore
-  VTK::ImagingSources
-  VTK::InfovisLayout
 TEST_DEPENDS
   VTK::IOImage
   VTK::IOXML
@@ -32,6 +27,3 @@ TEST_DEPENDS
   VTK::RenderingOpenGL2
   VTK::TestingRendering
   VTK::ViewsInfovis
-TEST_OPTIONAL_DEPENDS
-  # XXX(VTK_LEGACY_REMOVE): This is only required by legacy-using tests.
-  VTK::ViewsGeovis

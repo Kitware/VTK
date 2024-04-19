@@ -1,41 +1,30 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCollectionIterator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCollectionIterator.h"
-#include "vtkObjectFactory.h"
 #include "vtkCollection.h"
+#include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCollectionIterator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollectionIterator::vtkCollectionIterator()
 {
   this->Element = nullptr;
   this->Collection = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCollectionIterator::~vtkCollectionIterator()
 {
   this->SetCollection(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectionIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  if(this->Collection)
+  this->Superclass::PrintSelf(os, indent);
+  if (this->Collection)
   {
     os << indent << "Collection: " << this->Collection << "\n";
   }
@@ -45,17 +34,17 @@ void vtkCollectionIterator::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectionIterator::SetCollection(vtkCollection* collection)
 {
   vtkSetObjectBodyMacro(Collection, vtkCollection, collection);
   this->GoToFirstItem();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectionIterator::GoToFirstItem()
 {
-  if(this->Collection)
+  if (this->Collection)
   {
     this->Element = this->Collection->Top;
   }
@@ -65,27 +54,28 @@ void vtkCollectionIterator::GoToFirstItem()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkCollectionIterator::GoToNextItem()
 {
-  if(this->Element)
+  if (this->Element)
   {
     this->Element = this->Element->Next;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkCollectionIterator::IsDoneWithTraversal()
 {
-  return (this->Element? 0:1);
+  return (this->Element ? 0 : 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObject* vtkCollectionIterator::GetCurrentObject()
 {
-  if(this->Element)
+  if (this->Element)
   {
     return this->Element->Item;
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

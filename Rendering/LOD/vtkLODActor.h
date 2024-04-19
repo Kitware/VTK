@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLODActor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLODActor
  * @brief   an actor that supports multiple levels of detail
@@ -51,14 +39,15 @@
  *
  * @sa
  * vtkActor vtkRenderer vtkLODProp3D
-*/
+ */
 
 #ifndef vtkLODActor_h
 #define vtkLODActor_h
 
-#include "vtkRenderingLODModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingLODModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMapper;
 class vtkMapperCollection;
 class vtkPolyDataAlgorithm;
@@ -84,13 +73,7 @@ public:
    * This causes the actor to be rendered.
    * It, in turn, will render the actor's property and then mapper.
    */
-  void Render(vtkRenderer *, vtkMapper *) override;
-
-  /**
-   * This method is used internally by the rendering process. We override
-   * the superclass method to properly set the estimated render time.
-   */
-  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  void Render(vtkRenderer*, vtkMapper*) override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
@@ -105,7 +88,7 @@ public:
    */
   void AddLODMapper(vtkMapper* mapper);
 
-  //@{
+  ///@{
   /**
    * You may plug in your own filters to decimate/subsample the input.
    * The default is to use a vtkOutlineFilter (low-res) and vtkMaskPoints
@@ -115,23 +98,23 @@ public:
   virtual void SetMediumResFilter(vtkPolyDataAlgorithm*);
   vtkGetObjectMacro(LowResFilter, vtkPolyDataAlgorithm);
   vtkGetObjectMacro(MediumResFilter, vtkPolyDataAlgorithm);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of random points for the point cloud.
    */
   vtkGetMacro(NumberOfCloudPoints, int);
   vtkSetMacro(NumberOfCloudPoints, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * All the mappers for different LODs are stored here.
    * The order is not important.
    */
   vtkGetObjectMacro(LODMappers, vtkMapperCollection);
-  //@}
+  ///@}
 
   /**
    * When this objects gets modified, this method also modifies the object.
@@ -141,7 +124,7 @@ public:
   /**
    * Shallow copy of an LOD actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
 protected:
   vtkLODActor();
@@ -169,4 +152,5 @@ private:
   void operator=(const vtkLODActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

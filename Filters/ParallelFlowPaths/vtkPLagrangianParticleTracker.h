@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPLagrangianParticleTracker.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-    This software is distributed WITHOUT ANY WARRANTY; without even
-    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-    PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPLagrangianParticleTracker
  * @brief    parallel Lagrangian particle tracker
@@ -41,9 +29,12 @@
 #include "vtkLagrangianParticleTracker.h"
 #include "vtkNew.h" // for ivars
 
-class MasterFlagManager;
+#include <map> // for std::map
+
+VTK_ABI_NAMESPACE_BEGIN
+class ParticleFeedManager;
+class ParticleIdManager;
 class ParticleStreamManager;
-class RankFlagManager;
 class vtkMPIController;
 class vtkMultiBlockDataSet;
 class vtkUnstructuredGrid;
@@ -53,15 +44,14 @@ class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPLagrangianParticleTracker
 {
 public:
   vtkTypeMacro(vtkPLagrangianParticleTracker, vtkLagrangianParticleTracker);
-  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkPLagrangianParticleTracker* New();
 
 protected:
   vtkPLagrangianParticleTracker();
-  ~vtkPLagrangianParticleTracker();
+  ~vtkPLagrangianParticleTracker() override;
 
-  virtual int RequestUpdateExtent(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void GenerateParticles(const vtkBoundingBox* bounds, vtkDataSet* seeds,
     vtkDataArray* initialVelocities, vtkDataArray* initialIntegrationTimes, vtkPointData* seedData,
@@ -72,7 +62,7 @@ protected:
    * Worker flag working : the worker has at least one particle in it's queue and
       is currently integrating it.
    * Worker flag empty : the worker has no more particle in it's queue and is
-       activelly waiting for more particle to integrate from other ranks.
+       actively waiting for more particle to integrate from other ranks.
    * Worker flag finished : the worker has received a master empty flag and after
        checking one last time, still doesn't have any particle to integrate. It is
        now just waiting for master to send the master finished flag.
@@ -81,16 +71,22 @@ protected:
    * Master flag empty : all ranks, including master, have no more particles to integrate
    * Master flag finished : all workers ranks have sent the worker flag finished
    */
-  virtual void GetParticleFeed(std::queue<vtkLagrangianParticle*>& particleQueue) override;
-  virtual int Integrate(vtkInitialValueProblemSolver* integrator, vtkLagrangianParticle*,
+  void GetParticleFeed(std::queue<vtkLagrangianParticle*>& particleQueue) override;
+  int Integrate(vtkInitialValueProblemSolver* integrator, vtkLagrangianParticle*,
     std::queue<vtkLagrangianParticle*>& particleQueue, vtkPolyData* particlePathsOutput,
     vtkPolyLine* particlePath, vtkDataObject* interactionOutput) override;
 
-  void SendParticle(vtkLagrangianParticle* particle);
+  /**
+   * Non threadsafe methods to receive particles
+   */
   void ReceiveParticles(std::queue<vtkLagrangianParticle*>& particleQueue);
 
-  bool FinalizeOutputs(
-    vtkPolyData* particlePathsOutput, vtkDataObject* interractionOutput) override;
+  /**
+   * Non threadsafe methods to receive transferred particle ids
+   */
+  void ReceiveTransferredParticleIds();
+
+  bool FinalizeOutputs(vtkPolyData* particlePathsOutput, vtkDataObject* interactionOutput) override;
 
   bool UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces) override;
 
@@ -98,26 +94,37 @@ protected:
    * Get an unique id for a particle
    * This method is thread safe
    */
-  virtual vtkIdType GetNewParticleId() override;
+  vtkIdType GetNewParticleId() override;
 
-  //@{
+  /**
+   * Delete a particle if not out of domain
+   * If out of domain, it will be stored and deleted later
+   * in case it needs to be registered as a transferred particle
+   */
+  void DeleteParticle(vtkLagrangianParticle* particle) override;
+
   /**
    * Get the complete number of created particles
    */
   vtkGetMacro(ParticleCounter, vtkIdType);
-  //@}
+
+  void SetController(vtkMPIController*);
 
   vtkNew<vtkUnstructuredGrid> TmpSurfaceInput;
   vtkNew<vtkMultiBlockDataSet> TmpSurfaceInputMB;
   vtkMPIController* Controller;
   ParticleStreamManager* StreamManager;
-  MasterFlagManager* MFlagManager;
-  RankFlagManager* RFlagManager;
+  ParticleIdManager* TransferredParticleIdManager;
+  ParticleFeedManager* FeedManager;
 
   std::mutex StreamManagerMutex;
+  std::mutex OutOfDomainParticleMapMutex;
+
+  std::map<vtkIdType, vtkLagrangianParticle*> OutOfDomainParticleMap;
 
 private:
   vtkPLagrangianParticleTracker(const vtkPLagrangianParticleTracker&) = delete;
   void operator=(const vtkPLagrangianParticleTracker&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

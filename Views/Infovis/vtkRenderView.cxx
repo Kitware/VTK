@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderView.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkRenderView.h"
 
@@ -39,11 +23,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper2D.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderedRepresentation.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -52,7 +36,6 @@
 #include "vtkTexturedActor2D.h"
 #include "vtkTransform.h"
 #include "vtkTransformCoordinateSystems.h"
-#include "vtkUnicodeString.h"
 #include "vtkViewTheme.h"
 
 #ifdef VTK_USE_QT
@@ -61,6 +44,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -180,12 +164,9 @@ void vtkRenderView::SetInteractorStyle(vtkInteractorObserver* style)
       oldStyle->RemoveObserver(this->GetObserver());
     }
     this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
-    style->AddObserver(
-      vtkCommand::SelectionChangedEvent, this->GetObserver());
-    vtkInteractorStyleRubberBand2D* style2D =
-      vtkInteractorStyleRubberBand2D::SafeDownCast(style);
-    vtkInteractorStyleRubberBand3D* style3D =
-      vtkInteractorStyleRubberBand3D::SafeDownCast(style);
+    style->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
+    vtkInteractorStyleRubberBand2D* style2D = vtkInteractorStyleRubberBand2D::SafeDownCast(style);
+    vtkInteractorStyleRubberBand3D* style3D = vtkInteractorStyleRubberBand3D::SafeDownCast(style);
     if (style2D)
     {
       style2D->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
@@ -220,14 +201,12 @@ void vtkRenderView::SetRenderOnMouseMove(bool b)
   }
 
   vtkInteractorObserver* style = this->GetInteractor()->GetInteractorStyle();
-  vtkInteractorStyleRubberBand2D* style2D =
-    vtkInteractorStyleRubberBand2D::SafeDownCast(style);
+  vtkInteractorStyleRubberBand2D* style2D = vtkInteractorStyleRubberBand2D::SafeDownCast(style);
   if (style2D)
   {
     style2D->SetRenderOnMouseMove(b);
   }
-  vtkInteractorStyleRubberBand3D* style3D =
-    vtkInteractorStyleRubberBand3D::SafeDownCast(style);
+  vtkInteractorStyleRubberBand3D* style3D = vtkInteractorStyleRubberBand3D::SafeDownCast(style);
   if (style3D)
   {
     style3D->SetRenderOnMouseMove(b);
@@ -314,8 +293,7 @@ void vtkRenderView::RemoveLabels(vtkAlgorithmOutput* conn)
   this->LabelPlacementMapper->RemoveInputConnection(0, conn);
 }
 
-void vtkRenderView::ProcessEvents(
-  vtkObject* caller, unsigned long eventId, void* callData)
+void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData)
 {
   if (caller == this->GetInteractor() && eventId == vtkCommand::RenderEvent)
   {
@@ -341,12 +319,10 @@ void vtkRenderView::ProcessEvents(
     this->UpdateHoverWidgetState();
     this->PickRenderNeedsUpdate = true;
   }
-  if (caller == this->RenderWindow.GetPointer()
-      && eventId == vtkCommand::EndEvent)
+  if (caller == this->RenderWindow.GetPointer() && eventId == vtkCommand::EndEvent)
   {
-    vtkDebugMacro(<< "did a render, interacting: " << this->Interacting
-         << " in pick render: " << this->InPickRender
-         << " in hover text render: " << this->InHoverTextRender);
+    vtkDebugMacro(<< "did a render, interacting: " << this->Interacting << " in pick render: "
+                  << this->InPickRender << " in hover text render: " << this->InHoverTextRender);
     if (!this->Interacting && !this->InPickRender && !this->InHoverTextRender)
     {
       // This will cause UpdatePickRender to create a new snapshot of the view
@@ -354,14 +330,12 @@ void vtkRenderView::ProcessEvents(
       this->PickRenderNeedsUpdate = true;
     }
   }
-  if (vtkDataRepresentation::SafeDownCast(caller) &&
-      eventId == vtkCommand::SelectionChangedEvent)
+  if (vtkDataRepresentation::SafeDownCast(caller) && eventId == vtkCommand::SelectionChangedEvent)
   {
     vtkDebugMacro("selection changed causing a render event");
     this->Render();
   }
-  else if (vtkDataRepresentation::SafeDownCast(caller) &&
-           eventId == vtkCommand::UpdateEvent)
+  else if (vtkDataRepresentation::SafeDownCast(caller) && eventId == vtkCommand::UpdateEvent)
   {
     // UpdateEvent is called from push pipeline executions from
     // vtkExecutionScheduler. We want to automatically render the view
@@ -369,12 +343,10 @@ void vtkRenderView::ProcessEvents(
     vtkDebugMacro("push pipeline causing a render event");
     this->Render();
   }
-  else if (caller == this->GetInteractorStyle() &&
-           eventId == vtkCommand::SelectionChangedEvent)
+  else if (caller == this->GetInteractorStyle() && eventId == vtkCommand::SelectionChangedEvent)
   {
     vtkDebugMacro("interactor style made a selection changed event");
-    vtkSmartPointer<vtkSelection> selection =
-      vtkSmartPointer<vtkSelection>::New();
+    vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
     this->GenerateSelection(callData, selection);
 
     // This enum value is the same for 2D and 3D interactor styles
@@ -395,7 +367,7 @@ void vtkRenderView::UpdatePickRender()
   if (this->PickRenderNeedsUpdate)
   {
     this->InPickRender = true;
-    unsigned int area[4] = {0, 0, 0, 0};
+    unsigned int area[4] = { 0, 0, 0, 0 };
     area[2] = static_cast<unsigned int>(this->Renderer->GetSize()[0] - 1);
     area[3] = static_cast<unsigned int>(this->Renderer->GetSize()[1] - 1);
     this->Selector->SetArea(area);
@@ -430,68 +402,64 @@ void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
   if (this->SelectionMode == FRUSTUM)
   {
     // Do a frustum selection.
-    double displayRectangle[4] = {static_cast<double>(screenMinX),
-                                  static_cast<double>(screenMinY),
-                                  static_cast<double>(screenMaxX),
-                                  static_cast<double>(screenMaxY)};
-    vtkSmartPointer<vtkDoubleArray> frustcorners =
-      vtkSmartPointer<vtkDoubleArray>::New();
+    double displayRectangle[4] = { static_cast<double>(screenMinX), static_cast<double>(screenMinY),
+      static_cast<double>(screenMaxX), static_cast<double>(screenMaxY) };
+    vtkSmartPointer<vtkDoubleArray> frustcorners = vtkSmartPointer<vtkDoubleArray>::New();
     frustcorners->SetNumberOfComponents(4);
     frustcorners->SetNumberOfTuples(8);
-    //convert screen rectangle to world frustum
-    vtkRenderer *renderer = this->GetRenderer();
+    // convert screen rectangle to world frustum
+    vtkRenderer* renderer = this->GetRenderer();
     double worldP[32];
-    int index=0;
+    int index = 0;
     renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[1], 0.0);
     renderer->DisplayToWorld();
-    renderer->GetWorldPoint(&worldP[index*4]);
-    frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
-      worldP[index*4+2], worldP[index*4+3]);
+    renderer->GetWorldPoint(&worldP[index * 4]);
+    frustcorners->SetTuple4(index, worldP[index * 4], worldP[index * 4 + 1], worldP[index * 4 + 2],
+      worldP[index * 4 + 3]);
     index++;
     renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[1], 1.0);
     renderer->DisplayToWorld();
-    renderer->GetWorldPoint(&worldP[index*4]);
-    frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
-      worldP[index*4+2], worldP[index*4+3]);
+    renderer->GetWorldPoint(&worldP[index * 4]);
+    frustcorners->SetTuple4(index, worldP[index * 4], worldP[index * 4 + 1], worldP[index * 4 + 2],
+      worldP[index * 4 + 3]);
     index++;
     renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[3], 0.0);
     renderer->DisplayToWorld();
-    renderer->GetWorldPoint(&worldP[index*4]);
-    frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
-      worldP[index*4+2], worldP[index*4+3]);
+    renderer->GetWorldPoint(&worldP[index * 4]);
+    frustcorners->SetTuple4(index, worldP[index * 4], worldP[index * 4 + 1], worldP[index * 4 + 2],
+      worldP[index * 4 + 3]);
     index++;
     renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[3], 1.0);
     renderer->DisplayToWorld();
-    renderer->GetWorldPoint(&worldP[index*4]);
-    frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
-      worldP[index*4+2], worldP[index*4+3]);
+    renderer->GetWorldPoint(&worldP[index * 4]);
+    frustcorners->SetTuple4(index, worldP[index * 4], worldP[index * 4 + 1], worldP[index * 4 + 2],
+      worldP[index * 4 + 3]);
     index++;
     renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[1], 0.0);
     renderer->DisplayToWorld();
-    renderer->GetWorldPoint(&worldP[index*4]);
-    frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
-      worldP[index*4+2], worldP[index*4+3]);
+    renderer->GetWorldPoint(&worldP[index * 4]);
+    frustcorners->SetTuple4(index, worldP[index * 4], worldP[index * 4 + 1], worldP[index * 4 + 2],
+      worldP[index * 4 + 3]);
     index++;
     renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[1], 1.0);
     renderer->DisplayToWorld();
-    renderer->GetWorldPoint(&worldP[index*4]);
-    frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
-      worldP[index*4+2], worldP[index*4+3]);
+    renderer->GetWorldPoint(&worldP[index * 4]);
+    frustcorners->SetTuple4(index, worldP[index * 4], worldP[index * 4 + 1], worldP[index * 4 + 2],
+      worldP[index * 4 + 3]);
     index++;
     renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[3], 0.0);
     renderer->DisplayToWorld();
-    renderer->GetWorldPoint(&worldP[index*4]);
-    frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
-      worldP[index*4+2], worldP[index*4+3]);
+    renderer->GetWorldPoint(&worldP[index * 4]);
+    frustcorners->SetTuple4(index, worldP[index * 4], worldP[index * 4 + 1], worldP[index * 4 + 2],
+      worldP[index * 4 + 3]);
     index++;
     renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[3], 1.0);
     renderer->DisplayToWorld();
-    renderer->GetWorldPoint(&worldP[index*4]);
-    frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
-      worldP[index*4+2], worldP[index*4+3]);
+    renderer->GetWorldPoint(&worldP[index * 4]);
+    frustcorners->SetTuple4(index, worldP[index * 4], worldP[index * 4 + 1], worldP[index * 4 + 2],
+      worldP[index * 4 + 3]);
 
-    vtkSmartPointer<vtkSelectionNode> node =
-      vtkSmartPointer<vtkSelectionNode>::New();
+    vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
     node->SetContentType(vtkSelectionNode::FRUSTUM);
     node->SetFieldType(vtkSelectionNode::CELL);
     node->SetSelectionList(frustcorners);
@@ -500,7 +468,8 @@ void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
   else
   {
     this->UpdatePickRender();
-    vtkSelection* vsel = this->Selector->GenerateSelection(screenMinX, screenMinY, screenMaxX, screenMaxY);
+    vtkSelection* vsel =
+      this->Selector->GenerateSelection(screenMinX, screenMinY, screenMaxX, screenMaxY);
     sel->ShallowCopy(vsel);
     vsel->Delete();
   }
@@ -519,7 +488,7 @@ void vtkRenderView::UpdateHoverWidgetState()
   this->RenderWindow->MakeCurrent();
   if (this->RenderWindow->IsCurrent())
   {
-    if (!this->Interacting && (this->HoverWidget->GetEnabled() ? true : false) != this->DisplayHoverText)
+    if (!this->Interacting && (this->HoverWidget->GetEnabled() != 0) != this->DisplayHoverText)
     {
       vtkDebugMacro(<< "turning " << (this->DisplayHoverText ? "on" : "off") << " hover widget");
       this->HoverWidget->SetEnabled(this->DisplayHoverText);
@@ -544,8 +513,8 @@ void vtkRenderView::PrepareForRendering()
 
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
   {
-    vtkRenderedRepresentation* rep = vtkRenderedRepresentation::SafeDownCast(
-      this->GetRepresentation(i));
+    vtkRenderedRepresentation* rep =
+      vtkRenderedRepresentation::SafeDownCast(this->GetRepresentation(i));
     if (rep)
     {
       rep->PrepareForRendering(this);
@@ -557,9 +526,9 @@ void vtkRenderView::UpdateHoverText()
 {
   this->UpdatePickRender();
 
-  int pos[2] = {0, 0};
-  unsigned int upos[2] = {0, 0};
-  double loc[2] = {0.0, 0.0};
+  int pos[2] = { 0, 0 };
+  unsigned int upos[2] = { 0, 0 };
+  double loc[2] = { 0.0, 0.0 };
   if (this->RenderWindow->GetInteractor())
   {
     this->RenderWindow->GetInteractor()->GetEventPosition(pos);
@@ -584,26 +553,26 @@ void vtkRenderView::UpdateHoverText()
   }
 
   // For debugging
-  //std::ostringstream oss;
-  //oss << "prop: " << prop << " cell: " << cell;
-  //this->Balloon->SetBalloonText(oss.str().c_str());
-  //this->Balloon->StartWidgetInteraction(loc);
+  // std::ostringstream oss;
+  // oss << "prop: " << prop << " cell: " << cell;
+  // this->Balloon->SetBalloonText(oss.str().c_str());
+  // this->Balloon->StartWidgetInteraction(loc);
 
-  vtkUnicodeString hoverText;
+  std::string hoverText;
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
   {
-    vtkRenderedRepresentation* rep = vtkRenderedRepresentation::SafeDownCast(
-      this->GetRepresentation(i));
+    vtkRenderedRepresentation* rep =
+      vtkRenderedRepresentation::SafeDownCast(this->GetRepresentation(i));
     if (rep && this->RenderWindow->GetInteractor())
     {
-      hoverText = rep->GetHoverText(this, prop, cell);
+      hoverText = rep->GetHoverString(this, prop, cell);
       if (!hoverText.empty())
       {
         break;
       }
     }
   }
-  this->Balloon->SetBalloonText(hoverText.utf8_str());
+  this->Balloon->SetBalloonText(hoverText.c_str());
   this->Balloon->StartWidgetInteraction(loc);
   this->InvokeEvent(vtkCommand::HoverEvent, &hoverText);
 }
@@ -632,14 +601,16 @@ int vtkRenderView::GetLabelPlacementMode()
 int vtkRenderView::GetLabelRenderMode()
 {
   return vtkFreeTypeLabelRenderStrategy::SafeDownCast(
-    this->LabelPlacementMapper->GetRenderStrategy()) ? FREETYPE : QT;
+           this->LabelPlacementMapper->GetRenderStrategy())
+    ? FREETYPE
+    : QT;
 }
 
 void vtkRenderView::SetLabelRenderMode(int render_mode)
 {
-  //First, make sure the render mode is set on all the representations.
+  // First, make sure the render mode is set on all the representations.
   // TODO: Setup global labeller render mode
-  if(render_mode != this->GetLabelRenderMode())
+  if (render_mode != this->GetLabelRenderMode())
   {
     // Set label render mode of all representations.
     for (int r = 0; r < this->GetNumberOfRepresentations(); ++r)
@@ -653,7 +624,7 @@ void vtkRenderView::SetLabelRenderMode(int render_mode)
     }
   }
 
-  switch(render_mode)
+  switch (render_mode)
   {
     case QT:
     {
@@ -677,8 +648,7 @@ void vtkRenderView::SetLabelRenderMode(int render_mode)
 
 int* vtkRenderView::GetDisplaySize()
 {
-  if ( this->DisplaySize[0] == 0 ||
-       this->DisplaySize[1] == 0 )
+  if (this->DisplaySize[0] == 0 || this->DisplaySize[1] == 0)
   {
     return this->IconSize;
   }
@@ -688,10 +658,9 @@ int* vtkRenderView::GetDisplaySize()
   }
 }
 
-void vtkRenderView::GetDisplaySize(int &dsx, int &dsy)
+void vtkRenderView::GetDisplaySize(int& dsx, int& dsy)
 {
-  if ( this->DisplaySize[0] == 0 ||
-       this->DisplaySize[1] == 0 )
+  if (this->DisplaySize[0] == 0 || this->DisplaySize[1] == 0)
   {
     dsx = this->IconSize[0];
     dsy = this->IconSize[1];
@@ -755,3 +724,4 @@ void vtkRenderView::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InteractionMode: " << this->InteractionMode << endl;
   os << indent << "RenderOnMouseMove: " << this->RenderOnMouseMove << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,6 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    vtkExtractSubsetWithSeed.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
 #include "vtkExtractSubsetWithSeed.h"
 
 #include "vtkBoundingBox.h"
@@ -53,9 +42,11 @@
 #include VTK_DIY2(diy/algorithms.hpp)
 // clang-format on
 
+#include <functional>
 #include <set>
 
-template<typename T, int Size>
+VTK_ABI_NAMESPACE_BEGIN
+template <typename T, int Size>
 bool operator<(const vtkVector<T, Size>& lhs, const vtkVector<T, Size>& rhs)
 {
   for (int cc = 0; cc < Size; ++cc)
@@ -75,13 +66,13 @@ struct BlockT
 {
   vtkSmartPointer<vtkStructuredGrid> Input;
   vtkNew<vtkStaticCellLocator> CellLocator;
-  std::set<vtkVector<int, 6> > Regions;
+  std::set<vtkVector<int, 6>> Regions;
 
   // used to debugging, empty otherwise.
-  std::vector<vtkSmartPointer<vtkDataSet> > Seeds;
+  std::vector<vtkSmartPointer<vtkDataSet>> Seeds;
 
   // these are generated in GenerateExtracts.
-  std::vector<vtkSmartPointer<vtkDataSet> > Extracts;
+  std::vector<vtkSmartPointer<vtkDataSet>> Extracts;
 
   void GenerateExtracts();
 
@@ -121,7 +112,7 @@ void BlockT::GenerateExtracts()
 
     vtkStructuredGrid* clone = vtkStructuredGrid::New();
     clone->ShallowCopy(extractor->GetOutputDataObject(0));
-    this->Extracts.push_back(clone);
+    this->Extracts.emplace_back(clone);
     clone->FastDelete();
   }
 }
@@ -291,7 +282,7 @@ std::vector<SeedT> ExtractSliceFromSeed(const vtkVector3d& seed,
             {
               const auto new_seed = ::GetFaceCenter(cell, 2 * axis + iter);
               const auto pvecs = ::GetPropagationVectors(cell, propagation_mask);
-              next_seeds.push_back(std::make_tuple(new_seed, pvecs.first, pvecs.second));
+              next_seeds.emplace_back(new_seed, pvecs.first, pvecs.second);
             }
             break;
 
@@ -319,112 +310,23 @@ std::vector<SeedT> ExtractSliceFromSeed(const vtkVector3d& seed,
   return next_seeds;
 }
 
-/**
- * shallow copy except those blocks where the predicate returns true.
- */
-template<typename UnaryPredicate>
-void ShallowCopyIfNot(vtkCompositeDataSet* input, vtkCompositeDataSet* output, UnaryPredicate p)
-{
-  output->CopyStructure(input);
-  auto iter = input->NewIterator();
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-  {
-    auto dobj = iter->GetCurrentDataObject();
-    if (!p(dobj))
-    {
-      output->SetDataSet(iter, dobj);
-    }
-  }
-  iter->Delete();
-}
-
-void Append(vtkPartitionedDataSet* input, vtkPartitionedDataSet* output)
-{
-  unsigned int next = output->GetNumberOfPartitions();
-  output->SetNumberOfPartitions(next + input->GetNumberOfPartitions());
-  for (unsigned int cc = 0, max = input->GetNumberOfPartitions(); cc < max; ++cc, ++next)
-  {
-    output->SetPartition(next, input->GetPartition(cc));
-  }
-}
-
-template<typename V, typename SizeT>
-vtkPartitionedDataSet* vtkSafeGet(V& vec, SizeT off)
-{
-  return (off < static_cast<SizeT>(vec.size())) ? vec[off] : nullptr;
-}
-
-void GenerateOutput(vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output,
-  const std::vector<vtkSmartPointer<vtkPartitionedDataSet> >& parts, unsigned int& flat_index)
-{
-  auto max = input->GetNumberOfBlocks();
-  output->SetNumberOfBlocks(max);
-  for (unsigned int cc = 0; cc < max; ++cc)
-  {
-    ++flat_index;
-    if (vtkSafeGet(parts, flat_index) == nullptr)
-    {
-      if (auto imb = vtkMultiBlockDataSet::SafeDownCast(input->GetBlock(cc)))
-      {
-        auto omb = vtkMultiBlockDataSet::New();
-        output->SetBlock(cc, omb);
-        omb->FastDelete();
-        ::GenerateOutput(imb, omb, parts, flat_index);
-      }
-      else if (auto imp = vtkMultiPieceDataSet::SafeDownCast(input->GetBlock(cc)))
-      {
-        vtkNew<vtkPartitionedDataSet> pds;
-        for (unsigned int piece = 0; piece < imp->GetNumberOfPieces(); ++piece)
-        {
-          ++flat_index;
-          if (auto inpart = vtkSafeGet(parts, flat_index))
-          {
-            Append(inpart, pds);
-          }
-        }
-
-        if (pds->GetNumberOfPartitions() > 0)
-        {
-          output->SetBlock(cc, pds);
-        }
-        else
-        {
-          auto omp = vtkMultiPieceDataSet::New();
-          omp->SetNumberOfPieces(imp->GetNumberOfPieces());
-          output->SetBlock(cc, omp);
-          omp->FastDelete();
-        }
-      }
-    }
-    else
-    {
-      output->SetBlock(cc, vtkSafeGet(parts, flat_index));
-    }
-
-    if (input->HasMetaData(cc))
-    {
-      output->GetMetaData(cc)->Copy(input->GetMetaData(cc));
-    }
-  }
-}
-
 } // namespace {}
 
 vtkStandardNewMacro(vtkExtractSubsetWithSeed);
 vtkCxxSetObjectMacro(vtkExtractSubsetWithSeed, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSubsetWithSeed::vtkExtractSubsetWithSeed()
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractSubsetWithSeed::~vtkExtractSubsetWithSeed()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractSubsetWithSeed::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -456,7 +358,7 @@ void vtkExtractSubsetWithSeed::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSubsetWithSeed::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -487,13 +389,13 @@ int vtkExtractSubsetWithSeed::RequestDataObject(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSubsetWithSeed::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   auto input = vtkDataObject::GetData(inputVector[0], 0);
 
-  auto datasets = vtkDIYUtilities::GetDataSets(input);
+  auto datasets = vtkCompositeDataSet::GetDataSets(input);
   // prune non-structured grid datasets.
   auto prunePredicate = [](vtkDataObject* ds) {
     auto sg = vtkStructuredGrid::SafeDownCast(ds);
@@ -506,7 +408,7 @@ int vtkExtractSubsetWithSeed::RequestData(
 
   // since we're using collectives, if a rank has no blocks this can fall part
   // very quickly (see paraview/paraview#19391); hence we add a single block.
-  if (datasets.size() == 0)
+  if (datasets.empty())
   {
     datasets.push_back(nullptr);
   }
@@ -516,7 +418,8 @@ int vtkExtractSubsetWithSeed::RequestData(
 
   vtkDIYExplicitAssigner assigner(comm, local_num_blocks);
 
-  diy::Master master(comm, 1, -1, []() { return static_cast<void*>(new BlockT); },
+  diy::Master master(
+    comm, 1, -1, []() { return static_cast<void*>(new BlockT); },
     [](void* b) { delete static_cast<BlockT*>(b); });
 
   vtkLogStartScope(TRACE, "populate master");
@@ -540,7 +443,7 @@ int vtkExtractSubsetWithSeed::RequestData(
 
   // exchange bounding boxes to determine neighbours.
   vtkLogStartScope(TRACE, "populate block neighbours");
-  std::map<int, std::vector<int> > neighbors;
+  std::map<int, std::vector<int>> neighbors;
   diy::all_to_all(master, assigner, [&neighbors](BlockT* b, const diy::ReduceProxy& rp) {
     vtkBoundingBox bbox;
     if (b->Input)
@@ -559,7 +462,7 @@ int vtkExtractSubsetWithSeed::RequestData(
       {
         const auto dest = rp.out_link().target(i);
         rp.enqueue(dest, bds, 6);
-      };
+      }
     }
     else
     {
@@ -621,69 +524,68 @@ int vtkExtractSubsetWithSeed::RequestData(
   int round = 0;
   while (!all_done)
   {
-    master.foreach (
-      [this, &round, &propagation_mask](BlockT* b, const diy::Master::ProxyWithLink& cp) {
-        std::vector<SeedT> seeds;
-        if (round == 0)
+    master.foreach ([this, &round, &propagation_mask](
+                      BlockT* b, const diy::Master::ProxyWithLink& cp) {
+      std::vector<SeedT> seeds;
+      if (round == 0)
+      {
+        const vtkIdType cellid =
+          (b->Input != nullptr) ? b->CellLocator->FindCell(this->GetSeed()) : -1;
+        if (cellid >= 0)
         {
-          const vtkIdType cellid =
-            (b->Input != nullptr) ? b->CellLocator->FindCell(this->GetSeed()) : -1;
-          if (cellid >= 0)
+          auto p_vecs = ::GetPropagationVectors(b->Input->GetCell(cellid), propagation_mask);
+          seeds.emplace_back(vtkVector3d(this->GetSeed()), p_vecs.first, p_vecs.second);
+        }
+      }
+      else
+      {
+        // dequeue
+        std::vector<int> incoming;
+        cp.incoming(incoming);
+        for (const int& gid : incoming)
+        {
+          if (!cp.incoming(gid).empty())
           {
-            auto p_vecs = ::GetPropagationVectors(b->Input->GetCell(cellid), propagation_mask);
-            seeds.push_back(
-              std::make_tuple(vtkVector3d(this->GetSeed()), p_vecs.first, p_vecs.second));
+            assert(b->Input != nullptr); // we should not be getting messages if we don't have data!
+            std::vector<SeedT> next_seeds;
+            cp.dequeue(gid, next_seeds);
+            seeds.insert(seeds.end(), next_seeds.begin(), next_seeds.end());
           }
         }
-        else
+      }
+
+      std::vector<SeedT> next_seeds;
+      for (const auto& seed : seeds)
+      {
+        std::vector<vtkVector3d> dirs;
+        if (std::get<1>(seed).SquaredNorm() != 0)
         {
-          // dequeue
-          std::vector<int> incoming;
-          cp.incoming(incoming);
-          for (const int& gid : incoming)
-          {
-            if (cp.incoming(gid).size() > 0)
-            {
-              assert(
-                b->Input != nullptr); // we should not be getting messages if we don't have data!
-              std::vector<SeedT> next_seeds;
-              cp.dequeue(gid, next_seeds);
-              seeds.insert(seeds.end(), next_seeds.begin(), next_seeds.end());
-            }
-          }
+          dirs.push_back(std::get<1>(seed));
         }
-
-        std::vector<SeedT> next_seeds;
-        for (const auto& seed : seeds)
+        if (std::get<2>(seed).SquaredNorm() != 0)
         {
-          std::vector<vtkVector3d> dirs;
-          if (std::get<1>(seed).SquaredNorm() != 0)
-          {
-            dirs.push_back(std::get<1>(seed));
-          }
-          if (std::get<2>(seed).SquaredNorm() != 0)
-          {
-            dirs.push_back(std::get<2>(seed));
-          }
-          auto new_seeds = ::ExtractSliceFromSeed(std::get<0>(seed), dirs, b, cp);
-          next_seeds.insert(next_seeds.end(), new_seeds.begin(), new_seeds.end());
+          dirs.push_back(std::get<2>(seed));
         }
+        auto new_seeds = ::ExtractSliceFromSeed(std::get<0>(seed), dirs, b, cp);
+        next_seeds.insert(next_seeds.end(), new_seeds.begin(), new_seeds.end());
+      }
 
-        if (next_seeds.size() > 0)
+      if (!next_seeds.empty())
+      {
+        // enqueue
+        for (const auto& neighbor : cp.link()->neighbors())
         {
-          // enqueue
-          for (const auto& neighbor : cp.link()->neighbors())
-          {
-            vtkLogF(TRACE, "r=%d: enqueing %d --> (%d, %d)", round, cp.gid(), neighbor.gid, neighbor.proc);
-            cp.enqueue(neighbor, next_seeds);
-          }
+          vtkLogF(
+            TRACE, "r=%d: enqueuing %d --> (%d, %d)", round, cp.gid(), neighbor.gid, neighbor.proc);
+          cp.enqueue(neighbor, next_seeds);
         }
+      }
 
-        cp.collectives()->clear();
+      cp.collectives()->clear();
 
-        const int has_seeds = (next_seeds.size() > 0) ? 1 : 0;
-        cp.all_reduce(has_seeds, std::logical_or<int>());
-      });
+      const int has_seeds = static_cast<int>(!next_seeds.empty());
+      cp.all_reduce(has_seeds, std::logical_or<int>());
+    });
     vtkLogF(TRACE, "r=%d, exchange", round);
     master.exchange();
     all_done = (master.proxy(master.loaded_block()).read<int>() == 0);
@@ -734,9 +636,15 @@ int vtkExtractSubsetWithSeed::RequestData(
   {
     auto inputMB = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
     assert(inputMB != nullptr);
-    // Worst case: we need to match up structure and across all ranks.
+    // Worst case: we need to match up structure and that too across all ranks.
 
+    // counts: key == composite id, value = number of dataset in result
     std::vector<size_t> counts;
+    // input_dataset_map: key == input dataset, value is composite id
+    std::map<vtkDataObject*, unsigned int> input_dataset_map;
+    // local_id: key == composite id, value = local block id
+    std::vector<int> local_id;
+
     int lid = 0;
     auto citer = inputMB->NewIterator();
     for (citer->InitTraversal();
@@ -747,10 +655,15 @@ int vtkExtractSubsetWithSeed::RequestData(
       if (citer->GetCurrentDataObject() == b->Input)
       {
         counts.resize(citer->GetCurrentFlatIndex() + 1, 0);
+        local_id.resize(citer->GetCurrentFlatIndex() + 1, -1);
+
+        local_id[citer->GetCurrentFlatIndex()] = lid;
         counts[citer->GetCurrentFlatIndex()] = b->Extracts.size() + b->Seeds.size();
+        input_dataset_map[citer->GetCurrentDataObject()] = citer->GetCurrentFlatIndex();
         ++lid;
       }
     }
+    citer->Delete();
 
     size_t global_num_counts = 0;
     diy::mpi::all_reduce(comm, counts.size(), global_num_counts, diy::mpi::maximum<size_t>());
@@ -759,51 +672,83 @@ int vtkExtractSubsetWithSeed::RequestData(
     std::vector<size_t> global_counts(global_num_counts);
     diy::mpi::all_reduce(comm, counts, global_counts, diy::mpi::maximum<size_t>());
 
-    std::vector<vtkSmartPointer<vtkPartitionedDataSet> > parts(global_num_counts);
-    lid = 0;
-    citer->SkipEmptyNodesOff();
-    for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); citer->GoToNextItem())
+    std::vector<vtkSmartPointer<vtkDataObject>> output_blocks(global_num_counts);
+    for (size_t cc = 0; cc < global_num_counts; ++cc)
     {
-      const auto findex = citer->GetCurrentFlatIndex();
-      if (findex >= static_cast<unsigned int>(global_num_counts))
+      if (global_counts[cc] == 0)
       {
-        // we're done.
-        break;
-      }
-      const auto& count = global_counts[findex];
-      if (count == 0)
-      {
-        if (!prunePredicate(citer->GetCurrentDataObject()))
-        {
-          ++lid;
-        }
         continue;
       }
-      else if (prunePredicate(citer->GetCurrentDataObject()) ||
-        lid >= static_cast<int>(gids.size()))
+
+      auto pieces = vtkSmartPointer<vtkMultiPieceDataSet>::New();
+      if (local_id[cc] == -1)
       {
-        // this block is not present locally (or was treated as such). So just
-        // put a partitioned dataset with matching parts.
-        vtkNew<vtkPartitionedDataSet> pds;
-        pds->SetNumberOfPartitions(static_cast<unsigned int>(count));
-        parts[findex] = pds;
+        pieces->SetNumberOfPieces(global_counts[cc]);
       }
       else
       {
-        auto b = master.block<BlockT>(lid);
-        assert(b->Input == citer->GetCurrentDataObject());
-        vtkNew<vtkPartitionedDataSet> pds;
-        b->AddExtracts(pds);
-        // pads will nullptr, if needed.
-        pds->SetNumberOfPartitions(static_cast<unsigned int>(count));
-        parts[findex] = pds;
-        ++lid;
+        auto b = master.block<BlockT>(local_id[cc]);
+        b->AddExtracts(pieces);
+        pieces->SetNumberOfPieces(global_counts[cc]);
       }
+      output_blocks[cc] = pieces;
+      // TODO: here, if numpieces is 1, we can remove the MP and replace it with
+      // the piece itself, if needed.
     }
-    citer->Delete();
 
-    unsigned int flat_index = 0;
-    ::GenerateOutput(inputMB, outputMB, parts, flat_index);
+    // now, put the pieces in output_blocks in the output MB.
+    // we use a trick, copy into to output and then replace
+    outputMB->CompositeShallowCopy(inputMB);
+
+    std::function<vtkDataObject*(vtkDataObject*)> replaceLeaves;
+    replaceLeaves = [&replaceLeaves, &input_dataset_map, &output_blocks](
+                      vtkDataObject* output) -> vtkDataObject* {
+      if (auto mb = vtkMultiBlockDataSet::SafeDownCast(output))
+      {
+        for (unsigned int cc = 0; cc < mb->GetNumberOfBlocks(); ++cc)
+        {
+          mb->SetBlock(cc, replaceLeaves(mb->GetBlock(cc)));
+        }
+        return mb;
+      }
+      else if (auto mp = vtkMultiPieceDataSet::SafeDownCast(output))
+      {
+        // since a leaf node can result in multiple pieces e.g. replaceLeaves()
+        // may return a vtkMultiPieceDataSet, we handle it this way.
+        std::vector<vtkDataObject*> extracts;
+        for (unsigned int cc = 0; cc < mp->GetNumberOfPieces(); ++cc)
+        {
+          extracts.push_back(replaceLeaves(mp->GetPiece(cc)));
+        }
+
+        mp->SetNumberOfPieces(0);
+        for (auto& extractDO : extracts)
+        {
+          if (auto e = vtkMultiPieceDataSet::SafeDownCast(extractDO))
+          {
+            for (unsigned cc = 0; e != nullptr && cc < e->GetNumberOfPieces(); ++cc)
+            {
+              mp->SetPiece(mp->GetNumberOfPieces(), e->GetPiece(cc));
+            }
+          }
+          else
+          {
+            mp->SetPiece(mp->GetNumberOfPieces(), extractDO);
+          }
+        }
+        return mp;
+      }
+      else
+      {
+        auto iter = input_dataset_map.find(output);
+        if (iter != input_dataset_map.end())
+        {
+          return output_blocks[iter->second];
+        }
+        return nullptr;
+      }
+    };
+    replaceLeaves(outputMB);
   }
 
   vtkInformation* info = outputVector->GetInformationObject(0);
@@ -811,7 +756,7 @@ int vtkExtractSubsetWithSeed::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSubsetWithSeed::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
@@ -821,7 +766,7 @@ int vtkExtractSubsetWithSeed::FillInputPortInformation(int, vtkInformation* info
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractSubsetWithSeed::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -829,3 +774,4 @@ int vtkExtractSubsetWithSeed::RequestInformation(
   info->Remove(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return 1;
 }
+VTK_ABI_NAMESPACE_END

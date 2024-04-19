@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMySQLQuery.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMySQLQuery
  * @brief   vtkSQLQuery implementation for MySQL databases
@@ -31,7 +19,7 @@
  *
  * @sa
  * vtkSQLDatabase vtkSQLQuery vtkMySQLDatabase
-*/
+ */
 
 #ifndef vtkMySQLQuery_h
 #define vtkMySQLQuery_h
@@ -39,6 +27,7 @@
 #include "vtkIOMySQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMySQLDatabase;
 class vtkVariant;
 class vtkVariantArray;
@@ -52,13 +41,13 @@ class VTKIOMYSQL_EXPORT vtkMySQLQuery : public vtkSQLQuery
 public:
   vtkTypeMacro(vtkMySQLQuery, vtkSQLQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkMySQLQuery *New();
+  static vtkMySQLQuery* New();
 
   /**
    * Set the SQL query string.  This must be performed before
    * Execute() or BindParameter() can be called.
    */
-  bool SetQuery(const char *query) override;
+  bool SetQuery(const char* query) override;
 
   /**
    * Execute the query.  This must be performed
@@ -67,7 +56,7 @@ public:
    */
   bool Execute() override;
 
-  //@{
+  ///@{
   /**
    * Begin, commit, or roll back a transaction.
 
@@ -77,7 +66,7 @@ public:
   bool BeginTransaction() override;
   bool CommitTransaction() override;
   bool RollbackTransaction() override;
-  //@}
+  ///@}
 
   /**
    * The number of fields in the query result.
@@ -141,44 +130,44 @@ public:
   /**
    * Bind a string value -- string must be null-terminated
    */
-  bool BindParameter(int index, const char *stringValue) override;
-  //@{
+  bool BindParameter(int index, const char* stringValue) override;
+  ///@{
   /**
    * Bind a string value by specifying an array and a size
    */
-  bool BindParameter(int index, const char *stringValue, size_t length) override;
-  bool BindParameter(int index, const vtkStdString &string) override;
-  //@}
+  bool BindParameter(int index, const char* stringValue, size_t length) override;
+  bool BindParameter(int index, const vtkStdString& string) override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Bind a blob value.  Not all databases support blobs as a data
    * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
    * make sure.
    */
-  bool BindParameter(int index, const void *data, size_t length) override;
+  bool BindParameter(int index, const void* data, size_t length) override;
   bool ClearParameterBindings() override;
-  //@}
+  ///@}
 
   /**
    * Escape a string for use in a query
    */
-  vtkStdString EscapeString( vtkStdString src, bool addSurroundingQuotes = true ) override;
+  vtkStdString EscapeString(vtkStdString src, bool addSurroundingQuotes = true) override;
 
 protected:
   vtkMySQLQuery();
-  ~vtkMySQLQuery();
+  ~vtkMySQLQuery() override;
 
   vtkSetStringMacro(LastErrorText);
 
 private:
-  vtkMySQLQuery(const vtkMySQLQuery &) = delete;
-  void operator=(const vtkMySQLQuery &) = delete;
+  vtkMySQLQuery(const vtkMySQLQuery&) = delete;
+  void operator=(const vtkMySQLQuery&) = delete;
 
-  vtkMySQLQueryInternals *Internals;
+  vtkMySQLQueryInternals* Internals;
   bool InitialFetch;
-  char *LastErrorText;
+  char* LastErrorText;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMySQLQuery_h
-

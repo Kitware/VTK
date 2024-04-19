@@ -1,15 +1,32 @@
 #!/usr/bin/env python
 
-# This script tests picking props, points and cells rendered with a vtkCompositePolyDataMapper2.
+# This script tests picking props, points and cells rendered with a vtkCompositePolyDataMapper.
 #
-import vtk
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkMultiBlockDataSet,
+    vtkPolyData,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCellPicker,
+    vtkCompositeDataDisplayAttributes,
+    vtkCompositePolyDataMapper,
+    vtkPicker,
+    vtkPointPicker,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 import math
 import time
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create a vtkMultiBlockDataSet with 3
-# vtkPolyData blocks, rendered using a vtkCompositePolyDataMapper2
+# vtkPolyData blocks, rendered using a vtkCompositePolyDataMapper
 # and picked using vtkPicker, vtkPointPicker and vtkCellPicker.
 
 # points for two 'stacks' of 3 cells, each belonging to a different block
@@ -46,22 +63,22 @@ pickdata=[
 
 
 # Construct the data-set, and set up color mapping of the blocks
-mbd=vtk.vtkMultiBlockDataSet()
+mbd=vtkMultiBlockDataSet()
 mbd.SetNumberOfBlocks(3)
-cda=vtk.vtkCompositeDataDisplayAttributes()
-m=vtk.vtkCompositePolyDataMapper2()
+cda=vtkCompositeDataDisplayAttributes()
+m=vtkCompositePolyDataMapper()
 m.SetInputDataObject(mbd)
 m.SetCompositeDataDisplayAttributes(cda)
 
 for blk in range(0,3):
-  mbd.SetBlock(blk,vtk.vtkPolyData())
+  mbd.SetBlock(blk,vtkPolyData())
   poly=mbd.GetBlock(blk)
   coords=xyz[blk]
-  pts=vtk.vtkPoints()
+  pts=vtkPoints()
   for coord in coords:
     pts.InsertNextPoint(coord[0],coord[1],float(blk))
 
-  polys=vtk.vtkCellArray()
+  polys=vtkCellArray()
   for cell in polyconn[blk]:
      polys.InsertNextCell(len(cell))
      for pid in cell:
@@ -72,23 +89,23 @@ for blk in range(0,3):
   m.SetBlockColor(blk,(blk%3)==0,(blk+1)%3==0,(blk+2)%3==0)
 
 # Set up the actor
-a=vtk.vtkActor()
+a=vtkActor()
 a.SetMapper(m)
 a.GetProperty().EdgeVisibilityOn()
 a.GetProperty().SetEdgeColor(1,1,1)
 
 # Render the actor
-r = vtk.vtkRenderer()
+r = vtkRenderer()
 r.AddViewProp(a)
 r.SetBackground(0,0,0)
-rw = vtk.vtkRenderWindow()
+rw = vtkRenderWindow()
 rw.AddRenderer(r)
 rw.Render()
 
 # Define the pickers
-propPicker = vtk.vtkPicker()
-cellPicker = vtk.vtkCellPicker()
-pointPicker = vtk.vtkPointPicker()
+propPicker = vtkPicker()
+cellPicker = vtkCellPicker()
+pointPicker = vtkPointPicker()
 
 # this can be switched on to print some debug output
 debug=False

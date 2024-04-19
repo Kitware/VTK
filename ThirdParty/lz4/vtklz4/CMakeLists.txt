@@ -10,16 +10,18 @@ set(headers
   lib/lz4.h
   lib/lz4hc.h
   lib/lz4frame.h
-  lib/lz4frame_static.h)
+  lib/lz4frame_static.h
+  lib/vtk_lz4_mangle.h)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_C_STANDARD 99)
 
 vtk_module_add_module(VTK::lz4
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
-  HEADERS_SUBDIR "vtklz4/lib")
+  HEADERS_SUBDIR "vtklz4")
 target_compile_definitions(lz4
   PRIVATE
     "LZ4_VERSION=\"1.8.0\"")

@@ -1,0 +1,16 @@
+NAME
+  VTK::RenderingOpenXRRemoting
+LIBRARY_NAME
+  vtkRenderingOpenXRRemoting
+LICENSE_FILES
+  LICENSE
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::RenderingOpenXR
+TEST_DEPENDS
+  VTK::TestingCore
+CONDITION
+  WIN32

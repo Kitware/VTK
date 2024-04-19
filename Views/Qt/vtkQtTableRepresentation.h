@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtTableRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkQtTableRepresentation
@@ -47,14 +32,15 @@
  * Call SetInputConnection with a table connection
  * BEFORE the representation is added to a view or strange things
  * may happen, including segfaults.
-*/
+ */
 
 #ifndef vtkQtTableRepresentation_h
 #define vtkQtTableRepresentation_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkDataRepresentation.h"
+#include "vtkViewsQtModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkLookupTable;
 class vtkQtTableModelAdapter;
@@ -65,45 +51,45 @@ class VTKVIEWSQT_EXPORT vtkQtTableRepresentation : public vtkDataRepresentation
 {
 public:
   vtkTypeMacro(vtkQtTableRepresentation, vtkDataRepresentation);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the lookup table that will be used to determine colors
    * for each series.  The table's range should be [0, 1).
    */
-  void SetColorTable(vtkLookupTable *t);
+  void SetColorTable(vtkLookupTable* t);
   vtkGetObjectMacro(ColorTable, vtkLookupTable);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the name of the column that contains series names.  This
    * must be called BEFORE the representation is added to a view.
    */
   void SetKeyColumn(const char* col);
   char* GetKeyColumn();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the name of the first data column.  This must be called
    * BEFORE the representation is added to a view.
    */
   vtkSetStringMacro(FirstDataColumn);
   vtkGetStringMacro(FirstDataColumn);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the name of the last data column.  This must be called
    * BEFORE the representation is added to a view.
    */
   vtkSetStringMacro(LastDataColumn);
   vtkGetStringMacro(LastDataColumn);
-  //@}
+  ///@}
 
- protected:
+protected:
   vtkQtTableRepresentation();
   ~vtkQtTableRepresentation() override;
 
@@ -116,18 +102,17 @@ public:
   vtkGetStringMacro(KeyColumnInternal);
 
   // ----------------------------------------------------------------------
-  vtkQtTableModelAdapter *ModelAdapter;
-  vtkLookupTable *ColorTable;
-  vtkDoubleArray *SeriesColors;
-  char *KeyColumnInternal;
-  char *FirstDataColumn;
-  char *LastDataColumn;
+  vtkQtTableModelAdapter* ModelAdapter;
+  vtkLookupTable* ColorTable;
+  vtkDoubleArray* SeriesColors;
+  char* KeyColumnInternal;
+  char* FirstDataColumn;
+  char* LastDataColumn;
 
   /**
    * Prepare the input connections to this representation.
    */
-  int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   virtual void ResetModel();
@@ -137,12 +122,12 @@ public:
    * This should set the model type to DATA, METADATA or FULL
    * depending on what you want.
    */
-  virtual void SetModelType() { };
+  virtual void SetModelType() {}
 
 private:
-  vtkQtTableRepresentation(const vtkQtTableRepresentation &) = delete;
-  void operator=(const vtkQtTableRepresentation &) = delete;
-
+  vtkQtTableRepresentation(const vtkQtTableRepresentation&) = delete;
+  void operator=(const vtkQtTableRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

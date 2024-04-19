@@ -27,7 +27,7 @@
 
 #include <cstring>
 
-#ifdef WIN32
+#ifdef _WIN32
 #define XDMF_HDF5_SIZE_T        ssize_t
 #else
 #define XDMF_HDF5_SIZE_T        hsize_t

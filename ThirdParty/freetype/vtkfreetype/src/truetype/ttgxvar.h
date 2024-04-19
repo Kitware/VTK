@@ -4,7 +4,7 @@
  *
  *   TrueType GX Font Variation loader (specification)
  *
- * Copyright (C) 2004-2019 by
+ * Copyright (C) 2004-2022 by
  * David Turner, Robert Wilhelm, Werner Lemberg and George Williams.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -20,7 +20,6 @@
 #define TTGXVAR_H_
 
 
-#include <ft2build.h>
 #include "ttobjs.h"
 
 
@@ -107,9 +106,9 @@ FT_BEGIN_HEADER
 
   typedef struct  GX_DeltaSetIdxMapRec_
   {
-    FT_UInt   mapCount;
-    FT_UInt*  outerIndex;             /* indices to item var data */
-    FT_UInt*  innerIndex;             /* indices to delta set     */
+    FT_ULong  mapCount;
+    FT_UInt*  outerIndex;               /* indices to item var data */
+    FT_UInt*  innerIndex;               /* indices to delta set     */
 
   } GX_DeltaSetIdxMapRec, *GX_DeltaSetIdxMap;
 
@@ -416,6 +415,7 @@ FT_BEGIN_HEADER
   TT_Vary_Apply_Glyph_Deltas( TT_Face      face,
                               FT_UInt      glyph_index,
                               FT_Outline*  outline,
+                              FT_Vector*   unrounded,
                               FT_UInt      n_points );
 
   FT_LOCAL( FT_Error )

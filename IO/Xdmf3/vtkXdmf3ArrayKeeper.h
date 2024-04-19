@@ -1,18 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXdmf3ArrayKeeper.h
-  Language:  C++
-
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXdmf3ArrayKeeper
  * @brief   LRU cache of XDMF Arrays
@@ -24,7 +11,7 @@
  *
  * This file is a helper for the vtkXdmf3Reader and not intended to be
  * part of VTK public API
-*/
+ */
 
 #ifndef vtkXdmf3ArrayKeeper_h
 #define vtkXdmf3ArrayKeeper_h
@@ -34,12 +21,13 @@
 
 class XdmfArray;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 #ifdef _MSC_VER
-#pragma warning (push) //save
-#pragma warning (disable: 4251) //needs to have dll-interface to be used by clients of class
+#pragma warning(push)           // save
+#pragma warning(disable : 4251) // needs to have dll-interface to be used by clients of class
 #endif
-class VTKIOXDMF3_EXPORT vtkXdmf3ArrayKeeper
-  : public std::map<XdmfArray *, unsigned int>
+class VTKIOXDMF3_EXPORT vtkXdmf3ArrayKeeper : public std::map<XdmfArray*, unsigned int>
 {
 public:
   /**
@@ -60,7 +48,7 @@ public:
   /**
    * Call whenever you a new XDMF array is accessed.
    */
-  void Insert(XdmfArray *val);
+  void Insert(XdmfArray* val);
 
   /**
    * Call to free all open arrays that are currently open but not in use.
@@ -68,12 +56,15 @@ public:
    */
   void Release(bool force);
 
+  vtkXdmf3ArrayKeeper(const vtkXdmf3ArrayKeeper&) = delete;
+
 private:
   unsigned int generation;
 };
 #ifdef _MSC_VER
-#pragma warning (pop) //restore
+#pragma warning(pop) // restore
 #endif
 
-#endif //vtkXdmf3ArrayKeeper_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkXdmf3ArrayKeeper_h
 // VTK-HeaderTest-Exclude: vtkXdmf3ArrayKeeper.h

@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGenericAttributeCollection.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGenericAttributeCollection
  * @brief   a collection of attributes
  *
  * vtkGenericAttributeCollection is a class that collects attributes
  * (represented by vtkGenericAttribute).
-*/
+ */
 
 #ifndef vtkGenericAttributeCollection_h
 #define vtkGenericAttributeCollection_h
@@ -26,6 +14,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericAttributeInternalVector;
 class vtkIntInternalVector;
 class vtkGenericAttribute;
@@ -36,15 +25,15 @@ public:
   /**
    * Create an empty collection.
    */
-  static vtkGenericAttributeCollection *New();
+  static vtkGenericAttributeCollection* New();
 
-  //@{
+  ///@{
   /**
    * Standard type definition and print methods for a VTK class.
    */
-  vtkTypeMacro(vtkGenericAttributeCollection,vtkObject);
+  vtkTypeMacro(vtkGenericAttributeCollection, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Return the number of attributes (e.g., instances of vtkGenericAttribute)
@@ -93,7 +82,7 @@ public:
    * \pre valid_i: i>=0 && i<GetNumberOfAttributes()
    * \post result_exists: result!=0
    */
-  vtkGenericAttribute *GetAttribute(int i);
+  vtkGenericAttribute* GetAttribute(int i);
 
   /**
    * Return the index of the attribute named `name'. Return the non-negative
@@ -101,7 +90,7 @@ public:
    * \pre name_exists: name!=0
    * \post valid_result: (result==-1) || (result>=0) && (result<=GetNumberOfAttributes())
    */
-  int FindAttribute(const char *name);
+  int FindAttribute(const char* name);
 
   /**
    * Return the index of the first component of attribute `i' in an array of
@@ -117,7 +106,7 @@ public:
    * \post more_items: GetNumberOfAttributes()==old GetNumberOfAttributes()+1
    * \post a_is_set: GetAttribute(GetNumberOfAttributes()-1)==a
    */
-  void InsertNextAttribute(vtkGenericAttribute *a);
+  void InsertNextAttribute(vtkGenericAttribute* a);
 
   /**
    * Replace the attribute at index `i' by `a'.
@@ -127,7 +116,7 @@ public:
    * \post same_size: GetNumberOfAttributes()==old GetNumberOfAttributes()
    * \post item_is_set: GetAttribute(i)==a
    */
-  void InsertAttribute(int i, vtkGenericAttribute *a);
+  void InsertAttribute(int i, vtkGenericAttribute* a);
 
   /**
    * Remove the attribute at `i'.
@@ -149,7 +138,7 @@ public:
    * \pre not_self: other!=this
    * \post same_size: GetNumberOfAttributes()==other->GetNumberOfAttributes()
    */
-  void DeepCopy(vtkGenericAttributeCollection *other);
+  void DeepCopy(vtkGenericAttributeCollection* other);
 
   /**
    * Copy, via reference counting, the other attribute array.
@@ -157,7 +146,7 @@ public:
    * \pre not_self: other!=this
    * \post same_size: GetNumberOfAttributes()==other->GetNumberOfAttributes()
    */
-  void ShallowCopy(vtkGenericAttributeCollection *other);
+  void ShallowCopy(vtkGenericAttributeCollection* other);
 
   /**
    * vtkAttributeCollection is a composite object and needs to check each
@@ -169,16 +158,16 @@ public:
   // new pipeline update mechanism is checked in.
   // *** BEGIN
 
-  //@{
+  ///@{
   /**
    * Index of the attribute to be processed (not necessarily scalar).
    * \pre not_empty: !IsEmpty()
    * \post valid_result: result>=0 && result<GetNumberOfAttributes()
    */
   vtkGetMacro(ActiveAttribute, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Component of the active attribute to be processed. -1 means module.
    * \pre not_empty: GetNumberOfAttributes()>0
@@ -186,7 +175,7 @@ public:
    * result<GetAttribute(GetActiveAttribute())->GetNumberOfComponents()
    */
   vtkGetMacro(ActiveComponent, int);
-  //@}
+  ///@}
 
   /**
    * Set the scalar attribute to be processed. -1 means module.
@@ -199,30 +188,30 @@ public:
    */
   void SetActiveAttribute(int attribute, int component = 0);
 
-  //@{
+  ///@{
   /**
    * Number of attributes to interpolate.
    * \pre not_empty: !IsEmpty()
    * \post positive_result: result>=0
    */
   vtkGetMacro(NumberOfAttributesToInterpolate, int);
-  //@}
+  ///@}
 
   /**
    * Indices of attributes to interpolate.
    * \pre not_empty: !IsEmpty()
    * \post valid_result: GetNumberOfAttributesToInterpolate()>0
    */
-  int *GetAttributesToInterpolate();
+  int* GetAttributesToInterpolate() VTK_SIZEHINT(GetNumberOfAttributesToInterpolate());
 
   /**
    * Does the array `attributes' of size `size' have `attribute'?
    * \pre positive_size: size>=0
    * \pre valid_attributes: size>0 implies attributes!=0
    */
-  int HasAttribute(int size, int *attributes, int attribute);
+  vtkTypeBool HasAttribute(int size, int* attributes, int attribute) VTK_SIZEHINT(attributes, size);
 
-  //@{
+  ///@{
   /**
    * Set the attributes to interpolate.
    * \pre not_empty: !IsEmpty()
@@ -233,9 +222,9 @@ public:
    * \post is_set: (GetNumberOfAttributesToInterpolate()==size)&&
    * (GetAttributesToInterpolate()==attributes)
    */
-  void SetAttributesToInterpolate(int size, int *attributes);
+  void SetAttributesToInterpolate(int size, int* attributes) VTK_SIZEHINT(attributes, size);
   void SetAttributesToInterpolateToAll();
-  //@}
+  ///@}
 
 protected:
   /**
@@ -255,18 +244,18 @@ protected:
   /**
    * STL vector for storing index of point centered attributes
    */
-  vtkIntInternalVector *AttributeIndices;
+  vtkIntInternalVector* AttributeIndices;
 
   int ActiveAttribute;
   int ActiveComponent;
   int NumberOfAttributesToInterpolate;
   int AttributesToInterpolate[10];
 
-  int NumberOfComponents; // cache
+  int NumberOfComponents;              // cache
   int NumberOfPointCenteredComponents; // cache
-  int MaxNumberOfComponents; // cache
-  unsigned long ActualMemorySize; // cache
-  vtkTimeStamp ComputeTime; // cache time stamp
+  int MaxNumberOfComponents;           // cache
+  unsigned long ActualMemorySize;      // cache
+  vtkTimeStamp ComputeTime;            // cache time stamp
 
   /**
    * Compute number of components, max number of components and actual
@@ -275,7 +264,8 @@ protected:
   void ComputeNumbers();
 
 private:
-  vtkGenericAttributeCollection(const vtkGenericAttributeCollection &) = delete;
-  void operator=(const vtkGenericAttributeCollection &) = delete;
+  vtkGenericAttributeCollection(const vtkGenericAttributeCollection&) = delete;
+  void operator=(const vtkGenericAttributeCollection&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

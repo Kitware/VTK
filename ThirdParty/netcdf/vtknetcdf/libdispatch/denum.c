@@ -149,14 +149,10 @@ nc_inq_enum_member(int ncid, nc_type xtype, int idx, char *name,
 /** \ingroup user_types
 Get the name which is associated with an enum member value. 
 
-\param ncid \ref ncid
-
+\param ncid
 \param xtype Typeid of the enum type.
-
 \param value Value of interest.
-
-\param identifier The identifier (\ref object_name) of this value will
-be copied here. \ref ignored_if_null.
+\param identifier The identifier (\ref object_name) of this value will be copied here; ignored_if_null.
 
 \returns ::NC_NOERR No error.
 \returns ::NC_EBADID Bad \ref ncid.

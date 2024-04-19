@@ -1,27 +1,16 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDummyController.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-#include "vtkDummyCommunicator.h"
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDummyController.h"
+#include "vtkDummyCommunicator.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDummyController);
 
 vtkCxxSetObjectMacro(vtkDummyController, Communicator, vtkCommunicator);
 vtkCxxSetObjectMacro(vtkDummyController, RMICommunicator, vtkCommunicator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDummyController::vtkDummyController()
 {
   this->Communicator = vtkDummyCommunicator::New();
@@ -36,13 +25,13 @@ vtkDummyController::~vtkDummyController()
 
 void vtkDummyController::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Communicator: " << this->Communicator << endl;
   os << indent << "RMICommunicator: " << this->RMICommunicator << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDummyController::SingleMethodExecute()
 {
   if (this->SingleMethod)
@@ -59,13 +48,13 @@ void vtkDummyController::SingleMethodExecute()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDummyController::MultipleMethodExecute()
 {
   int i = this->GetLocalProcessId();
 
   vtkProcessFunctionType multipleMethod;
-  void *multipleData;
+  void* multipleData;
   this->GetMultipleMethod(i, multipleMethod, multipleData);
   if (multipleMethod)
   {
@@ -80,3 +69,4 @@ void vtkDummyController::MultipleMethodExecute()
     vtkWarningMacro("MultipleMethod " << i << " not set.");
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,6 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    vtkImplicitVolume.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
 #include "vtkImplicitVolume.h"
 
 #include "vtkDoubleArray.h"
@@ -20,10 +9,11 @@
 #include "vtkPointData.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitVolume);
-vtkCxxSetObjectMacro(vtkImplicitVolume,Volume,vtkImageData);
+vtkCxxSetObjectMacro(vtkImplicitVolume, Volume, vtkImageData);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct an vtkImplicitVolume with no initial volume; the OutValue
 // set to a large negative number; and the OutGradient set to (0,0,1).
 vtkImplicitVolume::vtkImplicitVolume()
@@ -39,7 +29,7 @@ vtkImplicitVolume::vtkImplicitVolume()
   this->PointIds->Allocate(8);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImplicitVolume::~vtkImplicitVolume()
 {
   if (this->Volume)
@@ -50,34 +40,34 @@ vtkImplicitVolume::~vtkImplicitVolume()
   this->PointIds->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate the ImplicitVolume. This returns the interpolated scalar value
 // at x[3].
 double vtkImplicitVolume::EvaluateFunction(double x[3])
 {
-  vtkDataArray *scalars;
+  vtkDataArray* scalars;
   int ijk[3];
   vtkIdType numPts, i;
   double pcoords[3], weights[8], s;
 
   // See if a volume is defined
-  if ( !this->Volume ||
-  !(scalars = this->Volume->GetPointData()->GetScalars()) )
+  if (!this->Volume || !(scalars = this->Volume->GetPointData()->GetScalars()))
   {
-    vtkErrorMacro(<<"Can't evaluate function: either volume is missing or volume has no point data");
+    vtkErrorMacro(
+      << "Can't evaluate function: either volume is missing or volume has no point data");
     return this->OutValue;
   }
 
   // Find the cell that contains xyz and get it
-  if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
+  if (this->Volume->ComputeStructuredCoordinates(x, ijk, pcoords))
   {
-    this->Volume->GetCellPoints(this->Volume->ComputeCellId(ijk),this->PointIds);
-    vtkVoxel::InterpolationFunctions(pcoords,weights);
+    this->Volume->GetCellPoints(this->Volume->ComputeCellId(ijk), this->PointIds);
+    vtkVoxel::InterpolationFunctions(pcoords, weights);
 
-    numPts = this->PointIds->GetNumberOfIds ();
-    for (s=0.0, i=0; i < numPts; i++)
+    numPts = this->PointIds->GetNumberOfIds();
+    for (s = 0.0, i = 0; i < numPts; i++)
     {
-      s += scalars->GetComponent(this->PointIds->GetId(i),0) * weights[i];
+      s += scalars->GetComponent(this->PointIds->GetId(i), 0) * weights[i];
     }
     return s;
   }
@@ -87,37 +77,36 @@ double vtkImplicitVolume::EvaluateFunction(double x[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkImplicitVolume::GetMTime()
 {
   vtkMTimeType mTime = this->vtkImplicitFunction::GetMTime();
   vtkMTimeType volumeMTime;
 
-  if ( this->Volume != nullptr )
+  if (this->Volume != nullptr)
   {
     volumeMTime = this->Volume->GetMTime();
-    mTime = ( volumeMTime > mTime ? volumeMTime : mTime );
+    mTime = (volumeMTime > mTime ? volumeMTime : mTime);
   }
 
   return mTime;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Evaluate ImplicitVolume gradient.
 void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
 {
-  vtkDataArray *scalars;
+  vtkDataArray* scalars;
   int i, ijk[3];
   double pcoords[3], weights[8], *v;
-  vtkDoubleArray *gradient;
+  vtkDoubleArray* gradient;
 
   // See if a volume is defined
-  if ( !this->Volume ||
-       !(scalars = this->Volume->GetPointData()->GetScalars()) )
+  if (!this->Volume || !(scalars = this->Volume->GetPointData()->GetScalars()))
   {
-    vtkErrorMacro(<<"Can't evaluate gradient: either volume is missing or volume has no point data");
-    for ( i=0; i < 3; i++ )
+    vtkErrorMacro(
+      << "Can't evaluate gradient: either volume is missing or volume has no point data");
+    for (i = 0; i < 3; i++)
     {
       n[i] = this->OutGradient[i];
     }
@@ -129,13 +118,13 @@ void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
   gradient->SetNumberOfTuples(8);
 
   // Find the cell that contains xyz and get it
-  if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
+  if (this->Volume->ComputeStructuredCoordinates(x, ijk, pcoords))
   {
-    vtkVoxel::InterpolationFunctions(pcoords,weights);
+    vtkVoxel::InterpolationFunctions(pcoords, weights);
     this->Volume->GetVoxelGradient(ijk[0], ijk[1], ijk[2], scalars, gradient);
 
     n[0] = n[1] = n[2] = 0.0;
-    for (i=0; i < 8; i++)
+    for (i = 0; i < 8; i++)
     {
       v = gradient->GetTuple(i);
       n[0] += v[0] * weights[i];
@@ -146,7 +135,7 @@ void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
 
   else
   { // use outside value
-    for ( i=0; i < 3; i++ )
+    for (i = 0; i < 3; i++)
     {
       n[i] = this->OutGradient[i];
     }
@@ -154,17 +143,16 @@ void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
   gradient->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Out Value: " << this->GetOutValue() << "\n";
   os << indent << "Out Gradient: (" << this->GetOutGradient()[0] << ", "
-     << this->GetOutGradient()[1] << ", "
-     << this->GetOutGradient()[2] << ")\n";
+     << this->GetOutGradient()[1] << ", " << this->GetOutGradient()[2] << ")\n";
 
-  if ( this->GetVolume() )
+  if (this->GetVolume())
   {
     os << indent << "Volume: " << this->GetVolume() << "\n";
   }
@@ -173,3 +161,4 @@ void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Volume: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

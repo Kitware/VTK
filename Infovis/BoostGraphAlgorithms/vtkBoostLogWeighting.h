@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBoostLogWeighting.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkBoostLogWeighting
@@ -29,14 +12,15 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkBoostLogWeighting_h
 #define vtkBoostLogWeighting_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostLogWeighting : public vtkArrayDataAlgorithm
 {
 public:
@@ -50,31 +34,28 @@ public:
     BASE_2 = 1
   };
 
-  //@{
+  ///@{
   /**
    * Specify the logarithm base to apply
    */
   vtkSetMacro(Base, int);
   vtkGetMacro(Base, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether this filter should emit progress events
    */
   vtkSetMacro(EmitProgress, bool);
   vtkGetMacro(EmitProgress, bool);
   vtkBooleanMacro(EmitProgress, bool);
-  //@}
+  ///@}
 
 protected:
   vtkBoostLogWeighting();
-  ~vtkBoostLogWeighting();
+  ~vtkBoostLogWeighting() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkBoostLogWeighting(const vtkBoostLogWeighting&) = delete;
@@ -82,8 +63,7 @@ private:
 
   int Base;
   bool EmitProgress;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

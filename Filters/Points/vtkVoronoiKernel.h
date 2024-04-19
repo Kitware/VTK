@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVoronoiKernel.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkVoronoiKernel
  * @brief   a Voronoi interpolation kernel
@@ -27,7 +15,7 @@
  *
  * @sa
  * vtkInterpolationKernel vtkGeneralizedKernel vtkProbabilisticVoronoiKernel
-*/
+ */
 
 #ifndef vtkVoronoiKernel_h
 #define vtkVoronoiKernel_h
@@ -35,21 +23,21 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
-
 
 class VTKFILTERSPOINTS_EXPORT vtkVoronoiKernel : public vtkInterpolationKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkVoronoiKernel *New();
-  vtkTypeMacro(vtkVoronoiKernel,vtkInterpolationKernel);
+  static vtkVoronoiKernel* New();
+  vtkTypeMacro(vtkVoronoiKernel, vtkInterpolationKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Given a point x (and optional associated ptId), determine the points
@@ -58,7 +46,7 @@ public:
    * method returns the number of points in the basis. Typically this method
    * is called before ComputeWeights().
    */
-  vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) override;
+  vtkIdType ComputeBasis(double x[3], vtkIdList* pIds, vtkIdType ptId = 0) override;
 
   /**
    * Given a point x, and a list of basis points pIds, compute interpolation
@@ -69,8 +57,7 @@ public:
    * invoke ComputeWeights() and provide the interpolation basis points pIds
    * directly.
    */
-  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *weights) override;
+  vtkIdType ComputeWeights(double x[3], vtkIdList* pIds, vtkDoubleArray* weights) override;
 
 protected:
   vtkVoronoiKernel();
@@ -81,4 +68,5 @@ private:
   void operator=(const vtkVoronoiKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

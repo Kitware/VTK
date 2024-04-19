@@ -1,18 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXdmf3ArraySelection.h
-  Language:  C++
-
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXdmf3ArraySelection
  * @brief   helper to identify requested arrays with
@@ -23,22 +10,22 @@
  *
  * This file is a helper for the vtkXdmf3Reader and not intended to be
  * part of VTK public API
-*/
+ */
 
 #ifndef vtkXdmf3ArraySelection_h
 #define vtkXdmf3ArraySelection_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
 
-#include <map> //for superclass template
+#include <map>    //for superclass template
 #include <string> //for superclass's content type
 
 #ifdef _MSC_VER
-#pragma warning (push) //save
-#pragma warning (disable: 4251) //needs to have dll-interface to be used by clients of class
+#pragma warning(push)           // save
+#pragma warning(disable : 4251) // needs to have dll-interface to be used by clients of class
 #endif
-class VTKIOXDMF3_EXPORT vtkXdmf3ArraySelection
-  : public std::map<std::string, bool>
+VTK_ABI_NAMESPACE_BEGIN
+class VTKIOXDMF3_EXPORT vtkXdmf3ArraySelection : public std::map<std::string, bool>
 {
 public:
   /**
@@ -49,7 +36,7 @@ public:
   /**
    * add a new array to the set, with a particular status
    */
-  void AddArray(const char* name, bool status=true);
+  void AddArray(const char* name, bool status = true);
 
   /**
    * test if a particular array is enablled or not
@@ -61,13 +48,13 @@ public:
    */
   bool HasArray(const char* name);
 
-  //@{
+  ///@{
   /**
    * get/set user choice of whether a particular array is to be loaded
    */
   void SetArrayStatus(const char* name, bool status);
   int GetArraySetting(const char* name);
-  //@}
+  ///@}
 
   /**
    * get string name of a particular array
@@ -80,8 +67,9 @@ public:
   int GetNumberOfArrays();
 };
 #ifdef _MSC_VER
-#pragma warning (pop) //restore
+#pragma warning(pop) // restore
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif //# vtkXdmf3ArraySelection_h
 // VTK-HeaderTest-Exclude: vtkXdmf3ArraySelection.h

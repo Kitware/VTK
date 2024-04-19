@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridToUnstructuredGrid.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHyperTreeGridToUnstructuredGrid.h"
 
 #include "vtkBitArray.h"
@@ -21,43 +9,44 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridToUnstructuredGrid);
 
-//-----------------------------------------------------------------------------
-vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid() :
-  Points(nullptr),
-  Cells(nullptr),
-  Dimension(0),
-  Orientation(0),
-  Axes(nullptr)
-{}
-
-//-----------------------------------------------------------------------------
-vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()
+//------------------------------------------------------------------------------
+vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
+  : Points(nullptr)
+  , Cells(nullptr)
+  , Dimension(0)
+  , Orientation(0)
+  , Axes(nullptr)
+  , AddOriginalIds(true)
+  , OriginalIds(nullptr)
 {
-  // The class members are only used during process and are destroyed once
-  // the process is finished to reduce stack size during recursive calls.
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// The class members are only used during process and are destroyed once the
+// process is finished to reduce stack size during recursive calls.
+vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid() = default;
+
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridToUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridToUnstructuredGrid::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
   vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
@@ -77,9 +66,17 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
   this->Axes = input->GetAxes();
 
   // Initialize output cell data
-  this->InData = input->GetPointData();
+  this->InData = input->GetCellData();
   this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
+
+  if (this->AddOriginalIds)
+  {
+    this->OriginalIds = vtkIdTypeArray::New();
+    this->OriginalIds->SetName("OriginalIds");
+    this->OriginalIds->SetNumberOfComponents(1);
+    this->OriginalIds->SetNumberOfTuples(input->GetNumberOfLeaves());
+  }
 
   // Iterate over all hyper trees
   vtkIdType index;
@@ -88,6 +85,10 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
   vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
   while (it.GetNextTree(index))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new geometric cursor at root of current tree
     input->InitializeNonOrientedGeometryCursor(cursor, index);
 
@@ -115,6 +116,13 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
       break;
   } // switch ( this->Dimension )
 
+  if (this->AddOriginalIds)
+  {
+    this->OutData->AddArray(this->OriginalIds);
+    this->OriginalIds->FastDelete();
+    this->OriginalIds = nullptr;
+  }
+
   this->Points->FastDelete();
   this->Cells->FastDelete();
   this->Points = nullptr;
@@ -123,7 +131,7 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
@@ -148,6 +156,10 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree(
     int numChildren = cursor->GetNumberOfChildren();
     for (int ichild = 0; ichild < numChildren; ++ichild)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       cursor->ToChild(ichild);
       // Recurse
       this->RecursivelyProcessTree(cursor);
@@ -156,7 +168,7 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree(
   }   // else
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridToUnstructuredGrid::AddCell(vtkIdType inId, double* origin, double* size)
 {
   // Storage for point coordinates
@@ -267,4 +279,11 @@ void vtkHyperTreeGridToUnstructuredGrid::AddCell(vtkIdType inId, double* origin,
 
   // Copy output data from input
   this->OutData->CopyData(this->InData, inId, outId);
+
+  // And the global id if needed
+  if (this->AddOriginalIds)
+  {
+    this->OriginalIds->SetTuple1(outId, inId);
+  }
 }
+VTK_ABI_NAMESPACE_END

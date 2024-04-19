@@ -1,17 +1,6 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    vtkRenderWindow.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
 #include "vtkRenderWindow.h"
 
 #include "vtkCamera.h"
@@ -31,12 +20,13 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <cmath>
+#include <cstdlib>
+#include <string>
 #include <utility> // for std::swap
 
-//----------------------------------------------------------------------------
-// Use the vtkAbstractObjectFactoryNewMacro to allow the object factory overrides.
-vtkAbstractObjectFactoryNewMacro(vtkRenderWindow)
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkObjectFactoryNewMacro(vtkRenderWindow);
 
 // Construct an instance of  vtkRenderWindow with its screen size
 // set to 300x300, borders turned on, positioned at (0,0), double
@@ -70,8 +60,8 @@ vtkRenderWindow::vtkRenderWindow()
   this->NumberOfLayers = 1;
   this->CurrentCursor = VTK_CURSOR_DEFAULT;
   this->AnaglyphColorSaturation = 0.65f;
-  this->AnaglyphColorMask[0] = 4;  // red
-  this->AnaglyphColorMask[1] = 3;  // cyan
+  this->AnaglyphColorMask[0] = 4; // red
+  this->AnaglyphColorMask[1] = 3; // cyan
 
   this->AbortCheckTime = 0.0;
   this->CapturingGL2PSSpecialProps = 0;
@@ -84,41 +74,57 @@ vtkRenderWindow::vtkRenderWindow()
 #endif
   this->DeviceIndex = 0;
   this->SharedRenderWindow = nullptr;
+
+  this->CursorFileName = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(nullptr);
   this->SetSharedRenderWindow(nullptr);
+  this->SetCursorFileName(nullptr);
 
   if (this->Renderers)
   {
-    vtkCollectionSimpleIterator rsit;
-    this->Renderers->InitTraversal(rsit);
-    vtkRenderer *aren;
-    while ( (aren = this->Renderers->GetNextRenderer(rsit)) )
+    vtkRenderer* ren;
+    vtkCollectionSimpleIterator rit;
+    this->Renderers->InitTraversal(rit);
+    while ((ren = this->Renderers->GetNextRenderer(rit)))
     {
-      if (aren->GetRenderWindow() == this)
-      {
-        vtkErrorMacro("Window destructed with renderer still associated with it!");
-      }
+      ren->SetRenderWindow(nullptr);
     }
 
     this->Renderers->Delete();
   }
 }
 
-//----------------------------------------------------------------------------
+void vtkRenderWindow::SetMultiSamples(int val)
+{
+  if (val == 1)
+  {
+    val = 0;
+  }
+
+  if (val == this->MultiSamples)
+  {
+    return;
+  }
+
+  this->MultiSamples = val;
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 // Create an interactor that will work with this renderer.
-vtkRenderWindowInteractor *vtkRenderWindow::MakeRenderWindowInteractor()
+vtkRenderWindowInteractor* vtkRenderWindow::MakeRenderWindowInteractor()
 {
   this->Interactor = vtkRenderWindowInteractor::New();
   this->Interactor->SetRenderWindow(this);
   return this->Interactor;
 }
 
-void vtkRenderWindow::SetSharedRenderWindow(vtkRenderWindow *val)
+void vtkRenderWindow::SetSharedRenderWindow(vtkRenderWindow* val)
 {
   if (this->SharedRenderWindow == val)
   {
@@ -137,16 +143,19 @@ void vtkRenderWindow::SetSharedRenderWindow(vtkRenderWindow *val)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Set the interactor that will work with this renderer.
-void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
+void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor* rwi)
 {
   if (this->Interactor != rwi)
   {
     // to avoid destructor recursion
-    vtkRenderWindowInteractor *temp = this->Interactor;
+    vtkRenderWindowInteractor* temp = this->Interactor;
     this->Interactor = rwi;
-    if (temp != nullptr) {temp->UnRegister(this);}
+    if (temp != nullptr)
+    {
+      temp->UnRegister(this);
+    }
     if (this->Interactor != nullptr)
     {
       this->Interactor->Register(this);
@@ -166,26 +175,179 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalViewDirection(double x, double y, double z)
+{
+  if (this->PhysicalViewDirection[0] != x || this->PhysicalViewDirection[1] != y ||
+    this->PhysicalViewDirection[2] != z)
+  {
+    this->PhysicalViewDirection[0] = x;
+    this->PhysicalViewDirection[1] = y;
+    this->PhysicalViewDirection[2] = z;
+    this->InvokeEvent(vtkRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalViewDirection(double dir[3])
+{
+  this->SetPhysicalViewDirection(dir[0], dir[1], dir[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalViewUp(double x, double y, double z)
+{
+  if (this->PhysicalViewUp[0] != x || this->PhysicalViewUp[1] != y || this->PhysicalViewUp[2] != z)
+  {
+    this->PhysicalViewUp[0] = x;
+    this->PhysicalViewUp[1] = y;
+    this->PhysicalViewUp[2] = z;
+    this->InvokeEvent(vtkRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalViewUp(double dir[3])
+{
+  this->SetPhysicalViewUp(dir[0], dir[1], dir[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalTranslation(double x, double y, double z)
+{
+  if (this->PhysicalTranslation[0] != x || this->PhysicalTranslation[1] != y ||
+    this->PhysicalTranslation[2] != z)
+  {
+    this->PhysicalTranslation[0] = x;
+    this->PhysicalTranslation[1] = y;
+    this->PhysicalTranslation[2] = z;
+    this->InvokeEvent(vtkRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalTranslation(double trans[3])
+{
+  this->SetPhysicalTranslation(trans[0], trans[1], trans[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalScale(double scale)
+{
+  if (this->PhysicalScale != scale)
+  {
+    this->PhysicalScale = scale;
+    this->InvokeEvent(vtkRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
+{
+  if (!matrix)
+  {
+    return;
+  }
+  vtkNew<vtkMatrix4x4> currentPhysicalToWorldMatrix;
+  this->GetPhysicalToWorldMatrix(currentPhysicalToWorldMatrix);
+  bool matrixDifferent = false;
+  for (int i = 0; i < 4; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      if (fabs(matrix->GetElement(i, j) - currentPhysicalToWorldMatrix->GetElement(i, j)) >= 1e-3)
+      {
+        matrixDifferent = true;
+        break;
+      }
+    }
+  }
+  if (!matrixDifferent)
+  {
+    return;
+  }
+
+  vtkNew<vtkTransform> hmdToWorldTransform;
+  hmdToWorldTransform->SetMatrix(matrix);
+
+  double translation[3] = { 0.0 };
+  hmdToWorldTransform->GetPosition(translation);
+  this->PhysicalTranslation[0] = (-1.0) * translation[0];
+  this->PhysicalTranslation[1] = (-1.0) * translation[1];
+  this->PhysicalTranslation[2] = (-1.0) * translation[2];
+
+  double scale[3] = { 0.0 };
+  hmdToWorldTransform->GetScale(scale);
+  this->PhysicalScale = scale[0];
+
+  this->PhysicalViewUp[0] = matrix->GetElement(0, 1);
+  this->PhysicalViewUp[1] = matrix->GetElement(1, 1);
+  this->PhysicalViewUp[2] = matrix->GetElement(2, 1);
+  vtkMath::Normalize(this->PhysicalViewUp);
+  this->PhysicalViewDirection[0] = (-1.0) * matrix->GetElement(0, 2);
+  this->PhysicalViewDirection[1] = (-1.0) * matrix->GetElement(1, 2);
+  this->PhysicalViewDirection[2] = (-1.0) * matrix->GetElement(2, 2);
+  vtkMath::Normalize(this->PhysicalViewDirection);
+
+  this->InvokeEvent(vtkRenderWindow::PhysicalToWorldMatrixModified);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::GetPhysicalToWorldMatrix(vtkMatrix4x4* physicalToWorldMatrix)
+{
+  if (!physicalToWorldMatrix)
+  {
+    return;
+  }
+
+  physicalToWorldMatrix->Identity();
+
+  // construct physical to non-scaled world axes (scaling is applied later)
+  double physicalZ_NonscaledWorld[3] = { -this->PhysicalViewDirection[0],
+    -this->PhysicalViewDirection[1], -this->PhysicalViewDirection[2] };
+  double* physicalY_NonscaledWorld = this->PhysicalViewUp;
+  double physicalX_NonscaledWorld[3] = { 0.0 };
+  vtkMath::Cross(physicalY_NonscaledWorld, physicalZ_NonscaledWorld, physicalX_NonscaledWorld);
+
+  for (int row = 0; row < 3; ++row)
+  {
+    physicalToWorldMatrix->SetElement(row, 0, physicalX_NonscaledWorld[row] * this->PhysicalScale);
+    physicalToWorldMatrix->SetElement(row, 1, physicalY_NonscaledWorld[row] * this->PhysicalScale);
+    physicalToWorldMatrix->SetElement(row, 2, physicalZ_NonscaledWorld[row] * this->PhysicalScale);
+    physicalToWorldMatrix->SetElement(row, 3, -this->PhysicalTranslation[row]);
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkRenderWindow::GetDeviceToWorldMatrixForDevice(
+  vtkEventDataDevice vtkNotUsed(device), vtkMatrix4x4* vtkNotUsed(deviceToWorldMatrix))
+{
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void vtkRenderWindow::SetDesiredUpdateRate(double rate)
 {
-  vtkRenderer *aren;
+  vtkRenderer* aren;
 
   if (this->DesiredUpdateRate != rate)
   {
     vtkCollectionSimpleIterator rsit;
-    for (this->Renderers->InitTraversal(rsit);
-         (aren = this->Renderers->GetNextRenderer(rsit)); )
+    for (this->Renderers->InitTraversal(rsit); (aren = this->Renderers->GetNextRenderer(rsit));)
     {
-      aren->SetAllocatedRenderTime(1.0/
-                                  (rate*this->Renderers->GetNumberOfItems()));
+      aren->SetAllocatedRenderTime(1.0 / (rate * this->Renderers->GetNumberOfItems()));
     }
     this->DesiredUpdateRate = rate;
     this->Modified();
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindow::SetStereoType(int stereoType)
 {
   if (this->StereoType == stereoType)
@@ -199,7 +361,7 @@ void vtkRenderWindow::SetStereoType(int stereoType)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
@@ -213,7 +375,7 @@ void vtkRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Turn on stereo rendering
 void vtkRenderWindow::SetStereoRender(vtkTypeBool stereo)
 {
@@ -222,8 +384,7 @@ void vtkRenderWindow::SetStereoRender(vtkTypeBool stereo)
     return;
   }
 
-  if (this->StereoCapableWindow ||
-      (this->StereoType != VTK_STEREO_CRYSTAL_EYES))
+  if (this->StereoCapableWindow || (this->StereoType != VTK_STEREO_CRYSTAL_EYES))
   {
     this->StereoRender = stereo;
     this->Modified();
@@ -231,12 +392,12 @@ void vtkRenderWindow::SetStereoRender(vtkTypeBool stereo)
   else
   {
     vtkWarningMacro(<< "Adjusting stereo mode on a window that does not "
-    << "support stereo type " << this->GetStereoTypeAsString()
-    << " is not possible.");
+                    << "support stereo type " << this->GetStereoTypeAsString()
+                    << " is not possible.");
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Ask each renderer owned by this RenderWindow to render its image and
 // synchronize this process.
 void vtkRenderWindow::Render()
@@ -266,24 +427,27 @@ void vtkRenderWindow::Render()
   this->InRender = 1;
 
   vtkDebugMacro(<< "Starting Render Method.\n");
-  this->InvokeEvent(vtkCommand::StartEvent,nullptr);
+  this->InvokeEvent(vtkCommand::StartEvent, nullptr);
 
   this->NeverRendered = 0;
 
-  if ( this->Interactor && ! this->Interactor->GetInitialized() )
+  if (this->Interactor && !this->Interactor->GetInitialized())
   {
     this->Interactor->Initialize();
   }
 
+  this->Start(); // Ensure context exists
   vtkRenderTimerLog::ScopedEventLogger event;
   if (this->RenderTimer->GetLoggingEnabled())
   {
-    this->Start(); // Ensure context exists
     this->RenderTimer->MarkFrame();
     event = this->RenderTimer->StartScopedEvent("vtkRenderWindow::Render");
   }
 
   this->DoStereoRender();
+
+  this->End(); // restores original bindings
+
   this->CopyResultFrame();
 
   // reset the buffer size without freeing any memory.
@@ -293,30 +457,28 @@ void vtkRenderWindow::Render()
   event.Stop();
 
   this->InRender = 0;
-  this->InvokeEvent(vtkCommand::EndEvent,nullptr);
+  this->InvokeEvent(vtkCommand::EndEvent, nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Handle rendering the two different views for stereo rendering.
 void vtkRenderWindow::DoStereoRender()
 {
   vtkCollectionSimpleIterator rsit;
 
-  this->Start();
   this->StereoUpdate();
 
   if (!this->StereoRender || (this->StereoType != VTK_STEREO_RIGHT))
   { // render the left eye
-    vtkRenderer *aren;
-    for (this->Renderers->InitTraversal(rsit);
-         (aren = this->Renderers->GetNextRenderer(rsit)); )
+    vtkRenderer* aren;
+    for (this->Renderers->InitTraversal(rsit); (aren = this->Renderers->GetNextRenderer(rsit));)
     {
       // Ugly piece of code - we need to know if the camera already
       // exists or not. If it does not yet exist, we must reset the
       // camera here - otherwise it will never be done (missing its
       // oppportunity to be reset in the Render method of the
       // vtkRenderer because it will already exist by that point...)
-      if ( !aren->IsActiveCameraCreated() )
+      if (!aren->IsActiveCameraCreated())
       {
         aren->ResetCamera();
       }
@@ -330,16 +492,15 @@ void vtkRenderWindow::DoStereoRender()
     this->StereoMidpoint();
     if (this->StereoType != VTK_STEREO_LEFT)
     { // render the right eye
-      vtkRenderer *aren;
-      for (this->Renderers->InitTraversal(rsit);
-           (aren = this->Renderers->GetNextRenderer(rsit)); )
+      vtkRenderer* aren;
+      for (this->Renderers->InitTraversal(rsit); (aren = this->Renderers->GetNextRenderer(rsit));)
       {
         // Duplicate the ugly code here too. Of course, most
         // times the left eye will have been rendered before
         // the right eye, but it is possible that the user sets
         // everything up and renders just the right eye - so we
         // need this check here too.
-        if ( !aren->IsActiveCameraCreated() )
+        if (!aren->IsActiveCameraCreated())
         {
           aren->ResetCamera();
         }
@@ -352,35 +513,32 @@ void vtkRenderWindow::DoStereoRender()
     }
     this->StereoRenderComplete();
   }
-
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add a renderer to the list of renderers.
-void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
+void vtkRenderWindow::AddRenderer(vtkRenderer* ren)
 {
   if (this->HasRenderer(ren))
   {
     return;
   }
   // we are its parent
-  this->MakeCurrent();
   ren->SetRenderWindow(this);
   this->Renderers->AddItem(ren);
-  vtkRenderer *aren;
+  vtkRenderer* aren;
   vtkCollectionSimpleIterator rsit;
 
-  for (this->Renderers->InitTraversal(rsit);
-       (aren = this->Renderers->GetNextRenderer(rsit)); )
+  for (this->Renderers->InitTraversal(rsit); (aren = this->Renderers->GetNextRenderer(rsit));)
   {
-    aren->SetAllocatedRenderTime
-      (1.0/(this->DesiredUpdateRate*this->Renderers->GetNumberOfItems()));
+    aren->SetAllocatedRenderTime(
+      1.0 / (this->DesiredUpdateRate * this->Renderers->GetNumberOfItems()));
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Remove a renderer from the list of renderers.
-void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
+void vtkRenderWindow::RemoveRenderer(vtkRenderer* ren)
 {
   // we are its parent
   if (ren->GetRenderWindow() == this)
@@ -391,12 +549,12 @@ void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
   this->Renderers->RemoveItem(ren);
 }
 
-int vtkRenderWindow::HasRenderer(vtkRenderer *ren)
+vtkTypeBool vtkRenderWindow::HasRenderer(vtkRenderer* ren)
 {
-  return (ren && this->Renderers->IsItemPresent(ren));
+  return (ren && this->Renderers->IndexOfFirstOccurence(ren) >= 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRenderWindow::CheckAbortStatus()
 {
   if (!this->InAbortCheck)
@@ -405,7 +563,7 @@ int vtkRenderWindow::CheckAbortStatus()
     if (vtkTimerLog::GetUniversalTime() - this->AbortCheckTime > 0.2)
     {
       this->InAbortCheck = 1;
-      this->InvokeEvent(vtkCommand::AbortCheckEvent,nullptr);
+      this->InvokeEvent(vtkCommand::AbortCheckEvent, nullptr);
       this->InAbortCheck = 0;
       this->AbortCheckTime = vtkTimerLog::GetUniversalTime();
     }
@@ -413,86 +571,81 @@ int vtkRenderWindow::CheckAbortStatus()
   return this->AbortRender;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Borders: " << (this->Borders ? "On\n":"Off\n");
-  os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
-  os << indent << "Full Screen: " << (this->FullScreen ? "On\n":"Off\n");
+  os << indent << "Borders: " << (this->Borders ? "On\n" : "Off\n");
+  os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n" : "Off\n");
+  os << indent << "Full Screen: " << (this->FullScreen ? "On\n" : "Off\n");
   os << indent << "Renderers:\n";
-  this->Renderers->PrintSelf(os,indent.GetNextIndent());
-  os << indent << "Stereo Capable Window Requested: "
-     << (this->StereoCapableWindow ? "Yes\n":"No\n");
-  os << indent << "Stereo Render: "
-     << (this->StereoRender ? "On\n":"Off\n");
+  this->Renderers->PrintSelf(os, indent.GetNextIndent());
+  os << indent
+     << "Stereo Capable Window Requested: " << (this->StereoCapableWindow ? "Yes\n" : "No\n");
+  os << indent << "Stereo Render: " << (this->StereoRender ? "On\n" : "Off\n");
 
-  os << indent << "Point Smoothing: "
-     << (this->PointSmoothing ? "On\n":"Off\n");
-  os << indent << "Line Smoothing: "
-     << (this->LineSmoothing ? "On\n":"Off\n");
-  os << indent << "Polygon Smoothing: "
-     << (this->PolygonSmoothing ? "On\n":"Off\n");
+  os << indent << "Point Smoothing: " << (this->PointSmoothing ? "On\n" : "Off\n");
+  os << indent << "Line Smoothing: " << (this->LineSmoothing ? "On\n" : "Off\n");
+  os << indent << "Polygon Smoothing: " << (this->PolygonSmoothing ? "On\n" : "Off\n");
   os << indent << "Abort Render: " << this->AbortRender << "\n";
   os << indent << "Current Cursor: " << this->CurrentCursor << "\n";
   os << indent << "Desired Update Rate: " << this->DesiredUpdateRate << "\n";
   os << indent << "In Abort Check: " << this->InAbortCheck << "\n";
   os << indent << "NeverRendered: " << this->NeverRendered << "\n";
   os << indent << "Interactor: " << this->Interactor << "\n";
-  os << indent << "Swap Buffers: " << (this->SwapBuffers ? "On\n":"Off\n");
+  os << indent << "Swap Buffers: " << (this->SwapBuffers ? "On\n" : "Off\n");
   os << indent << "Stereo Type: " << this->GetStereoTypeAsString() << "\n";
   os << indent << "Number of Layers: " << this->NumberOfLayers << "\n";
-  os << indent << "AlphaBitPlanes: " << (this->AlphaBitPlanes ? "On" : "Off")
-     << endl;
-  os << indent << "UseSRGBColorSpace: " << (this->UseSRGBColorSpace ? "On" : "Off")
-     << endl;
+  os << indent << "AlphaBitPlanes: " << (this->AlphaBitPlanes ? "On" : "Off") << endl;
+  os << indent << "UseSRGBColorSpace: " << (this->UseSRGBColorSpace ? "On" : "Off") << endl;
 
-  os << indent << "AnaglyphColorSaturation: "
-     << this->AnaglyphColorSaturation << "\n";
-  os << indent << "AnaglyphColorMask: "
-     << this->AnaglyphColorMask[0] << " , "
+  os << indent << "AnaglyphColorSaturation: " << this->AnaglyphColorSaturation << "\n";
+  os << indent << "AnaglyphColorMask: " << this->AnaglyphColorMask[0] << " , "
      << this->AnaglyphColorMask[1] << "\n";
 
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
-  os << indent << "StencilCapable: " <<
-    (this->StencilCapable ? "True" : "False") << endl;
+  os << indent << "StencilCapable: " << (this->StencilCapable ? "True" : "False") << endl;
+
+  os << indent << "PhysicalViewDirection: (" << this->PhysicalViewDirection[0] << ", "
+     << this->PhysicalViewDirection[1] << ", " << this->PhysicalViewDirection[2] << ")\n";
+  os << indent << "PhysicalViewUp: (" << this->PhysicalViewUp[0] << ", " << this->PhysicalViewUp[1]
+     << ", " << this->PhysicalViewUp[2] << ")\n";
+  os << indent << "PhysicalTranslation: (" << this->PhysicalTranslation[0] << ", "
+     << this->PhysicalTranslation[1] << ", " << this->PhysicalTranslation[2] << ")\n";
+  os << indent << "PhysicalScale: " << this->PhysicalScale << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Update the system, if needed, due to stereo rendering. For some stereo
 // methods, subclasses might need to switch some hardware settings here.
-void vtkRenderWindow::StereoUpdate()
-{
-}
+void vtkRenderWindow::StereoUpdate() {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Intermediate method performs operations required between the rendering
 // of the left and right eye.
 void vtkRenderWindow::StereoMidpoint()
 {
-  vtkRenderer * aren;
+  vtkRenderer* aren;
   /* For IceT stereo */
-  for (Renderers->InitTraversal() ; (aren = Renderers->GetNextItem()) ; )
+  for (Renderers->InitTraversal(); (aren = Renderers->GetNextItem());)
   {
     aren->StereoMidpoint();
   }
-  if ((this->StereoType == VTK_STEREO_RED_BLUE) ||
-      (this->StereoType == VTK_STEREO_INTERLACED) ||
-      (this->StereoType == VTK_STEREO_DRESDEN) ||
-      (this->StereoType == VTK_STEREO_ANAGLYPH) ||
-      (this->StereoType == VTK_STEREO_CHECKERBOARD) ||
-      (this->StereoType == VTK_STEREO_SPLITVIEWPORT_HORIZONTAL))
+  if ((this->StereoType == VTK_STEREO_RED_BLUE) || (this->StereoType == VTK_STEREO_INTERLACED) ||
+    (this->StereoType == VTK_STEREO_DRESDEN) || (this->StereoType == VTK_STEREO_ANAGLYPH) ||
+    (this->StereoType == VTK_STEREO_CHECKERBOARD) ||
+    (this->StereoType == VTK_STEREO_SPLITVIEWPORT_HORIZONTAL))
   {
-    int *size;
+    int* size;
     // get the size
     size = this->GetSize();
     // get the data
-    this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->StereoBuffer);
+    this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->StereoBuffer);
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Handles work required once both views have been rendered when using
 // stereo rendering.
 void vtkRenderWindow::StereoRenderComplete()
@@ -501,38 +654,38 @@ void vtkRenderWindow::StereoRenderComplete()
   switch (this->StereoType)
   {
     case VTK_STEREO_RED_BLUE:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->RedBlue(this->StereoBuffer, this->ResultFrame);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_ANAGLYPH:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->Anaglyph(this->StereoBuffer, this->ResultFrame,
         this->AnaglyphColorSaturation, this->AnaglyphColorMask);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_INTERLACED:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->Interlaced(this->StereoBuffer, this->ResultFrame, size);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_DRESDEN:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->Dresden(this->StereoBuffer, this->ResultFrame, size);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_CHECKERBOARD:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->Checkerboard(this->StereoBuffer, this->ResultFrame, size);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0, this->ResultFrame);
       this->StereoCompositor->SplitViewportHorizontal(this->StereoBuffer, this->ResultFrame, size);
       std::swap(this->StereoBuffer, this->ResultFrame);
       break;
@@ -541,19 +694,19 @@ void vtkRenderWindow::StereoRenderComplete()
   this->StereoBuffer->Reset();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderWindow::CopyResultFrame()
 {
   if (this->ResultFrame->GetNumberOfTuples() > 0)
   {
-    int *size;
+    int* size;
 
     // get the size
     size = this->GetSize();
 
     assert(this->ResultFrame->GetNumberOfTuples() == size[0] * size[1]);
 
-    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,!this->DoubleBuffer);
+    this->SetPixelData(0, 0, size[0] - 1, size[1] - 1, this->ResultFrame, 0);
   }
 
   // Just before we swap buffers (in case of double buffering), we fire the
@@ -565,19 +718,17 @@ void vtkRenderWindow::CopyResultFrame()
   this->Frame();
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // treat renderWindow and interactor as one object.
 // it might be easier if the GetReference count method were redefined.
-void vtkRenderWindow::UnRegister(vtkObjectBase *o)
+void vtkRenderWindow::UnRegister(vtkObjectBase* o)
 {
-  if (this->Interactor && this->Interactor->GetRenderWindow() == this &&
-      this->Interactor != o)
+  if (this->Interactor && this->Interactor->GetRenderWindow() == this && this->Interactor != o)
   {
     if (this->GetReferenceCount() + this->Interactor->GetReferenceCount() == 3)
     {
       this->vtkObject::UnRegister(o);
-      vtkRenderWindowInteractor *tmp = this->Interactor;
+      vtkRenderWindowInteractor* tmp = this->Interactor;
       tmp->Register(nullptr);
       this->Interactor->SetRenderWindow(nullptr);
       tmp->UnRegister(nullptr);
@@ -588,24 +739,24 @@ void vtkRenderWindow::UnRegister(vtkObjectBase *o)
   this->vtkObject::UnRegister(o);
 }
 
-//----------------------------------------------------------------------------
-const char *vtkRenderWindow::GetRenderLibrary()
+//------------------------------------------------------------------------------
+const char* vtkRenderWindow::GetRenderLibrary()
 {
   return vtkGraphicsFactory::GetRenderLibrary();
 }
 
-//----------------------------------------------------------------------------
-const char *vtkRenderWindow::GetRenderingBackend()
+//------------------------------------------------------------------------------
+const char* vtkRenderWindow::GetRenderingBackend()
 {
   return "Unknown";
 }
 
-//----------------------------------------------------------------------------
-void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
+//------------------------------------------------------------------------------
+void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection* result)
 {
   if (result == nullptr)
   {
-    vtkErrorMacro(<<"CaptureGL2PSSpecialProps was passed a nullptr pointer.");
+    vtkErrorMacro(<< "CaptureGL2PSSpecialProps was passed a nullptr pointer.");
     return;
   }
 
@@ -613,12 +764,12 @@ void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
 
   if (this->CapturingGL2PSSpecialProps)
   {
-    vtkDebugMacro(<<"Called recursively.")
+    vtkDebugMacro(<< "Called recursively.");
     return;
   }
   this->CapturingGL2PSSpecialProps = 1;
 
-  vtkRenderer *ren;
+  vtkRenderer* ren;
   for (Renderers->InitTraversal(); (ren = Renderers->GetNextItem());)
   {
     vtkNew<vtkPropCollection> props;
@@ -638,7 +789,7 @@ void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
 // Description: Return the stereo type as a character string.
 // when this method was inlined, static linking on BlueGene failed
 // (symbol referenced which is defined in discarded section)
-const char *vtkRenderWindow::GetStereoTypeAsString()
+const char* vtkRenderWindow::GetStereoTypeAsString()
 {
   return vtkRenderWindow::GetStereoTypeAsString(this->StereoType);
 }
@@ -667,27 +818,10 @@ const char* vtkRenderWindow::GetStereoTypeAsString(int type)
       return "Fake";
     case VTK_STEREO_EMULATE:
       return "Emulate";
+    case VTK_STEREO_ZSPACE_INSPIRE:
+      return "Inspire";
     default:
       return "";
   }
 }
-
-#if !defined(VTK_LEGACY_REMOVE)
-vtkTypeBool vtkRenderWindow::GetIsPicking()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::GetIsPicking, "VTK 8.3");
-  return false;
-}
-void vtkRenderWindow::SetIsPicking(vtkTypeBool)
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::SetIsPicking, "VTK 8.3");
-}
-void vtkRenderWindow::IsPickingOn()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOn, "VTK 8.3");
-}
-void vtkRenderWindow::IsPickingOff()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOff, "VTK 8.3");
-}
-#endif
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    $RCSfile: vtkDistributedPointCloudFilter.h,v $
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkDistributedPointCloudFilter.h"
 
@@ -33,43 +21,44 @@
 #include <algorithm>
 
 // Histogram precision to divide space in two
+VTK_ABI_NAMESPACE_BEGIN
 static const int HISTOGRAM_SIZE = 1024;
 
 vtkStandardNewMacro(vtkDistributedPointCloudFilter);
-vtkSetObjectImplementationMacro(vtkDistributedPointCloudFilter, Controller, vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkDistributedPointCloudFilter, Controller, vtkMultiProcessController);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistributedPointCloudFilter::vtkDistributedPointCloudFilter()
 {
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDistributedPointCloudFilter::~vtkDistributedPointCloudFilter()
 {
   this->SetController(nullptr);
 }
 
-//----------------------------------------------------------------------------
-int vtkDistributedPointCloudFilter::FillOutputPortInformation(int, vtkInformation *info)
+//------------------------------------------------------------------------------
+int vtkDistributedPointCloudFilter::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkDistributedPointCloudFilter::RequestData(vtkInformation *,
-  vtkInformationVector **inputVector, vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkDistributedPointCloudFilter::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkPointSet *input = vtkPointSet::GetData(inputVector[0]);
+  vtkPointSet* input = vtkPointSet::GetData(inputVector[0]);
   if (!input)
   {
     vtkErrorMacro("No valid input!");
     return 0;
   }
 
-  vtkPolyData *output = vtkPolyData::GetData(outputVector);
+  vtkPolyData* output = vtkPolyData::GetData(outputVector);
   if (!output)
   {
     vtkErrorMacro("No output object!");
@@ -90,7 +79,7 @@ int vtkDistributedPointCloudFilter::RequestData(vtkInformation *,
   {
     double bounds[6];
     this->OptimizeBoundingBox(subControllersTree, input, bounds);
-    this->GetPointsInsideBounds(controller, input, output, bounds);
+    vtkDistributedPointCloudFilter::GetPointsInsideBounds(controller, input, output, bounds);
   }
   else
   {
@@ -98,7 +87,7 @@ int vtkDistributedPointCloudFilter::RequestData(vtkInformation *,
     return 0;
   }
   // Destroy the kdtree controllers
-  for (auto *c : subControllersTree)
+  for (auto* c : subControllersTree)
   {
     c->Delete();
   }
@@ -106,8 +95,8 @@ int vtkDistributedPointCloudFilter::RequestData(vtkInformation *,
   return 1;
 }
 
-//----------------------------------------------------------------------------
-bool vtkDistributedPointCloudFilter::InitializeKdTree(std::vector<vtkMPIController*> &kdTreeRounds)
+//------------------------------------------------------------------------------
+bool vtkDistributedPointCloudFilter::InitializeKdTree(std::vector<vtkMPIController*>& kdTreeRounds)
 {
   this->Controller->Register(this);
 
@@ -123,7 +112,7 @@ bool vtkDistributedPointCloudFilter::InitializeKdTree(std::vector<vtkMPIControll
     int color = (roundRank < split) ? 0 : 1;
     int key = roundRank - ((roundRank < split) ? 0 : split);
 
-    vtkMPIController *subCtrl = ctrl->PartitionController(color, key);
+    vtkMPIController* subCtrl = ctrl->PartitionController(color, key);
     if (subCtrl == nullptr)
     {
       break;
@@ -135,9 +124,9 @@ bool vtkDistributedPointCloudFilter::InitializeKdTree(std::vector<vtkMPIControll
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(
-    std::vector<vtkMPIController*> &kdTreeRounds, vtkPointSet *pointCloud, double regionBounds[6])
+  std::vector<vtkMPIController*>& kdTreeRounds, vtkPointSet* pointCloud, double regionBounds[6])
 {
   if (kdTreeRounds.empty())
   {
@@ -174,7 +163,7 @@ bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(
 
   // ****************************************
   // Main Loop: transfer points between process.
-  // Point cloud is recursively splitted in two, among MPI groups.
+  // Point cloud is recursively split in two, among MPI groups.
   // Algorithm:
   // - 1. choose an axis (the longest)
   // - 2. build the local histogram of number of points along the given axis
@@ -250,8 +239,7 @@ bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(
       histogram.data(), histsum.data(), histSize, VTK_INT, vtkCommunicator::SUM_OP, 0);
 
     vtkIdType totalNumpts = numPts;
-    roundComm->ReduceVoidArray(
-      &numPts, &totalNumpts, 1, VTK_ID_TYPE, vtkCommunicator::SUM_OP, 0);
+    roundComm->ReduceVoidArray(&numPts, &totalNumpts, 1, VTK_ID_TYPE, vtkCommunicator::SUM_OP, 0);
 
     // ----------------------------------------
     // 4. process 0 of sub group computes cut position and broadcast it to others
@@ -259,8 +247,7 @@ bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(
     if (roundRank == 0)
     {
       // ratio of left part over total. it won't be 2 for un-even number of participant processors
-      double ratio = static_cast<double>(roundNumRanks) /
-        static_cast<double>(roundNumRanks / 2);
+      double ratio = static_cast<double>(roundNumRanks) / static_cast<double>(roundNumRanks / 2);
       int i = 1;
       for (; i < histSize; i++)
       {
@@ -333,11 +320,13 @@ bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(
 
     if (partnerNumPts > 0)
     {
-      roundComm->NoBlockSend(partnerPts.data(), static_cast<int>(3 * partnerNumPts), partner, EXCHANGE_POINT_TAG, request);
+      roundComm->NoBlockSend(partnerPts.data(), static_cast<int>(3 * partnerNumPts), partner,
+        EXCHANGE_POINT_TAG, request);
     }
     if (toReceive > 0)
     {
-      roundComm->ReceiveVoidArray(&pts[3 * newNumPts], static_cast<int>(3 * toReceive), VTK_DOUBLE, partner, EXCHANGE_POINT_TAG);
+      roundComm->ReceiveVoidArray(&pts[3 * newNumPts], static_cast<int>(3 * toReceive), VTK_DOUBLE,
+        partner, EXCHANGE_POINT_TAG);
     }
 
     // If non even number of processes: 0 receive from the last one.
@@ -349,7 +338,8 @@ bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(
       pts.resize(3 * (newNumPts + toReceive));
       if (toReceive > 0)
       {
-        roundComm->ReceiveVoidArray(&pts[3 * newNumPts], 3 * toReceive, VTK_DOUBLE, partner, EXCHANGE_POINT_TAG);
+        roundComm->ReceiveVoidArray(
+          &pts[3 * newNumPts], 3 * toReceive, VTK_DOUBLE, partner, EXCHANGE_POINT_TAG);
       }
     }
 
@@ -391,11 +381,11 @@ bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(
   return true;
 }
 
-//----------------------------------------------------------------------------
-void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController *controller,
-  vtkPointSet *input, vtkPointSet *output, const double outterBounds[6])
+//------------------------------------------------------------------------------
+void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController* controller,
+  vtkPointSet* input, vtkPointSet* output, const double outterBounds[6])
 {
-  vtkMPICommunicator *com = vtkMPICommunicator::SafeDownCast(controller->GetCommunicator());
+  vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(controller->GetCommunicator());
   int np = com ? com->GetNumberOfProcesses() : 1;
   int rank = com ? com->GetLocalProcessId() : 0;
 
@@ -411,10 +401,10 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController *con
   double localOutterBounds[6];
   for (int i = 0; i < 3; i++)
   {
-    localOutterBounds[2 * i] =
-      std::nextafter(static_cast<float>(outterBounds[2 * i]), static_cast<float>(outterBounds[2 * i]) - 1);
-    localOutterBounds[2 * i + 1] =
-      std::nextafter(static_cast<float>(outterBounds[2 * i + 1]), static_cast<float>(outterBounds[2 * i + 1]) + 1);
+    localOutterBounds[2 * i] = std::nextafter(
+      static_cast<float>(outterBounds[2 * i]), static_cast<float>(outterBounds[2 * i]) - 1);
+    localOutterBounds[2 * i + 1] = std::nextafter(
+      static_cast<float>(outterBounds[2 * i + 1]), static_cast<float>(outterBounds[2 * i + 1]) + 1);
   }
 
   bool emptyData = input->GetNumberOfPoints() == 0;
@@ -450,10 +440,10 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController *con
   {
     idArray->SetNumberOfTuples(0);
     vtkIdType nPoints = 0;
-    vtkIdType *ids = nullptr;
+    vtkIdType* ids = nullptr;
     if (!emptyData)
     {
-      double *nbounds = &allOutterBounds[partner * 6];
+      double* nbounds = &allOutterBounds[partner * 6];
       locator->FindPointsInArea(nbounds, idArray.Get());
       nPoints = idArray->GetNumberOfTuples();
       ids = idArray->GetPointer(0);
@@ -464,7 +454,7 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController *con
     pointsToSend->SetNumberOfPoints(nPoints);
     pointCloudToSend->SetPoints(pointsToSend.Get());
 
-    vtkPointData *pointsToSendPointData = pointCloudToSend->GetPointData();
+    vtkPointData* pointsToSendPointData = pointCloudToSend->GetPointData();
     pointsToSendPointData->CopyAllocate(input->GetPointData(), nPoints);
 
     for (vtkIdType i = 0; i < nPoints; i++)
@@ -525,14 +515,14 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController *con
     int partner = (rank + round + 1) % np;
     if (messagesSize[partner] > 0)
     {
-      com->NoBlockSend(dataToSend[partner]->GetPointer(0), messagesSize[partner],
-        partner, 0, sendRequests[partner]);
+      com->NoBlockSend(dataToSend[partner]->GetPointer(0), messagesSize[partner], partner, 0,
+        sendRequests[partner]);
     }
   }
 
   // sum of received points from the different processors
   vtkIdType totalPoints = 0;
-  vtkPointData *outputPointData = output->GetPointData();
+  vtkPointData* outputPointData = output->GetPointData();
   outputPointData->SetNumberOfTuples(totalPointsToReceive);
 
   while (nReceive > 0)
@@ -547,9 +537,9 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController *con
 
         dataToReceive[partner] = nullptr;
         vtkIdType nbReceivedPoints = receivedPointCloud->GetNumberOfPoints();
-        vtkPointData *receivedPointData = receivedPointCloud->GetPointData();
-        vtkPoints *receivedPoints = receivedPointCloud->GetPoints();
-        vtkPoints *outputPoints = output->GetPoints();
+        vtkPointData* receivedPointData = receivedPointCloud->GetPointData();
+        vtkPoints* receivedPoints = receivedPointCloud->GetPoints();
+        vtkPoints* outputPoints = output->GetPoints();
         if (!outputPoints)
         {
           vtkNew<vtkPoints> points;
@@ -566,10 +556,10 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController *con
 
         for (int a = 0; a < nbArray; a++)
         {
-          vtkAbstractArray *fromArray = receivedPointData->GetAbstractArray(a);
+          vtkAbstractArray* fromArray = receivedPointData->GetAbstractArray(a);
           if (fromArray)
           {
-            vtkAbstractArray *toArray = outputPointData->GetAbstractArray(fromArray->GetName());
+            vtkAbstractArray* toArray = outputPointData->GetAbstractArray(fromArray->GetName());
             if (!toArray)
             {
               toArray = fromArray->NewInstance();
@@ -604,8 +594,9 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController *con
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDistributedPointCloudFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

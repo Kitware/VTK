@@ -1,27 +1,16 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLVolumeMaskTransferFunction2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkOpenGLVolumeMaskTransferFunction2D_h
 #define vtkOpenGLVolumeMaskTransferFunction2D_h
-#ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
-#include "vtkNew.h"
+#include "vtkNew.h" // for vtkNew
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
 /**
@@ -34,11 +23,11 @@ class vtkOpenGLRenderWindow;
  *
  * \sa vtkVolumeProperty::SetTransferFunction2D
  */
-class vtkOpenGLVolumeMaskTransferFunction2D : public vtkOpenGLVolumeLookupTable
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLVolumeMaskTransferFunction2D
+  : public vtkOpenGLVolumeLookupTable
 {
 public:
-  vtkTypeMacro(vtkOpenGLVolumeMaskTransferFunction2D,
-               vtkOpenGLVolumeLookupTable);
+  vtkTypeMacro(vtkOpenGLVolumeMaskTransferFunction2D, vtkOpenGLVolumeLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkOpenGLVolumeMaskTransferFunction2D* New();
@@ -49,28 +38,20 @@ protected:
   /**
    * Update the internal texture object using the 2D image data
    */
-  void InternalUpdate(vtkObject* func,
-                      int blendMode,
-                      double sampleDistance,
-                      double unitDistance,
-                      int filterValue) override;
+  void InternalUpdate(vtkObject* func, int blendMode, double sampleDistance, double unitDistance,
+    int filterValue) override;
 
   /**
    * Compute the ideal texture size based on the number of labels and transfer
    * functions in the label map.
    */
-  void ComputeIdealTextureSize(vtkObject* func,
-                               int& width,
-                               int& height,
-                               vtkOpenGLRenderWindow* renWin) override;
+  void ComputeIdealTextureSize(
+    vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* renWin) override;
 
 private:
-  vtkOpenGLVolumeMaskTransferFunction2D(const vtkOpenGLVolumeLookupTable&) =
-    delete;
-  vtkOpenGLVolumeMaskTransferFunction2D& operator=(
-    const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
+  vtkOpenGLVolumeMaskTransferFunction2D(const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
+  void operator=(const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
 };
 
-#endif // __VTK_WRAP__
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLVolumeMaskTransferFunction2D_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeMaskTransferFunction2D.h

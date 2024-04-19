@@ -1,18 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    GenericCommunicator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-#include <mpi.h>
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#include <vtk_mpi.h>
 
 #include "vtkActor.h"
 #include "vtkCallbackCommand.h"
@@ -28,16 +16,15 @@
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkUnsignedLongArray.h"
 
 #include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
-
 
 static const int scMsgLength = 10;
 
@@ -48,11 +35,11 @@ struct GenericCommunicatorArgs_tmp
   char** argv;
 };
 
-void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
+void Process2(vtkMultiProcessController* contr, void* vtkNotUsed(arg))
 {
   vtkCommunicator* comm = contr->GetCommunicator();
 
-  int i, retVal=1;
+  int i, retVal = 1;
 
   // Test receiving all supported types of arrays
   vtkIntArray* ia = vtkIntArray::New();
@@ -61,7 +48,7 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     cerr << "Server error: Error receiving data." << endl;
     retVal = 0;
   }
-  for (i=0; i<ia->GetNumberOfTuples(); i++)
+  for (i = 0; i < ia->GetNumberOfTuples(); i++)
   {
     if (ia->GetValue(i) != i)
     {
@@ -78,7 +65,7 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     cerr << "Server error: Error receiving data." << endl;
     retVal = 0;
   }
-  for (i=0; i<ula->GetNumberOfTuples(); i++)
+  for (i = 0; i < ula->GetNumberOfTuples(); i++)
   {
     if (ula->GetValue(i) != static_cast<unsigned long>(i))
     {
@@ -95,7 +82,7 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     cerr << "Server error: Error receiving data." << endl;
     retVal = 0;
   }
-  for (i=0; i<ca->GetNumberOfTuples(); i++)
+  for (i = 0; i < ca->GetNumberOfTuples(); i++)
   {
     if (ca->GetValue(i) != static_cast<char>(i))
     {
@@ -112,7 +99,7 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     cerr << "Server error: Error receiving data." << endl;
     retVal = 0;
   }
-  for (i=0; i<uca->GetNumberOfTuples(); i++)
+  for (i = 0; i < uca->GetNumberOfTuples(); i++)
   {
     if (uca->GetValue(i) != static_cast<unsigned char>(i))
     {
@@ -129,7 +116,7 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     cerr << "Server error: Error receiving data." << endl;
     retVal = 0;
   }
-  for (i=0; i<fa->GetNumberOfTuples(); i++)
+  for (i = 0; i < fa->GetNumberOfTuples(); i++)
   {
     if (fa->GetValue(i) != static_cast<float>(i))
     {
@@ -146,7 +133,7 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     cerr << "Server error: Error receiving data." << endl;
     retVal = 0;
   }
-  for (i=0; i<da->GetNumberOfTuples(); i++)
+  for (i = 0; i < da->GetNumberOfTuples(); i++)
   {
     if (da->GetValue(i) != static_cast<double>(i))
     {
@@ -163,7 +150,7 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     cerr << "Server error: Error receiving data." << endl;
     retVal = 0;
   }
-  for (i=0; i<ita->GetNumberOfTuples(); i++)
+  for (i = 0; i < ita->GetNumberOfTuples(); i++)
   {
     if (ita->GetValue(i) != static_cast<vtkIdType>(i))
     {
@@ -174,10 +161,9 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   }
   ita->Delete();
 
-
   vtkNew<vtkSphereSource> sphereSource;
   sphereSource->Update();
-  std::vector<vtkSmartPointer<vtkDataObject> > rdata;
+  std::vector<vtkSmartPointer<vtkDataObject>> rdata;
   if (!comm->Gather(sphereSource->GetOutputDataObject(0), rdata, 0))
   {
     cerr << "Server error: Error gathering data." << endl;
@@ -193,10 +179,9 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   comm->Send(&retVal, 1, 0, 11);
 }
 
-void Process1(vtkMultiProcessController *contr, void *arg)
+void Process1(vtkMultiProcessController* contr, void* arg)
 {
-  GenericCommunicatorArgs_tmp* args =
-    reinterpret_cast<GenericCommunicatorArgs_tmp*>(arg);
+  GenericCommunicatorArgs_tmp* args = reinterpret_cast<GenericCommunicatorArgs_tmp*>(arg);
 
   vtkCommunicator* comm = contr->GetCommunicator();
 
@@ -204,7 +189,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
 
   // Test sending all supported types of arrays
   int datai[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     datai[i] = i;
   }
@@ -218,7 +203,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   ia->Delete();
 
   unsigned long dataul[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     dataul[i] = static_cast<unsigned long>(i);
   }
@@ -232,7 +217,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   ula->Delete();
 
   char datac[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     datac[i] = static_cast<char>(i);
   }
@@ -246,7 +231,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   ca->Delete();
 
   unsigned char datauc[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     datauc[i] = static_cast<unsigned char>(i);
   }
@@ -260,7 +245,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   uca->Delete();
 
   float dataf[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     dataf[i] = static_cast<float>(i);
   }
@@ -273,9 +258,8 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   }
   fa->Delete();
 
-
   double datad[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     datad[i] = static_cast<double>(i);
   }
@@ -289,7 +273,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   da->Delete();
 
   vtkIdType datait[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     datait[i] = static_cast<vtkIdType>(i);
   }
@@ -304,15 +288,14 @@ void Process1(vtkMultiProcessController *contr, void *arg)
 
   vtkNew<vtkSphereSource> sphereSource;
   sphereSource->Update();
-  std::vector<vtkSmartPointer<vtkDataObject> > rdata;
+  std::vector<vtkSmartPointer<vtkDataObject>> rdata;
   if (!comm->Gather(sphereSource->GetOutputDataObject(0), rdata, 0))
   {
     cerr << "Client error: Error gathering data." << endl;
     *(args->retVal) = 0;
   }
-  if (rdata.size() == 2
-    && vtkPolyData::SafeDownCast(rdata[0])
-    && vtkPolyData::SafeDownCast(rdata[1]))
+  if (rdata.size() == 2 && vtkPolyData::SafeDownCast(rdata[0]) &&
+    vtkPolyData::SafeDownCast(rdata[1]))
   {
   }
   else
@@ -326,9 +309,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
     cerr << "Client error: Error gathering data." << endl;
     *(args->retVal) = 0;
   }
-  if (rdata.size() == 2
-    && rdata[0] == nullptr
-    && vtkPolyData::SafeDownCast(rdata[1]))
+  if (rdata.size() == 2 && rdata[0] == nullptr && vtkPolyData::SafeDownCast(rdata[1]))
   {
   }
   else
@@ -343,7 +324,6 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   {
     *(args->retVal) = 0;
   }
-
 }
 
 int GenericCommunicator(int argc, char* argv[])
@@ -356,7 +336,7 @@ int GenericCommunicator(int argc, char* argv[])
   MPI_Init(&argc, &argv);
 
   vtkMPIController* contr = vtkMPIController::New();
-  contr->Initialize(&argc, &argv,1);
+  contr->Initialize(&argc, &argv, 1);
   contr->CreateOutputWindow();
 
   // Added for regression test.

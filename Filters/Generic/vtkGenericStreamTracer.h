@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGenericStreamTracer.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGenericStreamTracer
  * @brief   Streamline generator
@@ -61,7 +49,7 @@
  * @sa
  * vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
  * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45
-*/
+ */
 
 #ifndef vtkGenericStreamTracer_h
 #define vtkGenericStreamTracer_h
@@ -71,6 +59,7 @@
 
 #include "vtkInitialValueProblemSolver.h" // Needed for constants
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkGenericAdaptorCell;
 class vtkIdList;
@@ -83,7 +72,7 @@ class vtkGenericDataSet;
 class VTKFILTERSGENERIC_EXPORT vtkGenericStreamTracer : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkGenericStreamTracer,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGenericStreamTracer, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -92,9 +81,9 @@ public:
    * step length 0.5 (unit cell length), maximum number of steps 2000,
    * using 2nd order Runge Kutta and maximum propagation 1.0 (unit length).
    */
-  static vtkGenericStreamTracer *New();
+  static vtkGenericStreamTracer* New();
 
-  //@{
+  ///@{
   /**
    * Specify the start of the streamline in the global coordinate
    * system. Search must be performed to find initial cell to start
@@ -102,15 +91,15 @@ public:
    */
   vtkSetVector3Macro(StartPosition, double);
   vtkGetVector3Macro(StartPosition, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the source object used to generate starting points.
    */
-  void SetSourceData(vtkDataSet *source);
-  vtkDataSet *GetSource();
-  //@}
+  void SetSourceData(vtkDataSet* source);
+  vtkDataSet* GetSource();
+  ///@}
 
   /**
    * Specify the source object used to generate starting points (seeds).
@@ -139,14 +128,14 @@ public:
   enum ReasonForTermination
   {
     OUT_OF_DOMAIN = vtkInitialValueProblemSolver::OUT_OF_DOMAIN,
-    NOT_INITIALIZED = vtkInitialValueProblemSolver::NOT_INITIALIZED ,
+    NOT_INITIALIZED = vtkInitialValueProblemSolver::NOT_INITIALIZED,
     UNEXPECTED_VALUE = vtkInitialValueProblemSolver::UNEXPECTED_VALUE,
     OUT_OF_TIME = 4,
     OUT_OF_STEPS = 5,
     STAGNATION = 6
   };
 
-  //@{
+  ///@{
   /**
    * Set/get the integrator type to be used in the stream line
    * calculation. The object passed is not actually used but
@@ -158,19 +147,16 @@ public:
    * RUNGE_KUTTA4  = 1
    * RUNGE_KUTTA45 = 2
    */
-  void SetIntegrator(vtkInitialValueProblemSolver *);
-  vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
+  void SetIntegrator(vtkInitialValueProblemSolver*);
+  vtkGetObjectMacro(Integrator, vtkInitialValueProblemSolver);
   void SetIntegratorType(int type);
   int GetIntegratorType();
-  void SetIntegratorTypeToRungeKutta2()
-    {this->SetIntegratorType(RUNGE_KUTTA2);};
-  void SetIntegratorTypeToRungeKutta4()
-    {this->SetIntegratorType(RUNGE_KUTTA4);};
-  void SetIntegratorTypeToRungeKutta45()
-    {this->SetIntegratorType(RUNGE_KUTTA45);};
-  //@}
+  void SetIntegratorTypeToRungeKutta2() { this->SetIntegratorType(RUNGE_KUTTA2); }
+  void SetIntegratorTypeToRungeKutta4() { this->SetIntegratorType(RUNGE_KUTTA4); }
+  void SetIntegratorTypeToRungeKutta45() { this->SetIntegratorType(RUNGE_KUTTA45); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum length of the streamlines expressed in
    * one of the:
@@ -183,15 +169,15 @@ public:
   void SetMaximumPropagationUnit(int unit);
   int GetMaximumPropagationUnit();
   double GetMaximumPropagation();
-  void SetMaximumPropagationUnitToTimeUnit()
-    {this->SetMaximumPropagationUnit(TIME_UNIT);};
-  void SetMaximumPropagationUnitToLengthUnit()
-    {this->SetMaximumPropagationUnit(LENGTH_UNIT);};
+  void SetMaximumPropagationUnitToTimeUnit() { this->SetMaximumPropagationUnit(TIME_UNIT); }
+  void SetMaximumPropagationUnitToLengthUnit() { this->SetMaximumPropagationUnit(LENGTH_UNIT); }
   void SetMaximumPropagationUnitToCellLengthUnit()
-    {this->SetMaximumPropagationUnit(CELL_LENGTH_UNIT);};
-  //@}
+  {
+    this->SetMaximumPropagationUnit(CELL_LENGTH_UNIT);
+  }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the minimum step used in the integration expressed in
    * one of the:
@@ -205,15 +191,18 @@ public:
   void SetMinimumIntegrationStep(double step);
   int GetMinimumIntegrationStepUnit();
   double GetMinimumIntegrationStep();
-  void SetMinimumIntegrationStepUnitToTimeUnit()
-    {this->SetMinimumIntegrationStepUnit(TIME_UNIT);};
+  void SetMinimumIntegrationStepUnitToTimeUnit() { this->SetMinimumIntegrationStepUnit(TIME_UNIT); }
   void SetMinimumIntegrationStepUnitToLengthUnit()
-    {this->SetMinimumIntegrationStepUnit(LENGTH_UNIT);};
+  {
+    this->SetMinimumIntegrationStepUnit(LENGTH_UNIT);
+  }
   void SetMinimumIntegrationStepUnitToCellLengthUnit()
-    {this->SetMinimumIntegrationStepUnit(CELL_LENGTH_UNIT);};
-  //@}
+  {
+    this->SetMinimumIntegrationStepUnit(CELL_LENGTH_UNIT);
+  }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum step used in the integration expressed in
    * one of the:
@@ -227,15 +216,18 @@ public:
   void SetMaximumIntegrationStep(double step);
   int GetMaximumIntegrationStepUnit();
   double GetMaximumIntegrationStep();
-  void SetMaximumIntegrationStepUnitToTimeUnit()
-    {this->SetMaximumIntegrationStepUnit(TIME_UNIT);};
+  void SetMaximumIntegrationStepUnitToTimeUnit() { this->SetMaximumIntegrationStepUnit(TIME_UNIT); }
   void SetMaximumIntegrationStepUnitToLengthUnit()
-    {this->SetMaximumIntegrationStepUnit(LENGTH_UNIT);};
+  {
+    this->SetMaximumIntegrationStepUnit(LENGTH_UNIT);
+  }
   void SetMaximumIntegrationStepUnitToCellLengthUnit()
-    {this->SetMaximumIntegrationStepUnit(CELL_LENGTH_UNIT);};
-  //@}
+  {
+    this->SetMaximumIntegrationStepUnit(CELL_LENGTH_UNIT);
+  }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the initial step used in the integration expressed in
    * one of the:
@@ -250,15 +242,18 @@ public:
   void SetInitialIntegrationStep(double step);
   int GetInitialIntegrationStepUnit();
   double GetInitialIntegrationStep();
-  void SetInitialIntegrationStepUnitToTimeUnit()
-    {this->SetInitialIntegrationStepUnit(TIME_UNIT);};
+  void SetInitialIntegrationStepUnitToTimeUnit() { this->SetInitialIntegrationStepUnit(TIME_UNIT); }
   void SetInitialIntegrationStepUnitToLengthUnit()
-    {this->SetInitialIntegrationStepUnit(LENGTH_UNIT);};
+  {
+    this->SetInitialIntegrationStepUnit(LENGTH_UNIT);
+  }
   void SetInitialIntegrationStepUnitToCellLengthUnit()
-    {this->SetInitialIntegrationStepUnit(CELL_LENGTH_UNIT);};
-  //@}
+  {
+    this->SetInitialIntegrationStepUnit(CELL_LENGTH_UNIT);
+  }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum error in the integration. This value
    * is passed to the integrator. Therefore, it's meaning depends
@@ -266,26 +261,26 @@ public:
    */
   vtkSetMacro(MaximumError, double);
   vtkGetMacro(MaximumError, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum number of steps used in the integration.
    */
   vtkSetMacro(MaximumNumberOfSteps, vtkIdType);
   vtkGetMacro(MaximumNumberOfSteps, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If at any point, the speed is below this value, the integration
    * is terminated.
    */
   vtkSetMacro(TerminalSpeed, double);
   vtkGetMacro(TerminalSpeed, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Simplified API to set an homogeneous unit across Min/Max/Init IntegrationStepUnit
    */
@@ -295,7 +290,7 @@ public:
     this->SetMinimumIntegrationStepUnit(unit);
     this->SetMaximumIntegrationStepUnit(unit);
   }
-  //@}
+  ///@}
 
   enum
   {
@@ -304,22 +299,19 @@ public:
     BOTH
   };
 
-  //@{
+  ///@{
   /**
    * Specify whether the streamtrace will be generated in the
    * upstream or downstream direction.
    */
   vtkSetClampMacro(IntegrationDirection, int, FORWARD, BOTH);
   vtkGetMacro(IntegrationDirection, int);
-  void SetIntegrationDirectionToForward()
-    {this->SetIntegrationDirection(FORWARD);};
-  void SetIntegrationDirectionToBackward()
-    {this->SetIntegrationDirection(BACKWARD);};
-  void SetIntegrationDirectionToBoth()
-    {this->SetIntegrationDirection(BOTH);};
-  //@}
+  void SetIntegrationDirectionToForward() { this->SetIntegrationDirection(FORWARD); }
+  void SetIntegrationDirectionToBackward() { this->SetIntegrationDirection(BACKWARD); }
+  void SetIntegrationDirectionToBoth() { this->SetIntegrationDirection(BOTH); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off calculation of vorticity at streamline points
    * (necessary for generating proper streamribbons using the
@@ -328,32 +320,31 @@ public:
   vtkSetMacro(ComputeVorticity, vtkTypeBool);
   vtkGetMacro(ComputeVorticity, vtkTypeBool);
   vtkBooleanMacro(ComputeVorticity, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This can be used to scale the rate with which the streamribbons
    * twist. The default is 1.
    */
   vtkSetMacro(RotationScale, double);
   vtkGetMacro(RotationScale, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If you want to generate traces using an arbitrary vector array,
    * then set its name here. By default this in nullptr and the filter will
    * use the active vector array.
    */
   vtkGetStringMacro(InputVectorsSelection);
-  void SelectInputVectors(const char *fieldName)
-    {this->SetInputVectorsSelection(fieldName);}
-  //@}
+  void SelectInputVectors(const char* fieldName) { this->SetInputVectorsSelection(fieldName); }
+  ///@}
 
   /**
    * Add a dataset to the list inputs
    */
-  void AddInputData(vtkGenericDataSet *in);
+  void AddInputData(vtkGenericDataSet* in);
 
   /**
    * The object used to interpolate the velocity field during
@@ -366,10 +357,12 @@ protected:
   ~vtkGenericStreamTracer() override;
 
   // hide the superclass' AddInput() from the user and the compiler
-  void AddInput(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkGenericDataSet not a vtkDataObject."); };
+  void AddInput(vtkDataObject*)
+  {
+    vtkErrorMacro(<< "AddInput() must be called with a vtkGenericDataSet not a vtkDataObject.");
+  }
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Compute the vorticity at point `pcoords' in cell `cell' for the
@@ -378,31 +371,21 @@ protected:
    * \pre  point_centered_attribute: attribute->GetCentering()==vtkPointCentered
    * \pre vector_attribute: attribute->GetType()==vtkDataSetAttributes::VECTORS);
    */
-  void CalculateVorticity(vtkGenericAdaptorCell* cell,
-                          double pcoords[3],
-                          vtkGenericAttribute *attribute,
-                          double vorticity[3]);
+  void CalculateVorticity(vtkGenericAdaptorCell* cell, double pcoords[3],
+    vtkGenericAttribute* attribute, double vorticity[3]);
 
-  void Integrate(vtkGenericDataSet *input0,
-                 vtkPolyData* output,
-                 vtkDataArray* seedSource,
-                 vtkIdList* seedIds,
-                 vtkIntArray* integrationDirections,
-                 double lastPoint[3],
-                 vtkGenericInterpolatedVelocityField* func);
-  void SimpleIntegrate(double seed[3],
-                       double lastPoint[3],
-                       double delt,
-                       vtkGenericInterpolatedVelocityField* func);
-  int CheckInputs(vtkGenericInterpolatedVelocityField*& func,
-    vtkInformationVector **inputVector);
+  void Integrate(vtkGenericDataSet* input0, vtkPolyData* output, vtkDataArray* seedSource,
+    vtkIdList* seedIds, vtkIntArray* integrationDirections, double lastPoint[3],
+    vtkGenericInterpolatedVelocityField* func);
+  void SimpleIntegrate(
+    double seed[3], double lastPoint[3], double delt, vtkGenericInterpolatedVelocityField* func);
+  int CheckInputs(vtkGenericInterpolatedVelocityField*& func, vtkInformationVector** inputVector);
   void GenerateNormals(vtkPolyData* output, double* firstNormal);
 
   int GenerateNormalsInIntegrate;
 
   vtkSetStringMacro(InputVectorsSelection);
-  char *InputVectorsSelection;
-
+  char* InputVectorsSelection;
 
   // starting from global x-y-z position
   double StartPosition[3];
@@ -423,23 +406,18 @@ protected:
   IntervalInformation MaximumIntegrationStep;
   IntervalInformation InitialIntegrationStep;
 
-  void SetIntervalInformation(int unit, double interval,
-                              IntervalInformation& currentValues);
-  void SetIntervalInformation(int unit,IntervalInformation& currentValues);
-  static double ConvertToTime(IntervalInformation& interval,
-                             double cellLength, double speed);
-  static double ConvertToLength(IntervalInformation& interval,
-                               double cellLength, double speed);
-  static double ConvertToCellLength(IntervalInformation& interval,
-                                   double cellLength, double speed);
-  static double ConvertToUnit(IntervalInformation& interval, int unit,
-                             double cellLength, double speed);
-  void ConvertIntervals(double& step, double& minStep, double& maxStep,
-                        int direction, double cellLength, double speed);
+  void SetIntervalInformation(int unit, double interval, IntervalInformation& currentValues);
+  void SetIntervalInformation(int unit, IntervalInformation& currentValues);
+  static double ConvertToTime(IntervalInformation& interval, double cellLength, double speed);
+  static double ConvertToLength(IntervalInformation& interval, double cellLength, double speed);
+  static double ConvertToCellLength(IntervalInformation& interval, double cellLength, double speed);
+  static double ConvertToUnit(
+    IntervalInformation& interval, int unit, double cellLength, double speed);
+  void ConvertIntervals(
+    double& step, double& minStep, double& maxStep, int direction, double cellLength, double speed);
 
-  void InitializeSeeds(vtkDataArray*& seeds,
-                       vtkIdList*& seedIds,
-                       vtkIntArray*& integrationDirections);
+  void InitializeSeeds(
+    vtkDataArray*& seeds, vtkIdList*& seedIds, vtkIntArray*& integrationDirections);
 
   int IntegrationDirection;
 
@@ -459,4 +437,5 @@ private:
   void operator=(const vtkGenericStreamTracer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

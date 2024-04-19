@@ -1,36 +1,30 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOBJWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOBJWriter.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkNumberToString.h"
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkTriangleStrip.h"
-#include "vtkNumberToString.h"
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
+#include <utility>
+
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
-//----------------------------------------------------------------------------
-void WriteFaces(std::ofstream& f, vtkCellArray* faces, bool withNormals, bool withTCoords)
+//------------------------------------------------------------------------------
+void WriteFaces(std::ostream& f, vtkCellArray* faces, bool withNormals, bool withTCoords)
 {
   vtkIdType npts;
   const vtkIdType* indx;
@@ -58,7 +52,7 @@ void WriteFaces(std::ofstream& f, vtkCellArray* faces, bool withNormals, bool wi
 }
 
 //----------------------------------------------------------------------------
-void WriteLines(std::ofstream& f, vtkCellArray* lines)
+void WriteLines(std::ostream& f, vtkCellArray* lines)
 {
   vtkIdType npts;
   const vtkIdType* indx;
@@ -73,18 +67,33 @@ void WriteLines(std::ofstream& f, vtkCellArray* lines)
   }
 }
 
-//----------------------------------------------------------------------------
-void WritePoints(std::ofstream& f, vtkPoints* pts, vtkDataArray* normals, vtkDataArray* tcoords)
+struct EndIndex
 {
-  vtkNumberToString convert;
+  EndIndex(vtkIdType vtEndIndex, vtkIdType pointEndIndex)
+    : VtEndIndex(vtEndIndex)
+    , PointEndIndex(pointEndIndex)
+  {
+  }
+  // index of the point after last point for that material in vt array
+  vtkIdType VtEndIndex;
+  // index of the point after last point for that material in the point array
+  // for that material
+  vtkIdType PointEndIndex;
+};
+//----------------------------------------------------------------------------
+void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
+  const std::vector<vtkDataArray*>& tcoordsArray, std::vector<EndIndex>* endIndexes)
+{
   vtkIdType nbPts = pts->GetNumberOfPoints();
 
   // Positions
+  vtkNumberToString converter;
   for (vtkIdType i = 0; i < nbPts; i++)
   {
     double p[3];
     pts->GetPoint(i, p);
-    f << "v " << convert(p[0]) << " " << convert(p[1]) << " " << convert(p[2]) << "\n";
+    f << "v " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << " "
+      << converter.Convert(p[2]) << "\n";
   }
 
   // Normals
@@ -94,72 +103,84 @@ void WritePoints(std::ofstream& f, vtkPoints* pts, vtkDataArray* normals, vtkDat
     {
       double p[3];
       normals->GetTuple(i, p);
-      f << "vn " << convert(p[0]) << " " << convert(p[1]) << " " << convert(p[2]) << "\n";
+      f << "vn " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << " "
+        << converter.Convert(p[2]) << "\n";
     }
   }
 
   // Textures
-  if (tcoords)
+  if (!tcoordsArray.empty())
   {
-    for (vtkIdType i = 0; i < nbPts; i++)
+    vtkIdType vtEndIndex = 0;
+    vtkIdType pointEndIndex = 0;
+    for (size_t tcoordsIndex = 0; tcoordsIndex < tcoordsArray.size(); ++tcoordsIndex)
     {
-      double p[2];
-      tcoords->GetTuple(i, p);
-      f << "vt " << convert(p[0]) << " " << convert(p[1]) << "\n";
+      f << "# tcoords array " << tcoordsIndex << "\n";
+      vtkDataArray* tcoords = tcoordsArray[tcoordsIndex];
+      if (tcoords)
+      {
+        for (vtkIdType i = 0; i < nbPts; i++)
+        {
+          double p[2];
+          tcoords->GetTuple(i, p);
+          if (p[0] != -1.0)
+          {
+            f << "vt " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << "\n";
+            ++vtEndIndex;
+            pointEndIndex = i + 1;
+          }
+        }
+        endIndexes->push_back(EndIndex(vtEndIndex, pointEndIndex));
+      }
+      else
+      {
+        // there are no vertex textures (vt) for no_material
+        endIndexes->push_back(EndIndex(-1, -1));
+      }
     }
   }
 }
 
 //----------------------------------------------------------------------------
-bool WriteTexture(std::ofstream& f, const std::string& baseName, vtkImageData* texture)
+bool WriteMtl(const std::string& baseName, const char* textureFileName)
 {
-  std::string mtlName = baseName + ".mtl";
-  std::ofstream fmtl(mtlName, std::ofstream::out);
+  std::string mtlFileName = baseName + ".mtl";
+  vtksys::ofstream fmtl(mtlFileName.c_str(), vtksys::ofstream::out);
   if (fmtl.fail())
   {
     return false;
   }
 
-  // write png file
-  std::string pngName = baseName + ".png";
-  vtkNew<vtkPNGWriter> pngWriter;
-  pngWriter->SetInputData(texture);
-  pngWriter->SetFileName(pngName.c_str());
-  pngWriter->Write();
-
   // remove directories
-  mtlName = vtksys::SystemTools::GetFilenameName(mtlName);
-  pngName = vtksys::SystemTools::GetFilenameName(pngName);
+  mtlFileName = vtksys::SystemTools::GetFilenameName(mtlFileName);
 
   // set material
-  fmtl << "newmtl vtktexture\n";
-  fmtl << "map_Kd " << pngName << "\n";
-
-  // declare material in obj file
-  f << "mtllib " + mtlName + "\n";
-  f << "usemtl vtktexture\n";
-
+  std::string mtlName = vtksys::SystemTools::GetFilenameName(baseName);
+  fmtl << "newmtl " << mtlName << "\n";
+  fmtl << "map_Kd " << textureFileName << "\n";
   return true;
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOBJWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOBJWriter::vtkOBJWriter()
 {
   this->FileName = nullptr;
+  this->TextureFileName = nullptr;
   this->SetNumberOfInputPorts(2);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOBJWriter::~vtkOBJWriter()
 {
   this->SetFileName(nullptr);
+  this->SetTextureFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOBJWriter::WriteData()
 {
   vtkPolyData* input = this->GetInputGeometry();
@@ -177,7 +198,29 @@ void vtkOBJWriter::WriteData()
   vtkCellArray* strips = input->GetStrips();
   vtkCellArray* lines = input->GetLines();
   vtkDataArray* normals = input->GetPointData()->GetNormals();
-  vtkDataArray* tcoords = input->GetPointData()->GetTCoords();
+  std::vector<vtkDataArray*> tcoordsArray;
+  vtkStringArray* mtllibArray =
+    vtkStringArray::SafeDownCast(input->GetFieldData()->GetAbstractArray("MaterialLibraries"));
+  vtkStringArray* matNames =
+    vtkStringArray::SafeDownCast(input->GetFieldData()->GetAbstractArray("MaterialNames"));
+  if (matNames)
+  {
+    for (int i = 0; i < matNames->GetNumberOfTuples(); ++i)
+    {
+      std::string matName = matNames->GetValue(i);
+      vtkDataArray* tcoords = input->GetPointData()->GetArray(matName.c_str());
+      // for no_material we store a nullptr
+      tcoordsArray.push_back(tcoords);
+    }
+  }
+  else
+  {
+    vtkDataArray* tcoords = input->GetPointData()->GetTCoords();
+    if (tcoords)
+    {
+      tcoordsArray.push_back(tcoords);
+    }
+  }
 
   if (pts == nullptr)
   {
@@ -195,7 +238,7 @@ void vtkOBJWriter::WriteData()
 
   vtkIdType npts = 0;
 
-  std::ofstream f(this->FileName, std::ofstream::out);
+  vtksys::ofstream f(this->FileName, vtksys::ofstream::out);
   if (f.fail())
   {
     vtkErrorMacro("Unable to open file: " << this->FileName);
@@ -206,20 +249,47 @@ void vtkOBJWriter::WriteData()
   // Write header
   f << "# Generated by Visualization Toolkit\n";
 
-  // Write material if a texture is specified
-  if (texture)
+  if (texture && this->TextureFileName)
   {
-    std::vector<std::string> comp;
-    vtksys::SystemTools::SplitPath(vtksys::SystemTools::GetFilenamePath(this->FileName), comp);
-    comp.push_back(vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName));
-    if (!::WriteTexture(f, vtksys::SystemTools::JoinPath(comp), texture))
+    // resolve conflict
+    vtkWarningMacro("Both a vtkImageData on port 1 and the TextureFileName are set. "
+                    "Using TextureFileName.");
+    texture = nullptr;
+  }
+
+  std::vector<std::string> comp;
+  vtksys::SystemTools::SplitPath(vtksys::SystemTools::GetFilenamePath(this->FileName), comp);
+  comp.push_back(vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName));
+  std::string baseName = vtksys::SystemTools::JoinPath(comp);
+  if (texture || this->TextureFileName)
+  {
+    std::string textureFileName = texture ? baseName + ".png" : this->TextureFileName;
+    if (!::WriteMtl(baseName, textureFileName.c_str()))
     {
       vtkErrorMacro("Unable to create material file");
     }
+    if (texture)
+    {
+      vtkNew<vtkPNGWriter> pngWriter;
+      pngWriter->SetInputData(texture);
+      pngWriter->SetFileName(textureFileName.c_str());
+      pngWriter->Write();
+    }
+    // write mtllib line
+    std::string mtlFileName = baseName + ".mtl";
+    std::string mtlName = vtksys::SystemTools::GetFilenameName(mtlFileName);
+    f << "mtllib " + mtlName + "\n";
+  }
+  if (mtllibArray)
+  {
+    for (int i = 0; i < mtllibArray->GetNumberOfTuples(); ++i)
+    {
+      f << "mtllib " + mtllibArray->GetValue(i) + "\n";
+    }
   }
 
-  // Write points
-  ::WritePoints(f, pts, normals, tcoords);
+  std::vector<EndIndex> endIndexes;
+  ::WritePoints(f, pts, normals, tcoordsArray, &endIndexes);
 
   // Decompose any triangle strips into triangles
   vtkNew<vtkCellArray> polyStrips;
@@ -232,25 +302,71 @@ void vtkOBJWriter::WriteData()
     }
   }
 
-  // Write triangle strips
-  ::WriteFaces(f, polyStrips, normals != nullptr, tcoords != nullptr);
-
-  // Write polygons.
-  if (polys)
+  // Write material if a texture is specified
+  if (texture || this->TextureFileName)
   {
-    ::WriteFaces(f, polys, normals != nullptr, tcoords != nullptr);
+    // declare material in obj file
+    std::string mtlName = vtksys::SystemTools::GetFilenameName(baseName);
+    f << "usemtl " << mtlName << "\n";
   }
-
-  // Write lines.
-  if (lines)
+  if (matNames)
   {
-    ::WriteLines(f, lines);
+    vtkIdType cellNpts;
+    const vtkIdType* indx;
+    polys->InitTraversal();
+    int validCell = polys->GetNextCell(cellNpts, indx);
+    vtkIdType faceIndex = 0;
+    vtkIntArray* materialIds =
+      vtkIntArray::SafeDownCast(input->GetCellData()->GetArray("MaterialIds"));
+    for (vtkIdType matIndex = 0; matIndex < matNames->GetNumberOfTuples(); ++matIndex)
+    {
+      std::string matName = matNames->GetValue(matIndex);
+      vtkDataArray* tcoords = input->GetPointData()->GetArray(matName.c_str());
+      if (tcoords)
+      {
+        f << "usemtl " << matName << "\n";
+      }
+      while (validCell && materialIds->GetValue(faceIndex) == matIndex)
+      {
+        f << "f";
+        for (vtkIdType i = 0; i < cellNpts; i++)
+        {
+          f << " " << indx[i] + 1;
+          if (tcoords)
+          {
+            EndIndex endIndex = endIndexes[matIndex];
+            vtkIdType vtIndex = endIndex.VtEndIndex - endIndex.PointEndIndex + indx[i];
+            f << "/" << vtIndex + 1;
+          }
+        }
+        f << "\n";
+        ++faceIndex;
+        validCell = polys->GetNextCell(cellNpts, indx);
+      }
+    }
+  }
+  else
+  {
+    // Write triangle strips
+    ::WriteFaces(f, polyStrips, normals != nullptr, !tcoordsArray.empty());
+
+    // Write polygons.
+    if (polys)
+    {
+      ::WriteFaces(f, polys, normals != nullptr, !tcoordsArray.empty());
+    }
+
+    // Write lines.
+    if (lines)
+    {
+      ::WriteLines(f, lines);
+    }
   }
 
   f.close();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOBJWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -266,25 +382,25 @@ void vtkOBJWriter::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkOBJWriter::GetInputGeometry()
 {
   return vtkPolyData::SafeDownCast(this->GetInput(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageData* vtkOBJWriter::GetInputTexture()
 {
   return vtkImageData::SafeDownCast(this->GetInput(1));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataSet* vtkOBJWriter::GetInput(int port)
 {
   return vtkDataSet::SafeDownCast(this->Superclass::GetInput(port));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -300,3 +416,4 @@ int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    vtkADIOS2VTXReader.cxx
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  *  vtkADIOS2VTXReader.cxx
@@ -32,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkADIOS2VTXReader);
 
 vtkADIOS2VTXReader::vtkADIOS2VTXReader()
@@ -40,6 +29,11 @@ vtkADIOS2VTXReader::vtkADIOS2VTXReader()
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
+}
+
+vtkADIOS2VTXReader::~vtkADIOS2VTXReader()
+{
+  this->SetFileName(nullptr);
 }
 
 int vtkADIOS2VTXReader::RequestInformation(vtkInformation* vtkNotUsed(inputVector),
@@ -89,3 +83,4 @@ void vtkADIOS2VTXReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
+VTK_ABI_NAMESPACE_END

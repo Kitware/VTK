@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWindowNode.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWindowNode
  * @brief   vtkViewNode specialized for vtkRenderWindows
  *
  * State storage and graph traversal for vtkRenderWindow
-*/
+ */
 
 #ifndef vtkWindowNode_h
 #define vtkWindowNode_h
@@ -25,11 +13,11 @@
 #include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkViewNode.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 class vtkFloatArray;
 
-class VTKRENDERINGSCENEGRAPH_EXPORT vtkWindowNode :
-  public vtkViewNode
+class VTKRENDERINGSCENEGRAPH_EXPORT vtkWindowNode : public vtkViewNode
 {
 public:
   static vtkWindowNode* New();
@@ -39,46 +27,44 @@ public:
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass) override;
+  void Build(bool prepass) override;
 
   /**
    * Get state of my renderable.
    */
-  virtual void Synchronize(bool prepass) override;
+  void Synchronize(bool prepass) override;
 
   /**
    * Return the size of the last rendered image
    */
-  virtual int *GetSize() {
-    return this->Size; }
+  virtual int* GetSize() { return this->Size; }
 
   /**
    * Get the most recent color buffer RGBA
    */
-  virtual vtkUnsignedCharArray *GetColorBuffer()
-    { return this->ColorBuffer; }
+  virtual vtkUnsignedCharArray* GetColorBuffer() { return this->ColorBuffer; }
 
   /**
    * Get the most recent zbuffer buffer
    */
-  virtual vtkFloatArray *GetZBuffer()
-    { return this->ZBuffer; }
+  virtual vtkFloatArray* GetZBuffer() { return this->ZBuffer; }
 
 protected:
   vtkWindowNode();
-  ~vtkWindowNode();
+  ~vtkWindowNode() override;
 
-  //TODO: use a map with string keys being renderable's member name
-  //state
+  // TODO: use a map with string keys being renderable's member name
+  // state
   int Size[2];
 
   // stores the results of a render
-  vtkUnsignedCharArray*ColorBuffer;
-  vtkFloatArray *ZBuffer;
+  vtkUnsignedCharArray* ColorBuffer;
+  vtkFloatArray* ZBuffer;
 
 private:
   vtkWindowNode(const vtkWindowNode&) = delete;
   void operator=(const vtkWindowNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

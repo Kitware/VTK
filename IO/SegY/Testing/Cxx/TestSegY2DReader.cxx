@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestSegY2DReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test of vtkSegYReader
 // .SECTION Description
 //
@@ -43,16 +31,11 @@ int TestSegY2DReader(int argc, char* argv[])
 
   // Read file name.
   char* fname[5];
-  fname[0] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineA.sgy");
-  fname[1] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineB.sgy");
-  fname[2] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineC.sgy");
-  fname[3] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineD.sgy");
-  fname[4] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineE.sgy");
+  fname[0] = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineA.sgy");
+  fname[1] = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineB.sgy");
+  fname[2] = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineC.sgy");
+  fname[3] = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineD.sgy");
+  fname[4] = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineE.sgy");
 
   vtkNew<vtkColorTransferFunction> lut;
   lut->AddRGBPoint(-6.4, 0.23, 0.30, 0.75);

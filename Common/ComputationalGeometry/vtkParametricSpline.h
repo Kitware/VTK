@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParametricSpline.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkParametricSpline
  * @brief   parametric function for 1D interpolating splines
@@ -33,21 +21,22 @@
  *
  * @sa
  * vtkSpline vtkKochanekSpline vtkCardinalSpline
-*/
+ */
 
 #ifndef vtkParametricSpline_h
 #define vtkParametricSpline_h
 
-class vtkSpline;
-class vtkPoints;
-
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkSpline;
+class vtkPoints;
 
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSpline : public vtkParametricFunction
 {
 public:
-  vtkTypeMacro(vtkParametricSpline,vtkParametricFunction);
+  vtkTypeMacro(vtkParametricSpline, vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -56,12 +45,12 @@ public:
    * closed, then JoinU = 1), TwistU = 0, DerivativesSupplied = 0
    * (the other vtkParametricFunction parameters are ignored).
    */
-  static vtkParametricSpline *New();
+  static vtkParametricSpline* New();
 
   /**
    * Return the parametric dimension of the class.
    */
-  int GetDimension() override {return 1;}
+  int GetDimension() override { return 1; }
 
   /**
    * Evaluate the spline at parametric coordinate u[0] returning
@@ -75,7 +64,7 @@ public:
    */
   double EvaluateScalar(double u[3], double Pt[3], double Du[9]) override;
 
-  //@{
+  ///@{
   /**
    * By default, this class is constructed with three instances of
    * vtkCardinalSpline (for each of the x-y-z coordinate axes). The user may
@@ -84,12 +73,12 @@ public:
   void SetXSpline(vtkSpline*);
   void SetYSpline(vtkSpline*);
   void SetZSpline(vtkSpline*);
-  vtkGetObjectMacro(XSpline,vtkSpline);
-  vtkGetObjectMacro(YSpline,vtkSpline);
-  vtkGetObjectMacro(ZSpline,vtkSpline);
-  //@}
+  vtkGetObjectMacro(XSpline, vtkSpline);
+  vtkGetObjectMacro(YSpline, vtkSpline);
+  vtkGetObjectMacro(ZSpline, vtkSpline);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the list of points defining the spline. Do this by
    * specifying a vtkPoints array containing the points. Note that
@@ -97,40 +86,40 @@ public:
    * splines will be fit.
    */
   void SetPoints(vtkPoints*);
-  vtkGetObjectMacro(Points,vtkPoints);
-  //@}
+  vtkGetObjectMacro(Points, vtkPoints);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Another API to set the points. Set the number of points and then set the
    * individual point coordinates.
    */
   void SetNumberOfPoints(vtkIdType numPts);
   void SetPoint(vtkIdType index, double x, double y, double z);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether the spline is open or closed. A closed spline forms
    * a continuous loop: the first and last points are the same, and
    * derivatives are continuous.
    */
-  vtkSetMacro(Closed,vtkTypeBool);
-  vtkGetMacro(Closed,vtkTypeBool);
-  vtkBooleanMacro(Closed,vtkTypeBool);
-  //@}
+  vtkSetMacro(Closed, vtkTypeBool);
+  vtkGetMacro(Closed, vtkTypeBool);
+  vtkBooleanMacro(Closed, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether the spline is parameterized by length or by point index.
    * Default is by length.
    */
-  vtkSetMacro(ParameterizeByLength,vtkTypeBool);
-  vtkGetMacro(ParameterizeByLength,vtkTypeBool);
-  vtkBooleanMacro(ParameterizeByLength,vtkTypeBool);
-  //@}
+  vtkSetMacro(ParameterizeByLength, vtkTypeBool);
+  vtkGetMacro(ParameterizeByLength, vtkTypeBool);
+  vtkBooleanMacro(ParameterizeByLength, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the type of constraint of the left(right) end points. Four
    * constraints are available:
@@ -147,42 +136,42 @@ public:
    * 3: the second derivative at left(right)most points is Left(Right)Value
    * times second derivative at first interior point.
    */
-  vtkSetClampMacro(LeftConstraint,int,0,3);
-  vtkGetMacro(LeftConstraint,int);
-  vtkSetClampMacro(RightConstraint,int,0,3);
-  vtkGetMacro(RightConstraint,int);
-  //@}
+  vtkSetClampMacro(LeftConstraint, int, 0, 3);
+  vtkGetMacro(LeftConstraint, int);
+  vtkSetClampMacro(RightConstraint, int, 0, 3);
+  vtkGetMacro(RightConstraint, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The values of the derivative on the left and right sides. The value
    * is used only if the left(right) constraint is type 1-3.
    */
-  vtkSetMacro(LeftValue,double);
-  vtkGetMacro(LeftValue,double);
-  vtkSetMacro(RightValue,double);
-  vtkGetMacro(RightValue,double);
-  //@}
+  vtkSetMacro(LeftValue, double);
+  vtkGetMacro(LeftValue, double);
+  vtkSetMacro(RightValue, double);
+  vtkGetMacro(RightValue, double);
+  ///@}
 
 protected:
   vtkParametricSpline();
   ~vtkParametricSpline() override;
 
   // Points definition
-  vtkPoints *Points;
+  vtkPoints* Points;
 
   // The interpolating splines for each of the x-y-z coordinates
-  vtkSpline *XSpline;
-  vtkSpline *YSpline;
-  vtkSpline *ZSpline;
+  vtkSpline* XSpline;
+  vtkSpline* YSpline;
+  vtkSpline* ZSpline;
 
   // Supplemental variables
-  vtkTypeBool    Closed;
-  int    LeftConstraint;
-  int    RightConstraint;
+  vtkTypeBool Closed;
+  int LeftConstraint;
+  int RightConstraint;
   double LeftValue;
   double RightValue;
-  vtkTypeBool    ParameterizeByLength;
+  vtkTypeBool ParameterizeByLength;
 
   // Initializing the spline
   vtkMTimeType InitializeTime;
@@ -197,4 +186,5 @@ private:
   void operator=(const vtkParametricSpline&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,32 +1,20 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSectorSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-     =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSectorSource.h"
 
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLineSource.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkLineSource.h"
 #include "vtkRotationalExtrusionFilter.h"
-#include "vtkMath.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name)                                  \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSectorSource);
 
 vtkSectorSource::vtkSectorSource()
@@ -42,80 +30,79 @@ vtkSectorSource::vtkSectorSource()
   this->SetNumberOfInputPorts(0);
 }
 
-int vtkSectorSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkSectorSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int piece, numPieces;
   piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
-//   if( (this->StartAngle == 0. && this->EndAngle == 360.) ||
-//       (this->StartAngle == 360. && this->EndAngle == 0. ) )
-//   {
-//       //use vtkDiskSource
-//     VTK_CREATE(vtkDiskSource, diskSource );
-//     diskSource->SetCircumferentialResolution( this->CircumferentialResolution );
-//     diskSource->SetRadialResolution( this->RadialResolution );
-//     diskSource->SetInnerRadius( this->InnerRadius );
-//     diskSource->SetOuterRadius( this->OuterRadius );
+  //   if( (this->StartAngle == 0. && this->EndAngle == 360.) ||
+  //       (this->StartAngle == 360. && this->EndAngle == 0. ) )
+  //   {
+  //       //use vtkDiskSource
+  //     VTK_CREATE(vtkDiskSource, diskSource );
+  //     diskSource->SetCircumferentialResolution( this->CircumferentialResolution );
+  //     diskSource->SetRadialResolution( this->RadialResolution );
+  //     diskSource->SetInnerRadius( this->InnerRadius );
+  //     diskSource->SetOuterRadius( this->OuterRadius );
 
-//     if (output->GetUpdatePiece() == 0 && numPieces > 0)
-//     {
-//       diskSource->Update();
-//       output->ShallowCopy(diskSource->GetOutput());
-//     }
-//     output->SetUpdatePiece(piece);
-//     output->SetUpdateNumberOfPieces(numPieces);
-//     output->SetUpdateGhostLevel(ghostLevel);
-//   }
-//   else
-//   {
+  //     if (output->GetUpdatePiece() == 0 && numPieces > 0)
+  //     {
+  //       diskSource->Update();
+  //       output->ShallowCopy(diskSource->GetOutput());
+  //     }
+  //     output->SetUpdatePiece(piece);
+  //     output->SetUpdateNumberOfPieces(numPieces);
+  //     output->SetUpdateGhostLevel(ghostLevel);
+  //   }
+  //   else
+  //   {
   VTK_CREATE(vtkLineSource, lineSource);
-  lineSource->SetResolution( this->RadialResolution );
+  lineSource->SetResolution(this->RadialResolution);
 
-  //set vertex 1, adjust for start angle
-  //set vertex 2, adjust for start angle
+  // set vertex 1, adjust for start angle
+  // set vertex 2, adjust for start angle
   double x1[3], x2[3];
-  x1[0] = this->InnerRadius * cos( vtkMath::RadiansFromDegrees( this->StartAngle ) );
-  x1[1] = this->InnerRadius * sin( vtkMath::RadiansFromDegrees( this->StartAngle ) );
+  x1[0] = this->InnerRadius * cos(vtkMath::RadiansFromDegrees(this->StartAngle));
+  x1[1] = this->InnerRadius * sin(vtkMath::RadiansFromDegrees(this->StartAngle));
   x1[2] = this->ZCoord;
 
-  x2[0] = this->OuterRadius * cos( vtkMath::RadiansFromDegrees( this->StartAngle ) );
-  x2[1] = this->OuterRadius * sin( vtkMath::RadiansFromDegrees( this->StartAngle ) );
+  x2[0] = this->OuterRadius * cos(vtkMath::RadiansFromDegrees(this->StartAngle));
+  x2[1] = this->OuterRadius * sin(vtkMath::RadiansFromDegrees(this->StartAngle));
   x2[2] = this->ZCoord;
 
   lineSource->SetPoint1(x1);
   lineSource->SetPoint2(x2);
+  lineSource->SetContainerAlgorithm(this);
   lineSource->Update();
 
   VTK_CREATE(vtkRotationalExtrusionFilter, rotateFilter);
-  rotateFilter->SetResolution( this->CircumferentialResolution );
+  rotateFilter->SetResolution(this->CircumferentialResolution);
   rotateFilter->SetInputConnection(lineSource->GetOutputPort());
-  rotateFilter->SetAngle( this->EndAngle - this->StartAngle );
+  rotateFilter->SetAngle(this->EndAngle - this->StartAngle);
 
   if (piece == 0 && numPieces > 0)
   {
+    rotateFilter->SetContainerAlgorithm(this);
     rotateFilter->Update();
     output->ShallowCopy(rotateFilter->GetOutput());
   }
-//  }
+  //  }
 
   return 1;
 }
 
 void vtkSectorSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "InnerRadius: " << this->InnerRadius << "\n";
   os << indent << "OuterRadius: " << this->OuterRadius << "\n";
@@ -125,3 +112,4 @@ void vtkSectorSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CircumferentialResolution: " << this->CircumferentialResolution << "\n";
   os << indent << "RadialResolution: " << this->RadialResolution << "\n";
 }
+VTK_ABI_NAMESPACE_END

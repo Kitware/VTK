@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleAreaSelectHover.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkInteractorStyleAreaSelectHover
  * @brief   An interactor style for an area tree view
@@ -29,14 +13,15 @@
  * This interactor style allows only 2D panning and zooming,
  * rubber band selection and provides a balloon containing the name of the
  * vertex hovered over.
-*/
+ */
 
 #ifndef vtkInteractorStyleAreaSelectHover_h
 #define vtkInteractorStyleAreaSelectHover_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkInteractorStyleRubberBand2D.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAreaLayout;
 class vtkBalloonRepresentation;
 class vtkPoints;
@@ -45,31 +30,32 @@ class vtkTree;
 class vtkWorldPointPicker;
 class vtkPolyData;
 
-class VTKVIEWSINFOVIS_EXPORT vtkInteractorStyleAreaSelectHover : public vtkInteractorStyleRubberBand2D
+class VTKVIEWSINFOVIS_EXPORT vtkInteractorStyleAreaSelectHover
+  : public vtkInteractorStyleRubberBand2D
 {
 public:
   static vtkInteractorStyleAreaSelectHover* New();
-  vtkTypeMacro(vtkInteractorStyleAreaSelectHover,vtkInteractorStyleRubberBand2D);
+  vtkTypeMacro(vtkInteractorStyleAreaSelectHover, vtkInteractorStyleRubberBand2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Must be set to the vtkAreaLayout used to compute the bounds of
    * each vertex.
    */
   void SetLayout(vtkAreaLayout* layout);
   vtkGetObjectMacro(Layout, vtkAreaLayout);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the field to use when displaying text in the hover balloon.
    */
   vtkSetStringMacro(LabelField);
   vtkGetStringMacro(LabelField);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Determine whether or not to use rectangular coordinates instead of
    * polar coordinates.
@@ -77,7 +63,7 @@ public:
   vtkSetMacro(UseRectangularCoordinates, bool);
   vtkGetMacro(UseRectangularCoordinates, bool);
   vtkBooleanMacro(UseRectangularCoordinates, bool);
-  //@}
+  ///@}
 
   /**
    * Overridden from vtkInteractorStyleImage to provide the desired
@@ -88,20 +74,20 @@ public:
   /**
    * Set the interactor that this interactor style works with.
    */
-  void SetInteractor(vtkRenderWindowInteractor *rwi) override;
+  void SetInteractor(vtkRenderWindowInteractor* rwi) override;
 
   /**
    * Set the color used to highlight the hovered vertex.
    */
   void SetHighLightColor(double r, double g, double b);
 
-  //@{
+  ///@{
   /**
    * The width of the line around the hovered vertex.
    */
   void SetHighLightWidth(double lw);
   double GetHighLightWidth();
-  //@}
+  ///@}
 
   /**
    * Obtain the tree vertex id at the position specified.
@@ -117,15 +103,16 @@ private:
   void operator=(const vtkInteractorStyleAreaSelectHover&) = delete;
 
   // These methods are used internally
-  void GetBoundingAreaForItem(vtkIdType id, float *sinfo);
+  void GetBoundingAreaForItem(vtkIdType id, float* sinfo);
 
   vtkWorldPointPicker* Picker;
   vtkBalloonRepresentation* Balloon;
-  vtkPolyData *HighlightData;
-  vtkActor *HighlightActor;
+  vtkPolyData* HighlightData;
+  vtkActor* HighlightActor;
   vtkAreaLayout* Layout;
-  char *LabelField;
+  char* LabelField;
   bool UseRectangularCoordinates;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCircularLayoutStrategy.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkCircularLayoutStrategy.h"
 
@@ -25,6 +9,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCircularLayoutStrategy);
 
 vtkCircularLayoutStrategy::vtkCircularLayoutStrategy() = default;
@@ -38,8 +23,8 @@ void vtkCircularLayoutStrategy::Layout()
   points->SetNumberOfPoints(numVerts);
   for (vtkIdType i = 0; i < numVerts; i++)
   {
-    double x = cos(2.0*vtkMath::Pi()*i/numVerts);
-    double y = sin(2.0*vtkMath::Pi()*i/numVerts);
+    double x = cos(2.0 * vtkMath::Pi() * i / numVerts);
+    double y = sin(2.0 * vtkMath::Pi() * i / numVerts);
     points->SetPoint(i, x, y, 0);
   }
   this->Graph->SetPoints(points);
@@ -48,6 +33,6 @@ void vtkCircularLayoutStrategy::Layout()
 
 void vtkCircularLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
-
+VTK_ABI_NAMESPACE_END

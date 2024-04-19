@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSortFieldData.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkSortFieldData
@@ -39,7 +27,7 @@
  *
  * @sa
  * vtkSortDataArray
-*/
+ */
 
 #ifndef vtkSortFieldData_h
 #define vtkSortFieldData_h
@@ -47,21 +35,21 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSortDataArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFieldData;
-
 
 class VTKCOMMONDATAMODEL_EXPORT vtkSortFieldData : public vtkSortDataArray
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods for instantiating, managing type, and printing
    * information about this class.
    */
-  static vtkSortFieldData *New();
+  static vtkSortFieldData* New();
   vtkTypeMacro(vtkSortFieldData, vtkSortDataArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Given field data (and derived classes such as point data and cell data),
@@ -78,9 +66,10 @@ public:
    * if any array is not the same length as the sorting array, then it will
    * be skipped and not sorted.)
    */
-  static vtkIdType* Sort( vtkFieldData *fd, const char *arrayName,
-                          int k, int returnIndices)
-    {return vtkSortFieldData::Sort(fd,arrayName,k,returnIndices,0);}
+  static vtkIdType* Sort(vtkFieldData* fd, const char* arrayName, int k, int returnIndices)
+  {
+    return vtkSortFieldData::Sort(fd, arrayName, k, returnIndices, 0);
+  }
 
   /**
    * Given field data (and derived classes such as point data and cell data),
@@ -102,16 +91,17 @@ public:
    * the same length as the sorting array, then it will be skipped and not
    * sorted.)
    */
-  static vtkIdType* Sort( vtkFieldData *fd, const char *arrayName,
-                          int k, int returnIndices, int dir);
+  static vtkIdType* Sort(
+    vtkFieldData* fd, const char* arrayName, int k, int returnIndices, int dir);
 
 protected:
   vtkSortFieldData();
   ~vtkSortFieldData() override;
 
 private:
-  vtkSortFieldData(const vtkSortFieldData &) = delete;
-  void operator=(const vtkSortFieldData &) = delete;
+  vtkSortFieldData(const vtkSortFieldData&) = delete;
+  void operator=(const vtkSortFieldData&) = delete;
 };
 
-#endif //vtkSortFieldData_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkSortFieldData_h

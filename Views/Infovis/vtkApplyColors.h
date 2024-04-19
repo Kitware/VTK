@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkApplyColors.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkApplyColors
  * @brief   apply colors to a data set.
@@ -72,34 +56,35 @@
  * opacity is taken as a number from 0 to 1. So items will never be more opaque
  * than any of these three opacities. Selected items are always given the
  * selection opacity directly.
-*/
+ */
 
 #ifndef vtkApplyColors_h
 #define vtkApplyColors_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors;
 class vtkUnsignedCharArray;
 
 class VTKVIEWSINFOVIS_EXPORT vtkApplyColors : public vtkPassInputTypeAlgorithm
 {
 public:
-  static vtkApplyColors *New();
+  static vtkApplyColors* New();
   vtkTypeMacro(vtkApplyColors, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The lookup table to use for point colors. This is only used if
    * input array 0 is set and UsePointLookupTable is on.
    */
   virtual void SetPointLookupTable(vtkScalarsToColors* lut);
   vtkGetObjectMacro(PointLookupTable, vtkScalarsToColors);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, uses the point lookup table to set the colors of unannotated,
    * unselected elements of the data.
@@ -107,9 +92,9 @@ public:
   vtkSetMacro(UsePointLookupTable, bool);
   vtkGetMacro(UsePointLookupTable, bool);
   vtkBooleanMacro(UsePointLookupTable, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, uses the range of the data to scale the lookup table range.
    * Otherwise, uses the range defined in the lookup table.
@@ -117,63 +102,63 @@ public:
   vtkSetMacro(ScalePointLookupTable, bool);
   vtkGetMacro(ScalePointLookupTable, bool);
   vtkBooleanMacro(ScalePointLookupTable, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The default point color for all unannotated, unselected elements
    * of the data. This is used if UsePointLookupTable is off.
    */
   vtkSetVector3Macro(DefaultPointColor, double);
   vtkGetVector3Macro(DefaultPointColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The default point opacity for all unannotated, unselected elements
    * of the data. This is used if UsePointLookupTable is off.
    */
   vtkSetMacro(DefaultPointOpacity, double);
   vtkGetMacro(DefaultPointOpacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The point color for all selected elements of the data.
    * This is used if the selection input is available.
    */
   vtkSetVector3Macro(SelectedPointColor, double);
   vtkGetVector3Macro(SelectedPointColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The point opacity for all selected elements of the data.
    * This is used if the selection input is available.
    */
   vtkSetMacro(SelectedPointOpacity, double);
   vtkGetMacro(SelectedPointOpacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The output array name for the point color RGBA array.
    * Default is "vtkApplyColors color".
    */
   vtkSetStringMacro(PointColorOutputArrayName);
   vtkGetStringMacro(PointColorOutputArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The lookup table to use for cell colors. This is only used if
    * input array 1 is set and UseCellLookupTable is on.
    */
   virtual void SetCellLookupTable(vtkScalarsToColors* lut);
   vtkGetObjectMacro(CellLookupTable, vtkScalarsToColors);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, uses the cell lookup table to set the colors of unannotated,
    * unselected elements of the data.
@@ -181,9 +166,9 @@ public:
   vtkSetMacro(UseCellLookupTable, bool);
   vtkGetMacro(UseCellLookupTable, bool);
   vtkBooleanMacro(UseCellLookupTable, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, uses the range of the data to scale the lookup table range.
    * Otherwise, uses the range defined in the lookup table.
@@ -191,54 +176,54 @@ public:
   vtkSetMacro(ScaleCellLookupTable, bool);
   vtkGetMacro(ScaleCellLookupTable, bool);
   vtkBooleanMacro(ScaleCellLookupTable, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The default cell color for all unannotated, unselected elements
    * of the data. This is used if UseCellLookupTable is off.
    */
   vtkSetVector3Macro(DefaultCellColor, double);
   vtkGetVector3Macro(DefaultCellColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The default cell opacity for all unannotated, unselected elements
    * of the data. This is used if UseCellLookupTable is off.
    */
   vtkSetMacro(DefaultCellOpacity, double);
   vtkGetMacro(DefaultCellOpacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The cell color for all selected elements of the data.
    * This is used if the selection input is available.
    */
   vtkSetVector3Macro(SelectedCellColor, double);
   vtkGetVector3Macro(SelectedCellColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The cell opacity for all selected elements of the data.
    * This is used if the selection input is available.
    */
   vtkSetMacro(SelectedCellOpacity, double);
   vtkGetMacro(SelectedCellOpacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The output array name for the cell color RGBA array.
    * Default is "vtkApplyColors color".
    */
   vtkSetStringMacro(CellColorOutputArrayName);
   vtkGetStringMacro(CellColorOutputArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the annotation to color the current annotation
    * (i.e. the current selection). Otherwise use the selection
@@ -247,7 +232,7 @@ public:
   vtkSetMacro(UseCurrentAnnotationColor, bool);
   vtkGetMacro(UseCurrentAnnotationColor, bool);
   vtkBooleanMacro(UseCurrentAnnotationColor, bool);
-  //@}
+  ///@}
 
   /**
    * Retrieve the modified time for this filter.
@@ -261,20 +246,15 @@ protected:
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Set the input type of the algorithm to vtkGraph.
    */
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void ProcessColorArray(
-    vtkUnsignedCharArray* colorArr,
-    vtkScalarsToColors* lut,
-    vtkAbstractArray* arr,
-    unsigned char color[4],
-    bool scale);
+  void ProcessColorArray(vtkUnsignedCharArray* colorArr, vtkScalarsToColors* lut,
+    vtkAbstractArray* arr, unsigned char color[4], bool scale);
 
   vtkScalarsToColors* PointLookupTable;
   vtkScalarsToColors* CellLookupTable;
@@ -299,4 +279,5 @@ private:
   void operator=(const vtkApplyColors&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

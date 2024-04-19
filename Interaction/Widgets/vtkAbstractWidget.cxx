@@ -1,34 +1,22 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAbstractWidget.cxx,v
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAbstractWidget.h"
-#include "vtkWidgetRepresentation.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
-#include "vtkRenderer.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
+#include "vtkWidgetRepresentation.h"
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractWidget::vtkAbstractWidget()
 {
   // Setup event processing
-  this->EventCallbackCommand->SetCallback(
-    vtkAbstractWidget::ProcessEventsHandler);
+  this->EventCallbackCommand->SetCallback(vtkAbstractWidget::ProcessEventsHandler);
 
   // There is no parent to this widget currently
   this->Parent = nullptr;
@@ -51,10 +39,10 @@ vtkAbstractWidget::vtkAbstractWidget()
   this->CallbackMapper->SetEventTranslator(this->EventTranslator);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractWidget::~vtkAbstractWidget()
 {
-  if ( this->WidgetRep )
+  if (this->WidgetRep)
   {
     // Remove the representation from the renderer.
     vtkRenderer* ren = this->WidgetRep->GetRenderer();
@@ -71,60 +59,60 @@ vtkAbstractWidget::~vtkAbstractWidget()
   this->SetEnabled(0);
 }
 
-//----------------------------------------------------------------------
-void vtkAbstractWidget::SetWidgetRepresentation(vtkWidgetRepresentation *r)
+//------------------------------------------------------------------------------
+void vtkAbstractWidget::SetWidgetRepresentation(vtkWidgetRepresentation* r)
 {
-  if ( r != this->WidgetRep )
+  if (r != this->WidgetRep)
   {
-    int enabled=0;
-    if ( this->Enabled )
+    int enabled = 0;
+    if (this->Enabled)
     {
       enabled = 1;
       this->SetEnabled(0);
     }
 
-    if ( this->WidgetRep )
+    if (this->WidgetRep)
     {
       this->WidgetRep->Delete();
     }
     this->WidgetRep = r;
-    if ( this->WidgetRep )
+    if (this->WidgetRep)
     {
       this->WidgetRep->Register(this);
     }
     this->Modified();
 
-    if ( enabled )
+    if (enabled)
     {
       this->SetEnabled(1);
     }
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractWidget::SetEnabled(int enabling)
 {
-  if ( enabling ) //----------------
+  if (enabling) //----------------
   {
-    vtkDebugMacro(<<"Enabling widget");
+    vtkDebugMacro(<< "Enabling widget");
 
-    if ( this->Enabled ) //already enabled, just return
+    if (this->Enabled) // already enabled, just return
     {
       return;
     }
 
-    if ( ! this->Interactor )
+    if (!this->Interactor)
     {
-      vtkErrorMacro(<<"The interactor must be set prior to enabling the widget");
+      vtkErrorMacro(<< "The interactor must be set prior to enabling the widget");
       return;
     }
 
-    int X=this->Interactor->GetEventPosition()[0];
-    int Y=this->Interactor->GetEventPosition()[1];
+    int X = this->Interactor->GetEventPosition()[0];
+    int Y = this->Interactor->GetEventPosition()[1];
 
-    if ( ! this->CurrentRenderer )
+    if (!this->CurrentRenderer)
     {
-      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
+      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X, Y));
 
       if (this->CurrentRenderer == nullptr)
       {
@@ -134,7 +122,7 @@ void vtkAbstractWidget::SetEnabled(int enabling)
 
     // We're ready to enable
     this->Enabled = 1;
-    if (! this->WidgetRep )
+    if (!this->WidgetRep)
     {
       this->CreateDefaultRepresentation();
     }
@@ -142,18 +130,18 @@ void vtkAbstractWidget::SetEnabled(int enabling)
     this->WidgetRep->RegisterPickers();
 
     // listen for the events found in the EventTranslator
-    if ( ! this->Parent )
+    if (!this->Parent)
     {
-      this->EventTranslator->AddEventsToInteractor(this->Interactor,
-        this->EventCallbackCommand,this->Priority);
+      this->EventTranslator->AddEventsToInteractor(
+        this->Interactor, this->EventCallbackCommand, this->Priority);
     }
     else
     {
-      this->EventTranslator->AddEventsToParent(this->Parent,
-        this->EventCallbackCommand,this->Priority);
+      this->EventTranslator->AddEventsToParent(
+        this->Parent, this->EventCallbackCommand, this->Priority);
     }
 
-    if ( this->ManagesCursor )
+    if (this->ManagesCursor)
     {
       this->WidgetRep->ComputeInteractionState(X, Y);
       this->SetCursor(this->WidgetRep->GetInteractionState());
@@ -162,14 +150,14 @@ void vtkAbstractWidget::SetEnabled(int enabling)
     this->WidgetRep->BuildRepresentation();
     this->CurrentRenderer->AddViewProp(this->WidgetRep);
 
-    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
+    this->InvokeEvent(vtkCommand::EnableEvent, nullptr);
   }
 
-  else //disabling------------------
+  else // disabling------------------
   {
-    vtkDebugMacro(<<"Disabling widget");
+    vtkDebugMacro(<< "Disabling widget");
 
-    if ( ! this->Enabled ) //already disabled, just return
+    if (!this->Enabled) // already disabled, just return
     {
       return;
     }
@@ -177,7 +165,7 @@ void vtkAbstractWidget::SetEnabled(int enabling)
     this->Enabled = 0;
 
     // don't listen for events any more
-    if ( ! this->Parent )
+    if (!this->Parent)
     {
       this->Interactor->RemoveObserver(this->EventCallbackCommand);
     }
@@ -191,31 +179,28 @@ void vtkAbstractWidget::SetEnabled(int enabling)
       this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
     }
 
-    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
     this->SetCurrentRenderer(nullptr);
     if (this->WidgetRep)
-      {
+    {
       this->WidgetRep->UnRegisterPickers();
-      }
+    }
   }
 
   // We no longer call render when enabled state changes. It's the applications
   // responsibility to explicitly call render after changing enable state.
   //// Should only render if there is no parent
-  //if ( this->Interactor && !this->Parent )
+  // if ( this->Interactor && !this->Parent )
   //  {
   //  this->Interactor->Render();
   //  }
 }
 
-//-------------------------------------------------------------------------
-void vtkAbstractWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object),
-                                       unsigned long vtkEvent,
-                                       void* clientdata,
-                                       void* calldata)
+//------------------------------------------------------------------------------
+void vtkAbstractWidget::ProcessEventsHandler(
+  vtkObject* vtkNotUsed(object), unsigned long vtkEvent, void* clientdata, void* calldata)
 {
-  vtkAbstractWidget* self =
-    reinterpret_cast<vtkAbstractWidget *>( clientdata );
+  vtkAbstractWidget* self = reinterpret_cast<vtkAbstractWidget*>(clientdata);
 
   // if ProcessEvents is Off, we ignore all interaction events.
   if (!self->GetProcessEvents())
@@ -228,31 +213,27 @@ void vtkAbstractWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object),
   unsigned long widgetEvent = vtkWidgetEvent::NoEvent;
   if (calldata && vtkCommand::EventHasData(vtkEvent))
   {
-    widgetEvent = self->EventTranslator->GetTranslation(vtkEvent,
-      static_cast<vtkEventData *>(calldata));
+    widgetEvent =
+      self->EventTranslator->GetTranslation(vtkEvent, static_cast<vtkEventData*>(calldata));
   }
   else
   {
     int modifier = vtkEvent::GetModifier(self->Interactor);
 
     // If neither the ctrl nor the shift keys are pressed, give
-    // NoModifier a preference over AnyModifer.
+    // NoModifier a preference over AnyModifier.
     if (modifier == vtkEvent::AnyModifier)
     {
-      widgetEvent = self->EventTranslator->GetTranslation(vtkEvent,
-                                            vtkEvent::NoModifier,
-                                            self->Interactor->GetKeyCode(),
-                                            self->Interactor->GetRepeatCount(),
-                                            self->Interactor->GetKeySym());
+      widgetEvent = self->EventTranslator->GetTranslation(vtkEvent, vtkEvent::NoModifier,
+        self->Interactor->GetKeyCode(), self->Interactor->GetRepeatCount(),
+        self->Interactor->GetKeySym());
     }
 
-    if ( widgetEvent == vtkWidgetEvent::NoEvent)
+    if (widgetEvent == vtkWidgetEvent::NoEvent)
     {
-      widgetEvent = self->EventTranslator->GetTranslation(vtkEvent,
-                                          modifier,
-                                          self->Interactor->GetKeyCode(),
-                                          self->Interactor->GetRepeatCount(),
-                                          self->Interactor->GetKeySym());
+      widgetEvent =
+        self->EventTranslator->GetTranslation(vtkEvent, modifier, self->Interactor->GetKeyCode(),
+          self->Interactor->GetRepeatCount(), self->Interactor->GetKeySym());
     }
   }
 
@@ -260,23 +241,23 @@ void vtkAbstractWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object),
   self->CallData = calldata;
 
   // Invoke the widget callback
-  if ( widgetEvent != vtkWidgetEvent::NoEvent)
+  if (widgetEvent != vtkWidgetEvent::NoEvent)
   {
     self->CallbackMapper->InvokeCallback(widgetEvent);
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractWidget::Render()
 {
-  if ( ! this->Parent && this->Interactor )
+  if (!this->Parent && this->Interactor)
   {
     this->Interactor->Render();
   }
 }
 
-//----------------------------------------------------------------------
-void vtkAbstractWidget::SetPriority( float f )
+//------------------------------------------------------------------------------
+void vtkAbstractWidget::SetPriority(float f)
 {
   if (f != this->Priority)
   {
@@ -284,7 +265,7 @@ void vtkAbstractWidget::SetPriority( float f )
 
     // We are going to re-add all the events to the interactor. The
     // interactor observer maintains a sorted list of command-observers, sorted
-    // by prioirty. The sorting happens only during insertion of a command-
+    // by priority. The sorting happens only during insertion of a command-
     // observer into the list. Yeah.. Look at the documentation of SetPriority
     // in vtkInteractorObserver. That documentation recommends setting the
     // interactor to nullptr and back again. We won't do that because it will
@@ -297,18 +278,14 @@ void vtkAbstractWidget::SetPriority( float f )
         this->Interactor->RemoveObserver(this->CharObserverTag);
         this->Interactor->RemoveObserver(this->DeleteObserverTag);
         this->CharObserverTag = this->Interactor->AddObserver(
-            vtkCommand::CharEvent,
-            this->KeyPressCallbackCommand,
-            this->Priority);
+          vtkCommand::CharEvent, this->KeyPressCallbackCommand, this->Priority);
         this->DeleteObserverTag = this->Interactor->AddObserver(
-            vtkCommand::DeleteEvent,
-            this->KeyPressCallbackCommand,
-            this->Priority);
+          vtkCommand::DeleteEvent, this->KeyPressCallbackCommand, this->Priority);
       }
 
-      if ( !this->Parent )
+      if (!this->Parent)
       {
-        if(this->Interactor)
+        if (this->Interactor)
         {
           this->Interactor->RemoveObserver(this->EventCallbackCommand);
         }
@@ -318,33 +295,32 @@ void vtkAbstractWidget::SetPriority( float f )
         this->Parent->RemoveObserver(this->EventCallbackCommand);
       }
 
-      if ( ! this->Parent )
+      if (!this->Parent)
       {
-        if(this->Interactor)
+        if (this->Interactor)
         {
-          this->EventTranslator->AddEventsToInteractor(this->Interactor,
-            this->EventCallbackCommand,this->Priority);
+          this->EventTranslator->AddEventsToInteractor(
+            this->Interactor, this->EventCallbackCommand, this->Priority);
         }
       }
       else
       {
-        this->EventTranslator->AddEventsToParent(this->Parent,
-          this->EventCallbackCommand,this->Priority);
+        this->EventTranslator->AddEventsToParent(
+          this->Parent, this->EventCallbackCommand, this->Priority);
       }
     }
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAbstractWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "ProcessEvents: "
-    << (this->ProcessEvents? "On" : "Off") << "\n";
+  os << indent << "ProcessEvents: " << (this->ProcessEvents ? "On" : "Off") << "\n";
 
-  if ( this->WidgetRep )
+  if (this->WidgetRep)
   {
     os << indent << "Widget Representation: " << this->WidgetRep << "\n";
   }
@@ -353,8 +329,8 @@ void vtkAbstractWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Widget Representation: (none)\n";
   }
 
-  os << indent << "Manages Cursor: "
-    << (this->ManagesCursor? "On" : "Off") << "\n";
+  os << indent << "Manages Cursor: " << (this->ManagesCursor ? "On" : "Off") << "\n";
 
   os << indent << "Parent: " << this->Parent << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -1,0 +1,35 @@
+NAME
+  VTK::IOIOSS
+LIBRARY_NAME
+  vtkIOIOSS
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOCore
+  VTK::ParallelCore
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersExtraction
+  VTK::fmt
+  VTK::ioss
+OPTIONAL_DEPENDS
+  VTK::ParallelMPI
+  VTK::mpi
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::FiltersParallel
+  VTK::mpi
+  VTK::ParallelMPI
+  VTK::RenderingParallel

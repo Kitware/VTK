@@ -1,50 +1,68 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkDataObject
+from vtkmodules.vtkCommonExecutionModel import vtkCompositeDataPipeline
+from vtkmodules.vtkFiltersCore import (
+    vtkGlyph3D,
+    vtkStructuredGridOutlineFilter,
+)
+from vtkmodules.vtkFiltersFlowPaths import vtkStreamTracer
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkIOEnSight import vtkGenericEnSightReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # read data
 #
-reader = vtk.vtkGenericEnSightReader()
+reader = vtkGenericEnSightReader()
 # Make sure all algorithms use the composite data pipeline
-cdp = vtk.vtkCompositeDataPipeline()
+cdp = vtkCompositeDataPipeline()
 reader.SetDefaultExecutivePrototype(cdp)
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/office_ascii.case")
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/office_ascii.case")
 reader.Update()
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 #    outline SetInputConnection [reader GetOutputPort]
 outline.SetInputData(reader.GetOutput().GetBlock(0))
-mapOutline = vtk.vtkPolyDataMapper()
+mapOutline = vtkPolyDataMapper()
 mapOutline.SetInputConnection(outline.GetOutputPort())
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(mapOutline)
 outlineActor.GetProperty().SetColor(0,0,0)
 # Create source for streamtubes
-streamer = vtk.vtkStreamTracer()
+streamer = vtkStreamTracer()
 #    streamer SetInputConnection [reader GetOutputPort]
 streamer.SetInputData(reader.GetOutput().GetBlock(0))
 streamer.SetStartPosition(0.1,2.1,0.5)
 streamer.SetMaximumPropagation(500)
 streamer.SetInitialIntegrationStep(0.1)
 streamer.SetIntegrationDirectionToForward()
-cone = vtk.vtkConeSource()
+cone = vtkConeSource()
 cone.SetResolution(8)
-cones = vtk.vtkGlyph3D()
+cones = vtkGlyph3D()
 cones.SetInputConnection(streamer.GetOutputPort())
 cones.SetSourceConnection(cone.GetOutputPort())
 cones.SetScaleFactor(3)
-cones.SetInputArrayToProcess(1, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "vectors")
+cones.SetInputArrayToProcess(1, 0, 0, vtkDataObject.FIELD_ASSOCIATION_POINTS, "vectors")
 cones.SetScaleModeToScaleByVector()
-mapCones = vtk.vtkPolyDataMapper()
+mapCones = vtkPolyDataMapper()
 mapCones.SetInputConnection(cones.GetOutputPort())
 #    eval mapCones SetScalarRange [[reader GetOutput] GetScalarRange]
 mapCones.SetScalarRange(reader.GetOutput().GetBlock(0).GetScalarRange())
-conesActor = vtk.vtkActor()
+conesActor = vtkActor()
 conesActor.SetMapper(mapCones)
 ren1.AddActor(outlineActor)
 ren1.AddActor(conesActor)

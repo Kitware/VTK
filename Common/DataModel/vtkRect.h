@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVector.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkRect
@@ -22,7 +10,7 @@
  * The memory layout is a contiguous array of the specified type, such that a
  * float[4] can be cast to a vtkRectf and manipulated. Also a float[12] could
  * be cast and used as a vtkRectf[3].
-*/
+ */
 
 #ifndef vtkRect_h
 #define vtkRect_h
@@ -31,13 +19,12 @@
 
 #include "vtkMath.h" // for Min, Max
 
-template<typename T>
+VTK_ABI_NAMESPACE_BEGIN
+template <typename T>
 class vtkRect : public vtkVector<T, 4>
 {
 public:
-  vtkRect()
-  {
-  }
+  vtkRect() = default;
 
   vtkRect(const T& x, const T& y, const T& width, const T& height)
   {
@@ -47,9 +34,12 @@ public:
     this->Data[3] = height;
   }
 
-  explicit vtkRect(const T* init) : vtkVector<T, 4>(init) { }
+  explicit vtkRect(const T* init)
+    : vtkVector<T, 4>(init)
+  {
+  }
 
-  //@{
+  ///@{
   /**
    * Set the x, y components of the rectangle, and the width/height.
    */
@@ -60,7 +50,7 @@ public:
     this->Data[2] = width;
     this->Data[3] = height;
   }
-  //@}
+  ///@}
 
   /**
    * Set the x component of the rectangle bottom corner, i.e. element 0.
@@ -125,18 +115,12 @@ public:
   /**
    * Get the bottom left corner of the rect as a vtkVector.
    */
-  vtkVector2<T> GetBottomLeft() const
-  {
-    return vtkVector2<T>(this->GetLeft(), this->GetBottom());
-  }
+  vtkVector2<T> GetBottomLeft() const { return vtkVector2<T>(this->GetLeft(), this->GetBottom()); }
 
   /**
    * Get the top left corner of the rect as a vtkVector.
    */
-  vtkVector<T, 2> GetTopLeft() const
-  {
-    return vtkVector2<T>(this->GetLeft(), this->GetTop());
-  }
+  vtkVector<T, 2> GetTopLeft() const { return vtkVector2<T>(this->GetLeft(), this->GetTop()); }
 
   /**
    * Get the bottom right corner of the rect as a vtkVector.
@@ -149,12 +133,9 @@ public:
   /**
    * Get the bottom left corner of the rect as a vtkVector.
    */
-  vtkVector<T, 2> GetTopRight() const
-  {
-    return vtkVector2<T>(this->GetRight(), this->GetTop());
-  }
+  vtkVector<T, 2> GetTopRight() const { return vtkVector2<T>(this->GetRight(), this->GetTop()); }
 
-  //@{
+  ///@{
   /**
    * Expand this rect to contain the point passed in.
    */
@@ -174,7 +155,7 @@ public:
       T dx = point[0] - this->GetX();
       this->SetWidth(vtkMath::Max(dx, this->GetWidth()));
     }
-  //@}
+    ///@}
 
     if (point[1] < this->GetY())
     {
@@ -190,22 +171,22 @@ public:
     }
   }
 
-  //@{
+  ///@{
   /**
    * Expand this rect to contain the point passed in.
    */
   void AddPoint(T x, T y)
   {
-    T point[2] = {x, y};
+    T point[2] = { x, y };
     this->AddPoint(point);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Expand this rect to contain the rect passed in.
    */
-  void AddRect(const vtkRect<T> & rect)
+  void AddRect(const vtkRect<T>& rect)
   {
     if (rect.GetX() < this->GetX())
     {
@@ -224,7 +205,7 @@ public:
       // this->GetX() is already correct
       this->SetWidth(vtkMath::Max(rect.GetWidth(), this->GetWidth()));
     }
-  //@}
+    ///@}
 
     if (rect.GetY() < this->GetY())
     {
@@ -315,34 +296,59 @@ public:
     }
     return false;
   }
+
+  /**
+   * Returns the center of the rect as a vtkVector2d.
+   */
+  vtkVector2d GetCenter() const
+  {
+    return vtkVector2d(
+      this->GetX() + 0.5 * this->GetWidth(), this->GetY() + 0.5 * this->GetHeight());
+  }
 };
 
 class vtkRecti : public vtkRect<int>
 {
 public:
-  vtkRecti() {}
+  vtkRecti() = default;
   vtkRecti(int x, int y, int width, int height)
-    : vtkRect<int>(x, y, width, height) {}
-  explicit vtkRecti(const int *init) : vtkRect<int>(init) {}
+    : vtkRect<int>(x, y, width, height)
+  {
+  }
+  explicit vtkRecti(const int* init)
+    : vtkRect<int>(init)
+  {
+  }
 };
 
 class vtkRectf : public vtkRect<float>
 {
 public:
-  vtkRectf() {}
+  vtkRectf() = default;
   vtkRectf(float x, float y, float width, float height)
-    : vtkRect<float>(x, y, width, height) {}
-  explicit vtkRectf(const float *init) : vtkRect<float>(init) {}
+    : vtkRect<float>(x, y, width, height)
+  {
+  }
+  explicit vtkRectf(const float* init)
+    : vtkRect<float>(init)
+  {
+  }
 };
 
 class vtkRectd : public vtkRect<double>
 {
 public:
-  vtkRectd() {}
+  vtkRectd() = default;
   vtkRectd(double x, double y, double width, double height)
-    : vtkRect<double>(x, y, width, height) {}
-  explicit vtkRectd(const double *init) : vtkRect<double>(init) {}
+    : vtkRect<double>(x, y, width, height)
+  {
+  }
+  explicit vtkRectd(const double* init)
+    : vtkRect<double>(init)
+  {
+  }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkRect_h
 // VTK-HeaderTest-Exclude: vtkRect.h

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInterpolationKernel.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInterpolationKernel
  * @brief   base class for interpolation kernels
@@ -46,7 +34,7 @@
  * @sa
  * vtkPointInterpolator vtkPointInterpolator2D vtkGeneralizedKernel
  * vtkGaussianKernel vtkSPHKernel vtkShepardKernel vtkVoronoiKernel
-*/
+ */
 
 #ifndef vtkInterpolationKernel_h
 #define vtkInterpolationKernel_h
@@ -54,23 +42,23 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkIdList;
 class vtkDoubleArray;
 class vtkDataSet;
 class vtkPointData;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkInterpolationKernel : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard method for type and printing.
    */
   vtkAbstractTypeMacro(vtkInterpolationKernel, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Initialize the kernel. Pass information into the kernel that is
@@ -81,10 +69,9 @@ public:
    * RequiresInitialization to false, do not call Initialize(), and of course
    * manually initialize the kernel.
    */
-  virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd);
+  virtual void Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd);
 
-  //@{
+  ///@{
   /**
    * Indicate whether the kernel needs initialization. By default this data
    * member is true, and using classes will invoke Initialize() on the
@@ -94,7 +81,7 @@ public:
   vtkSetMacro(RequiresInitialization, bool);
   vtkGetMacro(RequiresInitialization, bool);
   vtkBooleanMacro(RequiresInitialization, bool);
-  //@}
+  ///@}
 
   /**
    * Given a point x (and optional associated point id), determine the points
@@ -105,7 +92,7 @@ public:
    * cases, although in some kernels it is used to facilitate basis
    * computation.
    */
-  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) = 0;
+  virtual vtkIdType ComputeBasis(double x[3], vtkIdList* pIds, vtkIdType ptId = 0) = 0;
 
   /**
    * Given a point x, and a list of basis points pIds, compute interpolation
@@ -117,17 +104,16 @@ public:
    * advanced users can invoke ComputeWeights() and provide the interpolation
    * basis points pIds directly.
    */
-  virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *weights) = 0;
+  virtual vtkIdType ComputeWeights(double x[3], vtkIdList* pIds, vtkDoubleArray* weights) = 0;
 
 protected:
   vtkInterpolationKernel();
   ~vtkInterpolationKernel() override;
 
   bool RequiresInitialization;
-  vtkAbstractPointLocator *Locator;
-  vtkDataSet *DataSet;
-  vtkPointData *PointData;
+  vtkAbstractPointLocator* Locator;
+  vtkDataSet* DataSet;
+  vtkPointData* PointData;
 
   // Just clear out the data. Can be overloaded by subclasses as necessary.
   virtual void FreeStructures();
@@ -137,4 +123,5 @@ private:
   void operator=(const vtkInterpolationKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

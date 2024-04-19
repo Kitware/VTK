@@ -1,30 +1,42 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkPerlinNoise
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # A simple example of a three-dimensional noise pattern.
 # first we load in the standard vtk packages into tcl
-perlin = vtk.vtkPerlinNoise()
+perlin = vtkPerlinNoise()
 perlin.SetFrequency(2,1.25,1.5)
 perlin.SetPhase(0,0,0)
-sample = vtk.vtkSampleFunction()
+sample = vtkSampleFunction()
 sample.SetImplicitFunction(perlin)
 sample.SetSampleDimensions(65,65,20)
 sample.ComputeNormalsOff()
-surface = vtk.vtkContourFilter()
+surface = vtkContourFilter()
 surface.SetInputConnection(sample.GetOutputPort())
 surface.SetValue(0,0.0)
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(surface.GetOutputPort())
 mapper.ScalarVisibilityOff()
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetColor(0.2,0.4,0.6)
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

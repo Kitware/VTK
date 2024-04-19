@@ -1,22 +1,8 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataObjectToTable.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
+// VTK_DEPRECATED_IN_9_3_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkDataObjectToTable.h"
 
@@ -31,19 +17,19 @@
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectToTable);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectToTable::vtkDataObjectToTable()
 {
   this->FieldType = POINT_DATA;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataObjectToTable::~vtkDataObjectToTable() = default;
 
-//---------------------------------------------------------------------------
-int vtkDataObjectToTable::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+//------------------------------------------------------------------------------
+int vtkDataObjectToTable::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
@@ -52,11 +38,9 @@ int vtkDataObjectToTable::FillInputPortInformation(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDataObjectToTable::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get input data
   vtkInformation* inputInfo = inputVector[0]->GetInformationObject(0);
@@ -64,8 +48,7 @@ int vtkDataObjectToTable::RequestData(
 
   // Get output table
   vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-  vtkTable* output = vtkTable::SafeDownCast(
-    outputInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* output = vtkTable::SafeDownCast(outputInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // If the input is a table, just copy it into the output.
   if (vtkTable::SafeDownCast(input))
@@ -76,45 +59,45 @@ int vtkDataObjectToTable::RequestData(
 
   vtkDataSetAttributes* data = vtkDataSetAttributes::New();
 
-  switch(this->FieldType)
+  switch (this->FieldType)
   {
     case FIELD_DATA:
-      if(input->GetFieldData())
+      if (input->GetFieldData())
       {
         data->ShallowCopy(input->GetFieldData());
       }
       break;
     case POINT_DATA:
-      if(vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
+      if (vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
       {
-        if(dataset->GetPointData())
+        if (dataset->GetPointData())
         {
           data->ShallowCopy(dataset->GetPointData());
         }
       }
       break;
     case CELL_DATA:
-      if(vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
+      if (vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
       {
-        if(dataset->GetCellData())
+        if (dataset->GetCellData())
         {
           data->ShallowCopy(dataset->GetCellData());
         }
       }
       break;
     case VERTEX_DATA:
-      if(vtkGraph* const graph = vtkGraph::SafeDownCast(input))
+      if (vtkGraph* const graph = vtkGraph::SafeDownCast(input))
       {
-        if(graph->GetVertexData())
+        if (graph->GetVertexData())
         {
           data->ShallowCopy(graph->GetVertexData());
         }
       }
       break;
     case EDGE_DATA:
-      if(vtkGraph* const graph = vtkGraph::SafeDownCast(input))
+      if (vtkGraph* const graph = vtkGraph::SafeDownCast(input))
       {
-        if(graph->GetEdgeData())
+        if (graph->GetEdgeData())
         {
           data->ShallowCopy(graph->GetEdgeData());
         }
@@ -127,9 +110,10 @@ int vtkDataObjectToTable::RequestData(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataObjectToTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FieldType: " << this->FieldType << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkFacetWriter.h
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkFacetWriter
  * @brief   reads a dataset in Facet format
@@ -34,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
  * p1c1 p2c1 p3c1 ... pnc1 materialnum partnum
  * p1c2 p2c2 p3c2 ... pnc2 materialnum partnum
  * ...
-*/
+ */
 
 #ifndef vtkFacetWriter_h
 #define vtkFacetWriter_h
@@ -42,22 +30,23 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 
 class VTKIOGEOMETRY_EXPORT vtkFacetWriter : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkFacetWriter *New();
-  vtkTypeMacro(vtkFacetWriter,vtkPolyDataAlgorithm);
+  static vtkFacetWriter* New();
+  vtkTypeMacro(vtkFacetWriter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of Facet datafile to read
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
   /**
    * Write data
@@ -72,21 +61,20 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  int RequestData(vtkInformation *request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   int WriteDataToStream(ostream* ost, vtkPolyData* data);
 
-  char *FileName;
-  ostream *OutputStream;
+  char* FileName;
+  ostream* OutputStream;
 
 private:
   vtkFacetWriter(const vtkFacetWriter&) = delete;
   void operator=(const vtkFacetWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

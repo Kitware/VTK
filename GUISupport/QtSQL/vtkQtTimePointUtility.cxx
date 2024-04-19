@@ -1,27 +1,16 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtTimePointUtility.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkQtTimePointUtility.h"
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+void vtkQtTimePointUtility::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 
 QDateTime vtkQtTimePointUtility::TimePointToQDateTime(vtkTypeUInt64 time)
 {
@@ -38,24 +27,20 @@ QDateTime vtkQtTimePointUtility::TimePointToQDateTime(vtkTypeUInt64 time)
 
 vtkTypeUInt64 vtkQtTimePointUtility::QDateTimeToTimePoint(QDateTime time)
 {
-  vtkTypeUInt64 timePoint =
-    QDateToTimePoint(time.date()) + QTimeToTimePoint(time.time());
+  vtkTypeUInt64 timePoint = QDateToTimePoint(time.date()) + QTimeToTimePoint(time.time());
   return timePoint;
 }
 
 vtkTypeUInt64 vtkQtTimePointUtility::QDateToTimePoint(QDate date)
 {
-  vtkTypeUInt64 timePoint =
-    static_cast<vtkTypeUInt64>(date.toJulianDay())*86400000;
+  vtkTypeUInt64 timePoint = static_cast<vtkTypeUInt64>(date.toJulianDay()) * 86400000;
   return timePoint;
 }
 
 vtkTypeUInt64 vtkQtTimePointUtility::QTimeToTimePoint(QTime time)
 {
   vtkTypeUInt64 timePoint =
-    + time.hour()*3600000
-    + time.minute()*60000
-    + time.second()*1000
-    + time.msec();
+    +time.hour() * 3600000 + time.minute() * 60000 + time.second() * 1000 + time.msec();
   return timePoint;
 }
+VTK_ABI_NAMESPACE_END

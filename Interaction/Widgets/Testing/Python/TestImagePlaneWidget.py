@@ -5,9 +5,23 @@
 
 import os
 import os.path
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkImageData
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOImage import vtkVolume16Reader
+from vtkmodules.vtkInteractionWidgets import vtkImagePlaneWidget
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCellPicker,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -15,10 +29,10 @@ class TestImagePlaneWidget(Testing.vtkTest):
     def testBug(self):
         # Uncomment the next line if you want to run this via
         # `gdb python`.
-        #raw_input('Hit Ctrl-C')
+        #input('Hit Ctrl-C')
 
         # Load some data.
-        v16 = vtk.vtkVolume16Reader()
+        v16 = vtkVolume16Reader()
         v16.SetDataDimensions(64, 64)
         v16.SetDataByteOrderToLittleEndian()
         v16.SetFilePrefix(os.path.join(VTK_DATA_ROOT,
@@ -34,7 +48,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         # Look here for weirdness.
 
         # Lets create this data using the data from the reader.
-        my_img_data = vtk.vtkImageData()
+        my_img_data = vtkImageData()
         my_img_data.SetDimensions(img_data.GetDimensions())
         my_img_data.SetExtent(img_data.GetExtent())
         my_img_data.SetSpacing(img_data.GetSpacing())
@@ -56,22 +70,22 @@ class TestImagePlaneWidget(Testing.vtkTest):
         ox, oy, oz = origin
 
         # An outline is shown for context.
-        outline = vtk.vtkOutlineFilter()
+        outline = vtkOutlineFilter()
         outline.SetInputData(img_data)
 
-        outlineMapper = vtk.vtkPolyDataMapper()
+        outlineMapper = vtkPolyDataMapper()
         outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-        outlineActor = vtk.vtkActor()
+        outlineActor = vtkActor()
         outlineActor.SetMapper(outlineMapper)
 
         # The shared picker enables us to use 3 planes at one time
         # and gets the picking order right
-        picker = vtk.vtkCellPicker()
+        picker = vtkCellPicker()
         picker.SetTolerance(0.005)
 
         # The 3 image plane widgets are used to probe the dataset.
-        planeWidgetX = vtk.vtkImagePlaneWidget()
+        planeWidgetX = vtkImagePlaneWidget()
         planeWidgetX.DisplayTextOn()
         planeWidgetX.SetInputData(img_data)
         planeWidgetX.SetPlaneOrientationToXAxes()
@@ -81,7 +95,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         prop1 = planeWidgetX.GetPlaneProperty()
         prop1.SetColor(1, 0, 0)
 
-        planeWidgetY = vtk.vtkImagePlaneWidget()
+        planeWidgetY = vtkImagePlaneWidget()
         planeWidgetY.DisplayTextOn()
         planeWidgetY.SetInputData(img_data)
         planeWidgetY.SetPlaneOrientationToYAxes()
@@ -95,7 +109,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         # for the z-slice, turn off texture interpolation:
         # interpolation is now nearest neighbour, to demonstrate
         # cross-hair cursor snapping to pixel centers
-        planeWidgetZ = vtk.vtkImagePlaneWidget()
+        planeWidgetZ = vtkImagePlaneWidget()
         planeWidgetZ.DisplayTextOn()
         planeWidgetZ.SetInputData(img_data)
         planeWidgetZ.SetPlaneOrientationToZAxes()
@@ -107,8 +121,8 @@ class TestImagePlaneWidget(Testing.vtkTest):
         planeWidgetZ.SetLookupTable(planeWidgetX.GetLookupTable())
 
         # Create the RenderWindow and Renderer
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.SetMultiSamples(0)
         renWin.AddRenderer(ren)
 
@@ -122,7 +136,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         mode_widget = planeWidgetZ
 
         # Set the interactor for the widgets
-        iact = vtk.vtkRenderWindowInteractor()
+        iact = vtkRenderWindowInteractor()
         iact.SetRenderWindow(renWin)
         planeWidgetX.SetInteractor(iact)
         planeWidgetX.On()

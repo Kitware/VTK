@@ -1,0 +1,15 @@
+NAME
+  VTK::RenderingFFMPEGOpenGL2
+LIBRARY_NAME
+  vtkRenderingFFMPEGOpenGL2
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::IOFFMPEG
+  VTK::RenderingOpenGL2
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::InteractionStyle
+  VTK::TestingRendering

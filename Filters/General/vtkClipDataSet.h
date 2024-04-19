@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkClipDataSet.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkClipDataSet
  * @brief   clip any dataset with user-specified implicit function or input scalar data
@@ -55,7 +43,7 @@
  *
  * @sa
  * vtkImplicitFunction vtkCutter vtkClipVolume vtkClipPolyData
-*/
+ */
 
 #ifndef vtkClipDataSet_h
 #define vtkClipDataSet_h
@@ -63,6 +51,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkImplicitFunction;
 class vtkIncrementalPointLocator;
@@ -70,27 +59,27 @@ class vtkIncrementalPointLocator;
 class VTKFILTERSGENERAL_EXPORT vtkClipDataSet : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeMacro(vtkClipDataSet,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkClipDataSet, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with user-specified implicit function; InsideOut turned off;
    * value set to 0.0; and generate clip scalars turned off.
    */
-  static vtkClipDataSet *New();
+  static vtkClipDataSet* New();
 
-  //@{
+  ///@{
   /**
    * Set the clipping value of the implicit function (if clipping with
    * implicit function) or scalar value (if clipping with
    * scalars). The default value is 0.0. This value is ignored if
    * UseValueAsOffset is true and a clip function is defined.
    */
-  vtkSetMacro(Value,double);
-  vtkGetMacro(Value,double);
-  //@}
+  vtkSetMacro(Value, double);
+  vtkGetMacro(Value, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If UseValueAsOffset is true, Value is used as an offset parameter to
    * the implicit function. Otherwise, Value is used only when clipping
@@ -99,9 +88,9 @@ public:
   vtkSetMacro(UseValueAsOffset, bool);
   vtkGetMacro(UseValueAsOffset, bool);
   vtkBooleanMacro(UseValueAsOffset, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the InsideOut flag. When off, a vertex is considered
    * inside the implicit function if its value is greater than the
@@ -110,67 +99,67 @@ public:
    * value is less than or equal to the Value ivar.  InsideOut is off
    * by default.
    */
-  vtkSetMacro(InsideOut,vtkTypeBool);
-  vtkGetMacro(InsideOut,vtkTypeBool);
-  vtkBooleanMacro(InsideOut,vtkTypeBool);
-  //@}
+  vtkSetMacro(InsideOut, vtkTypeBool);
+  vtkGetMacro(InsideOut, vtkTypeBool);
+  vtkBooleanMacro(InsideOut, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function with which to perform the
    * clipping. If you do not define an implicit function,
    * then the selected input scalar data will be used for clipping.
    */
   virtual void SetClipFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
-  //@}
+  vtkGetObjectMacro(ClipFunction, vtkImplicitFunction);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this flag is enabled, then the output scalar values will be
    * interpolated from the implicit function values, and not the
    * input scalar data. If you enable this flag but do not provide an
    * implicit function an error will be reported.
    */
-  vtkSetMacro(GenerateClipScalars,vtkTypeBool);
-  vtkGetMacro(GenerateClipScalars,vtkTypeBool);
-  vtkBooleanMacro(GenerateClipScalars,vtkTypeBool);
-  //@}
+  vtkSetMacro(GenerateClipScalars, vtkTypeBool);
+  vtkGetMacro(GenerateClipScalars, vtkTypeBool);
+  vtkBooleanMacro(GenerateClipScalars, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether a second output is generated. The second output
    * contains the polygonal data that's been clipped away.
    */
-  vtkSetMacro(GenerateClippedOutput,vtkTypeBool);
-  vtkGetMacro(GenerateClippedOutput,vtkTypeBool);
-  vtkBooleanMacro(GenerateClippedOutput,vtkTypeBool);
-  //@}
+  vtkSetMacro(GenerateClippedOutput, vtkTypeBool);
+  vtkGetMacro(GenerateClippedOutput, vtkTypeBool);
+  vtkBooleanMacro(GenerateClippedOutput, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance for merging clip intersection points that are near
    * the vertices of cells. This tolerance is used to prevent the generation
    * of degenerate primitives. Note that only 3D cells actually use this
    * instance variable.
    */
-  vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
-  vtkGetMacro(MergeTolerance,double);
-  //@}
+  vtkSetClampMacro(MergeTolerance, double, 0.0001, 0.25);
+  vtkGetMacro(MergeTolerance, double);
+  ///@}
 
   /**
    * Return the Clipped output.
    */
-  vtkUnstructuredGrid *GetClippedOutput();
+  vtkUnstructuredGrid* GetClippedOutput();
 
-  //@{
+  ///@{
   /**
    * Specify a spatial locator for merging points. By default, an
    * instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
-  //@}
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The
@@ -183,7 +172,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -191,17 +180,26 @@ public:
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
+
+  ///@{
+  /**
+   * Setter/Getter for stable clipping non-linear cells (default value is true)
+   */
+  vtkGetMacro(StableClipNonLinear, bool);
+  vtkSetMacro(StableClipNonLinear, bool);
+  vtkBooleanMacro(StableClipNonLinear, bool);
+  ///@}
 
 protected:
-  vtkClipDataSet(vtkImplicitFunction *cf=nullptr);
+  vtkClipDataSet(vtkImplicitFunction* cf = nullptr);
   ~vtkClipDataSet() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  vtkImplicitFunction *ClipFunction;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  vtkImplicitFunction* ClipFunction;
 
-  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator* Locator;
   vtkTypeBool InsideOut;
   double Value;
   vtkTypeBool GenerateClipScalars;
@@ -210,24 +208,26 @@ protected:
   double MergeTolerance;
 
   // Callback registered with the InternalProgressObserver.
-  static void InternalProgressCallbackFunction(vtkObject*, unsigned long,
-                                               void* clientdata, void*);
-  void InternalProgressCallback(vtkAlgorithm *algorithm);
+  static void InternalProgressCallbackFunction(vtkObject*, unsigned long, void* clientdata, void*);
+  void InternalProgressCallback(vtkAlgorithm* algorithm);
   // The observer to report progress from the internal readers.
   vtkCallbackCommand* InternalProgressObserver;
 
-  //helper functions
-  void ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output);
+  // helper functions
+  void ClipVolume(vtkDataSet* input, vtkUnstructuredGrid* output);
 
-  int ClipPoints(vtkDataSet* input, vtkUnstructuredGrid* output,
-                 vtkInformationVector** inputVector);
+  int ClipPoints(
+    vtkDataSet* input, vtkUnstructuredGrid* output, vtkInformationVector** inputVector);
 
   bool UseValueAsOffset;
   int OutputPointsPrecision;
+
+  bool StableClipNonLinear = true;
 
 private:
   vtkClipDataSet(const vtkClipDataSet&) = delete;
   void operator=(const vtkClipDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

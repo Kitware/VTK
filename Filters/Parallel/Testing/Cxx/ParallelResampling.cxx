@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    ParallelResampling.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Tests ParallelResampling.
 
@@ -20,7 +8,7 @@
 */
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkDebugLeaks.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
@@ -30,11 +18,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPResampleFilter.h"
 #include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProcess.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkTestUtilities.h"
-#include "vtkDataSetSurfaceFilter.h"
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 namespace
 {
@@ -42,40 +30,38 @@ namespace
 class MyProcess : public vtkProcess
 {
 public:
-  static MyProcess *New();
+  static MyProcess* New();
 
-  virtual void Execute();
+  void Execute() override;
 
-  void SetArgs(int anArgc,
-               char *anArgv[]);
+  void SetArgs(int anArgc, char* anArgv[]);
 
 protected:
   MyProcess();
 
   int Argc;
-  char **Argv;
+  char** Argv;
 };
 
 vtkStandardNewMacro(MyProcess);
 
 MyProcess::MyProcess()
 {
-  this->Argc=0;
-  this->Argv=nullptr;
+  this->Argc = 0;
+  this->Argv = nullptr;
 }
 
-void MyProcess::SetArgs(int anArgc,
-                        char *anArgv[])
+void MyProcess::SetArgs(int anArgc, char* anArgv[])
 {
-  this->Argc=anArgc;
-  this->Argv=anArgv;
+  this->Argc = anArgc;
+  this->Argv = anArgv;
 }
 
 void MyProcess::Execute()
 {
-  this->ReturnValue=1;
-  int numProcs=this->Controller->GetNumberOfProcesses();
-  int me=this->Controller->GetLocalProcessId();
+  this->ReturnValue = 1;
+  int numProcs = this->Controller->GetNumberOfProcesses();
+  int me = this->Controller->GetLocalProcessId();
   cout << "Nb process found: " << numProcs << endl;
 
   // Create and execute pipeline
@@ -85,9 +71,9 @@ void MyProcess::Execute()
   vtkNew<vtkPolyDataMapper> mapper;
 
   sampler->SetInputConnection(wavelet->GetOutputPort());
-  sampler->SetSamplingDimension(21,21,21); // 21 for perfect match with wavelet default extent
-  //sampler->SetUseInputBounds(0);
-  //sampler->SetCustomSamplingBounds(-10, 10, -10, 10, -10, 10);
+  sampler->SetSamplingDimension(21, 21, 21); // 21 for perfect match with wavelet default extent
+  // sampler->SetUseInputBounds(0);
+  // sampler->SetCustomSamplingBounds(-10, 10, -10, 10, -10, 10);
 
   toPolyData->SetInputConnection(sampler->GetOutputPort());
 
@@ -97,26 +83,30 @@ void MyProcess::Execute()
   mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
 
-  cout << "Got for Wavelet " << wavelet->GetOutput()->GetNumberOfPoints() << " points on process " << me << endl;
-  cout << "Got for Surface " << toPolyData->GetOutput()->GetNumberOfPoints() << " points on process " << me << endl;
+  cout << "Got for Wavelet " << wavelet->GetOutput()->GetNumberOfPoints() << " points on process "
+       << me << endl;
+  cout << "Got for Surface " << toPolyData->GetOutput()->GetNumberOfPoints()
+       << " points on process " << me << endl;
 
   if (me == 0)
   {
     // Only root node compare the standard Wavelet data with the probed one
     vtkNew<vtkRTAnalyticSource> waveletBase1Piece;
     waveletBase1Piece->Update();
-    vtkImageData *reference = waveletBase1Piece->GetOutput();
-    vtkImageData *result = sampler->GetOutput();
+    vtkImageData* reference = waveletBase1Piece->GetOutput();
+    vtkImageData* result = sampler->GetOutput();
 
     // Compare RTData Array
-    vtkFloatArray* rtDataRef = vtkArrayDownCast<vtkFloatArray>(reference->GetPointData()->GetArray("RTData"));
-    vtkFloatArray* rtDataTest = vtkArrayDownCast<vtkFloatArray>(result->GetPointData()->GetArray("RTData"));
+    vtkFloatArray* rtDataRef =
+      vtkArrayDownCast<vtkFloatArray>(reference->GetPointData()->GetArray("RTData"));
+    vtkFloatArray* rtDataTest =
+      vtkArrayDownCast<vtkFloatArray>(result->GetPointData()->GetArray("RTData"));
     vtkIdType sizeRef = rtDataRef->GetNumberOfTuples();
-    if(sizeRef == rtDataTest->GetNumberOfTuples() && rtDataRef->GetNumberOfComponents() == 1)
+    if (sizeRef == rtDataTest->GetNumberOfTuples() && rtDataRef->GetNumberOfComponents() == 1)
     {
-      for(vtkIdType idx = 0; idx < sizeRef; ++idx)
+      for (vtkIdType idx = 0; idx < sizeRef; ++idx)
       {
-        if(rtDataRef->GetValue(idx) != rtDataTest->GetValue(idx))
+        if (rtDataRef->GetValue(idx) != rtDataTest->GetValue(idx))
         {
           this->ReturnValue = 0;
           return;
@@ -129,7 +119,8 @@ void MyProcess::Execute()
   }
   else
   {
-    if(sampler->GetOutput()->GetNumberOfPoints() != 0 || wavelet->GetOutput()->GetNumberOfPoints() == 0)
+    if (sampler->GetOutput()->GetNumberOfPoints() != 0 ||
+      wavelet->GetOutput()->GetNumberOfPoints() == 0)
     {
       this->ReturnValue = 0;
     }
@@ -138,7 +129,7 @@ void MyProcess::Execute()
 
 }
 
-int ParallelResampling(int argc, char *argv[])
+int ParallelResampling(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
@@ -149,7 +140,7 @@ int ParallelResampling(int argc, char *argv[])
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv, 1);
 
   int retVal = 1;
@@ -165,15 +156,15 @@ int ParallelResampling(int argc, char *argv[])
       cout << "DistributedData test requires MPI" << endl;
     }
     contr->Delete();
-    return retVal;   // is this the right error val?   TODO
+    return retVal; // is this the right error val?   TODO
   }
 
-  MyProcess *p=MyProcess::New();
-  p->SetArgs(argc,argv);
+  MyProcess* p = MyProcess::New();
+  p->SetArgs(argc, argv);
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
 
-  retVal=p->GetReturnValue();
+  retVal = p->GetReturnValue();
   p->Delete();
 
   contr->Finalize();

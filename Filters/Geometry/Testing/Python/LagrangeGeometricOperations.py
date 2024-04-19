@@ -1,8 +1,44 @@
-
 import os
 import os.path
-from vtk import *
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkLookupTable,
+    vtkMinimalStandardRandomSequence,
+    vtkPoints,
+    vtkVariant,
+)
+from vtkmodules.vtkCommonColor import vtkColorSeries
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkDataSet,
+    vtkPlane,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkContourFilter,
+    vtkCutter,
+    vtkGlyph3D,
+    vtkPolyDataNormals,
+)
+from vtkmodules.vtkFiltersGeneral import vtkClipDataSet
+from vtkmodules.vtkFiltersGeometry import (
+    vtkDataSetSurfaceFilter,
+    vtkUnstructuredGridGeometryFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOXML import vtkXMLUnstructuredGridReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkWindowToImageFilter,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
 import unittest
 
 try:
@@ -20,7 +56,7 @@ def renderWindowTooSmall():
         trw = vtkRenderWindow()
         trr = vtkRenderer()
         trr.SetBackground(1,1,1)
-        trw.SetSize(512,512)
+        trw.SetSize(300,300)
         trw.AddRenderer(trr)
         twi = vtkWindowToImageFilter()
         twi.SetInput(trw)
@@ -43,7 +79,7 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         self.rs.SetCurrentStyleToTrackballCamera()
         self.rs.SetCurrentStyleToMultiTouchCamera()
         self.rr.SetBackground(1,1,1)
-        self.rw.SetSize(512, 512)
+        self.rw.SetSize(300, 300)
 
         self.rdr = vtkXMLUnstructuredGridReader()
         self.rdr.SetFileName(self.pathToData('Elements.vtu'))

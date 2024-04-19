@@ -1,11 +1,32 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkIdFilter
+from vtkmodules.vtkFiltersModeling import vtkBandedPolyDataContourFilter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkActor2D,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLabel import vtkLabeledDataMapper
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Manually create cells of various types: vertex, polyvertex, line,
 # polyline, triangle, quad, pentagon, and triangle strip.
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 pts.InsertPoint(0,0,0,0)
 pts.InsertPoint(1,0,1,0)
 pts.InsertPoint(2,0,2,0)
@@ -32,7 +53,7 @@ pts.InsertPoint(22,10,2,0)
 pts.InsertPoint(23,12,2,0)
 pts.InsertPoint(24,10,3,0)
 pts.InsertPoint(25,12,3,0)
-verts = vtk.vtkCellArray()
+verts = vtkCellArray()
 verts.InsertNextCell(1)
 verts.InsertCellPoint(0)
 verts.InsertNextCell(1)
@@ -43,7 +64,7 @@ verts.InsertNextCell(3)
 verts.InsertCellPoint(3)
 verts.InsertCellPoint(4)
 verts.InsertCellPoint(5)
-lines = vtk.vtkCellArray()
+lines = vtkCellArray()
 lines.InsertNextCell(2)
 lines.InsertCellPoint(6)
 lines.InsertCellPoint(7)
@@ -51,7 +72,7 @@ lines.InsertNextCell(3)
 lines.InsertCellPoint(8)
 lines.InsertCellPoint(9)
 lines.InsertCellPoint(10)
-polys = vtk.vtkCellArray()
+polys = vtkCellArray()
 polys.InsertNextCell(4)
 polys.InsertCellPoint(14)
 polys.InsertCellPoint(15)
@@ -61,7 +82,7 @@ polys.InsertNextCell(3)
 polys.InsertCellPoint(11)
 polys.InsertCellPoint(12)
 polys.InsertCellPoint(13)
-strips = vtk.vtkCellArray()
+strips = vtkCellArray()
 strips.InsertNextCell(8)
 strips.InsertCellPoint(19)
 strips.InsertCellPoint(18)
@@ -71,7 +92,7 @@ strips.InsertCellPoint(23)
 strips.InsertCellPoint(22)
 strips.InsertCellPoint(25)
 strips.InsertCellPoint(24)
-scalars = vtk.vtkFloatArray()
+scalars = vtkFloatArray()
 scalars.SetNumberOfTuples(26)
 scalars.SetTuple1(0,0)
 scalars.SetTuple1(1,50)
@@ -99,39 +120,39 @@ scalars.SetTuple1(22,50)
 scalars.SetTuple1(23,75)
 scalars.SetTuple1(24,75)
 scalars.SetTuple1(25,100)
-polyData = vtk.vtkPolyData()
+polyData = vtkPolyData()
 polyData.SetPoints(pts)
 polyData.SetVerts(verts)
 polyData.SetLines(lines)
 polyData.SetPolys(polys)
 polyData.SetStrips(strips)
 polyData.GetPointData().SetScalars(scalars)
-bf = vtk.vtkBandedPolyDataContourFilter()
+bf = vtkBandedPolyDataContourFilter()
 bf.SetInputData(polyData)
 bf.GenerateValues(3,25,75)
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(bf.GetOutputPort())
 mapper.SetScalarModeToUseCellData()
 mapper.SetScalarRange(0,4)
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
-ids = vtk.vtkIdFilter()
+ids = vtkIdFilter()
 ids.SetInputConnection(bf.GetOutputPort())
 ids.PointIdsOn()
 ids.CellIdsOn()
 ids.FieldDataOn()
-ldm = vtk.vtkLabeledDataMapper()
+ldm = vtkLabeledDataMapper()
 ldm.SetInputConnection(ids.GetOutputPort())
 #  ldm SetLabelFormat "%g"
 ldm.SetLabelModeToLabelFieldData()
-pointLabels = vtk.vtkActor2D()
+pointLabels = vtkActor2D()
 pointLabels.SetMapper(ldm)
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGraphWeightFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGraphWeightFilter.h"
 
 #include "vtkEdgeListIterator.h"
@@ -24,27 +12,26 @@
 #include "vtkMutableDirectedGraph.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
-bool vtkGraphWeightFilter::CheckRequirements(vtkGraph* const vtkNotUsed(graph)) const
+VTK_ABI_NAMESPACE_BEGIN
+bool vtkGraphWeightFilter::CheckRequirements(vtkGraph* vtkNotUsed(graph)) const
 {
   return true;
 }
 
-int vtkGraphWeightFilter::RequestData(vtkInformation *vtkNotUsed(request),
-                                         vtkInformationVector **inputVector,
-                                         vtkInformationVector *outputVector)
+int vtkGraphWeightFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Get the input and output
-  vtkGraph* input = vtkGraph::SafeDownCast(
-      inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkGraph* output = vtkGraph::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -52,15 +39,14 @@ int vtkGraphWeightFilter::RequestData(vtkInformation *vtkNotUsed(request),
   // We want to keep the vertices and edges, just add a weight array.
   output->ShallowCopy(input);
 
-  if(!this->CheckRequirements(input))
+  if (!this->CheckRequirements(input))
   {
     vtkErrorMacro(<< "Requirements are not met!");
     return 0;
   }
 
   // Create the edge weight array
-  vtkSmartPointer<vtkFloatArray> weights =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> weights = vtkSmartPointer<vtkFloatArray>::New();
   weights->SetNumberOfComponents(1);
   weights->SetNumberOfTuples(input->GetNumberOfEdges());
   weights->SetName("Weights");
@@ -70,8 +56,12 @@ int vtkGraphWeightFilter::RequestData(vtkInformation *vtkNotUsed(request),
     vtkSmartPointer<vtkEdgeListIterator>::New();
   input->GetEdges(edgeListIterator);
 
-  while(edgeListIterator->HasNext())
+  while (edgeListIterator->HasNext())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkEdgeType edge = edgeListIterator->Next();
 
     float w = this->ComputeWeight(input, edge);
@@ -85,8 +75,9 @@ int vtkGraphWeightFilter::RequestData(vtkInformation *vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphWeightFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkGraphAlgorithm::PrintSelf(os,indent);
+  vtkGraphAlgorithm::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

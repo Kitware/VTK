@@ -83,6 +83,7 @@
 #include <hdf5_hl.h>
 
 #include "nc4internal.h"
+#include "hdf5internal.h"
 
 #ifndef HDrealloc
 #define HDrealloc(x,y) realloc(x,y)
@@ -140,7 +141,7 @@ static void tracefail(const char* fcn);
 #define H5LT_FILE_IMAGE_DONT_COPY    0x0002 /* The HDF5 lib won't copy   */
 /* user supplied image buffer. The same image is open with the core driver.  */
 #define H5LT_FILE_IMAGE_DONT_RELEASE 0x0004 /* The HDF5 lib won't        */
-/* deallocate user supplied image buffer. The user application is reponsible */
+/* deallocate user supplied image buffer. The user application is responsible */
 /* for doing so.                                                             */
 #define H5LT_FILE_IMAGE_ALL          0x0007
 
@@ -207,6 +208,9 @@ typedef struct {
     int ref_count;		/* Reference counter on udata struct */
     NC_FILE_INFO_T* h5;
 } H5LT_file_image_ud_t;
+
+/* Unique id for file name */
+static long         file_name_counter;
 
 /* callbacks prototypes for file image ops */
 static void *local_image_malloc(size_t size, H5FD_file_image_op_t file_image_op, void *udata);
@@ -463,7 +467,7 @@ out:
 /* Modified:
 1. If the realloc new size is <= existing size,
    then pretend we did a realloc and return success.
-   This avoids unneccessary heap operations.
+   This avoids unnecessary heap operations.
 2. If the H5LT_FILE_IMAGE_DONT_COPY or
    H5LT_FILE_IMAGE_DONT_RELEASE flag is set and the
    realloc new size is > existing size, then fail
@@ -729,8 +733,6 @@ NC4_image_init(NC_FILE_INFO_T* h5)
                                            &local_image_realloc, &local_image_free,
                                            &local_udata_copy, &local_udata_free,
                                            (void *)NULL};
-    static long         file_name_counter;
-
     imageflags = h5->mem.imageflags;
     create = h5->mem.created;
 
@@ -792,6 +794,10 @@ NC4_image_init(NC_FILE_INFO_T* h5)
     if (H5Pset_file_image(fapl, udata->app_image_ptr, udata->app_image_size) < 0)
         goto out;
 
+    /* Maintain a backward link */
+    h5->mem.udata = (void*)udata;
+    udata = NULL;
+
     /* define a unique file name */
     snprintf(file_name, (sizeof(file_name) - 1), "file_image_%ld", file_name_counter++);
 
@@ -805,16 +811,12 @@ NC4_image_init(NC_FILE_INFO_T* h5)
 
     /* Assign file image in FAPL to the core file driver */
     if(create) {
-        if ((file_id = H5Fcreate(file_name, file_open_flags, H5P_DEFAULT, fapl)) < 0)
+        if ((file_id = nc4_H5Fcreate(file_name, file_open_flags, H5P_DEFAULT, fapl)) < 0)
             goto out;
     } else {
-        if ((file_id = H5Fopen(file_name, file_open_flags, fapl)) < 0)
+        if ((file_id = nc4_H5Fopen(file_name, file_open_flags, fapl)) < 0)
             goto out;
     }
-
-    /* Maintain a backward link */
-    h5->mem.udata = (void*)udata;
-    udata = NULL;
 
 done:
     /* Reclaim the fapl object */
@@ -852,22 +854,25 @@ NC4_image_finalize(void* _udata)
 }
 
 int
-NC4_extract_file_image(NC_FILE_INFO_T* h5)
+NC4_extract_file_image(NC_FILE_INFO_T* h5, int abort)
 {
     int stat = NC_NOERR;
     H5LT_file_image_ud_t *udata;
 
     udata = (H5LT_file_image_ud_t *)h5->mem.udata;
-    assert(udata != NULL);
+    if(abort && udata == NULL) {
+        stat = NC_EHDFERR;
+    } else {
+        assert(udata != NULL);
 
-    /* Fill in h5->mem.memio from udata */
-    h5->mem.memio.memory = udata->vfd_image_ptr;
-    h5->mem.memio.size = udata->vfd_image_size;
+        /* Fill in h5->mem.memio from udata */
+        h5->mem.memio.memory = udata->vfd_image_ptr;
+        h5->mem.memio.size = udata->vfd_image_size;
 
-    /* Move control */
-    udata->vfd_image_ptr = NULL;
-    udata->vfd_image_size = 0;
-    
+        /* Move control */
+        udata->vfd_image_ptr = NULL;
+        udata->vfd_image_size = 0;
+    }
     return stat;
 }
 
@@ -1002,7 +1007,7 @@ traceflags(int flags)
 	case H5LT_FILE_IMAGE_DONT_RELEASE: /* 0x0004 The HDF5 lib won't
                                               deallocate user supplied image
                                               buffer. The user application
-                                              is reponsible for doing so. */
+                                              is responsible for doing so. */
 	    strlcat(tmp,"DONT_RELEASE",sizeof(tmp));
 	    break;
 	default: break;

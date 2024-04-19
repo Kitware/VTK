@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVolumeReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkVolumeReader
  * @brief   read image files
@@ -40,7 +28,7 @@
  * @sa
  * vtkSliceCubes vtkMarchingCubes vtkPNMReader vtkVolume16Reader
  * vtkImageReader
-*/
+ */
 
 #ifndef vtkVolumeReader_h
 #define vtkVolumeReader_h
@@ -48,71 +36,72 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkVolumeReader : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkVolumeReader,vtkImageAlgorithm);
+  vtkTypeMacro(vtkVolumeReader, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file prefix for the image file(s).
    */
-  vtkSetStringMacro(FilePrefix);
-  vtkGetStringMacro(FilePrefix);
-  //@}
+  vtkSetFilePathMacro(FilePrefix);
+  vtkGetFilePathMacro(FilePrefix);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The snprintf format used to build filename from FilePrefix and number.
    */
-  vtkSetStringMacro(FilePattern);
-  vtkGetStringMacro(FilePattern);
-  //@}
+  vtkSetFilePathMacro(FilePattern);
+  vtkGetFilePathMacro(FilePattern);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the range of files to read.
    */
-  vtkSetVector2Macro(ImageRange,int);
-  vtkGetVectorMacro(ImageRange,int,2);
-  //@}
+  vtkSetVector2Macro(ImageRange, int);
+  vtkGetVectorMacro(ImageRange, int, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the spacing for the data.
    */
-  vtkSetVector3Macro(DataSpacing,double);
-  vtkGetVectorMacro(DataSpacing,double,3);
-  //@}
+  vtkSetVector3Macro(DataSpacing, double);
+  vtkGetVectorMacro(DataSpacing, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the origin for the data.
    */
-  vtkSetVector3Macro(DataOrigin,double);
-  vtkGetVectorMacro(DataOrigin,double,3);
-  //@}
+  vtkSetVector3Macro(DataOrigin, double);
+  vtkGetVectorMacro(DataOrigin, double, 3);
+  ///@}
 
   /**
    * Other objects make use of this method.
    */
-  virtual vtkImageData *GetImage(int ImageNumber) = 0;
+  virtual vtkImageData* GetImage(int ImageNumber) = 0;
 
 protected:
   vtkVolumeReader();
   ~vtkVolumeReader() override;
 
-  char *FilePrefix;
-  char *FilePattern;
+  char* FilePrefix;
+  char* FilePattern;
   int ImageRange[2];
   double DataSpacing[3];
   double DataOrigin[3];
+
 private:
   vtkVolumeReader(const vtkVolumeReader&) = delete;
   void operator=(const vtkVolumeReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

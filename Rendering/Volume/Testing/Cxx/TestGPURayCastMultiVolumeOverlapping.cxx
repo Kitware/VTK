@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastMultiVolumeOverlapping.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * Tests rendering 3 overlapping volumes as inputs in vtkGPUVolumeRCMapper
  * vtkMultiVolume.
@@ -22,48 +10,48 @@
 #include "vtkCommand.h"
 #include "vtkConeSource.h"
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageResample.h"
+#include "vtkImageResize.h"
 #include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkXMLImageDataReader.h"
-#include "vtkVolume16Reader.h"
+#include "vtkMultiVolume.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-#include "vtkMultiVolume.h"
+#include "vtkVolume16Reader.h"
 #include "vtkVolumeProperty.h"
-#include "vtkImageResize.h"
-#include "vtkImageResample.h"
+#include "vtkXMLImageDataReader.h"
 
+#include "vtkAbstractMapper.h"
 #include "vtkImageData.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkAbstractMapper.h"
 
 #include "vtkMath.h"
 #include <chrono>
 
-namespace {
+namespace
+{
 class MoveRotateCommand : public vtkCommand
 {
 public:
+  static MoveRotateCommand* New() { return new MoveRotateCommand; }
 
-  static MoveRotateCommand* New() { return new MoveRotateCommand; };
-
-  void Execute(vtkObject* caller, unsigned long eventId,
-    void* /*data*/) override
+  void Execute(vtkObject* caller, unsigned long eventId, void* /*data*/) override
   {
     switch (eventId)
     {
       case vtkCommand::KeyPressEvent:
       {
         auto interactor = vtkRenderWindowInteractor::SafeDownCast(caller);
-        const std::string key = interactor->GetKeySym();
+        const char* ckey = interactor->GetKeySym();
+        const std::string key = ckey != nullptr ? ckey : "";
 
-        double times[3] = {0, 0, 0};
-        double timesAngle[3] = {0, 0, 0};
+        double times[3] = { 0, 0, 0 };
+        double timesAngle[3] = { 0, 0, 0 };
         // Translations
         if (key == "Left")
         {
@@ -94,7 +82,7 @@ public:
         {
           timesAngle[0] = -1;
         }
-        else if (key =="s")
+        else if (key == "s")
         {
           timesAngle[0] = 1;
         }
@@ -134,12 +122,9 @@ public:
     }
 
     this->RenderWindow->Render();
-  };
-
-  void SetVolume(vtkProp3D* vol)
-  {
-    this->Volume = vol;
   }
+
+  void SetVolume(vtkProp3D* vol) { this->Volume = vol; }
 
   vtkRenderWindow* RenderWindow = nullptr;
   vtkProp3D* Volume = nullptr;
@@ -166,13 +151,11 @@ int TestGPURayCastMultiVolumeOverlapping(int argc, char* argv[])
   vaseSource->SetFileName(volumeFile);
   delete[] volumeFile;
 
-  vtkSmartPointer<vtkXMLImageDataReader> xmlReader =
-    vtkSmartPointer<vtkXMLImageDataReader>::New();
-  char* filename =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/hncma-atlas.vti");
+  vtkSmartPointer<vtkXMLImageDataReader> xmlReader = vtkSmartPointer<vtkXMLImageDataReader>::New();
+  char* filename = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/hncma-atlas.vti");
   xmlReader->SetFileName(filename);
   xmlReader->Update();
-  delete [] filename;
+  delete[] filename;
   filename = nullptr;
 
   // Geometry
@@ -204,20 +187,20 @@ int TestGPURayCastMultiVolumeOverlapping(int argc, char* argv[])
   headmrSource->Update();
 
   vtkNew<vtkColorTransferFunction> ctf;
-  ctf->AddRGBPoint(0,    0.0, 0.0, 0.0);
-  ctf->AddRGBPoint(500,  1.0, 0.5, 0.3);
+  ctf->AddRGBPoint(0, 0.0, 0.0, 0.0);
+  ctf->AddRGBPoint(500, 1.0, 0.5, 0.3);
   ctf->AddRGBPoint(1000, 1.0, 0.5, 0.3);
   ctf->AddRGBPoint(1150, 1.0, 1.0, 0.9);
 
   vtkNew<vtkPiecewiseFunction> pf;
-  pf->AddPoint(0,    0.00);
-  pf->AddPoint(500,  0.15);
+  pf->AddPoint(0, 0.00);
+  pf->AddPoint(500, 0.15);
   pf->AddPoint(1000, 0.15);
   pf->AddPoint(1150, 0.85);
 
   vtkNew<vtkPiecewiseFunction> gf;
-  gf->AddPoint(0,   0.0);
-  gf->AddPoint(90,  0.1);
+  gf->AddPoint(0, 0.0);
+  gf->AddPoint(90, 0.1);
   gf->AddPoint(100, 0.7);
 
   vtkNew<vtkVolume> vol;
@@ -225,23 +208,22 @@ int TestGPURayCastMultiVolumeOverlapping(int argc, char* argv[])
   vol->GetProperty()->SetColor(ctf);
   vol->GetProperty()->SetGradientOpacity(gf);
   vol->GetProperty()->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  // Note: Shading is currently not supported with multi-volume active
-  //->ShadeOn();
+  vol->GetProperty()->ShadeOn();
 
   // Volume 1 (vase)
   // -----------------------------
   vtkNew<vtkColorTransferFunction> ctf1;
-  ctf1->AddRGBPoint(0,    0.0, 0.0, 0.0);
-  ctf1->AddRGBPoint(500,  0.1, 1.0, 0.3);
+  ctf1->AddRGBPoint(0, 0.0, 0.0, 0.0);
+  ctf1->AddRGBPoint(500, 0.1, 1.0, 0.3);
   ctf1->AddRGBPoint(1000, 0.1, 1.0, 0.3);
   ctf1->AddRGBPoint(1150, 1.0, 1.0, 0.9);
 
   vtkNew<vtkPiecewiseFunction> pf1;
-  pf1->AddPoint(0,    0.0);
-  pf1->AddPoint(500,  1.0);
+  pf1->AddPoint(0, 0.0);
+  pf1->AddPoint(500, 1.0);
 
   vtkNew<vtkPiecewiseFunction> gf1;
-  gf1->AddPoint(0,   0.0);
+  gf1->AddPoint(0, 0.0);
   gf1->AddPoint(550, 1.0);
 
   vtkNew<vtkVolume> vol1;
@@ -250,29 +232,35 @@ int TestGPURayCastMultiVolumeOverlapping(int argc, char* argv[])
   vol1->GetProperty()->SetGradientOpacity(gf1);
   vol1->GetProperty()->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
 
+  // this is actually not used, the shader looks at the property of the first volume
+  // vol1->GetProperty()->ShadeOn();
+
   vol1->RotateX(-55.);
   vol1->SetPosition(80., 50., 130.);
 
   // Volume 2 (brain)
   // -----------------------------
   vtkNew<vtkPiecewiseFunction> pf2;
-  pf1->AddPoint(0,    0.0);
-  pf1->AddPoint(5022,  0.09);
+  pf1->AddPoint(0, 0.0);
+  pf1->AddPoint(5022, 0.09);
 
   vtkNew<vtkColorTransferFunction> ctf2;
-  ctf2->AddRGBPoint(0,    1.0, 0.3, 0.2);
+  ctf2->AddRGBPoint(0, 1.0, 0.3, 0.2);
   ctf2->AddRGBPoint(2511, 0.3, 0.2, 0.9);
   ctf2->AddRGBPoint(5022, 0.5, 0.6, 1.0);
 
   vtkNew<vtkPiecewiseFunction> gf2;
-  gf2->AddPoint(0,   0.0);
+  gf2->AddPoint(0, 0.0);
   gf2->AddPoint(550, 0.5);
 
   vtkNew<vtkVolume> vol2;
   vol2->GetProperty()->SetScalarOpacity(pf2);
   vol2->GetProperty()->SetColor(ctf2);
-  //vol2->GetProperty()->SetGradientOpacity(gf2);
+  vol2->GetProperty()->SetGradientOpacity(gf2);
   vol2->GetProperty()->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
+
+  // this is actually not used, the shader looks at the property of the first volume
+  // vol2->GetProperty()->ShadeOn();
 
   vol2->SetScale(0.8, 0.8, 0.8);
   vol2->SetPosition(210., 200., -90.);
@@ -334,6 +322,5 @@ int TestGPURayCastMultiVolumeOverlapping(int argc, char* argv[])
     iren->Start();
   }
 
-  return !((retVal == vtkTesting::PASSED) ||
-           (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

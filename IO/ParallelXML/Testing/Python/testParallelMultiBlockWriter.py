@@ -1,12 +1,20 @@
 from __future__ import print_function
 import shutil, os
 
-import vtk
+from vtkmodules.vtkCommonDataModel import (
+    vtkMultiBlockDataSet,
+    vtkMultiPieceDataSet,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOParallelXML import vtkXMLPMultiBlockDataWriter
+from vtkmodules.vtkIOXML import vtkXMLMultiBlockDataReader
+from vtkmodules.vtkParallelCore import vtkMultiProcessController
 
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.util.misc import vtkGetTempDir
 VTK_TEMP_DIR = vtkGetTempDir()
 
-contr = vtk.vtkMultiProcessController.GetGlobalController()
+contr = vtkMultiProcessController.GetGlobalController()
 if not contr:
     nranks = 1
     rank = 0
@@ -43,34 +51,49 @@ else:
 #   |   |-- [0,1,..nranks](0,1,...nranks)
 #   |   |-- [0,1,..nranks](0,1,...nranks)
 #   |   ... (up to total number of ranks)
+#   |
+#   |-- <MP>    # level where a multipiece dataset is present on all ranks
+#   |  |
+#   |  |-- [0,1,..nranks](0,1,...nranks)
+#   |  |-- [0,1,..nranks](0,1,...nranks)
+#   |  |-- [0,1,..nranks](0,1,...nranks)
+#   |  ... (up to total number of ranks)
 
 
 def createDataSet(empty):
     if not empty:
-        s = vtk.vtkSphereSource()
+        s = vtkSphereSource()
         s.Update()
         clone = s.GetOutputDataObject(0).NewInstance()
         clone.ShallowCopy(s.GetOutputDataObject(0))
         return clone
     else:
-        return vtk.vtkPolyData()
+        return vtkPolyData()
 
 def createData(non_null_ranks, non_empty_ranks, num_ranks):
-    mb = vtk.vtkMultiBlockDataSet()
+    mb = vtkMultiBlockDataSet()
     mb.SetNumberOfBlocks(num_ranks)
     for i in non_null_ranks:
         mb.SetBlock(i, createDataSet(i not in non_empty_ranks))
     return mb
 
+def createMP(num_pieces):
+    mp = vtkMultiPieceDataSet()
+    mp.SetNumberOfPieces(num_pieces)
+    for i in range(num_pieces):
+        mp.SetPiece(i, createDataSet(False))
+    return mp
+
 def createMB(piece, num_pieces):
-    output = vtk.vtkMultiBlockDataSet()
-    output.SetNumberOfBlocks(3)
+    output = vtkMultiBlockDataSet()
+    output.SetNumberOfBlocks(4)
     output.SetBlock(0, createData([piece], [piece], num_pieces))
     output.SetBlock(1, createData(range(num_pieces), [piece], num_pieces))
     output.SetBlock(2, createData(range(num_pieces), range(num_pieces), num_pieces))
+    output.SetBlock(3, createMP(num_pieces))
     return output
 
-writer = vtk.vtkXMLPMultiBlockDataWriter()
+writer = vtkXMLPMultiBlockDataWriter()
 prefix =VTK_TEMP_DIR + "/testParallelXMLWriters"
 fname = prefix + ".vtm"
 
@@ -96,7 +119,7 @@ if contr:
     contr.Barrier()
 
 if rank == 0:
-    reader = vtk.vtkXMLMultiBlockDataReader()
+    reader = vtkXMLMultiBlockDataReader()
     reader.SetFileName(fname)
     reader.Update()
 
@@ -104,6 +127,6 @@ if rank == 0:
     # set of files, let's just look at the files we wrote out.
     files = os.listdir(prefix)
 
-    expected_file_count = nranks + nranks + (nranks*nranks)
+    expected_file_count = nranks + nranks + 2*(nranks*nranks)
     print ("Expecting %d files for the leaf nodes" % expected_file_count)
     assert (len(files) == expected_file_count)

@@ -11,15 +11,15 @@ See the adjacent README.txt file for instructions.
 
 /* to workaround https://bugs.llvm.org/show_bug.cgi?id=43465 */
 #if defined(__clang__)
-  #pragma clang diagnostic push
-  #if defined(__has_warning)
-    #if __has_warning("-Wimplicit-fallthrough")
-      #pragma clang diagnostic ignored "-Wimplicit-fallthrough"
-    #endif
-  #endif
+#pragma clang diagnostic push
+#if defined(__has_warning)
+#if __has_warning("-Wimplicit-fallthrough")
+#pragma clang diagnostic ignored "-Wimplicit-fallthrough"
+#endif
+#endif
 #elif defined(__GNUC__) && (__GNUC__ >= 7)
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 #endif
 
 /* We do not care of interactive mode */
@@ -32,16 +32,16 @@ See the adjacent README.txt file for instructions.
 #define YY_SKIP_YYWRAP
 
 #ifdef _WIN32
-#pragma warning ( disable : 4018 )
-#pragma warning ( disable : 4127 )
-#pragma warning ( disable : 4131 )
-#pragma warning ( disable : 4244 )
-#pragma warning ( disable : 4251 )
-#pragma warning ( disable : 4267 )
-#pragma warning ( disable : 4305 )
-#pragma warning ( disable : 4309 )
-#pragma warning ( disable : 4706 )
-#pragma warning ( disable : 4786 )
+#pragma warning(disable : 4018)
+#pragma warning(disable : 4127)
+#pragma warning(disable : 4131)
+#pragma warning(disable : 4244)
+#pragma warning(disable : 4251)
+#pragma warning(disable : 4267)
+#pragma warning(disable : 4305)
+#pragma warning(disable : 4309)
+#pragma warning(disable : 4706)
+#pragma warning(disable : 4786)
 #endif
 
 #define SKIP_MATCH_MAXLEN 15
@@ -52,9 +52,9 @@ See the adjacent README.txt file for instructions.
  * Return 0 if no match found.
  */
 static int skip_comment(void);
-static int skip_trailing_comment(const char *text, size_t l);
-static int skip_ahead_multi(const char *strings[]);
-static int skip_ahead_until(const char *text);
+static int skip_trailing_comment(const char* text, size_t l);
+static int skip_ahead_multi(const char* strings[]);
+static int skip_ahead_until(const char* text);
 static int skip_to_next_directive(void);
 static int skip_conditional_block(void);
 
@@ -68,19 +68,20 @@ static void vtk_section_comment(void);
 static void cpp_comment_line(void);
 static void blank_line(void);
 
-static const char *raw_string(const char *begin);
+static const char* raw_string(const char* begin, int* has_ud_suffix);
 
-static void preprocessor_directive(const char *text, size_t l);
-static void print_preprocessor_error(int result, const char *cp, size_t n);
-static char *get_macro_arguments(void);
+static void preprocessor_directive(const char* text, size_t l);
+static void print_preprocessor_error(int result, const char* cp, size_t n);
+static char* get_macro_arguments(void);
+static void skip_macro_arguments(void);
 
 static void push_buffer(void);
 static int pop_buffer(void);
 
-static void push_include(const char *filename);
+static void push_include(const char* filename);
 static void pop_include(void);
 
-static void push_macro(MacroInfo *macro);
+static void push_macro(MacroInfo* macro);
 static void pop_macro(void);
 static int in_macro(void);
 
@@ -123,48 +124,31 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       preprocessor_directive(yytext, yyleng);
    }
 
-("u8"|"u"|"U"|"L")?\"([^\\"]|\\\r\n|\\\n|\\.)*\"(_{ID})?  {
+("u8"|"u"|"U"|"L")?\"([^\\"]|\\\r\n|\\\n|\\.)*\" {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(STRING_LITERAL);
     }
 
-("u8"|"u"|"U"|"L")?\'([^\\']|\\.)+\'(_{ID})?  {
+("u8"|"u"|"U"|"L")?\"([^\\"]|\\\r\n|\\\n|\\.)*\"{ID}  {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(STRING_LITERAL_UD);
+    }
+
+("u8"|"u"|"U"|"L")?\'([^\\']|\\.)+\'{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(CHAR_LITERAL);
     }
 
-("R"|"u8R"|"uR"|"UR"|"LR")?\"[^ ()\t\v\f\n]*"(" {
-      yylval.str = raw_string(yytext);
-      return(STRING_LITERAL);
-    }
-
-{ID}"_EXPORT"  /* ignore EXPORT macros */
-
-"vtkNotUsed" { /* let the wrappers see the parameter */
-      char *args = get_macro_arguments();
-      char *cp;
-      size_t l = 0;
-      if (args)
-      {
-        cp = args;
-        if (*cp == '(') { cp++; }
-        while (*cp == ' ' || *cp == '\t') { cp++; }
-        l = vtkParse_SkipId(cp);
-        if (l)
-        {
-          yylval.str = vtkstrndup(cp, l);
-          free(args);
-          return(ID);
-        }
-        free(args);
-      }
+("R"|"u8R"|"uR"|"UR"|"LR")\"[^ ()\t\v\f\n]*"(" {
+      int has_ud_suffix = 0;
+      yylval.str = raw_string(yytext, &has_ud_suffix);
+      return (has_ud_suffix ? STRING_LITERAL_UD : STRING_LITERAL);
     }
 
 "auto"          return(AUTO);
 
 "double"        return(DOUBLE);
 "float"         return(FLOAT);
-"__int64"       return(INT64__);
 "short"         return(SHORT);
 "long"          return(LONG);
 "char"          return(CHAR);
@@ -314,23 +298,18 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       return(StdString);
     }
 
-"vtkUnicodeString" {
-      yylval.str = vtkstrndup(yytext, yyleng);
-      return(UnicodeString);
-    }
-
 "Qt::"{ID} {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(QT_ID);
     }
 
-"static_assert"  get_macro_arguments(); /* C++11 */
+"static_assert"  skip_macro_arguments(); /* C++11 */
 
-"alignas"  get_macro_arguments(); /* C++11 */
+"alignas"  skip_macro_arguments(); /* C++11 */
 
-"_Alignas" get_macro_arguments(); /* C11 */
+"_Alignas" skip_macro_arguments(); /* C11 */
 
-"_Generic" get_macro_arguments(); /* C11 */
+"_Generic" skip_macro_arguments(); /* C11 */
 
 "_Thread_local" return(THREAD_LOCAL); /* C11 */
 
@@ -338,13 +317,13 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 "_Noreturn"  /* C11 */
 
-"_Pragma"  get_macro_arguments(); /* C99 */
+"_Pragma"  skip_macro_arguments(); /* C99 */
 
-"__pragma"  get_macro_arguments(); /* MSVC */
+"__pragma"  skip_macro_arguments(); /* MSVC */
 
-"__attribute__"  get_macro_arguments(); /* gcc attributes */
+"__attribute__"  skip_macro_arguments(); /* gcc attributes */
 
-"__declspec"  get_macro_arguments(); /* Windows linkage */
+"__declspec"  skip_macro_arguments(); /* Windows linkage */
 
 ("__cdecl"|"__clrcall"|"__stdcall"|"__fastcall"|"__thiscall") /* Windows */
 
@@ -352,42 +331,19 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 "__restrict" /* MSVC extension */
 
-"VTK_LEGACY" {
-      char *args = get_macro_arguments();
-      if (args && args[0] != '\0' && args[1] != '\0')
-      {
-        size_t l = strlen(args);
-        push_macro(NULL);
-        push_buffer();
-        macroName = "VTK_LEGACY";
-        macroUsed = 0;
-        macroEnded = 0;
-        yy_switch_to_buffer(yy_scan_bytes(&args[1], l-2));
-      }
-      free(args);
-    }
-
 "nullptr" {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(NULLPTR);
     }
 
-{ID}  {
-      const char *name = vtkstrndup(yytext, yyleng);
-      MacroInfo *macro = vtkParsePreprocess_GetMacro(preprocessor, name);
+{ID} {
+      const char* name = vtkstrndup(yytext, yyleng);
+      MacroInfo* macro = vtkParsePreprocess_GetMacro(preprocessor, name);
       int expanded = 0;
       if (macro)
       {
-        char *args = NULL;
-        const char *emacro = NULL;
-
-        /* make sure that vtkNotUsed is never expanded */
-        MacroInfo *ex;
-        ex = vtkParsePreprocess_GetMacro(preprocessor, "vtkNotUsed");
-        if (ex)
-        {
-          ex->IsExcluded = 1;
-        }
+        char* args = NULL;
+        const char* emacro = NULL;
 
         if (macro->IsFunction)
         {
@@ -410,8 +366,8 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
           int is_unsigned;
           int r;
           macro->IsExcluded = 1;
-          r = vtkParsePreprocess_EvaluateExpression(
-             preprocessor, macro->Definition, &val, &is_unsigned);
+          r =
+            vtkParsePreprocess_EvaluateExpression(preprocessor, macro->Definition, &val, &is_unsigned);
           macro->IsExcluded = 0;
           /* if it isn't a constant expression, then expand it */
           if (r >= VTK_PARSE_MACRO_UNDEFINED)
@@ -445,15 +401,15 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
         yylval.str = name;
         if (yyleng > 3 && name[0] == 'v' && name[1] == 't' && name[2] == 'k')
         {
-          return(VTK_ID);
+          return (VTK_ID);
         }
         else if (name[0] == 'Q')
         {
-          return(QT_ID);
+          return (QT_ID);
         }
         else
         {
-          return(ID);
+          return (ID);
         }
       }
     }
@@ -556,9 +512,9 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 /*
  * Return a parenthetical macro arg list as a new string.
  */
-char *get_macro_arguments()
+char* get_macro_arguments(void)
 {
-  char *cp = NULL;
+  char* cp = NULL;
   size_t i = 0;
   int depth;
   int ws = 0;
@@ -578,7 +534,7 @@ char *get_macro_arguments()
     c1 = input();
   }
 
-  cp = (char *)malloc(4);
+  cp = (char*)malloc(4);
 
   if (c1 != '(')
   {
@@ -618,8 +574,10 @@ char *get_macro_arguments()
       {
         /* skip a C++ style comment */
         ws = 1;
-        do { c1 = input(); }
-        while (c1 != '\n' && c1 != '\0');
+        do
+        {
+          c1 = input();
+        } while (c1 != '\n' && c1 != '\0');
         if (c1 == '\0')
         {
           return NULL;
@@ -635,10 +593,10 @@ char *get_macro_arguments()
     {
       /* add a single space to replace any whitespace */
       cp[i++] = ' ';
-      if (i >= 4 && (i & (i-1)) == 0)
+      if (i >= 4 && (i & (i - 1)) == 0)
       {
-        char *oldcp = cp;
-        cp = (char *)realloc(cp, 2*i);
+        char* oldcp = cp;
+        cp = (char*)realloc(cp, 2 * i);
         if (!cp)
         {
           free(oldcp);
@@ -650,10 +608,10 @@ char *get_macro_arguments()
     {
       /* add a single space to replace any whitespace */
       cp[i++] = '/';
-      if (i >= 4 && (i & (i-1)) == 0)
+      if (i >= 4 && (i & (i - 1)) == 0)
       {
-        char *oldcp = cp;
-        cp = (char *)realloc(cp, 2*i);
+        char* oldcp = cp;
+        cp = (char*)realloc(cp, 2 * i);
         if (!cp)
         {
           free(oldcp);
@@ -686,26 +644,25 @@ char *get_macro_arguments()
           escaped = 2;
         }
         cp[i++] = (char)c1;
-        if (i >= 4 && (i & (i-1)) == 0)
+        if (i >= 4 && (i & (i - 1)) == 0)
         {
-          char *oldcp = cp;
-          cp = (char *)realloc(cp, 2*i);
+          char* oldcp = cp;
+          cp = (char*)realloc(cp, 2 * i);
           if (!cp)
           {
             free(oldcp);
             return NULL;
           }
         }
-      }
-      while (c1 != c2 || escaped);
+      } while (c1 != c2 || escaped);
     }
     else if (c1 != '\0')
     {
       cp[i++] = (char)c1;
-      if (i >= 4 && (i & (i-1)) == 0)
+      if (i >= 4 && (i & (i - 1)) == 0)
       {
-        char *oldcp = cp;
-        cp = (char *)realloc(cp, 2*i);
+        char* oldcp = cp;
+        cp = (char*)realloc(cp, 2 * i);
         if (!cp)
         {
           free(oldcp);
@@ -735,40 +692,50 @@ char *get_macro_arguments()
   return cp;
 }
 
+void skip_macro_arguments(void)
+{
+  char* p = get_macro_arguments();
+  free(p);
+}
+
 /*
  * Skip a C-style comment, return 0 if unterminated.
  */
-int skip_comment()
+int skip_comment(void)
 {
-   int savelineno = yylineno;
-   int c1 = 0, c2 = input();
-   for (;;)
-   {
-     if (c2 == 0 || c2 == EOF)
-     {
-       yylineno = savelineno;
-       print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR,
-         "Cannot find end of comment.", 27);
-       exit(1);
-     }
-     if (c1 == '*' && c2 == '/') break;
-     c1 = c2; c2 = input();
-   }
-   return 1;
+  int savelineno = yylineno;
+  int c1 = 0, c2 = input();
+  for (;;)
+  {
+    if (c2 == 0 || c2 == EOF)
+    {
+      yylineno = savelineno;
+      print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR, "Cannot find end of comment.", 27);
+      exit(1);
+    }
+    if (c1 == '*' && c2 == '/')
+      break;
+    c1 = c2;
+    c2 = input();
+  }
+  return 1;
 }
 
 /*
  * If token contains a comment, make sure whole comment is skipped.
  */
-int skip_trailing_comment(const char *text, size_t l)
+int skip_trailing_comment(const char* text, size_t l)
 {
-  const char *cp = text;
-  const char *ep = text + l;
+  const char* cp = text;
+  const char* ep = text + l;
   int incomment = 0;
 
   while (cp < ep)
   {
-    while (cp < ep && *cp != '/' && *cp != '\"') { cp++; };
+    while (cp < ep && *cp != '/' && *cp != '\"')
+    {
+      cp++;
+    }
     if (cp >= ep)
     {
       break;
@@ -777,7 +744,10 @@ int skip_trailing_comment(const char *text, size_t l)
     {
       incomment = 1;
       cp += 2;
-      while (cp < ep && *cp != '*') { cp++; };
+      while (cp < ep && *cp != '*')
+      {
+        cp++;
+      }
       if (cp[0] == '*' && cp[1] == '/')
       {
         incomment = 0;
@@ -793,7 +763,10 @@ int skip_trailing_comment(const char *text, size_t l)
       cp++;
       while (cp < ep)
       {
-        while (cp < ep && *cp != '\\' && *cp != '\"') { cp++; };
+        while (cp < ep && *cp != '\\' && *cp != '\"')
+        {
+          cp++;
+        }
         if (cp >= ep)
         {
           break;
@@ -828,7 +801,7 @@ int skip_trailing_comment(const char *text, size_t l)
  * This will eat the '#' that starts the directive.
  * Return 0 if none found.
  */
-int skip_to_next_directive()
+int skip_to_next_directive(void)
 {
   /* state == 0 at the start of a line */
   int state = 0;
@@ -853,7 +826,7 @@ int skip_to_next_directive()
     else if (c == '/')
     {
       state = 1;
-      if ( (c = input()) == '*')
+      if ((c = input()) == '*')
       {
         if (skip_comment() == 0)
         {
@@ -866,9 +839,9 @@ int skip_to_next_directive()
     else if (c == '\\')
     {
       state = 1;
-      if ( (c = input()) == '\r')
+      if ((c = input()) == '\r')
       {
-        if ( (c = input()) == '\n')
+        if ((c = input()) == '\n')
         {
           c = input();
         }
@@ -896,9 +869,9 @@ int skip_to_next_directive()
 /*
  * Skip to the next #else or #elif or #endif
  */
-int skip_conditional_block()
+int skip_conditional_block(void)
 {
-  static char *linebuf = NULL;
+  static char* linebuf = NULL;
   static size_t linemaxlen = 80;
   size_t i;
   int c;
@@ -906,7 +879,7 @@ int skip_conditional_block()
 
   if (linebuf == 0)
   {
-    linebuf = (char *)malloc(linemaxlen);
+    linebuf = (char*)malloc(linemaxlen);
   }
 
   for (;;)
@@ -930,11 +903,11 @@ int skip_conditional_block()
     linebuf[i++] = '#';
     while (c != 0 && c != EOF && c != '\n')
     {
-      if (i >= linemaxlen-5)
+      if (i >= linemaxlen - 5)
       {
-        char *oldlinebuf = linebuf;
-        linemaxlen += i+5;
-        linebuf = (char *)realloc(linebuf, linemaxlen);
+        char* oldlinebuf = linebuf;
+        linemaxlen += i + 5;
+        linebuf = (char*)realloc(linebuf, linemaxlen);
         if (!linebuf)
         {
           free(oldlinebuf);
@@ -975,13 +948,13 @@ int skip_conditional_block()
  * Skip ahead until one of the strings is found,
  * then skip to the end of the line.
  */
-int skip_ahead_multi(const char *strings[])
+int skip_ahead_multi(const char* strings[])
 {
-  char textbuf[SKIP_MATCH_MAXLEN+1];
+  char textbuf[SKIP_MATCH_MAXLEN + 1];
   int c = 0;
   size_t i;
 
-  for (i = 0; i < (SKIP_MATCH_MAXLEN+1); i++)
+  for (i = 0; i < (SKIP_MATCH_MAXLEN + 1); i++)
   {
     textbuf[i] = '\0';
   }
@@ -990,7 +963,7 @@ int skip_ahead_multi(const char *strings[])
   {
     for (i = 0; i < SKIP_MATCH_MAXLEN; i++)
     {
-      textbuf[i] = textbuf[i+1];
+      textbuf[i] = textbuf[i + 1];
     }
 
     c = input();
@@ -1000,12 +973,11 @@ int skip_ahead_multi(const char *strings[])
       return 0;
     }
 
-    textbuf[SKIP_MATCH_MAXLEN-1] = c;
+    textbuf[SKIP_MATCH_MAXLEN - 1] = c;
 
     for (i = 0; strings[i]; i++)
     {
-      if (strcmp(&textbuf[SKIP_MATCH_MAXLEN-strlen(strings[i])],
-                 strings[i]) == 0)
+      if (strcmp(&textbuf[SKIP_MATCH_MAXLEN - strlen(strings[i])], strings[i]) == 0)
       {
         break;
       }
@@ -1027,20 +999,19 @@ int skip_ahead_multi(const char *strings[])
 /*
  * Skip ahead until the string is found.
  */
-int skip_ahead_until(const char *text)
+int skip_ahead_until(const char* text)
 {
-  const char *strings[2];
+  const char* strings[2];
   strings[0] = text;
   strings[1] = NULL;
 
   return skip_ahead_multi(strings);
 }
 
-
 /*
  * Called for doxygen C-style comments
  */
-void doxygen_comment()
+void doxygen_comment(void)
 {
   char linetext[256];
   int savelineno = yylineno;
@@ -1052,7 +1023,7 @@ void doxygen_comment()
   {
     linetext[l] = yytext[l];
   }
-  if (l > 0 && yytext[l-1] == '<')
+  if (l > 0 && yytext[l - 1] == '<')
   {
     type = TrailingComment;
   }
@@ -1061,8 +1032,7 @@ void doxygen_comment()
     if (c2 == 0 || c2 == EOF)
     {
       yylineno = savelineno;
-      print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR,
-        "Cannot find end of comment.", 27);
+      print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR, "Cannot find end of comment.", 27);
       exit(1);
     }
     if (l < 256)
@@ -1071,17 +1041,13 @@ void doxygen_comment()
     }
     if (c2 == '\n' || (c1 == '*' && c2 == '/'))
     {
-      if (l >= 2 &&
-          linetext[l-2] == '*' &&
-          linetext[l-1] == '/')
+      if (l >= 2 && linetext[l - 2] == '*' && linetext[l - 1] == '/')
       {
         l -= 2;
       }
       while (l > 0 &&
-             (linetext[l-1] == '\n' ||
-              linetext[l-1] == '\r' ||
-              linetext[l-1] == '\t' ||
-              linetext[l-1] == ' '))
+        (linetext[l - 1] == '\n' || linetext[l - 1] == '\r' || linetext[l - 1] == '\t' ||
+          linetext[l - 1] == ' '))
       {
         l--;
       }
@@ -1089,7 +1055,7 @@ void doxygen_comment()
       {
         /* reduce the base indentation if chars occur before base */
         asterisk = 0;
-        for (i = yyleng-3; i < base && i < l; i++)
+        for (i = yyleng - 3; i < base && i < l; i++)
         {
           if (linetext[i] == '*' && asterisk == 0)
           {
@@ -1100,8 +1066,7 @@ void doxygen_comment()
             break;
           }
         }
-        if (i > yyleng-3 && i < l &&
-            linetext[i] != ' ' && linetext[i-1] == ' ')
+        if (i > yyleng - 3 && i < l && linetext[i] != ' ' && linetext[i - 1] == ' ')
         {
           i--;
         }
@@ -1128,20 +1093,24 @@ void doxygen_comment()
         break;
       }
     }
-    c1 = c2; c2 = input();
+    c1 = c2;
+    c2 = input();
   }
 }
 
 /*
  * Called for //! and /// doxygen comments (handles just one line)
  */
-void doxygen_cpp_comment()
+void doxygen_cpp_comment(void)
 {
   int type = DoxygenComment;
   int pos = 2;
-  while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
-  while (pos < yyleng && yytext[pos-1] == '/' && yytext[pos] == '/') pos++;
-  if (pos < yyleng && yytext[pos] == '!') pos++;
+  while (yytext[pos - 2] != '/' || yytext[pos - 1] != '/')
+    pos++;
+  while (pos < yyleng && yytext[pos - 1] == '/' && yytext[pos] == '/')
+    pos++;
+  if (pos < yyleng && yytext[pos] == '!')
+    pos++;
   if (pos < yyleng && yytext[pos] == '<')
   {
     pos++;
@@ -1151,18 +1120,18 @@ void doxygen_cpp_comment()
 }
 
 /*
- * Called for //@{
+ * Called for ///@{
  */
-void doxygen_group_start()
+void doxygen_group_start(void)
 {
   /* Set the "ingroup" marker */
   setCommentMemberGroup(1);
 }
 
 /*
- * Called for //@}
+ * Called for ///@}
  */
-void doxygen_group_end()
+void doxygen_group_end(void)
 {
   /* Clear the "ingroup" marker */
   setCommentMemberGroup(0);
@@ -1171,7 +1140,7 @@ void doxygen_group_end()
 /*
  * Called for // Description:
  */
-void vtk_comment()
+void vtk_comment(void)
 {
   setCommentState(NormalComment);
 }
@@ -1179,10 +1148,10 @@ void vtk_comment()
 /*
  * Called for // .NAME
  */
-void vtk_name_comment()
+void vtk_name_comment(void)
 {
   int pos = 1;
-  while (yytext[pos-1] != 'M' || yytext[pos] != 'E')
+  while (yytext[pos - 1] != 'M' || yytext[pos] != 'E')
   {
     pos++;
   }
@@ -1194,10 +1163,10 @@ void vtk_name_comment()
 /*
  * Called for // .SECTION
  */
-void vtk_section_comment()
+void vtk_section_comment(void)
 {
   int pos = 1;
-  while (yytext[pos-1] != 'O' || yytext[pos] != 'N')
+  while (yytext[pos - 1] != 'O' || yytext[pos] != 'N')
   {
     pos++;
   }
@@ -1207,19 +1176,16 @@ void vtk_section_comment()
     pos++;
   }
 
-  if (yyleng - pos >= 11 &&
-      strncmp(&yytext[pos], "Description", 11) == 0)
+  if (yyleng - pos >= 11 && strncmp(&yytext[pos], "Description", 11) == 0)
   {
     setCommentState(DescriptionComment);
   }
   else if (yyleng - pos >= 8 &&
-           (strncmp(&yytext[pos], "See Also", 8) == 0 ||
-            strncmp(&yytext[pos], "see also", 8) == 0))
+    (strncmp(&yytext[pos], "See Also", 8) == 0 || strncmp(&yytext[pos], "see also", 8) == 0))
   {
     setCommentState(SeeAlsoComment);
   }
-  else if (yyleng - pos >= 7 &&
-           strncmp(&yytext[pos], "Caveats", 7) == 0)
+  else if (yyleng - pos >= 7 && strncmp(&yytext[pos], "Caveats", 7) == 0)
   {
     setCommentState(CaveatsComment);
   }
@@ -1233,38 +1199,38 @@ void vtk_section_comment()
  * Called for each line that has a C++ comment but no code, unless the
  * comment is recognized as beginning a VTK or doxygen comment.
  */
-void cpp_comment_line()
+void cpp_comment_line(void)
 {
   int pos = 2;
-  while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
+  while (yytext[pos - 2] != '/' || yytext[pos - 1] != '/')
+    pos++;
   addCommentLine(&yytext[pos], yyleng - pos, NormalComment);
 }
 
 /*
  * Called whenever a blank line is encountered.
  */
-void blank_line()
+void blank_line(void)
 {
   commentBreak();
 }
 
-
 /*
  * Convert a raw string into a non-raw string.
  */
-const char *raw_string(const char *begin)
+const char* raw_string(const char* begin, int* has_ud_suffix)
 {
   int savelineno = yylineno;
-  char *textbuf;
+  char* textbuf;
   int c = 0;
-  const char *delim;
-  const char *cp = begin;
-  char *dp;
-  char *result;
+  const char* delim;
+  const char* cp = begin;
+  char* dp;
+  char* result;
   size_t i, j, n;
   size_t m = 1024;
 
-  result = (char *)malloc(m);
+  result = (char*)malloc(m);
   dp = result;
 
   while (*cp != '\"')
@@ -1278,12 +1244,15 @@ const char *raw_string(const char *begin)
 
   for (n = 0;; n++)
   {
-    if (delim[n] == '(') { break; }
+    if (delim[n] == '(')
+    {
+      break;
+    }
   }
 
-  textbuf = (char *)malloc(n+1);
+  textbuf = (char*)malloc(n + 1);
 
-  for (i = 0; i < n+1; i++)
+  for (i = 0; i < n + 1; i++)
   {
     c = input();
     textbuf[i] = c;
@@ -1300,7 +1269,7 @@ const char *raw_string(const char *begin)
     if (j > m - 8)
     {
       m += 1024;
-      result = (char *)realloc(result, m);
+      result = (char*)realloc(result, m);
       if (!result)
       {
         print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
@@ -1309,32 +1278,62 @@ const char *raw_string(const char *begin)
       dp = result + j;
     }
 
-    if ((*textbuf >= ' ' && *textbuf <= '~') ||
-        (*textbuf & 0x80) != 0)
+    if ((*textbuf >= ' ' && *textbuf <= '~') || (*textbuf & 0x80) != 0)
     {
       *dp++ = *textbuf;
     }
-    else switch (*textbuf)
-    {
-      case '\a': *dp++ = '\\'; *dp++ = 'a'; break;
-      case '\b': *dp++ = '\\'; *dp++ = 'b'; break;
-      case '\f': *dp++ = '\\'; *dp++ = 'f'; break;
-      case '\n': *dp++ = '\\'; *dp++ = 'n'; break;
-      case '\r': *dp++ = '\\'; *dp++ = 'r'; break;
-      case '\t': *dp++ = '\\'; *dp++ = 't'; break;
-      case '\v': *dp++ = '\\'; *dp++ = 'v'; break;
-      case '\\': *dp++ = '\\'; *dp++ = '\\'; break;
-      case '\'': *dp++ = '\\'; *dp++ = '\''; break;
-      case '\"': *dp++ = '\\'; *dp++ = '\"'; break;
-      default:
-        sprintf(dp, "\\%3.3o", *textbuf);
-        dp += 4;
-        break;
-    }
+    else
+      switch (*textbuf)
+      {
+        case '\a':
+          *dp++ = '\\';
+          *dp++ = 'a';
+          break;
+        case '\b':
+          *dp++ = '\\';
+          *dp++ = 'b';
+          break;
+        case '\f':
+          *dp++ = '\\';
+          *dp++ = 'f';
+          break;
+        case '\n':
+          *dp++ = '\\';
+          *dp++ = 'n';
+          break;
+        case '\r':
+          *dp++ = '\\';
+          *dp++ = 'r';
+          break;
+        case '\t':
+          *dp++ = '\\';
+          *dp++ = 't';
+          break;
+        case '\v':
+          *dp++ = '\\';
+          *dp++ = 'v';
+          break;
+        case '\\':
+          *dp++ = '\\';
+          *dp++ = '\\';
+          break;
+        case '\'':
+          *dp++ = '\\';
+          *dp++ = '\'';
+          break;
+        case '\"':
+          *dp++ = '\\';
+          *dp++ = '\"';
+          break;
+        default:
+          sprintf(dp, "\\%3.3o", *textbuf);
+          dp += 4;
+          break;
+      }
 
     for (i = 0; i < n; i++)
     {
-      textbuf[i] = textbuf[i+1];
+      textbuf[i] = textbuf[i + 1];
     }
 
     c = input();
@@ -1344,22 +1343,25 @@ const char *raw_string(const char *begin)
   if (c == EOF || '\"' != input())
   {
     yylineno = savelineno;
-    print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR,
-      "Unterminated raw string.", 24);
+    print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR, "Unterminated raw string.", 24);
     exit(1);
   }
 
   *dp++ = '\"';
 
   c = input();
-  if (c == '_')
+  if (vtkParse_CharType(c, CPRE_ID))
   {
+    *has_ud_suffix = 1;
     do
     {
       *dp++ = c;
       c = input();
-    }
-    while (vtkParse_CharType(c, CPRE_XID));
+    } while (vtkParse_CharType(c, CPRE_XID));
+  }
+  else
+  {
+    *has_ud_suffix = 0;
   }
   unput(c);
 
@@ -1375,23 +1377,22 @@ const char *raw_string(const char *begin)
  * buffer stack, used for macro expansion and include files
  */
 static size_t buffer_stack_size = 0;
-static YY_BUFFER_STATE *buffer_stack = NULL;
+static YY_BUFFER_STATE* buffer_stack = NULL;
 
 /*
  * push the current buffer onto the buffer stack.
  */
-void push_buffer()
+void push_buffer(void)
 {
   size_t n = buffer_stack_size;
   if (buffer_stack == NULL)
   {
-    buffer_stack = (YY_BUFFER_STATE *)malloc(4*sizeof(YY_BUFFER_STATE));
+    buffer_stack = (YY_BUFFER_STATE*)malloc(4 * sizeof(YY_BUFFER_STATE));
   }
   /* grow the stack whenever size reaches a power of two */
-  else if (n >= 4 && (n & (n-1)) == 0)
+  else if (n >= 4 && (n & (n - 1)) == 0)
   {
-    buffer_stack = (YY_BUFFER_STATE *)realloc(
-      buffer_stack, 2*n*sizeof(YY_BUFFER_STATE));
+    buffer_stack = (YY_BUFFER_STATE*)realloc(buffer_stack, 2 * n * sizeof(YY_BUFFER_STATE));
     if (!buffer_stack)
     {
       print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
@@ -1404,7 +1405,7 @@ void push_buffer()
 /*
  * pop the buffer stack and restore the previous buffer
  */
-int pop_buffer()
+int pop_buffer(void)
 {
   if (in_macro())
   {
@@ -1420,6 +1421,11 @@ int pop_buffer()
   }
   yy_delete_buffer(YY_CURRENT_BUFFER);
   yy_switch_to_buffer(buffer_stack[--buffer_stack_size]);
+  if (buffer_stack_size == 0)
+  {
+    free(buffer_stack);
+    buffer_stack = NULL;
+  }
   return 1;
 }
 
@@ -1427,36 +1433,34 @@ int pop_buffer()
  * include stack, to tell what include is being evaluated
  */
 static size_t include_stack_size = 0;
-static FileInfo **include_stack = NULL;
-static int *lineno_stack = NULL;
+static FileInfo** include_stack = NULL;
+static int* lineno_stack = NULL;
 
 /*
  * push the current include onto the include stack.
  */
-void push_include(const char *filename)
+void push_include(const char* filename)
 {
-  FileInfo *file_info = NULL;
+  FileInfo* file_info = NULL;
   int same_file = 0;
   size_t n = include_stack_size;
 
   if (include_stack == NULL)
   {
-    include_stack = (FileInfo **)malloc(4*sizeof(FileInfo *));
-    lineno_stack = (int *)malloc(4*sizeof(int));
+    include_stack = (FileInfo**)malloc(4 * sizeof(FileInfo*));
+    lineno_stack = (int*)malloc(4 * sizeof(int));
   }
 
   /* grow the stack whenever size reaches a power of two */
-  else if (n >= 4 && (n & (n-1)) == 0)
+  else if (n >= 4 && (n & (n - 1)) == 0)
   {
-    include_stack = (FileInfo **)realloc(
-      include_stack, 2*n*sizeof(FileInfo *));
+    include_stack = (FileInfo**)realloc(include_stack, 2 * n * sizeof(FileInfo*));
     if (!include_stack)
     {
       print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
       exit(1);
     }
-    lineno_stack = (int *)realloc(
-      lineno_stack, 2*n*sizeof(int));
+    lineno_stack = (int*)realloc(lineno_stack, 2 * n * sizeof(int));
     if (!lineno_stack)
     {
       print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
@@ -1470,8 +1474,7 @@ void push_include(const char *filename)
 
   /* if the file is including itself */
   if (filename == data->FileName ||
-      (filename != 0 && data->FileName != 0 &&
-       strcmp(filename, data->FileName) == 0))
+    (filename != 0 && data->FileName != 0 && strcmp(filename, data->FileName) == 0))
   {
     same_file = 1;
   }
@@ -1479,12 +1482,12 @@ void push_include(const char *filename)
   /* make a new fileinfo, but only if we are in the base namespace
    * and only if the only items added so far are constants */
   if (!same_file && currentNamespace == data->Contents &&
-      data->Contents->NumberOfItems == data->Contents->NumberOfConstants)
+    data->Contents->NumberOfItems == data->Contents->NumberOfConstants)
   {
-    file_info = (FileInfo *)malloc(sizeof(FileInfo));
+    file_info = (FileInfo*)malloc(sizeof(FileInfo));
     vtkParse_InitFile(file_info);
     file_info->FileName = vtkstrdup(filename);
-    file_info->Contents = (NamespaceInfo *)malloc(sizeof(NamespaceInfo));
+    file_info->Contents = (NamespaceInfo*)malloc(sizeof(NamespaceInfo));
     vtkParse_InitNamespace(file_info->Contents);
     vtkParse_AddIncludeToFile(data, file_info);
     file_info->Strings = data->Strings;
@@ -1496,7 +1499,7 @@ void push_include(const char *filename)
 /*
  * pop the include stack
  */
-void pop_include()
+void pop_include(void)
 {
   if (include_stack_size > 0)
   {
@@ -1511,28 +1514,26 @@ void pop_include()
   }
 }
 
-
 /*
  * macro stack, to tell what macro is being evaluated
  */
 static size_t macro_stack_size = 0;
-static MacroInfo **macro_stack = NULL;
+static MacroInfo** macro_stack = NULL;
 
 /*
  * push the current macro onto the macro stack.
  */
-void push_macro(MacroInfo *macro)
+void push_macro(MacroInfo* macro)
 {
   size_t n = macro_stack_size;
   if (macro_stack == NULL)
   {
-    macro_stack = (MacroInfo **)malloc(4*sizeof(MacroInfo *));
+    macro_stack = (MacroInfo**)malloc(4 * sizeof(MacroInfo*));
   }
   /* grow the stack whenever size reaches a power of two */
-  else if (n >= 4 && (n & (n-1)) == 0)
+  else if (n >= 4 && (n & (n - 1)) == 0)
   {
-    macro_stack = (MacroInfo **)realloc(
-      macro_stack, 2*n*sizeof(MacroInfo *));
+    macro_stack = (MacroInfo**)realloc(macro_stack, 2 * n * sizeof(MacroInfo*));
     if (!macro_stack)
     {
       print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
@@ -1555,9 +1556,9 @@ void push_macro(MacroInfo *macro)
 /*
  * pop the macro stack
  */
-void pop_macro()
+void pop_macro(void)
 {
-  MacroInfo *macro;
+  MacroInfo* macro;
 
   if (macro_stack_size > 0)
   {
@@ -1566,6 +1567,11 @@ void pop_macro()
     {
       macro->IsExcluded = 0;
     }
+    if (macro_stack_size == 0)
+    {
+      free(macro_stack);
+      macro_stack = NULL;
+    }
   }
   macroEnded = 1;
 }
@@ -1573,7 +1579,7 @@ void pop_macro()
 /*
  * are we currently processing a macro?
  */
-int in_macro()
+int in_macro(void)
 {
   return (macro_stack_size > 0);
 }
@@ -1581,9 +1587,9 @@ int in_macro()
 /*
  * print a preprocessor error code with filename and line number.
  */
-void print_preprocessor_error(int result, const char *cp, size_t n)
+void print_preprocessor_error(int result, const char* cp, size_t n)
 {
-  const char *text = "";
+  const char* text = "";
 
   switch (result)
   {
@@ -1637,10 +1643,10 @@ void print_preprocessor_error(int result, const char *cp, size_t n)
 /*
  * print an error with filename and line number.
  */
-void print_parser_error(const char *text, const char *cp, size_t n)
+void print_parser_error(const char* text, const char* cp, size_t n)
 {
   size_t j = 0;
-  const char *fn = "(none)";
+  const char* fn = "(none)";
 
   if (CommandName)
   {
@@ -1654,8 +1660,7 @@ void print_parser_error(const char *text, const char *cp, size_t n)
   fprintf(yyout, "In %s:", fn);
   for (j = 0; j < include_stack_size; j++)
   {
-    fprintf(yyout, "%i:\nIn %s:",
-            lineno_stack[j], include_stack[j]->FileName);
+    fprintf(yyout, "%i:\nIn %s:", lineno_stack[j], include_stack[j]->FileName);
   }
   fprintf(yyout, "%i:", yylineno);
 
@@ -1676,22 +1681,37 @@ void print_parser_error(const char *text, const char *cp, size_t n)
 /*
  * Execute a preprocessor directive.
  */
-void preprocessor_directive(const char *text, size_t l)
+void preprocessor_directive(const char* text, size_t l)
 {
   int result = 0;
   size_t n = 0;
-  const char *cp = text;
-  const char *ep = text + l;
-  const char *directive = NULL;
+  const char* cp = text;
+  const char* ep = text + l;
+  const char* directive = NULL;
 
   /* find the directive, store its length in "n" */
-  while (*cp == ' ' || *cp == '\t') { cp++; }
-  if (*cp == '#') { cp++; }
-  while ((*cp == ' ' || *cp == '\t') && cp < ep) { cp++; }
+  while (*cp == ' ' || *cp == '\t')
+  {
+    cp++;
+  }
+  if (*cp == '#')
+  {
+    cp++;
+  }
+  while ((*cp == ' ' || *cp == '\t') && cp < ep)
+  {
+    cp++;
+  }
   directive = cp;
-  while (*cp >= 'a' && *cp <= 'z' && cp < ep) { cp++; }
+  while (*cp >= 'a' && *cp <= 'z' && cp < ep)
+  {
+    cp++;
+  }
   n = cp - directive;
-  while ((*cp == ' ' || *cp == '\t') && cp < ep) { cp++; }
+  while ((*cp == ' ' || *cp == '\t') && cp < ep)
+  {
+    cp++;
+  }
 
   if (n == 7 && strncmp(directive, "include", n) == 0)
   {
@@ -1702,13 +1722,12 @@ void preprocessor_directive(const char *text, size_t l)
       /* if asked to recurse into header files */
       if (Recursive && ep - cp > 3)
       {
-        const char *dp;
+        const char* dp;
         dp = vtkParsePreprocess_FindIncludeFile(preprocessor, &cp[1],
-          (*cp != '\"' ? VTK_PARSE_SYSTEM_INCLUDE : VTK_PARSE_SOURCE_INCLUDE),
-          &already_loaded);
+          (*cp != '\"' ? VTK_PARSE_SYSTEM_INCLUDE : VTK_PARSE_SOURCE_INCLUDE), &already_loaded);
         if (dp)
         {
-          yyin = fopen(dp, "r");
+          yyin = vtkParse_FileOpen(dp, "r");
           if (yyin)
           {
             push_include(dp);
@@ -1742,7 +1761,7 @@ void preprocessor_directive(const char *text, size_t l)
     if (ep - cp > 4 && strncmp(cp, "VTK", 3) == 0)
     {
       /* macros that start with "VTK" */
-      MacroInfo *macro;
+      MacroInfo* macro;
 
       macro = vtkParsePreprocess_GetMacro(preprocessor, cp);
       if (macro && macro->Definition && !macro->IsFunction)
@@ -1756,9 +1775,7 @@ void preprocessor_directive(const char *text, size_t l)
         macro->IsExcluded = 0;
         if (result < VTK_PARSE_MACRO_UNDEFINED)
         {
-          add_constant(
-            vtkstrdup(macro->Name), vtkstrdup(macro->Definition),
-            0, NULL, 1);
+          add_constant(vtkstrdup(macro->Name), vtkstrdup(macro->Definition), 0, 0, NULL, 1);
         }
       }
     }

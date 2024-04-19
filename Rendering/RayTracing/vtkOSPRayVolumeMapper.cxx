@@ -1,28 +1,17 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOSPRayVolumeMapper.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOSPRayVolumeMapper.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
 //============================================================================
-vtkStandardNewMacro(vtkOSPRayVolumeMapper)
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkOSPRayVolumeMapper);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayVolumeMapper::vtkOSPRayVolumeMapper()
 {
   this->InternalRenderer = nullptr;
@@ -30,7 +19,7 @@ vtkOSPRayVolumeMapper::vtkOSPRayVolumeMapper()
   this->Initialized = false;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkOSPRayVolumeMapper::~vtkOSPRayVolumeMapper()
 {
   if (this->InternalRenderer)
@@ -44,25 +33,25 @@ vtkOSPRayVolumeMapper::~vtkOSPRayVolumeMapper()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayVolumeMapper::Init()
 {
   this->InternalOSPRayPass = vtkOSPRayPass::New();
   this->InternalRenderer = vtkRenderer::New();
   vtkOSPRayRendererNode::SetCompositeOnGL(1, this->InternalRenderer);
-  this->InternalRenderer->SetLayer(0); //TODO: hacked in for now
+  this->InternalRenderer->SetLayer(0); // TODO: hacked in for now
   this->Initialized = true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Render the volume
-void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
+void vtkOSPRayVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 {
   if (!ren)
   {
@@ -83,15 +72,15 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
   this->InternalRenderer->SetPass(this->InternalOSPRayPass);
   this->InternalRenderer->Render();
   this->InternalRenderer->SetPass(0);
-  vtkOSPRayRendererNode::SetCompositeOnGL(ren->GetNumberOfPropsRendered() > 0, this->InternalRenderer);
+  vtkOSPRayRendererNode::SetCompositeOnGL(
+    ren->GetNumberOfPropsRendered() > 0, this->InternalRenderer);
   this->InternalRenderer->SetErase(ren->GetNumberOfPropsRendered() < 1);
-  this->InternalRenderer->RemoveVolume(vol); //prevent a mem leak
+  this->InternalRenderer->RemoveVolume(vol); // prevent a mem leak
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this mapper.
 // The parameter window could be used to determine which graphic
 // resources to release.
-void vtkOSPRayVolumeMapper::ReleaseGraphicsResources(vtkWindow *)
-{
-}
+void vtkOSPRayVolumeMapper::ReleaseGraphicsResources(vtkWindow*) {}
+VTK_ABI_NAMESPACE_END

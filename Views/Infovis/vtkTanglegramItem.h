@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestDiagram.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTanglegramItem
  * @brief   Display two related trees
@@ -24,7 +12,7 @@
  *
  * .SEE ALSO
  * vtkTree vtkTable vtkDendrogramItem vtkNewickTreeReader
-*/
+ */
 
 #ifndef vtkTanglegramItem_h
 #define vtkTanglegramItem_h
@@ -32,9 +20,10 @@
 #include "vtkViewsInfovisModule.h" // For export macro
 
 #include "vtkContextItem.h"
-#include "vtkSmartPointer.h"       // For SmartPointer ivars
-#include "vtkTable.h"  // For get/set
+#include "vtkSmartPointer.h" // For SmartPointer ivars
+#include "vtkTable.h"        // For get/set
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDendrogramItem;
 class vtkLookupTable;
 class vtkStringArray;
@@ -43,21 +32,21 @@ class vtkTree;
 class VTKVIEWSINFOVIS_EXPORT vtkTanglegramItem : public vtkContextItem
 {
 public:
-  static vtkTanglegramItem *New();
+  static vtkTanglegramItem* New();
   vtkTypeMacro(vtkTanglegramItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the first tree
    */
-  virtual void SetTree1(vtkTree *tree);
+  virtual void SetTree1(vtkTree* tree);
 
   /**
    * Set the second tree
    */
-  virtual void SetTree2(vtkTree *tree);
+  virtual void SetTree2(vtkTree* tree);
 
-  //@{
+  ///@{
   /**
    * Get/Set the table that describes the correspondences between the
    * two trees.  The first column should contain the names of the leaf
@@ -67,25 +56,25 @@ public:
    * in the table will result in connections being drawn in different
    * colors.
    */
-  vtkTable * GetTable();
-  void SetTable(vtkTable *table);
-  //@}
+  vtkTable* GetTable();
+  void SetTable(vtkTable* table);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the label for tree #1.
    */
   vtkGetStringMacro(Tree1Label);
   vtkSetStringMacro(Tree1Label);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the label for tree #2.
    */
   vtkGetStringMacro(Tree2Label);
   vtkSetStringMacro(Tree2Label);
-  //@}
+  ///@}
 
   /**
    * Set which way the tanglegram should face within the visualization.
@@ -98,7 +87,7 @@ public:
    */
   int GetOrientation();
 
-  //@{
+  ///@{
   /**
    * Get/Set the smallest font size that is still considered legible.
    * If the current zoom level requires our vertex labels to be smaller
@@ -107,9 +96,9 @@ public:
    */
   vtkGetMacro(MinimumVisibleFontSize, int);
   vtkSetMacro(MinimumVisibleFontSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set how much larger the dendrogram labels should be compared to the
    * vertex labels.  Because the vertex labels automatically resize based
@@ -118,34 +107,34 @@ public:
    */
   vtkGetMacro(LabelSizeDifference, int);
   vtkSetMacro(LabelSizeDifference, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set how wide the correspondence lines should be.  Default is two pixels.
    */
   vtkGetMacro(CorrespondenceLineWidth, float);
   vtkSetMacro(CorrespondenceLineWidth, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set how wide the edges of the trees should be.  Default is one pixel.
    */
   float GetTreeLineWidth();
   void SetTreeLineWidth(float width);
-  //@}
+  ///@}
 
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Propagate any double click onto the dendrograms to check if any
    * subtrees should be collapsed or expanded.
    */
-  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) override;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent& event) override;
 
 protected:
   vtkTanglegramItem();
@@ -154,7 +143,7 @@ protected:
   /**
    * Update the bounds of our two dendrograms.
    */
-  void RefreshBuffers(vtkContext2D *painter);
+  void RefreshBuffers(vtkContext2D* painter);
 
   /**
    * Calculate and set an appropriate position for our second dendrogram.
@@ -164,12 +153,12 @@ protected:
   /**
    * Draw the lines between the corresponding vertices of our two dendrograms.
    */
-  void PaintCorrespondenceLines(vtkContext2D *painter);
+  void PaintCorrespondenceLines(vtkContext2D* painter);
 
   /**
    * Draw the labels of our two dendrograms.
    */
-  void PaintTreeLabels(vtkContext2D *painter);
+  void PaintTreeLabels(vtkContext2D* painter);
 
   /**
    * Reorder the children of tree #2 to minimize the amount of crossings
@@ -182,7 +171,7 @@ protected:
    * Rearrange the children of the specified parent vertex in order to minimize
    * tanglegram crossings.
    */
-  void ReorderTreeAtVertex(vtkIdType parent, vtkTree *tree);
+  void ReorderTreeAtVertex(vtkIdType parent, vtkTree* tree);
 
   /**
    * Helper function used by ReorderTreeAtVertex.  Get the average height of
@@ -190,7 +179,7 @@ protected:
    * is used to determine what order sibling vertices should have within the
    * tree.
    */
-  double GetPositionScoreForVertex(vtkIdType vertex, vtkTree *tree);
+  double GetPositionScoreForVertex(vtkIdType vertex, vtkTree* tree);
 
   /**
    * Initialize the lookup table used to color the lines between the two
@@ -201,16 +190,16 @@ protected:
   /**
    * Paints the tree & associated table as a heatmap.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
 private:
   vtkSmartPointer<vtkDendrogramItem> Dendrogram1;
   vtkSmartPointer<vtkDendrogramItem> Dendrogram2;
   vtkSmartPointer<vtkLookupTable> LookupTable;
   vtkSmartPointer<vtkTable> Table;
-  vtkStringArray *Tree1Names;
-  vtkStringArray *Tree2Names;
-  vtkStringArray *SourceNames;
+  vtkStringArray* Tree1Names;
+  vtkStringArray* Tree2Names;
+  vtkStringArray* SourceNames;
   double Tree1Bounds[4];
   double Tree2Bounds[4];
   double Spacing;
@@ -227,7 +216,7 @@ private:
 
   vtkTanglegramItem(const vtkTanglegramItem&) = delete;
   void operator=(const vtkTanglegramItem&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

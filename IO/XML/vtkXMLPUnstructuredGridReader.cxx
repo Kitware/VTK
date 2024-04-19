@@ -1,75 +1,63 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPUnstructuredGridReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLPUnstructuredGridReader.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUnstructuredGridReader.h"
-#include "vtkInformation.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPUnstructuredGridReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPUnstructuredGridReader::vtkXMLPUnstructuredGridReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPUnstructuredGridReader::~vtkXMLPUnstructuredGridReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkXMLPUnstructuredGridReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkXMLPUnstructuredGridReader::GetOutput(int idx)
 {
   return vtkUnstructuredGrid::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPUnstructuredGridReader::GetDataSetName()
 {
   return "PUnstructuredGrid";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::GetOutputUpdateExtent(
   int& piece, int& numberOfPieces, int& ghostLevel)
 {
   vtkInformation* outInfo = this->GetCurrentOutputInformation();
-  piece = outInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numberOfPieces = outInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  ghostLevel = outInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numberOfPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::SetupOutputTotals()
 {
   this->Superclass::SetupOutputTotals();
@@ -77,7 +65,7 @@ void vtkXMLPUnstructuredGridReader::SetupOutputTotals()
   this->TotalNumberOfCells = 0;
   for (int i = this->StartPiece; i < this->EndPiece; ++i)
   {
-    if(this->PieceReaders[i])
+    if (this->PieceReaders[i])
     {
       this->TotalNumberOfCells += this->PieceReaders[i]->GetNumberOfCells();
     }
@@ -87,13 +75,12 @@ void vtkXMLPUnstructuredGridReader::SetupOutputTotals()
   this->StartCell = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
 
-  vtkUnstructuredGrid* output =
-    vtkUnstructuredGrid::SafeDownCast(this->GetCurrentOutput());
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(this->GetCurrentOutput());
 
   // Setup the output's cell arrays.
   vtkUnsignedCharArray* cellTypes = vtkUnsignedCharArray::New();
@@ -106,7 +93,7 @@ void vtkXMLPUnstructuredGridReader::SetupOutputData()
   cellTypes->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::SetupNextPiece()
 {
   this->Superclass::SetupNextPiece();
@@ -116,7 +103,7 @@ void vtkXMLPUnstructuredGridReader::SetupNextPiece()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPUnstructuredGridReader::ReadPieceData()
 {
   if (!this->Superclass::ReadPieceData())
@@ -126,48 +113,52 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
 
   vtkPointSet* ips = this->GetPieceInputAsPointSet(this->Piece);
   vtkUnstructuredGrid* input = static_cast<vtkUnstructuredGrid*>(ips);
-  vtkUnstructuredGrid* output =
-    vtkUnstructuredGrid::SafeDownCast(this->GetCurrentOutput());
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(this->GetCurrentOutput());
 
   // Copy the Cells.
-  this->CopyCellArray(
-    this->TotalNumberOfCells, input->GetCells(), output->GetCells());
+  this->CopyCellArray(this->TotalNumberOfCells, input->GetCells(), output->GetCells());
 
   // Copy Faces and FaceLocations with offset adjustment if they exist
-  if(vtkIdTypeArray* inputFaces = input->GetFaces())
+  if (vtkCellArray* inputFaces = input->GetPolyhedronFaces())
   {
-    vtkIdTypeArray* inputFaceLocations = input->GetFaceLocations();
-    vtkIdTypeArray* outputFaces = output->GetFaces();
-    if(!outputFaces)
+    vtkCellArray* inputFaceLocations = input->GetPolyhedronFaceLocations();
+    vtkCellArray* outputFaces = output->GetPolyhedronFaces();
+    if (!outputFaces)
     {
       output->InitializeFacesRepresentation(0);
-      outputFaces = output->GetFaces();
+      outputFaces = output->GetPolyhedronFaces();
     }
-    vtkIdTypeArray* outputFaceLocations = output->GetFaceLocations();
-    const vtkIdType numFaceLocs = inputFaceLocations->GetNumberOfValues();
+    vtkCellArray* outputFaceLocations = output->GetPolyhedronFaceLocations();
+    const vtkIdType numFaceLocs = inputFaceLocations->GetNumberOfCells();
+
+    vtkNew<vtkIdList> faceIds;
+    const vtkIdType* faces;
+    vtkNew<vtkIdList> ptsIds;
+    const vtkIdType* nodes;
     for (vtkIdType i = 0; i < numFaceLocs; ++i)
     {
-      outputFaceLocations->InsertNextValue(outputFaces->GetMaxId() + 1);
-      vtkIdType location = inputFaceLocations->GetValue(i);
-      if (location < 0) // the face offsets array contains -1 for regular cells
+      vtkIdType size = inputFaceLocations->GetCellSize(i);
+      if (size < 1) // the face offsets array contains -1 for regular cells
       {
+        outputFaceLocations->InsertNextCell(0);
         continue;
       }
-
-      vtkIdType numFaces = inputFaces->GetValue(location);
-      location++;
-      outputFaces->InsertNextValue(numFaces);
-      for (vtkIdType f = 0;f < numFaces; f++)
+      vtkIdType numFaces;
+      inputFaceLocations->GetCellAtId(i, numFaces, faces, faceIds);
+      outputFaceLocations->InsertNextCell(numFaces);
+      for (vtkIdType f = 0; f < numFaces; f++)
       {
-        vtkIdType numPoints = inputFaces->GetValue(location);
-        outputFaces->InsertNextValue(numPoints);
-        location++;
-        for (vtkIdType p = 0;p < numPoints; p++)
+        outputFaceLocations->InsertCellPoint(outputFaces->GetNumberOfCells() + f);
+      }
+      for (vtkIdType f = 0; f < numFaces; f++)
+      {
+        vtkIdType numPoints;
+        inputFaces->GetCellAtId(faces[f], numPoints, nodes, ptsIds);
+        outputFaces->InsertNextCell(numPoints);
+        for (vtkIdType p = 0; p < numPoints; p++)
         {
           // only the point ids get the offset
-          outputFaces->InsertNextValue(
-            inputFaces->GetValue(location)+this->StartPoint);
-          location++;
+          outputFaces->InsertCellPoint(nodes[p] + this->StartPoint);
         }
       }
     }
@@ -177,16 +168,15 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
   vtkUnsignedCharArray* inTypes = input->GetCellTypesArray();
   vtkUnsignedCharArray* outTypes = output->GetCellTypesArray();
   vtkIdType components = outTypes->GetNumberOfComponents();
-  memcpy(outTypes->GetVoidPointer(this->StartCell*components),
-    inTypes->GetVoidPointer(0),
-    inTypes->GetNumberOfTuples()*components*inTypes->GetDataTypeSize());
+  memcpy(outTypes->GetVoidPointer(this->StartCell * components), inTypes->GetVoidPointer(0),
+    inTypes->GetNumberOfTuples() * components * inTypes->GetDataTypeSize());
 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::CopyArrayForCells(
-  vtkDataArray* inArray, vtkDataArray* outArray)
+  vtkAbstractArray* inArray, vtkAbstractArray* outArray)
 {
   if (!this->PieceReaders[this->Piece])
   {
@@ -199,35 +189,42 @@ void vtkXMLPUnstructuredGridReader::CopyArrayForCells(
 
   vtkIdType numCells = this->PieceReaders[this->Piece]->GetNumberOfCells();
   vtkIdType components = outArray->GetNumberOfComponents();
-  vtkIdType tupleSize = inArray->GetDataTypeSize()*components;
-  memcpy(outArray->GetVoidPointer(this->StartCell*components),
-    inArray->GetVoidPointer(0), numCells*tupleSize);
+  vtkIdType tupleSize = inArray->GetDataTypeSize() * components;
+  if (auto outStringArray = vtkArrayDownCast<vtkStringArray>(outArray))
+  {
+    outStringArray->InsertTuples(this->StartCell, numCells, 0, inArray);
+  }
+  else
+  {
+    memcpy(outArray->GetVoidPointer(this->StartCell * components), inArray->GetVoidPointer(0),
+      numCells * tupleSize);
+  }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLDataReader* vtkXMLPUnstructuredGridReader::CreatePieceReader()
 {
   return vtkXMLUnstructuredGridReader::New();
 }
 
-//----------------------------------------------------------------------------
-int vtkXMLPUnstructuredGridReader::FillOutputPortInformation(
-  int, vtkInformation *info)
+//------------------------------------------------------------------------------
+int vtkXMLPUnstructuredGridReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::SqueezeOutputArrays(vtkDataObject* output)
 {
   vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(output);
-  if(vtkIdTypeArray* outputFaces = grid->GetFaces())
+  if (vtkCellArray* outputFaces = grid->GetPolyhedronFaces())
   {
     outputFaces->Squeeze();
   }
-  if(vtkIdTypeArray* outputFaceLocations = grid->GetFaceLocations())
+  if (vtkCellArray* outputFaceLocations = grid->GetPolyhedronFaceLocations())
   {
     outputFaceLocations->Squeeze();
   }
 }
+VTK_ABI_NAMESPACE_END

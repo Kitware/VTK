@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -16,19 +16,16 @@
  *      the datatype offset for the H5T interface.
  */
 
-#include "H5Tmodule.h"          /* This source code file is part of the H5T module */
+#include "H5Tmodule.h" /* This source code file is part of the H5T module */
 
-
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5Tpkg.h"		/* Datatypes				*/
+#include "H5private.h"  /* Generic Functions			*/
+#include "H5Eprivate.h" /* Error handling		  	*/
+#include "H5Iprivate.h" /* IDs			  		*/
+#include "H5Tpkg.h"     /* Datatypes				*/
 
 /* Static local functions */
-static herr_t H5T_set_offset(const H5T_t *dt, size_t offset);
+static herr_t H5T__set_offset(const H5T_t *dt, size_t offset);
 
-
-
 /*-------------------------------------------------------------------------
  * Function:	H5Tget_offset
  *
@@ -61,25 +58,24 @@ static herr_t H5T_set_offset(const H5T_t *dt, size_t offset);
 int
 H5Tget_offset(hid_t type_id)
 {
-    H5T_t	*dt;
-    int	ret_value;
+    H5T_t *dt;
+    int    ret_value;
 
     FUNC_ENTER_API(-1)
     H5TRACE1("Is", "i", type_id);
 
     /* Check args */
-    if(NULL == (dt = (H5T_t *)H5I_object_verify(type_id,H5I_DATATYPE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an atomic data type")
+    if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an atomic data type")
 
     /* Get offset */
-    if((ret_value = H5T_get_offset(dt)) < 0)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "cant't get offset for specified datatype")
+    if ((ret_value = H5T_get_offset(dt)) < 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "cant't get offset for specified datatype")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tget_offset() */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5T_get_offset
  *
@@ -112,15 +108,15 @@ done:
 int
 H5T_get_offset(const H5T_t *dt)
 {
-    int	ret_value = -1;         /* Return value */
+    int ret_value = -1; /* Return value */
 
     FUNC_ENTER_NOAPI(-1)
 
     /* Defer to parent*/
-    while(dt->shared->parent)
+    while (dt->shared->parent)
         dt = dt->shared->parent;
-    if(!H5T_IS_ATOMIC(dt->shared))
-	HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for specified data type")
+    if (!H5T_IS_ATOMIC(dt->shared))
+        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for specified data type")
 
     /* Offset */
     ret_value = (int)dt->shared->u.atomic.offset;
@@ -129,7 +125,6 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_get_offset() */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5Tset_offset
  *
@@ -163,44 +158,40 @@ done:
  * Programmer:	Robb Matzke
  *		Wednesday, January  7, 1998
  *
- * Modifications:
- * 	Robb Matzke, 22 Dec 1998
- *	Moved real work to a private function.
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Tset_offset(hid_t type_id, size_t offset)
 {
-    H5T_t	*dt;
-    herr_t      ret_value=SUCCEED;       /* Return value */
+    H5T_t *dt;
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "iz", type_id, offset);
 
     /* Check args */
-    if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id,H5I_DATATYPE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an atomic data type")
-    if (H5T_STATE_TRANSIENT!=dt->shared->state)
-	HGOTO_ERROR(H5E_ARGS, H5E_CANTINIT, FAIL, "data type is read-only")
+    if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an atomic data type")
+    if (H5T_STATE_TRANSIENT != dt->shared->state)
+        HGOTO_ERROR(H5E_ARGS, H5E_CANTINIT, FAIL, "data type is read-only")
     if (H5T_STRING == dt->shared->type && offset != 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "offset must be zero for this type")
-    if (H5T_ENUM==dt->shared->type && dt->shared->u.enumer.nmembs>0)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "operation not allowed after members are defined")
-    if (H5T_COMPOUND==dt->shared->type || H5T_REFERENCE==dt->shared->type || H5T_OPAQUE==dt->shared->type)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for this datatype")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "offset must be zero for this type")
+    if (H5T_ENUM == dt->shared->type && dt->shared->u.enumer.nmembs > 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "operation not allowed after members are defined")
+    if (H5T_COMPOUND == dt->shared->type || H5T_REFERENCE == dt->shared->type ||
+        H5T_OPAQUE == dt->shared->type)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for this datatype")
 
     /* Do the real work */
-    if (H5T_set_offset(dt, offset)<0)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to set offset")
+    if (H5T__set_offset(dt, offset) < 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to set offset")
 
 done:
     FUNC_LEAVE_API(ret_value)
 }
 
-
 /*-------------------------------------------------------------------------
- * Function:	H5T_set_offset
+ * Function:	H5T__set_offset
  *
  * Purpose:	Sets the bit offset of the first significant bit.  The
  *		significant bits of an atomic datum can be offset from the
@@ -232,38 +223,35 @@ done:
  * Programmer:	Robb Matzke
  *		Wednesday, January  7, 1998
  *
- * Modifications:
- * 	Robb Matzke, 22 Dec 1998
- *	Also works for derived data types.
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5T_set_offset(const H5T_t *dt, size_t offset)
+H5T__set_offset(const H5T_t *dt, size_t offset)
 {
-    herr_t      ret_value=SUCCEED;       /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_STATIC
 
     /* Check args */
     HDassert(dt);
-    HDassert(H5T_STRING!=dt->shared->type || 0==offset);
-    HDassert(H5T_REFERENCE!=dt->shared->type);
-    HDassert(H5T_OPAQUE!=dt->shared->type);
-    HDassert(H5T_COMPOUND!=dt->shared->type);
-    HDassert(!(H5T_ENUM==dt->shared->type && 0==dt->shared->u.enumer.nmembs));
+    HDassert(H5T_STRING != dt->shared->type || 0 == offset);
+    HDassert(H5T_REFERENCE != dt->shared->type);
+    HDassert(H5T_OPAQUE != dt->shared->type);
+    HDassert(H5T_COMPOUND != dt->shared->type);
+    HDassert(!(H5T_ENUM == dt->shared->type && 0 == dt->shared->u.enumer.nmembs));
 
     if (dt->shared->parent) {
-	if (H5T_set_offset(dt->shared->parent, offset)<0)
-	    HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to set offset for base type")
+        if (H5T__set_offset(dt->shared->parent, offset) < 0)
+            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to set offset for base type")
 
         /* Adjust size of datatype appropriately */
-        if(dt->shared->type==H5T_ARRAY)
+        if (dt->shared->type == H5T_ARRAY)
             dt->shared->size = dt->shared->parent->shared->size * dt->shared->u.array.nelem;
-        else if(dt->shared->type!=H5T_VLEN)
+        else if (dt->shared->type != H5T_VLEN)
             dt->shared->size = dt->shared->parent->shared->size;
-    } else {
-        if (offset+dt->shared->u.atomic.prec > 8*dt->shared->size)
+    }
+    else {
+        if (offset + dt->shared->u.atomic.prec > 8 * dt->shared->size)
             dt->shared->size = (offset + dt->shared->u.atomic.prec + 7) / 8;
         dt->shared->u.atomic.offset = offset;
     }
@@ -271,4 +259,3 @@ H5T_set_offset(const H5T_t *dt, size_t offset)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 }
-

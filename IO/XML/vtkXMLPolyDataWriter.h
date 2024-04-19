@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPolyDataWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPolyDataWriter
  * @brief   Write VTK XML PolyData files.
@@ -25,7 +13,7 @@
  *
  * @sa
  * vtkXMLPPolyDataWriter
-*/
+ */
 
 #ifndef vtkXMLPolyDataWriter_h
 #define vtkXMLPolyDataWriter_h
@@ -33,12 +21,13 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLUnstructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class VTKIOXML_EXPORT vtkXMLPolyDataWriter : public vtkXMLUnstructuredDataWriter
 {
 public:
-  vtkTypeMacro(vtkXMLPolyDataWriter,vtkXMLUnstructuredDataWriter);
+  vtkTypeMacro(vtkXMLPolyDataWriter, vtkXMLUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPolyDataWriter* New();
 
@@ -80,14 +69,15 @@ protected:
   unsigned long* NumberOfStripsPositions;
   unsigned long* NumberOfPolysPositions;
 
-  OffsetsManagerArray *VertsOM;
-  OffsetsManagerArray *LinesOM;
-  OffsetsManagerArray *StripsOM;
-  OffsetsManagerArray *PolysOM;
+  OffsetsManagerArray* VertsOM;
+  OffsetsManagerArray* LinesOM;
+  OffsetsManagerArray* StripsOM;
+  OffsetsManagerArray* PolysOM;
 
 private:
   vtkXMLPolyDataWriter(const vtkXMLPolyDataWriter&) = delete;
   void operator=(const vtkXMLPolyDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

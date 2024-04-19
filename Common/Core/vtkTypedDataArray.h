@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTypedDataArray.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTypedDataArray
  * @brief   Extend vtkDataArray with abstract type-specific API
@@ -31,7 +19,7 @@
  *
  * @sa
  * vtkGenericDataArray
-*/
+ */
 
 #ifndef vtkTypedDataArray_h
 #define vtkTypedDataArray_h
@@ -39,18 +27,19 @@
 #include "vtkGenericDataArray.h"
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkTypeTraits.h"   // For type metadata
+#include "vtkTypeTraits.h"       // For type metadata
 
-template <class Scalar> class vtkTypedDataArrayIterator;
+VTK_ABI_NAMESPACE_BEGIN
+template <class Scalar>
+class vtkTypedDataArrayIterator;
 
 template <class Scalar>
-class vtkTypedDataArray :
-    public vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>
+class vtkTypedDataArray : public vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>
 {
-  typedef vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>
-    GenericDataArrayType;
+  typedef vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar> GenericDataArrayType;
+
 public:
-  vtkTemplateTypeMacro(vtkTypedDataArray<Scalar>, GenericDataArrayType)
+  vtkTemplateTypeMacro(vtkTypedDataArray<Scalar>, GenericDataArrayType);
   typedef typename Superclass::ValueType ValueType;
 
   /**
@@ -71,7 +60,10 @@ public:
   /**
    * Compile time access to the VTK type identifier.
    */
-  enum { VTK_DATA_TYPE = vtkTypeTraits<ValueType>::VTK_TYPE_ID };
+  enum
+  {
+    VTK_DATA_TYPE = vtkTypeTraits<ValueType>::VTK_TYPE_ID
+  };
 
   /**
    * Perform a fast, safe cast from a vtkAbstractArray to a vtkTypedDataArray.
@@ -81,33 +73,33 @@ public:
    * if these conditions are met, the method performs a static_cast to return
    * source as a vtkTypedDataArray pointer. Otherwise, nullptr is returned.
    */
-  static vtkTypedDataArray<Scalar>* FastDownCast(vtkAbstractArray *source);
+  static vtkTypedDataArray<Scalar>* FastDownCast(vtkAbstractArray* source);
 
   /**
    * Return the VTK data type held by this array.
    */
-  int GetDataType() override;
+  int GetDataType() const override;
 
   /**
    * Return the size of the element type in bytes.
    */
-  int GetDataTypeSize() override;
+  int GetDataTypeSize() const override;
 
   /**
    * Set the tuple value at the ith location in the array.
    */
-  virtual void SetTypedTuple(vtkIdType i, const ValueType *t) = 0;
+  virtual void SetTypedTuple(vtkIdType i, const ValueType* t) = 0;
 
   /**
    * Insert (memory allocation performed) the tuple into the ith location
    * in the array.
    */
-  virtual void InsertTypedTuple(vtkIdType i, const ValueType *t) = 0;
+  virtual void InsertTypedTuple(vtkIdType i, const ValueType* t) = 0;
 
   /**
    * Insert (memory allocation performed) the tuple onto the end of the array.
    */
-  virtual vtkIdType InsertNextTypedTuple(const ValueType *t) = 0;
+  virtual vtkIdType InsertNextTypedTuple(const ValueType* t) = 0;
 
   /**
    * Get the data at a particular index.
@@ -128,7 +120,7 @@ public:
   /**
    * Copy the tuple value into a user-provided array.
    */
-  virtual void GetTypedTuple(vtkIdType idx, ValueType *t) const = 0;
+  virtual void GetTypedTuple(vtkIdType idx, ValueType* t) const = 0;
 
   /**
    * Insert data at the end of the array. Return its location in the array.
@@ -146,7 +138,7 @@ public:
   /**
    * Method for type-checking in FastDownCast implementations.
    */
-  int GetArrayType() override { return vtkAbstractArray::TypedDataArray; }
+  int GetArrayType() const override { return vtkAbstractArray::TypedDataArray; }
 
   // Reintroduced as pure virtual since the base vtkGenericDataArray method
   // requires new allocation/resize APIs, though existing MappedDataArrays
@@ -171,32 +163,119 @@ protected:
   virtual bool ReallocateTuples(vtkIdType numTuples);
 
 private:
-  vtkTypedDataArray(const vtkTypedDataArray &) = delete;
-  void operator=(const vtkTypedDataArray &) = delete;
+  vtkTypedDataArray(const vtkTypedDataArray&) = delete;
+  void operator=(const vtkTypedDataArray&) = delete;
 
   friend class vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>;
 };
 
 // Declare vtkArrayDownCast implementations for typed containers:
-vtkArrayDownCast_TemplateFastCastMacro(vtkTypedDataArray)
+vtkArrayDownCast_TemplateFastCastMacro(vtkTypedDataArray);
 
 // Included here to resolve chicken/egg issue with container/iterator:
+VTK_ABI_NAMESPACE_END
 #include "vtkTypedDataArrayIterator.h" // For iterator
 
-template <class Scalar> inline
-typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::Begin()
+VTK_ABI_NAMESPACE_BEGIN
+template <class Scalar>
+inline typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::Begin()
 {
   return Iterator(this, 0);
 }
 
-template <class Scalar> inline
-typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::End()
+template <class Scalar>
+inline typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::End()
 {
   return Iterator(this, this->MaxId + 1);
 }
 
+VTK_ABI_NAMESPACE_END
 #include "vtkTypedDataArray.txx"
 
-#endif //vtkTypedDataArray_h
+#endif // vtkTypedDataArray_h
+
+#ifdef VTK_TYPED_VALUERANGE_INSTANTIATING
+
+// Needed to export for this module and not CommonCore
+#define VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                 \
+  template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(                                         \
+    ArrayType*, ValueType*, vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);  \
+  template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(ArrayType*, ValueType*,                  \
+    vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);                       \
+  template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],                \
+    vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);                          \
+  template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],                \
+    vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
+
+#define VTK_INSTANTIATE_VALUERANGE_VALUETYPE(ValueType)                                            \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkTypedDataArray<ValueType>, double)
+
+#elif defined(VTK_USE_EXTERN_TEMPLATE) // VTK_IMPLICIT_VALUERANGE_INSTANTIATING
+
+#ifndef VTK_IMPLICIT_TEMPLATE_EXTERN
+#define VTK_IMPLICIT_TEMPLATE_EXTERN
+#ifdef _MSC_VER
+#pragma warning(push)
+// The following is needed when the following is declared
+// dllexport and is used from another class in vtkCommonCore
+#pragma warning(disable : 4910) // extern and dllexport incompatible
+#endif
+
+namespace vtkDataArrayPrivate
+{
+VTK_ABI_NAMESPACE_BEGIN
+template <typename A, typename R, typename T>
+VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(
+  A*, R*, T, const unsigned char* ghosts, unsigned char ghostsToSkip);
+template <typename A, typename R>
+VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(
+  A*, R[2], AllValues, const unsigned char* ghosts, unsigned char ghostsToSkip);
+template <typename A, typename R>
+VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(
+  A*, R[2], FiniteValues, const unsigned char* ghosts, unsigned char ghostsToSkip);
+VTK_ABI_NAMESPACE_END
+} // namespace vtkDataArrayPrivate
+
+#define VTK_DECLARE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                     \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(                                  \
+    ArrayType*, ValueType*, vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);  \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(ArrayType*, ValueType*,           \
+    vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);                       \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],         \
+    vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);                          \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],         \
+    vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
+
+#define VTK_DECLARE_VALUERANGE_VALUETYPE(ValueType)                                                \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkTypedDataArray<ValueType>, double)
+
+namespace vtkDataArrayPrivate
+{
+VTK_ABI_NAMESPACE_BEGIN
+VTK_DECLARE_VALUERANGE_VALUETYPE(char)
+VTK_DECLARE_VALUERANGE_VALUETYPE(signed char)
+VTK_DECLARE_VALUERANGE_VALUETYPE(short)
+VTK_DECLARE_VALUERANGE_VALUETYPE(int)
+VTK_DECLARE_VALUERANGE_VALUETYPE(long)
+VTK_DECLARE_VALUERANGE_VALUETYPE(long long)
+VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned char)
+VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned short)
+VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned int)
+VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned long)
+VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned long long)
+VTK_DECLARE_VALUERANGE_VALUETYPE(float)
+VTK_DECLARE_VALUERANGE_VALUETYPE(double)
+VTK_ABI_NAMESPACE_END
+}
+
+#undef VTK_DECLARE_VALUERANGE_VALUETYPE
+#undef VTK_DECLARE_VALUERANGE_ARRAYTYPE
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+#endif // VTK_IMPLICIT_TEMPLATE_EXTERN
+
+#endif // VTK_TYPED_VALUERANGE_INSTANTIATING
 
 // VTK-HeaderTest-Exclude: vtkTypedDataArray.h

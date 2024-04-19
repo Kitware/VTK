@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtDebugLeaksView.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkQtDebugLeaksView
  * @brief   view class to display contents of vtkQtDebugLeaksModel
@@ -21,7 +9,7 @@
  * memory.  The widget is designed to be a debugging tool that is instantiated
  * at program startup and displayed as a top level widget.  Simply create the
  * widget and call show().
-*/
+ */
 
 #ifndef vtkQtDebugLeaksView_h
 #define vtkQtDebugLeaksView_h
@@ -30,6 +18,8 @@
 #include <QWidget>
 
 class QModelIndex;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBase;
 class vtkQtDebugLeaksModel;
 
@@ -38,8 +28,7 @@ class VTKGUISUPPORTQT_EXPORT vtkQtDebugLeaksView : public QWidget
   Q_OBJECT
 
 public:
-
-  vtkQtDebugLeaksView(QWidget *p=nullptr);
+  vtkQtDebugLeaksView(QWidget* p = nullptr);
   ~vtkQtDebugLeaksView() override;
 
   vtkQtDebugLeaksModel* model();
@@ -65,11 +54,10 @@ public:
   void setFilterText(const QString& text);
 
 protected:
-
   virtual void onObjectDoubleClicked(vtkObjectBase* object);
   virtual void onClassNameDoubleClicked(const QString& className);
 
-protected slots:
+protected Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
 
   void onCurrentRowChanged(const QModelIndex& current);
   void onRowDoubleClicked(const QModelIndex&);
@@ -78,13 +66,12 @@ protected slots:
   void onFilterHelp();
 
 private:
-
   class qInternal;
   qInternal* Internal;
 
   Q_DISABLE_COPY(vtkQtDebugLeaksView);
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtDebugLeaksView.h

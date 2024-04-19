@@ -1,30 +1,19 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkServerSocket.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkServerSocket.h"
 
 #include "vtkClientSocket.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkServerSocket);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkServerSocket::vtkServerSocket() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkServerSocket::~vtkServerSocket() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkServerSocket::GetServerPort()
 {
   if (!this->GetConnected())
@@ -34,7 +23,7 @@ int vtkServerSocket::GetServerPort()
   return this->GetPort(this->SocketDescriptor);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkServerSocket::CreateServer(int port)
 {
   if (this->SocketDescriptor != -1)
@@ -48,7 +37,7 @@ int vtkServerSocket::CreateServer(int port)
   {
     return -1;
   }
-  if ( this->BindSocket(this->SocketDescriptor, port) != 0||
+  if (this->BindSocket(this->SocketDescriptor, port) != 0 ||
     this->Listen(this->SocketDescriptor) != 0)
   {
     // failed to bind or listen.
@@ -60,7 +49,7 @@ int vtkServerSocket::CreateServer(int port)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkClientSocket* vtkServerSocket::WaitForConnection(unsigned long msec /*=0*/)
 {
   if (this->SocketDescriptor < 0)
@@ -93,8 +82,9 @@ vtkClientSocket* vtkServerSocket::WaitForConnection(unsigned long msec /*=0*/)
   return cs;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkServerSocket::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

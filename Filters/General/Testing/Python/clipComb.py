@@ -1,11 +1,28 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkImplicitBoolean,
+    vtkSphere,
+)
+from vtkmodules.vtkFiltersCore import vtkStructuredGridOutlineFilter
+from vtkmodules.vtkFiltersGeneral import vtkClipDataSet
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create pipeline
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
+pl3d = vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
@@ -16,49 +33,49 @@ output = pl3d.GetOutput().GetBlock(0)
 
 # create a crazy implicit function
 center = output.GetCenter()
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter(center)
 sphere.SetRadius(2.0)
 
-sphere2 = vtk.vtkSphere()
+sphere2 = vtkSphere()
 sphere2.SetCenter(center[0] + 4.0, center[1], center[2])
 sphere2.SetRadius(4.0)
 
-boolOp = vtk.vtkImplicitBoolean()
+boolOp = vtkImplicitBoolean()
 boolOp.SetOperationTypeToUnion()
 boolOp.AddFunction(sphere)
 boolOp.AddFunction(sphere2)
 
 # clip the structured grid to produce a tetrahedral mesh
-clip = vtk.vtkClipDataSet()
+clip = vtkClipDataSet()
 clip.SetInputData(output)
 clip.SetClipFunction(boolOp)
 clip.InsideOutOn()
 
-gf = vtk.vtkGeometryFilter()
+gf = vtkGeometryFilter()
 gf.SetInputConnection(clip.GetOutputPort())
 
-clipMapper = vtk.vtkPolyDataMapper()
+clipMapper = vtkPolyDataMapper()
 clipMapper.SetInputConnection(gf.GetOutputPort())
 
-clipActor = vtk.vtkActor()
+clipActor = vtkActor()
 clipActor.SetMapper(clipMapper)
 
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 outline.SetInputData(output)
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

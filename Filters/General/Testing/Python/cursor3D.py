@@ -1,31 +1,48 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkGlyph3D,
+    vtkProbeFilter,
+    vtkStructuredGridOutlineFilter,
+)
+from vtkmodules.vtkFiltersGeneral import vtkCursor3D
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # read data
-reader = vtk.vtkMultiBlockPLOT3DReader()
-reader.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-reader.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+reader = vtkMultiBlockPLOT3DReader()
+reader.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+reader.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 reader.SetScalarFunctionNumber(110)
 reader.Update()
 output = reader.GetOutput().GetBlock(0)
 # create outline
-outlineF = vtk.vtkStructuredGridOutlineFilter()
+outlineF = vtkStructuredGridOutlineFilter()
 outlineF.SetInputData(output)
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outlineF.GetOutputPort())
-outline = vtk.vtkActor()
+outline = vtkActor()
 outline.SetMapper(outlineMapper)
 outline.GetProperty().SetColor(0,0,0)
 # create cursor
-cursor = vtk.vtkCursor3D()
+cursor = vtkCursor3D()
 cursor.SetModelBounds(output.GetBounds())
 cursor.SetFocalPoint(output.GetCenter())
 cursor.AllOff()
@@ -34,29 +51,29 @@ cursor.OutlineOn()
 cursor.XShadowsOn()
 cursor.YShadowsOn()
 cursor.ZShadowsOn()
-cursorMapper = vtk.vtkPolyDataMapper()
+cursorMapper = vtkPolyDataMapper()
 cursorMapper.SetInputConnection(cursor.GetOutputPort())
-cursorActor = vtk.vtkActor()
+cursorActor = vtkActor()
 cursorActor.SetMapper(cursorMapper)
 cursorActor.GetProperty().SetColor(1,0,0)
 # create probe
-probe = vtk.vtkProbeFilter()
+probe = vtkProbeFilter()
 probe.SetInputData(cursor.GetFocus())
 probe.SetSourceData(output)
 # create a cone geometry for glyph
-cone = vtk.vtkConeSource()
+cone = vtkConeSource()
 cone.SetResolution(16)
 cone.SetRadius(0.25)
 # create glyph
-glyph = vtk.vtkGlyph3D()
+glyph = vtkGlyph3D()
 glyph.SetInputConnection(probe.GetOutputPort())
 glyph.SetSourceConnection(cone.GetOutputPort())
 glyph.SetVectorModeToUseVector()
 glyph.SetScaleModeToScaleByScalar()
 glyph.SetScaleFactor(.0002)
-glyphMapper = vtk.vtkPolyDataMapper()
+glyphMapper = vtkPolyDataMapper()
 glyphMapper.SetInputConnection(glyph.GetOutputPort())
-glyphActor = vtk.vtkActor()
+glyphActor = vtkActor()
 glyphActor.SetMapper(glyphMapper)
 ren1.AddActor(outline)
 ren1.AddActor(cursorActor)

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPHyperTreeGridWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLPHyperTreeGridWriter.h"
 
 #include "vtkCallbackCommand.h"
@@ -26,40 +14,42 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPHyperTreeGridWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPHyperTreeGridWriter::vtkXMLPHyperTreeGridWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPHyperTreeGridWriter::~vtkXMLPHyperTreeGridWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkXMLPHyperTreeGridWriter::GetInput()
 {
   return vtkHyperTreeGrid::SafeDownCast(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPHyperTreeGridWriter::GetDataSetName()
 {
   return "PHyperTreeGrid";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPHyperTreeGridWriter::GetDefaultFileExtension()
 {
   return "phtg";
 }
 
-//----------------------------------------------------------------------------
-vtkXMLHyperTreeGridWriter* vtkXMLPHyperTreeGridWriter::CreateHyperTreeGridPieceWriter(int vtkNotUsed(index))
+//------------------------------------------------------------------------------
+vtkXMLHyperTreeGridWriter* vtkXMLPHyperTreeGridWriter::CreateHyperTreeGridPieceWriter(
+  int vtkNotUsed(index))
 {
   // Create the writer for the piece.
   vtkXMLHyperTreeGridWriter* pWriter = vtkXMLHyperTreeGridWriter::New();
@@ -67,7 +57,7 @@ vtkXMLHyperTreeGridWriter* vtkXMLPHyperTreeGridWriter::CreateHyperTreeGridPieceW
   return pWriter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLWriter* vtkXMLPHyperTreeGridWriter::CreatePieceWriter(int index)
 {
   // Create the writer for the piece.
@@ -75,12 +65,10 @@ vtkXMLWriter* vtkXMLPHyperTreeGridWriter::CreatePieceWriter(int index)
   return pWriter;
 }
 
-//----------------------------------------------------------------------------
-void vtkXMLPHyperTreeGridWriter::WritePData(vtkIndent vtkNotUsed(indent))
-{
-}
+//------------------------------------------------------------------------------
+void vtkXMLPHyperTreeGridWriter::WritePData(vtkIndent vtkNotUsed(indent)) {}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridWriter::WritePieceInternal()
 {
   int piece = this->GetCurrentPiece();
@@ -100,7 +88,7 @@ int vtkXMLPHyperTreeGridWriter::WritePieceInternal()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridWriter::WritePiece(int index)
 {
   // Create the writer for the piece.  Its configuration should match
@@ -125,6 +113,7 @@ int vtkXMLPHyperTreeGridWriter::WritePiece(int index)
   pWriter->SetEncodeAppendedData(this->EncodeAppendedData);
   pWriter->SetHeaderType(this->HeaderType);
   pWriter->SetBlockSize(this->BlockSize);
+  pWriter->SetWriteTimeValue(this->GetWriteTimeValue());
 
   // Write the piece.
   int result = pWriter->Write();
@@ -137,7 +126,7 @@ int vtkXMLPHyperTreeGridWriter::WritePiece(int index)
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridWriter::SetupPieceFileNameExtension()
 {
   this->Superclass::SetupPieceFileNameExtension();
@@ -151,9 +140,10 @@ void vtkXMLPHyperTreeGridWriter::SetupPieceFileNameExtension()
   writer->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

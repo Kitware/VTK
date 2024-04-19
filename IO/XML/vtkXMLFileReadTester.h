@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLFileReadTester.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLFileReadTester
  * @brief   Utility class for vtkXMLReader and subclasses.
@@ -19,7 +7,7 @@
  * vtkXMLFileReadTester reads the smallest part of a file necessary to
  * determine whether it is a VTK XML file.  If so, it extracts the
  * file type and version number.
-*/
+ */
 
 #ifndef vtkXMLFileReadTester_h
 #define vtkXMLFileReadTester_h
@@ -27,10 +15,11 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLParser.h"
 
-class VTKIOXML_EXPORT vtkXMLFileReadTester: public vtkXMLParser
+VTK_ABI_NAMESPACE_BEGIN
+class VTKIOXML_EXPORT vtkXMLFileReadTester : public vtkXMLParser
 {
 public:
-  vtkTypeMacro(vtkXMLFileReadTester,vtkXMLParser);
+  vtkTypeMacro(vtkXMLFileReadTester, vtkXMLParser);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLFileReadTester* New();
 
@@ -40,21 +29,21 @@ public:
    */
   int TestReadFile();
 
-  //@{
+  ///@{
   /**
    * Get the data type of the XML file tested.  If the file could not
    * be read, returns nullptr.
    */
   vtkGetStringMacro(FileDataType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the file version of the XML file tested.  If the file could not
    * be read, returns nullptr.
    */
   vtkGetStringMacro(FileVersion);
-  //@}
+  ///@}
 
 protected:
   vtkXMLFileReadTester();
@@ -80,4 +69,5 @@ private:
   void operator=(const vtkXMLFileReadTester&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

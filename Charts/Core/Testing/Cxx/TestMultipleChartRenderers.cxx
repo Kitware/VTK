@@ -1,36 +1,23 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestLinePlot.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkActor.h"
 #include "vtkChartXY.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
 #include "vtkContextActor.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkFloatArray.h"
 #include "vtkPlot.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-//----------------------------------------------------------------------------
-int TestMultipleChartRenderers(int , char * [])
+//------------------------------------------------------------------------------
+int TestMultipleChartRenderers(int, char*[])
 {
 
   VTK_CREATE(vtkRenderWindow, renwin);
@@ -40,18 +27,15 @@ int TestMultipleChartRenderers(int , char * [])
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
 
-  //setup the 4charts view ports
-  double viewports[16] ={
-    0.0,0.0,0.3,0.5,
-    0.3,0.0,1.0,0.5,
-    0.0,0.5,0.5,1.0,
-    0.5,0.5,1.0,1.0};
+  // setup the 4charts view ports
+  double viewports[16] = { 0.0, 0.0, 0.3, 0.5, 0.3, 0.0, 1.0, 0.5, 0.0, 0.5, 0.5, 1.0, 0.5, 0.5,
+    1.0, 1.0 };
 
-  for ( int i=0; i < 4; ++i)
+  for (int i = 0; i < 4; ++i)
   {
     VTK_CREATE(vtkRenderer, ren);
-    ren->SetBackground(1.0,1.0,1.0);
-    ren->SetViewport(&viewports[i*4]);
+    ren->SetBackground(1.0, 1.0, 1.0);
+    ren->SetViewport(&viewports[i * 4]);
     renwin->AddRenderer(ren);
 
     VTK_CREATE(vtkChartXY, chart);
@@ -61,7 +45,7 @@ int TestMultipleChartRenderers(int , char * [])
     chartScene->AddItem(chart);
     chartActor->SetScene(chartScene);
 
-    //both needed
+    // both needed
     ren->AddActor(chartActor);
     chartScene->SetRenderer(ren);
 
@@ -81,7 +65,7 @@ int TestMultipleChartRenderers(int , char * [])
     table->AddColumn(arrS2);
     // Test charting with a few more points...
     int numPoints = 69;
-    float inc = 7.5 / (numPoints-1);
+    float inc = 7.5 / (numPoints - 1);
     table->SetNumberOfRows(numPoints);
     for (int j = 0; j < numPoints; ++j)
     {
@@ -92,7 +76,7 @@ int TestMultipleChartRenderers(int , char * [])
     }
 
     // Add multiple line plots, setting the colors etc
-    vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+    vtkPlot* line = chart->AddPlot(vtkChart::LINE);
     line->SetInputData(table, 0, 1);
     line->SetColor(0, 255, 0, 255);
     line->SetWidth(1.0);

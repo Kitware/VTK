@@ -2,7 +2,21 @@ NAME
   VTK::TestingCore
 LIBRARY_NAME
   vtkTestingCore
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
+  VTK::CommonDataModel
   VTK::vtksys
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersHyperTree
+TEST_DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersHyperTree
+  VTK::ImagingCore
+  VTK::IOXML
+  VTK::TestingRendering
 EXCLUDE_WRAP

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGaussianKernel.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGaussianKernel
  * @brief   a spherical Gaussian interpolation kernel
@@ -32,7 +20,7 @@
  * @sa
  * vtkPointInterpolator vtkInterpolationKernel vtkEllipsoidalGaussianKernel
  * vtkVoronoiKernel vtkSPHKernel vtkShepardKernel
-*/
+ */
 
 #ifndef vtkGaussianKernel_h
 #define vtkGaussianKernel_h
@@ -40,28 +28,27 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkGeneralizedKernel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
-
 
 class VTKFILTERSPOINTS_EXPORT vtkGaussianKernel : public vtkGeneralizedKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkGaussianKernel *New();
-  vtkTypeMacro(vtkGaussianKernel,vtkGeneralizedKernel);
+  static vtkGaussianKernel* New();
+  vtkTypeMacro(vtkGaussianKernel, vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Initialize the kernel. Overload the superclass to set up internal
    * computational values.
    */
-  void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) override;
+  void Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd) override;
 
   // Re-use any superclass signatures that we don't override.
   using vtkGeneralizedKernel::ComputeWeights;
@@ -80,18 +67,18 @@ public:
    * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
-  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
+  vtkIdType ComputeWeights(
+    double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the sharpness (i.e., falloff) of the Gaussian. By default
    * Sharpness=2. As the sharpness increases the effects of distant points
    * are reduced.
    */
-  vtkSetClampMacro(Sharpness,double,1,VTK_FLOAT_MAX);
-  vtkGetMacro(Sharpness,double);
-  //@}
+  vtkSetClampMacro(Sharpness, double, 1, VTK_FLOAT_MAX);
+  vtkGetMacro(Sharpness, double);
+  ///@}
 
 protected:
   vtkGaussianKernel();
@@ -107,4 +94,5 @@ private:
   void operator=(const vtkGaussianKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

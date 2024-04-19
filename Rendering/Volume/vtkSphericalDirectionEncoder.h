@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSphericalDirectionEncoder.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSphericalDirectionEncoder
  * @brief   A direction encoder based on spherical coordinates
@@ -21,42 +9,42 @@
  *
  * @sa
  * vtkDirectionEncoder
-*/
+ */
 
 #ifndef vtkSphericalDirectionEncoder_h
 #define vtkSphericalDirectionEncoder_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkDirectionEncoder.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGVOLUME_EXPORT vtkSphericalDirectionEncoder : public vtkDirectionEncoder
 {
 public:
-  vtkTypeMacro(vtkSphericalDirectionEncoder,vtkDirectionEncoder);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkSphericalDirectionEncoder, vtkDirectionEncoder);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct the object. Initialize the index table which will be
    * used to map the normal into a patch on the recursively subdivided
    * sphere.
    */
-  static vtkSphericalDirectionEncoder *New();
-
+  static vtkSphericalDirectionEncoder* New();
 
   /**
    * Given a normal vector n, return the encoded direction
    */
-  int GetEncodedDirection( float n[3] ) override;
+  int GetEncodedDirection(float n[3]) override;
 
   /**
    * / Given an encoded value, return a pointer to the normal vector
    */
-  float *GetDecodedGradient( int value ) VTK_SIZEHINT(3) override;
+  float* GetDecodedGradient(int value) VTK_SIZEHINT(3) override;
 
   /**
    * Return the number of encoded directions
    */
-  int GetNumberOfEncodedDirections( void ) override { return 65536; }
+  int GetNumberOfEncodedDirections() override { return 65536; }
 
   /**
    * Get the decoded gradient table. There are
@@ -64,32 +52,29 @@ public:
    * containing a normal (direction) vector. This is a flat structure -
    * 3 times the number of directions floats in an array.
    */
-  float *GetDecodedGradientTable( void ) override
+  float* GetDecodedGradientTable() override
   {
-      return &(this->DecodedGradientTable[0]);
+    return &(vtkSphericalDirectionEncoder::DecodedGradientTable[0]);
   }
-
 
 protected:
   vtkSphericalDirectionEncoder();
   ~vtkSphericalDirectionEncoder() override;
 
-  static float DecodedGradientTable[65536*3];
+  static float DecodedGradientTable[65536 * 3];
 
-  //@{
+  ///@{
   /**
    * Initialize the table at startup
    */
   static void InitializeDecodedGradientTable();
   static int DecodedGradientTableInitialized;
-  //@}
+  ///@}
 
 private:
   vtkSphericalDirectionEncoder(const vtkSphericalDirectionEncoder&) = delete;
   void operator=(const vtkSphericalDirectionEncoder&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif
-
-

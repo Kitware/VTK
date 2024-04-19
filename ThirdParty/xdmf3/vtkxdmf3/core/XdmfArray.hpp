@@ -38,6 +38,18 @@ class XdmfHeavyDataController;
 
 // Includes
 #include <boost/shared_array.hpp>
+
+// in order to support uint64 type, we need to increase the number of types
+// that can be used in a boost::variant
+// note : available values for BOOST_MPL_LIMIT_LIST_SIZE are 10, 20, 30, 40 and 50,
+// default is 20, which not enough, so increase to 30
+#define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#if !defined(BOOST_MPL_LIMIT_LIST_SIZE)
+#define BOOST_MPL_LIMIT_LIST_SIZE 30
+#elif BOOST_MPL_LIMIT_LIST_SIZE < 30
+#undef BOOST_MPL_LIMIT_LIST_SIZE
+#define BOOST_MPL_LIMIT_LIST_SIZE 30
+#endif
 #include <boost/variant.hpp>
 
 /**
@@ -99,6 +111,7 @@ class XdmfHeavyDataController;
  *   UInt8
  *   UInt16
  *   UInt32
+ *   UInt64
  *   String
  */
 class XDMFCORE_EXPORT XdmfArray : public XdmfItem {
@@ -457,7 +470,7 @@ public:
    * @skipline //#getValues
    * @until //#getValues
    *
-   * Python: 
+   * Python:
    * This function is not supported in Python,
    * it is replaced by the getNumpyArray function
    *
@@ -1173,7 +1186,7 @@ public:
    * indices larger than numValues are removed.
    *
    * Example of use:
-   * 
+   *
    * C++
    *
    * @dontinclude ExampleXdmfArray.cpp
@@ -1514,6 +1527,8 @@ private:
     shared_ptr<std::vector<unsigned char> >,
     shared_ptr<std::vector<unsigned short> >,
     shared_ptr<std::vector<unsigned int> >,
+    shared_ptr<std::vector<unsigned long> >,
+    shared_ptr<std::vector<uint64_t> >,
     shared_ptr<std::vector<std::string> >,
     boost::shared_array<const char>,
     boost::shared_array<const short>,
@@ -1523,8 +1538,10 @@ private:
     boost::shared_array<const double>,
     boost::shared_array<const unsigned char>,
     boost::shared_array<const unsigned short>,
-    boost::shared_array<const unsigned int>  > ArrayVariant;
-  
+    boost::shared_array<const unsigned int>,
+    boost::shared_array<const unsigned long>,
+    boost::shared_array<const uint64_t>  > ArrayVariant;
+
   unsigned int mArrayPointerNumValues;
   std::vector<unsigned int> mDimensions;
   std::string mName;

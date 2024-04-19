@@ -1,38 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPickingManager.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*==============================================================================
-
-  Library: MSVTK
-
-  Copyright (c) Kitware Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0.txt
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-
-==============================================================================*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware Inc.
+// SPDX-License-Identifier: BSD-3-Clause AND Apache-2.0
 /**
  * @class   vtkPickingManager
  * Class defines API to manage the picking process.
@@ -65,7 +33,7 @@
  * to an other !!
  * This has been done to allow adding multiple times the same picker to the manager
  * by not passing the referenced object to not force the suppression of all pickers
-*/
+ */
 
 #ifndef vtkPickingManager_h
 #define vtkPickingManager_h
@@ -73,6 +41,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPicker;
 class vtkAbstractPropPicker;
 class vtkAssemblyPath;
@@ -82,11 +51,11 @@ class vtkRenderWindowInteractor;
 class VTKRENDERINGCORE_EXPORT vtkPickingManager : public vtkObject
 {
 public:
-  static vtkPickingManager *New();
-  vtkTypeMacro(vtkPickingManager,vtkObject);
+  static vtkPickingManager* New();
+  vtkTypeMacro(vtkPickingManager, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Enable/Disable management.
    * When disabled, it redirects every pick on the picker.
@@ -95,9 +64,9 @@ public:
   vtkBooleanMacro(Enabled, bool);
   vtkSetMacro(Enabled, bool);
   vtkGetMacro(Enabled, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable optimization depending on the renderWindowInteractor events.
    * The mechanism keeps in cache the last selected picker as well as the last
@@ -109,15 +78,15 @@ public:
    */
   void SetOptimizeOnInteractorEvents(bool optimize);
   vtkGetMacro(OptimizeOnInteractorEvents, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the window interactor associated with the manager.
    */
   void SetInteractor(vtkRenderWindowInteractor* iren);
   vtkGetMacro(Interactor, vtkRenderWindowInteractor*);
-  //@}
+  ///@}
 
   /**
    * Register a picker into the picking manager.
@@ -170,10 +139,8 @@ public:
    * Otherwise it simply proceeds to a pick using the given renderer and
    * returns the corresponding assembly path.
    */
-  vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z,
-                                   vtkAbstractPropPicker* picker,
-                                   vtkRenderer* renderer,
-                                   vtkObject* obj);
+  vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z, vtkAbstractPropPicker* picker,
+    vtkRenderer* renderer, vtkObject* obj);
 
   /**
    * Return the number of pickers registered.
@@ -205,4 +172,5 @@ private:
   vtkInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

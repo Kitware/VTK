@@ -107,10 +107,7 @@ _NO_IMAGE = 0
 
 def skip():
     '''Cause the test to be skipped due to insufficient requirements.'''
-    sys.exit(0)
-    # CMake 3.9 is required to make this not appear on CDash as a failure. See
-    # issue #17031.
-    #sys.exit(125)
+    sys.exit(125)
 
 
 class vtkTest(unittest.TestCase):
@@ -282,7 +279,7 @@ def interact():
     """Interacts with the user if necessary. """
     global _INTERACT
     if _INTERACT:
-        raw_input("\nPress Enter/Return to continue with the testing. --> ")
+        input("\nPress Enter/Return to continue with the testing. --> ")
 
 def isInteractive():
     """Returns if the currently chosen mode is interactive or not
@@ -292,7 +289,9 @@ def isInteractive():
 def getAbsImagePath(img_basename):
     """Returns the full path to the image given the basic image
     name."""
-    global VTK_BASELINE_ROOT
+    for path in VTK_BASELINE_PATHS:
+        if os.path.basename(path) == img_basename:
+            return path
     return os.path.join(VTK_BASELINE_ROOT, img_basename)
 
 def _getTempImagePath(img_fname):
@@ -601,7 +600,13 @@ def parseCmdLine():
                     'no-image', 'interact']
 
     try:
-        opts, args = getopt.getopt(arguments, options, long_options)
+        # getopt expects options to be first
+        first = 0
+        for i, arg in enumerate(arguments):
+            if arg.startswith('-'):
+                first = i
+                break
+        opts, args = getopt.getopt(arguments[first:], options, long_options)
     except getopt.error as msg:
         print(usage())
         print('-'*70)

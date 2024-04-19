@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPPolyDataReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPPolyDataReader
  * @brief   Read PVTK XML PolyData files.
@@ -24,7 +12,7 @@
  *
  * @sa
  * vtkXMLPolyDataReader
-*/
+ */
 
 #ifndef vtkXMLPPolyDataReader_h
 #define vtkXMLPPolyDataReader_h
@@ -32,22 +20,24 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPUnstructuredDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+class vtkAbstractArray;
 class vtkPolyData;
 
 class VTKIOXML_EXPORT vtkXMLPPolyDataReader : public vtkXMLPUnstructuredDataReader
 {
 public:
-  vtkTypeMacro(vtkXMLPPolyDataReader,vtkXMLPUnstructuredDataReader);
+  vtkTypeMacro(vtkXMLPPolyDataReader, vtkXMLPUnstructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkXMLPPolyDataReader *New();
+  static vtkXMLPPolyDataReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
-  vtkPolyData *GetOutput();
-  vtkPolyData *GetOutput(int idx);
-  //@}
+  vtkPolyData* GetOutput();
+  vtkPolyData* GetOutput(int idx);
+  ///@}
 
 protected:
   vtkXMLPPolyDataReader();
@@ -66,7 +56,7 @@ protected:
   void SetupNextPiece() override;
   int ReadPieceData() override;
 
-  void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) override;
+  void CopyArrayForCells(vtkAbstractArray* inArray, vtkAbstractArray* outArray) override;
   vtkXMLDataReader* CreatePieceReader() override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 
@@ -85,4 +75,5 @@ private:
   void operator=(const vtkXMLPPolyDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

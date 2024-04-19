@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkEnSightGoldReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkEnSightGoldReader
  * @brief   class to read EnSight Gold files
@@ -35,21 +23,21 @@
  * and variables).
  * @par Thanks:
  * Thanks to Yvan Fournier for providing the code to support nfaced elements.
-*/
+ */
 
 #ifndef vtkEnSightGoldReader_h
 #define vtkEnSightGoldReader_h
 
-#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"
+#include "vtkIOEnSightModule.h" // For export macro
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 
 class VTKIOENSIGHT_EXPORT vtkEnSightGoldReader : public vtkEnSightReader
 {
 public:
-  static vtkEnSightGoldReader *New();
+  static vtkEnSightGoldReader* New();
   vtkTypeMacro(vtkEnSightGoldReader, vtkEnSightReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -60,120 +48,128 @@ protected:
   /**
    * Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
    */
-  int ReadGeometryFile(const char* fileName, int timeStep,
-    vtkMultiBlockDataSet *output) override;
+  int ReadGeometryFile(const char* fileName, int timeStep, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read the measured geometry file.  If an error occurred, 0 is returned;
    * otherwise 1.
    */
-  int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
-    vtkMultiBlockDataSet *output) override;
+  int ReadMeasuredGeometryFile(
+    const char* fileName, int timeStep, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read scalars per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.  If there will be more than one component in
    * the data array, it is assumed that 0 is the first component added.
    */
-  int ReadScalarsPerNode(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output,
-    int measured = 0,
-    int numberOfComponents = 1,
+  int ReadScalarsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int measured = 0, int numberOfComponents = 1,
     int component = 0) override;
 
   /**
    * Read vectors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadVectorsPerNode(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output,
-    int measured = 0) override;
+  int ReadVectorsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int measured = 0) override;
+
+  /**
+   * Read asimmetric tensors per node for this dataset.  If an error occurred, 0 is
+   * returned; otherwise 1.
+   */
+  int ReadAsymmetricTensorsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
 
   /**
    * Read tensors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadTensorsPerNode(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output) override;
+  int ReadTensorsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
 
   /**
    * Read scalars per element for this dataset.  If an error occurred, 0 is
-   * returned; otherwise 1.  If there will be more than one componenet in the
+   * returned; otherwise 1.  If there will be more than one component in the
    * data array, it is assumed that 0 is the first component added.
    */
-  int ReadScalarsPerElement(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output,
-    int numberOfComponents = 1,
-    int component = 0) override;
+  int ReadScalarsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int numberOfComponents = 1, int component = 0) override;
 
   /**
    * Read vectors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadVectorsPerElement(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output) override;
+  int ReadVectorsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
+
+  /**
+   * Read asymmetric tensors per element for this dataset.  If an error occurred, 0 is
+   * returned; otherwise 1.
+   */
+  int ReadAsymmetricTensorsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
 
   /**
    * Read tensors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadTensorsPerElement(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output) override;
+  int ReadTensorsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
 
   /**
    * Read an unstructured part (partId) from the geometry file and create a
    * vtkUnstructuredGrid output.  Return 0 if EOF reached. Return -1 if
    * an error occurred.
    */
-  int CreateUnstructuredGridOutput(int partId,
-    char line[256],
-    const char* name,
-    vtkMultiBlockDataSet *output) override;
+  int CreateUnstructuredGridOutput(
+    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkStructuredGrid output.  Return 0 if EOF reached.
    */
-  int CreateStructuredGridOutput(int partId,
-    char line[256],
-    const char* name,
-    vtkMultiBlockDataSet *output) override;
+  int CreateStructuredGridOutput(
+    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkRectilinearGrid output.  Return 0 if EOF reached.
    */
-  int CreateRectilinearGridOutput(int partId, char line[256], const char* name,
-    vtkMultiBlockDataSet *output);
+  int CreateRectilinearGridOutput(
+    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output);
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkImageData output.  Return 0 if EOF reached.
    */
-  int CreateImageDataOutput(int partId, char line[256], const char* name,
-    vtkMultiBlockDataSet *output);
-
-  /**
-   * Skip next line in file if the 'undef' or 'partial' keyword was
-   * specified after a sectional keyword
-   */
-  int CheckForUndefOrPartial(const char *line);
+  int CreateImageDataOutput(
+    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output);
 
   int NodeIdsListed;
   int ElementIdsListed;
 
-  class UndefPartialInternal;
-  /**
-   * Handle the undef / partial support for EnSight gold
-   */
-  UndefPartialInternal* UndefPartial;
-
   class FileOffsetMapInternal;
-  FileOffsetMapInternal *FileOffsets;
+  FileOffsetMapInternal* FileOffsets;
 
 private:
   vtkEnSightGoldReader(const vtkEnSightGoldReader&) = delete;
   void operator=(const vtkEnSightGoldReader&) = delete;
+
+  /**
+   * Opens a variable file name. This will compute the full path and then open
+   * it. `variableType` is simply used to report helpful error messages.
+   */
+  bool OpenVariableFile(const char* fname, const char* variableType);
+
+  /**
+   * Jump forward to a particular timestep in the variable file, if
+   * applicable.
+   */
+  bool SkipToTimeStep(const char* fileName, int timeStep);
+
+  class UndefPartialHelper;
+  friend class UndefPartialHelper;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

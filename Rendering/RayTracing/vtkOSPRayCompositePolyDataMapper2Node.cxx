@@ -1,17 +1,8 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    vtkOSPRayCompositePolyDataMapper2Node.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// Hide VTK_DEPRECATED_IN_9_3_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkOSPRayCompositePolyDataMapper2Node.h"
 
 #include "vtkActor.h"
@@ -27,66 +18,56 @@
 #include "vtkSmartPointer.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayCompositePolyDataMapper2Node);
 
-//----------------------------------------------------------------------------
-vtkOSPRayCompositePolyDataMapper2Node::vtkOSPRayCompositePolyDataMapper2Node()
-{
-}
+//------------------------------------------------------------------------------
+vtkOSPRayCompositePolyDataMapper2Node::vtkOSPRayCompositePolyDataMapper2Node() = default;
 
-//----------------------------------------------------------------------------
-vtkOSPRayCompositePolyDataMapper2Node::~vtkOSPRayCompositePolyDataMapper2Node()
-{
-}
+//------------------------------------------------------------------------------
+vtkOSPRayCompositePolyDataMapper2Node::~vtkOSPRayCompositePolyDataMapper2Node() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayCompositePolyDataMapper2Node::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayCompositePolyDataMapper2Node::Invalidate(bool prepass)
 {
   if (prepass)
   {
-      this->RenderTime = 0;
+    this->RenderTime = 0;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
 {
   if (prepass)
   {
     // we use a lot of params from our parent
-    vtkOSPRayActorNode *aNode = vtkOSPRayActorNode::SafeDownCast(this->Parent);
-    vtkActor *act = vtkActor::SafeDownCast(aNode->GetRenderable());
+    vtkOSPRayActorNode* aNode = vtkOSPRayActorNode::SafeDownCast(this->Parent);
+    vtkActor* act = vtkActor::SafeDownCast(aNode->GetRenderable());
 
     if (act->GetVisibility() == false)
     {
       return;
     }
 
-    vtkOSPRayRendererNode *orn =
-      static_cast<vtkOSPRayRendererNode *>(
-        this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-    double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
-    vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
-    this->InstanceCache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
-    this->GeometryCache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
+    vtkOSPRayRendererNode* orn =
+      static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
-    //if there are no changes, just reuse last result
+    // if there are no changes, just reuse last result
     vtkMTimeType inTime = aNode->GetMTime();
-    if (this->RenderTime >= inTime ||
-        (this->UseInstanceCache && this->InstanceCache->Contains(tstep)) ||
-        (this->UseGeometryCache && this->GeometryCache->Contains(tstep)))
+    if (this->RenderTime >= inTime)
     {
-      this->RenderGeometries();
+      this->RenderGeometricModels();
       return;
     }
     this->RenderTime = inTime;
-    this->ClearGeometries();
+    this->ClearGeometricModels();
 
     vtkProperty* prop = act->GetProperty();
 
@@ -96,19 +77,20 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
     this->BlockState.AmbientColor.push(vtkColor3d(prop->GetAmbientColor()));
     this->BlockState.DiffuseColor.push(vtkColor3d(prop->GetDiffuseColor()));
     this->BlockState.SpecularColor.push(vtkColor3d(prop->GetSpecularColor()));
-    const char *mname = prop->GetMaterialName();
+    const char* mname = prop->GetMaterialName();
     if (mname != nullptr)
     {
       this->BlockState.Material.push(std::string(mname));
-    } else {
+    }
+    else
+    {
       this->BlockState.Material.push(std::string(""));
     }
 
     // render using the composite data attributes
     unsigned int flat_index = 0;
-    vtkCompositePolyDataMapper2 *cpdm =
-      vtkCompositePolyDataMapper2::SafeDownCast(act->GetMapper());
-    vtkDataObject * dobj = nullptr;
+    vtkCompositePolyDataMapper2* cpdm = vtkCompositePolyDataMapper2::SafeDownCast(act->GetMapper());
+    vtkDataObject* dobj = nullptr;
     if (cpdm)
     {
       dobj = cpdm->GetInputDataObject(0, 0);
@@ -125,24 +107,17 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
     this->BlockState.SpecularColor.pop();
     this->BlockState.Material.pop();
 
-    this->PopulateCache();
-    this->RenderGeometries();
+    this->RenderGeometricModels();
   }
 }
 
-
-
-//-----------------------------------------------------------------------------
-void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
-  vtkOSPRayRendererNode *orn,
-  vtkCompositePolyDataMapper2 *cpdm,
-  vtkActor *actor,
-  vtkDataObject *dobj,
-  unsigned int &flat_index)
+//------------------------------------------------------------------------------
+void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(vtkOSPRayRendererNode* orn,
+  vtkCompositePolyDataMapper2* cpdm, vtkActor* actor, vtkDataObject* dobj, unsigned int& flat_index)
 {
   vtkCompositeDataDisplayAttributes* cda = cpdm->GetCompositeDataDisplayAttributes();
 
-  vtkProperty *prop = actor->GetProperty();
+  vtkProperty* prop = actor->GetProperty();
   // bool draw_surface_with_edges =
   //   (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
   vtkColor3d ecolor(prop->GetEdgeColor());
@@ -179,13 +154,12 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
   // block.
   flat_index++;
 
-  vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
-  vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::SafeDownCast(dobj);
+  vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
+  vtkMultiPieceDataSet* mpds = vtkMultiPieceDataSet::SafeDownCast(dobj);
   if (mbds || mpds)
   {
-    unsigned int numChildren = mbds? mbds->GetNumberOfBlocks() :
-      mpds->GetNumberOfPieces();
-    for (unsigned int cc=0 ; cc < numChildren; cc++)
+    unsigned int numChildren = mbds ? mbds->GetNumberOfBlocks() : mpds->GetNumberOfPieces();
+    for (unsigned int cc = 0; cc < numChildren; cc++)
     {
       vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
       if (child == nullptr)
@@ -198,25 +172,21 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
       this->RenderBlock(orn, cpdm, actor, child, flat_index);
     }
   }
-  else if (dobj && this->BlockState.Visibility.top() == true && this->BlockState.Opacity.top() > 0.0)
+  else if (dobj && this->BlockState.Visibility.top() == true &&
+    this->BlockState.Opacity.top() > 0.0)
   {
     // do we have a entry for this dataset?
     // make sure we have an entry for this dataset
-    vtkPolyData *ds = vtkPolyData::SafeDownCast(dobj);
+    vtkPolyData* ds = vtkPolyData::SafeDownCast(dobj);
     if (ds)
     {
-      vtkOSPRayActorNode *aNode = vtkOSPRayActorNode::SafeDownCast(this->Parent);
-      vtkColor3d &aColor = this->BlockState.AmbientColor.top();
-      vtkColor3d &dColor = this->BlockState.DiffuseColor.top();
-      std::string &material = this->BlockState.Material.top();
-      cpdm->ClearColorArrays(); //prevents reuse of stale color arrays
-      this->ORenderPoly(
-        orn->GetORenderer(),
-        aNode, ds,
-        aColor.GetData(),
-        dColor.GetData(),
-        this->BlockState.Opacity.top(),
-        material);
+      vtkOSPRayActorNode* aNode = vtkOSPRayActorNode::SafeDownCast(this->Parent);
+      vtkColor3d& aColor = this->BlockState.AmbientColor.top();
+      vtkColor3d& dColor = this->BlockState.DiffuseColor.top();
+      std::string& material = this->BlockState.Material.top();
+      cpdm->ClearColorArrays(); // prevents reuse of stale color arrays
+      this->ORenderPoly(orn->GetORenderer(), aNode, ds, aColor.GetData(), dColor.GetData(),
+        this->BlockState.Opacity.top(), material);
     }
   }
 
@@ -239,3 +209,4 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
     this->BlockState.Material.pop();
   }
 }
+VTK_ABI_NAMESPACE_END

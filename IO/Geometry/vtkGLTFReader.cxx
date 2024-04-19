@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGLTFReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkGLTFReader.h"
 
@@ -22,13 +10,17 @@
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkGLTFDocumentLoader.h"
+#include "vtkGLTFTexture.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLegacy.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
+#include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkWeightedTransformFilter.h"
@@ -37,11 +29,12 @@
 #include <array>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Replacement for std::to_string as it is not supported by certain compilers
-template<typename T>
+template <typename T>
 std::string value_to_string(const T& val)
 {
   std::ostringstream ss;
@@ -49,7 +42,7 @@ std::string value_to_string(const T& val)
   return ss.str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string MakeUniqueNonEmptyName(
   const std::string& name, std::map<std::string, unsigned int>& duplicateCounters)
 {
@@ -71,7 +64,7 @@ std::string MakeUniqueNonEmptyName(
   return newName;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void AddIntegerToFieldData(
   std::string arrayName, int value, vtkSmartPointer<vtkFieldData> fieldData)
 {
@@ -83,7 +76,7 @@ void AddIntegerToFieldData(
   fieldData->AddArray(array);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void AddFloatToFieldData(
   std::string arrayName, float value, vtkSmartPointer<vtkFieldData> fieldData)
 {
@@ -95,7 +88,7 @@ void AddFloatToFieldData(
   fieldData->AddArray(array);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void AddVecNfToFieldData(const std::string& arrayName, const std::vector<float>& multiplier,
   vtkSmartPointer<vtkFieldData> fieldData)
 {
@@ -107,7 +100,7 @@ void AddVecNfToFieldData(const std::string& arrayName, const std::vector<float>&
   fieldData->AddArray(array);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void AddTextureInfoToFieldData(const std::string& prefix, int textureIndex, int textureCoordIndex,
   vtkSmartPointer<vtkFieldData> fieldData, std::vector<float> multiplier = std::vector<float>())
 {
@@ -119,7 +112,7 @@ void AddTextureInfoToFieldData(const std::string& prefix, int textureIndex, int 
   AddIntegerToFieldData(prefix + "TexCoordIndex", textureCoordIndex, fieldData);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void AddMaterialToFieldData(int materialId, vtkSmartPointer<vtkFieldData> fieldData,
   const vtkGLTFDocumentLoader::Model& model)
 {
@@ -186,9 +179,9 @@ void AddMaterialToFieldData(int materialId, vtkSmartPointer<vtkFieldData> fieldD
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> ApplyMorphingToDataArray(vtkSmartPointer<vtkDataArray> origin,
-  const std::vector<float>& weights, const std::vector<vtkSmartPointer<vtkFloatArray> >& targets)
+  const std::vector<float>& weights, const std::vector<vtkSmartPointer<vtkFloatArray>>& targets)
 {
   if (origin == nullptr)
   {
@@ -221,9 +214,9 @@ vtkSmartPointer<vtkDataArray> ApplyMorphingToDataArray(vtkSmartPointer<vtkDataAr
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void SetupWeightedTransformFilterForGLTFSkinning(vtkSmartPointer<vtkWeightedTransformFilter> filter,
-  const std::vector<vtkSmartPointer<vtkTransform> >& jointMats,
+  const std::vector<vtkSmartPointer<vtkMatrix4x4>>& jointMats,
   const vtkSmartPointer<vtkPolyData> poly)
 {
   filter->SetInputData(poly);
@@ -234,14 +227,15 @@ void SetupWeightedTransformFilterForGLTFSkinning(vtkSmartPointer<vtkWeightedTran
   filter->SetNumberOfTransforms(static_cast<int>(nbTransforms));
   for (unsigned int i = 0; i < nbTransforms; i++)
   {
+    vtkNew<vtkTransform> transform;
     if (i >= jointMats.size())
     {
-      vtkNew<vtkTransform> transform;
       filter->SetTransform(transform, i);
     }
     else
     {
-      filter->SetTransform(jointMats[i], i);
+      transform->SetMatrix(jointMats[i]);
+      filter->SetTransform(transform, i);
     }
   }
 
@@ -250,8 +244,8 @@ void SetupWeightedTransformFilterForGLTFSkinning(vtkSmartPointer<vtkWeightedTran
   filter->SetWeightArray("WEIGHTS_0");
 }
 
-//----------------------------------------------------------------------------
-void AddTransformToFieldData(const vtkSmartPointer<vtkTransform> transform,
+//------------------------------------------------------------------------------
+void AddTransformToFieldData(const vtkSmartPointer<vtkMatrix4x4> transform,
   vtkSmartPointer<vtkFieldData> fieldData, const std::string& name)
 {
   vtkSmartPointer<vtkDoubleArray> matrixArray;
@@ -269,12 +263,12 @@ void AddTransformToFieldData(const vtkSmartPointer<vtkTransform> transform,
   // Create array to store the matrix's values
   for (int i = 0; i < 16; i++)
   {
-    matrixArray->InsertNextValue(transform->GetMatrix()->GetElement(i / 4, i % 4));
+    matrixArray->InsertNextValue(transform->GetElement(i / 4, i % 4));
   }
 }
 
-//----------------------------------------------------------------------------
-void AddJointMatricesToFieldData(const std::vector<vtkSmartPointer<vtkTransform> >& jointMats,
+//------------------------------------------------------------------------------
+void AddJointMatricesToFieldData(const std::vector<vtkSmartPointer<vtkMatrix4x4>>& jointMats,
   vtkSmartPointer<vtkFieldData> fieldData)
 {
   for (unsigned int matId = 0; matId < jointMats.size(); matId++)
@@ -283,15 +277,15 @@ void AddJointMatricesToFieldData(const std::vector<vtkSmartPointer<vtkTransform>
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void AddGlobalTransformToFieldData(
-  const vtkSmartPointer<vtkTransform> globalTransform, vtkSmartPointer<vtkFieldData> fieldData)
+  const vtkSmartPointer<vtkMatrix4x4> globalTransform, vtkSmartPointer<vtkFieldData> fieldData)
 {
   // Create array to store the matrix's values
   AddTransformToFieldData(globalTransform, fieldData, "globalTransform");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void AddMorphingWeightsToFieldData(
   const std::vector<float>& weights, vtkSmartPointer<vtkFieldData> fieldData)
 {
@@ -305,10 +299,10 @@ void AddMorphingWeightsToFieldData(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void AddInfoToFieldData(const std::vector<float>* morphingWeights,
-  const std::vector<vtkSmartPointer<vtkTransform> >& jointMats,
-  vtkSmartPointer<vtkTransform> globalTransform, vtkSmartPointer<vtkFieldData> fieldData)
+  const std::vector<vtkSmartPointer<vtkMatrix4x4>>& jointMats,
+  vtkSmartPointer<vtkMatrix4x4> globalTransform, vtkSmartPointer<vtkFieldData> fieldData)
 {
   if (morphingWeights != nullptr && !morphingWeights->empty())
   {
@@ -323,10 +317,10 @@ void AddInfoToFieldData(const std::vector<float>* morphingWeights,
   AddGlobalTransformToFieldData(globalTransform, fieldData);
 }
 
-//----------------------------------------------------------------------------
-void PrepareMorphingTargetArrays(std::vector<vtkSmartPointer<vtkFloatArray> >& positionArrays,
-  std::vector<vtkSmartPointer<vtkFloatArray> >& normalArrays,
-  std::vector<vtkSmartPointer<vtkFloatArray> >& tangentArrays,
+//------------------------------------------------------------------------------
+void PrepareMorphingTargetArrays(std::vector<vtkSmartPointer<vtkFloatArray>>& positionArrays,
+  std::vector<vtkSmartPointer<vtkFloatArray>>& normalArrays,
+  std::vector<vtkSmartPointer<vtkFloatArray>>& tangentArrays,
   std::vector<vtkGLTFDocumentLoader::MorphTarget>& targets)
 {
   for (auto& target : targets)
@@ -346,15 +340,15 @@ void PrepareMorphingTargetArrays(std::vector<vtkSmartPointer<vtkFloatArray> >& p
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void ApplyMorphingToPolyData(std::vector<vtkGLTFDocumentLoader::MorphTarget>& targets,
   std::vector<float>* morphingWeights, vtkSmartPointer<vtkPolyData> inputPolyData,
   vtkSmartPointer<vtkPolyData> outputPolyData)
 {
   // Prepare target arrays
-  std::vector<vtkSmartPointer<vtkFloatArray> > positionArrays;
-  std::vector<vtkSmartPointer<vtkFloatArray> > normalArrays;
-  std::vector<vtkSmartPointer<vtkFloatArray> > tangentArrays;
+  std::vector<vtkSmartPointer<vtkFloatArray>> positionArrays;
+  std::vector<vtkSmartPointer<vtkFloatArray>> normalArrays;
+  std::vector<vtkSmartPointer<vtkFloatArray>> tangentArrays;
   PrepareMorphingTargetArrays(positionArrays, normalArrays, tangentArrays, targets);
 
   // Apply morphing with all targets
@@ -381,13 +375,13 @@ void ApplyMorphingToPolyData(std::vector<vtkGLTFDocumentLoader::MorphTarget>& ta
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned int meshId,
   vtkSmartPointer<vtkMultiBlockDataSet> parentDataSet,
   vtkSmartPointer<vtkMultiBlockDataSet> meshDataSet, std::string& dataSetName,
-  vtkSmartPointer<vtkTransform> globalTransform,
-  const std::vector<vtkSmartPointer<vtkTransform> >& jointMats, bool applyDeformations,
-  std::vector<float>* morphingWeights)
+  vtkSmartPointer<vtkMatrix4x4> globalTransform,
+  const std::vector<vtkSmartPointer<vtkMatrix4x4>>& jointMats, bool applyDeformations,
+  std::vector<float>* morphingWeights, int outputPointsPrecision)
 {
   if (meshId >= m.Meshes.size())
   {
@@ -427,6 +421,7 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
       AddMaterialToFieldData(primitive.Material, meshPolyData->GetFieldData(), m);
 
       vtkNew<vtkTransformPolyDataFilter> filter;
+      filter->SetOutputPointsPrecision(outputPointsPrecision);
 
       // Morphing
       if (morphingWeights != nullptr && !morphingWeights->empty())
@@ -456,7 +451,9 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
       }
 
       // Node transform
-      filter->SetTransform(globalTransform);
+      vtkNew<vtkTransform> transform;
+      transform->SetMatrix(globalTransform);
+      filter->SetTransform(transform);
       if (createNewPolyData)
       {
         meshDataSet->SetBlock(meshDataSet->GetNumberOfBlocks(), (filter->GetOutputDataObject(0)));
@@ -488,53 +485,11 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
   return true;
 }
 
-//----------------------------------------------------------------------------
-void ComputeJointMatrices(const vtkGLTFDocumentLoader::Model& m,
-  const vtkGLTFDocumentLoader::Skin& skin, vtkGLTFDocumentLoader::Node& node,
-  std::vector<vtkSmartPointer<vtkTransform> >& jointMats)
-{
-  jointMats.clear();
-  jointMats.reserve(skin.Joints.size());
-
-  for (unsigned int jointId = 0; jointId < skin.Joints.size(); jointId++)
-  {
-    const vtkGLTFDocumentLoader::Node& jointNode = m.Nodes[skin.Joints[jointId]];
-
-    vtkNew<vtkTransform> jointGlobalTransform;
-    vtkNew<vtkTransform> inverseMeshGlobalTransform;
-    vtkNew<vtkTransform> inverseBindTransform;
-    vtkNew<vtkTransform> jointTransform;
-
-    /**
-     * Joint matrices:
-     * jointMatrix(j) =
-     * globalTransformOfNodeThatTheMeshIsAttachedTo^-1 *
-     * globalTransformOfJointNode(j) *
-     * inverseBindMatrixForJoint(j);
-     * The mesh will be transformed (using vtkWeightedTransformFilter) using this matrix:
-     * mat4 skinMat =
-     * weight.x * jointMatrix[joint.x] +
-     * weight.y * jointMatrix[joint.y] +
-     * weight.z * jointMatrix[joint.z] +
-     * weight.w * jointMatrix[joint.w];
-     */
-    inverseMeshGlobalTransform->SetInput(node.GlobalTransform);
-    inverseMeshGlobalTransform->Inverse();
-    inverseBindTransform->SetMatrix(skin.InverseBindMatrices[jointId]);
-    jointGlobalTransform->SetInput(jointNode.GlobalTransform);
-    jointTransform->PostMultiply();
-    jointTransform->Concatenate(inverseBindTransform);
-    jointTransform->Concatenate(jointGlobalTransform);
-    jointTransform->Concatenate(inverseMeshGlobalTransform);
-
-    jointMats.push_back(jointTransform);
-  }
-}
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned int nodeId,
   vtkSmartPointer<vtkMultiBlockDataSet> parentDataSet,
-  vtkSmartPointer<vtkMultiBlockDataSet> nodeDataset, std::string nodeName, bool applyDeformations)
+  vtkSmartPointer<vtkMultiBlockDataSet> nodeDataset, std::string nodeName, bool applyDeformations,
+  int outputPointsPrecision)
 {
   if (nodeId >= m.Nodes.size())
   {
@@ -556,13 +511,13 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
   int blockId = 0;
   if (node.Mesh >= 0)
   {
-    std::vector<vtkSmartPointer<vtkTransform> > jointMats;
+    std::vector<vtkSmartPointer<vtkMatrix4x4>> jointMats;
 
     if (node.Skin >= 0)
     {
       // Compute skinning matrices
       const vtkGLTFDocumentLoader::Skin& skin = m.Skins[node.Skin];
-      ComputeJointMatrices(m, skin, node, jointMats);
+      vtkGLTFDocumentLoader::ComputeJointMatrices(m, skin, node, jointMats);
     }
 
     std::vector<float>* morphingWeights = nullptr;
@@ -582,7 +537,8 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
     }
     std::string meshDatasetName = "Mesh_" + value_to_string(node.Mesh);
     if (!BuildMultiBlockDatasetFromMesh(m, node.Mesh, nodeDataset, meshDataSet, meshDatasetName,
-          node.GlobalTransform, jointMats, applyDeformations, morphingWeights))
+          node.GlobalTransform, jointMats, applyDeformations, morphingWeights,
+          outputPointsPrecision))
     {
       vtkErrorWithObjectMacro(
         nullptr, "Could not build vtkMultiBlockDataSet from mesh " << node.Mesh);
@@ -600,8 +556,8 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
       // find existing child dataset for this node
       childDataset = vtkMultiBlockDataSet::SafeDownCast(nodeDataset->GetBlock(blockId));
     }
-    if (!BuildMultiBlockDataSetFromNode(
-          m, child, nodeDataset, childDataset, childDatasetName, applyDeformations))
+    if (!BuildMultiBlockDataSetFromNode(m, child, nodeDataset, childDataset, childDatasetName,
+          applyDeformations, outputPointsPrecision))
     {
       vtkErrorWithObjectMacro(nullptr, "Could not build vtkMultiBlockDataSet from node " << child);
 
@@ -612,9 +568,9 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, vtkIdType sceneId,
-  vtkSmartPointer<vtkMultiBlockDataSet> dataSet, bool applyDeformations)
+  vtkSmartPointer<vtkMultiBlockDataSet> dataSet, bool applyDeformations, int outputPointsPrecision)
 {
   if (sceneId < 0 || sceneId >= static_cast<vtkIdType>(m.Scenes.size()))
   {
@@ -637,7 +593,7 @@ bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, vtkIdType 
       nodeDataset = vtkMultiBlockDataSet::SafeDownCast(dataSet->GetBlock(blockId));
     }
     if (!BuildMultiBlockDataSetFromNode(
-          m, node, dataSet, nodeDataset, nodeDatasetName, applyDeformations))
+          m, node, dataSet, nodeDataset, nodeDatasetName, applyDeformations, outputPointsPrecision))
     {
       vtkErrorWithObjectMacro(nullptr, "Could not build vtkMultiBlockDataSet from node " << node);
       return false;
@@ -648,22 +604,22 @@ bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, vtkIdType 
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLTFReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGLTFReader::vtkGLTFReader()
 {
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGLTFReader::~vtkGLTFReader()
 {
   this->SetFileName(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -675,7 +631,7 @@ void vtkGLTFReader::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFReader::StoreTextureData()
 {
   if (!this->Textures.empty())
@@ -691,12 +647,12 @@ void vtkGLTFReader::StoreTextureData()
   int nbSamplers = static_cast<int>(model->Samplers.size());
 
   this->Textures.reserve(this->Loader->GetInternalModel()->Textures.size());
-  for (auto loaderTexture : this->Loader->GetInternalModel()->Textures)
+  for (const auto& loaderTexture : this->Loader->GetInternalModel()->Textures)
   {
-    vtkGLTFReader::GLTFTexture readerTexture;
+    vtkNew<vtkGLTFTexture> readerTexture;
     if (loaderTexture.Source >= 0 && loaderTexture.Source < nbTextures)
     {
-      readerTexture.Image = model->Images[loaderTexture.Source].ImageData;
+      readerTexture->Image = model->Images[loaderTexture.Source].ImageData;
     }
     else
     {
@@ -706,16 +662,20 @@ void vtkGLTFReader::StoreTextureData()
     if (loaderTexture.Sampler >= 0 && loaderTexture.Sampler < nbSamplers)
     {
       auto sampler = model->Samplers[loaderTexture.Sampler];
-      readerTexture.MinFilterValue = sampler.MinFilter;
-      readerTexture.MaxFilterValue = sampler.MagFilter;
-      readerTexture.WrapSValue = sampler.WrapS;
-      readerTexture.WrapTValue = sampler.WrapT;
+      readerTexture->Sampler = sampler;
     }
-    this->Textures.emplace_back(std::move(readerTexture));
+    this->Textures.emplace_back(readerTexture);
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkGLTFReader::InitializeLoader()
+{
+  this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
+  this->Loader->SetGLBStart(this->GLBStart);
+}
+
+//------------------------------------------------------------------------------
 int vtkGLTFReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -725,47 +685,28 @@ int vtkGLTFReader::RequestInformation(
   }
 
   // Read file metadata
-  // Make sure we have a file to read.
-  if (!this->FileName)
-  {
-    vtkErrorMacro("A FileName must be specified.");
-    return 0;
-  }
+  // Make sure we have a file to read
 
-  std::string fileNameAsString (this->FileName);
-
-  if(fileNameAsString.find('\\') != std::string::npos)
+  if (this->Stream)
   {
-    vtksys::SystemTools::ConvertToUnixSlashes(fileNameAsString);
-  }
-
-  if (!vtksys::SystemTools::FileIsFullPath(fileNameAsString))
-  {
-    fileNameAsString = vtksys::SystemTools::CollapseFullPath(fileNameAsString);
-  }
-
-  if(this->FileName != fileNameAsString)
-  {
-    this->SetFileName(fileNameAsString.c_str());
-  }
-
-  // Check for filename change in case the loader was already created
-  if (this->Loader != nullptr && this->Loader->GetInternalModel()->FileName != this->FileName)
-  {
-    this->IsMetaDataLoaded = false;
-    this->IsModelLoaded = false;
-    this->Textures.clear();
-  }
-
-  // Load model metadata if not done previously
-  if (!this->IsMetaDataLoaded)
-  {
-    this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
-    if (!this->Loader->LoadModelMetaDataFromFile(this->FileName))
+    // Check for stream change in case the loader was already created
+    if (this->Loader != nullptr && this->Loader->GetInternalModel() &&
+      (this->Loader->GetInternalModel()->Stream != this->Stream ||
+        this->Stream->GetMTime() != this->LastStreamTimeStamp))
     {
-      vtkErrorMacro("Error loading model metadata from file " << this->FileName);
+      this->IsMetaDataLoaded = false;
+      this->IsModelLoaded = false;
+      this->Textures.clear();
+    }
+
+    this->InitializeLoader();
+    if (!this->Loader->LoadModelMetaDataFromStream(this->Stream, this->URILoader))
+    {
+      vtkErrorMacro("Error loading model metadata from stream");
       return 0;
     }
+
+    this->LastStreamTimeStamp = this->Stream->GetMTime();
 
     vtkNew<vtkEventForwarderCommand> forwarder;
     forwarder->SetTarget(this);
@@ -775,6 +716,59 @@ int vtkGLTFReader::RequestInformation(
     this->CreateSceneNamesArray();
     this->SetCurrentScene(this->Loader->GetInternalModel()->DefaultScene);
     this->IsMetaDataLoaded = true;
+  }
+  else if (this->FileName)
+  {
+    std::string fileNameAsString(this->FileName);
+
+    if (fileNameAsString.find('\\') != std::string::npos)
+    {
+      vtksys::SystemTools::ConvertToUnixSlashes(fileNameAsString);
+    }
+
+    if (!vtksys::SystemTools::FileIsFullPath(fileNameAsString))
+    {
+      fileNameAsString = vtksys::SystemTools::CollapseFullPath(fileNameAsString);
+    }
+
+    if (this->FileName != fileNameAsString)
+    {
+      this->SetFileName(fileNameAsString.c_str());
+    }
+
+    // Check for filename change in case the loader was already created
+    if (this->Loader != nullptr && this->Loader->GetInternalModel() &&
+      this->Loader->GetInternalModel()->FileName != this->FileName)
+    {
+      this->IsMetaDataLoaded = false;
+      this->IsModelLoaded = false;
+      this->Textures.clear();
+    }
+
+    // Load model metadata if not done previously
+    if (!this->IsMetaDataLoaded)
+    {
+      this->InitializeLoader();
+      if (!this->Loader->LoadModelMetaDataFromFile(this->FileName))
+      {
+        vtkErrorMacro("Error loading model metadata from file " << this->FileName);
+        return 0;
+      }
+
+      vtkNew<vtkEventForwarderCommand> forwarder;
+      forwarder->SetTarget(this);
+      this->Loader->AddObserver(vtkCommand::ProgressEvent, forwarder);
+
+      this->CreateAnimationSelection();
+      this->CreateSceneNamesArray();
+      this->SetCurrentScene(this->Loader->GetInternalModel()->DefaultScene);
+      this->IsMetaDataLoaded = true;
+    }
+  }
+  else
+  {
+    vtkErrorMacro("A FileName or a Stream must be specified.");
+    return 0;
   }
 
   // Get model information (numbers and names of animations and scenes, time range of animations)
@@ -800,33 +794,41 @@ int vtkGLTFReader::RequestInformation(
     }
   }
 
-  // Append TIME_STEPS
-  if (this->GetFrameRate() > 0 && maxDuration > 0.0)
+  // Append TIME_STEPS and/or TIME_RANGE
+  if (maxDuration == 0.0)
   {
-    int maxFrameIndex = vtkMath::Floor(this->GetFrameRate() * maxDuration);
-    if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+    info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  }
+  else
+  {
+    // Add TIME_RANGE
+    std::array<double, 2> timeRange = { { 0.0, maxDuration } };
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange.data(), 2);
+
+    // If a framerate is set, TIME_STEPS are expected
+    if (this->GetFrameRate() > 0)
+    {
+      int maxFrameIndex = vtkMath::Floor(this->GetFrameRate() * maxDuration);
+      if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+      {
+        info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+      }
+      double period = 1.0 / this->GetFrameRate();
+      // Append sampled time steps
+      for (int i = 0; i <= maxFrameIndex; i++)
+      {
+        info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), i * period);
+      }
+      // Append the last step of the animation, if it doesn't match with the last sampled step
+      if (maxDuration != maxFrameIndex * period)
+      {
+        info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), maxDuration);
+      }
+    }
+    else if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
     {
       info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     }
-    double period = 1.0 / this->GetFrameRate();
-    // Append sampled time steps
-    for (int i = 0; i <= maxFrameIndex; i++)
-    {
-      info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), i * period);
-    }
-    // Append the last step of the animation, if it doesn't match with the last sampled step
-    if (maxDuration != maxFrameIndex * period)
-    {
-      info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), maxDuration);
-    }
-
-    // Add TIME_RANGE()
-    std::array<double, 2> timeRange = { { 0.0, maxDuration } };
-    info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange.data(), 2);
-  }
-  else if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
-  {
-    info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   }
 
   this->NumberOfAnimations = static_cast<vtkIdType>(model->Animations.size());
@@ -834,7 +836,7 @@ int vtkGLTFReader::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkGLTFReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -844,23 +846,20 @@ int vtkGLTFReader::RequestData(
   auto model = this->Loader->GetInternalModel();
   if (!this->IsModelLoaded)
   {
-    // Make sure we have a file to read.
-    if (!this->FileName)
-    {
-      vtkErrorMacro("A FileName must be specified.");
-      return 0;
-    }
-    // Attempt to load binary buffer in case the file is binary-glTF
-    // Check extension
-    std::string extension = vtksys::SystemTools::GetFilenameLastExtension(this->FileName);
     std::vector<char> glbBuffer;
-    if (extension == ".glb")
+
+    if (this->Stream)
     {
-      if (!this->Loader->LoadFileBuffer(this->FileName, glbBuffer))
-      {
-        vtkErrorMacro("Error loading binary data");
-        return 0;
-      }
+      this->Loader->LoadStreamBuffer(this->Stream, glbBuffer);
+    }
+    else if (this->FileName)
+    {
+      this->Loader->LoadFileBuffer(this->FileName, glbBuffer);
+    }
+    else
+    {
+      vtkErrorMacro("A FileName or a Stream must be specified.");
+      return 0;
     }
 
     // Load buffer data
@@ -887,7 +886,7 @@ int vtkGLTFReader::RequestData(
   // Apply selected animations on specified time step to the model's transforms
   vtkInformation* info = outputVector->GetInformationObject(0);
 
-  if (this->FrameRate > 0)
+  if (info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     double time = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     for (vtkIdType i = 0; i < this->NumberOfAnimations; i++)
@@ -902,6 +901,7 @@ int vtkGLTFReader::RequestData(
         this->Loader->ResetAnimation(i);
       }
     }
+    this->Loader->BuildGlobalTransforms();
   }
 
   vtkIdType selectedScene = this->CurrentScene;
@@ -910,8 +910,8 @@ int vtkGLTFReader::RequestData(
     selectedScene = model->DefaultScene;
   }
 
-  if (!BuildMultiBlockDataSetFromScene(
-        *(model), selectedScene, this->OutputDataSet, this->ApplyDeformationsToGeometry))
+  if (!BuildMultiBlockDataSetFromScene(*(model), selectedScene, this->OutputDataSet,
+        this->ApplyDeformationsToGeometry, this->OutputPointsPrecision))
   {
     vtkErrorMacro("Error building MultiBlockDataSet object");
     return 0;
@@ -920,11 +920,11 @@ int vtkGLTFReader::RequestData(
   // Save current animations
   this->PreviousAnimationSelection->CopySelections(this->AnimationSelection);
 
-  output->ShallowCopy(this->OutputDataSet);
+  output->CompositeShallowCopy(this->OutputDataSet);
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFReader::EnableAnimation(vtkIdType animationIndex)
 {
   if (this->AnimationSelection == nullptr)
@@ -942,7 +942,7 @@ void vtkGLTFReader::EnableAnimation(vtkIdType animationIndex)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFReader::DisableAnimation(vtkIdType animationIndex)
 {
   if (this->AnimationSelection == nullptr)
@@ -960,7 +960,7 @@ void vtkGLTFReader::DisableAnimation(vtkIdType animationIndex)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGLTFReader::IsAnimationEnabled(vtkIdType animationIndex)
 {
   if (this->AnimationSelection == nullptr)
@@ -977,7 +977,7 @@ bool vtkGLTFReader::IsAnimationEnabled(vtkIdType animationIndex)
   return this->AnimationSelection->ArrayIsEnabled(name) != 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkGLTFReader::GetAnimationName(vtkIdType animationIndex)
 {
   if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
@@ -994,7 +994,7 @@ std::string vtkGLTFReader::GetAnimationName(vtkIdType animationIndex)
   return this->Loader->GetInternalModel()->Animations[animationIndex].Name;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkGLTFReader::GetAnimationDuration(vtkIdType animationIndex)
 {
   if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
@@ -1011,7 +1011,7 @@ float vtkGLTFReader::GetAnimationDuration(vtkIdType animationIndex)
   return this->Loader->GetInternalModel()->Animations[animationIndex].Duration;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkGLTFReader::GetSceneName(vtkIdType sceneIndex)
 {
   if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
@@ -1028,24 +1028,40 @@ std::string vtkGLTFReader::GetSceneName(vtkIdType sceneIndex)
   return this->Loader->GetInternalModel()->Scenes[sceneIndex].Name;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkGLTFReader::GetNumberOfTextures()
 {
   return static_cast<vtkIdType>(this->Textures.size());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkGLTFTexture> vtkGLTFReader::GetTexture(vtkIdType textureIndex)
+{
+  if (textureIndex < 0 || textureIndex >= static_cast<vtkIdType>(this->Textures.size()))
+  {
+    vtkErrorMacro("Out of range texture index");
+    vtkNew<vtkGLTFTexture> t;
+    return t;
+  }
+  return this->Textures[textureIndex];
+}
+
+//------------------------------------------------------------------------------
 vtkGLTFReader::GLTFTexture vtkGLTFReader::GetGLTFTexture(vtkIdType textureIndex)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkGLTFReader::GetGLTFTexture, "VTK 9.4", vtkGLTFReader::GetTexture);
   if (textureIndex < 0 || textureIndex >= static_cast<vtkIdType>(this->Textures.size()))
   {
     vtkErrorMacro("Out of range texture index");
     return vtkGLTFReader::GLTFTexture{ nullptr, 0, 0, 0, 0 };
   }
-  return this->Textures[textureIndex];
+  auto t = this->Textures[textureIndex];
+  GLTFTexture gltfTexture{ t->Image, t->Sampler.MinFilter, t->Sampler.MagFilter, t->Sampler.WrapS,
+    t->Sampler.WrapT };
+  return gltfTexture;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFReader::SetScene(const std::string& scene)
 {
   if (this->SceneNames == nullptr)
@@ -1065,7 +1081,7 @@ void vtkGLTFReader::SetScene(const std::string& scene)
   vtkWarningMacro("Scene '" << scene << "' does not exist.");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFReader::CreateSceneNamesArray()
 {
   if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
@@ -1084,7 +1100,7 @@ void vtkGLTFReader::CreateSceneNamesArray()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkGLTFReader::GetAllSceneNames()
 {
   if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
@@ -1095,13 +1111,13 @@ vtkStringArray* vtkGLTFReader::GetAllSceneNames()
   return this->SceneNames;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArraySelection* vtkGLTFReader::GetAnimationSelection()
 {
   return this->AnimationSelection;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFReader::CreateAnimationSelection()
 {
   if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
@@ -1121,7 +1137,7 @@ void vtkGLTFReader::CreateAnimationSelection()
   this->AnimationSelection->AddObserver(vtkCommand::ModifiedEvent, this, &vtkGLTFReader::Modified);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGLTFReader::SetApplyDeformationsToGeometry(bool flag)
 {
   if (this->ApplyDeformationsToGeometry != flag)
@@ -1131,3 +1147,4 @@ void vtkGLTFReader::SetApplyDeformationsToGeometry(bool flag)
   }
   this->ApplyDeformationsToGeometry = flag;
 }
+VTK_ABI_NAMESPACE_END

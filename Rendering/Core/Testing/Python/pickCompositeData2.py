@@ -3,11 +3,26 @@
 # This script demonstrates VTK issue #17211 where the vtkCellPicker returns
 # the flat block index not matching the cell and point id.
 
-import vtk
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkMultiBlockDataSet,
+    vtkPolyData,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCellPicker,
+    vtkCompositeDataDisplayAttributes,
+    vtkCompositePolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 import math
 import time
 import sys
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # this can be switched on to print some debug output
@@ -46,20 +61,20 @@ parts=[
         ]
 
 # Construct the data-set, and set up color mapping of the blocks
-mbd=vtk.vtkMultiBlockDataSet()
+mbd=vtkMultiBlockDataSet()
 mbd.SetNumberOfBlocks(len(parts))
-cda=vtk.vtkCompositeDataDisplayAttributes()
-m=vtk.vtkCompositePolyDataMapper2()
+cda=vtkCompositeDataDisplayAttributes()
+m=vtkCompositePolyDataMapper()
 m.SetInputDataObject(mbd)
 m.SetCompositeDataDisplayAttributes(cda)
 
 for p in range(0,len(parts)):
 
-    points=vtk.vtkPoints()
-    verts=vtk.vtkCellArray()
-    polys=vtk.vtkCellArray()
+    points=vtkPoints()
+    verts=vtkCellArray()
+    polys=vtkCellArray()
 
-    poly=vtk.vtkPolyData()
+    poly=vtkPolyData()
     poly.SetPoints(points)
     poly.SetVerts(verts)
     poly.SetPolys(polys)
@@ -89,21 +104,21 @@ for p in range(0,len(parts)):
                         poly.GetNumberOfCells()))
 
 # Set up the actor
-a=vtk.vtkActor()
+a=vtkActor()
 a.SetMapper(m)
 a.GetProperty().EdgeVisibilityOn()
 a.GetProperty().SetEdgeColor(1,1,1)
 
 # Render the actor
-r = vtk.vtkRenderer()
+r = vtkRenderer()
 r.AddViewProp(a)
 r.SetBackground(0,0,0)
-rw = vtk.vtkRenderWindow()
+rw = vtkRenderWindow()
 rw.AddRenderer(r)
 rw.Render()
 
 # Define the picker
-cellPicker = vtk.vtkCellPicker()
+cellPicker = vtkCellPicker()
 
 # These define the tests
 #

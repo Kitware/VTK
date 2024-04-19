@@ -1,463 +1,260 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataEncoder.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDataEncoder.h"
 
 #include "vtkBase64Utilities.h"
 #include "vtkCommand.h"
-#include "vtkConditionVariable.h"
 #include "vtkImageData.h"
 #include "vtkJPEGWriter.h"
-#include "vtkPNGWriter.h"
-#include "vtkMultiThreader.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPNGWriter.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <cassert>
 #include <cmath>
+#include <condition_variable>
 #include <map>
+#include <mutex>
+#include <queue>
+#include <thread>
 #include <vector>
 
 #include <vtksys/SystemTools.hxx>
 
 #define MAX_NUMBER_OF_THREADS_IN_POOL 32
-//****************************************************************************
-namespace
+
+namespace detail
 {
-  class vtkSharedData
+VTK_ABI_NAMESPACE_BEGIN
+
+struct vtkWork
+{
+  vtkSmartPointer<vtkImageData> Image;
+  int Quality = 0;
+  int Encoding = 0;
+  vtkTypeUInt64 TimeStamp = 0;
+  vtkTypeUInt32 Key = 0;
+
+  vtkWork() = default;
+  vtkWork(vtkTypeUInt32 key, vtkImageData* image, int quality, int encoding)
+    : Image(image)
+    , Quality(quality)
+    , Encoding(encoding)
+    , TimeStamp(0)
+    , Key(key)
   {
-  public:
-    struct OutputValueType
+  }
+  vtkWork(const vtkWork&) = default;
+  vtkWork& operator=(const vtkWork&) = default;
+};
+
+class vtkWorkQueue
+{
+  mutable std::mutex ResultsMutex;
+  std::map<vtkTypeUInt32, std::pair<vtkTypeUInt64, vtkSmartPointer<vtkUnsignedCharArray>>> Results;
+  std::condition_variable ResultsCondition;
+
+  std::map<vtkTypeUInt32, std::atomic<vtkTypeUInt32>> LastTimeStamp;
+
+  std::mutex QueueMutex;
+  std::queue<vtkWork> Queue;
+  std::condition_variable QueueCondition;
+
+  std::vector<std::thread> ThreadPool;
+  std::atomic<bool> Terminate;
+
+  static void DoWork(int threadIndex, vtkWorkQueue* self)
+  {
+    vtkLogger::SetThreadName("Worker " + std::to_string(threadIndex));
+    vtkLogF(TRACE, "starting worker thread");
+    vtkNew<vtkJPEGWriter> writer;
+    writer->WriteToMemoryOn();
+    while (!self->Terminate)
     {
-    public:
-      vtkTypeUInt32 TimeStamp;
-      vtkSmartPointer<vtkUnsignedCharArray> Data;
-      OutputValueType() : TimeStamp(0), Data(nullptr)
+      vtkWork work;
       {
-      }
-    };
-
-    enum
-    {
-      ENCODING_NONE = 0,
-      ENCODING_BASE64 = 1
-    };
-    struct InputValueType
-    {
-    public:
-      vtkTypeUInt32 OutputStamp;
-      vtkSmartPointer<vtkImageData> Image;
-      int Quality;
-      int Encoding;
-      InputValueType() : OutputStamp(0), Image(nullptr), Quality(100), Encoding(ENCODING_BASE64)
-      {
-      }
-    };
-
-    typedef std::map<vtkTypeUInt32, InputValueType > InputMapType;
-    typedef std::map<vtkTypeUInt32, OutputValueType> OutputMapType;
-  private:
-    bool Done;
-    vtkSimpleMutexLock DoneLock;
-    vtkSimpleMutexLock OutputsLock;
-    vtkSimpleConditionVariable OutputsAvailable;
-
-    vtkSimpleMutexLock ThreadDoneLock;
-    vtkSimpleConditionVariable ThreadDone;
-    int ActiveThreadCount;
-
-    //------------------------------------------------------------------------
-    // OutputsLock must be held before accessing any of the following members.
-    OutputMapType Outputs;
-
-    //------------------------------------------------------------------------
-    // Constructs used to synchronization.
-    vtkSimpleMutexLock InputsLock;
-    vtkSimpleConditionVariable InputsAvailable;
-
-    //------------------------------------------------------------------------
-    // InputsLock must be held before accessing any of the following members.
-    InputMapType Inputs;
-
-  public:
-    //------------------------------------------------------------------------
-    vtkSharedData() : Done(false), ActiveThreadCount(0)
-    {
-    }
-
-    //------------------------------------------------------------------------
-    // Each thread should call this method when it starts. It helps us clean up
-    // threads when they are done.
-    void BeginWorker()
-    {
-      this->ThreadDoneLock.Lock();
-      this->ActiveThreadCount++;
-      this->ThreadDoneLock.Unlock();
-    }
-
-    //------------------------------------------------------------------------
-    // Each thread should call this method when it ends.
-    void EndWorker()
-    {
-      this->ThreadDoneLock.Lock();
-      this->ActiveThreadCount--;
-      bool last_thread = (this->ActiveThreadCount == 0);
-      this->ThreadDoneLock.Unlock();
-      if (last_thread)
-      {
-        this->ThreadDone.Signal();
-      }
-    }
-
-    //------------------------------------------------------------------------
-    void RequestAndWaitForWorkersToEnd()
-    {
-      // Get the done lock so we other threads don't end up testing the Done
-      // flag and quitting before this thread starts to wait for them to quit.
-      this->DoneLock.Lock();
-      this->Done = true;
-
-      // Grab the ThreadDoneLock. so even if any thread ends up check this->Done
-      // as soon as we release the lock, it won't get a chance to terminate.
-      this->ThreadDoneLock.Lock();
-
-      // release the done lock. Let threads test for this->Done flag.
-      this->DoneLock.Unlock();
-
-      // Tell all workers that inputs are available, so they will try to check
-      // the input as well as the done flag.
-      this->InputsAvailable.Broadcast();
-
-      // Now wait for thread to terminate releasing this->ThreadDoneLock as soon
-      // as we start waiting. Thus, no threads have got a chance to call
-      // EndWorker() till the main thread starts waiting for them.
-      this->ThreadDone.Wait(this->ThreadDoneLock);
-
-      this->ThreadDoneLock.Unlock();
-
-      // reset Done flag since all threads have died.
-      this->Done = false;
-    }
-
-    //------------------------------------------------------------------------
-    bool IsDone()
-    {
-      this->DoneLock.Lock();
-      bool val  = this->Done;
-      this->DoneLock.Unlock();
-      return val;
-    }
-
-    //------------------------------------------------------------------------
-    void PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data,
-      vtkTypeUInt64 stamp, int quality, int encoding)
-    {
-      this->InputsLock.Lock();
-      {
-        vtkSharedData::InputValueType &value = this->Inputs[key];
-        value.Image.TakeReference(data);
-        value.OutputStamp = stamp;
-        value.Quality = quality;
-        value.Encoding = encoding;
-        data = nullptr;
-      }
-      this->InputsLock.Unlock();
-      this->InputsAvailable.Signal();
-    }
-
-    //------------------------------------------------------------------------
-    vtkTypeUInt64 GetExpectedOutputStamp(vtkTypeUInt32 key)
-    {
-      vtkTypeUInt64 stamp = 0;
-      this->InputsLock.Lock();
-      vtkSharedData::InputMapType::iterator iter = this->Inputs.find(key);
-      if (iter != this->Inputs.end())
-      {
-        stamp = iter->second.OutputStamp;
-      }
-      this->InputsLock.Unlock();
-      return stamp;
-    }
-
-    //------------------------------------------------------------------------
-    // NOTE: This method may suspend the calling thread until inputs become
-    // available.
-    vtkTypeUInt64 GetNextInputToProcess(vtkTypeUInt32& key,
-      vtkSmartPointer<vtkImageData>& image, int& quality, int& encoding)
-    {
-      vtkTypeUInt32 stamp = 0;
-
-      this->InputsLock.Lock();
-      do
-      {
-        // Check if we have an input available, if so, return it.
-        InputMapType::iterator iter;
-        for (iter = this->Inputs.begin(); iter != this->Inputs.end(); ++iter)
+        std::unique_lock<std::mutex> lock(self->QueueMutex);
+        bool break_loop = false;
+        do
         {
-          if (iter->second.Image != nullptr)
+          self->QueueCondition.wait_for(lock, std::chrono::seconds(1),
+            [self]() { return !self->Queue.empty() || self->Terminate; });
+          if (self->Terminate)
           {
-            key = iter->first;
-            image = iter->second.Image;
-            iter->second.Image = nullptr;
-            stamp = iter->second.OutputStamp;
-            quality = iter->second.Quality;
-            encoding = iter->second.Encoding;
+            break_loop = true;
             break;
           }
-        }
-        if (image == nullptr && !this->IsDone())
+        } while (self->Queue.empty());
+        if (break_loop)
         {
-          // No data is available, let's wait till it becomes available.
-          this->InputsAvailable.Wait(this->InputsLock);
+          break;
         }
-
-      } while (image == nullptr && !this->IsDone());
-
-      this->InputsLock.Unlock();
-      return stamp;
-    }
-
-    //------------------------------------------------------------------------
-    void SetOutputReference(const vtkTypeUInt32 &key,
-      vtkTypeUInt64 timestamp, vtkUnsignedCharArray* &dataRef)
-    {
-      this->OutputsLock.Lock();
-      assert(dataRef->GetReferenceCount() == 1);
-      OutputMapType::iterator iter = this->Outputs.find(key);
-      if (iter == this->Outputs.end() ||
-        iter->second.Data == nullptr ||
-        iter->second.TimeStamp < timestamp)
-      {
-        //cout << "Done: " <<
-        //  vtkMultiThreader::GetCurrentThreadID() << " "
-        //  << key << ", " << timestamp << endl;
-        this->Outputs[key].TimeStamp = timestamp;
-        this->Outputs[key].Data.TakeReference(dataRef);
-        dataRef = nullptr;
-      }
-      else
-      {
-        dataRef->Delete();
-        dataRef = nullptr;
-      }
-      this->OutputsLock.Unlock();
-      this->OutputsAvailable.Broadcast();
-    }
-
-    //------------------------------------------------------------------------
-    bool CopyLatestOutputIfDifferent(
-      vtkTypeUInt32 key, vtkUnsignedCharArray* data)
-    {
-      vtkTypeUInt64 dataTimeStamp = 0;
-      this->OutputsLock.Lock();
-      {
-        const vtkSharedData::OutputValueType &output = this->Outputs[key];
-        if (output.Data != nullptr &&
-          (output.Data->GetMTime() > data->GetMTime() ||
-           output.Data->GetNumberOfTuples() != data->GetNumberOfTuples()))
-        {
-          data->DeepCopy(output.Data);
-          data->Modified();
-        }
-        dataTimeStamp = output.TimeStamp;
-      }
-      this->OutputsLock.Unlock();
-
-      vtkTypeUInt64 outputTS = 0;
-
-      this->InputsLock.Lock();
-      vtkSharedData::InputMapType::iterator iter = this->Inputs.find(key);
-      if (iter != this->Inputs.end())
-      {
-        outputTS = iter->second.OutputStamp;
-      }
-      this->InputsLock.Unlock();
-
-      return (dataTimeStamp >= outputTS);
-    }
-
-    //------------------------------------------------------------------------
-    void Flush(vtkTypeUInt32 key, vtkTypeUInt64 timestamp)
-    {
-      this->OutputsLock.Lock();
-      while (this->Outputs[key].TimeStamp < timestamp)
-      {
-        // output is not yet ready, we have to wait.
-        this->OutputsAvailable.Wait(this->OutputsLock);
+        work = self->Queue.front();
+        self->Queue.pop();
       }
 
-      this->OutputsLock.Unlock();
-    }
-  };
-
-  VTK_THREAD_RETURN_TYPE Worker(void *calldata)
-  {
-    //cout << "Start Thread: " << vtkMultiThreader::GetCurrentThreadID() << endl;
-    vtkMultiThreader::ThreadInfo* info =
-      reinterpret_cast<vtkMultiThreader::ThreadInfo*>(calldata);
-    vtkSharedData* sharedData = reinterpret_cast<vtkSharedData*>(info->UserData);
-
-    sharedData->BeginWorker();
-
-    while (true)
-    {
-      vtkTypeUInt32 key = 0;
-      vtkSmartPointer<vtkImageData> image;
-      vtkTypeUInt64 timestamp = 0;
-      // these are defaults, reset by GetNextInputToProcess
-      int quality = 100;
-      int encoding = 1;
-
-      timestamp = sharedData->GetNextInputToProcess(key, image, quality, encoding);
-
-      if (timestamp == 0 || image == nullptr)
-      {
-        // end thread.
-        break;
-      }
-
-      //cout << "Working Thread: " << vtkMultiThreader::GetCurrentThreadID() << endl;
-
-      // Do the encoding.
-      vtkNew<vtkJPEGWriter> writer;
-      writer->WriteToMemoryOn();
-      writer->SetInputData(image);
-      writer->SetQuality(quality);
+      writer->SetInputData(work.Image);
+      writer->SetQuality(work.Quality);
       writer->Write();
-      vtkUnsignedCharArray* data = writer->GetResult();
 
-      vtkUnsignedCharArray* result = vtkUnsignedCharArray::New();
-      if (encoding) {
+      auto result = vtkSmartPointer<vtkUnsignedCharArray>::New();
+      if (work.Encoding)
+      {
+        vtkUnsignedCharArray* data = writer->GetResult();
         result->SetNumberOfComponents(1);
         result->SetNumberOfTuples(std::ceil(1.5 * data->GetNumberOfTuples()));
         unsigned long size = vtkBase64Utilities::Encode(
-          data->GetPointer(0),
-          data->GetNumberOfTuples(),
-          result->GetPointer(0), /*mark_end=*/ 0);
-        result->SetNumberOfTuples(static_cast<vtkIdType>(size)+1);
+          data->GetPointer(0), data->GetNumberOfTuples(), result->GetPointer(0), /*mark_end=*/0);
+        result->SetNumberOfTuples(static_cast<vtkIdType>(size) + 1);
         result->SetValue(size, 0);
       }
       else
       {
-        result->ShallowCopy(data);
+        // We must do a deep copy here as the writer reuse that array
+        // and will change its values concurrently during its next job...
+        result->DeepCopy(writer->GetResult());
       }
-      // Pass over the "result" reference.
-      sharedData->SetOutputReference(key, timestamp, result);
-      assert(result == nullptr);
+      writer->SetInputData(nullptr);
+
+      {
+        std::unique_lock<std::mutex> lock(self->ResultsMutex);
+        auto& pair = self->Results[work.Key];
+        if (pair.first < work.TimeStamp)
+        {
+          pair = std::make_pair(work.TimeStamp, result);
+          lock.unlock();
+          self->ResultsCondition.notify_all();
+        }
+      }
     }
 
-    //cout << "Closing Thread: " << vtkMultiThreader::GetCurrentThreadID() << endl;
-    sharedData->EndWorker();
-    return VTK_THREAD_RETURN_VALUE;
+    vtkLogF(TRACE, "exiting worker thread");
   }
-}
 
+public:
+  vtkWorkQueue(int numThreads)
+    : Terminate(false)
+  {
+    assert(numThreads >= 0);
+    for (int cc = 0; cc < numThreads; ++cc)
+    {
+      this->ThreadPool.emplace_back(&vtkWorkQueue::DoWork, cc, this);
+    }
+  }
+  ~vtkWorkQueue()
+  {
+    this->Terminate = true;
+    this->QueueCondition.notify_all();
+    for (auto& thread : this->ThreadPool)
+    {
+      thread.join();
+    }
+  }
+
+  bool IsValid() const { return !this->ThreadPool.empty(); }
+
+  void PushBack(vtkWork&& work)
+  {
+    if (!this->IsValid())
+    {
+      vtkLogF(ERROR, "Queue is invalid! Can't push work!");
+      return;
+    }
+
+    auto key = work.Key;
+    work.TimeStamp = ++this->LastTimeStamp[key];
+    {
+      std::unique_lock<std::mutex> lock(this->QueueMutex);
+      this->Queue.emplace(std::move(work));
+    }
+    this->QueueCondition.notify_one();
+  }
+
+  bool GetResult(vtkTypeUInt32 key, vtkSmartPointer<vtkUnsignedCharArray>& data) const
+  {
+    std::unique_lock<std::mutex> lock(this->ResultsMutex);
+    auto iter = this->Results.find(key);
+    if (iter == this->Results.end())
+    {
+      return false;
+    }
+
+    const auto& resultsPair = iter->second;
+    data = resultsPair.second;
+    // return true if this is the latest result for this key.
+    return (resultsPair.first == this->LastTimeStamp.at(key));
+  }
+
+  void Flush(vtkTypeUInt32 key)
+  {
+    auto tsIter = this->LastTimeStamp.find(key);
+    if (tsIter == this->LastTimeStamp.end())
+    {
+      return;
+    }
+    const auto& ts = tsIter->second;
+    std::unique_lock<std::mutex> lock(this->ResultsMutex);
+    this->ResultsCondition.wait(lock, [this, &ts, &key]() {
+      try
+      {
+        return ts == this->Results[key].first;
+      }
+      catch (std::out_of_range&)
+      {
+        // result not available yet; keep waiting;
+        return false;
+      }
+    });
+  }
+};
+VTK_ABI_NAMESPACE_END
+} // namespace detail
+
+VTK_ABI_NAMESPACE_BEGIN
 //****************************************************************************
 class vtkDataEncoder::vtkInternals
 {
-private:
-  std::map<vtkTypeUInt32, vtkSmartPointer<vtkUnsignedCharArray> > ClonedOutputs;
-  std::vector<int> RunningThreadIds;
-
 public:
-  vtkNew<vtkMultiThreader> Threader;
-  vtkSharedData SharedData;
-  vtkTypeUInt64 Counter;
+  detail::vtkWorkQueue Queue;
+  vtkNew<vtkUnsignedCharArray> LastBase64Image;
 
-  vtkSmartPointer<vtkUnsignedCharArray> lastBase64Image;
-
-  vtkInternals() : Counter(0)
+  vtkInternals(int numThreads)
+    : Queue(numThreads)
   {
-    lastBase64Image = vtkSmartPointer<vtkUnsignedCharArray>::New();
-  }
-
-  void TerminateAllWorkers()
-  {
-    // request and wait for all threads to close.
-    if (!this->RunningThreadIds.empty())
-    {
-      this->SharedData.RequestAndWaitForWorkersToEnd();
-    }
-
-    // Stop threads
-    while (!this->RunningThreadIds.empty())
-    {
-      this->Threader->TerminateThread(this->RunningThreadIds.back());
-      this->RunningThreadIds.pop_back();
-    }
-  }
-
-  void SpawnWorkers(vtkTypeUInt32 numberOfThreads)
-  {
-    for (vtkTypeUInt32 cc=0; cc < numberOfThreads; cc++)
-    {
-      this->RunningThreadIds.push_back(this->Threader->SpawnThread(&Worker, &this->SharedData));
-    }
-  }
-
-  // Since changes to vtkObjectBase::ReferenceCount are not thread safe, we have
-  // this level of indirection between the outputs stored in SharedData and
-  // passed back to the user/main thread.
-  bool GetLatestOutput(
-    vtkTypeUInt32 key, vtkSmartPointer<vtkUnsignedCharArray>& data)
-  {
-    vtkSmartPointer<vtkUnsignedCharArray>& output = this->ClonedOutputs[key];
-    if (!output)
-    {
-      output = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    }
-    data = output;
-    return this->SharedData.CopyLatestOutputIfDifferent(key, data);
   }
 
   // Once an imagedata has been written to memory as a jpg or png, this
   // convenience function can encode that image as a Base64 string.
   const char* GetBase64EncodedImage(vtkUnsignedCharArray* encodedInputImage)
   {
-    this->lastBase64Image->SetNumberOfComponents(1);
-    this->lastBase64Image->SetNumberOfTuples(std::ceil(1.5 * encodedInputImage->GetNumberOfTuples()));
-    unsigned long size = vtkBase64Utilities::Encode(
-      encodedInputImage->GetPointer(0),
-      encodedInputImage->GetNumberOfTuples(),
-      this->lastBase64Image->GetPointer(0), /*mark_end=*/ 0);
+    this->LastBase64Image->SetNumberOfComponents(1);
+    this->LastBase64Image->SetNumberOfTuples(
+      std::ceil(1.5 * encodedInputImage->GetNumberOfTuples()));
+    unsigned long size = vtkBase64Utilities::Encode(encodedInputImage->GetPointer(0),
+      encodedInputImage->GetNumberOfTuples(), this->LastBase64Image->GetPointer(0), /*mark_end=*/0);
 
-    this->lastBase64Image->SetNumberOfTuples(static_cast<vtkIdType>(size)+1);
-    this->lastBase64Image->SetValue(size, 0);
+    this->LastBase64Image->SetNumberOfTuples(static_cast<vtkIdType>(size) + 1);
+    this->LastBase64Image->SetValue(size, 0);
 
-    return reinterpret_cast<char*>(this->lastBase64Image->GetPointer(0));
+    return reinterpret_cast<char*>(this->LastBase64Image->GetPointer(0));
   }
 };
 
 vtkStandardNewMacro(vtkDataEncoder);
-//----------------------------------------------------------------------------
-vtkDataEncoder::vtkDataEncoder() :
-  Internals(new vtkInternals())
+//------------------------------------------------------------------------------
+vtkDataEncoder::vtkDataEncoder()
+  : MaxThreads(3)
+  , Internals(new vtkInternals(this->MaxThreads))
 {
-  this->MaxThreads = 3;
-  this->Initialize();
 }
 
-//----------------------------------------------------------------------------
-vtkDataEncoder::~vtkDataEncoder()
-{
-  this->Internals->TerminateAllWorkers();
-  delete this->Internals;
-  this->Internals = nullptr;
-}
+//------------------------------------------------------------------------------
+vtkDataEncoder::~vtkDataEncoder() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::SetMaxThreads(vtkTypeUInt32 maxThreads)
 {
   if (maxThreads < MAX_NUMBER_OF_THREADS_IN_POOL && maxThreads > 0)
@@ -466,33 +263,27 @@ void vtkDataEncoder::SetMaxThreads(vtkTypeUInt32 maxThreads)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::Initialize()
 {
-  this->Internals->TerminateAllWorkers();
-  this->Internals->SpawnWorkers(this->MaxThreads);
+  this->Internals.reset(new vtkDataEncoder::vtkInternals(this->MaxThreads));
 }
 
-//----------------------------------------------------------------------------
-void vtkDataEncoder::PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data, int quality, int encoding)
+//------------------------------------------------------------------------------
+void vtkDataEncoder::Push(vtkTypeUInt32 key, vtkImageData* data, int quality, int encoding)
 {
-  // if data->ReferenceCount != 1, it means the caller thread is keep an extra
-  // reference and that's bad.
-  assert(data->GetReferenceCount() == 1);
-
-  this->Internals->SharedData.PushAndTakeReference(
-    key, data, ++this->Internals->Counter, quality, encoding);
-  assert(data == nullptr);
+  auto& internals = (*this->Internals);
+  internals.Queue.PushBack(detail::vtkWork(key, data, quality, encoding));
 }
 
-//----------------------------------------------------------------------------
-bool vtkDataEncoder::GetLatestOutput(
-  vtkTypeUInt32 key, vtkSmartPointer<vtkUnsignedCharArray>& data)
+//------------------------------------------------------------------------------
+bool vtkDataEncoder::GetLatestOutput(vtkTypeUInt32 key, vtkSmartPointer<vtkUnsignedCharArray>& data)
 {
-  return this->Internals->GetLatestOutput(key, data);
+  auto& internals = (*this->Internals);
+  return internals.Queue.GetResult(key, data);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataEncoder::EncodeAsBase64Png(vtkImageData* img, int compressionLevel)
 {
   // Perform in-memory write of image as png
@@ -506,7 +297,7 @@ const char* vtkDataEncoder::EncodeAsBase64Png(vtkImageData* img, int compression
   return this->Internals->GetBase64EncodedImage(writer->GetResult());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkDataEncoder::EncodeAsBase64Jpg(vtkImageData* img, int quality)
 {
   // Perform in-memory write of image as jpg
@@ -520,27 +311,22 @@ const char* vtkDataEncoder::EncodeAsBase64Jpg(vtkImageData* img, int quality)
   return this->Internals->GetBase64EncodedImage(writer->GetResult());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::Flush(vtkTypeUInt32 key)
 {
-  vtkTypeUInt64 outputTS =
-    this->Internals->SharedData.GetExpectedOutputStamp(key);
-  if (outputTS != 0)
-  {
-    // Now wait till we see the outputTS in the output for key.
-    //cout << "Wait till : " << outputTS << endl;
-    this->Internals->SharedData.Flush(key, outputTS);
-  }
+  auto& internals = (*this->Internals);
+  internals.Queue.Flush(key);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataEncoder::Finalize()
 {
-  this->Internals->TerminateAllWorkers();
+  this->Internals.reset(new vtkDataEncoder::vtkInternals(0));
 }
+VTK_ABI_NAMESPACE_END

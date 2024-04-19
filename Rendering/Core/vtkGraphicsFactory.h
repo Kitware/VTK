@@ -1,32 +1,21 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGraphicsFactory.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGraphicsFactory
  *
-*/
+ */
 
 #ifndef vtkGraphicsFactory_h
 #define vtkGraphicsFactory_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkGraphicsFactory : public vtkObject
 {
 public:
-  static vtkGraphicsFactory *New();
+  static vtkGraphicsFactory* New();
   vtkTypeMacro(vtkGraphicsFactory, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -41,28 +30,28 @@ public:
   /**
    * What rendering library has the user requested
    */
-  static const char *GetRenderLibrary();
+  static const char* GetRenderLibrary();
 
-  //@{
+  ///@{
   /**
    * This option enables the creation of Mesa classes
    * instead of the OpenGL classes when using mangled Mesa.
    */
   static void SetUseMesaClasses(int use);
-  static int  GetUseMesaClasses();
-  //@}
+  static int GetUseMesaClasses();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This option enables the off-screen only mode. In this mode no X calls will
    * be made even when interactor is used.
    */
   static void SetOffScreenOnlyMode(int use);
-  static int  GetOffScreenOnlyMode();
-  //@}
+  static int GetOffScreenOnlyMode();
+  ///@}
 
 protected:
-  vtkGraphicsFactory() {}
+  vtkGraphicsFactory() = default;
 
   static int UseMesaClasses;
   static int OffScreenOnlyMode;
@@ -72,4 +61,5 @@ private:
   void operator=(const vtkGraphicsFactory&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

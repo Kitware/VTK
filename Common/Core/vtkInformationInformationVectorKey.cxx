@@ -1,67 +1,52 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationInformationVectorKey.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkInformationInformationVectorKey.h"
 
-#include "vtkInformationVector.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 
-
-//----------------------------------------------------------------------------
-vtkInformationInformationVectorKey::vtkInformationInformationVectorKey(const char* name, const char* location):
-  vtkInformationKey(name, location)
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkInformationInformationVectorKey::vtkInformationInformationVectorKey(
+  const char* name, const char* location)
+  : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkInformationInformationVectorKey::~vtkInformationInformationVectorKey() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkInformationInformationVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::Set(vtkInformation* info,
-                                             vtkInformationVector* value)
+//------------------------------------------------------------------------------
+void vtkInformationInformationVectorKey::Set(vtkInformation* info, vtkInformationVector* value)
 {
   this->SetAsObjectBase(info, value);
 }
 
-//----------------------------------------------------------------------------
-vtkInformationVector*
-vtkInformationInformationVectorKey::Get(vtkInformation* info)
+//------------------------------------------------------------------------------
+vtkInformationVector* vtkInformationInformationVectorKey::Get(vtkInformation* info)
 {
-  return static_cast<vtkInformationVector *>(this->GetAsObjectBase(info));
+  return static_cast<vtkInformationVector*>(this->GetAsObjectBase(info));
 }
 
-//----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::ShallowCopy(vtkInformation* from,
-                                              vtkInformation* to)
+//------------------------------------------------------------------------------
+void vtkInformationInformationVectorKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from));
 }
 
-//----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::DeepCopy(vtkInformation* from,
-                                              vtkInformation* to)
+//------------------------------------------------------------------------------
+void vtkInformationInformationVectorKey::DeepCopy(vtkInformation* from, vtkInformation* to)
 {
-  vtkInformationVector *fromVector = this->Get(from);
-  vtkInformationVector *toVector = vtkInformationVector::New();
-  vtkInformation *toInfo;
+  vtkInformationVector* fromVector = this->Get(from);
+  vtkInformationVector* toVector = vtkInformationVector::New();
+  vtkInformation* toInfo;
   int i;
 
   for (i = 0; i < fromVector->GetNumberOfInformationObjects(); i++)
@@ -75,9 +60,10 @@ void vtkInformationInformationVectorKey::DeepCopy(vtkInformation* from,
   toVector->FastDelete();
 }
 
-//----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::Report(vtkInformation* info,
-                                                vtkGarbageCollector* collector)
+//------------------------------------------------------------------------------
+void vtkInformationInformationVectorKey::Report(
+  vtkInformation* info, vtkGarbageCollector* collector)
 {
   this->ReportAsObjectBase(info, collector);
 }
+VTK_ABI_NAMESPACE_END

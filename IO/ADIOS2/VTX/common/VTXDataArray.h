@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    VTXDataArray.h
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * VTXDataArray.h : wrapper around vtkDataArray adding adios2 relevant
@@ -35,42 +23,61 @@ namespace vtx
 {
 namespace types
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 class DataArray
 {
 public:
-    std::vector<std::string> VectorVariables;
-    vtkSmartPointer<vtkDataArray> Data;
+  std::vector<std::string> VectorVariables;
+  vtkSmartPointer<vtkDataArray> Data;
 
-    // required for global arrays
-    adios2::Dims Shape;
-    adios2::Dims Start;
-    adios2::Dims Count;
+  // required for global arrays
+  adios2::Dims Shape;
+  adios2::Dims Start;
+  adios2::Dims Count;
 
-    // required for local arrays, using maps for now
-    /** key: blockID, value: block count */
-    std::map<size_t, adios2::Dims> BlockCounts;
+  // required for local arrays, using maps for now
+  /** key: blockID, value: block count */
+  std::map<size_t, adios2::Dims> BlockCounts;
 
-    /** true : uses the special vtkIdType for indexing
-     *  false : uses other VTK supported type */
-    bool IsIdType = false;
+  /** true : uses the special vtkIdType for indexing
+   *  false : uses other VTK supported type */
+  bool IsIdType = false;
 
-    /** true: tuples > 1, false: tuples = 1 */
-    bool HasTuples = false;
+  /** true: tuples > 1, false: tuples = 1 */
+  bool HasTuples = false;
 
-    /**
-     *  true: if variable doesn't exist in a step don't attempt to read,
-     *  use the latest known values
-     *  false: attempt to read always
-     */
-    bool Persist = false;
+  /**
+   *  true: if variable doesn't exist in a step don't attempt to read,
+   *  use the latest known values. Common case: mesh variables
+   *  false: attempt to read always
+   */
+  bool Persist = false;
 
-    DataArray() = default;
-    ~DataArray() = default;
+  /** true: new value is found and read, false: not updated */
+  bool IsUpdated = true;
 
-    bool IsScalar() const noexcept;
+  /**
+   *  true: is struct of arrays (*x, *y, *z) or (XXXX, YYYY, ZZZZ)
+   *  false (default): is array of structs (xyz, xyz, xyz) common case
+   */
+  bool IsSOA = false;
+
+  DataArray() = default;
+  ~DataArray() = default;
+
+  bool IsScalar() const noexcept;
+
+  /**
+   * Convert internal vtkDataArray to a 3D VTK conforming array
+   * number of components = 3 filling the values of absent
+   * coordinates with the input fillValues (default = 0)
+   * @param fillValues values to fill for missing coordinates
+   */
+  void ConvertTo3DVTK(const std::vector<double>& fillValues = std::vector<double>());
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace types
 } // end namespace vtx
 

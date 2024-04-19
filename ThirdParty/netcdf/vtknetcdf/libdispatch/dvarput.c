@@ -221,11 +221,7 @@ NCDEFAULT_put_vars(int ncid, int varid, const size_t * start,
 #endif
         else {
 	  /* mystart is unsigned, will never be < 0 */
-#ifdef RELAX_COORD_BOUND
 	  if (mystart[i] > dimlen) return NC_EINVALCOORDS;
-#else
-          if (mystart[i] >= dimlen) return NC_EINVALCOORDS;
-#endif
        }
 	if(edges == NULL) {
 #if 0
@@ -239,12 +235,12 @@ NCDEFAULT_put_vars(int ncid, int varid, const size_t * start,
 	      myedges[i] = varshape[i] - mystart[i];
 	} else
 	    myedges[i] = edges[i];
-#ifdef RELAX_COORD_BOUND
+
 	if(!is_recdim[i]) {
 	  if (mystart[i] == dimlen && myedges[i] > 0)
               return NC_EINVALCOORDS;
         }
-#endif
+
 	if(!is_recdim[i]) {
           /* myediges is unsigned, will never be < 0 */
 	  if(mystart[i] + myedges[i] > dimlen)
@@ -283,7 +279,7 @@ NCDEFAULT_put_vars(int ncid, int varid, const size_t * start,
    while(odom_more(&odom)) {
       int localstatus = NC_NOERR;
       /* Write a single value */
-      localstatus = NC_put_vara(ncid,varid,odom.index,nc_sizevector1,memptr,memtype);
+      localstatus = NC_put_vara(ncid,varid,odom.index,NC_coord_one,memptr,memtype);
       /* So it turns out that when get_varm is used, all errors are
          delayed and ERANGE will be overwritten by more serious errors.
       */
@@ -434,12 +430,8 @@ NCDEFAULT_put_varm(
 
       for (idim = isrecvar; idim <= maxidim; ++idim)
       {
-#ifdef RELAX_COORD_BOUND
 	 if (mystart[idim] > varshape[idim] ||
 	    (mystart[idim] == varshape[idim] && myedges[idim] > 0))
-#else
-         if (mystart[idim] >= varshape[idim])
-#endif
 	 {
 	    status = NC_EINVALCOORDS;
 	    goto done;
@@ -752,7 +744,6 @@ nc_put_vara_ulonglong(int ncid, int varid, const size_t *startp,
 		      NC_UINT64);
 }
 
-#ifdef USE_NETCDF4
 int
 nc_put_vara_string(int ncid, int varid, const size_t *startp,
 		   const size_t *countp, const char* *op)
@@ -761,7 +752,6 @@ nc_put_vara_string(int ncid, int varid, const size_t *startp,
 		      NC_STRING);
 }
 
-#endif /*USE_NETCDF4*/
 /**@}*/
 
 /** \ingroup variables
@@ -871,13 +861,12 @@ nc_put_var1_ulonglong(int ncid, int varid, const size_t *indexp, const unsigned 
    return NC_put_var1(ncid, varid, indexp, (void *)op, NC_UINT64);
 }
 
-#ifdef USE_NETCDF4
 int
 nc_put_var1_string(int ncid, int varid, const size_t *indexp, const char* *op)
 {
    return NC_put_var1(ncid, varid, indexp, (void*)op, NC_STRING);
 }
-#endif /*USE_NETCDF4*/
+
 /**@}*/
 
 /** \ingroup variables
@@ -1011,13 +1000,12 @@ nc_put_var_ulonglong(int ncid, int varid, const unsigned long long *op)
    return NC_put_var(ncid,varid,(void*)op,NC_UINT64);
 }
 
-#ifdef USE_NETCDF4
 int
 nc_put_var_string(int ncid, int varid, const char* *op)
 {
    return NC_put_var(ncid,varid,(void*)op,NC_STRING);
 }
-#endif /*USE_NETCDF4*/
+
 /**\} */
 
 /** \ingroup variables
@@ -1187,7 +1175,6 @@ nc_put_vars_ulonglong(int ncid, int varid,
 		      stridep, (void *)op, NC_UINT64);
 }
 
-#ifdef USE_NETCDF4
 int
 nc_put_vars_string(int ncid, int varid,
 		   const size_t *startp, const size_t *countp,
@@ -1197,7 +1184,7 @@ nc_put_vars_string(int ncid, int varid,
    return NC_put_vars(ncid, varid, startp, countp, stridep,
 		      (void *)op, NC_STRING);
 }
-#endif /*USE_NETCDF4*/
+
 /**\} */
 
 /** \ingroup variables
@@ -1381,7 +1368,6 @@ nc_put_varm_ulonglong(int ncid, int varid,
 		      (void *)op, NC_UINT64);
 }
 
-#ifdef USE_NETCDF4
 int
 nc_put_varm_string(int ncid, int varid,
 		   const size_t *startp, const size_t *countp,
@@ -1391,7 +1377,7 @@ nc_put_varm_string(int ncid, int varid,
    return NC_put_varm(ncid, varid, startp, countp, stridep, imapp,
 		      (void *)op, NC_STRING);
 }
-#endif /*USE_NETCDF4*/
+
 /**\} */
 
 /*! \} */ /*End of named group... */

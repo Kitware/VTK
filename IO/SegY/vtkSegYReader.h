@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSegYReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkSegYReader_h
 #define vtkSegYReader_h
@@ -21,6 +9,7 @@
 #include <vtkIOSegYModule.h> // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkSegYReaderInternal;
 
@@ -45,8 +34,8 @@ public:
   vtkSegYReader();
   ~vtkSegYReader() override;
 
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
 
   enum VTKSegYCoordinateModes
   {
@@ -55,7 +44,7 @@ public:
     VTK_SEGY_CUSTOM = 2
   };
 
-  //@{
+  ///@{
   /**
    * Specify whether to use source x/y coordinates or CDP coordinates or custom
    * byte positions for data position in the SEG-Y trace header. Defaults to
@@ -70,9 +59,9 @@ public:
   void SetXYCoordModeToSource();
   void SetXYCoordModeToCDP();
   void SetXYCoordModeToCustom();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify X and Y byte positions for custom XYCoordinateMode.
    * By default, XCoordByte = 73, YCoordByte = 77 i.e. source xy.
@@ -83,7 +72,7 @@ public:
   vtkGetMacro(XCoordByte, int);
   vtkSetMacro(YCoordByte, int);
   vtkGetMacro(YCoordByte, int);
-  //@}
+  ///@}
 
   enum VTKSegYVerticalCRS
   {
@@ -91,7 +80,7 @@ public:
     VTK_SEGY_VERTICAL_DEPTHS
   };
 
-  //@{
+  ///@{
   /**
    * Specify whether the vertical coordinates in the SEG-Y file are heights
    * (positive up) or depths (positive down). By default, the vertical
@@ -104,9 +93,9 @@ public:
    */
   vtkSetMacro(VerticalCRS, int);
   vtkGetMacro(VerticalCRS, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify if we create a vtkStructuredGrid even when the data is
    * 3D. Note this consumes more memory but it shows the precise
@@ -117,23 +106,32 @@ public:
   vtkSetMacro(StructuredGrid, int);
   vtkGetMacro(StructuredGrid, int);
   vtkBooleanMacro(StructuredGrid, int);
-  //@}
+  ///@}
+
+  ///@{
+  /**
+   * Should we force the data to be interpreted as a 2D dataset? It may be a
+   * 2D sheet through 3D space. When this is turned on we ignore the cross
+   * line and line values and instead build a 2D data by processing and
+   * connecting the traces in order from first to last. The output will be a
+   * Structrured Grid.
+   */
+  vtkSetMacro(Force2D, bool);
+  vtkGetMacro(Force2D, bool);
+  vtkBooleanMacro(Force2D, bool);
+  ///@}
 
 protected:
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
-  int RequestDataObject(vtkInformation* request,
-                        vtkInformationVector** inputVector,
-                        vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-protected:
   vtkSegYReaderInternal* Reader;
-  char *FileName;
+  char* FileName;
   bool Is3D;
   double DataOrigin[3];
   double DataSpacing[3][3];
@@ -149,10 +147,12 @@ protected:
 
   int VerticalCRS;
 
+  bool Force2D;
 
 private:
   vtkSegYReader(const vtkSegYReader&) = delete;
   void operator=(const vtkSegYReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSegYReader_h

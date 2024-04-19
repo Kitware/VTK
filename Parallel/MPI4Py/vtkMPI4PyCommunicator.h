@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMPI4PyCommunicator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMPI4PyCommunicator
  * @brief   Class for bridging MPI4Py with vtkMPICommunicator.
@@ -21,23 +9,25 @@
  *
  * @sa
  * vtkMPICommunicator
-*/
+ */
 
 #ifndef vtkMPI4PyCommunicator_h
 #define vtkMPI4PyCommunicator_h
-#if !defined(__VTK_WRAP__) || defined(__VTK_WRAP_PYTHON__)
+// This class should only be wrapped for Python. The hierarchy "wrapping" also
+// needs to see the class for use in the Python wrappers.
+#if !defined(__VTK_WRAP__) || defined(__VTK_WRAP_HIERARCHY__) || defined(__VTK_WRAP_PYTHON__)
 
 #include "vtkPython.h" // For PyObject*; must be first
 
-#include "vtkParallelMPI4PyModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelMPI4PyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMPICommunicator;
 
 class VTKPARALLELMPI4PY_EXPORT vtkMPI4PyCommunicator : public vtkObject
 {
 public:
-
   vtkTypeMacro(vtkMPI4PyCommunicator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -59,5 +49,6 @@ private:
   void operator=(const vtkMPI4PyCommunicator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 #endif

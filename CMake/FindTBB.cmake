@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+# SPDX-FileCopyrightText: Copyright 2010-2012 Kitware, Inc.
+# SPDX-FileCopyrightText: Copyright 2012 Rolf Eike Beer <eike@sf-mail.de>
+# SPDX-License-Identifier: BSD-3-Clause
 # - Find ThreadingBuildingBlocks include dirs and libraries
 # Use this module by invoking find_package with the form:
 #  find_package(TBB
@@ -48,25 +52,35 @@
 # The contents of this file are placed in the public domain. Feel
 # free to make use of it in any way you like.
 #-------------------------------------------------------------------
-#
-#=============================================================================
-# Copyright 2010-2012 Kitware, Inc.
-# Copyright 2012      Rolf Eike Beer <eike@sf-mail.de>
-#
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
-#
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
-# (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
-
-
 #=============================================================================
 #  FindTBB helper functions and macros
 #
+
+# Use TBBConfig.cmake if possible.
+
+set(_tbb_find_quiet)
+if (TBB_FIND_QUIETLY)
+  set(_tbb_find_quiet QUIET)
+endif ()
+set(_tbb_find_components)
+set(_tbb_find_optional_components)
+foreach (_tbb_find_component IN LISTS TBB_FIND_COMPONENTS)
+  if (TBB_FIND_REQUIRED_${_tbb_find_component})
+    list(APPEND _tbb_find_components "${_tbb_find_component}")
+  else ()
+    list(APPEND _tbb_find_optional_components "${_tbb_find_component}")
+  endif ()
+endforeach ()
+unset(_tbb_find_component)
+find_package(TBB CONFIG ${_tbb_find_quiet}
+  COMPONENTS ${_tbb_find_components}
+  OPTIONAL_COMPONENTS ${_tbb_find_optional_components})
+unset(_tbb_find_quiet)
+unset(_tbb_find_components)
+unset(_tbb_find_optional_components)
+if (TBB_FOUND)
+  return ()
+endif ()
 
 #====================================================
 # Fix the library path in case it is a linker script
@@ -232,7 +246,7 @@ if (WIN32 AND MSVC)
     set(COMPILER_PREFIX "vc11")
   elseif(MSVC_VERSION EQUAL 1800)
     set(COMPILER_PREFIX "vc12")
-  elseif(MSVC_VERSION EQUAL 1900)
+  elseif(MSVC_VERSION GREATER_EQUAL 1900)
     set(COMPILER_PREFIX "vc14")
   endif ()
 
@@ -277,6 +291,9 @@ endif ()
 # check compiler ABI
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set(COMPILER_PREFIX)
+  if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
+    list(APPEND COMPILER_PREFIX "gcc4.8")
+  endif()
   if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
     list(APPEND COMPILER_PREFIX "gcc4.7")
   endif()
@@ -286,6 +303,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   list(APPEND COMPILER_PREFIX "gcc4.1")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(COMPILER_PREFIX)
+  if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.0) # Complete guess
+    list(APPEND COMPILER_PREFIX "gcc4.8")
+  endif()
   if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.6)
     list(APPEND COMPILER_PREFIX "gcc4.7")
   endif()
@@ -392,12 +412,18 @@ findpkg_finish(TBB_MALLOC_PROXY tbbmalloc_proxy)
 #=============================================================================
 #parse all the version numbers from tbb
 if(NOT TBB_VERSION)
-
- #only read the start of the file
- file(STRINGS
+  if (EXISTS "${TBB_INCLUDE_DIR}/oneapi/tbb/version.h")
+    file(STRINGS
+      "${TBB_INCLUDE_DIR}/oneapi/tbb/version.h"
+      TBB_VERSION_CONTENTS
+      REGEX "VERSION")
+  else()
+    #only read the start of the file
+    file(STRINGS
       "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h"
       TBB_VERSION_CONTENTS
       REGEX "VERSION")
+  endif()
 
   string(REGEX REPLACE
     ".*#define TBB_VERSION_MAJOR ([0-9]+).*" "\\1"

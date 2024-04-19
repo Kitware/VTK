@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOTFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOTFilter
  * @brief
@@ -21,7 +9,7 @@
  * converts it to a openturns structure and then process it
  * The inherited classes are responsible of filling up the output
  * table in the Process() method.
-*/
+ */
 
 #ifndef vtkOTFilter_h
 #define vtkOTFilter_h
@@ -34,6 +22,7 @@ namespace OT
 class Sample;
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSOPENTURNS_EXPORT vtkOTFilter : public vtkTableAlgorithm
 {
 public:
@@ -42,15 +31,14 @@ public:
 
 protected:
   vtkOTFilter();
-  ~vtkOTFilter();
+  ~vtkOTFilter() override;
 
   /**
    * Set the input of this filter, a vtkTable
    */
-  virtual int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  virtual int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   /**
@@ -70,4 +58,5 @@ private:
   vtkOTFilter(const vtkOTFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

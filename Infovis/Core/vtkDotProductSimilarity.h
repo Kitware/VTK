@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDotProductSimilarity.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkDotProductSimilarity
@@ -53,7 +36,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkDotProductSimilarity_h
 #define vtkDotProductSimilarity_h
@@ -61,6 +44,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkDotProductSimilarity : public vtkTableAlgorithm
 {
 public:
@@ -68,84 +52,84 @@ public:
   vtkTypeMacro(vtkDotProductSimilarity, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Controls whether to compute similarities for row-vectors or column-vectors.
    * 0 = rows, 1 = columns.
    */
   vtkGetMacro(VectorDimension, vtkIdType);
   vtkSetMacro(VectorDimension, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When computing similarities for a single input matrix, controls whether the
    * results will include the upper diagonal of the similarity matrix.  Default: true.
    */
   vtkGetMacro(UpperDiagonal, int);
   vtkSetMacro(UpperDiagonal, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When computing similarities for a single input matrix, controls whether the
    * results will include the diagonal of the similarity matrix.  Default: false.
    */
   vtkGetMacro(Diagonal, int);
   vtkSetMacro(Diagonal, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When computing similarities for a single input matrix, controls whether the
    * results will include the lower diagonal of the similarity matrix.  Default: false.
    */
   vtkGetMacro(LowerDiagonal, int);
   vtkSetMacro(LowerDiagonal, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When computing similarities for two input matrices, controls whether the results
    * will include comparisons from the first matrix to the second matrix.
    */
   vtkGetMacro(FirstSecond, int);
   vtkSetMacro(FirstSecond, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When computing similarities for two input matrices, controls whether the results
    * will include comparisons from the second matrix to the first matrix.
    */
   vtkGetMacro(SecondFirst, int);
   vtkSetMacro(SecondFirst, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specifies a minimum threshold that a similarity must exceed to be included in
    * the output.
    */
   vtkGetMacro(MinimumThreshold, double);
   vtkSetMacro(MinimumThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specifies a minimum number of edges to include for each vector.
    */
   vtkGetMacro(MinimumCount, vtkIdType);
   vtkSetMacro(MinimumCount, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specifies a maximum number of edges to include for each vector.
    */
   vtkGetMacro(MaximumCount, vtkIdType);
   vtkSetMacro(MaximumCount, vtkIdType);
-  //@}
+  ///@}
 
 protected:
   vtkDotProductSimilarity();
@@ -153,10 +137,7 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkDotProductSimilarity(const vtkDotProductSimilarity&) = delete;
@@ -174,5 +155,5 @@ private:
   int SecondFirst;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

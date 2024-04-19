@@ -1,51 +1,70 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkCommonExecutionModel import vtkCastToConcrete
+from vtkmodules.vtkFiltersCore import (
+    vtkElevationFilter,
+    vtkPolyDataNormals,
+)
+from vtkmodules.vtkFiltersGeneral import vtkWarpScalar
+from vtkmodules.vtkFiltersGeometry import vtkImageDataGeometryFilter
+from vtkmodules.vtkImagingCore import vtkImageShrink3D
+from vtkmodules.vtkIOImage import vtkDEMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 Scale = 5
 
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.6, 0)
 lut.SetSaturationRange(1.0, 0)
 lut.SetValueRange(0.5, 1.0)
 
-demModel = vtk.vtkDEMReader()
+demModel = vtkDEMReader()
 demModel.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
 demModel.Update()
 
 lo = Scale * demModel.GetElevationBounds()[0]
 hi = Scale * demModel.GetElevationBounds()[1]
-demActor = vtk.vtkLODActor()
+demActor = vtkLODActor()
 
 # create a pipeline for each lod mapper
 lods = ["4", "8", "16"]
 for lod in lods:
-    exec("shrink" + lod + " = vtk.vtkImageShrink3D()")
+    exec("shrink" + lod + " = vtkImageShrink3D()")
     eval("shrink" + lod).SetShrinkFactors(int(lod), int(lod), 1)
     eval("shrink" + lod).SetInputConnection(demModel.GetOutputPort())
     eval("shrink" + lod).AveragingOn()
 
-    exec("geom" + lod + " = vtk.vtkImageDataGeometryFilter()")
+    exec("geom" + lod + " = vtkImageDataGeometryFilter()")
     eval("geom" + lod).SetInputConnection(eval("shrink" + lod).GetOutputPort())
     eval("geom" + lod).ReleaseDataFlagOn()
 
-    exec("warp" + lod + " = vtk.vtkWarpScalar()")
+    exec("warp" + lod + " = vtkWarpScalar()")
     eval("warp" + lod).SetInputConnection(eval("geom" + lod).GetOutputPort())
     eval("warp" + lod).SetNormal(0, 0, 1)
     eval("warp" + lod).UseNormalOn()
     eval("warp" + lod).SetScaleFactor(Scale)
     eval("warp" + lod).ReleaseDataFlagOn()
 
-    exec("elevation" + lod + " = vtk.vtkElevationFilter()")
+    exec("elevation" + lod + " = vtkElevationFilter()")
     eval("elevation" + lod).SetInputConnection(
       eval("warp" + lod).GetOutputPort())
     eval("elevation" + lod).SetLowPoint(0, 0, lo)
@@ -53,11 +72,11 @@ for lod in lods:
     eval("elevation" + lod).SetScalarRange(lo, hi)
     eval("elevation" + lod).ReleaseDataFlagOn()
 
-    exec("toPoly" + lod + " = vtk.vtkCastToConcrete()")
+    exec("toPoly" + lod + " = vtkCastToConcrete()")
     eval("toPoly" + lod).SetInputConnection(
       eval("elevation" + lod).GetOutputPort())
 
-    exec("normals" + lod + "  = vtk.vtkPolyDataNormals()")
+    exec("normals" + lod + "  = vtkPolyDataNormals()")
     eval("normals" + lod).SetInputConnection(
       eval("toPoly" + lod).GetOutputPort())
     eval("normals" + lod).SetFeatureAngle(60)
@@ -65,7 +84,7 @@ for lod in lods:
     eval("normals" + lod).SplittingOff()
     eval("normals" + lod).ReleaseDataFlagOn()
 
-    exec("demMapper" + lod + "  = vtk.vtkPolyDataMapper()")
+    exec("demMapper" + lod + "  = vtkPolyDataMapper()")
     eval("demMapper" + lod).SetInputConnection(
       eval("normals" + lod).GetOutputPort())
     eval("demMapper" + lod).SetScalarRange(lo, hi)
@@ -80,9 +99,8 @@ ren1.AddActor(demActor)
 ren1.SetBackground(.4, .4, .4)
 iren.SetDesiredUpdateRate(1)
 
-def TkCheckAbort (object_binding, event_name):
-    foo = renWin.GetEventPending()
-    if (foo != 0):
+def TkCheckAbort(obj=None, event=""):
+    if renWin.GetEventPending():
         renWin.SetAbortRender(1)
 
 renWin.AddObserver("AbortCheckEvent", TkCheckAbort)

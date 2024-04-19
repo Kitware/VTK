@@ -1,143 +1,62 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStaticCleanPolyData.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkStaticCleanPolyData.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkMergePoints.h"
+#include "vtkDataArrayRange.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkSMPTools.h"
+#include "vtkStaticCleanUnstructuredGrid.h"
+#include "vtkStaticPointLocator.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStaticCleanPolyData);
 
-// These are created to support a (float,double) fast path. They work in
-// tandem with vtkTemplate2Macro found in vtkSetGet.h.
-#define vtkTemplate2MacroCP(call) \
-  vtkTemplate2MacroCase1CP(VTK_DOUBLE, double, call);                           \
-  vtkTemplate2MacroCase1CP(VTK_FLOAT, float, call);                             \
-  vtkTemplate2MacroCase1CP(VTK_LONG_LONG, long long, call);                     \
-  vtkTemplate2MacroCase1CP(VTK_UNSIGNED_LONG_LONG, unsigned long long, call);   \
-  vtkTemplate2MacroCase1CP(VTK_ID_TYPE, vtkIdType, call);                       \
-  vtkTemplate2MacroCase1CP(VTK_LONG, long, call);                               \
-  vtkTemplate2MacroCase1CP(VTK_UNSIGNED_LONG, unsigned long, call);             \
-  vtkTemplate2MacroCase1CP(VTK_INT, int, call);                                 \
-  vtkTemplate2MacroCase1CP(VTK_UNSIGNED_INT, unsigned int, call);               \
-  vtkTemplate2MacroCase1CP(VTK_SHORT, short, call);                             \
-  vtkTemplate2MacroCase1CP(VTK_UNSIGNED_SHORT, unsigned short, call);           \
-  vtkTemplate2MacroCase1CP(VTK_CHAR, char, call);                               \
-  vtkTemplate2MacroCase1CP(VTK_SIGNED_CHAR, signed char, call);                 \
-  vtkTemplate2MacroCase1CP(VTK_UNSIGNED_CHAR, unsigned char, call)
-#define vtkTemplate2MacroCase1CP(type1N, type1, call) \
-  vtkTemplate2MacroCase2(type1N, type1, VTK_DOUBLE, double, call);                 \
-  vtkTemplate2MacroCase2(type1N, type1, VTK_FLOAT, float, call);
+// This filter uses methods found in vtkStaticCleanUnstructuredGrid.
+using PointUses = unsigned char;
 
-namespace { //anonymous
-
-//----------------------------------------------------------------------------
-// Fast, threaded way to copy new points and attribute data to output.
-template <typename TPIn, typename TPOut>
-struct CopyPoints
-{
-  vtkIdType *PtMap;
-  TPIn  *InPts;
-  TPOut *OutPts;
-  ArrayList Arrays;
-
-  CopyPoints(vtkIdType *ptMap, TPIn *inPts, vtkPointData *inPD,
-             vtkIdType numNewPts, TPOut* outPts, vtkPointData *outPD) :
-    PtMap(ptMap), InPts(inPts), OutPts(outPts)
-  {
-    this->Arrays.AddArrays(numNewPts,inPD,outPD);
-  }
-
-  void operator() (vtkIdType ptId, vtkIdType endPtId)
-  {
-    const TPIn *inP=this->InPts + 3*ptId;
-    TPOut *outP;
-    const vtkIdType *ptMap=this->PtMap;
-    vtkIdType outPtId;
-
-    for ( ; ptId < endPtId; ++ptId, inP+=3)
-    {
-      outPtId = ptMap[ptId];
-      if ( outPtId != -1 )
-      {
-        outP = this->OutPts + 3*outPtId;
-        *outP++ = static_cast<TPOut>(inP[0]);
-        *outP++ = static_cast<TPOut>(inP[1]);
-        *outP   = static_cast<TPOut>(inP[2]);
-        this->Arrays.Copy(ptId,outPtId);
-      }
-    }
-  }
-
-  static void Execute(vtkIdType numPts, vtkIdType *ptMap, TPIn *inPts,
-                      vtkPointData *inPD, vtkIdType numNewPts,
-                      TPOut *outPts, vtkPointData *outPD)
-  {
-    CopyPoints copyPts(ptMap, inPts, inPD, numNewPts, outPts, outPD);
-    vtkSMPTools::For(0,numPts, copyPts);
-  }
-
-};
-
-} //anonymous namespace
-
-
-
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Construct object with initial Tolerance of 0.0
 vtkStaticCleanPolyData::vtkStaticCleanPolyData()
 {
-  this->ToleranceIsAbsolute  = 0;
-  this->Tolerance            = 0.0;
-  this->AbsoluteTolerance    = 1.0;
-  this->ConvertPolysToLines  = 1;
-  this->ConvertLinesToPoints = 1;
-  this->ConvertStripsToPolys = 1;
-  this->Locator = vtkStaticPointLocator::New();
-  this->PieceInvariant = 1;
+  this->ToleranceIsAbsolute = false;
+  this->Tolerance = 0.0;
+  this->AbsoluteTolerance = 0.0;
+
+  this->MergingArray = nullptr;
+  this->SetMergingArray("");
+
+  this->ConvertPolysToLines = false;
+  this->ConvertLinesToPoints = false;
+  this->ConvertStripsToPolys = false;
+
+  this->RemoveUnusedPoints = true;
+  this->ProduceMergeMap = false;
+  this->AveragePointData = false;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
+  this->PieceInvariant = true;
+
+  this->Locator.TakeReference(vtkStaticPointLocator::New());
 }
 
-//--------------------------------------------------------------------------
-vtkStaticCleanPolyData::~vtkStaticCleanPolyData()
-{
-  this->Locator->Delete();
-  this->Locator = nullptr;
-}
-
-
-//--------------------------------------------------------------------------
-int vtkStaticCleanPolyData::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkStaticCleanPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   if (this->PieceInvariant)
   {
@@ -145,136 +64,158 @@ int vtkStaticCleanPolyData::RequestUpdateExtent(
     if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) == 0)
     {
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                  1);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
     }
     else
     {
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                  0);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 0);
     }
   }
   else
   {
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                outInfo->Get(
-                  vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   }
 
   return 1;
 }
 
-//--------------------------------------------------------------------------
-int vtkStaticCleanPolyData::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPoints   *inPts = input->GetPoints();
-  vtkIdType   numPts = input->GetNumberOfPoints();
+  vtkPoints* inPts = input->GetPoints();
+  vtkIdType numPts = input->GetNumberOfPoints();
 
-  vtkDebugMacro(<<"Beginning PolyData clean");
-  if ( (numPts<1) || (inPts == nullptr ) )
+  vtkDebugMacro(<< "Beginning PolyData clean");
+  if ((numPts < 1) || (inPts == nullptr))
   {
-    vtkDebugMacro(<<"No data to Operate On!");
+    vtkDebugMacro(<< "No data to Operate On!");
     return 1;
   }
-  vtkIdType *updatedPts = new vtkIdType[input->GetMaxCellSize()];
 
   // we'll be needing these
-  vtkIdType inCellID, newId;
+  vtkIdType newId;
   vtkIdType i;
   vtkIdType ptId;
   vtkIdType npts = 0;
-  const vtkIdType *pts = nullptr;
+  const vtkIdType* pts = nullptr;
 
-  vtkCellArray *inVerts  = input->GetVerts(),  *newVerts  = nullptr;
-  vtkCellArray *inLines  = input->GetLines(),  *newLines  = nullptr;
-  vtkCellArray *inPolys  = input->GetPolys(),  *newPolys  = nullptr;
-  vtkCellArray *inStrips = input->GetStrips(), *newStrips = nullptr;
+  vtkCellArray* inVerts = input->GetVerts();
+  vtkSmartPointer<vtkCellArray> newVerts;
+  vtkCellArray* inLines = input->GetLines();
+  vtkSmartPointer<vtkCellArray> newLines;
+  vtkCellArray* inPolys = input->GetPolys();
+  vtkSmartPointer<vtkCellArray> newPolys;
+  vtkCellArray* inStrips = input->GetStrips();
+  vtkSmartPointer<vtkCellArray> newStrips;
 
-  vtkPointData *inPD = input->GetPointData();
-  vtkCellData  *inCD = input->GetCellData();
+  vtkPointData* inPD = input->GetPointData();
+  vtkCellData* inCD = input->GetCellData();
+  vtkPointData* outPD = output->GetPointData();
+  vtkCellData* outCD = output->GetCellData();
 
   // The merge map indicates which points are merged with what points
-  vtkIdType *mergeMap = new vtkIdType [numPts];
   this->Locator->SetDataSet(input);
   this->Locator->BuildLocator();
-  double tol = ( this->ToleranceIsAbsolute ? this->AbsoluteTolerance :
-                 this->Tolerance*input->GetLength() );
-  this->Locator->MergePoints(tol,mergeMap);
+  this->UpdateProgress(0.25);
 
-  vtkPointData *outPD = output->GetPointData();
-  vtkCellData  *outCD = output->GetCellData();
-  outPD->CopyAllocate(inPD);
-  outCD->CopyAllocate(inCD);
+  // Compute the tolerance
+  double tol =
+    (this->ToleranceIsAbsolute ? this->AbsoluteTolerance : this->Tolerance * input->GetLength());
 
-  // Prefix sum: count the number of new points; allocate memory. Populate the
-  // point map (old points to new).
-  vtkIdType *pointMap = new vtkIdType [numPts];
-  vtkIdType id, numNewPts=0;
-  // Count and map points to new points
-  for ( id=0; id < numPts; ++id )
+  // Now merge the points to create a merge map. The order of traversal can
+  // be specified through the locator, the default is BIN_ORDER when the
+  // tolerance is non-zero. Also, check whether merging data is enabled.
+  std::vector<vtkIdType> mergeMap(numPts);
+  vtkDataArray* mergingData = nullptr;
+  if (this->MergingArray)
   {
-    if ( mergeMap[id] == id )
+    if ((mergingData = inPD->GetArray(this->MergingArray)))
     {
-      pointMap[id] = numNewPts++;
+      this->Locator->MergePointsWithData(mergingData, mergeMap.data());
     }
   }
-  // Now map old merged points to new points
-  for ( id=0; id < numPts; ++id )
+  if (!mergingData)
   {
-    if ( mergeMap[id] != id )
-    {
-      pointMap[id] = pointMap[mergeMap[id]];
-    }
+    this->Locator->MergePoints(tol, mergeMap.data());
   }
-  delete [] mergeMap;
+  this->UpdateProgress(0.5);
 
-  vtkPoints *newPts = inPts->NewInstance();
-  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+  // If removing unused points, traverse the connectivity array to mark the
+  // points that are used by one or more cells. This requires processing all
+  // for input arrays.
+  std::unique_ptr<PointUses[]> uPtUses; // reference counted to prevent leakage
+  PointUses* ptUses = nullptr;
+  if (this->RemoveUnusedPoints)
+  {
+    uPtUses = std::unique_ptr<PointUses[]>(new PointUses[numPts]);
+    ptUses = uPtUses.get();
+    std::fill_n(ptUses, numPts, 0);
+    vtkStaticCleanUnstructuredGrid::MarkPointUses(inVerts, mergeMap.data(), ptUses);
+    vtkStaticCleanUnstructuredGrid::MarkPointUses(inLines, mergeMap.data(), ptUses);
+    vtkStaticCleanUnstructuredGrid::MarkPointUses(inPolys, mergeMap.data(), ptUses);
+    vtkStaticCleanUnstructuredGrid::MarkPointUses(inStrips, mergeMap.data(), ptUses);
+  }
+
+  // Create a map that maps old point ids into new, renumbered point
+  // ids.
+  vtkNew<vtkIdTypeArray> ptMap;
+  ptMap->SetNumberOfTuples(numPts);
+  ptMap->SetName("PointMergeMap");
+  vtkIdType* pmap = ptMap->GetPointer(0);
+  if (this->ProduceMergeMap)
+  {
+    output->GetFieldData()->AddArray(ptMap);
+  }
+
+  // Build the map from old points to new points.
+  vtkIdType numNewPts =
+    vtkStaticCleanUnstructuredGrid::BuildPointMap(numPts, pmap, ptUses, mergeMap);
+
+  // Create new points of the appropriate type
+  vtkNew<vtkPoints> newPts;
+  if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
   {
     newPts->SetDataType(inPts->GetDataType());
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
   {
     newPts->SetDataType(VTK_FLOAT);
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPts->SetDataType(VTK_DOUBLE);
   }
   newPts->SetNumberOfPoints(numNewPts);
+  output->SetPoints(newPts);
 
-  // Now copy points and point data (in parallel)
-  void *inPtr = inPts->GetVoidPointer(0);
-  int inPtsType = inPts->GetDataType();
-  void *outPtr = newPts->GetVoidPointer(0);
-  int outPtsType = newPts->GetDataType();
-
-  switch (vtkTemplate2PackMacro(inPtsType, outPtsType))
+  // Produce output points and associated point data. If point averaging is
+  // requested, then point coordinates and point attribute values must be
+  // combined - a relatively compute intensive process.
+  outPD->CopyAllocate(inPD);
+  if (this->AveragePointData)
   {
-    vtkTemplate2MacroCP((CopyPoints<VTK_T1,VTK_T2>::Execute(numPts, pointMap,
-                        (VTK_T1*)inPtr, inPD, numNewPts, (VTK_T2*)outPtr, outPD)));
-    default:
-      vtkErrorMacro(<<"Type not supported");
-      return 0;
+    vtkStaticCleanUnstructuredGrid::AveragePoints(inPts, inPD, newPts, outPD, pmap, tol);
   }
+  else
+  {
+    vtkStaticCleanUnstructuredGrid::CopyPoints(inPts, inPD, newPts, outPD, pmap);
+  }
+  this->UpdateProgress(0.6);
 
   // Finally, remap the topology to use new point ids. Celldata needs to be
   // copied correctly. If a poly is converted to a line, or a line to a
@@ -283,337 +224,321 @@ int vtkStaticCleanPolyData::RequestData(
   // data lists so we can copy them all correctly. Tedious but easy to
   // implement. We can use outCD for vertex cell data, then add the rest
   // at the end.
-  vtkCellData  *outLineData = nullptr;
-  vtkCellData  *outPolyData = nullptr;
-  vtkCellData  *outStrpData = nullptr;
-  vtkIdType vertIDcounter = 0, lineIDcounter = 0;
-  vtkIdType polyIDcounter = 0, strpIDcounter = 0;
+  vtkSmartPointer<vtkCellData> outLineData;
+  vtkSmartPointer<vtkCellData> outPolyData;
+  vtkSmartPointer<vtkCellData> outStrpData;
+  outCD->CopyAllocate(inCD);
 
-  // Begin to adjust topology.
+  // Begin to adjust topology. We need to cull out duplicate points and see
+  // what's left.  Just use a vector to keep track of unique ids - it's a
+  // small set so find() will execute relatively fast.
+  std::vector<vtkIdType> cellIds;
+  vtkIdType inCellID = 0;
+  vtkIdType progressCounter = 0;
+  vtkIdType checkAbortInterval = 0;
+
   //
   // Vertices are renumbered and we remove duplicates
-  vtkIdType numCellPts;
-  inCellID = 0;
-  if ( !this->GetAbortExecute() && inVerts->GetNumberOfCells() > 0 )
+  if (!this->CheckAbort() && inVerts->GetNumberOfCells() > 0)
   {
-    newVerts = vtkCellArray::New();
+    newVerts.TakeReference(vtkCellArray::New());
     newVerts->AllocateEstimate(inVerts->GetNumberOfCells(), 1);
+    checkAbortInterval = std::min(inVerts->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
 
-    vtkDebugMacro(<<"Starting Verts "<<inCellID);
-    for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts);
-         inCellID++)
+    vtkDebugMacro(<< "Starting Verts " << inCellID);
+    for (inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts); inCellID++)
     {
-      for ( numCellPts=0, i=0; i < npts; i++ )
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
-        ptId = pointMap[pts[i]];
-        updatedPts[numCellPts++] = ptId;
-      }//for all points of vertex cell
+        break;
+      }
 
-      if ( numCellPts > 0 )
+      cellIds.clear();
+      for (i = 0; i < npts; i++)
       {
-        newId = newVerts->InsertNextCell(numCellPts,updatedPts);
-        outCD->CopyData(inCD, inCellID, newId);
-        if ( vertIDcounter != newId)
+        ptId = pmap[pts[i]];
+        if (std::find(cellIds.begin(), cellIds.end(), ptId) == cellIds.end())
         {
-          vtkErrorMacro(<<"Vertex ID fault in vertex test");
+          cellIds.push_back(ptId);
         }
-        vertIDcounter++;
+      } // for all points of vertex cell
+
+      if (!cellIds.empty())
+      {
+        newId = newVerts->InsertNextCell(cellIds.size(), cellIds.data());
+        outCD->CopyData(inCD, inCellID, newId);
       }
     }
   }
-  this->UpdateProgress(0.25);
+  this->UpdateProgress(0.7);
 
   // lines reduced to one point are eliminated or made into verts
-  if ( !this->GetAbortExecute() && inLines->GetNumberOfCells() > 0 )
+  if (!this->CheckAbort() && inLines->GetNumberOfCells() > 0)
   {
-    newLines = vtkCellArray::New();
+    newLines.TakeReference(vtkCellArray::New());
     newLines->AllocateEstimate(inLines->GetNumberOfCells(), 2);
-    outLineData = vtkCellData::New();
+    outLineData.TakeReference(vtkCellData::New());
     outLineData->CopyAllocate(inCD);
+    checkAbortInterval = std::min(inLines->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
+    progressCounter = 0;
     //
-    vtkDebugMacro(<<"Starting Lines "<<inCellID);
-    for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); inCellID++)
+    vtkDebugMacro(<< "Starting Lines " << inCellID);
+    for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts); inCellID++)
     {
-      for ( numCellPts=0, i=0; i<npts; i++ )
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
-        ptId = pointMap[pts[i]];
-        updatedPts[numCellPts++] = ptId;
-      }//for all cell points
-
-      if ( (numCellPts>1) || !this->ConvertLinesToPoints )
-      {
-        newId = newLines->InsertNextCell(numCellPts,updatedPts);
-        outLineData->CopyData(inCD, inCellID, newId);
-        if ( lineIDcounter != newId)
-        {
-          vtkErrorMacro(<<"Line ID fault in line test");
-        }
-        lineIDcounter++;
+        break;
       }
-      else if ( numCellPts==1 )
+      cellIds.clear();
+      for (i = 0; i < npts; i++)
+      {
+        ptId = pmap[pts[i]];
+        if (std::find(cellIds.begin(), cellIds.end(), ptId) == cellIds.end())
+        {
+          cellIds.push_back(ptId);
+        }
+      } // for all cell points
+
+      if (cellIds.size() > 1)
+      {
+        newId = newLines->InsertNextCell(cellIds.size(), cellIds.data());
+        outLineData->CopyData(inCD, inCellID, newId);
+      }
+      else if (cellIds.size() == 1 && this->ConvertLinesToPoints)
       {
         if (!newVerts)
         {
-          newVerts = vtkCellArray::New();
+          newVerts.TakeReference(vtkCellArray::New());
           newVerts->AllocateEstimate(5, 1);
         }
-        newId = newVerts->InsertNextCell(numCellPts,updatedPts);
+        newId = newVerts->InsertNextCell(cellIds.size(), cellIds.data());
         outCD->CopyData(inCD, inCellID, newId);
-        if (vertIDcounter!=newId)
-        {
-          vtkErrorMacro(<<"Vertex ID fault in line test");
-        }
-        vertIDcounter++;
       }
     }
-    vtkDebugMacro(<<"Removed "
-                  << inLines->GetNumberOfCells() - newLines->GetNumberOfCells()
+    vtkDebugMacro(<< "Removed " << inLines->GetNumberOfCells() - newLines->GetNumberOfCells()
                   << " lines");
-
   }
-  this->UpdateProgress(0.50);
+  this->UpdateProgress(0.8);
 
   // polygons reduced to two points or less are either eliminated
   // or converted to lines or points if enabled
-  if ( !this->GetAbortExecute() && inPolys->GetNumberOfCells() > 0 )
+  if (!this->CheckAbort() && inPolys->GetNumberOfCells() > 0)
   {
-    newPolys = vtkCellArray::New();
+    newPolys.TakeReference(vtkCellArray::New());
     newPolys->AllocateCopy(inPolys);
-    outPolyData = vtkCellData::New();
+    outPolyData.TakeReference(vtkCellData::New());
     outPolyData->CopyAllocate(inCD);
+    checkAbortInterval = std::min(inPolys->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
+    progressCounter = 0;
 
-    vtkDebugMacro(<<"Starting Polys "<<inCellID);
-    for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); inCellID++)
+    vtkDebugMacro(<< "Starting Polys " << inCellID);
+    for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts); inCellID++)
     {
-      for ( numCellPts=0, i=0; i<npts; i++ )
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
-        ptId = pointMap[pts[i]];
-        updatedPts[numCellPts++] = ptId;
-      } //for points in cell
+        break;
+      }
 
-      if ( numCellPts>2 && updatedPts[0] == updatedPts[numCellPts-1] )
+      cellIds.clear();
+      for (i = 0; i < npts; i++)
       {
-        numCellPts--;
-      }
-      if ( (numCellPts > 2) || !this->ConvertPolysToLines )
-      {
-        newId = newPolys->InsertNextCell(numCellPts,updatedPts);
-        outPolyData->CopyData(inCD, inCellID, newId);
-        if (polyIDcounter!=newId)
+        ptId = pmap[pts[i]];
+        if (std::find(cellIds.begin(), cellIds.end(), ptId) == cellIds.end())
         {
-          vtkErrorMacro(<<"Poly ID fault in poly test");
+          cellIds.push_back(ptId);
         }
-        polyIDcounter++;
+      } // for points in cell
+
+      if (cellIds.size() > 2)
+      {
+        newId = newPolys->InsertNextCell(cellIds.size(), cellIds.data());
+        outPolyData->CopyData(inCD, inCellID, newId);
       }
-      else if ( (numCellPts==2) || !this->ConvertLinesToPoints )
+      else if (cellIds.size() == 2 && this->ConvertPolysToLines)
       {
         if (!newLines)
         {
-          newLines = vtkCellArray::New();
+          newLines.TakeReference(vtkCellArray::New());
           newLines->AllocateEstimate(5, 2);
-          outLineData = vtkCellData::New();
+          outLineData.TakeReference(vtkCellData::New());
           outLineData->CopyAllocate(inCD);
         }
-        newId = newLines->InsertNextCell(numCellPts,updatedPts);
+        newId = newLines->InsertNextCell(cellIds.size(), cellIds.data());
         outLineData->CopyData(inCD, inCellID, newId);
-        if (lineIDcounter!=newId)
-        {
-          vtkErrorMacro(<<"Line ID fault in poly test");
-        }
-        lineIDcounter++;
       }
-      else if ( numCellPts==1 )
+      else if (cellIds.size() == 1 && this->ConvertLinesToPoints)
       {
         if (!newVerts)
         {
-          newVerts = vtkCellArray::New();
+          newVerts.TakeReference(vtkCellArray::New());
           newVerts->AllocateEstimate(5, 1);
         }
-        newId = newVerts->InsertNextCell(numCellPts,updatedPts);
+        newId = newVerts->InsertNextCell(cellIds.size(), cellIds.data());
         outCD->CopyData(inCD, inCellID, newId);
-        if (vertIDcounter!=newId)
-        {
-          vtkErrorMacro(<<"Vertex ID fault in poly test");
-        }
-        vertIDcounter++;
       }
     }
-    vtkDebugMacro(<<"Removed "
-           << inPolys->GetNumberOfCells() - newPolys->GetNumberOfCells()
-           << " polys");
+    vtkDebugMacro(<< "Removed " << inPolys->GetNumberOfCells() - newPolys->GetNumberOfCells()
+                  << " polys");
   }
-  this->UpdateProgress(0.75);
+  this->UpdateProgress(0.9);
 
   // triangle strips can reduced to polys/lines/points etc
-  if ( !this->GetAbortExecute() && inStrips->GetNumberOfCells() > 0 )
+  if (!this->CheckAbort() && inStrips->GetNumberOfCells() > 0)
   {
-    newStrips = vtkCellArray::New();
+    newStrips.TakeReference(vtkCellArray::New());
     newStrips->AllocateCopy(inStrips);
-    outStrpData = vtkCellData::New();
+    outStrpData.TakeReference(vtkCellData::New());
     outStrpData->CopyAllocate(inCD);
+    checkAbortInterval = std::min(inStrips->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
+    progressCounter = 0;
 
-    for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts);
-         inCellID++)
+    for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts); inCellID++)
     {
-      for ( numCellPts=0, i=0; i < npts; i++ )
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
-        ptId = pointMap[pts[i]];
-        updatedPts[numCellPts++] = ptId;
+        break;
       }
-      if ( (numCellPts > 3) || !this->ConvertStripsToPolys )
+
+      cellIds.clear();
+      for (i = 0; i < npts; i++)
       {
-        newId = newStrips->InsertNextCell(numCellPts,updatedPts);
-        outStrpData->CopyData(inCD, inCellID, newId);
-        if (strpIDcounter!=newId)
+        ptId = pmap[pts[i]];
+        if (std::find(cellIds.begin(), cellIds.end(), ptId) == cellIds.end())
         {
-          vtkErrorMacro(<<"Strip ID fault in strip test");
+          cellIds.push_back(ptId);
         }
-        strpIDcounter++;
       }
-      else if ( (numCellPts==3) || !this->ConvertPolysToLines )
+      if (cellIds.size() > 3)
+      {
+        newId = newStrips->InsertNextCell(cellIds.size(), cellIds.data());
+        outStrpData->CopyData(inCD, inCellID, newId);
+      }
+      else if (cellIds.size() == 3 && this->ConvertStripsToPolys)
       {
         if (!newPolys)
         {
-          newPolys = vtkCellArray::New();
+          newPolys.TakeReference(vtkCellArray::New());
           newPolys->AllocateEstimate(5, 3);
-          outPolyData = vtkCellData::New();
+          outPolyData.TakeReference(vtkCellData::New());
           outPolyData->CopyAllocate(inCD);
         }
-        newId = newPolys->InsertNextCell(numCellPts,updatedPts);
+        newId = newPolys->InsertNextCell(cellIds.size(), cellIds.data());
         outPolyData->CopyData(inCD, inCellID, newId);
-        if (polyIDcounter!=newId)
-        {
-          vtkErrorMacro(<<"Poly ID fault in strip test");
-        }
-        polyIDcounter++;
       }
-      else if ( (numCellPts==2) || !this->ConvertLinesToPoints )
+      else if (cellIds.size() == 2 && this->ConvertPolysToLines)
       {
         if (!newLines)
         {
-          newLines = vtkCellArray::New();
+          newLines.TakeReference(vtkCellArray::New());
           newLines->AllocateEstimate(5, 2);
-          outLineData = vtkCellData::New();
+          outLineData.TakeReference(vtkCellData::New());
           outLineData->CopyAllocate(inCD);
         }
-        newId = newLines->InsertNextCell(numCellPts,updatedPts);
+        newId = newLines->InsertNextCell(cellIds.size(), cellIds.data());
         outLineData->CopyData(inCD, inCellID, newId);
-        if (lineIDcounter!=newId)
-        {
-          vtkErrorMacro(<<"Line ID fault in strip test");
-        }
-        lineIDcounter++;
       }
-      else if ( numCellPts==1 )
+      else if (cellIds.size() == 1 && this->ConvertLinesToPoints)
       {
         if (!newVerts)
         {
-          newVerts = vtkCellArray::New();
+          newVerts.TakeReference(vtkCellArray::New());
           newVerts->AllocateEstimate(5, 1);
         }
-        newId = newVerts->InsertNextCell(numCellPts,updatedPts);
+        newId = newVerts->InsertNextCell(cellIds.size(), cellIds.data());
         outCD->CopyData(inCD, inCellID, newId);
-        if (vertIDcounter!=newId)
-        {
-          vtkErrorMacro(<<"Vertex ID fault in strip test");
-        }
-        vertIDcounter++;
       }
     }
-    vtkDebugMacro(<<"Removed "
-              << inStrips->GetNumberOfCells() - newStrips->GetNumberOfCells()
-              << " strips");
+    vtkDebugMacro(<< "Removed " << inStrips->GetNumberOfCells() - newStrips->GetNumberOfCells()
+                  << " strips");
   }
 
-  vtkDebugMacro(<<"Removed "
-                << numNewPts - newPts->GetNumberOfPoints() << " points");
+  vtkDebugMacro(<< "Removed " << numNewPts - newPts->GetNumberOfPoints() << " points");
 
   // Update ourselves and release memory
   //
-  this->Locator->Initialize(); //release memory.
-  delete [] updatedPts;
-  delete [] pointMap;
+  this->Locator->Initialize(); // release memory.
 
   // Now transfer all CellData from Lines/Polys/Strips into final
-  // Cell data output
-  vtkIdType combinedCellID = vertIDcounter;
+  // cell attribute data. The vertex cell data has already been inserted.
+  vtkIdType cellCounter = (newVerts == nullptr ? 0 : newVerts->GetNumberOfCells());
+  vtkIdType lineCounter = (newLines == nullptr ? 0 : newLines->GetNumberOfCells());
+  vtkIdType polyCounter = (newPolys == nullptr ? 0 : newPolys->GetNumberOfCells());
+  vtkIdType strpCounter = (newStrips == nullptr ? 0 : newStrips->GetNumberOfCells());
+
   if (newLines)
   {
-    for (i=0; i<lineIDcounter; ++i, ++combinedCellID)
+    for (i = 0; i < lineCounter; ++i, ++cellCounter)
     {
-      outCD->CopyData(outLineData, i, combinedCellID);
+      outCD->CopyData(outLineData, i, cellCounter);
     }
-    outLineData->Delete();
   }
   if (newPolys)
   {
-    for (i=0; i<polyIDcounter; ++i, ++combinedCellID)
+    for (i = 0; i < polyCounter; ++i, ++cellCounter)
     {
-      outCD->CopyData(outPolyData, i, combinedCellID);
+      outCD->CopyData(outPolyData, i, cellCounter);
     }
-    outPolyData->Delete();
   }
   if (newStrips)
   {
-    for (i=0; i<strpIDcounter;++ i, ++combinedCellID)
+    for (i = 0; i < strpCounter; ++i, ++cellCounter)
     {
-      outCD->CopyData(outStrpData, i, combinedCellID);
+      outCD->CopyData(outStrpData, i, cellCounter);
     }
-    outStrpData->Delete();
   }
 
-  output->SetPoints(newPts);
-  newPts->Delete();
+  // Update the output connectivity
   if (newVerts)
   {
     output->SetVerts(newVerts);
-    newVerts->Delete();
   }
   if (newLines)
   {
     output->SetLines(newLines);
-    newLines->Delete();
   }
   if (newPolys)
   {
     output->SetPolys(newPolys);
-    newPolys->Delete();
   }
   if (newStrips)
   {
     output->SetStrips(newStrips);
-    newStrips->Delete();
   }
 
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkStaticCleanPolyData::GetMTime()
 {
-  vtkMTimeType mTime=this->vtkObject::GetMTime();
+  vtkMTimeType mTime = this->vtkObject::GetMTime();
   vtkMTimeType time = this->Locator->GetMTime();
-  return ( time > mTime ? time : mTime );
+  return (time > mTime ? time : mTime);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStaticCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "ToleranceIsAbsolute: "
-     << (this->ToleranceIsAbsolute ? "On\n" : "Off\n");
-  os << indent << "Tolerance: "
-     << (this->Tolerance ? "On\n" : "Off\n");
-  os << indent << "AbsoluteTolerance: "
-     << (this->AbsoluteTolerance ? "On\n" : "Off\n");
-  os << indent << "ConvertPolysToLines: "
-     << (this->ConvertPolysToLines ? "On\n" : "Off\n");
-  os << indent << "ConvertLinesToPoints: "
-     << (this->ConvertLinesToPoints ? "On\n" : "Off\n");
-  os << indent << "ConvertStripsToPolys: "
-     << (this->ConvertStripsToPolys ? "On\n" : "Off\n");
-  if ( this->Locator )
+  os << indent << "ToleranceIsAbsolute: " << (this->ToleranceIsAbsolute ? "On\n" : "Off\n");
+  os << indent << "Tolerance: " << (this->Tolerance ? "On\n" : "Off\n");
+  os << indent << "AbsoluteTolerance: " << (this->AbsoluteTolerance ? "On\n" : "Off\n");
+
+  if (this->MergingArray)
+  {
+    os << indent << "Merging Array: " << this->MergingArray << "\n";
+  }
+  else
+  {
+    os << indent << "Merging Array: (none)\n";
+  }
+
+  os << indent << "ConvertPolysToLines: " << (this->ConvertPolysToLines ? "On\n" : "Off\n");
+  os << indent << "ConvertLinesToPoints: " << (this->ConvertLinesToPoints ? "On\n" : "Off\n");
+  os << indent << "ConvertStripsToPolys: " << (this->ConvertStripsToPolys ? "On\n" : "Off\n");
+
+  if (this->Locator)
   {
     os << indent << "Locator: " << this->Locator << "\n";
   }
@@ -621,8 +546,10 @@ void vtkStaticCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Locator: (none)\n";
   }
-  os << indent << "PieceInvariant: "
-     << (this->PieceInvariant ? "On\n" : "Off\n");
-  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
-     << "\n";
+  os << indent << "Remove Unused Points: " << (this->RemoveUnusedPoints ? "On\n" : "Off\n");
+  os << indent << "Produce Merge Map: " << (this->ProduceMergeMap ? "On\n" : "Off\n");
+  os << indent << "Average Point Data: " << (this->AveragePointData ? "On\n" : "Off\n");
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
+  os << indent << "PieceInvariant: " << (this->PieceInvariant ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

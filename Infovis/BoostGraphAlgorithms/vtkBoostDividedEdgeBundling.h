@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBoostDividedEdgeBundling.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkBoostDividedEdgeBundling
  * @brief   layout graph edges in directed edge bundles
@@ -37,31 +21,34 @@
  * This algorithm was developed in the paper:
  *   David Selassie, Brandon Heller, Jeffrey Heer. Divided Edge Bundling for Directional
  *   Network Data. Proceedings of IEEE InfoVis 2011.
-*/
+ */
 
 #ifndef vtkBoostDividedEdgeBundling_h
 #define vtkBoostDividedEdgeBundling_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
-class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostDividedEdgeBundling : public vtkDirectedGraphAlgorithm
+VTK_ABI_NAMESPACE_BEGIN
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostDividedEdgeBundling
+  : public vtkDirectedGraphAlgorithm
 {
 public:
-  static vtkBoostDividedEdgeBundling *New();
+  static vtkBoostDividedEdgeBundling* New();
 
-  vtkTypeMacro(vtkBoostDividedEdgeBundling,vtkDirectedGraphAlgorithm);
+  vtkTypeMacro(vtkBoostDividedEdgeBundling, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkBoostDividedEdgeBundling();
-  ~vtkBoostDividedEdgeBundling() {}
+  ~vtkBoostDividedEdgeBundling() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkBoostDividedEdgeBundling(const vtkBoostDividedEdgeBundling&) = delete;
   void operator=(const vtkBoostDividedEdgeBundling&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

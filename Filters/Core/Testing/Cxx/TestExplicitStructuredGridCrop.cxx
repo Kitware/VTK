@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestExplicitStructuredGridCrop.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Description
 // This test read a unstructured grid and crop an explicit grid using
@@ -30,12 +18,12 @@
 #include "vtkUnstructuredGridToExplicitStructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-int TestExplicitStructuredGridCrop(int argc, char *argv[])
+int TestExplicitStructuredGridCrop(int argc, char* argv[])
 {
   vtkNew<vtkXMLUnstructuredGridReader> reader;
-  char *fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/explicitStructuredGrid.vtu");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/explicitStructuredGrid.vtu");
   reader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
   reader->Update();
 
   vtkNew<vtkUnstructuredGridToExplicitStructuredGrid> esgConvertor;

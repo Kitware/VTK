@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSocket.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSocket
  * @brief   BSD socket encapsulation.
  *
  * This abstract class encapsulates a BSD socket. It provides an API for
  * basic socket operations.
-*/
+ */
 
 #ifndef vtkSocket_h
 #define vtkSocket_h
@@ -26,6 +14,7 @@
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSocketCollection;
 class VTKCOMMONSYSTEM_EXPORT vtkSocket : public vtkObject
 {
@@ -37,7 +26,7 @@ public:
   /**
    * Check is the socket is alive.
    */
-  int GetConnected() { return (this->SocketDescriptor >=0); }
+  int GetConnected() { return (this->SocketDescriptor >= 0); }
 
   /**
    * Close the socket.
@@ -59,7 +48,7 @@ public:
    * 0 on error, else number of bytes read is returned. On error,
    * vtkCommand::ErrorEvent is raised.
    */
-  int Receive(void* data, int length, int readFully=1);
+  int Receive(void* data, int length, int readFully = 1);
 
   /**
    * Provides access to the internal socket descriptor. This is valid only when
@@ -72,8 +61,8 @@ public:
    * 1 on success. Selected socket's index is returned through
    * selected_index
    */
-  static int SelectSockets(const int* sockets_to_select, int size,
-    unsigned long msec, int* selected_index);
+  static int SelectSockets(
+    const int* sockets_to_select, int size, unsigned long msec, int* selected_index);
 
 protected:
   vtkSocket();
@@ -134,6 +123,5 @@ private:
   void operator=(const vtkSocket&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif
-

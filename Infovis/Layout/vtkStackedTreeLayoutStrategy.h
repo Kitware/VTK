@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStackedTreeLayoutStrategy.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkStackedTreeLayoutStrategy
  * @brief   lays out tree in stacked boxes or rings
@@ -32,23 +16,23 @@
  * @par Thanks:
  * Thanks to Jason Shepherd from Sandia National Laboratories
  * for help developing this class.
-*/
+ */
 
 #ifndef vtkStackedTreeLayoutStrategy_h
 #define vtkStackedTreeLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkAreaLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 class vtkDataArray;
 
-class VTKINFOVISLAYOUT_EXPORT vtkStackedTreeLayoutStrategy :
-  public vtkAreaLayoutStrategy
+class VTKINFOVISLAYOUT_EXPORT vtkStackedTreeLayoutStrategy : public vtkAreaLayoutStrategy
 {
 public:
   static vtkStackedTreeLayoutStrategy* New();
-  vtkTypeMacro(vtkStackedTreeLayoutStrategy,vtkAreaLayoutStrategy);
+  vtkTypeMacro(vtkStackedTreeLayoutStrategy, vtkAreaLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -57,33 +41,32 @@ public:
    * (innerRadius, outerRadius, startAngle, endAngle)
    * in a data array.
    */
-  void Layout(vtkTree *inputTree, vtkDataArray *sectorArray,
-      vtkDataArray* sizeArray) override;
+  void Layout(vtkTree* inputTree, vtkDataArray* sectorArray, vtkDataArray* sizeArray) override;
 
   /**
    * Fill edgeRoutingTree with points suitable for routing edges of
    * an overlaid graph.
    */
-  void LayoutEdgePoints(vtkTree *inputTree, vtkDataArray *sectorArray,
-      vtkDataArray* sizeArray, vtkTree *edgeRoutingTree) override;
+  void LayoutEdgePoints(vtkTree* inputTree, vtkDataArray* sectorArray, vtkDataArray* sizeArray,
+    vtkTree* edgeRoutingTree) override;
 
-  //@{
+  ///@{
   /**
    * Define the tree ring's interior radius.
    */
   vtkSetMacro(InteriorRadius, double);
   vtkGetMacro(InteriorRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the thickness of each of the tree rings.
    */
   vtkSetMacro(RingThickness, double);
   vtkGetMacro(RingThickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the start angle for the root node.
    * NOTE: It is assumed that the root end angle is greater than the
@@ -91,9 +74,9 @@ public:
    */
   vtkSetMacro(RootStartAngle, double);
   vtkGetMacro(RootStartAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the end angle for the root node.
    * NOTE: It is assumed that the root end angle is greater than the
@@ -101,9 +84,9 @@ public:
    */
   vtkSetMacro(RootEndAngle, double);
   vtkGetMacro(RootEndAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define whether or not rectangular coordinates are being used
    * (as opposed to polar coordinates).
@@ -111,9 +94,9 @@ public:
   vtkSetMacro(UseRectangularCoordinates, bool);
   vtkGetMacro(UseRectangularCoordinates, bool);
   vtkBooleanMacro(UseRectangularCoordinates, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define whether to reverse the order of the tree stacks from
    * low to high.
@@ -121,9 +104,9 @@ public:
   vtkSetMacro(Reverse, bool);
   vtkGetMacro(Reverse, bool);
   vtkBooleanMacro(Reverse, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The spacing of tree levels in the edge routing tree.
    * Levels near zero give more space
@@ -133,7 +116,7 @@ public:
    */
   vtkSetMacro(InteriorLogSpacingValue, double);
   vtkGetMacro(InteriorLogSpacingValue, double);
-  //@}
+  ///@}
 
   /**
    * Returns the vertex id that contains pnt (or -1 if no one contains it).
@@ -152,18 +135,16 @@ protected:
   bool Reverse;
   double InteriorLogSpacingValue;
 
-  void ComputeEdgeRoutingPoints(
-      vtkTree* inputTree, vtkDataArray* coordsArray, vtkTree* outputTree);
+  void ComputeEdgeRoutingPoints(vtkTree* inputTree, vtkDataArray* coordsArray, vtkTree* outputTree);
 
-  void LayoutChildren(
-      vtkTree *tree, vtkDataArray *coordsArray, vtkDataArray *sizeArray,
-      vtkIdType nchildren, vtkIdType parent, vtkIdType begin,
-      float parentInnerRad, float parentOuterRad,
-      float parentStartAng, float parentEndAng);
+  void LayoutChildren(vtkTree* tree, vtkDataArray* coordsArray, vtkDataArray* sizeArray,
+    vtkIdType nchildren, vtkIdType parent, vtkIdType begin, float parentInnerRad,
+    float parentOuterRad, float parentStartAng, float parentEndAng);
 
 private:
   vtkStackedTreeLayoutStrategy(const vtkStackedTreeLayoutStrategy&) = delete;
   void operator=(const vtkStackedTreeLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

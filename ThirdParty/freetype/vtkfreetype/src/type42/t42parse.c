@@ -4,7 +4,7 @@
  *
  *   Type 42 font parser (body).
  *
- * Copyright (C) 2002-2019 by
+ * Copyright (C) 2002-2022 by
  * Roberto Alameda.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -18,9 +18,9 @@
 
 #include "t42parse.h"
 #include "t42error.h"
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_STREAM_H
-#include FT_INTERNAL_POSTSCRIPT_AUX_H
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftstream.h>
+#include <freetype/internal/psaux.h>
 
 
   /**************************************************************************
@@ -197,7 +197,7 @@
     else
     {
       /* read segment in memory */
-      if ( FT_ALLOC( parser->base_dict, size )       ||
+      if ( FT_QALLOC( parser->base_dict, size )      ||
            FT_STREAM_READ( parser->base_dict, size ) )
         goto Exit;
 
@@ -226,7 +226,8 @@
     if ( !parser->in_memory )
       FT_FREE( parser->base_dict );
 
-    parser->root.funcs.done( &parser->root );
+    if ( parser->root.funcs.done )
+      parser->root.funcs.done( &parser->root );
   }
 
 
@@ -362,8 +363,8 @@
 
       /* we use a T1_Table to store our charnames */
       loader->num_chars = encode->num_chars = count;
-      if ( FT_NEW_ARRAY( encode->char_index, count )     ||
-           FT_NEW_ARRAY( encode->char_name,  count )     ||
+      if ( FT_QNEW_ARRAY( encode->char_index, count )    ||
+           FT_QNEW_ARRAY( encode->char_name,  count )    ||
            FT_SET_ERROR( psaux->ps_table_funcs->init(
                            char_table, count, memory ) ) )
       {
@@ -373,12 +374,7 @@
 
       /* We need to `zero' out encoding_table.elements */
       for ( n = 0; n < count; n++ )
-      {
-        char*  notdef = (char *)".notdef";
-
-
-        (void)T1_Add_Table( char_table, n, notdef, 8 );
-      }
+        (void)T1_Add_Table( char_table, n, ".notdef", 8 );
 
       /* Now we need to read records of the form                */
       /*                                                        */
@@ -542,7 +538,8 @@
     FT_Byte*    limit  = parser->root.limit;
     FT_Error    error;
     FT_Int      num_tables = 0;
-    FT_Long     count;
+    FT_Long     ttf_count;
+    FT_Long     ttf_reserved;
 
     FT_ULong    n, string_size, old_string_size, real_size;
     FT_Byte*    string_buf = NULL;
@@ -550,6 +547,9 @@
 
     T42_Load_Status  status;
 
+    /** There should only be one sfnts array, but free any previous. */
+    FT_FREE( face->ttf_data );
+    face->ttf_size = 0;
 
     /* The format is                                */
     /*                                              */
@@ -578,7 +578,13 @@
     status          = BEFORE_START;
     string_size     = 0;
     old_string_size = 0;
-    count           = 0;
+    ttf_count       = 0;
+    ttf_reserved    = 12;
+    if ( FT_QALLOC( face->ttf_data, ttf_reserved ) )
+      goto Fail;
+
+    FT_TRACE2(( "\n" ));
+    FT_TRACE2(( "t42_parse_sfnts:\n" ));
 
     while ( parser->root.cursor < limit )
     {
@@ -590,6 +596,7 @@
       if ( *cur == ']' )
       {
         parser->root.cursor++;
+        face->ttf_size = ttf_count;
         goto Exit;
       }
 
@@ -615,7 +622,7 @@
           error = FT_THROW( Invalid_File_Format );
           goto Fail;
         }
-        if ( FT_REALLOC( string_buf, old_string_size, string_size ) )
+        if ( FT_QREALLOC( string_buf, old_string_size, string_size ) )
           goto Fail;
 
         allocated = 1;
@@ -684,6 +691,9 @@
         goto Fail;
       }
 
+      FT_TRACE2(( "  PS string size %5lu bytes, offset 0x%08lx (%lu)\n",
+                  string_size, ttf_count, ttf_count ));
+
       /* The whole TTF is now loaded into `string_buf'.  We are */
       /* checking its contents while copying it to `ttf_data'.  */
 
@@ -695,41 +705,53 @@
         {
         case BEFORE_START:
           /* load offset table, 12 bytes */
-          if ( count < 12 )
+          if ( ttf_count < 12 )
           {
-            face->ttf_data[count++] = string_buf[n];
+            face->ttf_data[ttf_count++] = string_buf[n];
             continue;
           }
           else
           {
-            num_tables     = 16 * face->ttf_data[4] + face->ttf_data[5];
-            status         = BEFORE_TABLE_DIR;
-            face->ttf_size = 12 + 16 * num_tables;
+            FT_Long ttf_reserved_prev = ttf_reserved;
 
-            if ( (FT_Long)size < face->ttf_size )
+
+            num_tables   = 16 * face->ttf_data[4] + face->ttf_data[5];
+            status       = BEFORE_TABLE_DIR;
+            ttf_reserved = 12 + 16 * num_tables;
+
+            FT_TRACE2(( "  SFNT directory contains %d tables\n",
+                        num_tables ));
+
+            if ( (FT_Long)size < ttf_reserved )
             {
               FT_ERROR(( "t42_parse_sfnts: invalid data in sfnts array\n" ));
               error = FT_THROW( Invalid_File_Format );
               goto Fail;
             }
 
-            if ( FT_REALLOC( face->ttf_data, 12, face->ttf_size ) )
+            if ( FT_QREALLOC( face->ttf_data, ttf_reserved_prev,
+                              ttf_reserved ) )
               goto Fail;
           }
           /* fall through */
 
         case BEFORE_TABLE_DIR:
           /* the offset table is read; read the table directory */
-          if ( count < face->ttf_size )
+          if ( ttf_count < ttf_reserved )
           {
-            face->ttf_data[count++] = string_buf[n];
+            face->ttf_data[ttf_count++] = string_buf[n];
             continue;
           }
           else
           {
             int       i;
             FT_ULong  len;
+            FT_Long ttf_reserved_prev = ttf_reserved;
 
+
+            FT_TRACE2(( "\n" ));
+            FT_TRACE2(( "  table    length\n" ));
+            FT_TRACE2(( "  ------------------------------\n" ));
 
             for ( i = 0; i < num_tables; i++ )
             {
@@ -737,8 +759,10 @@
 
 
               len = FT_PEEK_ULONG( p );
+              FT_TRACE2(( "   %4i  0x%08lx (%lu)\n", i, len, len ));
+
               if ( len > size                               ||
-                   face->ttf_size > (FT_Long)( size - len ) )
+                   ttf_reserved > (FT_Long)( size - len ) )
               {
                 FT_ERROR(( "t42_parse_sfnts:"
                            " invalid data in sfnts array\n" ));
@@ -747,26 +771,31 @@
               }
 
               /* Pad to a 4-byte boundary length */
-              face->ttf_size += (FT_Long)( ( len + 3 ) & ~3U );
+              ttf_reserved += (FT_Long)( ( len + 3 ) & ~3U );
             }
+            ttf_reserved += 1;
 
             status = OTHER_TABLES;
 
-            if ( FT_REALLOC( face->ttf_data, 12 + 16 * num_tables,
-                             face->ttf_size + 1 ) )
+            FT_TRACE2(( "\n" ));
+            FT_TRACE2(( "  allocating %ld bytes\n", ttf_reserved ));
+            FT_TRACE2(( "\n" ));
+
+            if ( FT_QREALLOC( face->ttf_data, ttf_reserved_prev,
+                              ttf_reserved ) )
               goto Fail;
           }
           /* fall through */
 
         case OTHER_TABLES:
           /* all other tables are just copied */
-          if ( count >= face->ttf_size )
+          if ( ttf_count >= ttf_reserved )
           {
             FT_ERROR(( "t42_parse_sfnts: too much binary data\n" ));
             error = FT_THROW( Invalid_File_Format );
             goto Fail;
           }
-          face->ttf_data[count++] = string_buf[n];
+          face->ttf_data[ttf_count++] = string_buf[n];
         }
       }
 
@@ -780,6 +809,11 @@
     parser->root.error = error;
 
   Exit:
+    if ( parser->root.error )
+    {
+      FT_FREE( face->ttf_data );
+      face->ttf_size = 0;
+    }
     if ( allocated )
       FT_FREE( string_buf );
   }
@@ -830,7 +864,7 @@
       if ( loader->num_glyphs > ( limit - parser->root.cursor ) >> 2 )
       {
         FT_TRACE0(( "t42_parse_charstrings: adjusting number of glyphs"
-                    " (from %d to %d)\n",
+                    " (from %d to %ld)\n",
                     loader->num_glyphs,
                     ( limit - parser->root.cursor ) >> 2 ));
         loader->num_glyphs = ( limit - parser->root.cursor ) >> 2;
@@ -1021,8 +1055,7 @@
     }
 
     /* if /.notdef does not occupy index 0, do our magic. */
-    if ( ft_strcmp( (const char*)".notdef",
-                    (const char*)name_table->elements[0] ) )
+    if ( ft_strcmp( ".notdef", (const char*)name_table->elements[0] ) )
     {
       /* Swap glyph in index 0 with /.notdef glyph.  First, add index 0  */
       /* name and code entries to swap_table.  Then place notdef_index   */

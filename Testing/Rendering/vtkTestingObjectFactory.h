@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTestingObjectFactory.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyrgight notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef vtkTestingObjectFactory_h
 #define vtkTestingObjectFactory_h
 
@@ -28,7 +16,7 @@
  * Start() method just returns.
  * To use this factory:
  * \code
-*/
+ */
 
 #include "vtkTestingRenderingModule.h" // For export macro
 //   #include "vtkTestingObjectFactory.h"
@@ -38,23 +26,24 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkTesting.h"            // Required for testing framework
-#include "vtkTestDriver.h"         // Required for testing framework
-#include "vtkTestingInteractor.h"  // Required for testing framework
-#include "vtkSmartPointer.h"       // Required for testing framework
+#include "vtkSmartPointer.h"      // Required for testing framework
+#include "vtkTestDriver.h"        // Required for testing framework
+#include "vtkTesting.h"           // Required for testing framework
+#include "vtkTestingInteractor.h" // Required for testing framework
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKTESTINGRENDERING_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
 {
 public:
   static vtkTestingObjectFactory* New();
-  vtkTypeMacro(vtkTestingObjectFactory,vtkObjectFactory);
+  vtkTypeMacro(vtkTestingObjectFactory, vtkObjectFactory);
   const char* GetVTKSourceVersion() override;
   const char* GetDescription() override { return "Factory for overrides during testing"; }
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   /**
-   * Register objects that override vtk objects whem they are run as tests.
+   * Register objects that override vtk objects when they are run as tests.
    */
   vtkTestingObjectFactory();
 
@@ -62,4 +51,5 @@ private:
   vtkTestingObjectFactory(const vtkTestingObjectFactory&) = delete;
   void operator=(const vtkTestingObjectFactory&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

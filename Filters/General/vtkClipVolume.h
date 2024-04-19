@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkClipVolume.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkClipVolume
  * @brief   clip volume data with user-specified implicit function or input scalar data
@@ -56,7 +44,7 @@
  *
  * @sa
  * vtkImplicitFunction vtkClipPolyData vtkGeometryFilter vtkExtractGeometry
-*/
+ */
 
 #ifndef vtkClipVolume_h
 #define vtkClipVolume_h
@@ -64,6 +52,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkDataArray;
 class vtkIdList;
@@ -83,26 +72,26 @@ class vtkUnsignedCharArray;
 class VTKFILTERSGENERAL_EXPORT vtkClipVolume : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeMacro(vtkClipVolume,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkClipVolume, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with user-specified implicit function; InsideOut turned off;
    * value set to 0.0; and generate clip scalars turned off.
    */
-  static vtkClipVolume *New();
+  static vtkClipVolume* New();
 
-  //@{
+  ///@{
   /**
    * Set the clipping value of the implicit function (if clipping with
    * implicit function) or scalar value (if clipping with scalars). The
    * default value is 0.0.
    */
-  vtkSetMacro(Value,double);
-  vtkGetMacro(Value,double);
-  //@}
+  vtkSetMacro(Value, double);
+  vtkGetMacro(Value, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the InsideOut flag. When off, a vertex is considered inside the
    * implicit function if its value is greater than the Value ivar. When
@@ -110,78 +99,78 @@ public:
    * function if its implicit function value is less than or equal to the
    * Value ivar.  InsideOut is off by default.
    */
-  vtkSetMacro(InsideOut,vtkTypeBool);
-  vtkGetMacro(InsideOut,vtkTypeBool);
-  vtkBooleanMacro(InsideOut,vtkTypeBool);
-  //@}
+  vtkSetMacro(InsideOut, vtkTypeBool);
+  vtkGetMacro(InsideOut, vtkTypeBool);
+  vtkBooleanMacro(InsideOut, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function with which to perform the clipping. If you
    * do not define an implicit function, then the input scalar data will be
    * used for clipping.
    */
   virtual void SetClipFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
-  //@}
+  vtkGetObjectMacro(ClipFunction, vtkImplicitFunction);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this flag is enabled, then the output scalar values will be
    * interpolated from the implicit function values, and not the
    * input scalar data. If you enable this flag but do not provide an
    * implicit function an error will be reported.
    */
-  vtkSetMacro(GenerateClipScalars,vtkTypeBool);
-  vtkGetMacro(GenerateClipScalars,vtkTypeBool);
-  vtkBooleanMacro(GenerateClipScalars,vtkTypeBool);
-  //@}
+  vtkSetMacro(GenerateClipScalars, vtkTypeBool);
+  vtkGetMacro(GenerateClipScalars, vtkTypeBool);
+  vtkBooleanMacro(GenerateClipScalars, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether a second output is generated. The second output
    * contains the unstructured grid that's been clipped away.
    */
-  vtkSetMacro(GenerateClippedOutput,vtkTypeBool);
-  vtkGetMacro(GenerateClippedOutput,vtkTypeBool);
-  vtkBooleanMacro(GenerateClippedOutput,vtkTypeBool);
-  //@}
+  vtkSetMacro(GenerateClippedOutput, vtkTypeBool);
+  vtkGetMacro(GenerateClippedOutput, vtkTypeBool);
+  vtkBooleanMacro(GenerateClippedOutput, vtkTypeBool);
+  ///@}
 
   /**
    * Return the clipped output.
    */
-  vtkUnstructuredGrid *GetClippedOutput();
+  vtkUnstructuredGrid* GetClippedOutput();
 
-  //@{
+  ///@{
   /**
    * Control whether the filter produces a mix of 3D cell types on output, or
    * whether the output cells are all tetrahedra. By default, a mixed set of
    * cells (e.g., tetrahedra and wedges) is produced. (Note: mixed type
    * generation is faster and less overall data is generated.)
    */
-  vtkSetMacro(Mixed3DCellGeneration,vtkTypeBool);
-  vtkGetMacro(Mixed3DCellGeneration,vtkTypeBool);
-  vtkBooleanMacro(Mixed3DCellGeneration,vtkTypeBool);
-  //@}
+  vtkSetMacro(Mixed3DCellGeneration, vtkTypeBool);
+  vtkGetMacro(Mixed3DCellGeneration, vtkTypeBool);
+  vtkBooleanMacro(Mixed3DCellGeneration, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance for merging clip intersection points that are near
    * the corners of voxels. This tolerance is used to prevent the generation
    * of degenerate tetrahedra.
    */
-  vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
-  vtkGetMacro(MergeTolerance,double);
-  //@}
+  vtkSetClampMacro(MergeTolerance, double, 0.0001, 0.25);
+  vtkGetMacro(MergeTolerance, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get a spatial locator for merging points. By default,
    * an instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
-  //@}
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The
@@ -195,49 +184,47 @@ public:
   vtkMTimeType GetMTime() override;
 
 protected:
-  vtkClipVolume(vtkImplicitFunction *cf=nullptr);
+  vtkClipVolume(vtkImplicitFunction* cf = nullptr);
   ~vtkClipVolume() override;
 
   void ReportReferences(vtkGarbageCollector*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void ClipTets(double value, vtkTetra *clipTetra, vtkDataArray *clipScalars,
-                vtkDataArray *cellScalars, vtkIdList *tetraIds,
-                vtkPoints *tetraPts, vtkPointData *inPD, vtkPointData *outPD,
-                vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
-                vtkCellData *clippedCD, int insideOut);
-  void ClipVoxel(double value, vtkDataArray *cellScalars, int flip,
-                 double origin[3], double spacing[3], vtkIdList *cellIds,
-                 vtkPoints *cellPts, vtkPointData *inPD, vtkPointData *outPD,
-                 vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
-                 vtkCellData *clippedCD);
+  void ClipTets(double value, vtkTetra* clipTetra, vtkDataArray* clipScalars,
+    vtkDataArray* cellScalars, vtkIdList* tetraIds, vtkPoints* tetraPts, vtkPointData* inPD,
+    vtkPointData* outPD, vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD,
+    vtkCellData* clippedCD, int insideOut);
+  void ClipVoxel(double value, vtkDataArray* cellScalars, int flip, double origin[3],
+    double spacing[3], vtkIdList* cellIds, vtkPoints* cellPts, vtkPointData* inPD,
+    vtkPointData* outPD, vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD,
+    vtkCellData* clippedCD);
 
-  vtkImplicitFunction *ClipFunction;
-  vtkIncrementalPointLocator     *Locator;
-  vtkTypeBool                  InsideOut;
-  double                Value;
-  vtkTypeBool                  GenerateClipScalars;
-  double                MergeTolerance;
-  vtkTypeBool                  Mixed3DCellGeneration;
-  vtkTypeBool                  GenerateClippedOutput;
-  vtkUnstructuredGrid *ClippedOutput;
+  vtkImplicitFunction* ClipFunction;
+  vtkIncrementalPointLocator* Locator;
+  vtkTypeBool InsideOut;
+  double Value;
+  vtkTypeBool GenerateClipScalars;
+  double MergeTolerance;
+  vtkTypeBool Mixed3DCellGeneration;
+  vtkTypeBool GenerateClippedOutput;
+  vtkUnstructuredGrid* ClippedOutput;
 
 private:
-  vtkOrderedTriangulator *Triangulator;
+  vtkOrderedTriangulator* Triangulator;
 
   // Used temporarily to pass data around
-  vtkIdType             NumberOfCells;
-  vtkCellArray          *Connectivity;
-  vtkUnsignedCharArray  *Types;
-  vtkIdType             NumberOfClippedCells;
-  vtkCellArray          *ClippedConnectivity;
-  vtkUnsignedCharArray  *ClippedTypes;
+  vtkIdType NumberOfCells;
+  vtkCellArray* Connectivity;
+  vtkUnsignedCharArray* Types;
+  vtkIdType NumberOfClippedCells;
+  vtkCellArray* ClippedConnectivity;
+  vtkUnsignedCharArray* ClippedTypes;
 
-private:
   vtkClipVolume(const vtkClipVolume&) = delete;
   void operator=(const vtkClipVolume&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

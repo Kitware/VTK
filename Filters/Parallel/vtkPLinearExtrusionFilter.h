@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPLinearExtrusionFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPLinearExtrusionFilter
  * @brief   Subclass that handles piece invariance.
@@ -20,7 +8,7 @@
  *
  * @sa
  * vtkLinearExtrusionFilter
-*/
+ */
 
 #ifndef vtkPLinearExtrusionFilter_h
 #define vtkPLinearExtrusionFilter_h
@@ -28,16 +16,17 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkLinearExtrusionFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLEL_EXPORT vtkPLinearExtrusionFilter : public vtkLinearExtrusionFilter
 {
 public:
-  vtkTypeMacro(vtkPLinearExtrusionFilter,vtkLinearExtrusionFilter);
+  vtkTypeMacro(vtkPLinearExtrusionFilter, vtkLinearExtrusionFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create an object with PieceInvariant off.
    */
-  static vtkPLinearExtrusionFilter *New();
+  static vtkPLinearExtrusionFilter* New();
 
   // To get piece invariance, this filter has to request an
   // extra ghost level.  Since piece invariance is not very
@@ -51,15 +40,17 @@ public:
 
 protected:
   vtkPLinearExtrusionFilter();
-  ~vtkPLinearExtrusionFilter() override {}
+  ~vtkPLinearExtrusionFilter() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkTypeBool PieceInvariant;
+
 private:
   vtkPLinearExtrusionFilter(const vtkPLinearExtrusionFilter&) = delete;
   void operator=(const vtkPLinearExtrusionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

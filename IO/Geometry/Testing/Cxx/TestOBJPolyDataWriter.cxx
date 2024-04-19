@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestOBJPolyDataWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include <vtkActor.h>
 #include <vtkJPEGReader.h>
@@ -42,15 +30,14 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
   sphereSource->SetPhiResolution(16);
 
   vtkNew<vtkJPEGReader> textReader;
-  char *fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/NE2_ps_bath_small.jpg");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/NE2_ps_bath_small.jpg");
   textReader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
-  char *tname =
+  char* tname =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string tmpDir(tname);
-  delete [] tname;
+  delete[] tname;
   std::string filename = tmpDir + "/TestOBJPolyDataWriter_write.obj";
 
   vtkNew<vtkOBJWriter> writer;
@@ -88,10 +75,10 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
   }
 
   // check values
-  vtkNumberToString convert;
   int numberOfDifferentPoints = 0;
   int numberOfDifferentNormals = 0;
   int numberOfDifferentTCoords = 0;
+  vtkNumberToString converter;
   for (vtkIdType i = 0; i < polyInput->GetNumberOfPoints(); i++)
   {
     double pi[3], po[3];
@@ -102,8 +89,10 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
     if (vtkMath::Distance2BetweenPoints(pi, po) > 0.0)
     {
       cerr << "Point is different.\n";
-      cerr << "  Input:  " << convert(pi[0]) << " " << convert(pi[1]) << " " << convert(pi[2]) << "\n";
-      cerr << "  Output: " << convert(po[0]) << " " << convert(po[1]) << " " << convert(po[2]) << "\n";
+      cerr << "  Input:  " << converter.Convert(pi[0]) << " " << converter.Convert(pi[1]) << " "
+           << converter.Convert(pi[2]) << "\n";
+      cerr << "  Output: " << converter.Convert(po[0]) << " " << converter.Convert(po[1]) << " "
+           << converter.Convert(po[2]) << "\n";
       numberOfDifferentPoints++;
     }
 
@@ -113,8 +102,10 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
     if (vtkMath::AngleBetweenVectors(pi, po) > 0)
     {
       cerr << "Normal is different:\n";
-      cerr << "  Input:  " << convert(pi[0]) << " " << convert(pi[1]) << " " << convert(pi[2]) << "\n";
-      cerr << "  Output: " << convert(po[0]) << " " << convert(po[1]) << " " << convert(po[2]) << "\n";
+      cerr << "  Input:  " << converter.Convert(pi[0]) << " " << converter.Convert(pi[1]) << " "
+           << converter.Convert(pi[2]) << "\n";
+      cerr << "  Output: " << converter.Convert(po[0]) << " " << converter.Convert(po[1]) << " "
+           << converter.Convert(po[2]) << "\n";
       numberOfDifferentNormals++;
     }
 
@@ -125,14 +116,13 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
     if (vtkMath::Distance2BetweenPoints(pi, po) > 0.0)
     {
       cerr << "Texture coord is different:\n";
-      cerr << "Input:  " << convert(pi[0]) << " " << convert(pi[1]) << "\n";
-      cerr << "Output: " << convert(po[0]) << " " << convert(po[1]) << "\n";
+      cerr << "Input:  " << converter.Convert(pi[0]) << " " << converter.Convert(pi[1]) << "\n";
+      cerr << "Output: " << converter.Convert(po[0]) << " " << converter.Convert(po[1]) << "\n";
       numberOfDifferentTCoords++;
     }
   }
-  if (numberOfDifferentPoints != 0 ||
-      numberOfDifferentNormals != 0 ||
-      numberOfDifferentTCoords != 0)
+  if (numberOfDifferentPoints != 0 || numberOfDifferentNormals != 0 ||
+    numberOfDifferentTCoords != 0)
   {
     return EXIT_FAILURE;
   }

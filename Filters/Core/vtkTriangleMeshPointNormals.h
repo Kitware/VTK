@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTriangleMeshPointNormals.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTriangleMeshPointNormals
  * @brief   compute point normals for triangle mesh
@@ -58,7 +46,7 @@
  * your mesh is deforming rapidly, you should be deforming the output mesh
  * of those two filters instead in order to only run them once.
  *
-*/
+ */
 
 #ifndef vtkTriangleMeshPointNormals_h
 #define vtkTriangleMeshPointNormals_h
@@ -66,27 +54,28 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
-
 
 class VTKFILTERSCORE_EXPORT vtkTriangleMeshPointNormals : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkTriangleMeshPointNormals,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkTriangleMeshPointNormals, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkTriangleMeshPointNormals *New();
+  static vtkTriangleMeshPointNormals* New();
 
 protected:
-  vtkTriangleMeshPointNormals() {}
-  ~vtkTriangleMeshPointNormals() override {}
+  vtkTriangleMeshPointNormals() = default;
+  ~vtkTriangleMeshPointNormals() override = default;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkTriangleMeshPointNormals(const vtkTriangleMeshPointNormals&) = delete;
   void operator=(const vtkTriangleMeshPointNormals&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

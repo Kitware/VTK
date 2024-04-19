@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPostgreSQLQuery.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkPostgreSQLQuery
  * @brief   vtkSQLQuery implementation for PostgreSQL databases
@@ -34,7 +18,7 @@
  *
  * @sa
  * vtkSQLDatabase vtkSQLQuery vtkPostgreSQLDatabase
-*/
+ */
 
 #ifndef vtkPostgreSQLQuery_h
 #define vtkPostgreSQLQuery_h
@@ -42,6 +26,7 @@
 #include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPostgreSQLDatabase;
 class vtkVariant;
 class vtkVariantArray;
@@ -51,7 +36,7 @@ class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLQuery : public vtkSQLQuery
 {
 public:
   static vtkPostgreSQLQuery* New();
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkPostgreSQLQuery, vtkSQLQuery);
 
   /**
@@ -69,12 +54,12 @@ public:
   /**
    * Return the name of the specified query field.
    */
-  const char* GetFieldName( int i ) override;
+  const char* GetFieldName(int i) override;
 
   /**
    * Return the type of the field, using the constants defined in vtkType.h.
    */
-  int GetFieldType( int i ) override;
+  int GetFieldType(int i) override;
 
   /**
    * Advance row, return false if past end.
@@ -86,19 +71,19 @@ public:
    */
   bool HasError() override;
 
-  //@{
+  ///@{
   /**
    * Begin, abort (roll back), or commit a transaction.
    */
   bool BeginTransaction() override;
   bool RollbackTransaction() override;
   bool CommitTransaction() override;
-  //@}
+  ///@}
 
   /**
    * Return data in current row, field c
    */
-  vtkVariant DataValue( vtkIdType c ) override;
+  vtkVariant DataValue(vtkIdType c) override;
 
   /**
    * Get the last error text from the query
@@ -108,7 +93,7 @@ public:
   /**
    * Escape a string for inclusion into an SQL query
    */
-  vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true ) override;
+  vtkStdString EscapeString(vtkStdString s, bool addSurroundingQuotes = true) override;
 
   /**
    * Unlike some databases, Postgres can tell you right away how many
@@ -118,27 +103,27 @@ public:
 
 protected:
   vtkPostgreSQLQuery();
-  ~vtkPostgreSQLQuery();
+  ~vtkPostgreSQLQuery() override;
 
   vtkSetStringMacro(LastErrorText);
 
   bool IsColumnBinary(int whichColumn);
-  const char *GetColumnRawData(int whichColumn);
+  const char* GetColumnRawData(int whichColumn);
 
   bool TransactionInProgress;
-  char *LastErrorText;
+  char* LastErrorText;
   int CurrentRow;
 
-  vtkPostgreSQLQueryPrivate *QueryInternals;
+  vtkPostgreSQLQueryPrivate* QueryInternals;
 
   void DeleteQueryResults();
 
   friend class vtkPostgreSQLDatabase;
 
 private:
-  vtkPostgreSQLQuery( const vtkPostgreSQLQuery& ) = delete;
-  void operator = ( const vtkPostgreSQLQuery& ) = delete;
+  vtkPostgreSQLQuery(const vtkPostgreSQLQuery&) = delete;
+  void operator=(const vtkPostgreSQLQuery&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPostgreSQLQuery_h
-

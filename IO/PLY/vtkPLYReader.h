@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPLYReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPLYReader
  * @brief   read Stanford University PLY polygonal file format
@@ -36,31 +24,33 @@
  *
  * @sa
  * vtkPLYWriter, vtkCleanPolyData
-*/
+ */
 
 #ifndef vtkPLYReader_h
 #define vtkPLYReader_h
 
-#include "vtkIOPLYModule.h" // For export macro
 #include "vtkAbstractPolyDataReader.h"
+#include "vtkIOPLYModule.h"    // For export macro
+#include "vtkResourceStream.h" // For vtkResourceStream
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 class VTKIOPLY_EXPORT vtkPLYReader : public vtkAbstractPolyDataReader
 {
 public:
-  vtkTypeMacro(vtkPLYReader,vtkAbstractPolyDataReader);
+  vtkTypeMacro(vtkPLYReader, vtkAbstractPolyDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with merging set to true.
    */
-  static vtkPLYReader *New();
+  static vtkPLYReader* New();
 
   /**
    * A simple, non-exhaustive check to see if a file is a valid ply file.
    */
-  static int CanReadFile(const char *filename);
+  static int CanReadFile(VTK_FILEPATH const char* filename);
 
   vtkGetObjectMacro(Comments, vtkStringArray);
 
@@ -71,7 +61,7 @@ public:
   vtkGetMacro(FaceTextureTolerance, float);
   vtkSetMacro(FaceTextureTolerance, float);
 
-  //@{
+  ///@{
   /**
    * Enable reading from an InputString instead of the default, a file.
    * Note that reading from an input stream would be more flexible (enabling
@@ -84,9 +74,25 @@ public:
   vtkGetMacro(ReadFromInputString, bool);
   vtkBooleanMacro(ReadFromInputString, bool);
   void SetInputString(const std::string& s) { this->InputString = s; }
-  //@}
+  ///@}
 
+  ///@{
+  /**
+   * Specify stream to read from
+   */
+  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
+  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
+  ///@}
 
+  ///@{
+  /**
+   * Enable reading from an InputStream
+   * `ReadFromInputStream` has an higher priority than `ReadFromInputString`.
+   */
+  vtkSetMacro(ReadFromInputStream, bool);
+  vtkGetMacro(ReadFromInputStream, bool);
+  vtkBooleanMacro(ReadFromInputStream, bool);
+  ///@}
 
   /**
    * If true (default) and the "face" element has the property "texcoord" duplicate
@@ -96,7 +102,6 @@ public:
    */
   vtkGetMacro(DuplicatePointsForFaceTexture, bool);
   vtkSetMacro(DuplicatePointsForFaceTexture, bool);
-
 
 protected:
   vtkPLYReader();
@@ -109,8 +114,11 @@ protected:
   // The input string.
   std::string InputString;
 
+  bool ReadFromInputStream = false;
+  vtkSmartPointer<vtkResourceStream> Stream;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkPLYReader(const vtkPLYReader&) = delete;
   void operator=(const vtkPLYReader&) = delete;
@@ -119,4 +127,5 @@ private:
   bool DuplicatePointsForFaceTexture;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

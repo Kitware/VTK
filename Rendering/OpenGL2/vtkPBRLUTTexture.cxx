@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPBRLUTTexture.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPBRLUTTexture.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
@@ -27,6 +15,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPBRLUTTexture);
 
 //------------------------------------------------------------------------------
@@ -44,6 +33,7 @@ void vtkPBRLUTTexture::Load(vtkRenderer* ren)
   if (!renWin)
   {
     vtkErrorMacro("No render window.");
+    return;
   }
 
   if (this->GetMTime() > this->LoadTime.GetMTime())
@@ -54,13 +44,19 @@ void vtkPBRLUTTexture::Load(vtkRenderer* ren)
     }
     this->TextureObject->SetContext(renWin);
     this->TextureObject->SetFormat(GL_RG);
-    this->TextureObject->SetInternalFormat(GL_RG16F);
-    this->TextureObject->SetDataType(GL_FLOAT);
     this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
     this->TextureObject->SetMinificationFilter(vtkTextureObject::Linear);
     this->TextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
-    this->TextureObject->Allocate2D(this->LUTSize, this->LUTSize, 2, VTK_FLOAT);
+#ifdef GL_ES_VERSION_3_0
+    this->TextureObject->SetInternalFormat(GL_RG8);
+    this->TextureObject->SetDataType(GL_UNSIGNED_BYTE);
+    this->TextureObject->Allocate2D(this->LUTSize, this->LUTSize, 2, VTK_UNSIGNED_CHAR);
+#else
+    this->TextureObject->SetInternalFormat(GL_RG16);
+    this->TextureObject->SetDataType(GL_UNSIGNED_SHORT);
+    this->TextureObject->Allocate2D(this->LUTSize, this->LUTSize, 2, VTK_UNSIGNED_SHORT);
+#endif
 
     this->RenderWindow = renWin;
 
@@ -181,3 +177,4 @@ void vtkPBRLUTTexture::Load(vtkRenderer* ren)
 
   this->TextureObject->Activate();
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestOSPRayIsosurface.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkTestUtilities.h"
 
@@ -26,8 +14,17 @@
 #include "vtkRenderer.h"
 #include "vtkVolumeProperty.h"
 
-int TestOSPRayIsosurface(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestOSPRayIsosurface(int argc, char* argv[])
 {
+  bool useOSPRay = true;
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "-GL"))
+    {
+      useOSPRay = false;
+      break;
+    }
+  }
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;
   iren->SetRenderWindow(renWin);
@@ -67,8 +64,10 @@ int TestOSPRayIsosurface(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renWin->SetSize(400, 400);
 
   vtkNew<vtkOSPRayPass> ospray;
-  renderer->SetPass(ospray);
-
+  if (useOSPRay)
+  {
+    renderer->SetPass(ospray);
+  }
   renWin->Render();
 
   iren->Start();

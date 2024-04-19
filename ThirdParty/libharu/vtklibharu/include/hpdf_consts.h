@@ -64,7 +64,7 @@
 
 #define HPDF_BS_DEF_WIDTH           1
 
-/* defalt page-size */
+/* default page-size */
 #define HPDF_DEF_PAGE_WIDTH         595.276F
 #define HPDF_DEF_PAGE_HEIGHT        841.89F
 
@@ -533,7 +533,7 @@
 
 
 /*----------------------------------------------------------------------------*/
-/*----- Graphis mode ---------------------------------------------------------*/
+/*----- Graphics mode --------------------------------------------------------*/
 
 #define   HPDF_GMODE_PAGE_DESCRIPTION       0x0001
 #define   HPDF_GMODE_PATH_OBJECT            0x0002

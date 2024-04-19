@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
 """
-This file tests vtk.vtkMolecule, and verifies that atoms/bonds are added.
+This file tests vtkMolecule, and verifies that atoms/bonds are added.
 """
 
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonDataModel import vtkMolecule
+from vtkmodules.test import Testing
 
 class TestMolecule(Testing.vtkTest):
     def testCreation(self):
         "Testing if molecules can be created/modified."
-        mol = vtk.vtkMolecule()
+        mol = vtkMolecule()
 
         self.assertEqual(mol.GetNumberOfAtoms(), 0, "Number of atoms incorrect")
         self.assertEqual(mol.GetNumberOfBonds(), 0, "Number of atoms incorrect")

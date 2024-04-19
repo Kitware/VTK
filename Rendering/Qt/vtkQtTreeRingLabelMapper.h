@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtTreeRingLabelMapper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkQtTreeRingLabelMapper
  * @brief   draw text labels on a tree map
@@ -39,15 +23,17 @@
  * @par Thanks:
  * Thanks to Jason Shepherd from
  * Sandia National Laboratories for help in developing this class.
-*/
+ */
 
 #ifndef vtkQtTreeRingLabelMapper_h
 #define vtkQtTreeRingLabelMapper_h
 
-#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
+#include "vtkRenderingQtModule.h" // For export macro
 
 class QImage;
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkQImageToImageSource;
 class vtkCoordinate;
@@ -59,55 +45,57 @@ class vtkStringArray;
 class vtkTexture;
 class vtkTextureMapToPlane;
 class vtkTree;
-class vtkUnicodeStringArray;
 
 class VTKRENDERINGQT_EXPORT vtkQtTreeRingLabelMapper : public vtkLabeledDataMapper
 {
 public:
-  static vtkQtTreeRingLabelMapper *New();
-  vtkTypeMacro(vtkQtTreeRingLabelMapper,vtkLabeledDataMapper);
+  static vtkQtTreeRingLabelMapper* New();
+  vtkTypeMacro(vtkQtTreeRingLabelMapper, vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Draw the text to the screen at each input point.
    */
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) override;
-  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) override;
-  //@}
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
+  ///@}
 
   /**
    * The input to this filter.
    */
-  virtual vtkTree *GetInputTree();
+  virtual vtkTree* GetInputTree();
 
   /**
    * The name of the 4-tuple array used for
    */
   virtual void SetSectorsArrayName(const char* name);
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property. Note that multiple type text properties
    * (set with a second integer parameter) are not currently supported,
    * but are provided to avoid compiler warnings.
    */
-  void SetLabelTextProperty(vtkTextProperty *p) override;
-  vtkTextProperty* GetLabelTextProperty() override
-    { return this->LabelTextProperty; }
-  void SetLabelTextProperty(vtkTextProperty *p, int type) override
-    { this->Superclass::SetLabelTextProperty(p, type); }
+  void SetLabelTextProperty(vtkTextProperty* p) override;
+  vtkTextProperty* GetLabelTextProperty() override { return this->LabelTextProperty; }
+  void SetLabelTextProperty(vtkTextProperty* p, int type) override
+  {
+    this->Superclass::SetLabelTextProperty(p, type);
+  }
   vtkTextProperty* GetLabelTextProperty(int type) override
-    { return this->Superclass::GetLabelTextProperty(type); }
-  //@}
+  {
+    return this->Superclass::GetLabelTextProperty(type);
+  }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the text rotation array.
    */
   vtkSetStringMacro(TextRotationArrayName);
   vtkGetStringMacro(TextRotationArrayName);
-  //@}
+  ///@}
 
   /**
    * Return the object's MTime. This is overridden to include
@@ -117,36 +105,32 @@ public:
 
   void SetRenderer(vtkRenderer* ren)
   {
-      if (this->Renderer != ren)
-      {
-        this->Renderer = ren;
-        this->Modified();
-      }
+    if (this->Renderer != ren)
+    {
+      this->Renderer = ren;
+      this->Modified();
+    }
   }
   vtkRenderer* GetRenderer() { return this->Renderer; }
 
 protected:
   vtkQtTreeRingLabelMapper();
   ~vtkQtTreeRingLabelMapper() override;
-  void LabelTree(vtkTree *tree, vtkDataArray *sectorInfo,
-                 vtkDataArray *numericData, vtkStringArray *stringData, vtkUnicodeStringArray *uStringData,
-                 int activeComp, int numComps, vtkViewport* viewport);
-  void GetVertexLabel(vtkIdType vertex, vtkDataArray *numericData,
-                      vtkStringArray *stringData,
-                      vtkUnicodeStringArray *uStringData,
-                      int activeComp, int numComps,
-                      char *string, size_t stringSize);
+  void LabelTree(vtkTree* tree, vtkDataArray* sectorInfo, vtkDataArray* numericData,
+    vtkStringArray* stringData, int activeComp, int numComps, vtkViewport* viewport);
+  void GetVertexLabel(vtkIdType vertex, vtkDataArray* numericData, vtkStringArray* stringData,
+    int activeComp, int numComps, char* string, size_t stringSize);
 
-  //Returns true if the center of the sector is in the window
+  // Returns true if the center of the sector is in the window
   // along with the pixel dimensions (width, height)  of the sector
-  bool PointInWindow(double *sinfo, double *newDim, double *textPosDC, vtkViewport *viewport);
+  bool PointInWindow(double* sinfo, double* newDim, double* textPosDC, vtkViewport* viewport);
 
-  vtkViewport *CurrentViewPort;
-  vtkCoordinate *VCoord;
+  vtkViewport* CurrentViewPort;
+  vtkCoordinate* VCoord;
   vtkQImageToImageSource* QtImageSource;
   vtkPlaneSource* PlaneSource;
   vtkRenderer* Renderer;
-  vtkTextProperty *LabelTextProperty;
+  vtkTextProperty* LabelTextProperty;
   vtkTexture* LabelTexture;
   vtkTextureMapToPlane* TextureMapToPlane;
   char* TextRotationArrayName;
@@ -159,5 +143,5 @@ private:
   void operator=(const vtkQtTreeRingLabelMapper&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif

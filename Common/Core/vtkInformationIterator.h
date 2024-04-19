@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInformationIterator
  * @brief   Iterates over keys of an information object
@@ -22,7 +10,7 @@
  *
  * @sa
  * vtkInformation vtkInformationKey
-*/
+ */
 
 #ifndef vtkInformationIterator_h
 #define vtkInformationIterator_h
@@ -30,6 +18,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationKey;
 class vtkInformationIteratorInternals;
@@ -37,17 +26,17 @@ class vtkInformationIteratorInternals;
 class VTKCOMMONCORE_EXPORT vtkInformationIterator : public vtkObject
 {
 public:
-  static vtkInformationIterator *New();
-  vtkTypeMacro(vtkInformationIterator,vtkObject);
+  static vtkInformationIterator* New();
+  vtkTypeMacro(vtkInformationIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the information to iterator over.
    */
   void SetInformation(vtkInformation*);
   vtkGetObjectMacro(Information, vtkInformation);
-  //@}
+  ///@}
 
   /**
    * Set the function to iterate over. The iterator
@@ -98,4 +87,5 @@ private:
   void operator=(const vtkInformationIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

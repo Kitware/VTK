@@ -1,18 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    QChartTable.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-#include "QVTKOpenGLWidget.h"
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#include "QVTKRenderWidget.h"
 #include "vtkChartXY.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
@@ -22,30 +10,30 @@
 #include "vtkNew.h"
 #include "vtkPlot.h"
 #include "vtkQtTableView.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 
 #include <QApplication>
-#include <QWidget>
-#include <QMainWindow>
 #include <QHBoxLayout>
+#include <QMainWindow>
 #include <QSurfaceFormat>
+#include <QWidget>
 
-//----------------------------------------------------------------------------
-int main( int argc, char * argv [] )
+//------------------------------------------------------------------------------
+int main(int argc, char* argv[])
 {
   // needed to ensure appropriate OpenGL context is created for VTK rendering.
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKRenderWidget::defaultFormat());
 
   // Qt initialization
   QApplication app(argc, argv);
   QMainWindow mainWindow;
   mainWindow.setGeometry(0, 0, 1150, 600);
 
-  QVTKOpenGLWidget *qvtkWidget = new QVTKOpenGLWidget(&mainWindow);
+  QVTKRenderWidget* qvtkWidget = new QVTKRenderWidget(&mainWindow);
 
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
   qvtkWidget->setRenderWindow(renderWindow);
@@ -72,7 +60,7 @@ int main( int argc, char * argv [] )
 
   // Test charting with a few more points...
   int numPoints = 29;
-  float inc = 7.0 / (numPoints-1);
+  float inc = 7.0 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -81,12 +69,12 @@ int main( int argc, char * argv [] )
     table->SetValue(i, 2, sin(i * inc) + 0.0);
   }
 
-//   table->Update();
+  //   table->Update();
 
   // Add multiple line plots, setting the colors etc
   vtkNew<vtkChartXY> chart;
   view->GetScene()->AddItem(chart);
-  vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+  vtkPlot* line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 1);
   line->SetColor(255, 0, 0, 255);
   line = chart->AddPlot(vtkChart::LINE);
@@ -95,25 +83,25 @@ int main( int argc, char * argv [] )
   line->SetWidth(2.0);
 
   // Instantiate a vtkQtChart and use that too
-/*  vtkQtChart *qtChart = new vtkQtChart;
-  chart = qtChart->chart();
-  line = chart->AddPlot(vtkChart::LINE);
-  line->SetTable(table, 0, 1);
-  line->SetColor(255, 0, 0, 255);
-  line = chart->AddPlot(vtkChart::LINE);
-  line->SetTable(table, 0, 2);
-  line->SetColor(0, 255, 0, 255);
-  line->SetWidth(2.0);
-*/
+  /*  vtkQtChart *qtChart = new vtkQtChart;
+    chart = qtChart->chart();
+    line = chart->AddPlot(vtkChart::LINE);
+    line->SetTable(table, 0, 1);
+    line->SetColor(255, 0, 0, 255);
+    line = chart->AddPlot(vtkChart::LINE);
+    line->SetTable(table, 0, 2);
+    line->SetColor(0, 255, 0, 255);
+    line->SetWidth(2.0);
+  */
   // Now lets try to add a table view
-  QWidget *widget = new QWidget(&mainWindow);
-  QHBoxLayout *layout = new QHBoxLayout(widget);
+  QWidget* widget = new QWidget(&mainWindow);
+  QHBoxLayout* layout = new QHBoxLayout(widget);
   vtkNew<vtkQtTableView> tableView;
   tableView->SetSplitMultiComponentColumns(true);
   tableView->AddRepresentationFromInput(table);
   tableView->Update();
   layout->addWidget(qvtkWidget, 2);
-  //layout->addWidget(qtChart, 2);
+  // layout->addWidget(qtChart, 2);
   layout->addWidget(tableView->GetWidget());
   mainWindow.setCentralWidget(widget);
 

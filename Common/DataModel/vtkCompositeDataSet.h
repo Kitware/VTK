@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCompositeDataSet.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCompositeDataSet
  * @brief   abstract superclass for composite
@@ -28,16 +16,21 @@
  *
  * @sa
  * vtkCompositeDataIterator
-*/
+ */
 
 #ifndef vtkCompositeDataSet_h
 #define vtkCompositeDataSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_3_0
 
+#include <vector> // For GetDataSets
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataIterator;
 class vtkCompositeDataSetInternals;
+class vtkDataSet;
 class vtkInformation;
 class vtkInformationStringKey;
 class vtkInformationIntegerKey;
@@ -51,37 +44,46 @@ public:
   /**
    * Return a new iterator (the iterator has to be deleted by user).
    */
-  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() =0;
+  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() = 0;
 
   /**
    * Return class name of data type (see vtkType.h for
    * definitions).
    */
-  int GetDataObjectType() override {return VTK_COMPOSITE_DATA_SET;}
+  int GetDataObjectType() override { return VTK_COMPOSITE_DATA_SET; }
 
   /**
    * Copies the tree structure from the input. All pointers to non-composite
    * data objects are initialized to nullptr. This also shallow copies the meta data
    * associated with all the nodes.
    */
-  virtual void CopyStructure(vtkCompositeDataSet* input)=0;
+  virtual void CopyStructure(vtkCompositeDataSet* input);
 
   /**
    * Sets the data set at the location pointed by the iterator.
    * The iterator does not need to be iterating over this dataset itself. It can
-   * be any composite datasite with similar structure (achieved by using
+   * be any composite dataset with similar structure (achieved by using
    * CopyStructure).
    */
-  virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj)=0;
+  virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj) = 0;
 
   /**
-   * Returns the dataset located at the positiong pointed by the iterator.
+   * Returns the dataset located at the position pointed by the iterator.
    * The iterator does not need to be iterating over this dataset itself. It can
    * be an iterator for composite dataset with similar structure (achieved by
    * using CopyStructure).
    */
-  virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter)=0;
+  virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter) = 0;
 
+  /**
+   * Returns the dataset located at the position pointed by the flatIndex.
+   * If no dataset has the same flat index, nullptr is returned.
+   *
+   * It should be noted that this function should be used ONLY when you already know the flat index.
+   * It should NOT be used when you are iterating over the composite dataset (in that case, prefer
+   * the vtkCompositeDataIterator).
+   */
+  virtual vtkDataObject* GetDataSet(unsigned int flatIndex);
 
   /**
    * Return the actual size of the data in kibibytes (1024 bytes). This number
@@ -89,26 +91,33 @@ public:
    */
   unsigned long GetActualMemorySize() override;
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkCompositeDataSet* GetData(vtkInformation* info);
-  static vtkCompositeDataSet* GetData(vtkInformationVector* v, int i=0);
-  //@}
+  static vtkCompositeDataSet* GetData(vtkInformationVector* v, int i = 0);
+  ///@}
 
   /**
    * Restore data object to initial state,
    */
   void Initialize() override;
 
-  //@{
   /**
-   * Shallow and Deep copy.
+   * The goal of the method is to copy the data up to the dataset pointers only.
+   * The implementation is delegated to the differenent subclasses.
+   * If you want to copy up to array pointers, @see vtkDataObject::ShallowCopy.
+   *
+   * This method just calls vtkDataObject::ShallowCopy.
    */
-  void ShallowCopy(vtkDataObject *src) override;
-  void DeepCopy(vtkDataObject *src) override;
-  //@}
+  virtual void CompositeShallowCopy(vtkCompositeDataSet* src);
+
+  /**
+   * @deprecated RecursiveShallowCopy method, @see ShallowCopy
+   */
+  VTK_DEPRECATED_IN_9_3_0("Use ShallowCopy instead.")
+  virtual void RecursiveShallowCopy(vtkDataObject* src);
 
   /**
    * Returns the total number of points of all blocks. This will
@@ -154,14 +163,34 @@ public:
    */
   static vtkInformationIntegerKey* CURRENT_PROCESS_CAN_LOAD_BLOCK();
 
- protected:
+  /**
+   * Extract datasets from the given data object. This method returns a vector
+   * of DataSetT* from the `dobj`. If dobj is a DataSetT, the returned
+   * vector will have just 1 DataSetT. If dobj is a vtkCompositeDataSet, then
+   * we iterate over it and add all non-null leaf nodes to the returned vector.
+   *
+   * If `preserveNull` is true (defaults to false), then `nullptr` place holders
+   * are added as placeholders when leaf node dataset type does not match the
+   * requested or is nullptr to begin with.
+   */
+  template <class DataSetT = vtkDataSet>
+  static std::vector<DataSetT*> GetDataSets(vtkDataObject* dobj, bool preserveNull = false);
+
+  /**
+   * Returns true for POINT or CELL, false otherwise
+   */
+  bool SupportsGhostArray(int type) override;
+
+protected:
   vtkCompositeDataSet();
   ~vtkCompositeDataSet() override;
- private:
 
+private:
   vtkCompositeDataSet(const vtkCompositeDataSet&) = delete;
   void operator=(const vtkCompositeDataSet&) = delete;
-
 };
+
+VTK_ABI_NAMESPACE_END
+#include "vtkCompositeDataSet.txx" // for template implementations
 
 #endif

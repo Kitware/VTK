@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTexturedActor2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTexturedActor2D
  * @brief   actor that draws 2D data with texture support
@@ -22,14 +10,15 @@
  *
  * @sa
  * vtkActor2D vtkProp vtkMapper2D vtkProperty2D
-*/
+ */
 
 #ifndef vtkTexturedActor2D_h
 #define vtkTexturedActor2D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkTexture;
 class vtkViewport;
@@ -42,7 +31,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkTexturedActor2D, vtkActor2D);
 
-  //@{
+  ///@{
   /**
    * Set/Get the texture object to control rendering texture maps.  This will
    * be a vtkTexture object. An actor does not need to have an associated
@@ -50,7 +39,7 @@ public:
    */
   virtual void SetTexture(vtkTexture* texture);
   vtkGetObjectMacro(Texture, vtkTexture);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this actor.
@@ -59,14 +48,14 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* win) override;
 
-  //@{
+  ///@{
   /**
    * Support the standard render methods.
    */
   int RenderOverlay(vtkViewport* viewport) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Return this object's modified time.
@@ -89,4 +78,5 @@ private:
   void operator=(const vtkTexturedActor2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

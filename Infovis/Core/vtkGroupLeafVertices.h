@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGroupLeafVertices.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkGroupLeafVertices
  * @brief   Filter that expands a tree, categorizing leaf vertices
@@ -24,7 +8,7 @@
  *
  * Use SetInputArrayToProcess(0, ...) to set the array to group on.
  * Currently this array must be a vtkStringArray.
-*/
+ */
 
 #ifndef vtkGroupLeafVertices_h
 #define vtkGroupLeafVertices_h
@@ -32,14 +16,15 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkGroupLeafVertices : public vtkTreeAlgorithm
 {
 public:
   static vtkGroupLeafVertices* New();
-  vtkTypeMacro(vtkGroupLeafVertices,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkGroupLeafVertices, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The name of the domain that non-leaf vertices will be assigned to.
    * If the input graph already contains vertices in this domain:
@@ -50,16 +35,13 @@ public:
    */
   vtkSetStringMacro(GroupDomain);
   vtkGetStringMacro(GroupDomain);
-  //@}
+  ///@}
 
 protected:
   vtkGroupLeafVertices();
   ~vtkGroupLeafVertices() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* GroupDomain;
 
@@ -68,5 +50,5 @@ private:
   void operator=(const vtkGroupLeafVertices&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

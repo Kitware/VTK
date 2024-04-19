@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastCameraInsideClipping.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * Tests that VolumeRayCastMapper::IsCameraInside correctly detects if the
  * camera is clipping part of the proxy geometry (either by being inside the
@@ -28,17 +16,16 @@
 #include "vtkMetaImageReader.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-
 
 int TestGPURayCastCameraInsideClipping(int argc, char* argv[])
 {
@@ -54,12 +41,11 @@ int TestGPURayCastCameraInsideClipping(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                     "Data/HeadMRVolume.mhd");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/HeadMRVolume.mhd");
   vtkNew<vtkMetaImageReader> reader;
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   // Volume
   vtkNew<vtkGPUVolumeRayCastMapper> mapper1;
@@ -115,8 +101,8 @@ int TestGPURayCastCameraInsideClipping(int argc, char* argv[])
   ren1->AddActor(sphereAct);
   ren1->AddActor(outlineActor);
 
-  ren1->GetActiveCamera()->SetFocalPoint(94,142,35);
-  ren1->GetActiveCamera()->SetPosition(94,142,200);
+  ren1->GetActiveCamera()->SetFocalPoint(94, 142, 35);
+  ren1->GetActiveCamera()->SetPosition(94, 142, 200);
   ren1->GetActiveCamera()->SetViewAngle(110);
   ren1->ResetCameraClippingRange();
   renWin->Render();
@@ -137,6 +123,5 @@ int TestGPURayCastCameraInsideClipping(int argc, char* argv[])
     iren->Start();
   }
 
-  return !((retVal == vtkTesting::PASSED) ||
-           (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkChartXY.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkChartXY
@@ -22,7 +10,7 @@
  *
  * @sa
  * vtkBarChartActor
-*/
+ */
 
 #ifndef vtkChartXY_h
 #define vtkChartXY_h
@@ -33,15 +21,23 @@
 #include "vtkSmartPointer.h"     // For SP ivars
 #include "vtkVector.h"           // For vtkVector2f in struct
 
+#include <vector> // for std::vector
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxis;
 class vtkChartLegend;
 class vtkIdTypeArray;
+class vtkMultiBlockDataSet;
 class vtkPlot;
 class vtkPlotGrid;
 class vtkTooltipItem;
 
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
+VTK_ABI_NAMESPACE_END
+#include <map> // for std::map
+
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCHARTSCORE_EXPORT vtkChartXY : public vtkChart
 {
 public:
@@ -71,9 +67,19 @@ public:
   vtkPlot* AddPlot(int type) override;
 
   /**
+   * Adds a plot to the chart holding data specific to a block in a vtkMultiBlockDataSet.
+   */
+  virtual vtkPlot* AddPlot(int type, unsigned int blockIndex);
+
+  /**
    * Adds a plot to the chart
    */
   vtkIdType AddPlot(vtkPlot* plot) override;
+
+  /**
+   * Adds a plot to the chart holding data specific to a block in a vtkMultiBlockDataSet.
+   */
+  virtual vtkIdType AddPlot(vtkPlot* plot, unsigned int blockIndex);
 
   /**
    * Remove the plot at the specified index, returns true if successful,
@@ -154,7 +160,7 @@ public:
    * position enum, valid values are vtkAxis::LEFT, vtkAxis::BOTTOM,
    * vtkAxis::RIGHT and vtkAxis::TOP.
    */
-  virtual void SetAxis(int axisIndex, vtkAxis*) override;
+  void SetAxis(int axisIndex, vtkAxis*) override;
 
   /**
    * Set whether the chart should draw a legend.
@@ -197,20 +203,20 @@ public:
   void SetSelectionMethod(int method) override;
 
   /**
-  * Remove all the selection from Plots
-  */
+   * Remove all the selection from Plots
+   */
   void RemovePlotSelections();
 
-  //@{
+  ///@{
   /**
    * If true then the axes will be drawn at the origin (scientific style).
    */
   vtkSetMacro(DrawAxesAtOrigin, bool);
   vtkGetMacro(DrawAxesAtOrigin, bool);
   vtkBooleanMacro(DrawAxesAtOrigin, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true then the axes will be turned on and off depending upon whether
    * any plots are in that corner. Defaults to true.
@@ -218,17 +224,17 @@ public:
   vtkSetMacro(AutoAxes, bool);
   vtkGetMacro(AutoAxes, bool);
   vtkBooleanMacro(AutoAxes, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Border size of the axes that are hidden (vtkAxis::GetVisible())
    */
   vtkSetMacro(HiddenAxisBorder, int);
   vtkGetMacro(HiddenAxisBorder, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the axes to have their Minimum and Maximum properties inside the
    * plot boundaries. It constrains pan and zoom interaction.
@@ -237,9 +243,21 @@ public:
   vtkSetMacro(ForceAxesToBounds, bool);
   vtkGetMacro(ForceAxesToBounds, bool);
   vtkBooleanMacro(ForceAxesToBounds, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * Ignore NaN in RecalculateBounds().
+   * Prevents the final bounds to contain NaN if one of the plots contains NaN
+   * in its bounds.
+   * False by default.
+   */
+  vtkSetMacro(IgnoreNanInBounds, bool);
+  vtkGetMacro(IgnoreNanInBounds, bool);
+  vtkBooleanMacro(IgnoreNanInBounds, bool);
+  ///@}
+
+  ///@{
   /**
    * Set the width fraction for any bar charts drawn in this chart. It is
    * assumed that all bar plots will use the same array for the X axis, and that
@@ -249,9 +267,9 @@ public:
    */
   vtkSetMacro(BarWidthFraction, float);
   vtkGetMacro(BarWidthFraction, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the behavior of the mouse wheel.  If true, the mouse wheel zooms in/out
    * on the chart.  Otherwise, unless MouseWheelEvent is overridden by a subclass
@@ -261,9 +279,19 @@ public:
   vtkSetMacro(ZoomWithMouseWheel, bool);
   vtkGetMacro(ZoomWithMouseWheel, bool);
   vtkBooleanMacro(ZoomWithMouseWheel, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * Set the behavior of the mouse wheel for individual axes. ZoomWithMouseWheel
+   * must be enabled to allow zooming; individual axes can be set to ignore zoom.
+   * The default value for all axes is true.
+   */
+  void SetAxisZoom(int index, bool v);
+  bool GetAxisZoom(int index);
+  ///@}
+
+  ///@{
   /**
    * Adjust the minimum of a logarithmic axis to be greater than 0, regardless
    * of the minimum data value.
@@ -272,29 +300,29 @@ public:
   vtkSetMacro(AdjustLowerBoundForLogPlot, bool);
   vtkGetMacro(AdjustLowerBoundForLogPlot, bool);
   vtkBooleanMacro(AdjustLowerBoundForLogPlot, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
-  * Set if the point can be dragged along X
-  * by the ClickAndDrag Action
-  * True by default.
-  */
+   * Set if the point can be dragged along X
+   * by the ClickAndDrag Action
+   * True by default.
+   */
   vtkSetMacro(DragPointAlongX, bool);
   vtkGetMacro(DragPointAlongX, bool);
   vtkBooleanMacro(DragPointAlongX, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
-  * Set if the point can be dragged along Y
-  * by the ClickAndDrag Action
-  * True by default.
-  */
+   * Set if the point can be dragged along Y
+   * by the ClickAndDrag Action
+   * True by default.
+   */
   vtkSetMacro(DragPointAlongY, bool);
   vtkGetMacro(DragPointAlongY, bool);
   vtkBooleanMacro(DragPointAlongY, bool);
-  //@}
+  ///@}
 
   /**
    * Set the information passed to the tooltip.
@@ -342,12 +370,24 @@ public:
    */
   bool KeyPressEvent(const vtkContextKeyEvent& key) override;
 
+  typedef std::map<unsigned int, vtkSmartPointer<vtkIdTypeArray>> MapIndexToIds;
+
+  /**
+   * Populate the selection node in the annotation link coressponding to the give node
+   * with the supplied selectionIds array for a standard row based selections.
+   */
+  static void MakeSelection(vtkAnnotationLink* link, const MapIndexToIds& selection);
+
+  /**
+   *  Get the vector of vtkContextTransform
+   */
+  const std::vector<vtkContextTransform*>& GetTransforms() const;
+
   /**
    * Populate the annotation link with the supplied selectionIds array, and set
-   * the appropriate node properties for a standard row based chart selection.
+   * the appropriate node properties for a plot based chart selection.
    */
-  static void MakeSelection(vtkAnnotationLink* link,
-                            vtkIdTypeArray* selectionIds, vtkPlot* plot);
+  static void MakeSelection(vtkAnnotationLink* link, vtkIdTypeArray* selectionIds, vtkPlot* plot);
 
   /**
    * Subtract the supplied selection from the oldSelection.
@@ -368,9 +408,19 @@ public:
    * Build a selection based on the supplied selectionMode using the new
    * plotSelection and combining it with the oldSelection. If link is not nullptr
    * then the resulting selection will be set on the link.
+   * This is used in the plot or the column based selection.
    */
   static void BuildSelection(vtkAnnotationLink* link, int selectionMode,
     vtkIdTypeArray* plotSelection, vtkIdTypeArray* oldSelection, vtkPlot* plot);
+
+  /**
+   * Build a selection based on the supplied selectionMode using the new
+   * plotSelection and combining it with the oldSelection. If link is not nullptr
+   * then the resulting selection will be set on the link. This is used in the
+   * standard row based selection, and supports multi-block selection.
+   */
+  static void BuildSelection(
+    int selectionMode, MapIndexToIds& selection, const MapIndexToIds& oldSelection);
 
   /**
    * Combine the SelectionMode with any mouse modifiers to get an effective
@@ -485,10 +535,24 @@ protected:
   bool ForceAxesToBounds;
 
   /**
+   * Property to ignore NaN in RecalculateBounds().
+   * Prevents the final bounds to contain NaN if one of the plots contains NaN
+   * in its bounds.
+   * False by default.
+   */
+  bool IgnoreNanInBounds;
+
+  /**
    * Property to enable zooming the chart with the mouse wheel.
    * True by default.
    */
   bool ZoomWithMouseWheel;
+
+  /**
+   * Property to enable zooming of individual axes with the mouse wheel.
+   * True by default.
+   */
+  bool AxisZoom[4];
 
   /**
    * Property to adjust the minimum of a logarithmic axis to be greater than 0,
@@ -497,8 +561,8 @@ protected:
   bool AdjustLowerBoundForLogPlot;
 
   /**
-  * Properties to enable the drag of a point for the ClickAndDrag Action
-  */
+   * Properties to enable the drag of a point for the ClickAndDrag Action
+   */
   bool DragPointAlongX;
   bool DragPointAlongY;
 
@@ -534,12 +598,12 @@ private:
    */
   bool RemovePlotFromCorners(vtkPlot* plot);
 
-  void ZoomInAxes(vtkAxis* x, vtkAxis* y, float* orign, float* max);
+  void ZoomInAxes(vtkAxis* x, vtkAxis* y, float* originf, float* max);
 
   /**
-  * Remove all the selection from Plots.
-  * The method does not call InvokeEvent(vtkCommand::SelectionChangedEvent)
-  */
+   * Remove all the selection from Plots.
+   * The method does not call InvokeEvent(vtkCommand::SelectionChangedEvent)
+   */
   void ReleasePlotSelections();
 
   /**
@@ -550,7 +614,7 @@ private:
     vtkContextPolygon& polygon);
 };
 
-//@{
+///@{
 /**
  * Small struct used by InvokeEvent to send some information about the point
  * that was clicked on. This is an experimental part of the API, subject to
@@ -563,6 +627,7 @@ struct vtkChartPlotData
   vtkVector2i ScreenPosition;
   int Index;
 };
-//@}
+///@}
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkChartXY_h

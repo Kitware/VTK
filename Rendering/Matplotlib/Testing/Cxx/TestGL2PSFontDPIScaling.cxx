@@ -1,26 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestMathTextFreeTypeTextRenderer.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkTextRenderer.h"
 
 #include "vtkGL2PSExporter.h"
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkStdString.h"
+#include "vtkRenderer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
@@ -28,8 +15,8 @@
 #include <iostream>
 #include <string>
 
-//----------------------------------------------------------------------------
-int TestGL2PSFontDPIScaling(int argc, char *argv[])
+//------------------------------------------------------------------------------
+int TestGL2PSFontDPIScaling(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -39,7 +26,7 @@ int TestGL2PSFontDPIScaling(int argc, char *argv[])
 
   std::string uncodeFontFile(argv[1]);
 
-  vtkStdString str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
+  std::string str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
 
   vtkNew<vtkTextActor> actor1;
   actor1->GetTextProperty()->SetFontSize(20);
@@ -231,8 +218,8 @@ int TestGL2PSFontDPIScaling(int argc, char *argv[])
   exp->TextAsPathOn();
   exp->DrawBackgroundOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSFontDPIScaling");
+  std::string fileprefix =
+    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSFontDPIScaling");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

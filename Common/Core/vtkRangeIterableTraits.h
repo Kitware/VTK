@@ -1,31 +1,25 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRangeIterableTraits.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkRangeIterableTraits_h
 #define vtkRangeIterableTraits_h
 
+#include "vtkABINamespace.h"
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkCompositeDataSet;
 class vtkDataObjectTree;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
-template <typename CollectionType> struct CollectionRange;
+template <typename CollectionType>
+struct CollectionRange;
 
 struct CompositeDataSetRange;
 struct DataObjectTreeRange;
@@ -41,9 +35,7 @@ struct DataObjectTreeRange;
 
 // vtkCollection subclasses --> CollectionRange
 template <typename CollectionType,
-          typename = typename std::enable_if<
-            std::is_base_of<vtkCollection, CollectionType>::value
-            >::type>
+  typename = typename std::enable_if<std::is_base_of<vtkCollection, CollectionType>::value>::type>
 CollectionRange<CollectionType>& DeduceRangeType(const CollectionType&);
 
 // vtkCompositeDataSet --> CompositeDataSetRange
@@ -58,12 +50,13 @@ template <typename Iterable>
 struct IterableTraits
 {
 private:
-  using RangeTypeInternal =
-  decltype(vtk::detail::DeduceRangeType(std::declval<Iterable>()));
+  using RangeTypeInternal = decltype(vtk::detail::DeduceRangeType(std::declval<Iterable>()));
+
 public:
   using RangeType = typename std::decay<RangeTypeInternal>::type;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 }
 

@@ -1,6 +1,6 @@
 set(classes
-  vtkPNrrdReader
-  vtkMPIImageReader)
+  vtkMPIImageReader
+  vtkPNrrdReader)
 
 # Now to generate our object factory.
 vtk_object_factory_declare(
@@ -19,3 +19,4 @@ vtk_module_add_module(VTK::IOMPIImage
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source}
   PRIVATE_HEADERS ${vtk_object_factory_header})
+vtk_add_test_mangling(VTK::IOMPIImage)

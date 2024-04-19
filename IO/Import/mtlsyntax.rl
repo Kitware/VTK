@@ -1,4 +1,4 @@
-// This is a ragel file for generating a paser for MTL files
+// This is a ragel file for generating a parser for MTL files
 // Note that some MTL files are whitespace sensitive
 // Mainly with unquoted string names with spaces
 // ala

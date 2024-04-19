@@ -1,7 +1,7 @@
 # This is an alternative  way to add a named test that uses a common executable
 # Use this if it does not require MPI
 
-set(TEMP ${VTK_BINARY_DIR}/Testing/Temporary)
+set(TEMP "${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}")
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   OBJImporter-TwoTrianglesWithNegativeIndices,TestOBJImporter.cxx
@@ -58,6 +58,21 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
     DATA{../Data/Input/TestOBJImporter-VtNoIndices.png}
 )
 
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestOBJImporter-ScalarsDuplication,TestOBJImporter.cxx
+    DATA{../Data/Input/TestOBJImporter-ScalarsDuplication.obj}
+)
+
+# Test a malformed file
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestOBJImporter-Malformed,TestOBJImporter.cxx,NO_VALID
+    DATA{../Data/Input/malformed.obj}
+)
+# (vtk/vtk#19097) This test is skipped on wasm architecture.
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten") 
+  set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES PASS_REGULAR_EXPRESSION "Unexpected point indice value")
+  set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES FAIL_REGULAR_EXPRESSION "")
+endif ()  
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestVRMLImporter.cxx,NO_VALID
@@ -65,15 +80,28 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
   )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb}
+  TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb} -1
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterPBR,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb}
+  LOOSE_VALID
+  TestGLTFImporterPBR,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} -1
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterKHRLightsPunctual,TestGLTFImporter.cxx DATA{../Data/glTF/Lights/lights.gltf}
+  TestGLTFImporterKHRLightsPunctual,TestGLTFImporter.cxx DATA{../Data/glTF/Lights/lights.gltf} 0
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterCamera,TestGLTFImporter.cxx DATA{../Data/glTF/Cameras/Cameras.gltf} 1
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterUnlit,TestGLTFImporter.cxx DATA{../Data/glTF/UnlitTest/UnlitTest.glb} -1
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterHierarchy,TestGLTFImporterHierarchy.cxx DATA{../Data/glTF/ABeautifulGame/ABeautifulGame.glb} -1
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
@@ -117,4 +145,5 @@ set_tests_properties(VTK::IOImportCxx-TestImportGLFT
 )
 
 vtk_test_cxx_executable(vtkIOImportCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY)

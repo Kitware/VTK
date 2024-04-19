@@ -1,26 +1,13 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    PSystemTools.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkMPIController.h"
 #include "vtkPSystemTools.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int PSystemTools(int argc, char* argv[])
 {
@@ -39,42 +26,40 @@ int PSystemTools(int argc, char* argv[])
   int retVal = 0; // success
 
   std::string str;
-  if(controller->GetLocalProcessId() == 0)
+  if (controller->GetLocalProcessId() == 0)
   {
     str = "test";
   }
   vtkPSystemTools::BroadcastString(str, 0);
-  if(str != "test")
+  if (str != "test")
   {
-    vtkGenericWarningMacro("BroadcastString failed for process " <<
-                           controller->GetLocalProcessId());
+    vtkGenericWarningMacro(
+      "BroadcastString failed for process " << controller->GetLocalProcessId());
     retVal++;
   }
 
   str = vtkPSystemTools::GetCurrentWorkingDirectory();
-  std::string substr = str.substr(str.size()-24, str.size());
-  if(substr != "Parallel/MPI/Testing/Cxx")
+  std::string substr = str.substr(str.size() - 24, str.size());
+  if (substr != "Parallel/MPI/Testing/Cxx")
   {
-    vtkGenericWarningMacro("GetCurrentWorkingDirectory failed for process " <<
-                           controller->GetLocalProcessId());
+    vtkGenericWarningMacro(
+      "GetCurrentWorkingDirectory failed for process " << controller->GetLocalProcessId());
     retVal++;
   }
 
-  if(!vtkPSystemTools::FileIsDirectory(str))
+  if (!vtkPSystemTools::FileIsDirectory(str))
   {
-    vtkGenericWarningMacro("FileIsDirectory failed for process " <<
-                           controller->GetLocalProcessId());
+    vtkGenericWarningMacro(
+      "FileIsDirectory failed for process " << controller->GetLocalProcessId());
     retVal++;
   }
 
   str += "/cmake_install.cmake";
-  if(!vtkPSystemTools::FileExists(str))
+  if (!vtkPSystemTools::FileExists(str))
   {
-    vtkGenericWarningMacro("FileExists failed for process " <<
-                           controller->GetLocalProcessId());
+    vtkGenericWarningMacro("FileExists failed for process " << controller->GetLocalProcessId());
     retVal++;
   }
-
 
   controller->SetGlobalController(nullptr);
   controller->Finalize();

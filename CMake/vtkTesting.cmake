@@ -1,27 +1,37 @@
-include(vtkExternalData)
-
-# Test input data staging directory.
-file(RELATIVE_PATH vtk_reldir "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
-set(VTK_TEST_DATA_DIR "${ExternalData_BINARY_ROOT}/${vtk_reldir}/Testing")
-
-# Test input data directory.
-set(VTK_TEST_INPUT_DIR "${VTK_SOURCE_DIR}/Testing/Data")
-
-# Test output directory.
-set(VTK_TEST_OUTPUT_DIR "${VTK_BINARY_DIR}/Testing/Temporary")
-
-if(NOT EXISTS "${VTK_SOURCE_DIR}/.ExternalData/README.rst")
-  # This file is always present in version-controlled source trees
-  # so we must have been extracted from a source tarball with no
-  # data objects needed for testing.  Turn off tests by default
-  # since enabling them requires network access or manual data
-  # store configuration.
-  set(VTK_BUILD_TESTING OFF)
-endif()
-include(CTest)
-set_property(CACHE BUILD_TESTING
+set(VTK_BUILD_TESTING "OFF"
+  CACHE STRING "Build module testing directories")
+set_property(CACHE VTK_BUILD_TESTING
   PROPERTY
-    TYPE INTERNAL)
+    STRINGS "ON;OFF;WANT")
+
+if (VTK_BUILD_TESTING)
+  if (NOT VTK_DATA_STORE)
+    # These checks must be synchronized with vtkExternalData.cmake
+    if (NOT EXISTS "${VTK_SOURCE_DIR}/.ExternalData/README.rst" AND
+        NOT IS_DIRECTORY "${CMAKE_SOURCE_DIR}/../VTKExternalData" AND
+        NOT IS_DIRECTORY "${CMAKE_SOURCE_DIR}/../ExternalData" AND
+        NOT DEFINED "ENV{VTKExternalData_OBJECT_STORES}" AND
+        NOT DEFINED "ENV{ExternalData_OBJECT_STORES}")
+
+      # The file .ExternalData/README.rst exists in the VTK git repository
+      # but is not included in the VTK-x.y.z.tar.gz release tarball, only
+      # in the VTKData-x.y.z.tar.gz tarball.
+      message(FATAL_ERROR "VTK_BUILD_TESTING is ${VTK_BUILD_TESTING}, but "
+              "there is no ExternalData directory! Please download VTKData, "
+              "which contains an .ExternalData directory that must go into "
+              "your VTK source directory (including the leading dot).")
+    endif ()
+  endif ()
+
+  include(vtkExternalData)
+  include(CTest)
+  set_property(CACHE BUILD_TESTING
+    PROPERTY
+      TYPE INTERNAL)
+  set(BUILD_TESTING ON)
+else ()
+  set(BUILD_TESTING OFF)
+endif ()
 
 # Provide an option for tests requiring "large" input data
 option(VTK_USE_LARGE_DATA "Enable tests requiring \"large\" data" OFF)

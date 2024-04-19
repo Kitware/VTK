@@ -1,7 +1,7 @@
 #include "H5Part.h"
 #include "Underscore.h"
 #include <string.h>
-#include <hdf5.h>
+#include <vtk_hdf5.h>
 
 #if defined(F77_SINGLE_UNDERSCORE)
 #define F77NAME(a,b) a
@@ -305,7 +305,7 @@ h5pt_openr_par (
 	const int l_file_name
 	) {
 
-	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
+	H5_Comm ccomm = MPI_Comm_f2c (*fcomm);
 
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
@@ -323,7 +323,7 @@ h5pt_openw_par (
 	const int l_file_name
 	) {
 
-	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
+	H5_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
 	H5PartFile* f = H5PartOpenFileParallel (
@@ -340,7 +340,7 @@ h5pt_opena_par (
 	const int l_file_name
 	) {
 	
-	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
+	H5_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
        
 	H5PartFile* f = H5PartOpenFileParallel (
@@ -360,7 +360,7 @@ h5pt_openr_par_align (
 	const int l_flags
 	) {
 
-	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
+	H5_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
 
@@ -384,7 +384,7 @@ h5pt_openw_par_align (
 	const int l_flags
 	) {
 
-	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
+	H5_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
 
@@ -408,7 +408,7 @@ h5pt_opena_par_align (
 	const int l_flags
 	) {
 	
-	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
+	H5_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
        

@@ -1,26 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkSphere,
+)
+from vtkmodules.vtkFiltersCore import vtkFlyingEdgesPlaneCutter
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkInteractionWidgets import (
+    vtkImplicitPlaneRepresentation,
+    vtkImplicitPlaneWidget2,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkInteractorEventRecorder,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # These are the pre-recorded events
@@ -146,12 +151,12 @@ Recording = \
 # Create some synthetic data
 #
 # Create a synthetic source: sample a sphere across a volume
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter( 0.0,0.0,0.0)
 sphere.SetRadius(0.25)
 
 res = 100
-sample = vtk.vtkSampleFunction()
+sample = vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
 sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
 sample.SetSampleDimensions(res,res,res)
@@ -159,48 +164,48 @@ sample.SetOutputScalarTypeToFloat()
 sample.Update()
 
 # The cut plane
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetOrigin(0,0,0)
 plane.SetNormal(1,1,1)
 
-cut = vtk.vtkFlyingEdgesPlaneCutter()
+cut = vtkFlyingEdgesPlaneCutter()
 cut.SetInputConnection(sample.GetOutputPort())
 cut.SetPlane(plane)
 cut.ComputeNormalsOff()
 
-cutMapper = vtk.vtkPolyDataMapper()
+cutMapper = vtkPolyDataMapper()
 cutMapper.SetInputConnection(cut.GetOutputPort())
 
-cutActor = vtk.vtkActor()
+cutActor = vtkActor()
 cutActor.SetMapper(cutMapper)
 cutActor.GetProperty().SetColor(1,1,1)
 cutActor.GetProperty().SetOpacity(1)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren)
-iRen = vtk.vtkRenderWindowInteractor()
+iRen = vtkRenderWindowInteractor()
 iRen.SetRenderWindow(renWin)
 
 # Create the widget, its representation, and callback
 def MovePlane(widget, event_string):
     rep.GetPlane(plane)
 
-rep = vtk.vtkImplicitPlaneRepresentation()
+rep = vtkImplicitPlaneRepresentation()
 rep.SetPlaceFactor(1.0);
 rep.PlaceWidget(sample.GetOutput().GetBounds())
 rep.DrawPlaneOff()
 rep.SetPlane(plane)
 
-planeWidget = vtk.vtkImplicitPlaneWidget2()
+planeWidget = vtkImplicitPlaneWidget2()
 planeWidget.SetInteractor(iRen)
 planeWidget.SetRepresentation(rep);
 planeWidget.AddObserver("InteractionEvent",MovePlane);
 
-recorder = vtk.vtkInteractorEventRecorder()
+recorder = vtkInteractorEventRecorder()
 recorder.SetInteractor(iRen)
 recorder.ReadFromInputStringOn()
 recorder.SetInputString(Recording)

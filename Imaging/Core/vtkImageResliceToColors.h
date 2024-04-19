@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageResliceToColors.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageResliceToColors
  * @brief   Reslice and produce color scalars.
@@ -26,26 +14,26 @@
  * will be converted to the specified output format.
  * @sa
  * vtkImageMapToColors
-*/
+ */
 
 #ifndef vtkImageResliceToColors_h
 #define vtkImageResliceToColors_h
 
-
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageReslice.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors;
 
 class VTKIMAGINGCORE_EXPORT vtkImageResliceToColors : public vtkImageReslice
 {
 public:
-  static vtkImageResliceToColors *New();
+  static vtkImageResliceToColors* New();
   vtkTypeMacro(vtkImageResliceToColors, vtkImageReslice);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set a lookup table to apply to the data.  Use the Range,
    * VectorMode, and VectorComponents of the table to control
@@ -53,25 +41,21 @@ public:
    * voxel is transformed to a point outside the input volume,
    * then that voxel will be set to the BackgroundColor.
    */
-  virtual void SetLookupTable(vtkScalarsToColors *table);
-  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
-  //@}
+  virtual void SetLookupTable(vtkScalarsToColors* table);
+  vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the output format, the default is RGBA.
    */
-  vtkSetClampMacro(OutputFormat,int,VTK_LUMINANCE,VTK_RGBA);
-  vtkGetMacro(OutputFormat,int);
-  void SetOutputFormatToRGBA() {
-    this->OutputFormat = VTK_RGBA; };
-  void SetOutputFormatToRGB() {
-    this->OutputFormat = VTK_RGB; };
-  void SetOutputFormatToLuminanceAlpha() {
-    this->OutputFormat = VTK_LUMINANCE_ALPHA; };
-  void SetOutputFormatToLuminance() {
-    this->OutputFormat = VTK_LUMINANCE; };
-  //@}
+  vtkSetClampMacro(OutputFormat, int, VTK_LUMINANCE, VTK_RGBA);
+  vtkGetMacro(OutputFormat, int);
+  void SetOutputFormatToRGBA() { this->OutputFormat = VTK_RGBA; }
+  void SetOutputFormatToRGB() { this->OutputFormat = VTK_RGB; }
+  void SetOutputFormatToLuminanceAlpha() { this->OutputFormat = VTK_LUMINANCE_ALPHA; }
+  void SetOutputFormatToLuminance() { this->OutputFormat = VTK_LUMINANCE; }
+  ///@}
 
   /**
    * Bypass the color mapping operation and output the scalar
@@ -93,20 +77,20 @@ protected:
   vtkImageResliceToColors();
   ~vtkImageResliceToColors() override;
 
-  vtkScalarsToColors *LookupTable;
-  vtkScalarsToColors *DefaultLookupTable;
+  vtkScalarsToColors* LookupTable;
+  vtkScalarsToColors* DefaultLookupTable;
   int OutputFormat;
   int Bypass;
 
-  int ConvertScalarInfo(int &scalarType, int &numComponents) override;
+  int ConvertScalarInfo(int& scalarType, int& numComponents) override;
 
-  void ConvertScalars(void *inPtr, void *outPtr, int inputType,
-                      int inputNumComponents, int count,
-                      int idX, int idY, int idZ, int threadId) override;
+  void ConvertScalars(void* inPtr, void* outPtr, int inputType, int inputNumComponents, int count,
+    int idX, int idY, int idZ, int threadId) override;
 
 private:
   vtkImageResliceToColors(const vtkImageResliceToColors&) = delete;
   void operator=(const vtkImageResliceToColors&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

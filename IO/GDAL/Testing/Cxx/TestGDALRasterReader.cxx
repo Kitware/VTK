@@ -1,26 +1,14 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGDALRasterReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include <vtkGDALRasterReader.h>
 
 // VTK includes
-#include <vtkImageActor.h>
 #include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
 #include <vtkCompositePolyDataMapper.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDoubleArray.h>
+#include <vtkImageActor.h>
 #include <vtkInformation.h>
 #include <vtkLookupTable.h>
 #include <vtkMapper.h>
@@ -30,9 +18,9 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkTestUtilities.h>
@@ -45,15 +33,16 @@
 // Main program
 int TestGDALRasterReader(int argc, char** argv)
 {
-  const char* rasterFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                 "Data/GIS/raster.tif");
+  const char* rasterFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/GIS/raster.tif");
 
   // Create reader to read shape file.
   vtkNew<vtkGDALRasterReader> reader;
   reader->SetFileName(rasterFileName);
   reader->UpdateInformation();
   // extent in points
-  int* extent = reader->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int* extent =
+    reader->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   std::ostream_iterator<int> out_it(std::cout, " ");
   std::cout << "Point extents: ";
   std::copy(extent, extent + 6, out_it);
@@ -63,15 +52,14 @@ int TestGDALRasterReader(int argc, char** argv)
   std::cout << "Cell dimensions: ";
   std::copy(rasterdims, rasterdims + 2, out_it);
   std::cout << std::endl;
-  if (extent[1] - extent[0] != rasterdims[0] ||
-      extent[3] - extent[2] != rasterdims[1])
+  if (extent[1] - extent[0] != rasterdims[0] || extent[3] - extent[2] != rasterdims[1])
   {
     std::cerr << "Error: Number of cells should be one less than the number of points\n";
     return 1;
   }
 
   // test if we read all 3 bands with CollateBands=0 (default is 1)
-  reader->SetCollateBands(0);
+  reader->SetCollateBands(false);
   reader->Update();
   vtkUniformGrid* data = vtkUniformGrid::SafeDownCast(reader->GetOutput());
   if (data->GetCellData()->GetNumberOfArrays() != 3)
@@ -91,10 +79,10 @@ int TestGDALRasterReader(int argc, char** argv)
   }
 
   // collate bands
-  reader->SetCollateBands(1);
+  reader->SetCollateBands(true);
   reader->SetCellArrayStatus(reader->GetCellArrayName(0), 1);
   reader->Update();
-  delete [] rasterFileName;
+  delete[] rasterFileName;
 
   // We need a renderer
   vtkNew<vtkRenderer> renderer;
@@ -103,7 +91,6 @@ int TestGDALRasterReader(int argc, char** argv)
   vtkNew<vtkCellDataToPointData> c2p;
   c2p->SetInputDataObject(reader->GetOutput());
   c2p->Update();
-
 
   vtkNew<vtkImageActor> actor;
   actor->SetInputData(vtkUniformGrid::SafeDownCast(c2p->GetOutput()));
@@ -115,7 +102,7 @@ int TestGDALRasterReader(int argc, char** argv)
   renderWindow->AddRenderer(renderer);
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  //Add the actor to the scene
+  // Add the actor to the scene
   renderer->SetBackground(1.0, 1.0, 1.0);
   renderWindow->SetSize(400, 400);
   renderWindow->Render();

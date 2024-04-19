@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestMoleculeToLines.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkTestUtilities.h"
 
@@ -25,12 +13,15 @@
 #include "vtkPolyData.h"
 
 #define CheckNumbers(name, first, second)                                                          \
-  if (first != second)                                                                             \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects " << second  \
-         << endl;                                                                                  \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (first != second)                                                                           \
+    {                                                                                              \
+      cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects "          \
+           << second << endl;                                                                      \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 int TestMoleculeToLines(int argc, char* argv[])
 {
@@ -52,11 +43,9 @@ int TestMoleculeToLines(int argc, char* argv[])
   // check number of points, lines and associated data
   CheckNumbers("points", poly->GetNumberOfPoints(), molecule->GetNumberOfAtoms());
   CheckNumbers("lines", poly->GetNumberOfLines(), molecule->GetNumberOfBonds());
-  CheckNumbers("pointData",
-    poly->GetPointData()->GetNumberOfArrays(),
+  CheckNumbers("pointData", poly->GetPointData()->GetNumberOfArrays(),
     molecule->GetAtomData()->GetNumberOfArrays());
-  CheckNumbers("cellData",
-    poly->GetCellData()->GetNumberOfArrays(),
+  CheckNumbers("cellData", poly->GetCellData()->GetNumberOfArrays(),
     molecule->GetBondData()->GetNumberOfArrays());
   return EXIT_SUCCESS;
 }

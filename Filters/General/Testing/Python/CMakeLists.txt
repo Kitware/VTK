@@ -14,14 +14,25 @@ vtk_add_test_python(
   TestDiscreteMarchingCubesAdjacentScalars.py
   TestFEDiscreteClipper2D.py
   TestGraphLayoutFilter.py
+  TestGroupTimeStepsFilter.py
   TestMarchingCubes.py
-  TestMultiBlockFromTimeSeries.py
   TestPointConnectivityFilter.py
   TestRemoveGhostCells.py,NO_OUTPUT,NO_VALID
+  TestRemovePolyData.py
+  TestRemovePolyData2.py
+  TestRemovePolyData3.py
+  TestSparseCellLocator.py
+  TestSphericalIteration.py
+  TestSphericalIteratorSets.py
   TestSplineFilter.py
   TestStaticCellLocator.py
   TestStaticCellLocatorPlaneIntersection.py
   TestSynchronizeTimeFilter.py,NO_OUTPUT,NO_VALID
+  TestTemporalPathLineFilter.py,NO_OUTPUT,NO_VALID
+  TestTemporalStatistics.py,NO_OUTPUT,NO_VALID
+  TestTriangulateContours.py
+  TestWarpScalar.py,NO_VALID
+  TestWarpVector.py,NO_VALID
   WarpToImage.py
   blankGrid.py
   clipComb.py
@@ -52,9 +63,9 @@ vtk_add_test_python(
   WarpScalarImage.py
   WarpVectorImage.py
   cursor2D.py
-  spatialRepAll.py,NO_RT
-  pointsPrecisions.py,NO_OUTPUT,NO_DATA,NO_VALID,NO_RT
-  tableBasedClip.py,NO_RT
+  spatialRepAll.py
+  pointsPrecisions.py,NO_OUTPUT,NO_DATA,NO_VALID
+  tableBasedClip.py
   GreenLagrangeStrain.py.py,NO_OUTPUT,NO_DATA,NO_VALID
   TestMultiBlockStreamer.py
   TestSampleImplicitFunctionFilter.py

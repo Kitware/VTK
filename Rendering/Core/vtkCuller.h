@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCuller.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCuller
  * @brief   a superclass for prop cullers
@@ -23,18 +11,20 @@
  *
  * @sa
  * vtkFrustumCoverageCuller
-*/
+ */
 
 #ifndef vtkCuller_h
 #define vtkCuller_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkCuller : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCuller : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCuller, vtkObject);
@@ -43,8 +33,7 @@ public:
   /**
    * This is called outside the render loop by vtkRenderer
    */
-  virtual double Cull( vtkRenderer *ren, vtkProp **propList,
-                       int& listLength, int& initialized ) = 0;
+  virtual double Cull(vtkRenderer* ren, vtkProp** propList, int& listLength, int& initialized) = 0;
 
 protected:
   vtkCuller();
@@ -55,4 +44,5 @@ private:
   void operator=(const vtkCuller&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

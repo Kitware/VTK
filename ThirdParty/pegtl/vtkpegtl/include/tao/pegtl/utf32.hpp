@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_UTF32_HPP
@@ -44,7 +44,7 @@ namespace tao
 
       }  // namespace utf32_le
 
-      namespace utf32 = TAO_PEGTL_NATIVE_UTF32;  // NOLINT(misc-unused-alias-decls)
+      namespace utf32 = TAO_PEGTL_NATIVE_UTF32;
 
    }  // namespace TAO_PEGTL_NAMESPACE
 

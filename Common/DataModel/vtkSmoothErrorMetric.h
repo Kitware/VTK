@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSmoothErrorMetric.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSmoothErrorMetric
  * @brief   Objects that compute
@@ -26,7 +14,7 @@
  *
  * @sa
  * vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric
-*/
+ */
 
 #ifndef vtkSmoothErrorMetric_h
 #define vtkSmoothErrorMetric_h
@@ -34,6 +22,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGenericSubdivisionErrorMetric.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericDataSet;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkSmoothErrorMetric : public vtkGenericSubdivisionErrorMetric
@@ -43,15 +32,15 @@ public:
    * Construct the error metric with a default flatness threshold of 90.1
    * degrees.
    */
-  static vtkSmoothErrorMetric *New();
+  static vtkSmoothErrorMetric* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK type and error macros.
    */
-  vtkTypeMacro(vtkSmoothErrorMetric,vtkGenericSubdivisionErrorMetric);
+  vtkTypeMacro(vtkSmoothErrorMetric, vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Return the flatness threshold.
@@ -85,8 +74,8 @@ public:
    * \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    */
-  int RequiresEdgeSubdivision(double *leftPoint, double *midPoint,
-                              double *rightPoint, double alpha) override;
+  int RequiresEdgeSubdivision(
+    double* leftPoint, double* midPoint, double* rightPoint, double alpha) override;
 
   /**
    * Return the error at the mid-point. It will return an error relative to
@@ -101,8 +90,7 @@ public:
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    * \post positive_result: result>=0
    */
-  double GetError(double *leftPoint, double *midPoint, double *rightPoint,
-                  double alpha) override;
+  double GetError(double* leftPoint, double* midPoint, double* rightPoint, double alpha) override;
 
 protected:
   vtkSmoothErrorMetric();
@@ -116,4 +104,5 @@ private:
   void operator=(const vtkSmoothErrorMetric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,32 +1,19 @@
-/*==============================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestScaledSOADataArrayTemplate.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-==============================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkMathUtilities.h"
 #include "vtkScaledSOADataArrayTemplate.h"
 
 // Needed for portable setenv on MSVC...
 #include "vtksys/SystemTools.hxx"
 
-
-int TestScaledSOADataArrayTemplate(int,char *[])
+int TestScaledSOADataArrayTemplate(int, char*[])
 {
   const int numValues = 5;
-  const double trueFirstData[numValues] = {0, 1, 2, 3, 4};
-  const double trueSecondData[numValues] = {10, 11, 12, 13, 14};
+  const double trueFirstData[numValues] = { 0, 1, 2, 3, 4 };
+  const double trueSecondData[numValues] = { 10, 11, 12, 13, 14 };
   double firstData[numValues];
   double secondData[numValues];
-  for (int i=0;i<5;i++)
+  for (int i = 0; i < 5; i++)
   {
     firstData[i] = trueFirstData[i];
     secondData[i] = trueSecondData[i];
@@ -42,11 +29,11 @@ int TestScaledSOADataArrayTemplate(int,char *[])
   // first check that we get twice the values that are stored in firstData and secondData
   // returned by GetTypedTuple()
   double vals[2];
-  for (vtkIdType i=0;i<array->GetNumberOfTuples();i++)
+  for (vtkIdType i = 0; i < array->GetNumberOfTuples(); i++)
   {
     array->GetTypedTuple(i, vals);
-    if (!vtkMathUtilities::NearlyEqual(vals[0], trueFirstData[i]*array->GetScale()) ||
-        !vtkMathUtilities::NearlyEqual(vals[1], trueSecondData[i]*array->GetScale()))
+    if (!vtkMathUtilities::NearlyEqual(vals[0], trueFirstData[i] * array->GetScale()) ||
+      !vtkMathUtilities::NearlyEqual(vals[1], trueSecondData[i] * array->GetScale()))
     {
       vtkGenericWarningMacro("Incorrect values returned from scaled array");
       return 1;
@@ -55,14 +42,14 @@ int TestScaledSOADataArrayTemplate(int,char *[])
 
   // second check that if we set information based on firstData and secondData
   // that we get that back
-  for (vtkIdType i=0;i<array->GetNumberOfTuples();i++)
+  for (vtkIdType i = 0; i < array->GetNumberOfTuples(); i++)
   {
     vals[0] = trueFirstData[i];
     vals[1] = trueSecondData[i];
     array->SetTypedTuple(i, vals);
     array->GetTypedTuple(i, vals);
     if (!vtkMathUtilities::NearlyEqual(vals[0], trueFirstData[i]) ||
-        !vtkMathUtilities::NearlyEqual(vals[1], trueSecondData[i]))
+      !vtkMathUtilities::NearlyEqual(vals[1], trueSecondData[i]))
     {
       vtkGenericWarningMacro(
         "Incorrect values returned from scaled array after setting values in the array");
@@ -72,7 +59,7 @@ int TestScaledSOADataArrayTemplate(int,char *[])
 
   // third check is for FillValue()
   array->FillValue(2.);
-  for (vtkIdType i=0;i<array->GetNumberOfTuples();i++)
+  for (vtkIdType i = 0; i < array->GetNumberOfTuples(); i++)
   {
     array->GetTypedTuple(i, vals);
     if (!vtkMathUtilities::NearlyEqual(vals[0], 2.) || !vtkMathUtilities::NearlyEqual(vals[1], 2.))
@@ -89,12 +76,11 @@ int TestScaledSOADataArrayTemplate(int,char *[])
   double* rawPointer = array->GetPointer(0);
   if (!vtkMathUtilities::NearlyEqual(rawPointer[0], 2.))
   {
-    vtkGenericWarningMacro(
-      "Incorrect values returned from scaled array after GetPointer()");
+    vtkGenericWarningMacro("Incorrect values returned from scaled array after GetPointer()");
     return 1;
   }
 
   array->Delete();
 
-  return 0; //success
+  return 0; // success
 }

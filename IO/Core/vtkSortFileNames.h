@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSortFileNames.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSortFileNames
  * @brief   Group and sort a set of filenames
@@ -26,7 +14,7 @@
  * stored in the files themselves (e.g DICOM).
  * @sa
  * vtkImageReader2
-*/
+ */
 
 #ifndef vtkSortFileNames_h
 #define vtkSortFileNames_h
@@ -34,6 +22,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 // this is a helper class defined in the .cxx file
@@ -42,12 +31,11 @@ class vtkStringArrayVector;
 class VTKIOCORE_EXPORT vtkSortFileNames : public vtkObject
 {
 public:
-
-  vtkTypeMacro(vtkSortFileNames,vtkObject);
+  vtkTypeMacro(vtkSortFileNames, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkSortFileNames *New();
+  static vtkSortFileNames* New();
 
-  //@{
+  ///@{
   /**
    * Sort the file names into groups, according to similarity in
    * filename name and path.  Files in different directories,
@@ -58,9 +46,9 @@ public:
   vtkSetMacro(Grouping, vtkTypeBool);
   vtkGetMacro(Grouping, vtkTypeBool);
   vtkBooleanMacro(Grouping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sort the files numerically, rather than lexicographically.
    * For filenames that contain numbers, this means the order will be
@@ -72,9 +60,9 @@ public:
   vtkSetMacro(NumericSort, vtkTypeBool);
   vtkGetMacro(NumericSort, vtkTypeBool);
   vtkBooleanMacro(NumericSort, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Ignore case when sorting.  This flag is honored by both
    * the sorting and the grouping. This is off by default.
@@ -82,9 +70,9 @@ public:
   vtkSetMacro(IgnoreCase, vtkTypeBool);
   vtkGetMacro(IgnoreCase, vtkTypeBool);
   vtkBooleanMacro(IgnoreCase, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Skip directories. If this flag is set, any input item that
    * is a directory rather than a file will not be included in
@@ -93,20 +81,20 @@ public:
   vtkSetMacro(SkipDirectories, vtkTypeBool);
   vtkGetMacro(SkipDirectories, vtkTypeBool);
   vtkBooleanMacro(SkipDirectories, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a list of file names to group and sort.
    */
-  void SetInputFileNames(vtkStringArray *input);
+  void SetInputFileNames(vtkStringArray* input);
   vtkGetObjectMacro(InputFileNames, vtkStringArray);
-  //@}
+  ///@}
 
   /**
    * Get the full list of sorted filenames.
    */
-  virtual vtkStringArray *GetFileNames();
+  virtual vtkStringArray* GetFileNames();
 
   /**
    * Get the number of groups that the names were split into, if
@@ -122,7 +110,7 @@ public:
    * be used if grouping is on.  If grouping is off, it will always
    * return null.
    */
-  virtual vtkStringArray *GetNthGroup(int i);
+  virtual vtkStringArray* GetNthGroup(int i);
 
   /**
    * Update the output filenames from the input filenames.
@@ -142,9 +130,9 @@ protected:
 
   vtkTimeStamp UpdateTime;
 
-  vtkStringArray *InputFileNames;
-  vtkStringArray *FileNames;
-  vtkStringArrayVector *Groups;
+  vtkStringArray* InputFileNames;
+  vtkStringArray* FileNames;
+  vtkStringArrayVector* Groups;
 
   /**
    * Fill the output.
@@ -154,18 +142,17 @@ protected:
   /**
    * Sort the input string array, and append the results to the output.
    */
-  virtual void SortFileNames(vtkStringArray *input, vtkStringArray *output);
+  virtual void SortFileNames(vtkStringArray* input, vtkStringArray* output);
 
   /**
    * Separate a string array into groups and append them to the output.
    */
-  virtual void GroupFileNames(vtkStringArray *input,
-                              vtkStringArrayVector *output);
-
+  virtual void GroupFileNames(vtkStringArray* input, vtkStringArrayVector* output);
 
 private:
   vtkSortFileNames(const vtkSortFileNames&) = delete;
   void operator=(const vtkSortFileNames&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -199,5 +199,7 @@
 #define lzma_vli_decode vtklzma_lzma_vli_decode
 #define lzma_vli_encode vtklzma_lzma_vli_encode
 #define lzma_vli_size vtklzma_lzma_vli_size
+#define vtklzma_tuklib_cpucores vtklzma_vtklzma_tuklib_cpucores
+#define vtklzma_tuklib_physmem vtklzma_vtklzma_tuklib_physmem
 
 #endif

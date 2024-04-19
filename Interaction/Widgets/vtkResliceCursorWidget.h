@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkResliceCursorWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkResliceCursorWidget
  * @brief   represent a reslice cursor
@@ -31,47 +19,51 @@
  * @sa
  * vtkImageSlabReslice vtkResliceCursorLineRepresentation
  * vtkResliceCursor
-*/
+ */
 
 #ifndef vtkResliceCursorWidget_h
 #define vtkResliceCursorWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkResliceCursorRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkResliceCursorWidget : public vtkAbstractWidget
 {
 public:
-
   /**
    * Instantiate this class.
    */
-  static vtkResliceCursorWidget *New();
+  static vtkResliceCursorWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class macros.
    */
-  vtkTypeMacro(vtkResliceCursorWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkResliceCursorWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkResliceCursorRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(
-        reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkResliceCursorRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkResliceCursorRepresentation.
    */
-  vtkResliceCursorRepresentation *GetResliceCursorRepresentation()
-    {return reinterpret_cast<vtkResliceCursorRepresentation*>(this->WidgetRep);}
+  vtkResliceCursorRepresentation* GetResliceCursorRepresentation()
+  {
+    return reinterpret_cast<vtkResliceCursorRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -85,14 +77,14 @@ public:
    */
   void SetEnabled(int) override;
 
-  //@{
+  ///@{
   /**
    * Also perform window level ?
    */
-  vtkSetMacro( ManageWindowLevel, vtkTypeBool );
-  vtkGetMacro( ManageWindowLevel, vtkTypeBool );
-  vtkBooleanMacro( ManageWindowLevel, vtkTypeBool );
-  //@}
+  vtkSetMacro(ManageWindowLevel, vtkTypeBool);
+  vtkGetMacro(ManageWindowLevel, vtkTypeBool);
+  vtkBooleanMacro(ManageWindowLevel, vtkTypeBool);
+  ///@}
 
   /**
    * Events
@@ -117,6 +109,7 @@ protected:
   // These are the callbacks for this widget
   static void SelectAction(vtkAbstractWidget*);
   static void RotateAction(vtkAbstractWidget*);
+  static void TranslateAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
   static void ResizeThicknessAction(vtkAbstractWidget*);
   static void EndResizeThicknessAction(vtkAbstractWidget*);
@@ -134,9 +127,9 @@ protected:
 
   // Manage the state of the widget
   int WidgetState;
-  enum _WidgetState
+  enum WidgetStateType
   {
-    Start=0,
+    Start = 0,
     Active
   };
 
@@ -149,4 +142,5 @@ private:
   void operator=(const vtkResliceCursorWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

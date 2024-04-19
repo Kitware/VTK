@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkUndirectedGraph.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkUndirectedGraph
  * @brief   An undirected graph.
@@ -37,7 +21,7 @@
  *
  * @sa
  * vtkGraph vtkMutableUndirectedGraph
-*/
+ */
 
 #ifndef vtkUndirectedGraph_h
 #define vtkUndirectedGraph_h
@@ -45,17 +29,18 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkUndirectedGraph : public vtkGraph
 {
 public:
-  static vtkUndirectedGraph *New();
+  static vtkUndirectedGraph* New();
   vtkTypeMacro(vtkUndirectedGraph, vtkGraph);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_UNDIRECTED_GRAPH;}
+  int GetDataObjectType() override { return VTK_UNDIRECTED_GRAPH; }
 
   /**
    * Returns the full degree of the vertex.
@@ -75,29 +60,30 @@ public:
    * GetInEdge(vtkIdType, vtkIdType) is preferred.
    */
   void GetInEdge(vtkIdType v, vtkIdType i, vtkGraphEdge* e) override
-    { this->Superclass::GetInEdge(v, i, e); }
+  {
+    this->Superclass::GetInEdge(v, i, e);
+  }
 
-  //@{
+  ///@{
   /**
    * Retrieve a graph from an information vector.
    */
-  static vtkUndirectedGraph *GetData(vtkInformation *info);
-  static vtkUndirectedGraph *GetData(vtkInformationVector *v, int i=0);
-  //@}
+  static vtkUndirectedGraph* GetData(vtkInformation* info);
+  static vtkUndirectedGraph* GetData(vtkInformationVector* v, int i = 0);
+  ///@}
 
   /**
    * Initialize the iterator to get the incoming edges to a vertex.
    * For an undirected graph, this is all incident edges.
    */
-  void GetInEdges(vtkIdType v, vtkInEdgeIterator *it) override
-    { Superclass::GetInEdges(v, it); }
+  void GetInEdges(vtkIdType v, vtkInEdgeIterator* it) override { Superclass::GetInEdges(v, it); }
 
   /**
    * Check the structure, and accept it if it is a valid
    * undirected graph. This is public to allow
    * the ToDirected/UndirectedGraph to work.
    */
-  bool IsStructureValid(vtkGraph *g) override;
+  bool IsStructureValid(vtkGraph* g) override;
 
 protected:
   vtkUndirectedGraph();
@@ -106,12 +92,12 @@ protected:
   /**
    * For iterators, returns the same edge list as GetOutEdges().
    */
-  void GetInEdges(vtkIdType v, const vtkInEdgeType *& edges,
-                  vtkIdType & nedges) override;
+  void GetInEdges(vtkIdType v, const vtkInEdgeType*& edges, vtkIdType& nedges) override;
 
 private:
   vtkUndirectedGraph(const vtkUndirectedGraph&) = delete;
   void operator=(const vtkUndirectedGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

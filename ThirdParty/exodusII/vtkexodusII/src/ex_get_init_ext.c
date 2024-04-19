@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 /*****************************************************************************
  *
@@ -51,9 +24,27 @@
 #include "exodusII.h"     // for ex_init_params, etc
 #include "exodusII_int.h" // for EX_FATAL, EX_NOERR, etc
 
+static void ex__get_entity_count(int exoid, ex_init_params *info)
+{
+  int ndims;
+  nc_inq(exoid, &ndims, NULL, NULL, NULL);
+  for (int dimid = 0; dimid < ndims; dimid++) {
+    char   dim_nm[NC_MAX_NAME];
+    size_t dim_sz;
+    nc_inq_dim(exoid, dimid, dim_nm, &dim_sz);
+    /* For assemblies, we check for a dim starting with "num_entity_assembly" */
+    if (strncmp(dim_nm, "num_entity_assembly", 19) == 0) {
+      info->num_assembly++;
+    }
+    else if (strncmp(dim_nm, "num_values_blob", 15) == 0) {
+      info->num_blob++;
+    }
+  }
+}
+
 /* Used to reduce repeated code below */
-static int64_t ex_get_dim_value(int exoid, const char *name, const char *dimension_name,
-                                int dimension, int64_t *value)
+static int ex_get_dim_value(int exoid, const char *name, const char *dimension_name, int dimension,
+                            int64_t *value)
 {
   char errmsg[MAX_ERR_LENGTH];
   int  status;
@@ -76,6 +67,7 @@ static int64_t ex_get_dim_value(int exoid, const char *name, const char *dimensi
 }
 
 /*!
+ * \ingroup ModelDescription
  * reads the initialization parameters from an opened EXODUS file
  * \param exoid exodus file id
  * \param[out] info #ex_init_params structure containing metadata for mesh.
@@ -93,7 +85,9 @@ int ex_get_init_ext(int exoid, ex_init_params *info)
   int rootid = exoid & EX_FILE_ID_MASK;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   info->num_dim       = 0;
   info->num_nodes     = 0;
@@ -112,6 +106,8 @@ int ex_get_init_ext(int exoid, ex_init_params *info)
   info->num_edge_maps = 0;
   info->num_face_maps = 0;
   info->num_elem_maps = 0;
+  info->num_assembly  = 0;
+  info->num_blob      = 0;
 
   dimid = 0;
   if (ex_get_dim_value(exoid, "dimension count", DIM_NUM_DIM, dimid, &info->num_dim) != EX_NOERR) {
@@ -120,6 +116,10 @@ int ex_get_init_ext(int exoid, ex_init_params *info)
   if (ex_get_dim_value(exoid, "nodes", DIM_NUM_NODES, dimid, &info->num_nodes) != EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
+
+  /* Counts for assemblies and blobs */
+  ex__get_entity_count(exoid, info);
+
   if (ex_get_dim_value(exoid, "edges", DIM_NUM_EDGE, dimid, &info->num_edge) != EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -210,14 +210,16 @@ int ex_get_init_ext(int exoid, ex_init_params *info)
     info->title[0] = '\0';
   }
 
-  /* Update settings in ex_file_item struct */
+  /* Update settings in ex__file_item struct */
   {
-    struct ex_file_item *file = ex_find_file_item(exoid);
+    struct ex__file_item *file = ex__find_file_item(exoid);
     if (file) {
-      file->has_nodes = info->num_nodes > 0;
-      file->has_edges = info->num_edge > 0;
-      file->has_faces = info->num_face > 0;
-      file->has_elems = info->num_elem > 0;
+      file->has_nodes      = info->num_nodes > 0;
+      file->has_edges      = info->num_edge > 0;
+      file->has_faces      = info->num_face > 0;
+      file->has_elems      = info->num_elem > 0;
+      file->assembly_count = info->num_assembly;
+      file->blob_count     = info->num_blob;
     }
   }
   EX_FUNC_LEAVE(EX_NOERR);

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLUniformGridAMRWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLUniformGridAMRWriter
  * @brief   writer for vtkUniformGridAMR.
@@ -19,7 +7,7 @@
  * vtkXMLUniformGridAMRWriter is a vtkXMLCompositeDataWriter subclass to
  * handle vtkUniformGridAMR datasets (including vtkNonOverlappingAMR and
  * vtkOverlappingAMR).
-*/
+ */
 
 #ifndef vtkXMLUniformGridAMRWriter_h
 #define vtkXMLUniformGridAMRWriter_h
@@ -27,6 +15,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOXML_EXPORT vtkXMLUniformGridAMRWriter : public vtkXMLCompositeDataWriter
 {
 public:
@@ -37,8 +26,7 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() override
-    { return "vth"; }
+  const char* GetDefaultFileExtension() override { return "vth"; }
 
 protected:
   vtkXMLUniformGridAMRWriter();
@@ -56,13 +44,13 @@ protected:
 
   // Internal method called recursively to create the xml tree for the children
   // of compositeData.
-  int WriteComposite(vtkCompositeDataSet* compositeData,
-    vtkXMLDataElement* parent, int &writerIdx) override;
+  int WriteComposite(
+    vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& writerIdx) override;
 
 private:
   vtkXMLUniformGridAMRWriter(const vtkXMLUniformGridAMRWriter&) = delete;
   void operator=(const vtkXMLUniformGridAMRWriter&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

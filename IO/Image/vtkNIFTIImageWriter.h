@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkNIFTIImageWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkNIFTIImageWriter
  * @brief   Write NIfTI-1 and NIfTI-2 medical image files
@@ -28,7 +16,7 @@
  * Analysis Centre (CIPAC).
  * @sa
  * vtkNIFTIImageReader
-*/
+ */
 
 #ifndef vtkNIFTIImageWriter_h
 #define vtkNIFTIImageWriter_h
@@ -36,26 +24,27 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkNIFTIImageHeader;
 
 class VTKIOIMAGE_EXPORT vtkNIFTIImageWriter : public vtkImageWriter
 {
 public:
-  //@{
+  ///@{
   /**
    * Static method for construction.
    */
-  static vtkNIFTIImageWriter *New();
+  static vtkNIFTIImageWriter* New();
   vtkTypeMacro(vtkNIFTIImageWriter, vtkImageWriter);
-  //@}
+  ///@}
 
   /**
    * Print information about this object.
    */
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the version number for the NIfTI file format to use.
    * This can be 1, 2, or 0 (the default).  If set to zero, then it
@@ -64,18 +53,18 @@ public:
    */
   vtkSetMacro(NIFTIVersion, int);
   vtkGetMacro(NIFTIVersion, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a short description (max 80 chars) of how the file was produced.
    * The default description is "VTKX.Y" where X.Y is the VTK version.
    */
   vtkSetStringMacro(Description);
   vtkGetStringMacro(Description);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the time dimension to use in the NIFTI file (or zero if none).
    * The number of components of the input data must be divisible by the time
@@ -86,24 +75,24 @@ public:
   vtkSetMacro(TimeDimension, int);
   vtkGetMacro(TimeSpacing, double);
   vtkSetMacro(TimeSpacing, double);
-  //@}
+  ///@}
 
-   //@{
-   /**
-    * Set the slope and intercept for calibrating the scalar values.
-    * Other programs that read the NIFTI file can use the equation
-    * v = u*RescaleSlope + RescaleIntercept to rescale the data to
-    * real values.  If both the slope and the intercept are zero,
-    * then the SclSlope and SclIntercept in the header info provided
-    * via SetNIFTIHeader() are used instead.
-    */
-   vtkSetMacro(RescaleSlope, double);
-   vtkGetMacro(RescaleSlope, double);
-   vtkSetMacro(RescaleIntercept, double);
-   vtkGetMacro(RescaleIntercept, double);
-   //@}
+  ///@{
+  /**
+   * Set the slope and intercept for calibrating the scalar values.
+   * Other programs that read the NIFTI file can use the equation
+   * v = u*RescaleSlope + RescaleIntercept to rescale the data to
+   * real values.  If both the slope and the intercept are zero,
+   * then the SclSlope and SclIntercept in the header info provided
+   * via SetNIFTIHeader() are used instead.
+   */
+  vtkSetMacro(RescaleSlope, double);
+  vtkGetMacro(RescaleSlope, double);
+  vtkSetMacro(RescaleIntercept, double);
+  vtkGetMacro(RescaleIntercept, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Write planar RGB (separate R, G, and B planes), rather than packed RGB.
    * Use this option with extreme caution: the NIFTI standard requires RGB
@@ -114,9 +103,9 @@ public:
   vtkGetMacro(PlanarRGB, bool);
   vtkSetMacro(PlanarRGB, bool);
   vtkBooleanMacro(PlanarRGB, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The QFac sets the ordering of the slices in the NIFTI file.
    * If QFac is -1, then the slice ordering in the file will be reversed
@@ -124,7 +113,7 @@ public:
    */
   vtkSetMacro(QFac, double);
   vtkGetMacro(QFac, double);
-  //@}
+  ///@}
 
   /**
    * Set the "qform" orientation and offset for the image data.
@@ -133,8 +122,8 @@ public:
    * The last column of the matrix will be used for the offset.
    * In the NIFTI header, the qform_code will be set to 1.
    */
-  void SetQFormMatrix(vtkMatrix4x4 *);
-  vtkMatrix4x4 *GetQFormMatrix() { return this->QFormMatrix; }
+  void SetQFormMatrix(vtkMatrix4x4*);
+  vtkMatrix4x4* GetQFormMatrix() { return this->QFormMatrix; }
 
   /**
    * Set a matrix for the "sform" transformation stored in the file.
@@ -143,10 +132,10 @@ public:
    * first three columns of the matrix will be multiplied by the voxel
    * spacing. In the NIFTI header, the sform_code will be set to 2.
    */
-  void SetSFormMatrix(vtkMatrix4x4 *);
-  vtkMatrix4x4 *GetSFormMatrix() { return this->SFormMatrix; }
+  void SetSFormMatrix(vtkMatrix4x4*);
+  vtkMatrix4x4* GetSFormMatrix() { return this->SFormMatrix; }
 
-  //@{
+  ///@{
   /**
    * Set the NIFTI header information to use when writing the file.
    * The data dimensions and pixdim from the supplied header will be
@@ -154,9 +143,9 @@ public:
    * header will be ignored if you have called SetQFormMatrix() or
    * SetSFormMatrix() to provide the orientation information for the file.
    */
-  void SetNIFTIHeader(vtkNIFTIImageHeader *hdr);
-  vtkNIFTIImageHeader *GetNIFTIHeader();
-  //@}
+  void SetNIFTIHeader(vtkNIFTIImageHeader* hdr);
+  vtkNIFTIImageHeader* GetNIFTIHeader();
+  ///@}
 
 protected:
   vtkNIFTIImageWriter();
@@ -165,14 +154,13 @@ protected:
   /**
    * Generate the header information for the file.
    */
-  int GenerateHeader(vtkInformation *info, bool singleFile);
+  int GenerateHeader(vtkInformation* info, bool singleFile);
 
   /**
    * The main execution method, which writes the file.
    */
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   /**
    * Make a new filename by replacing extension "ext1" with "ext2".
@@ -180,51 +168,50 @@ protected:
    * long, and must be lower case.  A new string is returned that must
    * be deleted by the caller.
    */
-  static char *ReplaceExtension(
-    const char *fname, const char *ext1, const char *ext2);
+  static char* ReplaceExtension(const char* filename, const char* ext1, const char* ext2);
 
-  //@{
+  ///@{
   /**
    * The size and spacing of the Time dimension to use in the file.
    */
   int TimeDimension;
   double TimeSpacing;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Information for rescaling data to quantitative units.
    */
   double RescaleIntercept;
   double RescaleSlope;
-  //@}
+  ///@}
 
   /**
    * Is -1 if VTK slice order is opposite to NIFTI slice order, +1 otherwise.
    */
   double QFac;
 
-  //@{
+  ///@{
   /**
    * The orientation matrices for the NIFTI file.
    */
-  vtkMatrix4x4 *QFormMatrix;
-  vtkMatrix4x4 *SFormMatrix;
-  //@}
+  vtkMatrix4x4* QFormMatrix;
+  vtkMatrix4x4* SFormMatrix;
+  ///@}
 
   /**
    * A description of how the file was produced.
    */
-  char *Description;
+  char* Description;
 
-  //@{
+  ///@{
   /**
    * The header information.
    */
-  vtkNIFTIImageHeader *NIFTIHeader;
-  vtkNIFTIImageHeader *OwnHeader;
+  vtkNIFTIImageHeader* NIFTIHeader;
+  vtkNIFTIImageHeader* OwnHeader;
   int NIFTIVersion;
-  //@}
+  ///@}
 
   /**
    * Use planar RGB instead of the default (packed).
@@ -236,4 +223,5 @@ private:
   void operator=(const vtkNIFTIImageWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkNIFTIImageWriter_h

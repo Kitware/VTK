@@ -7,6 +7,7 @@ set(classes
   vtkEarthSource
   vtkFacetReader
   vtkForceTime
+  vtkGenerateTimeSteps
   vtkGreedyTerrainDecimation
   vtkGridTransform
   vtkImageToPolyDataFilter
@@ -27,3 +28,4 @@ set(classes
 
 vtk_module_add_module(VTK::FiltersHybrid
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::FiltersHybrid)

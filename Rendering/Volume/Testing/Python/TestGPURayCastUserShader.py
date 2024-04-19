@@ -1,25 +1,27 @@
 #!/usr/bin/env python
-'''
-=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastUserShader.py
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http:#www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
 import sys
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    VTK_LINEAR_INTERPOLATION,
+    vtkObjectFactory,
+)
+from vtkmodules.vtkCommonDataModel import vtkPiecewiseFunction
+from vtkmodules.vtkIOImage import vtkNrrdReader
+from vtkmodules.vtkRenderingCore import (
+    vtkColorTransferFunction,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkShaderProperty,
+    vtkVolume,
+    vtkVolumeProperty,
+)
+from vtkmodules.vtkRenderingVolume import vtkGPUVolumeRayCastMapper
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.vtkRenderingVolumeOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 '''
@@ -30,27 +32,26 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 sys.dont_write_bytecode = True
 
 # Disable object factory override for vtkNrrdReader
-vtk.vtkObjectFactory.SetAllEnableFlags(False, "vtkNrrdReader", "vtkPNrrdReader")
+vtkObjectFactory.SetAllEnableFlags(False, "vtkNrrdReader", "vtkPNrrdReader")
 
-dataRoot = vtkGetDataRoot()
-reader = vtk.vtkNrrdReader()
-reader.SetFileName("" + str(dataRoot) + "/Data/tooth.nhdr")
+reader = vtkNrrdReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/tooth.nhdr")
 reader.Update()
 
-volumeProperty = vtk.vtkVolumeProperty()
+volumeProperty = vtkVolumeProperty()
 volumeProperty.ShadeOn()
-volumeProperty.SetInterpolationType(vtk.VTK_LINEAR_INTERPOLATION)
+volumeProperty.SetInterpolationType(VTK_LINEAR_INTERPOLATION)
 
 range = reader.GetOutput().GetScalarRange()
 
 # Prepare 1D Transfer Functions
-ctf = vtk.vtkColorTransferFunction()
+ctf = vtkColorTransferFunction()
 ctf.AddRGBPoint(0, 0.0, 0.0, 0.0)
 ctf.AddRGBPoint(510, 0.4, 0.4, 1.0)
 ctf.AddRGBPoint(640, 1.0, 1.0, 1.0)
 ctf.AddRGBPoint(range[1], 0.9, 0.1, 0.1)
 
-pf = vtk.vtkPiecewiseFunction()
+pf = vtkPiecewiseFunction()
 pf.AddPoint(0, 0.00)
 pf.AddPoint(510, 0.00)
 pf.AddPoint(640, 0.5)
@@ -60,12 +61,12 @@ volumeProperty.SetScalarOpacity(pf)
 volumeProperty.SetColor(ctf)
 volumeProperty.SetShade(1)
 
-mapper = vtk.vtkGPUVolumeRayCastMapper()
+mapper = vtkGPUVolumeRayCastMapper()
 mapper.SetInputConnection(reader.GetOutputPort())
 mapper.SetUseJittering(1)
 
 # Modify the shader to color based on the depth of the translucent voxel
-shaderProperty = vtk.vtkShaderProperty()
+shaderProperty = vtkShaderProperty()
 shaderProperty.AddFragmentShaderReplacement(
     "//VTK::Base::Dec",      # Source string to replace
     True,                    # before the standard replacements
@@ -114,19 +115,19 @@ shaderProperty.AddFragmentShaderReplacement(
     False
 )
 
-volume = vtk.vtkVolume()
+volume = vtkVolume()
 volume.SetShaderProperty(shaderProperty)
 volume.SetMapper(mapper)
 volume.SetProperty(volumeProperty)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.SetSize(300, 300)
 
-ren = vtk.vtkRenderer()
+ren = vtkRenderer()
 renWin.AddRenderer(ren)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren.AddVolume(volume)

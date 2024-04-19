@@ -1,10 +1,18 @@
-if(VTK_CAN_DO_ONSCREEN AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
+include(vtkOpenGLOptions)
+if(vtk_can_do_onscreen AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
   vtk_add_test_python(
+    TestCameraOrientationWidget.py
     TestImagePlaneWidget.py
-    TestBoxWidget.py,NO_RT
+    TestBoxWidget.py
+    TestImplicitImageRepresentation.py
     TestInteractivePlaneCutter.py
-    TestInteractorEventRecorder.py,NO_RT
-    TestSphereWidget.py,NO_RT
-    TestTextWidget.py,NO_RT
+    TestInteractorEventRecorder.py
+    TestMagnifierWidget.py
+    TestPointCloudWidget.py
+    TestPointCloudWidget2.py
+    TestSphereWidget.py
+    TestTensorWidget.py
+    TestTensorWidget2.py
+    TestTextWidget.py
     )
 endif()

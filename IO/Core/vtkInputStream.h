@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInputStream.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInputStream
  * @brief   Wraps a binary input stream with a VTK interface.
@@ -22,7 +10,7 @@
  * Data lengths for Seek and Read calls refer to the length of the
  * input data.  The actual length in the stream may differ for
  * subclasses that implement an encoding scheme.
-*/
+ */
 
 #ifndef vtkInputStream_h
 #define vtkInputStream_h
@@ -30,20 +18,21 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkInputStream : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkInputStream,vtkObject);
-  static vtkInputStream *New();
+  vtkTypeMacro(vtkInputStream, vtkObject);
+  static vtkInputStream* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the real input stream.
    */
   vtkSetMacro(Stream, istream*);
   vtkGetMacro(Stream, istream*);
-  //@}
+  ///@}
 
   /**
    * Called after the stream position has been set by the caller, but
@@ -88,4 +77,5 @@ private:
   void operator=(const vtkInputStream&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

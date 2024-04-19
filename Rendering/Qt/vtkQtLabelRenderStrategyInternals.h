@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtLabelRenderStrategy.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME vtkQtLabelRenderStrategyInternals - Internals to render labels with Qt
 //
 // .SECTION Description
@@ -33,6 +21,8 @@
 
 class QPainter;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 struct vtkQtLabelMapEntry
 {
   QString Text;
@@ -46,7 +36,7 @@ struct vtkQtLabelMapValue
   QRectF Bounds;
 };
 
-bool operator <(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other);
+bool operator<(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other);
 
 class vtkQtLabelRenderStrategy::Internals
 {
@@ -66,14 +56,12 @@ public:
 
   QColor TextPropertyToColor(double* fc, double opacity)
   {
-    QColor textColor(
-      static_cast<int>(fc[0]*255),
-      static_cast<int>(fc[1]*255),
-      static_cast<int>(fc[2]*255),
-      static_cast<int>(opacity*255));
+    QColor textColor(static_cast<int>(fc[0] * 255), static_cast<int>(fc[1] * 255),
+      static_cast<int>(fc[2] * 255), static_cast<int>(opacity * 255));
     return textColor;
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkQtLabelRenderStrategyInternals_h
 // VTK-HeaderTest-Exclude: vtkQtLabelRenderStrategyInternals.h

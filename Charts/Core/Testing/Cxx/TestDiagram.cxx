@@ -1,47 +1,34 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestDiagram.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkRenderer.h"
+#include "vtkBrush.h"
+#include "vtkContext2D.h"
+#include "vtkContextActor.h"
+#include "vtkContextItem.h"
+#include "vtkContextScene.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkObjectFactory.h"
-#include "vtkContext2D.h"
-#include "vtkContextItem.h"
-#include "vtkContextActor.h"
-#include "vtkContextScene.h"
-#include "vtkPen.h"
-#include "vtkBrush.h"
 #include "vtkTextProperty.h"
-#include "vtkStdString.h"
-#include "vtkNew.h"
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class APIDiagram : public vtkContextItem
 {
 public:
-  static APIDiagram *New();
+  static APIDiagram* New();
   vtkTypeMacro(APIDiagram, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 };
 
-//----------------------------------------------------------------------------
-int TestDiagram(int, char * [])
+//------------------------------------------------------------------------------
+int TestDiagram(int, char*[])
 {
   // Set up a 2D chart actor, APIDiagram object andn add them to the renderer
   vtkNew<vtkContextActor> actor;
@@ -65,7 +52,7 @@ int TestDiagram(int, char * [])
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(APIDiagram);
 // This function draws our API diagram
-bool APIDiagram::Paint(vtkContext2D *painter)
+bool APIDiagram::Paint(vtkContext2D* painter)
 {
   // Drawing a hard wired diagram 800x600 as a demonstration of the 2D API
   painter->GetTextProp()->SetVerticalJustificationToCentered();

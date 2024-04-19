@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    VTXvtkBase.cxx
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * VTXvtkBase.cxx
@@ -28,6 +16,7 @@ namespace vtx
 {
 namespace schema
 {
+VTK_ABI_NAMESPACE_BEGIN
 const std::set<std::string> VTXvtkBase::TIMENames = { "TIME", "CYCLE" };
 const std::set<std::string> VTXvtkBase::SpecialNames = { "TIME", "CYCLE", "connectivity", "types",
   "vertices" };
@@ -46,10 +35,9 @@ VTXvtkBase::VTXvtkBase(
 {
 }
 
-VTXvtkBase::~VTXvtkBase() {}
+VTXvtkBase::~VTXvtkBase() = default;
 
-bool VTXvtkBase::ReadDataSets(
-  const types::DataSetType type, const size_t step, const size_t pieceID)
+bool VTXvtkBase::ReadDataSets(const types::DataSetType type, size_t step, size_t pieceID)
 {
   types::Piece& piece = this->Pieces.at(pieceID);
   types::DataSet& dataSet = piece.at(type);
@@ -58,7 +46,7 @@ bool VTXvtkBase::ReadDataSets(
   {
     const std::string& variableName = dataArrayPair.first;
     types::DataArray& dataArray = dataArrayPair.second;
-    if (this->TIMENames.count(variableName) == 1)
+    if (VTXvtkBase::TIMENames.count(variableName) == 1)
     {
       continue;
     }
@@ -93,8 +81,9 @@ void VTXvtkBase::InitTimes()
 
 std::string VTXvtkBase::DataSetType(const types::DataSetType type) const noexcept
 {
-  return this->DataSetTypes.at(type);
+  return VTXvtkBase::DataSetTypes.at(type);
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace schema
 } // end namespace adios2vtk

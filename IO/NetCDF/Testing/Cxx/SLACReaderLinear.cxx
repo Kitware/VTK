@@ -1,23 +1,6 @@
-// -*- c++ -*-
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    SLACReaderLinear.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-LANL-California-USGov
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -25,25 +8,24 @@
 #include "vtkLookupTable.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSLACReader.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int SLACReaderLinear(int argc, char *argv[])
+int SLACReaderLinear(int argc, char* argv[])
 {
   // Set up reader.
   VTK_CREATE(vtkSLACReader, reader);
 
-  char *meshFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                  "Data/SLAC/ll-9cell-f523/ll-9cell-f523.ncdf");
-  char *modeFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-              "Data/SLAC/ll-9cell-f523/mode0.l0.R2.457036E+09I2.778314E+04.m3");
+  char* meshFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/ll-9cell-f523/ll-9cell-f523.ncdf");
+  char* modeFileName = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/SLAC/ll-9cell-f523/mode0.l0.R2.457036E+09I2.778314E+04.m3");
   reader->SetMeshFileName(meshFileName);
   delete[] meshFileName;
   reader->AddModeFileName(modeFileName);
@@ -55,8 +37,7 @@ int SLACReaderLinear(int argc, char *argv[])
 
   // Extract geometry that we can render.
   VTK_CREATE(vtkCompositeDataGeometryFilter, geometry);
-  geometry->SetInputConnection(
-                           reader->GetOutputPort(vtkSLACReader::VOLUME_OUTPUT));
+  geometry->SetInputConnection(reader->GetOutputPort(vtkSLACReader::VOLUME_OUTPUT));
 
   // Set up rendering stuff.
   VTK_CREATE(vtkPolyDataMapper, mapper);
@@ -75,7 +56,7 @@ int SLACReaderLinear(int argc, char *argv[])
 
   VTK_CREATE(vtkRenderer, renderer);
   renderer->AddActor(actor);
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetPosition(-0.75, 0.0, 0.7);
   camera->SetFocalPoint(0.0, 0.0, 0.7);
   camera->SetViewUp(0.0, 1.0, 0.0);

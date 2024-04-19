@@ -1,53 +1,40 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBlockIdScalars.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkBlockIdScalars.h"
 
 #include "vtkCellData.h"
+#include "vtkConstantArray.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBlockIdScalars);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlockIdScalars::vtkBlockIdScalars() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBlockIdScalars::~vtkBlockIdScalars() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Map ids into attribute data
-int vtkBlockIdScalars::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkBlockIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkMultiBlockDataSet *input = vtkMultiBlockDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkMultiBlockDataSet* input =
+    vtkMultiBlockDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input)
   {
     return 0;
   }
 
   vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
-    info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkMultiBlockDataSet* output =
+    vtkMultiBlockDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
   if (!output)
   {
     return 0;
@@ -61,9 +48,12 @@ int vtkBlockIdScalars::RequestData(
   iter->VisitOnlyLeavesOff();
 
   int blockIdx = 0;
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-    iter->GoToNextItem(), blockIdx++)
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), blockIdx++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataObject* dObj = iter->GetCurrentDataObject();
     if (dObj)
     {
@@ -80,9 +70,8 @@ int vtkBlockIdScalars::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-vtkDataObject* vtkBlockIdScalars::ColorBlock(
-  vtkDataObject* input, int group)
+//------------------------------------------------------------------------------
+vtkDataObject* vtkBlockIdScalars::ColorBlock(vtkDataObject* input, int group)
 {
   vtkDataObject* output = nullptr;
   if (input->IsA("vtkCompositeDataSet"))
@@ -90,13 +79,12 @@ vtkDataObject* vtkBlockIdScalars::ColorBlock(
     vtkCompositeDataSet* mbInput = vtkCompositeDataSet::SafeDownCast(input);
 
     output = input->NewInstance();
-    vtkCompositeDataSet* mbOutput =
-      vtkCompositeDataSet::SafeDownCast(output);
+    vtkCompositeDataSet* mbOutput = vtkCompositeDataSet::SafeDownCast(output);
     mbOutput->CopyStructure(mbInput);
 
-    vtkCompositeDataIterator* inIter = mbInput->NewIterator();
-    for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal();
-      inIter->GoToNextItem())
+    vtkSmartPointer<vtkCompositeDataIterator> inIter =
+      vtk::TakeSmartPointer(mbInput->NewIterator());
+    for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
     {
       vtkDataObject* src = inIter->GetCurrentDataObject();
       vtkDataObject* dest = nullptr;
@@ -105,6 +93,7 @@ vtkDataObject* vtkBlockIdScalars::ColorBlock(
         dest = this->ColorBlock(src, group);
       }
       mbOutput->SetDataSet(inIter, dest);
+      dest->Delete();
     }
   }
   else
@@ -116,23 +105,21 @@ vtkDataObject* vtkBlockIdScalars::ColorBlock(
       output->ShallowCopy(ds);
       vtkDataSet* dsOutput = vtkDataSet::SafeDownCast(output);
       vtkIdType numCells = dsOutput->GetNumberOfCells();
-      vtkUnsignedCharArray* cArray = vtkUnsignedCharArray::New();
-      cArray->SetNumberOfTuples(numCells);
-      for (vtkIdType cellIdx=0; cellIdx<numCells; cellIdx++)
-      {
-        cArray->SetValue(cellIdx, group);
-      }
-      cArray->SetName("BlockIdScalars");
-      dsOutput->GetCellData()->AddArray(cArray);
-      cArray->Delete();
+
+      vtkNew<vtkConstantArray<unsigned char>> blockIdArray;
+      blockIdArray->ConstructBackend(group);
+      blockIdArray->SetNumberOfComponents(1);
+      blockIdArray->SetNumberOfTuples(numCells);
+      blockIdArray->SetName("BlockIdScalars");
+      dsOutput->GetCellData()->AddArray(blockIdArray);
     }
   }
   return output;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBlockIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-
+VTK_ABI_NAMESPACE_END

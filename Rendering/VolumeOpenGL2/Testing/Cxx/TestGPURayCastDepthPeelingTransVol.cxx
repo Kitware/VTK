@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastDepthPeelingTransVol.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  *  Tests depth peeling pass with volume rendering.
  */
@@ -29,21 +17,20 @@
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
-#include <vtkTestingObjectFactory.h>
 #include <vtkTestUtilities.h>
+#include <vtkTestingObjectFactory.h>
 #include <vtkTimerLog.h>
-#include <vtkProperty.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-
-int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
+int TestGPURayCastDepthPeelingTransVol(int argc, char* argv[])
 {
   // Volume peeling is only supported through the dual depth peeling algorithm.
   // If the current system only supports the legacy peeler, skip this test:
@@ -54,12 +41,12 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   vtkNew<vtkRenderer> ren;
   renWin->Render(); // Create the context
   renWin->AddRenderer(ren);
-  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
+  vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
   assert(oglRen); // This test should only be enabled for OGL2 backend.
   // This will print details about why depth peeling is unsupported:
-  oglRen->SetDebug(1);
+  oglRen->SetDebug(true);
   bool supported = oglRen->IsDualDepthPeelingSupported();
-  oglRen->SetDebug(0);
+  oglRen->SetDebug(false);
   if (!supported)
   {
     std::cerr << "Skipping test; volume peeling not supported.\n";
@@ -71,10 +58,9 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
-  delete [] volumeFile;
+  delete[] volumeFile;
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
@@ -165,7 +151,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   ren->SetMaximumNumberOfPeels(17);
   ren->SetUseDepthPeelingForVolumes(true);
 
-  // Fully trasnparent sphere
+  // Fully transparent sphere
   vtkNew<vtkRenderer> ren2;
   ren2->SetBackground(1.0, 1.0, 1.0);
   ren2->SetViewport(0.5, 0.0, 1.0, 1.0);
@@ -191,11 +177,11 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

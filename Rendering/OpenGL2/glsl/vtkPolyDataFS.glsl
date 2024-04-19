@@ -1,19 +1,7 @@
 //VTK::System::Dec
 
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataFS.glsl
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // Template for the polydata mappers fragment shader
 
 uniform int PrimitiveIDOffset;
@@ -62,6 +50,9 @@ uniform int PrimitiveIDOffset;
 // Value raster
 //VTK::ValuePass::Dec
 
+// surface with edges
+//VTK::Edges::Dec
+
 void main()
 {
   // VC position of this fragment. This should not branch/return/discard.
@@ -85,8 +76,12 @@ void main()
 
   //VTK::Color::Impl
 
+  //VTK::Edges::Impl
+
   // Generate the normal if we are not passed in one
   //VTK::Normal::Impl
+
+  //VTK::PBR::Impl
 
   //VTK::Light::Impl
 

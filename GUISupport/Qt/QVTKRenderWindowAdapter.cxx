@@ -1,51 +1,34 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    QVTKRenderWindowAdapter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "QVTKRenderWindowAdapter.h"
 
 #include <QVTKInteractorAdapter.h>
 #include <vtkCommand.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkLogger.h>
+#include <vtkOpenGLFramebufferObject.h>
 #include <vtkOpenGLState.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
 
 #include <QApplication>
 #include <QCursor>
-#include <QDesktopWidget>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLDebugLogger>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLFramebufferObject>
-#include <QOpenGLFunctions>
-#include <QOpenGLFunctions_3_2_Core>
 #include <QPointer>
 #include <QScopedValueRollback>
 #include <QScreen>
 #include <QWidget>
 #include <QWindow>
 
-#include <sstream>
+#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
+#include <QDesktopWidget>
+#endif
 
-#define SWAP_BUFFER_IDS(win, cmd1, cmd2)                                                           \
-  {                                                                                                \
-    auto val1 = win->Get##cmd1();                                                                  \
-    auto val2 = win->Get##cmd2();                                                                  \
-    win->Set##cmd1(val2);                                                                          \
-    win->Set##cmd2(val1);                                                                          \
-  }
+#include <sstream>
 
 #define QVTKInternalsDebugMacro(msg)                                                               \
   if (this->Logger)                                                                                \
@@ -57,10 +40,9 @@
       QOpenGLDebugMessage::createApplicationMessage(QString(str.str().c_str())));                  \
   }
 
+VTK_ABI_NAMESPACE_BEGIN
 class QVTKRenderWindowAdapter::QVTKInternals
 {
-  bool needToRecreateFBO() const;
-  void recreateFBO();
   void renderWindowEventHandler(vtkObject*, unsigned long eventid, void* callData);
   void updateDPI() const;
 
@@ -86,9 +68,10 @@ public:
 
   bool EnableHiDPI = true; // defaulting to enabling DPI scaling.
 
+  double CustomDevicePixelRatio = 0.0;
+
   QPointer<QOpenGLContext> Context;
   QSurface* Surface;
-  QScopedPointer<QOpenGLFramebufferObject> FBO;
 
   QScopedPointer<QOpenGLDebugLogger> Logger;
 
@@ -108,7 +91,7 @@ public:
     if (fmt.testOption(QSurfaceFormat::DebugContext))
     {
       this->Logger.reset(new QOpenGLDebugLogger());
-      if (this->Logger->initialize() == false)
+      if (!this->Logger->initialize())
       {
         // initialize failure means OpenGL doesn't have appropriate extension so
         // just don't log.
@@ -124,26 +107,27 @@ public:
     // that to this method.
     this->Surface = this->Context->surface();
 
-    this->RenderWindowObserverIds.push_back(
-      renWin->AddObserver(vtkCommand::WindowMakeCurrentEvent, this, &QVTKInternals::renderWindowEventHandler));
-    this->RenderWindowObserverIds.push_back(
-      renWin->AddObserver(vtkCommand::WindowIsCurrentEvent, this, &QVTKInternals::renderWindowEventHandler));
-    this->RenderWindowObserverIds.push_back(
-      renWin->AddObserver(vtkCommand::WindowFrameEvent, this, &QVTKInternals::renderWindowEventHandler));
+    this->RenderWindowObserverIds.push_back(renWin->AddObserver(
+      vtkCommand::WindowMakeCurrentEvent, this, &QVTKInternals::renderWindowEventHandler));
+    this->RenderWindowObserverIds.push_back(renWin->AddObserver(
+      vtkCommand::WindowIsCurrentEvent, this, &QVTKInternals::renderWindowEventHandler));
+    this->RenderWindowObserverIds.push_back(renWin->AddObserver(
+      vtkCommand::WindowFrameEvent, this, &QVTKInternals::renderWindowEventHandler));
     this->RenderWindowObserverIds.push_back(
       renWin->AddObserver(vtkCommand::StartEvent, this, &QVTKInternals::renderWindowEventHandler));
     this->RenderWindowObserverIds.push_back(
       renWin->AddObserver(vtkCommand::EndEvent, this, &QVTKInternals::renderWindowEventHandler));
-    this->RenderWindowObserverIds.push_back(
-      renWin->AddObserver(vtkCommand::CursorChangedEvent, this, &QVTKInternals::renderWindowEventHandler));
+    this->RenderWindowObserverIds.push_back(renWin->AddObserver(
+      vtkCommand::CursorChangedEvent, this, &QVTKInternals::renderWindowEventHandler));
 
     // First and foremost, make sure vtkRenderWindow is not using offscreen
     // buffers as that throws off all logic to render in the buffers we're
     // building and frankly unnecessary.
     if (this->RenderWindow->GetUseOffScreenBuffers())
     {
-      vtkGenericWarningMacro("disabling `UseOffScreenBuffers` since QVTKRenderWindowAdapter already "
-          "uses offscreen buffers (FBO) for rendering");
+      vtkGenericWarningMacro(
+        "disabling `UseOffScreenBuffers` since QVTKRenderWindowAdapter already "
+        "uses offscreen buffers (FBO) for rendering");
       this->RenderWindow->SetUseOffScreenBuffers(false);
     }
 
@@ -159,7 +143,8 @@ public:
     this->DoVTKRenderInPaintGL = true;
 
     // update current dpi and devicePixelRatio settings.
-    this->InteractorAdapter.SetDevicePixelRatio(static_cast<float>(this->devicePixelRatio()));
+    this->InteractorAdapter.SetDevicePixelRatio(
+      static_cast<float>(this->effectiveDevicePixelRatio()));
   }
 
   ~QVTKInternals()
@@ -167,7 +152,6 @@ public:
     QVTKInternalsDebugMacro("destructor");
     Q_ASSERT(this->RenderWindow);
     Q_ASSERT(this->Context);
-    this->makeCurrent();
     this->Logger.reset(nullptr);
     for (const auto& id : this->RenderWindowObserverIds)
     {
@@ -177,22 +161,29 @@ public:
 
     this->RenderWindow->Finalize();
     this->RenderWindow->SetReadyForRendering(false);
-    this->FBO.reset(nullptr);
     this->Context = nullptr;
     this->Surface = nullptr;
   }
 
-  double devicePixelRatio() const
+  double effectiveDevicePixelRatio() const
   {
-    return this->ParentWindow ? this->ParentWindow->devicePixelRatio()
-                              : this->ParentWidget->devicePixelRatioF();
+    if (this->CustomDevicePixelRatio <= 0.0)
+    {
+      return this->ParentWindow ? this->ParentWindow->devicePixelRatio()
+                                : this->ParentWidget->devicePixelRatioF();
+    }
+    return this->CustomDevicePixelRatio;
   }
 
   QSize screenSize() const
   {
     if (this->ParentWidget)
     {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+      return this->ParentWidget->screen()->size();
+#else
       return QApplication::desktop()->screenGeometry(this->ParentWidget).size();
+#endif
     }
     else if (this->ParentWindow)
     {
@@ -214,39 +205,16 @@ public:
     return (currentContext == this->Context && currentContext->surface() == this->Surface);
   }
 
-  void activateBuffers()
-  {
-    Q_ASSERT(this->Context && this->Surface);
-    Q_ASSERT(this->isCurrent());
-    QVTKInternalsDebugMacro("activateBuffers");
-    if (!this->FBO || this->needToRecreateFBO())
-    {
-      this->recreateFBO();
-      // this may seem counter intuitive, but here's the reasoning for this.
-      // Consider a case where Qt has a nice rendering visible. Now user
-      // triggers a back-buffer only rendering that requires the FBO to be
-      // destroyed/recreated. In that case, when Qt attempts to `paint` it will
-      // get a bad image since a back-buffer only rendering is not meant to be
-      // visible. hence we need to request render in paint. This takes care of
-      // that. The DoVTKRenderInPaintGL in `frame` if the rendering result is
-      // viewable.
-      this->DoVTKRenderInPaintGL = true;
-    }
-    else
-    {
-      this->FBO->bind();
-      this->RenderWindow->GetState()->ResetFramebufferBindings();
-    }
-  }
-
   void resize(int w, int h)
   {
     QVTKInternalsDebugMacro("resize (" << w << ", " << h << ")");
     vtkLogF(TRACE, "resize(%d, %d)", w, h);
-    const auto dpr = this->devicePixelRatio();
+    const double dpr = this->effectiveDevicePixelRatio();
+    const QSize deviceSize = QSize(w, h) * dpr;
+    vtkLogF(TRACE, "resize(%d, %d), dpr=%f, scaledSize(%d, %d)", w, h, dpr, deviceSize.width(),
+      deviceSize.height());
     this->InteractorAdapter.SetDevicePixelRatio(dpr);
 
-    const QSize deviceSize = QSize(w, h) * dpr;
     if (auto iren = this->RenderWindow->GetInteractor())
     {
       iren->UpdateSize(deviceSize.width(), deviceSize.height());
@@ -257,7 +225,8 @@ public:
     }
 
     const QSize screen_size = this->screenSize();
-    this->RenderWindow->SetScreenSize(screen_size.width(), screen_size.height());
+    const QSize screen_deviceSize = screen_size * dpr;
+    this->RenderWindow->SetScreenSize(screen_deviceSize.width(), screen_deviceSize.height());
 
     // since we've resize, we request a vtkRenderWindow::Render in `paintGL`
     // so we render an updated rendering.
@@ -270,6 +239,12 @@ public:
 
   void paint()
   {
+    if (this->InPaint)
+    {
+      vtkLogF(TRACE, "recursive paint ?");
+      return;
+    }
+
     vtkLogScopeFunction(TRACE);
     QVTKInternalsDebugMacro("paint");
     QScopedValueRollback<bool> var(this->InPaint, true);
@@ -300,16 +275,13 @@ public:
       // if we're using double buffer, but explicitly rendering to back buffer,
       // means that we don't want the thing we rendered displayed on the screen.
       // in which case, we ignore this frame result.
-      vtkLogF(TRACE, "frame using_double_buffer=%d, swap_buffers=%d -- ignored", using_double_buffer, this->RenderWindow->GetSwapBuffers());
+      vtkLogF(TRACE, "frame using_double_buffer=%d, swap_buffers=%d -- ignored",
+        using_double_buffer, this->RenderWindow->GetSwapBuffers());
       return;
     }
 
-    vtkLogF(TRACE, "frame using_double_buffer=%d, swap_buffers=%d", using_double_buffer, this->RenderWindow->GetSwapBuffers());
-    if (using_double_buffer)
-    {
-      SWAP_BUFFER_IDS(this->RenderWindow, FrontLeftBuffer, BackLeftBuffer);
-      SWAP_BUFFER_IDS(this->RenderWindow, FrontRightBuffer, BackRightBuffer);
-    }
+    vtkLogF(TRACE, "frame using_double_buffer=%d, swap_buffers=%d", using_double_buffer,
+      this->RenderWindow->GetSwapBuffers());
 
     this->DoVTKRenderInPaintGL = false;
     if (!this->InPaint)
@@ -328,39 +300,37 @@ public:
   bool blit(unsigned int targetId, int targetAttachment, const QRect& targetRect, bool left)
   {
     QVTKInternalsDebugMacro("blit");
-    if (!this->Context || !this->FBO)
+    if (!this->Context)
     {
       return false;
     }
-    QOpenGLFunctions_3_2_Core* f = this->Context->versionFunctions<QOpenGLFunctions_3_2_Core>();
+    QOpenGLExtraFunctions* f = this->Context->extraFunctions();
     if (!f)
     {
       return false;
     }
 
     f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetId);
-    f->glDrawBuffer(targetAttachment);
-
-    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, this->FBO->handle());
-    f->glReadBuffer(
-      left ? this->RenderWindow->GetFrontLeftBuffer() : this->RenderWindow->GetFrontRightBuffer());
-
-    this->RenderWindow->GetState()->ResetFramebufferBindings();
+    const GLenum bufs[1] = { static_cast<GLenum>(targetAttachment) };
+    f->glDrawBuffers(1, bufs);
 
     GLboolean scissorTest = f->glIsEnabled(GL_SCISSOR_TEST);
     if (scissorTest == GL_TRUE)
     {
+      this->RenderWindow->GetState()->vtkglDisable(GL_SCISSOR_TEST);
       f->glDisable(GL_SCISSOR_TEST); // Scissor affects glBindFramebuffer.
     }
 
-    auto sourceSize = this->FBO->size();
-    f->glBlitFramebuffer(0, 0, sourceSize.width(), sourceSize.height(), targetRect.x(),
-      targetRect.y(), targetRect.width(), targetRect.height(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    int* rbsize = this->RenderWindow->GetRenderFramebuffer()->GetLastSize();
+    this->RenderWindow->BlitDisplayFramebuffer(left ? 0 : 1, 0, 0, rbsize[0], rbsize[1],
+      targetRect.x(), targetRect.y(), targetRect.width(), targetRect.height(), GL_COLOR_BUFFER_BIT,
+      GL_LINEAR);
 
     this->clearAlpha(targetRect);
 
     if (scissorTest == GL_TRUE)
     {
+      this->RenderWindow->GetState()->vtkglEnable(GL_SCISSOR_TEST);
       f->glEnable(GL_SCISSOR_TEST);
     }
     return true;
@@ -430,11 +400,20 @@ public:
     }
   }
 
+  void setCustomDevicePixelRatio(double sf)
+  {
+    if (this->CustomDevicePixelRatio != sf)
+    {
+      this->CustomDevicePixelRatio = sf;
+      this->updateDPI();
+    }
+  }
+
   void clearAlpha(const QRect& targetRect) const
   {
-    Q_ASSERT(this->Context && this->FBO);
+    Q_ASSERT(this->Context);
 
-    QOpenGLFunctions_3_2_Core* f = this->Context->versionFunctions<QOpenGLFunctions_3_2_Core>();
+    QOpenGLFunctions* f = this->Context->functions();
     if (f)
     {
       // now clear alpha otherwise we end up blending the rendering with
@@ -462,127 +441,7 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
-bool QVTKRenderWindowAdapter::QVTKInternals::needToRecreateFBO() const
-{
-  if (!this->FBO)
-  {
-    return true;
-  }
-
-  auto renWin = this->RenderWindow;
-  if (this->FBO->format().samples() != renWin->GetMultiSamples())
-  {
-    return true;
-  }
-
-  int neededColorAttachments = 1;
-  if (renWin->GetDoubleBuffer())
-  {
-    ++neededColorAttachments;
-  }
-
-  // if stereo capable window is requested, name sure we allocate right eye
-  // buffers.
-  if (renWin->GetStereoCapableWindow())
-  {
-    ++neededColorAttachments;
-    if (renWin->GetDoubleBuffer())
-    {
-      ++neededColorAttachments;
-    }
-  }
-
-  const auto sizes = this->FBO->sizes();
-
-  if (sizes.size() != neededColorAttachments)
-  {
-    vtkLogF(TRACE, "%d != %d", sizes.size(), neededColorAttachments);
-    return true;
-  }
-
-  const QSize winsize(renWin->GetSize()[0], renWin->GetSize()[1]);
-  for (const QSize& asize : sizes)
-  {
-    if (winsize != asize)
-    {
-      return true;
-    }
-  }
-
-  if (renWin->GetStencilCapable())
-  {
-    if (this->FBO->attachment() != QOpenGLFramebufferObject::CombinedDepthStencil)
-    {
-      return true;
-    }
-  }
-  else
-  {
-    if (this->FBO->attachment() != QOpenGLFramebufferObject::Depth)
-    {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-//----------------------------------------------------------------------------
-void QVTKRenderWindowAdapter::QVTKInternals::recreateFBO()
-{
-  vtkLogF(TRACE, "recreateFBO");
-  Q_ASSERT(this->Context && this->Surface);
-  Q_ASSERT(this->isCurrent());
-  this->FBO.reset(nullptr);
-
-  auto renWin = this->RenderWindow;
-  auto context = this->Context;
-
-  // determine the type of FBO we want to create.
-  const int samples = renWin->GetMultiSamples();
-
-  QOpenGLFramebufferObjectFormat format;
-  format.setAttachment(renWin->GetStencilCapable() ? QOpenGLFramebufferObject::CombinedDepthStencil
-                                                   : QOpenGLFramebufferObject::Depth);
-  format.setSamples(samples > 1 ? samples : 0);
-
-  const QSize size(renWin->GetSize()[0], renWin->GetSize()[1]);
-  this->FBO.reset(new QOpenGLFramebufferObject(size, format));
-
-  int attachmentIncrement = 0;
-  renWin->SetFrontLeftBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
-  if (renWin->GetDoubleBuffer())
-  {
-    this->FBO->addColorAttachment(size);
-    attachmentIncrement++;
-  }
-  renWin->SetBackLeftBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
-
-  if (/*this->Context->format().stereo() &&*/ renWin->GetStereoCapableWindow())
-  {
-    this->FBO->addColorAttachment(size);
-    attachmentIncrement++;
-    renWin->SetFrontRightBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
-    if (renWin->GetDoubleBuffer())
-    {
-      this->FBO->addColorAttachment(size);
-      attachmentIncrement++;
-    }
-    renWin->SetBackRightBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
-  }
-  else
-  {
-    renWin->SetFrontRightBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
-    renWin->SetBackRightBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
-  }
-  renWin->OpenGLInitState();
-  this->FBO->bind();
-  renWin->SetDefaultFrameBufferId(this->FBO->handle());
-  renWin->GetState()->ResetFramebufferBindings();
-}
-
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::QVTKInternals::renderWindowEventHandler(
   vtkObject*, unsigned long eventid, void* callData)
 {
@@ -606,7 +465,6 @@ void QVTKRenderWindowAdapter::QVTKInternals::renderWindowEventHandler(
     case vtkCommand::StartEvent:
       VTK_FALLTHROUGH;
     case vtkCommand::StartPickEvent:
-      this->activateBuffers();
       break;
 
     case vtkCommand::EndEvent:
@@ -621,29 +479,29 @@ void QVTKRenderWindowAdapter::QVTKInternals::renderWindowEventHandler(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::QVTKInternals::updateDPI() const
 {
   assert(this->RenderWindow != nullptr);
-  const auto dpr = this->devicePixelRatio();
-  this->RenderWindow->SetDPI(dpr * this->UnscaledDPI);
+  this->RenderWindow->SetDPI(
+    this->EnableHiDPI ? this->effectiveDevicePixelRatio() * this->UnscaledDPI : this->UnscaledDPI);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKRenderWindowAdapter::QVTKRenderWindowAdapter(
   QOpenGLContext* cntxt, vtkGenericOpenGLRenderWindow* renWin, QWidget* widget)
   : QVTKRenderWindowAdapter(cntxt, renWin, static_cast<QObject*>(widget))
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKRenderWindowAdapter::QVTKRenderWindowAdapter(
   QOpenGLContext* cntxt, vtkGenericOpenGLRenderWindow* renWin, QWindow* window)
   : QVTKRenderWindowAdapter(cntxt, renWin, static_cast<QObject*>(window))
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKRenderWindowAdapter::QVTKRenderWindowAdapter(
   QOpenGLContext* cntxt, vtkGenericOpenGLRenderWindow* renWin, QObject* widgetOrWindow)
   : Superclass(widgetOrWindow)
@@ -657,19 +515,19 @@ QVTKRenderWindowAdapter::QVTKRenderWindowAdapter(
   this->connect(cntxt, SIGNAL(aboutToBeDestroyed()), SLOT(contextAboutToBeDestroyed()));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QVTKRenderWindowAdapter::~QVTKRenderWindowAdapter()
 {
   this->Internals.reset(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::contextAboutToBeDestroyed()
 {
   this->Internals.reset(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::paint()
 {
   if (this->Internals)
@@ -678,7 +536,7 @@ void QVTKRenderWindowAdapter::paint()
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::resize(int width, int height)
 {
   if (this->Internals)
@@ -687,7 +545,7 @@ void QVTKRenderWindowAdapter::resize(int width, int height)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool QVTKRenderWindowAdapter::blit(
   unsigned int targetId, int targetAttachement, const QRect& targetRect, bool left)
 {
@@ -698,7 +556,7 @@ bool QVTKRenderWindowAdapter::blit(
   return false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool QVTKRenderWindowAdapter::handleEvent(QEvent* evt)
 {
   return this->Internals ? this->Internals->InteractorAdapter.ProcessEvent(
@@ -706,7 +564,7 @@ bool QVTKRenderWindowAdapter::handleEvent(QEvent* evt)
                          : false;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::setEnableHiDPI(bool value)
 {
   if (this->Internals)
@@ -715,7 +573,7 @@ void QVTKRenderWindowAdapter::setEnableHiDPI(bool value)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void QVTKRenderWindowAdapter::setUnscaledDPI(int unscaledDPI)
 {
   if (this->Internals)
@@ -723,8 +581,15 @@ void QVTKRenderWindowAdapter::setUnscaledDPI(int unscaledDPI)
     this->Internals->setUnscaledDPI(unscaledDPI);
   }
 }
-
 //-----------------------------------------------------------------------------
+void QVTKRenderWindowAdapter::setCustomDevicePixelRatio(double sf)
+{
+  if (this->Internals)
+  {
+    this->Internals->setCustomDevicePixelRatio(sf);
+  }
+}
+//------------------------------------------------------------------------------
 QSurfaceFormat QVTKRenderWindowAdapter::defaultFormat(bool stereo_capable)
 {
   QSurfaceFormat fmt;
@@ -739,7 +604,8 @@ QSurfaceFormat QVTKRenderWindowAdapter::defaultFormat(bool stereo_capable)
   fmt.setAlphaBufferSize(8);
   fmt.setStencilBufferSize(0);
   fmt.setStereo(stereo_capable);
-  fmt.setSamples(0); // we never need multisampling in the context since the FBO can support multisamples
-                     // independently
+  fmt.setSamples(0); // we never need multisampling in the context since the FBO can support
+                     // multisamples independently
   return fmt;
 }
+VTK_ABI_NAMESPACE_END

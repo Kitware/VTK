@@ -1,49 +1,39 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridNonOrientedCursor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright Nonice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHyperTreeGridNonOrientedCursor
  * @brief   Objects for traversal a HyperTreeGrid.
  *
- * JB A REVOIR
  * Objects that can perform depth traversal of a hyper tree grid,
  * take into account more parameters (related to the grid structure) than
  * the compact hyper tree cursor implemented in vtkHyperTree can.
  * This is an abstract class.
  * Cursors are created by the HyperTreeGrid implementation.
  *
+ * Non-oriented cursors have the ability to come back to their parents
+ * and to go to the root.
+ *
  * @sa
- * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
+ * vtkHyperTree vtkHyperTreeGrid
  *
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien, 2014.
  * This class was re-written by Philippe Pebay, 2016.
- * JB This class was re-written for more optimisation by Jacques-Bernard Lekien,
+ * This class was re-written for more optimisation by Jacques-Bernard Lekien,
  * Guenole Harel and Jerome Dubois, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridNonOrientedCursor_h
 #define vtkHyperTreeGridNonOrientedCursor_h
-
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 #include <vector> // For std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridEntry;
@@ -52,7 +42,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedCursor : public vtkOb
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridNonOrientedCursor, vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHyperTreeGridNonOrientedCursor* New();
 
   /**
@@ -64,38 +54,39 @@ public:
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false );
+  void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false);
 
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkHyperTreeGridEntry& entry);
+  void Initialize(
+    vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkHyperTreeGridEntry& entry);
 
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkIdType index);
+  void Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkIdType index);
 
-  //@{
+  ///@{
   /**
    * Set the hyper tree grid to which the cursor is pointing.
    */
   vtkHyperTreeGrid* GetGrid();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return if a Tree pointing exist
    */
   bool HasTree() const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the hyper tree to which the cursor is pointing.
    */
   vtkHyperTree* GetTree() const;
-  //@}
+  ///@}
 
   /**
    * Return the index of the current vertex in the tree.
@@ -120,21 +111,15 @@ public:
    */
   unsigned char GetNumberOfChildren();
 
-  /**
-   * JB
-   */
-  void SetGlobalIndexStart( vtkIdType index );
+  void SetGlobalIndexStart(vtkIdType index);
 
-  /**
-   * JB
-   */
-  void SetGlobalIndexFromLocal( vtkIdType index );
+  void SetGlobalIndexFromLocal(vtkIdType index);
 
   /**
    * Set the blanking mask is empty or not
    * \pre not_tree: tree
    */
-  void SetMask( bool state );
+  void SetMask(bool state);
 
   /**
    * Determine whether blanking mask is empty or not
@@ -146,9 +131,6 @@ public:
    */
   bool IsLeaf();
 
-  /**
-   * JB
-   */
   void SubdivideLeaf();
 
   /**
@@ -168,7 +150,7 @@ public:
    * \pre valid_child: ichild>=0 && ichild<GetNumberOfChildren()
    * \pre depth_limiter: GetLevel() <= GetDepthLimiter()
    */
-  void ToChild( unsigned char ichild );
+  void ToChild(unsigned char ichild);
 
   /**
    * Move the cursor to the root vertex.
@@ -185,7 +167,6 @@ public:
   void ToParent();
 
 protected:
-
   /**
    * Constructor
    */
@@ -197,32 +178,22 @@ protected:
   ~vtkHyperTreeGridNonOrientedCursor() override;
 
   /**
-   * JB Reference sur l'hyper tree grid parcouru actuellement.
+   * Reference to the HTG currently processed
    */
   vtkHyperTreeGrid* Grid;
 
-  /**
-   * JB
-   */
   vtkHyperTree* Tree;
-
-  /**
-   * JB .
-   */
   unsigned int Level;
-
-  /**
-   * JB Le dernier noeud valid enregistre
-   */
   int LastValidEntry;
 
   /**
-   * JB Hyper tree grid to which the cursor is attached
+   * Hyper tree grid to which the cursor is attached
    */
-  std::vector< vtkHyperTreeGridEntry > Entries;
+  std::vector<vtkHyperTreeGridEntry> Entries;
 
 private:
   vtkHyperTreeGridNonOrientedCursor(const vtkHyperTreeGridNonOrientedCursor&) = delete;
   void operator=(const vtkHyperTreeGridNonOrientedCursor&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

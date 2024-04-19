@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageRFFT.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageRFFT.h"
 
 #include "vtkImageData.h"
@@ -22,9 +10,16 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageRFFT);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkImageRFFT::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
 int vtkImageRFFT::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
@@ -33,43 +28,38 @@ int vtkImageRFFT::IterativeRequestInformation(
   return 1;
 }
 
-static void vtkImageRFFTInternalRequestUpdateExtent(int *inExt,
-                                                    const int *outExt,
-                                                    const int *wExt,
-                                                    int iteration)
+static void vtkImageRFFTInternalRequestUpdateExtent(
+  int* inExt, const int* outExt, const int* wExt, int iteration)
 {
   memcpy(inExt, outExt, 6 * sizeof(int));
-  inExt[iteration*2] = wExt[iteration*2];
-  inExt[iteration*2 + 1] = wExt[iteration*2 + 1];
+  inExt[iteration * 2] = wExt[iteration * 2];
+  inExt[iteration * 2 + 1] = wExt[iteration * 2 + 1];
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-int vtkImageRFFT::IterativeRequestUpdateExtent(
-  vtkInformation* input, vtkInformation* output)
+int vtkImageRFFT::IterativeRequestUpdateExtent(vtkInformation* input, vtkInformation* output)
 {
-  int *outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  int *wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  int* wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   int inExt[6];
-  vtkImageRFFTInternalRequestUpdateExtent(inExt,outExt,wExt,this->Iteration);
-  input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
+  vtkImageRFFTInternalRequestUpdateExtent(inExt, outExt, wExt, this->Iteration);
+  input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated execute method handles any type input, but the output
 // is always doubles.
 template <class T>
-void vtkImageRFFTExecute(vtkImageRFFT *self,
-                         vtkImageData *inData, int inExt[6], T *inPtr,
-                         vtkImageData *outData, int outExt[6], double *outPtr,
-                         int id)
+void vtkImageRFFTExecute(vtkImageRFFT* self, vtkImageData* inData, int inExt[6], T* inPtr,
+  vtkImageData* outData, int outExt[6], double* outPtr, int id)
 {
-  vtkImageComplex *inComplex;
-  vtkImageComplex *outComplex;
-  vtkImageComplex *pComplex;
+  vtkImageComplex* inComplex;
+  vtkImageComplex* outComplex;
+  vtkImageComplex* pComplex;
   //
   int inMin0, inMax0;
   vtkIdType inInc0, inInc1, inInc2;
@@ -84,14 +74,21 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
   unsigned long target;
   double startProgress;
 
-  startProgress = self->GetIteration()/
-    static_cast<double>(self->GetNumberOfIterations());
+  startProgress = self->GetIteration() / static_cast<double>(self->GetNumberOfIterations());
 
   // Reorder axes (The outs here are just placeholders)
-  self->PermuteExtent(inExt, inMin0, inMax0, outMin1,outMax1,outMin2,outMax2);
-  self->PermuteExtent(outExt, outMin0,outMax0,outMin1,outMax1,outMin2,outMax2);
-  self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
-  self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
+  self->PermuteExtent(inExt, inMin0, inMax0, outMin1, outMax1, outMin2, outMax2);
+  self->PermuteExtent(outExt, outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+
+  // Compute the increments into a local array as `GetIncrements()` introduces
+  // a data race on `vtkImageData::Increments`.
+  vtkIdType inIncrements[3];
+  vtkIdType outIncrements[3];
+  inData->GetIncrements(inIncrements);
+  outData->GetIncrements(outIncrements);
+
+  self->PermuteIncrements(inIncrements, inInc0, inInc1, inInc2);
+  self->PermuteIncrements(outIncrements, outInc0, outInc1, outInc2);
 
   inSize0 = inMax0 - inMin0 + 1;
 
@@ -107,8 +104,8 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
   inComplex = new vtkImageComplex[inSize0];
   outComplex = new vtkImageComplex[inSize0];
 
-  target = static_cast<unsigned long>((outMax2-outMin2+1)*(outMax1-outMin1+1)
-                                      * self->GetNumberOfIterations() / 50.0);
+  target = static_cast<unsigned long>(
+    (outMax2 - outMin2 + 1) * (outMax1 - outMin1 + 1) * self->GetNumberOfIterations() / 50.0);
   target++;
 
   // loop over other axes
@@ -122,9 +119,9 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
     {
       if (!id)
       {
-        if (!(count%target))
+        if (!(count % target))
         {
-          self->UpdateProgress(count/(50.0*target) + startProgress);
+          self->UpdateProgress(count / (50.0 * target) + startProgress);
         }
         count++;
       }
@@ -163,34 +160,26 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
     outPtr2 += outInc2;
   }
 
-  delete [] inComplex;
-  delete [] outComplex;
+  delete[] inComplex;
+  delete[] outComplex;
 }
 
-
-
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed input and output Datas, and executes the RFFT
 // algorithm to fill the output from the input.
 // Not threaded yet.
-void vtkImageRFFT::ThreadedRequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed( outputVector ),
-  vtkImageData ***inDataVec,
-  vtkImageData **outDataVec,
-  int outExt[6],
-  int threadId)
+void vtkImageRFFT::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
+  vtkImageData*** inDataVec, vtkImageData** outDataVec, int outExt[6], int threadId)
 {
   vtkImageData* inData = inDataVec[0][0];
   vtkImageData* outData = outDataVec[0];
   void *inPtr, *outPtr;
   int inExt[6];
 
-  int *wExt = inputVector[0]->GetInformationObject(0)->Get(
-    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  vtkImageRFFTInternalRequestUpdateExtent(inExt,outExt,wExt,this->Iteration);
+  int* wExt =
+    inputVector[0]->GetInformationObject(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  vtkImageRFFTInternalRequestUpdateExtent(inExt, outExt, wExt, this->Iteration);
   inPtr = inData->GetScalarPointerForExtent(inExt);
   outPtr = outData->GetScalarPointerForExtent(outExt);
 
@@ -202,8 +191,7 @@ void vtkImageRFFT::ThreadedRequestData(
   }
 
   // this filter expects input to have 1 or two components
-  if (outData->GetNumberOfScalarComponents() != 1 &&
-      outData->GetNumberOfScalarComponents() != 2)
+  if (outData->GetNumberOfScalarComponents() != 1 && outData->GetNumberOfScalarComponents() != 2)
   {
     vtkErrorMacro(<< "Execute: Cannot handle more than 2 components");
     return;
@@ -212,12 +200,11 @@ void vtkImageRFFT::ThreadedRequestData(
   // choose which templated function to call.
   switch (inData->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageRFFTExecute(this, inData, inExt,
-                          static_cast<VTK_TT *>(inPtr), outData, outExt,
-                          static_cast<double *>(outPtr), threadId));
+    vtkTemplateMacro(vtkImageRFFTExecute(this, inData, inExt, static_cast<VTK_TT*>(inPtr), outData,
+      outExt, static_cast<double*>(outPtr), threadId));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

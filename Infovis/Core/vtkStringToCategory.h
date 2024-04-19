@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStringToCategory.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkStringToCategory
  * @brief   Creates a category array from a string array
@@ -34,35 +18,35 @@
  * The list of unique strings, in the order they are mapped, can also be
  * retrieved from output port 1. They are in a vtkTable, stored in the "Strings"
  * column as a vtkStringArray.
-*/
+ */
 
 #ifndef vtkStringToCategory_h
 #define vtkStringToCategory_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkStringToCategory : public vtkDataObjectAlgorithm
 {
 public:
   static vtkStringToCategory* New();
-  vtkTypeMacro(vtkStringToCategory,vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkStringToCategory, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The name to give to the output vtkIntArray of category values.
    */
   vtkSetStringMacro(CategoryArrayName);
   vtkGetStringMacro(CategoryArrayName);
-  //@}
+  ///@}
 
   /**
    * This is required to capture REQUEST_DATA_OBJECT requests.
    */
-  vtkTypeBool ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 protected:
   vtkStringToCategory();
@@ -71,23 +55,19 @@ protected:
   /**
    * Creates the same output type as the input type.
    */
-  int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  char *CategoryArrayName;
+  char* CategoryArrayName;
 
 private:
   vtkStringToCategory(const vtkStringToCategory&) = delete;
   void operator=(const vtkStringToCategory&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

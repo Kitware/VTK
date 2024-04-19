@@ -1,52 +1,39 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestDistancePolyDataFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-    This software is distributed WITHOUT ANY WARRANTY; without even
-    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-    PURPOSE.  See the above copyright notice for more information.
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkArrayCalculator.h"
 #include "vtkDataSetMapper.h"
+#include "vtkDataSetTriangleFilter.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
 #include "vtkPointSource.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkProperty.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkStreamTracer.h"
 #include "vtkWarpScalar.h"
 
 int TestStreamTracerSurface(int argc, char* argv[])
 {
-
+  // First test with the wavelet for image data input
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-10, 100, -10, 100, 0, 0);
-
-  vtkNew<vtkWarpScalar> warp;
-  warp->SetScaleFactor(0.1);
-  warp->SetInputConnection(wavelet->GetOutputPort());
 
   vtkNew<vtkArrayCalculator> calc;
   calc->AddScalarArrayName("RTData");
   calc->SetFunction("abs(RTData)*iHat + abs(RTData)*jHat");
-  calc->SetInputConnection(warp->GetOutputPort());
+  calc->SetInputConnection(wavelet->GetOutputPort());
   calc->Update();
 
   vtkNew<vtkPoints> points;
   vtkDataSet* calcData = vtkDataSet::SafeDownCast(calc->GetOutput());
-  vtkIdType nLine = static_cast<vtkIdType>(sqrt(static_cast<double>(calcData->GetNumberOfPoints())));
+  vtkIdType nLine =
+    static_cast<vtkIdType>(sqrt(static_cast<double>(calcData->GetNumberOfPoints())));
   for (vtkIdType i = 0; i < nLine; i += 10)
   {
     points->InsertNextPoint(calcData->GetPoint(i * (nLine - 1) + nLine));
@@ -61,13 +48,37 @@ int TestStreamTracerSurface(int argc, char* argv[])
   stream->SetIntegrationDirection(vtkStreamTracer::BOTH);
   stream->SetInputConnection(calc->GetOutputPort());
   stream->SetSourceData(pointsPolydata);
+  stream->Update();
+
+  // Then test with the warped wavelet for dataset input
+  vtkNew<vtkWarpScalar> warp;
+  warp->SetScaleFactor(0.1);
+  warp->SetInputConnection(wavelet->GetOutputPort());
+
+  // Triangulate geometry to ensure cells are planar
+  vtkNew<vtkDataSetTriangleFilter> triangle;
+  triangle->SetInputConnection(warp->GetOutputPort());
+
+  calc->SetInputConnection(triangle->GetOutputPort());
+  calc->Update();
+
+  points->Reset();
+  calcData = vtkDataSet::SafeDownCast(calc->GetOutput());
+  nLine = static_cast<vtkIdType>(sqrt(static_cast<double>(calcData->GetNumberOfPoints())));
+  for (vtkIdType i = 0; i < nLine; i += 10)
+  {
+    points->InsertNextPoint(calcData->GetPoint(i * (nLine - 1) + nLine));
+  }
+
+  pointsPolydata->SetPoints(points);
+  stream->Update();
 
   vtkNew<vtkDataSetMapper> streamMapper;
   streamMapper->SetInputConnection(stream->GetOutputPort());
   streamMapper->ScalarVisibilityOff();
 
   vtkNew<vtkDataSetMapper> surfaceMapper;
-  surfaceMapper->SetInputConnection(calc->GetOutputPort());
+  surfaceMapper->SetInputConnection(triangle->GetOutputPort());
 
   vtkNew<vtkActor> streamActor;
   streamActor->SetMapper(streamMapper);

@@ -1,42 +1,30 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParametricFunctionSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkParametricFunctionSource.h"
-#include "vtkParametricFunction.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
-#include "vtkFloatArray.h"
-#include "vtkPoints.h"
-#include "vtkTriangleFilter.h"
-#include "vtkPolyDataNormals.h"
-#include "vtkPointData.h"
 #include "vtkCellArray.h"
-#include "vtkPolyData.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkParametricFunction.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkSmartPointer.h"
+#include "vtkTriangleFilter.h"
 
 #include <cmath>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricFunctionSource);
-vtkCxxSetObjectMacro(vtkParametricFunctionSource, ParametricFunction,
-                     vtkParametricFunction);
+vtkCxxSetObjectMacro(vtkParametricFunctionSource, ParametricFunction, vtkParametricFunction);
 
-//----------------------------------------------------------------------------
-vtkParametricFunctionSource::vtkParametricFunctionSource() :
-  ParametricFunction(nullptr)
+//------------------------------------------------------------------------------
+vtkParametricFunctionSource::vtkParametricFunctionSource()
+  : ParametricFunction(nullptr)
   , UResolution(50)
   , VResolution(50)
   , WResolution(50)
@@ -48,8 +36,7 @@ vtkParametricFunctionSource::vtkParametricFunctionSource() :
   this->GenerateNormals = 1;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricFunctionSource::~vtkParametricFunctionSource()
 {
   this->SetParametricFunction(nullptr);
@@ -57,55 +44,51 @@ vtkParametricFunctionSource::~vtkParametricFunctionSource()
 
 namespace
 {
-  /**
-   * Make the cells containing the ordered point Ids.
-   *
-   */
-  void AddTriCells(vtkCellArray *cellArray,
-                   int id1, int id2, int id3, int id4,
-                   bool clockwise)
+/**
+ * Make the cells containing the ordered point Ids.
+ *
+ */
+void AddTriCells(vtkCellArray* cellArray, int id1, int id2, int id3, int id4, bool clockwise)
+{
+  cellArray->InsertNextCell(3);
+  if (clockwise)
   {
+    cellArray->InsertCellPoint(id1);
+    cellArray->InsertCellPoint(id2);
+    cellArray->InsertCellPoint(id3);
     cellArray->InsertNextCell(3);
-    if (clockwise)
-    {
-      cellArray->InsertCellPoint(id1);
-      cellArray->InsertCellPoint(id2);
-      cellArray->InsertCellPoint(id3);
-      cellArray->InsertNextCell(3);
-      cellArray->InsertCellPoint(id1);
-      cellArray->InsertCellPoint(id3);
-      cellArray->InsertCellPoint(id4);
-    }
-    else
-    {
-      cellArray->InsertCellPoint(id1);
-      cellArray->InsertCellPoint(id3);
-      cellArray->InsertCellPoint(id2);
-      cellArray->InsertNextCell(3);
-      cellArray->InsertCellPoint(id1);
-      cellArray->InsertCellPoint(id4);
-      cellArray->InsertCellPoint(id3);
-    }
+    cellArray->InsertCellPoint(id1);
+    cellArray->InsertCellPoint(id3);
+    cellArray->InsertCellPoint(id4);
   }
+  else
+  {
+    cellArray->InsertCellPoint(id1);
+    cellArray->InsertCellPoint(id3);
+    cellArray->InsertCellPoint(id2);
+    cellArray->InsertNextCell(3);
+    cellArray->InsertCellPoint(id1);
+    cellArray->InsertCellPoint(id4);
+    cellArray->InsertCellPoint(id3);
+  }
+}
 
 } // anonymous namespace
 
-//----------------------------------------------------------------------------
-void vtkParametricFunctionSource::MakeTriangles(vtkCellArray * cells,
-    int PtsU, int PtsV)
+//------------------------------------------------------------------------------
+void vtkParametricFunctionSource::MakeTriangles(vtkCellArray* cells, int PtsU, int PtsV)
 {
   int id1 = 0;
   int id2 = 0;
   int id3 = 0;
   int id4 = 0;
 
-  vtkDebugMacro( << "Executing MakeTriangles()");
+  vtkDebugMacro(<< "Executing MakeTriangles()");
 
-  bool clockwise = (this->ParametricFunction->GetClockwiseOrdering() !=
-                    0);
+  bool clockwise = (this->ParametricFunction->GetClockwiseOrdering() != 0);
 
   vtkIdType numCells = (PtsU + this->ParametricFunction->GetJoinU() - 1) *
-                       (PtsV + this->ParametricFunction->GetJoinV() - 1) * 2;
+    (PtsV + this->ParametricFunction->GetJoinV() - 1) * 2;
   cells->AllocateExact(numCells, numCells * 3);
 
   for (int i = 0; i < PtsU - 1; ++i)
@@ -194,21 +177,19 @@ void vtkParametricFunctionSource::MakeTriangles(vtkCellArray * cells,
     }
   }
   cells->Modified();
-  vtkDebugMacro( << "MakeTriangles() finished.");
+  vtkDebugMacro(<< "MakeTriangles() finished.");
 }
 
-//----------------------------------------------------------------------------
-int vtkParametricFunctionSource::RequestData(vtkInformation *vtkNotUsed(
-      info),
-    vtkInformationVector **vtkNotUsed(inputV),
-    vtkInformationVector *output)
+//------------------------------------------------------------------------------
+int vtkParametricFunctionSource::RequestData(vtkInformation* vtkNotUsed(info),
+  vtkInformationVector** vtkNotUsed(inputV), vtkInformationVector* output)
 {
-  vtkDebugMacro( << "Executing");
+  vtkDebugMacro(<< "Executing");
 
   // Check that a parametric function has been defined
   if (!this->ParametricFunction)
   {
-    vtkErrorMacro( << "Parametric function not defined");
+    vtkErrorMacro(<< "Parametric function not defined");
     return 1;
   }
 
@@ -221,21 +202,18 @@ int vtkParametricFunctionSource::RequestData(vtkInformation *vtkNotUsed(
       this->Produce2DOutput(output);
       break;
     default:
-      vtkErrorMacro("Functions of dimension "
-                    << this->ParametricFunction->GetDimension()
-                    << " are not supported.");
+      vtkErrorMacro("Functions of dimension " << this->ParametricFunction->GetDimension()
+                                              << " are not supported.");
   }
 
   return 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector
-    *output)
+//------------------------------------------------------------------------------
+void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector* output)
 {
   vtkIdType numPts = this->UResolution + 1;
-  vtkSmartPointer<vtkCellArray> lines =
-    vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
   vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
 
   // Set the desired precision for the points in the output.
@@ -258,42 +236,37 @@ void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector
   // Insert points and cell points
   for (i = 0; i < numPts; i++)
   {
-    t[0] = (double) i / this->UResolution;
+    t[0] = (double)i / this->UResolution;
     this->ParametricFunction->Evaluate(t, x, Du);
     pts->SetPoint(i, x);
     lines->InsertCellPoint(i);
   }
 
-  vtkInformation *outInfo = output->GetInformationObject(0);
-  vtkPolyData *outData = static_cast<vtkPolyData*>
-                         (outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = output->GetInformationObject(0);
+  vtkPolyData* outData = static_cast<vtkPolyData*>(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   outData->SetPoints(pts);
   outData->SetLines(lines);
 }
 
-//----------------------------------------------------------------------------
-void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector
-    *output)
+//------------------------------------------------------------------------------
+void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector* output)
 {
   // Adjust so the ranges:
   // this->MinimumU ... this->ParametricFunction->GetMaximumU(),
   // this->MinimumV ... this->ParametricFunction->GetMaximumV()
   // are included in the triangulation.
   double MaxU = this->ParametricFunction->GetMaximumU() +
-                (this->ParametricFunction->GetMaximumU() -
-                 this->ParametricFunction->GetMinimumU()) /
-                (this->UResolution - 1);
+    (this->ParametricFunction->GetMaximumU() - this->ParametricFunction->GetMinimumU()) /
+      (this->UResolution - 1);
   int PtsU = this->UResolution;
   double MaxV = this->ParametricFunction->GetMaximumV() +
-                (this->ParametricFunction->GetMaximumV() -
-                 this->ParametricFunction->GetMinimumV()) /
-                (this->VResolution - 1);
+    (this->ParametricFunction->GetMaximumV() - this->ParametricFunction->GetMinimumV()) /
+      (this->VResolution - 1);
   int PtsV = this->VResolution;
   int totPts = PtsU * PtsV;
 
   // Scalars associated with each point
-  vtkSmartPointer<vtkFloatArray> sval =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> sval = vtkSmartPointer<vtkFloatArray>::New();
   if (this->ScalarMode != SCALAR_NONE)
   {
     sval->SetNumberOfTuples(totPts);
@@ -301,8 +274,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector
   }
 
   // The normals to the surface
-  vtkSmartPointer<vtkFloatArray> nval =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> nval = vtkSmartPointer<vtkFloatArray>::New();
   if (this->GenerateNormals)
   {
     nval->SetNumberOfComponents(3);
@@ -311,8 +283,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector
   }
 
   // Texture coordinates
-  vtkSmartPointer<vtkFloatArray> newTCoords =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> newTCoords = vtkSmartPointer<vtkFloatArray>::New();
   if (this->GenerateTextureCoordinates != 0)
   {
     newTCoords->SetNumberOfComponents(2);
@@ -393,7 +364,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector
       // Partial derivative at Pt with respect to u,v,w.
       double Du[9];
       // Partial derivative at Pt with respect to v.
-      double *Dv = Du + 3;
+      double* Dv = Du + 3;
 
       // Calculate fn(u)->(Pt,Du).
       this->ParametricFunction->Evaluate(uv, Pt, Du);
@@ -506,8 +477,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector
       }
 
       // Calculate the normal.
-      if (this->ParametricFunction->GetDerivativesAvailable() &&
-          this->GenerateNormals)
+      if (this->ParametricFunction->GetDerivativesAvailable() && this->GenerateNormals)
       {
         double n[3];
         if (this->ParametricFunction->GetClockwiseOrdering() == 0)
@@ -527,10 +497,9 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector
     }
   }
 
-  vtkInformation *outInfo = output->GetInformationObject(0);
-  vtkPolyData *outData = static_cast<vtkPolyData*>(outInfo->Get(
-                           vtkDataObject::DATA_OBJECT()));
-  vtkCellArray *tris = vtkCellArray::New();
+  vtkInformation* outInfo = output->GetInformationObject(0);
+  vtkPolyData* outData = static_cast<vtkPolyData*>(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkCellArray* tris = vtkCellArray::New();
   this->MakeTriangles(tris, PtsU, PtsV);
   outData->SetPoints(points);
   outData->SetPolys(tris);
@@ -547,8 +516,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector
       vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
       pd->SetPoints(points);
       pd->SetPolys(tris);
-      vtkSmartPointer<vtkPolyDataNormals> norm =
-        vtkSmartPointer<vtkPolyDataNormals>::New();
+      vtkSmartPointer<vtkPolyDataNormals> norm = vtkSmartPointer<vtkPolyDataNormals>::New();
       // we prevent vtkPolyDataNormals from generating new points
       // so that the number of newTCoords matches the number of points.
       norm->SplittingOff();
@@ -570,7 +538,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector
   outData->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkParametricFunctionSource::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -585,9 +553,8 @@ vtkMTimeType vtkParametricFunctionSource::GetMTime()
   return mTime;
 }
 
-//----------------------------------------------------------------------------
-void vtkParametricFunctionSource::PrintSelf(ostream& os,
-    vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -597,8 +564,7 @@ void vtkParametricFunctionSource::PrintSelf(ostream& os,
 
   if (this->ParametricFunction)
   {
-    os << indent << "Parametric Function: " << this->ParametricFunction <<
-       "\n";
+    os << indent << "Parametric Function: " << this->ParametricFunction << "\n";
   }
   else
   {
@@ -653,10 +619,9 @@ void vtkParametricFunctionSource::PrintSelf(ostream& os,
     default:
       s = "Unknown scalar mode.";
   }
-  os << indent << "Scalar Mode: " << s.c_str() << "\n";
-  os << indent << "GenerateTextureCoordinates:" <<
-     (this->GenerateTextureCoordinates ? "On" : "Off") << "\n";
-  os << indent << "Output Points Precision: " <<
-     this->OutputPointsPrecision
+  os << indent << "Scalar Mode: " << s << "\n";
+  os << indent << "GenerateTextureCoordinates:" << (this->GenerateTextureCoordinates ? "On" : "Off")
      << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

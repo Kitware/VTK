@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRIBLight.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkRIBLight
  * @brief   RIP Light
@@ -22,7 +10,7 @@
  *
  * @sa
  * vtkRIBExporter vtkRIBProperty
-*/
+ */
 
 #ifndef vtkRIBLight_h
 #define vtkRIBLight_h
@@ -30,29 +18,33 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkLight.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRIBRenderer;
 
 class VTKIOEXPORT_EXPORT vtkRIBLight : public vtkLight
 {
 public:
-  static vtkRIBLight *New();
-  vtkTypeMacro(vtkRIBLight,vtkLight);
+  static vtkRIBLight* New();
+  vtkTypeMacro(vtkRIBLight, vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkBooleanMacro(Shadows,vtkTypeBool);
-  vtkSetMacro(Shadows,vtkTypeBool);
-  vtkGetMacro(Shadows,vtkTypeBool);
+  vtkBooleanMacro(Shadows, vtkTypeBool);
+  vtkSetMacro(Shadows, vtkTypeBool);
+  vtkGetMacro(Shadows, vtkTypeBool);
 
-  void Render(vtkRenderer *ren, int index) override;
+  void Render(vtkRenderer* ren, int index) override;
+
 protected:
   vtkRIBLight();
   ~vtkRIBLight() override;
 
-  vtkLight *Light;
+  vtkLight* Light;
   vtkTypeBool Shadows;
+
 private:
   vtkRIBLight(const vtkRIBLight&) = delete;
   void operator=(const vtkRIBLight&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

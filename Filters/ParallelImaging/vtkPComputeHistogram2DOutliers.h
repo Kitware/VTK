@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPComputeHistogram2DOutliers.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkPComputeHistogram2DOutliers
  * @brief   extract outlier rows from
@@ -38,17 +22,19 @@
  * @par Thanks:
  *  Developed by David Feng at Sandia National Laboratories
  *------------------------------------------------------------------------------
-*/
+ */
 
 #ifndef vtkPComputeHistogram2DOutliers_h
 #define vtkPComputeHistogram2DOutliers_h
 //------------------------------------------------------------------------------
-#include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkComputeHistogram2DOutliers.h"
+#include "vtkFiltersParallelImagingModule.h" // For export macro
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 //------------------------------------------------------------------------------
-class VTKFILTERSPARALLELIMAGING_EXPORT vtkPComputeHistogram2DOutliers : public vtkComputeHistogram2DOutliers
+class VTKFILTERSPARALLELIMAGING_EXPORT vtkPComputeHistogram2DOutliers
+  : public vtkComputeHistogram2DOutliers
 {
 public:
   static vtkPComputeHistogram2DOutliers* New();
@@ -56,20 +42,20 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+
 protected:
   vtkPComputeHistogram2DOutliers();
   ~vtkPComputeHistogram2DOutliers() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMultiProcessController* Controller;
+
 private:
   vtkPComputeHistogram2DOutliers(const vtkPComputeHistogram2DOutliers&) = delete;
   void operator=(const vtkPComputeHistogram2DOutliers&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

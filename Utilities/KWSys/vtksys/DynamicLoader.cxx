@@ -246,17 +246,6 @@ DynamicLoader::SymbolPointer DynamicLoader::GetSymbolAddress(
   // should have a tool to help get the symbol with the desired
   // calling convention.  Currently we assume cdecl.
   //
-  // Borland:
-  //   __cdecl    = "_func" (default)
-  //   __fastcall = "@_func"
-  //   __stdcall  = "func"
-  //
-  // Watcom:
-  //   __cdecl    = "_func"
-  //   __fastcall = "@_func@X"
-  //   __stdcall  = "_func@X"
-  //   __watcall  = "func_" (default)
-  //
   // MSVC:
   //   __cdecl    = "func" (default)
   //   __fastcall = "@_func@X"
@@ -265,20 +254,9 @@ DynamicLoader::SymbolPointer DynamicLoader::GetSymbolAddress(
   // Note that the "@X" part of the name above is the total size (in
   // bytes) of the arguments on the stack.
   void* result;
-#  if defined(__BORLANDC__) || defined(__WATCOMC__)
-  // Need to prepend symbols with '_'
-  std::string ssym = '_' + sym;
-  const char* rsym = ssym.c_str();
-#  else
   const char* rsym = sym.c_str();
-#  endif
   result = (void*)GetProcAddress(lib, rsym);
-// Hack to cast pointer-to-data to pointer-to-function.
-#  ifdef __WATCOMC__
-  return *(DynamicLoader::SymbolPointer*)(&result);
-#  else
   return *reinterpret_cast<DynamicLoader::SymbolPointer*>(&result);
-#  endif
 }
 
 #  define DYNLOAD_ERROR_BUFFER_SIZE 1024
@@ -297,20 +275,20 @@ const char* DynamicLoader::LastError()
 
   if (length < 1) {
     /* FormatMessage failed.  Use a default message.  */
-    _snprintf(str, DYNLOAD_ERROR_BUFFER_SIZE,
-              "DynamicLoader encountered error 0x%X.  "
-              "FormatMessage failed with error 0x%X",
-              error, GetLastError());
+    snprintf(str, DYNLOAD_ERROR_BUFFER_SIZE,
+             "DynamicLoader encountered error 0x%lX.  "
+             "FormatMessage failed with error 0x%lX",
+             error, GetLastError());
     return str;
   }
 
   if (!WideCharToMultiByte(CP_UTF8, 0, lpMsgBuf, -1, str,
                            DYNLOAD_ERROR_BUFFER_SIZE, nullptr, nullptr)) {
     /* WideCharToMultiByte failed.  Use a default message.  */
-    _snprintf(str, DYNLOAD_ERROR_BUFFER_SIZE,
-              "DynamicLoader encountered error 0x%X.  "
-              "WideCharToMultiByte failed with error 0x%X",
-              error, GetLastError());
+    snprintf(str, DYNLOAD_ERROR_BUFFER_SIZE,
+             "DynamicLoader encountered error 0x%lX.  "
+             "WideCharToMultiByte failed with error 0x%lX",
+             error, GetLastError());
   }
 
   return str;
@@ -458,9 +436,14 @@ namespace KWSYS_NAMESPACE {
 DynamicLoader::LibraryHandle DynamicLoader::OpenLibrary(
   const std::string& libname, int flags)
 {
-  CHECK_OPEN_FLAGS(flags, 0, nullptr);
+  CHECK_OPEN_FLAGS(flags, RTLDGlobal, nullptr);
 
-  return dlopen(libname.c_str(), RTLD_LAZY);
+  int llFlags = RTLD_LAZY;
+  if (flags & RTLDGlobal) {
+    llFlags |= RTLD_GLOBAL;
+  }
+
+  return dlopen(libname.c_str(), llFlags);
 }
 
 int DynamicLoader::CloseLibrary(DynamicLoader::LibraryHandle lib)

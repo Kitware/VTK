@@ -1,41 +1,58 @@
-# Data files:
-#  deciPlane,NO_RT
-#  financialField,NO_RT
-#  skinOrder,NO_RT
-#  MassProperties,NO_RT
-#  financialField2,NO_RT
-#  financialField3,NO_RT
-
 vtk_add_test_python(
   CellDataToPointData.py
+  CellDataToPointData2.py
   Delaunay2D.py
   Delaunay2DAlpha.py
   Delaunay2DTransform.py
   Delaunay3D.py
   Delaunay3DAlphaTest.py
+  MassProperties.py
   QuadricDecimation.py
   QuadricDecimation2.py
   StreamPolyData.py
   Test3DLinearGridCrinkleExtractor.py
   Test3DLinearGridPlaneCutter.py
+  TestBinnedDecimation.py
   TestCalculatorDataTypes.py,NO_VALID
+  TestCleanPolyhedraGrid.py
+  TestCleanUnstructuredGrid.py
+  TestCompositeDataSetPlaneCutter.py
+  TestConstrainedSmoothingFilter.py
+  TestConstrainedSmoothingFilter2.py
   TestContour3DLinearGrid.py
   TestContour3DLinearGrid2.py
   TestContour3DLinearGridCompositeInput.py
   TestContour3DLinearGridInterpolateAttributes.py,NO_VALID
   TestContour3DLinearGridScalarTree.py
+  TestConvertToPolyhedra.py
   TestDecimatePolylineMaximumError.py
   TestElevationFilter.py
+  TestExtractCells.py
   TestFlyingEdges2D.py
   TestFlyingEdges2D2.py
+  TestFlyingEdges2DThinPixel.py
   TestFlyingEdges3D.py
+  TestFlyingEdges3DThinSlice.py
   TestFlyingEdges3DWithInterpolation.py
   TestFlyingEdgesExtents.py
   TestFlyingEdgesPlaneCutter.py
+  TestFlyingEdgesPlaneCutterBoundary.py,NO_VALID
+  TestFlyingEdgesPlaneCutterCellData.py
   TestFlyingEdgesPlaneCutterInterpolation.py
+  TestFlyingEdgesPlaneCutterThinSlice.py
   TestGridSynchronizedTemplates3D.py
   TestMarchingSquares.py
   TestMultiObjectMassProperties.py
+  TestOrientedFlyingEdgesPlaneCutter.py
+  TestOrientedFlyingEdgesPlaneCutter2.py
+  TestPackLabels.py,NO_VALID
+  TestPointDataToCellData2.py
+  TestPolyDataEdgeConnectivityFilter.py
+  TestPolyDataEdgeConnectivityFilter2.py
+  TestPolyDataEdgeConnectivityFilter3.py
+  TestPolyDataEdgeConnectivityFilter4.py
+  TestPolyDataPlaneClipper.py
+  TestPolyDataPlaneClipper2.py
   TestPolyDataPlaneCutter.py
   TestProbeFilterImageInput.py
   TestRectilinearGridPlaneCutter.py
@@ -45,17 +62,26 @@ vtk_add_test_python(
   TestSphereTreeFilter2.py
   TestStaticCleanPolyData.py
   TestStructuredGridPlaneCutter.py
-  TestSynchronizedTemplates2D.py
+  TestSurfaceNets2D.py
+  TestSurfaceNets2D2.py
+  TestSurfaceNets3D.py
+  TestSurfaceNets3D2.py
+  TestSurfaceNets3D3.py
+# TestSynchronizedTemplates2D.py #19221
   TestSynchronizedTemplates3D.py
+  TestWindowedSincPolyDataFilter.py
+  TestWindowedSincPolyDataFilter2.py
+  TestContourFilter.py,NO_DATA,NO_VALID
   TestContourGrid.py,NO_VALID
   TestContourPolyData.py,NO_VALID
-  TestTensorGlyph.py,NO_RT
+  TestTensorGlyph.py
   TestTextureGlyph.py
   TestTriangleFilter.py
   TestUnstructuredGridPlaneCutter.py
   TestVectorDotNorm.py
   TestVoronoi2D.py
   TestVoronoi2D2.py
+  TestVoronoi2D3.py
   TestWindowedSincPolylineSmoothing.py
   capCow.py
   capSphere.py
@@ -64,17 +90,21 @@ vtk_add_test_python(
   constrainedDelaunay.py
   contourCells.py
   contourQuadraticCells.py
-  contourQuadraticTetra.py,NO_RT
+  contourQuadraticTetra.py
   createBFont.py
   cutLoop.py
   cutPolygons.py
   cutter.py
+  deciPlane.py
   dispPlot.py
   fieldToPolyData.py
   fieldToRGrid.py
   fieldToSGrid.py
   fieldToUGrid.py
-  glyphComb.py
+  financialField.py
+  financialField2.py
+  financialField3.py
+# glyphComb.py #19221
   hull.py
   mergeFilter.py
   multipleComponentContour.py
@@ -84,6 +114,7 @@ vtk_add_test_python(
   probeComb.py
   probeComb2.py
   reverseNormals.py
+  skinOrder.py
   smoothMeshOnMesh.py
   streamComb.py
   streamSurface.py
@@ -91,9 +122,9 @@ vtk_add_test_python(
   stripF.py
   teapotHulls.py
   tubeComb.py
-  deciFranFace.py,NO_RT
+  deciFranFace.py
   TestContourCases.py,NO_DATA,NO_VALID
-  pointsPrecisions.py,NO_OUTPUT,NO_DATA,NO_VALID,NO_RT
+  pointsPrecisions.py,NO_OUTPUT,NO_DATA,NO_VALID
   TestCompositeCutter.py,NO_VALID
   testPDNormals.py,NO_DATA,NO_VALID
   )

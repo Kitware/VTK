@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHeatmapItem.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHeatmapItem
  * @brief   A 2D graphics item for rendering a heatmap
@@ -21,22 +9,23 @@
  *
  * .SEE ALSO
  * vtkTable
-*/
+ */
 
 #ifndef vtkHeatmapItem_h
 #define vtkHeatmapItem_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
-#include "vtkNew.h"                // For vtkNew ivars
-#include "vtkSmartPointer.h"       // For vtkSmartPointer ivars
-#include "vtkStdString.h"          // For get/set ivars
-#include "vtkVector.h"             // For vtkVector2f ivar
-#include <map>                     // For column ranges
-#include <set>                     // For blank row support
-#include <vector>                  // For row mapping
+#include "vtkNew.h"          // For vtkNew ivars
+#include "vtkSmartPointer.h" // For vtkSmartPointer ivars
+#include "vtkStdString.h"    // For get/set ivars
+#include "vtkVector.h"       // For vtkVector2f ivar
+#include <map>               // For column ranges
+#include <set>               // For blank row support
+#include <vector>            // For row mapping
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkCategoryLegend;
 class vtkColorLegend;
@@ -49,27 +38,27 @@ class vtkVariantArray;
 class VTKVIEWSINFOVIS_EXPORT vtkHeatmapItem : public vtkContextItem
 {
 public:
-  static vtkHeatmapItem *New();
+  static vtkHeatmapItem* New();
   vtkTypeMacro(vtkHeatmapItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the table that this item draws.  The first column of the table
    * must contain the names of the rows.
    */
-  virtual void SetTable(vtkTable *table);
+  virtual void SetTable(vtkTable* table);
 
   /**
    * Get the table that this item draws.
    */
-  vtkTable * GetTable();
+  vtkTable* GetTable();
 
   /**
    * Get the table that this item draws.
    */
-  vtkStringArray * GetRowNames();
+  vtkStringArray* GetRowNames();
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the column that specifies the name
    * of this table's rows.  By default, we assume this
@@ -79,7 +68,7 @@ public:
    */
   vtkGetMacro(NameColumn, vtkStdString);
   vtkSetMacro(NameColumn, vtkStdString);
-  //@}
+  ///@}
 
   /**
    * Set which way the table should face within the visualization.
@@ -98,39 +87,39 @@ public:
    */
   double GetTextAngleForOrientation(int orientation);
 
-  //@{
+  ///@{
   /**
    * Set the position of the heatmap.
    */
   vtkSetVector2Macro(Position, float);
-  void SetPosition(const vtkVector2f &pos);
-  //@}
+  void SetPosition(const vtkVector2f& pos);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get position of the heatmap.
    */
   vtkGetVector2Macro(Position, float);
   vtkVector2f GetPositionVector();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the height of the cells in our heatmap.
    * Default is 18 pixels.
    */
   vtkGetMacro(CellHeight, double);
   vtkSetMacro(CellHeight, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the width of the cells in our heatmap.
    * Default is 36 pixels.
    */
   vtkGetMacro(CellWidth, double);
   vtkSetMacro(CellWidth, double);
-  //@}
+  ///@}
 
   /**
    * Get the bounds for this item as (Xmin,Xmax,Ymin,Ymax).
@@ -146,16 +135,16 @@ public:
   /**
    * Paints the table as a heatmap.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
-  //@{
+  ///@{
   /**
    * Get the width of the largest row or column label drawn by this
    * heatmap.
    */
   vtkGetMacro(RowLabelWidth, float);
   vtkGetMacro(ColumnLabelWidth, float);
-  //@}
+  ///@}
 
   /**
    * Enum for Orientation.
@@ -171,17 +160,17 @@ public:
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Display a tooltip when the user mouses over a cell in the heatmap.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &event) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& event) override;
 
   /**
    * Display a legend for a column of data.
    */
-  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) override;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent& event) override;
 
 protected:
   vtkHeatmapItem();
@@ -199,7 +188,7 @@ protected:
   /**
    * This function does the bulk of the actual work in rendering our heatmap.
    */
-  virtual void PaintBuffers(vtkContext2D *painter);
+  virtual void PaintBuffers(vtkContext2D* painter);
 
   /**
    * This function returns a bool indicating whether or not we need to rebuild
@@ -245,7 +234,7 @@ protected:
    * will be seen by the user.  This improves rendering speed, particularly
    * for larger data.
    */
-  void UpdateVisibleSceneExtent(vtkContext2D *painter);
+  void UpdateVisibleSceneExtent(vtkContext2D* painter);
 
   /**
    * Returns true if any part of the line segment defined by endpoints
@@ -264,7 +253,7 @@ protected:
    * Compute the width of our longest row label and the width of our
    * longest column label.  These values are used by GetBounds().
    */
-  void ComputeLabelWidth(vtkContext2D *painter);
+  void ComputeLabelWidth(vtkContext2D* painter);
 
   // Setup the position, size, and orientation of this heatmap's color
   // legend based on the heatmap's current orientation.
@@ -275,7 +264,7 @@ protected:
   void PositionLegends(int orientation);
 
   vtkSmartPointer<vtkTable> Table;
-  vtkStringArray * RowNames;
+  vtkStringArray* RowNames;
   vtkStdString NameColumn;
 
 private:
@@ -294,9 +283,9 @@ private:
   double CellWidth;
   double CellHeight;
 
-  std::map< vtkIdType, std::pair< double, double > > ColumnRanges;
-  std::vector< vtkIdType > SceneRowToTableRowMap;
-  std::vector< vtkIdType > SceneColumnToTableColumnMap;
+  std::map<vtkIdType, std::pair<double, double>> ColumnRanges;
+  std::vector<vtkIdType> SceneRowToTableRowMap;
+  std::vector<vtkIdType> SceneColumnToTableColumnMap;
   std::set<std::string> BlankRows;
 
   double MinX;
@@ -313,4 +302,5 @@ private:
   bool LegendPositionSet;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

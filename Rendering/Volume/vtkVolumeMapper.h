@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVolumeMapper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkVolumeMapper
  * @brief   Abstract class for a volume mapper
@@ -20,43 +8,47 @@
  * vtkVolumeMapper is the abstract definition of a volume mapper for regular
  * rectilinear data (vtkImageData). Several basic types of volume mappers
  * are supported.
-*/
+ */
 
 #ifndef vtkVolumeMapper_h
 #define vtkVolumeMapper_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
+class vtkImageData;
+class vtkRectilinearGrid;
 class vtkRenderer;
 class vtkVolume;
-class vtkImageData;
 
-#define VTK_CROP_SUBVOLUME              0x0002000
-#define VTK_CROP_FENCE                  0x2ebfeba
-#define VTK_CROP_INVERTED_FENCE         0x5140145
-#define VTK_CROP_CROSS                  0x0417410
-#define VTK_CROP_INVERTED_CROSS         0x7be8bef
+#define VTK_CROP_SUBVOLUME 0x0002000
+#define VTK_CROP_FENCE 0x2ebfeba
+#define VTK_CROP_INVERTED_FENCE 0x5140145
+#define VTK_CROP_CROSS 0x0417410
+#define VTK_CROP_INVERTED_CROSS 0x7be8bef
 
 class vtkWindow;
 
-class VTKRENDERINGVOLUME_EXPORT vtkVolumeMapper : public vtkAbstractVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT VTK_MARSHALAUTO vtkVolumeMapper : public vtkAbstractVolumeMapper
 {
 public:
-  vtkTypeMacro(vtkVolumeMapper,vtkAbstractVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkVolumeMapper, vtkAbstractVolumeMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the input data
    */
-  virtual void SetInputData( vtkImageData * );
-  virtual void SetInputData( vtkDataSet * );
-  virtual vtkImageData* GetInput();
-  virtual vtkImageData* GetInput(const int port);
-  //@}
+  virtual void SetInputData(vtkImageData*);
+  virtual void SetInputData(vtkDataSet*);
+  virtual void SetInputData(vtkRectilinearGrid*);
+  virtual vtkDataSet* GetInput();
+  virtual vtkDataSet* GetInput(int port);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the blend mode.
    * The default mode is Composite where the scalar values are sampled through
@@ -99,25 +91,27 @@ public:
    * \sa SetAverageIPScalarRange()
    * \sa GetIsosurfaceValues()
    */
-  vtkSetMacro( BlendMode, int );
-  void SetBlendModeToComposite()
-    { this->SetBlendMode( vtkVolumeMapper::COMPOSITE_BLEND ); }
+  vtkSetMacro(BlendMode, int);
+  void SetBlendModeToComposite() { this->SetBlendMode(vtkVolumeMapper::COMPOSITE_BLEND); }
   void SetBlendModeToMaximumIntensity()
-    { this->SetBlendMode( vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
+  {
+    this->SetBlendMode(vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND);
+  }
   void SetBlendModeToMinimumIntensity()
-    { this->SetBlendMode( vtkVolumeMapper::MINIMUM_INTENSITY_BLEND ); }
+  {
+    this->SetBlendMode(vtkVolumeMapper::MINIMUM_INTENSITY_BLEND);
+  }
   void SetBlendModeToAverageIntensity()
-    { this->SetBlendMode( vtkVolumeMapper::AVERAGE_INTENSITY_BLEND ); }
-  void SetBlendModeToAdditive()
-    { this->SetBlendMode( vtkVolumeMapper::ADDITIVE_BLEND ); }
-  void SetBlendModeToIsoSurface()
-    { this->SetBlendMode( vtkVolumeMapper::ISOSURFACE_BLEND ); }
-  void SetBlendModeToSlice()
-    { this->SetBlendMode( vtkVolumeMapper::SLICE_BLEND ); }
-  vtkGetMacro( BlendMode, int );
-  //@}
+  {
+    this->SetBlendMode(vtkVolumeMapper::AVERAGE_INTENSITY_BLEND);
+  }
+  void SetBlendModeToAdditive() { this->SetBlendMode(vtkVolumeMapper::ADDITIVE_BLEND); }
+  void SetBlendModeToIsoSurface() { this->SetBlendMode(vtkVolumeMapper::ISOSURFACE_BLEND); }
+  void SetBlendModeToSlice() { this->SetBlendMode(vtkVolumeMapper::SLICE_BLEND); }
+  vtkGetMacro(BlendMode, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scalar range to be considered for average intensity projection
    * blend mode. Only scalar values between this range will be averaged during
@@ -128,37 +122,54 @@ public:
    */
   vtkSetVector2Macro(AverageIPScalarRange, double);
   vtkGetVectorMacro(AverageIPScalarRange, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn On/Off orthogonal cropping. (Clipping planes are
    * perpendicular to the coordinate axes.)
    */
-  vtkSetClampMacro(Cropping,vtkTypeBool,0,1);
-  vtkGetMacro(Cropping,vtkTypeBool);
-  vtkBooleanMacro(Cropping,vtkTypeBool);
-  //@}
+  vtkSetClampMacro(Cropping, vtkTypeBool, 0, 1);
+  vtkGetMacro(Cropping, vtkTypeBool);
+  vtkBooleanMacro(Cropping, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Cropping Region Planes ( xmin, xmax, ymin, ymax, zmin, zmax )
    * These planes are defined in volume coordinates - spacing and origin are
    * considered.
    */
-  vtkSetVector6Macro( CroppingRegionPlanes, double );
-  vtkGetVectorMacro(  CroppingRegionPlanes, double, 6 );
-  //@}
+  vtkSetVector6Macro(CroppingRegionPlanes, double);
+  vtkGetVectorMacro(CroppingRegionPlanes, double, 6);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the cropping region planes in voxels. Only valid during the
    * rendering process
    */
-  vtkGetVectorMacro( VoxelCroppingRegionPlanes, double, 6 );
-  //@}
+  vtkGetVectorMacro(VoxelCroppingRegionPlanes, double, 6);
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * If enabled, the volume(s) whose shading is enabled will use the gradient
+   * of opacity instead of the scalar gradient to estimate the surface's normal
+   * when applying the shading model. The opacity considered for the gradient
+   * is then the scalars converted to opacity by the transfer function(s).
+   * For now it is only supported in vtkGPUVolumeRayCastMapper.
+   * In vtkSmartVolumeMapper and in vtkMultiBlockVolumeMapper, this parameter
+   * is used when the GPU mapper is effectively used.
+   * Note that enabling it might affect performances, especially when
+   * using a 2D TF or a gradient opacity. It is disabled by default.
+   */
+  vtkSetMacro(ComputeNormalFromOpacity, bool);
+  vtkGetMacro(ComputeNormalFromOpacity, bool);
+  vtkBooleanMacro(ComputeNormalFromOpacity, bool);
+  ///@}
+
+  ///@{
   /**
    * Set the flags for the cropping regions. The clipping planes divide the
    * volume into 27 regions - there is one bit for each region. The regions
@@ -170,26 +181,27 @@ public:
    * clip plane pairs), inverted fence, cross (between any two of the
    * clip plane pairs) and inverted cross.
    */
-  vtkSetClampMacro( CroppingRegionFlags, int, 0x0, 0x7ffffff );
-  vtkGetMacro( CroppingRegionFlags, int );
-  void SetCroppingRegionFlagsToSubVolume()
-    {this->SetCroppingRegionFlags( VTK_CROP_SUBVOLUME );};
-  void SetCroppingRegionFlagsToFence()
-    {this->SetCroppingRegionFlags( VTK_CROP_FENCE );};
+  vtkSetClampMacro(CroppingRegionFlags, int, 0x0, 0x7ffffff);
+  vtkGetMacro(CroppingRegionFlags, int);
+  void SetCroppingRegionFlagsToSubVolume() { this->SetCroppingRegionFlags(VTK_CROP_SUBVOLUME); }
+  void SetCroppingRegionFlagsToFence() { this->SetCroppingRegionFlags(VTK_CROP_FENCE); }
   void SetCroppingRegionFlagsToInvertedFence()
-    {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_FENCE );};
-  void SetCroppingRegionFlagsToCross()
-    {this->SetCroppingRegionFlags( VTK_CROP_CROSS );};
+  {
+    this->SetCroppingRegionFlags(VTK_CROP_INVERTED_FENCE);
+  }
+  void SetCroppingRegionFlagsToCross() { this->SetCroppingRegionFlags(VTK_CROP_CROSS); }
   void SetCroppingRegionFlagsToInvertedCross()
-    {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_CROSS );};
-  //@}
+  {
+    this->SetCroppingRegionFlags(VTK_CROP_INVERTED_CROSS);
+  }
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  void Render(vtkRenderer *ren, vtkVolume *vol) override =0;
+  void Render(vtkRenderer* ren, vtkVolume* vol) override = 0;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -197,7 +209,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override {}
+  void ReleaseGraphicsResources(vtkWindow*) override {}
 
   /**
    * Blend modes.
@@ -261,27 +273,31 @@ protected:
    * voxels is 8, the sample distance will be roughly 1/200 the average voxel
    * size. The distance will grow proportionally to numVoxels^(1/3).
    */
-  double SpacingAdjustedSampleDistance(double inputSpacing[3],
-                                       int inputExtent[6]);
+  double SpacingAdjustedSampleDistance(double inputSpacing[3], int inputExtent[6]);
 
-  int   BlendMode;
+  int BlendMode;
+
+  /**
+   * Is the normal for volume shading computed from opacity or from scalars
+   */
+  bool ComputeNormalFromOpacity = false;
 
   /**
    * Threshold range for average intensity projection
    */
   double AverageIPScalarRange[2];
 
-  //@{
+  ///@{
   /**
    * Cropping variables, and a method for converting the world
    * coordinate cropping region planes to voxel coordinates
    */
-  vtkTypeBool                  Cropping;
-  double               CroppingRegionPlanes[6];
-  double               VoxelCroppingRegionPlanes[6];
-  int                  CroppingRegionFlags;
+  vtkTypeBool Cropping;
+  double CroppingRegionPlanes[6];
+  double VoxelCroppingRegionPlanes[6];
+  int CroppingRegionFlags;
   void ConvertCroppingRegionPlanesToVoxels();
-  //@}
+  ///@}
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
@@ -290,7 +306,5 @@ private:
   void operator=(const vtkVolumeMapper&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif
-
-

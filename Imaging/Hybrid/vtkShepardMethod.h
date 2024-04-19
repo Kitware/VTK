@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkShepardMethod.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkShepardMethod
  * @brief   interpolate points and associated scalars onto volume
@@ -72,31 +60,32 @@
  *
  * @sa
  * vtkGaussianSplatter vtkCheckerboardSplatter
-*/
+ */
 
 #ifndef vtkShepardMethod_h
 #define vtkShepardMethod_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGHYBRID_EXPORT vtkShepardMethod : public vtkImageAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard type and print methods.
    */
-  vtkTypeMacro(vtkShepardMethod,vtkImageAlgorithm);
+  vtkTypeMacro(vtkShepardMethod, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Construct with sample dimensions=(50,50,50) and so that model bounds are
    * automatically computed from the input. The null value for each unvisited
    * output point is 0.0. Maximum distance is 0.25. Power parameter p=2.
    */
-  static vtkShepardMethod *New();
+  static vtkShepardMethod* New();
 
   /**
    * Set the i-j-k dimensions on which to interpolate the input points.
@@ -108,14 +97,14 @@ public:
    */
   void SetSampleDimensions(int dim[3]);
 
-  //@{
+  ///@{
   /**
    * Retrieve the i-j-k dimensions on which to interpolate the input points.
    */
-  vtkGetVectorMacro(SampleDimensions,int,3);
-  //@}
+  vtkGetVectorMacro(SampleDimensions, int, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum influence distance of each input point. This
    * distance is a fraction of the length of the diagonal of the sample
@@ -123,57 +112,54 @@ public:
    * points in the volume dataset. Values less than 1.0 can improve
    * performance significantly. By default the maximum distance is 0.25.
    */
-  vtkSetClampMacro(MaximumDistance,double,0.0,1.0);
-  vtkGetMacro(MaximumDistance,double);
-  //@}
+  vtkSetClampMacro(MaximumDistance, double, 0.0, 1.0);
+  vtkGetMacro(MaximumDistance, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the value for output points not receiving a contribution from any
    * input point(s). Output points may not receive a contribution when the
    * MaximumDistance < 1.
    */
-  vtkSetMacro(NullValue,double);
-  vtkGetMacro(NullValue,double);
-  //@}
+  vtkSetMacro(NullValue, double);
+  vtkGetMacro(NullValue, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the position in space to perform the sampling. The ModelBounds
    * and SampleDimensions together define the output volume. (Note: if the
    * ModelBounds are set to an invalid state [zero or negative volume] then
    * the bounds are computed automatically.)
    */
-  vtkSetVector6Macro(ModelBounds,double);
-  vtkGetVectorMacro(ModelBounds,double,6);
-  //@}
+  vtkSetVector6Macro(ModelBounds, double);
+  vtkGetVectorMacro(ModelBounds, double, 6);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the power parameter p. By default p=2. Values (which must be
    * a positive, real value) != 2 may affect performance significantly.
    */
-  vtkSetClampMacro(PowerParameter,double,0.001,100);
-  vtkGetMacro(PowerParameter,double);
-  //@}
+  vtkSetClampMacro(PowerParameter, double, 0.001, 100);
+  vtkGetMacro(PowerParameter, double);
+  ///@}
 
   /**
    * Compute ModelBounds from the input geometry.
    */
-  double ComputeModelBounds(double origin[3], double ar[3]);
+  double ComputeModelBounds(double origin[3], double spacing[3]);
 
 protected:
   vtkShepardMethod();
-  ~vtkShepardMethod() override {}
+  ~vtkShepardMethod() override = default;
 
-  int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // see vtkAlgorithm for details
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   // see algorithm for more info
   int FillInputPortInformation(int port, vtkInformation* info) override;
@@ -189,4 +175,5 @@ private:
   void operator=(const vtkShepardMethod&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

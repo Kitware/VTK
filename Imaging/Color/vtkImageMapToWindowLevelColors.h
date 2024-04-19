@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageMapToWindowLevelColors.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageMapToWindowLevelColors
  * @brief   Map an image through a lookup table and/or a window/level.
@@ -37,55 +25,52 @@
  * color, use vtkImageMapToColors instead of this filter.
  * @sa
  * vtkLookupTable vtkScalarsToColors
-*/
+ */
 
 #ifndef vtkImageMapToWindowLevelColors_h
 #define vtkImageMapToWindowLevelColors_h
 
-
-#include "vtkImagingColorModule.h" // For export macro
 #include "vtkImageMapToColors.h"
+#include "vtkImagingColorModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCOLOR_EXPORT vtkImageMapToWindowLevelColors : public vtkImageMapToColors
 {
 public:
-  static vtkImageMapToWindowLevelColors *New();
-  vtkTypeMacro(vtkImageMapToWindowLevelColors,vtkImageMapToColors);
+  static vtkImageMapToWindowLevelColors* New();
+  vtkTypeMacro(vtkImageMapToWindowLevelColors, vtkImageMapToColors);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the Window to use -> modulation will be performed on the
    * color based on (S - (L - W/2))/W where S is the scalar value, L is
    * the level and W is the window.
    */
-  vtkSetMacro( Window, double );
-  vtkGetMacro( Window, double );
-  //@}
+  vtkSetMacro(Window, double);
+  vtkGetMacro(Window, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the Level to use -> modulation will be performed on the
    * color based on (S - (L - W/2))/W where S is the scalar value, L is
    * the level and W is the window.
    */
-  vtkSetMacro( Level, double );
-  vtkGetMacro( Level, double );
-  //@}
+  vtkSetMacro(Level, double);
+  vtkGetMacro(Level, double);
+  ///@}
 
 protected:
   vtkImageMapToWindowLevelColors();
   ~vtkImageMapToWindowLevelColors() override;
 
-  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) override;
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int outExt[6], int id) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   double Window;
   double Level;
@@ -95,11 +80,5 @@ private:
   void operator=(const vtkImageMapToWindowLevelColors&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-
-
-
-
-

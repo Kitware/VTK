@@ -1,42 +1,26 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBoostBreadthFirstSearchTree.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkBoostBreadthFirstSearchTree.h"
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkMath.h"
+#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkFloatArray.h"
-#include "vtkDataArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 
 #include "vtkBoostGraphAdapter.h"
 #include "vtkMutableDirectedGraph.h"
-#include "vtkUndirectedGraph.h"
 #include "vtkTree.h"
+#include "vtkUndirectedGraph.h"
 
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/reverse_graph.hpp>
@@ -44,23 +28,24 @@
 
 using namespace boost;
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
-
-#if BOOST_VERSION >= 104800      // Boost 1.48.x
-namespace {
-  vtkIdType unwrap_edge_id(vtkEdgeType const &e)
-  {
-    return e.Id;
-  }
-  vtkIdType unwrap_edge_id(boost::detail::reverse_graph_edge_descriptor<vtkEdgeType> const &e)
-  {
-# if BOOST_VERSION == 104800
-    return e.underlying_desc.Id;
-# else
-    return e.underlying_descx.Id;
-# endif
-  }
+#if BOOST_VERSION >= 104800 // Boost 1.48.x
+namespace
+{
+vtkIdType unwrap_edge_id(vtkEdgeType const& e)
+{
+  return e.Id;
+}
+vtkIdType unwrap_edge_id(boost::detail::reverse_graph_edge_descriptor<vtkEdgeType> const& e)
+{
+#if BOOST_VERSION == 104800
+  return e.underlying_desc.Id;
+#else
+  return e.underlying_descx.Id;
+#endif
+}
 }
 #endif
 
@@ -70,11 +55,13 @@ template <typename IdMap>
 class bfs_tree_builder : public default_bfs_visitor
 {
 public:
-  bfs_tree_builder()
-  { }
+  bfs_tree_builder() = default;
 
   bfs_tree_builder(IdMap& g2t, IdMap& t2g, vtkGraph* g, vtkMutableDirectedGraph* t, vtkIdType root)
-    : graph_to_tree(g2t), tree_to_graph(t2g), tree(t), graph(g)
+    : graph_to_tree(g2t)
+    , tree_to_graph(t2g)
+    , tree(t)
+    , graph(g)
   {
     double x[3];
     graph->GetPoints()->GetPoint(root, x);
@@ -112,19 +99,18 @@ public:
 
     // Copy the vertex and edge data from the graph to the tree.
     tree->GetVertexData()->CopyData(graph->GetVertexData(), v, tree_v);
-#if BOOST_VERSION < 104800      // Boost 1.48.x
+#if BOOST_VERSION < 104800 // Boost 1.48.x
     tree->GetEdgeData()->CopyData(graph->GetEdgeData(), e.Id, tree_e.Id);
 #else
-    tree->GetEdgeData()->CopyData(graph->GetEdgeData(),
-                                  unwrap_edge_id(e), tree_e.Id);
+    tree->GetEdgeData()->CopyData(graph->GetEdgeData(), unwrap_edge_id(e), tree_e.Id);
 #endif
   }
 
 private:
   IdMap graph_to_tree;
   IdMap tree_to_graph;
-  vtkMutableDirectedGraph *tree;
-  vtkGraph *graph;
+  vtkMutableDirectedGraph* tree;
+  vtkGraph* graph;
 };
 
 // Constructor/Destructor
@@ -132,7 +118,7 @@ vtkBoostBreadthFirstSearchTree::vtkBoostBreadthFirstSearchTree()
 {
   // Default values for the origin vertex
   this->OriginVertexIndex = 0;
-  this->ArrayName = 0;
+  this->ArrayName = nullptr;
   this->SetArrayName("Not Set");
   this->ArrayNameSet = false;
   this->OriginValue = 0;
@@ -161,25 +147,24 @@ void vtkBoostBreadthFirstSearchTree::SetOriginVertex(vtkIdType index)
 // but allows the application to simply specify
 // an array name and value, instead of having to
 // know the specific index of the vertex.
-void vtkBoostBreadthFirstSearchTree::SetOriginVertex(
-  vtkStdString arrayName, vtkVariant value)
+void vtkBoostBreadthFirstSearchTree::SetOriginVertex(vtkStdString arrayName, vtkVariant value)
 {
-  this->SetArrayName(arrayName);
+  this->SetArrayName(arrayName.c_str());
   this->ArrayNameSet = true;
   this->OriginValue = value;
   this->Modified();
 }
 
 vtkIdType vtkBoostBreadthFirstSearchTree::GetVertexIndex(
-  vtkAbstractArray *abstract,vtkVariant value)
+  vtkAbstractArray* abstract, vtkVariant value)
 {
 
   // Okay now what type of array is it
   if (abstract->IsNumeric())
   {
-    vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstract);
+    vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(abstract);
     int intValue = value.ToInt();
-    for(int i=0; i<dataArray->GetNumberOfTuples(); ++i)
+    for (int i = 0; i < dataArray->GetNumberOfTuples(); ++i)
     {
       if (intValue == static_cast<int>(dataArray->GetTuple1(i)))
       {
@@ -189,9 +174,9 @@ vtkIdType vtkBoostBreadthFirstSearchTree::GetVertexIndex(
   }
   else
   {
-    vtkStringArray *stringArray = vtkArrayDownCast<vtkStringArray>(abstract);
-    vtkStdString stringValue(value.ToString());
-    for(int i=0; i<stringArray->GetNumberOfTuples(); ++i)
+    vtkStringArray* stringArray = vtkArrayDownCast<vtkStringArray>(abstract);
+    std::string stringValue(value.ToString());
+    for (int i = 0; i < stringArray->GetNumberOfTuples(); ++i)
     {
       if (stringValue == stringArray->GetValue(i))
       {
@@ -212,18 +197,15 @@ int vtkBoostBreadthFirstSearchTree::FillInputPortInformation(
   return 1;
 }
 
-int vtkBoostBreadthFirstSearchTree::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkBoostBreadthFirstSearchTree::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkGraph *input = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Now figure out the origin vertex of the
   // breadth first search
@@ -238,7 +220,7 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
       return 0;
     }
 
-    this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue);
+    this->OriginVertexIndex = this->GetVertexIndex(abstract, this->OriginValue);
   }
 
   // Create tree to graph id map array
@@ -254,8 +236,7 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
   queue<int> q;
 
   // Create the mutable graph to build the tree
-  vtkSmartPointer<vtkMutableDirectedGraph> temp =
-    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+  vtkSmartPointer<vtkMutableDirectedGraph> temp = vtkSmartPointer<vtkMutableDirectedGraph>::New();
   // Initialize copying data into tree
   temp->GetFieldData()->PassData(input->GetFieldData());
   temp->GetVertexData()->CopyAllocate(input->GetVertexData());
@@ -263,15 +244,15 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
 
   // Create the visitor which will build the tree
   bfs_tree_builder<vtkIdTypeArray*> builder(
-      graphToTreeIdMap, treeToGraphIdMap, input, temp, this->OriginVertexIndex);
+    graphToTreeIdMap, treeToGraphIdMap, input, temp, this->OriginVertexIndex);
 
   // Run the algorithm
   if (vtkDirectedGraph::SafeDownCast(input))
   {
-    vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
+    vtkDirectedGraph* g = vtkDirectedGraph::SafeDownCast(input);
     if (this->ReverseEdges)
     {
-#if BOOST_VERSION < 104100      // Boost 1.41.x
+#if BOOST_VERSION < 104100 // Boost 1.41.x
       vtkErrorMacro("ReverseEdges requires Boost 1.41.x or higher");
       return 0;
 #else
@@ -286,7 +267,7 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
   }
   else
   {
-    vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
+    vtkUndirectedGraph* g = vtkUndirectedGraph::SafeDownCast(input);
     breadth_first_search(g, this->OriginVertexIndex, q, builder, color);
   }
 
@@ -298,11 +279,10 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
   }
 
   // Copy the builder graph structure into the output tree
-  vtkTree *output = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* output = vtkTree::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!output->CheckedShallowCopy(temp))
   {
-    vtkErrorMacro(<<"Invalid tree.");
+    vtkErrorMacro(<< "Invalid tree.");
     return 0;
   }
 
@@ -320,18 +300,15 @@ void vtkBoostBreadthFirstSearchTree::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "OriginVertexIndex: " << this->OriginVertexIndex << endl;
 
-  os << indent << "ArrayName: "
-     << (this->ArrayName ? this->ArrayName : "(none)") << endl;
+  os << indent << "ArrayName: " << (this->ArrayName ? this->ArrayName : "(none)") << endl;
 
   os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;
 
-  os << indent << "ArrayNameSet: "
-     << (this->ArrayNameSet ? "true" : "false") << endl;
+  os << indent << "ArrayNameSet: " << (this->ArrayNameSet ? "true" : "false") << endl;
 
-  os << indent << "CreateGraphVertexIdArray: "
-     << (this->CreateGraphVertexIdArray ? "on" : "off") << endl;
+  os << indent << "CreateGraphVertexIdArray: " << (this->CreateGraphVertexIdArray ? "on" : "off")
+     << endl;
 
-  os << indent << "ReverseEdges: "
-     << (this->ReverseEdges ? "on" : "off") << endl;
+  os << indent << "ReverseEdges: " << (this->ReverseEdges ? "on" : "off") << endl;
 }
-
+VTK_ABI_NAMESPACE_END

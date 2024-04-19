@@ -1,37 +1,25 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestParallelRendering.cxx
+#include <vtk_mpi.h>
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include <mpi.h>
-
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkCompositedSynchronizedRenderers.h"
+#include "vtkLookupTable.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
-#include "vtkSynchronizedRenderWindows.h"
-#include "vtkCompositedSynchronizedRenderers.h"
-#include "vtkTestUtilities.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkPieceScalars.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProcess.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkActor.h"
 #include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkLookupTable.h"
-#include "vtkCamera.h"
-#include "vtkPieceScalars.h"
-#include "vtkProcess.h"
-#include "vtkObjectFactory.h"
+#include "vtkSynchronizedRenderWindows.h"
+#include "vtkTestUtilities.h"
 
 namespace
 {
@@ -39,15 +27,14 @@ namespace
 class MyProcess : public vtkProcess
 {
 public:
-  static MyProcess *New();
+  static MyProcess* New();
 
-  virtual void Execute();
+  void Execute() override;
 
-  void SetArgs(int anArgc,
-               char *anArgv[])
+  void SetArgs(int anArgc, char* anArgv[])
   {
-      this->Argc=anArgc;
-      this->Argv=anArgv;
+    this->Argc = anArgc;
+    this->Argv = anArgv;
   }
 
   void CreatePipeline(vtkRenderer* renderer)
@@ -59,7 +46,7 @@ public:
     sphere->SetPhiResolution(100);
     sphere->SetThetaResolution(100);
 
-    vtkPieceScalars *piecescalars = vtkPieceScalars::New();
+    vtkPieceScalars* piecescalars = vtkPieceScalars::New();
     piecescalars->SetInputConnection(sphere->GetOutputPort());
     piecescalars->SetScalarModeToCellData();
 
@@ -67,7 +54,7 @@ public:
     mapper->SetInputConnection(piecescalars->GetOutputPort());
     mapper->SetScalarModeToUseCellFieldData();
     mapper->SelectColorArray("Piece");
-    mapper->SetScalarRange(0, num_procs-1);
+    mapper->SetScalarRange(0, num_procs - 1);
     mapper->SetPiece(my_id);
     mapper->SetNumberOfPieces(num_procs);
     mapper->Update();
@@ -83,10 +70,14 @@ public:
   }
 
 protected:
-  MyProcess() { this->Argc = 0; this->Argv = nullptr; }
+  MyProcess()
+  {
+    this->Argc = 0;
+    this->Argv = nullptr;
+  }
 
   int Argc;
-  char **Argv;
+  char** Argv;
 };
 
 vtkStandardNewMacro(MyProcess);
@@ -103,17 +94,15 @@ void MyProcess::Execute()
 
   renWin->AddRenderer(renderer);
 
-  vtkSynchronizedRenderWindows* syncWindows =
-    vtkSynchronizedRenderWindows::New();
+  vtkSynchronizedRenderWindows* syncWindows = vtkSynchronizedRenderWindows::New();
   syncWindows->SetRenderWindow(renWin);
   syncWindows->SetParallelController(this->Controller);
   syncWindows->SetIdentifier(1);
 
-  vtkCompositedSynchronizedRenderers* syncRenderers =
-    vtkCompositedSynchronizedRenderers::New();
+  vtkCompositedSynchronizedRenderers* syncRenderers = vtkCompositedSynchronizedRenderers::New();
   syncRenderers->SetRenderer(renderer);
   syncRenderers->SetParallelController(this->Controller);
-  //syncRenderers->SetImageReductionFactor(3);
+  // syncRenderers->SetImageReductionFactor(3);
 
   this->CreatePipeline(renderer);
 
@@ -127,7 +116,7 @@ void MyProcess::Execute()
 
     retVal = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
 
-    if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();
     }
@@ -155,7 +144,7 @@ void MyProcess::Execute()
 
 }
 
-int TestParallelRendering(int argc, char *argv[])
+int TestParallelRendering(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
@@ -166,30 +155,27 @@ int TestParallelRendering(int argc, char *argv[])
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv, 1);
-
-  int retVal = 1; //1==failed
-
 
   int numProcs = contr->GetNumberOfProcesses();
 
-  if (numProcs < 2 && false)
+  if (numProcs < 2)
   {
     cout << "This test requires at least 2 processes" << endl;
     contr->Delete();
-    return retVal;
+    return EXIT_FAILURE;
   }
 
   vtkMultiProcessController::SetGlobalController(contr);
 
-  MyProcess *p=MyProcess::New();
-  p->SetArgs(argc,argv);
+  MyProcess* p = MyProcess::New();
+  p->SetArgs(argc, argv);
 
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
 
-  retVal=p->GetReturnValue();
+  int retVal = p->GetReturnValue();
 
   p->Delete();
   contr->Finalize();

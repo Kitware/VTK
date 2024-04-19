@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include <vtkColorTransferFunction.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
@@ -11,7 +13,7 @@
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestGPURayCastSlicePlane(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkRTAnalyticSource> data;

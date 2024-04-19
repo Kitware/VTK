@@ -19,7 +19,7 @@ import org.eclipse.swt.events.MouseWheelListener;
  * into the vtkInteractorForwarder proper AWT event.
  *
  * @author    Joachim Pouderoux - joachim.pouderoux@kitware.com, Kitware SAS 2012
- * @copyright This work was supported by CEA/CESTA
+ * @thanks    This work was supported by CEA/CESTA
  *            Commissariat a l'Energie Atomique et aux Energies Alternatives,
  *            15 avenue des Sablieres, CS 60001, 33116 Le Barp, France.
  */
@@ -37,9 +37,9 @@ implements MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListe
 
   public static int convertModifiers(int mods) {
     int modifiers = 0;
-    if ((mods & SWT.SHIFT) != 0) modifiers |= java.awt.Event.SHIFT_MASK;
-    if ((mods & SWT.CTRL) != 0) modifiers |= java.awt.Event.CTRL_MASK;
-    if ((mods & SWT.ALT) != 0) modifiers |= java.awt.Event.ALT_MASK;
+    if ((mods & SWT.SHIFT) != 0) modifiers |= java.awt.Event.SHIFT_DOWN_MASK;
+    if ((mods & SWT.CTRL) != 0) modifiers |= java.awt.Event.CTRL_DOWN_MASK;
+    if ((mods & SWT.ALT) != 0) modifiers |= java.awt.Event.ALT_DOWN_MASK;
     return modifiers;
   }
 

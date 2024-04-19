@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWin32ProcessOutputWindow.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWin32ProcessOutputWindow.h"
 
 #include "vtkObjectFactory.h"
@@ -20,10 +8,10 @@
 #include <string>
 
 #ifndef _MAX_FNAME
-# define _MAX_FNAME 4096
+#define _MAX_FNAME 4096
 #endif
 #ifndef _MAX_PATH
-# define _MAX_PATH 4096
+#define _MAX_PATH 4096
 #endif
 
 #ifndef PRIdword
@@ -34,11 +22,12 @@
 #endif
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWin32ProcessOutputWindow);
 
 extern "C" int vtkEncodedArrayWin32OutputWindowProcessWrite(const char* fname);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWin32ProcessOutputWindow::vtkWin32ProcessOutputWindow()
 {
   this->OutputPipe = 0;
@@ -46,62 +35,62 @@ vtkWin32ProcessOutputWindow::vtkWin32ProcessOutputWindow()
   this->Count = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWin32ProcessOutputWindow::~vtkWin32ProcessOutputWindow()
 {
-  if(this->OutputPipe)
+  if (this->OutputPipe)
   {
     CloseHandle(this->OutputPipe);
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32ProcessOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32ProcessOutputWindow::DisplayText(const char* text)
 {
   // Display the text if the pipe has not been broken.
-  if(!this->Broken && text)
+  if (!this->Broken && text)
   {
     const char* begin = text;
-    while(const char* end = strchr(begin, '\n'))
+    while (const char* end = strchr(begin, '\n'))
     {
-      this->Write(begin, end-begin);
+      this->Write(begin, end - begin);
       this->Write("\r\n", 2);
-      begin = end+1;
+      begin = end + 1;
     }
     this->Write(begin, strlen(begin));
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkWin32ProcessOutputWindow::Initialize()
 {
   // Write the executable as a temporary file.  It will delete itself.
-  char exeName[_MAX_FNAME+1] = "";
-  char tempDir[_MAX_PATH+1] = "";
+  char exeName[_MAX_FNAME + 1] = "";
+  char tempDir[_MAX_PATH + 1] = "";
 
   // We will try putting the executable in the system temp directory.
   // Note that the returned path already has a trailing slash.
-  DWORD length = GetTempPath(_MAX_PATH+1, tempDir);
-  if(length <= 0 || length > _MAX_PATH)
+  DWORD length = GetTempPath(_MAX_PATH + 1, tempDir);
+  if (length <= 0 || length > _MAX_PATH)
   {
     return 0;
   }
 
   // Construct the executable name from the process id, pointer to
   // this output window instance, and a count.  This should be unique.
-  snprintf(exeName, sizeof(exeName), "vtkWin32OWP_%" PRIdword "_%p_%u.exe",
-           GetCurrentProcessId(), this, this->Count++);
+  snprintf(exeName, sizeof(exeName), "vtkWin32OWP_%" PRIdword "_%p_%u.exe", GetCurrentProcessId(),
+    this, this->Count++);
 
   // Allocate a buffer to hold the executable path.
   size_t tdlen = strlen(tempDir);
   char* exeFullPath = (char*)malloc(tdlen + strlen(exeName) + 2);
-  if(!exeFullPath)
+  if (!exeFullPath)
   {
     return 0;
   }
@@ -110,7 +99,7 @@ int vtkWin32ProcessOutputWindow::Initialize()
   snprintf(exeFullPath, sizeof(exeFullPath), "%s%s", tempDir, exeName);
 
   // Try to write the executable to disk.
-  if(!vtkEncodedArrayWin32OutputWindowProcessWrite(exeFullPath))
+  if (!vtkEncodedArrayWin32OutputWindowProcessWrite(exeFullPath))
   {
     free(exeFullPath);
     return 0;
@@ -126,10 +115,9 @@ int vtkWin32ProcessOutputWindow::Initialize()
   si.wShowWindow = SW_SHOWDEFAULT;
 
   // Create a pipe with an inherited read end.
-  if(!CreatePipe(&si.hStdInput, &this->OutputPipe, 0, 0) ||
-     !DuplicateHandle(GetCurrentProcess(), si.hStdInput,
-                      GetCurrentProcess(), &si.hStdInput,
-                      0, TRUE, DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE))
+  if (!CreatePipe(&si.hStdInput, &this->OutputPipe, 0, 0) ||
+    !DuplicateHandle(GetCurrentProcess(), si.hStdInput, GetCurrentProcess(), &si.hStdInput, 0, TRUE,
+      DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE))
   {
     DeleteFile(exeFullPath);
     free(exeFullPath);
@@ -137,8 +125,7 @@ int vtkWin32ProcessOutputWindow::Initialize()
   }
 
   // Create the child process.
-  if(!CreateProcess(0, exeFullPath, 0, 0, TRUE,
-                    NORMAL_PRIORITY_CLASS, 0, 0, &si, &pi))
+  if (!CreateProcess(0, exeFullPath, 0, 0, TRUE, NORMAL_PRIORITY_CLASS, 0, 0, &si, &pi))
   {
     DeleteFile(exeFullPath);
     free(exeFullPath);
@@ -154,13 +141,13 @@ int vtkWin32ProcessOutputWindow::Initialize()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWin32ProcessOutputWindow::Write(const char* data, size_t length)
 {
-  if(data && length)
+  if (data && length)
   {
     // Initialize the output pipe the first time.
-    if(this->Broken || (!this->OutputPipe && !this->Initialize()))
+    if (this->Broken || (!this->OutputPipe && !this->Initialize()))
     {
       this->Broken = 1;
       return;
@@ -168,7 +155,7 @@ void vtkWin32ProcessOutputWindow::Write(const char* data, size_t length)
 
     // Write the data to the pipe.  If it breaks, close the pipe.
     DWORD nWritten;
-    if(!WriteFile(this->OutputPipe, data, (DWORD) length, &nWritten, 0))
+    if (!WriteFile(this->OutputPipe, data, (DWORD)length, &nWritten, 0))
     {
       this->Broken = 1;
       CloseHandle(this->OutputPipe);
@@ -176,3 +163,4 @@ void vtkWin32ProcessOutputWindow::Write(const char* data, size_t length)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -7,8 +7,6 @@ generate a hash from a file and place that in a generated header.
 
 set(_vtkHashSource_script_file "${CMAKE_CURRENT_LIST_FILE}")
 
-include(CMakeParseArguments)
-
 #[==[
 @brief Generate a header containing the hash of a file
 
@@ -35,11 +33,10 @@ The only required variable is `INPUT`.
   * `HEADER_OUTPUT`: the variable to store the generated header path.
 #]==]
 function (vtk_hash_source)
-  cmake_parse_arguments(_vtk_hash_source
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_hash_source
     ""
     "INPUT;NAME;ALGORITHM;HEADER_OUTPUT"
-    ""
-    ${ARGN})
+    "")
 
   if (_vtk_hash_source_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -73,6 +70,12 @@ function (vtk_hash_source)
   set(_vtk_hash_source_header
     "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_hash_source_NAME}.h")
 
+  set(_vtk_hash_source_depends_args)
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+    list(APPEND _vtk_hash_source_depends_args
+      DEPENDS_EXPLICIT_ONLY)
+  endif ()
+
   add_custom_command(
     OUTPUT  "${_vtk_hash_source_header}"
     DEPENDS "${_vtkHashSource_script_file}"
@@ -83,7 +86,8 @@ function (vtk_hash_source)
             "-Doutput_name=${_vtk_hash_source_NAME}"
             "-Dalgorithm=${_vtk_hash_source_ALGORITHM}"
             "-D_vtk_hash_source_run=ON"
-            -P "${_vtkHashSource_script_file}")
+            -P "${_vtkHashSource_script_file}"
+    ${_vtk_hash_source_depends_args})
 
   if (DEFINED _vtk_hash_source_HEADER_OUTPUT)
     set("${_vtk_hash_source_HEADER_OUTPUT}"

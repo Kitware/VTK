@@ -1,59 +1,47 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPPolyDataWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLPPolyDataWriter.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkXMLPolyDataWriter.h"
-#include "vtkPolyData.h"
 #include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkXMLPolyDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPPolyDataWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPPolyDataWriter::vtkXMLPPolyDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPPolyDataWriter::~vtkXMLPPolyDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyData* vtkXMLPPolyDataWriter::GetInput()
 {
   return static_cast<vtkPolyData*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPPolyDataWriter::GetDataSetName()
 {
   return "PPolyData";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPPolyDataWriter::GetDefaultFileExtension()
 {
   return "pvtp";
 }
 
-//----------------------------------------------------------------------------
-vtkXMLUnstructuredDataWriter*
-vtkXMLPPolyDataWriter::CreateUnstructuredPieceWriter()
+//------------------------------------------------------------------------------
+vtkXMLUnstructuredDataWriter* vtkXMLPPolyDataWriter::CreateUnstructuredPieceWriter()
 {
   // Create the writer for the piece.
   vtkXMLPolyDataWriter* pWriter = vtkXMLPolyDataWriter::New();
@@ -61,10 +49,10 @@ vtkXMLPPolyDataWriter::CreateUnstructuredPieceWriter()
   return pWriter;
 }
 
-//----------------------------------------------------------------------------
-int vtkXMLPPolyDataWriter::FillInputPortInformation(
-  int, vtkInformation* info)
+//------------------------------------------------------------------------------
+int vtkXMLPPolyDataWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,21 +1,10 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParametricBour.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkParametricBour.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricBour);
 //----------------------------------------------------------------------------//
 vtkParametricBour::vtkParametricBour()
@@ -24,7 +13,7 @@ vtkParametricBour::vtkParametricBour()
   this->MinimumU = 0.;
   this->MaximumU = 1.0;
   this->MinimumV = 0.;
-  this->MaximumV = 4.*vtkMath::Pi();
+  this->MaximumV = 4. * vtkMath::Pi();
 
   this->JoinU = 0;
   this->JoinV = 0;
@@ -38,8 +27,7 @@ vtkParametricBour::vtkParametricBour()
 vtkParametricBour::~vtkParametricBour() = default;
 
 //----------------------------------------------------------------------------//
-void vtkParametricBour::Evaluate(double uvw[3], double Pt[3],
-                                 double Duvw[9])
+void vtkParametricBour::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
@@ -47,28 +35,35 @@ void vtkParametricBour::Evaluate(double uvw[3], double Pt[3],
 
   // We're only going to need the u and v partial derivatives.
   // The w partial derivatives are not needed.
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   // Location of the point. This parametrization was taken from:
   // https://en.wikipedia.org/wiki/Bour%27s_minimal_surface
-  Pt[0] = u * cos(v) - u * u * cos(2.*v) / 2.;
-  Pt[1] = -u * sin(v) * (u * cos(v) + 1.);
-  Pt[2] = 4. / 3.*pow(u, 1.5) * cos(1.5 * v);
+  const double u1_2 = std::sqrt(u);
+  const double u3_2 = u * u1_2;
+  const double cos_v = std::cos(v);
+  const double cos_1_5v = std::cos(1.5 * v);
+  const double cos_2v = std::cos(2. * v);
+  const double sin_v = std::sin(v);
+  const double sin_1_5v = std::sin(1.5 * v);
+  Pt[0] = u * cos_v - u * u * cos_2v / 2.;
+  Pt[1] = -u * sin_v * (u * cos_v + 1.);
+  Pt[2] = 4. / 3. * u3_2 * cos_1_5v;
 
   // The derivative with respect to u:
-  Du[0] = cos(v) - u * cos(2 * v);
-  Du[1] = -sin(v) * (1. + 2.*u * cos(v));
-  Du[2] = 2 * sqrt(u) * cos(1.5 * v);
+  Du[0] = cos_v - u * cos_2v;
+  Du[1] = -sin_v * (1. + 2. * u * cos_v);
+  Du[2] = 2 * u1_2 * cos_1_5v;
 
   // The derivative with respect to v:
-  Dv[0] = u * (2.*u * cos(v) - 1.) * sin(v);
-  Dv[1] = -u * (cos(v) + u * cos(2.*v));
-  Dv[2] = -2.*pow(u, 1.5) * sin(1.5 * v);
+  Dv[0] = u * (2. * u * cos_v - 1.) * sin_v;
+  Dv[1] = -u * (cos_v + u * cos_2v);
+  Dv[2] = -2. * u3_2 * sin_1_5v;
 }
 
 //----------------------------------------------------------------------------//
-double vtkParametricBour::EvaluateScalar(double *, double *, double *)
+double vtkParametricBour::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
@@ -78,3 +73,4 @@ void vtkParametricBour::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

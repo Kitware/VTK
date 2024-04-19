@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSliceAndDiceLayoutStrategy.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkSliceAndDiceLayoutStrategy.h"
 
@@ -35,6 +19,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSliceAndDiceLayoutStrategy);
 
 vtkSliceAndDiceLayoutStrategy::vtkSliceAndDiceLayoutStrategy() = default;
@@ -43,14 +28,12 @@ vtkSliceAndDiceLayoutStrategy::~vtkSliceAndDiceLayoutStrategy() = default;
 
 void vtkSliceAndDiceLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 // Alternating tree layout method
 void vtkSliceAndDiceLayoutStrategy::Layout(
-    vtkTree* inputTree,
-    vtkDataArray* coordsArray,
-    vtkDataArray* sizeArray)
+  vtkTree* inputTree, vtkDataArray* coordsArray, vtkDataArray* sizeArray)
 {
   if (!inputTree)
   {
@@ -62,13 +45,11 @@ void vtkSliceAndDiceLayoutStrategy::Layout(
     return;
   }
 
-  vtkSmartPointer<vtkTreeDFSIterator> dfs =
-    vtkSmartPointer<vtkTreeDFSIterator>::New();
+  vtkSmartPointer<vtkTreeDFSIterator> dfs = vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(inputTree);
   float coords[4];
 
-  vtkSmartPointer<vtkAdjacentVertexIterator> it =
-    vtkSmartPointer<vtkAdjacentVertexIterator>::New();
+  vtkSmartPointer<vtkAdjacentVertexIterator> it = vtkSmartPointer<vtkAdjacentVertexIterator>::New();
 
   while (dfs->HasNext())
   {
@@ -76,12 +57,13 @@ void vtkSliceAndDiceLayoutStrategy::Layout(
     bool vertical = (inputTree->GetLevel(vertex) % 2) == 1;
     if (vertex == inputTree->GetRoot())
     {
-      coords[0] = 0; coords[1] = 1; coords[2] = 0; coords[3] = 1;
+      coords[0] = 0;
+      coords[1] = 1;
+      coords[2] = 0;
+      coords[3] = 1;
       coordsArray->SetTuple(vertex, coords);
-      inputTree->GetPoints()->SetPoint(vertex,
-        (coords[0] + coords[1])/2.0,
-        (coords[2] + coords[3])/2.0,
-        0.0);
+      inputTree->GetPoints()->SetPoint(
+        vertex, (coords[0] + coords[1]) / 2.0, (coords[2] + coords[3]) / 2.0, 0.0);
     }
     double doubleCoords[4];
     coordsArray->GetTuple(vertex, doubleCoords);
@@ -131,24 +113,23 @@ void vtkSliceAndDiceLayoutStrategy::Layout(
       if (vertical)
       {
         delta = xSpace * (part / total);
-        coords[0] = parentMinX + oldDelta;     // minX
-        coords[1] = parentMinX + delta;        // maxX
-        coords[2] = parentMinY;                // minY
-        coords[3] = parentMaxY;                // maxY
+        coords[0] = parentMinX + oldDelta; // minX
+        coords[1] = parentMinX + delta;    // maxX
+        coords[2] = parentMinY;            // minY
+        coords[3] = parentMaxY;            // maxY
       }
       else
       {
         delta = ySpace * (part / total);
-        coords[0] = parentMinX;                // minX
-        coords[1] = parentMaxX;                // maxX
-        coords[2] = parentMaxY - delta;        // maxY
-        coords[3] = parentMaxY - oldDelta;     // minY
+        coords[0] = parentMinX;            // minX
+        coords[1] = parentMaxX;            // maxX
+        coords[2] = parentMaxY - delta;    // maxY
+        coords[3] = parentMaxY - oldDelta; // minY
       }
       coordsArray->SetTuple(child, coords);
-      inputTree->GetPoints()->SetPoint(child,
-        (coords[0] + coords[1])/2.0,
-        (coords[2] + coords[3])/2.0,
-        0.0);
+      inputTree->GetPoints()->SetPoint(
+        child, (coords[0] + coords[1]) / 2.0, (coords[2] + coords[3]) / 2.0, 0.0);
     }
   }
 }
+VTK_ABI_NAMESPACE_END

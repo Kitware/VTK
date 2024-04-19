@@ -1,42 +1,56 @@
 #!/usr/bin/env python
 
 import os
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkFiltersCore import (
+    vtkPolyDataNormals,
+    vtkTensorGlyph,
+)
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOLegacy import vtkDataSetReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
 
 class SimpleGlyph:
     """A simple class used to test vtkTensorGlyph."""
     def __init__(self, reader):
         self.reader = reader
 
-        sg = self.src_glyph = vtk.vtkSphereSource()
+        sg = self.src_glyph = vtkSphereSource()
         sg.SetRadius(0.5)
         sg.SetCenter(0.5, 0.0, 0.0)
 
-        g = self.glyph = vtk.vtkTensorGlyph()
+        g = self.glyph = vtkTensorGlyph()
         g.SetInputConnection(self.reader.GetOutputPort())
         g.SetSourceConnection(self.src_glyph.GetOutputPort())
         g.SetScaleFactor(0.25)
 
         # The normals are needed to generate the right colors and if
         # not used some of the glyphs are black.
-        self.normals = vtk.vtkPolyDataNormals()
+        self.normals = vtkPolyDataNormals()
         self.normals.SetInputConnection(g.GetOutputPort())
 
-        self.map = vtk.vtkPolyDataMapper()
+        self.map = vtkPolyDataMapper()
         self.map.SetInputConnection(self.normals.GetOutputPort())
 
-        self.act = vtk.vtkActor()
+        self.act = vtkActor()
         self.act.SetMapper(self.map)
 
         # An outline.
-        self.of = vtk.vtkOutlineFilter()
+        self.of = vtkOutlineFilter()
         self.of.SetInputConnection(self.reader.GetOutputPort())
 
-        self.out_map = vtk.vtkPolyDataMapper()
+        self.out_map = vtkPolyDataMapper()
         self.out_map.SetInputConnection(self.of.GetOutputPort())
 
-        self.out_act = vtk.vtkActor()
+        self.out_act = vtkActor()
         self.out_act.SetMapper(self.out_map)
 
     def GetActors(self):
@@ -57,7 +71,7 @@ class SimpleGlyph:
 class TestTensorGlyph(Testing.vtkTest):
     def testGlyphs(self):
         '''Test if the glyphs are created nicely.'''
-        reader = vtk.vtkDataSetReader()
+        reader = vtkDataSetReader()
 
         data_file = os.path.join(Testing.VTK_DATA_ROOT, "Data", "tensors.vtk")
 
@@ -91,7 +105,7 @@ class TestTensorGlyph(Testing.vtkTest):
         g5.SetPosition((4.0, 2.0, 0.0))
         g5.Update()
 
-        ren = vtk.vtkRenderer()
+        ren = vtkRenderer()
         for i in (g1, g2, g3, g4, g5):
             for j in i.GetActors():
                 ren.AddActor(j)
@@ -105,7 +119,7 @@ class TestTensorGlyph(Testing.vtkTest):
 
         ren.SetBackground(0.5, 0.5, 0.5)
 
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
         renWin.Render()
 

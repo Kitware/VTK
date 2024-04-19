@@ -1,19 +1,7 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWebUtilities.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-#include "vtkPython.h" // Need to be first and used for Py_xxx macros
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebUtilities.h"
+#include "vtkPython.h" // Need to be first and used for Py_xxx macros
 
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
@@ -26,20 +14,19 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebUtilities);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWebUtilities::vtkWebUtilities() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWebUtilities::~vtkWebUtilities() = default;
 
-//----------------------------------------------------------------------------
-std::string vtkWebUtilities::WriteAttributesToJavaScript(
-  int field_type, vtkDataSet* dataset)
+//------------------------------------------------------------------------------
+std::string vtkWebUtilities::WriteAttributesToJavaScript(int field_type, vtkDataSet* dataset)
 {
-  if (dataset == nullptr || (
-      field_type != vtkDataObject::POINT &&
-      field_type != vtkDataObject::CELL) )
+  if (dataset == nullptr ||
+    (field_type != vtkDataObject::POINT && field_type != vtkDataObject::CELL))
   {
     return "[]";
   }
@@ -67,13 +54,11 @@ std::string vtkWebUtilities::WriteAttributesToJavaScript(
   return stream.str();
 }
 
-//----------------------------------------------------------------------------
-std::string vtkWebUtilities::WriteAttributeHeadersToJavaScript(
-  int field_type, vtkDataSet* dataset)
+//------------------------------------------------------------------------------
+std::string vtkWebUtilities::WriteAttributeHeadersToJavaScript(int field_type, vtkDataSet* dataset)
 {
-  if (dataset == nullptr || (
-      field_type != vtkDataObject::POINT &&
-      field_type != vtkDataObject::CELL) )
+  if (dataset == nullptr ||
+    (field_type != vtkDataObject::POINT && field_type != vtkDataObject::CELL))
   {
     return "[]";
   }
@@ -93,38 +78,41 @@ std::string vtkWebUtilities::WriteAttributeHeadersToJavaScript(
   splitter->SetInputDataObject(table);
   splitter->Update();
 
-  dsa = vtkTable::SafeDownCast(
-    splitter->GetOutputDataObject(0))->GetRowData();
+  dsa = vtkTable::SafeDownCast(splitter->GetOutputDataObject(0))->GetRowData();
 
-  for (int cc=0; cc < dsa->GetNumberOfArrays(); cc++)
+  for (int cc = 0; cc < dsa->GetNumberOfArrays(); cc++)
   {
     const char* name = dsa->GetArrayName(cc);
     if (cc != 0)
     {
       stream << ", ";
     }
-    stream << "\"" << (name? name : "") << "\"";
+    stream << "\"" << (name ? name : "") << "\"";
   }
   stream << "]";
   return stream.str();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebUtilities::ProcessRMIs()
 {
-  vtkWebUtilities::ProcessRMIs(1,0);
+  vtkWebUtilities::ProcessRMIs(1, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebUtilities::ProcessRMIs(int reportError, int dont_loop)
 {
   Py_BEGIN_ALLOW_THREADS
-  vtkMultiProcessController::GetGlobalController()->ProcessRMIs(reportError, dont_loop);
+
+  vtkMultiProcessController::GetGlobalController()
+    ->ProcessRMIs(reportError, dont_loop);
+
   Py_END_ALLOW_THREADS
 }
+VTK_ABI_NAMESPACE_END

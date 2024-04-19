@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPassArrays.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-NVIDIA-USGov
 #include "vtkPassArrays.h"
 
 #include "vtkCellArray.h"
@@ -29,8 +13,7 @@
 #include "vtkTable.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -78,12 +61,12 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         pass->AddArray(type, "column1");
 
         std::cerr << "RemoveArrays flag is " << removeArrays << std::endl;
-        pass->SetRemoveArrays(removeArrays > 0 ? true : false);
+        pass->SetRemoveArrays(removeArrays > 0);
 
         std::cerr << "UseFieldTypes flag is " << useFieldTypes << std::endl;
-        pass->SetUseFieldTypes(useFieldTypes > 0 ? true : false);
+        pass->SetUseFieldTypes(useFieldTypes > 0);
         pass->ClearFieldTypes();
-        int processType = (type+1)%3;
+        int processType = (type + 1) % 3;
         std::cerr << "FieldType is " << processType << std::endl;
         pass->AddFieldType(processType);
 
@@ -141,17 +124,15 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
           if (out1 && out1->GetValue(j) != col1->GetValue(j))
           {
             errors++;
-            std::cerr << "ERROR: column1 output does not match input "
-                 << out1->GetValue(j) << "!=" << col1->GetValue(j)
-                 << " for field type " << type << std::endl;
+            std::cerr << "ERROR: column1 output does not match input " << out1->GetValue(j)
+                      << "!=" << col1->GetValue(j) << " for field type " << type << std::endl;
             break;
           }
           if (out2 && out2->GetValue(j) != col2->GetValue(j))
           {
             errors++;
-            std::cerr << "ERROR: column2 output does not match input "
-                 << out2->GetValue(j) << "!=" << col2->GetValue(j)
-                 << " for field type " << type << std::endl;
+            std::cerr << "ERROR: column2 output does not match input " << out2->GetValue(j)
+                      << "!=" << col2->GetValue(j) << " for field type " << type << std::endl;
             break;
           }
         }
@@ -163,4 +144,3 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   std::cerr << errors << " errors" << std::endl;
   return errors;
 }
-

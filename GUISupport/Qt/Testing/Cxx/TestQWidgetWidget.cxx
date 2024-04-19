@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "TestQtCommon.h"
 
@@ -22,8 +11,8 @@
 #include "vtkPlaneSource.h"
 #include "vtkQWidgetRepresentation.h"
 #include "vtkQWidgetWidget.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
@@ -38,7 +27,7 @@ int TestQWidgetWidget(int argc, char* argv[])
   detail::set_default_format(type);
 
   QApplication app(argc, argv);
-  QPushButton hello( "Hello world!", 0 );
+  QPushButton hello("Hello world!", nullptr);
 
   vtkNew<vtkTesting> vtktesting;
   vtktesting->AddArguments(argc, argv);
@@ -55,8 +44,8 @@ int TestQWidgetWidget(int argc, char* argv[])
 
   vtkNew<vtkQWidgetWidget> widget;
   widget->CreateDefaultRepresentation();
-  widget->GetQWidgetRepresentation()->GetPlaneSource()->SetPoint2(-0.5,0.5,-0.5);
-  widget->SetWidget( &hello );
+  widget->GetQWidgetRepresentation()->GetPlaneSource()->SetPoint2(-0.5, 0.5, -0.5);
+  widget->SetWidget(&hello);
   widget->SetCurrentRenderer(renderer);
   widget->SetInteractor(window0->GetInteractor());
 

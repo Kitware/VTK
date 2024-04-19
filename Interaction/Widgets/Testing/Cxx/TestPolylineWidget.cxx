@@ -1,25 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPolylineWidget.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkInteractorEventRecorder.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
-#include "vtkPolyLineWidget.h"
 #include "vtkPolyLineRepresentation.h"
-#include "vtkRenderer.h"
+#include "vtkPolyLineWidget.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
 const char events[] = R"(# StreamVersion 1.1
@@ -168,7 +156,7 @@ MouseMoveEvent 205 8 4 0 0 Alt_L
 KeyReleaseEvent 205 8 4 0 1 Alt_L
 )";
 
-int TestPolylineWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestPolylineWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkRenderer> renderer;
   renderer->ResetCamera(0.0, 1.0, 0.0, 1.0, 0.0, 0.0);
@@ -197,9 +185,9 @@ int TestPolylineWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // record events
   vtkNew<vtkInteractorEventRecorder> recorder;
   recorder->SetInteractor(iren);
-  //recorder->SetFileName("/tmp/record.log");
-  //recorder->On();
-  //recorder->Record();
+  // recorder->SetFileName("/tmp/record.log");
+  // recorder->On();
+  // recorder->Record();
   recorder->ReadFromInputStringOn();
   recorder->SetInputString(events);
 

@@ -1,30 +1,19 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderbuffer.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkRenderbuffer.h"
 
-#include "vtk_glew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtk_glew.h"
 
 #include <cassert>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderbuffer);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderbuffer::vtkRenderbuffer()
 {
   this->Context = nullptr;
@@ -34,34 +23,34 @@ vtkRenderbuffer::vtkRenderbuffer()
   this->Format = GL_RGBA;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderbuffer::~vtkRenderbuffer()
 {
   this->Free();
 }
 
-//----------------------------------------------------------------------------
-bool vtkRenderbuffer::IsSupported(vtkRenderWindow *)
+//------------------------------------------------------------------------------
+bool vtkRenderbuffer::IsSupported(vtkRenderWindow*)
 {
   return true;
 }
 
-//----------------------------------------------------------------------------
-bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow *)
+//------------------------------------------------------------------------------
+bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow*)
 {
   // both texture float and depth float are part of OpenGL 3.0 and later
   this->DepthBufferFloat = true;
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderbuffer::Alloc()
 {
   glGenRenderbuffers(1, &this->Handle);
   vtkOpenGLCheckErrorMacro("failed at glGenRenderbuffers");
 }
 
-void vtkRenderbuffer::ReleaseGraphicsResources(vtkWindow *)
+void vtkRenderbuffer::ReleaseGraphicsResources(vtkWindow*)
 {
   if (this->Context && this->Handle)
   {
@@ -70,23 +59,26 @@ void vtkRenderbuffer::ReleaseGraphicsResources(vtkWindow *)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderbuffer::Free()
 {
   this->ReleaseGraphicsResources(nullptr);
 }
 
-//----------------------------------------------------------------------------
-vtkRenderWindow *vtkRenderbuffer::GetContext()
+//------------------------------------------------------------------------------
+vtkRenderWindow* vtkRenderbuffer::GetContext()
 {
   return this->Context;
 }
 
-//----------------------------------------------------------------------------
-void vtkRenderbuffer::SetContext(vtkRenderWindow *renWin)
+//------------------------------------------------------------------------------
+void vtkRenderbuffer::SetContext(vtkRenderWindow* renWin)
 {
   // avoid pointless re-assignment
-  if (this->Context==renWin){ return; }
+  if (this->Context == renWin)
+  {
+    return;
+  }
 
   // free previous resources
   this->Free();
@@ -95,32 +87,27 @@ void vtkRenderbuffer::SetContext(vtkRenderWindow *renWin)
   this->Modified();
 
   // check for supported context
-  vtkOpenGLRenderWindow *context = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
-  if ( !context
-    || !this->LoadRequiredExtensions(renWin) )
+  vtkOpenGLRenderWindow* context = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
+  if (!context || !this->LoadRequiredExtensions(renWin))
   {
     vtkErrorMacro("Unsupported render context");
     return;
   }
 
   // allocate new fbo
-  this->Context=renWin;
+  this->Context = renWin;
   this->Context->MakeCurrent();
   this->Alloc();
 }
-//----------------------------------------------------------------------------
-int vtkRenderbuffer::CreateColorAttachment(
-      unsigned int width,
-      unsigned int height)
+//------------------------------------------------------------------------------
+int vtkRenderbuffer::CreateColorAttachment(unsigned int width, unsigned int height)
 {
   assert(this->Context);
   return this->Create(GL_RGBA32F, width, height);
 }
 
-//----------------------------------------------------------------------------
-int vtkRenderbuffer::CreateDepthAttachment(
-      unsigned int width,
-      unsigned int height)
+//------------------------------------------------------------------------------
+int vtkRenderbuffer::CreateDepthAttachment(unsigned int width, unsigned int height)
 {
   assert(this->Context);
 
@@ -130,32 +117,20 @@ int vtkRenderbuffer::CreateDepthAttachment(
   // it as such if at all possible.
   if (this->DepthBufferFloat)
   {
-    return this->Create(
-          GL_DEPTH_COMPONENT32F,
-          width,
-          height);
+    return this->Create(GL_DEPTH_COMPONENT32F, width, height);
   }
 
-  return this->Create(
-        GL_DEPTH_COMPONENT,
-        width,
-        height);
+  return this->Create(GL_DEPTH_COMPONENT, width, height);
 }
 
-//----------------------------------------------------------------------------
-int vtkRenderbuffer::Create(
-      unsigned int format,
-      unsigned int width,
-      unsigned int height)
+//------------------------------------------------------------------------------
+int vtkRenderbuffer::Create(unsigned int format, unsigned int width, unsigned int height)
 {
   return this->Create(format, width, height, 0);
 }
 
 int vtkRenderbuffer::Create(
-      unsigned int format,
-      unsigned int width,
-      unsigned int height,
-      unsigned int samples)
+  unsigned int format, unsigned int width, unsigned int height, unsigned int samples)
 {
   assert(this->Context);
 
@@ -164,17 +139,14 @@ int vtkRenderbuffer::Create(
 
   if (samples)
   {
-    glRenderbufferStorageMultisample(
-      GL_RENDERBUFFER,
-      samples, (GLenum)format,
-      width, height);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, (GLenum)format, width, height);
   }
   else
   {
     glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)format, width, height);
   }
   vtkOpenGLCheckErrorMacro("failed at glRenderbufferStorage with format: "
-   << format << " and size " << width << " by " << height);
+    << format << " and size " << width << " by " << height);
 
   this->Width = width;
   this->Height = height;
@@ -196,27 +168,24 @@ void vtkRenderbuffer::Resize(unsigned int width, unsigned int height)
     glBindRenderbuffer(GL_RENDERBUFFER, (GLuint)this->Handle);
     if (this->Samples)
     {
-    glRenderbufferStorageMultisample(
-      GL_RENDERBUFFER,
-      this->Samples, (GLenum)this->Format,
-      width, height);
+      glRenderbufferStorageMultisample(
+        GL_RENDERBUFFER, this->Samples, (GLenum)this->Format, width, height);
     }
     else
     {
-      glRenderbufferStorage(GL_RENDERBUFFER,
-        (GLenum)this->Format, width, height);
+      glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)this->Format, width, height);
     }
   }
   this->Width = width;
   this->Height = height;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderbuffer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os
-    << indent << "Handle=" << this->Handle << endl
-    << indent << "Context=" << this->Context << endl;
+  os << indent << "Handle=" << this->Handle << endl
+     << indent << "Context=" << this->Context << endl;
 }
+VTK_ABI_NAMESPACE_END

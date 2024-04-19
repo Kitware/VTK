@@ -13,14 +13,35 @@ set("${CMAKE_FIND_PACKAGE_NAME}_FOUND" 1)
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-properties.cmake")
 
-set(_compile_tools_empty_input_file "${CMAKE_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_empty.h")
-set(_compile_tools_output_file "${CMAKE_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_macros.h")
+set(_compile_tools_empty_input_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_empty.h")
+set(_compile_tools_depfile "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_macros.d")
+set(_compile_tools_output_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_macros.h")
+
+if (CMAKE_GENERATOR STREQUAL "Ninja")
+  set(_compile_tools_depfile_args_req_cmake "3.7")
+elseif (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config")
+  set(_compile_tools_depfile_args_req_cmake "3.17")
+elseif (CMAKE_GENERATOR MATCHES "Makefiles")
+  set(_compile_tools_depfile_args_req_cmake "3.20")
+elseif (CMAKE_GENERATOR MATCHES "Xcode|Visual Studio")
+  set(_compile_tools_depfile_args_req_cmake "3.21")
+else ()
+  set(_compile_tools_depfile_args_req_cmake "99")
+endif ()
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR
     CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(_compile_tools_command
     -dM -E
     -o "${_compile_tools_output_file}"
     "${_compile_tools_empty_input_file}")
+  if (NOT CMAKE_VERSION VERSION_LESS _compile_tools_depfile_args_req_cmake)
+    list(APPEND _compile_tools_command
+      -MD -MF "${_compile_tools_depfile}"
+      -MT "${_compile_tools_output_file}")
+    set(_compile_tools_depfile_args
+      DEPFILE "${_compile_tools_depfile}")
+  endif ()
 else ()
   if (NOT ${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY)
     message(WARNING
@@ -47,6 +68,9 @@ if (_compile_tools_command)
               ${_compile_tools_command}
       DEPENDS "${CMAKE_CXX_COMPILER}"
               "${_compile_tools_empty_input_file}"
+      ${_compile_tools_depfile_args}
+      WORKING_DIRECTORY
+              "${CMAKE_CURRENT_BINARY_DIR}"
       COMMENT "Detecting builtin compiler preprocessor defines for ${CMAKE_FIND_PACKAGE_NAME}")
     add_custom_target("${CMAKE_FIND_PACKAGE_NAME}_macros"
       DEPENDS
@@ -58,5 +82,7 @@ endif ()
 unset(_compile_tools_command)
 unset(_compile_tools_output_file)
 unset(_compile_tools_empty_input_file)
+unset(_compile_tools_depfile_args_req_cmake)
+unset(_compile_tools_depfile_args)
 
 cmake_policy(POP)

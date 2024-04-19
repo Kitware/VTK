@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataTangents.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPolyDataTangents.h"
 
 #include "vtkCellArray.h"
@@ -30,22 +18,37 @@
 
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 struct TangentComputation
 {
   TangentComputation(vtkIdType offset, vtkPoints* points, vtkCellArray* triangles,
-    vtkDataArray* tcoords, vtkDataArray* tangents)
+    vtkDataArray* tcoords, vtkDataArray* tangents, vtkPolyDataTangents* filter)
   {
     this->Points = points;
     this->Triangles = triangles;
     this->TCoords = tcoords;
     this->Tangents = tangents;
     this->Offset = offset;
+    this->Filter = filter;
   }
 
   void operator()(vtkIdType beginId, vtkIdType endId)
   {
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endId - beginId) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = beginId; cellId < endId; cellId++)
     {
+      if (cellId % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+      }
       double tangent[3];
 
       if (cellId >= this->Offset)
@@ -104,6 +107,7 @@ private:
   vtkDataArray* TCoords;
   vtkDataArray* Tangents;
   vtkIdType Offset;
+  vtkPolyDataTangents* Filter;
 };
 
 vtkStandardNewMacro(vtkPolyDataTangents);
@@ -145,7 +149,7 @@ int vtkPolyDataTangents::RequestData(vtkInformation* vtkNotUsed(request),
   cellTangents->SetName("Tangents");
   cellTangents->SetNumberOfTuples(numVerts + numLines + numPolys);
 
-  TangentComputation functor(numVerts + numLines, inPts, inPolys, tcoords, cellTangents);
+  TangentComputation functor(numVerts + numLines, inPts, inPolys, tcoords, cellTangents, this);
 
   vtkSMPTools::For(0, numVerts + numLines + numPolys, functor);
 
@@ -210,3 +214,4 @@ void vtkPolyDataTangents::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Point Tangents: " << (this->ComputePointTangents ? "On\n" : "Off\n");
   os << indent << "Compute Cell Tangents: " << (this->ComputeCellTangents ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

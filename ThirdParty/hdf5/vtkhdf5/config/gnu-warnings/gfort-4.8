@@ -1,0 +1,17 @@
+# warning flags added for gfortran >= 4.4
+-Warray-temporaries
+-Wintrinsics-std
+
+# warning flag added for gfortran >= 4.5
+-Wimplicit-procedure
+
+# warning flags added for gfortran >= 4.7
+-Wreal-q-constant
+-Wfunction-elimination
+
+# warning flags added for gfortran >= 4.8
+-Wrealloc-lhs
+-Wrealloc-lhs-all
+# Turn off warnings for passing non-ANSI types to BIND().
+# We pass a lot of hid_t, etc. types so this generates a LOT of spurious warnings.
+-Wno-c-binding-type

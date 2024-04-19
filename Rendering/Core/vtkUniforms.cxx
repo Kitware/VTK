@@ -1,48 +1,51 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkUniforms.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkUniforms)
+VTK_ABI_NAMESPACE_BEGIN
+vtkAbstractObjectFactoryNewMacro(vtkUniforms);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkUniforms::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-std::string vtkUniforms::TupleTypeToString( TupleType tt )
+std::string vtkUniforms::TupleTypeToString(TupleType tt)
 {
   std::string str;
   switch (tt)
   {
-  case vtkUniforms::TupleTypeScalar:
-    str = "TupleTypeScalar";
-    break;
-  case vtkUniforms::TupleTypeVector:
-    str = "TupleTypeVector";
-    break;
-  case vtkUniforms::TupleTypeMatrix:
-    str = "TupleTypeMatrix";
-    break;
-  default:
-    str = "TupleTypeInvalid";
-    break;
+    case vtkUniforms::TupleTypeScalar:
+      str = "TupleTypeScalar";
+      break;
+    case vtkUniforms::TupleTypeVector:
+      str = "TupleTypeVector";
+      break;
+    case vtkUniforms::TupleTypeMatrix:
+      str = "TupleTypeMatrix";
+      break;
+    default:
+      str = "TupleTypeInvalid";
+      break;
   }
   return str;
 }
 
-vtkUniforms::TupleType vtkUniforms::StringToTupleType( const std::string & s )
+vtkUniforms::TupleType vtkUniforms::StringToTupleType(const std::string& s)
 {
-  if( s == "TupleTypeScalar" )
+  if (s == "TupleTypeScalar")
   {
     return vtkUniforms::TupleTypeScalar;
   }
-  else if( s == "TupleTypeVector" )
+  else if (s == "TupleTypeVector")
   {
     return vtkUniforms::TupleTypeVector;
   }
-  else if( s == "TupleTypeMatrix" )
+  else if (s == "TupleTypeMatrix")
   {
     return vtkUniforms::TupleTypeMatrix;
   }
@@ -50,26 +53,26 @@ vtkUniforms::TupleType vtkUniforms::StringToTupleType( const std::string & s )
 }
 
 /* We only support int and float as internal data types for uniform variables */
-std::string vtkUniforms::ScalarTypeToString( int scalarType )
+std::string vtkUniforms::ScalarTypeToString(int scalarType)
 {
-  if( scalarType == VTK_INT )
+  if (scalarType == VTK_INT)
   {
     return "int";
   }
-  else if ( scalarType == VTK_FLOAT )
+  else if (scalarType == VTK_FLOAT)
   {
     return "float";
   }
   return "invalid";
 }
 
-int vtkUniforms::StringToScalarType( const std::string & s )
+int vtkUniforms::StringToScalarType(const std::string& s)
 {
-  if( s == "int" )
+  if (s == "int")
   {
     return VTK_INT;
   }
-  else if( s == "float" )
+  else if (s == "float")
   {
     return VTK_FLOAT;
   }
@@ -78,3 +81,4 @@ int vtkUniforms::StringToScalarType( const std::string & s )
     return VTK_VOID;
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -3,8 +3,9 @@ import sys
 import os
 import time
 
-import vtk
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.vtkIOAsynchronous import vtkThreadedImageWriter
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.util.misc import vtkGetTempDir
 
 VTK_TEMP_DIR = vtkGetTempDir()
 
@@ -21,12 +22,12 @@ fileNames = [
 ]
 
 # Generate Data
-source = vtk.vtkRTAnalyticSource()
+source = vtkRTAnalyticSource()
 source.Update()
 image = source.GetOutput()
 
 # Initialize writer
-writer = vtk.vtkThreadedImageWriter()
+writer = vtkThreadedImageWriter()
 
 # Reduce the number of worker threads
 writer.SetMaxThreads(2)

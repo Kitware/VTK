@@ -1,41 +1,42 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkFiltersCore import (
+    vtkContourFilter,
+    vtkReverseSense,
+)
+from vtkmodules.vtkFiltersSources import vtkProgrammableSource
+from vtkmodules.vtkImagingHybrid import vtkSurfaceReconstructionFilter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class reconstructSurface(vtk.test.Testing.vtkTest):
+class reconstructSurface(vtkmodules.test.Testing.vtkTest):
 
     def testReconstructSurface(self):
 
         # Read some points. Use a programmable filter to read them.
         #
-        pointSource = vtk.vtkProgrammableSource()
+        pointSource = vtkProgrammableSource()
 
         def readPoints():
 
             fp = open(VTK_DATA_ROOT + "/Data/cactus.3337.pts", "r")
 
-            points = vtk.vtkPoints()
+            points = vtkPoints()
             while True:
                 line = fp.readline().split()
                 if len(line) == 0:
@@ -48,23 +49,23 @@ class reconstructSurface(vtk.test.Testing.vtkTest):
 
         # Construct the surface and create isosurface
         #
-        surf = vtk.vtkSurfaceReconstructionFilter()
+        surf = vtkSurfaceReconstructionFilter()
         surf.SetInputConnection(pointSource.GetOutputPort())
 
-        cf = vtk.vtkContourFilter()
+        cf = vtkContourFilter()
         cf.SetInputConnection(surf.GetOutputPort())
         cf.SetValue(0, 0.0)
 
-        reverse = vtk.vtkReverseSense()
+        reverse = vtkReverseSense()
         reverse.SetInputConnection(cf.GetOutputPort())
         reverse.ReverseCellsOn()
         reverse.ReverseNormalsOn()
 
-        map = vtk.vtkPolyDataMapper()
+        map = vtkPolyDataMapper()
         map.SetInputConnection(reverse.GetOutputPort())
         map.ScalarVisibilityOff()
 
-        surfaceActor = vtk.vtkActor()
+        surfaceActor = vtkActor()
         surfaceActor.SetMapper(map)
         surfaceActor.GetProperty().SetDiffuseColor(1.0000, 0.3882, 0.2784)
         surfaceActor.GetProperty().SetSpecularColor(1, 1, 1)
@@ -73,8 +74,8 @@ class reconstructSurface(vtk.test.Testing.vtkTest):
 
         # Create the RenderWindow, Renderer and both Actors
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
         # Add the actors to the renderer, set the background and size
@@ -93,13 +94,13 @@ class reconstructSurface(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "reconstructSurface.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(reconstructSurface, 'test')])
+     vtkmodules.test.Testing.main([(reconstructSurface, 'test')])

@@ -1,52 +1,37 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkClosestNPointsStrategy.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkClosestNPointsStrategy.h"
 
-#include "vtkPointSet.h"
 #include "vtkCell.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
-#include "vtkPointLocator.h"
-#include "vtkStaticPointLocator.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointLocator.h"
+#include "vtkPointSet.h"
+#include "vtkStaticPointLocator.h"
 
 #include <set>
 
-//----------------------------------------------------------------------------
-vtkStandardNewMacro( vtkClosestNPointsStrategy );
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkClosestNPointsStrategy);
 
-//----------------------------------------------------------------------------
-vtkClosestNPointsStrategy::vtkClosestNPointsStrategy ()
+//------------------------------------------------------------------------------
+vtkClosestNPointsStrategy::vtkClosestNPointsStrategy()
 {
   this->ClosestNPoints = 9;
 }
 
-//----------------------------------------------------------------------------
-vtkClosestNPointsStrategy::~vtkClosestNPointsStrategy ()
-{
-}
+//------------------------------------------------------------------------------
+vtkClosestNPointsStrategy::~vtkClosestNPointsStrategy() = default;
 
-//-----------------------------------------------------------------------------
-vtkIdType vtkClosestNPointsStrategy::
-FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
-         vtkIdType cellId, double tol2, int& subId,
-         double pcoords[3], double *weights)
+//------------------------------------------------------------------------------
+vtkIdType vtkClosestNPointsStrategy::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,
+  vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
   // First try standard strategy which is reasonably fast
-  vtkIdType foundCell = this->Superclass::
-    FindCell(x,cell,gencell,cellId,tol2,subId,pcoords,weights);
+  vtkIdType foundCell =
+    this->Superclass::FindCell(x, cell, gencell, cellId, tol2, subId, pcoords, weights);
   if (foundCell >= 0)
   {
     return foundCell;
@@ -60,30 +45,30 @@ FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
   // subdivision of hexahedral cells). Using large N affects performance but
   // produces better results.
   vtkIdType numPts = this->NearPointIds->GetNumberOfIds();
-  this->PointLocator->
-    FindClosestNPoints(numPts+this->ClosestNPoints, x, this->NearPointIds);
-  numPts=this->NearPointIds->GetNumberOfIds();
+  this->PointLocator->FindClosestNPoints(numPts + this->ClosestNPoints, x, this->NearPointIds);
+  numPts = this->NearPointIds->GetNumberOfIds();
 
   vtkIdType i, j, ptId, numCells;
   int ret;
   double closest[3], dist2;
-  for ( i=0; i < numPts; ++i )
+  for (i = 0; i < numPts; ++i)
   {
     ptId = this->NearPointIds->GetId(i);
     this->PointSet->GetPointCells(ptId, this->CellIds);
     numCells = this->CellIds->GetNumberOfIds();
-    for ( j=0; j < numCells; j++ )
+    for (j = 0; j < numCells; j++)
     {
       cellId = this->CellIds->GetId(j);
-      if ( this->VisitedCells.find(cellId) == this->VisitedCells.end() )
+      if (!this->VisitedCells[cellId])
       {
-        cell = this->SelectCell(this->PointSet,cellId,nullptr,gencell);
+        cell = this->SelectCell(this->PointSet, cellId, nullptr, gencell);
         ret = cell->EvaluatePosition(x, closest, subId, pcoords, dist2, weights);
-        if (ret != -1  && dist2 <= tol2 )
+        if (ret != -1 && dist2 <= tol2)
         {
           return cellId;
         }
-        this->VisitedCells.insert(cellId);
+        this->VisitedCells[cellId] = true;
+        this->VisitedCellIds->InsertNextId(cellId);
       }
     }
   }
@@ -91,9 +76,22 @@ FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
   return -1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkClosestNPointsStrategy::CopyParameters(vtkFindCellStrategy* from)
+{
+
+  this->Superclass::CopyParameters(from);
+
+  vtkClosestNPointsStrategy* strategy = vtkClosestNPointsStrategy::SafeDownCast(from);
+  if (strategy)
+  {
+    this->ClosestNPoints = strategy->ClosestNPoints;
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkClosestNPointsStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

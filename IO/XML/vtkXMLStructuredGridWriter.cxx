@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLStructuredGridWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLStructuredGridWriter.h"
 
 #include "vtkCellData.h"
@@ -22,79 +10,79 @@
 #include "vtkStructuredGrid.h"
 #define vtkXMLOffsetsManager_DoNotInclude
 #include "vtkXMLOffsetsManager.h"
-#undef  vtkXMLOffsetsManager_DoNotInclude
+#undef vtkXMLOffsetsManager_DoNotInclude
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLStructuredGridWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLStructuredGridWriter::vtkXMLStructuredGridWriter()
 {
   this->PointsOM = new OffsetsManagerGroup;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLStructuredGridWriter::~vtkXMLStructuredGridWriter()
 {
   delete this->PointsOM;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStructuredGrid* vtkXMLStructuredGridWriter::GetInput()
 {
   return static_cast<vtkStructuredGrid*>(this->Superclass::GetInput());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::GetInputExtent(int* extent)
 {
   this->GetInput()->GetExtent(extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLStructuredGridWriter::GetDataSetName()
 {
   return "StructuredGrid";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLStructuredGridWriter::GetDefaultFileExtension()
 {
   return "vts";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::AllocatePositionArrays()
 {
   this->Superclass::AllocatePositionArrays();
-  this->PointsOM->Allocate(this->NumberOfPieces,this->NumberOfTimeSteps);
+  this->PointsOM->Allocate(this->NumberOfPieces, this->NumberOfTimeSteps);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::DeletePositionArrays()
 {
   this->Superclass::DeletePositionArrays();
 }
 
-//----------------------------------------------------------------------------
-void vtkXMLStructuredGridWriter::WriteAppendedPiece(int index,
-                                                    vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkXMLStructuredGridWriter::WriteAppendedPiece(int index, vtkIndent indent)
 {
   this->Superclass::WriteAppendedPiece(index, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
-  this->WritePointsAppended(this->GetInput()->GetPoints(), indent,
-    &this->PointsOM->GetPiece(index));
+  this->WritePointsAppended(
+    this->GetInput()->GetPoints(), indent, &this->PointsOM->GetPiece(index));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::WriteAppendedPieceData(int index)
 {
   // Split progress range by the approximate fractions of data written
@@ -118,12 +106,11 @@ void vtkXMLStructuredGridWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 1, fractions);
 
   // Write the points array.
-  this->WritePointsAppendedData(this->GetInput()->GetPoints(),
-                                this->CurrentTimeIndex,
-                                &this->PointsOM->GetPiece(index));
+  this->WritePointsAppendedData(
+    this->GetInput()->GetPoints(), this->CurrentTimeIndex, &this->PointsOM->GetPiece(index));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::WriteInlinePiece(vtkIndent indent)
 {
   // Split progress range by the approximate fractions of data written
@@ -150,27 +137,27 @@ void vtkXMLStructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   this->WritePointsInline(this->GetInput()->GetPoints(), indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
 {
   // The amount of data written by the superclass comes from the
   // point/cell data arrays.
   vtkIdType superclassPieceSize = GetNumberOfValues(this->GetInput());
   // The total data written includes the points array.
-  vtkIdType totalPieceSize = superclassPieceSize + this->GetInput()->GetNumberOfPoints()*3;
+  vtkIdType totalPieceSize = superclassPieceSize + this->GetInput()->GetNumberOfPoints() * 3;
   if (totalPieceSize == 0)
   {
     totalPieceSize = 1;
   }
   fractions[0] = 0.0f;
-  fractions[1] = static_cast<float>(superclassPieceSize)/totalPieceSize;
+  fractions[1] = static_cast<float>(superclassPieceSize) / totalPieceSize;
   fractions[2] = 1.0f;
 }
 
-//----------------------------------------------------------------------------
-int vtkXMLStructuredGridWriter::FillInputPortInformation(
-  int, vtkInformation* info)
+//------------------------------------------------------------------------------
+int vtkXMLStructuredGridWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

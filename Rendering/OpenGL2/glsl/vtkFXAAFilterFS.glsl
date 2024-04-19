@@ -1,19 +1,7 @@
 //VTK::System::Dec
 
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFXAAFilterFS.glsl
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // Fragment shader for vtkOpenGLFXAAFilter.
 //
 // Based on the following implementation and description:
@@ -548,7 +536,7 @@ void main()
   /****************************************************************************
    * Compute Local Contrast Range And Early Abort                             *
    *==========================================================================*
-   * Determine the contrast range for the current pixel and its neightbors    *
+   * Determine the contrast range for the current pixel and its neighbors     *
    * to the North, South, West, and East. If the range is less than both of:  *
    *                                                                          *
    * a) RelativeContrastThreshold * lumMax                                    *
@@ -568,7 +556,8 @@ void main()
   vec2 tcE = texCoord + vec2( tcPixel.x,  0.f);
 
   // Extract the rgb values of these pixels:
-  vec3 rgbC = texture2D(Input, tcC).rgb;
+  vec4 centerSample = texture2D(Input, tcC);
+  vec3 rgbC = centerSample.rgb;
   vec3 rgbN = texture2D(Input, tcN).rgb;
   vec3 rgbS = texture2D(Input, tcS).rgb;
   vec3 rgbW = texture2D(Input, tcW).rgb;
@@ -592,7 +581,7 @@ void main()
   // the current pixel:
   if (lumRange < lumThresh)
     {
-    gl_FragData[0] = vec4(rgbC, 1.f); // original color
+    gl_FragData[0] = vec4(rgbC, centerSample.a); // original color
     return;
     }
 
@@ -784,5 +773,5 @@ void main()
 #endif // FXAA_DEBUG_ONLY_EDGE_AA
 
   // Blend the edgeAA and subpixelAA results together:
-  gl_FragData[0] = vec4(mix(rgbEdgeAA, rgbSub, blendSub), 1.f);
+  gl_FragData[0] = vec4(mix(rgbEdgeAA, rgbSub, blendSub), centerSample.a);
 }

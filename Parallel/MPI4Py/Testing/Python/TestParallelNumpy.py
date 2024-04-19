@@ -7,17 +7,27 @@ import sys
 try:
     import numpy
 except ImportError:
-    print("Numpy (http://numpy.scipy.org) not found.", end=' ')
     print("This test requires numpy!")
-    from vtk.test import Testing
+    from vtkmodules.test import Testing
     Testing.skip()
 
-import vtk
-import vtk.numpy_interface.dataset_adapter as dsa
-import vtk.numpy_interface.algorithms as algs
+from vtkmodules.vtkCommonDataModel import (
+    vtkImageData,
+    vtkMultiBlockDataSet,
+    vtkPolyData,
+)
+from vtkmodules.vtkCommonExecutionModel import (
+    vtkExtentTranslator,
+    vtkStreamingDemandDrivenPipeline,
+)
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.vtkParallelCore import vtkDummyController
+from vtkmodules.vtkParallelMPI import vtkMPIController
+import vtkmodules.numpy_interface.dataset_adapter as dsa
+import vtkmodules.numpy_interface.algorithms as algs
 from mpi4py import MPI
 
-c = vtk.vtkMPIController()
+c = vtkMPIController()
 #c.SetGlobalController(None)
 rank = c.GetLocalProcessId()
 size = c.GetNumberOfProcesses()
@@ -58,7 +68,7 @@ def testArrays(rtData, rtData2, grad, grad2, total_npts):
     PRINT( "grad var:", (algs.var(grad) - numpy.var(grad2)) / numpy.var(grad2) )
     PRINT( "grad var 0:", (algs.var(grad, 0) - numpy.var(grad2, 0)) / numpy.var(grad2, 0) )
 
-w = vtk.vtkRTAnalyticSource()
+w = vtkRTAnalyticSource()
 # Update with ghost level because gradient needs it
 # to be piece independent
 w.UpdatePiece(rank, size, 1)
@@ -75,7 +85,7 @@ ds.PointData.append(grad, 'gradient')
 # Crop the any ghost points out
 org_ext = w.GetOutput().GetExtent()
 ext = list(org_ext)
-wext = w.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.WHOLE_EXTENT())
+wext = w.GetOutputInformation(0).Get(vtkStreamingDemandDrivenPipeline.WHOLE_EXTENT())
 for i in range(3):
     if ext[2*i] != wext[2*i]:
         ext[2*i] = ext[2*i] + 2
@@ -84,13 +94,13 @@ for i in range(3):
 if ext != list(org_ext):
     w.GetOutput().Crop(ext)
 
-# Croppped arrays
+# Cropped arrays
 rtData = ds.PointData['RTData']
 grad = ds.PointData['gradient']
 
 # The whole dataset so that we can compare
 # against parallel algorithms.
-w2 = vtk.vtkRTAnalyticSource()
+w2 = vtkRTAnalyticSource()
 w2.Update()
 
 ds2 = dsa.WrapDataObject(w2.GetOutput())
@@ -106,7 +116,7 @@ testArrays(rtData, rtData2, grad, grad2, total_npts)
 
 # Check that we can disable parallelism by using a dummy controller
 # even when a global controller is set
-assert algs.sum(rtData / rtData, controller=vtk.vtkDummyController()) != total_npts
+assert algs.sum(rtData / rtData, controller=vtkDummyController()) != total_npts
 
 # Test where arrays are NoneArray on one of the ranks.
 if size > 1:
@@ -142,9 +152,9 @@ if size > 1:
 # Split the local image to 2.
 datasets = []
 for i in range(2):
-    image = vtk.vtkImageData()
+    image = vtkImageData()
     image.ShallowCopy(w.GetOutput())
-    t = vtk.vtkExtentTranslator()
+    t = vtkExtentTranslator()
     wext = image.GetExtent()
     t.SetWholeExtent(wext)
     t.SetPiece(i)
@@ -169,11 +179,11 @@ testArrays(rtData3, rtData2, grad3, grad2, total_npts)
 # Test min/max per block
 NUM_BLOCKS = 10
 
-w = vtk.vtkRTAnalyticSource()
+w = vtkRTAnalyticSource()
 w.SetWholeExtent(0, 10, 0, 10, 0, 10)
 w.Update()
 
-c = vtk.vtkMultiBlockDataSet()
+c = vtkMultiBlockDataSet()
 c.SetNumberOfBlocks(size*NUM_BLOCKS)
 
 if rank == 0:
@@ -184,12 +194,12 @@ else:
     end = start + NUM_BLOCKS
 
 for i in range(start, end):
-    a = vtk.vtkImageData()
+    a = vtkImageData()
     a.ShallowCopy(w.GetOutput())
     c.SetBlock(i, a)
 
 if rank == 0:
-    c.SetBlock(NUM_BLOCKS - 1, vtk.vtkPolyData())
+    c.SetBlock(NUM_BLOCKS - 1, vtkPolyData())
 
 cdata = dsa.WrapDataObject(c)
 rtdata = cdata.PointData['RTData']
@@ -198,7 +208,7 @@ g = algs.gradient(rtdata)
 g2 = algs.gradient(g)
 
 res = True
-dummy = vtk.vtkDummyController()
+dummy = vtkDummyController()
 for axis in [None, 0]:
     for array in [rtdata, g, g2]:
         if rank == 0:
@@ -272,8 +282,8 @@ if rank == 0:
 else:
     res &= algs.min(dsa.NoneArray, axis=0) is dsa.NoneArray
 
-res = numpy.array(res, dtype=numpy.bool)
+res = numpy.array(res, dtype=bool)
 all_res = numpy.array(res)
-mpitype = algs._lookup_mpi_type(numpy.bool)
+mpitype = algs._lookup_mpi_type(bool)
 MPI.COMM_WORLD.Allreduce([res, mpitype], [all_res, mpitype], MPI.LAND)
 assert all_res

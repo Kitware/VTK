@@ -1,57 +1,7 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMersenneTwister_Private.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-=========================================================================*/
-
-/* Many thanks to M. Matsumoto, T. Nishimura and M. Saito for the following  */
-/* implementation of their algorithm, the Mersenne Twister, taken from       */
-/* http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/DC/dc.html                */
-
-/* Dynamic Creation (DC) of Mersenne Twister generators   */
-/*                                                        */
-/* Reference:                                             */
-/* Makoto Matsumoto and Takuji Nishimura,                 */
-/* "Dynamic Creation of Pseudorandom Number Generators",  */
-/* Monte Carlo and Quasi-Monte Carlo Methods 1998,        */
-/* Springer, 2000, pp 56--69.                             */
-
-/*
-  Copyright (C) 2001-2009 Makoto Matsumoto and Takuji Nishimura.
-  Copyright (C) 2009 Mutsuo Saito
-  All rights reserved.
-
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions are
-  met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (C) 2001-2009 Makoto Matsumoto and Takuji Nishimura
+// SPDX-FileCopyrightText: Copyright (C) 2009 Mutsuo Saito
+// SPDX-License-Identifier: BSD-3-Clause AND BSD-2-Clause
 
 /* A C-program for MT19937: Integer version (1999/10/28)          */
 /*  genrand() generates one pseudorandom unsigned integer (32bit) */
@@ -89,7 +39,9 @@ typedef vtkTypeUInt8 uint8_t;
 
 //  dc.h
 
-typedef struct {
+VTK_ABI_NAMESPACE_BEGIN
+
+typedef struct mt_struct_ {
     uint32_t aaa;
     int mm,nn,rr,ww;
     uint32_t wmask,umask,lmask;
@@ -120,13 +72,13 @@ uint32_t genrand_mt(mt_struct *mts);
 
 #define N 624
 
-typedef struct _ORG_STATE {
+typedef struct ORG_STATE_ {
     uint32_t mt[N];
     int mti;
-} _org_state;
+} org_state_;
 
-void _sgenrand_dc(_org_state *st, uint32_t seed);
-uint32_t _genrand_dc(_org_state *st);
+void sgenrand_dc_(org_state_ *st, uint32_t seed);
+uint32_t genrand_dc_(org_state_ *st);
 
 // dci.h
 
@@ -136,8 +88,8 @@ uint32_t _genrand_dc(_org_state *st);
 #define IRRED 1
 #define NONREDU 1
 
-extern _org_state global_mt19937;
-typedef struct {int *x; int deg;} Polynomial;
+extern org_state_ global_mt19937;
+typedef struct Polynomial_t {int *x; int deg;} Polynomial;
 
 typedef struct PRESCR_T {
     int sizeofA; /* parameter size */
@@ -173,14 +125,14 @@ typedef struct EQDEG_T {
     uint32_t gmax_b, gmax_c;
 } eqdeg_t;
 
-int _prescreening_dc(prescr_t *pre, uint32_t aaa);
-void _InitPrescreening_dc(prescr_t *pre, int m, int n, int r, int w);
-void _EndPrescreening_dc(prescr_t *pre);
-int _CheckPeriod_dc(check32_t *ck, _org_state *st,
+int prescreening_dc_(prescr_t *pre, uint32_t aaa);
+void InitPrescreening_dc_(prescr_t *pre, int m, int n, int r, int w);
+void EndPrescreening_dc_(prescr_t *pre);
+int CheckPeriod_dc_(check32_t *ck, org_state_ *st,
                     uint32_t a, int m, int n, int r, int w);
-void _get_tempering_parameter_dc(mt_struct *mts);
-void _get_tempering_parameter_hard_dc(mt_struct *mts);
-void _InitCheck32_dc(check32_t *ck, int r, int w);
+void get_tempering_parameter_dc_(mt_struct *mts);
+void get_tempering_parameter_hard_dc_(mt_struct *mts);
+void InitCheck32_dc_(check32_t *ck, int r, int w);
 
 // eqdeg.c
 
@@ -199,7 +151,7 @@ void _InitCheck32_dc(check32_t *ck, int r, int w);
 #define WORD_LEN 32
 #define MIN_INFINITE (-2147483647-1)
 
-typedef struct {
+typedef struct Vector_t{
     uint32_t *cf;  /* fraction part */              // status
     int start;     /* beginning of fraction part */ // idx
     int count;           /* maximum (degree) */
@@ -253,12 +205,12 @@ static int push_mask(eqdeg_t * eq, int l, int v,
                      uint32_t b, uint32_t c, uint32_t *bbb, uint32_t *ccc);
 static int pivot_reduction(eqdeg_t *eq, int v);
 static void init_tempering(eqdeg_t *eq, mt_struct *mts);
-static void free_Vector( Vector *v );
+static void freeVector_t( Vector *v );
 static void free_lattice( Vector **lattice, int v);
 static void add(int nnn, Vector *u, Vector *v);
 static void optimize_v(eqdeg_t *eq, uint32_t b, uint32_t c, int v);
 static MaskNode *optimize_v_hard(eqdeg_t *eq, int v, MaskNode *prev);
-static Vector *new_Vector(int nnn);
+static Vector *newVector_t(int nnn);
 static Vector **make_lattice(eqdeg_t *eq, int v);
 static void delete_MaskNodes(MaskNode *head);
 static MaskNode *delete_lower_MaskNodes(MaskNode *head, int l);
@@ -266,7 +218,7 @@ static MaskNode *cons_MaskNode(MaskNode *head, uint32_t b, uint32_t c, int leng)
 /* static void count_MaskNodes(MaskNode *head); */
 static void next_state(eqdeg_t *eq, Vector *v, int *count);
 
-void _get_tempering_parameter_dc(mt_struct *mts)
+void get_tempering_parameter_dc_(mt_struct *mts)
 {
     eqdeg_t eq;
     init_tempering(&eq, mts);
@@ -279,7 +231,7 @@ void _get_tempering_parameter_dc(mt_struct *mts)
     mts->maskC = eq.mask_c >> eq.ggap;
 }
 
-void _get_tempering_parameter_hard_dc(mt_struct *mts)
+void get_tempering_parameter_hard_dc_(mt_struct *mts)
 {
     int i;
     MaskNode mn0, *cur, *next;
@@ -558,21 +510,21 @@ static int pivot_reduction(eqdeg_t *eq, int v)
 
 
 /********************************/
-/** allocate momory for Vector **/
+/** allocate memory for Vector **/
 /********************************/
-static Vector *new_Vector(int nnn)
+static Vector *newVector_t(int nnn)
 {
     Vector *v;
 
     v = (Vector *)malloc( sizeof( Vector ) );
     if( v == nullptr ){
-        printf("malloc error in \"new_Vector()\"\n");
+        printf("malloc error in \"newVector_t()\"\n");
         exit(1);
     }
 
     v->cf = (uint32_t *)calloc( nnn, sizeof( uint32_t ) );
     if( v->cf == nullptr ){
-        printf("calloc error in \"new_Vector()\"\n");
+        printf("calloc error in \"newVector_t()\"\n");
         exit(1);
     }
 
@@ -583,9 +535,9 @@ static Vector *new_Vector(int nnn)
 
 
 /************************************************/
-/* frees *v which was allocated by new_Vector() */
+/* frees *v which was allocated by newVector_t() */
 /************************************************/
-static void free_Vector( Vector *v )
+static void freeVector_t( Vector *v )
 {
     if( nullptr != v->cf ) free( v->cf );
     if( nullptr != v ) free( v );
@@ -596,7 +548,7 @@ static void free_lattice( Vector **lattice, int v)
     int i;
 
     for( i=0; i<=v; i++)
-        free_Vector( lattice[i] );
+        freeVector_t( lattice[i] );
     free( lattice );
 }
 
@@ -629,13 +581,13 @@ static Vector **make_lattice(eqdeg_t *eq, int v)
     }
 
     for( i=0; i<v; i++){ /* from 0th row to v-1-th row */
-        lattice[i] = new_Vector(eq->nnn);
+        lattice[i] = newVector_t(eq->nnn);
         lattice[i]->next = eq->bitmask[i];
         lattice[i]->start = 0;
         lattice[i]->count = 0;
     }
 
-    bottom = new_Vector(eq->nnn); /* last row */
+    bottom = newVector_t(eq->nnn); /* last row */
     for(i=0; i< eq->nnn; i++) {
         bottom->cf[i] = 0;
     }
@@ -756,7 +708,7 @@ static MaskNode *delete_lower_MaskNodes(MaskNode *head, int l)
 #define TEMPERING_SHIFT_L(y)  (y >> 18)
 
 /* Initializing the array with a seed */
-void _sgenrand_dc(_org_state *st, uint32_t seed)
+void sgenrand_dc_(org_state_ *st, uint32_t seed)
 {
     int i;
 
@@ -771,7 +723,7 @@ void _sgenrand_dc(_org_state *st, uint32_t seed)
 }
 
 
-uint32_t _genrand_dc(_org_state *st)
+uint32_t genrand_dc_(org_state_ *st)
 {
     uint32_t y;
     static const uint32_t mag01[2]={0x0, MATRIX_A};
@@ -810,12 +762,12 @@ uint32_t _genrand_dc(_org_state *st)
 #define MAX_SEARCH 10000
 
 
-_org_state global_mt19937;
+org_state_ global_mt19937;
 /*******************************************************************/
-static uint32_t nextA(_org_state *org, int w);
-static uint32_t nextA_id(_org_state *org, int w, int id, int idw);
+static uint32_t nextA(org_state_ *org, int w);
+static uint32_t nextA_id(org_state_ *org, int w, int id, int idw);
 static void make_masks(int r, int w, mt_struct *mts);
-static int get_irred_param(check32_t *ck, prescr_t *pre, _org_state *org,
+static int get_irred_param(check32_t *ck, prescr_t *pre, org_state_ *org,
                            mt_struct *mts,int id, int idw);
 static mt_struct *alloc_mt_struct(int n);
 static mt_struct *init_mt_search(check32_t *ck, prescr_t *pre, int w, int p);
@@ -827,7 +779,7 @@ static int proper_mersenne_exponent(int p);
 /* When idw==0, id is not embedded into "a" */
 #define FOUND 1
 #define NOT_FOUND 0
-static int get_irred_param(check32_t *ck, prescr_t *pre, _org_state *org,
+static int get_irred_param(check32_t *ck, prescr_t *pre, org_state_ *org,
                            mt_struct *mts, int id, int idw)
 {
     int i;
@@ -838,9 +790,9 @@ static int get_irred_param(check32_t *ck, prescr_t *pre, _org_state *org,
             a = nextA(org, mts->ww);
         else
             a = nextA_id(org, mts->ww, id, idw);
-        if (NOT_REJECTED == _prescreening_dc(pre, a) ) {
+        if (NOT_REJECTED == prescreening_dc_(pre, a) ) {
             if (IRRED
-                == _CheckPeriod_dc(ck, org, a,mts->mm,mts->nn,mts->rr,mts->ww)) {
+                == CheckPeriod_dc_(ck, org, a,mts->mm,mts->nn,mts->rr,mts->ww)) {
                 mts->aaa = a;
                 break;
             }
@@ -852,7 +804,7 @@ static int get_irred_param(check32_t *ck, prescr_t *pre, _org_state *org,
 }
 
 
-static uint32_t nextA(_org_state *org, int w)
+static uint32_t nextA(org_state_ *org, int w)
 {
     uint32_t x, word_mask;
 
@@ -860,14 +812,14 @@ static uint32_t nextA(_org_state *org, int w)
     word_mask <<= WORDLEN - w;
     word_mask >>= WORDLEN - w;
 
-    x = _genrand_dc(org);
+    x = genrand_dc_(org);
     x &= word_mask;
     x |= (LSB << (w-1));
 
     return x;
 }
 
-static uint32_t nextA_id(_org_state *org, int w, int id, int idw)
+static uint32_t nextA_id(org_state_ *org, int w, int id, int idw)
 {
     uint32_t x, word_mask;
 
@@ -877,7 +829,7 @@ static uint32_t nextA_id(_org_state *org, int w, int id, int idw)
     word_mask >>= idw;
     word_mask <<= idw;
 
-    x = _genrand_dc(org);
+    x = genrand_dc_(org);
     x &= word_mask;
     x |= (LSB << (w-1));
     x |= (uint32_t)id; /* embedding id */
@@ -941,8 +893,8 @@ static mt_struct *init_mt_search(check32_t *ck, prescr_t *pre, int w, int p)
     r = n * w - p;
 
     make_masks(r, w, mts);
-    _InitPrescreening_dc(pre, m, n, r, w);
-    _InitCheck32_dc(ck, r, w);
+    InitPrescreening_dc_(pre, m, n, r, w);
+    InitCheck32_dc_(ck, r, w);
 
     mts->mm = m;
     mts->nn = n;
@@ -954,7 +906,7 @@ static mt_struct *init_mt_search(check32_t *ck, prescr_t *pre, int w, int p)
 
 static void end_mt_search(prescr_t *pre)
 {
-    _EndPrescreening_dc(pre);
+    EndPrescreening_dc_(pre);
 }
 
 /*
@@ -966,10 +918,10 @@ mt_struct *get_mt_parameter_st(int w, int p, uint32_t seed)
 {
     mt_struct *mts;
     prescr_t pre;
-    _org_state org;
+    org_state_ org;
     check32_t ck;
 
-    _sgenrand_dc(&org, seed);
+    sgenrand_dc_(&org, seed);
     mts = init_mt_search(&ck, &pre, w, p);
     if (mts == nullptr) return nullptr;
 
@@ -977,7 +929,7 @@ mt_struct *get_mt_parameter_st(int w, int p, uint32_t seed)
         free_mt_struct(mts);
         return nullptr;
     }
-    _get_tempering_parameter_hard_dc(mts);
+    get_tempering_parameter_hard_dc_(mts);
     end_mt_search(&pre);
 
     return mts;
@@ -1000,7 +952,7 @@ mt_struct *get_mt_parameter(int w, int p)
         free_mt_struct(mts);
         return nullptr;
     }
-    _get_tempering_parameter_hard_dc(mts);
+    get_tempering_parameter_hard_dc_(mts);
     end_mt_search(&pre);
 
     return mts;
@@ -1015,10 +967,10 @@ mt_struct *get_mt_parameter_opt_temper(int w, int p, uint32_t seed)
 {
     mt_struct *mts;
     prescr_t pre;
-    _org_state org;
+    org_state_ org;
     check32_t ck;
 
-    _sgenrand_dc(&org, seed);
+    sgenrand_dc_(&org, seed);
     mts = init_mt_search(&ck, &pre, w, p);
     if (mts == nullptr) return nullptr;
 
@@ -1026,7 +978,7 @@ mt_struct *get_mt_parameter_opt_temper(int w, int p, uint32_t seed)
         free_mt_struct(mts);
         return nullptr;
     }
-    _get_tempering_parameter_hard_dc(mts);
+    get_tempering_parameter_hard_dc_(mts);
     end_mt_search(&pre);
 
     return mts;
@@ -1042,10 +994,10 @@ mt_struct *get_mt_parameter_id_st(int w, int p, int id, uint32_t seed)
 {
     mt_struct *mts;
     prescr_t pre;
-    _org_state org;
+    org_state_ org;
     check32_t ck;
 
-    _sgenrand_dc(&org, seed);
+    sgenrand_dc_(&org, seed);
     if (id > 0xffff) {
         printf("\"id\" must be less than 65536\n");
         return nullptr;
@@ -1063,7 +1015,7 @@ mt_struct *get_mt_parameter_id_st(int w, int p, int id, uint32_t seed)
         free_mt_struct(mts);
         return nullptr;
     }
-    _get_tempering_parameter_hard_dc(mts);
+    get_tempering_parameter_hard_dc_(mts);
     end_mt_search(&pre);
 
     return mts;
@@ -1092,7 +1044,7 @@ mt_struct *get_mt_parameter_id(int w, int p, int id)
         free_mt_struct(mts);
         return nullptr;
     }
-    _get_tempering_parameter_hard_dc(mts);
+    get_tempering_parameter_hard_dc_(mts);
     end_mt_search(&pre);
 
     return mts;
@@ -1104,7 +1056,7 @@ mt_struct **get_mt_parameters_st(int w, int p, int start_id,
     mt_struct **mtss, *template_mts;
     int i;
     prescr_t pre;
-    _org_state org;
+    org_state_ org;
     check32_t ck;
 
     if ((start_id > max_id) || (max_id > 0xffff) || (start_id < 0)) {
@@ -1112,7 +1064,7 @@ mt_struct **get_mt_parameters_st(int w, int p, int start_id,
         return nullptr;
     }
 
-    _sgenrand_dc(&org, seed);
+    sgenrand_dc_(&org, seed);
     mtss = (mt_struct**)malloc(sizeof(mt_struct*)*(max_id-start_id+1));
     if (nullptr == mtss) return nullptr;
 
@@ -1135,7 +1087,7 @@ mt_struct **get_mt_parameters_st(int w, int p, int start_id,
             free_mt_struct(mtss[i]);
             break;
         }
-        _get_tempering_parameter_hard_dc(mtss[i]);
+        get_tempering_parameter_hard_dc_(mtss[i]);
         ++(*count);
     }
 
@@ -1184,7 +1136,7 @@ mt_struct **get_mt_parameters(int w, int p, int max_id, int *count)
             free_mt_struct(mtss[i]);
             break;
         }
-        _get_tempering_parameter_hard_dc(mtss[i]);
+        get_tempering_parameter_hard_dc_(mtss[i]);
         ++(*count);
     }
 
@@ -1336,7 +1288,7 @@ static void NextIrredPoly(Polynomial *pl, int nth);
 
 /*************************************************/
 /*************************************************/
-int _prescreening_dc(prescr_t *pre, uint32_t aaa)
+int prescreening_dc_(prescr_t *pre, uint32_t aaa)
 {
 
     int i;
@@ -1348,7 +1300,7 @@ int _prescreening_dc(prescr_t *pre, uint32_t aaa)
     return NOT_REJECTED;
 }
 
-void _InitPrescreening_dc(prescr_t *pre, int m, int n, int r, int w)
+void InitPrescreening_dc_(prescr_t *pre, int m, int n, int r, int w)
 {
     int i;
     Polynomial *pl;
@@ -1391,7 +1343,7 @@ void _InitPrescreening_dc(prescr_t *pre, int m, int n, int r, int w)
 
 }
 
-void _EndPrescreening_dc(prescr_t *pre)
+void EndPrescreening_dc_(prescr_t *pre)
 {
     int i;
 
@@ -1612,7 +1564,7 @@ static void MakepreModPolys(prescr_t *pre, int mm, int nn, int rr, int ww)
 
 void init_dc(uint32_t seed)
 {
-    _sgenrand_dc(&global_mt19937, seed);
+    sgenrand_dc_(&global_mt19937, seed);
 }
 
 // genmtrand.c
@@ -1677,7 +1629,7 @@ uint32_t genrand_mt(mt_struct *mts)
 #define LSB 0x1
 #define WORDLEN 32
 
-void _InitCheck32_dc(check32_t *ck, int r, int w)
+void InitCheck32_dc_(check32_t *ck, int r, int w)
 {
     int i;
 
@@ -1694,7 +1646,7 @@ void _InitCheck32_dc(check32_t *ck, int r, int w)
     ck->upper_mask = (~ck->lower_mask) & ck->word_mask;
 }
 
-int _CheckPeriod_dc(check32_t *ck, _org_state *st,
+int CheckPeriod_dc_(check32_t *ck, org_state_ *st,
                     uint32_t a, int m, int n, int r, int w)
 {
     int i, j, p, pp;
@@ -1704,20 +1656,20 @@ int _CheckPeriod_dc(check32_t *ck, _org_state *st,
     p = n*w-r;
     x = (uint32_t*) malloc (2*p*sizeof(uint32_t));
     if (nullptr==x) {
-        printf("malloc error in \"_CheckPeriod_dc()\"\n");
+        printf("malloc error in \"CheckPeriod_dc_()\"\n");
         exit(1);
     }
 
     init = (uint32_t*) malloc (n*sizeof(uint32_t));
     if (nullptr==init) {
-        printf("malloc error \"_CheckPeriod_dc()\"\n");
+        printf("malloc error \"CheckPeriod_dc_()\"\n");
         free(x);
         exit(1);
     }
 
     /* set initial values */
     for (i=0; i<n; ++i)
-        x[i] = init[i] = (ck->word_mask & _genrand_dc(st));
+        x[i] = init[i] = (ck->word_mask & genrand_dc_(st));
     /* it is better that LSBs of x[2] and x[3] are different */
     if ( (x[2]&LSB) == (x[3]&LSB) ) {
         x[3] ^= 1;
@@ -1764,6 +1716,8 @@ int _CheckPeriod_dc(check32_t *ck, _org_state *st,
     free(x); free(init);
     return REDU;
 }
+
+VTK_ABI_NAMESPACE_END
 
 #undef N
 #undef NOT_REJECTED

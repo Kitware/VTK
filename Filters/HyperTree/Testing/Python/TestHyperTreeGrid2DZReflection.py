@@ -1,25 +1,48 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkLookupTable,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkHyperTreeGrid,
+    vtkHyperTreeGridNonOrientedCursor,
+)
+from vtkmodules.vtkFiltersGeneral import vtkShrinkFilter
+from vtkmodules.vtkFiltersHyperTree import (
+    vtkHyperTreeGridAxisReflection,
+    vtkHyperTreeGridGeometry,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
-htg = vtk.vtkHyperTreeGrid()
+htg = vtkHyperTreeGrid()
 htg.Initialize()
 
-scalarArray = vtk.vtkDoubleArray()
+scalarArray = vtkDoubleArray()
 scalarArray.SetName('scalar')
 scalarArray.SetNumberOfValues(0)
-htg.GetPointData().AddArray(scalarArray)
-htg.GetPointData().SetActiveScalars('scalar')
+htg.GetCellData().AddArray(scalarArray)
+htg.GetCellData().SetActiveScalars('scalar')
 
 htg.SetDimensions([1, 4, 3])
 htg.SetBranchFactor(2)
 
 # Rectilinear grid coordinates
-xValues = vtk.vtkDoubleArray()
+xValues = vtkDoubleArray()
 xValues.SetNumberOfValues(1)
 xValues.SetValue(0, 0)
 htg.SetXCoordinates(xValues);
 
-yValues = vtk.vtkDoubleArray()
+yValues = vtkDoubleArray()
 yValues.SetNumberOfValues(4)
 yValues.SetValue(0, -1)
 yValues.SetValue(1, 0)
@@ -27,7 +50,7 @@ yValues.SetValue(2, 1)
 yValues.SetValue(3, 2)
 htg.SetYCoordinates(yValues);
 
-zValues = vtk.vtkDoubleArray()
+zValues = vtkDoubleArray()
 zValues.SetNumberOfValues(3)
 zValues.SetValue(0, -1)
 zValues.SetValue(1, 0)
@@ -35,7 +58,7 @@ zValues.SetValue(2, 1)
 htg.SetZCoordinates(zValues);
 
 # Let's split the various trees
-cursor = vtk.vtkHyperTreeGridNonOrientedCursor()
+cursor = vtkHyperTreeGridNonOrientedCursor()
 offsetIndex = 0
 
 # ROOT CELL 0
@@ -225,7 +248,7 @@ isFilter = False
 reflection = None
 if True:
   print('With AxisReflection Filter (HTG)')
-  reflection = vtk.vtkHyperTreeGridAxisReflection()
+  reflection = vtkHyperTreeGridAxisReflection()
   if isFilter:
     reflection.SetInputConnection(htg.GetOutputPort())
   else:
@@ -238,7 +261,7 @@ else:
   reflection = htg
 
 # Geometries
-geometry = vtk.vtkHyperTreeGridGeometry()
+geometry = vtkHyperTreeGridGeometry()
 if isFilter:
   geometry.SetInputConnection(reflection.GetOutputPort())
 else:
@@ -248,8 +271,8 @@ print('With Geometry Filter (HTG to NS)')
 # Shrink Filter
 if True:
   print('With Shrink Filter (NS)')
-  # En 3D, le shrink ne doit pas se faire sur la geometrie car elle ne represente que la peau
-  shrink = vtk.vtkShrinkFilter()
+  # In 3D, the shrink shouldn't be done on the geometry because it only represents the skin
+  shrink = vtkShrinkFilter()
   shrink.SetInputConnection(geometry.GetOutputPort())
   shrink.SetShrinkFactor(.8)
 else:
@@ -257,12 +280,12 @@ else:
   shrink = geometry
 
 # LookupTable
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.66, 0)
 lut.Build()
 
 # Mappers
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(shrink.GetOutputPort())
 
 shrink.Update()
@@ -276,13 +299,13 @@ mapper.SelectColorArray('scalar')
 mapper.SetScalarRange(dataRange[0], dataRange[1])
 
 # Actors
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Camera
 shrink.Update()
 bd = shrink.GetOutput().GetBounds()
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetClippingRange(1., 100.)
 focal = []
 for i in range(3):
@@ -291,17 +314,17 @@ camera.SetFocalPoint(focal)
 camera.SetPosition(focal[0] + 6., focal[1], focal[2])
 
 # Renderer
-renderer = vtk.vtkRenderer()
+renderer = vtkRenderer()
 renderer.SetActiveCamera(camera)
 renderer.AddActor(actor)
 
 # Render window
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(renderer)
 renWin.SetSize(600, 400)
 
 # Render window interactor
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # render the image

@@ -1,31 +1,47 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkMaskPolyData,
+    vtkPolyDataNormals,
+    vtkStripper,
+)
+from vtkmodules.vtkIOLegacy import vtkPolyDataReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create a cyberware source
 #
-cyber = vtk.vtkPolyDataReader()
-cyber.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fran_cut.vtk")
-normals = vtk.vtkPolyDataNormals()
+cyber = vtkPolyDataReader()
+cyber.SetFileName(VTK_DATA_ROOT + "/Data/fran_cut.vtk")
+normals = vtkPolyDataNormals()
 #enable this for cool effect
 normals.SetInputConnection(cyber.GetOutputPort())
 normals.FlipNormalsOn()
-stripper = vtk.vtkStripper()
+stripper = vtkStripper()
 stripper.SetInputConnection(cyber.GetOutputPort())
-mask = vtk.vtkMaskPolyData()
+mask = vtkMaskPolyData()
 mask.SetInputConnection(stripper.GetOutputPort())
 mask.SetOnRatio(2)
-cyberMapper = vtk.vtkPolyDataMapper()
+cyberMapper = vtkPolyDataMapper()
 cyberMapper.SetInputConnection(mask.GetOutputPort())
-cyberActor = vtk.vtkActor()
+cyberActor = vtkActor()
 cyberActor.SetMapper(cyberMapper)
 cyberActor.GetProperty().SetColor(1.0,0.49,0.25)
 # Add the actors to the renderer, set the background and size
@@ -37,7 +53,7 @@ renWin.SetSize(300,300)
 ren1.SetBackground(1,1,1)
 # render the image
 #
-cam1 = vtk.vtkCamera()
+cam1 = vtkCamera()
 cam1.SetFocalPoint(0.0520703,-0.128547,-0.0581083)
 cam1.SetPosition(0.419653,-0.120916,-0.321626)
 cam1.SetViewAngle(21.4286)

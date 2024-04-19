@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPPainterCommunicator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPainterCommunicator
  * ranks that will execute a painter chain.
@@ -21,7 +9,7 @@
  * A simple container holding an MPI communicator. The simple API
  * is sufficient to allow serial code (no MPI available) to steer
  * execution.
-*/
+ */
 
 #ifndef vtkPPainterCommunicator_h
 #define vtkPPainterCommunicator_h
@@ -29,6 +17,7 @@
 #include "vtkPainterCommunicator.h"
 #include "vtkRenderingParallelLICModule.h" // for export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPPainterCommunicatorInternals;
 class vtkMPICommunicatorOpaqueComm;
 
@@ -36,64 +25,70 @@ class VTKRENDERINGPARALLELLIC_EXPORT vtkPPainterCommunicator : public vtkPainter
 {
 public:
   vtkPPainterCommunicator();
-  virtual ~vtkPPainterCommunicator();
+  ~vtkPPainterCommunicator() override;
 
   /**
    * Copier and assignment operators.
    */
-  vtkPPainterCommunicator(const vtkPPainterCommunicator &other) : vtkPainterCommunicator(other)
-    { this->Copy(&other, false); }
+  vtkPPainterCommunicator(const vtkPPainterCommunicator& other)
+    : vtkPainterCommunicator(other)
+  {
+    this->Copy(&other, false);
+  }
 
-  vtkPPainterCommunicator &operator=(const vtkPPainterCommunicator &other)
-    { this->Copy(&other, false); return *this; }
+  vtkPPainterCommunicator& operator=(const vtkPPainterCommunicator& other)
+  {
+    this->Copy(&other, false);
+    return *this;
+  }
 
   /**
    * Copy the communicator.
    */
-  virtual void Copy(const vtkPainterCommunicator *other, bool ownership);
+  void Copy(const vtkPainterCommunicator* other, bool ownership) override;
 
   /**
    * Duplicate the communicator.
    */
-  virtual void Duplicate(const vtkPainterCommunicator *other);
+  void Duplicate(const vtkPainterCommunicator* other) override;
 
-  //@{
+  ///@{
   /**
-   * Querry MPI for information about the communicator.
+   * Query MPI for information about the communicator.
    */
-  virtual int GetRank();
-  virtual int GetSize();
-  virtual bool GetIsNull();
-  //@}
+  int GetRank() override;
+  int GetSize() override;
+  bool GetIsNull() override;
+  ///@}
 
-  //@{
+  ///@{
   /**
-   * Querry MPI for information about the world communicator.
+   * Query MPI for information about the world communicator.
    */
-  virtual int GetWorldRank();
-  virtual int GetWorldSize();
-  //@}
+  int GetWorldRank() override;
+  int GetWorldSize() override;
+  ///@}
 
   /**
-   * Querry MPI state.
+   * Query MPI state.
    */
-  virtual bool GetMPIInitialized(){ return this->MPIInitialized(); }
-  virtual bool GetMPIFinalized(){ return this->MPIFinalized(); }
+  bool GetMPIInitialized() override { return vtkPPainterCommunicator::MPIInitialized(); }
+  bool GetMPIFinalized() override { return vtkPPainterCommunicator::MPIFinalized(); }
 
   static bool MPIInitialized();
   static bool MPIFinalized();
 
-  //@{
+  ///@{
   /**
    * Set/Get the communicator. Ownership is not assumed
    * thus caller must keep the commuicator alive while
    * this class is in use and free the communicator when
    * finished.
    */
-  void SetCommunicator(vtkMPICommunicatorOpaqueComm *comm);
-  void GetCommunicator(vtkMPICommunicatorOpaqueComm *comm);
-  void *GetCommunicator();
-  //@}
+  void SetCommunicator(vtkMPICommunicatorOpaqueComm* comm);
+  void GetCommunicator(vtkMPICommunicatorOpaqueComm* comm);
+  void* GetCommunicator();
+  ///@}
 
   /**
    * Creates a new communicator with/without the calling processes
@@ -102,18 +97,19 @@ public:
    * accessed via GetCommunicator. In parallel this call is mpi
    * collective on the world communicator. In serial this is a no-op.
    */
-  void SubsetCommunicator(vtkMPICommunicatorOpaqueComm *comm, int include);
+  void SubsetCommunicator(vtkMPICommunicatorOpaqueComm* comm, int include);
 
   /**
    * Get VTK's world communicator. Return's a null communictor if
    * MPI was not yet initialized.
    */
-  static vtkMPICommunicatorOpaqueComm *GetGlobalCommunicator();
+  static vtkMPICommunicatorOpaqueComm* GetGlobalCommunicator();
 
 private:
   // PImpl for MPI datatypes
-  vtkPPainterCommunicatorInternals *Internals;
+  vtkPPainterCommunicatorInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPPainterCommunicator.h

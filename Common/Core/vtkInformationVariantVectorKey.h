@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationVariantVectorKey.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInformationVariantVectorKey
  * @brief   Key for variant vector values.
  *
  * vtkInformationVariantVectorKey is used to represent keys for variant
  * vector values in vtkInformation.h
-*/
+ */
 
 #ifndef vtkInformationVariantVectorKey_h
 #define vtkInformationVariantVectorKey_h
@@ -28,16 +16,16 @@
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVariant;
 
 class VTKCOMMONCORE_EXPORT vtkInformationVariantVectorKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationVariantVectorKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationVariantVectorKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkInformationVariantVectorKey(const char* name, const char* location,
-                                 int length=-1);
+  vtkInformationVariantVectorKey(const char* name, const char* location, int length = -1);
   ~vtkInformationVariantVectorKey() override;
 
   /**
@@ -45,13 +33,13 @@ public:
    * name, a location and a required length. This method is provided for
    * wrappers. Use the constructor directly from C++ instead.
    */
-  static vtkInformationVariantVectorKey* MakeKey(const char* name, const char* location,
-    int length=-1)
+  static VTK_NEWINSTANCE vtkInformationVariantVectorKey* MakeKey(
+    const char* name, const char* location, int length = -1)
   {
     return new vtkInformationVariantVectorKey(name, location, length);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -62,7 +50,7 @@ public:
   const vtkVariant& Get(vtkInformation* info, int idx) const;
   void Get(vtkInformation* info, vtkVariant* value) const;
   int Length(vtkInformation* info) const;
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information
@@ -85,4 +73,5 @@ private:
   void operator=(const vtkInformationVariantVectorKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

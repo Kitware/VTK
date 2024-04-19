@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractSelectedGraph.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkExtractSelectedGraph
  * @brief   return a subgraph of a vtkGraph
@@ -32,14 +16,15 @@
  * that are adjacent to at least one selected edge.  Alternately, you may
  * indicate that an edge selection should maintain the full set of vertices,
  * by turning RemoveIsolatedVertices off.
-*/
+ */
 
 #ifndef vtkExtractSelectedGraph_h
 #define vtkExtractSelectedGraph_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSelection;
 class vtkDataSet;
 
@@ -47,7 +32,7 @@ class VTKINFOVISCORE_EXPORT vtkExtractSelectedGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkExtractSelectedGraph* New();
-  vtkTypeMacro(vtkExtractSelectedGraph,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkExtractSelectedGraph, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -60,7 +45,7 @@ public:
    */
   void SetAnnotationLayersConnection(vtkAlgorithmOutput* in);
 
-  //@{
+  ///@{
   /**
    * If set, removes vertices with no adjacent edges in an edge selection.
    * A vertex selection ignores this flag and always returns the full set
@@ -69,7 +54,7 @@ public:
   vtkSetMacro(RemoveIsolatedVertices, bool);
   vtkGetMacro(RemoveIsolatedVertices, bool);
   vtkBooleanMacro(RemoveIsolatedVertices, bool);
-  //@}
+  ///@}
 
   /**
    * Specify the first vtkGraph input and the second vtkSelection input.
@@ -80,15 +65,9 @@ protected:
   vtkExtractSelectedGraph();
   ~vtkExtractSelectedGraph() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestDataObject(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   bool RemoveIsolatedVertices;
 
@@ -97,5 +76,5 @@ private:
   void operator=(const vtkExtractSelectedGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

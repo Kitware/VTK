@@ -1,39 +1,18 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    QVTKInteractor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*=========================================================================
-
-  Copyright 2004 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-  license for use of this work by or on behalf of the
-  U.S. Government. Redistribution and use in source and binary forms, with
-  or without modification, are permitted provided that this Notice and any
-  statement of authorship are reproduced on all copies.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2004 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #ifndef Q_VTK_INTERACTOR_H
 #define Q_VTK_INTERACTOR_H
 
-#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
-#include <vtkRenderWindowInteractor.h>
-#include <vtkCommand.h>
+#include "vtkGUISupportQtModule.h" // For export macro
 #include <QtCore/QObject>
+#include <vtkCommand.h>
+#include <vtkRenderWindowInteractor.h>
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+VTK_ABI_NAMESPACE_BEGIN
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
 class vtkTDxWinDevice;
 #endif
@@ -44,7 +23,6 @@ class vtkTDxMacDevice;
 class vtkTDxDevice;
 class vtkTDxUnixDevice;
 #endif
-
 
 class QVTKInteractorInternal;
 
@@ -60,7 +38,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKInteractor : public vtkRenderWindowInteractor
 {
 public:
   static QVTKInteractor* New();
-  vtkTypeMacro(QVTKInteractor,vtkRenderWindowInteractor);
+  vtkTypeMacro(QVTKInteractor, vtkRenderWindowInteractor);
 
   /**
    * Enum for additional event types supported.
@@ -104,8 +82,8 @@ public:
   virtual void TimerEvent(int timerId);
 
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
-  virtual vtkTDxUnixDevice *GetDevice();
-  virtual void SetDevice(vtkTDxDevice *device);
+  virtual vtkTDxUnixDevice* GetDevice();
+  virtual void SetDevice(vtkTDxDevice* device);
 #endif
 
 protected:
@@ -119,22 +97,22 @@ protected:
   // destroy a Qt Timer
   int InternalDestroyTimer(int platformTimerId) override;
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
-  vtkTDxWinDevice *Device;
+  vtkTDxWinDevice* Device;
 #endif
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
-  vtkTDxMacDevice *Device;
+  vtkTDxMacDevice* Device;
 #endif
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
-  vtkTDxUnixDevice *Device;
+  vtkTDxUnixDevice* Device;
 #endif
 
 private:
-
   QVTKInteractorInternal* Internal;
 
   QVTKInteractor(const QVTKInteractor&) = delete;
   void operator=(const QVTKInteractor&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
+// VTK-HeaderTest-Exclude: QVTKInteractor.h

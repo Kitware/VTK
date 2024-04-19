@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOStreamWrapper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOStreamWrapper
  * @brief   Wrapper for C++ ostream.  Internal VTK use only.
@@ -22,7 +10,7 @@
  * compilation.  Experimentation has revealed between 10% and 60% less
  * time for compilation depending on the platform.  This wrapper is
  * used by the macros in vtkSetGet.h.
-*/
+ */
 
 #ifndef vtkOStreamWrapper_h
 #define vtkOStreamWrapper_h
@@ -33,84 +21,97 @@
 Do_not_include_vtkOStreamWrapper_directly_vtkSystemIncludes_includes_it;
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIndent;
 class vtkObjectBase;
 class vtkLargeInteger;
+template <typename T>
+class vtkSmartPointer;
 class vtkSmartPointerBase;
 class vtkStdString;
 
 class VTKCOMMONCORE_EXPORT VTK_WRAPEXCLUDE vtkOStreamWrapper
 {
   class std_string;
+
 public:
-  //@{
+  ///@{
   /**
    * Construct class to reference a real ostream.  All methods and
    * operators will be forwarded.
    */
   vtkOStreamWrapper(ostream& os);
   vtkOStreamWrapper(vtkOStreamWrapper& r);
-  //@}
+  ///@}
 
   virtual ~vtkOStreamWrapper();
 
   /**
    * Type for a fake endl.
    */
-  struct EndlType {};
+  struct EndlType
+  {
+  };
 
-  //@{
+  ///@{
   /**
    * Forward this output operator to the real ostream.
    */
-  vtkOStreamWrapper& operator << (const EndlType&);
-  vtkOStreamWrapper& operator << (const vtkIndent&);
-  vtkOStreamWrapper& operator << (vtkObjectBase&);
-  vtkOStreamWrapper& operator << (const vtkLargeInteger&);
-  vtkOStreamWrapper& operator << (const vtkSmartPointerBase&);
-  vtkOStreamWrapper& operator << (const vtkStdString&);
-  vtkOStreamWrapper& operator << (const char*);
-  vtkOStreamWrapper& operator << (void*);
-  vtkOStreamWrapper& operator << (char);
-  vtkOStreamWrapper& operator << (short);
-  vtkOStreamWrapper& operator << (int);
-  vtkOStreamWrapper& operator << (long);
-  vtkOStreamWrapper& operator << (long long);
-  vtkOStreamWrapper& operator << (unsigned char);
-  vtkOStreamWrapper& operator << (unsigned short);
-  vtkOStreamWrapper& operator << (unsigned int);
-  vtkOStreamWrapper& operator << (unsigned long);
-  vtkOStreamWrapper& operator << (unsigned long long);
-  vtkOStreamWrapper& operator << (float);
-  vtkOStreamWrapper& operator << (double);
-  vtkOStreamWrapper& operator << (bool);
-  //@}
+  vtkOStreamWrapper& operator<<(const EndlType&);
+  vtkOStreamWrapper& operator<<(const vtkIndent&);
+  vtkOStreamWrapper& operator<<(vtkObjectBase&);
+  vtkOStreamWrapper& operator<<(const vtkLargeInteger&);
+  vtkOStreamWrapper& operator<<(const vtkSmartPointerBase&);
+  vtkOStreamWrapper& operator<<(const vtkStdString&);
+  vtkOStreamWrapper& operator<<(const char*);
+  vtkOStreamWrapper& operator<<(void*);
+  vtkOStreamWrapper& operator<<(char);
+  vtkOStreamWrapper& operator<<(short);
+  vtkOStreamWrapper& operator<<(int);
+  vtkOStreamWrapper& operator<<(long);
+  vtkOStreamWrapper& operator<<(long long);
+  vtkOStreamWrapper& operator<<(unsigned char);
+  vtkOStreamWrapper& operator<<(unsigned short);
+  vtkOStreamWrapper& operator<<(unsigned int);
+  vtkOStreamWrapper& operator<<(unsigned long);
+  vtkOStreamWrapper& operator<<(unsigned long long);
+  vtkOStreamWrapper& operator<<(float);
+  vtkOStreamWrapper& operator<<(double);
+  vtkOStreamWrapper& operator<<(bool);
+  ///@}
 
   // Work-around for IBM Visual Age bug in overload resolution.
 #if defined(__IBMCPP__)
   vtkOStreamWrapper& WriteInternal(const char*);
   vtkOStreamWrapper& WriteInternal(void*);
   template <typename T>
-  vtkOStreamWrapper& operator << (T* p)
+  vtkOStreamWrapper& operator<<(T* p)
   {
     return this->WriteInternal(p);
   }
 #endif
 
-  vtkOStreamWrapper& operator << (void (*)(void*));
-  vtkOStreamWrapper& operator << (void* (*)(void*));
-  vtkOStreamWrapper& operator << (int (*)(void*));
-  vtkOStreamWrapper& operator << (int* (*)(void*));
-  vtkOStreamWrapper& operator << (float* (*)(void*));
-  vtkOStreamWrapper& operator << (const char* (*)(void*));
-  vtkOStreamWrapper& operator << (void (*)(void*, int*));
+  vtkOStreamWrapper& operator<<(void (*)(void*));
+  vtkOStreamWrapper& operator<<(void* (*)(void*));
+  vtkOStreamWrapper& operator<<(int (*)(void*));
+  vtkOStreamWrapper& operator<<(int* (*)(void*));
+  vtkOStreamWrapper& operator<<(float* (*)(void*));
+  vtkOStreamWrapper& operator<<(const char* (*)(void*));
+  vtkOStreamWrapper& operator<<(void (*)(void*, int*));
 
   // Accept std::string without a declaration.
   template <template <typename, typename, typename> class S>
-  vtkOStreamWrapper& operator << (const
-    S< char, std::char_traits<char>, std::allocator<char> >& s)
+  vtkOStreamWrapper& operator<<(const S<char, std::char_traits<char>, std::allocator<char>>& s)
   {
     return *this << reinterpret_cast<std_string const&>(s);
+  }
+
+  // Accept vtkSmartPointer for output.
+  template <typename T>
+  vtkOStreamWrapper& operator<<(const vtkSmartPointer<T>& ptr)
+  {
+    this->ostr << (static_cast<T*>(ptr));
+    return *this;
   }
 
   /**
@@ -140,20 +141,22 @@ public:
    */
   void flush();
 
-  //@{
+  ///@{
   /**
    * Implementation detail to allow macros to provide an endl that may
    * or may not be used.
    */
   static void UseEndl(const EndlType&) {}
+  ///@}
 protected:
   // Reference to the real ostream.
   ostream& ostr;
+
 private:
   vtkOStreamWrapper& operator=(const vtkOStreamWrapper& r) = delete;
-  vtkOStreamWrapper& operator << (std_string const&);
+  vtkOStreamWrapper& operator<<(std_string const&);
 };
-  //@}
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOStreamWrapper.h

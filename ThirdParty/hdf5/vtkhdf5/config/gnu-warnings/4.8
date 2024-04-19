@@ -1,0 +1,29 @@
+# warning flags added for GCC >= 4.3
+-Wlarger-than=2560
+-Wlogical-op
+
+# warning flags added for GCC >= 4.4
+-Wframe-larger-than=16384
+-Wpacked-bitfield-compat
+-Wsync-nand
+
+# warning flag added for GCC >= 4.5
+-Wstrict-overflow=5
+
+# This warning can only be truly addressed using the gcc extension of
+# using D to indicate doubles (e.g., 1.23D).
+-Wno-unsuffixed-float-constants
+
+# warning flags added for GCC >= 4.6
+-Wdouble-promotion
+-Wtrampolines
+
+# warning flag added for GCC >= 4.7
+#
+# -Wstack-usage=8192 warnings need to be swept up on a branch so
+# that we can stop burdening the whole development team.
+#
+-Wstack-usage=8192
+
+# warning flag added for GCC >= 4.8
+-Wmaybe-uninitialized

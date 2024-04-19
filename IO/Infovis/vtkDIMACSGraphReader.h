@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDIMACSGraphReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkDIMACSGraphReader
@@ -51,87 +36,82 @@
  * @sa
  * vtkDIMACSGraphWriter
  *
-*/
+ */
 
 #ifndef vtkDIMACSGraphReader_h
 #define vtkDIMACSGraphReader_h
 
-#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
-#include "vtkStdString.h" // For string API
+#include "vtkIOInfovisModule.h" // For export macro
+#include "vtkStdString.h"       // For string API
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOINFOVIS_EXPORT vtkDIMACSGraphReader : public vtkGraphAlgorithm
 {
 
 public:
-
-  static vtkDIMACSGraphReader *New();
+  static vtkDIMACSGraphReader* New();
   vtkTypeMacro(vtkDIMACSGraphReader, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The DIMACS file name.
    */
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileName);
-  //@}
+  vtkGetFilePathMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Vertex attribute array name
    */
   vtkGetStringMacro(VertexAttributeArrayName);
   vtkSetStringMacro(VertexAttributeArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Edge attribute array name
    */
   vtkGetStringMacro(EdgeAttributeArrayName);
   vtkSetStringMacro(EdgeAttributeArrayName);
-  //@}
+  ///@}
 
 protected:
-
   vtkDIMACSGraphReader();
   ~vtkDIMACSGraphReader() override;
 
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int buildGenericGraph(vtkGraph     * output,
-                        vtkStdString & defaultVertexAttrArrayName,
-                        vtkStdString & defaultEdgeAttrArrayName);
+  int buildGenericGraph(vtkGraph* output, vtkStdString& defaultVertexAttrArrayName,
+    vtkStdString& defaultEdgeAttrArrayName);
 
-  int buildColoringGraph(vtkGraph * output);
-  int buildMaxflowGraph(vtkGraph * output);
+  int buildColoringGraph(vtkGraph* output);
+  int buildMaxflowGraph(vtkGraph* output);
 
   /**
    * Creates directed or undirected output based on Directed flag.
    */
-  int RequestDataObject(vtkInformation*,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int ReadGraphMetaData();
 
 private:
-
-  bool   fileOk;
-  bool   Directed;
-  char * FileName;
-  char * VertexAttributeArrayName;
-  char * EdgeAttributeArrayName;
+  bool fileOk;
+  bool Directed;
+  char* FileName;
+  char* VertexAttributeArrayName;
+  char* EdgeAttributeArrayName;
 
   int numVerts;
   int numEdges;
-  vtkStdString dimacsProblemStr;
+  std::string dimacsProblemStr;
 
   vtkDIMACSGraphReader(const vtkDIMACSGraphReader&) = delete;
   void operator=(const vtkDIMACSGraphReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkDIMACSGraphReader_h

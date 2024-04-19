@@ -1,0 +1,8 @@
+-Wno-aggregate-return
+-Wno-inline
+-Wno-missing-format-attribute
+-Wno-missing-noreturn
+# NOTE: -pedantic includes -Woverlength-strings which triggers a warning
+# regarding the library settings string (H5libhdf5_settings). We'll turn
+# it off here but leave it on in the developer flags.
+-Wno-overlength-strings

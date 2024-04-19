@@ -1,29 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkImageReader
+from vtkmodules.vtkImagingCore import (
+    vtkImageMagnify,
+    vtkImageShrink3D,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor2D,
+    vtkImageMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestAllShrinks(vtk.test.Testing.vtkTest):
+class TestAllShrinks(vtkmodules.test.Testing.vtkTest):
 
     def testAllShrinks(self):
 
@@ -31,10 +30,10 @@ class TestAllShrinks(vtk.test.Testing.vtkTest):
         prefix = VTK_DATA_ROOT + "/Data/headsq/quarter"
 
 
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
 
         # Image pipeline
-        reader = vtk.vtkImageReader()
+        reader = vtkImageReader()
         reader.SetDataExtent(0, 63, 0, 63, 1, 93)
         reader.SetFilePrefix(prefix)
         reader.SetDataByteOrderToLittleEndian()
@@ -52,24 +51,24 @@ class TestAllShrinks(vtk.test.Testing.vtkTest):
         imager = dict()
 
         for operator in ops:
-            shrink.update({operator:vtk.vtkImageShrink3D()})
+            shrink.update({operator:vtkImageShrink3D()})
             shrink[operator].SetMean(0)
             if operator != "NoOp":
              eval('shrink[operator].' + operator + 'On()')
             shrink[operator].SetShrinkFactors(factor, factor, factor)
             shrink[operator].SetInputConnection(reader.GetOutputPort())
-            mag.update({operator:vtk.vtkImageMagnify()})
+            mag.update({operator:vtkImageMagnify()})
             mag[operator].SetMagnificationFactors(magFactor, magFactor, magFactor)
             mag[operator].InterpolateOff()
             mag[operator].SetInputConnection(shrink[operator].GetOutputPort())
-            mapper.update({operator:vtk.vtkImageMapper()})
+            mapper.update({operator:vtkImageMapper()})
             mapper[operator].SetInputConnection(mag[operator].GetOutputPort())
             mapper[operator].SetColorWindow(2000)
             mapper[operator].SetColorLevel(1000)
             mapper[operator].SetZSlice(45)
-            actor.update({operator:vtk.vtkActor2D()})
+            actor.update({operator:vtkActor2D()})
             actor[operator].SetMapper(mapper[operator])
-            imager.update({operator:vtk.vtkRenderer()})
+            imager.update({operator:vtkRenderer()})
             imager[operator].AddActor2D(actor[operator])
             renWin.AddRenderer(imager[operator])
 
@@ -88,13 +87,13 @@ class TestAllShrinks(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "TestAllShrinks.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestAllShrinks, 'test')])
+     vtkmodules.test.Testing.main([(TestAllShrinks, 'test')])

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBridgeDataSet.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME vtkBridgeDataSet - Implementation of vtkGenericDataSet.
 // .SECTION Description
 // It is just an example that show how to implement the Generic. It is also
@@ -21,39 +9,40 @@
 
 #include <cassert>
 
-#include "vtkObjectFactory.h"
-#include "vtkDataSet.h"
-#include "vtkCellTypes.h"
-#include "vtkCell.h"
+#include "vtkBridgeAttribute.h"
+#include "vtkBridgeCell.h"
 #include "vtkBridgeCellIterator.h"
 #include "vtkBridgePointIterator.h"
-#include "vtkBridgeCell.h"
-#include "vtkGenericCell.h"
-#include "vtkMath.h"
-#include "vtkGenericAttributeCollection.h"
-#include "vtkPointData.h"
+#include "vtkCell.h"
 #include "vtkCellData.h"
-#include "vtkBridgeAttribute.h"
+#include "vtkCellTypes.h"
+#include "vtkDataSet.h"
+#include "vtkGenericAttributeCollection.h"
+#include "vtkGenericCell.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericEdgeTable.h"
-#include "vtkSimpleCellTessellator.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkSimpleCellTessellator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgeDataSet);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Default constructor.
-vtkBridgeDataSet::vtkBridgeDataSet(  )
+vtkBridgeDataSet::vtkBridgeDataSet()
 {
   this->Implementation = nullptr;
   this->Types = vtkCellTypes::New();
   this->Tessellator = vtkSimpleCellTessellator::New();
 }
 
-//----------------------------------------------------------------------------
-vtkBridgeDataSet::~vtkBridgeDataSet(  )
+//------------------------------------------------------------------------------
+vtkBridgeDataSet::~vtkBridgeDataSet()
 {
-  if(this->Implementation)
+  if (this->Implementation)
   {
     this->Implementation->Delete();
   }
@@ -61,13 +50,13 @@ vtkBridgeDataSet::~vtkBridgeDataSet(  )
   // this->Tessellator is deleted in the superclass
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBridgeDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "implementation: ";
-  if(this->Implementation==nullptr)
+  if (this->Implementation == nullptr)
   {
     os << "(none)" << endl;
   }
@@ -77,51 +66,51 @@ void vtkBridgeDataSet::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return the dataset that will be manipulated through the adaptor interface.
-vtkDataSet *vtkBridgeDataSet::GetDataSet()
+vtkDataSet* vtkBridgeDataSet::GetDataSet()
 {
   return this->Implementation;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Set the dataset that will be manipulated through the adaptor interface.
 // \pre ds_exists: ds!=0
-void vtkBridgeDataSet::SetDataSet(vtkDataSet *ds)
+void vtkBridgeDataSet::SetDataSet(vtkDataSet* ds)
 {
   int i;
   int c;
-  vtkPointData *pd;
-  vtkCellData *cd;
-  vtkBridgeAttribute *a;
+  vtkPointData* pd;
+  vtkCellData* cd;
+  vtkBridgeAttribute* a;
 
-  vtkSetObjectBodyMacro(Implementation,vtkDataSet,ds);
+  vtkSetObjectBodyMacro(Implementation, vtkDataSet, ds);
   // refresh the attribute collection
   this->Attributes->Reset();
-  if(ds!=nullptr)
+  if (ds != nullptr)
   {
     // point data
-    pd=ds->GetPointData();
-    c=pd->GetNumberOfArrays();
-    i=0;
-    while(i<c)
+    pd = ds->GetPointData();
+    c = pd->GetNumberOfArrays();
+    i = 0;
+    while (i < c)
     {
-      a=vtkBridgeAttribute::New();
-      a->InitWithPointData(pd,i);
+      a = vtkBridgeAttribute::New();
+      a->InitWithPointData(pd, i);
       this->Attributes->InsertNextAttribute(a);
       a->Delete();
       ++i;
     }
     // same thing for cell data.
-    cd=ds->GetCellData();
-    c=cd->GetNumberOfArrays();
-    i=0;
-    while(i<c)
+    cd = ds->GetCellData();
+    c = cd->GetNumberOfArrays();
+    i = 0;
+    while (i < c)
     {
-      a=vtkBridgeAttribute::New();
-      a->InitWithCellData(cd,i);
+      a = vtkBridgeAttribute::New();
+      a->InitWithCellData(cd, i);
       this->Attributes->InsertNextAttribute(a);
       a->Delete();
       ++i;
@@ -131,7 +120,7 @@ void vtkBridgeDataSet::SetDataSet(vtkDataSet *ds)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Number of points composing the dataset. See NewPointIterator for more
 // details.
@@ -139,15 +128,15 @@ void vtkBridgeDataSet::SetDataSet(vtkDataSet *ds)
 vtkIdType vtkBridgeDataSet::GetNumberOfPoints()
 {
   vtkIdType result = 0;
-  if(this->Implementation)
+  if (this->Implementation)
   {
     result = this->Implementation->GetNumberOfPoints();
   }
-  assert("post: positive_result" && result>=0);
+  assert("post: positive_result" && result >= 0);
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Compute the number of cells for each dimension and the list of types of
 // cells.
@@ -157,61 +146,61 @@ void vtkBridgeDataSet::ComputeNumberOfCellsAndTypes()
   unsigned char type;
   vtkIdType cellId;
   vtkIdType numCells;
-  vtkCell *c;
+  vtkCell* c;
 
-  if ( this->GetMTime() > this->ComputeNumberOfCellsTime ) // cache is obsolete
+  if (this->GetMTime() > this->ComputeNumberOfCellsTime) // cache is obsolete
   {
-     numCells = this->GetNumberOfCells();
-     this->NumberOf0DCells=0;
-     this->NumberOf1DCells=0;
-     this->NumberOf2DCells=0;
-     this->NumberOf3DCells=0;
+    numCells = this->GetNumberOfCells();
+    this->NumberOf0DCells = 0;
+    this->NumberOf1DCells = 0;
+    this->NumberOf2DCells = 0;
+    this->NumberOf3DCells = 0;
 
-     this->Types->Reset();
+    this->Types->Reset();
 
-     if(this->Implementation!=nullptr)
-     {
-       cellId=0;
-       while(cellId<numCells)
-       {
-         c=this->Implementation->GetCell(cellId);
-         switch(c->GetCellDimension())
-         {
-           case 0:
-             this->NumberOf0DCells++;
-             break;
-           case 1:
-             this->NumberOf1DCells++;
-             break;
-           case 2:
-             this->NumberOf2DCells++;
-             break;
-           case 3:
-             this->NumberOf3DCells++;
-             break;
-         }
-         type=c->GetCellType();
-         if(!this->Types->IsType(type))
-         {
-           this->Types->InsertNextType(type);
-         }
-         cellId++;
-       }
-     }
+    if (this->Implementation != nullptr)
+    {
+      cellId = 0;
+      while (cellId < numCells)
+      {
+        c = this->Implementation->GetCell(cellId);
+        switch (c->GetCellDimension())
+        {
+          case 0:
+            this->NumberOf0DCells++;
+            break;
+          case 1:
+            this->NumberOf1DCells++;
+            break;
+          case 2:
+            this->NumberOf2DCells++;
+            break;
+          case 3:
+            this->NumberOf3DCells++;
+            break;
+        }
+        type = c->GetCellType();
+        if (!this->Types->IsType(type))
+        {
+          this->Types->InsertNextType(type);
+        }
+        cellId++;
+      }
+    }
 
-     this->ComputeNumberOfCellsTime.Modified(); // cache is up-to-date
-     assert("check: positive_dim0" && this->NumberOf0DCells>=0);
-     assert("check: valid_dim0" && this->NumberOf0DCells<=numCells);
-     assert("check: positive_dim1" && this->NumberOf1DCells>=0);
-     assert("check: valid_dim1" && this->NumberOf1DCells<=numCells);
-     assert("check: positive_dim2" && this->NumberOf2DCells>=0);
-     assert("check: valid_dim2" && this->NumberOf2DCells<=numCells);
-     assert("check: positive_dim3" && this->NumberOf3DCells>=0);
-     assert("check: valid_dim3" && this->NumberOf3DCells<=numCells);
+    this->ComputeNumberOfCellsTime.Modified(); // cache is up-to-date
+    assert("check: positive_dim0" && this->NumberOf0DCells >= 0);
+    assert("check: valid_dim0" && this->NumberOf0DCells <= numCells);
+    assert("check: positive_dim1" && this->NumberOf1DCells >= 0);
+    assert("check: valid_dim1" && this->NumberOf1DCells <= numCells);
+    assert("check: positive_dim2" && this->NumberOf2DCells >= 0);
+    assert("check: valid_dim2" && this->NumberOf2DCells <= numCells);
+    assert("check: positive_dim3" && this->NumberOf3DCells >= 0);
+    assert("check: valid_dim3" && this->NumberOf3DCells <= numCells);
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Number of cells that explicitly define the dataset. See NewCellIterator
 // for more details.
@@ -219,41 +208,41 @@ void vtkBridgeDataSet::ComputeNumberOfCellsAndTypes()
 // \post positive_result: result>=0
 vtkIdType vtkBridgeDataSet::GetNumberOfCells(int dim)
 {
-  assert("pre: valid_dim_range" && (dim>=-1) && (dim<=3));
+  assert("pre: valid_dim_range" && (dim >= -1) && (dim <= 3));
 
-  vtkIdType result=0;
-  if(this->Implementation!=nullptr)
+  vtkIdType result = 0;
+  if (this->Implementation != nullptr)
   {
-    if(dim==-1)
+    if (dim == -1)
     {
-      result=this->Implementation->GetNumberOfCells();
+      result = this->Implementation->GetNumberOfCells();
     }
     else
     {
       this->ComputeNumberOfCellsAndTypes();
-      switch(dim)
+      switch (dim)
       {
         case 0:
-          result=this->NumberOf0DCells;
+          result = this->NumberOf0DCells;
           break;
         case 1:
-          result=this->NumberOf1DCells;
+          result = this->NumberOf1DCells;
           break;
         case 2:
-          result=this->NumberOf2DCells;
+          result = this->NumberOf2DCells;
           break;
         case 3:
-          result=this->NumberOf3DCells;
+          result = this->NumberOf3DCells;
           break;
       }
     }
   }
 
-  assert("post: positive_result" && result>=0);
+  assert("post: positive_result" && result >= 0);
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Return -1 if the dataset is explicitly defined by cells of several
 // dimensions or if there is no cell. If the dataset is explicitly defined by
@@ -261,40 +250,40 @@ vtkIdType vtkBridgeDataSet::GetNumberOfCells(int dim)
 // \post valid_range: (result>=-1) && (result<=3)
 int vtkBridgeDataSet::GetCellDimension()
 {
-  int result=0;
-  int accu=0;
+  int result = 0;
+  int accu = 0;
 
   this->ComputeNumberOfCellsAndTypes();
 
-  if(this->NumberOf0DCells!=0)
+  if (this->NumberOf0DCells != 0)
   {
     accu++;
-    result=0;
+    result = 0;
   }
-  if(this->NumberOf1DCells!=0)
+  if (this->NumberOf1DCells != 0)
   {
     accu++;
-    result=1;
+    result = 1;
   }
-  if(this->NumberOf2DCells!=0)
+  if (this->NumberOf2DCells != 0)
   {
     accu++;
-    result=2;
+    result = 2;
   }
-  if(this->NumberOf3DCells!=0)
+  if (this->NumberOf3DCells != 0)
   {
     accu++;
-    result=3;
+    result = 3;
   }
-  if(accu!=1) // no cells at all or several dimensions
+  if (accu != 1) // no cells at all or several dimensions
   {
-    result=-1;
+    result = -1;
   }
-  assert("post: valid_range" && (result>=-1) && (result<=3));
+  assert("post: valid_range" && (result >= -1) && (result <= 3));
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Get a list of types of cells in a dataset. The list consists of an array
 // of types (not necessarily in any order), with a single entry per type.
@@ -304,9 +293,9 @@ int vtkBridgeDataSet::GetCellDimension()
 // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
 // THE DATASET IS NOT MODIFIED
 // \pre types_exist: types!=0
-void vtkBridgeDataSet::GetCellTypes(vtkCellTypes *types)
+void vtkBridgeDataSet::GetCellTypes(vtkCellTypes* types)
 {
-  assert("pre: types_exist" && types!=nullptr);
+  assert("pre: types_exist" && types != nullptr);
 
   int i;
   int c;
@@ -314,16 +303,16 @@ void vtkBridgeDataSet::GetCellTypes(vtkCellTypes *types)
 
   // copy from `this->Types' to `types'.
   types->Reset();
-  c=this->Types->GetNumberOfTypes();
-  i=0;
-  while(i<c)
+  c = this->Types->GetNumberOfTypes();
+  i = 0;
+  while (i < c)
   {
     types->InsertNextType(this->Types->GetCellType(i));
     ++i;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Cells of dimension `dim' (or all dimensions if -1) that explicitly define
 // the dataset. For instance, it will return only tetrahedra if the mesh is
@@ -332,18 +321,18 @@ void vtkBridgeDataSet::GetCellTypes(vtkCellTypes *types)
 // not return edges and vertices.
 // \pre valid_dim_range: (dim>=-1) && (dim<=3)
 // \post result_exists: result!=0
-vtkGenericCellIterator *vtkBridgeDataSet::NewCellIterator(int dim)
+vtkGenericCellIterator* vtkBridgeDataSet::NewCellIterator(int dim)
 {
-  assert("pre: valid_dim_range" && (dim>=-1) && (dim<=3));
+  assert("pre: valid_dim_range" && (dim >= -1) && (dim <= 3));
 
-  vtkBridgeCellIterator *result=vtkBridgeCellIterator::New();
-  result->InitWithDataSet(this,dim); // vtkBridgeCellIteratorOnDataSetCells
+  vtkBridgeCellIterator* result = vtkBridgeCellIterator::New();
+  result->InitWithDataSet(this, dim); // vtkBridgeCellIteratorOnDataSetCells
 
-  assert("post: result_exists" && result!=nullptr);
+  assert("post: result_exists" && result != nullptr);
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Boundaries of dimension `dim' (or all dimensions if -1) of the dataset.
 // If `exteriorOnly' is true, only the exterior boundaries of the dataset
@@ -351,39 +340,39 @@ vtkGenericCellIterator *vtkBridgeDataSet::NewCellIterator(int dim)
 // boundaries.
 // \pre valid_dim_range: (dim>=-1) && (dim<=2)
 // \post result_exists: result!=0
-vtkGenericCellIterator *vtkBridgeDataSet::NewBoundaryIterator(int dim,
-                                                       int exteriorOnly)
+vtkGenericCellIterator* vtkBridgeDataSet::NewBoundaryIterator(int dim, int exteriorOnly)
 {
-  assert("pre: valid_dim_range" && (dim>=-1) && (dim<=2));
+  assert("pre: valid_dim_range" && (dim >= -1) && (dim <= 2));
 
-  vtkBridgeCellIterator *result=vtkBridgeCellIterator::New();
-  result->InitWithDataSetBoundaries(this,dim,exteriorOnly); //vtkBridgeCellIteratorOnDataSetBoundaries(dim,exterior_only);
+  vtkBridgeCellIterator* result = vtkBridgeCellIterator::New();
+  result->InitWithDataSetBoundaries(
+    this, dim, exteriorOnly); // vtkBridgeCellIteratorOnDataSetBoundaries(dim,exterior_only);
 
-  assert("post: result_exists" && result!=nullptr);
+  assert("post: result_exists" && result != nullptr);
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Points composing the dataset; they can be on a vertex or isolated.
 // \post result_exists: result!=0
-vtkGenericPointIterator *vtkBridgeDataSet::NewPointIterator()
+vtkGenericPointIterator* vtkBridgeDataSet::NewPointIterator()
 {
-  vtkBridgePointIterator *result=vtkBridgePointIterator::New();
+  vtkBridgePointIterator* result = vtkBridgePointIterator::New();
   result->InitWithDataSet(this);
-  assert("post: result_exists" && result!=nullptr);
+  assert("post: result_exists" && result != nullptr);
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Estimated size needed after tessellation (or special operation)
 vtkIdType vtkBridgeDataSet::GetEstimatedSize()
 {
-  return this->GetNumberOfPoints()*this->GetNumberOfCells();
+  return this->GetNumberOfPoints() * this->GetNumberOfCells();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Locate closest cell to position `x' (global coordinates) with respect to
 // a tolerance squared `tol2' and an initial guess `cell' (if valid). The
@@ -397,40 +386,36 @@ vtkIdType vtkBridgeDataSet::GetEstimatedSize()
 // \pre positive_tolerance: tol2>0
 // \post clamped_pcoords: result implies (0<=pcoords[0]<=1 && )
 
-int vtkBridgeDataSet::FindCell(double x[3],
-                               vtkGenericCellIterator* &cell,
-                               double tol2,
-                               int &subId,
-                               double pcoords[3])
+int vtkBridgeDataSet::FindCell(
+  double x[3], vtkGenericCellIterator*& cell, double tol2, int& subId, double pcoords[3])
 {
-  assert("pre: not_empty" && GetNumberOfCells()>0);
-  assert("pre: cell_exists" && cell!=nullptr);
-  assert("pre: positive_tolerance" && tol2>0);
+  assert("pre: not_empty" && GetNumberOfCells() > 0);
+  assert("pre: cell_exists" && cell != nullptr);
+  assert("pre: positive_tolerance" && tol2 > 0);
 
   vtkIdType cellid;
-  vtkBridgeCellIterator *it=static_cast<vtkBridgeCellIterator *>(cell);
+  vtkBridgeCellIterator* it = static_cast<vtkBridgeCellIterator*>(cell);
 
-  double *ignoredWeights=new double[this->Implementation->GetMaxCellSize()];
+  double* ignoredWeights = new double[this->Implementation->GetMaxCellSize()];
 
-  cellid=this->Implementation->FindCell(x,nullptr,0,tol2,subId,pcoords,
-                                        ignoredWeights);
+  cellid = this->Implementation->FindCell(x, nullptr, 0, tol2, subId, pcoords, ignoredWeights);
 
-  delete [] ignoredWeights;
-  if(cellid>=0)
+  delete[] ignoredWeights;
+  if (cellid >= 0)
   {
-    it->InitWithOneCell(this,cellid); // at end
+    it->InitWithOneCell(this, cellid); // at end
     it->Begin();
     // clamp:
-    int i=0;
-    while(i<3)
+    int i = 0;
+    while (i < 3)
     {
-      if(pcoords[i]<0)
+      if (pcoords[i] < 0)
       {
-        pcoords[i]=0;
+        pcoords[i] = 0;
       }
-      else if(pcoords[i]>1)
+      else if (pcoords[i] > 1)
       {
-        pcoords[i]=1;
+        pcoords[i] = 1;
       }
       ++i;
     }
@@ -438,40 +423,37 @@ int vtkBridgeDataSet::FindCell(double x[3],
 
   // A=>B: !A || B
   // result => clamped pcoords
-  assert("post: clamped_pcoords" && ((cellid<0)||(pcoords[0]>=0
-                                                 && pcoords[0]<=1
-                                                 && pcoords[1]>=0
-                                                 && pcoords[1]<=1
-                                                 && pcoords[2]>=0
-                                                 && pcoords[2]<=1)));
+  assert("post: clamped_pcoords" &&
+    ((cellid < 0) ||
+      (pcoords[0] >= 0 && pcoords[0] <= 1 && pcoords[1] >= 0 && pcoords[1] <= 1 &&
+        pcoords[2] >= 0 && pcoords[2] <= 1)));
 
-  return cellid>=0; // bool
+  return cellid >= 0; // bool
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Locate closest point `p' to position `x' (global coordinates)
 // \pre not_empty: GetNumberOfPoints()>0
 // \pre p_exists: p!=0
-void vtkBridgeDataSet::FindPoint(double x[3],
-                                 vtkGenericPointIterator *p)
+void vtkBridgeDataSet::FindPoint(double x[3], vtkGenericPointIterator* p)
 {
-  assert("pre: not_empty" && GetNumberOfPoints()>0);
-  assert("pre: p_exists" && p!=nullptr);
-  vtkBridgePointIterator *bp=static_cast<vtkBridgePointIterator *>(p);
+  assert("pre: not_empty" && GetNumberOfPoints() > 0);
+  assert("pre: p_exists" && p != nullptr);
+  vtkBridgePointIterator* bp = static_cast<vtkBridgePointIterator*>(p);
 
-  if(this->Implementation!=nullptr)
+  if (this->Implementation != nullptr)
   {
-    vtkIdType pt=this->Implementation->FindPoint(x);
-    bp->InitWithOnePoint(this,pt);
+    vtkIdType pt = this->Implementation->FindPoint(x);
+    bp->InitWithOnePoint(this, pt);
   }
   else
   {
-    bp->InitWithOnePoint(this,-1);
+    bp->InitWithOnePoint(this, -1);
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Datasets are composite objects and need to check each part for MTime.
 vtkMTimeType vtkBridgeDataSet::GetMTime()
@@ -481,27 +463,27 @@ vtkMTimeType vtkBridgeDataSet::GetMTime()
 
   result = this->Superclass::GetMTime();
 
-  if(this->Implementation!=nullptr)
+  if (this->Implementation != nullptr)
   {
     mtime = this->Implementation->GetMTime();
-    result = ( mtime > result ? mtime : result );
+    result = (mtime > result ? mtime : result);
   }
   return result;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Compute the geometry bounding box.
 void vtkBridgeDataSet::ComputeBounds()
 {
-  if ( this->GetMTime() > this->ComputeTime )
+  if (this->GetMTime() > this->ComputeTime)
   {
-    if(this->Implementation!=nullptr)
+    if (this->Implementation != nullptr)
     {
       this->Implementation->ComputeBounds();
       this->ComputeTime.Modified();
-      const double *bounds=this->Implementation->GetBounds();
-      memcpy(this->Bounds,bounds,sizeof(double)*6);
+      const double* bounds = this->Implementation->GetBounds();
+      memcpy(this->Bounds, bounds, sizeof(double) * 6);
     }
     else
     {
@@ -510,3 +492,4 @@ void vtkBridgeDataSet::ComputeBounds()
     this->ComputeTime.Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

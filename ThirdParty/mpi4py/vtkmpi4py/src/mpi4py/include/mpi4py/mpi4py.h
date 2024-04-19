@@ -4,7 +4,13 @@
 #ifndef MPI4PY_H
 #define MPI4PY_H
 
-#include "mpi.h"
+#include "vtk_mpi.h"
+
+#if defined(MSMPI_VER) && !defined(PyMPI_HAVE_MPI_Message)
+#  if defined(MPI_MESSAGE_NULL)
+#    define PyMPI_HAVE_MPI_Message 1
+#  endif
+#endif
 
 #if (MPI_VERSION < 3) && !defined(PyMPI_HAVE_MPI_Message)
 typedef void *PyMPI_MPI_Message;

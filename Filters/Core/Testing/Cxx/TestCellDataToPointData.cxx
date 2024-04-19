@@ -1,66 +1,97 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestCellDataToPointData.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
+#include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
 #include <vtkDataArray.h>
-#include <vtkCellData.h>
 #include <vtkDataSet.h>
+#include <vtkDataSetSurfaceFilter.h>
 #include <vtkDataSetTriangleFilter.h>
 #include <vtkDoubleArray.h>
 #include <vtkImageData.h>
 #include <vtkPointData.h>
 #include <vtkPointDataToCellData.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
 #include <vtkRTAnalyticSource.h>
 #include <vtkSmartPointer.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkThreshold.h>
+#include <vtkStringArray.h>
 #include <vtkTestUtilities.h>
+#include <vtkThreshold.h>
+#include <vtkUnstructuredGrid.h>
 
-int TestCellDataToPointData (int, char*[])
+// Replaces the old `PCellDataToPointData` test
+int TestCellDataToPointDataPieceInvariant()
 {
-  char const name [] = "RTData";
+  int numberOfPieces = 2;
+
   vtkNew<vtkRTAnalyticSource> wavelet;
-    wavelet->SetWholeExtent(-2, 2, -2, 2, -2, 2);
-    wavelet->SetCenter(0, 0, 0);
-    wavelet->SetMaximum(255);
-    wavelet->SetStandardDeviation(.5);
-    wavelet->SetXFreq(60);
-    wavelet->SetYFreq(30);
-    wavelet->SetZFreq(40);
-    wavelet->SetXMag(10);
-    wavelet->SetYMag(18);
-    wavelet->SetZMag(5);
-    wavelet->SetSubsampleRate(1);
-    wavelet->Update();
+  vtkNew<vtkPointDataToCellData> pd2cd;
+  vtkNew<vtkCellDataToPointData> cd2pd;
+  vtkNew<vtkDataSetSurfaceFilter> toPolyData;
+  vtkNew<vtkPolyDataMapper> mapper;
+
+  pd2cd->SetInputConnection(wavelet->GetOutputPort());
+  cd2pd->SetInputConnection(pd2cd->GetOutputPort());
+  cd2pd->SetPieceInvariant(true);
+  toPolyData->SetInputConnection(cd2pd->GetOutputPort());
+
+  mapper->SetInputConnection(toPolyData->GetOutputPort());
+  mapper->SetNumberOfPieces(numberOfPieces);
+
+  int retVal = EXIT_SUCCESS;
+  for (int i = 0; i < numberOfPieces; ++i)
+  {
+    mapper->SetPiece(i);
+    mapper->Update();
+
+    vtkIdType correct = 5292;
+    if (vtkDataSet::SafeDownCast(cd2pd->GetOutput())->GetNumberOfPoints() != correct)
+    {
+      std::cerr << "Wrong number of grid points on piece " << i << ". Should be " << correct
+                << " but is " << vtkDataSet::SafeDownCast(cd2pd->GetOutput())->GetNumberOfPoints()
+                << std::endl;
+      retVal = EXIT_FAILURE;
+    }
+  }
+
+  return retVal;
+}
+
+int TestCellDataToPointData(int, char*[])
+{
+  char const name[] = "RTData";
+  vtkNew<vtkRTAnalyticSource> wavelet;
+  wavelet->SetWholeExtent(-2, 2, -2, 2, -2, 2);
+  wavelet->SetCenter(0, 0, 0);
+  wavelet->SetMaximum(255);
+  wavelet->SetStandardDeviation(.5);
+  wavelet->SetXFreq(60);
+  wavelet->SetYFreq(30);
+  wavelet->SetZFreq(40);
+  wavelet->SetXMag(10);
+  wavelet->SetYMag(18);
+  wavelet->SetZMag(5);
+  wavelet->SetSubsampleRate(1);
+  wavelet->Update();
 
   vtkNew<vtkDoubleArray> dist;
   dist->SetNumberOfComponents(1);
   dist->SetName("Dist");
 
-  vtkImageData *original = wavelet->GetOutput();
+  vtkImageData* original = wavelet->GetOutput();
   for (vtkIdType i = 0; i < original->GetNumberOfPoints(); ++i)
   {
     double p[3];
     original->GetPoint(i, p);
-    dist->InsertNextValue(p[0]*p[0] + p[1]*p[1] + p[2]*p[2]);
+    dist->InsertNextValue(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
   }
   original->GetPointData()->AddArray(dist);
 
   vtkNew<vtkPointDataToCellData> p2c;
-    p2c->SetInputData(original);
-    p2c->PassPointDataOff();
+  p2c->SetInputData(original);
+  p2c->PassPointDataOff();
 
   vtkNew<vtkCellDataToPointData> selectiveC2P;
   selectiveC2P->SetInputConnection(p2c->GetOutputPort());
@@ -69,22 +100,23 @@ int TestCellDataToPointData (int, char*[])
   selectiveC2P->Update();
 
   vtkNew<vtkCellDataToPointData> sc2p;
-    sc2p->SetInputConnection(p2c->GetOutputPort());
-    sc2p->PassCellDataOff();
-    sc2p->Update();
+  sc2p->SetInputConnection(p2c->GetOutputPort());
+  sc2p->PassCellDataOff();
+  sc2p->Update();
 
   vtkNew<vtkDataSetTriangleFilter> c2g;
-    c2g->SetInputConnection(p2c->GetOutputPort());
+  c2g->SetInputConnection(p2c->GetOutputPort());
 
   vtkNew<vtkCellDataToPointData> uc2p;
-    uc2p->SetInputConnection(c2g->GetOutputPort());
+  uc2p->SetInputConnection(c2g->GetOutputPort());
 
   vtkDataArray* const x = sc2p->GetOutput()->GetPointData()->GetArray(name);
 
   // test if selective CellDataToPointData operates on the correct
   int outNumPArrays = selectiveC2P->GetOutput()->GetPointData()->GetNumberOfArrays(); // should be 1
-  int outNumCArrays = selectiveC2P->GetOutput()->GetCellData()->GetNumberOfArrays(); // should be 0
-  std::string pArrayName = selectiveC2P->GetOutput()->GetPointData()->GetArrayName(0); // should be RTData
+  int outNumCArrays = selectiveC2P->GetOutput()->GetCellData()->GetNumberOfArrays();  // should be 0
+  std::string pArrayName =
+    selectiveC2P->GetOutput()->GetPointData()->GetArrayName(0); // should be RTData
 
   if (outNumPArrays != 1)
   {
@@ -107,7 +139,7 @@ int TestCellDataToPointData (int, char*[])
   // iterate through the options for which cells contribute to the result
   // for the cell data to point data filter. since all cells are 3D the
   // result should be the same.
-  for (int opt=0;opt<3;opt++)
+  for (int opt = 0; opt < 3; opt++)
   {
     uc2p->SetContributingCellOption(opt);
     uc2p->Update();
@@ -132,11 +164,50 @@ int TestCellDataToPointData (int, char*[])
     }
     variance /= nvalues;
 
-    if ( !(fabs(mean) < 1e-4 && fabs(variance) < 1e-4) )
+    if (!(fabs(mean) < 1e-4 && fabs(variance) < 1e-4))
     {
       cerr << "Failure on option " << opt << endl;
       return EXIT_FAILURE;
     }
   }
+
+  // set up a test to check that the cell data of the input is preserved
+  // vtkCellDataToPointData removed vtkStringArrays from cell data of the
+  // input data set which broke the pipeline concept
+  vtkSmartPointer<vtkPolyData> data = vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
+  data->SetPoints(pts);
+  data->Allocate();
+
+  vtkSmartPointer<vtkIdList> lst = vtkSmartPointer<vtkIdList>::New();
+  lst->InsertNextId(pts->InsertNextPoint(0, 0, 0));
+  data->InsertNextCell(VTK_VERTEX, lst);
+
+  vtkSmartPointer<vtkStringArray> array = vtkSmartPointer<vtkStringArray>::New();
+  array->SetName("test-strings");
+  array->InsertNextValue("A");
+  data->GetCellData()->AddArray(array);
+
+  vtkSmartPointer<vtkCellDataToPointData> c2p = vtkSmartPointer<vtkCellDataToPointData>::New();
+  c2p->SetInputData(data);
+  c2p->SetProcessAllArrays(true);
+  c2p->Update();
+
+  vtkStringArray* test =
+    vtkStringArray::SafeDownCast(data->GetCellData()->GetAbstractArray("test-strings"));
+  if (!test)
+  {
+    std::cerr << "vtkCellDataToPointData has removed string array from its input dataset."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Test PieceInvariant setting
+  if (TestCellDataToPointDataPieceInvariant() != EXIT_SUCCESS)
+  {
+    std::cerr << "Piece invariant test failed." << std::endl;
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }

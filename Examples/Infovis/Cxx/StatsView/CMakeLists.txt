@@ -14,9 +14,9 @@ set(Hdrs
 set(Rcs
   Icons/icons.qrc)
 
-find_package(Qt5 COMPONENTS Widgets)
-if (NOT TARGET Qt5::Widgets)
-  message("Skipping example: ${Qt5_NOT_FOUND_MESSAGE}")
+find_package("Qt${VTK_QT_VERSION}" COMPONENTS Widgets)
+if (NOT TARGET "Qt${VTK_QT_VERSION}::Widgets")
+  message("Skipping example: ${Qt${VTK_QT_VERSION}_NOT_FOUND_MESSAGE}")
   return ()
 endif ()
 
@@ -24,15 +24,7 @@ add_executable(StatsView MACOSX_BUNDLE
   ${Srcs} ${Hdrs} ${UIs} ${Rcs})
 target_link_libraries(StatsView
   PRIVATE
-    ${vtk_modules}
-    VTK::FiltersStatistics
-    VTK::GUISupportQt
-    VTK::ViewsQt
-    VTK::IOSQL)
+    ${VTK_LIBRARIES})
 vtk_module_autoinit(
   TARGETS StatsView
-  MODULES ${vtk_modules}
-          VTK::FiltersStatistics
-          VTK::GUISupportQt
-          VTK::ViewsQt
-          VTK::IOSQL)
+  MODULES ${VTK_LIBRARIES})

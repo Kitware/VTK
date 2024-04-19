@@ -1,0 +1,9 @@
+{
+    "release_user": "kwrobot.release.vtk",
+    "project": "vtk/vtk",
+    "maintainers": [
+        "ben.boeckel",
+        "berkgeveci",
+        "vbolea"
+    ]
+}

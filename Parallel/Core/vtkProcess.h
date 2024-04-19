@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProcess.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkProcess
  * @brief   a process that can be launched by a vtkMultiProcessController
@@ -33,39 +21,40 @@
  *
  * @sa
  * vtkMultiProcessController
-*/
+ */
 
 #ifndef vtkProcess_h
 #define vtkProcess_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKPARALLELCORE_EXPORT vtkProcess : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkProcess,vtkObject);
+  vtkTypeMacro(vtkProcess, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Entry point of the process.
    * This method is expected to update ReturnValue.
    */
-  virtual void Execute()=0;
+  virtual void Execute() = 0;
 
   /**
    * Give access to the controller that launched the process.
    * Initial value is nullptr.
    */
-  vtkMultiProcessController *GetController();
+  vtkMultiProcessController* GetController();
 
   /**
    * This method should not be called directly but set by the controller
    * itself.
    */
-  void SetController(vtkMultiProcessController *aController);
+  void SetController(vtkMultiProcessController* aController);
 
   /**
    * Value set at the end of a call to Execute.
@@ -74,8 +63,9 @@ public:
 
 protected:
   vtkProcess();
+  ~vtkProcess() override;
 
-  vtkMultiProcessController *Controller;
+  vtkMultiProcessController* Controller;
   int ReturnValue;
 
 private:
@@ -83,4 +73,5 @@ private:
   void operator=(const vtkProcess&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

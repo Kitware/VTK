@@ -1,13 +1,5 @@
-/*=========================================================================
-Program:   Visualization Toolkit
-Module:    TestGPURayCastTwoComponentsGradient.cxx
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Description
 // This test creates a vtkImageData with two components.
@@ -20,16 +12,16 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTesting.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
+#include "vtkTesting.h"
+#include "vtkUnsignedShortArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkUnsignedShortArray.h"
 
-int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
+int TestGPURayCastTwoComponentsGradient(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
@@ -42,7 +34,7 @@ int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
 
   // Fill the first half rectangular parallelopiped along X with the
   // first component values and the second half with second component values
-  double * ptr = static_cast<double *> (image->GetScalarPointer(0, 0, 0));
+  double* ptr = static_cast<double*>(image->GetScalarPointer(0, 0, 0));
 
   for (int z = 0; z < dims[2]; ++z)
   {
@@ -131,8 +123,8 @@ int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

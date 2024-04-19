@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPUnstructuredGridReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPUnstructuredGridReader
  * @brief   Read PVTK XML UnstructuredGrid files.
@@ -24,7 +12,7 @@
  *
  * @sa
  * vtkXMLUnstructuredGridReader
-*/
+ */
 
 #ifndef vtkXMLPUnstructuredGridReader_h
 #define vtkXMLPUnstructuredGridReader_h
@@ -32,22 +20,24 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPUnstructuredDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+class vtkAbstractArray;
 class vtkUnstructuredGrid;
 
 class VTKIOXML_EXPORT vtkXMLPUnstructuredGridReader : public vtkXMLPUnstructuredDataReader
 {
 public:
-  vtkTypeMacro(vtkXMLPUnstructuredGridReader,vtkXMLPUnstructuredDataReader);
+  vtkTypeMacro(vtkXMLPUnstructuredGridReader, vtkXMLPUnstructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkXMLPUnstructuredGridReader *New();
+  static vtkXMLPUnstructuredGridReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
-  vtkUnstructuredGrid *GetOutput();
-  vtkUnstructuredGrid *GetOutput(int idx);
-  //@}
+  vtkUnstructuredGrid* GetOutput();
+  vtkUnstructuredGrid* GetOutput(int idx);
+  ///@}
 
 protected:
   vtkXMLPUnstructuredGridReader();
@@ -61,7 +51,7 @@ protected:
   void SetupNextPiece() override;
   int ReadPieceData() override;
 
-  void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) override;
+  void CopyArrayForCells(vtkAbstractArray* inArray, vtkAbstractArray* outArray) override;
   vtkXMLDataReader* CreatePieceReader() override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 
@@ -76,4 +66,5 @@ private:
   void operator=(const vtkXMLPUnstructuredGridReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

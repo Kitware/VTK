@@ -12,7 +12,7 @@
 #include "metaTypes.h"
 
 #ifndef ITKMetaIO_METAEVENT_H
-#define ITKMetaIO_METAEVENT_H
+#  define ITKMetaIO_METAEVENT_H
 
 
 /*!    MetaEvent (.h)
@@ -25,41 +25,45 @@
  *
  */
 
-#if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
-#endif
+#  if (METAIO_USE_NAMESPACE)
+namespace METAIO_NAMESPACE
+{
+#  endif
 
 
 class METAIO_EXPORT MetaEvent
 {
 
 public:
+  MetaEvent() { m_Level = -1; }
+  virtual ~MetaEvent() = default;
 
-  MetaEvent(){m_Level = -1;}
-  virtual ~MetaEvent(){}
-
-  virtual void SetCurrentIteration(unsigned int n) {m_CurrentIteration = n;}
-  virtual void StartReading(unsigned int n)
-    {
+  virtual void
+  SetCurrentIteration(unsigned int n)
+  {
+    m_CurrentIteration = n;
+  }
+  virtual void
+  StartReading(unsigned int n)
+  {
     m_NumberOfIterations = n;
     m_Level++;
-    }
-  virtual void StopReading()
-    {
+  }
+  virtual void
+  StopReading()
+  {
     m_Level--;
-    }
+  }
 
 protected:
-
-  unsigned int m_CurrentIteration;
-  unsigned int m_NumberOfIterations;
-  int m_Level;
-
+  unsigned int m_CurrentIteration{};
+  unsigned int m_NumberOfIterations{};
+  int          m_Level;
 };
 
-#if (METAIO_USE_NAMESPACE)
+#  if (METAIO_USE_NAMESPACE)
 };
-#endif
+#  endif
 
 
 #endif

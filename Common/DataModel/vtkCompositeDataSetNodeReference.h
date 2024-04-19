@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCompositeDataSetNodeReference.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkCompositeDataSetNodeReference_h
 #define vtkCompositeDataSetNodeReference_h
@@ -23,13 +11,11 @@
 #include <cassert>
 #include <type_traits>
 
-#ifndef __VTK_WRAP__
-
 namespace vtk
 {
-
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // MTimeWatcher:
@@ -47,23 +33,26 @@ namespace detail
 //   The optimized version will always return true from operator().
 struct MTimeWatcher
 {
-  vtkMTimeType MTime{0};
+  vtkMTimeType MTime{ 0 };
 
-  MTimeWatcher() {}
-  explicit MTimeWatcher(vtkObject *o) : MTime{o->GetMTime()} {}
-  bool operator()(vtkObject *o) const { return o->GetMTime() <= this->MTime; }
-  void Reset(vtkObject *o) { this->MTime = o->GetMTime(); }
-  bool MTimeIsValid(vtkObject *o) const { return o->GetMTime() <= this->MTime; }
+  MTimeWatcher() = default;
+  explicit MTimeWatcher(vtkObject* o)
+    : MTime{ o->GetMTime() }
+  {
+  }
+  bool operator()(vtkObject* o) const { return o->GetMTime() <= this->MTime; }
+  void Reset(vtkObject* o) { this->MTime = o->GetMTime(); }
+  bool MTimeIsValid(vtkObject* o) const { return o->GetMTime() <= this->MTime; }
 };
 
 // empty, transparent, does nothing. operator() always returns true.
 struct NoOpMTimeWatcher
 {
-  NoOpMTimeWatcher() {}
-  explicit NoOpMTimeWatcher(vtkObject *) {}
-  bool operator()(vtkObject *) const { return true; }
-  void Reset(vtkObject *) {}
-  bool MTimeIsValid(vtkObject *) const { return true; }
+  NoOpMTimeWatcher() = default;
+  explicit NoOpMTimeWatcher(vtkObject*) {}
+  bool operator()(vtkObject*) const { return true; }
+  void Reset(vtkObject*) {}
+  bool MTimeIsValid(vtkObject*) const { return true; }
 };
 
 // Debug-dependent version:
@@ -84,7 +73,10 @@ template <class ObjectType>
 using DebugWeakPointer = ObjectType*;
 #endif
 
+VTK_ABI_NAMESPACE_END
 } // end namespace detail
+
+VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * A reference proxy into a vtkCompositeDataSet, obtained by dereferencing an
@@ -141,16 +133,16 @@ using DebugWeakPointer = ObjectType*;
  * assertions.
  */
 template <typename IteratorType,
-          typename OwnerType>
+  typename OwnerType>
 class CompositeDataSetNodeReference
-    : private detail::DebugMTimeWatcher // empty-base optimization when NDEBUG
+  : private detail::DebugMTimeWatcher // empty-base optimization when NDEBUG
 {
   static_assert(std::is_base_of<vtkCompositeDataIterator, IteratorType>::value,
-                "CompositeDataSetNodeReference's IteratorType must be a "
-                "subclass of vtkCompositeDataIterator.");
+    "CompositeDataSetNodeReference's IteratorType must be a "
+    "subclass of vtkCompositeDataIterator.");
 
   // Either a vtkWeakPointer (debug builds) or raw pointer (non-debug builds)
-  mutable detail::DebugWeakPointer<IteratorType> Iterator{nullptr};
+  mutable detail::DebugWeakPointer<IteratorType> Iterator{ nullptr };
 
   // Check that the reference has not been invalidated by having the
   // borrowed internal iterator modified.
@@ -158,15 +150,15 @@ class CompositeDataSetNodeReference
   {
 
     // Test that the weak pointer hasn't been cleared
-    assert("Invalid CompositeDataNodeReference accessed (iterator freed)." &&
-           this->Iterator != nullptr);
+    assert(
+      "Invalid CompositeDataNodeReference accessed (iterator freed)." && this->Iterator != nullptr);
     // Check MTime:
     assert("Invalid CompositeDataNodeReference accessed (iterator modified)." &&
-           this->MTimeIsValid(this->Iterator));
+      this->MTimeIsValid(this->Iterator));
   }
 
 protected:
-  explicit CompositeDataSetNodeReference(IteratorType *iterator)
+  explicit CompositeDataSetNodeReference(IteratorType* iterator)
     : detail::DebugMTimeWatcher(iterator)
     , Iterator(iterator)
   {
@@ -176,28 +168,27 @@ public:
   friend OwnerType; // To allow access to protected methods/base class
 
   CompositeDataSetNodeReference() = delete;
-  CompositeDataSetNodeReference(const CompositeDataSetNodeReference &src) = default;
+  CompositeDataSetNodeReference(const CompositeDataSetNodeReference& src) = default;
   CompositeDataSetNodeReference(CompositeDataSetNodeReference&&) noexcept = default;
   ~CompositeDataSetNodeReference() = default;
 
   // Assigns the DataObject from src to this:
-  CompositeDataSetNodeReference& operator=(const CompositeDataSetNodeReference &src)
+  CompositeDataSetNodeReference& operator=(const CompositeDataSetNodeReference& src)
   {
     this->SetDataObject(src.GetDataObject());
     return *this;
   }
 
   // Compares data object and flat index:
-  friend bool operator==(const CompositeDataSetNodeReference &lhs,
-                         const CompositeDataSetNodeReference &rhs)
+  friend bool operator==(
+    const CompositeDataSetNodeReference& lhs, const CompositeDataSetNodeReference& rhs)
   {
-    return lhs.GetDataObject() == rhs.GetDataObject() &&
-           lhs.GetFlatIndex() == rhs.GetFlatIndex();
+    return lhs.GetDataObject() == rhs.GetDataObject() && lhs.GetFlatIndex() == rhs.GetFlatIndex();
   }
 
   // Compares data object and flat index:
-  friend bool operator!=(const CompositeDataSetNodeReference &lhs,
-                         const CompositeDataSetNodeReference &rhs)
+  friend bool operator!=(
+    const CompositeDataSetNodeReference& lhs, const CompositeDataSetNodeReference& rhs)
   {
     return lhs != rhs;
   }
@@ -211,45 +202,36 @@ public:
     // API. See VTK issue #17529.
     // Instead, look it up in the dataset. It's a bit slower, but will always be
     // correct.
-//    return this->Iterator->GetCurrentDataObject();
+    //    return this->Iterator->GetCurrentDataObject();
     return this->Iterator->GetDataSet()->GetDataSet(this->Iterator);
   }
 
-  vtkDataObject* GetDataObject(vtkCompositeDataSet *other)
+  vtkDataObject* GetDataObject(vtkCompositeDataSet* other)
   {
     this->AssertValid();
     return other->GetDataSet(this->Iterator);
   }
 
-  operator bool () const
-  {
-    return this->GetDataObject() != nullptr;
-  }
+  operator bool() const { return this->GetDataObject() != nullptr; }
 
-  operator vtkDataObject* () const
-  {
-    return this->GetDataObject();
-  }
+  operator vtkDataObject*() const { return this->GetDataObject(); }
 
-  vtkDataObject* operator->() const
-  {
-    return this->GetDataObject();
-  }
+  vtkDataObject* operator->() const { return this->GetDataObject(); }
 
-  void SetDataObject(vtkDataObject *obj)
+  void SetDataObject(vtkDataObject* obj)
   {
     this->AssertValid();
-    vtkCompositeDataSet *cds = this->Iterator->GetDataSet();
+    vtkCompositeDataSet* cds = this->Iterator->GetDataSet();
     cds->SetDataSet(this->Iterator, obj);
   }
 
-  void SetDataObject(vtkCompositeDataSet *other, vtkDataObject *dObj)
+  void SetDataObject(vtkCompositeDataSet* other, vtkDataObject* dObj)
   {
     this->AssertValid();
     other->SetDataSet(this->Iterator, dObj);
   }
 
-  CompositeDataSetNodeReference& operator=(vtkDataObject *obj)
+  CompositeDataSetNodeReference& operator=(vtkDataObject* obj)
   {
     this->SetDataObject(obj);
     return *this;
@@ -274,9 +256,8 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk
-
-#endif // __VTK_WRAP__
 
 #endif // vtkCompositeDataSetNodeReference_h
 

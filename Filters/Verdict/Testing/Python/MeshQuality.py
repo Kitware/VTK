@@ -3,28 +3,14 @@
 
 # Translated from MeshQuality.cxx
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    MeshQuality.py
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
 
 
 import math
 
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersVerdict import vtkMeshQuality
+from vtkmodules.vtkIOLegacy import vtkUnstructuredGridReader
+from vtkmodules.util.misc import vtkGetDataRoot
 
 fname = vtkGetDataRoot() + '/Data/uGridEx.vtk'
 
@@ -44,8 +30,8 @@ def DumpQualityStats(iq, arrayname):
     return outStr
 
 def main():
-    mr = vtk.vtkUnstructuredGridReader()
-    iq = vtk.vtkMeshQuality()
+    mr = vtkUnstructuredGridReader()
+    iq = vtkMeshQuality()
 
     mr.SetFileName(fname)
     mr.Update()

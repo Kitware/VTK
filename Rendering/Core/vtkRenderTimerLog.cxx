@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderTimerLog.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkRenderTimerLog.h"
 
@@ -20,12 +8,13 @@
 #include <iomanip>
 #include <utility>
 
-vtkObjectFactoryNewMacro(vtkRenderTimerLog)
+VTK_ABI_NAMESPACE_BEGIN
+vtkObjectFactoryNewMacro(vtkRenderTimerLog);
 
 //------------------------------------------------------------------------------
 vtkRenderTimerLog::vtkRenderTimerLog()
-  : LoggingEnabled(false),
-    FrameLimit(32)
+  : LoggingEnabled(false)
+  , FrameLimit(32)
 {
 }
 
@@ -33,39 +22,32 @@ vtkRenderTimerLog::vtkRenderTimerLog()
 vtkRenderTimerLog::~vtkRenderTimerLog() = default;
 
 //------------------------------------------------------------------------------
-void vtkRenderTimerLog::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkRenderTimerLog::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-bool vtkRenderTimerLog::IsSupported()
+bool vtkRenderTimerLog::IsSupported() VTK_FUTURE_CONST
 {
   return false;
 }
 
 //------------------------------------------------------------------------------
-void vtkRenderTimerLog::MarkFrame()
-{
-}
+void vtkRenderTimerLog::MarkFrame() {}
 
 //------------------------------------------------------------------------------
-vtkRenderTimerLog::ScopedEventLogger
-vtkRenderTimerLog::StartScopedEvent(const std::string &name)
+vtkRenderTimerLog::ScopedEventLogger vtkRenderTimerLog::StartScopedEvent(const std::string& name)
 {
   this->MarkStartEvent(name);
   return ScopedEventLogger(this);
 }
 
 //------------------------------------------------------------------------------
-void vtkRenderTimerLog::MarkStartEvent(const std::string &)
-{
-}
+void vtkRenderTimerLog::MarkStartEvent(const std::string&) {}
 
 //------------------------------------------------------------------------------
-void vtkRenderTimerLog::MarkEndEvent()
-{
-}
+void vtkRenderTimerLog::MarkEndEvent() {}
 
 //------------------------------------------------------------------------------
 bool vtkRenderTimerLog::FrameReady()
@@ -82,20 +64,18 @@ vtkRenderTimerLog::Frame vtkRenderTimerLog::PopFirstReadyFrame()
 }
 
 //------------------------------------------------------------------------------
-void vtkRenderTimerLog::ReleaseGraphicsResources()
-{
-}
+void vtkRenderTimerLog::ReleaseGraphicsResources() {}
 
 //------------------------------------------------------------------------------
-vtkRenderTimerLog::ScopedEventLogger::ScopedEventLogger(ScopedEventLogger &&o)
+vtkRenderTimerLog::ScopedEventLogger::ScopedEventLogger(ScopedEventLogger&& o) noexcept
   : Log(nullptr)
 {
   std::swap(o.Log, this->Log);
 }
 
 //------------------------------------------------------------------------------
-vtkRenderTimerLog::ScopedEventLogger &
-vtkRenderTimerLog::ScopedEventLogger::operator=(ScopedEventLogger &&o)
+vtkRenderTimerLog::ScopedEventLogger& vtkRenderTimerLog::ScopedEventLogger::operator=(
+  ScopedEventLogger&& o) noexcept
 {
   std::swap(o.Log, this->Log);
   return *this;
@@ -112,7 +92,7 @@ void vtkRenderTimerLog::ScopedEventLogger::Stop()
 }
 
 //------------------------------------------------------------------------------
-void vtkRenderTimerLog::Frame::Print(std::ostream &os, float threshMs)
+void vtkRenderTimerLog::Frame::Print(std::ostream& os, float threshMs)
 {
   vtkIndent indent;
   for (auto event : this->Events)
@@ -122,8 +102,8 @@ void vtkRenderTimerLog::Frame::Print(std::ostream &os, float threshMs)
 }
 
 //------------------------------------------------------------------------------
-void vtkRenderTimerLog::Event::Print(std::ostream &os, float parentTime,
-                                     float threshMs, vtkIndent indent)
+void vtkRenderTimerLog::Event::Print(
+  std::ostream& os, float parentTime, float threshMs, vtkIndent indent)
 {
   float thisTime = this->ElapsedTimeMilliseconds();
   if (thisTime < threshMs)
@@ -137,12 +117,9 @@ void vtkRenderTimerLog::Event::Print(std::ostream &os, float parentTime,
     parentPercent = thisTime / parentTime * 100.f;
   }
 
-  os << indent << "- "
-     << std::fixed << std::setw(5) << std::setprecision(1) << parentPercent
-     << std::setw(0) << "% "
-     << std::setw(8) << std::setprecision(3) << thisTime
-     << std::setw(0) << " ms \""
-     << this->Name << "\"\n";
+  os << indent << "- " << std::fixed << std::setw(5) << std::setprecision(1) << parentPercent
+     << std::setw(0) << "% " << std::setw(8) << std::setprecision(3) << thisTime << std::setw(0)
+     << " ms \"" << this->Name << "\"\n";
 
   vtkIndent nextIndent = indent.GetNextIndent();
   for (auto event : this->Events)
@@ -150,3 +127,4 @@ void vtkRenderTimerLog::Event::Print(std::ostream &os, float parentTime,
     event.Print(os, thisTime, threshMs, nextIndent);
   }
 }
+VTK_ABI_NAMESPACE_END

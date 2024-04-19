@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDecimatePro.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDecimatePro
  * @brief   reduce the number of triangles in a mesh
@@ -75,7 +63,7 @@
  *
  * @sa
  * vtkDecimate vtkQuadricClustering vtkQuadricDecimation
-*/
+ */
 
 #ifndef vtkDecimatePro_h
 #define vtkDecimatePro_h
@@ -85,13 +73,14 @@
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkPriorityQueue;
 
 class VTKFILTERSCORE_EXPORT vtkDecimatePro : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDecimatePro,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkDecimatePro, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -102,9 +91,9 @@ public:
    * VTK_DOUBLE_MAX. The inflection point ratio is 10 and the vertex
    * degree is 25. Error accumulation is turned off.
    */
-  static vtkDecimatePro *New();
+  static vtkDecimatePro* New();
 
-  //@{
+  ///@{
   /**
    * Specify the desired reduction in the total number of polygons (e.g., if
    * TargetReduction is set to 0.9, this filter will try to reduce the data set
@@ -114,54 +103,54 @@ public:
    * BoundaryVertexDeletion, and set the MaximumError to VTK_DOUBLE_MAX (these
    * ivars are initialized this way when the object is instantiated).
    */
-  vtkSetClampMacro(TargetReduction,double,0.0,1.0);
-  vtkGetMacro(TargetReduction,double);
-  //@}
+  vtkSetClampMacro(TargetReduction, double, 0.0, 1.0);
+  vtkGetMacro(TargetReduction, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off whether to preserve the topology of the original mesh. If
    * on, mesh splitting and hole elimination will not occur. This may limit
    * the maximum reduction that may be achieved.
    */
-  vtkSetMacro(PreserveTopology,vtkTypeBool);
-  vtkGetMacro(PreserveTopology,vtkTypeBool);
-  vtkBooleanMacro(PreserveTopology,vtkTypeBool);
-  //@}
+  vtkSetMacro(PreserveTopology, vtkTypeBool);
+  vtkGetMacro(PreserveTopology, vtkTypeBool);
+  vtkBooleanMacro(PreserveTopology, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the mesh feature angle. This angle is used to define what
    * an edge is (i.e., if the surface normal between two adjacent triangles
    * is >= FeatureAngle, an edge exists).
    */
-  vtkSetClampMacro(FeatureAngle,double,0.0,180.0);
-  vtkGetMacro(FeatureAngle,double);
-  //@}
+  vtkSetClampMacro(FeatureAngle, double, 0.0, 180.0);
+  vtkGetMacro(FeatureAngle, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the splitting of the mesh at corners, along edges, at
    * non-manifold points, or anywhere else a split is required. Turning
    * splitting off will better preserve the original topology of the
    * mesh, but you may not obtain the requested reduction.
    */
-  vtkSetMacro(Splitting,vtkTypeBool);
-  vtkGetMacro(Splitting,vtkTypeBool);
-  vtkBooleanMacro(Splitting,vtkTypeBool);
-  //@}
+  vtkSetMacro(Splitting, vtkTypeBool);
+  vtkGetMacro(Splitting, vtkTypeBool);
+  vtkBooleanMacro(Splitting, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the mesh split angle. This angle is used to control the splitting
    * of the mesh. A split line exists when the surface normals between
    * two edge connected triangles are >= SplitAngle.
    */
-  vtkSetClampMacro(SplitAngle,double,0.0,180.0);
-  vtkGetMacro(SplitAngle,double);
-  //@}
+  vtkSetClampMacro(SplitAngle, double, 0.0, 180.0);
+  vtkGetMacro(SplitAngle, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * In some cases you may wish to split the mesh prior to algorithm
    * execution. This separates the mesh into semi-planar patches, which are
@@ -170,23 +159,23 @@ public:
    * the specified SplitAngle. Otherwise mesh splitting is deferred as long
    * as possible.
    */
-  vtkSetMacro(PreSplitMesh,vtkTypeBool);
-  vtkGetMacro(PreSplitMesh,vtkTypeBool);
-  vtkBooleanMacro(PreSplitMesh,vtkTypeBool);
-  //@}
+  vtkSetMacro(PreSplitMesh, vtkTypeBool);
+  vtkGetMacro(PreSplitMesh, vtkTypeBool);
+  vtkBooleanMacro(PreSplitMesh, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the largest decimation error that is allowed during the decimation
    * process. This may limit the maximum reduction that may be achieved. The
    * maximum error is specified as a fraction of the maximum length of
    * the input data bounding box.
    */
-  vtkSetClampMacro(MaximumError,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(MaximumError,double);
-  //@}
+  vtkSetClampMacro(MaximumError, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(MaximumError, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The computed error can either be computed directly from the mesh
    * or the error may be accumulated as the mesh is modified. If the error
@@ -195,60 +184,59 @@ public:
    * error requires extra memory proportional to the number of vertices in
    * the mesh. If AccumulateError is off, then the error is not accumulated.
    */
-  vtkSetMacro(AccumulateError,vtkTypeBool);
-  vtkGetMacro(AccumulateError,vtkTypeBool);
-  vtkBooleanMacro(AccumulateError,vtkTypeBool);
-  //@}
+  vtkSetMacro(AccumulateError, vtkTypeBool);
+  vtkGetMacro(AccumulateError, vtkTypeBool);
+  vtkBooleanMacro(AccumulateError, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The MaximumError is normally defined as a fraction of the dataset bounding
    * diagonal. By setting ErrorIsAbsolute to 1, the error is instead defined
    * as that specified by AbsoluteError. By default ErrorIsAbsolute=0.
    */
-  vtkSetMacro(ErrorIsAbsolute,int);
-  vtkGetMacro(ErrorIsAbsolute,int);
-  //@}
+  vtkSetMacro(ErrorIsAbsolute, int);
+  vtkGetMacro(ErrorIsAbsolute, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Same as MaximumError, but to be used when ErrorIsAbsolute is 1
    */
-  vtkSetClampMacro(AbsoluteError,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(AbsoluteError,double);
-  //@}
+  vtkSetClampMacro(AbsoluteError, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(AbsoluteError, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the deletion of vertices on the boundary of a mesh. This
    * may limit the maximum reduction that may be achieved.
    */
-  vtkSetMacro(BoundaryVertexDeletion,vtkTypeBool);
-  vtkGetMacro(BoundaryVertexDeletion,vtkTypeBool);
-  vtkBooleanMacro(BoundaryVertexDeletion,vtkTypeBool);
-  //@}
+  vtkSetMacro(BoundaryVertexDeletion, vtkTypeBool);
+  vtkGetMacro(BoundaryVertexDeletion, vtkTypeBool);
+  vtkBooleanMacro(BoundaryVertexDeletion, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the number of triangles connected to a vertex exceeds "Degree", then
    * the vertex will be split. (NOTE: the complexity of the triangulation
    * algorithm is proportional to Degree^2. Setting degree small can improve
    * the performance of the algorithm.)
    */
-  vtkSetClampMacro(Degree,int,25,VTK_CELL_SIZE);
-  vtkGetMacro(Degree,int);
-  //@}
+  vtkSetClampMacro(Degree, int, 25, VTK_CELL_SIZE);
+  vtkGetMacro(Degree, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the inflection point ratio. An inflection point occurs
    * when the ratio of reduction error between two iterations is greater
    * than or equal to the InflectionPointRatio.
    */
-  vtkSetClampMacro(InflectionPointRatio,double,1.001,VTK_DOUBLE_MAX);
-  vtkGetMacro(InflectionPointRatio,double);
-  //@}
-
+  vtkSetClampMacro(InflectionPointRatio, double, 1.001, VTK_DOUBLE_MAX);
+  vtkGetMacro(InflectionPointRatio, double);
+  ///@}
 
   /**
    * Get the number of inflection points. Only returns a valid value after
@@ -265,7 +253,7 @@ public:
    * NumberOfInflectionPoints() values. You must provide an array (of
    * the correct size) into which the inflection points are written.
    */
-  void GetInflectionPoints(double *inflectionPoints);
+  void GetInflectionPoints(double* inflectionPoints);
 
   /**
    * Get a list of inflection points. These are double values 0 < r <= 1.0
@@ -274,23 +262,23 @@ public:
    * the correct size) into which the inflection points are written.
    * This method returns a pointer to a list of inflection points.
    */
-  double *GetInflectionPoints();
+  double* GetInflectionPoints();
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
-  //@}
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
 
 protected:
   vtkDecimatePro();
   ~vtkDecimatePro() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double TargetReduction;
   double FeatureAngle;
@@ -305,25 +293,22 @@ protected:
   vtkTypeBool PreserveTopology;
   int Degree;
   double InflectionPointRatio;
-  vtkDoubleArray *InflectionPoints;
+  vtkDoubleArray* InflectionPoints;
   int OutputPointsPrecision;
 
   // to replace a static object
-  vtkIdList *Neighbors;
-  vtkPriorityQueue *EdgeLengths;
+  vtkIdList* Neighbors;
+  vtkPriorityQueue* EdgeLengths;
 
   void SplitMesh();
-  int EvaluateVertex(vtkIdType ptId, vtkIdType numTris,
-                     vtkIdType *tris, vtkIdType fedges[2]);
-  vtkIdType FindSplit(int type, vtkIdType fedges[2], vtkIdType& pt1,
-                      vtkIdType& pt2, vtkIdList *CollapseTris);
+  int EvaluateVertex(vtkIdType ptId, vtkIdType numTris, vtkIdType* tris, vtkIdType fedges[2]);
+  vtkIdType FindSplit(
+    int type, vtkIdType fedges[2], vtkIdType& pt1, vtkIdType& pt2, vtkIdList* CollapseTris);
   int IsValidSplit(int index);
-  void SplitLoop(vtkIdType fedges[2], vtkIdType& n1, vtkIdType *l1,
-                 vtkIdType& n2, vtkIdType *l2);
-  void SplitVertex(vtkIdType ptId,int type, vtkIdType numTris,
-                   vtkIdType *tris, int insert);
-  int CollapseEdge(int type, vtkIdType ptId, vtkIdType collapseId,
-                   vtkIdType pt1, vtkIdType pt2, vtkIdList *CollapseTris);
+  void SplitLoop(vtkIdType fedges[2], vtkIdType& n1, vtkIdType* l1, vtkIdType& n2, vtkIdType* l2);
+  void SplitVertex(vtkIdType ptId, int type, vtkIdType numTris, vtkIdType* tris, int insert);
+  int CollapseEdge(int type, vtkIdType ptId, vtkIdType collapseId, vtkIdType pt1, vtkIdType pt2,
+    vtkIdList* CollapseTris);
   void DistributeError(double error);
 
   //
@@ -333,96 +318,104 @@ protected:
   class LocalVertex
   {
   public:
-    vtkIdType     id;
-    double   x[3];
-    double   FAngle;
+    vtkIdType id;
+    double x[3];
+    double FAngle;
   };
-  typedef LocalVertex *LocalVertexPtr;
+  typedef LocalVertex* LocalVertexPtr;
 
   class LocalTri
   {
   public:
-    vtkIdType     id;
-    double   area;
-    double   n[3];
-    vtkIdType     verts[3];
+    vtkIdType id;
+    double area;
+    double n[3];
+    vtkIdType verts[3];
   };
-  typedef LocalTri *LocalTriPtr;
+  typedef LocalTri* LocalTriPtr;
 
   class VertexArray;
   friend class VertexArray;
-  class VertexArray { //;prevent man page generation
+  class VertexArray
+  { //;prevent man page generation
   public:
     VertexArray(const vtkIdType sz)
-      {this->MaxId = -1; this->Array = new LocalVertex[sz];};
-    ~VertexArray()
     {
-        delete [] this->Array;
-    };
-    vtkIdType GetNumberOfVertices() {return this->MaxId + 1;};
+      this->MaxId = -1;
+      this->Array = new LocalVertex[sz];
+    }
+    ~VertexArray() { delete[] this->Array; }
+    vtkIdType GetNumberOfVertices() { return this->MaxId + 1; }
     void InsertNextVertex(LocalVertex& v)
-      {this->MaxId++; this->Array[this->MaxId] = v;};
-    LocalVertex& GetVertex(vtkIdType i) {return this->Array[i];};
-    void Reset() {this->MaxId = -1;};
+    {
+      this->MaxId++;
+      this->Array[this->MaxId] = v;
+    }
+    LocalVertex& GetVertex(vtkIdType i) { return this->Array[i]; }
+    void Reset() { this->MaxId = -1; }
 
-    LocalVertex *Array; // pointer to data
-    vtkIdType MaxId;             // maximum index inserted thus far
+    LocalVertex* Array; // pointer to data
+    vtkIdType MaxId;    // maximum index inserted thus far
   };
 
   class TriArray;
   friend class TriArray;
-  class TriArray { //;prevent man page generation
+  class TriArray
+  { //;prevent man page generation
   public:
     TriArray(const vtkIdType sz)
-      {this->MaxId = -1; this->Array = new LocalTri[sz];};
-    ~TriArray()
     {
-        delete [] this->Array;
-    };
-    vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;};
+      this->MaxId = -1;
+      this->Array = new LocalTri[sz];
+    }
+    ~TriArray() { delete[] this->Array; }
+    vtkIdType GetNumberOfTriangles() { return this->MaxId + 1; }
     void InsertNextTriangle(LocalTri& t)
-      {this->MaxId++; this->Array[this->MaxId] = t;};
-    LocalTri& GetTriangle(vtkIdType i) {return this->Array[i];};
-    void Reset() {this->MaxId = -1;};
+    {
+      this->MaxId++;
+      this->Array[this->MaxId] = t;
+    }
+    LocalTri& GetTriangle(vtkIdType i) { return this->Array[i]; }
+    void Reset() { this->MaxId = -1; }
 
-    LocalTri *Array;  // pointer to data
-    vtkIdType MaxId;           // maximum index inserted thus far
+    LocalTri* Array; // pointer to data
+    vtkIdType MaxId; // maximum index inserted thus far
   };
 
 private:
   void InitializeQueue(vtkIdType numPts);
   void DeleteQueue();
-  void Insert(vtkIdType id, double error= -1.0);
-  int Pop(double &error);
+  void Insert(vtkIdType id, double error = -1.0);
+  int Pop(double& error);
   double DeleteId(vtkIdType id);
   void Reset();
 
-  vtkPriorityQueue *Queue;
-  vtkDoubleArray *VertexError;
+  vtkPriorityQueue* Queue;
+  vtkDoubleArray* VertexError;
 
-  VertexArray *V;
-  TriArray *T;
+  VertexArray* V;
+  TriArray* T;
 
   // Use to be static variables used by object
-  vtkPolyData *Mesh; //operate on this data structure
-  double Pt[3];      //least squares plane point
-  double Normal[3];  //least squares plane normal
-  double LoopArea;   //the total area of all triangles in a loop
-  double CosAngle;   //Cosine of dihedral angle
-  double Tolerance;  //Intersection tolerance
-  double X[3];       //coordinates of current point
-  int NumCollapses; //Number of times edge collapses occur
-  int NumMerges;    //Number of times vertex merges occur
-  int Split;        //Controls whether and when vertex splitting occurs
-  int VertexDegree; //Maximum number of triangles that can use a vertex
-  vtkIdType NumberOfRemainingTris; //Number of triangles left in the mesh
-  double TheSplitAngle; //Split angle
-  int SplitState;   //State of the splitting process
-  double Error;      //Maximum allowable surface error
+  vtkPolyData* Mesh;               // operate on this data structure
+  double Pt[3];                    // least squares plane point
+  double Normal[3];                // least squares plane normal
+  double LoopArea;                 // the total area of all triangles in a loop
+  double CosAngle;                 // Cosine of dihedral angle
+  double Tolerance;                // Intersection tolerance
+  double X[3];                     // coordinates of current point
+  int NumCollapses;                // Number of times edge collapses occur
+  int NumMerges;                   // Number of times vertex merges occur
+  int Split;                       // Controls whether and when vertex splitting occurs
+  int VertexDegree;                // Maximum number of triangles that can use a vertex
+  vtkIdType NumberOfRemainingTris; // Number of triangles left in the mesh
+  double TheSplitAngle;            // Split angle
+  int SplitState;                  // State of the splitting process
+  double Error;                    // Maximum allowable surface error
 
-private:
   vtkDecimatePro(const vtkDecimatePro&) = delete;
   void operator=(const vtkDecimatePro&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

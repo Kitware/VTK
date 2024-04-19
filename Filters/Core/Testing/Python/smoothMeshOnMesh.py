@@ -1,6 +1,27 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkSmoothPolyDataFilter,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkIOLegacy import vtkPolyDataReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkProperty,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # this scripts reads in a surface, projects a mesh on the surface, and then
@@ -8,11 +29,11 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # get the interactor ui
 # Read some data from a Cyberware scanner
 #
-cyber = vtk.vtkPolyDataReader()
-cyber.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fran_cut.vtk")
+cyber = vtkPolyDataReader()
+cyber.SetFileName(VTK_DATA_ROOT + "/Data/fran_cut.vtk")
 cyber.Update()
 # Create a patch by manual enumeration
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 pts.InsertNextPoint(0.0898212,-0.141201,-0.0543264)
 pts.InsertNextPoint(0.0899667,-0.140847,-0.0571981)
 pts.InsertNextPoint(0.0900662,-0.140508,-0.0600019)
@@ -638,7 +659,7 @@ pts.InsertNextPoint(0.057211,-0.0983605,-0.0851471)
 pts.InsertNextPoint(0.0562477,-0.0981724,-0.086773)
 pts.InsertNextPoint(0.0554538,-0.0979856,-0.0884662)
 pts.InsertNextPoint(0.0546043,-0.0977985,-0.0901359)
-ca = vtk.vtkCellArray()
+ca = vtkCellArray()
 ca.InsertNextCell(4)
 ca.InsertCellPoint(0)
 ca.InsertCellPoint(1)
@@ -3519,36 +3540,36 @@ ca.InsertCellPoint(598)
 ca.InsertCellPoint(599)
 ca.InsertCellPoint(624)
 ca.InsertCellPoint(623)
-patch = vtk.vtkPolyData()
+patch = vtkPolyData()
 patch.SetPoints(pts)
 patch.SetPolys(ca)
-tf = vtk.vtkTriangleFilter()
+tf = vtkTriangleFilter()
 tf.SetInputData(patch)
-smooth = vtk.vtkSmoothPolyDataFilter()
+smooth = vtkSmoothPolyDataFilter()
 smooth.SetInputConnection(tf.GetOutputPort())
 smooth.SetSourceData(cyber.GetOutput())
 smooth.SetNumberOfIterations(50)
-patchMapper = vtk.vtkPolyDataMapper()
+patchMapper = vtkPolyDataMapper()
 patchMapper.SetInputConnection(smooth.GetOutputPort())
-back = vtk.vtkProperty()
+back = vtkProperty()
 back.SetDiffuseColor(1.0,1.0,0.0)
-patchActor = vtk.vtkActor()
+patchActor = vtkActor()
 patchActor.SetMapper(patchMapper)
 patchActor.GetProperty().SetColor(0.0,1.0,0.0)
 patchActor.SetBackfaceProperty(back)
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #
 ren1.AddActor(patchActor)
 ren1.SetBackground(1,1,1)
 renWin.SetSize(300,300)
-cam1 = vtk.vtkCamera()
+cam1 = vtkCamera()
 cam1.SetClippingRange(0.0475572,2.37786)
 cam1.SetFocalPoint(0.052665,-0.129454,-0.0573973)
 cam1.SetPosition(0.327637,-0.116299,-0.256418)

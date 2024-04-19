@@ -1,6 +1,7 @@
 set(classes
   vtkAMRBox
   vtkAMRUtilities
+  vtkAbstractCellArray
   vtkAbstractCellLinks
   vtkAbstractCellLocator
   vtkAbstractElectronicData
@@ -14,6 +15,13 @@ set(classes
   vtkAttributesErrorMetric
   vtkBSPCuts
   vtkBSPIntersections
+  vtkBezierCurve
+  vtkBezierHexahedron
+  vtkBezierInterpolation
+  vtkBezierQuadrilateral
+  vtkBezierTetra
+  vtkBezierTriangle
+  vtkBezierWedge
   vtkBiQuadraticQuad
   vtkBiQuadraticQuadraticHexahedron
   vtkBiQuadraticQuadraticWedge
@@ -25,11 +33,22 @@ set(classes
   vtkCell3D
   vtkCellArray
   vtkCellArrayIterator
+  vtkCellAttribute
+  vtkCellAttributeCalculator
   vtkCellData
+  vtkCellGrid
+  vtkCellGridBoundsQuery
+  vtkCellGridEvaluator
+  vtkCellGridRangeQuery
+  vtkCellGridQuery
+  vtkCellGridResponders
+  vtkCellGridSidesQuery
   vtkCellIterator
   vtkCellLinks
   vtkCellLocator
   vtkCellLocatorStrategy
+  vtkCellMetadata
+  vtkCellTreeLocator
   vtkCellTypes
   vtkClosestNPointsStrategy
   vtkClosestPointStrategy
@@ -37,8 +56,11 @@ set(classes
   vtkCompositeDataSet
   vtkCone
   vtkConvexPointSet
+  vtkCoordinateFrame
   vtkCubicLine
   vtkCylinder
+  vtkDataAssembly
+  vtkDataAssemblyUtilities
   vtkDataObject
   vtkDataObjectCollection
   vtkDataObjectTree
@@ -76,20 +98,27 @@ set(classes
   vtkGraphInternals
   vtkHexagonalPrism
   vtkHexahedron
-  vtkHierarchicalBoxDataIterator
   vtkHierarchicalBoxDataSet
+  vtkHigherOrderCurve
+  vtkHigherOrderHexahedron
+  vtkHigherOrderInterpolation
+  vtkHigherOrderQuadrilateral
+  vtkHigherOrderTetra
+  vtkHigherOrderTriangle
+  vtkHigherOrderWedge
   vtkHyperTree
   vtkHyperTreeGrid
-  vtkHyperTreeGridEntry
-  vtkHyperTreeGridGeometryEntry
-  vtkHyperTreeGridGeometryLevelEntry
-  vtkHyperTreeGridLevelEntry
+  vtkHyperTreeGridLocator
+  vtkHyperTreeGridGeometricLocator
   vtkHyperTreeGridNonOrientedCursor
   vtkHyperTreeGridNonOrientedGeometryCursor
+  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor
   vtkHyperTreeGridNonOrientedMooreSuperCursor
   vtkHyperTreeGridNonOrientedMooreSuperCursorLight
+  vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor
   vtkHyperTreeGridNonOrientedSuperCursor
   vtkHyperTreeGridNonOrientedSuperCursorLight
+  vtkHyperTreeGridNonOrientedUnlimitedSuperCursor
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight
   vtkHyperTreeGridOrientedCursor
@@ -125,6 +154,7 @@ set(classes
   vtkLine
   vtkLocator
   vtkMarchingCubesTriangleCases
+  vtkMarchingCubesPolygonCases
   vtkMarchingSquaresLineCases
   vtkMeanValueCoordinatesInterpolator
   vtkMergePoints
@@ -164,6 +194,7 @@ set(classes
   vtkPolyVertex
   vtkPolygon
   vtkPolyhedron
+  vtkPolyhedronUtilities
   vtkPyramid
   vtkQuad
   vtkQuadraticEdge
@@ -188,11 +219,13 @@ set(classes
   vtkSortFieldData
   vtkSphere
   vtkSpheres
+  vtkSphericalPointIterator
   vtkSpline
   vtkStaticCellLinks
   vtkStaticCellLocator
   vtkStaticPointLocator
   vtkStaticPointLocator2D
+  vtkStructuredCellArray
   vtkStructuredData
   vtkStructuredExtent
   vtkStructuredGrid
@@ -206,6 +239,7 @@ set(classes
   vtkTreeDFSIterator
   vtkTreeIterator
   vtkTriQuadraticHexahedron
+  vtkTriQuadraticPyramid
   vtkTriangle
   vtkTriangleStrip
   vtkUndirectedGraph
@@ -234,25 +268,62 @@ set(template_classes
   vtkMappedUnstructuredGrid
   vtkMappedUnstructuredGridCellIterator
   vtkPeriodicDataArray
-  vtkStaticCellLinksTemplate)
+  vtkStaticCellLinksTemplate
+  vtkStaticEdgeLocatorTemplate
+  vtkStaticFaceHashLinksTemplate)
+
+set(nowrap_classes
+  vtkHyperTreeGridEntry
+  vtkHyperTreeGridGeometryEntry
+  vtkHyperTreeGridGeometryUnlimitedEntry
+  vtkHyperTreeGridGeometryLevelEntry
+  vtkHyperTreeGridGeometryUnlimitedLevelEntry
+  vtkHyperTreeGridLevelEntry)
 
 set(headers
+  vtkCellGridResponder.h
+  vtkCellGridResponderBase.h
   vtkCellType.h
   vtkColor.h
-  vtkCompositeDataSetRange.h
-  vtkDataArrayDispatcher.h
-  vtkDataObjectTreeRange.h
-  vtkDispatcher.h
-  vtkDispatcher_Private.h
-  vtkDoubleDispatcher.h
+  vtkDataAssemblyVisitor.h
+  vtkDataObjectTreeInternals.h
+  vtkHyperTreeGridScales.h
   vtkHyperTreeGridTools.h
   vtkIntersectionCounter.h
-  vtkPolyDataInternals.h
+  vtkLabelMapLookup.h
   vtkRect.h
   vtkVector.h
   vtkVectorOperators.h)
 
+set(nowrap_headers
+  vtkCompositeDataSetNodeReference.h
+  vtkCompositeDataSetRange.h
+  vtkDataObjectTreeRange.h
+  vtkPolyDataInternals.h)
+
+set(templates
+  vtkCompositeDataSet.txx)
+
+set(private_templates
+  vtkImageIterator.txx)
+
+# Hand written (de)serialization routines
+set(serialization_helper_sources)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serialization_helper_sources
+    vtkCellArraySerDesHelper.cxx
+    vtkDataSetAttributesSerDesHelper.cxx
+    vtkPiecewiseFunctionSerDesHelper.cxx
+    vtkUnstructuredGridSerDesHelper.cxx)
+endif ()    
+
 vtk_module_add_module(VTK::CommonDataModel
   CLASSES           ${classes}
+  NOWRAP_CLASSES    ${nowrap_classes}
+  TEMPLATES         ${templates}
   TEMPLATE_CLASSES  ${template_classes}
-  HEADERS           ${headers})
+  HEADERS           ${headers}
+  SOURCES           ${serialization_helper_sources}
+  NOWRAP_HEADERS    ${nowrap_headers}
+  PRIVATE_TEMPLATES ${private_templates})
+vtk_add_test_mangling(VTK::CommonDataModel)

@@ -16,6 +16,10 @@
 
 #include "config.h"
 #include "hdf5internal.h"
+#include "hdf5err.h" /* For BAIL2 */
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #undef DEBUGH5
 
@@ -30,16 +34,10 @@
 static herr_t
 h5catch(void* ignored)
 {
-    H5Eprint(NULL);
+    H5Eprint1(NULL);
     return 0;
 }
 #endif
-
-/* These are the default chunk cache sizes for HDF5 files created or
- * opened with netCDF-4. */
-extern size_t nc4_chunk_cache_size;
-extern size_t nc4_chunk_cache_nelems;
-extern float nc4_chunk_cache_preemption;
 
 #ifdef LOGGING
 /* This is the severity level of messages which will be logged. Use
@@ -78,6 +76,7 @@ nc4_hdf5_initialize(void)
     if (set_auto(NULL, NULL) < 0)
         LOG((0, "Couldn't turn off HDF5 error messages!"));
     LOG((1, "HDF5 error messages have been turned off."));
+    NC4_hdf5_filter_initialize();
     nc4_hdf5_initialized = 1;
 }
 
@@ -90,6 +89,7 @@ nc4_hdf5_finalize(void)
 {
     /* Reclaim global resources */
     NC4_provenance_finalize();
+    NC4_hdf5_filter_finalize();
     nc4_hdf5_initialized = 0;
 }
 
@@ -116,6 +116,8 @@ find_var_dim_max_length(NC_GRP_INFO_T *grp, int varid, int dimid,
     int retval = NC_NOERR;
 
     *maxlen = 0;
+
+    LOG((3, "find_var_dim_max_length varid %d dimid %d", varid, dimid));    
 
     /* Find this var. */
     var = (NC_VAR_INFO_T*)ncindexith(grp->vars,varid);
@@ -157,11 +159,27 @@ find_var_dim_max_length(NC_GRP_INFO_T *grp, int varid, int dimid,
                 BAIL(NC_EHDFERR);
             LOG((5, "find_var_dim_max_length: varid %d len %d max: %d",
                  varid, (int)h5dimlen[0], (int)h5dimlenmax[0]));
-            for (d=0; d<dataset_ndims; d++) {
-                if (var->dimids[d] == dimid) {
+            for (d=0; d<dataset_ndims; d++)
+                if (var->dimids[d] == dimid)
                     *maxlen = *maxlen > h5dimlen[d] ? *maxlen : h5dimlen[d];
-                }
-            }
+
+#ifdef USE_PARALLEL
+	    /* If we are doing parallel I/O in collective mode (with
+	     * either pnetcdf or HDF5), then communicate with all
+	     * other tasks in the collective and find out which has
+	     * the max value for the dimension size. */
+	    assert(grp->nc4_info);
+	    LOG((3, "before Allreduce *maxlen %ld grp->nc4_info->parallel %d var->parallel_access %d",
+		 *maxlen, grp->nc4_info->parallel, var->parallel_access));
+	    if (grp->nc4_info->parallel && var->parallel_access == NC_COLLECTIVE)
+	    {
+		if ((MPI_SUCCESS != MPI_Allreduce(MPI_IN_PLACE, maxlen, 1,
+						  MPI_UNSIGNED_LONG_LONG, MPI_MAX,
+						  grp->nc4_info->comm)))
+		    BAIL(NC_EMPI);
+		LOG((3, "after Allreduce *maxlen %ld", *maxlen));
+	    }
+#endif /* USE_PARALLEL */
         }
     }
 
@@ -285,6 +303,7 @@ nc4_break_coord_var(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *coord_var,
                     NC_DIM_INFO_T *dim)
 {
     int retval;
+    NC_HDF5_VAR_INFO_T* coord_h5var = (NC_HDF5_VAR_INFO_T*)coord_var->format_var_info;
 
     /* Sanity checks */
     assert(grp && coord_var && dim && dim->coord_var == coord_var &&
@@ -305,16 +324,16 @@ nc4_break_coord_var(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *coord_var,
     if (coord_var->ndims)
     {
         /* Coordinate variables shouldn't have dimscales attached. */
-        assert(!coord_var->dimscale_attached);
+        assert(!coord_h5var->dimscale_attached);
 
         /* Allocate space for tracking them */
-        if (!(coord_var->dimscale_attached = calloc(coord_var->ndims,
+        if (!(coord_h5var->dimscale_attached = calloc(coord_var->ndims,
                                                     sizeof(nc_bool_t))))
             return NC_ENOMEM;
     }
 
     /* Detach dimension from variable */
-    coord_var->dimscale = NC_FALSE;
+    coord_h5var->dimscale = NC_FALSE;
     dim->coord_var = NULL;
 
     /* Set state transition indicators */
@@ -407,7 +426,7 @@ nc4_reform_coord_var(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, NC_DIM_INFO_T *dim)
     hdf5_var = (NC_HDF5_VAR_INFO_T *)var->format_var_info;
 
     /* Detach dimscales from the [new] coordinate variable. */
-    if (var->dimscale_attached)
+    if (hdf5_var->dimscale_attached)
     {
         int dims_detached = 0;
         int finished = 0;
@@ -417,7 +436,7 @@ nc4_reform_coord_var(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, NC_DIM_INFO_T *dim)
         for (d = 0; d < var->ndims && !finished; d++)
         {
             /* Is there a dimscale attached to this axis? */
-            if (var->dimscale_attached[d])
+            if (hdf5_var->dimscale_attached[d])
             {
                 NC_GRP_INFO_T *g;
                 int k;
@@ -455,7 +474,7 @@ nc4_reform_coord_var(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, NC_DIM_INFO_T *dim)
                                                      dim_datasetid, d) < 0)
                                     BAIL(NC_EHDFERR);
                             }
-                            var->dimscale_attached[d] = NC_FALSE;
+                            hdf5_var->dimscale_attached[d] = NC_FALSE;
                             if (dims_detached++ == var->ndims)
                                 finished++;
                         }
@@ -465,8 +484,8 @@ nc4_reform_coord_var(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, NC_DIM_INFO_T *dim)
         } /* next variable dimension */
 
         /* Release & reset the array tracking attached dimscales. */
-        free(var->dimscale_attached);
-        var->dimscale_attached = NULL;
+        free(hdf5_var->dimscale_attached);
+        hdf5_var->dimscale_attached = NULL;
         need_to_reattach_scales++;
     }
 
@@ -485,7 +504,7 @@ nc4_reform_coord_var(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, NC_DIM_INFO_T *dim)
     }
 
     /* Attach variable to dimension. */
-    var->dimscale = NC_TRUE;
+    hdf5_var->dimscale = NC_TRUE;
     dim->coord_var = var;
 
     /* Check if this variable used to be a coord. var */
@@ -526,9 +545,27 @@ close_gatts(NC_GRP_INFO_T *grp)
 
     for (a = 0; a < ncindexsize(grp->att); a++)
     {
+        att = (NC_ATT_INFO_T *)ncindexith(grp->att, a);
+        assert(att && att->format_att_info);
+        nc4_HDF5_close_att(att);
+    }
+    return NC_NOERR;
+}
+
+/**
+ * @internal Close HDF5 resources for a single attribute
+ *
+ * @param att Pointer to att info struct.
+ *
+ * @return ::NC_NOERR No error.
+ * @return ::NC_EHDFERR HDF5 error.
+ * @author Dennis Heimbigner, Ed Hartnett
+ */
+int
+nc4_HDF5_close_att(NC_ATT_INFO_T *att)
+{
         NC_HDF5_ATT_INFO_T *hdf5_att;
 
-        att = (NC_ATT_INFO_T *)ncindexith(grp->att, a);
         assert(att && att->format_att_info);
         hdf5_att = (NC_HDF5_ATT_INFO_T *)att->format_att_info;
 
@@ -536,8 +573,10 @@ close_gatts(NC_GRP_INFO_T *grp)
         if (hdf5_att->native_hdf_typeid &&
             H5Tclose(hdf5_att->native_hdf_typeid) < 0)
             return NC_EHDFERR;
-    }
-    return NC_NOERR;
+
+	nullfree(hdf5_att);
+	att->format_att_info = NULL;	
+	return NC_NOERR;
 }
 
 /**
@@ -574,30 +613,50 @@ close_vars(NC_GRP_INFO_T *grp)
             {
                 if (var->type_info)
                 {
-                    if (var->type_info->nc_type_class == NC_VLEN)
+#ifdef SEPDATA
+		    if (var->type_info->nc_type_class == NC_VLEN)
                         nc_free_vlen((nc_vlen_t *)var->fill_value);
                     else if (var->type_info->nc_type_class == NC_STRING && *(char **)var->fill_value)
                         free(*(char **)var->fill_value);
+#else
+		    int stat = NC_NOERR;
+		    if((stat = nc_reclaim_data(grp->nc4_info->controller->ext_ncid,var->type_info->hdr.id,var->fill_value,1)))
+		        return stat;
+		    nullfree(var->fill_value);
                 }
+#endif
+		var->fill_value = NULL;
             }
+        }
+
+        /* Free the HDF5 typeids. */
+        if (var->type_info->rc == 1)
+        {
+	    if(var->type_info->hdr.id <= NC_STRING)
+		/* This was a constructed atomic type; free its info */ 
+		nc4_HDF5_close_type(var->type_info);
+        }
+
+        for (a = 0; a < ncindexsize(var->att); a++)
+        {
+            att = (NC_ATT_INFO_T *)ncindexith(var->att, a);
+            assert(att && att->format_att_info);
+	    nc4_HDF5_close_att(att);
         }
 
         /* Delete any HDF5 dimscale objid information. */
         if (hdf5_var->dimscale_hdf5_objids)
             free(hdf5_var->dimscale_hdf5_objids);
+	/* Delete information about the attachment status of dimscales. */
+	if (hdf5_var->dimscale_attached)
+	    free(hdf5_var->dimscale_attached);
+	nullfree(hdf5_var);
 
-        for (a = 0; a < ncindexsize(var->att); a++)
-        {
-            NC_HDF5_ATT_INFO_T *hdf5_att;
-            att = (NC_ATT_INFO_T *)ncindexith(var->att, a);
-            assert(att && att->format_att_info);
-            hdf5_att = (NC_HDF5_ATT_INFO_T *)att->format_att_info;
-
-            /* Close the HDF5 typeid if one is open. */
-            if (hdf5_att->native_hdf_typeid &&
-                H5Tclose(hdf5_att->native_hdf_typeid) < 0)
-                return NC_EHDFERR;
-        }
+	/* Reclaim filters */
+	if(var->filters != NULL) {
+	    (void)NC4_hdf5_filter_freelist(var);
+	}
+	var->filters = NULL;
     }
 
     return NC_NOERR;
@@ -631,6 +690,7 @@ close_dims(NC_GRP_INFO_T *grp)
          * dim. */
         if (hdf5_dim->hdf_dimscaleid && H5Dclose(hdf5_dim->hdf_dimscaleid) < 0)
             return NC_EHDFERR;
+	nullfree(hdf5_dim);
     }
 
     return NC_NOERR;
@@ -655,9 +715,29 @@ close_types(NC_GRP_INFO_T *grp)
     for (i = 0; i < ncindexsize(grp->type); i++)
     {
         NC_TYPE_INFO_T *type;
-        NC_HDF5_TYPE_INFO_T *hdf5_type;
 
         type = (NC_TYPE_INFO_T *)ncindexith(grp->type, i);
+        assert(type && type->format_type_info);
+	nc4_HDF5_close_type(type);
+    }
+
+    return NC_NOERR;
+}
+
+/**
+ * @internal Close a single type instance
+ *
+ * @param type Pointer to type info struct.
+ *
+ * @return ::NC_NOERR No error.
+ * @return ::NC_EHDFERR HDF5 error.
+ * @author Dennis Heimbigner, Ed Hartnett
+ */
+int
+nc4_HDF5_close_type(NC_TYPE_INFO_T* type)
+{
+        NC_HDF5_TYPE_INFO_T *hdf5_type;
+
         assert(type && type->format_type_info);
 
         /* Get HDF5-specific type info. */
@@ -671,7 +751,7 @@ close_types(NC_GRP_INFO_T *grp)
             H5Tclose(hdf5_type->native_hdf_typeid) < 0)
             return NC_EHDFERR;
         hdf5_type->native_hdf_typeid = 0;
-    }
+	nullfree(hdf5_type);
 
     return NC_NOERR;
 }
@@ -726,6 +806,8 @@ nc4_rec_grp_HDF5_del(NC_GRP_INFO_T *grp)
     if (hdf5_grp->hdf_grpid && H5Gclose(hdf5_grp->hdf_grpid) < 0)
         return NC_EHDFERR;
 
+    nullfree(hdf5_grp);
+
     return NC_NOERR;
 }
 
@@ -749,34 +831,15 @@ int
 nc4_hdf5_find_grp_h5_var(int ncid, int varid, NC_FILE_INFO_T **h5,
                          NC_GRP_INFO_T **grp, NC_VAR_INFO_T **var)
 {
-    NC_FILE_INFO_T *my_h5;
-    NC_GRP_INFO_T *my_grp;
     NC_VAR_INFO_T *my_var;
     int retval;
-
-    /* Look up file and group metadata. */
-    if ((retval = nc4_find_grp_h5(ncid, &my_grp, &my_h5)))
-        return retval;
-    assert(my_grp && my_h5);
-
-    /* Find the var. */
-    if (!(my_var = (NC_VAR_INFO_T *)ncindexith(my_grp->vars, varid)))
-        return NC_ENOTVAR;
-    assert(my_var && my_var->hdr.id == varid);
-
-    /* Do we need to read var metadata? */
+    /* Delegate to libsrc4 */
+    if((retval = nc4_find_grp_h5_var(ncid,varid,h5,grp,&my_var))) return retval;
+    /* Do we need to read var metadata? (hdf5 specific) */
     if (!my_var->meta_read && my_var->created)
         if ((retval = nc4_get_var_meta(my_var)))
             return retval;
-
-    /* Return pointers that caller wants. */
-    if (h5)
-        *h5 = my_h5;
-    if (grp)
-        *grp = my_grp;
-    if (var)
-        *var = my_var;
-
+    if (var) *var = my_var;
     return NC_NOERR;
 }
 
@@ -885,7 +948,10 @@ nc4_hdf5_find_grp_var_att(int ncid, int varid, const char *name, int attnum,
 
     /* Give the people what they want. */
     if (norm_name)
+    {
         strncpy(norm_name, my_norm_name, NC_MAX_NAME);
+        norm_name[NC_MAX_NAME] = 0;
+    }
     if (h5)
         *h5 = my_h5;
     if (grp)
@@ -894,6 +960,49 @@ nc4_hdf5_find_grp_var_att(int ncid, int varid, const char *name, int attnum,
         *var = my_var;
     if (att)
         *att = my_att;
+
+    return NC_NOERR;
+}
+
+/**
+ * @internal Get the file chunk cache settings from HDF5.
+ *
+ * @param ncid File ID of a NetCDF/HDF5 file.
+ * @param sizep Pointer that gets size in bytes to set cache. Ignored
+ * if NULL.
+ * @param nelemsp Pointer that gets number of elements to hold in
+ * cache. Ignored if NULL.
+ * @param preemptionp Pointer that gets preemption stragety (between 0
+ * and 1). Ignored if NULL.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Ed Hartnett
+ */
+int
+nc4_hdf5_get_chunk_cache(int ncid, size_t *sizep, size_t *nelemsp,
+		     float *preemptionp)
+{
+    NC_FILE_INFO_T *h5;
+    NC_HDF5_FILE_INFO_T *hdf5_info;
+    hid_t plistid;
+    double dpreemption;
+    int retval;
+    
+    /* Find info for this file, group, and h5 info. */
+    if ((retval = nc4_find_nc_grp_h5(ncid, NULL, NULL, &h5)))
+        return retval;
+    assert(h5 && h5->format_file_info);
+    hdf5_info = (NC_HDF5_FILE_INFO_T *)h5->format_file_info;
+
+    /* Get the file access property list. */
+    if ((plistid = H5Fget_access_plist(hdf5_info->hdfid)) < 0)
+	return NC_EHDFERR;
+
+    /* Get the chunk cache values from HDF5 for this property list. */
+    if (H5Pget_cache(plistid, NULL, nelemsp, sizep, &dpreemption) < 0)
+	return NC_EHDFERR;
+    if (preemptionp)
+	*preemptionp = dpreemption;
 
     return NC_NOERR;
 }
@@ -915,7 +1024,7 @@ int
 hdf5_set_log_level()
 {
     /* If the user wants to completely turn off logging, turn off HDF5
-       logging too. Now I truely can't think of what to do if this
+       logging too. Now I truly can't think of what to do if this
        fails, so just ignore the return code. */
     if (nc_log_level == NC_TURN_OFF_LOGGING)
     {
@@ -924,11 +1033,108 @@ hdf5_set_log_level()
     }
     else
     {
-        if (set_auto((H5E_auto_t)&H5Eprint, stderr) < 0)
+        if (set_auto((H5E_auto_t)&H5Eprint1, stderr) < 0)
             LOG((0, "H5Eset_auto failed!"));
         LOG((1, "HDF5 error messages turned on."));
     }
 
     return NC_NOERR;
 }
+
+void
+nc_log_hdf5(void)
+{
+#ifdef USE_HDF5
+    H5Eprint1(NULL);
+#endif /* USE_HDF5 */
+}
+
 #endif /* LOGGING */
+
+#if 0
+#ifdef _WIN32
+
+/**
+ * Converts the filename from ANSI to UTF-8 if HDF5 >= 1.10.6. 
+ * nc4_hdf5_free_pathbuf must be called to free pb.
+ *
+ * @param pb Pointer that conversion information is stored.
+ * @param path The filename to be converted.
+ *
+ * @return The converted filename if succeeded. NULL if failed.
+ */
+const char *
+nc4_ndf5_ansi_to_utf8(pathbuf_t *pb, const char *path)
+{
+    const uint UTF8_MAJNUM = 1;
+    const uint UTF8_MINNUM = 10;
+    const uint UTF8_RELNUM = 6;
+    static enum {UNDEF, ANSI, UTF8} hdf5_encoding = UNDEF;
+    wchar_t wbuf[MAX_PATH];
+    wchar_t *ws = NULL;
+    char *ns = NULL;
+    int n;
+
+    if (hdf5_encoding == UNDEF) {
+#ifdef HDF5_UTF8_PATHS
+	hdf5_encoding = UTF8;
+#else
+	hdf5_encoding = ANSI;
+#endif
+    }
+    if (hdf5_encoding == ANSI) {
+        pb->ptr = NULL;
+        return path;
+    }
+
+    n = MultiByteToWideChar(CP_ACP, 0, path, -1, NULL, 0);
+    if (!n) {
+        errno = EILSEQ;
+        goto done;
+    }
+    ws = n <= _countof(wbuf) ? wbuf : malloc(sizeof *ws * n);
+    if (!ws)
+        goto done;
+    if (!MultiByteToWideChar(CP_ACP, 0, path, -1, ws, n)) {
+        errno = EILSEQ;
+        goto done;
+    }
+
+    n = WideCharToMultiByte(CP_UTF8, 0, ws, -1, NULL, 0, NULL, NULL);
+    if (!n) {
+        errno = EILSEQ;
+        goto done;
+    }
+    ns = n <= sizeof pb->buffer ? pb->buffer : malloc(n);
+    if (!ns)
+        goto done;
+    if (!WideCharToMultiByte(CP_UTF8, 0, ws, -1, ns, n, NULL, NULL)) {
+        if (ns != pb->buffer)
+            free(ns);
+        ns = NULL;
+        errno = EILSEQ;
+        goto done;
+    }
+
+done:
+    if (ws != wbuf)
+        free (ws);
+
+    pb->ptr = ns;
+    return ns;
+}
+
+/**
+ * Free the conversion information used by nc4_ndf5_ansi_to_utf8.
+ *
+ * @param pb Pointer that hold conversion information to be freed.
+ */
+void
+nc4_hdf5_free_pathbuf(pathbuf_t *pb)
+{
+    if (pb->ptr && pb->ptr != pb->buffer)
+        free(pb->ptr);
+}
+
+#endif /* _WIN32 */
+#endif /*0*/

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSimpleImageToImageFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSimpleImageToImageFilter
  * @brief   Generic image filter with one input.
@@ -35,7 +23,7 @@
  *
  * @sa
  * vtkImageAlgorithm vtkSimpleImageFilterExample
-*/
+ */
 
 #ifndef vtkSimpleImageToImageFilter_h
 #define vtkSimpleImageToImageFilter_h
@@ -43,10 +31,11 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSimpleImageToImageFilter : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkSimpleImageToImageFilter,vtkImageAlgorithm);
+  vtkTypeMacro(vtkSimpleImageToImageFilter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -54,14 +43,10 @@ protected:
   ~vtkSimpleImageToImageFilter() override;
 
   // These are called by the superclass.
-  int RequestUpdateExtent (vtkInformation *,
-                                   vtkInformationVector **,
-                                   vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // You don't have to touch this unless you have a good reason.
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // In the simplest case, this is the only method you need to define.
   virtual void SimpleExecute(vtkImageData* input, vtkImageData* output) = 0;
@@ -71,11 +56,5 @@ private:
   void operator=(const vtkSimpleImageToImageFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-
-
-
-
-

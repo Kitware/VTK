@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPContingencyStatistics.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2011 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
-  -------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2011 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkPContingencyStatistics
  * @brief   A class for parallel bivariate contingency statistics
@@ -35,41 +19,41 @@
  *
  * @par Thanks:
  * Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
-*/
+ */
 
 #ifndef vtkPContingencyStatistics_h
 #define vtkPContingencyStatistics_h
 
-#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkContingencyStatistics.h"
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
 #include <vector> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPContingencyStatistics : public vtkContingencyStatistics
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPContingencyStatistics
+  : public vtkContingencyStatistics
 {
 public:
   static vtkPContingencyStatistics* New();
   vtkTypeMacro(vtkPContingencyStatistics, vtkContingencyStatistics);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the multiprocess controller. If no controller is set,
    * single process is assumed.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  void Learn( vtkTable*,
-              vtkTable*,
-              vtkMultiBlockDataSet* ) override;
+  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
 
 protected:
   vtkPContingencyStatistics();
@@ -78,28 +62,20 @@ protected:
   /**
    * Reduce the collection of local contingency tables to the global one
    */
-  bool Reduce( vtkIdType&,
-               char*,
-               vtkStdString&,
-               vtkIdType&,
-               vtkIdType*,
-               std::vector<vtkIdType>& );
+  bool Reduce(vtkIdType&, char*, vtkStdString&, vtkIdType&, vtkIdType*, std::vector<vtkIdType>&);
 
   /**
    * Broadcast reduced contingency table to all processes
    */
-  bool Broadcast( vtkIdType,
-                  vtkStdString&,
-                  std::vector<vtkStdString>&,
-                  vtkIdType,
-                  std::vector<vtkIdType>&,
-                  vtkIdType );
+  bool Broadcast(vtkIdType, vtkStdString&, std::vector<vtkStdString>&, vtkIdType,
+    std::vector<vtkIdType>&, vtkIdType);
 
   vtkMultiProcessController* Controller;
+
 private:
   vtkPContingencyStatistics(const vtkPContingencyStatistics&) = delete;
   void operator=(const vtkPContingencyStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

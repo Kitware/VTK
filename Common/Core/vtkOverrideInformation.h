@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOverrideInformation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOverrideInformation
  * @brief   Factory object override information
@@ -19,7 +7,7 @@
  * vtkOverrideInformation is used to represent the information about
  * a class which is overridden in a vtkObjectFactory.
  *
-*/
+ */
 
 #ifndef vtkOverrideInformation_h
 #define vtkOverrideInformation_h
@@ -27,13 +15,14 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectFactory;
 
 class VTKCOMMONCORE_EXPORT vtkOverrideInformation : public vtkObject
 {
 public:
   static vtkOverrideInformation* New();
-  vtkTypeMacro(vtkOverrideInformation,vtkObject);
+  vtkTypeMacro(vtkOverrideInformation, vtkObject);
   /**
    * Print ObjectFactor to stream.
    */
@@ -44,39 +33,27 @@ public:
    * if you had a factory that provided an override for
    * vtkVertex, then this function would return "vtkVertex"
    */
-  const char* GetClassOverrideName()
-  {
-      return this->ClassOverrideName;
-  }
+  const char* GetClassOverrideName() { return this->ClassOverrideName; }
 
   /**
    * Returns the name of the class that will override the class.
    * For example, if you had a factory that provided an override for
    * vtkVertex called vtkMyVertex, then this would return "vtkMyVertex"
    */
-  const char* GetClassOverrideWithName()
-  {
-      return this->ClassOverrideWithName;
-  }
+  const char* GetClassOverrideWithName() { return this->ClassOverrideWithName; }
 
   /**
    * Return a human readable or GUI displayable description of this
    * override.
    */
-  const char* GetDescription()
-  {
-      return this->Description;
-  }
+  const char* GetDescription() { return this->Description; }
 
   /**
    * Return the specific object factory that this override occurs in.
    */
-  vtkObjectFactory* GetObjectFactory()
-  {
-      return this->ObjectFactory;
-  }
+  vtkObjectFactory* GetObjectFactory() { return this->ObjectFactory; }
 
-  //@{
+  ///@{
   /**
    * Set the class override name
    */
@@ -91,7 +68,7 @@ public:
    * Set the description
    */
   vtkSetStringMacro(Description);
-  //@}
+  ///@}
 
 protected:
   virtual void SetObjectFactory(vtkObjectFactory*);
@@ -108,9 +85,10 @@ private:
   char* ClassOverrideWithName;
   char* Description;
   vtkObjectFactory* ObjectFactory;
-private:
+
   vtkOverrideInformation(const vtkOverrideInformation&) = delete;
   void operator=(const vtkOverrideInformation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

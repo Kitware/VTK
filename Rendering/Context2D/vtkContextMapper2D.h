@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkContextMapper2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkContextMapper2D
@@ -21,14 +9,15 @@
  *
  * This class provides an abstract base for 2D context mappers. They currently
  * only accept vtkTable objects as input.
-*/
+ */
 
 #ifndef vtkContextMapper2D_h
 #define vtkContextMapper2D_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkTable;
 class vtkDataArray;
@@ -38,28 +27,26 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextMapper2D : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkContextMapper2D, vtkAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  static vtkContextMapper2D *New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkContextMapper2D* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the input for this object - only accepts vtkTable as input.
    */
-  virtual void SetInputData(vtkTable *input);
-  virtual vtkTable * GetInput();
-  //@}
+  virtual void SetInputData(vtkTable* input);
+  virtual vtkTable* GetInput();
+  ///@}
 
   /**
    * Make the arrays accessible to the plot objects.
    */
-  vtkDataArray *GetInputArrayToProcess(int idx,
-                                       vtkDataObject* input)
+  vtkDataArray* GetInputArrayToProcess(int idx, vtkDataObject* input)
   {
     return this->vtkAlgorithm::GetInputArrayToProcess(idx, input);
   }
 
-  vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,
-                                       vtkDataObject* input)
+  vtkAbstractArray* GetInputAbstractArrayToProcess(int idx, vtkDataObject* input)
   {
     return this->vtkAlgorithm::GetInputAbstractArrayToProcess(idx, input);
   }
@@ -71,12 +58,12 @@ protected:
   /**
    * Specify the types of input we can handle.
    */
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkContextMapper2D(const vtkContextMapper2D &) = delete;
-  void operator=(const vtkContextMapper2D &) = delete;
-
+  vtkContextMapper2D(const vtkContextMapper2D&) = delete;
+  void operator=(const vtkContextMapper2D&) = delete;
 };
 
-#endif //vtkContextMapper2D_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkContextMapper2D_h

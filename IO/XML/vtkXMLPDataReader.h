@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPDataReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPDataReader
  * @brief   Superclass for PVTK XML file readers that read vtkDataSets.
@@ -22,7 +10,7 @@
  *
  * @sa
  * vtkXMLDataReader
-*/
+ */
 
 #ifndef vtkXMLPDataReader_h
 #define vtkXMLPDataReader_h
@@ -30,7 +18,8 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPDataObjectReader.h"
 
-class vtkDataArray;
+VTK_ABI_NAMESPACE_BEGIN
+class vtkAbstractArray;
 class vtkDataSet;
 class vtkXMLDataReader;
 
@@ -41,9 +30,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-  * For the specified port, copy the information this reader sets up in
-  * SetupOutputInformation to outInfo
-  */
+   * For the specified port, copy the information this reader sets up in
+   * SetupOutputInformation to outInfo
+   */
   void CopyOutputInformation(vtkInformation* outInfo, int port) override;
 
 protected:
@@ -73,8 +62,8 @@ protected:
   void SetupOutputData() override;
 
   /**
-  * Pipeline execute information driver.  Called by vtkXMLReader.
-  */
+   * Pipeline execute information driver.  Called by vtkXMLReader.
+   */
   void SetupOutputInformation(vtkInformation* outInfo) override;
 
   /**
@@ -112,27 +101,27 @@ protected:
    */
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
-  virtual void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray) = 0;
-  virtual void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) = 0;
+  virtual void CopyArrayForPoints(vtkAbstractArray* inArray, vtkAbstractArray* outArray) = 0;
+  virtual void CopyArrayForCells(vtkAbstractArray* inArray, vtkAbstractArray* outArray) = 0;
 
   /**
-  * Callback registered with the PieceProgressObserver.
-  */
+   * Callback registered with the PieceProgressObserver.
+   */
   void PieceProgressCallback() override;
 
   /**
-  * The ghost level available on each input piece.
-  */
+   * The ghost level available on each input piece.
+   */
   int GhostLevel;
 
   /**
-  * Information per-piece.
-  */
+   * Information per-piece.
+   */
   vtkXMLDataReader** PieceReaders;
 
   /**
-  * The PPointData and PCellData element representations.
-  */
+   * The PPointData and PCellData element representations.
+   */
   vtkXMLDataElement* PPointDataElement;
   vtkXMLDataElement* PCellDataElement;
 
@@ -141,4 +130,5 @@ private:
   void operator=(const vtkXMLPDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAngleRepresentation3D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAngleRepresentation3D
  * @brief   represent the vtkAngleWidget
@@ -26,14 +14,15 @@
  *
  * @sa
  * vtkAngleWidget vtkHandleRepresentation
-*/
+ */
 
 #ifndef vtkAngleRepresentation3D_h
 #define vtkAngleRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAngleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkProperty;
 class vtkPolyDataMapper;
@@ -50,22 +39,22 @@ public:
   /**
    * Instantiate class.
    */
-  static vtkAngleRepresentation3D *New();
+  static vtkAngleRepresentation3D* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkAngleRepresentation3D,vtkAngleRepresentation);
+  vtkTypeMacro(vtkAngleRepresentation3D, vtkAngleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Satisfy the superclasses API. Angle returned is in radians.
    */
   double GetAngle() override;
 
-  //@{
+  ///@{
   /**
    * Methods to Set/Get the coordinates of the two points defining
    * this representation. Note that methods are available for both
@@ -83,27 +72,27 @@ public:
   void GetPoint1DisplayPosition(double pos[3]) override;
   void GetCenterDisplayPosition(double pos[3]) override;
   void GetPoint2DisplayPosition(double pos[3]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the three leaders used to create this representation.
    * By obtaining these leaders the user can set the appropriate
    * properties, etc.
    */
-  vtkGetObjectMacro(Ray1,vtkActor);
-  vtkGetObjectMacro(Ray2,vtkActor);
-  vtkGetObjectMacro(Arc,vtkActor);
-  vtkGetObjectMacro(TextActor,vtkFollower);
-  //@}
+  vtkGetObjectMacro(Ray1, vtkActor);
+  vtkGetObjectMacro(Ray2, vtkActor);
+  vtkGetObjectMacro(Arc, vtkActor);
+  vtkGetObjectMacro(TextActor, vtkFollower);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Scale text.
    */
-  virtual void SetTextActorScale( double scale[3] );
-  virtual double * GetTextActorScale();
-  //@}
+  virtual void SetTextActorScale(double scale[3]);
+  virtual double* GetTextActorScale();
+  ///@}
 
   /**
    * Method defined by vtkWidgetRepresentation superclass and
@@ -111,40 +100,41 @@ public:
    */
   void BuildRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
 protected:
   vtkAngleRepresentation3D();
   ~vtkAngleRepresentation3D() override;
 
   // The pieces that make up the angle representations
-  vtkLineSource     *Line1Source;
-  vtkLineSource     *Line2Source;
-  vtkArcSource      *ArcSource;
-  vtkPolyDataMapper *Line1Mapper;
-  vtkPolyDataMapper *Line2Mapper;
-  vtkPolyDataMapper *ArcMapper;
-  vtkActor          *Ray1;
-  vtkActor          *Ray2;
-  vtkActor          *Arc;
-  vtkFollower       *TextActor;
-  vtkPolyDataMapper *TextMapper;
-  vtkVectorText     *TextInput;
-  double             Angle;
-  bool               ScaleInitialized;
-  double             TextPosition[3];
+  vtkLineSource* Line1Source;
+  vtkLineSource* Line2Source;
+  vtkArcSource* ArcSource;
+  vtkPolyDataMapper* Line1Mapper;
+  vtkPolyDataMapper* Line2Mapper;
+  vtkPolyDataMapper* ArcMapper;
+  vtkActor* Ray1;
+  vtkActor* Ray2;
+  vtkActor* Arc;
+  vtkFollower* TextActor;
+  vtkPolyDataMapper* TextMapper;
+  vtkVectorText* TextInput;
+  double Angle;
+  bool ScaleInitialized;
+  double TextPosition[3];
 
 private:
   vtkAngleRepresentation3D(const vtkAngleRepresentation3D&) = delete;
   void operator=(const vtkAngleRepresentation3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

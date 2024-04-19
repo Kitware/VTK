@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMergeDataObjectFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMergeDataObjectFilter
  * @brief   merge dataset and data object field to create dataset with attribute data
@@ -36,50 +24,51 @@
  * and field data in another. Then use this filter in combination with
  * vtkFieldDataToAttributeData to create a dataset ready for
  * processing in the visualization pipeline.
-*/
+ */
 
 #ifndef vtkMergeDataObjectFilter_h
 #define vtkMergeDataObjectFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkMergeDataObjectFilter : public vtkDataSetAlgorithm
 {
 public:
-  static vtkMergeDataObjectFilter *New();
-  vtkTypeMacro(vtkMergeDataObjectFilter,vtkDataSetAlgorithm);
+  static vtkMergeDataObjectFilter* New();
+  vtkTypeMacro(vtkMergeDataObjectFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the data object to merge with the input dataset.
    */
-  void SetDataObjectInputData(vtkDataObject *object);
-  vtkDataObject *GetDataObject();
-  //@}
+  void SetDataObjectInputData(vtkDataObject* object);
+  vtkDataObject* GetDataObject();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify where to place the field data during the merge process.  There
    * are three choices: the field data associated with the vtkDataObject
    * superclass; the point field attribute data; and the cell field attribute
    * data.
    */
-  vtkSetMacro(OutputField,int);
-  vtkGetMacro(OutputField,int);
+  vtkSetMacro(OutputField, int);
+  vtkGetMacro(OutputField, int);
   void SetOutputFieldToDataObjectField();
   void SetOutputFieldToPointDataField();
   void SetOutputFieldToCellDataField();
-  //@}
+  ///@}
 
 protected:
   vtkMergeDataObjectFilter();
   ~vtkMergeDataObjectFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int OutputField; // which output field
 
@@ -88,6 +77,5 @@ private:
   void operator=(const vtkMergeDataObjectFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

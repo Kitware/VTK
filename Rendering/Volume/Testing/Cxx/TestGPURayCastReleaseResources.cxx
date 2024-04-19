@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastReleaseResources.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This is a test to make sure graphics resources are properly released and
 // re-allocated when the context changes
 
@@ -37,28 +25,26 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-int TestGPURayCastReleaseResources(int argc, char *argv[])
+int TestGPURayCastReleaseResources(int argc, char* argv[])
 {
   double scalarRange[2];
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
 
   reader->SetFileName(volumeFile);
   reader->Update();
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
-  delete [] volumeFile;
+  delete[] volumeFile;
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
 
   // Testing prefers image comparison with small images
-  vtkRenderWindow* renWin =
-    vtkRenderWindow::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   // Intentional odd and NPOT  width/height
   renWin->SetSize(500, 401);
 
@@ -103,8 +89,8 @@ int TestGPURayCastReleaseResources(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin2 );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin2);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

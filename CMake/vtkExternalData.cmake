@@ -2,31 +2,31 @@ include(ExternalData)
 
 if(NOT VTK_DATA_STORE)
   # Select a default from the following.
-  set(VTK_DATA_STORE_DEFAULT "")
+  set(vtk_data_store_default "")
   if(EXISTS "${VTK_SOURCE_DIR}/.ExternalData/config/store")
     # Configuration left by developer setup script.
     file(STRINGS "${VTK_SOURCE_DIR}/.ExternalData/config/store"
-      VTK_DATA_STORE_DEFAULT LIMIT_COUNT 1 LIMIT_INPUT 1024)
+      vtk_data_store_default LIMIT_COUNT 1 LIMIT_INPUT 1024)
   elseif(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/../VTKExternalData")
     # Adjacent directory created by user.
-    get_filename_component(VTK_DATA_STORE_DEFAULT
+    get_filename_component(vtk_data_store_default
       "${CMAKE_SOURCE_DIR}/../VTKExternalData" ABSOLUTE)
   elseif(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/../ExternalData")
     # Generic adjacent directory created by user.
-    get_filename_component(VTK_DATA_STORE_DEFAULT
+    get_filename_component(vtk_data_store_default
       "${CMAKE_SOURCE_DIR}/../ExternalData" ABSOLUTE)
   elseif(DEFINED "ENV{VTKExternalData_OBJECT_STORES}")
     # The VTKExternalData environment variable.
-    file(TO_CMAKE_PATH "$ENV{VTKExternalData_OBJECT_STORES}" VTK_DATA_STORE_DEFAULT)
+    file(TO_CMAKE_PATH "$ENV{VTKExternalData_OBJECT_STORES}" vtk_data_store_default)
   elseif(DEFINED "ENV{ExternalData_OBJECT_STORES}")
     # Generic ExternalData environment variable.
-    file(TO_CMAKE_PATH "$ENV{ExternalData_OBJECT_STORES}" VTK_DATA_STORE_DEFAULT)
+    file(TO_CMAKE_PATH "$ENV{ExternalData_OBJECT_STORES}" vtk_data_store_default)
   endif()
 endif()
 
 # Provide users with an option to select a local object store,
 # starting with the above-selected default.
-set(VTK_DATA_STORE "${VTK_DATA_STORE_DEFAULT}" CACHE PATH
+set(VTK_DATA_STORE "${vtk_data_store_default}" CACHE PATH
   "Local directory holding ExternalData objects in the layout %(algo)/%(hash).")
 mark_as_advanced(VTK_DATA_STORE)
 
@@ -82,15 +82,13 @@ if(NOT DEFINED VTK_DATA_EXCLUDE_FROM_ALL)
   if(EXISTS "${VTK_SOURCE_DIR}/.ExternalData/config/exclude-from-all")
     # Configuration left by developer setup script.
     file(STRINGS "${VTK_SOURCE_DIR}/.ExternalData/config/exclude-from-all"
-      VTK_DATA_EXCLUDE_FROM_ALL_DEFAULT LIMIT_COUNT 1 LIMIT_INPUT 1024)
+      vtk_data_exclude_from_all_default LIMIT_COUNT 1 LIMIT_INPUT 1024)
   elseif(DEFINED "ENV{VTK_DATA_EXCLUDE_FROM_ALL}")
-    set(VTK_DATA_EXCLUDE_FROM_ALL_DEFAULT
+    set(vtk_data_exclude_from_all_default
       "$ENV{VTK_DATA_EXCLUDE_FROM_ALL}")
   else()
-    set(VTK_DATA_EXCLUDE_FROM_ALL_DEFAULT OFF)
+    set(vtk_data_exclude_from_all_default OFF)
   endif()
-  set(VTK_DATA_EXCLUDE_FROM_ALL "${VTK_DATA_EXCLUDE_FROM_ALL_DEFAULT}"
-    CACHE BOOL "Exclude test data download from default 'all' target."
-    )
+  option(VTK_DATA_EXCLUDE_FROM_ALL "Exclude test data download from default 'all' target." "${vtk_data_exclude_from_all_default}")
   mark_as_advanced(VTK_DATA_EXCLUDE_FROM_ALL)
 endif()

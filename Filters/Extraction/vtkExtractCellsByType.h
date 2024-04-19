@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractCellsByType.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkExtractCellsByType
@@ -47,25 +35,26 @@
 #ifndef vtkExtractCellsByType_h
 #define vtkExtractCellsByType_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkCellTypeSet;
 class vtkIdTypeArray;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractCellsByType : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type info, and printing.
    */
-  static vtkExtractCellsByType *New();
+  static vtkExtractCellsByType* New();
   vtkTypeMacro(vtkExtractCellsByType, vtkDataSetAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  //@}
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the cell types to extract. Any cells of the type specified are
    * extracted. Methods for clearing the set of cells, adding all cells, and
@@ -76,17 +65,17 @@ public:
   void RemoveCellType(unsigned int type);
   void RemoveAllCellTypes();
   bool ExtractCellType(unsigned int type);
-  //@}
+  ///@}
 
 protected:
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void ExtractUnstructuredData(vtkDataSet *input, vtkDataSet *output);
-  void ExtractPolyDataCells(vtkDataSet *input, vtkDataSet *output,
-                            vtkIdType *ptMap, vtkIdType &numNewPts);
-  void ExtractUnstructuredGridCells(vtkDataSet *input, vtkDataSet *output,
-                                    vtkIdType *ptMap, vtkIdType &numNewPts);
+  void ExtractUnstructuredData(vtkDataSet* inDS, vtkDataSet* outDS);
+  void ExtractPolyDataCells(
+    vtkDataSet* inDS, vtkDataSet* outDS, vtkIdType* ptMap, vtkIdType& numNewPts);
+  void ExtractUnstructuredGridCells(
+    vtkDataSet* inDS, vtkDataSet* outDS, vtkIdType* ptMap, vtkIdType& numNewPts);
 
   vtkExtractCellsByType();
   ~vtkExtractCellsByType() override;
@@ -95,7 +84,8 @@ private:
   vtkExtractCellsByType(const vtkExtractCellsByType&) = delete;
   void operator=(const vtkExtractCellsByType&) = delete;
 
-  vtkCellTypeSet *CellTypes;
+  vtkCellTypeSet* CellTypes;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

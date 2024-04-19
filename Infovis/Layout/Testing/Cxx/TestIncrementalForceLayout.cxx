@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestDiagram.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkIncrementalForceLayout.h"
 #include "vtkMath.h"
@@ -19,7 +7,7 @@
 #include "vtkPoints.h"
 #include "vtkRandomGraphSource.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestIncrementalForceLayout(int, char*[])
 {
   vtkNew<vtkRandomGraphSource> source;
@@ -28,7 +16,7 @@ int TestIncrementalForceLayout(int, char*[])
   source->SetNumberOfEdges(10);
   source->Update();
 
-  vtkGraph *randomGraph = source->GetOutput();
+  vtkGraph* randomGraph = source->GetOutput();
   for (vtkIdType i = 0; i < randomGraph->GetNumberOfVertices(); ++i)
   {
     randomGraph->GetPoints()->SetPoint(i, vtkMath::Random(), vtkMath::Random(), vtkMath::Random());
@@ -53,7 +41,7 @@ int TestIncrementalForceLayout(int, char*[])
     randomGraph->GetPoint(randomGraph->GetTargetVertex(e), p2);
     double dx = p2[0] - p1[0];
     double dy = p2[1] - p1[1];
-    double dist = sqrt(dx*dx + dy*dy);
+    double dist = sqrt(dx * dx + dy * dy);
     std::cerr << "Edge distance: " << dist << std::endl;
     if (fabs(dist - 20.0) > 5.0)
     {

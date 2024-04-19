@@ -1,6 +1,26 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import (
+    vtkStaticCleanPolyData,
+    vtkVoronoi2D,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPointGaussianMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control problem size and set debugging parameters
@@ -13,39 +33,39 @@ PointOfInterest = -1
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create some points and display them
 #
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(31415)
-points = vtk.vtkPoints()
+points = vtkPoints()
 i = 0
 while i < NPts:
     points.InsertPoint(i,math.Random(0,1),math.Random(0,1),0.0)
     i = i + 1
 
-profile = vtk.vtkPolyData()
+profile = vtkPolyData()
 profile.SetPoints(points)
 
-ptMapper = vtk.vtkPointGaussianMapper()
+ptMapper = vtkPointGaussianMapper()
 ptMapper.SetInputData(profile)
 ptMapper.EmissiveOff()
 ptMapper.SetScaleFactor(0.0)
 
-ptActor = vtk.vtkActor()
+ptActor = vtkActor()
 ptActor.SetMapper(ptMapper)
 ptActor.GetProperty().SetColor(0,0,0)
 ptActor.GetProperty().SetPointSize(2)
 
 # Tessellate them
 #
-voronoi = vtk.vtkVoronoi2D()
+voronoi = vtkVoronoi2D()
 voronoi.SetInputData(profile)
 voronoi.SetGenerateScalarsToNone()
 voronoi.SetGenerateScalarsToThreadIds()
@@ -56,14 +76,14 @@ voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
 voronoi.SetGenerateVoronoiFlower(GenerateFlower)
 voronoi.Update()
 
-clean = vtk.vtkStaticCleanPolyData()
-#clean = vtk.vtkCleanPolyData()
+clean = vtkStaticCleanPolyData()
+#clean = vtkCleanPolyData()
 clean.SetInputConnection(voronoi.GetOutputPort())
 clean.ToleranceIsAbsoluteOn()
 clean.SetAbsoluteTolerance(0.00001)
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 clean.Update()
 timer.StopTimer()
@@ -73,12 +93,12 @@ print("   Time to clean: {0}".format(time))
 print("   #In pts: {0}".format(clean.GetInput().GetNumberOfPoints()))
 print("   #Out pts: {0}".format(clean.GetOutput().GetNumberOfPoints()))
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(clean.GetOutputPort())
 mapper.SetScalarRange(0,NPts)
 print("Scalar Range: {}".format(mapper.GetScalarRange()))
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetColor(1,0,0)
 

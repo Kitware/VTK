@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFixedWidthTextReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkFixedWidthTextReader
@@ -39,7 +23,7 @@
  * @par Thanks:
  * Thanks to Andy Wilson from Sandia National Laboratories for
  * implementing this class.
-*/
+ */
 
 #ifndef vtkFixedWidthTextReader_h
 #define vtkFixedWidthTextReader_h
@@ -47,6 +31,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCommand;
 class vtkTable;
 
@@ -54,21 +39,21 @@ class VTKIOINFOVIS_EXPORT vtkFixedWidthTextReader : public vtkTableAlgorithm
 {
 public:
   static vtkFixedWidthTextReader* New();
-  vtkTypeMacro(vtkFixedWidthTextReader,vtkTableAlgorithm);
+  vtkTypeMacro(vtkFixedWidthTextReader, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  vtkSetFilePathMacro(FileName);
 
-  //@{
+  ///@{
   /**
    * Set/get the field width
    */
   vtkSetMacro(FieldWidth, int);
   vtkGetMacro(FieldWidth, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set, this flag will cause the reader to strip whitespace from
    * the beginning and ending of each field.  Defaults to off.
@@ -76,34 +61,31 @@ public:
   vtkSetMacro(StripWhiteSpace, bool);
   vtkGetMacro(StripWhiteSpace, bool);
   vtkBooleanMacro(StripWhiteSpace, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether to treat the first line of the file as headers.
    */
-  vtkGetMacro(HaveHeaders,bool);
-  vtkSetMacro(HaveHeaders,bool);
+  vtkGetMacro(HaveHeaders, bool);
+  vtkSetMacro(HaveHeaders, bool);
   vtkBooleanMacro(HaveHeaders, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the ErrorObserver for the internal vtkTable
    * This is useful for applications that want to catch error messages.
    */
-  void SetTableErrorObserver(vtkCommand *);
-  vtkGetObjectMacro(TableErrorObserver,vtkCommand);
-  //@}
+  void SetTableErrorObserver(vtkCommand*);
+  vtkGetObjectMacro(TableErrorObserver, vtkCommand);
+  ///@}
 
- protected:
+protected:
   vtkFixedWidthTextReader();
   ~vtkFixedWidthTextReader() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void OpenFile();
 
@@ -115,8 +97,8 @@ public:
 private:
   vtkFixedWidthTextReader(const vtkFixedWidthTextReader&) = delete;
   void operator=(const vtkFixedWidthTextReader&) = delete;
-  vtkCommand *TableErrorObserver;
+  vtkCommand* TableErrorObserver;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

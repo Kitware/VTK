@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFlagpoleLabel.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkFlagpoleLabel
  * @brief Renders a flagpole (line) with a label at the top that faces the camera
@@ -25,11 +13,12 @@
 #ifndef vtkFlagpoleLabel_h
 #define vtkFlagpoleLabel_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
-#include "vtkNew.h" // For.... vtkNew!
-#include "vtkSmartPointer.h" // For.... vtkSmartPointer!
+#include "vtkNew.h"                 // For.... vtkNew!
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"        // For.... vtkSmartPointer!
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkImageData;
 class vtkLineSource;
@@ -39,27 +28,27 @@ class vtkRenderer;
 class vtkTextProperty;
 class vtkTextRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkFlagpoleLabel: public vtkActor
+class VTKRENDERINGCORE_EXPORT vtkFlagpoleLabel : public vtkActor
 {
 public:
   static vtkFlagpoleLabel* New();
-  vtkTypeMacro(vtkFlagpoleLabel, vtkActor)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkFlagpoleLabel, vtkActor);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The UTF-8 encoded string to display.
    * @{
    */
-  void SetInput(const char *in);
-  vtkGetStringMacro(Input)
+  void SetInput(const char* in);
+  vtkGetStringMacro(Input);
   /** @} */
 
   /**
    * The vtkTextProperty object that controls the rendered text.
    * @{
    */
-  void SetTextProperty(vtkTextProperty *tprop);
-  vtkGetObjectMacro(TextProperty, vtkTextProperty)
+  void SetTextProperty(vtkTextProperty* tprop);
+  vtkGetObjectMacro(TextProperty, vtkTextProperty);
   /** @} */
 
   /**
@@ -67,11 +56,11 @@ public:
    * @{
    */
   void SetForceOpaque(bool opaque) override;
-  bool GetForceOpaque() override;
+  bool GetForceOpaque() VTK_FUTURE_CONST override;
   void ForceOpaqueOn() override;
   void ForceOpaqueOff() override;
   void SetForceTranslucent(bool trans) override;
-  bool GetForceTranslucent() override;
+  bool GetForceTranslucent() VTK_FUTURE_CONST override;
   void ForceTranslucentOn() override;
   void ForceTranslucentOff() override;
   /**@}*/
@@ -84,28 +73,28 @@ public:
   /**
    * Check/update geometry/texture in opaque pass, since it only happens once.
    */
-  int RenderOpaqueGeometry(vtkViewport *vp) override;
+  int RenderOpaqueGeometry(vtkViewport* vp) override;
 
   /**
    * Just render in translucent pass, since it can execute multiple times
    * (depth peeling, for instance).
    */
-  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* vp) override;
 
-  void ReleaseGraphicsResources(vtkWindow *win) override;
-  double *GetBounds() override;
+  void ReleaseGraphicsResources(vtkWindow* win) override;
+  double* GetBounds() override;
   using Superclass::GetBounds;
 
   /**
    * Set/Get the world coordinate position of the base
    */
-  vtkGetVector3Macro(BasePosition, double)
+  vtkGetVector3Macro(BasePosition, double);
   void SetBasePosition(double x, double y, double z);
 
   /**
    * Set/Get the world coordinate position of the top
    */
-  vtkGetVector3Macro(TopPosition, double)
+  vtkGetVector3Macro(TopPosition, double);
   void SetTopPosition(double x, double y, double z);
 
   /**
@@ -113,8 +102,8 @@ public:
    * which corresponds to a preset texels/window value. Adjust this
    * to increase or decrease the default size.
    */
-  vtkGetMacro(FlagSize, double)
-  vtkSetMacro(FlagSize, double)
+  vtkGetMacro(FlagSize, double);
+  vtkSetMacro(FlagSize, double);
 
 protected:
   vtkFlagpoleLabel();
@@ -122,13 +111,13 @@ protected:
 
   bool InputIsValid();
 
-  void UpdateInternals(vtkRenderer *ren);
+  void UpdateInternals(vtkRenderer* ren);
 
-  bool TextureIsStale(vtkRenderer *ren);
-  void GenerateTexture(vtkRenderer *ren);
+  bool TextureIsStale(vtkRenderer* ren);
+  void GenerateTexture(vtkRenderer* ren);
 
-  bool QuadIsStale(vtkRenderer *ren);
-  void GenerateQuad(vtkRenderer *ren);
+  bool QuadIsStale(vtkRenderer* ren);
+  void GenerateQuad(vtkRenderer* ren);
 
   // Used by the opaque pass to tell the translucent pass not to render.
   void Invalidate();
@@ -138,8 +127,8 @@ protected:
   void PreRender();
 
   // Text specification:
-  char *Input;
-  vtkTextProperty *TextProperty;
+  char* Input;
+  vtkTextProperty* TextProperty;
 
   // Cached metadata to determine if things need rebuildin'
   int RenderedDPI;
@@ -168,4 +157,5 @@ private:
   void operator=(const vtkFlagpoleLabel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkFlagpoleLabel_h

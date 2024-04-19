@@ -1,0 +1,86 @@
+{
+  "action_manifest_version": 0,
+  "alias_info": {},
+  "app_key": "system.generated.vtk.exe",
+  "bindings": {
+    "/actions/vtk": {
+      "sources": [
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/startmovement"
+            },
+            "position": {
+              "output": "/actions/vtk/in/movement"
+            }
+          },
+          "mode": "joystick",
+          "path": "/user/hand/left/input/thumbstick"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/startelevation"
+            },
+            "position": {
+              "output": "/actions/vtk/in/elevation"
+            }
+          },
+          "mode": "joystick",
+          "path": "/user/hand/right/input/thumbstick"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/showmenu"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/b"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/nextcamerapose"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/trigger"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/triggeraction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/trigger"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/complexgestureaction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/a"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/complexgestureaction_event2"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/a"
+        }
+      ]
+    }
+  },
+  "category": "steamvr_input",
+  "controller_type": "knuckles",
+  "description": "",
+  "name": "Bindings for VTK applications for Valve Index controllers",
+  "options": {},
+  "simulated_actions": []
+}

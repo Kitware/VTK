@@ -47,6 +47,8 @@ public class vtkAbstractJoglComponent<T extends java.awt.Component> extends vtkA
         vtkAbstractJoglComponent.this.glRenderWindow.SetMapped(1);
         vtkAbstractJoglComponent.this.glRenderWindow.SetPosition(0, 0);
         vtkAbstractJoglComponent.this.setSize(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
+        vtkAbstractJoglComponent.this.glRenderWindow.SetOwnContext(0);
+        vtkAbstractJoglComponent.this.glRenderWindow.SetFrameBlitModeToBlitToCurrent();
         vtkAbstractJoglComponent.this.glRenderWindow.OpenGLInit();
       }
 

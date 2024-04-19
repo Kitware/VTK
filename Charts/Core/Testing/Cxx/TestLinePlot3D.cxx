@@ -1,35 +1,23 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestLinePlot3D.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartXYZ.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkNew.h"
 #include "vtkPen.h"
 #include "vtkPlotLine3D.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 // Plot the solution to the Lorenz attractor.
 // http://en.wikipedia.org/wiki/Lorenz_system
 namespace
 {
-void lorenz(const float * varX, float * varXDerivative)
+void lorenz(const float* varX, float* varXDerivative)
 {
   const float sigma = 10.f;
   const float rho = 28.f;
@@ -41,8 +29,8 @@ void lorenz(const float * varX, float * varXDerivative)
 }
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
-int TestLinePlot3D(int, char * [])
+//------------------------------------------------------------------------------
+int TestLinePlot3D(int, char*[])
 {
   // Create the data.
   vtkNew<vtkTable> varXSolution;
@@ -84,6 +72,7 @@ int TestLinePlot3D(int, char * [])
   // Add a line plot.
   vtkNew<vtkPlotLine3D> plot;
   plot->SetInputData(varXSolution);
+  plot->GetPen()->SetWidth(1);
   plot->GetPen()->SetColorF(0.1, 0.2, 0.8, 1.0);
   chart->AddPlot(plot);
 

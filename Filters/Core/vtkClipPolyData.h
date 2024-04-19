@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkClipPolyData.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkClipPolyData
  * @brief   clip polygonal data with user-specified implicit function or input scalar data
@@ -54,7 +42,7 @@
  *
  * @sa
  * vtkImplicitFunction vtkCutter vtkClipVolume vtkExtractGeometry
-*/
+ */
 
 #ifndef vtkClipPolyData_h
 #define vtkClipPolyData_h
@@ -62,13 +50,14 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 class vtkIncrementalPointLocator;
 
 class VTKFILTERSCORE_EXPORT vtkClipPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkClipPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkClipPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -76,19 +65,19 @@ public:
    * value set to 0.0; GenerateClipScalars turned off; GenerateClippedOutput
    * turned off.
    */
-  static vtkClipPolyData *New();
+  static vtkClipPolyData* New();
 
-  //@{
+  ///@{
   /**
    * Set the clipping value of the implicit function (if clipping with
    * implicit function) or scalar value (if clipping with
    * scalars). The default value is 0.0.
    */
-  vtkSetMacro(Value,double);
-  vtkGetMacro(Value,double);
-  //@}
+  vtkSetMacro(Value, double);
+  vtkGetMacro(Value, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the InsideOut flag. When off, a vertex is considered
    * inside the implicit function if its value is greater than the
@@ -97,22 +86,22 @@ public:
    * value is less than or equal to the Value ivar.  InsideOut is off
    * by default.
    */
-  vtkSetMacro(InsideOut,vtkTypeBool);
-  vtkGetMacro(InsideOut,vtkTypeBool);
-  vtkBooleanMacro(InsideOut,vtkTypeBool);
-  //@}
+  vtkSetMacro(InsideOut, vtkTypeBool);
+  vtkGetMacro(InsideOut, vtkTypeBool);
+  vtkBooleanMacro(InsideOut, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function with which to perform the
    * clipping. If you do not define an implicit function, then the input
    * scalar data will be used for clipping.
    */
   virtual void SetClipFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
-  //@}
+  vtkGetObjectMacro(ClipFunction, vtkImplicitFunction);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this flag is enabled, then the output scalar values will be
    * interpolated from the implicit function values, and not the
@@ -120,43 +109,40 @@ public:
    * implicit function an error will be reported.
    * GenerateClipScalars is off by default.
    */
-  vtkSetMacro(GenerateClipScalars,vtkTypeBool);
-  vtkGetMacro(GenerateClipScalars,vtkTypeBool);
-  vtkBooleanMacro(GenerateClipScalars,vtkTypeBool);
-  //@}
+  vtkSetMacro(GenerateClipScalars, vtkTypeBool);
+  vtkGetMacro(GenerateClipScalars, vtkTypeBool);
+  vtkBooleanMacro(GenerateClipScalars, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether a second output is generated. The second output
    * contains the polygonal data that's been clipped away.
    * GenerateClippedOutput is off by default.
    */
-  vtkSetMacro(GenerateClippedOutput,vtkTypeBool);
-  vtkGetMacro(GenerateClippedOutput,vtkTypeBool);
-  vtkBooleanMacro(GenerateClippedOutput,vtkTypeBool);
-  //@}
+  vtkSetMacro(GenerateClippedOutput, vtkTypeBool);
+  vtkGetMacro(GenerateClippedOutput, vtkTypeBool);
+  vtkBooleanMacro(GenerateClippedOutput, vtkTypeBool);
+  ///@}
 
   /**
    * Return the Clipped output.
    */
-  vtkPolyData *GetClippedOutput();
+  vtkPolyData* GetClippedOutput();
 
   /**
    * Return the output port (a vtkAlgorithmOutput) of the clipped output.
    */
-  vtkAlgorithmOutput* GetClippedOutputPort()
-  {
-      return this->GetOutputPort(1);
-  }
+  vtkAlgorithmOutput* GetClippedOutputPort() { return this->GetOutputPort(1); }
 
-  //@{
+  ///@{
   /**
    * Specify a spatial locator for merging points. By default, an
    * instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
-  //@}
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The
@@ -169,25 +155,25 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings. OutputPointsPrecision is DEFAULT_PRECISION
    * by default.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
-  //@}
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
 
 protected:
-  vtkClipPolyData(vtkImplicitFunction *cf=nullptr);
+  vtkClipPolyData(vtkImplicitFunction* cf = nullptr);
   ~vtkClipPolyData() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  vtkImplicitFunction *ClipFunction;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkImplicitFunction* ClipFunction;
 
-  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator* Locator;
   vtkTypeBool InsideOut;
   double Value;
   vtkTypeBool GenerateClipScalars;
@@ -199,4 +185,5 @@ private:
   void operator=(const vtkClipPolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

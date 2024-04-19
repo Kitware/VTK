@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkArrayExtents.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkArrayExtents
@@ -55,16 +38,17 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArrayExtents_h
 #define vtkArrayExtents_h
 
+#include "vtkArrayRange.h"
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
-#include "vtkArrayRange.h"
 #include <vector> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkArrayExtents
 {
 public:
@@ -81,7 +65,7 @@ public:
    * Create zero-based one-dimensional extents.  This constructor is shorthand for
    * vtkArrayExtents(vtkArrayRange(0, i)).
    */
-  explicit vtkArrayExtents(const CoordinateT i);
+  explicit vtkArrayExtents(CoordinateT i);
   /**
    * Create one-dimensional extents.
    */
@@ -91,7 +75,7 @@ public:
    * Create zero-based two-dimensional extents.  This constructor is shorthand for
    * vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j)).
    */
-  vtkArrayExtents(const CoordinateT i, const CoordinateT j);
+  vtkArrayExtents(CoordinateT i, CoordinateT j);
   /**
    * Create two-dimensional extents.
    */
@@ -102,7 +86,7 @@ public:
    * vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j),
    * vtkArrayRange(0, k)).
    */
-  vtkArrayExtents(const CoordinateT i, const CoordinateT j, const CoordinateT k);
+  vtkArrayExtents(CoordinateT i, CoordinateT j, CoordinateT k);
   /**
    * Create three-dimensional extents.
    */
@@ -225,14 +209,12 @@ public:
    */
   bool Contains(const vtkArrayCoordinates& coordinates) const;
 
-  VTKCOMMONCORE_EXPORT friend ostream& operator<<(
-    ostream& stream, const vtkArrayExtents& rhs);
+  VTKCOMMONCORE_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs);
 
 private:
-
   std::vector<vtkArrayRange> Storage;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkArrayExtents.h

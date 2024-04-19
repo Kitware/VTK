@@ -1,53 +1,41 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestTemporalCacheSimple.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkActor.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkContourFilter.h"
 #include "vtkInformation.h"
-#include "vtkCompositePolyDataMapper.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkTemporalDataSetCache.h"
 #include "vtkTemporalInterpolator.h"
 #include "vtkThreshold.h"
-#include "vtkSphereSource.h"
-#include "vtkObjectFactory.h"
-#include "vtkInformationVector.h"
 #include <algorithm>
 #include <vector>
-#include <functional>
 
 //
 // This test is intended to test the ability of the temporal pipeline
 // to loop a simple source over T and pass Temporal data downstream.
 //
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is a dummy class which accepts time from the pipeline
 // It doesn't do anything with the time, but it is useful for testing
-//-------------------------------------------------------------------------
-class vtkTemporalSphereSource : public vtkSphereSource {
+//------------------------------------------------------------------------------
+class vtkTemporalSphereSource : public vtkSphereSource
+{
 
 public:
-  static vtkTemporalSphereSource *New();
+  static vtkTemporalSphereSource* New();
   vtkTypeMacro(vtkTemporalSphereSource, vtkSphereSource);
 
   // Description:
@@ -60,19 +48,15 @@ public:
   // Save the range of valid timestep index values.
   vtkGetVector2Macro(TimeStepRange, int);
 
-//  void GetTimeStepValues(std::vector<double> &steps);
+  //  void GetTimeStepValues(std::vector<double> &steps);
 
- protected:
-   vtkTemporalSphereSource();
+protected:
+  vtkTemporalSphereSource();
 
-  int RequestInformation(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  int RequestData(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
 public:
@@ -81,37 +65,36 @@ public:
   int ActualTimeStep;
   std::vector<double> TimeStepValues;
 };
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalSphereSource);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTemporalSphereSource::vtkTemporalSphereSource()
 {
-  this->TimeStepRange[0]        = 0;
-  this->TimeStepRange[1]        = 0;
-  this->TimeStep                = 0;
-  this->ActualTimeStep          = 0;
+  this->TimeStepRange[0] = 0;
+  this->TimeStepRange[1] = 0;
+  this->TimeStep = 0;
+  this->ActualTimeStep = 0;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTemporalSphereSource::RequestInformation(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   //
-  if (!this->Superclass::RequestInformation(request, inputVector, outputVector)) {
+  if (!this->Superclass::RequestInformation(request, inputVector, outputVector))
+  {
     return 0;
   }
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 9;
-  this->TimeStepValues.resize(this->TimeStepRange[1]-this->TimeStepRange[0]+1);
-  for (int i=0; i<=this->TimeStepRange[1]; ++i)
+  this->TimeStepValues.resize(this->TimeStepRange[1] - this->TimeStepRange[0] + 1);
+  for (int i = 0; i <= this->TimeStepRange[1]; ++i)
   {
     this->TimeStepValues[i] = i;
   }
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-    &this->TimeStepValues[0], static_cast<int>(this->TimeStepValues.size()));
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeStepValues.data(),
+    static_cast<int>(this->TimeStepValues.size()));
   double timeRange[2];
   timeRange[0] = this->TimeStepValues.front();
   timeRange[1] = this->TimeStepValues.back();
@@ -119,42 +102,38 @@ int vtkTemporalSphereSource::RequestInformation(
 
   return 1;
 }
-//----------------------------------------------------------------------------
-class vtkTestTemporalCacheSimpleWithinTolerance: public std::binary_function<double, double, bool>
+//------------------------------------------------------------------------------
+
+static bool vtkTestTemporalCacheSimpleWithinTolerance(double a, double b)
 {
-public:
-    result_type operator()(first_argument_type a, second_argument_type b) const
-    {
-      bool result = (fabs(a-b)<=(a*1E-6));
-      return (result_type)result;
-    }
-};
-//----------------------------------------------------------------------------
+  return (fabs(a - b) <= (a * 1E-6));
+}
+
+//------------------------------------------------------------------------------
 int vtkTemporalSphereSource::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkDataObject* doOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
   this->ActualTimeStep = this->TimeStep;
 
-  if (this->TimeStep==0 && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+  if (this->TimeStep == 0 && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-    this->ActualTimeStep = std::find_if(
-      this->TimeStepValues.begin(),
-      this->TimeStepValues.end(),
-      std::bind( vtkTestTemporalCacheSimpleWithinTolerance( ), std::placeholders::_1, requestedTimeValue ))
-      - this->TimeStepValues.begin();
+    this->ActualTimeStep =
+      std::find_if(this->TimeStepValues.begin(), this->TimeStepValues.end(),
+        [requestedTimeValue](double const& v) {
+          return vtkTestTemporalCacheSimpleWithinTolerance(v, requestedTimeValue);
+        }) -
+      this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
   }
   else
   {
     double timevalue;
-    timevalue = this->TimeStepValues[this->ActualTimeStep-this->TimeStepRange[0]];
-    vtkDebugMacro(<<"Using manually set t= " << timevalue << " Step : " << this->ActualTimeStep);
+    timevalue = this->TimeStepValues[this->ActualTimeStep - this->TimeStepRange[0]];
+    vtkDebugMacro(<< "Using manually set t= " << timevalue << " Step : " << this->ActualTimeStep);
     doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timevalue);
   }
 
@@ -162,29 +141,30 @@ int vtkTemporalSphereSource::RequestData(
 
   return Superclass::RequestData(request, inputVector, outputVector);
 }
-//-------------------------------------------------------------------------
-//-------------------------------------------------------------------------
-//-------------------------------------------------------------------------
-class vtkTestTemporalCacheSimpleExecuteCallback
-  : public vtkCommand
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+class vtkTestTemporalCacheSimpleExecuteCallback : public vtkCommand
 {
 public:
-  static vtkTestTemporalCacheSimpleExecuteCallback *New()
-  { return new vtkTestTemporalCacheSimpleExecuteCallback; }
+  static vtkTestTemporalCacheSimpleExecuteCallback* New()
+  {
+    return new vtkTestTemporalCacheSimpleExecuteCallback;
+  }
 
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
     // count the number of timesteps requested
-    vtkTemporalSphereSource *sph = vtkTemporalSphereSource::SafeDownCast(caller);
-    vtkInformation *info = sph->GetExecutive()->GetOutputInformation(0);
-    int Length = info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP())? 1 : 0;
+    vtkTemporalSphereSource* sph = vtkTemporalSphereSource::SafeDownCast(caller);
+    vtkInformation* info = sph->GetExecutive()->GetOutputInformation(0);
+    int Length = info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()) ? 1 : 0;
     this->Count += Length;
   }
 
   unsigned int Count;
 };
-//-------------------------------------------------------------------------
-int TestTemporalCacheSimple(int , char *[])
+//------------------------------------------------------------------------------
+int TestTemporalCacheSimple(int, char*[])
 {
   // test temporal cache with non-temporal data source
   vtkNew<vtkSphereSource> staticSphereSource;
@@ -194,39 +174,36 @@ int TestTemporalCacheSimple(int , char *[])
   staticCache->SetInputConnection(staticSphereSource->GetOutputPort());
 
   // set a time
-  vtkInformation *info = staticCache->GetOutputInformation(0);
+  vtkInformation* info = staticCache->GetOutputInformation(0);
   staticCache->UpdateInformation();
   info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 0.0);
 
   staticCache->Update();
   vtkPolyData* cachedSphere = vtkPolyData::SafeDownCast(staticCache->GetOutputDataObject(0));
   if (staticSphere->GetNumberOfPoints() != cachedSphere->GetNumberOfPoints() ||
-      staticSphere->GetNumberOfCells() != cachedSphere->GetNumberOfCells())
+    staticSphere->GetNumberOfCells() != cachedSphere->GetNumberOfCells())
   {
     std::cerr << "Cached sphere does not match input sphere" << std::endl;
     return EXIT_FAILURE;
   }
 
   // create temporal fractals
-  vtkSmartPointer<vtkTemporalSphereSource> sphere =
-    vtkSmartPointer<vtkTemporalSphereSource>::New();
+  vtkSmartPointer<vtkTemporalSphereSource> sphere = vtkSmartPointer<vtkTemporalSphereSource>::New();
 
-  vtkTestTemporalCacheSimpleExecuteCallback *executecb
-    =vtkTestTemporalCacheSimpleExecuteCallback::New();
+  vtkTestTemporalCacheSimpleExecuteCallback* executecb =
+    vtkTestTemporalCacheSimpleExecuteCallback::New();
   executecb->Count = 0;
-  sphere->AddObserver(vtkCommand::StartEvent,executecb);
+  sphere->AddObserver(vtkCommand::StartEvent, executecb);
   executecb->Delete();
 
   // cache the data to prevent regenerating some of it
-  vtkSmartPointer<vtkTemporalDataSetCache> cache =
-    vtkSmartPointer<vtkTemporalDataSetCache>::New();
+  vtkSmartPointer<vtkTemporalDataSetCache> cache = vtkSmartPointer<vtkTemporalDataSetCache>::New();
   cache->SetInputConnection(sphere->GetOutputPort());
   cache->SetCacheSize(10);
 
   // interpolate if needed
-  vtkSmartPointer<vtkTemporalInterpolator> interp =
-    vtkSmartPointer<vtkTemporalInterpolator>::New();
-  //interp->SetInputConnection(fractal->GetOutputPort());
+  vtkSmartPointer<vtkTemporalInterpolator> interp = vtkSmartPointer<vtkTemporalInterpolator>::New();
+  // interp->SetInputConnection(fractal->GetOutputPort());
   interp->SetInputConnection(cache->GetOutputPort());
 
   // map them
@@ -237,19 +214,17 @@ int TestTemporalCacheSimple(int , char *[])
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
-  renderer->AddActor( actor );
+  renderer->AddActor(actor);
   renderer->SetBackground(0.5, 0.5, 0.5);
 
-  renWin->AddRenderer( renderer );
-  renWin->SetSize( 300, 300 );
-  iren->SetRenderWindow( renWin );
+  renWin->AddRenderer(renderer);
+  renWin->SetSize(300, 300);
+  iren->SetRenderWindow(renWin);
 
   // ask for some specific data points
   info = interp->GetOutputInformation(0);
@@ -261,7 +236,7 @@ int TestTemporalCacheSimple(int , char *[])
   {
     for (i = 0; i < 9; ++i)
     {
-      time = i+0.5;
+      time = i + 0.5;
       info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time);
       mapper->Modified();
       renderer->ResetCameraClippingRange();

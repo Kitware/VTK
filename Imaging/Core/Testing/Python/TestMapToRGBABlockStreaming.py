@@ -1,19 +1,31 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkLookupTable,
+    vtkMultiThreader,
+)
+from vtkmodules.vtkIOImage import vtkImageReader
+from vtkmodules.vtkImagingCore import (
+    vtkImageDataStreamer,
+    vtkImageMapToColors,
+)
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-vtk.vtkMultiThreader.SetGlobalMaximumNumberOfThreads(1)
+vtkMultiThreader.SetGlobalMaximumNumberOfThreads(1)
 
-reader = vtk.vtkImageReader()
+reader = vtkImageReader()
 reader.SetDataByteOrderToLittleEndian()
 reader.SetDataExtent(0,63,0,63,1,93)
 reader.SetDataSpacing(3.2,3.2,1.5)
-reader.SetFilePrefix("" + str(VTK_DATA_ROOT) + "/Data/headsq/quarter")
+reader.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
 reader.SetDataMask(0x7fff)
 rangeStart = 0.0
 rangeEnd = 0.2
-LUT = vtk.vtkLookupTable()
+LUT = vtkLookupTable()
 LUT.SetTableRange(0,1800)
 LUT.SetSaturationRange(1,1)
 LUT.SetHueRange(rangeStart,rangeEnd)
@@ -23,30 +35,29 @@ LUT.Build()
 # The prototype of this function has
 # arguments so that the code can be
 # translated to python for testing.
-def changeLUT (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
+def changeLUT(obj=None, event=""):
     global rangeStart, rangeEnd
-    rangeStart = expr.expr(globals(), locals(),["rangeStart","+","0.1"])
-    rangeEnd = expr.expr(globals(), locals(),["rangeEnd","+","0.1"])
-    if (rangeEnd > 1.0):
+    rangeStart += 0.1
+    rangeEnd += 0.1
+    if rangeEnd > 1.0:
         rangeStart = 0.0
         rangeEnd = 0.2
-        pass
     LUT.SetHueRange(rangeStart,rangeEnd)
     LUT.Build()
 
-mapToRGBA = vtk.vtkImageMapToColors()
+mapToRGBA = vtkImageMapToColors()
 mapToRGBA.SetInputConnection(reader.GetOutputPort())
 mapToRGBA.SetOutputFormatToRGBA()
 mapToRGBA.SetLookupTable(LUT)
 #mapToRGBA.AddObserver("EndEvent",changeLUT)
-imageStreamer = vtk.vtkImageDataStreamer()
+imageStreamer = vtkImageDataStreamer()
 imageStreamer.SetInputConnection(mapToRGBA.GetOutputPort())
 imageStreamer.SetNumberOfStreamDivisions(8)
 # make sure we get the correct translator.
 imageStreamer.UpdateInformation()
 imageStreamer.GetExtentTranslator().SetSplitModeToBlock()
 # set the window/level to 255.0/127.5 to view full range
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 viewer.SetInputConnection(imageStreamer.GetOutputPort())
 viewer.SetColorWindow(255.0)
 viewer.SetColorLevel(127.5)

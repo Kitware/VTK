@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkValuePass.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkValuePass
  *
@@ -38,14 +26,15 @@
  *
  * @sa
  * vtkRenderPass vtkOpenGLRenderPass
-*/
+ */
 #ifndef vtkValuePass_h
 #define vtkValuePass_h
 
 #include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkSmartPointer.h" //for ivar
+#include "vtkSmartPointer.h"           //for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkActor;
 class vtkDataArray;
@@ -61,31 +50,25 @@ class vtkShaderProgram;
 class VTKRENDERINGOPENGL2_EXPORT vtkValuePass : public vtkOpenGLRenderPass
 {
 public:
-
   enum Mode
   {
     INVERTIBLE_LUT = 1,
     FLOATING_POINT = 2
   };
 
-  static vtkValuePass *New();
+  static vtkValuePass* New();
   vtkTypeMacro(vtkValuePass, vtkOpenGLRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // @deprecated As of 9.0, We are moving to only FLOATING_POINT.
-  VTK_LEGACY(vtkSetMacro(RenderingMode, int));
-  VTK_LEGACY(vtkGetMacro(RenderingMode, int));
-  void SetInputArrayToProcess(int fieldAssociation, const char *name);
+  void SetInputArrayToProcess(int fieldAssociation, const char* name);
   void SetInputArrayToProcess(int fieldAssociation, int fieldId);
   void SetInputComponentToProcess(int component);
-  // @deprecated As of 9.0, Not needed with FLOATING_POINT.
-  VTK_LEGACY(void SetScalarRange(double min, double max));
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
   /**
    * Interface to get the rendered image in FLOATING_POINT mode.  Returns a
@@ -99,8 +82,7 @@ public:
    * a format for the internal glReadPixels call can be specified. 'data' is expected
    * to be allocated and cleaned-up by the caller.
    */
-  void GetFloatImageData(int const format, int const width, int const height,
-    void* data);
+  void GetFloatImageData(int format, int width, int height, void* data);
 
   /**
    * Interface to get the rendered image in FLOATING_POINT mode.  Image extents of
@@ -108,23 +90,9 @@ public:
    */
   int* GetFloatImageExtents();
 
-  /**
-   * Check for extension support.
-   * @deprecated As of 9.0, All platforms support FLOATING_POINT.
-   */
-  VTK_LEGACY(bool IsFloatingPointModeSupported());
+  void ReleaseGraphicsResources(vtkWindow* win) override;
 
-  void ReleaseGraphicsResources(vtkWindow *win) override;
-
-  /**
-   * Convert an RGB triplet to a floating point value. This method is exposed
-   * as a convenience function for testing (TestValuePass2).
-   * @deprecated As of 9.0, not necessary with FLOATING_POINT.
-   */
-  VTK_LEGACY(void ColorToValue(unsigned char const* color, double const min,
-    double const scale, double& value));
-
- protected:
+protected:
   vtkValuePass();
   ~vtkValuePass() override;
 
@@ -134,22 +102,18 @@ public:
    */
 
   /**
-   * Use vtkShaderProgram::Substitute to replace //VTK::XXX:YYY declarations in
+   * Use vtkShaderProgram::Substitute to replace @code //VTK::XXX:YYY @endcode declarations in
    * the shader sources. Gets called after other mapper shader replacements.
    * Return false on error.
    */
-  bool PostReplaceShaderValues(std::string &vertexShader,
-                                   std::string &geometryShader,
-                                   std::string &fragmentShader,
-                                   vtkAbstractMapper *mapper,
-                                   vtkProp *prop) override;
+  bool PostReplaceShaderValues(std::string& vertexShader, std::string& geometryShader,
+    std::string& fragmentShader, vtkAbstractMapper* mapper, vtkProp* prop) override;
   /**
    * Update the uniforms of the shader program.
    * Return false on error.
    */
-  bool SetShaderParameters(vtkShaderProgram* program,
-                                   vtkAbstractMapper* mapper, vtkProp* prop,
-                                   vtkOpenGLVertexArrayObject* VAO = nullptr) override;
+  bool SetShaderParameters(vtkShaderProgram* program, vtkAbstractMapper* mapper, vtkProp* prop,
+    vtkOpenGLVertexArrayObject* VAO = nullptr) override;
   /**
    * For multi-stage render passes that need to change shader code during a
    * single pass, use this method to notify a mapper that the shader needs to be
@@ -175,7 +139,7 @@ public:
    * Opaque pass with key checking.
    * \pre s_exists: s!=0
    */
-  void RenderOpaqueGeometry(const vtkRenderState *s);
+  void RenderOpaqueGeometry(const vtkRenderState* s);
 
   /**
    * Unbind textures, etc.
@@ -185,14 +149,13 @@ public:
   /**
    * Upload new data if necessary, bind textures, etc.
    */
-  void RenderPieceStart(vtkDataArray* dataArr, vtkMapper *m);
+  void RenderPieceStart(vtkDataArray* dataArr, vtkMapper* m);
 
   /**
    * Setup the mapper state, buffer objects or property variables necessary
    * to render the active rendering mode.
    */
-  void BeginMapperRender(vtkMapper* mapper, vtkDataArray* dataArray,
-    vtkProperty* property);
+  void BeginMapperRender(vtkMapper* mapper, vtkDataArray* dataArray, vtkProperty* property);
 
   /**
    * Revert any changes made in BeginMapperRender.
@@ -212,14 +175,14 @@ public:
   void BindAttributes(vtkShaderProgram* prog, vtkOpenGLVertexArrayObject* VAO);
   void BindUniforms(vtkShaderProgram* prog);
 
-  //@{
+  ///@{
   /**
    * Methods managing graphics resources required during FLOATING_POINT mode.
    */
   bool HasWindowSizeChanged(vtkRenderer* ren);
   bool InitializeFBO(vtkRenderer* ren);
   void ReleaseFBO(vtkWindow* win);
-  //@}
+  ///@}
 
   class vtkInternalsFloat;
   vtkInternalsFloat* ImplFloat;
@@ -232,18 +195,18 @@ public:
 
   int RenderingMode;
 
- private:
+private:
   vtkDataArray* GetCurrentArray(vtkMapper* mapper, Parameters* arrayPar);
 
-  vtkAbstractArray* GetArrayFromCompositeData(vtkMapper* mapper,
-    Parameters* arrayPar);
+  vtkAbstractArray* GetArrayFromCompositeData(vtkMapper* mapper, Parameters* arrayPar);
 
   vtkSmartPointer<vtkAbstractArray> MultiBlocksArray;
 
-  void PopulateCellCellMap(const vtkRenderState *s);
+  void PopulateCellCellMap(const vtkRenderState* s);
 
   vtkValuePass(const vtkValuePass&) = delete;
   void operator=(const vtkValuePass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

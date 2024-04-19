@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPCellSizeFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPCellSizeFilter
  * @brief   Computes cell sizes in parallel.
@@ -33,34 +21,37 @@
  * and put the value into vtkFieldData arrays named with the corresponding cell
  * data array name. For composite datasets the total sum over all blocks will
  * also be added to the top-level block's field data for the summation.
-*/
+ */
 
 #ifndef vtkPCellSizeFilter_h
 #define vtkPCellSizeFilter_h
 
-#include "vtkFiltersParallelVerdictModule.h" // For export macro
 #include "vtkCellSizeFilter.h"
+#include "vtkFiltersParallelVerdictModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLELVERDICT_EXPORT vtkPCellSizeFilter : public vtkCellSizeFilter
 {
 public:
   vtkTypeMacro(vtkPCellSizeFilter, vtkCellSizeFilter);
   static vtkPCellSizeFilter* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPCellSizeFilter();
   ~vtkPCellSizeFilter() override;
 
-  //@{
+  ///@{
   /**
    * Method to compute the global sum information.
    */
-  virtual void ComputeGlobalSum(double sum[4]) override;
-  //@}
+  void ComputeGlobalSum(double sum[4]) override;
+  ///@}
 
 private:
   vtkPCellSizeFilter(const vtkPCellSizeFilter&) = delete;
   void operator=(const vtkPCellSizeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeDFSIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkTreeDFSIterator
  * @brief   depth first iterator through a vtkGraph
@@ -33,7 +17,7 @@
  * After setting up the iterator, the normal mode of operation is to
  * set up a <code>while(iter->HasNext())</code> loop, with the statement
  * <code>vtkIdType vertex = iter->Next()</code> inside the loop.
-*/
+ */
 
 #ifndef vtkTreeDFSIterator_h
 #define vtkTreeDFSIterator_h
@@ -41,6 +25,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkTreeIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTreeDFSIteratorInternals;
 class vtkIntArray;
 
@@ -57,7 +42,7 @@ public:
     FINISH
   };
 
-  //@{
+  ///@{
   /**
    * Set the visit mode of the iterator.  Mode can be
    * DISCOVER (0): Order by discovery time
@@ -68,7 +53,7 @@ public:
    */
   void SetMode(int mode);
   vtkGetMacro(Mode, int);
-  //@}
+  ///@}
 
 protected:
   vtkTreeDFSIterator();
@@ -90,10 +75,9 @@ protected:
   };
 
 private:
-  vtkTreeDFSIterator(const vtkTreeDFSIterator &) = delete;
-  void operator=(const vtkTreeDFSIterator &) = delete;
+  vtkTreeDFSIterator(const vtkTreeDFSIterator&) = delete;
+  void operator=(const vtkTreeDFSIterator&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif
-

@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkBiomTableReader.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
@@ -5,17 +7,15 @@
 
 int TestBiomTableReader(int argc, char* argv[])
 {
-  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                       "Data/Infovis/otu_table.biom");
+  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/otu_table.biom");
 
   cerr << "file: " << file << endl;
 
-  vtkSmartPointer<vtkBiomTableReader> reader =
-      vtkSmartPointer<vtkBiomTableReader>::New();
+  vtkSmartPointer<vtkBiomTableReader> reader = vtkSmartPointer<vtkBiomTableReader>::New();
   reader->SetFileName(file);
   delete[] file;
   reader->Update();
-  vtkTable *table = reader->GetOutput();
+  vtkTable* table = reader->GetOutput();
 
   int error_count = 0;
 

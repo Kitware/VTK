@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGenericMovieWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGenericMovieWriter
  * @brief   an abstract movie writer class.
@@ -23,7 +11,7 @@
  * and close the file.
  * @sa
  * vtkAVIWriter
-*/
+ */
 
 #ifndef vtkGenericMovieWriter_h
 #define vtkGenericMovieWriter_h
@@ -31,46 +19,48 @@
 #include "vtkIOMovieModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOMOVIE_EXPORT vtkGenericMovieWriter : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkGenericMovieWriter,vtkImageAlgorithm);
+  vtkTypeMacro(vtkGenericMovieWriter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of avi file.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods start writing an Movie file, write a frame to the file
    * and then end the writing process.
    */
-  virtual void Start() =0;
-  virtual void Write() =0;
-  virtual void End() =0;
-  //@}
+  virtual void Start() = 0;
+  virtual void Write() = 0;
+  virtual void End() = 0;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Was there an error on the last write performed?
    */
-  vtkGetMacro(Error,int);
-  //@}
+  vtkGetMacro(Error, int);
+  ///@}
 
   /**
    * Converts vtkErrorCodes and vtkGenericMovieWriter errors to strings.
    */
-  static const char *GetStringFromErrorCode(unsigned long event);
+  static const char* GetStringFromErrorCode(unsigned long error);
 
-  enum MovieWriterErrorIds {
-    UserError = 40000, //must match vtkErrorCode::UserError
+  enum MovieWriterErrorIds
+  {
+    UserError = 40000, // must match vtkErrorCode::UserError
     InitError,
     NoInputError,
     CanNotCompress,
@@ -82,7 +72,7 @@ protected:
   vtkGenericMovieWriter();
   ~vtkGenericMovieWriter() override;
 
-  char *FileName;
+  char* FileName;
   int Error;
 
 private:
@@ -90,7 +80,5 @@ private:
   void operator=(const vtkGenericMovieWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-

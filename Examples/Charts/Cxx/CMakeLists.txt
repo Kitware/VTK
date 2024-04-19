@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(Charts)
 
 find_package(VTK
@@ -9,6 +9,7 @@ find_package(VTK
     GUISupportQt
     InfovisCore
     RenderingOpenGL2
+    RenderingContextOpenGL2
     ViewsInfovis
     ViewsContext2D
     ViewsQt)
@@ -49,7 +50,7 @@ if (TARGET VTK::ViewsContext2D)
             VTK::ViewsContext2D)
 endif ()
 
-if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsContext2D AND TARGET VTK::ViewsQt)
+if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsContext2D AND TARGET VTK::ViewsQt AND TARGET VTK::RenderingOpenGL2 AND TARGET VTK::RenderingContextOpenGL2)
   add_executable(QChartTable
     QChartTable.cxx)
   target_link_libraries(QChartTable
@@ -57,6 +58,8 @@ if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsC
       VTK::ChartsCore
       VTK::CommonSystem
       VTK::GUISupportQt
+      VTK::RenderingOpenGL2
+      VTK::RenderingContextOpenGL2
       VTK::ViewsContext2D
       VTK::ViewsQt)
 
@@ -67,6 +70,8 @@ if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsC
       VTK::ChartsCore
       VTK::CommonSystem
       VTK::GUISupportQt
+      VTK::RenderingOpenGL2
+      VTK::RenderingContextOpenGL2
       VTK::ViewsContext2D
       VTK::ViewsQt)
 
@@ -76,6 +81,8 @@ if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsC
     MODULES VTK::ChartsCore
             VTK::CommonSystem
             VTK::GUISupportQt
+            VTK::RenderingOpenGL2
+            VTK::RenderingContextOpenGL2
             VTK::ViewsContext2D
             VTK::ViewsQt)
 endif ()

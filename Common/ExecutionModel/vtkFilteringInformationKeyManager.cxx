@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFilteringInformationKeyManager.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkFilteringInformationKeyManager.h"
 
 #include "vtkInformationKey.h"
@@ -20,45 +8,45 @@
 
 // Subclass vector so we can directly call constructor.  This works
 // around problems on Borland C++.
-struct vtkFilteringInformationKeyManagerKeysType:
-  public std::vector<vtkInformationKey*>
+VTK_ABI_NAMESPACE_BEGIN
+struct vtkFilteringInformationKeyManagerKeysType : public std::vector<vtkInformationKey*>
 {
   typedef std::vector<vtkInformationKey*> Superclass;
   typedef Superclass::iterator iterator;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
 static unsigned int vtkFilteringInformationKeyManagerCount;
 static vtkFilteringInformationKeyManagerKeysType* vtkFilteringInformationKeyManagerKeys;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFilteringInformationKeyManager::vtkFilteringInformationKeyManager()
 {
-  if(++vtkFilteringInformationKeyManagerCount == 1)
+  if (++vtkFilteringInformationKeyManagerCount == 1)
   {
     vtkFilteringInformationKeyManager::ClassInitialize();
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkFilteringInformationKeyManager::~vtkFilteringInformationKeyManager()
 {
-  if(--vtkFilteringInformationKeyManagerCount == 0)
+  if (--vtkFilteringInformationKeyManagerCount == 0)
   {
     vtkFilteringInformationKeyManager::ClassFinalize();
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFilteringInformationKeyManager::Register(vtkInformationKey* key)
 {
   // Register this instance for deletion by the singleton.
   vtkFilteringInformationKeyManagerKeys->push_back(key);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFilteringInformationKeyManager::ClassInitialize()
 {
   // Allocate the singleton storing pointers to information keys.
@@ -68,19 +56,18 @@ void vtkFilteringInformationKeyManager::ClassInitialize()
   // initialization to occur in other translation units immediately,
   // which then may try to access the vector before it is set here.
   void* keys = malloc(sizeof(vtkFilteringInformationKeyManagerKeysType));
-  vtkFilteringInformationKeyManagerKeys =
-    new (keys) vtkFilteringInformationKeyManagerKeysType;
+  vtkFilteringInformationKeyManagerKeys = new (keys) vtkFilteringInformationKeyManagerKeysType;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkFilteringInformationKeyManager::ClassFinalize()
 {
-  if(vtkFilteringInformationKeyManagerKeys)
+  if (vtkFilteringInformationKeyManagerKeys)
   {
     // Delete information keys.
-    for(vtkFilteringInformationKeyManagerKeysType::iterator i =
-          vtkFilteringInformationKeyManagerKeys->begin();
-        i != vtkFilteringInformationKeyManagerKeys->end(); ++i)
+    for (vtkFilteringInformationKeyManagerKeysType::iterator i =
+           vtkFilteringInformationKeyManagerKeys->begin();
+         i != vtkFilteringInformationKeyManagerKeys->end(); ++i)
     {
       vtkInformationKey* key = *i;
       delete key;
@@ -94,3 +81,4 @@ void vtkFilteringInformationKeyManager::ClassFinalize()
     vtkFilteringInformationKeyManagerKeys = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

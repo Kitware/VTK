@@ -1,17 +1,48 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonExecutionModel import vtkCastToConcrete
+from vtkmodules.vtkFiltersCore import (
+    vtkClipPolyData,
+    vtkDecimatePro,
+    vtkPolyDataNormals,
+    vtkStripper,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersGeometry import vtkImageDataGeometryFilter
+from vtkmodules.vtkFiltersModeling import vtkLinearExtrusionFilter
+from vtkmodules.vtkFiltersTexture import vtkTextureMapToPlane
+from vtkmodules.vtkIOImage import vtkTIFFReader
+from vtkmodules.vtkImagingCore import (
+    vtkImageConstantPad,
+    vtkImageExtractComponents,
+    vtkImageShrink3D,
+    vtkImageThreshold,
+)
+from vtkmodules.vtkImagingColor import vtkImageRGBToHSV
+from vtkmodules.vtkImagingGeneral import vtkImageGaussianSmooth
+from vtkmodules.vtkImagingMorphological import vtkImageSeedConnectivity
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and Interactor
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-imageIn = vtk.vtkTIFFReader()
+imageIn = vtkTIFFReader()
 imageIn.SetFileName(VTK_DATA_ROOT + "/Data/beach.tif")
 # "beach.tif" image contains ORIENTATION tag which is
 # ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
@@ -44,20 +75,20 @@ orgY = imageIn.GetExecutive().GetWholeExtent(
 padX = PowerOfTwo(orgX)
 padY = PowerOfTwo(orgY)
 
-imagePowerOf2 = vtk.vtkImageConstantPad()
+imagePowerOf2 = vtkImageConstantPad()
 imagePowerOf2.SetInputConnection(imageIn.GetOutputPort())
 imagePowerOf2.SetOutputWholeExtent(0, padX - 1, 0, padY - 1, 0, 0)
 
-toHSV = vtk.vtkImageRGBToHSV()
+toHSV = vtkImageRGBToHSV()
 toHSV.SetInputConnection(imageIn.GetOutputPort())
 toHSV.GetExecutive().SetReleaseDataFlag(0, 0)
 
-extractImage = vtk.vtkImageExtractComponents()
+extractImage = vtkImageExtractComponents()
 extractImage.SetInputConnection(toHSV.GetOutputPort())
 extractImage.SetComponents(2)
 extractImage.GetExecutive().SetReleaseDataFlag(0, 0)
 
-threshold1 = vtk.vtkImageThreshold()
+threshold1 = vtkImageThreshold()
 threshold1.SetInputConnection(extractImage.GetOutputPort())
 threshold1.ThresholdByUpper(230)
 threshold1.SetInValue(255)
@@ -67,7 +98,7 @@ threshold1.Update()
 extent = threshold1.GetExecutive().GetWholeExtent(
     threshold1.GetOutputInformation(0))
 
-connect = vtk.vtkImageSeedConnectivity()
+connect = vtkImageSeedConnectivity()
 connect.SetInputConnection(threshold1.GetOutputPort())
 connect.SetInputConnectValue(255)
 connect.SetOutputConnectedValue(255)
@@ -77,30 +108,30 @@ connect.AddSeed(extent[1], extent[2])
 connect.AddSeed(extent[1], extent[3])
 connect.AddSeed(extent[0], extent[3])
 
-smooth = vtk.vtkImageGaussianSmooth()
+smooth = vtkImageGaussianSmooth()
 smooth.SetDimensionality(2)
 smooth.SetStandardDeviation(1, 1)
 smooth.SetInputConnection(connect.GetOutputPort())
 
-shrink = vtk.vtkImageShrink3D()
+shrink = vtkImageShrink3D()
 shrink.SetInputConnection(smooth.GetOutputPort())
 shrink.SetShrinkFactors(2, 2, 1)
 shrink.AveragingOn()
 
-geometry = vtk.vtkImageDataGeometryFilter()
+geometry = vtkImageDataGeometryFilter()
 geometry.SetInputConnection(shrink.GetOutputPort())
 
-geometryTexture = vtk.vtkTextureMapToPlane()
+geometryTexture = vtkTextureMapToPlane()
 geometryTexture.SetInputConnection(geometry.GetOutputPort())
 geometryTexture.SetOrigin(0, 0, 0)
 geometryTexture.SetPoint1(padX - 1, 0, 0)
 geometryTexture.SetPoint2(0, padY - 1, 0)
 
-geometryPD = vtk.vtkCastToConcrete()
+geometryPD = vtkCastToConcrete()
 geometryPD.SetInputConnection(geometryTexture.GetOutputPort())
 geometryPD.Update()
 
-clip = vtk.vtkClipPolyData()
+clip = vtkClipPolyData()
 clip.SetInputData(geometryPD.GetPolyDataOutput())
 clip.SetValue(5.5)
 clip.GenerateClipScalarsOff()
@@ -109,37 +140,37 @@ clip.InsideOutOn()
 clip.GetOutput().GetPointData().CopyScalarsOff()
 clip.Update()
 
-triangles = vtk.vtkTriangleFilter()
+triangles = vtkTriangleFilter()
 triangles.SetInputConnection(clip.GetOutputPort())
 
-decimate = vtk.vtkDecimatePro()
+decimate = vtkDecimatePro()
 decimate.SetInputConnection(triangles.GetOutputPort())
 decimate.BoundaryVertexDeletionOn()
 decimate.SetDegree(25)
 decimate.PreserveTopologyOn()
 
-extrude = vtk.vtkLinearExtrusionFilter()
+extrude = vtkLinearExtrusionFilter()
 extrude.SetInputConnection(decimate.GetOutputPort())
 extrude.SetExtrusionType(2)
 extrude.SetScaleFactor(-20)
 
-normals = vtk.vtkPolyDataNormals()
+normals = vtkPolyDataNormals()
 normals.SetInputConnection(extrude.GetOutputPort())
 normals.SetFeatureAngle(80)
 
-strip = vtk.vtkStripper()
+strip = vtkStripper()
 strip.SetInputConnection(extrude.GetOutputPort())
 
-map = vtk.vtkPolyDataMapper()
+map = vtkPolyDataMapper()
 map.SetInputConnection(strip.GetOutputPort())
 map.SetInputConnection(normals.GetOutputPort())
 map.ScalarVisibilityOff()
 
-imageTexture = vtk.vtkTexture()
+imageTexture = vtkTexture()
 imageTexture.InterpolateOn()
 imageTexture.SetInputConnection(imagePowerOf2.GetOutputPort())
 
-clipart = vtk.vtkActor()
+clipart = vtkActor()
 clipart.SetMapper(map)
 clipart.SetTexture(imageTexture)
 

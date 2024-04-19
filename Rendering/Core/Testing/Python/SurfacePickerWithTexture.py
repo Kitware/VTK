@@ -1,7 +1,27 @@
 #!/usr/bin/env python
 
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkStripper
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkFiltersTexture import vtkTextureMapToSphere
+from vtkmodules.vtkIOImage import vtkJPEGReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCellPicker,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkProperty,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 
@@ -12,41 +32,41 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 #
 
 # renderer and interactor
-ren = vtk.vtkRenderer()
+ren = vtkRenderer()
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # read the volume
-reader = vtk.vtkJPEGReader()
+reader = vtkJPEGReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/beach.jpg")
 
 #---------------------------------------------------------
 # Do the surface rendering
-sphereSource = vtk.vtkSphereSource()
+sphereSource = vtkSphereSource()
 sphereSource.SetRadius(100)
 
-textureSphere = vtk.vtkTextureMapToSphere()
+textureSphere = vtkTextureMapToSphere()
 textureSphere.SetInputConnection(sphereSource.GetOutputPort())
 
-sphereStripper = vtk.vtkStripper()
+sphereStripper = vtkStripper()
 sphereStripper.SetInputConnection(textureSphere.GetOutputPort())
 sphereStripper.SetMaximumLength(5)
 
-sphereMapper = vtk.vtkPolyDataMapper()
+sphereMapper = vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphereStripper.GetOutputPort())
 sphereMapper.ScalarVisibilityOff()
 
-sphereTexture = vtk.vtkTexture()
+sphereTexture = vtkTexture()
 sphereTexture.SetInputConnection(reader.GetOutputPort())
 
-sphereProperty = vtk.vtkProperty()
+sphereProperty = vtkProperty()
 sphereProperty.BackfaceCullingOn()
 
-sphere = vtk.vtkActor()
+sphere = vtkActor()
 sphere.SetMapper(sphereMapper)
 sphere.SetTexture(sphereTexture)
 sphere.SetProperty(sphereProperty)
@@ -65,7 +85,7 @@ renWin.Render()
 
 #---------------------------------------------------------
 # the cone should point along the Z axis
-coneSource = vtk.vtkConeSource()
+coneSource = vtkConeSource()
 coneSource.CappingOn()
 coneSource.SetHeight(12)
 coneSource.SetRadius(5)
@@ -74,7 +94,7 @@ coneSource.SetCenter(6, 0, 0)
 coneSource.SetDirection(-1, 0, 0)
 
 #---------------------------------------------------------
-picker = vtk.vtkCellPicker()
+picker = vtkCellPicker()
 picker.SetTolerance(1e-6)
 picker.PickTextureDataOn()
 
@@ -111,9 +131,9 @@ r = r / 255.0
 g = g / 255.0
 b = b / 255.0
 
-coneActor1 = vtk.vtkActor()
+coneActor1 = vtkActor()
 coneActor1.PickableOff()
-coneMapper1 = vtk.vtkDataSetMapper()
+coneMapper1 = vtkDataSetMapper()
 coneMapper1.SetInputConnection(coneSource.GetOutputPort())
 coneActor1.SetMapper(coneMapper1)
 coneActor1.GetProperty().SetColor(r, g, b)
@@ -128,10 +148,8 @@ renWin.Render()
 
 #---------------------------------------------------------
 # test-related code
-def TkCheckAbort (__vtk__temp0=0, __vtk__temp1=0):
-    foo = renWin.GetEventPending()
-    if (foo != 0):
+def TkCheckAbort(obj=None, event=""):
+    if renWin.GetEventPending():
         renWin.SetAbortRender(1)
-        pass
 
 renWin.AddObserver("AbortCheckEvent", TkCheckAbort)

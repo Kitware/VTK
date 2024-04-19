@@ -4,7 +4,7 @@
  *
  *   TrueType bytecode interpreter (body).
  *
- * Copyright (C) 1996-2019 by
+ * Copyright (C) 1996-2022 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -20,13 +20,12 @@
 /* issues; many thanks!                                                */
 
 
-#include <ft2build.h>
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_CALC_H
-#include FT_TRIGONOMETRY_H
-#include FT_SYSTEM_H
-#include FT_DRIVER_H
-#include FT_MULTIPLE_MASTERS_H
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftcalc.h>
+#include <freetype/fttrigon.h>
+#include <freetype/ftsystem.h>
+#include <freetype/ftdriver.h>
+#include <freetype/ftmm.h>
 
 #include "ttinterp.h"
 #include "tterrors.h"
@@ -252,6 +251,14 @@
     FT_FREE( exec->stack );
     exec->stackSize = 0;
 
+    /* free glyf cvt working area */
+    FT_FREE( exec->glyfCvt );
+    exec->glyfCvtSize = 0;
+
+    /* free glyf storage working area */
+    FT_FREE( exec->glyfStorage );
+    exec->glyfStoreSize = 0;
+
     /* free call stack */
     FT_FREE( exec->callStack );
     exec->callSize = 0;
@@ -266,64 +273,6 @@
 
     FT_FREE( exec );
   }
-
-
-  /**************************************************************************
-   *
-   * @Function:
-   *   Init_Context
-   *
-   * @Description:
-   *   Initializes a context object.
-   *
-   * @Input:
-   *   memory ::
-   *     A handle to the parent memory object.
-   *
-   * @InOut:
-   *   exec ::
-   *     A handle to the target execution context.
-   *
-   * @Return:
-   *   FreeType error code.  0 means success.
-   */
-  static FT_Error
-  Init_Context( TT_ExecContext  exec,
-                FT_Memory       memory )
-  {
-    FT_Error  error;
-
-
-    FT_TRACE1(( "Init_Context: new object at 0x%08p\n", exec ));
-
-    exec->memory   = memory;
-    exec->callSize = 32;
-
-    if ( FT_NEW_ARRAY( exec->callStack, exec->callSize ) )
-      goto Fail_Memory;
-
-    /* all values in the context are set to 0 already, but this is */
-    /* here as a remainder                                         */
-    exec->maxPoints   = 0;
-    exec->maxContours = 0;
-
-    exec->stackSize = 0;
-    exec->glyphSize = 0;
-
-    exec->stack    = NULL;
-    exec->glyphIns = NULL;
-
-    exec->face = NULL;
-    exec->size = NULL;
-
-    return FT_Err_Ok;
-
-  Fail_Memory:
-    FT_ERROR(( "Init_Context: not enough memory for %p\n", exec ));
-    TT_Done_Context( exec );
-
-    return error;
- }
 
 
   /**************************************************************************
@@ -368,7 +317,7 @@
 
     if ( *size < new_max )
     {
-      if ( FT_REALLOC( *pbuff, *size * multiplier, new_max * multiplier ) )
+      if ( FT_QREALLOC( *pbuff, *size * multiplier, new_max * multiplier ) )
         return error;
       *size = new_max;
     }
@@ -401,6 +350,8 @@
    *
    * @Note:
    *   Only the glyph loader and debugger should call this function.
+   *
+   *   Note that not all members of `TT_ExecContext` get initialized.
    */
   FT_LOCAL_DEF( FT_Error )
   TT_Load_Context( TT_ExecContext  exec,
@@ -465,13 +416,13 @@
     if ( error )
       return error;
 
-    tmp = exec->glyphSize;
+    tmp = (FT_ULong)exec->glyphSize;
     error = Update_Max( exec->memory,
                         &tmp,
                         sizeof ( FT_Byte ),
                         (void*)&exec->glyphIns,
                         maxp->maxSizeOfInstructions );
-    exec->glyphSize = (FT_UShort)tmp;
+    exec->glyphSize = (FT_UInt)tmp;
     if ( error )
       return error;
 
@@ -565,6 +516,14 @@
     exec->GS.round_state = 1;
     exec->GS.loop        = 1;
 
+#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
+    exec->iup_called  = FALSE;
+#endif
+#ifdef TT_SUPPORT_SUBPIXEL_HINTING_MINIMAL
+    exec->iupx_called = FALSE;
+    exec->iupy_called = FALSE;
+#endif
+
     /* some glyphs leave something on the stack. so we clean it */
     /* before a new execution.                                  */
     exec->top     = 0;
@@ -610,19 +569,19 @@
 
     memory = driver->root.root.memory;
 
-    /* allocate object */
+    /* allocate object and zero everything inside */
     if ( FT_NEW( exec ) )
       goto Fail;
 
-    /* initialize it; in case of error this deallocates `exec' too */
-    error = Init_Context( exec, memory );
-    if ( error )
-      goto Fail;
+    /* create callStack here, other allocations delayed */
+    exec->memory   = memory;
+    exec->callSize = 32;
 
-    return exec;
+    if ( FT_QNEW_ARRAY( exec->callStack, exec->callSize ) )
+      FT_FREE( exec );
 
   Fail:
-    return NULL;
+    return exec;
   }
 
 
@@ -654,23 +613,25 @@
     /* opcodes are gathered in groups of 16 */
     /* please keep the spaces as they are   */
 
-    /*  SVTCA  y  */  PACK( 0, 0 ),
-    /*  SVTCA  x  */  PACK( 0, 0 ),
-    /*  SPvTCA y  */  PACK( 0, 0 ),
-    /*  SPvTCA x  */  PACK( 0, 0 ),
-    /*  SFvTCA y  */  PACK( 0, 0 ),
-    /*  SFvTCA x  */  PACK( 0, 0 ),
-    /*  SPvTL //  */  PACK( 2, 0 ),
-    /*  SPvTL +   */  PACK( 2, 0 ),
-    /*  SFvTL //  */  PACK( 2, 0 ),
-    /*  SFvTL +   */  PACK( 2, 0 ),
-    /*  SPvFS     */  PACK( 2, 0 ),
-    /*  SFvFS     */  PACK( 2, 0 ),
-    /*  GPv       */  PACK( 0, 2 ),
-    /*  GFv       */  PACK( 0, 2 ),
-    /*  SFvTPv    */  PACK( 0, 0 ),
+    /* 0x00 */
+    /*  SVTCA[0]  */  PACK( 0, 0 ),
+    /*  SVTCA[1]  */  PACK( 0, 0 ),
+    /*  SPVTCA[0] */  PACK( 0, 0 ),
+    /*  SPVTCA[1] */  PACK( 0, 0 ),
+    /*  SFVTCA[0] */  PACK( 0, 0 ),
+    /*  SFVTCA[1] */  PACK( 0, 0 ),
+    /*  SPVTL[0]  */  PACK( 2, 0 ),
+    /*  SPVTL[1]  */  PACK( 2, 0 ),
+    /*  SFVTL[0]  */  PACK( 2, 0 ),
+    /*  SFVTL[1]  */  PACK( 2, 0 ),
+    /*  SPVFS     */  PACK( 2, 0 ),
+    /*  SFVFS     */  PACK( 2, 0 ),
+    /*  GPV       */  PACK( 0, 2 ),
+    /*  GFV       */  PACK( 0, 2 ),
+    /*  SFVTPV    */  PACK( 0, 0 ),
     /*  ISECT     */  PACK( 5, 0 ),
 
+    /* 0x10 */
     /*  SRP0      */  PACK( 1, 0 ),
     /*  SRP1      */  PACK( 1, 0 ),
     /*  SRP2      */  PACK( 1, 0 ),
@@ -684,10 +645,11 @@
     /*  SMD       */  PACK( 1, 0 ),
     /*  ELSE      */  PACK( 0, 0 ),
     /*  JMPR      */  PACK( 1, 0 ),
-    /*  SCvTCi    */  PACK( 1, 0 ),
-    /*  SSwCi     */  PACK( 1, 0 ),
+    /*  SCVTCI    */  PACK( 1, 0 ),
+    /*  SSWCI     */  PACK( 1, 0 ),
     /*  SSW       */  PACK( 1, 0 ),
 
+    /* 0x20 */
     /*  DUP       */  PACK( 1, 2 ),
     /*  POP       */  PACK( 1, 0 ),
     /*  CLEAR     */  PACK( 0, 0 ),
@@ -695,7 +657,7 @@
     /*  DEPTH     */  PACK( 0, 1 ),
     /*  CINDEX    */  PACK( 1, 1 ),
     /*  MINDEX    */  PACK( 1, 0 ),
-    /*  AlignPTS  */  PACK( 2, 0 ),
+    /*  ALIGNPTS  */  PACK( 2, 0 ),
     /*  INS_$28   */  PACK( 0, 0 ),
     /*  UTP       */  PACK( 1, 0 ),
     /*  LOOPCALL  */  PACK( 2, 0 ),
@@ -705,6 +667,7 @@
     /*  MDAP[0]   */  PACK( 1, 0 ),
     /*  MDAP[1]   */  PACK( 1, 0 ),
 
+    /* 0x30 */
     /*  IUP[0]    */  PACK( 0, 0 ),
     /*  IUP[1]    */  PACK( 0, 0 ),
     /*  SHP[0]    */  PACK( 0, 0 ), /* loops */
@@ -717,17 +680,18 @@
     /*  IP        */  PACK( 0, 0 ), /* loops */
     /*  MSIRP[0]  */  PACK( 2, 0 ),
     /*  MSIRP[1]  */  PACK( 2, 0 ),
-    /*  AlignRP   */  PACK( 0, 0 ), /* loops */
+    /*  ALIGNRP   */  PACK( 0, 0 ), /* loops */
     /*  RTDG      */  PACK( 0, 0 ),
     /*  MIAP[0]   */  PACK( 2, 0 ),
     /*  MIAP[1]   */  PACK( 2, 0 ),
 
-    /*  NPushB    */  PACK( 0, 0 ),
-    /*  NPushW    */  PACK( 0, 0 ),
+    /* 0x40 */
+    /*  NPUSHB    */  PACK( 0, 0 ),
+    /*  NPUSHW    */  PACK( 0, 0 ),
     /*  WS        */  PACK( 2, 0 ),
     /*  RS        */  PACK( 1, 1 ),
-    /*  WCvtP     */  PACK( 2, 0 ),
-    /*  RCvt      */  PACK( 1, 1 ),
+    /*  WCVTP     */  PACK( 2, 0 ),
+    /*  RCVT      */  PACK( 1, 1 ),
     /*  GC[0]     */  PACK( 1, 1 ),
     /*  GC[1]     */  PACK( 1, 1 ),
     /*  SCFS      */  PACK( 2, 0 ),
@@ -735,10 +699,11 @@
     /*  MD[1]     */  PACK( 2, 1 ),
     /*  MPPEM     */  PACK( 0, 1 ),
     /*  MPS       */  PACK( 0, 1 ),
-    /*  FlipON    */  PACK( 0, 0 ),
-    /*  FlipOFF   */  PACK( 0, 0 ),
+    /*  FLIPON    */  PACK( 0, 0 ),
+    /*  FLIPOFF   */  PACK( 0, 0 ),
     /*  DEBUG     */  PACK( 1, 0 ),
 
+    /* 0x50 */
     /*  LT        */  PACK( 2, 1 ),
     /*  LTEQ      */  PACK( 2, 1 ),
     /*  GT        */  PACK( 2, 1 ),
@@ -752,10 +717,11 @@
     /*  AND       */  PACK( 2, 1 ),
     /*  OR        */  PACK( 2, 1 ),
     /*  NOT       */  PACK( 1, 1 ),
-    /*  DeltaP1   */  PACK( 1, 0 ),
+    /*  DELTAP1   */  PACK( 1, 0 ),
     /*  SDB       */  PACK( 1, 0 ),
     /*  SDS       */  PACK( 1, 0 ),
 
+    /* 0x60 */
     /*  ADD       */  PACK( 2, 1 ),
     /*  SUB       */  PACK( 2, 1 ),
     /*  DIV       */  PACK( 2, 1 ),
@@ -773,14 +739,15 @@
     /*  NROUND[2] */  PACK( 1, 1 ),
     /*  NROUND[3] */  PACK( 1, 1 ),
 
-    /*  WCvtF     */  PACK( 2, 0 ),
-    /*  DeltaP2   */  PACK( 1, 0 ),
-    /*  DeltaP3   */  PACK( 1, 0 ),
-    /*  DeltaCn[0] */ PACK( 1, 0 ),
-    /*  DeltaCn[1] */ PACK( 1, 0 ),
-    /*  DeltaCn[2] */ PACK( 1, 0 ),
+    /* 0x70 */
+    /*  WCVTF     */  PACK( 2, 0 ),
+    /*  DELTAP2   */  PACK( 1, 0 ),
+    /*  DELTAP3   */  PACK( 1, 0 ),
+    /*  DELTAC1   */  PACK( 1, 0 ),
+    /*  DELTAC2   */  PACK( 1, 0 ),
+    /*  DELTAC3   */  PACK( 1, 0 ),
     /*  SROUND    */  PACK( 1, 0 ),
-    /*  S45Round  */  PACK( 1, 0 ),
+    /*  S45ROUND  */  PACK( 1, 0 ),
     /*  JROT      */  PACK( 2, 0 ),
     /*  JROF      */  PACK( 2, 0 ),
     /*  ROFF      */  PACK( 0, 0 ),
@@ -790,23 +757,25 @@
     /*  SANGW     */  PACK( 1, 0 ),
     /*  AA        */  PACK( 1, 0 ),
 
-    /*  FlipPT    */  PACK( 0, 0 ), /* loops */
-    /*  FlipRgON  */  PACK( 2, 0 ),
-    /*  FlipRgOFF */  PACK( 2, 0 ),
+    /* 0x80 */
+    /*  FLIPPT    */  PACK( 0, 0 ), /* loops */
+    /*  FLIPRGON  */  PACK( 2, 0 ),
+    /*  FLIPRGOFF */  PACK( 2, 0 ),
     /*  INS_$83   */  PACK( 0, 0 ),
     /*  INS_$84   */  PACK( 0, 0 ),
-    /*  ScanCTRL  */  PACK( 1, 0 ),
-    /*  SDPvTL[0] */  PACK( 2, 0 ),
-    /*  SDPvTL[1] */  PACK( 2, 0 ),
-    /*  GetINFO   */  PACK( 1, 1 ),
+    /*  SCANCTRL  */  PACK( 1, 0 ),
+    /*  SDPVTL[0] */  PACK( 2, 0 ),
+    /*  SDPVTL[1] */  PACK( 2, 0 ),
+    /*  GETINFO   */  PACK( 1, 1 ),
     /*  IDEF      */  PACK( 1, 0 ),
     /*  ROLL      */  PACK( 3, 3 ),
     /*  MAX       */  PACK( 2, 1 ),
     /*  MIN       */  PACK( 2, 1 ),
-    /*  ScanTYPE  */  PACK( 1, 0 ),
-    /*  InstCTRL  */  PACK( 2, 0 ),
+    /*  SCANTYPE  */  PACK( 1, 0 ),
+    /*  INSTCTRL  */  PACK( 2, 0 ),
     /*  INS_$8F   */  PACK( 0, 0 ),
 
+    /* 0x90 */
     /*  INS_$90  */   PACK( 0, 0 ),
     /*  GETVAR   */   PACK( 0, 0 ), /* will be handled specially */
     /*  GETDATA  */   PACK( 0, 1 ),
@@ -824,6 +793,7 @@
     /*  INS_$9E  */   PACK( 0, 0 ),
     /*  INS_$9F  */   PACK( 0, 0 ),
 
+    /* 0xA0 */
     /*  INS_$A0  */   PACK( 0, 0 ),
     /*  INS_$A1  */   PACK( 0, 0 ),
     /*  INS_$A2  */   PACK( 0, 0 ),
@@ -841,23 +811,25 @@
     /*  INS_$AE  */   PACK( 0, 0 ),
     /*  INS_$AF  */   PACK( 0, 0 ),
 
-    /*  PushB[0]  */  PACK( 0, 1 ),
-    /*  PushB[1]  */  PACK( 0, 2 ),
-    /*  PushB[2]  */  PACK( 0, 3 ),
-    /*  PushB[3]  */  PACK( 0, 4 ),
-    /*  PushB[4]  */  PACK( 0, 5 ),
-    /*  PushB[5]  */  PACK( 0, 6 ),
-    /*  PushB[6]  */  PACK( 0, 7 ),
-    /*  PushB[7]  */  PACK( 0, 8 ),
-    /*  PushW[0]  */  PACK( 0, 1 ),
-    /*  PushW[1]  */  PACK( 0, 2 ),
-    /*  PushW[2]  */  PACK( 0, 3 ),
-    /*  PushW[3]  */  PACK( 0, 4 ),
-    /*  PushW[4]  */  PACK( 0, 5 ),
-    /*  PushW[5]  */  PACK( 0, 6 ),
-    /*  PushW[6]  */  PACK( 0, 7 ),
-    /*  PushW[7]  */  PACK( 0, 8 ),
+    /* 0xB0 */
+    /*  PUSHB[0]  */  PACK( 0, 1 ),
+    /*  PUSHB[1]  */  PACK( 0, 2 ),
+    /*  PUSHB[2]  */  PACK( 0, 3 ),
+    /*  PUSHB[3]  */  PACK( 0, 4 ),
+    /*  PUSHB[4]  */  PACK( 0, 5 ),
+    /*  PUSHB[5]  */  PACK( 0, 6 ),
+    /*  PUSHB[6]  */  PACK( 0, 7 ),
+    /*  PUSHB[7]  */  PACK( 0, 8 ),
+    /*  PUSHW[0]  */  PACK( 0, 1 ),
+    /*  PUSHW[1]  */  PACK( 0, 2 ),
+    /*  PUSHW[2]  */  PACK( 0, 3 ),
+    /*  PUSHW[3]  */  PACK( 0, 4 ),
+    /*  PUSHW[4]  */  PACK( 0, 5 ),
+    /*  PUSHW[5]  */  PACK( 0, 6 ),
+    /*  PUSHW[6]  */  PACK( 0, 7 ),
+    /*  PUSHW[7]  */  PACK( 0, 8 ),
 
+    /* 0xC0 */
     /*  MDRP[00]  */  PACK( 1, 0 ),
     /*  MDRP[01]  */  PACK( 1, 0 ),
     /*  MDRP[02]  */  PACK( 1, 0 ),
@@ -875,6 +847,7 @@
     /*  MDRP[14]  */  PACK( 1, 0 ),
     /*  MDRP[15]  */  PACK( 1, 0 ),
 
+    /* 0xD0 */
     /*  MDRP[16]  */  PACK( 1, 0 ),
     /*  MDRP[17]  */  PACK( 1, 0 ),
     /*  MDRP[18]  */  PACK( 1, 0 ),
@@ -892,6 +865,7 @@
     /*  MDRP[30]  */  PACK( 1, 0 ),
     /*  MDRP[31]  */  PACK( 1, 0 ),
 
+    /* 0xE0 */
     /*  MIRP[00]  */  PACK( 2, 0 ),
     /*  MIRP[01]  */  PACK( 2, 0 ),
     /*  MIRP[02]  */  PACK( 2, 0 ),
@@ -909,6 +883,7 @@
     /*  MIRP[14]  */  PACK( 2, 0 ),
     /*  MIRP[15]  */  PACK( 2, 0 ),
 
+    /* 0xF0 */
     /*  MIRP[16]  */  PACK( 2, 0 ),
     /*  MIRP[17]  */  PACK( 2, 0 ),
     /*  MIRP[18]  */  PACK( 2, 0 ),
@@ -937,23 +912,25 @@
   static
   const char*  const opcode_name[256] =
   {
-    "7 SVTCA y",
-    "7 SVTCA x",
-    "8 SPvTCA y",
-    "8 SPvTCA x",
-    "8 SFvTCA y",
-    "8 SFvTCA x",
-    "8 SPvTL ||",
-    "7 SPvTL +",
-    "8 SFvTL ||",
-    "7 SFvTL +",
-    "5 SPvFS",
-    "5 SFvFS",
-    "3 GPv",
-    "3 GFv",
-    "6 SFvTPv",
+    /* 0x00 */
+    "8 SVTCA[y]",
+    "8 SVTCA[x]",
+    "9 SPVTCA[y]",
+    "9 SPVTCA[x]",
+    "9 SFVTCA[y]",
+    "9 SFVTCA[x]",
+    "9 SPVTL[||]",
+    "8 SPVTL[+]",
+    "9 SFVTL[||]",
+    "8 SFVTL[+]",
+    "5 SPVFS",
+    "5 SFVFS",
+    "3 GPV",
+    "3 GFV",
+    "6 SFVTPV",
     "5 ISECT",
 
+    /* 0x10 */
     "4 SRP0",
     "4 SRP1",
     "4 SRP2",
@@ -967,10 +944,11 @@
     "3 SMD",
     "4 ELSE",
     "4 JMPR",
-    "6 SCvTCi",
-    "5 SSwCi",
+    "6 SCVTCI",
+    "5 SSWCI",
     "3 SSW",
 
+    /* 0x20 */
     "3 DUP",
     "3 POP",
     "5 CLEAR",
@@ -978,50 +956,53 @@
     "5 DEPTH",
     "6 CINDEX",
     "6 MINDEX",
-    "8 AlignPTS",
+    "8 ALIGNPTS",
     "7 INS_$28",
     "3 UTP",
     "8 LOOPCALL",
     "4 CALL",
     "4 FDEF",
     "4 ENDF",
-    "7 MDAP[0]",
-    "7 MDAP[1]",
+    "6 MDAP[]",
+    "9 MDAP[rnd]",
 
-    "6 IUP[0]",
-    "6 IUP[1]",
-    "6 SHP[0]",
-    "6 SHP[1]",
-    "6 SHC[0]",
-    "6 SHC[1]",
-    "6 SHZ[0]",
-    "6 SHZ[1]",
+    /* 0x30 */
+    "6 IUP[y]",
+    "6 IUP[x]",
+    "8 SHP[rp2]",
+    "8 SHP[rp1]",
+    "8 SHC[rp2]",
+    "8 SHC[rp1]",
+    "8 SHZ[rp2]",
+    "8 SHZ[rp1]",
     "5 SHPIX",
     "2 IP",
-    "8 MSIRP[0]",
-    "8 MSIRP[1]",
-    "7 AlignRP",
+    "7 MSIRP[]",
+    "A MSIRP[rp0]",
+    "7 ALIGNRP",
     "4 RTDG",
-    "7 MIAP[0]",
-    "7 MIAP[1]",
+    "6 MIAP[]",
+    "9 MIAP[rnd]",
 
-    "6 NPushB",
-    "6 NPushW",
+    /* 0x40 */
+    "6 NPUSHB",
+    "6 NPUSHW",
     "2 WS",
     "2 RS",
-    "5 WCvtP",
-    "4 RCvt",
-    "5 GC[0]",
-    "5 GC[1]",
+    "5 WCVTP",
+    "4 RCVT",
+    "8 GC[curr]",
+    "8 GC[orig]",
     "4 SCFS",
-    "5 MD[0]",
-    "5 MD[1]",
+    "8 MD[curr]",
+    "8 MD[orig]",
     "5 MPPEM",
     "3 MPS",
-    "6 FlipON",
-    "7 FlipOFF",
+    "6 FLIPON",
+    "7 FLIPOFF",
     "5 DEBUG",
 
+    /* 0x50 */
     "2 LT",
     "4 LTEQ",
     "2 GT",
@@ -1035,10 +1016,11 @@
     "3 AND",
     "2 OR",
     "3 NOT",
-    "7 DeltaP1",
+    "7 DELTAP1",
     "3 SDB",
     "3 SDS",
 
+    /* 0x60 */
     "3 ADD",
     "3 SUB",
     "3 DIV",
@@ -1047,23 +1029,24 @@
     "3 NEG",
     "5 FLOOR",
     "7 CEILING",
-    "8 ROUND[0]",
-    "8 ROUND[1]",
-    "8 ROUND[2]",
-    "8 ROUND[3]",
-    "9 NROUND[0]",
-    "9 NROUND[1]",
-    "9 NROUND[2]",
-    "9 NROUND[3]",
+    "8 ROUND[G]",
+    "8 ROUND[B]",
+    "8 ROUND[W]",
+    "7 ROUND[]",
+    "9 NROUND[G]",
+    "9 NROUND[B]",
+    "9 NROUND[W]",
+    "8 NROUND[]",
 
-    "5 WCvtF",
-    "7 DeltaP2",
-    "7 DeltaP3",
-    "A DeltaCn[0]",
-    "A DeltaCn[1]",
-    "A DeltaCn[2]",
+    /* 0x70 */
+    "5 WCVTF",
+    "7 DELTAP2",
+    "7 DELTAP3",
+    "7 DELTAC1",
+    "7 DELTAC2",
+    "7 DELTAC3",
     "6 SROUND",
-    "8 S45Round",
+    "8 S45ROUND",
     "4 JROT",
     "4 JROF",
     "4 ROFF",
@@ -1073,26 +1056,28 @@
     "5 SANGW",
     "2 AA",
 
-    "6 FlipPT",
-    "8 FlipRgON",
-    "9 FlipRgOFF",
+    /* 0x80 */
+    "6 FLIPPT",
+    "8 FLIPRGON",
+    "9 FLIPRGOFF",
     "7 INS_$83",
     "7 INS_$84",
-    "8 ScanCTRL",
-    "9 SDPvTL[0]",
-    "9 SDPvTL[1]",
-    "7 GetINFO",
+    "8 SCANCTRL",
+    "A SDPVTL[||]",
+    "9 SDPVTL[+]",
+    "7 GETINFO",
     "4 IDEF",
     "4 ROLL",
     "3 MAX",
     "3 MIN",
-    "8 ScanTYPE",
-    "8 InstCTRL",
+    "8 SCANTYPE",
+    "8 INSTCTRL",
     "7 INS_$8F",
 
+    /* 0x90 */
     "7 INS_$90",
 #ifdef TT_CONFIG_OPTION_GX_VAR_SUPPORT
-    "6 GETVAR",
+    "C GETVARIATION",
     "7 GETDATA",
 #else
     "7 INS_$91",
@@ -1112,6 +1097,7 @@
     "7 INS_$9E",
     "7 INS_$9F",
 
+    /* 0xA0 */
     "7 INS_$A0",
     "7 INS_$A1",
     "7 INS_$A2",
@@ -1129,90 +1115,95 @@
     "7 INS_$AE",
     "7 INS_$AF",
 
-    "8 PushB[0]",
-    "8 PushB[1]",
-    "8 PushB[2]",
-    "8 PushB[3]",
-    "8 PushB[4]",
-    "8 PushB[5]",
-    "8 PushB[6]",
-    "8 PushB[7]",
-    "8 PushW[0]",
-    "8 PushW[1]",
-    "8 PushW[2]",
-    "8 PushW[3]",
-    "8 PushW[4]",
-    "8 PushW[5]",
-    "8 PushW[6]",
-    "8 PushW[7]",
+    /* 0xB0 */
+    "8 PUSHB[0]",
+    "8 PUSHB[1]",
+    "8 PUSHB[2]",
+    "8 PUSHB[3]",
+    "8 PUSHB[4]",
+    "8 PUSHB[5]",
+    "8 PUSHB[6]",
+    "8 PUSHB[7]",
+    "8 PUSHW[0]",
+    "8 PUSHW[1]",
+    "8 PUSHW[2]",
+    "8 PUSHW[3]",
+    "8 PUSHW[4]",
+    "8 PUSHW[5]",
+    "8 PUSHW[6]",
+    "8 PUSHW[7]",
 
+    /* 0xC0 */
     "7 MDRP[G]",
     "7 MDRP[B]",
     "7 MDRP[W]",
-    "7 MDRP[?]",
+    "6 MDRP[]",
     "8 MDRP[rG]",
     "8 MDRP[rB]",
     "8 MDRP[rW]",
-    "8 MDRP[r?]",
+    "7 MDRP[r]",
     "8 MDRP[mG]",
     "8 MDRP[mB]",
     "8 MDRP[mW]",
-    "8 MDRP[m?]",
+    "7 MDRP[m]",
     "9 MDRP[mrG]",
     "9 MDRP[mrB]",
     "9 MDRP[mrW]",
-    "9 MDRP[mr?]",
+    "8 MDRP[mr]",
 
+    /* 0xD0 */
     "8 MDRP[pG]",
     "8 MDRP[pB]",
     "8 MDRP[pW]",
-    "8 MDRP[p?]",
+    "7 MDRP[p]",
     "9 MDRP[prG]",
     "9 MDRP[prB]",
     "9 MDRP[prW]",
-    "9 MDRP[pr?]",
+    "8 MDRP[pr]",
     "9 MDRP[pmG]",
     "9 MDRP[pmB]",
     "9 MDRP[pmW]",
-    "9 MDRP[pm?]",
+    "8 MDRP[pm]",
     "A MDRP[pmrG]",
     "A MDRP[pmrB]",
     "A MDRP[pmrW]",
-    "A MDRP[pmr?]",
+    "9 MDRP[pmr]",
 
+    /* 0xE0 */
     "7 MIRP[G]",
     "7 MIRP[B]",
     "7 MIRP[W]",
-    "7 MIRP[?]",
+    "6 MIRP[]",
     "8 MIRP[rG]",
     "8 MIRP[rB]",
     "8 MIRP[rW]",
-    "8 MIRP[r?]",
+    "7 MIRP[r]",
     "8 MIRP[mG]",
     "8 MIRP[mB]",
     "8 MIRP[mW]",
-    "8 MIRP[m?]",
+    "7 MIRP[m]",
     "9 MIRP[mrG]",
     "9 MIRP[mrB]",
     "9 MIRP[mrW]",
-    "9 MIRP[mr?]",
+    "8 MIRP[mr]",
 
+    /* 0xF0 */
     "8 MIRP[pG]",
     "8 MIRP[pB]",
     "8 MIRP[pW]",
-    "8 MIRP[p?]",
+    "7 MIRP[p]",
     "9 MIRP[prG]",
     "9 MIRP[prB]",
     "9 MIRP[prW]",
-    "9 MIRP[pr?]",
+    "8 MIRP[pr]",
     "9 MIRP[pmG]",
     "9 MIRP[pmB]",
     "9 MIRP[pmW]",
-    "9 MIRP[pm?]",
+    "8 MIRP[pm]",
     "A MIRP[pmrG]",
     "A MIRP[pmrB]",
     "A MIRP[pmrW]",
-    "A MIRP[pmr?]"
+    "9 MIRP[pmr]"
   };
 
 #endif /* FT_DEBUG_LEVEL_TRACE */
@@ -1541,11 +1532,36 @@
   }
 
 
+  static void
+  Modify_CVT_Check( TT_ExecContext  exc )
+  {
+    /* TT_RunIns sets origCvt and restores cvt to origCvt when done. */
+    if ( exc->iniRange == tt_coderange_glyph &&
+         exc->cvt == exc->origCvt            )
+    {
+      exc->error = Update_Max( exc->memory,
+                               &exc->glyfCvtSize,
+                               sizeof ( FT_Long ),
+                               (void*)&exc->glyfCvt,
+                               exc->cvtSize );
+      if ( exc->error )
+        return;
+
+      FT_ARRAY_COPY( exc->glyfCvt, exc->cvt, exc->glyfCvtSize );
+      exc->cvt = exc->glyfCvt;
+    }
+  }
+
+
   FT_CALLBACK_DEF( void )
   Write_CVT( TT_ExecContext  exc,
              FT_ULong        idx,
              FT_F26Dot6      value )
   {
+    Modify_CVT_Check( exc );
+    if ( exc->error )
+      return;
+
     exc->cvt[idx] = value;
   }
 
@@ -1555,6 +1571,10 @@
                        FT_ULong        idx,
                        FT_F26Dot6      value )
   {
+    Modify_CVT_Check( exc );
+    if ( exc->error )
+      return;
+
     exc->cvt[idx] = FT_DivFix( value, Current_Ratio( exc ) );
   }
 
@@ -1564,6 +1584,10 @@
             FT_ULong        idx,
             FT_F26Dot6      value )
   {
+    Modify_CVT_Check( exc );
+    if ( exc->error )
+      return;
+
     exc->cvt[idx] = ADD_LONG( exc->cvt[idx], value );
   }
 
@@ -1573,6 +1597,10 @@
                       FT_ULong        idx,
                       FT_F26Dot6      value )
   {
+    Modify_CVT_Check( exc );
+    if ( exc->error )
+      return;
+
     exc->cvt[idx] = ADD_LONG( exc->cvt[idx],
                               FT_DivFix( value, Current_Ratio( exc ) ) );
   }
@@ -1660,6 +1688,32 @@
 
     return SUCCESS;
   }
+
+
+  /*
+   *
+   * Apple's TrueType specification at
+   *
+   *   https://developer.apple.com/fonts/TrueType-Reference-Manual/RM02/Chap2.html#order
+   *
+   * gives the following order of operations in instructions that move
+   * points.
+   *
+   *   - check single width cut-in (MIRP, MDRP)
+   *
+   *   - check control value cut-in (MIRP, MIAP)
+   *
+   *   - apply engine compensation (MIRP, MDRP)
+   *
+   *   - round distance (MIRP, MDRP) or value (MIAP, MDAP)
+   *
+   *   - check minimum distance (MIRP,MDRP)
+   *
+   *   - move point (MIRP, MDRP, MIAP, MSIRP, MDAP)
+   *
+   * For rounding instructions, engine compensation happens before rounding.
+   *
+   */
 
 
   /**************************************************************************
@@ -1886,7 +1940,6 @@
     zone->org[point].y = ADD_LONG( zone->org[point].y, distance );
   }
 
-
   /**************************************************************************
    *
    * @Function:
@@ -1899,26 +1952,19 @@
    *   distance ::
    *     The distance (not) to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   The compensated distance.
-   *
-   * @Note:
-   *   The TrueType specification says very few about the relationship
-   *   between rounding and engine compensation.  However, it seems from
-   *   the description of super round that we should add the compensation
-   *   before rounding.
    */
   static FT_F26Dot6
   Round_None( TT_ExecContext  exc,
               FT_F26Dot6      distance,
-              FT_F26Dot6      compensation )
+              FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -1949,8 +1995,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -1958,11 +2004,10 @@
   static FT_F26Dot6
   Round_To_Grid( TT_ExecContext  exc,
                  FT_F26Dot6      distance,
-                 FT_F26Dot6      compensation )
+                 FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -1995,8 +2040,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -2004,11 +2049,10 @@
   static FT_F26Dot6
   Round_To_Half_Grid( TT_ExecContext  exc,
                       FT_F26Dot6      distance,
-                      FT_F26Dot6      compensation )
+                      FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -2043,8 +2087,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -2052,11 +2096,10 @@
   static FT_F26Dot6
   Round_Down_To_Grid( TT_ExecContext  exc,
                       FT_F26Dot6      distance,
-                      FT_F26Dot6      compensation )
+                      FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -2088,8 +2131,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -2097,11 +2140,10 @@
   static FT_F26Dot6
   Round_Up_To_Grid( TT_ExecContext  exc,
                     FT_F26Dot6      distance,
-                    FT_F26Dot6      compensation )
+                    FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -2134,8 +2176,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -2143,11 +2185,10 @@
   static FT_F26Dot6
   Round_To_Double_Grid( TT_ExecContext  exc,
                         FT_F26Dot6      distance,
-                        FT_F26Dot6      compensation )
+                        FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -2180,8 +2221,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -2195,8 +2236,9 @@
   static FT_F26Dot6
   Round_Super( TT_ExecContext  exc,
                FT_F26Dot6      distance,
-               FT_F26Dot6      compensation )
+               FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
 
 
@@ -2235,8 +2277,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -2248,8 +2290,9 @@
   static FT_F26Dot6
   Round_Super_45( TT_ExecContext  exc,
                   FT_F26Dot6      distance,
-                  FT_F26Dot6      compensation )
+                  FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
 
 
@@ -2848,7 +2891,7 @@
   Ins_ODD( TT_ExecContext  exc,
            FT_Long*        args )
   {
-    args[0] = ( ( exc->func_round( exc, args[0], 0 ) & 127 ) == 64 );
+    args[0] = ( ( exc->func_round( exc, args[0], 3 ) & 127 ) == 64 );
   }
 
 
@@ -2862,7 +2905,7 @@
   Ins_EVEN( TT_ExecContext  exc,
             FT_Long*        args )
   {
-    args[0] = ( ( exc->func_round( exc, args[0], 0 ) & 127 ) == 0 );
+    args[0] = ( ( exc->func_round( exc, args[0], 3 ) & 127 ) == 0 );
   }
 
 
@@ -3079,7 +3122,30 @@
         ARRAY_BOUND_ERROR;
     }
     else
+    {
+      /* TT_RunIns sets origStorage and restores storage to origStorage */
+      /* when done.                                                     */
+      if ( exc->iniRange == tt_coderange_glyph &&
+           exc->storage == exc->origStorage    )
+      {
+        FT_ULong  tmp = (FT_ULong)exc->glyfStoreSize;
+
+
+        exc->error = Update_Max( exc->memory,
+                                 &tmp,
+                                 sizeof ( FT_Long ),
+                                 (void*)&exc->glyfStorage,
+                                 exc->storeSize );
+        exc->glyfStoreSize = (FT_UShort)tmp;
+        if ( exc->error )
+          return;
+
+        FT_ARRAY_COPY( exc->glyfStorage, exc->storage, exc->glyfStoreSize );
+        exc->storage = exc->glyfStorage;
+      }
+
       exc->storage[I] = args[1];
+    }
   }
 
 
@@ -3192,10 +3258,7 @@
   Ins_ROUND( TT_ExecContext  exc,
              FT_Long*        args )
   {
-    args[0] = exc->func_round(
-                exc,
-                args[0],
-                exc->tt_metrics.compensations[exc->opcode - 0x68] );
+    args[0] = exc->func_round( exc, args[0], exc->opcode & 3 );
   }
 
 
@@ -3209,10 +3272,7 @@
   Ins_NROUND( TT_ExecContext  exc,
               FT_Long*        args )
   {
-    args[0] = Round_None(
-                exc,
-                args[0],
-                exc->tt_metrics.compensations[exc->opcode - 0x6C] );
+    args[0] = Round_None( exc, args[0], exc->opcode & 3 );
   }
 
 
@@ -3485,7 +3545,7 @@
       return;
     }
 
-    exc->IP += args[0];
+    exc->IP = ADD_LONG( exc->IP, args[0] );
     if ( exc->IP < 0                                             ||
          ( exc->callTop > 0                                    &&
            exc->IP > exc->callStack[exc->callTop - 1].Def->end ) )
@@ -3657,7 +3717,7 @@
 
 
     /* FDEF is only allowed in `prep' or `fpgm' */
-    if ( exc->curRange == tt_coderange_glyph )
+    if ( exc->iniRange == tt_coderange_glyph )
     {
       exc->error = FT_THROW( DEF_In_Glyf_Bytecode );
       return;
@@ -3667,7 +3727,7 @@
     /* We will then parse the current table.                       */
 
     rec   = exc->FDefs;
-    limit = rec + exc->numFDefs;
+    limit = FT_OFFSET( rec, exc->numFDefs );
     n     = (FT_ULong)args[0];
 
     for ( ; rec < limit; rec++ )
@@ -3731,7 +3791,7 @@
 
             if ( opcode_pointer[i] == opcode_size[i] )
             {
-              FT_TRACE6(( "sph: Function %d, opcode ptrn: %d, %s %s\n",
+              FT_TRACE6(( "sph: Function %d, opcode ptrn: %ld, %s %s\n",
                           i, n,
                           exc->face->root.family_name,
                           exc->face->root.style_name ));
@@ -3914,6 +3974,9 @@
     if ( BOUNDSL( F, exc->maxFunc + 1 ) )
       goto Fail;
 
+    if ( !exc->FDefs )
+      goto Fail;
+
     /* Except for some old Apple fonts, all functions in a TrueType */
     /* font are defined in increasing order, starting from 0.  This */
     /* means that we normally have                                  */
@@ -4011,7 +4074,7 @@
     /*                                                              */
     /* If this isn't true, we need to look up the function table.   */
 
-    def = exc->FDefs + F;
+    def = FT_OFFSET( exc->FDefs, F );
     if ( exc->maxFunc + 1 != exc->numFDefs || def->opc != F )
     {
       /* look up the FDefs table */
@@ -4019,7 +4082,7 @@
 
 
       def   = exc->FDefs;
-      limit = def + exc->numFDefs;
+      limit = FT_OFFSET( def, exc->numFDefs );
 
       while ( def < limit && def->opc != F )
         def++;
@@ -4090,7 +4153,7 @@
 
 
     /* we enable IDEF only in `prep' or `fpgm' */
-    if ( exc->curRange == tt_coderange_glyph )
+    if ( exc->iniRange == tt_coderange_glyph )
     {
       exc->error = FT_THROW( DEF_In_Glyf_Bytecode );
       return;
@@ -4099,7 +4162,7 @@
     /*  First of all, look for the same function in our table */
 
     def   = exc->IDefs;
-    limit = def + exc->numIDefs;
+    limit = FT_OFFSET( def, exc->numIDefs );
 
     for ( ; def < limit; def++ )
       if ( def->opc == (FT_ULong)args[0] )
@@ -4319,7 +4382,7 @@
 
     if ( ( opcode & 1 ) != 0 )
     {
-      C = B;   /* counter clockwise rotation */
+      C = B;   /* counter-clockwise rotation */
       B = A;
       A = NEG_LONG( C );
     }
@@ -4948,9 +5011,9 @@
 
 #ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
     /* Disable Type 2 Vacuform Rounds - e.g. Arial Narrow */
-    if ( SUBPIXEL_HINTING_INFINALITY &&
-         exc->ignore_x_mode          &&
-         FT_ABS( D ) == 64           )
+    if ( SUBPIXEL_HINTING_INFINALITY         &&
+         exc->ignore_x_mode                  &&
+         ( D < 0 ? NEG_LONG( D ) : D ) == 64 )
       D += 1;
 #endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
 
@@ -5007,7 +5070,7 @@
 
     if ( ( opcode & 1 ) != 0 )
     {
-      C = B;   /* counter clockwise rotation */
+      C = B;   /* counter-clockwise rotation */
       B = A;
       A = NEG_LONG( C );
     }
@@ -5031,7 +5094,7 @@
 
     if ( ( opcode & 1 ) != 0 )
     {
-      C = B;   /* counter clockwise rotation */
+      C = B;   /* counter-clockwise rotation */
       B = A;
       A = NEG_LONG( C );
     }
@@ -5205,16 +5268,21 @@
       }
     }
 
-    exc->GS.instruct_control &= ~(FT_Byte)Kf;
-    exc->GS.instruct_control |= (FT_Byte)L;
+    /* INSTCTRL should only be used in the CVT program */
+    if ( exc->iniRange == tt_coderange_cvt )
+    {
+      exc->GS.instruct_control &= ~(FT_Byte)Kf;
+      exc->GS.instruct_control |= (FT_Byte)L;
+    }
 
-    if ( K == 3 )
+    /* except to change the subpixel flags temporarily */
+    else if ( exc->iniRange == tt_coderange_glyph && K == 3 )
     {
 #ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
       /* INSTCTRL modifying flag 3 also has an effect */
       /* outside of the CVT program                   */
       if ( SUBPIXEL_HINTING_INFINALITY )
-        exc->ignore_x_mode = FT_BOOL( L == 4 );
+        exc->ignore_x_mode = !FT_BOOL( L == 4 );
 #endif
 
 #ifdef TT_SUPPORT_SUBPIXEL_HINTING_MINIMAL
@@ -5225,6 +5293,8 @@
         exc->backward_compatibility = !FT_BOOL( L == 4 );
 #endif
     }
+    else if ( exc->pedantic_hinting )
+      exc->error = FT_THROW( Invalid_Reference );
   }
 
 
@@ -5679,9 +5749,6 @@
   {
     FT_F26Dot6  dx, dy;
     FT_UShort   point;
-#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    FT_Int      B1, B2;
-#endif
 #ifdef TT_SUPPORT_SUBPIXEL_HINTING_MINIMAL
     FT_Bool     in_twilight = FT_BOOL( exc->GS.gep0 == 0 ||
                                        exc->GS.gep1 == 0 ||
@@ -5716,8 +5783,12 @@
       }
       else
 #ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-      if ( SUBPIXEL_HINTING_INFINALITY )
+      if ( SUBPIXEL_HINTING_INFINALITY &&
+           exc->ignore_x_mode          )
       {
+        FT_Int  B1, B2;
+
+
         /*  If not using ignore_x_mode rendering, allow ZP2 move.        */
         /*  If inline deltas aren't allowed, skip ZP2 move.              */
         /*  If using ignore_x_mode rendering, allow ZP2 point move if:   */
@@ -5726,72 +5797,57 @@
         /*   - the glyph is specifically set to allow SHPIX moves        */
         /*   - the move is on a previously Y-touched point               */
 
-        if ( exc->ignore_x_mode )
+        /* save point for later comparison */
+        B1 = exc->zp2.cur[point].y;
+
+        if ( exc->face->sph_compatibility_mode )
         {
-          /* save point for later comparison */
+          if ( exc->sph_tweak_flags & SPH_TWEAK_ROUND_NONPIXEL_Y_MOVES )
+            dy = FT_PIX_ROUND( B1 + dy ) - B1;
+
+          /* skip post-iup deltas */
+          if ( exc->iup_called                                          &&
+               ( ( exc->sph_in_func_flags & SPH_FDEF_INLINE_DELTA_1 ) ||
+                 ( exc->sph_in_func_flags & SPH_FDEF_INLINE_DELTA_2 ) ) )
+            goto Skip;
+
+          if ( !( exc->sph_tweak_flags & SPH_TWEAK_ALWAYS_SKIP_DELTAP ) &&
+                ( ( exc->is_composite && exc->GS.freeVector.y != 0 ) ||
+                  ( exc->zp2.tags[point] & FT_CURVE_TAG_TOUCH_Y )    ||
+                  ( exc->sph_tweak_flags & SPH_TWEAK_DO_SHPIX )      )  )
+            Move_Zp2_Point( exc, point, 0, dy, TRUE );
+
+          /* save new point */
           if ( exc->GS.freeVector.y != 0 )
-            B1 = exc->zp2.cur[point].y;
-          else
-            B1 = exc->zp2.cur[point].x;
-
-          if ( !exc->face->sph_compatibility_mode &&
-               exc->GS.freeVector.y != 0          )
           {
-            Move_Zp2_Point( exc, point, dx, dy, TRUE );
+            B2 = exc->zp2.cur[point].y;
 
-            /* save new point */
-            if ( exc->GS.freeVector.y != 0 )
-            {
-              B2 = exc->zp2.cur[point].y;
-
-              /* reverse any disallowed moves */
-              if ( ( exc->sph_tweak_flags & SPH_TWEAK_SKIP_NONPIXEL_Y_MOVES ) &&
-                   ( B1 & 63 ) != 0                                           &&
-                   ( B2 & 63 ) != 0                                           &&
-                   B1 != B2                                                   )
-                Move_Zp2_Point( exc,
-                                point,
-                                NEG_LONG( dx ),
-                                NEG_LONG( dy ),
-                                TRUE );
-            }
+            /* reverse any disallowed moves */
+            if ( ( B1 & 63 ) == 0 &&
+                 ( B2 & 63 ) != 0 &&
+                 B1 != B2         )
+              Move_Zp2_Point( exc, point, 0, NEG_LONG( dy ), TRUE );
           }
-          else if ( exc->face->sph_compatibility_mode )
-          {
-            if ( exc->sph_tweak_flags & SPH_TWEAK_ROUND_NONPIXEL_Y_MOVES )
-            {
-              dx = FT_PIX_ROUND( B1 + dx ) - B1;
-              dy = FT_PIX_ROUND( B1 + dy ) - B1;
-            }
-
-            /* skip post-iup deltas */
-            if ( exc->iup_called                                          &&
-                 ( ( exc->sph_in_func_flags & SPH_FDEF_INLINE_DELTA_1 ) ||
-                   ( exc->sph_in_func_flags & SPH_FDEF_INLINE_DELTA_2 ) ) )
-              goto Skip;
-
-            if ( !( exc->sph_tweak_flags & SPH_TWEAK_ALWAYS_SKIP_DELTAP ) &&
-                  ( ( exc->is_composite && exc->GS.freeVector.y != 0 ) ||
-                    ( exc->zp2.tags[point] & FT_CURVE_TAG_TOUCH_Y )    ||
-                    ( exc->sph_tweak_flags & SPH_TWEAK_DO_SHPIX )      )  )
-              Move_Zp2_Point( exc, point, 0, dy, TRUE );
-
-            /* save new point */
-            if ( exc->GS.freeVector.y != 0 )
-            {
-              B2 = exc->zp2.cur[point].y;
-
-              /* reverse any disallowed moves */
-              if ( ( B1 & 63 ) == 0 &&
-                   ( B2 & 63 ) != 0 &&
-                   B1 != B2         )
-                Move_Zp2_Point( exc, point, 0, NEG_LONG( dy ), TRUE );
-            }
-          }
-          else if ( exc->sph_in_func_flags & SPH_FDEF_TYPEMAN_DIAGENDCTRL )
-            Move_Zp2_Point( exc, point, dx, dy, TRUE );
         }
-        else
+        else if ( exc->GS.freeVector.y != 0 )
+        {
+          Move_Zp2_Point( exc, point, dx, dy, TRUE );
+
+          /* save new point */
+          B2 = exc->zp2.cur[point].y;
+
+          /* reverse any disallowed moves */
+          if ( ( exc->sph_tweak_flags & SPH_TWEAK_SKIP_NONPIXEL_Y_MOVES ) &&
+               ( B1 & 63 ) != 0                                           &&
+               ( B2 & 63 ) != 0                                           &&
+               B1 != B2                                                   )
+            Move_Zp2_Point( exc,
+                            point,
+                            NEG_LONG( dx ),
+                            NEG_LONG( dy ),
+                            TRUE );
+        }
+        else if ( exc->sph_in_func_flags & SPH_FDEF_TYPEMAN_DIAGENDCTRL )
           Move_Zp2_Point( exc, point, dx, dy, TRUE );
       }
       else
@@ -5839,21 +5895,7 @@
   {
     FT_UShort   point = 0;
     FT_F26Dot6  distance;
-#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    FT_F26Dot6  control_value_cutin = 0;
-    FT_F26Dot6  delta;
 
-
-    if ( SUBPIXEL_HINTING_INFINALITY )
-    {
-      control_value_cutin = exc->GS.control_value_cutin;
-
-      if ( exc->ignore_x_mode                                 &&
-           exc->GS.freeVector.x != 0                          &&
-           !( exc->sph_tweak_flags & SPH_TWEAK_NORMAL_ROUND ) )
-        control_value_cutin = 0;
-    }
-#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
 
     point = (FT_UShort)args[0];
 
@@ -5877,16 +5919,25 @@
     distance = PROJECT( exc->zp1.cur + point, exc->zp0.cur + exc->GS.rp0 );
 
 #ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    delta = SUB_LONG( distance, args[1] );
-    if ( delta < 0 )
-      delta = NEG_LONG( delta );
-
     /* subpixel hinting - make MSIRP respect CVT cut-in; */
-    if ( SUBPIXEL_HINTING_INFINALITY  &&
-         exc->ignore_x_mode           &&
-         exc->GS.freeVector.x != 0    &&
-         delta >= control_value_cutin )
-      distance = args[1];
+    if ( SUBPIXEL_HINTING_INFINALITY &&
+         exc->ignore_x_mode          &&
+         exc->GS.freeVector.x != 0   )
+    {
+      FT_F26Dot6  control_value_cutin = exc->GS.control_value_cutin;
+      FT_F26Dot6  delta;
+
+
+      if ( !( exc->sph_tweak_flags & SPH_TWEAK_NORMAL_ROUND ) )
+        control_value_cutin = 0;
+
+      delta = SUB_LONG( distance, args[1] );
+      if ( delta < 0 )
+        delta = NEG_LONG( delta );
+
+      if ( delta >= control_value_cutin )
+        distance = args[1];
+    }
 #endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
 
     exc->func_move( exc,
@@ -5933,18 +5984,10 @@
       if ( SUBPIXEL_HINTING_INFINALITY &&
            exc->ignore_x_mode          &&
            exc->GS.freeVector.x != 0   )
-        distance = SUB_LONG(
-                     Round_None( exc,
-                                 cur_dist,
-                                 exc->tt_metrics.compensations[0] ),
-                     cur_dist );
+        distance = SUB_LONG( Round_None( exc, cur_dist, 3 ), cur_dist );
       else
 #endif
-        distance = SUB_LONG(
-                     exc->func_round( exc,
-                                      cur_dist,
-                                      exc->tt_metrics.compensations[0] ),
-                     cur_dist );
+        distance = SUB_LONG( exc->func_round( exc, cur_dist, 3 ), cur_dist );
     }
     else
       distance = 0;
@@ -5970,21 +6013,10 @@
     FT_UShort   point;
     FT_F26Dot6  distance;
     FT_F26Dot6  org_dist;
-    FT_F26Dot6  control_value_cutin;
 
 
-    control_value_cutin = exc->GS.control_value_cutin;
-    cvtEntry            = (FT_ULong)args[1];
-    point               = (FT_UShort)args[0];
-
-#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    if ( SUBPIXEL_HINTING_INFINALITY                        &&
-         exc->ignore_x_mode                                 &&
-         exc->GS.freeVector.x != 0                          &&
-         exc->GS.freeVector.y == 0                          &&
-         !( exc->sph_tweak_flags & SPH_TWEAK_NORMAL_ROUND ) )
-      control_value_cutin = 0;
-#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
+    cvtEntry = (FT_ULong)args[1];
+    point    = (FT_UShort)args[0];
 
     if ( BOUNDS( point,     exc->zp0.n_points ) ||
          BOUNDSL( cvtEntry, exc->cvtSize )      )
@@ -6028,7 +6060,7 @@
         exc->zp0.org[point].x = TT_MulFix14( distance,
                                              exc->GS.freeVector.x );
       exc->zp0.org[point].y = TT_MulFix14( distance,
-                                           exc->GS.freeVector.y ),
+                                           exc->GS.freeVector.y );
       exc->zp0.cur[point]   = exc->zp0.org[point];
     }
 #ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
@@ -6044,8 +6076,18 @@
 
     if ( ( exc->opcode & 1 ) != 0 )   /* rounding and control cut-in flag */
     {
+      FT_F26Dot6  control_value_cutin = exc->GS.control_value_cutin;
       FT_F26Dot6  delta;
 
+
+#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
+      if ( SUBPIXEL_HINTING_INFINALITY                        &&
+           exc->ignore_x_mode                                 &&
+           exc->GS.freeVector.x != 0                          &&
+           exc->GS.freeVector.y == 0                          &&
+           !( exc->sph_tweak_flags & SPH_TWEAK_NORMAL_ROUND ) )
+        control_value_cutin = 0;
+#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
 
       delta = SUB_LONG( distance, org_dist );
       if ( delta < 0 )
@@ -6058,14 +6100,10 @@
       if ( SUBPIXEL_HINTING_INFINALITY &&
            exc->ignore_x_mode          &&
            exc->GS.freeVector.x != 0   )
-        distance = Round_None( exc,
-                               distance,
-                               exc->tt_metrics.compensations[0] );
+        distance = Round_None( exc, distance, 3 );
       else
 #endif
-        distance = exc->func_round( exc,
-                                    distance,
-                                    exc->tt_metrics.compensations[0] );
+        distance = exc->func_round( exc, distance, 3 );
     }
 
     exc->func_move( exc, &exc->zp0, point, SUB_LONG( distance, org_dist ) );
@@ -6087,18 +6125,8 @@
             FT_Long*        args )
   {
     FT_UShort   point = 0;
-    FT_F26Dot6  org_dist, distance, minimum_distance;
+    FT_F26Dot6  org_dist, distance;
 
-
-    minimum_distance = exc->GS.minimum_distance;
-
-#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    if ( SUBPIXEL_HINTING_INFINALITY                        &&
-         exc->ignore_x_mode                                 &&
-         exc->GS.freeVector.x != 0                          &&
-         !( exc->sph_tweak_flags & SPH_TWEAK_NORMAL_ROUND ) )
-      minimum_distance = 0;
-#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
 
     point = (FT_UShort)args[0];
 
@@ -6172,27 +6200,29 @@
       if ( SUBPIXEL_HINTING_INFINALITY &&
            exc->ignore_x_mode          &&
            exc->GS.freeVector.x != 0   )
-        distance = Round_None(
-                     exc,
-                     org_dist,
-                     exc->tt_metrics.compensations[exc->opcode & 3] );
+        distance = Round_None( exc, org_dist, exc->opcode & 3 );
       else
 #endif
-        distance = exc->func_round(
-                     exc,
-                     org_dist,
-                     exc->tt_metrics.compensations[exc->opcode & 3] );
+        distance = exc->func_round( exc, org_dist, exc->opcode & 3 );
     }
     else
-      distance = Round_None(
-                   exc,
-                   org_dist,
-                   exc->tt_metrics.compensations[exc->opcode & 3] );
+      distance = Round_None( exc, org_dist, exc->opcode & 3 );
 
     /* minimum distance flag */
 
     if ( ( exc->opcode & 8 ) != 0 )
     {
+      FT_F26Dot6  minimum_distance = exc->GS.minimum_distance;
+
+
+#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
+      if ( SUBPIXEL_HINTING_INFINALITY                        &&
+           exc->ignore_x_mode                                 &&
+           exc->GS.freeVector.x != 0                          &&
+           !( exc->sph_tweak_flags & SPH_TWEAK_NORMAL_ROUND ) )
+        minimum_distance = 0;
+#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
+
       if ( org_dist >= 0 )
       {
         if ( distance < minimum_distance )
@@ -6236,30 +6266,13 @@
     FT_F26Dot6  cvt_dist,
                 distance,
                 cur_dist,
-                org_dist,
-                control_value_cutin,
-                minimum_distance;
-#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    FT_Int      B1           = 0; /* pacify compiler */
-    FT_Int      B2           = 0;
-    FT_Bool     reverse_move = FALSE;
-#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
+                org_dist;
 
     FT_F26Dot6  delta;
 
 
-    minimum_distance    = exc->GS.minimum_distance;
-    control_value_cutin = exc->GS.control_value_cutin;
-    point               = (FT_UShort)args[0];
-    cvtEntry            = (FT_ULong)( ADD_LONG( args[1], 1 ) );
-
-#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    if ( SUBPIXEL_HINTING_INFINALITY                        &&
-         exc->ignore_x_mode                                 &&
-         exc->GS.freeVector.x != 0                          &&
-         !( exc->sph_tweak_flags & SPH_TWEAK_NORMAL_ROUND ) )
-      control_value_cutin = minimum_distance = 0;
-#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
+    point    = (FT_UShort)args[0];
+    cvtEntry = (FT_ULong)( ADD_LONG( args[1], 1 ) );
 
     /* XXX: UNDOCUMENTED! cvt[-1] = 0 always */
 
@@ -6295,12 +6308,14 @@
     /* twilight points (confirmed by Greg Hitchcock)   */
     if ( exc->GS.gep1 == 0 )
     {
-      exc->zp1.org[point].x = exc->zp0.org[exc->GS.rp0].x +
-                              TT_MulFix14( cvt_dist,
-                                           exc->GS.freeVector.x );
-      exc->zp1.org[point].y = exc->zp0.org[exc->GS.rp0].y +
-                              TT_MulFix14( cvt_dist,
-                                           exc->GS.freeVector.y );
+      exc->zp1.org[point].x = ADD_LONG(
+                                exc->zp0.org[exc->GS.rp0].x,
+                                TT_MulFix14( cvt_dist,
+                                             exc->GS.freeVector.x ) );
+      exc->zp1.org[point].y = ADD_LONG(
+                                exc->zp0.org[exc->GS.rp0].y,
+                                TT_MulFix14( cvt_dist,
+                                             exc->GS.freeVector.y ) );
       exc->zp1.cur[point]   = exc->zp1.org[point];
     }
 
@@ -6315,19 +6330,6 @@
         cvt_dist = NEG_LONG( cvt_dist );
     }
 
-#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    if ( SUBPIXEL_HINTING_INFINALITY                               &&
-         exc->ignore_x_mode                                        &&
-         exc->GS.freeVector.y != 0                                 &&
-         ( exc->sph_tweak_flags & SPH_TWEAK_TIMES_NEW_ROMAN_HACK ) )
-    {
-      if ( cur_dist < -64 )
-        cvt_dist -= 16;
-      else if ( cur_dist > 64 && cur_dist < 84 )
-        cvt_dist += 32;
-    }
-#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
-
     /* control value cut-in and round */
 
     if ( ( exc->opcode & 4 ) != 0 )
@@ -6337,6 +6339,9 @@
 
       if ( exc->GS.gep0 == exc->GS.gep1 )
       {
+        FT_F26Dot6  control_value_cutin = exc->GS.control_value_cutin;
+
+
         /* XXX: According to Greg Hitchcock, the following wording is */
         /*      the right one:                                        */
         /*                                                            */
@@ -6357,10 +6362,7 @@
           cvt_dist = org_dist;
       }
 
-      distance = exc->func_round(
-                   exc,
-                   cvt_dist,
-                   exc->tt_metrics.compensations[exc->opcode & 3] );
+      distance = exc->func_round( exc, cvt_dist, exc->opcode & 3 );
     }
     else
     {
@@ -6371,6 +6373,22 @@
            exc->ignore_x_mode           &&
            exc->GS.gep0 == exc->GS.gep1 )
       {
+        FT_F26Dot6  control_value_cutin = exc->GS.control_value_cutin;
+
+
+        if ( exc->GS.freeVector.x != 0                          &&
+             !( exc->sph_tweak_flags & SPH_TWEAK_NORMAL_ROUND ) )
+          control_value_cutin = 0;
+
+        if ( exc->GS.freeVector.y != 0                                 &&
+             ( exc->sph_tweak_flags & SPH_TWEAK_TIMES_NEW_ROMAN_HACK ) )
+        {
+          if ( cur_dist < -64 )
+            cvt_dist -= 16;
+          else if ( cur_dist > 64 && cur_dist < 84 )
+            cvt_dist += 32;
+        }
+
         delta = SUB_LONG( cvt_dist, org_dist );
         if ( delta < 0 )
           delta = NEG_LONG( delta );
@@ -6380,16 +6398,24 @@
       }
 #endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
 
-      distance = Round_None(
-                   exc,
-                   cvt_dist,
-                   exc->tt_metrics.compensations[exc->opcode & 3] );
+      distance = Round_None( exc, cvt_dist, exc->opcode & 3 );
     }
 
     /* minimum distance test */
 
     if ( ( exc->opcode & 8 ) != 0 )
     {
+      FT_F26Dot6  minimum_distance    = exc->GS.minimum_distance;
+
+
+#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
+      if ( SUBPIXEL_HINTING_INFINALITY                        &&
+           exc->ignore_x_mode                                 &&
+           exc->GS.freeVector.x != 0                          &&
+           !( exc->sph_tweak_flags & SPH_TWEAK_NORMAL_ROUND ) )
+        minimum_distance = 0;
+#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
+
       if ( org_dist >= 0 )
       {
         if ( distance < minimum_distance )
@@ -6403,59 +6429,50 @@
     }
 
 #ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    if ( SUBPIXEL_HINTING_INFINALITY )
+    if ( SUBPIXEL_HINTING_INFINALITY &&
+         exc->ignore_x_mode          &&
+         exc->GS.freeVector.y != 0   )
     {
+      FT_Int   B1, B2;
+
+
       B1 = exc->zp1.cur[point].y;
 
       /* Round moves if necessary */
-      if ( exc->ignore_x_mode                                          &&
-           exc->GS.freeVector.y != 0                                   &&
-           ( exc->sph_tweak_flags & SPH_TWEAK_ROUND_NONPIXEL_Y_MOVES ) )
+      if ( exc->sph_tweak_flags & SPH_TWEAK_ROUND_NONPIXEL_Y_MOVES )
         distance = FT_PIX_ROUND( B1 + distance - cur_dist ) - B1 + cur_dist;
 
-      if ( exc->ignore_x_mode                                      &&
-           exc->GS.freeVector.y != 0                               &&
-           ( exc->opcode & 16 ) == 0                               &&
+      if ( ( exc->opcode & 16 ) == 0                               &&
            ( exc->opcode & 8 ) == 0                                &&
            ( exc->sph_tweak_flags & SPH_TWEAK_COURIER_NEW_2_HACK ) )
         distance += 64;
-    }
-#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
 
-    exc->func_move( exc,
-                    &exc->zp1,
-                    point,
-                    SUB_LONG( distance, cur_dist ) );
+      exc->func_move( exc,
+                      &exc->zp1,
+                      point,
+                      SUB_LONG( distance, cur_dist ) );
 
-#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    if ( SUBPIXEL_HINTING_INFINALITY )
-    {
       B2 = exc->zp1.cur[point].y;
 
       /* Reverse move if necessary */
-      if ( exc->ignore_x_mode )
-      {
-        if ( exc->face->sph_compatibility_mode &&
-             exc->GS.freeVector.y != 0         &&
+      if ( ( exc->face->sph_compatibility_mode &&
              ( B1 & 63 ) == 0                  &&
-             ( B2 & 63 ) != 0                  )
-          reverse_move = TRUE;
-
-        if ( ( exc->sph_tweak_flags & SPH_TWEAK_SKIP_NONPIXEL_Y_MOVES ) &&
-             exc->GS.freeVector.y != 0                                  &&
-             ( B2 & 63 ) != 0                                           &&
-             ( B1 & 63 ) != 0                                           )
-          reverse_move = TRUE;
-      }
-
-      if ( reverse_move )
+             ( B2 & 63 ) != 0                  )                          ||
+           ( ( exc->sph_tweak_flags & SPH_TWEAK_SKIP_NONPIXEL_Y_MOVES ) &&
+             ( B1 & 63 ) != 0                                           &&
+             ( B2 & 63 ) != 0                                           ) )
         exc->func_move( exc,
                         &exc->zp1,
                         point,
                         SUB_LONG( cur_dist, distance ) );
     }
-
+    else
 #endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
+
+      exc->func_move( exc,
+                      &exc->zp1,
+                      point,
+                      SUB_LONG( distance, cur_dist ) );
 
   Fail:
     exc->GS.rp1 = exc->GS.rp0;
@@ -7129,10 +7146,9 @@
     FT_UShort  A;
     FT_ULong   C, P;
     FT_Long    B;
+
+
 #ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    FT_UShort  B1, B2;
-
-
     if ( SUBPIXEL_HINTING_INFINALITY                              &&
          exc->ignore_x_mode                                       &&
          exc->iup_called                                          &&
@@ -7213,6 +7229,9 @@
             /* rules, always skipping deltas in subpixel direction.     */
             else if ( exc->ignore_x_mode && exc->GS.freeVector.y != 0 )
             {
+              FT_UShort  B1, B2;
+
+
               /* save the y value of the point now; compare after move */
               B1 = (FT_UShort)exc->zp0.cur[A].y;
 
@@ -7664,7 +7683,7 @@
   Ins_UNKNOWN( TT_ExecContext  exc )
   {
     TT_DefRecord*  def   = exc->IDefs;
-    TT_DefRecord*  limit = def + exc->numIDefs;
+    TT_DefRecord*  limit = FT_OFFSET( def, exc->numIDefs );
 
 
     for ( ; def < limit; def++ )
@@ -7751,35 +7770,6 @@
 #endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
 
 
-#ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
-    exc->iup_called = FALSE;
-#endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
-
-#ifdef TT_SUPPORT_SUBPIXEL_HINTING_MINIMAL
-    /*
-     * Toggle backward compatibility according to what font wants, except
-     * when
-     *
-     * 1) we have a `tricky' font that heavily relies on the interpreter to
-     *    render glyphs correctly, for example DFKai-SB, or
-     * 2) FT_RENDER_MODE_MONO (i.e, monochome rendering) is requested.
-     *
-     * In those cases, backward compatibility needs to be turned off to get
-     * correct rendering.  The rendering is then completely up to the
-     * font's programming.
-     *
-     */
-    if ( SUBPIXEL_HINTING_MINIMAL          &&
-         exc->subpixel_hinting_lean        &&
-         !FT_IS_TRICKY( &exc->face->root ) )
-      exc->backward_compatibility = !( exc->GS.instruct_control & 4 );
-    else
-      exc->backward_compatibility = FALSE;
-
-    exc->iupx_called = FALSE;
-    exc->iupy_called = FALSE;
-#endif
-
     /* We restrict the number of twilight points to a reasonable,     */
     /* heuristic value to avoid slow execution of malformed bytecode. */
     num_twilight_points = FT_MAX( 30,
@@ -7789,8 +7779,8 @@
       if ( num_twilight_points > 0xFFFFU )
         num_twilight_points = 0xFFFFU;
 
-      FT_TRACE5(( "TT_RunIns: Resetting number of twilight points\n"
-                  "           from %d to the more reasonable value %d\n",
+      FT_TRACE5(( "TT_RunIns: Resetting number of twilight points\n" ));
+      FT_TRACE5(( "           from %d to the more reasonable value %ld\n",
                   exc->twilight.n_points,
                   num_twilight_points ));
       exc->twilight.n_points = (FT_UShort)num_twilight_points;
@@ -7816,7 +7806,7 @@
                                   FT_MAX( 50,
                                           exc->cvtSize / 10 );
     else
-      exc->loopcall_counter_max = 300 + 8 * exc->cvtSize;
+      exc->loopcall_counter_max = 300 + 22 * exc->cvtSize;
 
     /* as a protection against an unreasonable number of CVT entries  */
     /* we assume at most 100 control values per glyph for the counter */
@@ -7825,11 +7815,11 @@
       exc->loopcall_counter_max = 100 * (FT_ULong)exc->face->root.num_glyphs;
 
     FT_TRACE5(( "TT_RunIns: Limiting total number of loops in LOOPCALL"
-                " to %d\n", exc->loopcall_counter_max ));
+                " to %ld\n", exc->loopcall_counter_max ));
 
     exc->neg_jump_counter_max = exc->loopcall_counter_max;
     FT_TRACE5(( "TT_RunIns: Limiting total number of backward jumps"
-                " to %d\n", exc->neg_jump_counter_max ));
+                " to %ld\n", exc->neg_jump_counter_max ));
 
     /* set PPEM and CVT functions */
     exc->tt_metrics.ratio = 0;
@@ -7850,6 +7840,10 @@
       exc->func_move_cvt  = Move_CVT;
     }
 
+    exc->origCvt     = exc->cvt;
+    exc->origStorage = exc->storage;
+    exc->iniRange    = exc->curRange;
+
     Compute_Funcs( exc );
     Compute_Round( exc, (FT_Byte)exc->GS.round_state );
 
@@ -7858,6 +7852,7 @@
       exc->opcode = exc->code[exc->IP];
 
 #ifdef FT_DEBUG_LEVEL_TRACE
+      if ( ft_trace_levels[trace_ttinterp] >= 6 )
       {
         FT_Long  cnt = FT_MIN( 8, exc->top );
         FT_Long  n;
@@ -7866,14 +7861,14 @@
         /* if tracing level is 7, show current code position */
         /* and the first few stack elements also             */
         FT_TRACE6(( "  " ));
-        FT_TRACE7(( "%06d ", exc->IP ));
+        FT_TRACE7(( "%06ld ", exc->IP ));
         FT_TRACE6(( "%s", opcode_name[exc->opcode] + 2 ));
         FT_TRACE7(( "%*s", *opcode_name[exc->opcode] == 'A'
                               ? 2
                               : 12 - ( *opcode_name[exc->opcode] - '0' ),
                               "#" ));
         for ( n = 1; n <= cnt; n++ )
-          FT_TRACE7(( " %d", exc->stack[exc->top - n] ));
+          FT_TRACE7(( " %ld", exc->stack[exc->top - n] ));
         FT_TRACE6(( "\n" ));
       }
 #endif /* FT_DEBUG_LEVEL_TRACE */
@@ -8516,7 +8511,7 @@
         case FT_ERR( Invalid_Opcode ):
           {
             TT_DefRecord*  def   = exc->IDefs;
-            TT_DefRecord*  limit = def + exc->numIDefs;
+            TT_DefRecord*  limit = FT_OFFSET( def, exc->numIDefs );
 
 
             for ( ; def < limit; def++ )
@@ -8574,8 +8569,10 @@
 
       /* increment instruction counter and check if we didn't */
       /* run this program for too long (e.g. infinite loops). */
-      if ( ++ins_counter > TT_CONFIG_OPTION_MAX_RUNNABLE_OPCODES )
-        return FT_THROW( Execution_Too_Long );
+      if ( ++ins_counter > TT_CONFIG_OPTION_MAX_RUNNABLE_OPCODES ) {
+        exc->error = FT_THROW( Execution_Too_Long );
+        goto LErrorLabel_;
+      }
 
     LSuiteLabel_:
       if ( exc->IP >= exc->codeSize )
@@ -8591,9 +8588,13 @@
     } while ( !exc->instruction_trap );
 
   LNo_Error_:
-    FT_TRACE4(( "  %d instruction%s executed\n",
+    FT_TRACE4(( "  %ld instruction%s executed\n",
                 ins_counter,
                 ins_counter == 1 ? "" : "s" ));
+
+    exc->cvt     = exc->origCvt;
+    exc->storage = exc->origStorage;
+
     return FT_Err_Ok;
 
   LErrorCodeOverflow_:
@@ -8602,6 +8603,9 @@
   LErrorLabel_:
     if ( exc->error && !exc->instruction_trap )
       FT_TRACE1(( "  The interpreter returned error 0x%x\n", exc->error ));
+
+    exc->cvt     = exc->origCvt;
+    exc->storage = exc->origStorage;
 
     return exc->error;
   }

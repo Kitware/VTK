@@ -6,6 +6,10 @@ KIT
   VTK::Parallel
 IMPLEMENTS
   VTK::IOExodus
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::IOExodus
@@ -15,6 +19,7 @@ PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::ParallelCore
   VTK::exodusII
+  VTK::netcdf
   VTK::vtksys
 TEST_DEPENDS
   VTK::TestingRendering

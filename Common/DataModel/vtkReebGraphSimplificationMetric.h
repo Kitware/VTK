@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkReebGraphSimplificationMetric.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkReebGraphSimplificationMetric
  * @brief   abstract class for custom Reeb graph
@@ -41,7 +29,7 @@
  *
  * See Graphics/Testing/Cxx/TestReebGraph.cxx for an example of concrete
  * implementation.
-*/
+ */
 
 #ifndef vtkReebGraphSimplificationMetric_h
 #define vtkReebGraphSimplificationMetric_h
@@ -49,19 +37,19 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataArray;
 class vtkAbstractArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkReebGraphSimplificationMetric :
-  public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkReebGraphSimplificationMetric : public vtkObject
 {
 public:
   static vtkReebGraphSimplificationMetric* New();
   vtkTypeMacro(vtkReebGraphSimplificationMetric, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the lowest possible value for the custom metric space.
    * This value can be set prior to launching the Reeb graph simplification and
@@ -70,9 +58,9 @@ public:
    */
   vtkSetMacro(LowerBound, double);
   vtkGetMacro(LowerBound, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the highest possible value for the custom metric space.
    * This value can be set prior to launching the Reeb graph simplification and
@@ -81,7 +69,7 @@ public:
    */
   vtkSetMacro(UpperBound, double);
   vtkGetMacro(UpperBound, double);
-  //@}
+  ///@}
 
   /**
    * Function to implement in your simplification metric algorithm.
@@ -90,19 +78,19 @@ public:
    * smallest the more likely the arc will be removed, depending on the
    * user-defined simplification threshold).
    */
-  virtual double ComputeMetric(vtkDataSet *mesh, vtkDataArray *field,
-    vtkIdType startCriticalPoint, vtkAbstractArray *vertexList,
-    vtkIdType endCriticalPoint);
+  virtual double ComputeMetric(vtkDataSet* mesh, vtkDataArray* field, vtkIdType startCriticalPoint,
+    vtkAbstractArray* vertexList, vtkIdType endCriticalPoint);
 
 protected:
   vtkReebGraphSimplificationMetric();
   ~vtkReebGraphSimplificationMetric() override;
 
-  double    LowerBound, UpperBound;
+  double LowerBound, UpperBound;
 
 private:
   vtkReebGraphSimplificationMetric(const vtkReebGraphSimplificationMetric&) = delete;
   void operator=(const vtkReebGraphSimplificationMetric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

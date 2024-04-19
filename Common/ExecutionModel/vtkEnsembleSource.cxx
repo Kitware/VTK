@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkEnsembleSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkEnsembleSource.h"
 
 #include "vtkDataObject.h"
@@ -27,6 +15,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEnsembleSource);
 vtkCxxSetObjectMacro(vtkEnsembleSource, MetaData, vtkTable);
 
@@ -37,17 +26,18 @@ vtkInformationKeyMacro(vtkEnsembleSource, DATA_MEMBER, Integer);
 class vtkInformationEnsembleMemberRequestKey : public vtkInformationIntegerRequestKey
 {
 public:
-  vtkInformationEnsembleMemberRequestKey(const char* name, const char* location) :
-    vtkInformationIntegerRequestKey(name, location)
+  vtkInformationEnsembleMemberRequestKey(const char* name, const char* location)
+    : vtkInformationIntegerRequestKey(name, location)
   {
     this->DataKey = vtkEnsembleSource::DATA_MEMBER();
   }
 };
-vtkInformationKeySubclassMacro(vtkEnsembleSource, UPDATE_MEMBER, EnsembleMemberRequest, IntegerRequest);
+vtkInformationKeySubclassMacro(
+  vtkEnsembleSource, UPDATE_MEMBER, EnsembleMemberRequest, IntegerRequest);
 
 struct vtkEnsembleSourceInternal
 {
-  std::vector<vtkSmartPointer<vtkAlgorithm> > Algorithms;
+  std::vector<vtkSmartPointer<vtkAlgorithm>> Algorithms;
 };
 
 vtkEnsembleSource::vtkEnsembleSource()
@@ -73,9 +63,8 @@ vtkEnsembleSource::~vtkEnsembleSource()
   }
 }
 
-vtkTypeBool vtkEnsembleSource::ProcessRequest(vtkInformation *request,
-                                      vtkInformationVector **inputVector,
-                                      vtkInformationVector *outputVector)
+vtkTypeBool vtkEnsembleSource::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkAlgorithm* currentReader = this->GetCurrentReader(outInfo);
@@ -89,8 +78,7 @@ vtkTypeBool vtkEnsembleSource::ProcessRequest(vtkInformation *request,
       currentReader->UpdateDataObject();
       vtkDataObject* rOutput = currentReader->GetOutputDataObject(0);
       vtkDataObject* output = rOutput->NewInstance();
-      outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(),
-        output);
+      outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();
       return 1;
     }
@@ -98,18 +86,16 @@ vtkTypeBool vtkEnsembleSource::ProcessRequest(vtkInformation *request,
     {
       if (this->MetaData)
       {
-        outputVector->GetInformationObject(0)->Set(META_DATA(),
-          this->MetaData);
+        outputVector->GetInformationObject(0)->Set(META_DATA(), this->MetaData);
       }
       // Call RequestInformation on all readers as they may initialize
       // data structures there. Note that this has to be done here
       // because current reader can be changed with a pipeline request
       // which does not cause REQUEST_INFORMATION to happen again.
-      std::vector<vtkSmartPointer<vtkAlgorithm> >::iterator iter =
+      std::vector<vtkSmartPointer<vtkAlgorithm>>::iterator iter =
         this->Internal->Algorithms.begin();
-      std::vector<vtkSmartPointer<vtkAlgorithm> >::iterator end =
-        this->Internal->Algorithms.end();
-      for(; iter != end; ++iter)
+      std::vector<vtkSmartPointer<vtkAlgorithm>>::iterator end = this->Internal->Algorithms.end();
+      for (; iter != end; ++iter)
       {
         int retVal = (*iter)->ProcessRequest(request, inputVector, outputVector);
         if (!retVal)
@@ -127,7 +113,7 @@ vtkTypeBool vtkEnsembleSource::ProcessRequest(vtkInformation *request,
 
 void vtkEnsembleSource::AddMember(vtkAlgorithm* alg)
 {
-  this->Internal->Algorithms.push_back(alg);
+  this->Internal->Algorithms.emplace_back(alg);
 }
 
 void vtkEnsembleSource::RemoveAllMembers()
@@ -166,7 +152,7 @@ int vtkEnsembleSource::FillOutputPortInformation(int, vtkInformation* info)
 
 void vtkEnsembleSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Current member: " << this->CurrentMember << endl;
   os << indent << "MetaData: " << endl;
@@ -179,3 +165,4 @@ void vtkEnsembleSource::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "(nullptr)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

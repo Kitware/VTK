@@ -1,24 +1,23 @@
 #!/usr/bin/env python
-'''
-=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestUserShader2.py
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http:#www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
 import sys
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    VTK_OBJECT,
+    vtkCommand,
+)
+from vtkmodules.vtkFiltersCore import vtkTriangleMeshPointNormals
+from vtkmodules.vtkIOPLY import vtkPLYReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingOpenGL2 import vtkOpenGLPolyDataMapper
+from vtkmodules.util.misc import calldata_type
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 
 '''
   Prevent .pyc files from being created.
@@ -28,7 +27,7 @@ from vtk.util.misc import vtkGetDataRoot
 sys.dont_write_bytecode = True
 
 
-@vtk.calldata_type(vtk.VTK_OBJECT)
+@calldata_type(VTK_OBJECT)
 def vtkShaderCallback(caller, event, calldata):
     program = calldata
     if program is not None:
@@ -36,21 +35,21 @@ def vtkShaderCallback(caller, event, calldata):
         program.SetUniform3f("diffuseColorUniform", diffuseColor)
 
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetSize(400, 400)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-ren = vtk.vtkRenderer()
+ren = vtkRenderer()
 ren.SetBackground(0.0, 0.0, 0.0)
 ren.GradientBackgroundOn()
 renWin.AddRenderer(ren)
-actor = vtk.vtkActor()
+actor = vtkActor()
 ren.AddActor(actor)
-reader = vtk.vtkPLYReader()
-reader.SetFileName("" + str(vtkGetDataRoot()) + "/Data/dragon.ply")
-norms = vtk.vtkTriangleMeshPointNormals()
+reader = vtkPLYReader()
+reader.SetFileName(vtkGetDataRoot() + "/Data/dragon.ply")
+norms = vtkTriangleMeshPointNormals()
 norms.SetInputConnection(reader.GetOutputPort())
-mapper = vtk.vtkOpenGLPolyDataMapper()
+mapper = vtkOpenGLPolyDataMapper()
 mapper.SetInputConnection(norms.GetOutputPort())
 actor.SetMapper(mapper)
 actor.GetProperty().SetAmbientColor(0.2, 0.2, 1.0)
@@ -88,7 +87,7 @@ sp.SetFragmentShaderCode(
     "}\n"
 )
 
-mapper.AddObserver(vtk.vtkCommand.UpdateShaderEvent, vtkShaderCallback)
+mapper.AddObserver(vtkCommand.UpdateShaderEvent, vtkShaderCallback)
 
 renWin.Render()
 ren.GetActiveCamera().SetPosition(-0.2, 0.4, 1)

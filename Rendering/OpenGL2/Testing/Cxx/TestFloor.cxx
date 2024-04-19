@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -24,9 +13,9 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkSkybox.h"
 #include "vtkSmartPointer.h"
@@ -35,8 +24,8 @@
 
 #include "vtkLight.h"
 
-//----------------------------------------------------------------------------
-int TestFloor(int argc, char *argv[])
+//------------------------------------------------------------------------------
+int TestFloor(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.0, 0.0, 0.0);
@@ -48,21 +37,20 @@ int TestFloor(int argc, char *argv[])
 
   vtkNew<vtkLight> light;
   light->SetLightTypeToSceneLight();
-  light->SetPosition(1.0,7.0,1.0);
+  light->SetPosition(1.0, 7.0, 1.0);
   renderer->AddLight(light);
 
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
 
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkPolyDataNormals> norms;
   norms->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkImageGridSource> grid;
-  grid->SetGridSpacing(32,32,0);
+  grid->SetGridSpacing(32, 32, 0);
 
   vtkNew<vtkTexture> texture;
   texture->SetColorModeToMapScalars();
@@ -87,7 +75,7 @@ int TestFloor(int argc, char *argv[])
   actor->GetProperty()->SetSpecularPower(20);
   actor->GetProperty()->SetDiffuse(0.7);
   actor->GetProperty()->SetAmbient(0.4);
-  actor->GetProperty()->SetAmbientColor(0.4,0.0,1.0);
+  actor->GetProperty()->SetAmbientColor(0.4, 0.0, 1.0);
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
 
@@ -103,7 +91,7 @@ int TestFloor(int argc, char *argv[])
   renderer->GetActiveCamera()->Azimuth(0);
   renderer->GetActiveCamera()->Elevation(5);
   renderer->GetActiveCamera()->Roll(-10);
-  renderer->SetBackground(0.6,0.7,1.0);
+  renderer->SetBackground(0.6, 0.7, 1.0);
   renderer->ResetCameraClippingRange();
 
   renderWindow->Render();
@@ -112,7 +100,7 @@ int TestFloor(int argc, char *argv[])
   renderWindow->GetInteractor()->SetInteractorStyle(style);
 
   int retVal = vtkRegressionTestImage(renderWindow);
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -1,29 +1,19 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef vtkAbstractInteractionDevice_h
 #define vtkAbstractInteractionDevice_h
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWidget;
 class vtkAbstractRenderDevice;
 
 class VTKRENDERINGCORE_EXPORT vtkAbstractInteractionDevice : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkAbstractInteractionDevice, vtkObject)
+  vtkTypeMacro(vtkAbstractInteractionDevice, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -49,9 +39,9 @@ public:
    */
   virtual void ProcessEvents() = 0;
 
-  void SetRenderWidget(vtkRenderWidget *widget);
+  void SetRenderWidget(vtkRenderWidget* widget);
   vtkRenderWidget* GetRenderWidget() { return this->RenderWidget; }
-  void SetRenderDevice(vtkAbstractRenderDevice *device);
+  void SetRenderDevice(vtkAbstractRenderDevice* device);
   vtkAbstractRenderDevice* GetRenderDevice() { return this->RenderDevice; }
 
 protected:
@@ -59,12 +49,13 @@ protected:
   ~vtkAbstractInteractionDevice() override;
 
   bool Initialized;
-  vtkRenderWidget *RenderWidget;
-  vtkAbstractRenderDevice *RenderDevice;
+  vtkRenderWidget* RenderWidget;
+  vtkAbstractRenderDevice* RenderDevice;
 
 private:
   vtkAbstractInteractionDevice(const vtkAbstractInteractionDevice&) = delete;
   void operator=(const vtkAbstractInteractionDevice&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

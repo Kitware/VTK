@@ -1,36 +1,24 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestChartsOn3D.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkChartXY.h"
-#include "vtkContextScene.h"
 #include "vtkContextActor.h"
+#include "vtkContextScene.h"
 #include "vtkCubeSource.h"
 #include "vtkFloatArray.h"
+#include "vtkNew.h"
 #include "vtkPlotPoints.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
+#include "vtkRenderer.h"
 #include "vtkTable.h"
-#include "vtkCamera.h"
 
-//----------------------------------------------------------------------------
-int TestChartsOn3D(int , char * [])
+//------------------------------------------------------------------------------
+int TestChartsOn3D(int, char*[])
 {
 
   vtkNew<vtkRenderWindow> renwin;
@@ -70,7 +58,7 @@ int TestChartsOn3D(int , char * [])
   chartScene->AddItem(chart);
   chartActor->SetScene(chartScene);
 
-  //both needed
+  // both needed
   renderer->AddActor(chartActor);
   chartScene->SetRenderer(renderer);
 
@@ -90,7 +78,7 @@ int TestChartsOn3D(int , char * [])
   table->AddColumn(arrT);
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
@@ -102,7 +90,7 @@ int TestChartsOn3D(int , char * [])
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *points = chart->AddPlot(vtkChart::POINTS);
+  vtkPlot* points = chart->AddPlot(vtkChart::POINTS);
   points->SetInputData(table, 0, 1);
   points->SetColor(0, 0, 0, 255);
   points->SetWidth(1.0);

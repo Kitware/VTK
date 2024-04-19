@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtRecordView.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkQtRecordView
  * @brief   Superclass for QAbstractItemView-based views.
@@ -29,25 +13,27 @@
  * @par Thanks:
  * Thanks to Brian Wylie from Sandia National Laboratories for implementing
  * this class
-*/
+ */
 
 #ifndef vtkQtRecordView_h
 #define vtkQtRecordView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
-#include "vtkSmartPointer.h" // Needed for data table member
-#include <QPointer> // Needed for the text widget member
+#include "vtkSmartPointer.h"  // Needed for data table member
+#include "vtkViewsQtModule.h" // For export macro
+#include <QPointer>           // Needed for the text widget member
 
 class QTextEdit;
-class vtkDataObjectToTable;
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkAttributeDataToTableFilter;
 
 class VTKVIEWSQT_EXPORT vtkQtRecordView : public vtkQtView
 {
-Q_OBJECT
+  Q_OBJECT
 
 public:
-  static vtkQtRecordView *New();
+  static vtkQtRecordView* New();
   vtkTypeMacro(vtkQtRecordView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -69,14 +55,14 @@ public:
     ROW_DATA = 5,
   };
 
-  //@{
+  ///@{
   /**
    * The field type to copy into the output table.
    * Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
    */
   vtkGetMacro(FieldType, int);
   void SetFieldType(int);
-  //@}
+  ///@}
 
   vtkGetMacro(CurrentRow, int);
   vtkGetStringMacro(Text);
@@ -87,21 +73,19 @@ public:
   void Update() override;
 
 protected:
-
   vtkQtRecordView();
   ~vtkQtRecordView() override;
 
   void AddRepresentationInternal(vtkDataRepresentation* rep) override;
   void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
-  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+  vtkSmartPointer<vtkAttributeDataToTableFilter> DataObjectToTable;
 
   QPointer<QTextEdit> TextWidget;
 
   char* Text;
   int FieldType;
   int CurrentRow;
-
 
 private:
   vtkQtRecordView(const vtkQtRecordView&) = delete;
@@ -112,4 +96,5 @@ private:
   vtkMTimeType LastMTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

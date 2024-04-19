@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProcrustesAlignmentFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkProcrustesAlignmentFilter
  * @brief   aligns a set of pointsets together
@@ -47,7 +35,7 @@
  *
  * @sa
  * vtkLandmarkTransform
-*/
+ */
 
 #ifndef vtkProcrustesAlignmentFilter_h
 #define vtkProcrustesAlignmentFilter_h
@@ -55,6 +43,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLandmarkTransform;
 class vtkPointSet;
 class vtkPoints;
@@ -62,7 +51,7 @@ class vtkPoints;
 class VTKFILTERSHYBRID_EXPORT vtkProcrustesAlignmentFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkProcrustesAlignmentFilter,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkProcrustesAlignmentFilter, vtkMultiBlockDataSetAlgorithm);
 
   /**
    * Prints information about the state of the filter.
@@ -72,25 +61,25 @@ public:
   /**
    * Creates with similarity transform.
    */
-  static vtkProcrustesAlignmentFilter *New();
+  static vtkProcrustesAlignmentFilter* New();
 
-  //@{
+  ///@{
   /**
    * Get the internal landmark transform. Use it to constrain the number of
    * degrees of freedom of the alignment (i.e. rigid body, similarity, etc.).
    * The default is a similarity alignment.
    */
-  vtkGetObjectMacro(LandmarkTransform,vtkLandmarkTransform);
-  //@}
+  vtkGetObjectMacro(LandmarkTransform, vtkLandmarkTransform);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the estimated mean point cloud
    */
-  vtkGetObjectMacro(MeanPoints,vtkPoints);
-  //@}
+  vtkGetObjectMacro(MeanPoints, vtkPoints);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When on, the initial alignment is to the centroid
    * of the cohort curves.  When off, the alignment is to the
@@ -100,9 +89,9 @@ public:
   vtkSetMacro(StartFromCentroid, bool);
   vtkGetMacro(StartFromCentroid, bool);
   vtkBooleanMacro(StartFromCentroid, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -112,9 +101,9 @@ public:
    * precision is DEFAULT_PRECISION and all the inputs are single precision,
    * then the mean points will be single precision.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
-  //@}
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
 
 protected:
   vtkProcrustesAlignmentFilter();
@@ -123,13 +112,13 @@ protected:
   /**
    * Usual data generation method.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkLandmarkTransform *LandmarkTransform;
+  vtkLandmarkTransform* LandmarkTransform;
 
   bool StartFromCentroid;
 
-  vtkPoints *MeanPoints;
+  vtkPoints* MeanPoints;
   int OutputPointsPrecision;
 
 private:
@@ -137,6 +126,5 @@ private:
   void operator=(const vtkProcrustesAlignmentFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

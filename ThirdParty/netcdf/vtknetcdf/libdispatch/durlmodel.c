@@ -17,7 +17,7 @@
 #endif
 
 #include "ncdispatch.h"
-#include "ncwinpath.h"
+#include "ncpathmgr.h"
 #include "ncurlmodel.h"
 
 /*
@@ -29,17 +29,15 @@ static struct LEGALMODES {
     const char* tag;
     const int format; /* NC_FORMAT_XXX value */
     const int implementation; /* NC_FORMATX_XXX value */
-    const int iosp; /* NC_IOSP_XXX value */
 } legalmodes[] = {
 /* Format X Implementation */
-{"netcdf-3",NC_FORMAT_CLASSIC,NC_FORMATX_NC3,0},
-{"classic",NC_FORMAT_CLASSIC,NC_FORMATX_NC3,0},
-{"netcdf-4",NC_FORMAT_NETCDF4,NC_FORMATX_NC4,0},
-{"enhanced",NC_FORMAT_NETCDF4,NC_FORMATX_NC4,0},
-{"dap2",NC_FORMAT_CLASSIC,NC_FORMATX_DAP2,0},
-{"dap4",NC_FORMAT_NETCDF4,NC_FORMATX_DAP4,0},
-/* IO Handlers */
-{"zarr",0,0,NC_IOSP_ZARR},
+{"netcdf-3",NC_FORMAT_CLASSIC,NC_FORMATX_NC3},
+{"classic",NC_FORMAT_CLASSIC,NC_FORMATX_NC3},
+{"netcdf-4",NC_FORMAT_NETCDF4,NC_FORMATX_NC4},
+{"enhanced",NC_FORMAT_NETCDF4,NC_FORMATX_NC4},
+{"dap2",NC_FORMAT_CLASSIC,NC_FORMATX_DAP2},
+{"dap4",NC_FORMAT_NETCDF4,NC_FORMATX_DAP4},
+{"nczarr",NC_FORMAT_NETCDF4,NC_FORMATX_DAP4},
 {NULL,0,0},
 };
 
@@ -108,12 +106,9 @@ url_getmodel(const char* modestr, NCmode* model)
 		    {stat = NC_EINVAL; goto done;}
 		if(model->implementation != 0 && legal->implementation != 0)
 		    {stat = NC_EINVAL; goto done;}
-		if(model->iosp != 0 && legal->iosp != 0)
-		    {stat = NC_EINVAL; goto done;}
 		if(legal->format != 0) model->format = legal->format;
 		if(legal->implementation != 0)
 		    model->implementation = legal->implementation;
-		if(legal->iosp != 0) model->iosp = legal->iosp;
 	    }
         }
     }	
@@ -233,7 +228,7 @@ NC_urlmodel(const char* path, int cmode, char** newurl, NCmode* model)
     case NC_FORMATX_DAP4:
 	model->format = NC_FORMAT_NETCDF4;
 	break;	
-    case NC_FORMATX_ZARR:
+    case NC_FORMATX_NCZARR:
 	model->format = NC_FORMAT_NETCDF4;
 	break;	
     default:

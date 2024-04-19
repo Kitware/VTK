@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkContourLineInterpolator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkContourLineInterpolator
  * @brief   Defines API for interpolating/modifying nodes from a vtkContourRepresentation
@@ -27,7 +15,7 @@
  * the nodes, as the user constructs the contours. For instance, a sticky
  * contour widget may be implemented that moves nodes to nearby regions of
  * high gradient, to be used in contour-guided segmentation.
-*/
+ */
 
 #ifndef vtkContourLineInterpolator_h
 #define vtkContourLineInterpolator_h
@@ -35,6 +23,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkContourRepresentation;
 class vtkIntArray;
@@ -42,22 +31,21 @@ class vtkIntArray;
 class VTKINTERACTIONWIDGETS_EXPORT vtkContourLineInterpolator : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkContourLineInterpolator,vtkObject);
+  vtkTypeMacro(vtkContourLineInterpolator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Subclasses that wish to interpolate a line segment must implement this.
    * For instance vtkBezierContourLineInterpolator adds nodes between idx1
    * and idx2, that allow the contour to adhere to a bezier curve.
    */
-  virtual int InterpolateLine( vtkRenderer *ren,
-                               vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) = 0;
+  virtual int InterpolateLine(
+    vtkRenderer* ren, vtkContourRepresentation* rep, int idx1, int idx2) = 0;
 
   /**
    * The interpolator is given a chance to update the node. For instance, the
@@ -66,9 +54,8 @@ public:
    * constructs the contour.
    * Returns 0 if the node (world position) is unchanged.
    */
-  virtual int UpdateNode( vtkRenderer *,
-                          vtkContourRepresentation *,
-                          double * vtkNotUsed(node), int vtkNotUsed(idx) );
+  virtual int UpdateNode(
+    vtkRenderer*, vtkContourRepresentation*, double* vtkNotUsed(node), int vtkNotUsed(idx));
 
   /**
    * Span of the interpolator. ie. the number of control points its supposed
@@ -85,10 +72,9 @@ public:
    * have a span of 3 control points, it can be larger. See
    * vtkBezierContourLineInterpolator for instance.
    */
-  virtual void GetSpan( int nodeIndex, vtkIntArray *nodeIndices,
-                        vtkContourRepresentation *rep );
+  virtual void GetSpan(int nodeIndex, vtkIntArray* nodeIndices, vtkContourRepresentation* rep);
 
- protected:
+protected:
   vtkContourLineInterpolator();
   ~vtkContourLineInterpolator() override;
 
@@ -97,4 +83,5 @@ private:
   void operator=(const vtkContourLineInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

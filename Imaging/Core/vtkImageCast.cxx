@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageCast.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageCast.h"
 
 #include "vtkImageData.h"
@@ -21,9 +9,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageCast);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageCast::vtkImageCast()
 {
   this->SetNumberOfInputPorts(1);
@@ -32,13 +21,10 @@ vtkImageCast::vtkImageCast()
   this->ClampOverflow = 0;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Just change the Image type.
-int vtkImageCast::RequestInformation (
-  vtkInformation       * vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector * outputVector)
+int vtkImageCast::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -46,13 +32,11 @@ int vtkImageCast::RequestInformation (
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
-void vtkImageCastExecute(vtkImageCast *self,
-                         vtkImageData *inData,
-                         vtkImageData *outData,
-                         int outExt[6], int id, IT *, OT *)
+void vtkImageCastExecute(
+  vtkImageCast* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, IT*, OT*)
 {
   vtkImageIterator<IT> inIt(inData, outExt);
   vtkImageProgressIterator<OT> outIt(outData, outExt, self, id);
@@ -106,55 +90,43 @@ void vtkImageCastExecute(vtkImageCast *self,
   }
 }
 
-
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <class T>
-void vtkImageCastExecute(vtkImageCast *self,
-                         vtkImageData *inData,
-                         vtkImageData *outData, int outExt[6], int id,
-                         T *)
+void vtkImageCastExecute(
+  vtkImageCast* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
 {
   switch (outData->GetScalarType())
   {
-    vtkTemplateMacro(vtkImageCastExecute(self,
-                                         inData, outData, outExt, id,
-                                         static_cast<T *>(nullptr),
-                                         static_cast<VTK_TT *>(nullptr)));
+    vtkTemplateMacro(vtkImageCastExecute(
+      self, inData, outData, outExt, id, static_cast<T*>(nullptr), static_cast<VTK_TT*>(nullptr)));
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return;
   }
 }
 
-
-
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageCast::ThreadedExecute (vtkImageData *inData,
-                                   vtkImageData *outData,
-                                   int outExt[6], int id)
+void vtkImageCast::ThreadedExecute(
+  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
 {
   switch (inData->GetScalarType())
   {
     vtkTemplateMacro(
-      vtkImageCastExecute(this, inData,
-                          outData, outExt, id,
-                          static_cast<VTK_TT *>(nullptr)));
+      vtkImageCastExecute(this, inData, outData, outExt, id, static_cast<VTK_TT*>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
   os << indent << "ClampOverflow: ";
@@ -167,4 +139,4 @@ void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
     os << "Off\n";
   }
 }
-
+VTK_ABI_NAMESPACE_END

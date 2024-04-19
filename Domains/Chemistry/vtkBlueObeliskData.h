@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBlueObeliskData.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBlueObeliskData
  * @brief   Contains chemical data from the Blue
@@ -31,19 +19,21 @@
  * vtkPeriodicTable::GetBlueObeliskData(). This object is
  * automatically populated on the first instantiation of
  * vtkPeriodicTable.
-*/
+ */
 
 #ifndef vtkBlueObeliskData_h
 #define vtkBlueObeliskData_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkNew.h"                    // For vtkNew
 #include "vtkObject.h"
-#include "vtkNew.h" // For vtkNew
 
+#include <mutex> // for std::mutex
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkFloatArray;
 class vtkStringArray;
-class vtkSimpleMutexLock;
 class vtkUnsignedShortArray;
 
 // Hidden STL reference: std::vector<vtkAbstractArray*>
@@ -51,41 +41,48 @@ class MyStdVectorOfVtkAbstractArrays;
 
 class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
 {
- public:
-  vtkTypeMacro(vtkBlueObeliskData,vtkObject);
+public:
+  vtkTypeMacro(vtkBlueObeliskData, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkBlueObeliskData *New();
+  static vtkBlueObeliskData* New();
 
   /**
-   * Fill this object using an internal vtkBlueObeliskDataParser
-   * instance. Check that the vtkSimpleMutexLock GetWriteMutex() is
-   * locked before calling this method on a static instance in a
-   * multithreaded environment.
+   * Fill this object using an internal vtkBlueObeliskDataParser instance.
+   * Wrap this call with calls to LockWriteMutex and UnlockWriteMutex before calling
+   * this method on a static instance in a multithreaded environment.
    */
   void Initialize();
 
   /**
    * Check if this object has been initialized yet.
    */
-  bool IsInitialized() { return this->Initialized;}
+  bool IsInitialized() { return this->Initialized; }
 
-  //@{
+  ///@{
   /**
-   * Access the mutex that protects the arrays during a call to
-   * Initialize()
+   * Lock the mutex that protects the arrays during a call to
+   * Initialize().
    */
-  vtkGetObjectMacro(WriteMutex, vtkSimpleMutexLock);
-  //@}
+  void LockWriteMutex();
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * Unlock the mutex that protects the arrays during a call to
+   * Initialize().
+   */
+  void UnlockWriteMutex();
+  ///@}
+
+  ///@{
   /**
    * Return the number of elements for which this vtkBlueObeliskData
    * instance contains information.
    */
   vtkGetMacro(NumberOfElements, unsigned short);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access the raw arrays stored in this vtkBlueObeliskData.
    */
@@ -96,7 +93,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   vtkGetNewMacro(PeriodicTableBlocks, vtkStringArray);
   vtkGetNewMacro(ElectronicConfigurations, vtkStringArray);
   vtkGetNewMacro(Families, vtkStringArray);
-  //@}
+  ///@}
 
   vtkGetNewMacro(Masses, vtkFloatArray);
   vtkGetNewMacro(ExactMasses, vtkFloatArray);
@@ -116,22 +113,21 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
    * Static method to generate the data header file used by this class from the
    * BODR elements.xml. See the GenerateBlueObeliskHeader test in this module.
    */
-  static bool GenerateHeaderFromXML(std::istream &xml, std::ostream &header);
+  static bool GenerateHeaderFromXML(std::istream& xml, std::ostream& header);
 
- protected:
+protected:
   friend class vtkBlueObeliskDataParser;
 
   vtkBlueObeliskData();
   ~vtkBlueObeliskData() override;
 
-  vtkSimpleMutexLock *WriteMutex;
   bool Initialized;
 
   /**
    * Allocate enough memory in each array for sz elements. ext is not
    * used.
    */
-  virtual vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000);
+  virtual vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000);
 
   /**
    * Reset each array.
@@ -146,7 +142,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   unsigned short NumberOfElements;
 
   // Lists all arrays
-  MyStdVectorOfVtkAbstractArrays *Arrays;
+  MyStdVectorOfVtkAbstractArrays* Arrays;
 
   // Atomic Symbols
   vtkNew<vtkStringArray> Symbols;
@@ -162,24 +158,27 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   vtkNew<vtkStringArray> Families; // Non-Metal, Noblegas, Metalloids, etc
 
   // Misc Data
-  vtkNew<vtkFloatArray> Masses; // amu
-  vtkNew<vtkFloatArray> ExactMasses; // amu
-  vtkNew<vtkFloatArray> IonizationEnergies; // eV
-  vtkNew<vtkFloatArray> ElectronAffinities; // eV
+  vtkNew<vtkFloatArray> Masses;                     // amu
+  vtkNew<vtkFloatArray> ExactMasses;                // amu
+  vtkNew<vtkFloatArray> IonizationEnergies;         // eV
+  vtkNew<vtkFloatArray> ElectronAffinities;         // eV
   vtkNew<vtkFloatArray> PaulingElectronegativities; // eV
-  vtkNew<vtkFloatArray> CovalentRadii; // Angstrom
-  vtkNew<vtkFloatArray> VDWRadii; // Angstom
-  vtkNew<vtkFloatArray> DefaultColors; // rgb 3-tuples, [0.0,1.0]
-  vtkNew<vtkFloatArray> BoilingPoints; // K
-  vtkNew<vtkFloatArray> MeltingPoints; // K
-  vtkNew<vtkUnsignedShortArray> Periods; // Row of periodic table
-  vtkNew<vtkUnsignedShortArray> Groups; // Column of periodic table
+  vtkNew<vtkFloatArray> CovalentRadii;              // Angstrom
+  vtkNew<vtkFloatArray> VDWRadii;                   // Angstom
+  vtkNew<vtkFloatArray> DefaultColors;              // rgb 3-tuples, [0.0,1.0]
+  vtkNew<vtkFloatArray> BoilingPoints;              // K
+  vtkNew<vtkFloatArray> MeltingPoints;              // K
+  vtkNew<vtkUnsignedShortArray> Periods;            // Row of periodic table
+  vtkNew<vtkUnsignedShortArray> Groups;             // Column of periodic table
 
-  void PrintSelfIfExists(const char *, vtkObject *, ostream&, vtkIndent);
+  void PrintSelfIfExists(const char*, vtkObject*, ostream&, vtkIndent);
 
- private:
+private:
   vtkBlueObeliskData(const vtkBlueObeliskData&) = delete;
   void operator=(const vtkBlueObeliskData&) = delete;
+
+  std::mutex NewWriteMutex;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

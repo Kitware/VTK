@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImplicitCylinderWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImplicitCylinderWidget
  * @brief   3D widget for manipulating an infinite cylinder
@@ -83,44 +71,49 @@
  *
  * @sa
  * vtk3DWidget vtkImplicitPlaneWidget
-*/
+ */
 
 #ifndef vtkImplicitCylinderWidget_h
 #define vtkImplicitCylinderWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitCylinderRepresentation;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitCylinderWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkImplicitCylinderWidget
+  : public vtkAbstractWidget
 {
 public:
   /**
    * Instantiate the object.
    */
-  static vtkImplicitCylinderWidget *New();
+  static vtkImplicitCylinderWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtkObject methods
    */
-  vtkTypeMacro(vtkImplicitCylinderWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkImplicitCylinderWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation( vtkImplicitCylinderRepresentation *rep );
+  void SetRepresentation(vtkImplicitCylinderRepresentation* rep);
 
   /**
    * Return the representation as a vtkImplicitCylinderRepresentation.
    */
-  vtkImplicitCylinderRepresentation *GetCylinderRepresentation()
-    {return reinterpret_cast<vtkImplicitCylinderRepresentation*>(this->WidgetRep);}
+  vtkImplicitCylinderRepresentation* GetCylinderRepresentation()
+  {
+    return reinterpret_cast<vtkImplicitCylinderRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -133,7 +126,11 @@ protected:
 
   // Manage the state of the widget
   int WidgetState;
-  enum _WidgetState {Start=0,Active};
+  enum WidgetStateType
+  {
+    Start = 0,
+    Active
+  };
 
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
@@ -149,12 +146,12 @@ protected:
    * Update the cursor shape based on the interaction state. Returns 1
    * if the cursor shape requested is different from the existing one.
    */
-  int UpdateCursorShape( int interactionState );
-
+  int UpdateCursorShape(int interactionState);
 
 private:
   vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&) = delete;
   void operator=(const vtkImplicitCylinderWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

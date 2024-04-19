@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastVolumePolyData.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This test covers additive method.
 // This test volume renders a synthetic dataset with unsigned char values,
 // with the additive method.
@@ -23,9 +11,12 @@
 #include <vtkImageData.h>
 #include <vtkImageReader.h>
 #include <vtkImageShiftScale.h>
+#include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
 #include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
+#include <vtkPlane.h>
+#include <vtkPlaneCollection.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
@@ -38,13 +29,9 @@
 #include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
-#include <vtkPlane.h>
-#include <vtkPlaneCollection.h>
-#include <vtkInteractorStyleTrackballCamera.h>
-
 
 /// Tests volume clipping when intermixed with geometry.
-int TestGPURayCastClippingPolyData(int argc, char *argv[])
+int TestGPURayCastClippingPolyData(int argc, char* argv[])
 {
   double scalarRange[2];
 
@@ -53,12 +40,11 @@ int TestGPURayCastClippingPolyData(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
-  delete [] volumeFile;
+  delete[] volumeFile;
 
   /// Outline filter
   vtkNew<vtkOutlineFilter> outlineFilter;
@@ -110,13 +96,13 @@ int TestGPURayCastClippingPolyData(int argc, char *argv[])
   im->GetOrigin(origin);
   im->GetSpacing(spacing);
 
-  sphereCenter[0] = origin[0] + spacing[0]*dims[0]/2.5;
-  sphereCenter[1] = origin[1] + spacing[1]*dims[1]/2.5;
-  sphereCenter[2] = origin[2] + spacing[2]*dims[2]/2.775;
+  sphereCenter[0] = origin[0] + spacing[0] * dims[0] / 2.5;
+  sphereCenter[1] = origin[1] + spacing[1] * dims[1] / 2.5;
+  sphereCenter[2] = origin[2] + spacing[2] * dims[2] / 2.775;
 
   vtkNew<vtkSphereSource> sphereSource;
   sphereSource->SetCenter(sphereCenter);
-  sphereSource->SetRadius(dims[1]/4.0);
+  sphereSource->SetRadius(dims[1] / 4.0);
   sphereSource->SetPhiResolution(40);
   sphereSource->SetThetaResolution(40);
   vtkNew<vtkPolyDataMapper> sphereMapper;
@@ -149,8 +135,8 @@ int TestGPURayCastClippingPolyData(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -8,6 +8,17 @@ KIT
   VTK::Common
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-BSD-3-Clause-Sandia-USGov
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright Sandia Corporation
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
+  BSD-3-Clause-Sandia-USGov
+LICENSE_FILES
+  LICENSE
 DEPENDS
   VTK::CommonCore
   VTK::CommonMath
@@ -15,17 +26,23 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
+  VTK::pugixml
   VTK::vtksys
 TEST_DEPENDS
   VTK::ChartsCore
   VTK::CommonColor
   VTK::CommonExecutionModel
   VTK::CommonSystem
+  VTK::FiltersCellGrid
   VTK::FiltersExtraction
   VTK::FiltersGeneric
   VTK::FiltersGeometry
   VTK::FiltersModeling
+  VTK::FiltersHyperTree
+  VTK::ImagingCore
+  VTK::ImagingSources
   VTK::IOGeometry
+  VTK::IOCellGrid
   VTK::IOLegacy
   VTK::IOXML
   VTK::InteractionStyle
@@ -33,8 +50,10 @@ TEST_DEPENDS
   VTK::RenderingCore
   VTK::RenderingOpenGL2
   VTK::TestingCore
+  VTK::TestingDataModel
   VTK::TestingGenericBridge
   VTK::TestingRendering
   VTK::ViewsContext2D
 TEST_OPTIONAL_DEPENDS
   VTK::FiltersPython
+INCLUDE_MARSHAL

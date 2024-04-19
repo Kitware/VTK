@@ -1,43 +1,30 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestTanglegramItem.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkTanglegramItem.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTanglegramItem.h"
 #include "vtkTree.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkContextInteractorStyle.h"
 #include "vtkContextActor.h"
+#include "vtkContextInteractorStyle.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
-#include "vtkNew.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestTanglegramItem(int argc, char* argv[])
 {
-  //tree #1
+  // tree #1
   vtkNew<vtkMutableDirectedGraph> graph1;
   vtkIdType root = graph1->AddVertex();
   vtkIdType internalOne = graph1->AddChild(root);
@@ -77,7 +64,7 @@ int TestTanglegramItem(int argc, char* argv[])
   nodeWeights->SetName("node weight");
   graph1->GetVertexData()->AddArray(nodeWeights);
 
-  //tree #2
+  // tree #2
   vtkNew<vtkMutableDirectedGraph> graph2;
   root = graph2->AddVertex();
   internalOne = graph2->AddChild(root);
@@ -177,7 +164,7 @@ int TestTanglegramItem(int argc, char* argv[])
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renderWindow, 100);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindow->Render();

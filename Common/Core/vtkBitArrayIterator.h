@@ -1,30 +1,19 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBitArrayIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBitArrayIterator
  * @brief   Iterator for vtkBitArray.
  * This iterator iterates over a vtkBitArray. It uses the double interface
  * to get/set bit values.
-*/
+ */
 
 #ifndef vtkBitArrayIterator_h
 #define vtkBitArrayIterator_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayIterator.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class VTKCOMMONCORE_EXPORT vtkBitArrayIterator : public vtkArrayIterator
 {
@@ -50,7 +39,7 @@ public:
   /**
    * Must be called only after Initialize.
    */
-  int* GetTuple(vtkIdType id) ;
+  int* GetTuple(vtkIdType id);
 
   /**
    * Must be called only after Initialize.
@@ -60,27 +49,27 @@ public:
   /**
    * Must be called only after Initialize.
    */
-  vtkIdType GetNumberOfTuples();
+  vtkIdType GetNumberOfTuples() const;
 
   /**
    * Must be called only after Initialize.
    */
-  vtkIdType GetNumberOfValues();
+  vtkIdType GetNumberOfValues() const;
 
   /**
    * Must be called only after Initialize.
    */
-  int GetNumberOfComponents();
+  int GetNumberOfComponents() const;
 
   /**
    * Get the data type from the underlying array.
    */
-  int GetDataType() override;
+  int GetDataType() const override;
 
   /**
    * Get the data type size from the underlying array.
    */
-  int GetDataTypeSize();
+  int GetDataTypeSize() const;
 
   /**
    * Sets the value at the index. This does not verify if the index is valid.
@@ -97,14 +86,15 @@ protected:
   vtkBitArrayIterator();
   ~vtkBitArrayIterator() override;
 
-  int *Tuple;
+  int* Tuple;
   int TupleSize;
   void SetArray(vtkBitArray* b);
   vtkBitArray* Array;
+
 private:
   vtkBitArrayIterator(const vtkBitArrayIterator&) = delete;
   void operator=(const vtkBitArrayIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

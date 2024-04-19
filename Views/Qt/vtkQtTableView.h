@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtTableView.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkQtTableView
  * @brief   A VTK view based on a Qt Table view.
@@ -27,32 +11,34 @@
  * @par Thanks:
  * Thanks to Brian Wylie from Sandia National Laboratories for implementing
  * this class
-*/
+ */
 
 #ifndef vtkQtTableView_h
 #define vtkQtTableView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
+#include "vtkViewsQtModule.h" // For export macro
 
-#include <QPointer> // Needed to hold the view
 #include "vtkSmartPointer.h" // Needed for member variables
+#include <QPointer>          // Needed to hold the view
 
-class vtkAddMembershipArray;
-class vtkApplyColors;
-class vtkDataObjectToTable;
-class vtkIdTypeArray;
 class QItemSelection;
 class QSortFilterProxyModel;
 class QTableView;
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkAddMembershipArray;
+class vtkApplyColors;
+class vtkAttributeDataToTableFilter;
+class vtkIdTypeArray;
 class vtkQtTableModelAdapter;
 
 class VTKVIEWSQT_EXPORT vtkQtTableView : public vtkQtView
 {
-Q_OBJECT
+  Q_OBJECT
 
 public:
-  static vtkQtTableView *New();
+  static vtkQtTableView* New();
   vtkTypeMacro(vtkQtTableView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -84,14 +70,14 @@ public:
     ROW_DATA = 5,
   };
 
-  //@{
+  ///@{
   /**
    * The field type to copy into the output table.
    * Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
    */
   vtkGetMacro(FieldType, int);
   void SetFieldType(int);
-  //@}
+  ///@}
 
   /**
    * Enable drag and drop on this widget
@@ -104,7 +90,7 @@ public:
    */
   void SetSortingEnabled(bool);
 
-  //@{
+  ///@{
   /**
    * Whether or not to display all columns from the input table or to use the
    * ColumnName provided.
@@ -112,18 +98,18 @@ public:
    */
   void SetShowAll(bool);
   vtkGetMacro(ShowAll, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of a single column to display.
    * FIXME: This should be replaced with an Add/Remove column API.
    */
   vtkSetStringMacro(ColumnName);
   vtkGetStringMacro(ColumnName);
-  //@}
+  ///@}
 
-  void SetColumnVisibility(const QString &name, bool status);
+  void SetColumnVisibility(const QString& name, bool status);
 
   /**
    * Set whether or not the table view should split multi-component columns
@@ -137,44 +123,44 @@ public:
    */
   bool GetSplitMultiComponentColumns();
 
-  //@{
+  ///@{
   /**
    * Whether or not to sort selections that the view receives to the top
    */
   void SetSortSelectionToTop(bool value);
   vtkGetMacro(SortSelectionToTop, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether or not to add an icon to the row header denoting the color
    * of an annotated row.
    */
   void SetApplyRowColors(bool value);
   vtkGetMacro(ApplyRowColors, bool);
-  //@}
+  ///@}
 
   /**
    * Updates the view.
    */
   void Update() override;
 
-  //@{
+  ///@{
   /**
    * The array to use for coloring items in view.  Default is "color".
    */
   void SetColorArrayName(const char* name);
   const char* GetColorArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to color vertices.  Default is off.
    */
   void SetColorByArray(bool vis);
   bool GetColorByArray();
   vtkBooleanMacro(ColorByArray, bool);
-  //@}
+  ///@}
 
   /**
    * Apply a view theme to this view.
@@ -188,7 +174,7 @@ public:
     SELECT_COLUMNS
   };
 
-  //@{
+  ///@{
   /**
    * The selection mode for this view.
    * SELECT_ITEMS (0) selects single items.
@@ -200,7 +186,7 @@ public:
    */
   virtual void SetSelectionBehavior(int type);
   virtual int GetSelectionBehavior();
-  //@}
+  ///@}
 
   /**
    * Fills the array with the selected items of the view.
@@ -219,10 +205,10 @@ protected:
   void AddRepresentationInternal(vtkDataRepresentation* rep) override;
   void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
-private slots:
-  void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
+private Q_SLOTS:
+  void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
   void SetVTKSelection();
   vtkMTimeType LastSelectionMTime;
   vtkMTimeType LastInputMTime;
@@ -243,12 +229,12 @@ private:
   char* ColorArrayNameInternal;
 
   vtkSmartPointer<vtkAddMembershipArray> AddSelectedColumn;
-  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+  vtkSmartPointer<vtkAttributeDataToTableFilter> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
   vtkQtTableView(const vtkQtTableView&) = delete;
   void operator=(const vtkQtTableView&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

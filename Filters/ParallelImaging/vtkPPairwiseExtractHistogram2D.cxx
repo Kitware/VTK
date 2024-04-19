@@ -1,29 +1,11 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkPPairwiseExtractHistogram2D.cxx
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkPPairwiseExtractHistogram2D.h"
 
 #include "vtkArrayData.h"
 #include "vtkArrayIteratorIncludes.h"
-#include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkCollection.h"
-#include "vtkPExtractHistogram2D.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkImageMedian3D.h"
@@ -31,16 +13,18 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkPExtractHistogram2D.h"
 #include "vtkPointData.h"
-#include "vtkStdString.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedIntArray.h"
 
 #include <set>
-#include <vector>
 #include <string>
+#include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPPairwiseExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkPPairwiseExtractHistogram2D, Controller, vtkMultiProcessController);
 
@@ -50,7 +34,6 @@ vtkPPairwiseExtractHistogram2D::vtkPPairwiseExtractHistogram2D()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-
 vtkPPairwiseExtractHistogram2D::~vtkPPairwiseExtractHistogram2D()
 {
   this->SetController(nullptr);
@@ -58,7 +41,7 @@ vtkPPairwiseExtractHistogram2D::~vtkPPairwiseExtractHistogram2D()
 
 void vtkPPairwiseExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 
@@ -68,3 +51,4 @@ vtkExtractHistogram2D* vtkPPairwiseExtractHistogram2D::NewHistogramFilter()
   ph->SetController(this->Controller);
   return ph;
 }
+VTK_ABI_NAMESPACE_END

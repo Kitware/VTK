@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPythonAppInit.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /* Minimal main program -- everything is loaded from the library */
 
@@ -19,10 +7,11 @@
 #include "vtkPythonCompatibility.h"
 
 #ifdef VTK_COMPILED_USING_MPI
-# include <mpi.h>
-# include "vtkMPIController.h"
+#include "vtkMPIController.h"
+#include <vtk_mpi.h>
 #endif // VTK_COMPILED_USING_MPI
 
+#include "vtkBuild.h"
 #include "vtkOutputWindow.h"
 #include "vtkPythonInterpreter.h"
 #include "vtkVersion.h"
@@ -33,22 +22,20 @@
 #include <string>
 
 #ifdef VTK_COMPILED_USING_MPI
-class vtkMPICleanup {
+class vtkMPICleanup
+{
 public:
-  vtkMPICleanup()
+  vtkMPICleanup() { this->Controller = nullptr; }
+  void Initialize(int* argc, char*** argv)
   {
-      this->Controller = nullptr;
-  }
-  void Initialize(int* argc, char ***argv)
-  {
-      MPI_Init(argc, argv);
-      this->Controller = vtkMPIController::New();
-      this->Controller->Initialize(argc, argv, 1);
-      vtkMultiProcessController::SetGlobalController(this->Controller);
+    MPI_Init(argc, argv);
+    this->Controller = vtkMPIController::New();
+    this->Controller->Initialize(argc, argv, 1);
+    vtkMultiProcessController::SetGlobalController(this->Controller);
   }
   void Cleanup()
   {
-    if ( this->Controller )
+    if (this->Controller)
     {
       this->Controller->Finalize();
       this->Controller->Delete();
@@ -56,13 +43,10 @@ public:
       vtkMultiProcessController::SetGlobalController(nullptr);
     }
   }
-  ~vtkMPICleanup()
-  {
-    this->Cleanup();
-  }
+  ~vtkMPICleanup() { this->Cleanup(); }
 
 private:
-  vtkMPIController *Controller;
+  vtkMPIController* Controller;
 };
 
 static vtkMPICleanup VTKMPICleanup;
@@ -74,8 +58,17 @@ static void AtExitCallback()
 }
 #endif // VTK_COMPILED_USING_MPI
 
-int main(int argc, char **argv)
+#if defined(_WIN32) && !defined(__MINGW32__)
+int wmain(int argc, wchar_t* wargv[])
+#else
+int main(int argc, char** argv)
+#endif
 {
+#if defined(_WIN32) && !defined(__MINGW32__)
+  vtkWideArgsConverter converter(argc, wargv);
+  char** argv = converter.GetArgs();
+#endif
+
 #ifdef VTK_COMPILED_USING_MPI
   VTKMPICleanup.Initialize(&argc, &argv);
   Py_AtExit(::AtExitCallback);

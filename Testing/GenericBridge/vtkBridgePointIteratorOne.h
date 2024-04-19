@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBridgePointIteratorOne.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBridgePointIteratorOne
  * @brief   Iterate over one point of a dataset.
  * @sa
  * vtkGenericPointIterator, vtkBridgeDataSet
-*/
+ */
 
 #ifndef vtkBridgePointIteratorOne_h
 #define vtkBridgePointIteratorOne_h
@@ -25,13 +13,14 @@
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericPointIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBridgeDataSet;
 
 class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgePointIteratorOne : public vtkGenericPointIterator
 {
 public:
-  static vtkBridgePointIteratorOne *New();
-  vtkTypeMacro(vtkBridgePointIteratorOne,vtkGenericPointIterator);
+  static vtkBridgePointIteratorOne* New();
+  vtkTypeMacro(vtkBridgePointIteratorOne, vtkGenericPointIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -55,7 +44,7 @@ public:
    * \pre not_off: !IsAtEnd()
    * \post result_exists: result!=0
    */
-  double *GetPosition() override;
+  double* GetPosition() override;
 
   /**
    * Point at iterator position.
@@ -76,8 +65,7 @@ public:
    * \pre ds_can_be_null: ds!=0 || ds==0
    * \pre valid_id: vtkImplies(ds!=0,(id>=0)&&(id<=ds->GetNumberOfCells()))
    */
-  void InitWithOnePoint(vtkBridgeDataSet *ds,
-                        vtkIdType id);
+  void InitWithOnePoint(vtkBridgeDataSet* ds, vtkIdType id);
 
 protected:
   /**
@@ -90,8 +78,8 @@ protected:
    */
   ~vtkBridgePointIteratorOne() override;
 
-  vtkBridgeDataSet *DataSet; // the structure on which the object iterates.
-  vtkIdType Id; // the id at current position.
+  vtkBridgeDataSet* DataSet; // the structure on which the object iterates.
+  vtkIdType Id;              // the id at current position.
   int cIsAtEnd;
 
 private:
@@ -99,4 +87,5 @@ private:
   void operator=(const vtkBridgePointIteratorOne&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLPropItem.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkOpenGLPropItem
@@ -22,24 +10,26 @@
  * and mappers rely on the modelview/projection matrices from vtkCamera. This
  * class is a layer between the two that updates the camera with the current
  * OpenGL state.
-*/
+ */
 
 #ifndef vtkOpenGLPropItem_h
 #define vtkOpenGLPropItem_h
 
-#include "vtkRenderingContextOpenGL2Module.h" // For export macro
-#include "vtkPropItem.h"
 #include "vtkNew.h" // for vtkNew
+#include "vtkPropItem.h"
+#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 
-class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLPropItem: public vtkPropItem
+class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLPropItem : public vtkPropItem
 {
 public:
-  static vtkOpenGLPropItem *New();
-  vtkTypeMacro(vtkOpenGLPropItem, vtkPropItem)
+  static vtkOpenGLPropItem* New();
+  vtkTypeMacro(vtkOpenGLPropItem, vtkPropItem);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
 protected:
   vtkOpenGLPropItem();
@@ -53,10 +43,11 @@ protected:
 
 private:
   vtkNew<vtkCamera> CameraCache;
-  vtkContext2D *Painter;
+  vtkContext2D* Painter;
 
-  vtkOpenGLPropItem(const vtkOpenGLPropItem &) = delete;
-  void operator=(const vtkOpenGLPropItem &) = delete;
+  vtkOpenGLPropItem(const vtkOpenGLPropItem&) = delete;
+  void operator=(const vtkOpenGLPropItem&) = delete;
 };
 
-#endif //vtkOpenGLPropItem_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkOpenGLPropItem_h

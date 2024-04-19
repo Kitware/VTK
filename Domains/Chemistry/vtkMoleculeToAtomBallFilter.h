@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMoleculeToAtomBallFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMoleculeToAtomBallFilter
  * @brief   Generate polydata with spheres
@@ -29,7 +17,7 @@
  *
  * @sa
  * vtkMoleculeMapper vtkMoleculeToBondStickFilter
-*/
+ */
 
 #ifndef vtkMoleculeToAtomBallFilter_h
 #define vtkMoleculeToAtomBallFilter_h
@@ -37,18 +25,19 @@
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeToPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMolecule;
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter
-  : public vtkMoleculeToPolyDataFilter
+class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter : public vtkMoleculeToPolyDataFilter
 {
- public:
-  vtkTypeMacro(vtkMoleculeToAtomBallFilter,vtkMoleculeToPolyDataFilter);
+public:
+  vtkTypeMacro(vtkMoleculeToAtomBallFilter, vtkMoleculeToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkMoleculeToAtomBallFilter *New();
+  static vtkMoleculeToAtomBallFilter* New();
 
-  enum {
+  enum
+  {
     CovalentRadius = 0,
     VDWRadius,
     UnitRadius
@@ -67,8 +56,7 @@ protected:
   vtkMoleculeToAtomBallFilter();
   ~vtkMoleculeToAtomBallFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int Resolution;
   double RadiusScale;
@@ -79,4 +67,5 @@ private:
   void operator=(const vtkMoleculeToAtomBallFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

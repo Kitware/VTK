@@ -1,36 +1,20 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderedRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkRenderedRepresentation
  *
  *
-*/
+ */
 
 #ifndef vtkRenderedRepresentation_h
 #define vtkRenderedRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkDataRepresentation.h"
-#include "vtkSmartPointer.h" // for SP ivars
-#include "vtkUnicodeString.h" // for string
+#include "vtkSmartPointer.h"       // for SP ivars
+#include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkApplyColors;
 class vtkProp;
 class vtkRenderView;
@@ -46,7 +30,7 @@ public:
   vtkTypeMacro(vtkRenderedRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the label render mode.
    * vtkRenderView::QT - Use Qt-based labeler with fitted labeling
@@ -55,13 +39,13 @@ public:
    */
   vtkSetMacro(LabelRenderMode, int);
   vtkGetMacro(LabelRenderMode, int);
-  //@}
+  ///@}
 
 protected:
   vtkRenderedRepresentation();
   ~vtkRenderedRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Subclasses may call these methods to add or remove props from the representation.
    * Use these if the number of props/actors changes as the result of input connection
@@ -69,21 +53,20 @@ protected:
    */
   void AddPropOnNextRender(vtkProp* p);
   void RemovePropOnNextRender(vtkProp* p);
-  //@}
+  ///@}
 
   /**
    * Obtains the hover text for a particular prop and cell.
    * If the prop is not applicable to the representation, return an empty string.
-   * Subclasses should override GetHoverTextInternal, in which the prop and cell
+   * Subclasses should override GetHoverStringInternal, in which the prop and cell
    * are converted to an appropriate selection using ConvertSelection().
    */
-  vtkUnicodeString GetHoverText(vtkView* view, vtkProp* prop, vtkIdType cell);
+  std::string GetHoverString(vtkView* view, vtkProp* prop, vtkIdType cell);
 
   /**
    * Subclasses may override this method to generate the hover text.
    */
-  virtual vtkUnicodeString GetHoverTextInternal(vtkSelection*)
-    { return vtkUnicodeString(); }
+  virtual std::string GetHoverStringInternal(vtkSelection*) { return ""; }
 
   /**
    * The view will call this method before every render.
@@ -103,5 +86,5 @@ private:
   Internals* Implementation;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

@@ -221,27 +221,21 @@ NC_lookupvar(NC3_INFO* ncp, int varid, NC_var **varp);
 #define IS_RECVAR(vp)                                           \
     ((vp)->shape != NULL ? (*(vp)->shape == NC_UNLIMITED) : 0 )
 
-#ifdef LOCKNUMREC
-/*
- * typedef SHMEM type
- * for whenever the SHMEM functions can handle other than shorts
- */
-typedef unsigned short int      ushmem_t;
-typedef short int                shmem_t;
-#endif
-
 struct NC3_INFO {
     /* contains the previous NC during redef. */
     NC3_INFO *old;
-    /* flags */
-#define NC_CREAT 2      /* in create phase, cleared by ncendef */
-#define NC_INDEF 8      /* in define mode, cleared by ncendef */
-#define NC_NSYNC 0x10   /* synchronise numrecs on change */
-#define NC_HSYNC 0x20   /* synchronise whole header on change */
-#define NC_NDIRTY 0x40  /* numrecs has changed */
-#define NC_HDIRTY 0x80  /* header info has changed */
-/*      NC_NOFILL in netcdf.h, historical interface */
-    int flags;
+    int flags; /* mode flags */
+    int state; /* state transitions flags */
+#	define NC_CREAT 0x1      /* in create phase, cleared by ncendef */
+#	define NC_INDEF 0x2      /* in define mode, cleared by ncendef */
+#	define NC_NSYNC 0x4      /* synchronise numrecs on change */
+#	define NC_HSYNC 0x8      /* synchronise whole header on change */
+#	define NC_NDIRTY 0x10  /* numrecs has changed */
+#	define NC_HDIRTY 0x20  /* header info has changed */
+/* NC_NOFILL defined in netcdf.h, historical interface */
+#if 0
+#	define NC_NOFILL 0x100   /**< Argument to nc_set_fill() to turn off filling of data. */
+#endif
     struct ncio* nciop;
     size_t chunk;   /* largest extent this layer will request from ncio->get() */
     size_t xsz;     /* external size of this header, == var[0].begin */
@@ -258,18 +252,6 @@ struct NC3_INFO {
     NC_dimarray dims;
     NC_attrarray attrs;
     NC_vararray vars;
-#ifdef LOCKNUMREC
-/* size and named indexes for the lock array protecting NC.numrecs */
-#  define LOCKNUMREC_DIM        4
-#  define LOCKNUMREC_VALUE      0
-#  define LOCKNUMREC_LOCK       1
-#  define LOCKNUMREC_SERVING    2
-#  define LOCKNUMREC_BASEPE     3
-    /* Used on Cray T3E MPP to maintain the
-     * integrity of numrecs for an unlimited dimension
-     */
-    ushmem_t lock[LOCKNUMREC_DIM];
-#endif
 };
 
 #define NC_readonly(ncp)                        \
@@ -279,33 +261,32 @@ struct NC3_INFO {
     fClr((ncp)->flags, NC_WRITE)
 
 #define NC_IsNew(ncp)                           \
-    fIsSet((ncp)->flags, NC_CREAT)
+    fIsSet((ncp)->state, NC_CREAT)
 
 #define NC_indef(ncp)                                   \
-    (NC_IsNew(ncp) || fIsSet((ncp)->flags, NC_INDEF))
+    (NC_IsNew(ncp) || fIsSet((ncp)->state, NC_INDEF))
 
 #define set_NC_ndirty(ncp)                      \
-    fSet((ncp)->flags, NC_NDIRTY)
+    fSet((ncp)->state, NC_NDIRTY)
 
 #define NC_ndirty(ncp)                          \
-    fIsSet((ncp)->flags, NC_NDIRTY)
+    fIsSet((ncp)->state, NC_NDIRTY)
 
 #define set_NC_hdirty(ncp)                      \
-    fSet((ncp)->flags, NC_HDIRTY)
+    fSet((ncp)->state, NC_HDIRTY)
 
 #define NC_hdirty(ncp)                          \
-    fIsSet((ncp)->flags, NC_HDIRTY)
+    fIsSet((ncp)->state, NC_HDIRTY)
 
 #define NC_dofill(ncp)                          \
-    (!fIsSet((ncp)->flags, NC_NOFILL))
+    (!fIsSet((ncp)->state, NC_NOFILL))
 
 #define NC_doHsync(ncp)                         \
-    fIsSet((ncp)->flags, NC_HSYNC)
+    fIsSet((ncp)->state, NC_HSYNC)
 
 #define NC_doNsync(ncp)                         \
-    fIsSet((ncp)->flags, NC_NSYNC)
+    fIsSet((ncp)->state, NC_NSYNC)
 
-#ifndef LOCKNUMREC
 #  define NC_get_numrecs(nc3i)                  \
     ((nc3i)->numrecs)
 
@@ -314,11 +295,6 @@ struct NC3_INFO {
 
 #  define NC_increase_numrecs(nc3i, nrecs)                              \
     {if((nrecs) > (nc3i)->numrecs) ((nc3i)->numrecs = (nrecs));}
-#else
-    size_t NC_get_numrecs(const NC3_INFO *nc3i);
-void   NC_set_numrecs(NC3_INFO *nc3i, size_t nrecs);
-void   NC_increase_numrecs(NC3_INFO *nc3i, size_t nrecs);
-#endif
 
 /* Begin defined in nc.c */
 

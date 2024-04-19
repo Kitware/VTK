@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPBRLUTTexture.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPBRLUTTexture
  * @brief   precompute BRDF look-up table texture used in physically based rendering
@@ -27,6 +15,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLTexture;
@@ -49,23 +38,23 @@ public:
    */
   void Render(vtkRenderer* ren) override { this->Load(ren); }
 
-  //@{
+  ///@{
   /**
    * Set/Get size of texture.
    * Default is 1024.
    */
   vtkGetMacro(LUTSize, unsigned int);
   vtkSetMacro(LUTSize, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of samples used during Monte-Carlo integration.
    * Default is 512.
    */
   vtkGetMacro(LUTSamples, unsigned int);
   vtkSetMacro(LUTSamples, unsigned int);
-  //@}
+  ///@}
 
 protected:
   vtkPBRLUTTexture() = default;
@@ -79,4 +68,5 @@ private:
   void operator=(const vtkPBRLUTTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

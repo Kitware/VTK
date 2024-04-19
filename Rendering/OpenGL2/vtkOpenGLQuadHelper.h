@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOpenGLQuadHelper
  * @brief   Class to make rendering a full screen quad easier
@@ -23,6 +12,11 @@
  * class should be destroyed. A common use pattern is to conditionally
  * create the instance where used and delete it in ReleaseGraphicsResources
  * and the destructor.
+ *
+ * It is possible to flip the Y direction of the quad texture coordinate by
+ * turning on the flipY option in the constructor. This can be useful when
+ * rendering in an external context having a different convention than OpenGL
+ * e.g. OpenGL-D3D shared textures. Off by default if unspecified.
  *
  * Example usage:
  * @code
@@ -47,6 +41,7 @@
 #include "vtkTimeStamp.h"
 #include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexArrayObject;
 class vtkShaderProgram;
@@ -57,18 +52,20 @@ class vtkWindow;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLQuadHelper
 {
 public:
-  vtkShaderProgram *Program;
+  vtkShaderProgram* Program;
   vtkTimeStamp ShaderSourceTime;
-  vtkOpenGLVertexArrayObject *VAO;
+  vtkOpenGLVertexArrayObject* VAO;
   unsigned int ShaderChangeValue;
 
-  // create a quadhelper with the provided shaders
-  // if the vertex is nullptr
-  // then the default is used. Note that this
-  // class should be destroyed upon
-  // ReleaseGraphicsResources
-  vtkOpenGLQuadHelper(vtkOpenGLRenderWindow *,
-    const char *vs, const char *fs, const char *gs);
+  /**
+   * Create a quadhelper with the provided shaders.
+   * If the vertex is nullptr then the default is used.
+   * Turning on the flipY option reverts the y component of the quad texture coordinates in
+   * order to flip the rendered texture.
+   * Note that this class should be destroyed upon ReleaseGraphicsResources.
+   */
+  vtkOpenGLQuadHelper(
+    vtkOpenGLRenderWindow*, const char* vs, const char* fs, const char* gs, bool flipY = false);
 
   ~vtkOpenGLQuadHelper();
 
@@ -88,6 +85,7 @@ private:
   std::unique_ptr<vtkGenericOpenGLResourceFreeCallback> ResourceCallback;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLQuadHelper_h
 
 // VTK-HeaderTest-Exclude: vtkOpenGLQuadHelper.h

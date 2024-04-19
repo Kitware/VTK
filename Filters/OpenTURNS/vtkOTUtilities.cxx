@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOTUtilities.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOTUtilities.h"
 
 #include "vtkDataArrayCollection.h"
@@ -22,7 +10,8 @@
 
 using namespace OT;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
 {
   if (arrays == nullptr)
@@ -48,9 +37,8 @@ Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
     {
       // TODO nullptr Object
       vtkErrorWithObjectMacro(arrays,
-        "An array has not the expected number of tuples. Expecting: " << numTuples << " , got: "
-                                                                      << array->GetNumberOfTuples()
-                                                                      << " , dropping it");
+        "An array has not the expected number of tuples. Expecting: "
+          << numTuples << " , got: " << array->GetNumberOfTuples() << " , dropping it");
       continue;
     }
     for (int i = 0; i < numTuples; ++i)
@@ -63,7 +51,7 @@ Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
   return ns;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Sample* vtkOTUtilities::ArrayToSample(vtkDataArray* arr)
 {
   if (arr == nullptr)
@@ -85,7 +73,7 @@ Sample* vtkOTUtilities::ArrayToSample(vtkDataArray* arr)
   return ns;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArray* vtkOTUtilities::SampleToArray(Sample* ns)
 {
   if (ns == nullptr)
@@ -109,3 +97,4 @@ vtkDataArray* vtkOTUtilities::SampleToArray(Sample* ns)
   }
   return arr;
 }
+VTK_ABI_NAMESPACE_END

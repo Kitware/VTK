@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOSPRayTestInteractor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .SECTION Description
 // A common interactor style for the ospray tests that understands
 // the following key presses.
@@ -31,39 +19,39 @@
 
 #include "vtkInteractorStyleTrackballCamera.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCommand;
 class vtkRenderer;
 class vtkRenderPass;
 class vtkRenderWindow;
+VTK_ABI_NAMESPACE_END
 
 // Define interaction style
 class vtkOSPRayTestInteractor : public vtkInteractorStyleTrackballCamera
 {
 private:
-  vtkRenderer *GLRenderer;
-  vtkRenderPass *O;
-  vtkRenderPass *G;
+  vtkRenderer* GLRenderer;
+  vtkRenderPass* O;
+  vtkRenderPass* G;
   int VisibleActor;
   int VisibleLight;
-  vtkCommand *Looper;
+  vtkCommand* Looper;
 
 public:
   static vtkOSPRayTestInteractor* New();
   vtkTypeMacro(vtkOSPRayTestInteractor, vtkInteractorStyleTrackballCamera);
   vtkOSPRayTestInteractor();
   ~vtkOSPRayTestInteractor();
-  void SetPipelineControlPoints(vtkRenderer *g,
-                                vtkRenderPass *_O,
-                                vtkRenderPass *_G);
-  virtual void OnKeyPress() override;
+  void SetPipelineControlPoints(vtkRenderer* g, vtkRenderPass* _O, vtkRenderPass* _G);
+  void OnKeyPress() override;
 
-  static void AddName(const char *name);
+  static void AddName(const char* name);
 
-  //access to a progressive rendering automator
-  vtkCommand *GetLooper(vtkRenderWindow*);
+  // access to a progressive rendering automator
+  vtkCommand* GetLooper(vtkRenderWindow*);
 };
 
 #endif

@@ -1,21 +1,10 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    vtkContextMouseEvent.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkRenderWindowInteractor.h" // AIX include order issues.
 #include "vtkContextMouseEvent.h"
+#include "vtkRenderWindowInteractor.h" // AIX include order issues.
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkContextMouseEvent::GetModifiers() const
 {
   int modifier = vtkContextMouseEvent::NO_MODIFIER;
@@ -36,3 +25,4 @@ int vtkContextMouseEvent::GetModifiers() const
   }
   return modifier;
 }
+VTK_ABI_NAMESPACE_END

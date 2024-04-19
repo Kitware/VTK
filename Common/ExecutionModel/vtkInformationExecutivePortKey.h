@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationExecutivePortKey.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInformationExecutivePortKey
  * @brief   Key for vtkExecutive/Port value pairs.
@@ -19,7 +7,7 @@
  * vtkInformationExecutivePortKey is used to represent keys in
  * vtkInformation for values that are vtkExecutive instances paired
  * with port numbers.
-*/
+ */
 
 #ifndef vtkInformationExecutivePortKey_h
 #define vtkInformationExecutivePortKey_h
@@ -29,12 +17,13 @@
 
 #include "vtkFilteringInformationKeyManager.h" // Manage instances of this type.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExecutive;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationExecutivePortKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationExecutivePortKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationExecutivePortKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationExecutivePortKey(const char* name, const char* location);
@@ -45,12 +34,13 @@ public:
    * name and a location. This method is provided for wrappers. Use the
    * constructor directly from C++ instead.
    */
-  static vtkInformationExecutivePortKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationExecutivePortKey* MakeKey(
+    const char* name, const char* location)
   {
     return new vtkInformationExecutivePortKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -58,8 +48,8 @@ public:
   void Set(vtkInformation* info, vtkExecutive*, int);
   vtkExecutive* GetExecutive(vtkInformation* info);
   int GetPort(vtkInformation* info);
-  void Get(vtkInformation *info, vtkExecutive*& executive, int &port);
-  //@}
+  void Get(vtkInformation* info, vtkExecutive*& executive, int& port);
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information
@@ -83,4 +73,5 @@ private:
   void operator=(const vtkInformationExecutivePortKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

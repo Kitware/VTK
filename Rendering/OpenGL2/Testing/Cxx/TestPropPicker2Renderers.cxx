@@ -1,18 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestImageTracerWidget.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include <vtkActor.h>
 #include <vtkAssemblyPath.h>
@@ -25,22 +12,21 @@
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkProperty.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkPolyDataReader.h>
 #include <vtkPropPicker.h>
-#include <vtkRendererCollection.h>
+#include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkPolyDataReader.h>
-#include <vtkPolyDataNormals.h>
+#include <vtkRendererCollection.h>
 #include <vtkSphereSource.h>
 
-bool corner = true;
-//bool corner = false;
+static bool corner = true;
+// bool corner = false;
 
-double sphereColor[3] = { 0.73, 0.33, 0.83 };
-double sphereColorPicked[3] = { 1.0, 1., 0.0 };
-double sphereColor2[3] = { 0.33, 0.73, 0.83 };
+static double sphereColor[3] = { 0.73, 0.33, 0.83 };
+static double sphereColorPicked[3] = { 1.0, 1., 0.0 };
 
 // Handle mouse events
 class MouseInteractorStyle2 : public vtkInteractorStyleTrackballCamera
@@ -49,13 +35,12 @@ public:
   static MouseInteractorStyle2* New();
   vtkTypeMacro(MouseInteractorStyle2, vtkInteractorStyleTrackballCamera);
 
-
   void OnLeftButtonDown() override
   {
     int* clickPos = this->GetInteractor()->GetEventPosition();
 
     vtkRenderWindow* renwin = this->GetInteractor()->GetRenderWindow();
-    vtkRenderer *aren = this->GetInteractor()->FindPokedRenderer(clickPos[0], clickPos[1]);
+    vtkRenderer* aren = this->GetInteractor()->FindPokedRenderer(clickPos[0], clickPos[1]);
 
     vtkNew<vtkPropPicker> picker2;
     if (0 != picker2->Pick(clickPos[0], clickPos[1], 0, aren))
@@ -72,15 +57,13 @@ public:
   }
 
 private:
-
 };
 
 vtkStandardNewMacro(MouseInteractorStyle2);
 
-
 void InitRepresentation(vtkRenderer* renderer)
 {
-  //Sphere
+  // Sphere
   vtkNew<vtkSphereSource> sphereSource;
   sphereSource->SetPhiResolution(24);
   sphereSource->SetThetaResolution(24);
@@ -98,13 +81,11 @@ void InitRepresentation(vtkRenderer* renderer)
   renderer->AddActor(sphere);
 }
 
-const char PropPickerEventLog[] =
-  "# StreamVersion 1.1\n"
-  "LeftButtonPressEvent 160 150 0 0 0 0\n"
-  "LeftButtonReleaseEvent 160 150 0 0 0 0\n";
+const char PropPickerEventLog[] = "# StreamVersion 1.1\n"
+                                  "LeftButtonPressEvent 160 150 0 0 0 0\n"
+                                  "LeftButtonReleaseEvent 160 150 0 0 0 0\n";
 
-
-int TestPropPicker2Renderers(int, char *[])
+int TestPropPicker2Renderers(int, char*[])
 {
   vtkNew<vtkRenderer> renderer0;
   renderer0->SetUseDepthPeeling(1);
@@ -129,8 +110,7 @@ int TestPropPicker2Renderers(int, char *[])
 
   iren->SetInteractorStyle(istyle);
 
-
-  if (corner) //corner
+  if (corner) // corner
   {
     vtkNew<vtkRenderer> renderer1;
     renderer1->SetViewport(0, 0, 0.1, 0.1);
@@ -171,27 +151,25 @@ int TestPropPicker2Renderers(int, char *[])
     actor->GetProperty()->BackfaceCullingOff();
     actor->GetProperty()->SetColor(0.93, 0.5, 0.5);
 
-      {
-        renderer0->AddActor(actor);
+    {
+      renderer0->AddActor(actor);
 
-        InitRepresentation(renderer0);
+      InitRepresentation(renderer0);
 
-        renderer0->ResetCameraClippingRange();
-        renderer0->ResetCamera();
+      renderer0->ResetCameraClippingRange();
+      renderer0->ResetCamera();
 
-        istyle->SetDefaultRenderer(renderer0);
-      }
+      istyle->SetDefaultRenderer(renderer0);
+    }
 
-      actor->PickableOff();
+    actor->PickableOff();
   }
   renWin->SetSize(300, 300);
-
 
   vtkNew<vtkInteractorEventRecorder> recorder;
   recorder->SetInteractor(iren);
   recorder->ReadFromInputStringOn();
   recorder->SetInputString(PropPickerEventLog);
-
 
   renWin->Render();
   recorder->Play();

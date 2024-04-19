@@ -10,10 +10,10 @@
 #include KWSYS_HEADER(Encoding.h)
 
 #include <algorithm>
+#include <clocale>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
-#include <locale.h>
-#include <stdlib.h>
-#include <string.h>
 
 // Work-around CMake dependency scanning limitation.  This must
 // duplicate the above list of headers.
@@ -59,7 +59,7 @@ static int testHelloWorldEncoding()
     std::string str2 = kwsys::Encoding::ToNarrow(wstr);
     wchar_t* c_wstr = kwsysEncoding_DupToWide(str.c_str());
     char* c_str2 = kwsysEncoding_DupToNarrow(c_wstr);
-    if (!wstr.empty() && (str != str2 || strcmp(c_str2, str.c_str()))) {
+    if (!wstr.empty() && (str != str2 || strcmp(c_str2, str.c_str()) != 0)) {
       std::cout << "converted string was different: " << str2 << std::endl;
       std::cout << "converted string was different: " << c_str2 << std::endl;
       ret++;
@@ -80,26 +80,26 @@ static int testRobustEncoding()
   std::ios::fmtflags const& flags = std::cout.flags();
 
   int ret = 0;
-  char cstr[] = { (char)-1, 0 };
+  char cstr[] = { static_cast<char>(-1), 0 };
   // this conversion could fail
   std::wstring wstr = kwsys::Encoding::ToWide(cstr);
 
   wstr = kwsys::Encoding::ToWide(nullptr);
-  if (wstr != L"") {
+  if (!wstr.empty()) {
     const wchar_t* wcstr = wstr.c_str();
     std::cout << "ToWide(NULL) returned";
     for (size_t i = 0; i < wstr.size(); i++) {
-      std::cout << " " << std::hex << (int)wcstr[i];
+      std::cout << " " << std::hex << static_cast<int>(wcstr[i]);
     }
     std::cout << std::endl;
     ret++;
   }
   wstr = kwsys::Encoding::ToWide("");
-  if (wstr != L"") {
+  if (!wstr.empty()) {
     const wchar_t* wcstr = wstr.c_str();
     std::cout << "ToWide(\"\") returned";
     for (size_t i = 0; i < wstr.size(); i++) {
-      std::cout << " " << std::hex << (int)wcstr[i];
+      std::cout << " " << std::hex << static_cast<int>(wcstr[i]);
     }
     std::cout << std::endl;
     ret++;
@@ -113,13 +113,13 @@ static int testRobustEncoding()
 #endif
 
   std::string str = kwsys::Encoding::ToNarrow(nullptr);
-  if (str != "") {
+  if (!str.empty()) {
     std::cout << "ToNarrow(NULL) returned " << str << std::endl;
     ret++;
   }
 
   str = kwsys::Encoding::ToNarrow(L"");
-  if (wstr != L"") {
+  if (!wstr.empty()) {
     std::cout << "ToNarrow(\"\") returned " << str << std::endl;
     ret++;
   }
@@ -140,14 +140,13 @@ static int testWithNulls()
   strings.push_back(std::string("k") + '\0' + '\0');
   strings.push_back(std::string("\0\0\0\0", 4) + "lmn" +
                     std::string("\0\0\0\0", 4));
-  for (std::vector<std::string>::iterator it = strings.begin();
-       it != strings.end(); ++it) {
-    std::wstring wstr = kwsys::Encoding::ToWide(*it);
+  for (auto& string : strings) {
+    std::wstring wstr = kwsys::Encoding::ToWide(string);
     std::string str = kwsys::Encoding::ToNarrow(wstr);
-    std::string s(*it);
+    std::string s(string);
     std::replace(s.begin(), s.end(), '\0', ' ');
-    std::cout << "'" << s << "' (" << it->size() << ")" << std::endl;
-    if (str != *it) {
+    std::cout << "'" << s << "' (" << string.size() << ")" << std::endl;
+    if (str != string) {
       std::replace(str.begin(), str.end(), '\0', ' ');
       std::cout << "string with null was different: '" << str << "' ("
                 << str.size() << ")" << std::endl;
@@ -161,7 +160,9 @@ static int testCommandLineArguments()
 {
   int status = 0;
 
-  char const* argv[2] = { "./app.exe", (char const*)helloWorldStrings[1] };
+  char const* argv[2] = {
+    "./app.exe", reinterpret_cast<char const*>(helloWorldStrings[1])
+  };
 
   kwsys::Encoding::CommandLineArguments args(2, argv);
   kwsys::Encoding::CommandLineArguments arg2 =

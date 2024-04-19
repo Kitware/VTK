@@ -1,0 +1,7 @@
+NAME
+  VTK::cli11
+LIBRARY_NAME
+  vtkcli11
+TEST_DEPENDS
+  VTK::TestingCore
+THIRD_PARTY

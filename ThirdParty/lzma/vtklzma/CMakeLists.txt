@@ -3,7 +3,7 @@
 # Thanks to Lasse Collin for integration help
 
 if (FALSE) # XXX(kitware): hide subprojects.
-project(LZMA VERSION 5.2.3 LANGUAGES C)
+project(LZMA VERSION 5.2.5 LANGUAGES C)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "LZMA compression library")
 endif ()
 
@@ -286,13 +286,11 @@ set(headers
   src/liblzma/api/vtk_lzma_mangle.h)
 
 vtk_module_add_module(VTK::lzma
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
   PRIVATE_HEADERS ${private_headers}
-  HEADERS_SUBDIR "vtklzma/src/liblzma/api")
-vtk_module_install_headers(
-  DIRECTORIES "src/liblzma/api/lzma"
-  SUBDIR      "vtklzma/src/liblzma/api")
+  HEADERS_SUBDIR "vtklzma")
 set_target_properties(lzma
   PROPERTIES
     C_STANDARD 99

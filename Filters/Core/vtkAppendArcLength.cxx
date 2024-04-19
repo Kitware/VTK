@@ -1,17 +1,6 @@
-/*=========================================================================
-
-  Program:   ParaView
-  Module:    vtkAppendArcLength.cxx
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
+// SPDX-License-Identifier: BSD-3-CLAUSE
 #include "vtkAppendArcLength.h"
 
 #include "vtkCellArray.h"
@@ -23,14 +12,15 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendArcLength);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendArcLength::vtkAppendArcLength() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAppendArcLength::~vtkAppendArcLength() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAppendArcLength::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -64,8 +54,14 @@ int vtkAppendArcLength::RequestData(
   vtkIdType numCellPoints;
   const vtkIdType* cellPoints;
   lines->InitTraversal();
+  vtkIdType checkAbortInterval = std::min(lines->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
+  vtkIdType progressCounter = 0;
   while (lines->GetNextCell(numCellPoints, cellPoints))
   {
+    if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     if (numCellPoints == 0)
     {
       continue;
@@ -82,14 +78,16 @@ int vtkAppendArcLength::RequestData(
       arc_length->SetTuple1(cellPoints[cc], arc_distance);
       memcpy(prevPoint, curPoint, 3 * sizeof(double));
     }
+    progressCounter++;
   }
   output->GetPointData()->AddArray(arc_length);
   arc_length->Delete();
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAppendArcLength::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

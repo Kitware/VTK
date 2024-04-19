@@ -3,25 +3,20 @@ set(classes
   vtkConvertSelection
   vtkExpandMarkedElements
   vtkExtractBlock
-  vtkExtractCells
+  vtkExtractBlockUsingDataAssembly
   vtkExtractCellsByType
   vtkExtractDataArraysOverTime
   vtkExtractDataOverTime
   vtkExtractDataSets
-  vtkExtractEdges
   vtkExtractExodusGlobalTemporalVariables
   vtkExtractGeometry
   vtkExtractGrid
   vtkExtractLevel
+  vtkExtractParticlesOverTime
   vtkExtractPolyDataGeometry
   vtkExtractRectilinearGrid
   vtkExtractSelectedArraysOverTime
-  vtkExtractSelectedBlock
-  vtkExtractSelectedIds
-  vtkExtractSelectedLocations
-  vtkExtractSelectedPolyDataIds
   vtkExtractSelectedRows
-  vtkExtractSelectedThresholds
   vtkExtractSelection
   vtkExtractTensorComponents
   vtkExtractTimeSteps
@@ -35,10 +30,6 @@ set(classes
   vtkSelector
   vtkValueSelector)
 
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND classes
-    vtkExtractTemporalFieldData)
-endif()
-
 vtk_module_add_module(VTK::FiltersExtraction
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::FiltersExtraction)

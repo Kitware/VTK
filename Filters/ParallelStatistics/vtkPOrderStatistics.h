@@ -1,22 +1,6 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkPOrderStatistics.h
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2011 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
-  -------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2011 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkPOrderStatistics
  * @brief   A class for parallel univariate order statistics
@@ -35,7 +19,7 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * @par Thanks:
  * Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
-*/
+ */
 
 #ifndef vtkPOrderStatistics_h
 #define vtkPOrderStatistics_h
@@ -45,63 +29,57 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <map> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
 {
- public:
+public:
   static vtkPOrderStatistics* New();
   vtkTypeMacro(vtkPOrderStatistics, vtkOrderStatistics);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the multiprocess controller. If no controller is set,
    * single process is assumed.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  void Learn( vtkTable*,
-              vtkTable*,
-              vtkMultiBlockDataSet* ) override;
+  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
 
- protected:
+protected:
   vtkPOrderStatistics();
   ~vtkPOrderStatistics() override;
 
   /**
    * Reduce the collection of local histograms to the global one for data inputs
    */
-  bool Reduce( vtkIdTypeArray*,
-               vtkDataArray* );
+  bool Reduce(vtkIdTypeArray*, vtkDataArray*);
 
   /**
    * Reduce the collection of local histograms to the global one for string inputs
    */
-  bool Reduce( vtkIdTypeArray*,
-               vtkIdType&,
-               char*,
-               std::map<vtkStdString,vtkIdType>& );
+  bool Reduce(vtkIdTypeArray*, vtkIdType&, char*, std::map<vtkStdString, vtkIdType>&);
 
   /**
    * Broadcast reduced histogram to all processes in the case of string inputs
    */
-  bool Broadcast( std::map<vtkStdString,vtkIdType>&,
-                  vtkIdTypeArray*,
-                  vtkStringArray*,
-                  vtkIdType );
+  bool Broadcast(std::map<vtkStdString, vtkIdType>&, vtkIdTypeArray*, vtkStringArray*, vtkIdType);
 
   vtkMultiProcessController* Controller;
- private:
+
+private:
   vtkPOrderStatistics(const vtkPOrderStatistics&) = delete;
   void operator=(const vtkPOrderStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

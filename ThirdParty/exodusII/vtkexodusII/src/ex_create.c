@@ -1,39 +1,13 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 
 /*!
+\ingroup Utilities
 
 \note The ex_create_int() is an internal function called by
 ex_create(). The user should call ex_create() and not ex_create_int().
@@ -60,23 +34,22 @@ causes of errors include:
  to create files there.
   -  Passing an invalid file clobber mode.
 
-
 \param path The file name of the new exodus file. This can be given as either an
             absolute path name (from the root of the file system) or a relative
             path name (from the current directory).
 
 \param cmode Mode. Use one of the following predefined constants:
-\arg EX_NOCLOBBER  To create the new file only if the given file name does
+\arg #EX_NOCLOBBER  To create the new file only if the given file name does
 not refer to a
                       file that already exists.
 
-\arg EX_CLOBBER    To create the new file, regardless of whether a file with
+\arg #EX_CLOBBER    To create the new file, regardless of whether a file with
 the same
                       name already exists. If a file with the same name does
 exist, its
                       contents will be erased.
 
-\arg EX_64BIT_OFFSET To create a model that can store individual datasets
+\arg #EX_64BIT_OFFSET To create a model that can store individual datasets
 larger than
                         2 gigabytes. This modifies the internal storage used by
 exodusII and
@@ -87,12 +60,12 @@ offset'
                         environment variable EXODUS_LARGE_MODEL is defined
                         in the users environment. A message will be printed to
 standard output
-                        if this environment variable is found. EX_LARGE_MODEL is
+                        if this environment variable is found. #EX_LARGE_MODEL is
 alias.
 
-\arg EX_NORMAL_MODEL Create a standard model.
+\arg #EX_NORMAL_MODEL Create a standard model.
 
-\arg EX_64BIT_DATA      To create a model using the CDF5 format which uses the
+\arg #EX_64BIT_DATA      To create a model using the CDF5 format which uses the
                         classic model but has 64-bit dimensions and sizes.
                         This type will also be created if the
                         environment variable EXODUS_NETCDF5 is defined in the
@@ -100,7 +73,7 @@ alias.
                         output if
                         this environment variable is found.
 
-\arg EX_NETCDF4 To create a model using the HDF5-based NetCDF-4
+\arg #EX_NETCDF4 To create a model using the HDF5-based NetCDF-4
                         output. An HDF5-based NetCDF-4 file will also be created
 if the
                         environment variable EXODUS_NETCDF4 is defined in the
@@ -108,11 +81,11 @@ if the
 output if
                         this environment variable is found.
 
-\arg EX_NOSHARE Do not open the underlying NetCDF file in \e share
+\arg #EX_NOSHARE Do not open the underlying NetCDF file in \e share
 mode. See the
                         NetCDF documentation for more details.
 
-\arg EX_SHARE   Do open the underlying NetCDF file in \e share mode. See
+\arg #EX_SHARE   Do open the underlying NetCDF file in \e share mode. See
 the NetCDF
                         documentation for more details.
 
@@ -158,8 +131,8 @@ exoid = ex_create ("test.exo"       \comment{filename path}
  */
 int ex_create_int(const char *path, int cmode, int *comp_ws, int *io_ws, int run_version)
 {
-  int  exoid;
-  int  status;
+  int  exoid  = 0;
+  int  status = 0;
   char errmsg[MAX_ERR_LENGTH];
   int  nc_mode = 0;
 
@@ -168,7 +141,16 @@ int ex_create_int(const char *path, int cmode, int *comp_ws, int *io_ws, int run
 
   EX_FUNC_ENTER();
 
-  nc_mode = ex_int_handle_mode(my_mode, is_parallel, run_version);
+  nc_mode = ex__handle_mode(my_mode, is_parallel, run_version);
+
+  /* Verify that this file is not already open for read or write...
+     In theory, should be ok for the file to be open multiple times
+     for read, but bad things can happen if being read and written
+     at the same time...
+  */
+  if (ex__check_multiple_open(path, EX_WRITE, __func__)) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   if ((status = nc_create(path, nc_mode, &exoid)) != NC_NOERR) {
 #if NC_HAS_HDF5
@@ -184,11 +166,11 @@ int ex_create_int(const char *path, int cmode, int *comp_ws, int *io_ws, int run
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: file create failed for %s", path);
     }
 #endif
-    ex_err_fn(exoid, __func__, errmsg, status);
+    ex_err(__func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  status = ex_int_populate_header(exoid, path, my_mode, is_parallel, comp_ws, io_ws);
+  status = ex__populate_header(exoid, path, my_mode, is_parallel, comp_ws, io_ws);
   if (status != EX_NOERR) {
     EX_FUNC_LEAVE(status);
   }

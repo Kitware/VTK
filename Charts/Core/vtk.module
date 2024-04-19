@@ -7,6 +7,10 @@ DESCRIPTION
 IMPLEMENTABLE
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
@@ -23,6 +27,7 @@ TEST_DEPENDS
   VTK::CommonColor
   VTK::FiltersGeometry
   VTK::FiltersStatistics
+  VTK::InteractionStyle
   VTK::IOImage
   VTK::IOInfovis
   VTK::RenderingContextOpenGL2

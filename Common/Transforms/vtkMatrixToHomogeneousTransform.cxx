@@ -1,39 +1,28 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMatrixToHomogeneousTransform.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkMatrixToHomogeneousTransform.h"
 
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMatrixToHomogeneousTransform);
-vtkCxxSetObjectMacro(vtkMatrixToHomogeneousTransform,Input,vtkMatrix4x4);
+vtkCxxSetObjectMacro(vtkMatrixToHomogeneousTransform, Input, vtkMatrix4x4);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatrixToHomogeneousTransform::vtkMatrixToHomogeneousTransform()
 {
   this->Input = nullptr;
   this->InverseFlag = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMatrixToHomogeneousTransform::~vtkMatrixToHomogeneousTransform()
 {
   this->SetInput(nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrixToHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Update();
@@ -43,14 +32,14 @@ void vtkMatrixToHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InverseFlag: " << this->InverseFlag << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrixToHomogeneousTransform::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMatrixToHomogeneousTransform::InternalUpdate()
 {
   if (this->Input)
@@ -67,12 +56,11 @@ void vtkMatrixToHomogeneousTransform::InternalUpdate()
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkMatrixToHomogeneousTransform::InternalDeepCopy(
-                                                vtkAbstractTransform *gtrans)
+//------------------------------------------------------------------------------
+void vtkMatrixToHomogeneousTransform::InternalDeepCopy(vtkAbstractTransform* gtrans)
 {
-  vtkMatrixToHomogeneousTransform *transform =
-    static_cast<vtkMatrixToHomogeneousTransform *>(gtrans);
+  vtkMatrixToHomogeneousTransform* transform =
+    static_cast<vtkMatrixToHomogeneousTransform*>(gtrans);
 
   this->SetInput(transform->Input);
 
@@ -82,13 +70,13 @@ void vtkMatrixToHomogeneousTransform::InternalDeepCopy(
   }
 }
 
-//----------------------------------------------------------------------------
-vtkAbstractTransform *vtkMatrixToHomogeneousTransform::MakeTransform()
+//------------------------------------------------------------------------------
+vtkAbstractTransform* vtkMatrixToHomogeneousTransform::MakeTransform()
 {
   return vtkMatrixToHomogeneousTransform::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the MTime
 vtkMTimeType vtkMatrixToHomogeneousTransform::GetMTime()
 {
@@ -104,3 +92,4 @@ vtkMTimeType vtkMatrixToHomogeneousTransform::GetMTime()
   }
   return mtime;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWeakReference.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkWeakReference
@@ -28,18 +16,19 @@
 #include "vtkObject.h"
 #include "vtkWeakPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkWeakReference : public vtkObject
 {
 public:
   vtkTypeMacro(vtkWeakReference, vtkObject);
-  static vtkWeakReference *New();
+  static vtkWeakReference* New();
   vtkWeakReference();
   ~vtkWeakReference() override;
 
   /**
    * Set the vtkObject to maintain a weak reference to.
    */
-  void Set(vtkObject *object);
+  void Set(vtkObject* object);
 
   /**
    * Get the vtkObject pointer or nullptr if the object has been collected.
@@ -50,6 +39,7 @@ private:
   vtkWeakPointer<vtkObject> Object;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkWeakReference.h

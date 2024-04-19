@@ -1,27 +1,16 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    LSDynaMetaData.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "LSDynaMetaData.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 LSDynaMetaData::LSDynaMetaData()
 {
   this->FileIsValid = 0;
-  this->Dimensionality=0;
-  this->NumberOfNodes=0;
+  this->Dimensionality = 0;
+  this->NumberOfNodes = 0;
   this->FileSizeFactor = 7;
-  this->MaxFileLength = this->FileSizeFactor*512*512*8;
+  this->MaxFileLength = this->FileSizeFactor * 512 * 512 * 8;
 
   this->Title[0] = '\0';
   this->ReleaseNumber[0] = '\0';
@@ -34,7 +23,7 @@ LSDynaMetaData::LSDynaMetaData()
 
   std::vector<std::string> blankNames;
   std::vector<int> blankNumbers;
-  for ( int cellType = 0; cellType < LSDynaMetaData::NUM_CELL_TYPES; ++cellType )
+  for (int cellType = 0; cellType < LSDynaMetaData::NUM_CELL_TYPES; ++cellType)
   {
     this->NumberOfCells[cellType] = 0;
     this->CellArrayNames[cellType] = blankNames;
@@ -43,56 +32,56 @@ LSDynaMetaData::LSDynaMetaData()
   }
 }
 
-//-----------------------------------------------------------------------------
-bool LSDynaMetaData::AddPointArray( const std::string& name, int numComponents, int status )
+//------------------------------------------------------------------------------
+bool LSDynaMetaData::AddPointArray(const std::string& name, int numComponents, int status)
 {
-  for ( unsigned i = 0; i < this->PointArrayNames.size(); ++i )
+  for (unsigned i = 0; i < this->PointArrayNames.size(); ++i)
   {
-    if ( this->PointArrayNames[i] == name )
+    if (this->PointArrayNames[i] == name)
     {
       return false;
     }
   }
-  this->PointArrayNames.push_back( name );
-  this->PointArrayComponents.push_back( numComponents );
-  this->PointArrayStatus.push_back( status );
+  this->PointArrayNames.push_back(name);
+  this->PointArrayComponents.push_back(numComponents);
+  this->PointArrayStatus.push_back(status);
 
   return true;
 }
 
-//-----------------------------------------------------------------------------
-  bool LSDynaMetaData::AddCellArray( int cellType, const std::string& name, int numComponents, int status )
+//------------------------------------------------------------------------------
+bool LSDynaMetaData::AddCellArray(
+  int cellType, const std::string& name, int numComponents, int status)
+{
+  for (unsigned i = 0; i < this->CellArrayNames[cellType].size(); ++i)
   {
-  for ( unsigned i = 0; i < this->CellArrayNames[cellType].size(); ++i )
-  {
-    if ( this->CellArrayNames[cellType][i] == name )
+    if (this->CellArrayNames[cellType][i] == name)
     {
       return false;
     }
   }
-  this->CellArrayNames[cellType].push_back( name );
-  this->CellArrayComponents[cellType].push_back( numComponents );
-  this->CellArrayStatus[cellType].push_back( status );
+  this->CellArrayNames[cellType].push_back(name);
+  this->CellArrayComponents[cellType].push_back(numComponents);
+  this->CellArrayStatus[cellType].push_back(status);
 
   return true;
-  }
+}
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType LSDynaMetaData::GetTotalMaterialCount()
 {
-  return
-    this->Dict["NUMMAT8"] + this->Dict["NUMMATT"] + this->Dict["NUMMAT4"] +
+  return this->Dict["NUMMAT8"] + this->Dict["NUMMATT"] + this->Dict["NUMMAT4"] +
     this->Dict["NUMMAT2"] + this->Dict["NGPSPH"] + this->Dict["NSURF"];
   // Dict["NUMMAT"] is the subset of Dict["NUMMAT4"] materials that are rigid body materials
   // FIXME: Should NSURF be in here at all? I don't have any datasets w/ NSURF > 0, so I can't test.
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void LSDynaMetaData::Reset()
 {
   this->FileIsValid = 0;
   this->FileSizeFactor = 7;
-  this->MaxFileLength = this->FileSizeFactor*512*512*8;
+  this->MaxFileLength = this->FileSizeFactor * 512 * 512 * 8;
 
   this->Title[0] = '\0';
   this->ReleaseNumber[0] = '\0';
@@ -108,7 +97,7 @@ void LSDynaMetaData::Reset()
   this->PointArrayComponents.clear();
   this->PointArrayStatus.clear();
 
-  for ( int cellType = 0; cellType < LSDynaMetaData::NUM_CELL_TYPES; ++cellType )
+  for (int cellType = 0; cellType < LSDynaMetaData::NUM_CELL_TYPES; ++cellType)
   {
     this->CellArrayNames[cellType].clear();
     this->CellArrayComponents[cellType].clear();
@@ -127,3 +116,4 @@ void LSDynaMetaData::Reset()
   this->RigidSurfaceSegmentSizes.clear();
   this->TimeValues.clear();
 }
+VTK_ABI_NAMESPACE_END

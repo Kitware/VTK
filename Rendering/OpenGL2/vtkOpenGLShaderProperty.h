@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkShaderProperty.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOpenGLShaderProperty
  * @brief   represent GPU shader properties
@@ -25,74 +13,72 @@
  * @par Thanks:
  * Developed by Simon Drouin (sdrouin2@bwh.harvard.edu) at Brigham and Women's Hospital.
  *
-*/
+ */
 
 #ifndef vtkOpenGLShaderProperty_h
 #define vtkOpenGLShaderProperty_h
 
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkShader.h"                 // For methods (shader types)
 #include "vtkShaderProperty.h"
-#include "vtkRenderingOpenGL2Module.h"  // For export macro
-#include "vtkShader.h"                  // For methods (shader types)
-#include <map>                          // used for ivar
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <map>                // used for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLUniforms;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderProperty : public vtkShaderProperty
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLShaderProperty : public vtkShaderProperty
 {
 public:
-  vtkTypeMacro(vtkOpenGLShaderProperty,vtkShaderProperty);
+  vtkTypeMacro(vtkOpenGLShaderProperty, vtkShaderProperty);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with no shader replacements
    */
-  static vtkOpenGLShaderProperty *New();
+  static vtkOpenGLShaderProperty* New();
 
   /**
    * Assign one property to another.
    */
-  void DeepCopy(vtkOpenGLShaderProperty *p);
+  void DeepCopy(vtkOpenGLShaderProperty* p);
 
-  virtual void AddVertexShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst,  // do this replacement before the default
-      const std::string& replacementValue,
-      bool replaceAll) override;
-  virtual void AddFragmentShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst,  // do this replacement before the default
-      const std::string& replacementValue,
-      bool replaceAll) override;
-  virtual void AddGeometryShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst,  // do this replacement before the default
-      const std::string& replacementValue,
-      bool replaceAll) override;
+  void AddVertexShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) override;
+  void AddFragmentShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) override;
+  void AddGeometryShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) override;
+  void AddTessControlShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) override;
+  void AddTessEvaluationShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) override;
 
-  virtual int GetNumberOfShaderReplacements() override;
-  virtual std::string GetNthShaderReplacementTypeAsString( vtkIdType index ) override;
-  virtual void GetNthShaderReplacement(
-      vtkIdType index,
-      std::string & name,
-      bool & replaceFirst,
-      std::string & replacementValue,
-      bool & replaceAll ) override;
+  int GetNumberOfShaderReplacements() override;
+  std::string GetNthShaderReplacementTypeAsString(vtkIdType index) override;
+  void GetNthShaderReplacement(vtkIdType index, std::string& name, bool& replaceFirst,
+    std::string& replacementValue, bool& replaceAll) override;
 
-  virtual void ClearVertexShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst) override;
-  virtual void ClearFragmentShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst) override;
-  virtual void ClearGeometryShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst) override;
-  virtual void ClearAllVertexShaderReplacements() override;
-  virtual void ClearAllFragmentShaderReplacements() override;
-  virtual void ClearAllGeometryShaderReplacements() override;
-  virtual void ClearAllShaderReplacements() override;
+  void ClearVertexShaderReplacement(const std::string& originalValue, bool replaceFirst) override;
+  void ClearFragmentShaderReplacement(const std::string& originalValue, bool replaceFirst) override;
+  void ClearGeometryShaderReplacement(const std::string& originalValue, bool replaceFirst) override;
+  void ClearTessControlShaderReplacement(
+    const std::string& originalValue, bool replaceFirst) override;
+  void ClearTessEvaluationShaderReplacement(
+    const std::string& originalValue, bool replaceFirst) override;
+  void ClearAllVertexShaderReplacements() override;
+  void ClearAllFragmentShaderReplacements() override;
+  void ClearAllGeometryShaderReplacements() override;
+  void ClearAllTessControlShaderReplacements() override;
+  void ClearAllTessEvalShaderReplacements() override;
+  void ClearAllShaderReplacements() override;
 
-  //@{
+  ///@{
   /**
    * This function enables you to apply your own substitutions
    * to the shader creation process. The shader code in this class
@@ -100,18 +86,14 @@ public:
    * shader template. Using this function you can apply your
    * own string replacements to add features you desire.
    */
-  void AddShaderReplacement(
-      vtkShader::Type shaderType, // vertex, fragment, etc
-      const std::string& originalValue,
-      bool replaceFirst,  // do this replacement before the default
-      const std::string& replacementValue,
-      bool replaceAll);
-  void ClearShaderReplacement(
-      vtkShader::Type shaderType, // vertex, fragment, etc
-      const std::string& originalValue,
-      bool replaceFirst);
+  void AddShaderReplacement(vtkShader::Type shaderType, // vertex, fragment, etc
+    const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll);
+  void ClearShaderReplacement(vtkShader::Type shaderType, // vertex, fragment, etc
+    const std::string& originalValue, bool replaceFirst);
   void ClearAllShaderReplacements(vtkShader::Type shaderType);
-  //@}
+  ///@}
 
   /**
    * @brief GetAllShaderReplacements returns all user-specified shader
@@ -120,7 +102,7 @@ public:
    * @return const reference to internal map holding all replacements
    */
   typedef std::map<vtkShader::ReplacementSpec, vtkShader::ReplacementValue> ReplacementMap;
-  const ReplacementMap & GetAllShaderReplacements() { return this->UserShaderReplacements; }
+  const ReplacementMap& GetAllShaderReplacements() { return this->UserShaderReplacements; }
 
 protected:
   vtkOpenGLShaderProperty();
@@ -133,4 +115,5 @@ private:
   void operator=(const vtkOpenGLShaderProperty&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

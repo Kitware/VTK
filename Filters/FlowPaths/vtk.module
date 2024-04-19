@@ -7,16 +7,24 @@ DESCRIPTION
 IMPLEMENTABLE
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
+  VTK::CommonComputationalGeometry
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::CommonMath
 PRIVATE_DEPENDS
   VTK::FiltersCore
+  VTK::FiltersGeneral
   VTK::FiltersGeometry
+  VTK::FiltersModeling
   VTK::FiltersSources
   VTK::IOCore
+  VTK::eigen
 TEST_DEPENDS
   VTK::FiltersAMR
   VTK::FiltersExtraction

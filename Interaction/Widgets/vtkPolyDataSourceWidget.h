@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataSourceWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPolyDataSourceWidget
  * @brief   abstract PolyDataSource-based 3D widget
@@ -32,19 +20,20 @@
  *
  * @sa
  * vtk3DWidget vtkLineWidget vtkPlaneWidget vtkSphereWidget
-*/
+ */
 
 #ifndef vtkPolyDataSourceWidget_h
 #define vtkPolyDataSourceWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyDataAlgorithm;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
 {
- public:
+public:
   vtkTypeMacro(vtkPolyDataSourceWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -65,9 +54,11 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
   /**
    * Convenience method brought over from vtkPlaneWidget.
    */
-  void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax) override
-    {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
+  void PlaceWidget(
+    double xmin, double xmax, double ymin, double ymax, double zmin, double zmax) override
+  {
+    this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
+  }
 
   /**
    * Returns underlying vtkPolyDataAlgorithm that determines geometry.  This
@@ -101,4 +92,5 @@ private:
   void operator=(const vtkPolyDataSourceWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

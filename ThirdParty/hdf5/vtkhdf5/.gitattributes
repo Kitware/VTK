@@ -192,12 +192,12 @@ java/examples/testfiles/examples.intro.H5_CreateGroup.txt -text
 java/examples/testfiles/examples.intro.H5_CreateGroupAbsoluteRelative.txt -text
 java/examples/testfiles/examples.intro.H5_CreateGroupDataset.txt -text
 java/examples/testfiles/examples.intro.H5_ReadWrite.txt -text
-java/lib/ext/slf4j-nop-1.7.25.jar -text svneol=unset#application/zip
-java/lib/ext/slf4j-simple-1.7.25.jar -text svneol=unset#application/zip
+java/lib/ext/slf4j-nop-1.7.33.jar -text svneol=unset#application/zip
+java/lib/ext/slf4j-simple-1.7.33.jar -text svneol=unset#application/zip
 java/lib/hamcrest-core.jar -text svneol=unset#application/java-archive
 java/lib/junit.jar -text svneol=unset#application/java-archive
 java/lib/simplelogger.properties -text
-java/lib/slf4j-api-1.7.25.jar -text svneol=unset#application/zip
+java/lib/slf4j-api-1.7.33.jar -text svneol=unset#application/zip
 java/src/CMakeLists.txt -text
 java/src/Makefile.am -text
 java/src/hdf/CMakeLists.txt -text
@@ -216,10 +216,10 @@ java/src/hdf/hdf5lib/callbacks/H5D_iterate_cb.java -text
 java/src/hdf/hdf5lib/callbacks/H5D_iterate_t.java -text
 java/src/hdf/hdf5lib/callbacks/H5E_walk_cb.java -text
 java/src/hdf/hdf5lib/callbacks/H5E_walk_t.java -text
-java/src/hdf/hdf5lib/callbacks/H5L_iterate_cb.java -text
 java/src/hdf/hdf5lib/callbacks/H5L_iterate_t.java -text
-java/src/hdf/hdf5lib/callbacks/H5O_iterate_cb.java -text
+java/src/hdf/hdf5lib/callbacks/H5L_iterate_opdata_t.java -text
 java/src/hdf/hdf5lib/callbacks/H5O_iterate_t.java -text
+java/src/hdf/hdf5lib/callbacks/H5O_iterate_opdata_t.java -text
 java/src/hdf/hdf5lib/callbacks/H5P_cls_close_func_cb.java -text
 java/src/hdf/hdf5lib/callbacks/H5P_cls_close_func_t.java -text
 java/src/hdf/hdf5lib/callbacks/H5P_cls_copy_func_cb.java -text
@@ -267,6 +267,8 @@ java/src/hdf/hdf5lib/structs/H5G_info_t.java -text
 java/src/hdf/hdf5lib/structs/H5L_info_t.java -text
 java/src/hdf/hdf5lib/structs/H5O_hdr_info_t.java -text
 java/src/hdf/hdf5lib/structs/H5O_info_t.java -text
+java/src/hdf/hdf5lib/structs/H5O_native_info_t.java -text
+java/src/hdf/hdf5lib/structs/H5O_token_t.java -text
 java/src/hdf/hdf5lib/structs/H5_ih_info_t.java -text
 java/src/hdf/overview.html -text
 java/src/jni/CMakeLists.txt -text
@@ -363,6 +365,7 @@ m4/ax_check_rqrd_class.m4 -text
 m4/ax_java_check_class.m4 -text
 m4/ax_java_options.m4 -text
 m4/ax_jni_include_dir.m4 -text
+m4/ax_prog_doxygen.m4 -text
 m4/ax_prog_jar.m4 -text
 m4/ax_prog_java.m4 -text
 m4/ax_prog_java_cc.m4 -text
@@ -390,10 +393,10 @@ test/cork.c -text
 test/corrupt_stab_msg.h5 -text
 test/deflate.h5 -text
 test/dynlib4.c -text
-test/family_v16_00000.h5 -text
-test/family_v16_00001.h5 -text
-test/family_v16_00002.h5 -text
-test/family_v16_00003.h5 -text
+test/family_v16-000000.h5 -text
+test/family_v16-000001.h5 -text
+test/family_v16-000002.h5 -text
+test/family_v16-000003.h5 -text
 test/file_image_core_test.h5 -text
 test/filespace_1_6.h5 -text
 test/filespace_1_8.h5 -text
@@ -782,6 +785,7 @@ tools/testfiles/tints4dimsStride2.ddl -text
 tools/testfiles/tintsattrs.h5 -text svneol=unset#application/x-hdf
 tools/testfiles/tlarge_objname.h5 -text
 tools/testfiles/tldouble.h5 -text
+tools/testfiles/tldouble_scalar.h5 -text
 tools/testfiles/tlonglinks.h5 -text
 tools/testfiles/tloop.h5 -text
 tools/testfiles/tloop2.h5 -text

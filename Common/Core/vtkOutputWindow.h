@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOutputWindow.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOutputWindow
  * @brief   base class for writing debug output to a console
@@ -20,20 +8,23 @@
  * with operating systems that have a stdout and stderr, and ones that
  * do not.  (i.e windows does not).  Sub-classes can be provided which can
  * redirect the output to a window.
-*/
+ */
 
 #ifndef vtkOutputWindow_h
 #define vtkOutputWindow_h
 
+#include "vtkCommonCoreModule.h"  // For export macro
 #include "vtkDebugLeaksManager.h" // Must be included before singletons
-#include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"       // For `VTK_DEPRECATED_IN_9_3_0`
 #include "vtkObject.h"
 
-class VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
+VTK_ABI_NAMESPACE_BEGIN
+class VTK_DEPRECATED_IN_9_3_0(
+  "`vtkOutputWindowCleanup` is no longer necessary") VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
 {
 public:
-  vtkOutputWindowCleanup();
-  ~vtkOutputWindowCleanup();
+  vtkOutputWindowCleanup() = default;
+  ~vtkOutputWindowCleanup() = default;
 
 private:
   vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) = delete;
@@ -44,8 +35,8 @@ class vtkOutputWindowPrivateAccessor;
 class VTKCOMMONCORE_EXPORT vtkOutputWindow : public vtkObject
 {
 public:
-// Methods from vtkObject
-  vtkTypeMacro(vtkOutputWindow,vtkObject);
+  // Methods from vtkObject
+  vtkTypeMacro(vtkOutputWindow, vtkObject);
   /**
    * Print ObjectFactor to stream.
    */
@@ -53,7 +44,7 @@ public:
 
   /**
    * Creates a new instance of vtkOutputWindow. Note this *will* create a new
-   * instance using the vtkObjectFactor. If you want to access the global
+   * instance using the vtkObjectFactory. If you want to access the global
    * instance, use `GetInstance` instead.
    */
   static vtkOutputWindow* New();
@@ -66,9 +57,9 @@ public:
    * Supply a user defined output window. Call ->Delete() on the supplied
    * instance after setting it.
    */
-  static void SetInstance(vtkOutputWindow *instance);
+  static void SetInstance(vtkOutputWindow* instance);
 
-  //@{
+  ///@{
   /**
    * Display the text. Four virtual methods exist, depending on the type of
    * message to display. This allows redirection or reformatting of the
@@ -81,9 +72,9 @@ public:
   virtual void DisplayWarningText(const char*);
   virtual void DisplayGenericWarningText(const char*);
   virtual void DisplayDebugText(const char*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If PromptUser is set to true then each time a line of text
    * is displayed, the user is asked if they want to keep getting
@@ -95,25 +86,9 @@ public:
    */
   vtkBooleanMacro(PromptUser, bool);
   vtkSetMacro(PromptUser, bool);
-  //@}
+  ///@}
 
-  //@{
-  /**
-   * Historically (VTK 8.1 and earlier), when printing messages to terminals,
-   * vtkOutputWindow would always post messages to `cerr`. Setting this to true
-   * restores that incorrect behavior. When false (default),
-   * vtkOutputWindow uses `cerr` for debug, error and warning messages, and
-   * `cout` for text messages.
-   *
-   * @deprecated use `SetDisplayModeToAlwaysStdErr` instead.
-   */
-  VTK_LEGACY(void SetUseStdErrorForAllMessages(bool));
-  VTK_LEGACY(bool GetUseStdErrorForAllMessages());
-  VTK_LEGACY(void UseStdErrorForAllMessagesOn());
-  VTK_LEGACY(void UseStdErrorForAllMessagesOff());
-  //@}
-
-  //@{
+  ///@{
   /**
    * Flag indicates how the vtkOutputWindow handles displaying of text to
    * `stderr` / `stdout`. Default is `DEFAULT` except in
@@ -151,7 +126,7 @@ public:
   void SetDisplayModeToNever() { this->SetDisplayMode(vtkOutputWindow::NEVER); }
   void SetDisplayModeToAlways() { this->SetDisplayMode(vtkOutputWindow::ALWAYS); }
   void SetDisplayModeToAlwaysStdErr() { this->SetDisplayMode(vtkOutputWindow::ALWAYS_STDERR); }
-  //@}
+  ///@}
 protected:
   vtkOutputWindow();
   ~vtkOutputWindow() override;
@@ -188,21 +163,16 @@ protected:
   bool PromptUser;
 
 private:
-  static vtkOutputWindow* Instance;
-  MessageTypes CurrentMessageType;
+  std::atomic<MessageTypes> CurrentMessageType;
   int DisplayMode;
-  int InStandardMacros; // used to suppress display to output streams from standard macros when
-                        // logging is enabled.
+  std::atomic<int> InStandardMacros; // used to suppress display to output streams from standard
+                                     // macros when logging is enabled.
 
   friend class vtkOutputWindowPrivateAccessor;
 
-private:
   vtkOutputWindow(const vtkOutputWindow&) = delete;
   void operator=(const vtkOutputWindow&) = delete;
 };
 
-// Uses schwartz counter idiom for singleton management
-static vtkOutputWindowCleanup vtkOutputWindowCleanupInstance;
-
-
+VTK_ABI_NAMESPACE_END
 #endif

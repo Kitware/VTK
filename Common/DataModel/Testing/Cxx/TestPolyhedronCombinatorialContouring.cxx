@@ -1,29 +1,14 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestPolyhedron5.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkNew.h"
-#include "vtkPoints.h"
 #include "vtkClipDataSet.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkXMLUnstructuredGridReader.h"
-#include "vtkDoubleArray.h"
 #include "vtkContourFilter.h"
+#include "vtkDoubleArray.h"
+#include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkXMLPolyDataWriter.h"
-
-using namespace std;
 
 /* This is the layout of a cube with points on each edge
    In the test below we're going to test all combinations of
@@ -54,25 +39,20 @@ Point indices:                       Face indices:
 */
 
 #define CORNERS 8
-#define EDGES   12
-#define FACES   6
-#define NPOINTS (CORNERS+EDGES+FACES)
+#define EDGES 12
+#define FACES 6
+#define NPOINTS (CORNERS + EDGES + FACES)
 
-const int Faces[FACES][8] =
-{
-    { 0, 8,1,17,5,12,4,16 },
-    { 1, 9,2,18,6,13,5,17 },
-    { 2,10,3,19,7,14,6,18 },
-    { 3,11,0,16,4,15,7,19 },
-    { 0, 8,1, 9,2,10,3,11 },
-    { 4,12,5,13,6,14,7,15 }
+const int Faces[FACES][8] = {
+  { 0, 8, 1, 17, 5, 12, 4, 16 },
+  { 1, 9, 2, 18, 6, 13, 5, 17 },
+  { 2, 10, 3, 19, 7, 14, 6, 18 },
+  { 3, 11, 0, 16, 4, 15, 7, 19 },
+  { 0, 8, 1, 9, 2, 10, 3, 11 },
+  { 4, 12, 5, 13, 6, 14, 7, 15 },
 };
 
-
-
-
-const double Points[CORNERS + EDGES + FACES][3] =
-{
+const double Points[CORNERS + EDGES + FACES][3] = {
   // first the corner points
   // lower plane
   { 0, 0, 0 },
@@ -113,10 +93,8 @@ const double Points[CORNERS + EDGES + FACES][3] =
   { 1, 2, 1 },
   { 2, 1, 1 },
   { 1, 0, 1 },
-  { 1, 1, 2 }
+  { 1, 1, 2 },
 };
-
-
 
 void BuildCaseGrid(int aCase, vtkUnstructuredGrid* grid, vtkIdList* faceStream)
 {
@@ -159,7 +137,7 @@ void BuildPoints(vtkPoints* pts)
   }
 }
 
-int TestPolyhedronCombinatorialContouring(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestPolyhedronCombinatorialContouring(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkPoints> pts;
   BuildPoints(pts);
@@ -201,7 +179,8 @@ int TestPolyhedronCombinatorialContouring(int vtkNotUsed(argc), char *vtkNotUsed
     BuildCaseGrid(aCase, g, ptIds);
 
     vtkNew<vtkContourFilter> cf;
-    cf->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
+    cf->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
     cf->SetValue(0, 0.5);
     cf->SetInputData(g);
     cf->Update();
@@ -220,10 +199,12 @@ int TestPolyhedronCombinatorialContouring(int vtkNotUsed(argc), char *vtkNotUsed
     clipLess->SetInputData(g);
     clipMore->SetInputData(g);
 
-    clipLess->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
+    clipLess->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
     clipLess->SetValue(0.5);
 
-    clipMore->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
+    clipMore->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
     clipMore->SetValue(0.5);
 
     clipLess->Update();

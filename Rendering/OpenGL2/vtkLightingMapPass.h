@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLightingMapPass.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLightingMapPass
  * @brief   TO DO
@@ -26,53 +14,58 @@
  *
  * @sa
  * vtkRenderPass vtkDefaultPass
-*/
+ */
 
 #ifndef vtkLightingMapPass_h
 #define vtkLightingMapPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDefaultPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationIntegerKey;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkLightingMapPass : public vtkDefaultPass
 {
 public:
-  static vtkLightingMapPass *New();
+  static vtkLightingMapPass* New();
   vtkTypeMacro(vtkLightingMapPass, vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the type of lighting render to perform
    */
-  enum RenderMode { LUMINANCE, NORMALS };
+  enum RenderMode
+  {
+    LUMINANCE,
+    NORMALS
+  };
   vtkSetMacro(RenderType, RenderMode);
   vtkGetMacro(RenderType, RenderMode);
-  //@}
+  ///@}
 
   /**
    * If this key exists on the PropertyKeys of a prop, the active scalar array
    * on the prop will be rendered as its color. This key is mutually exclusive
    * with the RENDER_LUMINANCE key.
    */
-  static vtkInformationIntegerKey *RENDER_LUMINANCE();
+  static vtkInformationIntegerKey* RENDER_LUMINANCE();
 
   /**
    * if this key exists on the ProperyKeys of a prop, the active vector array on
    * the prop will be rendered as its color. This key is mutually exclusive with
    * the RENDER_LUMINANCE key.
    */
-  static vtkInformationIntegerKey *RENDER_NORMALS();
+  static vtkInformationIntegerKey* RENDER_NORMALS();
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
- protected:
+protected:
   /**
    * Default constructor.
    */
@@ -87,13 +80,14 @@ public:
    * Opaque pass with key checking.
    * \pre s_exists: s!=0
    */
-  void RenderOpaqueGeometry(const vtkRenderState *s) override;
+  void RenderOpaqueGeometry(const vtkRenderState* s) override;
 
- private:
+private:
   vtkLightingMapPass(const vtkLightingMapPass&) = delete;
   void operator=(const vtkLightingMapPass&) = delete;
 
   RenderMode RenderType;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

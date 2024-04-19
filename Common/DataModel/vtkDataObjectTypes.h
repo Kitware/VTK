@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataObjectTypes.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDataObject
  * @brief   helper class to get VTK data object types as string and instantiate them
@@ -22,7 +10,7 @@
  * to be updated every time a new data type is added to VTK.
  * @sa
  * vtkDataObject
-*/
+ */
 
 #ifndef vtkDataObjectTypes_h
 #define vtkDataObjectTypes_h
@@ -30,14 +18,15 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDataObjectTypes : public vtkObject
 {
 public:
-  static vtkDataObjectTypes *New();
+  static vtkDataObjectTypes* New();
 
-  vtkTypeMacro(vtkDataObjectTypes,vtkObject);
+  vtkTypeMacro(vtkDataObjectTypes, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -55,16 +44,30 @@ public:
   /**
    * Create (New) and return a data object of the given classname.
    */
-  static vtkDataObject* NewDataObject(const char* classname);
+  static VTK_NEWINSTANCE vtkDataObject* NewDataObject(const char* classname);
 
   /**
    * Create (New) and return a data object of the given type id.
    */
-  static vtkDataObject* NewDataObject(int typeId);
+  static VTK_NEWINSTANCE vtkDataObject* NewDataObject(int typeId);
+
+  /*
+   * Returns true if the `typeId` is same or a subclass of
+   * `targetTypeId`.
+   */
+  static bool TypeIdIsA(int typeId, int targetTypeId);
+
+  /**
+   * Given two data types, returns the closest common data type.
+   * If both data types ids are valid, at worse, this will return
+   * `VTK_DATA_OBJECT`. If one of the types is invalid (or unknown),
+   * simply returns the valid (or known) type. If both are invalid, returns -1.
+   */
+  static int GetCommonBaseTypeId(int typeA, int typeB);
 
 protected:
-  vtkDataObjectTypes() {}
-  ~vtkDataObjectTypes() override {}
+  vtkDataObjectTypes() = default;
+  ~vtkDataObjectTypes() override = default;
 
   /**
    * Method used to validate data object types, for testing purposes
@@ -76,5 +79,5 @@ private:
   void operator=(const vtkDataObjectTypes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

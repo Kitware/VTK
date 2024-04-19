@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkViewDependentErrorMetric.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkViewDependentErrorMetric
  * @brief   Objects that compute a
@@ -24,14 +12,15 @@
  *
  * @sa
  * vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric
-*/
+ */
 
 #ifndef vtkViewDependentErrorMetric_h
 #define vtkViewDependentErrorMetric_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkGenericSubdivisionErrorMetric.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
 class vtkCoordinate;
 
@@ -42,17 +31,17 @@ public:
    * Construct the error metric with a default squared screen-based geometric
    * accuracy measured in pixels equal to 0.25 (0.5^2).
    */
-  static vtkViewDependentErrorMetric *New();
+  static vtkViewDependentErrorMetric* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK type and error macros.
    */
-  vtkTypeMacro(vtkViewDependentErrorMetric,vtkGenericSubdivisionErrorMetric);
+  vtkTypeMacro(vtkViewDependentErrorMetric, vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the squared screen-based geometric accuracy measured in pixels.
    * An accuracy less or equal to 0.25 (0.5^2) ensures that the screen-space
@@ -63,7 +52,7 @@ public:
    * \post positive_result: result>0
    */
   vtkGetMacro(PixelTolerance, double);
-  //@}
+  ///@}
 
   /**
    * Set the squared screen-based geometric accuracy measured in pixels.
@@ -75,14 +64,14 @@ public:
    */
   void SetPixelTolerance(double value);
 
-  //@{
+  ///@{
   /**
    * Set/Get the renderer with `renderer' on which the error metric
    * is based. The error metric use the active camera of the renderer.
    */
-  vtkGetObjectMacro(Viewport,vtkViewport);
-  void SetViewport(vtkViewport *viewport);
-  //@}
+  vtkGetObjectMacro(Viewport, vtkViewport);
+  void SetViewport(vtkViewport* viewport);
+  ///@}
 
   /**
    * Does the edge need to be subdivided according to the distance between
@@ -103,8 +92,8 @@ public:
    * \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    */
-  int RequiresEdgeSubdivision(double *leftPoint, double *midPoint, double *rightPoint,
-                              double alpha) override;
+  int RequiresEdgeSubdivision(
+    double* leftPoint, double* midPoint, double* rightPoint, double alpha) override;
 
   /**
    * Return the error at the mid-point. The type of error depends on the state
@@ -119,8 +108,7 @@ public:
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    * \post positive_result: result>=0
    */
-  double GetError(double *leftPoint, double *midPoint,
-                  double *rightPoint, double alpha) override;
+  double GetError(double* leftPoint, double* midPoint, double* rightPoint, double alpha) override;
 
 protected:
   vtkViewDependentErrorMetric();
@@ -131,18 +119,17 @@ protected:
    * and a point z. Property: if x and y are equal, the line is a point and
    * the result is the square distance between points x and z.
    */
-  double Distance2LinePoint(double x[2],
-                            double y[2],
-                            double z[2]);
+  double Distance2LinePoint(double x[2], double y[2], double z[2]);
 
   double PixelTolerance;
-  vtkViewport *Viewport;
+  vtkViewport* Viewport;
   // used to get display coordinates from world coordinates
-  vtkCoordinate *Coordinate;
+  vtkCoordinate* Coordinate;
 
 private:
   vtkViewDependentErrorMetric(const vtkViewDependentErrorMetric&) = delete;
   void operator=(const vtkViewDependentErrorMetric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

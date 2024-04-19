@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTypedArray.h.in
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME vtkType@VTK_TYPE_NAME@Array - dynamic, self-adjusting array of vtkType@VTK_TYPE_NAME@
 // .SECTION Description
 // vtkType@VTK_TYPE_NAME@Array is an array of values of type vtkType@VTK_TYPE_NAME@.  It
@@ -29,6 +17,9 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkType.h" // For native type selections.
 @VTK_TYPE_NATIVE@
+
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKCOMMONCORE_EXPORT vtkType@VTK_TYPE_NAME@Array : public vtkTypeArrayBase
 {
 public:
@@ -53,9 +44,11 @@ private:
 };
 
 // Define vtkArrayDownCast implementation:
-vtkArrayDownCast_FastCastMacro(vtkType@VTK_TYPE_NAME@Array)
+vtkArrayDownCast_FastCastMacro(vtkType@VTK_TYPE_NAME@Array);
+
+VTK_ABI_NAMESPACE_END
 
 #undef vtkTypeArrayBase
 
 #endif
-// VTK-HeaderTest-Exclude: vtkTypedArray.h.in
+/* VTK-HeaderTest-Exclude: INCLUDES */

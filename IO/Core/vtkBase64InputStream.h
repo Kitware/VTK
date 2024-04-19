@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBase64InputStream.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBase64InputStream
  * @brief   Reads base64-encoded input from a stream.
  *
  * vtkBase64InputStream implements base64 decoding with the
  * vtkInputStream interface.
-*/
+ */
 
 #ifndef vtkBase64InputStream_h
 #define vtkBase64InputStream_h
@@ -26,11 +14,12 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkInputStream.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkBase64InputStream : public vtkInputStream
 {
 public:
-  vtkTypeMacro(vtkBase64InputStream,vtkInputStream);
-  static vtkBase64InputStream *New();
+  vtkTypeMacro(vtkBase64InputStream, vtkInputStream);
+  static vtkBase64InputStream* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -76,4 +65,5 @@ private:
   void operator=(const vtkBase64InputStream&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

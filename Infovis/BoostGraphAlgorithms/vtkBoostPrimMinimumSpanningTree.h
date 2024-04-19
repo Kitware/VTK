@@ -1,22 +1,6 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkBoostPrimMinimumSpanningTree.h
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
-  -------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkBoostPrimMinimumSpanningTree
  * @brief   Constructs a minimum spanning
@@ -41,25 +25,27 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * @sa
  * vtkGraph vtkBoostGraphAdapter
-*/
+ */
 
 #ifndef vtkBoostPrimMinimumSpanningTree_h
 #define vtkBoostPrimMinimumSpanningTree_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
-#include "vtkStdString.h" // For string type
-#include "vtkVariant.h" // For variant type
+#include "vtkStdString.h"                         // For string type
+#include "vtkVariant.h"                           // For variant type
 
 #include "vtkTreeAlgorithm.h"
 
-class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostPrimMinimumSpanningTree : public vtkTreeAlgorithm
+VTK_ABI_NAMESPACE_BEGIN
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostPrimMinimumSpanningTree
+  : public vtkTreeAlgorithm
 {
 public:
-  static vtkBoostPrimMinimumSpanningTree *New();
+  static vtkBoostPrimMinimumSpanningTree* New();
   vtkTypeMacro(vtkBoostPrimMinimumSpanningTree, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the name of the edge-weight input array, which must name an
    * array that is part of the edge data of the input graph and
@@ -68,7 +54,7 @@ public:
    * vtkDoubleArray.
    */
   vtkSetStringMacro(EdgeWeightArrayName);
-  //@}
+  ///@}
 
   /**
    * Set the index (into the vertex array) of the
@@ -85,7 +71,7 @@ public:
    */
   void SetOriginVertex(vtkStdString arrayName, vtkVariant value);
 
-  //@{
+  ///@{
   /**
    * Stores the graph vertex ids for the tree vertices in an array
    * named "GraphVertexId".  Default is off.
@@ -93,9 +79,9 @@ public:
   vtkSetMacro(CreateGraphVertexIdArray, bool);
   vtkGetMacro(CreateGraphVertexIdArray, bool);
   vtkBooleanMacro(CreateGraphVertexIdArray, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to negate the edge weights. By negating the edge
    * weights this algorithm will give you the 'maximal' spanning
@@ -106,19 +92,15 @@ public:
   void SetNegateEdgeWeights(bool value);
   vtkGetMacro(NegateEdgeWeights, bool);
   vtkBooleanMacro(NegateEdgeWeights, bool);
-  //@}
+  ///@}
 
 protected:
   vtkBoostPrimMinimumSpanningTree();
-  ~vtkBoostPrimMinimumSpanningTree();
+  ~vtkBoostPrimMinimumSpanningTree() override;
 
-  int RequestData(
-    vtkInformation *,
-    vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(
-    int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   char* EdgeWeightArrayName;
@@ -130,22 +112,22 @@ private:
   bool NegateEdgeWeights;
   float EdgeWeightMultiplier;
 
-  //@{
+  ///@{
   /**
    * Using the convenience function internally
    */
   vtkSetStringMacro(ArrayName);
-  //@}
+  ///@}
 
   /**
    * This method is basically a helper function to find
    * the index of a specific value within a specific array
    */
-  vtkIdType GetVertexIndex(
-    vtkAbstractArray *abstract,vtkVariant value);
+  vtkIdType GetVertexIndex(vtkAbstractArray* abstract, vtkVariant value);
 
   vtkBoostPrimMinimumSpanningTree(const vtkBoostPrimMinimumSpanningTree&) = delete;
   void operator=(const vtkBoostPrimMinimumSpanningTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

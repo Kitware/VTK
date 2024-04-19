@@ -1,24 +1,6 @@
-/* -*- Mode: C++; -*- */
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkODBCQuery.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkODBCQuery
  * @brief   vtkSQLQuery implementation for ODBC connections to databases
@@ -31,7 +13,7 @@
  *
  * @sa
  * vtkSQLDatabase vtkSQLQuery vtkODBCDatabase
-*/
+ */
 
 #ifndef vtkODBCQuery_h
 #define vtkODBCQuery_h
@@ -39,6 +21,7 @@
 #include "vtkIOODBCModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkODBCDatabase;
 class vtkVariant;
 class vtkVariantArray;
@@ -53,7 +36,7 @@ class VTKIOODBC_EXPORT vtkODBCQuery : public vtkSQLQuery
 public:
   vtkTypeMacro(vtkODBCQuery, vtkSQLQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkODBCQuery *New();
+  static vtkODBCQuery* New();
 
   /**
    * Execute the query.  This must be performed
@@ -97,24 +80,24 @@ public:
    */
   const char* GetLastErrorText() override;
 
-  //@{
+  ///@{
   /**
    * Begin, commit, or roll back a transaction.
    */
   bool BeginTransaction() override;
   bool CommitTransaction() override;
   bool RollbackTransaction() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the query string to be used.  Returns true if the query is
    * OK; false if there's some problem with it that can be detected
    * before execution.
    */
-  bool SetQuery(const char *queryString) override;
-  const char *GetQuery() override;
-  //@}
+  bool SetQuery(const char* queryString) override;
+  const char* GetQuery() override;
+  ///@}
 
   /**
    * The following methods bind a parameter value to a placeholder in
@@ -143,37 +126,37 @@ public:
   /**
    * Bind a string value -- string must be null-terminated
    */
-  bool BindParameter(int index, const char *stringValue) override;
-  //@{
+  bool BindParameter(int index, const char* stringValue) override;
+  ///@{
   /**
    * Bind a string value by specifying an array and a size
    */
-  bool BindParameter(int index, const char *stringValue, size_t length) override;
-  bool BindParameter(int index, const vtkStdString &string) override;
-  //@}
-  //@{
+  bool BindParameter(int index, const char* stringValue, size_t length) override;
+  bool BindParameter(int index, const vtkStdString& string) override;
+  ///@}
+  ///@{
   /**
    * Bind a blob value.  Not all databases support blobs as a data
    * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
    * make sure.
    */
-  bool BindParameter(int index, const void *data, size_t length) override;
+  bool BindParameter(int index, const void* data, size_t length) override;
   bool ClearParameterBindings() override;
-  //@}
+  ///@}
 
 protected:
   vtkODBCQuery();
-  ~vtkODBCQuery();
+  ~vtkODBCQuery() override;
 
   vtkSetStringMacro(LastErrorText);
   vtkSetStringMacro(QueryText);
   vtkGetStringMacro(QueryText);
 
-  char *QueryText;
+  char* QueryText;
 
 private:
-  vtkODBCQuery(const vtkODBCQuery &) = delete;
-  void operator=(const vtkODBCQuery &) = delete;
+  vtkODBCQuery(const vtkODBCQuery&) = delete;
+  void operator=(const vtkODBCQuery&) = delete;
 
   void ClearCurrentRow();
   bool CacheCurrentRow();
@@ -192,10 +175,10 @@ private:
   bool CacheFloatColumn(int column);
   bool CacheDoubleColumn(int column);
 
-  vtkODBCQueryInternals *Internals;
+  vtkODBCQueryInternals* Internals;
   bool InitialFetch;
-  char *LastErrorText;
+  char* LastErrorText;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkODBCQuery_h
-

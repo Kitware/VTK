@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImplicitDataSet.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImplicitDataSet.h"
 
 #include "vtkCell.h"
@@ -22,8 +10,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitDataSet);
-vtkCxxSetObjectMacro(vtkImplicitDataSet,DataSet,vtkDataSet);
+vtkCxxSetObjectMacro(vtkImplicitDataSet, DataSet, vtkDataSet);
 
 // Construct an vtkImplicitDataSet with no initial dataset; the OutValue
 // set to a large negative number; and the OutGradient set to (0,0,1).
@@ -44,44 +33,45 @@ vtkImplicitDataSet::vtkImplicitDataSet()
 vtkImplicitDataSet::~vtkImplicitDataSet()
 {
   this->SetDataSet(nullptr);
-  delete [] this->Weights;
+  delete[] this->Weights;
 }
 
 // Evaluate the implicit function. This returns the interpolated scalar value
 // at x[3].
 double vtkImplicitDataSet::EvaluateFunction(double x[3])
 {
-  vtkDataArray *scalars;
-  vtkCell *cell;
+  vtkDataArray* scalars;
+  vtkCell* cell;
   vtkIdType id;
   int subId, i, numPts;
   double pcoords[3], s;
 
   // See if a dataset has been specified
-  if ( !this->DataSet ||
-       !(scalars = this->DataSet->GetPointData()->GetScalars()) )
+  if (!this->DataSet || !(scalars = this->DataSet->GetPointData()->GetScalars()))
   {
-    vtkErrorMacro(<<"Can't evaluate function: either data set is missing or data set has no point data");
+    vtkErrorMacro(
+      << "Can't evaluate function: either data set is missing or data set has no point data");
     return this->OutValue;
   }
 
-  if ( this->DataSet->GetMaxCellSize() > this->Size )
+  if (this->DataSet->GetMaxCellSize() > this->Size)
   {
-    delete [] this->Weights;
+    delete[] this->Weights;
     this->Weights = new double[this->DataSet->GetMaxCellSize()];
     this->Size = this->DataSet->GetMaxCellSize();
   }
 
   // Find the cell that contains xyz and get it
-  cell = this->DataSet->FindAndGetCell(x,nullptr,-1,VTK_DBL_EPSILON,subId,pcoords,this->Weights);
+  cell =
+    this->DataSet->FindAndGetCell(x, nullptr, -1, VTK_DBL_EPSILON, subId, pcoords, this->Weights);
 
   if (cell)
   { // Interpolate the point data
     numPts = cell->GetNumberOfPoints();
-    for (s=0.0, i=0; i < numPts; i++)
+    for (s = 0.0, i = 0; i < numPts; i++)
     {
       id = cell->PointIds->GetId(i);
-      s += scalars->GetComponent(id,0) * this->Weights[i];
+      s += scalars->GetComponent(id, 0) * this->Weights[i];
     }
     return s;
   }
@@ -93,65 +83,65 @@ double vtkImplicitDataSet::EvaluateFunction(double x[3])
 
 vtkMTimeType vtkImplicitDataSet::GetMTime()
 {
-  vtkMTimeType mTime=this->vtkImplicitFunction::GetMTime();
+  vtkMTimeType mTime = this->vtkImplicitFunction::GetMTime();
   vtkMTimeType DataSetMTime;
 
-  if ( this->DataSet != nullptr )
+  if (this->DataSet != nullptr)
   {
     DataSetMTime = this->DataSet->GetMTime();
-    mTime = ( DataSetMTime > mTime ? DataSetMTime : mTime );
+    mTime = (DataSetMTime > mTime ? DataSetMTime : mTime);
   }
 
   return mTime;
 }
 
-
 // Evaluate implicit function gradient.
 void vtkImplicitDataSet::EvaluateGradient(double x[3], double n[3])
 {
-  vtkDataArray *scalars;
-  vtkCell *cell;
+  vtkDataArray* scalars;
+  vtkCell* cell;
   vtkIdType id;
   int subId, i, numPts;
   double pcoords[3];
 
   // See if a dataset has been specified
-  if ( !this->DataSet ||
-       !(scalars = this->DataSet->GetPointData()->GetScalars()) )
+  if (!this->DataSet || !(scalars = this->DataSet->GetPointData()->GetScalars()))
   {
-    vtkErrorMacro(<<"Can't evaluate gradient: either data set is missing or data set has no point data");
-    for ( i=0; i < 3; i++ )
+    vtkErrorMacro(
+      << "Can't evaluate gradient: either data set is missing or data set has no point data");
+    for (i = 0; i < 3; i++)
     {
       n[i] = this->OutGradient[i];
     }
     return;
   }
 
-  if ( this->DataSet->GetMaxCellSize() > this->Size )
+  if (this->DataSet->GetMaxCellSize() > this->Size)
   {
-    delete [] this->Weights;
+    delete[] this->Weights;
     this->Weights = new double[this->DataSet->GetMaxCellSize()];
     this->Size = this->DataSet->GetMaxCellSize();
   }
 
   // Find the cell that contains xyz and get it
-  cell = this->DataSet->FindAndGetCell(x,nullptr,-1,VTK_DBL_EPSILON,subId,pcoords,this->Weights);
+  cell =
+    this->DataSet->FindAndGetCell(x, nullptr, -1, VTK_DBL_EPSILON, subId, pcoords, this->Weights);
 
   if (cell)
   { // Interpolate the point data
     numPts = cell->GetNumberOfPoints();
 
-    for ( i=0; i < numPts; i++ ) //Weights used to hold scalar values
+    for (i = 0; i < numPts; i++) // Weights used to hold scalar values
     {
       id = cell->PointIds->GetId(i);
-      this->Weights[i] = scalars->GetComponent(id,0);
+      this->Weights[i] = scalars->GetComponent(id, 0);
     }
     cell->Derivatives(subId, pcoords, this->Weights, 1, n);
   }
 
   else
   { // use outside value
-    for ( i=0; i < 3; i++ )
+    for (i = 0; i < 3; i++)
     {
       n[i] = this->OutGradient[i];
     }
@@ -160,13 +150,13 @@ void vtkImplicitDataSet::EvaluateGradient(double x[3], double n[3])
 
 void vtkImplicitDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Out Value: " << this->OutValue << "\n";
-  os << indent << "Out Gradient: (" << this->OutGradient[0] << ", "
-     << this->OutGradient[1] << ", " << this->OutGradient[2] << ")\n";
+  os << indent << "Out Gradient: (" << this->OutGradient[0] << ", " << this->OutGradient[1] << ", "
+     << this->OutGradient[2] << ")\n";
 
-  if ( this->DataSet )
+  if (this->DataSet)
   {
     os << indent << "Data Set: " << this->DataSet << "\n";
   }
@@ -176,7 +166,7 @@ void vtkImplicitDataSet::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImplicitDataSet::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
@@ -184,3 +174,4 @@ void vtkImplicitDataSet::ReportReferences(vtkGarbageCollector* collector)
   // reference loop.
   vtkGarbageCollectorReport(collector, this->DataSet, "DataSet");
 }
+VTK_ABI_NAMESPACE_END

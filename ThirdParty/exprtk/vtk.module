@@ -1,0 +1,7 @@
+NAME
+  VTK::exprtk
+LIBRARY_NAME
+  vtkexprtk
+TEST_DEPENDS
+  VTK::TestingCore
+THIRD_PARTY

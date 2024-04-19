@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractFunctionalBagPlot.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExtractFunctionalBagPlot.h"
 
 #include "vtkDataSet.h"
@@ -29,9 +17,10 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractFunctionalBagPlot);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractFunctionalBagPlot::vtkExtractFunctionalBagPlot()
 {
   this->SetNumberOfInputPorts(2);
@@ -40,32 +29,32 @@ vtkExtractFunctionalBagPlot::vtkExtractFunctionalBagPlot()
   this->PUser = 95;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExtractFunctionalBagPlot::~vtkExtractFunctionalBagPlot() = default;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExtractFunctionalBagPlot::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class DensityVal
 {
 public:
-  DensityVal(double d, vtkAbstractArray* arr) : Density(d), Array(arr) {}
-  bool operator<(const DensityVal& b) const
+  DensityVal(double d, vtkAbstractArray* arr)
+    : Density(d)
+    , Array(arr)
   {
-    return this->Density > b.Density;
   }
+  bool operator<(const DensityVal& b) const { return this->Density > b.Density; }
   double Density;
   vtkAbstractArray* Array;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
-                                   vtkInformationVector** inputVector,
-                                   vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 
   vtkTable* inTable = vtkTable::GetData(inputVector[0]);
@@ -86,16 +75,16 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
     return false;
   }
 
-  vtkDoubleArray *density = vtkArrayDownCast<vtkDoubleArray>(
-    this->GetInputAbstractArrayToProcess(0, inTableDensity));
+  vtkDoubleArray* density =
+    vtkArrayDownCast<vtkDoubleArray>(this->GetInputAbstractArrayToProcess(0, inTableDensity));
   if (!density)
   {
     vtkDebugMacro(<< "Update event called with non double density array.");
     return false;
   }
 
-  vtkStringArray *varName = vtkArrayDownCast<vtkStringArray>(
-    this->GetInputAbstractArrayToProcess(1, inTableDensity));
+  vtkStringArray* varName =
+    vtkArrayDownCast<vtkStringArray>(this->GetInputAbstractArrayToProcess(1, inTableDensity));
   if (!varName)
   {
     vtkDebugMacro(<< "Update event called with no variable name array.");
@@ -111,7 +100,7 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
   for (vtkIdType i = 0; i < nbPoints; i++)
   {
     double d = density->GetValue(i);
-    vtkAbstractArray* c = inTable->GetColumnByName(varName->GetValue(i));
+    vtkAbstractArray* c = inTable->GetColumnByName(varName->GetValue(i).c_str());
     if (d < this->DensityForPUser)
     {
       outliersSeries.insert(i);
@@ -172,8 +161,14 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
     for (size_t j = 0; j < medianCount; j++)
     {
       double v = medianLines[j]->GetVariantValue(i).ToDouble();
-      if (v < vMin) { vMin = v; }
-      if (v > vMax) { vMax = v; }
+      if (v < vMin)
+      {
+        vMin = v;
+      }
+      if (v > vMax)
+      {
+        vMax = v;
+      }
     }
     q2Points->SetTuple2(i, vMin, vMax);
 
@@ -182,8 +177,14 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
     for (size_t j = 0; j < q3Count; j++)
     {
       double v = q3Lines[j]->GetVariantValue(i).ToDouble();
-      if (v < vMin) { vMin = v; }
-      if (v > vMax) { vMax = v; }
+      if (v < vMin)
+      {
+        vMin = v;
+      }
+      if (v > vMax)
+      {
+        vMax = v;
+      }
     }
     q3Points->SetTuple2(i, vMin, vMax);
   }
@@ -220,3 +221,4 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

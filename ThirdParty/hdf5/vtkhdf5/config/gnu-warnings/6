@@ -1,0 +1,9 @@
+#
+# Careful!  -Wduplicated-cond, combined with HDF5's heavy use of
+# macros, can make a lot of noise.
+#
+-Wduplicated-cond
+-Whsa
+-Wnormalized
+-Wnull-dereference
+-Wunused-const-variable

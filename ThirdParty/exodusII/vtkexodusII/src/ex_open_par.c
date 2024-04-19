@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 /*****************************************************************************
  *
@@ -57,8 +30,9 @@
 
 #include "exodusII.h"
 #include "exodusII_int.h"
-#include <mpi.h>
+#include <vtk_mpi.h>
 /*!
+\ingroup Utilities
 
 \note The ex_open_par_int() is an internal function called by
 ex_open_par(). The user should call ex_open_par() and not ex_open_par_int().
@@ -95,7 +69,6 @@ requiring
 returned
                compute word size (4 or 8).
 
-
 \param[in,out] io_ws The word size in bytes (0, 4 or 8) of the floating
                     point data as they are stored in the exodus file. If the
 word
@@ -129,8 +102,6 @@ exoid = ex_open_par ("test.exo",     \co{filename path}
 ~~~
  */
 
-static int warning_output = 0;
-
 struct ncvar /* variable */
 {
   char    name[MAX_VAR_NAME_LENGTH];
@@ -148,18 +119,18 @@ struct ncvar /* variable */
 int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float *version,
                     MPI_Comm comm, MPI_Info info, int run_version)
 {
-  int     exoid;
-  int     status, stat_att, stat_dim;
-  nc_type att_type = NC_NAT;
-  size_t  att_len  = 0;
-  int     nc_mode  = 0;
-  int     old_fill;
-  int     file_wordsize;
-  int     dim_str_name;
-  int     int64_status = 0;
-  int     is_hdf5      = 0;
-  int     is_pnetcdf   = 0;
-  int     in_redef     = 0;
+  int     exoid  = -1;
+  int     status = 0, stat_att = 0, stat_dim = 0;
+  nc_type att_type      = NC_NAT;
+  size_t  att_len       = 0;
+  int     nc_mode       = 0;
+  int     old_fill      = 0;
+  int     file_wordsize = 0;
+  int     dim_str_name  = 0;
+  int     int64_status  = 0;
+  bool    is_hdf5       = false;
+  bool    is_pnetcdf    = false;
+  bool    in_redef      = false;
 
   char errmsg[MAX_ERR_LENGTH];
 
@@ -168,19 +139,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
   /* set error handling mode to no messages, non-fatal errors */
   ex_opts(exoptval); /* call required to set ncopts first time through */
 
-  if (run_version != EX_API_VERS_NODOT && warning_output == 0) {
-    int run_version_major = run_version / 100;
-    int run_version_minor = run_version % 100;
-    int lib_version_major = EX_API_VERS_NODOT / 100;
-    int lib_version_minor = EX_API_VERS_NODOT % 100;
-    fprintf(stderr,
-            "EXODUS: Warning: This code was compiled with exodus "
-            "version %d.%02d,\n          but was linked with exodus "
-            "library version %d.%02d\n          This is probably an "
-            "error in the build process of this code.\n",
-            run_version_major, run_version_minor, lib_version_major, lib_version_minor);
-    warning_output = 1;
-  }
+  ex__check_version(run_version);
 
   if ((mode & EX_READ) && (mode & EX_WRITE)) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Cannot specify both EX_READ and EX_WRITE");
@@ -188,8 +147,27 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  /* Verify that this file is not already open for read or write...
+     In theory, should be ok for the file to be open multiple times
+     for read, but bad things can happen if being read and written
+     at the same time...
+  */
+  if (ex__check_multiple_open(path, mode, __func__)) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
+
   if (mode & EX_WRITE) {
     nc_mode = (NC_WRITE | NC_MPIIO);
+#if NC_HAS_HDF5
+    if (mode & EX_NETCDF4) {
+      nc_mode |= NC_NETCDF4;
+    }
+#endif
+#if NC_HAS_CDF5
+    if (mode & EX_64BIT_DATA) {
+      nc_mode |= NC_64BIT_DATA;
+    }
+#endif
   }
   else {
     nc_mode = (NC_NOWRITE | NC_SHARE | NC_MPIIO);
@@ -213,9 +191,12 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
        we have the define that shows it is enabled, then assume other error...
     */
     int type = 0;
-    ex_check_file_type(path, &type);
+    ex__check_file_type(path, &type);
 
-    if (type == 5) {
+    if (type == 0) {
+      /* Error message printed at lower level */
+    }
+    else if (type == 5) {
 #if NC_HAS_HDF5
       snprintf(errmsg, MAX_ERR_LENGTH,
                "EXODUS: ERROR: Attempting to open the netcdf-4 "
@@ -293,22 +274,22 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
     }
 
     snprintf(errmsg, MAX_ERR_LENGTH,
-             "ERROR: failed to open %s of type %d for reading. Either the "
-             "file does not exist, or there is a permission or file format "
+             "ERROR: failed to open %s for read/write. Either the file "
+             "does not exist,\n\tor there is a permission or file format "
              "issue.",
-             path, type);
+             path);
     ex_err(__func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* File opened correctly */
   int type = 0;
-  ex_check_file_type(path, &type);
+  ex__check_file_type(path, &type);
   if (type == 5) {
-    is_hdf5 = 1;
+    is_hdf5 = true;
   }
   else if (type == 1 || type == 2 || type == 4) {
-    is_pnetcdf = 1;
+    is_pnetcdf = true;
   }
 
   if (mode & EX_WRITE) { /* Appending */
@@ -319,7 +300,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
         ex_err_fn(exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }
-      in_redef = 1;
+      in_redef = true;
     }
 
     if ((status = nc_set_fill(exoid, NC_NOFILL, &old_fill)) != NC_NOERR) {
@@ -338,7 +319,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
           ex_err_fn(exoid, __func__, errmsg, status);
           EX_FUNC_LEAVE(EX_FATAL);
         }
-        in_redef = 1;
+        in_redef = true;
       }
       if (stat_att != NC_NOERR) {
         int max_so_far = 32;
@@ -349,16 +330,16 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
        * add it now. */
       if (stat_dim != NC_NOERR) {
         /* Not found; set to default value of 32+1. */
-        int max_name = ex_default_max_name_length < 32 ? 32 : ex_default_max_name_length;
+        int max_name = ex__default_max_name_length < 32 ? 32 : ex__default_max_name_length;
         nc_def_dim(exoid, DIM_STR_NAME, max_name + 1, &dim_str_name);
       }
     }
 
     if (in_redef) {
-      if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+      if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
         EX_FUNC_LEAVE(EX_FATAL);
       }
-      in_redef = 0;
+      in_redef = false;
     }
 
     /* If this is a parallel execution and we are appending, then we
@@ -444,7 +425,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
      not know that file was closed and possibly new file opened for
      this exoid
   */
-  if (ex_find_file_item(exoid) != NULL) {
+  if (ex__find_file_item(exoid) != NULL) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: There is an existing file already using the file "
              "id %d which was also assigned to file %s.\n\tWas "
@@ -457,8 +438,8 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
   }
 
   /* initialize floating point and integer size conversion. */
-  if (ex_conv_ini(exoid, comp_ws, io_ws, file_wordsize, int64_status, 1, is_hdf5, is_pnetcdf) !=
-      EX_NOERR) {
+  if (ex__conv_init(exoid, comp_ws, io_ws, file_wordsize, int64_status, 1, is_hdf5, is_pnetcdf,
+                    mode & EX_WRITE) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to initialize conversion routines in file id %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
@@ -472,5 +453,5 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
  * Prevent warning in some versions of ranlib(1) because the object
  * file has no symbols.
  */
-const char exodus_unused_symbol_dummy_1;
+const char exodus_unused_symbol_dummy_ex_open_par;
 #endif

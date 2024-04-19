@@ -1,25 +1,14 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkObserverMediator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkObserverMediator.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkInteractorObserver.h"
 #include "vtkObjectFactory.h"
 #include "vtkPriorityQueue.h"
-#include "vtkInteractorObserver.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkObserverMediator);
 
 // PIMPL the map representing the observer (key) to cursor request
@@ -34,20 +23,13 @@ struct vtkObserverCompare
     float p1 = w1->GetPriority();
     float p2 = w2->GetPriority();
 
-    if ( p1 < p2 )
+    if (p1 < p2)
     {
       return true;
     }
-    else if ( p1 == p2 )
+    else if (p1 == p2)
     {
-      if ( w1 < w2 )
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
+      return w1 < w2;
     }
     else
     {
@@ -57,15 +39,14 @@ struct vtkObserverCompare
 };
 
 // The important feature of the map is that it sorts data (based on the functor above).
-class vtkObserverMap : public std::map<vtkInteractorObserver*,int,vtkObserverCompare>
+class vtkObserverMap : public std::map<vtkInteractorObserver*, int, vtkObserverCompare>
 {
 public:
-  vtkObserverMap() : std::map<vtkInteractorObserver*,int,vtkObserverCompare>() {}
+  vtkObserverMap() = default;
 };
 typedef vtkObserverMap::iterator ObserverMapIterator;
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObserverMediator::vtkObserverMediator()
 {
   this->Interactor = nullptr;
@@ -75,26 +56,25 @@ vtkObserverMediator::vtkObserverMediator()
   this->CurrentCursorShape = VTK_CURSOR_DEFAULT;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObserverMediator::~vtkObserverMediator()
 {
   delete this->ObserverMap;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObserverMediator::SetInteractor(vtkRenderWindowInteractor* i)
 {
   this->Interactor = i;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This mediation process works by keeping track of non-default cursor
 // requests.
 // Ties are broken based on widget priority (hence the priority queue).
-int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int requestedShape)
+int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver* w, int requestedShape)
 {
-  if ( !this->Interactor || !w )
+  if (!this->Interactor || !w)
   {
     return 0;
   }
@@ -103,9 +83,9 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
   // special version of find() because the sorting of the map using the function
   // vtkObserverCompare() screws up the usual find().
   ObserverMapIterator iter = this->ObserverMap->begin();
-  for ( ; iter != this->ObserverMap->end(); ++iter )
+  for (; iter != this->ObserverMap->end(); ++iter)
   {
-    if ( (*iter).first == w )
+    if ((*iter).first == w)
     {
       this->ObserverMap->erase(iter);
       break;
@@ -113,26 +93,26 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
   }
 
   // Now see whether we have to set to the default cursor, or add the latest request.
-  if ( this->ObserverMap->empty() && requestedShape == VTK_CURSOR_DEFAULT &&
-       this->CurrentCursorShape != VTK_CURSOR_DEFAULT )
+  if (this->ObserverMap->empty() && requestedShape == VTK_CURSOR_DEFAULT &&
+    this->CurrentCursorShape != VTK_CURSOR_DEFAULT)
   {
     this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
     this->CurrentCursorShape = VTK_CURSOR_DEFAULT;
     return 1;
   }
-  else if ( requestedShape != VTK_CURSOR_DEFAULT )
+  else if (requestedShape != VTK_CURSOR_DEFAULT)
   {
     (*this->ObserverMap)[w] = requestedShape;
 
     // Find the highest priority and set that
-    if ( ! this->ObserverMap->empty() )
+    if (!this->ObserverMap->empty())
     {
       iter = this->ObserverMap->end();
-      --iter; //this is the observer with the highest priority
+      --iter; // this is the observer with the highest priority
       // Have to set the current cursor repeatedly or it reverts back to default
       // (at least on windows it does).
       this->Interactor->GetRenderWindow()->SetCurrentCursor((*iter).second);
-      if ( this->CurrentCursorShape != (*iter).second )
+      if (this->CurrentCursorShape != (*iter).second)
       {
         this->CurrentCursorShape = (*iter).second;
         return 1;
@@ -143,15 +123,15 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
   return 0;
 }
 
-//----------------------------------------------------------------------------
-void vtkObserverMediator::RemoveAllCursorShapeRequests(vtkInteractorObserver *w)
+//------------------------------------------------------------------------------
+void vtkObserverMediator::RemoveAllCursorShapeRequests(vtkInteractorObserver* w)
 {
   if (w)
   {
     ObserverMapIterator iter = this->ObserverMap->begin();
-    for ( ; iter != this->ObserverMap->end(); ++iter )
+    for (; iter != this->ObserverMap->end(); ++iter)
     {
-      if ( (*iter).first == w )
+      if ((*iter).first == w)
       {
         this->ObserverMap->erase(iter);
         break;
@@ -160,14 +140,14 @@ void vtkObserverMediator::RemoveAllCursorShapeRequests(vtkInteractorObserver *w)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkObserverMediator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Render Window Interactor: ";
-  if ( this->Interactor )
+  if (this->Interactor)
   {
     os << this->Interactor << "\n";
   }
@@ -175,5 +155,5 @@ void vtkObserverMediator::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "(None)\n";
   }
-
 }
+VTK_ABI_NAMESPACE_END

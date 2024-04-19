@@ -8,7 +8,7 @@ readonly name="expat"
 readonly ownership="Expat Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/expat.git"
-readonly tag="for/vtk-20181017-2.2.6"
+readonly tag="for/vtk-20231030-2.4.8"
 readonly paths="
 expat/.gitattributes
 expat/CMakeLists.txt
@@ -24,7 +24,7 @@ expat/lib/*.h
 extract_source () {
     git_archive
     # Everything is under an extra expat/ directory; remove it.
-    mv "$extractdir/$name-reduced/expat/"* "$extractdir/$name-reduced/"
+    mv -v "$extractdir/$name-reduced/expat/"* "$extractdir/$name-reduced/"
     rmdir "$extractdir/$name-reduced/expat"
 }
 

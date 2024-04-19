@@ -2,6 +2,7 @@ set(classes
   vtkArcSource
   vtkArrowSource
   vtkButtonSource
+  vtkCapsuleSource
   vtkCellTypeSource
   vtkConeSource
   vtkCubeSource
@@ -13,14 +14,19 @@ set(classes
   vtkFrustumSource
   vtkGlyphSource2D
   vtkGraphToPolyData
+  vtkHandleSource
+  vtkHyperTreeGridPreConfiguredSource
   vtkHyperTreeGridSource
   vtkLineSource
   vtkOutlineCornerFilter
   vtkOutlineCornerSource
   vtkOutlineSource
   vtkParametricFunctionSource
+  vtkPartitionedDataSetSource
+  vtkPartitionedDataSetCollectionSource
   vtkPlaneSource
   vtkPlatonicSolidSource
+  vtkPointHandleSource
   vtkPointSource
   vtkPolyLineSource
   vtkPolyPointSource
@@ -30,6 +36,7 @@ set(classes
   vtkRectangularButtonSource
   vtkRegularPolygonSource
   vtkSelectionSource
+  vtkSpatioTemporalHarmonicsSource
   vtkSphereSource
   vtkSuperquadricSource
   vtkTessellatedBoxSource
@@ -39,3 +46,4 @@ set(classes
 
 vtk_module_add_module(VTK::FiltersSources
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::FiltersSources)

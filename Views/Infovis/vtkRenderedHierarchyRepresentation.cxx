@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderedHierarchyRepresentation.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkRenderedHierarchyRepresentation.h"
 
@@ -33,8 +17,8 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProp.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderView.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSplineGraphEdges.h"
@@ -43,10 +27,11 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderedHierarchyRepresentation::Internals
 {
 public:
-  std::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
+  std::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline>> Graphs;
 };
 
 vtkStandardNewMacro(vtkRenderedHierarchyRepresentation);
@@ -66,8 +51,7 @@ vtkRenderedHierarchyRepresentation::~vtkRenderedHierarchyRepresentation()
 
 bool vtkRenderedHierarchyRepresentation::ValidIndex(int idx)
 {
-  return (idx >= 0 &&
-          idx < static_cast<int>(this->Implementation->Graphs.size()));
+  return (idx >= 0 && idx < static_cast<int>(this->Implementation->Graphs.size()));
 }
 
 void vtkRenderedHierarchyRepresentation::SetGraphEdgeLabelArrayName(const char* name, int idx)
@@ -210,26 +194,17 @@ bool vtkRenderedHierarchyRepresentation::AddToView(vtkView* view)
 {
   this->Superclass::AddToView(view);
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
-  if (rv)
-  {
-    return true;
-  }
-  return false;
+  return rv != nullptr;
 }
 
 bool vtkRenderedHierarchyRepresentation::RemoveFromView(vtkView* view)
 {
   this->Superclass::RemoveFromView(view);
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
-  if (rv)
-  {
-    return true;
-  }
-  return false;
+  return rv != nullptr;
 }
 
-vtkSelection* vtkRenderedHierarchyRepresentation::ConvertSelection(
-  vtkView* view, vtkSelection* sel)
+vtkSelection* vtkRenderedHierarchyRepresentation::ConvertSelection(vtkView* view, vtkSelection* sel)
 {
   vtkSelection* converted = this->Superclass::ConvertSelection(view, sel);
 
@@ -247,16 +222,14 @@ vtkSelection* vtkRenderedHierarchyRepresentation::ConvertSelection(
       conv->Delete();
     }
   }
-  //cerr << "Tree converted: " << endl;
-  //converted->Dump();
+  // cerr << "Tree converted: " << endl;
+  // converted->Dump();
 
   return converted;
 }
 
 int vtkRenderedHierarchyRepresentation::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Setup superclass connections.
   if (!this->Superclass::RequestData(request, inputVector, outputVector))
@@ -268,8 +241,7 @@ int vtkRenderedHierarchyRepresentation::RequestData(
   size_t numGraphs = static_cast<size_t>(this->GetNumberOfInputConnections(1));
   while (numGraphs > this->Implementation->Graphs.size())
   {
-    this->Implementation->Graphs.push_back(
-      vtkSmartPointer<vtkHierarchicalGraphPipeline>::New());
+    this->Implementation->Graphs.push_back(vtkSmartPointer<vtkHierarchicalGraphPipeline>::New());
   }
 
   // Keep track of actors to remove if the number of input connections
@@ -285,10 +257,8 @@ int vtkRenderedHierarchyRepresentation::RequestData(
   {
     this->AddPropOnNextRender(this->Implementation->Graphs[i]->GetActor());
     vtkHierarchicalGraphPipeline* p = this->Implementation->Graphs[i];
-    p->PrepareInputConnections(
-      this->GetInternalOutputPort(1, static_cast<int>(i)),
-      this->Layout->GetOutputPort(),
-      this->GetInternalAnnotationOutputPort());
+    p->PrepareInputConnections(this->GetInternalOutputPort(1, static_cast<int>(i)),
+      this->Layout->GetOutputPort(), this->GetInternalAnnotationOutputPort());
   }
   return 1;
 }
@@ -328,3 +298,4 @@ void vtkRenderedHierarchyRepresentation::PrintSelf(ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCompositeRGBAPass.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCompositeRGBAPass
  * @brief   Blend RGBA buffers of processes.
@@ -26,14 +14,15 @@
  *
  * @sa
  * vtkRenderPass
-*/
+ */
 
 #ifndef vtkCompositeRGBAPass_h
 #define vtkCompositeRGBAPass_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class vtkPixelBufferObject;
@@ -44,47 +33,47 @@ class vtkPKdTree;
 class VTKRENDERINGPARALLEL_EXPORT vtkCompositeRGBAPass : public vtkRenderPass
 {
 public:
-  static vtkCompositeRGBAPass *New();
-  vtkTypeMacro(vtkCompositeRGBAPass,vtkRenderPass);
+  static vtkCompositeRGBAPass* New();
+  vtkTypeMacro(vtkCompositeRGBAPass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Controller
    * If it is NULL, nothing will be rendered and a warning will be emitted.
    * Initial value is a NULL pointer.
    */
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
-  virtual void SetController(vtkMultiProcessController *controller);
-  //@}
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  virtual void SetController(vtkMultiProcessController* controller);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * kd tree that gives processes ordering. Initial value is a NULL pointer.
    */
-  vtkGetObjectMacro(Kdtree,vtkPKdTree);
-  virtual void SetKdtree(vtkPKdTree *kdtree);
-  //@}
+  vtkGetObjectMacro(Kdtree, vtkPKdTree);
+  virtual void SetKdtree(vtkPKdTree* kdtree);
+  ///@}
 
   /**
    * Is the pass supported by the OpenGL context?
    */
-  bool IsSupported(vtkOpenGLRenderWindow *context);
+  bool IsSupported(vtkOpenGLRenderWindow* context);
 
- protected:
+protected:
   /**
    * Default constructor. Controller is set to NULL.
    */
@@ -95,18 +84,19 @@ public:
    */
   ~vtkCompositeRGBAPass() override;
 
-  vtkMultiProcessController *Controller;
-  vtkPKdTree *Kdtree;
+  vtkMultiProcessController* Controller;
+  vtkPKdTree* Kdtree;
 
-  vtkPixelBufferObject *PBO;
-  vtkTextureObject *RGBATexture;
-  vtkTextureObject *RootTexture;
-  float *RawRGBABuffer;
+  vtkPixelBufferObject* PBO;
+  vtkTextureObject* RGBATexture;
+  vtkTextureObject* RootTexture;
+  float* RawRGBABuffer;
   size_t RawRGBABufferSize;
 
- private:
+private:
   vtkCompositeRGBAPass(const vtkCompositeRGBAPass&) = delete;
   void operator=(const vtkCompositeRGBAPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

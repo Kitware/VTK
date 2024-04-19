@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLabeledContourMapper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLabeledContourMapper
  * @brief   Draw labeled isolines.
@@ -24,7 +12,7 @@
  * For this mapper to function properly, stenciling must be enabled in the
  * render window (it is disabled by default). Otherwise the lines will be
  * drawn through the labels.
-*/
+ */
 
 #ifndef vtkLabeledContourMapper_h
 #define vtkLabeledContourMapper_h
@@ -32,9 +20,10 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 
 #include "vtkMapper.h"
-#include "vtkNew.h" // For vtkNew
+#include "vtkNew.h"          // For vtkNew
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkTextActor3D;
 class vtkTextProperty;
@@ -45,28 +34,28 @@ class vtkPolyDataMapper;
 class VTKRENDERINGCORE_EXPORT vtkLabeledContourMapper : public vtkMapper
 {
 public:
-  static vtkLabeledContourMapper *New();
-  vtkTypeMacro(vtkLabeledContourMapper, vtkMapper)
+  static vtkLabeledContourMapper* New();
+  vtkTypeMacro(vtkLabeledContourMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Render(vtkRenderer *ren, vtkActor *act) override;
+  void Render(vtkRenderer* ren, vtkActor* act) override;
 
-  //@{
+  ///@{
   /**
    * Specify the input data to map.
    */
-  void SetInputData(vtkPolyData *in);
-  vtkPolyData *GetInput();
-  //@}
+  void SetInputData(vtkPolyData* in);
+  vtkPolyData* GetInput();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() override;
+  double* GetBounds() override;
   void GetBounds(double bounds[6]) override;
-  //@}
+  ///@}
 
   /**
    * The text property used to label the lines. Note that both vertical and
@@ -75,9 +64,9 @@ public:
    * the argument as the only property in the collection.
    * @sa SetTextProperties
    */
-  virtual void SetTextProperty(vtkTextProperty *tprop);
+  virtual void SetTextProperty(vtkTextProperty* tprop);
 
-  //@{
+  ///@{
   /**
    * The text properties used to label the lines. Note that both vertical and
    * horizontal justifications will be reset to "Centered" prior to rendering.
@@ -95,11 +84,11 @@ public:
    * @sa SetTextProperty
    * @sa SetTextPropertyMapping
    */
-  virtual void SetTextProperties(vtkTextPropertyCollection *coll);
-  virtual vtkTextPropertyCollection *GetTextProperties();
-  //@}
+  virtual void SetTextProperties(vtkTextPropertyCollection* coll);
+  virtual vtkTextPropertyCollection* GetTextProperties();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Values in this array correspond to vtkTextProperty objects in the
    * TextProperties collection. If a contour line's scalar value exists in
@@ -107,37 +96,37 @@ public:
    * See SetTextProperties for more information.
    */
   virtual vtkDoubleArray* GetTextPropertyMapping();
-  virtual void SetTextPropertyMapping(vtkDoubleArray *mapping);
-  //@}
+  virtual void SetTextPropertyMapping(vtkDoubleArray* mapping);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true, labels will be placed and drawn during rendering. Otherwise,
    * only the mapper returned by GetPolyDataMapper() will be rendered.
    * The default is to draw labels.
    */
-  vtkSetMacro(LabelVisibility, bool)
-  vtkGetMacro(LabelVisibility, bool)
-  vtkBooleanMacro(LabelVisibility, bool)
-  //@}
+  vtkSetMacro(LabelVisibility, bool);
+  vtkGetMacro(LabelVisibility, bool);
+  vtkBooleanMacro(LabelVisibility, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Ensure that there are at least SkipDistance pixels between labels. This
    * is only enforced on labels along the same line. The default is 0.
    */
-  vtkSetMacro(SkipDistance, double)
-  vtkGetMacro(SkipDistance, double)
-  //@}
+  vtkSetMacro(SkipDistance, double);
+  vtkGetMacro(SkipDistance, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The polydata mapper used to render the contours.
    */
-  vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper)
-  //@}
+  vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper);
+  ///@}
 
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
 protected:
   vtkLabeledContourMapper();
@@ -149,36 +138,36 @@ protected:
 
   void Reset();
 
-  bool CheckInputs(vtkRenderer *ren);
-  bool CheckRebuild(vtkRenderer *ren, vtkActor *act);
-  bool PrepareRender(vtkRenderer *ren, vtkActor *act);
+  bool CheckInputs(vtkRenderer* ren);
+  bool CheckRebuild(vtkRenderer* ren, vtkActor* act);
+  bool PrepareRender(vtkRenderer* ren, vtkActor* act);
   bool PlaceLabels();
   bool ResolveLabels();
-  virtual bool CreateLabels(vtkActor *actor);
+  virtual bool CreateLabels(vtkActor* actor);
   bool BuildStencilQuads();
-  virtual bool ApplyStencil(vtkRenderer *ren, vtkActor *act);
-  bool RenderPolyData(vtkRenderer *ren, vtkActor *act);
-  virtual bool RemoveStencil(vtkRenderer *ren);
-  bool RenderLabels(vtkRenderer *ren, vtkActor *act);
+  virtual bool ApplyStencil(vtkRenderer* ren, vtkActor* act);
+  bool RenderPolyData(vtkRenderer* ren, vtkActor* act);
+  virtual bool RemoveStencil(vtkRenderer* ren);
+  bool RenderLabels(vtkRenderer* ren, vtkActor* act);
 
   bool AllocateTextActors(vtkIdType num);
   bool FreeTextActors();
 
-  double SkipDistance;
+  double SkipDistance = false;
 
-  bool LabelVisibility;
-  vtkIdType NumberOfTextActors;
-  vtkIdType NumberOfUsedTextActors;
-  vtkTextActor3D **TextActors;
+  bool LabelVisibility = true;
+  vtkIdType NumberOfTextActors = 0;
+  vtkIdType NumberOfUsedTextActors = 0;
+  vtkTextActor3D** TextActors = nullptr;
 
   vtkNew<vtkPolyDataMapper> PolyDataMapper;
   vtkSmartPointer<vtkTextPropertyCollection> TextProperties;
   vtkSmartPointer<vtkDoubleArray> TextPropertyMapping;
 
-  float *StencilQuads;
-  vtkIdType StencilQuadsSize;
-  unsigned int *StencilQuadIndices;
-  vtkIdType StencilQuadIndicesSize;
+  float* StencilQuads = nullptr;
+  vtkIdType StencilQuadsSize = 0;
+  unsigned int* StencilQuadIndices = nullptr;
+  vtkIdType StencilQuadIndicesSize = 0;
   void FreeStencilQuads();
 
   vtkTimeStamp LabelBuildTime;
@@ -188,7 +177,8 @@ private:
   void operator=(const vtkLabeledContourMapper&) = delete;
 
   struct Private;
-  Private *Internal;
+  Private* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -7,9 +7,14 @@ KIT
   VTK::IO
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::CommonExecutionModel
+  VTK::ImagingCore
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonMath
@@ -26,7 +31,6 @@ PRIVATE_DEPENDS
   VTK::zlib
 TEST_DEPENDS
   VTK::FiltersGeometry
-  VTK::ImagingCore
   VTK::ImagingMath
   VTK::ImagingSources
   VTK::InteractionImage

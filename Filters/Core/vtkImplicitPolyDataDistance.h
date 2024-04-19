@@ -1,20 +1,9 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImplicitPolyDataDistance.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImplicitPolyDataDistance
- *
+ * @brief   Implicit function that computes the distance from a point x to the nearest point p on an
+ * input vtkPolyData.
  *
  * Implicit function that computes the distance from a point x to the
  * nearest point p on an input vtkPolyData. The sign of the function
@@ -34,22 +23,25 @@
  * by Cory Quammen, Chris Weigle C., Russ Taylor
  * http://hdl.handle.net/10380/3262
  * http://www.midasjournal.org/browse/publication/797
-*/
+ */
 
 #ifndef vtkImplicitPolyDataDistance_h
 #define vtkImplicitPolyDataDistance_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkGenericCell.h"       // For thread local storage
 #include "vtkImplicitFunction.h"
+#include "vtkSMPThreadLocalObject.h" // For thread local storage
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellLocator;
 class vtkPolyData;
 
 class VTKFILTERSCORE_EXPORT vtkImplicitPolyDataDistance : public vtkImplicitFunction
 {
 public:
-  static vtkImplicitPolyDataDistance *New();
-  vtkTypeMacro(vtkImplicitPolyDataDistance,vtkImplicitFunction);
+  static vtkImplicitPolyDataDistance* New();
+  vtkTypeMacro(vtkImplicitPolyDataDistance, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -69,9 +61,10 @@ public:
   void EvaluateGradient(double x[3], double g[3]) override;
 
   /**
-   * Evaluate plane equation of nearest triangle to point x[3] and provides closest point on an input vtkPolyData.
+   * Evaluate plane equation of nearest triangle to point x[3] and provides closest point on an
+   * input vtkPolyData.
    */
-  double EvaluateFunctionAndGetClosestPoint (double x[3], double closestPoint[3]);
+  double EvaluateFunctionAndGetClosestPoint(double x[3], double closestPoint[3]);
 
   /**
    * Set the input vtkPolyData used for the implicit function
@@ -79,42 +72,42 @@ public:
    * vtkTriangleFilter to remove vertices and lines, leaving only
    * triangular polygons for evaluation as implicit planes.
    */
-  void SetInput(vtkPolyData *input);
+  void SetInput(vtkPolyData* input);
 
-  //@{
+  ///@{
   /**
    * Set/get the function value to use if no input vtkPolyData
    * specified.
    */
   vtkSetMacro(NoValue, double);
   vtkGetMacro(NoValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the function gradient to use if no input vtkPolyData
    * specified.
    */
   vtkSetVector3Macro(NoGradient, double);
   vtkGetVector3Macro(NoGradient, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the closest point to use if no input vtkPolyData
    * specified.
    */
   vtkSetVector3Macro(NoClosestPoint, double);
   vtkGetVector3Macro(NoClosestPoint, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
-   * Set/get the tolerance usued for the locator.
+   * Set/get the tolerance used for the locator.
    */
   vtkGetMacro(Tolerance, double);
   vtkSetMacro(Tolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkImplicitPolyDataDistance();
@@ -123,21 +116,24 @@ protected:
   /**
    * Create default locator. Used to create one when none is specified.
    */
-  void CreateDefaultLocator(void);
+  void CreateDefaultLocator();
 
-  double SharedEvaluate(double x[3], double g[3], double p[3]);
+  double SharedEvaluate(double x[3], double g[3], double closestPoint[3]);
 
   double NoGradient[3];
   double NoClosestPoint[3];
   double NoValue;
   double Tolerance;
 
-  vtkPolyData *Input;
-  vtkCellLocator *Locator;
+  vtkPolyData* Input;
+  vtkCellLocator* Locator;
+  vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
+  vtkSMPThreadLocalObject<vtkIdList> TLCellIds;
 
 private:
   vtkImplicitPolyDataDistance(const vtkImplicitPolyDataDistance&) = delete;
   void operator=(const vtkImplicitPolyDataDistance&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

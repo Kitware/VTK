@@ -1,6 +1,29 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkCleanPolyData,
+    vtkClipPolyData,
+    vtkFeatureEdges,
+    vtkStripper,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkProperty,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,7 +32,7 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 #
@@ -18,68 +41,68 @@ def GetRGBColor(colorName):
 
 # create a sphere and clip it
 #
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetRadius(1)
 sphere.SetPhiResolution(10)
 sphere.SetThetaResolution(10)
 
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetOrigin(0, 0, 0)
 plane.SetNormal(-1, -1, 0)
 
-clipper = vtk.vtkClipPolyData()
+clipper = vtkClipPolyData()
 clipper.SetInputConnection(sphere.GetOutputPort())
 clipper.SetClipFunction(plane)
 clipper.GenerateClipScalarsOn()
 clipper.GenerateClippedOutputOn()
 clipper.SetValue(0)
 
-clipMapper = vtk.vtkPolyDataMapper()
+clipMapper = vtkPolyDataMapper()
 clipMapper.SetInputConnection(clipper.GetOutputPort())
 clipMapper.ScalarVisibilityOff()
 
-backProp = vtk.vtkProperty()
+backProp = vtkProperty()
 backProp.SetDiffuseColor(GetRGBColor('tomato'))
 
-clipActor = vtk.vtkActor()
+clipActor = vtkActor()
 clipActor.SetMapper(clipMapper)
 clipActor.GetProperty().SetColor(GetRGBColor('peacock'))
 clipActor.SetBackfaceProperty(backProp)
 
 # now extract feature edges
-boundaryEdges = vtk.vtkFeatureEdges()
+boundaryEdges = vtkFeatureEdges()
 boundaryEdges.SetInputConnection(clipper.GetOutputPort())
 boundaryEdges.BoundaryEdgesOn()
 boundaryEdges.FeatureEdgesOff()
 boundaryEdges.NonManifoldEdgesOff()
 
-boundaryClean = vtk.vtkCleanPolyData()
+boundaryClean = vtkCleanPolyData()
 boundaryClean.SetInputConnection(boundaryEdges.GetOutputPort())
 
-boundaryStrips = vtk.vtkStripper()
+boundaryStrips = vtkStripper()
 boundaryStrips.SetInputConnection(boundaryClean.GetOutputPort())
 boundaryStrips.Update()
 
-boundaryPoly = vtk.vtkPolyData()
+boundaryPoly = vtkPolyData()
 boundaryPoly.SetPoints(boundaryStrips.GetOutput().GetPoints())
 boundaryPoly.SetPolys(boundaryStrips.GetOutput().GetLines())
 
-boundaryTriangles = vtk.vtkTriangleFilter()
+boundaryTriangles = vtkTriangleFilter()
 boundaryTriangles.SetInputData(boundaryPoly)
 
-boundaryMapper = vtk.vtkPolyDataMapper()
+boundaryMapper = vtkPolyDataMapper()
 boundaryMapper.SetInputConnection(boundaryTriangles.GetOutputPort())
 
-boundaryActor = vtk.vtkActor()
+boundaryActor = vtkActor()
 boundaryActor.SetMapper(boundaryMapper)
 boundaryActor.GetProperty().SetColor(GetRGBColor('banana'))
 
 # Create graphics stuff
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

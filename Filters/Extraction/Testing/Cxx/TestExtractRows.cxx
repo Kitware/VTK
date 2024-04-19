@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestExtractRows.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkExtractSelection.h"
 #include "vtkIdTypeArray.h"
@@ -30,7 +18,7 @@ int TestExtractRows(int argc, char* argv[])
   (void)argv;
   vtkNew<vtkTable> table;
 
-  const char *name[] = { "foo", "bar", "baz", "foobar" };
+  const char* name[] = { "foo", "bar", "baz", "foobar" };
 
   vtkIdType counter = 0;
   for (int i = 0; i < COLUMNS; ++i)
@@ -51,18 +39,17 @@ int TestExtractRows(int argc, char* argv[])
   vtkNew<vtkSelectionNode> node;
 
   node->Initialize();
-  node->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::VALUES);
+  node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::VALUES);
   node->SetFieldType(vtkSelectionNode::ROW);
   vtkNew<vtkIdTypeArray> rowIds;
   rowIds->SetNumberOfComponents(1);
   rowIds->SetNumberOfTuples(5);
   rowIds->SetName("foo");
-  rowIds->SetTuple1(0,  2);
-  rowIds->SetTuple1(1,  6);
-  rowIds->SetTuple1(2,  9);
-  rowIds->SetTuple1(3,  10);
-  rowIds->SetTuple1(4,  11);
+  rowIds->SetTuple1(0, 2);
+  rowIds->SetTuple1(1, 6);
+  rowIds->SetTuple1(2, 9);
+  rowIds->SetTuple1(3, 10);
+  rowIds->SetTuple1(4, 11);
   node->SetSelectionList(rowIds);
   selection->AddNode(node);
 
@@ -70,7 +57,7 @@ int TestExtractRows(int argc, char* argv[])
   extractionFilter->SetInputData(1, selection);
   extractionFilter->Update();
 
-  vtkTable *output = vtkTable::SafeDownCast(extractionFilter->GetOutput());
+  vtkTable* output = vtkTable::SafeDownCast(extractionFilter->GetOutput());
   if (!output)
   {
     std::cerr << "Extracting rows did not produce a table." << std::endl;

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWordCloud.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWordCloud.h"
 
 // Older versions of GCC do not implement regex. The first working
@@ -27,21 +15,22 @@
 
 #include "vtkFreeTypeTools.h"
 #include "vtkImageBlend.h"
-#include "vtkImageIterator.h"
 #include "vtkImageData.h"
+#include "vtkImageIterator.h"
 
-#include "vtkTextProperty.h"
+#include "vtkColorSeries.h"
 #include "vtkImageCanvasSource2D.h"
 #include "vtkMath.h"
 #include "vtkNamedColors.h"
-#include "vtkColorSeries.h"
+#include "vtkTextProperty.h"
 
+#include "vtkImageAppendComponents.h"
+#include "vtkImageExtractComponents.h"
 #include "vtkImageReader2.h"
 #include "vtkImageReader2Factory.h"
 #include "vtkImageResize.h"
-#include "vtkImageExtractComponents.h"
-#include "vtkImageAppendComponents.h"
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 #ifdef HAS_STD_REGEX
 #include <regex>
@@ -50,6 +39,7 @@
 #endif
 // stl
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -61,79 +51,69 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWordCloud);
 
 namespace
 {
 // Declaring the type of Predicate that accepts 2 pairs and return a bool
-typedef std::function<bool(
-    std::pair<std::string, int>,
-    std::pair<std::string, int>)> Comparator;
+typedef std::function<bool(std::pair<std::string, int>, std::pair<std::string, int>)> Comparator;
 
-std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequency(std::string &, vtkWordCloud *);
+std::multiset<std::pair<std::string, int>, Comparator> FindWordsSortedByFrequency(
+  std::string&, vtkWordCloud*);
 struct ExtentOffset
 {
-   ExtentOffset(int _x = 0.0, int _y = 0.0) : x(_x), y(_y) {}
-   int x,y;
+  ExtentOffset(int _x = 0.0, int _y = 0.0)
+    : x(_x)
+    , y(_y)
+  {
+  }
+  int x, y;
 };
 struct ArchimedesValue
 {
-   ArchimedesValue(double _x = 0.0, double _y = 0.0) : x(_x), y(_y) {}
-   double x,y;
+  ArchimedesValue(double _x = 0.0, double _y = 0.0)
+    : x(_x)
+    , y(_y)
+  {
+  }
+  double x, y;
 };
-void AddReplacementPairsToStopList(vtkWordCloud *,
-                                   vtkWordCloud::StopWordsContainer &);
-bool AddWordToFinal(vtkWordCloud *,
-                    const std::string,
-                    const int,
-                    std::mt19937_64 &,
-                    double orientation,
-                    std::vector<ExtentOffset> &,
-                    vtkImageBlend *,
-                    std::string &);
+void AddReplacementPairsToStopList(vtkWordCloud*, vtkWordCloud::StopWordsContainer&);
+bool AddWordToFinal(vtkWordCloud*, std::string, int, std::mt19937_64&, double orientation,
+  std::vector<ExtentOffset>&, vtkImageBlend*, std::string&);
 
-
-void ArchimedesSpiral (std::vector<ExtentOffset>&,
-                       vtkWordCloud::SizesContainer&);
-void ReplaceMaskColorWithBackgroundColor(vtkImageData*, vtkWordCloud* );
-void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer &StopList);
-void CreateStopListFromFile(std::string,
-                            vtkWordCloud::StopWordsContainer &);
-void ExtractWordsFromString(std::string &str,
-                            std::vector<std::string> &words);
+void ArchimedesSpiral(std::vector<ExtentOffset>&, vtkWordCloud::SizesContainer&);
+void ReplaceMaskColorWithBackgroundColor(vtkImageData*, vtkWordCloud*);
+void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer& StopList);
+void CreateStopListFromFile(std::string, vtkWordCloud::StopWordsContainer&);
+void ExtractWordsFromString(std::string& str, std::vector<std::string>& words);
 void ShowColorSeriesNames(ostream& os);
 }
 
-//----------------------------------------------------------------------------
-vtkWordCloud::vtkWordCloud() :
-  BackgroundColorName("MidnightBlue"),
-  BWMask(false),
-  ColorDistribution({{.6, 1.0}}),
-  ColorSchemeName(""),
-  DPI(200),
-  FileName(""),
-  FontFileName(""),
-  FontMultiplier(6),
-  Gap(2),
-  MaskColorName("black"),
-  MaskFileName(""),
-  MaxFontSize(48),
-  MinFontSize(12),
-  MinFrequency(1),
-  OrientationDistribution({{-20,20}}),
-  Sizes({{640,480}}),
-  StopListFileName(""),
-  Title(""),
-  WordColorName("")
+//------------------------------------------------------------------------------
+vtkWordCloud::vtkWordCloud()
+  : BackgroundColorName("MidnightBlue")
+  , BWMask(false)
+  , ColorDistribution({ { .6, 1.0 } })
+  , DPI(200)
+  , FontMultiplier(6)
+  , Gap(2)
+  , MaskColorName("black")
+  , MaxFontSize(48)
+  , MinFontSize(12)
+  , MinFrequency(1)
+  , OrientationDistribution({ { -20, 20 } })
+  , Sizes({ { 640, 480 } })
 {
   this->SetNumberOfInputPorts(0);
 
   this->OffsetDistribution[0] = -this->Sizes[0] / 100.0;
-  this->OffsetDistribution[1] =  this->Sizes[1] / 100.0;
+  this->OffsetDistribution[1] = this->Sizes[1] / 100.0;
 
   this->ImageData = vtkSmartPointer<vtkImageData>::New();
   this->ImageData->SetDimensions(640, 480, 1);
-  this->ImageData->AllocateScalars(VTK_UNSIGNED_CHAR,3);
+  this->ImageData->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
 
   this->WholeExtent[0] = 0;
   this->WholeExtent[1] = 0;
@@ -143,68 +123,61 @@ vtkWordCloud::vtkWordCloud() :
   this->WholeExtent[5] = 0;
 }
 
-//--------------------------------------------------------------------------
-int vtkWordCloud::RequestInformation (vtkInformation * vtkNotUsed(request),
-                                      vtkInformationVector** vtkNotUsed( inputVector ),
-                                      vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkWordCloud::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // Get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               this->WholeExtent,6);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent, 6);
 
   outInfo->Set(vtkDataObject::SPACING(), 1.0, 1.0, 1.0);
-  outInfo->Set(vtkDataObject::ORIGIN(),  0.0, 0.0, 0.0);
+  outInfo->Set(vtkDataObject::ORIGIN(), 0.0, 0.0, 0.0);
 
-  vtkDataObject::SetPointDataActiveScalarInfo
-    (outInfo, this->ImageData->GetScalarType(),
-     this->ImageData->GetNumberOfScalarComponents());
+  vtkDataObject::SetPointDataActiveScalarInfo(
+    outInfo, this->ImageData->GetScalarType(), this->ImageData->GetNumberOfScalarComponents());
   return 1;
 }
 
-//--------------------------------------------------------------------------
-int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
-                               vtkInformationVector** vtkNotUsed( inputVector ),
-                               vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // Get the data object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkImageData *output = vtkImageData::SafeDownCast
-    (outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Check some parameters before we start
-  if (this->FileName.size() == 0)
+  if (this->FileName.empty())
   {
-    vtkErrorMacro (<< "No FileName is set. Use SetFileName to set a file.");
+    vtkErrorMacro(<< "No FileName is set. Use SetFileName to set a file.");
     return 0;
   }
   if (!vtksys::SystemTools::FileExists(this->FileName, true))
-    {
-      vtkErrorMacro( << "FileName " << this->FileName << " does not exist");
-      return 0;
-    }
-  if (this->FontFileName.size() > 0 &&
-      !vtksys::SystemTools::FileExists(this->FontFileName, true))
-    {
-      vtkErrorMacro( << "FontFileName " << this->FontFileName << " does not exist");
-      return 0;
-    }
-  if (this->MaskFileName.size() > 0 &&
-      !vtksys::SystemTools::FileExists(this->MaskFileName, true))
-    {
-      vtkErrorMacro( << "MaskFileName " << this->MaskFileName << " does not exist");
-      return 0;
-    }
-  if (this->StopListFileName.size() > 0 &&
-      !vtksys::SystemTools::FileExists(this->StopListFileName, true))
-    {
-      vtkErrorMacro( << "StopListFileName " << this->StopListFileName << " does not exist");
-      return 0;
-    }
+  {
+    vtkErrorMacro(<< "FileName " << this->FileName << " does not exist");
+    return 0;
+  }
+  if (!this->FontFileName.empty() && !vtksys::SystemTools::FileExists(this->FontFileName, true))
+  {
+    vtkErrorMacro(<< "FontFileName " << this->FontFileName << " does not exist");
+    return 0;
+  }
+  if (!this->MaskFileName.empty() && !vtksys::SystemTools::FileExists(this->MaskFileName, true))
+  {
+    vtkErrorMacro(<< "MaskFileName " << this->MaskFileName << " does not exist");
+    return 0;
+  }
+  if (!this->StopListFileName.empty() &&
+    !vtksys::SystemTools::FileExists(this->StopListFileName, true))
+  {
+    vtkErrorMacro(<< "StopListFileName " << this->StopListFileName << " does not exist");
+    return 0;
+  }
   // Open the text file
-  std::ifstream t(this->FileName);
+  vtksys::ifstream t(this->FileName.c_str());
   std::stringstream buffer;
   buffer << t.rdbuf();
   std::string s = buffer.str();
@@ -220,7 +193,7 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
 
   // Sort the word by frequency
   std::multiset<std::pair<std::string, int>, ::Comparator> sortedWords =
-            ::FindWordsSortedByFrequency(s, this);
+    ::FindWordsSortedByFrequency(s, this);
 
   // Create a mask image
   auto colors = vtkSmartPointer<vtkNamedColors>::New();
@@ -228,17 +201,14 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
   auto maskImage = vtkSmartPointer<vtkImageData>::New();
 
   // If a mask file is not defined, create a rectangular
-  if (this->MaskFileName == "")
+  if (this->MaskFileName.empty())
   {
     auto defaultMask = vtkSmartPointer<vtkImageCanvasSource2D>::New();
     defaultMask->SetScalarTypeToUnsignedChar();
     defaultMask->SetNumberOfScalarComponents(3);
-    defaultMask->SetExtent(0, this->Sizes[0] - 1,
-                           0, this->Sizes[1] - 1,
-                           0, 0);
-    defaultMask->SetDrawColor(maskColor.GetData()[0],
-                              maskColor.GetData()[1],
-                              maskColor.GetData()[2]);
+    defaultMask->SetExtent(0, this->Sizes[0] - 1, 0, this->Sizes[1] - 1, 0, 0);
+    defaultMask->SetDrawColor(
+      maskColor.GetData()[0], maskColor.GetData()[1], maskColor.GetData()[2]);
     defaultMask->FillBox(0, this->Sizes[0] - 1, 0, this->Sizes[1] - 1);
     defaultMask->Update();
     maskImage = defaultMask->GetOutput();
@@ -248,12 +218,10 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
   else
   {
     // Read the mask file
-    auto readerFactory =
-      vtkSmartPointer<vtkImageReader2Factory>::New();
+    auto readerFactory = vtkSmartPointer<vtkImageReader2Factory>::New();
     vtkSmartPointer<vtkImageReader2> reader;
-    reader.TakeReference(
-      readerFactory->CreateImageReader2(this->MaskFileName.c_str()));
-      reader->SetFileName(this->MaskFileName.c_str());
+    reader.TakeReference(readerFactory->CreateImageReader2(this->MaskFileName.c_str()));
+    reader->SetFileName(this->MaskFileName.c_str());
     reader->Update();
     int dimensions[3];
     reader->GetOutput()->GetDimensions(dimensions);
@@ -262,14 +230,11 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
     auto resize = vtkSmartPointer<vtkImageResize>::New();
     resize->SetInputData(reader->GetOutput());
     resize->InterpolateOff();
-    double aspect =
-      static_cast<double>(dimensions[1]) / static_cast<double>(dimensions[0]) *
+    double aspect = static_cast<double>(dimensions[1]) / static_cast<double>(dimensions[0]) *
       static_cast<double>(this->Sizes[0]) / static_cast<double>(this->Sizes[1]);
     this->AdjustedSizes[0] = this->Sizes[0];
     this->AdjustedSizes[1] = aspect * this->Sizes[1];
-    resize->SetOutputDimensions(this->AdjustedSizes[0],
-                                this->AdjustedSizes[1],
-                                1);
+    resize->SetOutputDimensions(this->AdjustedSizes[0], this->AdjustedSizes[1], 1);
     // If the mask file has a single channel, create a 3-channel mask
     // image
     if (this->BWMask)
@@ -304,13 +269,13 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
 
   bool added;
   // Create a vector of orientations to try.
-  std::mt19937_64 mt(4355412); //Standard mersenne twister engine
+  std::mt19937_64 mt(4355412); // Standard mersenne twister engine
   for (auto element : sortedWords)
   {
     std::vector<double> orientations;
     // If discrete orientations are present use them, otherwise
     // generate random orientations
-    if (this->Orientations.size() != 0)
+    if (!this->Orientations.empty())
     {
       orientations = this->Orientations;
     }
@@ -323,18 +288,11 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
     std::shuffle(std::begin(orientations), std::end(orientations), mt);
     for (auto o : orientations)
     {
-      added = ::AddWordToFinal(
-        this,
-        element.first,
-        element.second,
-        mt,
-        o,
-        offset,
-        final,
-        errorMessage);
-      if (errorMessage.size() != 0)
+      added =
+        ::AddWordToFinal(this, element.first, element.second, mt, o, offset, final, errorMessage);
+      if (!errorMessage.empty())
       {
-        vtkErrorMacro( << errorMessage);
+        vtkErrorMacro(<< errorMessage);
         return 0;
       }
       if (added)
@@ -346,10 +304,8 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
       {
         std::string skippedWord;
         skippedWord.resize((element.first).size());
-        std::transform((element.first).begin(),
-                       (element.first).end(),
-                       skippedWord.begin(),
-                       ::tolower);
+        std::transform(
+          (element.first).begin(), (element.first).end(), skippedWord.begin(), ::tolower);
 
         this->GetSkippedWords().push_back(skippedWord);
       }
@@ -363,30 +319,28 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
 
   // Remove duplicates in generated word vectors.
   std::sort(this->StoppedWords.begin(), this->StoppedWords.end());
-  this->StoppedWords.erase(std::unique(this->StoppedWords.begin(),
-                                       this->StoppedWords.end()),
-                           this->StoppedWords.end());
+  this->StoppedWords.erase(
+    std::unique(this->StoppedWords.begin(), this->StoppedWords.end()), this->StoppedWords.end());
   std::sort(this->SkippedWords.begin(), this->SkippedWords.end());
-  this->SkippedWords.erase(std::unique(this->SkippedWords.begin(),
-                                       this->SkippedWords.end()),
-                           this->SkippedWords.end());
+  this->SkippedWords.erase(
+    std::unique(this->SkippedWords.begin(), this->SkippedWords.end()), this->SkippedWords.end());
   std::sort(this->KeptWords.begin(), this->KeptWords.end());
-  this->KeptWords.erase(std::unique(this->KeptWords.begin(),
-                                    this->KeptWords.end()),
-                           this->KeptWords.end());
+  this->KeptWords.erase(
+    std::unique(this->KeptWords.begin(), this->KeptWords.end()), this->KeptWords.end());
 
   return 1;
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWordCloud::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << "  BackgroundColorName: " << this->GetBackgroundColorName() << std::endl;
   os << "  BWMask: " << (this->GetBWMask() ? "true" : "false") << std::endl;
-  os << "  ColorDistribution: " << this->GetColorDistribution()[0] << " " << this->GetColorDistribution()[1] << std::endl;
-  os << "  ColorSchemeName: " <<  this->GetColorSchemeName() << std::endl;
+  os << "  ColorDistribution: " << this->GetColorDistribution()[0] << " "
+     << this->GetColorDistribution()[1] << std::endl;
+  os << "  ColorSchemeName: " << this->GetColorSchemeName() << std::endl;
   os << "  DPI: " << this->GetDPI() << std::endl;
   os << "  FontFileName: " << this->GetFontFileName() << std::endl;
   os << "  FontMultiplier: " << this->GetFontMultiplier() << std::endl;
@@ -396,11 +350,9 @@ void vtkWordCloud::PrintSelf(ostream& os, vtkIndent indent)
   os << "  MinFontSize: " << this->GetMinFontSize() << std::endl;
   os << "  MaxFontSize: " << this->GetMaxFontSize() << std::endl;
   os << "  MinFrequency: " << this->GetMinFrequency() << std::endl;
-  os << "  OffsetDistribution: "
-     << this->GetOffsetDistribution()[0] << " "
+  os << "  OffsetDistribution: " << this->GetOffsetDistribution()[0] << " "
      << this->GetOffsetDistribution()[1] << std::endl;
-  os << "  OrientationDistribution: "
-     << this->GetOrientationDistribution()[0] << " "
+  os << "  OrientationDistribution: " << this->GetOrientationDistribution()[0] << " "
      << this->GetOrientationDistribution()[1] << std::endl;
   os << "  Orientations: ";
   for (auto o : this->Orientations)
@@ -414,11 +366,9 @@ void vtkWordCloud::PrintSelf(ostream& os, vtkIndent indent)
     os << std::get<0>(p) << "->" << std::get<1>(p) << " ";
   }
   os << std::endl;
-  os << "  Sizes: "
-     << this->GetSizes()[0] << " "
-     << this->GetSizes()[1] << std::endl;
+  os << "  Sizes: " << this->GetSizes()[0] << " " << this->GetSizes()[1] << std::endl;
   os << "  StopWords: ";
-  for (auto s : this->GetStopWords())
+  for (const auto& s : this->GetStopWords())
   {
     os << s << " ";
   }
@@ -431,14 +381,15 @@ void vtkWordCloud::PrintSelf(ostream& os, vtkIndent indent)
 
 namespace
 {
-std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequency(std::string &s, vtkWordCloud *wordCloud)
+std::multiset<std::pair<std::string, int>, Comparator> FindWordsSortedByFrequency(
+  std::string& s, vtkWordCloud* wordCloud)
 {
   // Create a stop list
   vtkWordCloud::StopWordsContainer stopList;
 
   // If a StopListFileName is defined, use it, otherwise use the
   // built-in StopList.
-  if (wordCloud->GetStopListFileName().size() > 0)
+  if (!wordCloud->GetStopListFileName().empty())
   {
     CreateStopListFromFile(wordCloud->GetStopListFileName(), stopList);
   }
@@ -448,7 +399,7 @@ std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequen
   }
 
   // Add user stop words
-  for (auto stop : wordCloud->GetStopWords())
+  for (const auto& stop : wordCloud->GetStopWords())
   {
     stopList.insert(stop);
   }
@@ -502,23 +453,21 @@ std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequen
     if (w.size() > N)
     {
       // Raise the case of the first letter in the word
-      std::transform(w.begin(), w.begin() + 1,
-                     w.begin(), ::toupper);
+      std::transform(w.begin(), w.begin() + 1, w.begin(), ::toupper);
       wordContainer[w]++;
     }
   }
 
   // Defining a lambda function to compare two pairs. It will compare
   // two pairs using second field
-  Comparator compFunctor =
-    [](const std::pair<std::string, int>& elem1 ,const std::pair<std::string, int>& elem2)
+  Comparator compFunctor = [](const std::pair<std::string, int>& elem1,
+                             const std::pair<std::string, int>& elem2) {
+    if (elem1.second == elem2.second)
     {
-      if (elem1.second == elem2.second)
-      {
-        return elem1.first.length() > elem2.first.length();
-      }
-      return elem1.second  > elem2.second;
-    };
+      return elem1.first.length() > elem2.first.length();
+    }
+    return elem1.second > elem2.second;
+  };
 
   // Declaring a multiset that will store the pairs using above
   // comparison logic
@@ -528,8 +477,7 @@ std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequen
 }
 
 void AddReplacementPairsToStopList(
-  vtkWordCloud * wordCloud,
-  vtkWordCloud::StopWordsContainer & stopList)
+  vtkWordCloud* wordCloud, vtkWordCloud::StopWordsContainer& stopList)
 {
   for (auto p : wordCloud->GetReplacementPairs())
   {
@@ -545,21 +493,16 @@ void AddReplacementPairsToStopList(
     ::ExtractWordsFromString(to, words);
 
     // Add each replacement to the stop list
-    for (auto w : words)
+    for (const auto& w : words)
     {
       stopList.insert(w);
     }
   }
 }
 
-bool AddWordToFinal(vtkWordCloud *wordCloud,
-                    const std::string word,
-                    const int frequency,
-                    std::mt19937_64 &mt,
-                    double orientation,
-                    std::vector<ExtentOffset> &offset,
-                    vtkImageBlend *final,
-                    std::string &errorMessage)
+bool AddWordToFinal(vtkWordCloud* wordCloud, std::string word, int frequency, std::mt19937_64& mt,
+  double orientation, std::vector<ExtentOffset>& offset, vtkImageBlend* final,
+  std::string& errorMessage)
 {
   // Skip words below MinFrequency
   if (frequency < wordCloud->GetMinFrequency())
@@ -584,21 +527,17 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
     colorScheme->SetColorSchemeByName(wordCloud->GetColorSchemeName());
     vtkColor3ub color =
       colorScheme->GetColorRepeating(static_cast<int>(wordCloud->GetKeptWords().size()));
-    if (color.Compare(colors->GetColor3ub("black"), 1) && wordCloud->GetKeptWords().size() == 0)
-      {
-        std::ostringstream validNames;
-        ShowColorSeriesNames(validNames);
-        std::ostringstream message;
-        message << "The color scheme "
-                << wordCloud->GetColorSchemeName()
-                << " does not exist.\n"
-                << validNames.str();
-        errorMessage = message.str();
-      }
-    textProperty->SetColor(
-      static_cast<double>(color.GetRed()) / 255.0,
-      static_cast<double>(color.GetGreen()) /  255.0,
-      static_cast<double>(color.GetBlue()) /  255.0);
+    if (color.Compare(colors->GetColor3ub("black"), 1) && wordCloud->GetKeptWords().empty())
+    {
+      std::ostringstream validNames;
+      ShowColorSeriesNames(validNames);
+      std::ostringstream message;
+      message << "The color scheme " << wordCloud->GetColorSchemeName() << " does not exist.\n"
+              << validNames.str();
+      errorMessage = message.str();
+    }
+    textProperty->SetColor(static_cast<double>(color.GetRed()) / 255.0,
+      static_cast<double>(color.GetGreen()) / 255.0, static_cast<double>(color.GetBlue()) / 255.0);
   }
   else
   {
@@ -631,7 +570,7 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
   }
   if (frequency == 1000)
   {
-    fontSize *= 1.2;;
+    fontSize *= 1.2;
   }
   textProperty->SetFontSize(fontSize);
   textProperty->SetOrientation(orientation);
@@ -646,29 +585,23 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
   // For each string, create an image and see if it overlaps with other images,
   // if so, skip it
   // Create an image of the string
-  vtkFreeTypeTools *freeType = vtkFreeTypeTools::GetInstance();
+  vtkFreeTypeTools* freeType = vtkFreeTypeTools::GetInstance();
   freeType->ScaleToPowerTwoOff();
 
   auto textImage = vtkSmartPointer<vtkImageData>::New();
-  freeType->RenderString(textProperty,
-                         spaces + word + spaces,
-                         wordCloud->GetDPI(),
-                         textImage.GetPointer());
+  freeType->RenderString(
+    textProperty, spaces + word + spaces, wordCloud->GetDPI(), textImage.GetPointer());
 
   // Set the extent of the text image
   std::array<int, 4> bb;
-  freeType->GetBoundingBox(textProperty,
-                           spaces + word + spaces,
-                           wordCloud->GetDPI(),
-                           bb.data());
+  freeType->GetBoundingBox(textProperty, spaces + word + spaces, wordCloud->GetDPI(), bb.data());
   vtkColor3ub maskColor = colors->GetColor3ub(wordCloud->GetMaskColorName().c_str());
   unsigned char maskR = maskColor.GetData()[0];
   unsigned char maskG = maskColor.GetData()[1];
   unsigned char maskB = maskColor.GetData()[2];
 
   std::uniform_real_distribution<> offsetDist(
-    wordCloud->GetOffsetDistribution()[0],
-    wordCloud->GetOffsetDistribution()[1]);
+    wordCloud->GetOffsetDistribution()[0], wordCloud->GetOffsetDistribution()[1]);
 
   for (auto of : offset)
   {
@@ -676,23 +609,21 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
     int offsetY = of.y + offsetDist(mt);
     // Make sure the text image will fit on the final image
     if (offsetX + bb[1] - bb[0] < wordCloud->GetAdjustedSizes()[0] - 1 &&
-        offsetY + bb[3] - bb[2] < wordCloud->GetAdjustedSizes()[1] - 1 &&
-        offsetX >= 0 && offsetY >= 0)
+      offsetY + bb[3] - bb[2] < wordCloud->GetAdjustedSizes()[1] - 1 && offsetX >= 0 &&
+      offsetY >= 0)
     {
-      textImage->SetExtent(offsetX, offsetX + bb[1] - bb[0],
-                           offsetY, offsetY + bb[3] - bb[2],
-                           0, 0);
+      textImage->SetExtent(
+        offsetX, offsetX + bb[1] - bb[0], offsetY, offsetY + bb[3] - bb[2], 0, 0);
       auto image = vtkSmartPointer<vtkImageData>::New();
       final->Update();
 
       // Does the text image overlap with images on the final image
-      vtkImageIterator<unsigned char> finalIt(final->GetOutput(),
-                                              textImage->GetExtent());
+      vtkImageIterator<unsigned char> finalIt(final->GetOutput(), textImage->GetExtent());
       bool good = true;
-      while( !finalIt.IsAtEnd())
+      while (!finalIt.IsAtEnd())
       {
         auto finalSpan = finalIt.BeginSpan();
-        while(finalSpan != finalIt.EndSpan())
+        while (finalSpan != finalIt.EndSpan())
         {
           unsigned char R, G, B;
           R = *finalSpan++;
@@ -722,66 +653,61 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
   return false;
 }
 
-void ArchimedesSpiral(std::vector<ExtentOffset> &offset, vtkWordCloud::SizesContainer &sizes)
+void ArchimedesSpiral(std::vector<ExtentOffset>& offset, vtkWordCloud::SizesContainer& sizes)
 {
-   const int centerX = sizes[0] / 2.0;
-   const int centerY = sizes[1] / 2.0;
+  const int centerX = sizes[0] / 2.0;
+  const int centerY = sizes[1] / 2.0;
 
-   const std::size_t N = 10000;
-   constexpr auto pi = 3.141592653589793238462643383279502884L; /* pi */
-   const double deltaAngle = pi * 20 / N;
-   double maxX = -1000.0;
-   double minX = 1000.0;
-   double maxY = -1000.0;
-   double minY = 1000.0;
-   double range = -1000;
-   double e = sizes[0] / sizes[1];
-   std::vector<ArchimedesValue> archimedes;
-   for (std::size_t i = 0; i < N; i += 10)
-   {
-     double x, y;
-     double angle = deltaAngle * i;
-     x = e * angle * std::cos(angle);
-     y = e * angle * std::sin(angle);
-     archimedes.push_back(ArchimedesValue(x, y));
-     maxX = std::max(maxX, x);
-     minX = std::min(minX, x);
-     maxY = std::max(maxY, y);
-     minY = std::min(minY, y);
-     range = std::max(maxX - minX, maxY - minY);
-   }
-   double scaleX = 1.0 / range * sizes[0];
-   for (auto ar : archimedes)
-   {
-     if (ar.x * scaleX + centerX - 50 < 0
-         || ar.y * scaleX + centerY  < 0) continue;
-     offset.push_back(ExtentOffset(ar.x * scaleX + centerX - 50,
-                                   ar.y * scaleX + centerY));
-   }
+  const std::size_t N = 10000;
+  constexpr auto pi = 3.141592653589793238462643383279502884L; /* pi */
+  const double deltaAngle = pi * 20 / N;
+  double maxX = -1000.0;
+  double minX = 1000.0;
+  double maxY = -1000.0;
+  double minY = 1000.0;
+  double range = -1000;
+  double e = sizes[0] / sizes[1];
+  std::vector<ArchimedesValue> archimedes;
+  for (std::size_t i = 0; i < N; i += 10)
+  {
+    double x, y;
+    double angle = deltaAngle * i;
+    x = e * angle * std::cos(angle);
+    y = e * angle * std::sin(angle);
+    archimedes.emplace_back(x, y);
+    maxX = std::max(maxX, x);
+    minX = std::min(minX, x);
+    maxY = std::max(maxY, y);
+    minY = std::min(minY, y);
+    range = std::max(maxX - minX, maxY - minY);
+  }
+  double scaleX = 1.0 / range * sizes[0];
+  for (auto ar : archimedes)
+  {
+    if (ar.x * scaleX + centerX - 50 < 0 || ar.y * scaleX + centerY < 0)
+      continue;
+    offset.emplace_back(ar.x * scaleX + centerX - 50, ar.y * scaleX + centerY);
+  }
 }
-void ReplaceMaskColorWithBackgroundColor(
-  vtkImageData* finalImage, vtkWordCloud* wordCloud)
+void ReplaceMaskColorWithBackgroundColor(vtkImageData* finalImage, vtkWordCloud* wordCloud)
 {
   auto colors = vtkSmartPointer<vtkNamedColors>::New();
 
-  vtkColor3ub backgroundColor =
-    colors->GetColor3ub(wordCloud->GetBackgroundColorName().c_str());
+  vtkColor3ub backgroundColor = colors->GetColor3ub(wordCloud->GetBackgroundColorName().c_str());
   unsigned char bkgR = backgroundColor.GetData()[0];
   unsigned char bkgG = backgroundColor.GetData()[1];
   unsigned char bkgB = backgroundColor.GetData()[2];
 
-  vtkColor3ub maskColor =
-    colors->GetColor3ub(wordCloud->GetMaskColorName().c_str());
+  vtkColor3ub maskColor = colors->GetColor3ub(wordCloud->GetMaskColorName().c_str());
   unsigned char maskR = maskColor.GetData()[0];
   unsigned char maskG = maskColor.GetData()[1];
   unsigned char maskB = maskColor.GetData()[2];
 
-  vtkImageIterator<unsigned char> finalIt(finalImage,
-                                          finalImage->GetExtent());
-  while( !finalIt.IsAtEnd())
+  vtkImageIterator<unsigned char> finalIt(finalImage, finalImage->GetExtent());
+  while (!finalIt.IsAtEnd())
   {
     auto finalSpan = finalIt.BeginSpan();
-    while(finalSpan != finalIt.EndSpan())
+    while (finalSpan != finalIt.EndSpan())
     {
       unsigned char R, G, B;
       R = *finalSpan;
@@ -802,7 +728,7 @@ void ReplaceMaskColorWithBackgroundColor(
       }
       finalSpan += 3;
     }
-  finalIt.NextSpan();
+    finalIt.NextSpan();
   }
 }
 
@@ -817,9 +743,9 @@ void ShowColorSeriesNames(ostream& os)
   }
 }
 
-void CreateStopListFromFile(std::string fileName, vtkWordCloud::StopWordsContainer &stopList)
+void CreateStopListFromFile(std::string fileName, vtkWordCloud::StopWordsContainer& stopList)
 {
-  std::ifstream t(fileName);
+  vtksys::ifstream t(fileName.c_str());
   std::stringstream buffer;
   buffer << t.rdbuf();
   std::string s = buffer.str();
@@ -828,703 +754,107 @@ void CreateStopListFromFile(std::string fileName, vtkWordCloud::StopWordsContain
   // Extract words
   std::vector<std::string> words;
   ::ExtractWordsFromString(s, words);
-  for (auto w : words)
+  for (const auto& w : words)
   {
     stopList.insert(w);
   }
 }
 
-void ExtractWordsFromString(std::string &str,
-                            std::vector<std::string> &words)
+void ExtractWordsFromString(std::string& str, std::vector<std::string>& words)
 {
 #ifdef HAS_STD_REGEX
   std::regex wordRegex("(\\w+)");
-  auto wordsBegin =
-    std::sregex_iterator(str.begin(), str.end(), wordRegex);
+  auto wordsBegin = std::sregex_iterator(str.begin(), str.end(), wordRegex);
   auto wordsEnd = std::sregex_iterator();
   for (auto i = wordsBegin; i != wordsEnd; ++i)
   {
     words.push_back((*i).str());
   }
-  return;
 #else
   vtksys::RegularExpression re("([0-9A-Za-z]+)");
   size_t next = 0;
   while (re.find(str.substr(next)))
-    {
+  {
     words.push_back(str.substr(next + re.start(), re.end() - re.start()));
-    next +=  re.end();
-    }
-  return;
+    next += re.end();
+  }
 #endif
 }
 
-void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer &stopList)
+const char* const stop_words[] = { "a", "able", "about", "above", "abst", "accordance", "according",
+  "accordingly", "across", "act", "actually", "added", "adj", "affected", "affecting", "affects",
+  "after", "afterwards", "again", "against", "ah", "all", "almost", "alone", "along", "already",
+  "also", "although", "always", "am", "among", "amongst", "an", "and", "announce", "another", "any",
+  "anybody", "anyhow", "anymore", "anyone", "anything", "anyway", "anyways", "anywhere",
+  "apparently", "approximately", "are", "aren", "arent", "arise", "around", "as", "aside", "ask",
+  "asking", "at", "auth", "available", "away", "awfully", "b", "back", "be", "became", "because",
+  "become", "becomes", "becoming", "been", "before", "beforehand", "begin", "beginning",
+  "beginnings", "begins", "behind", "being", "believe", "below", "beside", "besides", "between",
+  "beyond", "biol", "both", "brief", "briefly", "but", "by", "c", "ca", "came", "can", "cannot",
+  "can't", "cause", "causes", "certain", "certainly", "co", "com", "come", "comes", "contain",
+  "containing", "contains", "could", "couldnt", "cum", "d", "date", "did", "didn't", "different",
+  "do", "does", "doesn't", "doing", "done", "don't", "down", "downwards", "due", "dr", "during",
+  "e", "each", "ed", "edu", "effect", "eg", "eight", "eighty", "either", "else", "elsewhere", "end",
+  "ending", "enough", "especially", "et", "et-al", "etc", "even", "ever", "every", "everybody",
+  "everyone", "everything", "everywhere", "ex", "except", "f", "far", "few", "ff", "fifth", "first",
+  "five", "fix", "followed", "following", "follows", "for", "former", "formerly", "forth", "found",
+  "four", "from", "further", "furthermore", "g", "gave", "get", "gets", "getting", "give", "given",
+  "gives", "giving", "go", "goes", "gone", "got", "gotten", "h", "had", "happens", "hardly", "has",
+  "hasn", "have", "haven", "having", "he", "hed", "hence", "her", "here", "hereafter", "hereby",
+  "herein", "heres", "hereupon", "hers", "herself", "hes", "hi", "hid", "him", "himself", "his",
+  "hither", "home", "how", "howbeit", "however", "hundred", "i", "id", "ie", "if", "im",
+  "immediate", "immediately", "importance", "important", "in", "inc", "indeed", "index",
+  "information", "instead", "into", "invention", "inward", "is", "isn", "it", "itd", "it", "its",
+  "itself", "j", "jr", "just", "k", "keep", "keeps", "kept", "kg", "km", "know", "known", "knows",
+  "l", "largely", "last", "lately", "later", "latter", "latterly", "laude", "least", "less", "lest",
+  "let", "lets", "like", "liked", "likely", "line", "little", "ll", "look", "looking", "looks",
+  "ltd", "m", "made", "mainly", "make", "makes", "many", "may", "maybe", "me", "mean", "means",
+  "meantime", "meanwhile", "merely", "met", "mg", "mic", "might", "million", "miss", "ml", "more",
+  "moreover", "most", "mostly", "mr", "mrs", "much", "mug", "must", "my", "myself", "n", "na",
+  "name", "namely", "nay", "nd", "near", "nearly", "necessarily", "necessary", "need", "needs",
+  "neither", "never", "nevertheless", "new", "next", "nine", "ninety", "no", "nobody", "non",
+  "none", "nonetheless", "noone", "nor", "normally", "nos", "not", "noted", "nothing", "now",
+  "nowhere", "o", "obtain", "obtained", "obviously", "of", "off", "often", "oh", "ok", "okay",
+  "old", "omitted", "on", "once", "one", "ones", "only", "onto", "or", "ord", "org", "other",
+  "others", "otherwise", "ought", "our", "ours", "ourselves", "out", "outside", "over", "overall",
+  "owing", "own", "p", "page", "pages", "part", "particular", "particularly", "past", "per",
+  "perhaps", "ph", "placed", "please", "plus", "poorly", "possible", "possibly", "potentially",
+  "pp", "predominantly", "present", "previously", "primarily", "probably", "promptly", "proud",
+  "provides", "put", "q", "que", "quickly", "quite", "qv", "r", "ran", "rather", "rd", "re",
+  "readily", "really", "recent", "recently", "ref", "refs", "regarding", "regardless", "regards",
+  "related", "relatively", "research", "respectively", "resulted", "resulting", "results", "right",
+  "run", "s", "said", "same", "saw", "sat", "say", "saying", "says", "sec", "section", "see",
+  "seeing", "seem", "seemed", "seeming", "seems", "seen", "self", "selves", "sent", "seven",
+  "several", "shall", "she", "shed", "shes", "should", "shouldn", "show", "showed", "shown",
+  "showns", "shows", "significant", "significantly", "similar", "similarly", "since", "six",
+  "slightly", "so", "some", "somebody", "somehow", "someone", "somethan", "something", "sometime",
+  "sometimes", "somewhat", "somewhere", "soon", "sorry", "specifically", "specified", "specify",
+  "specifying", "still", "stop", "strongly", "sub", "substantially", "successfully", "such",
+  "sufficiently", "suggest", "sup", "sure", "t", "take", "taken", "taking", "tell", "tends", "th",
+  "than", "thank", "thanks", "thanx", "that", "thats", "the", "their", "theirs", "them",
+  "themselves", "then", "thence", "there", "thereafter", "thereby", "thered", "therefore",
+  "therein", "thereof", "therere", "theres", "thereto", "thereupon", "these", "they", "theyd",
+  "theyre", "think", "this", "those", "thou", "though", "thoughh", "thousand", "throug", "through",
+  "throughout", "thru", "thus", "til", "tip", "to", "together", "too", "took", "toward", "towards",
+  "tried", "tries", "truly", "try", "trying", "ts", "twice", "two", "u", "un", "under",
+  "unfortunately", "unless", "unlike", "unlikely", "until", "unto", "up", "upon", "ups", "us",
+  "use", "used", "useful", "usefully", "usefulness", "uses", "using", "usually", "v", "value",
+  "various", "ve", "very", "via", "viz", "vol", "vols", "vs", "w", "want", "wants", "was", "wasnt",
+  "wasnt", "way", "we", "wed", "welcome", "went", "were", "werent", "what", "whatever", "whats",
+  "when", "whence", "whenever", "where", "whereafter", "whereas", "whereby", "wherein", "wheres",
+  "whereupon", "wherever", "whether", "which", "while", "whim", "whither", "who", "whod", "whoever",
+  "whole", "whom", "whomever", "whos", "whose", "why", "widely", "will", "willing", "wish", "with",
+  "within", "without", "wont", "words", "world", "would", "wouldnt", "www", "x", "y", "yes", "yet",
+  "you", "youd", "your", "youre", "yours", "yourself", "yourselves", "z", "zero" };
+
+void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer& stopList)
 {
-  stopList.insert("a");
-  stopList.insert("able");
-  stopList.insert("about");
-  stopList.insert("above");
-  stopList.insert("abst");
-  stopList.insert("accordance");
-  stopList.insert("according");
-  stopList.insert("accordingly");
-  stopList.insert("across");
-  stopList.insert("act");
-  stopList.insert("actually");
-  stopList.insert("added");
-  stopList.insert("adj");
-  stopList.insert("affected");
-  stopList.insert("affecting");
-  stopList.insert("affects");
-  stopList.insert("after");
-  stopList.insert("afterwards");
-  stopList.insert("again");
-  stopList.insert("against");
-  stopList.insert("ah");
-  stopList.insert("all");
-  stopList.insert("almost");
-  stopList.insert("alone");
-  stopList.insert("along");
-  stopList.insert("already");
-  stopList.insert("also");
-  stopList.insert("although");
-  stopList.insert("always");
-  stopList.insert("am");
-  stopList.insert("among");
-  stopList.insert("amongst");
-  stopList.insert("an");
-  stopList.insert("and");
-  stopList.insert("announce");
-  stopList.insert("another");
-  stopList.insert("any");
-  stopList.insert("anybody");
-  stopList.insert("anyhow");
-  stopList.insert("anymore");
-  stopList.insert("anyone");
-  stopList.insert("anything");
-  stopList.insert("anyway");
-  stopList.insert("anyways");
-  stopList.insert("anywhere");
-  stopList.insert("apparently");
-  stopList.insert("approximately");
-  stopList.insert("are");
-  stopList.insert("aren");
-  stopList.insert("arent");
-  stopList.insert("arise");
-  stopList.insert("around");
-  stopList.insert("as");
-  stopList.insert("aside");
-  stopList.insert("ask");
-  stopList.insert("asking");
-  stopList.insert("at");
-  stopList.insert("auth");
-  stopList.insert("available");
-  stopList.insert("away");
-  stopList.insert("awfully");
-  stopList.insert("b");
-  stopList.insert("back");
-  stopList.insert("be");
-  stopList.insert("became");
-  stopList.insert("because");
-  stopList.insert("become");
-  stopList.insert("becomes");
-  stopList.insert("becoming");
-  stopList.insert("been");
-  stopList.insert("before");
-  stopList.insert("beforehand");
-  stopList.insert("begin");
-  stopList.insert("beginning");
-  stopList.insert("beginnings");
-  stopList.insert("begins");
-  stopList.insert("behind");
-  stopList.insert("being");
-  stopList.insert("believe");
-  stopList.insert("below");
-  stopList.insert("beside");
-  stopList.insert("besides");
-  stopList.insert("between");
-  stopList.insert("beyond");
-  stopList.insert("biol");
-  stopList.insert("both");
-  stopList.insert("brief");
-  stopList.insert("briefly");
-  stopList.insert("but");
-  stopList.insert("by");
-  stopList.insert("c");
-  stopList.insert("ca");
-  stopList.insert("came");
-  stopList.insert("can");
-  stopList.insert("cannot");
-  stopList.insert("can't");
-  stopList.insert("cause");
-  stopList.insert("causes");
-  stopList.insert("certain");
-  stopList.insert("certainly");
-  stopList.insert("co");
-  stopList.insert("com");
-  stopList.insert("come");
-  stopList.insert("comes");
-  stopList.insert("contain");
-  stopList.insert("containing");
-  stopList.insert("contains");
-  stopList.insert("could");
-  stopList.insert("couldnt");
-  stopList.insert("cum");
-  stopList.insert("d");
-  stopList.insert("date");
-  stopList.insert("did");
-  stopList.insert("didn't");
-  stopList.insert("different");
-  stopList.insert("do");
-  stopList.insert("does");
-  stopList.insert("doesn't");
-  stopList.insert("doing");
-  stopList.insert("done");
-  stopList.insert("don't");
-  stopList.insert("down");
-  stopList.insert("downwards");
-  stopList.insert("due");
-  stopList.insert("dr");
-  stopList.insert("during");
-  stopList.insert("e");
-  stopList.insert("each");
-  stopList.insert("ed");
-  stopList.insert("edu");
-  stopList.insert("effect");
-  stopList.insert("eg");
-  stopList.insert("eight");
-  stopList.insert("eighty");
-  stopList.insert("either");
-  stopList.insert("else");
-  stopList.insert("elsewhere");
-  stopList.insert("end");
-  stopList.insert("ending");
-  stopList.insert("enough");
-  stopList.insert("especially");
-  stopList.insert("et");
-  stopList.insert("et-al");
-  stopList.insert("etc");
-  stopList.insert("even");
-  stopList.insert("ever");
-  stopList.insert("every");
-  stopList.insert("everybody");
-  stopList.insert("everyone");
-  stopList.insert("everything");
-  stopList.insert("everywhere");
-  stopList.insert("ex");
-  stopList.insert("except");
-  stopList.insert("f");
-  stopList.insert("far");
-  stopList.insert("few");
-  stopList.insert("ff");
-  stopList.insert("fifth");
-  stopList.insert("first");
-  stopList.insert("five");
-  stopList.insert("fix");
-  stopList.insert("followed");
-  stopList.insert("following");
-  stopList.insert("follows");
-  stopList.insert("for");
-  stopList.insert("former");
-  stopList.insert("formerly");
-  stopList.insert("forth");
-  stopList.insert("found");
-  stopList.insert("four");
-  stopList.insert("from");
-  stopList.insert("further");
-  stopList.insert("furthermore");
-  stopList.insert("g");
-  stopList.insert("gave");
-  stopList.insert("get");
-  stopList.insert("gets");
-  stopList.insert("getting");
-  stopList.insert("give");
-  stopList.insert("given");
-  stopList.insert("gives");
-  stopList.insert("giving");
-  stopList.insert("go");
-  stopList.insert("goes");
-  stopList.insert("gone");
-  stopList.insert("got");
-  stopList.insert("gotten");
-  stopList.insert("h");
-  stopList.insert("had");
-  stopList.insert("happens");
-  stopList.insert("hardly");
-  stopList.insert("has");
-  stopList.insert("hasn");
-  stopList.insert("have");
-  stopList.insert("haven");
-  stopList.insert("having");
-  stopList.insert("he");
-  stopList.insert("hed");
-  stopList.insert("hence");
-  stopList.insert("her");
-  stopList.insert("here");
-  stopList.insert("hereafter");
-  stopList.insert("hereby");
-  stopList.insert("herein");
-  stopList.insert("heres");
-  stopList.insert("hereupon");
-  stopList.insert("hers");
-  stopList.insert("herself");
-  stopList.insert("hes");
-  stopList.insert("hi");
-  stopList.insert("hid");
-  stopList.insert("him");
-  stopList.insert("himself");
-  stopList.insert("his");
-  stopList.insert("hither");
-  stopList.insert("home");
-  stopList.insert("how");
-  stopList.insert("howbeit");
-  stopList.insert("however");
-  stopList.insert("hundred");
-  stopList.insert("i");
-  stopList.insert("id");
-  stopList.insert("ie");
-  stopList.insert("if");
-  stopList.insert("im");
-  stopList.insert("immediate");
-  stopList.insert("immediately");
-  stopList.insert("importance");
-  stopList.insert("important");
-  stopList.insert("in");
-  stopList.insert("inc");
-  stopList.insert("indeed");
-  stopList.insert("index");
-  stopList.insert("information");
-  stopList.insert("instead");
-  stopList.insert("into");
-  stopList.insert("invention");
-  stopList.insert("inward");
-  stopList.insert("is");
-  stopList.insert("isn");
-  stopList.insert("it");
-  stopList.insert("itd");
-  stopList.insert("it");
-  stopList.insert("its");
-  stopList.insert("itself");
-  stopList.insert("j");
-  stopList.insert("jr");
-  stopList.insert("just");
-  stopList.insert("k");
-  stopList.insert("keep");
-  stopList.insert("keeps");
-  stopList.insert("kept");
-  stopList.insert("kg");
-  stopList.insert("km");
-  stopList.insert("know");
-  stopList.insert("known");
-  stopList.insert("knows");
-  stopList.insert("l");
-  stopList.insert("largely");
-  stopList.insert("last");
-  stopList.insert("lately");
-  stopList.insert("later");
-  stopList.insert("latter");
-  stopList.insert("latterly");
-  stopList.insert("laude");
-  stopList.insert("least");
-  stopList.insert("less");
-  stopList.insert("lest");
-  stopList.insert("let");
-  stopList.insert("lets");
-  stopList.insert("like");
-  stopList.insert("liked");
-  stopList.insert("likely");
-  stopList.insert("line");
-  stopList.insert("little");
-  stopList.insert("ll");
-  stopList.insert("look");
-  stopList.insert("looking");
-  stopList.insert("looks");
-  stopList.insert("ltd");
-  stopList.insert("m");
-  stopList.insert("made");
-  stopList.insert("mainly");
-  stopList.insert("make");
-  stopList.insert("makes");
-  stopList.insert("many");
-  stopList.insert("may");
-  stopList.insert("maybe");
-  stopList.insert("me");
-  stopList.insert("mean");
-  stopList.insert("means");
-  stopList.insert("meantime");
-  stopList.insert("meanwhile");
-  stopList.insert("merely");
-  stopList.insert("met");
-  stopList.insert("mg");
-  stopList.insert("mic");
-  stopList.insert("might");
-  stopList.insert("million");
-  stopList.insert("miss");
-  stopList.insert("ml");
-  stopList.insert("more");
-  stopList.insert("moreover");
-  stopList.insert("most");
-  stopList.insert("mostly");
-  stopList.insert("mr");
-  stopList.insert("mrs");
-  stopList.insert("much");
-  stopList.insert("mug");
-  stopList.insert("must");
-  stopList.insert("my");
-  stopList.insert("myself");
-  stopList.insert("n");
-  stopList.insert("na");
-  stopList.insert("name");
-  stopList.insert("namely");
-  stopList.insert("nay");
-  stopList.insert("nd");
-  stopList.insert("near");
-  stopList.insert("nearly");
-  stopList.insert("necessarily");
-  stopList.insert("necessary");
-  stopList.insert("need");
-  stopList.insert("needs");
-  stopList.insert("neither");
-  stopList.insert("never");
-  stopList.insert("nevertheless");
-  stopList.insert("new");
-  stopList.insert("next");
-  stopList.insert("nine");
-  stopList.insert("ninety");
-  stopList.insert("no");
-  stopList.insert("nobody");
-  stopList.insert("non");
-  stopList.insert("none");
-  stopList.insert("nonetheless");
-  stopList.insert("noone");
-  stopList.insert("nor");
-  stopList.insert("normally");
-  stopList.insert("nos");
-  stopList.insert("not");
-  stopList.insert("noted");
-  stopList.insert("nothing");
-  stopList.insert("now");
-  stopList.insert("nowhere");
-  stopList.insert("o");
-  stopList.insert("obtain");
-  stopList.insert("obtained");
-  stopList.insert("obviously");
-  stopList.insert("of");
-  stopList.insert("off");
-  stopList.insert("often");
-  stopList.insert("oh");
-  stopList.insert("ok");
-  stopList.insert("okay");
-  stopList.insert("old");
-  stopList.insert("omitted");
-  stopList.insert("on");
-  stopList.insert("once");
-  stopList.insert("one");
-  stopList.insert("ones");
-  stopList.insert("only");
-  stopList.insert("onto");
-  stopList.insert("or");
-  stopList.insert("ord");
-  stopList.insert("org");
-  stopList.insert("other");
-  stopList.insert("others");
-  stopList.insert("otherwise");
-  stopList.insert("ought");
-  stopList.insert("our");
-  stopList.insert("ours");
-  stopList.insert("ourselves");
-  stopList.insert("out");
-  stopList.insert("outside");
-  stopList.insert("over");
-  stopList.insert("overall");
-  stopList.insert("owing");
-  stopList.insert("own");
-  stopList.insert("p");
-  stopList.insert("page");
-  stopList.insert("pages");
-  stopList.insert("part");
-  stopList.insert("particular");
-  stopList.insert("particularly");
-  stopList.insert("past");
-  stopList.insert("per");
-  stopList.insert("perhaps");
-  stopList.insert("ph");
-  stopList.insert("placed");
-  stopList.insert("please");
-  stopList.insert("plus");
-  stopList.insert("poorly");
-  stopList.insert("possible");
-  stopList.insert("possibly");
-  stopList.insert("potentially");
-  stopList.insert("pp");
-  stopList.insert("predominantly");
-  stopList.insert("present");
-  stopList.insert("previously");
-  stopList.insert("primarily");
-  stopList.insert("probably");
-  stopList.insert("promptly");
-  stopList.insert("proud");
-  stopList.insert("provides");
-  stopList.insert("put");
-  stopList.insert("q");
-  stopList.insert("que");
-  stopList.insert("quickly");
-  stopList.insert("quite");
-  stopList.insert("qv");
-  stopList.insert("r");
-  stopList.insert("ran");
-  stopList.insert("rather");
-  stopList.insert("rd");
-  stopList.insert("re");
-  stopList.insert("readily");
-  stopList.insert("really");
-  stopList.insert("recent");
-  stopList.insert("recently");
-  stopList.insert("ref");
-  stopList.insert("refs");
-  stopList.insert("regarding");
-  stopList.insert("regardless");
-  stopList.insert("regards");
-  stopList.insert("related");
-  stopList.insert("relatively");
-  stopList.insert("research");
-  stopList.insert("respectively");
-  stopList.insert("resulted");
-  stopList.insert("resulting");
-  stopList.insert("results");
-  stopList.insert("right");
-  stopList.insert("run");
-  stopList.insert("s");
-  stopList.insert("said");
-  stopList.insert("same");
-  stopList.insert("saw");
-  stopList.insert("sat");
-  stopList.insert("say");
-  stopList.insert("saying");
-  stopList.insert("says");
-  stopList.insert("sec");
-  stopList.insert("section");
-  stopList.insert("see");
-  stopList.insert("seeing");
-  stopList.insert("seem");
-  stopList.insert("seemed");
-  stopList.insert("seeming");
-  stopList.insert("seems");
-  stopList.insert("seen");
-  stopList.insert("self");
-  stopList.insert("selves");
-  stopList.insert("sent");
-  stopList.insert("seven");
-  stopList.insert("several");
-  stopList.insert("shall");
-  stopList.insert("she");
-  stopList.insert("shed");
-  stopList.insert("shes");
-  stopList.insert("should");
-  stopList.insert("shouldn");
-  stopList.insert("show");
-  stopList.insert("showed");
-  stopList.insert("shown");
-  stopList.insert("showns");
-  stopList.insert("shows");
-  stopList.insert("significant");
-  stopList.insert("significantly");
-  stopList.insert("similar");
-  stopList.insert("similarly");
-  stopList.insert("since");
-  stopList.insert("six");
-  stopList.insert("slightly");
-  stopList.insert("so");
-  stopList.insert("some");
-  stopList.insert("somebody");
-  stopList.insert("somehow");
-  stopList.insert("someone");
-  stopList.insert("somethan");
-  stopList.insert("something");
-  stopList.insert("sometime");
-  stopList.insert("sometimes");
-  stopList.insert("somewhat");
-  stopList.insert("somewhere");
-  stopList.insert("soon");
-  stopList.insert("sorry");
-  stopList.insert("specifically");
-  stopList.insert("specified");
-  stopList.insert("specify");
-  stopList.insert("specifying");
-  stopList.insert("still");
-  stopList.insert("stop");
-  stopList.insert("strongly");
-  stopList.insert("sub");
-  stopList.insert("substantially");
-  stopList.insert("successfully");
-  stopList.insert("such");
-  stopList.insert("sufficiently");
-  stopList.insert("suggest");
-  stopList.insert("sup");
-  stopList.insert("sure");
-  stopList.insert("t");
-  stopList.insert("take");
-  stopList.insert("taken");
-  stopList.insert("taking");
-  stopList.insert("tell");
-  stopList.insert("tends");
-  stopList.insert("th");
-  stopList.insert("than");
-  stopList.insert("thank");
-  stopList.insert("thanks");
-  stopList.insert("thanx");
-  stopList.insert("that");
-  stopList.insert("thats");
-  stopList.insert("the");
-  stopList.insert("their");
-  stopList.insert("theirs");
-  stopList.insert("them");
-  stopList.insert("themselves");
-  stopList.insert("then");
-  stopList.insert("thence");
-  stopList.insert("there");
-  stopList.insert("thereafter");
-  stopList.insert("thereby");
-  stopList.insert("thered");
-  stopList.insert("therefore");
-  stopList.insert("therein");
-  stopList.insert("thereof");
-  stopList.insert("therere");
-  stopList.insert("theres");
-  stopList.insert("thereto");
-  stopList.insert("thereupon");
-  stopList.insert("these");
-  stopList.insert("they");
-  stopList.insert("theyd");
-  stopList.insert("theyre");
-  stopList.insert("think");
-  stopList.insert("this");
-  stopList.insert("those");
-  stopList.insert("thou");
-  stopList.insert("though");
-  stopList.insert("thoughh");
-  stopList.insert("thousand");
-  stopList.insert("throug");
-  stopList.insert("through");
-  stopList.insert("throughout");
-  stopList.insert("thru");
-  stopList.insert("thus");
-  stopList.insert("til");
-  stopList.insert("tip");
-  stopList.insert("to");
-  stopList.insert("together");
-  stopList.insert("too");
-  stopList.insert("took");
-  stopList.insert("toward");
-  stopList.insert("towards");
-  stopList.insert("tried");
-  stopList.insert("tries");
-  stopList.insert("truly");
-  stopList.insert("try");
-  stopList.insert("trying");
-  stopList.insert("ts");
-  stopList.insert("twice");
-  stopList.insert("two");
-  stopList.insert("u");
-  stopList.insert("un");
-  stopList.insert("under");
-  stopList.insert("unfortunately");
-  stopList.insert("unless");
-  stopList.insert("unlike");
-  stopList.insert("unlikely");
-  stopList.insert("until");
-  stopList.insert("unto");
-  stopList.insert("up");
-  stopList.insert("upon");
-  stopList.insert("ups");
-  stopList.insert("us");
-  stopList.insert("use");
-  stopList.insert("used");
-  stopList.insert("useful");
-  stopList.insert("usefully");
-  stopList.insert("usefulness");
-  stopList.insert("uses");
-  stopList.insert("using");
-  stopList.insert("usually");
-  stopList.insert("v");
-  stopList.insert("value");
-  stopList.insert("various");
-  stopList.insert("ve");
-  stopList.insert("very");
-  stopList.insert("via");
-  stopList.insert("viz");
-  stopList.insert("vol");
-  stopList.insert("vols");
-  stopList.insert("vs");
-  stopList.insert("w");
-  stopList.insert("want");
-  stopList.insert("wants");
-  stopList.insert("was");
-  stopList.insert("wasnt");
-  stopList.insert("wasnt");
-  stopList.insert("way");
-  stopList.insert("we");
-  stopList.insert("wed");
-  stopList.insert("welcome");
-  stopList.insert("went");
-  stopList.insert("were");
-  stopList.insert("werent");
-  stopList.insert("what");
-  stopList.insert("whatever");
-  stopList.insert("whats");
-  stopList.insert("when");
-  stopList.insert("whence");
-  stopList.insert("whenever");
-  stopList.insert("where");
-  stopList.insert("whereafter");
-  stopList.insert("whereas");
-  stopList.insert("whereby");
-  stopList.insert("wherein");
-  stopList.insert("wheres");
-  stopList.insert("whereupon");
-  stopList.insert("wherever");
-  stopList.insert("whether");
-  stopList.insert("which");
-  stopList.insert("while");
-  stopList.insert("whim");
-  stopList.insert("whither");
-  stopList.insert("who");
-  stopList.insert("whod");
-  stopList.insert("whoever");
-  stopList.insert("whole");
-  stopList.insert("whom");
-  stopList.insert("whomever");
-  stopList.insert("whos");
-  stopList.insert("whose");
-  stopList.insert("why");
-  stopList.insert("widely");
-  stopList.insert("will");
-  stopList.insert("willing");
-  stopList.insert("wish");
-  stopList.insert("with");
-  stopList.insert("within");
-  stopList.insert("without");
-  stopList.insert("wont");
-  stopList.insert("words");
-  stopList.insert("world");
-  stopList.insert("would");
-  stopList.insert("wouldnt");
-  stopList.insert("www");
-  stopList.insert("x");
-  stopList.insert("y");
-  stopList.insert("yes");
-  stopList.insert("yet");
-  stopList.insert("you");
-  stopList.insert("youd");
-  stopList.insert("your");
-  stopList.insert("youre");
-  stopList.insert("yours");
-  stopList.insert("yourself");
-  stopList.insert("yourselves");
-  stopList.insert("z");
-  stopList.insert("zero");
+  for (auto* word : stop_words)
+  {
+    stopList.insert(word);
+  }
 }
 }
 
 //  LocalWords:  FontFileName
+VTK_ABI_NAMESPACE_END

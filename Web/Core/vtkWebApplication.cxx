@@ -1,32 +1,18 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWebApplication.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebApplication.h"
 
 #include "vtkBase64Utilities.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkDataEncoder.h"
 #include "vtkImageData.h"
 #include "vtkJPEGWriter.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkObjectIdMap.h"
 #include "vtkPNGWriter.h"
-#include "vtkDataEncoder.h"
-#include "vtkWebInteractionEvent.h"
 #include "vtkPointData.h"
-#include "vtkRenderWindow.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
@@ -35,6 +21,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWebGLExporter.h"
 #include "vtkWebGLObject.h"
+#include "vtkWebInteractionEvent.h"
 #include "vtkWindowToImageFilter.h"
 
 #include <cassert>
@@ -42,6 +29,7 @@
 #include <map>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWebApplication::vtkInternals
 {
 public:
@@ -53,30 +41,37 @@ public:
     bool HasImagesBeingProcessed;
     vtkObject* ViewPointer;
     unsigned long ObserverId;
-    ImageCacheValueType() : NeedsRender(true), HasImagesBeingProcessed(false), ViewPointer(nullptr), ObserverId(0) { }
+    ImageCacheValueType()
+      : NeedsRender(true)
+      , HasImagesBeingProcessed(false)
+      , ViewPointer(nullptr)
+      , ObserverId(0)
+    {
+    }
 
     void SetListener(vtkObject* view)
     {
-      if(this->ViewPointer == view)
+      if (this->ViewPointer == view)
       {
         return;
       }
 
-      if(this->ViewPointer && this->ObserverId)
+      if (this->ViewPointer && this->ObserverId)
       {
         this->ViewPointer->RemoveObserver(this->ObserverId);
         this->ObserverId = 0;
       }
       this->ViewPointer = view;
-      if(this->ViewPointer)
+      if (this->ViewPointer)
       {
-        this->ObserverId = this->ViewPointer->AddObserver(vtkCommand::AnyEvent, this, &ImageCacheValueType::ViewEventListener);
+        this->ObserverId = this->ViewPointer->AddObserver(
+          vtkCommand::AnyEvent, this, &ImageCacheValueType::ViewEventListener);
       }
     }
 
     void RemoveListener(vtkObject* view)
     {
-      if(this->ViewPointer && this->ViewPointer == view && this->ObserverId)
+      if (this->ViewPointer && this->ViewPointer == view && this->ObserverId)
       {
         this->ViewPointer->RemoveObserver(this->ObserverId);
         this->ObserverId = 0;
@@ -84,15 +79,12 @@ public:
       }
     }
 
-    void ViewEventListener(vtkObject*, unsigned long, void*)
-    {
-      this->NeedsRender = true;
-    }
+    void ViewEventListener(vtkObject*, unsigned long, void*) { this->NeedsRender = true; }
   };
   typedef std::map<void*, ImageCacheValueType> ImageCacheType;
   ImageCacheType ImageCache;
 
-  typedef std::map<void*, unsigned int > ButtonStatesType;
+  typedef std::map<void*, unsigned int> ButtonStatesType;
   ButtonStatesType ButtonStates;
 
   vtkNew<vtkDataEncoder> Encoder;
@@ -100,69 +92,69 @@ public:
   // WebGL related struct
   struct WebGLObjCacheValue
   {
-    public:
-      int ObjIndex;
-      std::map<int, std::string> BinaryParts;
+  public:
+    int ObjIndex;
+    std::map<int, std::string> BinaryParts;
   };
   // map for <vtkWebGLExporter, <webgl-objID, WebGLObjCacheValue> >
   typedef std::map<std::string, WebGLObjCacheValue> WebGLObjId2IndexMap;
   std::map<vtkWebGLExporter*, WebGLObjId2IndexMap> WebGLExporterObjIdMap;
   // map for <vtkRenderWindow, vtkWebGLExporter>
-  std::map<vtkRenderWindow*, vtkSmartPointer<vtkWebGLExporter> > ViewWebGLMap;
+  std::map<vtkRenderWindow*, vtkSmartPointer<vtkWebGLExporter>> ViewWebGLMap;
   std::string LastAllWebGLBinaryObjects;
   vtkNew<vtkObjectIdMap> ObjectIdMap;
 };
 
 vtkStandardNewMacro(vtkWebApplication);
-//----------------------------------------------------------------------------
-vtkWebApplication::vtkWebApplication():
-  ImageEncoding(ENCODING_BASE64),
-  ImageCompression(COMPRESSION_JPEG),
-  Internals(new vtkWebApplication::vtkInternals())
+//------------------------------------------------------------------------------
+vtkWebApplication::vtkWebApplication()
+  : ImageEncoding(ENCODING_BASE64)
+  , ImageCompression(COMPRESSION_JPEG)
+  , Internals(new vtkWebApplication::vtkInternals())
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkWebApplication::~vtkWebApplication()
 {
   delete this->Internals;
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebApplication::SetNumberOfEncoderThreads(vtkTypeUInt32 numThreads)
 {
   this->Internals->Encoder->SetMaxThreads(numThreads);
   this->Internals->Encoder->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeUInt32 vtkWebApplication::GetNumberOfEncoderThreads()
 {
   return this->Internals->Encoder->GetMaxThreads();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkWebApplication::GetHasImagesBeingProcessed(vtkRenderWindow* view)
 {
   const vtkInternals::ImageCacheValueType& value = this->Internals->ImageCache[view];
   return value.HasImagesBeingProcessed;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkWebApplication::InteractiveRender(vtkRenderWindow* view, int quality)
 {
   // for now, just do the same as StillRender().
   return this->StillRender(view, quality);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebApplication::InvalidateCache(vtkRenderWindow* view)
 {
   this->Internals->ImageCache[view].NeedsRender = true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int quality)
 {
   if (!view)
@@ -171,23 +163,24 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
     return nullptr;
   }
 
+  auto viewID = this->Internals->ObjectIdMap->GetGlobalId(view);
   vtkInternals::ImageCacheValueType& value = this->Internals->ImageCache[view];
   value.SetListener(view);
 
-  if (value.NeedsRender == false &&
+  if (!value.NeedsRender &&
     value.Data != nullptr /* FIXME SEB &&
     view->HasDirtyRepresentation() == false */)
   {
-    bool latest = this->Internals->Encoder->GetLatestOutput(this->Internals->ObjectIdMap->GetGlobalId(view), value.Data);
+    bool latest = this->Internals->Encoder->GetLatestOutput(viewID, value.Data);
     value.HasImagesBeingProcessed = !latest;
     return value.Data;
   }
 
-  //cout <<  "Regenerating " << endl;
-  //vtkTimerLog::ResetLog();
-  //vtkTimerLog::CleanupLog();
-  //vtkTimerLog::MarkStartEvent("StillRenderToString");
-  //vtkTimerLog::MarkStartEvent("CaptureWindow");
+  // cout <<  "Regenerating " << endl;
+  // vtkTimerLog::ResetLog();
+  // vtkTimerLog::CleanupLog();
+  // vtkTimerLog::MarkStartEvent("StillRenderToString");
+  // vtkTimerLog::MarkStartEvent("CaptureWindow");
 
   view->Render();
 
@@ -201,34 +194,31 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   w2i->FixBoundaryOn();
   w2i->Update();
 
-  vtkImageData* image = vtkImageData::New();
+  auto image = vtkSmartPointer<vtkImageData>::New();
   image->ShallowCopy(w2i->GetOutput());
 
-  //vtkTimerLog::MarkEndEvent("CaptureWindow");
+  // vtkTimerLog::MarkEndEvent("CaptureWindow");
 
-  //vtkTimerLog::MarkEndEvent("StillRenderToString");
-  //vtkTimerLog::DumpLogWithIndents(&cout, 0.0);
+  // vtkTimerLog::MarkEndEvent("StillRenderToString");
+  // vtkTimerLog::DumpLogWithIndents(&cout, 0.0);
 
-  this->Internals->Encoder->PushAndTakeReference(
-    this->Internals->ObjectIdMap->GetGlobalId(view), image, quality,
-    this->ImageEncoding);
-  assert(image == nullptr);
+  this->Internals->Encoder->Push(viewID, image, quality, this->ImageEncoding);
 
   if (value.Data == nullptr)
   {
     // we need to wait till output is processed.
-    //cout << "Flushing" << endl;
-    this->Internals->Encoder->Flush(this->Internals->ObjectIdMap->GetGlobalId(view));
-    //cout << "Done Flushing" << endl;
+    // cout << "Flushing" << endl;
+    this->Internals->Encoder->Flush(viewID);
+    // cout << "Done Flushing" << endl;
   }
 
-  bool latest = this->Internals->Encoder->GetLatestOutput(this->Internals->ObjectIdMap->GetGlobalId(view), value.Data);
+  bool latest = this->Internals->Encoder->GetLatestOutput(viewID, value.Data);
   value.HasImagesBeingProcessed = !latest;
   value.NeedsRender = false;
   return value.Data;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkWebApplication::StillRenderToString(
   vtkRenderWindow* view, vtkMTimeType time, int quality)
 {
@@ -236,13 +226,13 @@ const char* vtkWebApplication::StillRenderToString(
   if (array && array->GetMTime() != time)
   {
     this->LastStillRenderToMTime = array->GetMTime();
-    //cout << "Image size: " << array->GetNumberOfTuples() << endl;
+    // cout << "Image size: " << array->GetNumberOfTuples() << endl;
     return reinterpret_cast<char*>(array->GetPointer(0));
   }
   return nullptr;
 }
 
- //----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkWebApplication::StillRenderToBuffer(
   vtkRenderWindow* view, vtkMTimeType time, int quality)
 {
@@ -252,14 +242,13 @@ vtkUnsignedCharArray* vtkWebApplication::StillRenderToBuffer(
     this->LastStillRenderToMTime = array->GetMTime();
     return array;
   }
-  return NULL;
+  return nullptr;
 }
 
-//----------------------------------------------------------------------------
-bool vtkWebApplication::HandleInteractionEvent(
-  vtkRenderWindow* view, vtkWebInteractionEvent* event)
+//------------------------------------------------------------------------------
+bool vtkWebApplication::HandleInteractionEvent(vtkRenderWindow* view, vtkWebInteractionEvent* event)
 {
-  vtkRenderWindowInteractor *iren = nullptr;
+  vtkRenderWindowInteractor* iren = nullptr;
 
   if (view)
   {
@@ -271,38 +260,39 @@ bool vtkWebApplication::HandleInteractionEvent(
     return false;
   }
 
-  int ctrlKey =
-    (event->GetModifiers() & vtkWebInteractionEvent::CTRL_KEY) != 0?  1: 0;
-  int shiftKey =
-    (event->GetModifiers() & vtkWebInteractionEvent::SHIFT_KEY) != 0?  1: 0;
+  int ctrlKey = (event->GetModifiers() & vtkWebInteractionEvent::CTRL_KEY) != 0 ? 1 : 0;
+  int shiftKey = (event->GetModifiers() & vtkWebInteractionEvent::SHIFT_KEY) != 0 ? 1 : 0;
 
   // Handle scroll action if any
-  if(event->GetScroll()) {
+  if (event->GetScroll())
+  {
     iren->SetEventInformation(0, 0, ctrlKey, shiftKey, event->GetKeyCode(), 0);
     iren->MouseMoveEvent();
     iren->RightButtonPressEvent();
-    iren->SetEventInformation(0, event->GetScroll()*10, ctrlKey, shiftKey, event->GetKeyCode(), 0);
+    iren->SetEventInformation(
+      0, event->GetScroll() * 10, ctrlKey, shiftKey, event->GetKeyCode(), 0);
     iren->MouseMoveEvent();
     iren->RightButtonReleaseEvent();
     this->Internals->ImageCache[view].NeedsRender = true;
     return true;
   }
 
-  int *viewSize = view->GetSize();
+  const int* viewSize = view->GetSize();
   int posX = std::floor(viewSize[0] * event->GetX() + 0.5);
   int posY = std::floor(viewSize[1] * event->GetY() + 0.5);
 
-  iren->SetEventInformation(posX, posY, ctrlKey, shiftKey, event->GetKeyCode(), event->GetRepeatCount());
+  iren->SetEventInformation(
+    posX, posY, ctrlKey, shiftKey, event->GetKeyCode(), event->GetRepeatCount());
 
   unsigned int prev_buttons = this->Internals->ButtonStates[view];
   unsigned int changed_buttons = (event->GetButtons() ^ prev_buttons);
   iren->MouseMoveEvent();
-  if ( (changed_buttons & vtkWebInteractionEvent::LEFT_BUTTON) != 0 )
+  if ((changed_buttons & vtkWebInteractionEvent::LEFT_BUTTON) != 0)
   {
-    if ( (event->GetButtons() & vtkWebInteractionEvent::LEFT_BUTTON) != 0)
+    if ((event->GetButtons() & vtkWebInteractionEvent::LEFT_BUTTON) != 0)
     {
       iren->LeftButtonPressEvent();
-      if(event->GetRepeatCount() > 0)
+      if (event->GetRepeatCount() > 0)
       {
         iren->LeftButtonReleaseEvent();
       }
@@ -313,12 +303,12 @@ bool vtkWebApplication::HandleInteractionEvent(
     }
   }
 
-  if ( (changed_buttons & vtkWebInteractionEvent::RIGHT_BUTTON) != 0 )
+  if ((changed_buttons & vtkWebInteractionEvent::RIGHT_BUTTON) != 0)
   {
-    if ( (event->GetButtons() & vtkWebInteractionEvent::RIGHT_BUTTON) != 0)
+    if ((event->GetButtons() & vtkWebInteractionEvent::RIGHT_BUTTON) != 0)
     {
       iren->RightButtonPressEvent();
-      if(event->GetRepeatCount() > 0)
+      if (event->GetRepeatCount() > 0)
       {
         iren->RightButtonPressEvent();
       }
@@ -328,12 +318,12 @@ bool vtkWebApplication::HandleInteractionEvent(
       iren->RightButtonReleaseEvent();
     }
   }
-  if ( (changed_buttons & vtkWebInteractionEvent::MIDDLE_BUTTON) != 0 )
+  if ((changed_buttons & vtkWebInteractionEvent::MIDDLE_BUTTON) != 0)
   {
-    if ( (event->GetButtons() & vtkWebInteractionEvent::MIDDLE_BUTTON) != 0)
+    if ((event->GetButtons() & vtkWebInteractionEvent::MIDDLE_BUTTON) != 0)
     {
       iren->MiddleButtonPressEvent();
-      if(event->GetRepeatCount() > 0)
+      if (event->GetRepeatCount() > 0)
       {
         iren->MiddleButtonPressEvent();
       }
@@ -351,7 +341,7 @@ bool vtkWebApplication::HandleInteractionEvent(
   return needs_render;
 }
 
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkWebApplication::GetWebGLSceneMetaData(vtkRenderWindow* view)
 {
   if (!view)
@@ -362,32 +352,29 @@ const char* vtkWebApplication::GetWebGLSceneMetaData(vtkRenderWindow* view)
 
   // We use the camera focal point to be the center of rotation
   double centerOfRotation[3];
-  vtkCamera *cam = view->GetRenderers()->GetFirstRenderer()->GetActiveCamera();
+  vtkCamera* cam = view->GetRenderers()->GetFirstRenderer()->GetActiveCamera();
   cam->GetFocalPoint(centerOfRotation);
 
-  if(this->Internals->ViewWebGLMap.find(view) ==
-    this->Internals->ViewWebGLMap.end())
+  if (this->Internals->ViewWebGLMap.find(view) == this->Internals->ViewWebGLMap.end())
   {
-    this->Internals->ViewWebGLMap[view] =
-      vtkSmartPointer<vtkWebGLExporter>::New();
+    this->Internals->ViewWebGLMap[view] = vtkSmartPointer<vtkWebGLExporter>::New();
   }
 
   std::stringstream globalIdAsString;
   globalIdAsString << this->Internals->ObjectIdMap->GetGlobalId(view);
 
   vtkWebGLExporter* webglExporter = this->Internals->ViewWebGLMap[view];
-  webglExporter->parseScene(
-        view->GetRenderers(), globalIdAsString.str().c_str(), VTK_PARSEALL);
+  webglExporter->parseScene(view->GetRenderers(), globalIdAsString.str().c_str(), VTK_PARSEALL);
 
   vtkInternals::WebGLObjId2IndexMap webglMap;
-  for(int i=0; i<webglExporter->GetNumberOfObjects(); ++i)
+  for (int i = 0; i < webglExporter->GetNumberOfObjects(); ++i)
   {
     vtkWebGLObject* wObj = webglExporter->GetWebGLObject(i);
-    if(wObj && wObj->isVisible())
+    if (wObj && wObj->isVisible())
     {
       vtkInternals::WebGLObjCacheValue val;
       val.ObjIndex = i;
-      for(int j=0; j<wObj->GetNumberOfParts(); ++j)
+      for (int j = 0; j < wObj->GetNumberOfParts(); ++j)
       {
         val.BinaryParts[j] = "";
       }
@@ -395,26 +382,22 @@ const char* vtkWebApplication::GetWebGLSceneMetaData(vtkRenderWindow* view)
     }
   }
   this->Internals->WebGLExporterObjIdMap[webglExporter] = webglMap;
-  webglExporter->SetCenterOfRotation(
-        static_cast<float>(centerOfRotation[0]),
-        static_cast<float>(centerOfRotation[1]),
-        static_cast<float>(centerOfRotation[2]));
+  webglExporter->SetCenterOfRotation(static_cast<float>(centerOfRotation[0]),
+    static_cast<float>(centerOfRotation[1]), static_cast<float>(centerOfRotation[2]));
   return webglExporter->GenerateMetadata();
 }
 
-//----------------------------------------------------------------------------
-const char* vtkWebApplication::GetWebGLBinaryData(
-  vtkRenderWindow* view, const char* id, int part)
+//------------------------------------------------------------------------------
+const char* vtkWebApplication::GetWebGLBinaryData(vtkRenderWindow* view, const char* id, int part)
 {
   if (!view)
   {
     vtkErrorMacro("No view specified.");
     return nullptr;
   }
-  if(this->Internals->ViewWebGLMap.find(view) ==
-    this->Internals->ViewWebGLMap.end())
+  if (this->Internals->ViewWebGLMap.find(view) == this->Internals->ViewWebGLMap.end())
   {
-    if(this->GetWebGLSceneMetaData(view) == nullptr)
+    if (this->GetWebGLSceneMetaData(view) == nullptr)
     {
       vtkErrorMacro("Failed to generate WebGL MetaData for: " << view);
       return nullptr;
@@ -422,31 +405,31 @@ const char* vtkWebApplication::GetWebGLBinaryData(
   }
 
   vtkWebGLExporter* webglExporter = this->Internals->ViewWebGLMap[view];
-  if(webglExporter == nullptr)
+  if (webglExporter == nullptr)
   {
     vtkErrorMacro("There is no cached WebGL Exporter for: " << view);
     return nullptr;
   }
 
-  if(!this->Internals->WebGLExporterObjIdMap[webglExporter].empty() &&
+  if (!this->Internals->WebGLExporterObjIdMap[webglExporter].empty() &&
     this->Internals->WebGLExporterObjIdMap[webglExporter].find(id) !=
-    this->Internals->WebGLExporterObjIdMap[webglExporter].end())
+      this->Internals->WebGLExporterObjIdMap[webglExporter].end())
   {
     vtkInternals::WebGLObjCacheValue* cachedVal =
       &(this->Internals->WebGLExporterObjIdMap[webglExporter][id]);
-    if(cachedVal->BinaryParts.find(part) != cachedVal->BinaryParts.end())
+    if (cachedVal->BinaryParts.find(part) != cachedVal->BinaryParts.end())
     {
-      if(cachedVal->BinaryParts[part].empty())
+      if (cachedVal->BinaryParts[part].empty())
       {
         vtkWebGLObject* obj = webglExporter->GetWebGLObject(cachedVal->ObjIndex);
-        if(obj && obj->isVisible())
+        if (obj && obj->isVisible())
         {
           // Manage Base64
           vtkNew<vtkBase64Utilities> base64;
-          unsigned char* output = new unsigned char[obj->GetBinarySize(part)*2];
-          int size = base64->Encode(
-            obj->GetBinaryData(part), obj->GetBinarySize(part), output, false);
-          cachedVal->BinaryParts[part] = std::string((const char *)output, size);
+          unsigned char* output = new unsigned char[obj->GetBinarySize(part) * 2];
+          int size =
+            base64->Encode(obj->GetBinaryData(part), obj->GetBinarySize(part), output, false);
+          cachedVal->BinaryParts[part] = std::string((const char*)output, size);
           delete[] output;
         }
       }
@@ -457,7 +440,7 @@ const char* vtkWebApplication::GetWebGLBinaryData(
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkWebApplication::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -465,16 +448,17 @@ void vtkWebApplication::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ImageCompression: " << this->ImageCompression << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkObjectIdMap* vtkWebApplication::GetObjectIdMap()
 {
   return this->Internals->ObjectIdMap;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string vtkWebApplication::GetObjectId(vtkObject* obj)
 {
   std::ostringstream oss;
   oss << std::hex << static_cast<void*>(obj);
   return oss.str();
 }
+VTK_ABI_NAMESPACE_END

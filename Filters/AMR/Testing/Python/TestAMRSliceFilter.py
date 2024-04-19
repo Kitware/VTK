@@ -2,8 +2,20 @@
 
 # This tests vtkAMRSliceFilter
 
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersAMR import vtkAMRSliceFilter
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOAMR import vtkAMREnzoReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCompositePolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -19,12 +31,12 @@ def NumCells(out):
 filename= VTK_DATA_ROOT +"/Data/AMR/Enzo/DD0010/moving7_0010.hierarchy"
 datafieldname = "TotalEnergy"
 
-reader = vtk.vtkAMREnzoReader()
+reader = vtkAMREnzoReader()
 reader.SetFileName(filename)
 reader.SetMaxLevel(10)
 reader.SetCellArrayStatus(datafieldname,1)
 
-filter = vtk.vtkAMRSliceFilter()
+filter = vtkAMRSliceFilter()
 filter.SetInputConnection(reader.GetOutputPort())
 filter.SetNormal(1)
 filter.SetOffsetFromOrigin(0.86)
@@ -37,22 +49,22 @@ if NumCells(out) != 800:
   exit(1)
 
 # render
-surface = vtk.vtkGeometryFilter()
+surface = vtkGeometryFilter()
 surface.SetInputData(out)
 
-mapper = vtk.vtkCompositePolyDataMapper2()
+mapper = vtkCompositePolyDataMapper()
 mapper.SetInputConnection(surface.GetOutputPort())
 mapper.SetScalarModeToUseCellFieldData()
 mapper.SelectColorArray(datafieldname)
 mapper.SetScalarRange(1.2e-7, 1.5e-3)
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-renderer = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+renderer = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(renderer)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 renderer.AddActor(actor)

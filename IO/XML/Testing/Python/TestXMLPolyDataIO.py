@@ -1,9 +1,25 @@
 #!/usr/bin/env python
 
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkFiltersParallel import vtkExtractPolyDataPiece
+from vtkmodules.vtkIOLegacy import vtkPolyDataReader
+from vtkmodules.vtkIOXML import (
+    vtkXMLPolyDataReader,
+    vtkXMLPolyDataWriter,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
+from vtkmodules.util.misc import vtkGetTempDir
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 VTK_TEMP_DIR = vtkGetTempDir()
@@ -13,15 +29,15 @@ file1 = VTK_TEMP_DIR + '/idFile1.vtp'
 file2 = VTK_TEMP_DIR + '/idFile2.vtp'
 
 # read in some poly data
-pdReader = vtk.vtkPolyDataReader()
+pdReader = vtkPolyDataReader()
 pdReader.SetFileName(VTK_DATA_ROOT + "/Data/fran_cut.vtk")
 pdReader.Update()
 
-extract = vtk.vtkExtractPolyDataPiece()
+extract = vtkExtractPolyDataPiece()
 extract.SetInputConnection(pdReader.GetOutputPort())
 
 # write various versions
-pdWriter = vtk.vtkXMLPolyDataWriter()
+pdWriter = vtkXMLPolyDataWriter()
 pdWriter.SetFileName(file0)
 pdWriter.SetDataModeToAscii()
 pdWriter.SetInputConnection(pdReader.GetOutputPort())
@@ -40,16 +56,16 @@ pdWriter.Write()
 
 
 # read the ASCII version
-reader = vtk.vtkXMLPolyDataReader()
+reader = vtkXMLPolyDataReader()
 reader.SetFileName(file0)
 reader.Update()
 
-pd0 = vtk.vtkPolyData()
+pd0 = vtkPolyData()
 pd0.DeepCopy(reader.GetOutput())
-mapper0 = vtk.vtkPolyDataMapper()
+mapper0 = vtkPolyDataMapper()
 mapper0.SetInputData(pd0)
 
-actor0 = vtk.vtkActor()
+actor0 = vtkActor()
 actor0.SetMapper(mapper0)
 actor0.SetPosition(0, .15, 0)
 
@@ -57,34 +73,34 @@ actor0.SetPosition(0, .15, 0)
 # read appended piece 0
 reader.SetFileName(file1)
 
-mapper1 = vtk.vtkPolyDataMapper()
+mapper1 = vtkPolyDataMapper()
 mapper1.SetInputConnection(reader.GetOutputPort())
 mapper1.SetPiece(0)
 mapper1.SetNumberOfPieces(2)
 
-actor1 = vtk.vtkActor()
+actor1 = vtkActor()
 actor1.SetMapper(mapper1)
 
 
 # read binary piece 0 (with ghost level)
-reader2 = vtk.vtkXMLPolyDataReader()
+reader2 = vtkXMLPolyDataReader()
 reader2.SetFileName(file2)
 
-mapper2 = vtk.vtkPolyDataMapper()
+mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection(reader2.GetOutputPort())
 mapper2.SetPiece(0)
 mapper2.SetNumberOfPieces(2)
 
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
 actor2.SetPosition(0, 0, 0.1)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

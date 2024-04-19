@@ -1,8 +1,6 @@
-/*=========================================================================
- Copyright (c) Kitware SAS 2014
- All rights reserved.
- More information http://www.kitware.fr
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware SAS 2014
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExplicitStructuredGridSurfaceFilter.h"
 
 #include "vtkCellData.h"
@@ -19,9 +17,10 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExplicitStructuredGridSurfaceFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExplicitStructuredGridSurfaceFilter::vtkExplicitStructuredGridSurfaceFilter()
 {
   this->PieceInvariant = 0;
@@ -36,14 +35,14 @@ vtkExplicitStructuredGridSurfaceFilter::vtkExplicitStructuredGridSurfaceFilter()
   this->SetOriginalPointIdsName("vtkOriginalPointIds");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExplicitStructuredGridSurfaceFilter::~vtkExplicitStructuredGridSurfaceFilter()
 {
   this->SetOriginalCellIdsName(nullptr);
   this->SetOriginalPointIdsName(nullptr);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -52,7 +51,7 @@ int vtkExplicitStructuredGridSurfaceFilter::RequestInformation(vtkInformation* v
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -69,7 +68,7 @@ int vtkExplicitStructuredGridSurfaceFilter::RequestUpdateExtent(vtkInformation* 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -90,11 +89,16 @@ int vtkExplicitStructuredGridSurfaceFilter::RequestData(vtkInformation* vtkNotUs
   return this->ExtractSurface(input, output);
 }
 
-static int hexaFaces[6][4] = { { 0, 4, 7, 3 }, { 1, 2, 6, 5 },
-                               { 0, 1, 5, 4 }, { 3, 7, 6, 2 },
-                               { 0, 3, 2, 1 }, { 4, 5, 6, 7 } };
+static int hexaFaces[6][4] = {
+  { 0, 4, 7, 3 },
+  { 1, 2, 6, 5 },
+  { 0, 1, 5, 4 },
+  { 3, 7, 6, 2 },
+  { 0, 3, 2, 1 },
+  { 4, 5, 6, 7 },
+};
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   vtkExplicitStructuredGrid* input, vtkPolyData* output)
 {
@@ -133,16 +137,16 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   vtkNew<vtkIdList> cellIds;
   vtkUnsignedCharArray* connectivityFlags = nullptr;
 
-  char* facesConnectivityFlagsArrayName = input->GetFacesConnectivityFlagsArrayName();
+  const char* facesConnectivityFlagsArrayName = input->GetFacesConnectivityFlagsArrayName();
   if (facesConnectivityFlagsArrayName)
   {
     connectivityFlags = vtkUnsignedCharArray::SafeDownCast(
       input->GetCellData()->GetAbstractArray(facesConnectivityFlagsArrayName));
-    if (!connectivityFlags)
-    {
-      vtkErrorMacro("Make sure Connectivity Flags have been computed before using this filter");
-      return 0;
-    }
+  }
+  if (!connectivityFlags)
+  {
+    vtkErrorMacro("Make sure Connectivity Flags have been computed before using this filter");
+    return 0;
   }
 
   vtkPoints* points = input->GetPoints();
@@ -168,10 +172,10 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   outputCD->CopyAllocate(cd, numCells);
 
   // Traverse cells to extract geometry
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
   vtkIdType npts;
-  const vtkIdType *pts;
+  const vtkIdType* pts;
   cells->InitTraversal();
   std::vector<vtkIdType> pointIdVector(numPts, -1);
 
@@ -184,7 +188,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
     {
       vtkDebugMacro(<< "Process cell #" << cellId);
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     // Ignore blank cells and ghost cells
@@ -242,14 +246,14 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkExplicitStructuredGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGridSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -261,3 +265,4 @@ void vtkExplicitStructuredGridSurfaceFilter::PrintSelf(ostream& os, vtkIndent in
   os << indent << "OriginalCellIdsName: " << this->GetOriginalCellIdsName() << endl;
   os << indent << "OriginalPointIdsName: " << this->GetOriginalPointIdsName() << endl;
 }
+VTK_ABI_NAMESPACE_END

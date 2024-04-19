@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCountFaces.h"
 
@@ -22,12 +11,14 @@
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-int TestCountFaces(int, char*[])
+int TestCountFacesMode(bool useImplicitArray)
 {
   vtkNew<vtkUnstructuredGrid> data;
   vtkNew<vtkPoints> points;
   vtkNew<vtkIdList> cell;
   vtkNew<vtkCountFaces> filter;
+  filter->SetOutputArrayName("faces");
+  filter->SetUseImplicitArray(useImplicitArray);
 
   // Need 12 points to test all cell types:
   for (int i = 0; i < 12; ++i)
@@ -83,18 +74,14 @@ int TestCountFaces(int, char*[])
   filter->SetInputData(data);
   filter->Update();
 
-  vtkUnstructuredGrid *output =
-      vtkUnstructuredGrid::SafeDownCast(filter->GetOutput());
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(filter->GetOutput());
   if (!output)
   {
     std::cerr << "No output data!\n";
     return EXIT_FAILURE;
   }
 
-  vtkIdTypeArray *faces =
-      vtkIdTypeArray::SafeDownCast(
-        output->GetCellData()->GetArray(
-          filter->GetOutputArrayName()));
+  vtkDataArray* faces = output->GetCellData()->GetArray(filter->GetOutputArrayName());
   if (!faces)
   {
     std::cerr << "No output array!\n";
@@ -103,28 +90,29 @@ int TestCountFaces(int, char*[])
 
   if (faces->GetNumberOfComponents() != 1)
   {
-    std::cerr << "Invalid number of components in output array: "
-              << faces->GetNumberOfComponents() << "\n";
+    std::cerr << "Invalid number of components in output array: " << faces->GetNumberOfComponents()
+              << "\n";
     return EXIT_FAILURE;
   }
 
   if (faces->GetNumberOfTuples() != 10)
   {
-    std::cerr << "Invalid number of components in output array: "
-              << faces->GetNumberOfTuples() << "\n";
+    std::cerr << "Invalid number of components in output array: " << faces->GetNumberOfTuples()
+              << "\n";
     return EXIT_FAILURE;
   }
 
-#define TEST_FACES(idx, expected) \
-  { \
-  vtkIdType numFaces = faces->GetTypedComponent(idx, 0); \
-  if (numFaces != (expected)) \
-  { \
-    std::cerr << "Expected cell @idx=" << (idx) << " to have " << (expected) \
-              << " faces, but found " << numFaces << "\n"; \
-    return EXIT_FAILURE; \
-  } \
-  }
+#define TEST_FACES(idx, expected)                                                                  \
+  do                                                                                               \
+  {                                                                                                \
+    vtkIdType numFaces = static_cast<vtkIdType>(faces->GetTuple1(idx));                            \
+    if (numFaces != (expected))                                                                    \
+    {                                                                                              \
+      std::cerr << "Expected cell @idx=" << (idx) << " to have " << (expected)                     \
+                << " faces, but found " << numFaces << "\n";                                       \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
   int idx = 0;
   // VTK_VERTEX = 0
@@ -151,4 +139,12 @@ int TestCountFaces(int, char*[])
 #undef TEST_FACES
 
   return EXIT_SUCCESS;
+}
+
+int TestCountFaces(int, char*[])
+{
+  int ret = EXIT_SUCCESS;
+  ret |= ::TestCountFacesMode(false);
+  ret |= ::TestCountFacesMode(true);
+  return ret;
 }

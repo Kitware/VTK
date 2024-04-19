@@ -1,6 +1,8 @@
-#include "vtkSeedWidget.h"
-#include "vtkSeedRepresentation.h"
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHandleWidget.h"
+#include "vtkSeedRepresentation.h"
+#include "vtkSeedWidget.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -8,11 +10,11 @@
 #include "WidgetTestingMacros.h"
 #include "vtkPointHandleRepresentation2D.h"
 
-int vtkSeedWidgetTest1(int , char * [] )
+int vtkSeedWidgetTest1(int, char*[])
 {
-  vtkSmartPointer< vtkSeedWidget > node1 = vtkSmartPointer< vtkSeedWidget >::New();
+  vtkSmartPointer<vtkSeedWidget> node1 = vtkSmartPointer<vtkSeedWidget>::New();
 
-  EXERCISE_BASIC_ABSTRACT_METHODS ( node1 );
+  EXERCISE_BASIC_ABSTRACT_METHODS(node1);
 
   node1->SetProcessEvents(0);
   node1->SetProcessEvents(1);
@@ -24,10 +26,10 @@ int vtkSeedWidgetTest1(int , char * [] )
   node1->RestartInteraction();
 
   // have to create a handle rep before create new handle
-  vtkSmartPointer<vtkPointHandleRepresentation2D> handle = vtkSmartPointer<vtkPointHandleRepresentation2D>::New();
-  handle->GetProperty()->SetColor(1,0,0);
+  vtkSmartPointer<vtkPointHandleRepresentation2D> handle =
+    vtkSmartPointer<vtkPointHandleRepresentation2D>::New();
+  handle->GetProperty()->SetColor(1, 0, 0);
   rep1->SetHandleRepresentation(handle);
-
 
   vtkSmartPointer<vtkHandleWidget> handleWidget = node1->CreateNewHandle();
   if (handleWidget == nullptr)

@@ -1,29 +1,16 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPHyperTreeGridReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLPHyperTreeGridReader.h"
 
 #include "vtkCallbackCommand.h"
+#include "vtkCellData.h"
 #include "vtkHyperTree.h"
-#include "vtkHyperTreeCursor.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLHyperTreeGridReader.h"
@@ -31,9 +18,10 @@
 #include <cassert>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPHyperTreeGridReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPHyperTreeGridReader::vtkXMLPHyperTreeGridReader()
 {
   this->PieceReaders = nullptr;
@@ -41,7 +29,7 @@ vtkXMLPHyperTreeGridReader::vtkXMLPHyperTreeGridReader()
   this->PieceStartIndex = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPHyperTreeGridReader::~vtkXMLPHyperTreeGridReader()
 {
   if (this->NumberOfPieces)
@@ -50,7 +38,7 @@ vtkXMLPHyperTreeGridReader::~vtkXMLPHyperTreeGridReader()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::CopyOutputInformation(vtkInformation* outInfo, int port)
 {
   vtkInformation* localInfo = this->GetExecutive()->GetOutputInformation(port);
@@ -61,31 +49,31 @@ void vtkXMLPHyperTreeGridReader::CopyOutputInformation(vtkInformation* outInfo, 
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkXMLPHyperTreeGridReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkXMLPHyperTreeGridReader::GetOutput(int idx)
 {
   return vtkHyperTreeGrid::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkXMLPHyperTreeGridReader::GetDataSetName()
 {
   return "PHyperTreeGrid";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::GetOutputUpdateExtent(int& piece, int& numberOfPieces)
 {
   vtkInformation* outInfo = this->GetCurrentOutputInformation();
@@ -93,7 +81,7 @@ void vtkXMLPHyperTreeGridReader::GetOutputUpdateExtent(int& piece, int& numberOf
   numberOfPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::SetupOutputTotals()
 {
   this->TotalNumberOfPoints = 0;
@@ -106,14 +94,14 @@ void vtkXMLPHyperTreeGridReader::SetupOutputTotals()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
   this->GetCurrentOutput()->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridReader::ReadPieceData(int index)
 {
   this->Piece = index;
@@ -131,7 +119,7 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData(int index)
   return this->ReadPieceData();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridReader::CanReadPiece(int index)
 {
   // If necessary, test whether the piece can be read.
@@ -156,7 +144,7 @@ int vtkXMLPHyperTreeGridReader::CanReadPiece(int index)
   return (this->PieceReaders[index] ? 1 : 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::PieceProgressCallback()
 {
   float width = this->ProgressRange[1] - this->ProgressRange[0];
@@ -169,14 +157,14 @@ void vtkXMLPHyperTreeGridReader::PieceProgressCallback()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::SetupNextPiece() {}
 
 namespace
 {
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
-template<class T>
+template <class T>
 void vtkXMLPHyperTreeGridAppendExecute(T* inPtr, T* outPtr, vtkIdType numTuple, vtkIdType numComp)
 {
   for (vtkIdType nt = 0; nt < numTuple; nt++)
@@ -189,7 +177,7 @@ void vtkXMLPHyperTreeGridAppendExecute(T* inPtr, T* outPtr, vtkIdType numTuple, 
 }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridReader::ReadPieceData()
 {
   // Use the internal reader to read the piece.
@@ -201,7 +189,15 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
 
   if (!output)
   {
-    vtkErrorMacro("Incorrect type of output: " << output->GetClassName());
+    if (this->GetCurrentOutput())
+    {
+      vtkErrorMacro(
+        "Expected: vtkHyperTreeGrid, got: " << this->GetCurrentOutput()->GetClassName());
+    }
+    else
+    {
+      vtkErrorMacro("Expected: vtkHyperTreeGrid, got NULL output");
+    }
     return 0;
   }
 
@@ -250,18 +246,18 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
     this->RecursivelyProcessTree(inCursor, outCursor);
   }
 
-  for (vtkIdType i = 0; i < input->GetPointData()->GetNumberOfArrays(); i++)
+  for (vtkIdType i = 0; i < input->GetCellData()->GetNumberOfArrays(); i++)
   {
-    vtkAbstractArray* inArray = input->GetPointData()->GetAbstractArray(i);
-    vtkAbstractArray* outArray = output->GetPointData()->GetAbstractArray(i);
+    vtkAbstractArray* inArray = input->GetCellData()->GetAbstractArray(i);
+    vtkAbstractArray* outArray = output->GetCellData()->GetAbstractArray(i);
     if (outArray == nullptr)
     {
-      // Create output PointData array
+      // Create output CellData array
       outArray = inArray->NewInstance();
       outArray->SetName(inArray->GetName());
       outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
       outArray->SetNumberOfTuples(this->TotalNumberOfPoints);
-      output->GetPointData()->AddArray(outArray);
+      output->GetCellData()->AddArray(outArray);
       outArray->Delete();
     }
 
@@ -283,7 +279,7 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
     }
 
     // Input and output name must match
-    if (strcmp(inArray->GetName(), outArray->GetName()))
+    if (strcmp(inArray->GetName(), outArray->GetName()) != 0)
     {
       vtkErrorMacro(<< "Execute: input" << this->Piece << " Name (" << inArray->GetName()
                     << "), must match output Name (" << outArray->GetName() << ")");
@@ -310,20 +306,20 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLHyperTreeGridReader* vtkXMLPHyperTreeGridReader::CreatePieceReader()
 {
   return vtkXMLHyperTreeGridReader::New();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -332,13 +328,13 @@ int vtkXMLPHyperTreeGridReader::RequestInformation(
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkXMLPHyperTreeGridReader::GetOutputAsHyperTreeGrid()
 {
   return vtkHyperTreeGrid::SafeDownCast(this->GetOutputDataObject(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkXMLPHyperTreeGridReader::GetPieceInputAsHyperTreeGrid(int piece)
 {
   vtkXMLHyperTreeGridReader* reader = this->PieceReaders[piece];
@@ -349,29 +345,29 @@ vtkHyperTreeGrid* vtkXMLPHyperTreeGridReader::GetPieceInputAsHyperTreeGrid(int p
   return static_cast<vtkHyperTreeGrid*>(reader->GetExecutive()->GetOutputData(0));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkXMLPHyperTreeGridReader::GetNumberOfPoints()
 {
   return this->TotalNumberOfPoints;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::SetupEmptyOutput()
 {
   this->GetCurrentOutput()->Initialize();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::SetupOutputInformation(vtkInformation* vtkNotUsed(outInfo))
 {
   if (this->InformationError)
   {
     vtkErrorMacro("Should not still be processing output information if have set InformationError");
     return;
-  };
+  }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::ReadXMLData()
 {
   // Get the update request.
@@ -436,7 +432,7 @@ void vtkXMLPHyperTreeGridReader::ReadXMLData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   if (!this->Superclass::ReadPrimaryElement(ePrimary))
@@ -472,7 +468,7 @@ int vtkXMLPHyperTreeGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::SetupUpdateExtent(int piece, int numberOfPieces)
 {
   this->UpdatePiece = piece;
@@ -512,13 +508,13 @@ void vtkXMLPHyperTreeGridReader::SetupUpdateExtent(int piece, int numberOfPieces
   this->SetupOutputTotals();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkXMLPHyperTreeGridReader::GetNumberOfPointsInPiece(int piece)
 {
   return this->PieceReaders[piece] ? this->PieceReaders[piece]->GetNumberOfPoints() : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::SetupPieces(int numPieces)
 {
   this->Superclass::SetupPieces(numPieces);
@@ -531,7 +527,7 @@ void vtkXMLPHyperTreeGridReader::SetupPieces(int numPieces)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::DestroyPieces()
 {
   for (int i = 0; i < this->NumberOfPieces; ++i)
@@ -549,7 +545,7 @@ void vtkXMLPHyperTreeGridReader::DestroyPieces()
   this->Superclass::DestroyPieces();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
   this->PieceElements[this->Piece] = ePiece;
@@ -576,7 +572,7 @@ int vtkXMLPHyperTreeGridReader::ReadPiece(vtkXMLDataElement* ePiece)
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::RecursivelyProcessTree(
   vtkHyperTreeGridNonOrientedCursor* inCursor, vtkHyperTreeGridNonOrientedCursor* outCursor)
 {
@@ -614,3 +610,4 @@ void vtkXMLPHyperTreeGridReader::RecursivelyProcessTree(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

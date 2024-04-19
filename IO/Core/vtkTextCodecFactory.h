@@ -1,29 +1,13 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkTextCodecFactory.h
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkTextCodecFactory
  * @brief   maintain a list of text codecs and return instances
  *
  *
  * A single class to hold registered codecs and return instances of them based
- * on either a decriptive name (UTF16 or latin-1) or by asking who can handle a
+ * on either a descriptive name (UTF16 or latin-1) or by asking who can handle a
  * given std::vector<unsigned char>
  *
  * @par Thanks:
@@ -34,7 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
  * @sa
  * vtkTextCodec
  *
-*/
+ */
 
 #ifndef vtkTextCodecFactory_h
 #define vtkTextCodecFactory_h
@@ -42,13 +26,14 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTextCodec;
 
 class VTKIOCORE_EXPORT vtkTextCodecFactory : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTextCodecFactory, vtkObject);
-  static vtkTextCodecFactory* New() ;
+  static vtkTextCodecFactory* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -56,7 +41,7 @@ public:
    */
   typedef vtkTextCodec* (*CreateFunction)();
 
-  //@{
+  ///@{
   /**
    * Provides mechanism to register/unregister additional callbacks to create
    * concrete subclasses of vtkTextCodecFactory to handle different protocols.
@@ -65,7 +50,7 @@ public:
   static void RegisterCreateCallback(CreateFunction callback);
   static void UnRegisterCreateCallback(CreateFunction callback);
   static void UnRegisterAllCreateCallbacks();
-  //@}
+  ///@}
 
   /**
    * Given a codec/storage name try to find one of our registered codecs that
@@ -92,17 +77,17 @@ protected:
   ~vtkTextCodecFactory() override;
 
 private:
-  vtkTextCodecFactory(const vtkTextCodecFactory &) = delete;
-  void operator=(const vtkTextCodecFactory &) = delete;
+  vtkTextCodecFactory(const vtkTextCodecFactory&) = delete;
+  void operator=(const vtkTextCodecFactory&) = delete;
 
-  //@{
+  ///@{
   /**
    * Data structure used to store registered callbacks.
    */
   class CallbackVector;
   static CallbackVector* Callbacks;
-  //@}
-
+  ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTextCodecFactory_h

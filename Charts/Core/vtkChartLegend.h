@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkChartLegend.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkChartLegend
@@ -21,16 +9,17 @@
  * The vtkChartLegend is drawn in screen coordinates. It is usually one of the
  * last elements of a chart to be drawn. It renders the mark/line for each
  * plot, and the plot labels.
-*/
+ */
 
 #ifndef vtkChartLegend_h
 #define vtkChartLegend_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkNew.h"         // For vtkNew
-#include "vtkRect.h"        // For vtkRectf return value
+#include "vtkNew.h"  // For vtkNew
+#include "vtkRect.h" // For vtkRectf return value
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChart;
 class vtkPen;
 class vtkBrush;
@@ -40,28 +29,29 @@ class VTKCHARTSCORE_EXPORT vtkChartLegend : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChartLegend, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Chart object.
    */
-  static vtkChartLegend *New();
+  static vtkChartLegend* New();
 
-  //@{
+  ///@{
   /**
    * Set point the legend box is anchored to.
    */
   vtkSetVector2Macro(Point, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get point the legend box is anchored to.
    */
   vtkGetVector2Macro(Point, float);
-  //@}
+  ///@}
 
-  enum {
+  enum
+  {
     LEFT = 0,
     CENTER,
     RIGHT,
@@ -73,70 +63,70 @@ public:
   /**
    * Set point the legend box is anchored to.
    */
-  void SetPoint(const vtkVector2f &point);
+  void SetPoint(const vtkVector2f& point);
 
   /**
    * Get point the legend box is anchored to.
    */
   const vtkVector2f& GetPointVector();
 
-  //@{
+  ///@{
   /**
    * Set the horizontal alignment of the legend to the point specified.
    * Valid values are LEFT, CENTER and RIGHT.
    */
   vtkSetMacro(HorizontalAlignment, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the horizontal alignment of the legend to the point specified.
    */
   vtkGetMacro(HorizontalAlignment, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the vertical alignment of the legend to the point specified.
    * Valid values are TOP, CENTER and BOTTOM.
    */
   vtkSetMacro(VerticalAlignment, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the vertical alignment of the legend to the point specified.
    */
   vtkGetMacro(VerticalAlignment, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the padding between legend marks, default is 5.
    */
   vtkSetMacro(Padding, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the padding between legend marks.
    */
   vtkGetMacro(Padding, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the symbol width, default is 15.
    */
   vtkSetMacro(SymbolWidth, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the legend symbol width.
    */
   vtkGetMacro(SymbolWidth, int);
-  //@}
+  ///@}
 
   /**
    * Set the point size of the label text.
@@ -148,7 +138,7 @@ public:
    */
   virtual int GetLabelSize();
 
-  //@{
+  ///@{
   /**
    * Get/set if the legend should be drawn inline (inside the chart), or not.
    * True would generally request that the chart draws it inside the chart,
@@ -156,9 +146,9 @@ public:
    */
   vtkSetMacro(Inline, bool);
   vtkGetMacro(Inline, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set if the legend can be dragged with the mouse button, or not.
    * True results in left click and drag causing the legend to move around the
@@ -167,7 +157,7 @@ public:
    */
   vtkSetMacro(DragEnabled, bool);
   vtkGetMacro(DragEnabled, bool);
-  //@}
+  ///@}
 
   /**
    * Set the chart that the legend belongs to and will draw the legend for.
@@ -188,7 +178,7 @@ public:
   /**
    * Paint event for the axis, called whenever the axis needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Request the space the legend requires to be drawn. This is returned as a
@@ -201,19 +191,19 @@ public:
   /**
    * Get the pen used to draw the legend outline.
    */
-  vtkPen * GetPen();
+  vtkPen* GetPen();
 
   /**
    * Get the brush used to draw the legend background.
    */
-  vtkBrush * GetBrush();
+  vtkBrush* GetBrush();
 
   /**
    * Get the vtkTextProperty for the legend's labels.
    */
-  vtkTextProperty * GetLabelProperties();
+  vtkTextProperty* GetLabelProperties();
 
-  //@{
+  ///@{
   /**
    * Toggle whether or not this legend should attempt to cache its position
    * and size.  The default value is true.  If this value is set to false,
@@ -225,35 +215,35 @@ public:
   vtkSetMacro(CacheBounds, bool);
   vtkGetMacro(CacheBounds, bool);
   vtkBooleanMacro(CacheBounds, bool);
-  //@}
+  ///@}
 
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button down event
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
 protected:
   vtkChartLegend();
   ~vtkChartLegend() override;
 
-  float* Point;  // The point the legend is anchored to.
+  float* Point;            // The point the legend is anchored to.
   int HorizontalAlignment; // Alignment of the legend to the point it is anchored to.
-  int VerticalAlignment; // Alignment of the legend to the point it is anchored to.
+  int VerticalAlignment;   // Alignment of the legend to the point it is anchored to.
 
   /**
    * The pen used to draw the legend box.
@@ -311,8 +301,9 @@ protected:
   Private* Storage;
 
 private:
-  vtkChartLegend(const vtkChartLegend &) = delete;
-  void operator=(const vtkChartLegend &) = delete;
+  vtkChartLegend(const vtkChartLegend&) = delete;
+  void operator=(const vtkChartLegend&) = delete;
 };
 
-#endif //vtkChartLegend_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkChartLegend_h

@@ -1,24 +1,12 @@
- /*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSMPThreadLocalObject.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSMPThreadLocalObject
  * @brief   Thread local storage for VTK objects.
  *
  * This class essentially does the same thing as vtkSMPThreadLocal with
  * 2 additional functions:
- * - Local() allocates an object of the template argument type using ::New
+ * - Local() allocates an object of the template argument type using New()
  * - The destructor calls Delete() on all objects created with Local().
  *
  * @warning
@@ -69,13 +57,14 @@
  *
  * @sa
  * vtkSMPThreadLocal
-*/
+ */
 
 #ifndef vtkSMPThreadLocalObject_h
 #define vtkSMPThreadLocalObject_h
 
 #include "vtkSMPThreadLocal.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkSMPThreadLocalObject
 {
@@ -84,18 +73,22 @@ class vtkSMPThreadLocalObject
 
   // Hide the copy constructor for now and assignment
   // operator for now.
-  vtkSMPThreadLocalObject(const vtkSMPThreadLocalObject&);
-  void operator=(const vtkSMPThreadLocalObject&);
+  vtkSMPThreadLocalObject(const vtkSMPThreadLocalObject&) = delete;
+  void operator=(const vtkSMPThreadLocalObject&) = delete;
 
 public:
   /**
    * Default constructor.
    */
-  vtkSMPThreadLocalObject() : Internal(nullptr), Exemplar(nullptr)
+  vtkSMPThreadLocalObject()
+    : Internal(nullptr)
+    , Exemplar(nullptr)
   {
   }
 
-  vtkSMPThreadLocalObject(T* const& exemplar) : Internal(0), Exemplar(exemplar)
+  vtkSMPThreadLocalObject(T* const& exemplar)
+    : Internal(0)
+    , Exemplar(exemplar)
   {
   }
 
@@ -112,10 +105,10 @@ public:
     }
   }
 
-  //@{
+  ///@{
   /**
    * Returns an object local to the current thread.
-   * This object is allocated with ::New() and will
+   * This object is allocated with T::New() and will
    * be deleted in the destructor of vtkSMPThreadLocalObject.
    */
   T*& Local()
@@ -134,17 +127,14 @@ public:
     }
     return vtkobject;
   }
-  //@}
+  ///@}
 
   /**
    * Return the number of thread local objects that have been initialized
    */
-  size_t size() const
-  {
-    return this->Internal.size();
-  }
+  size_t size() const { return this->Internal.size(); }
 
-  //@{
+  ///@{
   /**
    * Subset of the standard iterator API.
    * The most common design pattern is to use iterators in a sequential
@@ -159,34 +149,22 @@ public:
       ++this->Iter;
       return *this;
     }
-  //@}
+    ///@}
 
     iterator operator++(int)
     {
-        iterator copy = *this;
-        ++this->Iter;
-        return copy;
+      iterator copy = *this;
+      ++this->Iter;
+      return copy;
     }
 
-    bool operator==(const iterator& other)
-    {
-      return this->Iter == other.Iter;
-    }
+    bool operator==(const iterator& other) { return this->Iter == other.Iter; }
 
-    bool operator!=(const iterator& other)
-    {
-      return this->Iter != other.Iter;
-    }
+    bool operator!=(const iterator& other) { return this->Iter != other.Iter; }
 
-    T*& operator*()
-    {
-      return *this->Iter;
-    }
+    T*& operator*() { return *this->Iter; }
 
-    T** operator->()
-    {
-        return &*this->Iter;
-    }
+    T** operator->() { return &*this->Iter; }
 
   private:
     TLSIter Iter;
@@ -196,16 +174,16 @@ public:
 
   iterator begin()
   {
-      iterator iter;
-      iter.Iter = this->Internal.begin();
-      return iter;
-  };
+    iterator iter;
+    iter.Iter = this->Internal.begin();
+    return iter;
+  }
 
   iterator end()
   {
-      iterator iter;
-      iter.Iter = this->Internal.end();
-      return iter;
+    iterator iter;
+    iter.Iter = this->Internal.end();
+    return iter;
   }
 
 private:
@@ -213,5 +191,6 @@ private:
   T* Exemplar;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPThreadLocalObject.h

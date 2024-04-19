@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_DISCARD_INPUT_HPP
@@ -28,7 +28,7 @@ namespace tao
                    typename... States >
          static bool match( Input& in, States&&... st )
          {
-            const bool result = TAO_PEGTL_NAMESPACE::match< Rule, apply_mode::nothing, M, Action, Control >( in, st... );
+            const bool result = TAO_PEGTL_NAMESPACE::match< Rule, A, M, Action, Control >( in, st... );
             in.discard();
             return result;
          }

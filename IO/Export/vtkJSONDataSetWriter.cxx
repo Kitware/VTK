@@ -1,76 +1,67 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkJSONDataSetWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkJSONDataSetWriter.h"
 
+#include "vtkArchiver.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkMatrix3x3.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
-#include "vtksys/MD5.h"
-#include "vtksys/SystemTools.hxx"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkTypeUInt64Array.h"
+#include "vtksys/FStream.hxx"
+#include "vtksys/MD5.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <fstream>
 #include <sstream>
 #include <string>
 
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkJSONDataSetWriter);
+vtkCxxSetObjectMacro(vtkJSONDataSetWriter, Archiver, vtkArchiver);
 
-// ----------------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
 vtkJSONDataSetWriter::vtkJSONDataSetWriter()
 {
-  this->FileName = nullptr;
+  this->Archiver = vtkArchiver::New();
   this->ValidStringCount = 1;
 }
 
-// ----------------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
 vtkJSONDataSetWriter::~vtkJSONDataSetWriter()
 {
-  delete[] this->FileName;
+  this->SetArchiver(nullptr);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkDataSet* vtkJSONDataSetWriter::GetInput()
 {
   return vtkDataSet::SafeDownCast(this->Superclass::GetInput());
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkDataSet* vtkJSONDataSetWriter::GetInput(int port)
 {
   return vtkDataSet::SafeDownCast(this->Superclass::GetInput(port));
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 std::string vtkJSONDataSetWriter::WriteDataSetAttributes(
   vtkDataSetAttributes* fields, const char* className)
@@ -135,7 +126,7 @@ std::string vtkJSONDataSetWriter::WriteDataSetAttributes(
   return jsonSnippet.str();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 std::string vtkJSONDataSetWriter::WriteArray(
   vtkDataArray* array, const char* className, const char* arrayName)
@@ -143,8 +134,8 @@ std::string vtkJSONDataSetWriter::WriteArray(
   bool needConvert;
   std::string id = vtkJSONDataSetWriter::GetUID(array, needConvert);
   std::stringstream arrayPath;
-  arrayPath << this->FileName << "/data/" << id.c_str();
-  bool success = vtkJSONDataSetWriter::WriteArrayAsRAW(array, arrayPath.str().c_str());
+  arrayPath << "data/" << id;
+  bool success = vtkJSONDataSetWriter::WriteArrayContents(array, arrayPath.str().c_str());
 
   if (!success)
   {
@@ -155,13 +146,15 @@ std::string vtkJSONDataSetWriter::WriteArray(
   std::stringstream ss;
   ss << "{\n"
      << INDENT << "  \"vtkClass\": \"" << className << "\",\n"
-     << INDENT << "  \"name\": \"" << this->GetValidString(arrayName == nullptr ? array->GetName() : arrayName) << "\",\n"
+     << INDENT << "  \"name\": \""
+     << this->GetValidString(arrayName == nullptr ? array->GetName() : arrayName) << "\",\n"
      << INDENT << "  \"numberOfComponents\": " << array->GetNumberOfComponents() << ",\n"
-     << INDENT << "  \"dataType\": \"" << vtkJSONDataSetWriter::GetShortType(array, needConvert) << "Array\",\n"
+     << INDENT << "  \"dataType\": \"" << vtkJSONDataSetWriter::GetShortType(array, needConvert)
+     << "Array\",\n"
      << INDENT << "  \"ref\": {\n"
      << INDENT << "     \"encode\": \"LittleEndian\",\n"
      << INDENT << "     \"basepath\": \"data\",\n"
-     << INDENT << "     \"id\": \"" << id.c_str() << "\"\n"
+     << INDENT << "     \"id\": \"" << id << "\"\n"
      << INDENT << "  },\n"
      << INDENT << "  \"size\": " << array->GetNumberOfValues() << "\n"
      << INDENT << "}";
@@ -169,32 +162,24 @@ std::string vtkJSONDataSetWriter::WriteArray(
   return ss.str();
 }
 
-// ----------------------------------------------------------------------------
-
-void vtkJSONDataSetWriter::WriteData()
+//------------------------------------------------------------------------------
+void vtkJSONDataSetWriter::Write(vtkDataSet* dataset)
 {
-  vtkDataSet* ds = this->GetInput();
-  vtkImageData* imageData = vtkImageData::SafeDownCast(ds);
-  vtkPolyData* polyData = vtkPolyData::SafeDownCast(ds);
+  vtkImageData* imageData = vtkImageData::SafeDownCast(dataset);
+  vtkPolyData* polyData = vtkPolyData::SafeDownCast(dataset);
   this->ValidDataSet = false;
 
   // Get input and check data
-  if (ds == nullptr)
+  if (dataset == nullptr)
   {
     vtkErrorMacro(<< "No data to write!");
-    return;
-  }
-
-  if (this->FileName == nullptr)
-  {
-    vtkErrorMacro(<< "Please specify FileName to write");
     return;
   }
 
   // Capture vtkDataSet definition
   std::stringstream metaJsonFile;
   metaJsonFile << "{\n";
-  metaJsonFile << "  \"vtkClass\": \"" << ds->GetClassName() << "\"";
+  metaJsonFile << "  \"vtkClass\": \"" << dataset->GetClassName() << "\"";
 
   // ImageData
   if (imageData)
@@ -214,6 +199,14 @@ void vtkJSONDataSetWriter::WriteData()
                  << imageData->GetExtent()[1] << ", " << imageData->GetExtent()[2] << ", "
                  << imageData->GetExtent()[3] << ", " << imageData->GetExtent()[4] << ", "
                  << imageData->GetExtent()[5] << "]";
+
+    // Direction
+    // Write the matrix using vtk.js convention for direction matrices (transpose the matrix)
+    auto direction = imageData->GetDirectionMatrix()->GetData();
+    metaJsonFile << ",\n  \"direction\": [" << direction[0] << ", " << direction[3] << ", "
+                 << direction[6] << ", " << direction[1] << ", " << direction[4] << ", "
+                 << direction[7] << ", " << direction[2] << ", " << direction[5] << ", "
+                 << direction[8] << "]";
   }
 
   // PolyData
@@ -223,86 +216,186 @@ void vtkJSONDataSetWriter::WriteData()
 
     vtkPoints* points = polyData->GetPoints();
     metaJsonFile << ",\n  \"points\": "
-                 << this->WriteArray(points->GetData(), "vtkPoints", "points").c_str();
+                 << this->WriteArray(points->GetData(), "vtkPoints", "points");
 
     // Verts
     vtkNew<vtkIdTypeArray> cells;
     polyData->GetVerts()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
-      metaJsonFile << ",\n  \"verts\": "
-                   << this->WriteArray(cells, "vtkCellArray", "verts").c_str();
+      metaJsonFile << ",\n  \"verts\": " << this->WriteArray(cells, "vtkCellArray", "verts");
     }
 
     // Lines
     polyData->GetLines()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
-      metaJsonFile << ",\n  \"lines\": "
-                   << this->WriteArray(cells, "vtkCellArray", "lines").c_str();
+      metaJsonFile << ",\n  \"lines\": " << this->WriteArray(cells, "vtkCellArray", "lines");
     }
 
     // Strips
     polyData->GetStrips()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
-      metaJsonFile << ",\n  \"strips\": "
-                   << this->WriteArray(cells, "vtkCellArray", "strips").c_str();
+      metaJsonFile << ",\n  \"strips\": " << this->WriteArray(cells, "vtkCellArray", "strips");
     }
 
     // Polys
     polyData->GetPolys()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
-      metaJsonFile << ",\n  \"polys\": "
-                   << this->WriteArray(cells, "vtkCellArray", "polys").c_str();
+      metaJsonFile << ",\n  \"polys\": " << this->WriteArray(cells, "vtkCellArray", "polys");
     }
   }
 
   // PointData
-  std::string fieldJSON = this->WriteDataSetAttributes(ds->GetPointData(), "pointData");
+  bool isEmpty = true;
+  std::string fieldJSON = this->WriteDataSetAttributes(dataset->GetPointData(), "pointData");
   if (!fieldJSON.empty())
   {
-    metaJsonFile << ",\n" << fieldJSON.c_str();
+    isEmpty = false;
+    metaJsonFile << ",\n" << fieldJSON;
   }
 
   // CellData
-  fieldJSON = this->WriteDataSetAttributes(ds->GetCellData(), "cellData");
+  fieldJSON = this->WriteDataSetAttributes(dataset->GetCellData(), "cellData");
   if (!fieldJSON.empty())
   {
-    metaJsonFile << ",\n" << fieldJSON.c_str();
+    isEmpty = false;
+    metaJsonFile << ",\n" << fieldJSON;
   }
 
   metaJsonFile << "}\n";
 
-  // Write meta-data file
-  std::stringstream scenePath;
-  scenePath << this->FileName << "/index.json";
-
-  ofstream file;
-  file.open(scenePath.str().c_str(), ios::out);
-  file << metaJsonFile.str().c_str();
-  file.close();
+  // Create archive only if there's actually something to write
+  if (this->ValidDataSet || !isEmpty)
+  {
+    this->GetArchiver()->OpenArchive();
+    std::string metaJsonFileStr = metaJsonFile.str();
+    this->GetArchiver()->InsertIntoArchive(
+      "index.json", metaJsonFileStr.c_str(), metaJsonFileStr.size());
+    this->GetArchiver()->CloseArchive();
+  }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkJSONDataSetWriter::WriteData()
+{
+  vtkDataSet* dataset = this->GetInput();
+  this->Write(dataset);
+}
 
+//------------------------------------------------------------------------------
+bool vtkJSONDataSetWriter::WriteArrayContents(vtkDataArray* input, const char* filePath)
+{
+  if (input->GetDataTypeSize() == 0)
+  {
+    // Skip BIT arrays
+    return false;
+  }
+
+  // Check if we need to convert the (u)int64 to (u)int32
+  vtkSmartPointer<vtkDataArray> arrayToWrite = input;
+  vtkIdType arraySize = input->GetNumberOfTuples() * input->GetNumberOfComponents();
+  switch (input->GetDataType())
+  {
+    case VTK_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_LONG:
+    case VTK_UNSIGNED_LONG_LONG:
+      if (input->GetDataTypeSize() > 4)
+      {
+        vtkNew<vtkTypeUInt64Array> srcUInt64;
+        srcUInt64->ShallowCopy(input);
+        vtkNew<vtkTypeUInt32Array> uint32;
+        uint32->SetNumberOfValues(arraySize);
+        uint32->SetName(input->GetName());
+        for (vtkIdType i = 0; i < arraySize; i++)
+        {
+          uint32->SetValue(i, srcUInt64->GetValue(i));
+        }
+        arrayToWrite = uint32;
+      }
+      break;
+    case VTK_LONG:
+    case VTK_LONG_LONG:
+    case VTK_ID_TYPE:
+      if (input->GetDataTypeSize() > 4)
+      {
+        vtkNew<vtkTypeInt64Array> srcInt64;
+        srcInt64->ShallowCopy(input);
+        vtkNew<vtkTypeInt32Array> int32;
+        int32->SetNumberOfTuples(arraySize);
+        int32->SetName(input->GetName());
+        for (vtkIdType i = 0; i < arraySize; i++)
+        {
+          int32->SetValue(i, srcInt64->GetValue(i));
+        }
+        arrayToWrite = int32;
+      }
+      break;
+    default:
+      arrayToWrite = input;
+      break;
+  }
+
+  const char* content = (const char*)arrayToWrite->GetVoidPointer(0);
+  size_t size = arrayToWrite->GetNumberOfValues() * arrayToWrite->GetDataTypeSize();
+
+  this->GetArchiver()->InsertIntoArchive(filePath, content, size);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+namespace
+{
+class vtkSingleFileArchiver : public vtkArchiver
+{
+public:
+  static vtkSingleFileArchiver* New();
+  vtkTypeMacro(vtkSingleFileArchiver, vtkArchiver);
+
+  void OpenArchive() override {}
+  void CloseArchive() override {}
+  void InsertIntoArchive(const std::string& filePath, const char* data, std::size_t size) override
+  {
+    vtksys::ofstream file;
+    file.open(filePath.c_str(), ios::out | ios::binary);
+    file.write(data, size);
+    file.close();
+  }
+
+private:
+  vtkSingleFileArchiver() = default;
+  ~vtkSingleFileArchiver() override = default;
+};
+vtkStandardNewMacro(vtkSingleFileArchiver);
+}
+
+//------------------------------------------------------------------------------
+bool vtkJSONDataSetWriter::WriteArrayAsRAW(vtkDataArray* array, const char* filePath)
+{
+  vtkNew<vtkJSONDataSetWriter> writer;
+  vtkNew<vtkSingleFileArchiver> archiver;
+  writer->SetArchiver(archiver);
+  return writer->WriteArrayContents(array, filePath);
+}
+
+//------------------------------------------------------------------------------
 void vtkJSONDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
 int vtkJSONDataSetWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Static helper functions
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkJSONDataSetWriter::ComputeMD5(const unsigned char* content, int size, std::string& hash)
 {
@@ -320,7 +413,7 @@ void vtkJSONDataSetWriter::ComputeMD5(const unsigned char* content, int size, st
   hash = md5Hash;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 std::string vtkJSONDataSetWriter::GetShortType(vtkDataArray* input, bool& needConversion)
 {
@@ -373,7 +466,6 @@ std::string vtkJSONDataSetWriter::GetShortType(vtkDataArray* input, bool& needCo
 
     case VTK_BIT:
     case VTK_STRING:
-    case VTK_UNICODE_STRING:
     case VTK_VARIANT:
     default:
       ss << "xxx";
@@ -383,7 +475,7 @@ std::string vtkJSONDataSetWriter::GetShortType(vtkDataArray* input, bool& needCo
   return ss.str();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 std::string vtkJSONDataSetWriter::GetUID(vtkDataArray* input, bool& needConversion)
 {
@@ -393,13 +485,13 @@ std::string vtkJSONDataSetWriter::GetUID(vtkDataArray* input, bool& needConversi
   vtkJSONDataSetWriter::ComputeMD5(content, size, hash);
 
   std::stringstream ss;
-  ss << vtkJSONDataSetWriter::GetShortType(input, needConversion) << "_" << input->GetNumberOfValues()
-     << "-" << hash.c_str();
+  ss << vtkJSONDataSetWriter::GetShortType(input, needConversion) << "_"
+     << input->GetNumberOfValues() << "-" << hash;
 
   return ss.str();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 std::string vtkJSONDataSetWriter::GetValidString(const char* name)
 {
@@ -412,68 +504,4 @@ std::string vtkJSONDataSetWriter::GetValidString(const char* name)
 
   return ss.str();
 }
-
-// ----------------------------------------------------------------------------
-
-bool vtkJSONDataSetWriter::WriteArrayAsRAW(vtkDataArray* input, const char* filePath)
-{
-  if (input->GetDataTypeSize() == 0)
-  {
-    // Skip BIT arrays
-    return false;
-  }
-
-  // Make sure parent directory exist
-  vtksys::SystemTools::MakeDirectory(vtksys::SystemTools::GetParentDirectory(filePath));
-
-  // Check if we need to convert the (u)int64 to (u)int32
-  vtkSmartPointer<vtkDataArray> arrayToWrite = input;
-  vtkIdType arraySize = input->GetNumberOfTuples() * input->GetNumberOfComponents();
-  switch (input->GetDataType())
-  {
-    case VTK_UNSIGNED_CHAR:
-    case VTK_UNSIGNED_LONG:
-    case VTK_UNSIGNED_LONG_LONG:
-      if (input->GetDataTypeSize() > 4)
-      {
-        vtkNew<vtkTypeUInt64Array> srcUInt64;
-        srcUInt64->ShallowCopy(input);
-        vtkNew<vtkTypeUInt32Array> uint32;
-        uint32->SetNumberOfValues(arraySize);
-        uint32->SetName(input->GetName());
-        for (vtkIdType i = 0; i < arraySize; i++)
-        {
-          uint32->SetValue(i, srcUInt64->GetValue(i));
-        }
-        arrayToWrite = uint32;
-      }
-      break;
-    case VTK_LONG:
-    case VTK_LONG_LONG:
-    case VTK_ID_TYPE:
-      if (input->GetDataTypeSize() > 4)
-      {
-        vtkNew<vtkTypeInt64Array> srcInt64;
-        srcInt64->ShallowCopy(input);
-        vtkNew<vtkTypeInt32Array> int32;
-        int32->SetNumberOfTuples(arraySize);
-        int32->SetName(input->GetName());
-        for (vtkIdType i = 0; i < arraySize; i++)
-        {
-          int32->SetValue(i, srcInt64->GetValue(i));
-        }
-        arrayToWrite = int32;
-      }
-      break;
-  }
-
-  const char* content = (const char*)arrayToWrite->GetVoidPointer(0);
-  size_t size = arrayToWrite->GetNumberOfValues() * arrayToWrite->GetDataTypeSize();
-
-  ofstream file;
-  file.open(filePath, ios::out | ios::binary);
-  file.write(content, size);
-  file.close();
-
-  return true;
-}
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridAxisReflection.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHyperTreeGridAxisReflection.h"
 
 #include "vtkCellData.h"
@@ -22,12 +10,12 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkUniformHyperTreeGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridAxisReflection);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridAxisReflection::vtkHyperTreeGridAxisReflection()
 {
   // Default reflection plane is lower X bounding plane
@@ -36,14 +24,13 @@ vtkHyperTreeGridAxisReflection::vtkHyperTreeGridAxisReflection()
   // Default plane position is at origin
   this->Center = 0.;
 
-  // JB Pour sortir un maillage de meme type que celui en entree
   this->AppropriateOutput = true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkHyperTreeGridAxisReflection::~vtkHyperTreeGridAxisReflection() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridAxisReflection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -52,14 +39,14 @@ void vtkHyperTreeGridAxisReflection::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Center: " << this->Center << endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridAxisReflection::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   // Skip empty inputs
@@ -80,8 +67,8 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
   output->CopyStructure(input);
 
   // Shallow copy data of input into output
-  this->InData = input->GetPointData();
-  this->OutData = output->GetPointData();
+  this->InData = input->GetCellData();
+  this->OutData = output->GetCellData();
   this->OutData->PassData(this->InData);
 
   // Retrieve reflection direction and coordinates to be reflected
@@ -214,7 +201,7 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
   // Retrieve interface arrays if available
   vtkDataArray* inNormals = nullptr;
   vtkDataArray* inIntercepts = nullptr;
-  bool hasInterface = input->GetHasInterface() ? true : false;
+  bool hasInterface = input->GetHasInterface();
   if (hasInterface)
   {
     inNormals = this->OutData->GetArray(output->GetInterfaceNormalsName());
@@ -236,9 +223,12 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
     outNormals = vtkDoubleArray::New();
     outNormals->SetNumberOfComponents(3);
     outNormals->SetNumberOfTuples(nTuples);
+    outNormals->SetName("outNormals");
+
     outIntercepts = vtkDoubleArray::New();
     outIntercepts->SetNumberOfComponents(3);
     outIntercepts->SetNumberOfTuples(nTuples);
+    outIntercepts->SetName("outIntercepts");
 
     // Reflect interface normals if present
     // Iterate over all cells
@@ -275,14 +265,18 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
   vtkIdType index;
   while ((tree = it.GetNextTree(index)))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     assert(tree->GetTreeIndex() == index);
     double origin[3];
     double scale[3];
     output->GetLevelZeroOriginAndSizeFromIndex(index, origin, scale);
-    // JB Quid du Uniform ?
     tree->SetScales(std::make_shared<vtkHyperTreeGridScales>(output->GetBranchFactor(), scale));
   }
   //
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

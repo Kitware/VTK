@@ -1,49 +1,65 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkBox,
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersSources import vtkCubeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 renWin.SetSize(600,200)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create a cube and cut it with a plane
 #
-boxL = vtk.vtkCubeSource()
+boxL = vtkCubeSource()
 boxL.SetBounds(-2.5,-1.5, -0.5,0.5, -0.5,0.5)
 
-boxC = vtk.vtkCubeSource()
+boxC = vtkCubeSource()
 boxC.SetBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
 
-boxR = vtk.vtkCubeSource()
+boxR = vtkCubeSource()
 boxR.SetBounds(1.5,2.5, -0.5,0.5, -0.5,0.5)
 
-mapperL = vtk.vtkPolyDataMapper()
+mapperL = vtkPolyDataMapper()
 mapperL.SetInputConnection(boxL.GetOutputPort())
 
-mapperC = vtk.vtkPolyDataMapper()
+mapperC = vtkPolyDataMapper()
 mapperC.SetInputConnection(boxC.GetOutputPort())
 
-mapperR = vtk.vtkPolyDataMapper()
+mapperR = vtkPolyDataMapper()
 mapperR.SetInputConnection(boxR.GetOutputPort())
 
-actorL = vtk.vtkActor()
+actorL = vtkActor()
 actorL.SetMapper(mapperL)
 actorL.GetProperty().SetRepresentationToWireframe()
 actorL.GetProperty().SetAmbient(1)
 
-actorC = vtk.vtkActor()
+actorC = vtkActor()
 actorC.SetMapper(mapperC)
 actorC.GetProperty().SetRepresentationToWireframe()
 actorC.GetProperty().SetAmbient(1)
 
-actorR = vtk.vtkActor()
+actorR = vtkActor()
 actorR.SetMapper(mapperR)
 actorR.GetProperty().SetRepresentationToWireframe()
 actorR.GetProperty().SetAmbient(1)
@@ -56,14 +72,14 @@ ren.AddActor(actorR)
 origin = [0,0,0]
 xout = [0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0]
 bds = [0,0, 0,0, 0,0]
-clipBox = vtk.vtkBox()
+clipBox = vtkBox()
 
 # Left
 normal = [1,1,1]
 origin = boxL.GetCenter()
-pdL = vtk.vtkPolyData()
-polyL = vtk.vtkCellArray()
-ptsL = vtk.vtkPoints()
+pdL = vtkPolyData()
+polyL = vtkCellArray()
+ptsL = vtkPoints()
 pdL.SetPoints(ptsL)
 pdL.SetPolys(polyL)
 ptsL.SetDataTypeToDouble()
@@ -75,18 +91,18 @@ polyL.InsertNextCell(numInts)
 for i in range(0,numInts):
     ptsL.SetPoint(i,xout[3*i],xout[3*i+1],xout[3*i+2])
     polyL.InsertCellPoint(i)
-mapperPL = vtk.vtkPolyDataMapper()
+mapperPL = vtkPolyDataMapper()
 mapperPL.SetInputData(pdL)
-actorPL = vtk.vtkActor()
+actorPL = vtkActor()
 actorPL.SetMapper(mapperPL)
 ren.AddActor(actorPL)
 
 # Center
 normal = [.4,.8,.4]
 origin = boxC.GetCenter()
-pdC = vtk.vtkPolyData()
-polyC = vtk.vtkCellArray()
-ptsC = vtk.vtkPoints()
+pdC = vtkPolyData()
+polyC = vtkCellArray()
+ptsC = vtkPoints()
 pdC.SetPoints(ptsC)
 pdC.SetPolys(polyC)
 ptsC.SetDataTypeToDouble()
@@ -98,18 +114,18 @@ polyC.InsertNextCell(numInts)
 for i in range(0,numInts):
     ptsC.SetPoint(i,xout[3*i],xout[3*i+1],xout[3*i+2])
     polyC.InsertCellPoint(i)
-mapperPC = vtk.vtkPolyDataMapper()
+mapperPC = vtkPolyDataMapper()
 mapperPC.SetInputData(pdC)
-actorPC = vtk.vtkActor()
+actorPC = vtkActor()
 actorPC.SetMapper(mapperPC)
 ren.AddActor(actorPC)
 
 # Right
 normal = [0,0,1]
 origin = boxR.GetCenter()
-pdR = vtk.vtkPolyData()
-polyR = vtk.vtkCellArray()
-ptsR = vtk.vtkPoints()
+pdR = vtkPolyData()
+polyR = vtkCellArray()
+ptsR = vtkPoints()
 pdR.SetPoints(ptsR)
 pdR.SetPolys(polyR)
 ptsR.SetDataTypeToDouble()
@@ -121,9 +137,9 @@ polyR.InsertNextCell(numInts)
 for i in range(0,numInts):
     ptsR.SetPoint(i,xout[3*i],xout[3*i+1],xout[3*i+2])
     polyR.InsertCellPoint(i)
-mapperPR = vtk.vtkPolyDataMapper()
+mapperPR = vtkPolyDataMapper()
 mapperPR.SetInputData(pdR)
-actorPR = vtk.vtkActor()
+actorPR = vtkActor()
 actorPR.SetMapper(mapperPR)
 ren.AddActor(actorPR)
 

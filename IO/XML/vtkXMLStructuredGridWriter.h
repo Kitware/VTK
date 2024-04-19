@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLStructuredGridWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLStructuredGridWriter
  * @brief   Write VTK XML StructuredGrid files.
@@ -24,7 +12,7 @@
  *
  * @sa
  * vtkXMLPStructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLStructuredGridWriter_h
 #define vtkXMLStructuredGridWriter_h
@@ -32,13 +20,14 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredGrid;
 
 class VTKIOXML_EXPORT vtkXMLStructuredGridWriter : public vtkXMLStructuredDataWriter
 {
 public:
   static vtkXMLStructuredGridWriter* New();
-  vtkTypeMacro(vtkXMLStructuredGridWriter,vtkXMLStructuredDataWriter);
+  vtkTypeMacro(vtkXMLStructuredGridWriter, vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -67,7 +56,7 @@ protected:
 
   // The position of the appended data offset attribute for the points
   // array.
-  OffsetsManagerGroup *PointsOM;  //one per piece
+  OffsetsManagerGroup* PointsOM; // one per piece
 
   void AllocatePositionArrays() override;
   void DeletePositionArrays() override;
@@ -77,4 +66,5 @@ private:
   void operator=(const vtkXMLStructuredGridWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

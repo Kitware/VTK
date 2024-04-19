@@ -25,6 +25,7 @@ function(vtk_add_pdf_test_cxx)
       REQUIRED_FILES
       "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}.pdf"
       LABELS "${_vtk_build_test_labels}"
+      ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID"
       )
 
     get_filename_component(TName ${test} NAME_WE)
@@ -49,6 +50,7 @@ function(vtk_add_pdf_test_cxx)
       DEPENDS "${_vtk_build_test}Cxx-${TName}-RasterizePDFToPNG"
       REQUIRED_FILES
       "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-rasterPDF.png"
+      ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID"
       LABELS "${_vtk_build_test_labels}"
       )
   endforeach()

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestLinePlotGL2PS.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkChartXY.h"
 #include "vtkContextScene.h"
@@ -27,8 +15,8 @@
 #include "vtkTable.h"
 #include "vtkTestingInteractor.h"
 
-//----------------------------------------------------------------------------
-int TestLinePlotGL2PS(int , char * [])
+//------------------------------------------------------------------------------
+int TestLinePlotGL2PS(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -59,7 +47,7 @@ int TestLinePlotGL2PS(int , char * [])
   table->AddColumn(arr0);
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -72,7 +60,7 @@ int TestLinePlotGL2PS(int , char * [])
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlotLine *line = vtkPlotLine::SafeDownCast(chart->AddPlot(vtkChart::LINE));
+  vtkPlotLine* line = vtkPlotLine::SafeDownCast(chart->AddPlot(vtkChart::LINE));
   line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
@@ -98,7 +86,6 @@ int TestLinePlotGL2PS(int , char * [])
   line->SetWidth(4.0);
   line->SetMarkerStyle(vtkPlotLine::PLUS);
 
-
   // Render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();
@@ -110,8 +97,7 @@ int TestLinePlotGL2PS(int , char * [])
   exp->CompressOff();
   exp->DrawBackgroundOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestLinePlotGL2PS");
+  std::string fileprefix = vtkTestingInteractor::TempDirectory + std::string("/TestLinePlotGL2PS");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
@@ -119,7 +105,7 @@ int TestLinePlotGL2PS(int , char * [])
   exp->SetFileFormatToPDF();
   exp->Write();
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
 

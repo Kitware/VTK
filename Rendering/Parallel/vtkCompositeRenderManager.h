@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCompositeRenderManager.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCompositeRenderManager
  * @brief   An object to control sort-last parallel rendering.
@@ -21,14 +9,15 @@
  * uses compositing to do parallel rendering.  This class has
  * replaced vtkCompositeManager.
  *
-*/
+ */
 
 #ifndef vtkCompositeRenderManager_h
 #define vtkCompositeRenderManager_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkParallelRenderManager.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositer;
 class vtkFloatArray;
 
@@ -36,35 +25,36 @@ class VTKRENDERINGPARALLEL_EXPORT vtkCompositeRenderManager : public vtkParallel
 {
 public:
   vtkTypeMacro(vtkCompositeRenderManager, vtkParallelRenderManager);
-  static vtkCompositeRenderManager *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkCompositeRenderManager* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the composite algorithm.
    */
-  void SetCompositer(vtkCompositer *c);
+  void SetCompositer(vtkCompositer* c);
   vtkGetObjectMacro(Compositer, vtkCompositer);
-  //@}
+  ///@}
 
 protected:
   vtkCompositeRenderManager();
   ~vtkCompositeRenderManager() override;
 
-  vtkCompositer *Compositer;
+  vtkCompositer* Compositer;
 
   void PreRenderProcessing() override;
   void PostRenderProcessing() override;
 
-  vtkFloatArray *DepthData;
-  vtkUnsignedCharArray *TmpPixelData;
-  vtkFloatArray *TmpDepthData;
+  vtkFloatArray* DepthData;
+  vtkUnsignedCharArray* TmpPixelData;
+  vtkFloatArray* TmpDepthData;
 
   int SavedMultiSamplesSetting;
 
 private:
-  vtkCompositeRenderManager(const vtkCompositeRenderManager &) = delete;
-  void operator=(const vtkCompositeRenderManager &) = delete;
+  vtkCompositeRenderManager(const vtkCompositeRenderManager&) = delete;
+  void operator=(const vtkCompositeRenderManager&) = delete;
 };
 
-#endif //vtkCompositeRenderManager_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkCompositeRenderManager_h

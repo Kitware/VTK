@@ -1,15 +1,14 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkgl2ps/COPYING.GL2PS"
-                  "vtkgl2ps/COPYING.LGPL"
-    VERSION       "1.4.0"
+    LICENSE_FILES           "vtkgl2ps/COPYING.GL2PS"
+    SPDX_LICENSE_IDENTIFIER "GL2PS"
+    SPDX_COPYRIGHT_TEXT     "Copyright (C) 2003, Christophe Geuzaine"
+    SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/third-party/gl2ps.git@for/vtk-20200930-1.4.2"
+    VERSION                 "1.4.2"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE GL2PS
-    # Unreleased. Requires these commits:
-    # https://gitlab.onelab.info/gl2ps/gl2ps/commit/2b7018cce99dfdf3a338e796530551d89d5730ff
-    # https://gitlab.onelab.info/gl2ps/gl2ps/commit/f3417eb98cff4bad0dbfbb7b5d3a0d69f8a10106
-    VERSION 1.4.1
+    VERSION 1.4.2
     TARGETS GL2PS::GL2PS
     STANDARD_INCLUDE_DIRS)
 

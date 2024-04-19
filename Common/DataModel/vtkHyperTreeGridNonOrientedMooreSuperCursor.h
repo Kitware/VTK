@@ -1,22 +1,9 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridNonOrientedMooreSuperCursor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright Nonice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHyperTreeGridNonOrientedMooreSuperCursor
  * @brief   Objects for traversal a HyperTreeGrid.
  *
- * JB A REVOIR
  * Objects that can perform depth traversal of a hyper tree grid,
  * take into account more parameters (related to the grid structure) than
  * the compact hyper tree cursor implemented in vtkHyperTree can.
@@ -24,7 +11,9 @@
  * Cursors are created by the HyperTreeGrid implementation.
  *
  * @sa
- * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
+ * vtkHyperTree vtkHyperTreeGrid
+ *
+ * This supercursor allows to visit all neighbors including diagonal ones.
  *
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien, 2014.
@@ -33,7 +22,7 @@
  * Guenole Harel and Jerome Dubois, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridNonOrientedMooreSuperCursor_h
 #define vtkHyperTreeGridNonOrientedMooreSuperCursor_h
@@ -41,37 +30,38 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkHyperTreeGridNonOrientedSuperCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedMooreSuperCursor : public vtkHyperTreeGridNonOrientedSuperCursor
+class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedMooreSuperCursor
+  : public vtkHyperTreeGridNonOrientedSuperCursor
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridNonOrientedMooreSuperCursor, vtkHyperTreeGridNonOrientedSuperCursor);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHyperTreeGridNonOrientedMooreSuperCursor* New();
 
   /**
    * Initialize cursor at root of given tree index in grid.
-   * JB Le create ne s'applique que sur le HT central.
+   * "create" only applies to the central HT
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false ) override;
+  void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false) override;
 
   /**
    * Return the list of cursors pointing to the leaves touching a
    * given corner of the cell.
    * Return whether the considered cell is the owner of said corner.
-   * JB Utilise aujourd'hui dans les filtres vtkHyperTreeGridContour et vtkHyperTreeGridPlaneCutter.
+   * Used by filters vtkHyperTreeGridContour and vtkHyperTreeGridPlaneCutter.
    */
-  bool GetCornerCursors( unsigned int, unsigned int, vtkIdList* );
+  bool GetCornerCursors(unsigned int, unsigned int, vtkIdList*);
 
 protected:
-
   /**
    * Constructor
    */
-  vtkHyperTreeGridNonOrientedMooreSuperCursor() {};
+  vtkHyperTreeGridNonOrientedMooreSuperCursor() = default;
 
   /**
    * Destructor
@@ -79,8 +69,10 @@ protected:
   ~vtkHyperTreeGridNonOrientedMooreSuperCursor() override;
 
 private:
-  vtkHyperTreeGridNonOrientedMooreSuperCursor(const vtkHyperTreeGridNonOrientedMooreSuperCursor&) = delete;
+  vtkHyperTreeGridNonOrientedMooreSuperCursor(
+    const vtkHyperTreeGridNonOrientedMooreSuperCursor&) = delete;
   void operator=(const vtkHyperTreeGridNonOrientedMooreSuperCursor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

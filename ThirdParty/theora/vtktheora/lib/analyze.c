@@ -285,7 +285,7 @@ static void oc_fr_state_advance_sb(oc_fr_state *_fr,
 static void oc_fr_state_flush_sb(oc_fr_state *_fr){
   ptrdiff_t bits;
   int       sb_partial;
-  int       sb_full=sb_full;
+  int       sb_full=-1;
   int       b_coded_count;
   int       b_coded;
   int       b_count;
@@ -323,7 +323,7 @@ static void oc_fr_state_advance_block(oc_fr_state *_fr,int _b_coded){
   int       b_coded_count;
   int       b_count;
   int       sb_partial;
-  int       sb_full=sb_full;
+  int       sb_full=-1;
   bits=_fr->bits;
   /*Extend the b_coded run, or start a new one.*/
   b_coded_count=_fr->b_coded_count;

@@ -29,11 +29,8 @@ a UNIX-style select system call.
 #  define KWSYS_WINDOWS_DEPRECATED_GetVersionEx
 #endif
 #include <io.h>     /* _unlink */
-#include <stdio.h>  /* sprintf */
+#include <stdio.h>  /* snprintf */
 #include <string.h> /* strlen, strdup */
-#ifdef __WATCOMC__
-#  define _unlink unlink
-#endif
 
 #ifndef _MAX_FNAME
 #  define _MAX_FNAME 4096
@@ -46,11 +43,6 @@ a UNIX-style select system call.
 #  pragma warning(pop)
 #  pragma warning(disable : 4514)
 #  pragma warning(disable : 4706)
-#endif
-
-#if defined(__BORLANDC__)
-#  pragma warn - 8004 /* assigned a value that is never used  */
-#  pragma warn - 8060 /* Assignment inside if() condition.  */
 #endif
 
 /* There are pipes for the process pipeline's stdout and stderr.  */
@@ -761,7 +753,7 @@ void kwsysProcess_SetPipeShared(kwsysProcess* cp, int pipe, int shared)
   }
 }
 
-void kwsysProcess_SetPipeNative(kwsysProcess* cp, int pipe, HANDLE p[2])
+void kwsysProcess_SetPipeNative(kwsysProcess* cp, int pipe, const HANDLE p[2])
 {
   HANDLE* pPipeNative = 0;
 
@@ -970,7 +962,10 @@ void kwsysProcess_Execute(kwsysProcess* cp)
       kwsysProcessCleanup(cp, GetLastError());
       return;
     }
-    SetCurrentDirectoryW(cp->WorkingDirectory);
+    if (!SetCurrentDirectoryW(cp->WorkingDirectory)) {
+      kwsysProcessCleanup(cp, GetLastError());
+      return;
+    }
   }
 
   /* Setup the stdin pipe for the first process.  */
@@ -1872,18 +1867,18 @@ void kwsysProcessCleanup(kwsysProcess* cp, DWORD error)
         KWSYSPE_PIPE_BUFFER_SIZE, 0);
       if (length < 1) {
         /* FormatMessage failed.  Use a default message.  */
-        _snprintf(cp->ErrorMessage, KWSYSPE_PIPE_BUFFER_SIZE,
-                  "Process execution failed with error 0x%X.  "
-                  "FormatMessage failed with error 0x%X",
-                  error, GetLastError());
+        snprintf(cp->ErrorMessage, KWSYSPE_PIPE_BUFFER_SIZE,
+                 "Process execution failed with error 0x%lX.  "
+                 "FormatMessage failed with error 0x%lX",
+                 error, GetLastError());
       }
       if (!WideCharToMultiByte(CP_UTF8, 0, err_msg, -1, cp->ErrorMessage,
                                KWSYSPE_PIPE_BUFFER_SIZE, NULL, NULL)) {
         /* WideCharToMultiByte failed.  Use a default message.  */
-        _snprintf(cp->ErrorMessage, KWSYSPE_PIPE_BUFFER_SIZE,
-                  "Process execution failed with error 0x%X.  "
-                  "WideCharToMultiByte failed with error 0x%X",
-                  error, GetLastError());
+        snprintf(cp->ErrorMessage, KWSYSPE_PIPE_BUFFER_SIZE,
+                 "Process execution failed with error 0x%lX.  "
+                 "WideCharToMultiByte failed with error 0x%lX",
+                 error, GetLastError());
       }
     }
 
@@ -2124,7 +2119,7 @@ static void kwsysProcessSetExitExceptionByIndex(kwsysProcess* cp, int code,
       KWSYSPE_CASE(Fault, "In-page error");
       break;
     case STATUS_INVALID_HANDLE:
-      KWSYSPE_CASE(Fault, "Invalid hanlde");
+      KWSYSPE_CASE(Fault, "Invalid handle");
       break;
     case STATUS_NONCONTINUABLE_EXCEPTION:
       KWSYSPE_CASE(Fault, "Noncontinuable exception");
@@ -2149,8 +2144,8 @@ static void kwsysProcessSetExitExceptionByIndex(kwsysProcess* cp, int code,
     case STATUS_NO_MEMORY:
     default:
       cp->ProcessResults[idx].ExitException = kwsysProcess_Exception_Other;
-      _snprintf(cp->ProcessResults[idx].ExitExceptionString,
-                KWSYSPE_PIPE_BUFFER_SIZE, "Exit code 0x%x\n", code);
+      snprintf(cp->ProcessResults[idx].ExitExceptionString,
+               KWSYSPE_PIPE_BUFFER_SIZE, "Exit code 0x%x\n", code);
       break;
   }
 }

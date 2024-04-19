@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "TestQtCommon.h"
 #include <vtkNew.h>
 #include <vtkRenderWindow.h>
@@ -18,7 +20,7 @@ int TestQtSwapWindows(int argc, char* argv[])
   QApplication app(argc, argv);
 
   // Set up frame with two horizontally stacked panels,
-  // Each containing a QVTKOpenGLWidget
+  // Each containing a QVTKOpenGLStereoWidget
   QWidget frame;
   QHBoxLayout* layout = new QHBoxLayout(&frame);
 
@@ -45,9 +47,9 @@ int TestQtSwapWindows(int argc, char* argv[])
   frame.show();
   detail::get_render_window(leftVTKWidget)->Render();
   detail::get_render_window(rightVTKWidget)->Render();
-  app.processEvents();
+  QApplication::processEvents();
 
-  // Swap QVTKOpenGLWidget
+  // Swap QVTKOpenGLStereoWidget
   rightLayout->removeWidget(rightVTKWidget.get());
   leftLayout->removeWidget(leftVTKWidget.get());
   rightVTKWidget->setParent(leftPanel);
@@ -58,6 +60,6 @@ int TestQtSwapWindows(int argc, char* argv[])
   // Process events again
   detail::get_render_window(leftVTKWidget)->Render();
   detail::get_render_window(rightVTKWidget)->Render();
-  app.processEvents();
+  QApplication::processEvents();
   return EXIT_SUCCESS;
 }

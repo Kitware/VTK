@@ -1,41 +1,25 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMedicalImageProperties.cxx,v
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkMedicalImageProperties.h"
 #include "vtkObjectFactory.h"
 
-#include <string>
 #include <map>
-#include <vector>
 #include <set>
+#include <string>
+#include <vector>
 
-#include <ctime> // for strftime
-#include <cctype> // for isdigit
 #include <cassert>
+#include <cctype> // for isdigit
+#include <ctime>  // for strftime
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
-static const char *vtkMedicalImagePropertiesOrientationString[] = {
-  "AXIAL",
-  "CORONAL",
-  "SAGITTAL",
-  nullptr
-};
+static const char* vtkMedicalImagePropertiesOrientationString[] = { "AXIAL", "CORONAL", "SAGITTAL",
+  nullptr };
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkMedicalImagePropertiesInternals
 {
 public:
@@ -50,34 +34,35 @@ public:
   class UserDefinedValue
   {
   public:
-    UserDefinedValue(const char *name = nullptr, const char *value = nullptr):Name(name ? name : ""),Value(value ? value : "") {}
+    UserDefinedValue(const char* name = nullptr, const char* value = nullptr)
+      : Name(name ? name : "")
+      , Value(value ? value : "")
+    {
+    }
     std::string Name;
     std::string Value;
     // order for the std::set
-    bool operator<(const UserDefinedValue &udv) const
-    {
-      return Name < udv.Name;
-    }
+    bool operator<(const UserDefinedValue& udv) const { return Name < udv.Name; }
   };
-  typedef std::set< UserDefinedValue > UserDefinedValues;
+  typedef std::set<UserDefinedValue> UserDefinedValues;
   UserDefinedValues UserDefinedValuePool;
-  void AddUserDefinedValue(const char *name, const char *value)
+  void AddUserDefinedValue(const char* name, const char* value)
   {
-    if( name && *name && value && *value )
+    if (name && *name && value && *value)
     {
-      UserDefinedValuePool.insert( UserDefinedValues::value_type(name, value) );
+      UserDefinedValuePool.insert(UserDefinedValues::value_type(name, value));
     }
     // else raise a warning ?
   }
-  const char *GetUserDefinedValue(const char *name) const
+  const char* GetUserDefinedValue(const char* name) const
   {
-    if( name && *name )
+    if (name && *name)
     {
       UserDefinedValue key(name);
-      UserDefinedValues::const_iterator it = UserDefinedValuePool.find( key );
-      if( it != UserDefinedValuePool.end() )
+      UserDefinedValues::const_iterator it = UserDefinedValuePool.find(key);
+      if (it != UserDefinedValuePool.end())
       {
-        assert( strcmp(it->Name.c_str(), name) == 0 );
+        assert(it->Name == name);
         return it->Value.c_str();
       }
     }
@@ -87,12 +72,12 @@ public:
   {
     return static_cast<unsigned int>(UserDefinedValuePool.size());
   }
-  const char *GetUserDefinedNameByIndex(unsigned int idx)
+  const char* GetUserDefinedNameByIndex(unsigned int idx)
   {
-    if( idx < UserDefinedValuePool.size() )
+    if (idx < UserDefinedValuePool.size())
     {
       UserDefinedValues::const_iterator it = UserDefinedValuePool.begin();
-      while( idx )
+      while (idx)
       {
         ++it;
         idx--;
@@ -101,12 +86,12 @@ public:
     }
     return nullptr;
   }
-  const char *GetUserDefinedValueByIndex(unsigned int idx)
+  const char* GetUserDefinedValueByIndex(unsigned int idx)
   {
-    if( idx < UserDefinedValuePool.size() )
+    if (idx < UserDefinedValuePool.size())
     {
       UserDefinedValues::const_iterator it = UserDefinedValuePool.begin();
-      while( idx )
+      while (idx)
       {
         ++it;
         idx--;
@@ -115,10 +100,7 @@ public:
     }
     return nullptr;
   }
-  void RemoveAllUserDefinedValues()
-  {
-      UserDefinedValuePool.clear();
-  }
+  void RemoveAllUserDefinedValues() { UserDefinedValuePool.clear(); }
 
   typedef std::vector<WindowLevelPreset> WindowLevelPresetPoolType;
   typedef std::vector<WindowLevelPreset>::iterator WindowLevelPresetPoolIterator;
@@ -126,34 +108,34 @@ public:
   WindowLevelPresetPoolType WindowLevelPresetPool;
 
   // It is also useful to have a mapping from DICOM UID to slice id, for application like VolView
-  typedef std::map< unsigned int, std::string> SliceUIDType;
-  typedef std::vector< SliceUIDType > VolumeSliceUIDType;
+  typedef std::map<unsigned int, std::string> SliceUIDType;
+  typedef std::vector<SliceUIDType> VolumeSliceUIDType;
   VolumeSliceUIDType UID;
   void SetNumberOfVolumes(unsigned int n)
   {
     UID.resize(n);
     Orientation.resize(n);
   }
-  void SetUID(unsigned int vol, unsigned int slice, const char *uid)
+  void SetUID(unsigned int vol, unsigned int slice, const char* uid)
   {
-    SetNumberOfVolumes( vol + 1 );
+    SetNumberOfVolumes(vol + 1);
     UID[vol][slice] = uid;
   }
-  const char *GetUID(unsigned int vol, unsigned int slice)
+  const char* GetUID(unsigned int vol, unsigned int slice)
   {
-    assert( vol < UID.size() );
-    assert( UID[vol].find(slice) != UID[vol].end() );
-    //if( UID[vol].find(slice) == UID[vol].end() )
+    assert(vol < UID.size());
+    assert(UID[vol].find(slice) != UID[vol].end());
+    // if( UID[vol].find(slice) == UID[vol].end() )
     //  {
     //  this->Print( cerr, vtkIndent() );
     //  }
     return UID[vol].find(slice)->second.c_str();
   }
   // Extensive lookup
-  int FindSlice(int &vol, const char *uid)
+  int FindSlice(int& vol, const char* uid)
   {
     vol = -1;
-    for(unsigned int v = 0; v < UID.size(); ++v )
+    for (unsigned int v = 0; v < UID.size(); ++v)
     {
       SliceUIDType::const_iterator cit = UID[v].begin();
       while (cit != UID[v].end())
@@ -168,9 +150,9 @@ public:
     }
     return -1; // volume not found.
   }
-  int GetSlice(unsigned int vol, const char *uid)
+  int GetSlice(unsigned int vol, const char* uid)
   {
-    assert( vol < UID.size() );
+    assert(vol < UID.size());
     SliceUIDType::const_iterator cit = UID[vol].begin();
     while (cit != UID[vol].end())
     {
@@ -182,59 +164,54 @@ public:
     }
     return -1; // uid not found.
   }
-  void Print(ostream &os, vtkIndent indent)
+  void Print(ostream& os, vtkIndent indent)
   {
     os << indent << "WindowLevel: \n";
-    for( WindowLevelPresetPoolIterator it = WindowLevelPresetPool.begin(); it != WindowLevelPresetPool.end(); ++it )
+    for (WindowLevelPresetPoolIterator it = WindowLevelPresetPool.begin();
+         it != WindowLevelPresetPool.end(); ++it)
     {
-      const WindowLevelPreset &wlp = *it;
+      const WindowLevelPreset& wlp = *it;
       os << indent.GetNextIndent() << "Window: " << wlp.Window << "\n";
       os << indent.GetNextIndent() << "Level: " << wlp.Level << "\n";
       os << indent.GetNextIndent() << "Comment: " << wlp.Comment << "\n";
     }
     os << indent << "UID(s):\n";
-    for( VolumeSliceUIDType::const_iterator it = UID.begin();
-      it != UID.end();
-      ++it)
+    for (VolumeSliceUIDType::const_iterator it = UID.begin(); it != UID.end(); ++it)
     {
-      for( SliceUIDType::const_iterator it2 = it->begin();
-        it2 != it->end();
-        ++it2)
+      for (SliceUIDType::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
       {
-        os << indent.GetNextIndent()
-           << it2->first <<  "  " << it2->second << "\n";
+        os << indent.GetNextIndent() << it2->first << "  " << it2->second << "\n";
       }
     }
     os << indent << "Orientation(s):\n";
-    for( std::vector<unsigned int>::const_iterator it = Orientation.begin();
-      it != Orientation.end(); ++it)
+    for (std::vector<unsigned int>::const_iterator it = Orientation.begin();
+         it != Orientation.end(); ++it)
     {
-      os << indent.GetNextIndent()
-         << vtkMedicalImageProperties::GetStringFromOrientationType(*it) << "\n";
+      os << indent.GetNextIndent() << vtkMedicalImageProperties::GetStringFromOrientationType(*it)
+         << "\n";
     }
     os << indent << "User Defined Values: (" << UserDefinedValuePool.size() << ")\n";
     UserDefinedValues::const_iterator it2 = UserDefinedValuePool.begin();
-    for(; it2 != UserDefinedValuePool.end(); ++it2)
+    for (; it2 != UserDefinedValuePool.end(); ++it2)
     {
-      os << indent.GetNextIndent()
-         << it2->Name << " -> " << it2->Value << "\n";
+      os << indent.GetNextIndent() << it2->Name << " -> " << it2->Value << "\n";
     }
   }
   std::vector<unsigned int> Orientation;
   void SetOrientation(unsigned int vol, unsigned int ori)
   {
     // see SetNumberOfVolumes for allocation
-    assert( ori <= vtkMedicalImageProperties::SAGITTAL );
+    assert(ori <= vtkMedicalImageProperties::SAGITTAL);
     Orientation[vol] = ori;
   }
   unsigned int GetOrientation(unsigned int vol)
   {
-    assert( vol < Orientation.size() );
-    const unsigned int &val = Orientation[vol];
-    assert( val <= vtkMedicalImageProperties::SAGITTAL );
+    assert(vol < Orientation.size());
+    const unsigned int& val = Orientation[vol];
+    assert(val <= vtkMedicalImageProperties::SAGITTAL);
     return val;
   }
-  void DeepCopy(vtkMedicalImagePropertiesInternals *p)
+  void DeepCopy(vtkMedicalImagePropertiesInternals* p)
   {
     WindowLevelPresetPool = p->WindowLevelPresetPool;
     UserDefinedValuePool = p->UserDefinedValuePool;
@@ -243,42 +220,42 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMedicalImageProperties::vtkMedicalImageProperties()
 {
   this->Internals = new vtkMedicalImagePropertiesInternals;
 
-  this->StudyDate              = nullptr;
-  this->AcquisitionDate        = nullptr;
-  this->StudyTime              = nullptr;
-  this->AcquisitionTime        = nullptr;
-  this->ConvolutionKernel      = nullptr;
-  this->EchoTime               = nullptr;
-  this->EchoTrainLength        = nullptr;
-  this->Exposure               = nullptr;
-  this->ExposureTime           = nullptr;
-  this->GantryTilt             = nullptr;
-  this->ImageDate              = nullptr;
-  this->ImageNumber            = nullptr;
-  this->ImageTime              = nullptr;
-  this->InstitutionName        = nullptr;
-  this->KVP                    = nullptr;
-  this->ManufacturerModelName  = nullptr;
-  this->Manufacturer           = nullptr;
-  this->Modality               = nullptr;
-  this->PatientAge             = nullptr;
-  this->PatientBirthDate       = nullptr;
-  this->PatientID              = nullptr;
-  this->PatientName            = nullptr;
-  this->PatientSex             = nullptr;
-  this->RepetitionTime         = nullptr;
-  this->SeriesDescription      = nullptr;
-  this->SeriesNumber           = nullptr;
-  this->SliceThickness         = nullptr;
-  this->StationName            = nullptr;
-  this->StudyDescription       = nullptr;
-  this->StudyID                = nullptr;
-  this->XRayTubeCurrent        = nullptr;
+  this->StudyDate = nullptr;
+  this->AcquisitionDate = nullptr;
+  this->StudyTime = nullptr;
+  this->AcquisitionTime = nullptr;
+  this->ConvolutionKernel = nullptr;
+  this->EchoTime = nullptr;
+  this->EchoTrainLength = nullptr;
+  this->Exposure = nullptr;
+  this->ExposureTime = nullptr;
+  this->GantryTilt = nullptr;
+  this->ImageDate = nullptr;
+  this->ImageNumber = nullptr;
+  this->ImageTime = nullptr;
+  this->InstitutionName = nullptr;
+  this->KVP = nullptr;
+  this->ManufacturerModelName = nullptr;
+  this->Manufacturer = nullptr;
+  this->Modality = nullptr;
+  this->PatientAge = nullptr;
+  this->PatientBirthDate = nullptr;
+  this->PatientID = nullptr;
+  this->PatientName = nullptr;
+  this->PatientSex = nullptr;
+  this->RepetitionTime = nullptr;
+  this->SeriesDescription = nullptr;
+  this->SeriesNumber = nullptr;
+  this->SliceThickness = nullptr;
+  this->StationName = nullptr;
+  this->StudyDescription = nullptr;
+  this->StudyID = nullptr;
+  this->XRayTubeCurrent = nullptr;
 
   this->DirectionCosine[0] = 1;
   this->DirectionCosine[1] = 0;
@@ -288,7 +265,7 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
   this->DirectionCosine[5] = 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMedicalImageProperties::~vtkMedicalImageProperties()
 {
   this->Clear();
@@ -297,43 +274,43 @@ vtkMedicalImageProperties::~vtkMedicalImageProperties()
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
-void vtkMedicalImageProperties::AddUserDefinedValue(const char *name, const char *value)
+//------------------------------------------------------------------------------
+void vtkMedicalImageProperties::AddUserDefinedValue(const char* name, const char* value)
 {
   this->Internals->AddUserDefinedValue(name, value);
 }
 
-//----------------------------------------------------------------------------
-const char *vtkMedicalImageProperties::GetUserDefinedValue(const char *name)
+//------------------------------------------------------------------------------
+const char* vtkMedicalImageProperties::GetUserDefinedValue(const char* name)
 {
   return this->Internals->GetUserDefinedValue(name);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 unsigned int vtkMedicalImageProperties::GetNumberOfUserDefinedValues()
 {
   return this->Internals->GetNumberOfUserDefinedValues();
 }
 
-//----------------------------------------------------------------------------
-const char *vtkMedicalImageProperties::GetUserDefinedValueByIndex(unsigned int idx)
+//------------------------------------------------------------------------------
+const char* vtkMedicalImageProperties::GetUserDefinedValueByIndex(unsigned int idx)
 {
   return this->Internals->GetUserDefinedValueByIndex(idx);
 }
 
-//----------------------------------------------------------------------------
-const char *vtkMedicalImageProperties::GetUserDefinedNameByIndex(unsigned int idx)
+//------------------------------------------------------------------------------
+const char* vtkMedicalImageProperties::GetUserDefinedNameByIndex(unsigned int idx)
 {
   return this->Internals->GetUserDefinedNameByIndex(idx);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageProperties::RemoveAllUserDefinedValues()
 {
   this->Internals->RemoveAllUserDefinedValues();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageProperties::Clear()
 {
   this->SetStudyDate(nullptr);
@@ -375,8 +352,8 @@ void vtkMedicalImageProperties::Clear()
   this->Internals->UID.clear();
 }
 
-//----------------------------------------------------------------------------
-void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
+//------------------------------------------------------------------------------
+void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties* p)
 {
   if (p == nullptr)
   {
@@ -421,9 +398,8 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
   this->Internals->DeepCopy(p->Internals);
 }
 
-//----------------------------------------------------------------------------
-int vtkMedicalImageProperties::AddWindowLevelPreset(
-  double w, double l)
+//------------------------------------------------------------------------------
+int vtkMedicalImageProperties::AddWindowLevelPreset(double w, double l)
 {
   if (!this->Internals || this->HasWindowLevelPreset(w, l))
   {
@@ -437,7 +413,7 @@ int vtkMedicalImageProperties::AddWindowLevelPreset(
   return static_cast<int>(this->Internals->WindowLevelPresetPool.size() - 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetWindowLevelPresetIndex(double w, double l)
 {
   if (this->Internals)
@@ -458,13 +434,13 @@ int vtkMedicalImageProperties::GetWindowLevelPresetIndex(double w, double l)
   return -1;
 }
 
-//----------------------------------------------------------------------------
-int vtkMedicalImageProperties::HasWindowLevelPreset(double w, double l)
+//------------------------------------------------------------------------------
+vtkTypeBool vtkMedicalImageProperties::HasWindowLevelPreset(double w, double l)
 {
   return this->GetWindowLevelPresetIndex(w, l) >= 0 ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageProperties::RemoveWindowLevelPreset(double w, double l)
 {
   if (this->Internals)
@@ -484,7 +460,7 @@ void vtkMedicalImageProperties::RemoveWindowLevelPreset(double w, double l)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageProperties::RemoveAllWindowLevelPresets()
 {
   if (this->Internals)
@@ -493,19 +469,16 @@ void vtkMedicalImageProperties::RemoveAllWindowLevelPresets()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetNumberOfWindowLevelPresets()
 {
-  return this->Internals ? static_cast<int>(
-    this->Internals->WindowLevelPresetPool.size()) : 0;
+  return this->Internals ? static_cast<int>(this->Internals->WindowLevelPresetPool.size()) : 0;
 }
 
-//----------------------------------------------------------------------------
-int vtkMedicalImageProperties::GetNthWindowLevelPreset(
-  int idx, double *w, double *l)
+//------------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetNthWindowLevelPreset(int idx, double* w, double* l)
 {
-  if (this->Internals &&
-      idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
+  if (this->Internals && idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
   {
     *w = this->Internals->WindowLevelPresetPool[idx].Window;
     *l = this->Internals->WindowLevelPresetPool[idx].Level;
@@ -514,7 +487,7 @@ int vtkMedicalImageProperties::GetNthWindowLevelPreset(
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double* vtkMedicalImageProperties::GetNthWindowLevelPreset(int idx)
 
 {
@@ -526,42 +499,35 @@ double* vtkMedicalImageProperties::GetNthWindowLevelPreset(int idx)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
-const char* vtkMedicalImageProperties::GetNthWindowLevelPresetComment(
-  int idx)
+//------------------------------------------------------------------------------
+const char* vtkMedicalImageProperties::GetNthWindowLevelPresetComment(int idx)
 {
-  if (this->Internals &&
-      idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
+  if (this->Internals && idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
   {
     return this->Internals->WindowLevelPresetPool[idx].Comment.c_str();
   }
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
-void vtkMedicalImageProperties::SetNthWindowLevelPresetComment(
-  int idx, const char *comment)
+//------------------------------------------------------------------------------
+void vtkMedicalImageProperties::SetNthWindowLevelPresetComment(int idx, const char* comment)
 {
-  if (this->Internals &&
-      idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
+  if (this->Internals && idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
   {
-    this->Internals->WindowLevelPresetPool[idx].Comment =
-      (comment ? comment : "");
+    this->Internals->WindowLevelPresetPool[idx].Comment = (comment ? comment : "");
   }
 }
 
-//----------------------------------------------------------------------------
-const char *vtkMedicalImageProperties::GetInstanceUIDFromSliceID(
-                                       int volumeidx, int sliceid)
+//------------------------------------------------------------------------------
+const char* vtkMedicalImageProperties::GetInstanceUIDFromSliceID(int volumeidx, int sliceid)
 {
   return this->Internals->GetUID(volumeidx, sliceid);
 }
 
-//----------------------------------------------------------------------------
-int vtkMedicalImageProperties::GetSliceIDFromInstanceUID(
-                                   int &volumeidx, const char *uid)
+//------------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetSliceIDFromInstanceUID(int& volumeidx, const char* uid)
 {
-  if( volumeidx == -1 )
+  if (volumeidx == -1)
   {
     return this->Internals->FindSlice(volumeidx, uid);
   }
@@ -571,27 +537,27 @@ int vtkMedicalImageProperties::GetSliceIDFromInstanceUID(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageProperties::SetInstanceUIDFromSliceID(
-                      int volumeidx, int sliceid, const char *uid)
+  int volumeidx, int sliceid, const char* uid)
 {
-  this->Internals->SetUID(volumeidx,sliceid, uid);
+  this->Internals->SetUID(volumeidx, sliceid, uid);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageProperties::SetOrientationType(int volumeidx, int orientation)
 {
   this->Internals->SetOrientation(volumeidx, orientation);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetOrientationType(int volumeidx)
 {
   return this->Internals->GetOrientation(volumeidx);
 }
 
-//----------------------------------------------------------------------------
-const char *vtkMedicalImageProperties::GetStringFromOrientationType(unsigned int type)
+//------------------------------------------------------------------------------
+const char* vtkMedicalImageProperties::GetStringFromOrientationType(unsigned int type)
 {
   static unsigned int numtypes = 0;
   // find length of table
@@ -611,7 +577,7 @@ const char *vtkMedicalImageProperties::GetStringFromOrientationType(unsigned int
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkMedicalImageProperties::GetSliceThicknessAsDouble()
 {
   if (this->SliceThickness)
@@ -621,7 +587,7 @@ double vtkMedicalImageProperties::GetSliceThicknessAsDouble()
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkMedicalImageProperties::GetGantryTiltAsDouble()
 {
   if (this->GantryTilt)
@@ -630,48 +596,46 @@ double vtkMedicalImageProperties::GetGantryTiltAsDouble()
   }
   return 0;
 }
-//----------------------------------------------------------------------------
-int vtkMedicalImageProperties::GetAgeAsFields(const char *age, int &year,
-  int &month, int &week, int &day)
+//------------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetAgeAsFields(
+  const char* age, int& year, int& month, int& week, int& day)
 {
   year = month = week = day = -1;
-  if( !age )
+  if (!age)
   {
     return 0;
   }
 
   size_t len = strlen(age);
-  if( len == 4 )
+  if (len == 4)
   {
     // DICOM V3
     unsigned int val;
     char type;
-    if( !isdigit(age[0])
-     || !isdigit(age[1])
-     || !isdigit(age[2]))
+    if (!isdigit(age[0]) || !isdigit(age[1]) || !isdigit(age[2]))
     {
       return 0;
     }
-    if( sscanf(age, "%3u%c", &val, &type) != 2 )
+    if (sscanf(age, "%3u%c", &val, &type) != 2)
     {
       return 0;
     }
-    switch(type)
+    switch (type)
     {
-    case 'Y':
-      year = static_cast<int>(val);
-      break;
-    case 'M':
-      month = static_cast<int>(val);
-      break;
-    case 'W':
-      week = static_cast<int>(val);
-      break;
-    case 'D':
-      day = static_cast<int>(val);
-      break;
-    default:
-      return 0;
+      case 'Y':
+        year = static_cast<int>(val);
+        break;
+      case 'M':
+        month = static_cast<int>(val);
+        break;
+      case 'W':
+        week = static_cast<int>(val);
+        break;
+      case 'D':
+        day = static_cast<int>(val);
+        break;
+      default:
+        return 0;
     }
   }
   else
@@ -682,61 +646,61 @@ int vtkMedicalImageProperties::GetAgeAsFields(const char *age, int &year,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetPatientAgeYear()
 {
-  const char *age = this->GetPatientAge();
+  const char* age = this->GetPatientAge();
   int year, month, week, day;
   vtkMedicalImageProperties::GetAgeAsFields(age, year, month, week, day);
   return year;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetPatientAgeMonth()
 {
-  const char *age = this->GetPatientAge();
+  const char* age = this->GetPatientAge();
   int year, month, week, day;
   vtkMedicalImageProperties::GetAgeAsFields(age, year, month, week, day);
   return month;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetPatientAgeWeek()
 {
-  const char *age = this->GetPatientAge();
+  const char* age = this->GetPatientAge();
   int year, month, week, day;
   vtkMedicalImageProperties::GetAgeAsFields(age, year, month, week, day);
   return week;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetPatientAgeDay()
 {
-  const char *age = this->GetPatientAge();
+  const char* age = this->GetPatientAge();
   int year, month, week, day;
   vtkMedicalImageProperties::GetAgeAsFields(age, year, month, week, day);
   return day;
 }
 
-//----------------------------------------------------------------------------
-int vtkMedicalImageProperties::GetTimeAsFields(const char *time, int &hour,
-  int &minute, int &second /* , long &milliseconds */)
+//------------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetTimeAsFields(
+  const char* time, int& hour, int& minute, int& second /* , long &milliseconds */)
 {
-  if( !time )
+  if (!time)
   {
     return 0;
   }
 
   size_t len = strlen(time);
-  if( len == 6 )
+  if (len == 6)
   {
     // DICOM V3
-    if( sscanf(time, "%02d%02d%02d", &hour, &minute, &second) != 3 )
+    if (sscanf(time, "%02d%02d%02d", &hour, &minute, &second) != 3)
     {
       return 0;
     }
   }
-  else if( len == 8 )
+  else if (len == 8)
   {
     // Some *very* old ACR-NEMA
-    if( sscanf(time, "%02d.%02d.%02d", &hour, &minute, &second) != 3 )
+    if (sscanf(time, "%02d.%02d.%02d", &hour, &minute, &second) != 3)
     {
       return 0;
     }
@@ -748,28 +712,27 @@ int vtkMedicalImageProperties::GetTimeAsFields(const char *time, int &hour,
 
   return 1;
 }
-//----------------------------------------------------------------------------
-int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year,
-  int &month, int &day)
+//------------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetDateAsFields(const char* date, int& year, int& month, int& day)
 {
-  if( !date )
+  if (!date)
   {
     return 0;
   }
 
   size_t len = strlen(date);
-  if( len == 8 )
+  if (len == 8)
   {
     // DICOM V3
-    if( sscanf(date, "%04d%02d%02d", &year, &month, &day) != 3 )
+    if (sscanf(date, "%04d%02d%02d", &year, &month, &day) != 3)
     {
       return 0;
     }
   }
-  else if( len == 10 )
+  else if (len == 10)
   {
     // Some *very* old ACR-NEMA
-    if( sscanf(date, "%04d.%02d.%02d", &year, &month, &day) != 3 )
+    if (sscanf(date, "%04d.%02d.%02d", &year, &month, &day) != 3)
     {
       return 0;
     }
@@ -782,7 +745,7 @@ int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Some  buggy versions of gcc complain about the use of %c: warning: `%c'
 // yields only last 2 digits of year in some locales.  Of course  program-
 // mers  are  encouraged  to  use %c, it gives the preferred date and time
@@ -790,17 +753,16 @@ int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year,
 // vent this gcc problem. A relatively clean one is to add an intermediate
 // function. This is described as bug #3190 in gcc bugzilla:
 // [-Wformat-y2k doesn't belong to -Wall - it's hard to avoid]
-inline size_t
-my_strftime(char *s, size_t max, const char *fmt, const struct tm *tm)
+inline size_t my_strftime(char* s, size_t max, const char* fmt, const struct tm* tm)
 {
   return strftime(s, max, fmt, tm);
 }
 // Helper function to convert a DICOM iso date format into a locale one
 // locale buffer should be typically char locale[200]
-int vtkMedicalImageProperties::GetDateAsLocale(const char *iso, char *locale)
+int vtkMedicalImageProperties::GetDateAsLocale(const char* iso, char* locale)
 {
   int year, month, day;
-  if( vtkMedicalImageProperties::GetDateAsFields(iso, year, month, day) )
+  if (vtkMedicalImageProperties::GetDateAsFields(iso, year, month, day))
   {
     if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31)
     {
@@ -809,7 +771,7 @@ int vtkMedicalImageProperties::GetDateAsLocale(const char *iso, char *locale)
     else
     {
       struct tm date;
-      memset(&date,0, sizeof(date));
+      memset(&date, 0, sizeof(date));
       date.tm_mday = day;
       // month are expressed in the [0-11] range:
       date.tm_mon = month - 1;
@@ -821,80 +783,80 @@ int vtkMedicalImageProperties::GetDateAsLocale(const char *iso, char *locale)
   }
   return 0;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetPatientBirthDateYear()
 {
-  const char *date = this->GetPatientBirthDate();
+  const char* date = this->GetPatientBirthDate();
   int year = 0, month = 0, day = 0;
   vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
   return year;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetPatientBirthDateMonth()
 {
-  const char *date = this->GetPatientBirthDate();
+  const char* date = this->GetPatientBirthDate();
   int year = 0, month = 0, day = 0;
   vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
   return month;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetPatientBirthDateDay()
 {
-  const char *date = this->GetPatientBirthDate();
+  const char* date = this->GetPatientBirthDate();
   int year = 0, month = 0, day = 0;
   vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
   return day;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetAcquisitionDateYear()
 {
-  const char *date = this->GetAcquisitionDate();
+  const char* date = this->GetAcquisitionDate();
   int year = 0, month = 0, day = 0;
   vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
   return year;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetAcquisitionDateMonth()
 {
-  const char *date = this->GetAcquisitionDate();
+  const char* date = this->GetAcquisitionDate();
   int year = 0, month = 0, day = 0;
   vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
   return month;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetAcquisitionDateDay()
 {
-  const char *date = this->GetAcquisitionDate();
+  const char* date = this->GetAcquisitionDate();
   int year = 0, month = 0, day = 0;
   vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
   return day;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetImageDateYear()
 {
-  const char *date = this->GetImageDate();
+  const char* date = this->GetImageDate();
   int year = 0, month = 0, day = 0;
   vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
   return year;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetImageDateMonth()
 {
-  const char *date = this->GetImageDate();
+  const char* date = this->GetImageDate();
   int year = 0, month = 0, day = 0;
   vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
   return month;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetImageDateDay()
 {
-  const char *date = this->GetImageDate();
+  const char* date = this->GetImageDate();
   int year = 0, month = 0, day = 0;
   vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
   return day;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1085,12 +1047,12 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
     os << this->Exposure;
   }
 
-  os << "\n" << indent << "DirectionCosine: ("
-     << this->DirectionCosine[0] << ", " << this->DirectionCosine[1]
-     << ", " << this->DirectionCosine[2] << "), ("
-     << this->DirectionCosine[3] << ", " << this->DirectionCosine[4]
-     << ", " << this->DirectionCosine[5] << ")\n";
+  os << "\n"
+     << indent << "DirectionCosine: (" << this->DirectionCosine[0] << ", "
+     << this->DirectionCosine[1] << ", " << this->DirectionCosine[2] << "), ("
+     << this->DirectionCosine[3] << ", " << this->DirectionCosine[4] << ", "
+     << this->DirectionCosine[5] << ")\n";
 
   this->Internals->Print(os, indent);
 }
-
+VTK_ABI_NAMESPACE_END

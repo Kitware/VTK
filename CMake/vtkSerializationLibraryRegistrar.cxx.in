@@ -1,0 +1,31 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
+#include "@_vtk_serdes_library_registrar_header@"
+
+#include <iostream> // for std::cerr
+
+extern "C"
+{
+  // declare the registrar functions for classes in this module.
+@_vtk_serdes_register_classes_decls@
+}
+
+VTK_ABI_NAMESPACE_BEGIN
+int @_vtk_serdes_library@SerDesRegistrar::RegisterClasses(void* serializer, void* deserializer, const char** error)
+{
+  const int SUCCESS = 1;
+  const int FAIL = 0;
+  if (error)
+  {
+    *error = "";
+  }
+  else
+  {
+    std::cerr << "\'error\' argument cannot be null!\n";
+    return FAIL;
+  }
+@_vtk_serdes_register_classes@
+  return SUCCESS;
+}
+VTK_ABI_NAMESPACE_END

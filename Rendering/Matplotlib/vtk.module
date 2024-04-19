@@ -4,8 +4,11 @@ LIBRARY_NAME
   vtkRenderingMatplotlib
 IMPLEMENTS
   VTK::RenderingFreeType
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
-  VTK::PythonInterpreter
   VTK::RenderingFreeType
 PRIVATE_DEPENDS
   VTK::CommonCore
@@ -15,6 +18,8 @@ PRIVATE_DEPENDS
   VTK::Python
   VTK::RenderingCore
   VTK::WrappingPythonCore
+OPTIONAL_DEPENDS
+  VTK::PythonInterpreter
 TEST_DEPENDS
   VTK::CommonColor
   VTK::FiltersGeometry

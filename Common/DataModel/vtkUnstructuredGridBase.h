@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridBase.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkUnstructuredGridBase
  * @brief   dataset represents arbitrary combinations
@@ -23,19 +11,23 @@
  *
  * @sa
  * vtkMappedDataArray vtkUnstructuredGrid
-*/
+ */
 
 #ifndef vtkUnstructuredGridBase_h
 #define vtkUnstructuredGridBase_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
-class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridBase : public vtkPointSet
+VTK_ABI_NAMESPACE_BEGIN
+class vtkCellArray;
+
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkUnstructuredGridBase : public vtkPointSet
 {
 public:
-  vtkAbstractTypeMacro(vtkUnstructuredGridBase,vtkPointSet)
-  void PrintSelf(ostream &os, vtkIndent indent) override
+  vtkAbstractTypeMacro(vtkUnstructuredGridBase, vtkPointSet);
+  void PrintSelf(ostream& os, vtkIndent indent) override
   {
     this->Superclass::PrintSelf(os, indent);
   }
@@ -45,12 +37,12 @@ public:
   /**
    * Allocate memory for the number of cells indicated. extSize is not used.
    */
-  virtual void Allocate(vtkIdType numCells=1000, int extSize=1000) = 0;
+  virtual void Allocate(vtkIdType numCells = 1000, int extSize = 1000) = 0;
 
   /**
    * Shallow and Deep copy.
    */
-  void DeepCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject* src) override;
 
   /**
    * Insert/create cell in object by type and list of point ids defining
@@ -62,7 +54,8 @@ public:
    * (numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
    * Make sure you have called Allocate() before calling this method
    */
-  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) VTK_SIZEHINT(ptIds, npts);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
+    VTK_SIZEHINT(ptIds, npts);
 
   /**
    * Insert/create cell in object by a list of point ids defining
@@ -73,7 +66,7 @@ public:
    * (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
    * Make sure you have called Allocate() before calling this method
    */
-  vtkIdType InsertNextCell(int type, vtkIdList *ptIds);
+  vtkIdType InsertNextCell(int type, vtkIdList* ptIds);
 
   // Description:
   // Insert/create a polyhedron cell. npts is the number of unique points in
@@ -82,8 +75,17 @@ public:
   // [numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...].
   // All point Ids are global.
   // Make sure you have called Allocate() before calling this method
-  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
-                                   vtkIdType nfaces, const vtkIdType faces[]) VTK_SIZEHINT(ptIds, npts) VTK_SIZEHINT(faces, nfaces);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces,
+    const vtkIdType faces[]) VTK_SIZEHINT(ptIds, npts) VTK_SIZEHINT(faces, nfaces);
+
+  // Description:
+  // Insert/create a polyhedron cell. npts is the number of unique points in
+  // the cell. pts is the list of the unique cell point Ids.
+  // faces is the face-stream stored in vtkCellArray format
+  // All point Ids are global.
+  // Make sure you have called Allocate() before calling this method
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkCellArray* faces)
+    VTK_SIZEHINT(ptIds, npts);
 
   /**
    * Replace the points defining cell "cellId" with a new set of points. This
@@ -98,29 +100,29 @@ public:
    * method traverses all cells and, for a particular cell type,
    * inserts the cell Id into the container.
    */
-  virtual void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array) = 0;
+  virtual void GetIdsOfCellsOfType(int type, vtkIdTypeArray* array) = 0;
 
   /**
    * Traverse cells and determine if cells are all of the same type.
    */
   virtual int IsHomogeneous() = 0;
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkUnstructuredGridBase* GetData(vtkInformation* info);
-  static vtkUnstructuredGridBase* GetData(vtkInformationVector* v, int i=0);
-  //@}
+  static vtkUnstructuredGridBase* GetData(vtkInformationVector* v, int i = 0);
+  ///@}
 
 protected:
   vtkUnstructuredGridBase();
   ~vtkUnstructuredGridBase() override;
 
-  virtual vtkIdType InternalInsertNextCell(int type, vtkIdList *ptIds) = 0;
+  virtual vtkIdType InternalInsertNextCell(int type, vtkIdList* ptIds) = 0;
   virtual vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) = 0;
-  virtual vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
-    vtkIdType nfaces, const vtkIdType faces[]) = 0;
+  virtual vtkIdType InternalInsertNextCell(
+    int type, vtkIdType npts, const vtkIdType ptIds[], vtkCellArray* faces) = 0;
   virtual void InternalReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) = 0;
 
 private:
@@ -128,4 +130,5 @@ private:
   void operator=(const vtkUnstructuredGridBase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

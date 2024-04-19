@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLightKit.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLightKit
  * @brief   a simple but quality lighting kit
@@ -87,14 +75,15 @@
  * vtkLightKit was originally written and contributed to vtk by
  * Michael Halle (mhalle@bwh.harvard.edu) at the Surgical Planning
  * Lab, Brigham and Women's Hospital.
-*/
+ */
 
 #ifndef vtkLightKit_h
 #define vtkLightKit_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLight;
 class vtkPiecewiseFunction;
 class vtkRenderer;
@@ -102,18 +91,20 @@ class vtkRenderer;
 class VTKRENDERINGCORE_EXPORT vtkLightKit : public vtkObject
 {
 public:
-  static vtkLightKit *New();
+  static vtkLightKit* New();
   vtkTypeMacro(vtkLightKit, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum LightKitType {
+  enum LightKitType
+  {
     TKeyLight,
     TFillLight,
     TBackLight,
     THeadLight
   };
 
-  enum  LightKitSubType {
+  enum LightKitSubType
+  {
     Warmth,
     Intensity,
     Elevation,
@@ -123,7 +114,7 @@ public:
     KHRatio
   };
 
-  //@{
+  ///@{
   /**
    * Set/Get the intensity of the key light.  The key light is the
    * brightest light in the scene.  The intensities of the other two
@@ -131,9 +122,9 @@ public:
    */
   vtkSetMacro(KeyLightIntensity, double);
   vtkGetMacro(KeyLightIntensity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the key-to-fill ratio.  This ratio controls
    * how bright the fill light is compared to the key light: larger
@@ -147,9 +138,9 @@ public:
    */
   vtkSetClampMacro(KeyToFillRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToFillRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the key-to-headlight ratio.  Similar to the key-to-fill
    * ratio, this ratio controls how bright the headlight light is
@@ -163,9 +154,9 @@ public:
    */
   vtkSetClampMacro(KeyToHeadRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToHeadRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the key-to-back light ratio.  This ratio controls
    * how bright the back lights are compared to the key light: larger
@@ -175,9 +166,9 @@ public:
    */
   vtkSetClampMacro(KeyToBackRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToBackRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the warmth of each the lights.  Warmth is a parameter that
    * varies from 0 to 1, where 0 is "cold" (looks icy or lit by a very
@@ -192,7 +183,7 @@ public:
    */
   vtkSetMacro(KeyLightWarmth, double);
   vtkGetMacro(KeyLightWarmth, double);
-  //@}
+  ///@}
 
   vtkSetMacro(FillLightWarmth, double);
   vtkGetMacro(FillLightWarmth, double);
@@ -203,17 +194,17 @@ public:
   vtkSetMacro(BackLightWarmth, double);
   vtkGetMacro(BackLightWarmth, double);
 
-  //@{
+  ///@{
   /**
    * Returns the floating-point RGB values of each of the light's color.
    */
-  vtkGetVectorMacro(KeyLightColor,  double, 3);
+  vtkGetVectorMacro(KeyLightColor, double, 3);
   vtkGetVectorMacro(FillLightColor, double, 3);
   vtkGetVectorMacro(HeadLightColor, double, 3);
   vtkGetVectorMacro(BackLightColor, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If MaintainLuminance is set, the LightKit will attempt to maintain
    * the apparent intensity of lights based on their perceptual brightnesses.
@@ -222,7 +213,7 @@ public:
   vtkBooleanMacro(MaintainLuminance, vtkTypeBool);
   vtkGetMacro(MaintainLuminance, vtkTypeBool);
   vtkSetMacro(MaintainLuminance, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get/Set the position of the key, fill, and back lights
@@ -238,66 +229,81 @@ public:
    * and at approximately 120 degrees (lighting from each side and behind).
    */
   void SetKeyLightAngle(double elevation, double azimuth);
-  void SetKeyLightAngle(double angle[2])
-    { this->SetKeyLightAngle(angle[0], angle[1]); }
+  void SetKeyLightAngle(double angle[2]) { this->SetKeyLightAngle(angle[0], angle[1]); }
 
-  void SetKeyLightElevation(double x)
-    { this->SetKeyLightAngle(x, this->KeyLightAngle[1]); }
+  void SetKeyLightElevation(double x) { this->SetKeyLightAngle(x, this->KeyLightAngle[1]); }
 
-  void SetKeyLightAzimuth(double x)
-    { this->SetKeyLightAngle(this->KeyLightAngle[0], x); }
+  void SetKeyLightAzimuth(double x) { this->SetKeyLightAngle(this->KeyLightAngle[0], x); }
 
   vtkGetVectorMacro(KeyLightAngle, double, 2);
   double GetKeyLightElevation()
-    { double ang[2]; this->GetKeyLightAngle(ang); return ang[0]; }
+  {
+    double ang[2];
+    this->GetKeyLightAngle(ang);
+    return ang[0];
+  }
 
   double GetKeyLightAzimuth()
-    { double ang[2]; this->GetKeyLightAngle(ang); return ang[1]; }
+  {
+    double ang[2];
+    this->GetKeyLightAngle(ang);
+    return ang[1];
+  }
 
   void SetFillLightAngle(double elevation, double azimuth);
-  void SetFillLightAngle(double angle[2])
-    { this->SetFillLightAngle(angle[0], angle[1]); }
+  void SetFillLightAngle(double angle[2]) { this->SetFillLightAngle(angle[0], angle[1]); }
 
-  void SetFillLightElevation(double x)
-    { this->SetFillLightAngle(x, this->FillLightAngle[1]); }
+  void SetFillLightElevation(double x) { this->SetFillLightAngle(x, this->FillLightAngle[1]); }
 
-  void SetFillLightAzimuth(double x)
-    { this->SetFillLightAngle(this->FillLightAngle[0], x); }
+  void SetFillLightAzimuth(double x) { this->SetFillLightAngle(this->FillLightAngle[0], x); }
 
   vtkGetVectorMacro(FillLightAngle, double, 2);
-  double GetFillLightElevation() {
-    double ang[2]; this->GetFillLightAngle(ang); return ang[0]; }
+  double GetFillLightElevation()
+  {
+    double ang[2];
+    this->GetFillLightAngle(ang);
+    return ang[0];
+  }
 
   double GetFillLightAzimuth()
-    { double ang[2]; this->GetFillLightAngle(ang); return ang[1]; }
+  {
+    double ang[2];
+    this->GetFillLightAngle(ang);
+    return ang[1];
+  }
 
   void SetBackLightAngle(double elevation, double azimuth);
-  void SetBackLightAngle(double angle[2])
-    { this->SetBackLightAngle(angle[0], angle[1]); }
+  void SetBackLightAngle(double angle[2]) { this->SetBackLightAngle(angle[0], angle[1]); }
 
-  void SetBackLightElevation(double x)
-    { this->SetBackLightAngle(x, this->BackLightAngle[1]); }
+  void SetBackLightElevation(double x) { this->SetBackLightAngle(x, this->BackLightAngle[1]); }
 
-  void SetBackLightAzimuth(double x)
-    { this->SetBackLightAngle(this->BackLightAngle[0], x); }
+  void SetBackLightAzimuth(double x) { this->SetBackLightAngle(this->BackLightAngle[0], x); }
 
   vtkGetVectorMacro(BackLightAngle, double, 2);
   double GetBackLightElevation()
-    { double ang[2]; this->GetBackLightAngle(ang); return ang[0]; }
+  {
+    double ang[2];
+    this->GetBackLightAngle(ang);
+    return ang[0];
+  }
 
   double GetBackLightAzimuth()
-    { double ang[2]; this->GetBackLightAngle(ang); return ang[1]; }
+  {
+    double ang[2];
+    this->GetBackLightAngle(ang);
+    return ang[1];
+  }
 
-  //@{
+  ///@{
   /**
    * Add lights to, or remove lights from, a renderer.
    * Lights may be added to more than one renderer, if desired.
    */
-  void AddLightsToRenderer(vtkRenderer *renderer);
-  void RemoveLightsFromRenderer(vtkRenderer *renderer);
-  //@}
+  void AddLightsToRenderer(vtkRenderer* renderer);
+  void RemoveLightsFromRenderer(vtkRenderer* renderer);
+  ///@}
 
-  void DeepCopy(vtkLightKit *kit);
+  void DeepCopy(vtkLightKit* kit);
 
   void Modified() override;
   void Update();
@@ -305,19 +311,19 @@ public:
   /**
    * Helper method to go from a enum type to a string type
    */
-  static const char *GetStringFromType(int type);
+  static const char* GetStringFromType(int type);
 
   /**
    * Helper method to go from a enum subtype to a string subtype
    */
-  static const char *GetStringFromSubType(int type);
+  static const char* GetStringFromSubType(int type);
 
   /**
    * Helper method to go from a enum subtype to a string subtype
    * The difference from GetStringFromSubType is that it returns
    * a shorter strings (useful for GUI with minimum space)
    */
-  static const char *GetShortStringFromSubType(int subtype);
+  static const char* GetShortStringFromSubType(int subtype);
 
   /**
    * Return the possible subtype from a given type. You have to pass
@@ -334,18 +340,17 @@ protected:
   void InitializeWarmthFunctions();
   double WarmthToIntensity(double w);
 
-
   double KeyLightIntensity;
   double KeyToFillRatio;
   double KeyToHeadRatio;
   double KeyToBackRatio;
 
-  vtkLight *KeyLight;
+  vtkLight* KeyLight;
   double KeyLightWarmth;
   double KeyLightAngle[2];
   double KeyLightColor[3];
 
-  vtkLight *FillLight;
+  vtkLight* FillLight;
   double FillLightWarmth;
   double FillLightAngle[2];
   double FillLightColor[3];
@@ -353,22 +358,23 @@ protected:
   double BackLightWarmth;
   double BackLightColor[3];
 
-  vtkLight *BackLight0;
-  vtkLight *BackLight1;
+  vtkLight* BackLight0;
+  vtkLight* BackLight1;
 
   double BackLightAngle[2];
 
-  vtkLight *HeadLight;
+  vtkLight* HeadLight;
   double HeadLightWarmth;
   double HeadLightColor[3];
 
   vtkTypeBool MaintainLuminance;
 
-  vtkPiecewiseFunction *WarmthFunction[4]; // r, g, b, perceptual length
+  vtkPiecewiseFunction* WarmthFunction[4]; // r, g, b, perceptual length
 
 private:
   vtkLightKit(const vtkLightKit&) = delete;
   void operator=(const vtkLightKit&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

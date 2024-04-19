@@ -1,60 +1,77 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import vtkExtractEdges
+from vtkmodules.vtkFiltersGeneral import (
+    vtkOBBTree,
+    vtkSpatialRepresentationFilter,
+    vtkTransformPolyDataFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkCylinderSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-cylinder = vtk.vtkCylinderSource()
+cylinder = vtkCylinderSource()
 cylinder.SetHeight(1)
 cylinder.SetRadius(4)
 cylinder.SetResolution(100)
 cylinder.CappingOff()
 
-foo = vtk.vtkTransform()
+foo = vtkTransform()
 foo.RotateX(20)
 foo.RotateY(10)
 foo.RotateZ(27)
 foo.Scale(1, .7, .3)
 
-transPD = vtk.vtkTransformPolyDataFilter()
+transPD = vtkTransformPolyDataFilter()
 transPD.SetInputConnection(cylinder.GetOutputPort())
 transPD.SetTransform(foo)
 
-dataMapper = vtk.vtkPolyDataMapper()
+dataMapper = vtkPolyDataMapper()
 dataMapper.SetInputConnection(transPD.GetOutputPort())
 
-model = vtk.vtkActor()
+model = vtkActor()
 model.SetMapper(dataMapper)
 model.GetProperty().SetColor(1, 0, 0)
 
-obb = vtk.vtkOBBTree()
+obb = vtkOBBTree()
 obb.SetMaxLevel(10)
 obb.SetNumberOfCellsPerNode(5)
 obb.AutomaticOff()
 
-boxes = vtk.vtkSpatialRepresentationFilter()
+boxes = vtkSpatialRepresentationFilter()
 boxes.SetInputConnection(transPD.GetOutputPort())
 boxes.SetSpatialRepresentation(obb)
 boxes.SetGenerateLeaves(1)
 boxes.Update()
 
 output = boxes.GetOutput().GetBlock(boxes.GetMaximumLevel() + 1)
-boxEdges = vtk.vtkExtractEdges()
+boxEdges = vtkExtractEdges()
 boxEdges.SetInputData(output)
 
-boxMapper = vtk.vtkPolyDataMapper()
+boxMapper = vtkPolyDataMapper()
 boxMapper.SetInputConnection(boxEdges.GetOutputPort())
 boxMapper.SetResolveCoincidentTopology(1)
 
-boxActor = vtk.vtkActor()
+boxActor = vtkActor()
 boxActor.SetMapper(boxMapper)
 boxActor.GetProperty().SetAmbient(1)
 boxActor.GetProperty().SetDiffuse(0)
 boxActor.GetProperty().SetRepresentationToWireframe()
 
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

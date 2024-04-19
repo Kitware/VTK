@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSurfaceLICMapper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSurfaceLICMapper
  * @brief   mapper that performs LIC on the surface of
@@ -32,7 +20,7 @@
  *     |                                               |
  * vectors                                         surface LIC
  * </pre>
- * PROj  - prject vectors onto surface
+ * PROj  - project vectors onto surface
  * GAT   - gather data for compositing and guard pixel generation  (parallel only)
  * COMP  - composite gathered data
  * LIC2D - line intengral convolution, see vtkLineIntegralConvolution2D.
@@ -51,14 +39,15 @@
  *
  * @sa
  * vtkLineIntegralConvolution2D
-*/
+ */
 
 #ifndef vtkSurfaceLICMapper_h
 #define vtkSurfaceLICMapper_h
 
-#include "vtkRenderingLICOpenGL2Module.h" // For export macro
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkRenderingLICOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSurfaceLICInterface;
 class vtkPainterCommunicator;
 
@@ -74,24 +63,24 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release. In this case, releases the display lists.
    */
-  void ReleaseGraphicsResources(vtkWindow * win) override;
+  void ReleaseGraphicsResources(vtkWindow* win) override;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  void RenderPiece(vtkRenderer *ren, vtkActor *act) override;
+  void RenderPiece(vtkRenderer* ren, vtkActor* act) override;
 
   /**
    * Shallow copy of an actor.
    */
-  void ShallowCopy(vtkAbstractMapper *) override;
+  void ShallowCopy(vtkAbstractMapper*) override;
 
-  //@{
+  ///@{
   /**
    * Get the vtkSurfaceLICInterface used by this mapper
    */
-  vtkGetObjectMacro(LICInterface,vtkSurfaceLICInterface);
-  //@}
+  vtkGetObjectMacro(LICInterface, vtkSurfaceLICInterface);
+  ///@}
 
 protected:
   vtkSurfaceLICMapper();
@@ -103,32 +92,31 @@ protected:
    * update timing information is stored, it can be written to
    * disk by calling WriteLog.
    */
-  virtual void StartTimerEvent(const char *){}
-  virtual void EndTimerEvent(const char *){}
+  virtual void StartTimerEvent(const char*) {}
+  virtual void EndTimerEvent(const char*) {}
 
   /**
    * Build the VBO/IBO, called by UpdateBufferObjects
    */
-  void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) override;
+  void BuildBufferObjects(vtkRenderer* ren, vtkActor* act) override;
 
-protected:
   /**
-   * Set the shader parameteres related to the mapper/input data, called by UpdateShader
+   * Set the shader parameters related to the mapper/input data, called by UpdateShader
    */
-  void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) override;
+  void SetMapperShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
 
   /**
    * Perform string replacements on the shader templates
    */
   void ReplaceShaderValues(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) override;
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
 
-  vtkSurfaceLICInterface *LICInterface;
+  vtkSurfaceLICInterface* LICInterface;
 
 private:
   vtkSurfaceLICMapper(const vtkSurfaceLICMapper&) = delete;
   void operator=(const vtkSurfaceLICMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

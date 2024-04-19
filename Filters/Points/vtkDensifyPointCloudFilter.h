@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDensifyPointCloudFilter.h
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See LICENSE file for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-CLAUSE
 /**
  * @class   vtkDensifyPointCloudFilter
  * @brief   add points to a point cloud to make it denser
@@ -43,7 +31,7 @@
  *
  * @sa
  * vtkVoxelGridFilter vtkEuclideanClusterExtraction vtkBoundedPointSource
-*/
+ */
 
 #ifndef vtkDensifyPointCloudFilter_h
 #define vtkDensifyPointCloudFilter_h
@@ -51,18 +39,19 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPOINTS_EXPORT vtkDensifyPointCloudFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkDensifyPointCloudFilter *New();
-  vtkTypeMacro(vtkDensifyPointCloudFilter,vtkPolyDataAlgorithm);
+  static vtkDensifyPointCloudFilter* New();
+  vtkTypeMacro(vtkDensifyPointCloudFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * This enum is used to specify how the local point neighborhood is
@@ -74,45 +63,43 @@ public:
    */
   enum NeighborhoodType
   {
-    RADIUS=0,
-    N_CLOSEST=1
+    RADIUS = 0,
+    N_CLOSEST = 1
   };
 
-  //@{
+  ///@{
   /**
    * Specify how the local point neighborhood is defined. By default an N
    * closest neighborhood is used. This tends to avoid explosive point
    * creation.
    */
-  vtkSetMacro(NeighborhoodType,int);
-  vtkGetMacro(NeighborhoodType,int);
-  void SetNeighborhoodTypeToRadius()
-    { this->SetNeighborhoodType(RADIUS); }
-  void SetNeighborhoodTypeToNClosest()
-    { this->SetNeighborhoodType(N_CLOSEST); }
-  //@}
+  vtkSetMacro(NeighborhoodType, int);
+  vtkGetMacro(NeighborhoodType, int);
+  void SetNeighborhoodTypeToRadius() { this->SetNeighborhoodType(RADIUS); }
+  void SetNeighborhoodTypeToNClosest() { this->SetNeighborhoodType(N_CLOSEST); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define a local neighborhood for each point in terms of a local
    * radius. By default, the radius is 1.0. This data member is relevant only
    * if the neighborhood type is RADIUS.
    */
-  vtkSetClampMacro(Radius,double,1,VTK_DOUBLE_MAX);
-  vtkGetMacro(Radius,double);
-  //@}
+  vtkSetClampMacro(Radius, double, 1, VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define a local neighborhood in terms of the N closest points. By default
    * the number of the closest points is =6. This data member is relevant
    * only if the neighborhood type is N_CLOSEST.
    */
-  vtkSetClampMacro(NumberOfClosestPoints,int,1,VTK_INT_MAX);
-  vtkGetMacro(NumberOfClosestPoints,int);
-  //@}
+  vtkSetClampMacro(NumberOfClosestPoints, int, 1, VTK_INT_MAX);
+  vtkGetMacro(NumberOfClosestPoints, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the target point distance. Points will be created in an
    * iterative fashion until all points in their local neighborhood are the
@@ -121,20 +108,20 @@ public:
    * distance is set to 0.5. Note that the TargetDistance should be less than
    * the Radius or nothing will change on output.
    */
-  vtkSetClampMacro(TargetDistance,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(TargetDistance,double);
-  //@}
+  vtkSetClampMacro(TargetDistance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(TargetDistance, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The maximum number of iterations to run. By default the maximum is
    * one.
    */
   vtkSetClampMacro(MaximumNumberOfIterations, int, 1, VTK_SHORT_MAX);
   vtkGetMacro(MaximumNumberOfIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a limit on the maximum number of points that can be created. This
    * data member serves as a crude barrier to explosive point creation; it does
@@ -142,19 +129,19 @@ public:
    * limit is hit, it may result in premature termination of the
    * algorithm. Consider it a pressure relief valve.
    */
-  vtkSetClampMacro(MaximumNumberOfPoints,vtkIdType,1,VTK_ID_MAX);
-  vtkGetMacro(MaximumNumberOfPoints,vtkIdType);
-  //@}
+  vtkSetClampMacro(MaximumNumberOfPoints, vtkIdType, 1, VTK_ID_MAX);
+  vtkGetMacro(MaximumNumberOfPoints, vtkIdType);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the interpolation of attribute data from the input point
    * cloud to new, added points.
    */
-  vtkSetMacro(InterpolateAttributeData,bool);
-  vtkGetMacro(InterpolateAttributeData,bool);
-  vtkBooleanMacro(InterpolateAttributeData,bool);
-  //@}
+  vtkSetMacro(InterpolateAttributeData, bool);
+  vtkGetMacro(InterpolateAttributeData, bool);
+  vtkBooleanMacro(InterpolateAttributeData, bool);
+  ///@}
 
 protected:
   vtkDensifyPointCloudFilter();
@@ -170,14 +157,13 @@ protected:
   vtkIdType MaximumNumberOfPoints;
 
   // Pipeline management
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkDensifyPointCloudFilter(const vtkDensifyPointCloudFilter&) = delete;
   void operator=(const vtkDensifyPointCloudFilter&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

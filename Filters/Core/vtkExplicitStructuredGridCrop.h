@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExplicitStructuredGridCrop.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkExplicitStructuredGridCrop
  * @brief   Filter which extracts a piece of explicit structured
@@ -24,6 +12,7 @@
 #include "vtkExplicitStructuredGridAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkExplicitStructuredGridCrop
   : public vtkExplicitStructuredGridAlgorithm
 {
@@ -32,7 +21,7 @@ public:
   vtkTypeMacro(vtkExplicitStructuredGridCrop, vtkExplicitStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The whole extent of the output has to be set explicitly.
    */
@@ -40,7 +29,7 @@ public:
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
   int* GetOutputWholeExtent() { return this->OutputWholeExtent; }
-  //@}
+  ///@}
 
   void ResetOutputWholeExtent();
 
@@ -60,4 +49,5 @@ private:
   void operator=(const vtkExplicitStructuredGridCrop&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

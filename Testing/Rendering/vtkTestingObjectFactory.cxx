@@ -1,32 +1,18 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTestingObjectFactory.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTestingObjectFactory.h"
-#include "vtkVersion.h"
 #include "vtkTestingInteractor.h"
+#include "vtkVersion.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTestingObjectFactory);
 
 VTK_CREATE_CREATE_FUNCTION(vtkTestingInteractor);
 
 vtkTestingObjectFactory::vtkTestingObjectFactory()
 {
-  this->RegisterOverride("vtkRenderWindowInteractor",
-                         "vtkTestingInteractor",
-                         "Overrides for testing",
-                         1,
-                         vtkObjectFactoryCreatevtkTestingInteractor);
+  this->RegisterOverride("vtkRenderWindowInteractor", "vtkTestingInteractor",
+    "Overrides for testing", 1, vtkObjectFactoryCreatevtkTestingInteractor);
 }
 
 const char* vtkTestingObjectFactory::GetVTKSourceVersion()
@@ -36,7 +22,7 @@ const char* vtkTestingObjectFactory::GetVTKSourceVersion()
 
 void vtkTestingObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Description: " << this->GetDescription() << endl;
 }
-
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestOSPRayStereo.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // This test verifies that OSPRay can rendering in stereo modes.
 
@@ -19,21 +7,20 @@
 #include "vtkCamera.h"
 #include "vtkConeSource.h"
 #include "vtkMatrix4x4.h"
+#include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkOSPRayPass.h"
-#include "vtkOSPRayRendererNode.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, var) \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-int TestOSPRayStereo(int argc, char *argv[])
+int TestOSPRayStereo(int argc, char* argv[])
 {
   bool useGL = false;
   int stereoType = VTK_STEREO_SPLITVIEWPORT_HORIZONTAL;
@@ -100,9 +87,9 @@ int TestOSPRayStereo(int argc, char *argv[])
       stereoType = 0;
     }
   }
-  double bottomLeft[3]  = {-1.0, -1.0, -10.0};
-  double bottomRight[3] = { 1.0, -1.0, -10.0};
-  double topRight[3]    = { 1.0,  1.0, -10.0};
+  double bottomLeft[3] = { -1.0, -1.0, -10.0 };
+  double bottomRight[3] = { 1.0, -1.0, -10.0 };
+  double topRight[3] = { 1.0, 1.0, -10.0 };
 
   VTK_CREATE(vtkSphereSource, sphere1);
   sphere1->SetCenter(0.2, 0.0, -7.0);
@@ -170,9 +157,9 @@ int TestOSPRayStereo(int argc, char *argv[])
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
 
-  double eyePosition[3] = {0.0, 0.0, 2.0};
+  double eyePosition[3] = { 0.0, 0.0, 2.0 };
 
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetScreenBottomLeft(bottomLeft);
   camera->SetScreenBottomRight(bottomRight);
   camera->SetScreenTopRight(topRight);
@@ -186,8 +173,7 @@ int TestOSPRayStereo(int argc, char *argv[])
 
   renwin->Render();
 
-
-  int retVal = vtkRegressionTestImageThreshold(renwin, 25);
+  int retVal = vtkRegressionTestImageThreshold(renwin, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

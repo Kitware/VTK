@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationQuadratureSchemeDefinitionVectorKey.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInformationQuadratureSchemeDefinitionVectorKey
  * @brief   Key for vtkQuadratureSchemeDefinition vector values.
@@ -20,35 +8,35 @@
  * vector values in vtkInformation.h. NOTE the interface in this key differs
  * from that in other similar keys because of our internal use of smart
  * pointers.
-*/
+ */
 
 #ifndef vtkInformationQuadratureSchemeDefinitionVectorKey_h
 #define vtkInformationQuadratureSchemeDefinitionVectorKey_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkInformationKey.h"
+#include "vtkCommonDataModelModule.h"       // For export macro
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
+#include "vtkInformationKey.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationQuadratureSchemeDefinitionVectorValue;
 class vtkXMLDataElement;
 class vtkQuadratureSchemeDefinition;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkInformationQuadratureSchemeDefinitionVectorKey : public vtkInformationKey
+class VTKCOMMONDATAMODEL_EXPORT vtkInformationQuadratureSchemeDefinitionVectorKey
+  : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationQuadratureSchemeDefinitionVectorKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationQuadratureSchemeDefinitionVectorKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@{
+  ///@{
   /**
    * The name of the static instance and the class in which
    * it is defined(location) should be passed to the constructor.
    */
-  vtkInformationQuadratureSchemeDefinitionVectorKey(
-          const char* name,
-          const char* location);
+  vtkInformationQuadratureSchemeDefinitionVectorKey(const char* name, const char* location);
   //
   ~vtkInformationQuadratureSchemeDefinitionVectorKey() override;
-  //@}
+  ///@}
 
   /**
    * Clear the vector.
@@ -63,42 +51,36 @@ public:
    * Get the vector's length.
    */
   int Size(vtkInformation* info);
-  int Length(vtkInformation* info){ return this->Size(info); }
+  int Length(vtkInformation* info) { return this->Size(info); }
   /**
    * Put the value on the back of the vector, with reference counting.
    */
-  void Append(vtkInformation* info, vtkQuadratureSchemeDefinition *value);
+  void Append(vtkInformation* info, vtkQuadratureSchemeDefinition* value);
   /**
    * Set element i of the vector to value. Resizes the vector
    * if needed.
    */
-  void Set(vtkInformation* info, vtkQuadratureSchemeDefinition *value, int i);
+  void Set(vtkInformation* info, vtkQuadratureSchemeDefinition* value, int i);
   /**
    * Copy n values from the range in source defined by [from  from+n-1]
    * into the range in this vector defined by [to to+n-1]. Resizes
    * the vector if needed.
    */
-  void SetRange(vtkInformation* info,
-                vtkQuadratureSchemeDefinition **source,
-                int from,
-                int to,
-                int n);
+  void SetRange(
+    vtkInformation* info, vtkQuadratureSchemeDefinition** source, int from, int to, int n);
 
   /**
    * Copy n values from the range in this vector defined by [from  from+n-1]
    * into the range in the destination vector defined by [to to+n-1]. Up
    * to you to make sure the destination is big enough.
    */
-  void GetRange(vtkInformation *info,
-                vtkQuadratureSchemeDefinition **dest,
-                int from,
-                int to,
-                int n);
+  void GetRange(
+    vtkInformation* info, vtkQuadratureSchemeDefinition** dest, int from, int to, int n);
 
   /**
    * Get the vtkQuadratureSchemeDefinition at a specific location in the vector.
    */
-  vtkQuadratureSchemeDefinition *Get(vtkInformation* info, int idx);
+  vtkQuadratureSchemeDefinition* Get(vtkInformation* info, int idx);
 
   // _escription:
   // Get a pointer to the first vtkQuadratureSchemeDefinition in the vector. We are
@@ -106,7 +88,7 @@ public:
   // implement.
   // vtkQuadratureSchemeDefinition **Get(vtkInformation* info);
 
-  //@{
+  ///@{
   /**
    * Copy the entry associated with this key from one information
    * object to another.  If there is no entry in the first information
@@ -114,7 +96,7 @@ public:
    */
   void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
   void DeepCopy(vtkInformation* from, vtkInformation* to) override;
-  //@}
+  ///@}
 
   /**
    * Print the key's value in an information object to a stream.
@@ -131,12 +113,12 @@ public:
    * key/value pair will be nested in the resulting XML hierarchy.
    * The element passed in is assumed to be empty.
    */
-  int SaveState(vtkInformation *info, vtkXMLDataElement *element);
+  int SaveState(vtkInformation* info, vtkXMLDataElement* element);
   /**
    * Load key/value pairs from an XML state representation created
    * with SaveState. Duplicate keys will generate a fatal error.
    */
-  int RestoreState(vtkInformation *info, vtkXMLDataElement *element);
+  int RestoreState(vtkInformation* info, vtkXMLDataElement* element);
 
 private:
   /**
@@ -149,11 +131,14 @@ private:
    * none then associate a new vector with this key and return
    * that.
    */
-  vtkInformationQuadratureSchemeDefinitionVectorValue *GetQuadratureSchemeDefinitionVector(vtkInformation *info);
+  vtkInformationQuadratureSchemeDefinitionVectorValue* GetQuadratureSchemeDefinitionVector(
+    vtkInformation* info);
 
   //
-  vtkInformationQuadratureSchemeDefinitionVectorKey(const vtkInformationQuadratureSchemeDefinitionVectorKey&) = delete;
+  vtkInformationQuadratureSchemeDefinitionVectorKey(
+    const vtkInformationQuadratureSchemeDefinitionVectorKey&) = delete;
   void operator=(const vtkInformationQuadratureSchemeDefinitionVectorKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

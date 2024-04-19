@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenGLFXAAPass.h"
 
 #include "vtkObjectFactory.h"
@@ -7,9 +9,16 @@
 #include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLFXAAPass);
+vtkCxxSetObjectMacro(vtkOpenGLFXAAPass, FXAAOptions, vtkFXAAOptions);
 
-// ----------------------------------------------------------------------------
+vtkOpenGLFXAAPass::~vtkOpenGLFXAAPass()
+{
+  this->SetFXAAOptions(nullptr);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLFXAAPass::Render(const vtkRenderState* s)
 {
   vtkOpenGLRenderer* r = vtkOpenGLRenderer::SafeDownCast(s->GetRenderer());
@@ -33,16 +42,26 @@ void vtkOpenGLFXAAPass::Render(const vtkRenderState* s)
   this->DelegatePass->Render(s);
   this->NumberOfRenderedProps = this->DelegatePass->GetNumberOfRenderedProps();
 
-  if (r->GetFXAAOptions())
+  if (this->FXAAOptions)
   {
-    this->FXAAFilter->UpdateConfiguration(r->GetFXAAOptions());
+    this->FXAAFilter->UpdateConfiguration(this->FXAAOptions);
   }
 
   this->FXAAFilter->Execute(r);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkOpenGLFXAAPass::ReleaseGraphicsResources(vtkWindow* w)
+{
+  assert("pre: w_exists" && w != nullptr);
+
+  this->FXAAFilter->ReleaseGraphicsResources();
+  this->Superclass::ReleaseGraphicsResources(w);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLFXAAPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -1,50 +1,68 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkFiltersCore import vtkElevationFilter
+from vtkmodules.vtkFiltersModeling import (
+    vtkButterflySubdivisionFilter,
+    vtkLinearSubdivisionFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkLight,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 #
 # Test butterfly subdivision of point data
 #
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetPhiResolution(11)
 sphere.SetThetaResolution(11)
-colorIt = vtk.vtkElevationFilter()
+colorIt = vtkElevationFilter()
 colorIt.SetInputConnection(sphere.GetOutputPort())
 colorIt.SetLowPoint(0,0,-.5)
 colorIt.SetHighPoint(0,0,.5)
-butterfly = vtk.vtkButterflySubdivisionFilter()
+butterfly = vtkButterflySubdivisionFilter()
 butterfly.SetInputConnection(colorIt.GetOutputPort())
 butterfly.SetNumberOfSubdivisions(3)
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetNumberOfColors(256)
 lut.Build()
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(butterfly.GetOutputPort())
 mapper.SetLookupTable(lut)
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
-linear = vtk.vtkLinearSubdivisionFilter()
+linear = vtkLinearSubdivisionFilter()
 linear.SetInputConnection(colorIt.GetOutputPort())
 linear.SetNumberOfSubdivisions(3)
-mapper2 = vtk.vtkPolyDataMapper()
+mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection(linear.GetOutputPort())
 mapper2.SetLookupTable(lut)
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
-mapper3 = vtk.vtkPolyDataMapper()
+mapper3 = vtkPolyDataMapper()
 mapper3.SetInputConnection(colorIt.GetOutputPort())
 mapper3.SetLookupTable(lut)
-actor3 = vtk.vtkActor()
+actor3 = vtkActor()
 actor3.SetMapper(mapper3)
-ren1 = vtk.vtkRenderer()
-ren2 = vtk.vtkRenderer()
-ren3 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+ren2 = vtkRenderer()
+ren3 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
 renWin.AddRenderer(ren3)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 ren1.AddActor(actor)
 ren1.SetBackground(1,1,1)
@@ -53,9 +71,9 @@ ren2.SetBackground(1,1,1)
 ren3.AddActor(actor3)
 ren3.SetBackground(1,1,1)
 renWin.SetSize(600,200)
-aCamera = vtk.vtkCamera()
+aCamera = vtkCamera()
 aCamera.Azimuth(70)
-aLight = vtk.vtkLight()
+aLight = vtkLight()
 aLight.SetPosition(aCamera.GetPosition())
 aLight.SetFocalPoint(aCamera.GetFocalPoint())
 ren1.SetActiveCamera(aCamera)
@@ -71,16 +89,4 @@ ren3.SetViewport(0,0,.33,1)
 ren2.SetViewport(.33,0,.67,1)
 ren1.SetViewport(.67,0,1,1)
 iren.Initialize()
-def flat (__vtk__temp0=0,__vtk__temp1=0):
-    actor.GetProperty().SetInterpolationToFlat()
-    actor2.GetProperty().SetInterpolationToFlat()
-    actor3.GetProperty().SetInterpolationToFlat()
-    renWin.Render()
-
-def smooth (__vtk__temp0=0,__vtk__temp1=0):
-    actor.GetProperty().SetInterpolationToGouraud()
-    actor2.GetProperty().SetInterpolationToGouraud()
-    actor3.GetProperty().SetInterpolationToGouraud()
-    renWin.Render()
-
 # --- end of script --

@@ -1,24 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParametricKlein.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkParametricKlein.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricKlein);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricKlein::vtkParametricKlein()
 {
   // Preset triangulation parameters
@@ -35,23 +24,23 @@ vtkParametricKlein::vtkParametricKlein()
   this->DerivativesAvailable = 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkParametricKlein::~vtkParametricKlein() = default;
 
-//----------------------------------------------------------------------------
-void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3],
-                                  double Duvw[9])
+//------------------------------------------------------------------------------
+void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   double cu = cos(u);
   double su = sin(u);
   double cv = cos(v);
   double sv = sin(v);
 
+  // clang-format off
   double subX = 3 * cv + 5 * su * cv * cu - 30 * su - 60 * su * pow(cu, 6)
                 + 90 * su * pow(cu, 4);
   double subY = 80 * cv * pow(cu, 7) * su + 48 * cv * pow(cu, 6)
@@ -88,16 +77,18 @@ void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3],
                               + 3.0 * sv * pow(cu, 2) - 5.0 * su * sv * cu - 3.0 * sv);
   Du[2] = 2.0 / 15.0 * sv * (5.0 * pow(cu, 2) - 5.0 * pow(su, 2));
   Dv[2] = 2.0 / 15.0 * cv * subZ;
+  // clang-format on
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkParametricKlein::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkParametricKlein::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGreedyTerrainDecimation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGreedyTerrainDecimation
  * @brief   reduce height field (represented as image) to reduced TIN
@@ -62,7 +50,7 @@
  *
  * @sa
  * vtkDecimatePro vtkQuadricDecimation vtkQuadricClustering
-*/
+ */
 
 #ifndef vtkGreedyTerrainDecimation_h
 #define vtkGreedyTerrainDecimation_h
@@ -70,6 +58,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPriorityQueue;
 class vtkDataArray;
 class vtkPointData;
@@ -77,19 +66,19 @@ class vtkIdList;
 class vtkDoubleArray;
 class vtkFloatArray;
 
-//PIMPL Encapsulation for STL containers
+// PIMPL Encapsulation for STL containers
 class vtkGreedyTerrainDecimationTerrainInfoType;
 class vtkGreedyTerrainDecimationPointInfoType;
 
 #define VTK_ERROR_NUMBER_OF_TRIANGLES 0
 #define VTK_ERROR_SPECIFIED_REDUCTION 1
-#define VTK_ERROR_ABSOLUTE            2
-#define VTK_ERROR_RELATIVE            3
+#define VTK_ERROR_ABSOLUTE 2
+#define VTK_ERROR_RELATIVE 3
 
 class VTKFILTERSHYBRID_EXPORT vtkGreedyTerrainDecimation : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkGreedyTerrainDecimation,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGreedyTerrainDecimation, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -97,162 +86,162 @@ public:
    */
   static vtkGreedyTerrainDecimation* New();
 
-  //@{
+  ///@{
   /**
    * Specify how to terminate the algorithm: either as an absolute number of
    * triangles, a relative number of triangles (normalized by the full
    * resolution mesh), an absolute error (in the height field), or relative
    * error (normalized by the length of the diagonal of the image).
    */
-  vtkSetClampMacro(ErrorMeasure,int,VTK_ERROR_NUMBER_OF_TRIANGLES,VTK_ERROR_RELATIVE);
-  vtkGetMacro(ErrorMeasure,int);
+  vtkSetClampMacro(ErrorMeasure, int, VTK_ERROR_NUMBER_OF_TRIANGLES, VTK_ERROR_RELATIVE);
+  vtkGetMacro(ErrorMeasure, int);
   void SetErrorMeasureToNumberOfTriangles()
-    {this->SetErrorMeasure(VTK_ERROR_NUMBER_OF_TRIANGLES);}
+  {
+    this->SetErrorMeasure(VTK_ERROR_NUMBER_OF_TRIANGLES);
+  }
   void SetErrorMeasureToSpecifiedReduction()
-    {this->SetErrorMeasure(VTK_ERROR_SPECIFIED_REDUCTION);}
-  void SetErrorMeasureToAbsoluteError()
-    {this->SetErrorMeasure(VTK_ERROR_ABSOLUTE);}
-  void SetErrorMeasureToRelativeError()
-    {this->SetErrorMeasure(VTK_ERROR_RELATIVE);}
-  //@}
+  {
+    this->SetErrorMeasure(VTK_ERROR_SPECIFIED_REDUCTION);
+  }
+  void SetErrorMeasureToAbsoluteError() { this->SetErrorMeasure(VTK_ERROR_ABSOLUTE); }
+  void SetErrorMeasureToRelativeError() { this->SetErrorMeasure(VTK_ERROR_RELATIVE); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of triangles to produce on output. (It is a
    * good idea to make sure this is less than a tessellated mesh
    * at full resolution.) You need to set this value only when
    * the error measure is set to NumberOfTriangles.
    */
-  vtkSetClampMacro(NumberOfTriangles,vtkIdType,2,VTK_ID_MAX);
-  vtkGetMacro(NumberOfTriangles,vtkIdType);
-  //@}
+  vtkSetClampMacro(NumberOfTriangles, vtkIdType, 2, VTK_ID_MAX);
+  vtkGetMacro(NumberOfTriangles, vtkIdType);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the reduction of the mesh (represented as a fraction).  Note
    * that a value of 0.10 means a 10% reduction.  You need to set this value
    * only when the error measure is set to SpecifiedReduction.
    */
-  vtkSetClampMacro(Reduction,double,0.0,1.0);
-  vtkGetMacro(Reduction,double);
-  //@}
+  vtkSetClampMacro(Reduction, double, 0.0, 1.0);
+  vtkGetMacro(Reduction, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the absolute error of the mesh; that is, the error in height
    * between the decimated mesh and the original height field.  You need to
    * set this value only when the error measure is set to AbsoluteError.
    */
-  vtkSetClampMacro(AbsoluteError,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(AbsoluteError,double);
-  //@}
+  vtkSetClampMacro(AbsoluteError, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(AbsoluteError, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the relative error of the mesh; that is, the error in height
    * between the decimated mesh and the original height field normalized by
    * the diagonal of the image.  You need to set this value only when the
    * error measure is set to RelativeError.
    */
-  vtkSetClampMacro(RelativeError,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(RelativeError,double);
-  //@}
+  vtkSetClampMacro(RelativeError, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(RelativeError, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the deletion of vertices on the boundary of a mesh. This
    * may limit the maximum reduction that may be achieved.
    */
-  vtkSetMacro(BoundaryVertexDeletion,vtkTypeBool);
-  vtkGetMacro(BoundaryVertexDeletion,vtkTypeBool);
-  vtkBooleanMacro(BoundaryVertexDeletion,vtkTypeBool);
-  //@}
+  vtkSetMacro(BoundaryVertexDeletion, vtkTypeBool);
+  vtkGetMacro(BoundaryVertexDeletion, vtkTypeBool);
+  vtkBooleanMacro(BoundaryVertexDeletion, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute normals based on the input image. Off by default.
    */
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkGreedyTerrainDecimation();
   ~vtkGreedyTerrainDecimation() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkTypeBool ComputeNormals;
   vtkFloatArray* Normals;
   void ComputePointNormal(int i, int j, float n[3]);
 
-  //ivars that the API addresses
-  int       ErrorMeasure;
+  // ivars that the API addresses
+  int ErrorMeasure;
   vtkIdType NumberOfTriangles;
-  double    Reduction;
-  double    AbsoluteError;
-  double    RelativeError;
-  vtkTypeBool       BoundaryVertexDeletion; //Can we delete boundary vertices?
+  double Reduction;
+  double AbsoluteError;
+  double RelativeError;
+  vtkTypeBool BoundaryVertexDeletion; // Can we delete boundary vertices?
 
-  //Used for convenience
-  vtkPolyData    *Mesh;
-  vtkPointData   *InputPD;
-  vtkPointData   *OutputPD;
-  vtkDoubleArray *Points;
-  vtkDataArray   *Heights;
-  vtkIdType      CurrentPointId;
-  double         Tolerance;
-  vtkIdList      *Neighbors;
-  int            Dimensions[3];
-  double         Origin[3];
-  double         Spacing[3];
-  vtkIdType      MaximumNumberOfTriangles;
-  double         Length;
+  // Used for convenience
+  vtkPolyData* Mesh;
+  vtkPointData* InputPD;
+  vtkPointData* OutputPD;
+  vtkDoubleArray* Points;
+  vtkDataArray* Heights;
+  vtkIdType CurrentPointId;
+  double Tolerance;
+  vtkIdList* Neighbors;
+  int Dimensions[3];
+  double Origin[3];
+  double Spacing[3];
+  vtkIdType MaximumNumberOfTriangles;
+  double Length;
 
-  //Bookkeeping arrays
-  vtkPriorityQueue                          *TerrainError; //errors for each pt in height field
-  vtkGreedyTerrainDecimationTerrainInfoType *TerrainInfo;  //owning triangle for each pt
-  vtkGreedyTerrainDecimationPointInfoType   *PointInfo;    //map mesh pt id to input pt id
+  // Bookkeeping arrays
+  vtkPriorityQueue* TerrainError;                         // errors for each pt in height field
+  vtkGreedyTerrainDecimationTerrainInfoType* TerrainInfo; // owning triangle for each pt
+  vtkGreedyTerrainDecimationPointInfoType* PointInfo;     // map mesh pt id to input pt id
 
-  //Make a guess at initial allocation
-  void EstimateOutputSize(const vtkIdType numInputPts, vtkIdType &numPts, vtkIdType &numTris);
+  // Make a guess at initial allocation
+  void EstimateOutputSize(vtkIdType numInputPts, vtkIdType& numPts, vtkIdType& numTris);
 
-  //Returns non-zero if the error measure is satisfied.
+  // Returns non-zero if the error measure is satisfied.
   virtual int SatisfiesErrorMeasure(double error);
 
-  //Insert all the boundary vertices into the TIN
+  // Insert all the boundary vertices into the TIN
   void InsertBoundaryVertices();
 
-  //Insert a point into the triangulation; get a point from the triangulation
+  // Insert a point into the triangulation; get a point from the triangulation
   vtkIdType AddPointToTriangulation(vtkIdType inputPtId);
   vtkIdType InsertNextPoint(vtkIdType inputPtId, double x[3]);
-  double *GetPoint(vtkIdType id);
+  double* GetPoint(vtkIdType id);
   void GetPoint(vtkIdType id, double x[3]);
 
-  //Helper functions
+  // Helper functions
   void GetTerrainPoint(int i, int j, double x[3]);
   void ComputeImageCoordinates(vtkIdType inputPtId, int ij[2]);
-  int InCircle (double x[3], double x1[3], double x2[3], double x3[3]);
-  vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri,
-                         double tol, vtkIdType nei[3], vtkIdList *neighbors, int& status);
-  void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
-                 vtkIdType tri, int depth);
+  int InCircle(double x[3], double x1[3], double x2[3], double x3[3]);
+  vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri, double tol,
+    vtkIdType nei[3], vtkIdList* neighbors, int& status);
+  void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2, vtkIdType tri, int depth);
 
-  void UpdateTriangles(vtkIdType meshPtId); //update all points connected to this point
+  void UpdateTriangles(vtkIdType meshPtId); // update all points connected to this point
   void UpdateTriangle(vtkIdType triId, vtkIdType p1, vtkIdType p2, vtkIdType p3);
-  void UpdateTriangle(vtkIdType triId, int ij1[2], int ij2[2], int ij3[2], double h[4]);
+  void UpdateTriangle(vtkIdType triId, int ij1[2], int ij2[2], int ij3[2], double h[3]);
 
-  int CharacterizeTriangle(int ij1[2], int ij2[2], int ij[3],
-                           int* &min, int* &max, int* &midL, int* &midR,
-                           int* &mid, int mid2[2], double h[3], double &hMin, double &hMax,
-                           double &hL, double &hR);
+  int CharacterizeTriangle(int ij1[2], int ij2[2], int ij[3], int*& min, int*& max, int*& midL,
+    int*& midR, int*& mid, int mid2[2], double h[3], double& hMin, double& hMax, double& hL,
+    double& hR);
 
 private:
   vtkGreedyTerrainDecimation(const vtkGreedyTerrainDecimation&) = delete;
   void operator=(const vtkGreedyTerrainDecimation&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

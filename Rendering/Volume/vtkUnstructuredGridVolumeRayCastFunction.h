@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridVolumeRayCastFunction.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkUnstructuredGridVolumeRayCastFunction
@@ -23,14 +11,15 @@
  *
  * @sa
  * vtkUnstructuredGridVolumeRayCastMapper vtkUnstructuredGridVolumeRayIntegrator
-*/
+ */
 
 #ifndef vtkUnstructuredGridVolumeRayCastFunction_h
 #define vtkUnstructuredGridVolumeRayCastFunction_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkVolume;
 class vtkUnstructuredGridVolumeRayCastIterator;
@@ -38,35 +27,30 @@ class vtkUnstructuredGridVolumeRayCastIterator;
 class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastFunction : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkUnstructuredGridVolumeRayCastFunction,vtkObject);
+  vtkTypeMacro(vtkUnstructuredGridVolumeRayCastFunction, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  virtual void Initialize( vtkRenderer *ren, vtkVolume   *vol )=0;
+  virtual void Initialize(vtkRenderer* ren, vtkVolume* vol) = 0;
 
-  virtual void Finalize( )=0;
+  virtual void Finalize() = 0;
 
- /**
-  * Returns a new object that will iterate over all the intersections of a
-  * ray with the cells of the input.  The calling code is responsible for
-  * deleting the returned object.
-  */
+  /**
+   * Returns a new object that will iterate over all the intersections of a
+   * ray with the cells of the input.  The calling code is responsible for
+   * deleting the returned object.
+   */
   VTK_NEWINSTANCE
-  virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator() = 0;
+  virtual vtkUnstructuredGridVolumeRayCastIterator* NewIterator() = 0;
 
 protected:
-  vtkUnstructuredGridVolumeRayCastFunction() {}
-  ~vtkUnstructuredGridVolumeRayCastFunction() override {}
+  vtkUnstructuredGridVolumeRayCastFunction() = default;
+  ~vtkUnstructuredGridVolumeRayCastFunction() override = default;
 
 private:
-  vtkUnstructuredGridVolumeRayCastFunction(const vtkUnstructuredGridVolumeRayCastFunction&) = delete;
+  vtkUnstructuredGridVolumeRayCastFunction(
+    const vtkUnstructuredGridVolumeRayCastFunction&) = delete;
   void operator=(const vtkUnstructuredGridVolumeRayCastFunction&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-
-
-
-
-

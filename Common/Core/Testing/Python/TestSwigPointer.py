@@ -4,15 +4,19 @@ Created on Oct 2, 2014 by David Gobbi
 """
 
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkInformation,
+    vtkIntArray,
+    vtkObject,
+)
+from vtkmodules.test import Testing
 
 class TestSwigPointer(Testing.vtkTest):
     def testVoidPointer(self):
-        a = vtk.vtkIntArray()
+        a = vtkIntArray()
         a.SetNumberOfTuples(1)
         a.SetValue(0, 1)
-        b = vtk.vtkIntArray()
+        b = vtkIntArray()
         b.SetNumberOfTuples(1)
         b.SetValue(0, 2)
         ptr = a.GetVoidPointer(0)
@@ -27,14 +31,14 @@ class TestSwigPointer(Testing.vtkTest):
         self.assertEqual(b.GetValue(0), 10)
 
     def testObjectPointer(self):
-        a = vtk.vtkInformation()
+        a = vtkInformation()
         ptr = a.__this__
         # check the format _0123456789abcdef_p_vtkInformation
         self.assertEqual(ptr[0:1], "_")
         self.assertEqual(ptr[-17:], "_p_vtkInformation")
         address = int(ptr[1:-17], 16)
         # create a VTK object from the swig pointer
-        b = vtk.vtkObject(ptr)
+        b = vtkObject(ptr)
         self.assertEqual(b.GetClassName(), a.GetClassName())
         self.assertEqual(a.__this__, b.__this__)
         self.assertEqual(a, b)

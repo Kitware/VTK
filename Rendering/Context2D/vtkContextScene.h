@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkContextScene.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkContextScene
@@ -21,16 +9,17 @@
  * Provides a 2D scene that vtkContextItem objects can be added to. Manages the
  * items, ensures that they are rendered at the right times and passes on mouse
  * events.
-*/
+ */
 
 #ifndef vtkContextScene_h
 #define vtkContextScene_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkWeakPointer.h" // Needed for weak pointer to the window.
-#include "vtkVector.h" // For vtkVector return type.
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkVector.h"                   // For vtkVector return type.
+#include "vtkWeakPointer.h"              // Needed for weak pointer to the window.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkAbstractContextItem;
 class vtkTransform2D;
@@ -48,17 +37,17 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextScene : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextScene, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Painter object.
    */
-  static vtkContextScene * New();
+  static vtkContextScene* New();
 
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter);
+  virtual bool Paint(vtkContext2D* painter);
 
   /**
    * Add child items to this item. Increments reference count of item.
@@ -99,52 +88,78 @@ public:
   /**
    * Set the vtkAnnotationLink for the chart.
    */
-  virtual void SetAnnotationLink(vtkAnnotationLink *link);
+  virtual void SetAnnotationLink(vtkAnnotationLink* link);
 
-  //@{
+  ///@{
   /**
    * Get the vtkAnnotationLink for the chart.
    */
   vtkGetObjectMacro(AnnotationLink, vtkAnnotationLink);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * Get/Set the origin (bottom-left) coordinate of the scene in pixels (screen coordinates).
+   */
+  vtkSetVector2Macro(Origin, int);
+  vtkGetVector2Macro(Origin, int);
+  ///@}
+
+  ///@{
   /**
    * Set the width and height of the scene in pixels.
    */
   vtkSetVector2Macro(Geometry, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the width and height of the scene in pixels.
    */
   vtkGetVector2Macro(Geometry, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether the scene should use the color buffer. Default is true.
    */
   vtkSetMacro(UseBufferId, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get whether the scene is using the color buffer. Default is true.
    */
   vtkGetMacro(UseBufferId, bool);
-  //@}
+  ///@}
 
   /**
-   * Get the width of the view
+   * Get the width of the view (render window) containing this scene.
+   * Note that this might be larger than the scene width, which can
+   * be retrieved using the GetSceneWidth method, when multiple
+   * viewports are defined in the render window.
    */
   virtual int GetViewWidth();
 
   /**
-   * Get the height of the view
+   * Get the height of the view (render window) containing this scene.
+   * Note that this might be larger than the scene height, which can
+   * be retrieved using the GetSceneHeight method, when multiple
+   * viewports are defined in the render window.
    */
   virtual int GetViewHeight();
+
+  /**
+   * Get the left of the scene in screen coordinates.
+   * This is equivalent to GetOrigin[0].
+   */
+  virtual int GetSceneLeft();
+
+  /**
+   * Get the bottom of the scene in screen coordinates.
+   * This is equivalent to GetOrigin[1].
+   */
+  virtual int GetSceneBottom();
 
   /**
    * Get the width of the scene.
@@ -156,7 +171,7 @@ public:
    */
   int GetSceneHeight();
 
-  //@{
+  ///@{
   /**
    * Whether to scale the scene transform when tiling, for example when
    * using vtkWindowToImageFilter to take a large screenshot.
@@ -165,7 +180,7 @@ public:
   vtkSetMacro(ScaleTiles, bool);
   vtkGetMacro(ScaleTiles, bool);
   vtkBooleanMacro(ScaleTiles, bool);
-  //@}
+  ///@}
 
   /**
    * The tile scale of the target vtkRenderWindow. Hardcoded pixel offsets, etc
@@ -175,24 +190,24 @@ public:
    */
   vtkVector2i GetLogicalTileScale();
 
-  //@{
+  ///@{
   /**
    * This should not be necessary as the context view should take care of
    * rendering.
    */
-  virtual void SetRenderer(vtkRenderer *renderer);
+  virtual void SetRenderer(vtkRenderer* renderer);
   virtual vtkRenderer* GetRenderer();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Inform the scene that something changed that requires a repaint of the
    * scene. This should only be used by the vtkContextItem derived objects in
    * a scene in their event handlers.
    */
   void SetDirty(bool isDirty);
-  bool GetDirty()const;
-  //@}
+  bool GetDirty() const;
+  ///@}
 
   /**
    * Release graphics resources hold by the scene.
@@ -211,12 +226,12 @@ public:
    * Not part of the end-user API. Can be used by context items to
    * initialize their own colorbuffer id (when a context item is a container).
    */
-  vtkAbstractContextBufferId *GetBufferId();
+  vtkAbstractContextBufferId* GetBufferId();
 
   /**
    * Set the transform for the scene.
    */
-  virtual void SetTransform(vtkTransform2D *transform);
+  virtual void SetTransform(vtkTransform2D* transform);
 
   /**
    * Get the transform for the scene.
@@ -229,14 +244,27 @@ public:
   bool HasTransform() { return this->Transform != nullptr; }
 
   /**
+   * Return the item id under mouse cursor at position (x,y).
+   * Return -1 if there is no item under the mouse cursor.
+   * \post valid_result: result>=-1 && result<this->GetNumberOfItems()
+   */
+  vtkIdType GetPickedItem(int x, int y);
+
+  /**
+   * Return the item under the mouse.
+   * If no item is under the mouse, the method returns a null pointer.
+   */
+  vtkAbstractContextItem* GetPickedItem();
+
+  /**
    * Enum of valid selection modes for charts in the scene
    */
-  enum {
-    SELECTION_NONE = 0,
-    SELECTION_DEFAULT,
-    SELECTION_ADDITION,
-    SELECTION_SUBTRACTION,
-    SELECTION_TOGGLE
+  enum SelectionModifier
+  {
+    SELECTION_DEFAULT = 0, // selection = newSelection
+    SELECTION_ADDITION,    // selection = prevSelection | newSelection
+    SELECTION_SUBTRACTION, // selection = prevSelection & !newSelection
+    SELECTION_TOGGLE       // selection = prevSelection ^ newSelection
   };
 
 protected:
@@ -251,27 +279,27 @@ protected:
   /**
    * Process a mouse move event.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent& event);
 
   /**
    * Process a mouse button press event.
    */
-  virtual bool ButtonPressEvent(const vtkContextMouseEvent &event);
+  virtual bool ButtonPressEvent(const vtkContextMouseEvent& event);
 
   /**
    * Process a mouse button release event.
    */
-  virtual bool ButtonReleaseEvent(const vtkContextMouseEvent &event);
+  virtual bool ButtonReleaseEvent(const vtkContextMouseEvent& event);
 
   /**
    * Process a mouse button double click event.
    */
-  virtual bool DoubleClickEvent(const vtkContextMouseEvent &event);
+  virtual bool DoubleClickEvent(const vtkContextMouseEvent& event);
 
   /**
    * Process a mouse wheel event where delta is the movement forward or back.
    */
-  virtual bool MouseWheelEvent(int delta, const vtkContextMouseEvent &event);
+  virtual bool MouseWheelEvent(int delta, const vtkContextMouseEvent& event);
 
   /**
    * Process a key press event.
@@ -295,25 +323,14 @@ protected:
   void TestBufferIdSupport();
 
   /**
-   * Return the item id under mouse cursor at position (x,y).
-   * Return -1 if there is no item under the mouse cursor.
-   * \post valid_result: result>=-1 && result<this->GetNumberOfItems()
-   */
-  vtkIdType GetPickedItem(int x, int y);
-
-  /**
-   * Return the item under the mouse.
-   * If no item is under the mouse, the method returns a null pointer.
-   */
-  vtkAbstractContextItem* GetPickedItem();
-
-  /**
    * Make sure the buffer id used for picking is up-to-date.
    */
   void UpdateBufferId();
 
-  vtkAnnotationLink *AnnotationLink;
+  vtkAnnotationLink* AnnotationLink;
 
+  // Store the chart origin - left, bottom of scene in pixels
+  int Origin[2];
   // Store the chart dimensions - width, height of scene in pixels
   int Geometry[2];
 
@@ -323,13 +340,13 @@ protected:
    */
   friend class vtkContextInteractorStyle;
 
-  //@{
+  ///@{
   /**
    * Private storage object - where we hide all of our STL objects...
    */
   class Private;
-  Private *Storage;
-  //@}
+  Private* Storage;
+  ///@}
 
   /**
    * This structure provides a list of children, along with convenience
@@ -342,7 +359,7 @@ protected:
 
   vtkWeakPointer<vtkRenderer> Renderer;
 
-  vtkAbstractContextBufferId *BufferId;
+  vtkAbstractContextBufferId* BufferId;
   bool BufferIdDirty;
 
   bool UseBufferId;
@@ -358,15 +375,14 @@ protected:
   vtkTransform2D* Transform;
 
 private:
-  vtkContextScene(const vtkContextScene &) = delete;
-  void operator=(const vtkContextScene &) = delete;
+  vtkContextScene(const vtkContextScene&) = delete;
+  void operator=(const vtkContextScene&) = delete;
 
-  typedef bool (vtkAbstractContextItem::* MouseEvents)(const vtkContextMouseEvent&);
-  bool ProcessItem(vtkAbstractContextItem* cur,
-                   const vtkContextMouseEvent& event,
-                   MouseEvents eventPtr);
-  void EventCopy(const vtkContextMouseEvent &event);
-
+  typedef bool (vtkAbstractContextItem::*MouseEvents)(const vtkContextMouseEvent&);
+  bool ProcessItem(
+    vtkAbstractContextItem* cur, const vtkContextMouseEvent& event, MouseEvents eventPtr);
+  void EventCopy(const vtkContextMouseEvent& event);
 };
 
-#endif //vtkContextScene_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkContextScene_h

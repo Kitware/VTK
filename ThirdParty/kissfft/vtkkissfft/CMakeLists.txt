@@ -25,6 +25,7 @@ set(headers
 vtk_module_add_module(VTK::kissfft
   SOURCES ${sources}
   HEADERS ${headers}
+  HEADER_DIRECTORIES
   HEADERS_SUBDIR "vtkkissfft")
 
 target_compile_definitions(kissfft
@@ -39,3 +40,7 @@ endif ()
 target_include_directories(kissfft
   PRIVATE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>")
+
+if (UNIX)
+  vtk_module_link(VTK::kissfft PRIVATE m)
+endif ()

@@ -1,13 +1,33 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkFiltersCore import (
+    vtkContourFilter,
+    vtkPolyDataNormals,
+)
+from vtkmodules.vtkFiltersGeneral import vtkDataSetTriangleFilter
+from vtkmodules.vtkFiltersParallel import (
+    vtkExtractUnstructuredGridPiece,
+    vtkPieceScalars,
+)
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(22)
 
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
+pl3d = vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
@@ -15,30 +35,30 @@ pl3d.Update()
 
 output = pl3d.GetOutput().GetBlock(0)
 
-dst = vtk.vtkDataSetTriangleFilter()
+dst = vtkDataSetTriangleFilter()
 dst.SetInputData(output)
 
-extract = vtk.vtkExtractUnstructuredGridPiece()
+extract = vtkExtractUnstructuredGridPiece()
 extract.SetInputConnection(dst.GetOutputPort())
 
-cf = vtk.vtkContourFilter()
+cf = vtkContourFilter()
 cf.SetInputConnection(extract.GetOutputPort())
 cf.SetValue(0, 0.24)
 
-pdn = vtk.vtkPolyDataNormals()
+pdn = vtkPolyDataNormals()
 pdn.SetInputConnection(cf.GetOutputPort())
 
-ps = vtk.vtkPieceScalars()
+ps = vtkPieceScalars()
 ps.SetInputConnection(pdn.GetOutputPort())
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(ps.GetOutputPort())
 mapper.SetNumberOfPieces(3)
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-ren = vtk.vtkRenderer()
+ren = vtkRenderer()
 ren.AddActor(actor)
 ren.ResetCamera()
 
@@ -48,9 +68,9 @@ camera = ren.GetActiveCamera()
 # $camera SetFocalPoint 3.65707 11.4552 1.83509
 # $camera SetClippingRange 59.2626 101.825
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 iren.Initialize()
 

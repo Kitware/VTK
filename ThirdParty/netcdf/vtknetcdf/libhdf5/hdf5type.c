@@ -95,84 +95,6 @@ NC4_inq_type_equal(int ncid1, nc_type typeid1, int ncid2,
 }
 
 /**
- * @internal Get the id of a type from the name.
- *
- * @param ncid File and group ID.
- * @param name Name of type.
- * @param typeidp Pointer that will get the type ID.
- *
- * @return ::NC_NOERR No error.
- * @return ::NC_ENOMEM Out of memory.
- * @return ::NC_EINVAL Bad size.
- * @return ::NC_ENOTNC4 User types in netCDF-4 files only.
- * @return ::NC_EBADTYPE Type not found.
- * @author Ed Hartnett
- */
-extern int
-NC4_inq_typeid(int ncid, const char *name, nc_type *typeidp)
-{
-    NC_GRP_INFO_T *grp;
-    NC_GRP_INFO_T *grptwo;
-    NC_FILE_INFO_T *h5;
-    NC_TYPE_INFO_T *type = NULL;
-    char *norm_name;
-    int i, retval;
-
-    /* Handle atomic types. */
-    for (i = 0; i < NUM_ATOMIC_TYPES; i++)
-        if (!strcmp(name, nc4_atomic_name[i]))
-        {
-            if (typeidp)
-                *typeidp = i;
-            return NC_NOERR;
-        }
-
-    /* Find info for this file and group, and set pointer to each. */
-    if ((retval = nc4_find_grp_h5(ncid, &grp, &h5)))
-        return retval;
-    assert(h5 && grp);
-
-    /* If the first char is a /, this is a fully-qualified
-     * name. Otherwise, this had better be a local name (i.e. no / in
-     * the middle). */
-    if (name[0] != '/' && strstr(name, "/"))
-        return NC_EINVAL;
-
-    /* Normalize name. */
-    if (!(norm_name = (char*)malloc(strlen(name) + 1)))
-        return NC_ENOMEM;
-    if ((retval = nc4_normalize_name(name, norm_name))) {
-        free(norm_name);
-        return retval;
-    }
-    /* Is the type in this group? If not, search parents. */
-    for (grptwo = grp; grptwo; grptwo = grptwo->parent) {
-        type = (NC_TYPE_INFO_T*)ncindexlookup(grptwo->type,norm_name);
-        if(type)
-        {
-            if (typeidp)
-                *typeidp = type->hdr.id;
-            break;
-        }
-    }
-
-    /* Still didn't find type? Search file recursively, starting at the
-     * root group. */
-    if (!type)
-        if ((type = nc4_rec_find_named_type(grp->nc4_info->root_grp, norm_name)))
-            if (typeidp)
-                *typeidp = type->hdr.id;
-
-    free(norm_name);
-
-    /* OK, I give up already! */
-    if (!type)
-        return NC_EBADTYPE;
-
-    return NC_NOERR;
-}
-
-/**
  * @internal This internal function adds a new user defined type to
  * the metadata of a group of an open file.
  *
@@ -224,12 +146,18 @@ add_user_type(int ncid, size_t size, const char *name, nc_type base_typeid,
         if ((retval = NC4_redef(ncid)))
             return retval;
 
-    /* No size is provided for vlens or enums, get it from the base type. */
-    if (type_class == NC_VLEN || type_class == NC_ENUM)
+    /* No size is provided for vlens; use the size of nc_vlen_t */
+    if (type_class == NC_VLEN)
+	size = sizeof(nc_vlen_t);
+
+    /* No size is provided for enums, get it from the base type. */
+    else if(type_class == NC_ENUM)
     {
         if ((retval = nc4_get_typelen_mem(grp->nc4_info, base_typeid, &size)))
             return retval;
     }
+
+    /* Else better be defined */
     else if (size <= 0)
         return NC_EINVAL;
 
@@ -335,6 +263,7 @@ NC4_insert_array_compound(int ncid, int typeid1, const char *name,
     NC_TYPE_INFO_T *type;
     char norm_name[NC_MAX_NAME + 1];
     int retval;
+    int fixedsize = 0;
 
     LOG((2, "nc_insert_array_compound: ncid 0x%x, typeid %d name %s "
          "offset %d field_typeid %d ndims %d", ncid, typeid1,
@@ -365,6 +294,12 @@ NC4_insert_array_compound(int ncid, int typeid1, const char *name,
     if ((retval = nc4_field_list_add(type, norm_name, offset, field_typeid,
                                      ndims, dim_sizesp)))
         return retval;
+
+    /* See if this changes from fixed size to variable size */
+    if((retval = NC4_inq_type_fixed_size(ncid,field_typeid,&fixedsize)))
+        return retval;
+    if(!fixedsize)
+        type->u.c.varsized = 1;
 
     return NC_NOERR;
 }

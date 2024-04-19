@@ -1,4 +1,17 @@
-from vtk import *
+from vtkmodules.vtkCommonCore import (
+    vtkPoints,
+    reference,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkHexahedron,
+    vtkPyramid,
+    vtkQuadraticHexahedron,
+    vtkQuadraticPyramid,
+    vtkQuadraticTetra,
+    vtkQuadraticWedge,
+    vtkTetra,
+    vtkWedge,
+)
 import sys
 
 # all values should be between 0 and 1

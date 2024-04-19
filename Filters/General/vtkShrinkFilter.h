@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkShrinkFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkShrinkFilter
  * @brief   shrink cells composing an arbitrary data set
@@ -28,7 +16,7 @@
  *
  * @sa
  * vtkShrinkPolyData
-*/
+ */
 
 #ifndef vtkShrinkFilter_h
 #define vtkShrinkFilter_h
@@ -36,20 +24,21 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkShrinkFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkShrinkFilter *New();
-  vtkTypeMacro(vtkShrinkFilter,vtkUnstructuredGridAlgorithm);
+  static vtkShrinkFilter* New();
+  vtkTypeMacro(vtkShrinkFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the fraction of shrink for each cell. The default is 0.5.
    */
   vtkSetClampMacro(ShrinkFactor, double, 0.0, 1.0);
   vtkGetMacro(ShrinkFactor, double);
-  //@}
+  ///@}
 
 protected:
   vtkShrinkFilter();
@@ -59,9 +48,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Main implementation.
-  int RequestData(vtkInformation*,
-                  vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double ShrinkFactor;
 
@@ -70,4 +57,5 @@ private:
   void operator=(const vtkShrinkFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -245,7 +245,7 @@ NC_RO_sync(int ncid)
  * @param use_parallel Ignored.
  * @param parameters Ignored.
  * @param dispatch Ignored.
- * @param nc_file Ignored.
+ * @param ncid Ignored.
  *
  * @return ::NC_EPERM Cannot create files.
  * @author Ed Hartnett
@@ -253,7 +253,7 @@ NC_RO_sync(int ncid)
 int
 NC_RO_create(const char* path, int cmode, size_t initialsz, int basepe,
              size_t *chunksizehintp, void *parameters,
-             NC_Dispatch *dispatch, NC *nc_file)
+             const NC_Dispatch *dispatch, int ncid)
 {
    return NC_EPERM;
 }

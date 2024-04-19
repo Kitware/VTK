@@ -6,13 +6,13 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Quincey Koziol <koziol@hdfgroup.org>
+ * Programmer:  Quincey Koziol
  *              Wednesday, July 20, 2011
  *
  * Purpose:	Query routines for global heaps.
@@ -23,53 +23,43 @@
 /* Module Setup */
 /****************/
 
-#include "H5HGmodule.h"         /* This source code file is part of the H5HG module */
-
+#include "H5HGmodule.h" /* This source code file is part of the H5HG module */
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5HGpkg.h"		/* Global heaps				*/
-
+#include "H5private.h"  /* Generic Functions			*/
+#include "H5Eprivate.h" /* Error handling		  	*/
+#include "H5HGpkg.h"    /* Global heaps				*/
 
 /****************/
 /* Local Macros */
 /****************/
 
-
 /******************/
 /* Local Typedefs */
 /******************/
-
 
 /********************/
 /* Package Typedefs */
 /********************/
 
-
 /********************/
 /* Local Prototypes */
 /********************/
-
 
 /*********************/
 /* Package Variables */
 /*********************/
 
-
 /*****************************/
 /* Library Private Variables */
 /*****************************/
-
 
 /*******************/
 /* Local Variables */
 /*******************/
 
-
-
 /*-------------------------------------------------------------------------
  * Function:	H5HG_get_addr
  *
@@ -93,7 +83,6 @@ H5HG_get_addr(const H5HG_heap_t *heap)
     FUNC_LEAVE_NOAPI(heap->addr)
 } /* H5HG_get_addr() */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5HG_get_size
  *
@@ -117,7 +106,6 @@ H5HG_get_size(const H5HG_heap_t *heap)
     FUNC_LEAVE_NOAPI(heap->size)
 } /* H5HG_get_size() */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5HG_get_free_size
  *
@@ -140,4 +128,3 @@ H5HG_get_free_size(const H5HG_heap_t *heap)
 
     FUNC_LEAVE_NOAPI(heap->obj[0].size)
 } /* H5HG_get_free_size() */
-

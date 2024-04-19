@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractDataSets.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkExtractDataSets
  * @brief   extracts a number of datasets.
@@ -24,7 +12,7 @@
  *
  * @sa
  * vtkHierarchicalBoxDataSet, vtkMultiBlockDataSet vtkMultiPieceDataSet
-*/
+ */
 
 #ifndef vtkExtractDataSets_h
 #define vtkExtractDataSets_h
@@ -32,8 +20,8 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractDataSets :
-          public vtkMultiBlockDataSetAlgorithm
+VTK_ABI_NAMESPACE_BEGIN
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractDataSets : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkExtractDataSets* New();
@@ -54,11 +42,9 @@ protected:
   vtkExtractDataSets();
   ~vtkExtractDataSets() override;
 
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkExtractDataSets(const vtkExtractDataSets&) = delete;
@@ -66,9 +52,7 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkChart.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkChart
@@ -19,17 +7,19 @@
  *
  *
  * This defines the interface for a chart.
-*/
+ */
 
 #ifndef vtkChart_h
 #define vtkChart_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkContextScene.h" // For SelectionModifier
 #include "vtkRect.h"         // For vtkRectf
-#include "vtkStdString.h"    // For vtkStdString ivars
 #include "vtkSmartPointer.h" // For SP ivars
+#include "vtkStdString.h"    // For vtkStdString ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform2D;
 class vtkContextScene;
 class vtkPlot;
@@ -45,19 +35,21 @@ class VTKCHARTSCORE_EXPORT vtkChart : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChart, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Enum of the available chart types
    */
-  enum {
+  enum
+  {
     LINE,
     POINTS,
     BAR,
     STACKED,
     BAG,
     FUNCTIONALBAG,
-    AREA};
+    AREA
+  };
 
   /**
    * Enum of valid chart action types.
@@ -70,8 +62,11 @@ public:
    * SELECT - alias for SELECT_RECTANGLE
    * CLICKANDDRAG - move one point selected by a click
    * NOTIFY - Post vtkCommand::InteractionEvent on selection of a point
+   * ACTION_TYPES_COUNT - total action types count (needed in ParaView,
+   * see `pqChartSelectionReaction.h`)
    */
-  enum {
+  enum
+  {
     PAN = 0,
     ZOOM,
     ZOOM_AXIS,
@@ -79,20 +74,22 @@ public:
     SELECT_RECTANGLE = SELECT,
     SELECT_POLYGON,
     CLICK_AND_DRAG,
-    NOTIFY
+    NOTIFY,
+    ACTION_TYPES_COUNT
   };
 
   /**
    * Enum of event type that are triggered by the charts
    */
-  enum EventIds {
+  enum EventIds
+  {
     UpdateRange = 1002
   };
 
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) override = 0;
+  bool Paint(vtkContext2D* painter) override = 0;
 
   /**
    * Add a plot to the chart, defaults to using the name of the y column
@@ -162,13 +159,14 @@ public:
    * selection remains specific to the plot object. SELECTION_COLUMNS selects
    * the plots that use as input the selected columns of a table.
    */
-  enum {
+  enum
+  {
     SELECTION_ROWS,
     SELECTION_PLOTS,
     SELECTION_COLUMNS
   };
 
-  //@{
+  ///@{
   /**
    * Set the selection method, which controls how selections are handled by the
    * chart. The default is SELECTION_ROWS which selects all points in all plots
@@ -179,74 +177,74 @@ public:
    */
   virtual void SetSelectionMethod(int method);
   virtual int GetSelectionMethod();
-  //@}
+  ///@}
 
   /**
    * Set the vtkAnnotationLink for the chart.
    */
-  virtual void SetAnnotationLink(vtkAnnotationLink *link);
+  virtual void SetAnnotationLink(vtkAnnotationLink* link);
 
-  //@{
+  ///@{
   /**
    * Get the vtkAnnotationLink for the chart.
    */
   vtkGetObjectMacro(AnnotationLink, vtkAnnotationLink);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the width and the height of the chart.
    */
   vtkSetVector2Macro(Geometry, int);
   vtkGetVector2Macro(Geometry, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the first point in the chart (the bottom left).
    */
   vtkSetVector2Macro(Point1, int);
   vtkGetVector2Macro(Point1, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the second point in the chart (the top right).
    */
   vtkSetVector2Macro(Point2, int);
   vtkGetVector2Macro(Point2, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the chart should draw a legend.
    */
   virtual void SetShowLegend(bool visible);
   virtual bool GetShowLegend();
-  //@}
+  ///@}
 
   /**
    * Get the legend for the chart, if available. Can return null if there is no
    * legend.
    */
-  virtual vtkChartLegend * GetLegend();
+  virtual vtkChartLegend* GetLegend();
 
-  //@{
+  ///@{
   /**
    * Get/set the title text of the chart.
    */
-  virtual void SetTitle(const vtkStdString &title);
+  virtual void SetTitle(const vtkStdString& title);
   virtual vtkStdString GetTitle();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the vtkTextProperty that governs how the chart title is displayed.
    */
   vtkGetObjectMacro(TitleProperties, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the borders of the chart (space in pixels around the chart).
    */
@@ -254,7 +252,7 @@ public:
   void SetTopBorder(int border);
   void SetLeftBorder(int border);
   void SetRightBorder(int border);
-  //@}
+  ///@}
 
   /**
    * Set/get the borders of the chart (space in pixels around the chart).
@@ -266,7 +264,7 @@ public:
    * width and height of the chart. The borders will be laid out within the
    * specified rectangle.
    */
-  void SetSize(const vtkRectf &rect);
+  virtual void SetSize(const vtkRectf& rect);
 
   /**
    * Get the current size of the chart.
@@ -276,13 +274,14 @@ public:
   /**
    * Enum of the available layout strategies for the charts.
    */
-  enum {
+  enum
+  {
     FILL_SCENE,  // Attempt to fill the entire scene.
     FILL_RECT,   // Attempt to supply the supplied vtkRectf in Size.
     AXES_TO_RECT // Put the corners of the axes on the vtkRectf in Size.
   };
 
-  //@{
+  ///@{
   /**
    * Set/get the layout strategy that should be used by the chart. As we don't
    * support enums this can take any value in the integer range, but the only
@@ -290,25 +289,21 @@ public:
    */
   vtkSetMacro(LayoutStrategy, int);
   vtkGetMacro(LayoutStrategy, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the chart should automatically resize to fill the current
    * render window. Default is true.
    */
   virtual void SetAutoSize(bool isAutoSized)
   {
-    this->LayoutStrategy = isAutoSized ? vtkChart::FILL_SCENE :
-                                         vtkChart::FILL_RECT;
+    this->LayoutStrategy = isAutoSized ? vtkChart::FILL_SCENE : vtkChart::FILL_RECT;
   }
-  virtual bool GetAutoSize()
-  {
-    return this->LayoutStrategy == vtkChart::FILL_SCENE ? true : false;
-  }
-  //@}
+  virtual bool GetAutoSize() { return this->LayoutStrategy == vtkChart::FILL_SCENE ? true : false; }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the chart should still render its axes and decorations
    * even if the chart has no visible plots. Default is false (do not render
@@ -319,7 +314,7 @@ public:
    */
   vtkSetMacro(RenderEmpty, bool);
   vtkGetMacro(RenderEmpty, bool);
-  //@}
+  ///@}
 
   /**
    * Assign action types to mouse buttons. Available action types are PAN, ZOOM
@@ -353,23 +348,23 @@ public:
    */
   virtual int GetClickActionToButton(int action);
 
-  //@{
+  ///@{
   /**
    * Set/Get the brush to use for the background color.
    */
-  void SetBackgroundBrush(vtkBrush *brush);
+  void SetBackgroundBrush(vtkBrush* brush);
   vtkBrush* GetBackgroundBrush();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the Selection Mode that will be used by the chart while doing
-   * selection. The only valid enums are vtkContextScene::SELECTION_NONE,
-   * SELECTION_DEFAULT, SELECTION_ADDITION, SELECTION_SUBTRACTION, SELECTION_TOGGLE
+   * selection. The only valid enums are vtkContextScene::SelectionModifier.
    */
-  virtual void SetSelectionMode(int);
+  vtkSetClampMacro(
+    SelectionMode, int, vtkContextScene::SELECTION_DEFAULT, vtkContextScene::SELECTION_TOGGLE);
   vtkGetMacro(SelectionMode, int);
-  //@}
+  ///@}
 
 protected:
   vtkChart();
@@ -381,26 +376,24 @@ protected:
    * that the axes have the correct start and end positions, and that they are
    * perpendicular.
    */
-  bool CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
-                              vtkTransform2D *transform);
+  bool CalculatePlotTransform(vtkAxis* x, vtkAxis* y, vtkTransform2D* transform);
 
   /**
    * Calculate the unshifted, and unscaled plot transform for the x and y axis.
    */
-  bool CalculateUnscaledPlotTransform(vtkAxis *x, vtkAxis *y,
-                                      vtkTransform2D *transform);
+  bool CalculateUnscaledPlotTransform(vtkAxis* x, vtkAxis* y, vtkTransform2D* transform);
 
   /**
    * Attach axis range listener so we can forward those events at the chart level
    */
   void AttachAxisRangeListener(vtkAxis*);
 
-  void AxisRangeForwarderCallback(vtkObject*,unsigned long, void*);
+  void AxisRangeForwarderCallback(vtkObject*, unsigned long, void*);
 
   /**
    * Our annotation link, used for sharing selections etc.
    */
-  vtkAnnotationLink *AnnotationLink;
+  vtkAnnotationLink* AnnotationLink;
 
   /**
    * The width and the height of the chart.
@@ -416,6 +409,11 @@ protected:
    * The position of the upper right corner of the chart.
    */
   int Point2[2];
+
+  /**
+   * The borders around the chart.
+   */
+  int Borders[4];
 
   /**
    * Display the legend?
@@ -449,7 +447,7 @@ protected:
   // SELECTION_PLOTS - based on the plot that created the selection.
   int SelectionMethod;
 
-  //@{
+  ///@{
   /**
    * Hold mouse action mappings.
    */
@@ -457,7 +455,10 @@ protected:
   {
   public:
     MouseActions();
-    enum { MaxAction = 6 };
+    enum
+    {
+      MaxAction = 6
+    };
     short& Pan() { return Data[0]; }
     short& Zoom() { return Data[1]; }
     short& ZoomAxis() { return Data[2]; }
@@ -476,14 +477,15 @@ protected:
     short& operator[](int index) { return Data[index]; }
     short Data[2];
   };
-  //@}
+  ///@}
 
   MouseActions Actions;
   MouseClickActions ActionsClick;
 
 private:
-  vtkChart(const vtkChart &) = delete;
-  void operator=(const vtkChart &) = delete;
+  vtkChart(const vtkChart&) = delete;
+  void operator=(const vtkChart&) = delete;
 };
 
-#endif //vtkChart_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkChart_h

@@ -1,21 +1,8 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    Theme.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // This example...
 //
-
 
 #include "vtkGraphLayoutView.h"
 #include "vtkRandomGraphSource.h"
@@ -28,8 +15,7 @@ int main(int, char*[])
   vtkRandomGraphSource* source = vtkRandomGraphSource::New();
 
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
-  view->SetRepresentationFromInputConnection(
-    source->GetOutputPort());
+  view->SetRepresentationFromInputConnection(source->GetOutputPort());
 
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);

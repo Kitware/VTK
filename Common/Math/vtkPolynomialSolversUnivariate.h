@@ -1,27 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolynomialSolversUnivariate.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-  Copyright 2011 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-  license for use of this work by or on behalf of the
-  U.S. Government. Redistribution and use in source and binary forms, with
-  or without modification, are permitted provided that this Notice and any
-  statement of authorship are reproduced on all copies.
-
-  Contact: pppebay@sandia.gov,dcthomp@sandia.gov
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2011 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkPolynomialSolversUnivariate
  * @brief   polynomial solvers
@@ -44,7 +23,7 @@
  * @par Thanks:
  * Thanks to Philippe Pebay, Korben Rusek, David Thompson, and Maurice Rojas
  * for implementing these solvers.
-*/
+ */
 
 #ifndef vtkPolynomialSolversUnivariate_h
 #define vtkPolynomialSolversUnivariate_h
@@ -52,15 +31,16 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONMATH_EXPORT vtkPolynomialSolversUnivariate : public vtkObject
 {
 public:
-  static vtkPolynomialSolversUnivariate *New();
-  vtkTypeMacro(vtkPolynomialSolversUnivariate,vtkObject);
+  static vtkPolynomialSolversUnivariate* New();
+  vtkTypeMacro(vtkPolynomialSolversUnivariate, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static ostream& PrintPolynomial( ostream& os, double* P, int degP );
+  static ostream& PrintPolynomial(ostream& os, double* P, int degP);
 
-  //@{
+  ///@{
   /**
    * Finds all REAL roots (within tolerance \a tol) of the \a d -th degree polynomial
    * \f[
@@ -68,7 +48,7 @@ public:
    * \f]
    * in ]\a a[0] ; \a a[1]] using the Habicht sequence (polynomial
    * coefficients are REAL) and returns the count \a nr. All roots are bracketed
-   * in the \nr first ]\a upperBnds[i] - \a tol ; \a upperBnds[i]] intervals.
+   * in the \a nr first ]\a upperBnds[i] - \a tol ; \a upperBnds[i]] intervals.
    * Returns -1 if anything went wrong (such as: polynomial does not have
    * degree \a d, the interval provided by the other is absurd, etc.).
 
@@ -97,26 +77,23 @@ public:
    * Warning: it is the user's responsibility to make sure the \a upperBnds
    * array is large enough to contain the maximal number of expected roots.
    * Note that \a nr is smaller or equal to the actual number of roots in
-   * ]\a a[0] ; \a a[1]] since roots within \tol are lumped in the same bracket.
+   * ]\a a[0] ; \a a[1]] since roots within \a tol are lumped in the same bracket.
    * array is large enough to contain the maximal number of expected upper bounds.
    */
+  static int HabichtBisectionSolve(double* P, int d, double* a, double* upperBnds, double tol);
   static int HabichtBisectionSolve(
-    double* P, int d, double* a, double* upperBnds, double tol );
+    double* P, int d, double* a, double* upperBnds, double tol, int intervalType);
   static int HabichtBisectionSolve(
-    double* P, int d, double* a, double* upperBnds, double tol,
-    int intervalType );
-  static int HabichtBisectionSolve(
-    double* P, int d, double* a, double* upperBnds, double tol,
-    int intervalType, bool divideGCD );
-  //@}
+    double* P, int d, double* a, double* upperBnds, double tol, int intervalType, bool divideGCD);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Finds all REAL roots (within tolerance \a tol) of the \a d -th degree polynomial
    * P[0] X^d + ... + P[d-1] X + P[d]
    * in ]\a a[0] ; \a a[1]] using Sturm's theorem ( polynomial
    * coefficients are REAL ) and returns the count \a nr. All roots are bracketed
-   * in the \nr first ]\a upperBnds[i] - \a tol ; \a upperBnds[i]] intervals.
+   * in the \a nr first ]\a upperBnds[i] - \a tol ; \a upperBnds[i]] intervals.
    * Returns -1 if anything went wrong (such as: polynomial does not have
    * degree \a d, the interval provided by the other is absurd, etc.).
 
@@ -138,18 +115,15 @@ public:
    * Warning: it is the user's responsibility to make sure the \a upperBnds
    * array is large enough to contain the maximal number of expected roots.
    * Note that \a nr is smaller or equal to the actual number of roots in
-   * ]\a a[0] ; \a a[1]] since roots within \tol are lumped in the same bracket.
+   * ]\a a[0] ; \a a[1]] since roots within \a tol are lumped in the same bracket.
    * array is large enough to contain the maximal number of expected upper bounds.
    */
+  static int SturmBisectionSolve(double* P, int d, double* a, double* upperBnds, double tol);
   static int SturmBisectionSolve(
-    double* P, int d, double* a, double* upperBnds, double tol );
+    double* P, int d, double* a, double* upperBnds, double tol, int intervalType);
   static int SturmBisectionSolve(
-    double* P, int d, double* a, double* upperBnds, double tol,
-    int intervalType );
-  static int SturmBisectionSolve(
-    double* P, int d, double* a, double* upperBnds, double tol,
-    int intervalType, bool divideGCD );
-  //@}
+    double* P, int d, double* a, double* upperBnds, double tol, int intervalType, bool divideGCD);
+  ///@}
 
   /**
    * This uses the derivative sequence to filter possible roots of a polynomial.
@@ -158,8 +132,7 @@ public:
    * upperBnds[i] == that at upperBnds[i]  - diameter then the i^th value is
    * removed from upperBnds. It returns the new number of roots.
    */
-  static int FilterRoots(
-    double* P, int d, double *upperBnds, int rootcount, double diameter );
+  static int FilterRoots(double* P, int d, double* upperBnds, int rootcount, double diameter);
 
   /**
    * Seeks all REAL roots of the \a d -th degree polynomial
@@ -172,7 +145,7 @@ public:
    * Warning: it is the user's responsibility to make sure the \a r
    * array is large enough to contain the maximal number of expected roots.
    */
-  static int LinBairstowSolve( double* c, int d, double* r, double& tolerance );
+  static int LinBairstowSolve(double* c, int d, double* r, double& tolerance);
 
   /**
    * Algebraically extracts REAL roots of the quartic polynomial with
@@ -184,7 +157,7 @@ public:
    * Returns the number of roots.
    * Warning: it is the user's responsibility to pass a non-negative \a tol.
    */
-  static int FerrariSolve( double* c, double* r, int* m, double tol );
+  static int FerrariSolve(double* c, double* r, int* m, double tol);
 
   /**
    * Algebraically extracts REAL roots of the cubic polynomial with
@@ -201,7 +174,7 @@ public:
    * Returns the number of roots.
    * <i> In memoriam </i> Niccolo Tartaglia (1500 - 1559), unfairly forgotten.
    */
-  static int TartagliaCardanSolve( double* c, double* r, int* m, double tol );
+  static int TartagliaCardanSolve(double* c, double* r, int* m, double tol);
 
   /**
    * Solves a cubic equation c0*t^3 + c1*t^2 + c2*t + c3 = 0 when c0, c1, c2,
@@ -243,8 +216,8 @@ public:
    * imaginary in r2); (-3)-one real root and a complex conjugate pair
    * (real root in r1 and real part of pair in r2 and imaginary in r3).
    */
-  static int SolveCubic(double c0, double c1, double c2, double c3,
-                        double *r1, double *r2, double *r3, int *num_roots);
+  static int SolveCubic(
+    double c0, double c1, double c2, double c3, double* r1, double* r2, double* r3, int* num_roots);
 
   /**
    * Solves a quadratic equation c0*t^2  + c1*t  + c2 = 0 when
@@ -253,8 +226,8 @@ public:
    * Roots and number of roots are stored in user provided variables
    * r1, r2, num_roots
    */
-  static int SolveQuadratic(double c0, double c1, double c2,
-                            double *r1, double *r2, int *num_roots);
+  static int SolveQuadratic(
+    double c0, double c1, double c2, double* r1, double* r2, int* num_roots);
 
   /**
    * Algebraically extracts REAL roots of the quadratic polynomial with
@@ -263,7 +236,7 @@ public:
    * in the \a r and \a m arrays.
    * Returns either the number of roots, or -1 if ininite number of roots.
    */
-  static int SolveQuadratic( double* c, double* r, int* m );
+  static int SolveQuadratic(double* c, double* r, int* m);
 
   /**
    * Solves a linear equation c0*t + c1 = 0 when c0 and c1 are REAL.
@@ -271,22 +244,22 @@ public:
    * Root and number of (real) roots are stored in user provided variables
    * r1 and num_roots.
    */
-  static int SolveLinear(double c0, double c1, double *r1, int *num_roots);
+  static int SolveLinear(double c0, double c1, double* r1, int* num_roots);
 
-  //@{
+  ///@{
   /**
    * Set/get the tolerance used when performing polynomial Euclidean division
    * to find polynomial roots. This tolerance is used to decide whether the
    * coefficient(s) of a polynomial remainder are close enough to
    * zero to be neglected.
    */
-  static void SetDivisionTolerance( double tol );
+  static void SetDivisionTolerance(double tol);
   static double GetDivisionTolerance();
-  //@}
+  ///@}
 
 protected:
-  vtkPolynomialSolversUnivariate() {}
-  ~vtkPolynomialSolversUnivariate() override {}
+  vtkPolynomialSolversUnivariate() = default;
+  ~vtkPolynomialSolversUnivariate() override = default;
 
   static double DivisionTolerance;
 
@@ -295,4 +268,5 @@ private:
   void operator=(const vtkPolynomialSolversUnivariate&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

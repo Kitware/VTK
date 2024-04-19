@@ -1,23 +1,6 @@
-// -*- c++ -*-
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    PSLACReaderLinear.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -25,38 +8,39 @@
 #include "vtkCompositeRenderManager.h"
 #include "vtkLookupTable.h"
 #include "vtkMPIController.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkPLSDynaReader.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-#include "vtkSmartPointer.h"
 #include "vtkNew.h"
+#include "vtkSmartPointer.h"
 
 struct TestArgs
 {
-  int *retval;
+  int* retval;
   int argc;
-  char **argv;
+  char** argv;
 };
 
 //=============================================================================
-void PLSDynaReader(vtkMultiProcessController *controller, void *_args)
+void PLSDynaReader(vtkMultiProcessController* controller, void* _args)
 {
-  TestArgs *args = reinterpret_cast<TestArgs *>(_args);
+  TestArgs* args = reinterpret_cast<TestArgs*>(_args);
   int argc = args->argc;
-  char **argv = args->argv;
+  char** argv = args->argv;
   *(args->retval) = 1;
 
   // Set up reader.
   vtkNew<vtkPLSDynaReader> reader;
 
-  char *meshFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                  "Data/LSDyna/hemi.draw/hemi_draw.d3plot");
+  char* meshFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/LSDyna/hemi.draw/hemi_draw.d3plot");
   reader->SetFileName(meshFileName);
+  delete[] meshFileName;
 
   // Extract geometry that we can render.
   vtkNew<vtkCompositeDataGeometryFilter> geometry;
@@ -79,13 +63,13 @@ void PLSDynaReader(vtkMultiProcessController *controller, void *_args)
   vtkSmartPointer<vtkRenderWindow> renwin;
   renwin.TakeReference(prm->MakeRenderWindow());
   renwin->SetSize(300, 300);
-  renwin->SetPosition(0, 200*controller->GetLocalProcessId());
+  renwin->SetPosition(0, 200 * controller->GetLocalProcessId());
   renwin->AddRenderer(renderer);
 
   prm->SetRenderWindow(renwin);
   prm->SetController(controller);
   prm->InitializePieces();
-  prm->InitializeOffScreen();           // Mesa GL only
+  prm->InitializeOffScreen(); // Mesa GL only
 
   if (controller->GetLocalProcessId() == 0)
   {
@@ -115,7 +99,7 @@ void PLSDynaReader(vtkMultiProcessController *controller, void *_args)
 }
 
 //=============================================================================
-int PLSDynaReader(int argc, char *argv[])
+int PLSDynaReader(int argc, char* argv[])
 {
   int retval = 1;
 

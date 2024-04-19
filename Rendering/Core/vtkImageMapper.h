@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageMapper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageMapper
  * @brief   2D image display
@@ -25,14 +13,15 @@
  *
  * @sa
  * vtkMapper2D vtkActor2D
-*/
+ */
 
 #ifndef vtkImageMapper_h
 #define vtkImageMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 class vtkViewport;
 class vtkActor2D;
@@ -42,7 +31,7 @@ class VTKRENDERINGCORE_EXPORT vtkImageMapper : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkImageMapper, vtkMapper2D);
-  static vtkImageMapper *New();
+  static vtkImageMapper* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -50,23 +39,23 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the window value for window/level
    */
   vtkSetMacro(ColorWindow, double);
   vtkGetMacro(ColorWindow, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the level value for window/level
    */
   vtkSetMacro(ColorLevel, double);
   vtkGetMacro(ColorLevel, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the current slice number. The axis Z in ZSlice does not
    * necessarily have any relation to the z axis of the data on disk.
@@ -80,7 +69,7 @@ public:
   vtkGetMacro(ZSlice, int);
   int GetWholeZMin();
   int GetWholeZMax();
-  //@}
+  ///@}
 
   /**
    * Draw the image to the screen.
@@ -90,28 +79,28 @@ public:
   /**
    * Function called by Render to actually draw the image to to the screen
    */
-  virtual void RenderData(vtkViewport*, vtkImageData*, vtkActor2D* )=0;
+  virtual void RenderData(vtkViewport*, vtkImageData*, vtkActor2D*) {}
 
-  //@{
+  ///@{
   /**
    * Methods used internally for performing the Window/Level mapping.
    */
   double GetColorShift();
   double GetColorScale();
-  //@}
+  ///@}
 
   // Public for templated functions. * *  Should remove this * *
   int DisplayExtent[6];
 
-  //@{
+  ///@{
   /**
    * Set the Input of a filter.
    */
-  virtual void SetInputData(vtkImageData *input);
-  vtkImageData *GetInput();
-  //@}
+  virtual void SetInputData(vtkImageData* input);
+  vtkImageData* GetInput();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If RenderToRectangle is set (by default not), then the imagemapper
    * will render the image into the rectangle supplied by the Actor2D's
@@ -120,9 +109,9 @@ public:
   vtkSetMacro(RenderToRectangle, vtkTypeBool);
   vtkGetMacro(RenderToRectangle, vtkTypeBool);
   vtkBooleanMacro(RenderToRectangle, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Usually, the entire image is displayed, if UseCustomExtents
    * is set (by default not), then the region supplied in the
@@ -133,9 +122,9 @@ public:
   vtkSetMacro(UseCustomExtents, vtkTypeBool);
   vtkGetMacro(UseCustomExtents, vtkTypeBool);
   vtkBooleanMacro(UseCustomExtents, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The image extents which should be displayed with UseCustomExtents
    * Note that the Custom extents are x,y only and the zslice is still
@@ -143,7 +132,7 @@ public:
    */
   vtkSetVectorMacro(CustomDisplayExtents, int, 4);
   vtkGetVectorMacro(CustomDisplayExtents, int, 4);
-  //@}
+  ///@}
 
 protected:
   vtkImageMapper();
@@ -159,9 +148,11 @@ protected:
   vtkTypeBool RenderToRectangle;
 
   int FillInputPortInformation(int, vtkInformation*) override;
+
 private:
   vtkImageMapper(const vtkImageMapper&) = delete;
   void operator=(const vtkImageMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

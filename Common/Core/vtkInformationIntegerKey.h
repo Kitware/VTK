@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationIntegerKey.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInformationIntegerKey
  * @brief   Key for integer values in vtkInformation.
  *
  * vtkInformationIntegerKey is used to represent keys for integer values
  * in vtkInformation.
-*/
+ */
 
 #ifndef vtkInformationIntegerKey_h
 #define vtkInformationIntegerKey_h
@@ -28,10 +16,11 @@
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkInformationIntegerKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationIntegerKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationIntegerKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationIntegerKey(const char* name, const char* location);
@@ -42,19 +31,19 @@ public:
    * name and a location. This method is provided for wrappers. Use the
    * constructor directly from C++ instead.
    */
-  static vtkInformationIntegerKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationIntegerKey* MakeKey(const char* name, const char* location)
   {
     return new vtkInformationIntegerKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
    */
   void Set(vtkInformation* info, int);
   int Get(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information
@@ -81,4 +70,5 @@ private:
   void operator=(const vtkInformationIntegerKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

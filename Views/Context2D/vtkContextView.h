@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkContextView.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkContextView
  * @brief   provides a view of the vtkContextScene.
@@ -23,15 +11,16 @@
  * of it.
  *
  * By default the scene has a white background.
-*/
+ */
 
 #ifndef vtkContextView_h
 #define vtkContextView_h
 
-#include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkRenderViewBase.h"
-#include "vtkSmartPointer.h" // Needed for SP ivars
+#include "vtkSmartPointer.h"         // Needed for SP ivars
+#include "vtkViewsContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkContextScene;
 
@@ -46,7 +35,7 @@ public:
   /**
    * Set the vtkContext2D for the view.
    */
-  virtual void SetContext(vtkContext2D *context);
+  virtual void SetContext(vtkContext2D* context);
 
   /**
    * Get the vtkContext2D for the view.
@@ -56,7 +45,7 @@ public:
   /**
    * Set the scene object for the view.
    */
-  virtual void SetScene(vtkContextScene *scene);
+  virtual void SetScene(vtkContextScene* scene);
 
   /**
    * Get the scene of the view.
@@ -75,4 +64,5 @@ private:
   void operator=(const vtkContextView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

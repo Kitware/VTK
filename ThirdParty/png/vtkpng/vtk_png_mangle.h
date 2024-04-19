@@ -11,6 +11,7 @@
 #define png_build_grayscale_palette vtkpng_png_build_grayscale_palette
 #define png_calculate_crc vtkpng_png_calculate_crc
 #define png_calloc vtkpng_png_calloc
+#define png_check_chunk_length vtkpng_png_check_chunk_length
 #define png_check_chunk_name vtkpng_png_check_chunk_name
 #define png_check_fp_number vtkpng_png_check_fp_number
 #define png_check_fp_string vtkpng_png_check_fp_string
@@ -94,6 +95,8 @@
 #define png_get_current_pass_number vtkpng_png_get_current_pass_number
 #define png_get_current_row_number vtkpng_png_get_current_row_number
 #define png_get_error_ptr vtkpng_png_get_error_ptr
+#define png_get_eXIf vtkpng_png_get_eXIf
+#define png_get_eXIf_1 vtkpng_png_get_eXIf_1
 #define png_get_filter_type vtkpng_png_get_filter_type
 #define png_get_gAMA vtkpng_png_get_gAMA
 #define png_get_gAMA_fixed vtkpng_png_get_gAMA_fixed
@@ -159,6 +162,7 @@
 #define png_handle_as_unknown vtkpng_png_handle_as_unknown
 #define png_handle_bKGD vtkpng_png_handle_bKGD
 #define png_handle_cHRM vtkpng_png_handle_cHRM
+#define png_handle_eXIf vtkpng_png_handle_eXIf
 #define png_handle_gAMA vtkpng_png_handle_gAMA
 #define png_handle_hIST vtkpng_png_handle_hIST
 #define png_handle_iCCP vtkpng_png_handle_iCCP
@@ -271,6 +275,8 @@
 #define png_set_compression_window_bits vtkpng_png_set_compression_window_bits
 #define png_set_crc_action vtkpng_png_set_crc_action
 #define png_set_error_fn vtkpng_png_set_error_fn
+#define png_set_eXIf vtkpng_png_set_eXIf
+#define png_set_eXIf_1 vtkpng_png_set_eXIf_1
 #define png_set_expand vtkpng_png_set_expand
 #define png_set_expand_16 vtkpng_png_set_expand_16
 #define png_set_expand_gray_1_2_4_to_8 vtkpng_png_set_expand_gray_1_2_4_to_8
@@ -360,6 +366,7 @@
 #define png_write_chunk_start vtkpng_png_write_chunk_start
 #define png_write_data vtkpng_png_write_data
 #define png_write_end vtkpng_png_write_end
+#define png_write_eXIf vtkpng_png_write_eXIf
 #define png_write_find_filter vtkpng_png_write_find_filter
 #define png_write_finish_row vtkpng_png_write_finish_row
 #define png_write_flush vtkpng_png_write_flush

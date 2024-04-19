@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPResampleToImage.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkPResampleToImage.h"
 
@@ -20,34 +8,33 @@
 #include "vtkClipDataSet.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkContourFilter.h"
-#include "vtkPExtractVOI.h"
 #include "vtkMPIController.h"
 #include "vtkNew.h"
+#include "vtkPExtractVOI.h"
 #include "vtkPieceScalars.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-#include "vtk_diy2.h"   // must include this before any diy header
+// clang-format off
+#include "vtk_diy2.h" // must include this before any diy header
 #include VTK_DIY2(diy/mpi.hpp)
+// clang-format on
 
-
-int TestPResampleToImage(int argc, char *argv[])
+int TestPResampleToImage(int argc, char* argv[])
 {
   diy::mpi::environment mpienv(argc, argv);
   vtkNew<vtkMPIController> controller;
   controller->Initialize(&argc, &argv, true);
   diy::mpi::communicator world;
 
-
   // Setup parallel rendering
   vtkNew<vtkCompositeRenderManager> prm;
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::Take(prm->MakeRenderWindow());
   renWin->AddRenderer(renderer);
@@ -59,7 +46,6 @@ int TestPResampleToImage(int argc, char *argv[])
 
   prm->SetRenderWindow(renWin);
   prm->SetController(controller);
-
 
   // Create Pipeline
   vtkNew<vtkRTAnalyticSource> wavelet;
@@ -87,7 +73,6 @@ int TestPResampleToImage(int argc, char *argv[])
   vtkNew<vtkPieceScalars> pieceScalars;
   pieceScalars->SetInputConnection(contour->GetOutputPort());
   pieceScalars->SetScalarModeToCellData();
-
 
   // Execute pipeline and render
   vtkNew<vtkPolyDataMapper> mapper;

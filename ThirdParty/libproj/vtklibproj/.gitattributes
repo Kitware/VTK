@@ -1,1 +1,14 @@
+#
+# Configure line ending normalisation for this repository.
+#
+* text=auto
+*.ac text eol=lf
+*.am text eol=lf
+*.m4 text eol=lf
+*.sh text eol=lf
+
+# XXX(kitware): ignore whitespace errors in VTK
 * -whitespace
+data/sql/conversion.sql     hooks-max-size=3000000
+data/sql/esri.sql           hooks-max-size=3000000
+data/sql/projected_crs.sql  hooks-max-size=3000000

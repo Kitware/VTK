@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleTrackballCamera.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInteractorStyleTrackballCamera
  * @brief   interactive manipulation of the camera
@@ -23,29 +11,32 @@
  * example, small left-button motions cause small changes in the rotation of
  * the camera around its focal point. For a 3-button mouse, the left button
  * is for rotation, the right button for zooming, the middle button for
- * panning, and ctrl + left button for spinning.  (With fewer mouse buttons,
- * ctrl + shift + left button is for zooming, and shift + left button is for
- * panning.)
+ * panning, ctrl + left button for spinning, and shift + right button for
+ * environment rotation. (With fewer mouse buttons, ctrl + shift + left button
+ * is for zooming, and shift + left button is for panning.)
  *
  * @sa
  * vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
  * vtkInteractorStyleJoystickActor
-*/
+ */
 
 #ifndef vtkInteractorStyleTrackballCamera_h
 #define vtkInteractorStyleTrackballCamera_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackballCamera : public vtkInteractorStyle
+VTK_ABI_NAMESPACE_BEGIN
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleTrackballCamera
+  : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleTrackballCamera *New();
-  vtkTypeMacro(vtkInteractorStyleTrackballCamera,vtkInteractorStyle);
+  static vtkInteractorStyleTrackballCamera* New();
+  vtkTypeMacro(vtkInteractorStyleTrackballCamera, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
@@ -59,7 +50,7 @@ public:
   void OnRightButtonUp() override;
   void OnMouseWheelForward() override;
   void OnMouseWheelBackward() override;
-  //@}
+  ///@}
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
@@ -69,14 +60,15 @@ public:
   void Spin() override;
   void Pan() override;
   void Dolly() override;
+  void EnvironmentRotate() override;
 
-  //@{
+  ///@{
   /**
    * Set the apparent sensitivity of the interactor style to mouse motion.
    */
-  vtkSetMacro(MotionFactor,double);
-  vtkGetMacro(MotionFactor,double);
-  //@}
+  vtkSetMacro(MotionFactor, double);
+  vtkGetMacro(MotionFactor, double);
+  ///@}
 
 protected:
   vtkInteractorStyleTrackballCamera();
@@ -91,4 +83,5 @@ private:
   void operator=(const vtkInteractorStyleTrackballCamera&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

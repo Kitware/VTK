@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtStringToImage.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkQtStringToImage
@@ -19,26 +7,27 @@
  *
  *
  *
-*/
+ */
 
 #ifndef vtkQtStringToImage_h
 #define vtkQtStringToImage_h
 
 #include "vtkRenderingQtModule.h" // For export macro
+#include "vtkSmartPointer.h"      // For SP ivars
 #include "vtkStringToImage.h"
-#include "vtkSmartPointer.h" // For SP ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQImageToImageSource;
 
 class VTKRENDERINGQT_EXPORT vtkQtStringToImage : public vtkStringToImage
 {
 public:
   vtkTypeMacro(vtkQtStringToImage, vtkStringToImage);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkQtStringToImage *New();
+  static vtkQtStringToImage* New();
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, get the bounding box [xmin, xmax] x
    * [ymin, ymax]. Note that this is the bounding box of the area
@@ -52,32 +41,23 @@ public:
    * is valid (it may not if GetBoundingBox() failed or if the string
    * was empty).
    */
-  vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkUnicodeString& string, int dpi) override;
-  vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkStdString& string, int dpi) override;
-  //@}
+  vtkVector2i GetBounds(vtkTextProperty* property, const vtkStdString& string, int dpi) override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, this function initializes the
    * vtkImageData *data and renders it in a vtkImageData. textDims, if provided,
    * will be overwritten by the pixel width and height of the rendered string.
    */
-  int RenderString(vtkTextProperty *property,
-                           const vtkUnicodeString& string, int dpi,
-                           vtkImageData *data,
-                           int textDims[2] = nullptr) override;
-  int RenderString(vtkTextProperty *property,
-                           const vtkStdString& string, int dpi,
-                           vtkImageData *data,
-                           int textDims[2] = nullptr) override;
-  //@}
+  int RenderString(vtkTextProperty* property, const vtkStdString& string, int dpi,
+    vtkImageData* data, int textDims[2] = nullptr) override;
+  ///@}
 
   /**
    * Make a deep copy of the supplied utility class.
    */
-  void DeepCopy(vtkQtStringToImage *utility);
+  void DeepCopy(vtkQtStringToImage* utility);
 
 protected:
   vtkQtStringToImage();
@@ -89,8 +69,9 @@ protected:
   vtkSmartPointer<vtkQImageToImageSource> QImageToImage;
 
 private:
-  vtkQtStringToImage(const vtkQtStringToImage &) = delete;
-  void operator=(const vtkQtStringToImage &) = delete;
+  vtkQtStringToImage(const vtkQtStringToImage&) = delete;
+  void operator=(const vtkQtStringToImage&) = delete;
 };
 
-#endif //vtkQtStringToImage_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkQtStringToImage_h

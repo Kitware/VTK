@@ -16,3 +16,4 @@ set(classes
 
 vtk_module_add_module(VTK::ImagingHybrid
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::ImagingHybrid)

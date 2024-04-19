@@ -1,31 +1,19 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenGLCamera.h"
 
-#include "vtkMatrix4x4.h"
 #include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkOutputWindow.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
+#include "vtkRenderer.h"
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLCamera);
-
 
 vtkOpenGLCamera::vtkOpenGLCamera()
 {
@@ -45,26 +33,26 @@ vtkOpenGLCamera::~vtkOpenGLCamera()
 }
 
 // Implement base class method.
-void vtkOpenGLCamera::Render(vtkRenderer *ren)
+void vtkOpenGLCamera::Render(vtkRenderer* ren)
 {
   vtkOpenGLClearErrorMacro();
 
   int lowerLeft[2];
   int usize, vsize;
 
-  vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-  vtkOpenGLState *ostate = win->GetState();
+  vtkOpenGLRenderWindow* win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState* ostate = win->GetState();
 
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
-  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
+  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft + 1);
 
   ostate->vtkglViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
   ostate->vtkglEnable(GL_SCISSOR_TEST);
   if (this->UseScissor)
   {
-    ostate->vtkglScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
-              this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
+    ostate->vtkglScissor(this->ScissorRect.GetX(), this->ScissorRect.GetY(),
+      this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
     this->UseScissor = false;
   }
   else
@@ -80,23 +68,23 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-//----------------------------------------------------------------------------
-void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
+//------------------------------------------------------------------------------
+void vtkOpenGLCamera::UpdateViewport(vtkRenderer* ren)
 {
   vtkOpenGLClearErrorMacro();
-  vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-  vtkOpenGLState *ostate = win->GetState();
+  vtkOpenGLRenderWindow* win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState* ostate = win->GetState();
 
   int lowerLeft[2];
   int usize, vsize;
-  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
+  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft + 1);
 
   ostate->vtkglViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
   ostate->vtkglEnable(GL_SCISSOR_TEST);
   if (this->UseScissor)
   {
-    ostate->vtkglScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
-              this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
+    ostate->vtkglScissor(this->ScissorRect.GetX(), this->ScissorRect.GetY(),
+      this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
     this->UseScissor = false;
   }
   else
@@ -107,23 +95,22 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
   vtkOpenGLCheckErrorMacro("failed after UpdateViewport");
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
-void vtkOpenGLCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
-        vtkMatrix3x3 *&normMat, vtkMatrix4x4 *&vcdc, vtkMatrix4x4 *&wcdc)
+void vtkOpenGLCamera::GetKeyMatrices(vtkRenderer* ren, vtkMatrix4x4*& wcvc, vtkMatrix3x3*& normMat,
+  vtkMatrix4x4*& vcdc, vtkMatrix4x4*& wcdc)
 {
   // has the camera changed?
-  if (ren != this->LastRenderer ||
-      this->MTime > this->KeyMatrixTime ||
-      ren->GetMTime() > this->KeyMatrixTime)
+  if (ren != this->LastRenderer || this->MTime > this->KeyMatrixTime ||
+    ren->GetMTime() > this->KeyMatrixTime)
   {
     this->WCVCMatrix->DeepCopy(this->GetModelViewTransformMatrix());
 
-    for(int i = 0; i < 3; ++i)
+    for (int i = 0; i < 3; ++i)
     {
       for (int j = 0; j < 3; ++j)
       {
@@ -149,3 +136,4 @@ void vtkOpenGLCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
   vcdc = this->VCDCMatrix;
   wcdc = this->WCDCMatrix;
 }
+VTK_ABI_NAMESPACE_END

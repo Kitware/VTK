@@ -11,8 +11,9 @@ vtk_add_test_cxx(vtkRenderingFreeTypeCxxTests tests
   TestFreeTypeTools.cxx,NO_VALID
   TestMathTextFreeTypeTextRendererNoMath.cxx
   TestTextActor.cxx
+  TestTextActorTileScaling.cxx
   TestTextActor3D.cxx
-  TestTextActorAlphaBlending.cxx
+  TestTextActorAlphaBlending.cxx, LOOSE_VALID
   TestTextActorDepthPeeling.cxx
   TestTextActor3DAlphaBlending.cxx
   TestTextActor3DDepthPeeling.cxx
@@ -35,14 +36,22 @@ set_tests_properties(
   PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:"
 )
 
-if(${Module_vtkRenderingMatplotlib})
+# Check that matplotlib is available
+include(../../../../CMake/FindPythonModules.cmake)
+find_python_module(matplotlib MATPLOTLIB_FOUND)
+
+if(MATPLOTLIB_FOUND AND TARGET VTK::RenderingMatplotlib)
+  set(TestMathTextFonts_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   set(TestMathTextFreeTypeTextRenderer_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   set(TestFreeTypeTextMapper_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
+  set(TestFreeTypeTextMapperWithColumns_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   set(TestFontDPIScaling_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
 
   vtk_add_test_cxx(vtkRenderingFreeTypeCxxTests matplotlib_tests
+    TestMathTextFonts.cxx
     TestMathTextFreeTypeTextRenderer.cxx
     TestFreeTypeTextMapper.cxx
+    TestFreeTypeTextMapperWithColumns.cxx
     TestFontDPIScaling.cxx
     )
   list(APPEND tests
@@ -50,4 +59,6 @@ if(${Module_vtkRenderingMatplotlib})
 endif()
 
 vtk_test_cxx_executable(vtkRenderingFreeTypeCxxTests tests
-  RENDERING_FACTORY)
+  DISABLE_FLOATING_POINT_EXCEPTIONS
+  RENDERING_FACTORY
+  )

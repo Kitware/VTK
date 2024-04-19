@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDirectedAcyclicGraph.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkDirectedAcyclicGraph
  * @brief   A rooted tree data structure.
@@ -41,7 +25,7 @@
  *
  * @sa
  * vtkDirectedGraph vtkMutableDirectedGraph vtkGraph
-*/
+ */
 
 #ifndef vtkDirectedAcyclicGraph_h
 #define vtkDirectedAcyclicGraph_h
@@ -49,27 +33,28 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDirectedGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDirectedAcyclicGraph : public vtkDirectedGraph
 {
 public:
-  static vtkDirectedAcyclicGraph *New();
+  static vtkDirectedAcyclicGraph* New();
   vtkTypeMacro(vtkDirectedAcyclicGraph, vtkDirectedGraph);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_DIRECTED_ACYCLIC_GRAPH;}
+  int GetDataObjectType() override { return VTK_DIRECTED_ACYCLIC_GRAPH; }
 
-  //@{
+  ///@{
   /**
    * Retrieve a graph from an information vector.
    */
-  static vtkDirectedAcyclicGraph *GetData(vtkInformation *info);
-  static vtkDirectedAcyclicGraph *GetData(vtkInformationVector *v, int i=0);
-  //@}
+  static vtkDirectedAcyclicGraph* GetData(vtkInformation* info);
+  static vtkDirectedAcyclicGraph* GetData(vtkInformationVector* v, int i = 0);
+  ///@}
 
 protected:
   vtkDirectedAcyclicGraph();
@@ -79,11 +64,12 @@ protected:
    * Check the storage, and accept it if it is a valid
    * tree.
    */
-  bool IsStructureValid(vtkGraph *g) override;
+  bool IsStructureValid(vtkGraph* g) override;
 
 private:
   vtkDirectedAcyclicGraph(const vtkDirectedAcyclicGraph&) = delete;
   void operator=(const vtkDirectedAcyclicGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

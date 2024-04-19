@@ -1,37 +1,25 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMPI.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkMPI_h
 #define vtkMPI_h
-#ifndef __VTK_WRAP__
 
 #ifndef USE_STDARG
- #define USE_STDARG
-#include "vtkParallelMPIModule.h" // For export macro
- #include "mpi.h"
- #undef USE_STDARG
+#define USE_STDARG
+#include "vtk_mpi.h"
+#undef USE_STDARG
 #else
- #include "mpi.h"
+#include "vtk_mpi.h"
 #endif
 
+#include "vtkParallelMPIModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPARALLELMPI_EXPORT vtkMPICommunicatorOpaqueComm
 {
 public:
-  vtkMPICommunicatorOpaqueComm(MPI_Comm* handle = 0);
+  vtkMPICommunicatorOpaqueComm(MPI_Comm* handle = nullptr);
 
   MPI_Comm* GetHandle();
 
@@ -45,10 +33,7 @@ protected:
 class VTKPARALLELMPI_EXPORT vtkMPICommunicatorReceiveDataInfo
 {
 public:
-  vtkMPICommunicatorReceiveDataInfo()
-  {
-    this->Handle=0;
-  }
+  vtkMPICommunicatorReceiveDataInfo() { this->Handle = nullptr; }
   MPI_Datatype DataType;
   MPI_Status Status;
   MPI_Comm* Handle;
@@ -57,7 +42,10 @@ public:
 class VTKPARALLELMPI_EXPORT vtkMPIOpaqueFileHandle
 {
 public:
-  vtkMPIOpaqueFileHandle() : Handle(MPI_FILE_NULL) { }
+  vtkMPIOpaqueFileHandle()
+    : Handle(MPI_FILE_NULL)
+  {
+  }
   MPI_File Handle;
 };
 
@@ -68,7 +56,6 @@ public:
   MPI_Request Handle;
 };
 
-
-#endif
+VTK_ABI_NAMESPACE_END
 #endif // vtkMPI_h
 // VTK-HeaderTest-Exclude: vtkMPI.h

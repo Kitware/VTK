@@ -1,19 +1,7 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFrustumSelector.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkFrustumSelector.h
+ * @class   vtkFrustumSelector
  *
  * vtkFrustumSelector is a vtkSelector that selects elements based
  * on whether they are inside or intersect a frustum of interest.  This handles
@@ -29,14 +17,16 @@
 
 #include "vtkSmartPointer.h" // for smart pointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
+class vtkHyperTreeGrid;
 class vtkPlanes;
 class vtkSignedCharArray;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkFrustumSelector : public vtkSelector
 {
 public:
-  static vtkFrustumSelector *New();
+  static vtkFrustumSelector* New();
   vtkTypeMacro(vtkFrustumSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -47,16 +37,16 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set the selection frustum. The planes object must contain six planes.
    */
   void SetFrustum(vtkPlanes*);
   vtkPlanes* GetFrustum();
-  //@}
+  ///@}
 
 protected:
-  vtkFrustumSelector(vtkPlanes *f=nullptr);
+  vtkFrustumSelector(vtkPlanes* f = nullptr);
   ~vtkFrustumSelector() override;
 
   vtkSmartPointer<vtkPlanes> Frustum;
@@ -79,11 +69,15 @@ protected:
    * array with 1 for inside and 0 for outside.
    */
   void ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharArray* pointsInside);
+
+  ///@{
   /**
    * Computes which cells in the dataset are inside or intersect the frustum and populates
    * the cellsInside array with 1 for inside/intersecting and 0 for outside.
    */
   void ComputeSelectedCells(vtkDataSet* input, vtkSignedCharArray* cellsInside);
+  void ComputeSelectedCells(vtkHyperTreeGrid* input, vtkSignedCharArray* cellsInside);
+  ///@}
 
   int OverallBoundsTest(double bounds[6]);
 
@@ -92,4 +86,5 @@ private:
   void operator=(const vtkFrustumSelector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

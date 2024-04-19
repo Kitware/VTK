@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageStencilData.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageStencilData
  * @brief   efficient description of an image stencil
@@ -22,37 +10,36 @@
  * necessary) and can be retrieved via the GetNextExtent() method.
  * @sa
  * vtkImageStencilSource vtkImageStencil
-*/
+ */
 
 #ifndef vtkImageStencilData_h
 #define vtkImageStencilData_h
 
-
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkDataObject.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageStencilData : public vtkDataObject
 {
 public:
-  static vtkImageStencilData *New();
+  static vtkImageStencilData* New();
   vtkTypeMacro(vtkImageStencilData, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize() override;
-  void DeepCopy(vtkDataObject *o) override;
-  void ShallowCopy(vtkDataObject *f) override;
-  void InternalImageStencilDataCopy(vtkImageStencilData *s);
+  void DeepCopy(vtkDataObject* o) override;
+  void ShallowCopy(vtkDataObject* f) override;
+  void InternalImageStencilDataCopy(vtkImageStencilData* s);
 
   /**
-   * Get the data type as an integer (this will return VTK_DATA_OBJECT
-   * for now, maybe a proper type constant will be reserved later).
+   * Returns `VTK_IMAGE_STENCIL_DATA`.
    */
-  int GetDataObjectType() override { return VTK_DATA_OBJECT; }
+  int GetDataObjectType() override { return VTK_IMAGE_STENCIL_DATA; }
 
   /**
    * The extent type is 3D, just like vtkImageData.
    */
-  int GetExtentType() override { return VTK_3D_EXTENT; };
+  int GetExtentType() override { return VTK_3D_EXTENT; }
 
   /**
    * Given the total output x extent [xMin,xMax] and the current y, z indices,
@@ -63,8 +50,7 @@ public:
    * case you must initialize 'iter' to -1.  The variable 'iter' is used
    * internally to keep track of which sub-extent should be returned next.
    */
-  int GetNextExtent(int &r1, int &r2, int xMin, int xMax,
-                    int yIdx, int zIdx, int &iter);
+  int GetNextExtent(int& r1, int& r2, int xMin, int xMax, int yIdx, int zIdx, int& iter);
 
   /**
    * Checks if an image index is inside the stencil.
@@ -98,7 +84,7 @@ public:
    */
   void RemoveExtent(int r1, int r2, int yIdx, int zIdx);
 
-  //@{
+  ///@{
   /**
    * Set the desired spacing for the stencil.
    * This must be called before the stencil is Updated, ideally
@@ -107,9 +93,9 @@ public:
    */
   vtkSetVector3Macro(Spacing, double);
   vtkGetVector3Macro(Spacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the desired origin for the stencil.
    * This must be called before the stencil is Updated, ideally
@@ -118,9 +104,9 @@ public:
    */
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the extent of the data.  This is should be called only
    * by vtkImageStencilSource, as it is part of the basic pipeline
@@ -129,7 +115,7 @@ public:
   void SetExtent(const int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
   vtkGetVector6Macro(Extent, int);
-  //@}
+  ///@}
 
   /**
    * Allocate space for the sub-extents.  This is called by
@@ -142,39 +128,39 @@ public:
    */
   void Fill();
 
-  //@{
+  ///@{
   /**
    * Override these to handle origin, spacing, scalar type, and scalar
    * number of components.  See vtkDataObject for details.
    */
-  void CopyInformationFromPipeline(vtkInformation *info) override;
-  void CopyInformationToPipeline(vtkInformation *info) override;
-  //@}
+  void CopyInformationFromPipeline(vtkInformation* info) override;
+  void CopyInformationToPipeline(vtkInformation* info) override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkImageStencilData* GetData(vtkInformation* info);
-  static vtkImageStencilData* GetData(vtkInformationVector* v, int i=0);
-  //@}
+  static vtkImageStencilData* GetData(vtkInformationVector* v, int i = 0);
+  ///@}
 
   /**
    * Add merges the stencil supplied as argument into Self.
    */
-  virtual void Add(vtkImageStencilData *);
+  virtual void Add(vtkImageStencilData*);
 
   /**
    * Subtract removes the portion of the stencil, supplied as argument,
    * that lies within Self from Self.
    */
-  virtual void Subtract(vtkImageStencilData *);
+  virtual void Subtract(vtkImageStencilData*);
 
   /**
    * Replaces the portion of the stencil, supplied as argument,
    * that lies within Self from Self.
    */
-  virtual void Replace(vtkImageStencilData *);
+  virtual void Replace(vtkImageStencilData*);
 
   /**
    * Clip the stencil with the supplied extents. In other words, discard data
@@ -186,19 +172,21 @@ protected:
   vtkImageStencilData();
   ~vtkImageStencilData() override;
 
-  enum Operation { Merge, Erase };
+  enum Operation
+  {
+    Merge,
+    Erase
+  };
 
   /**
    * Apply the given operation over the given (r1, r2) extent.
    */
-  void LogicalOperationExtent(
-    int r1, int r2, int yIdx, int zIdx, Operation operation);
+  void LogicalOperationExtent(int r1, int r2, int yIdx, int zIdx, Operation operation);
 
   /**
    * Combine with the given stencil, using the given operation.
    */
-  void LogicalOperationInPlace(
-    vtkImageStencilData *stencil, Operation operation);
+  void LogicalOperationInPlace(vtkImageStencilData* stencil, Operation operation);
 
   /**
    * Change the extent while preserving the data.
@@ -210,26 +198,26 @@ protected:
   /**
    * Get important info from pipeline.
    */
-  void CopyOriginAndSpacingFromPipeline(vtkInformation *info);
+  void CopyOriginAndSpacingFromPipeline(vtkInformation* info);
 
-  //@{
+  ///@{
   /**
    * The Spacing and Origin of the data.
    */
   double Spacing[3];
   double Origin[3];
-  //@}
+  ///@}
 
   int Extent[6];
 
-  //@{
+  ///@{
   /**
    * The actual 'data' is stored here.
    */
   int NumberOfExtentEntries;
-  int *ExtentListLengths;
-  int **ExtentLists;
-  //@}
+  int* ExtentListLengths;
+  int** ExtentLists;
+  ///@}
 
 private:
   vtkImageStencilData(const vtkImageStencilData&) = delete;
@@ -264,20 +252,18 @@ public:
    */
   void PrepareForNewData(const int allocateExtent[2] = nullptr);
 
-  //@{
+  ///@{
   /**
    * Insert a line into the raster, given the two end points.
    */
-  void InsertLine(const double p1[2], const double p2[2]);
-  VTK_LEGACY(void InsertLine(const double[2], const double[2], bool, bool));
-  //@}
+  void InsertLine(const double pt1[2], const double pt2[2]);
+  ///@}
 
   /**
    * Fill the specified extent of a vtkImageStencilData with the raster,
    * after permuting the raster according to xj and yj.
    */
-  void FillStencilData(vtkImageStencilData *data, const int extent[6],
-                       int xj = 0, int yj = 1);
+  void FillStencilData(vtkImageStencilData* data, const int extent[6], int xj = 0, int yj = 1);
 
   /**
    * The tolerance for float-to-int conversions.
@@ -301,7 +287,7 @@ protected:
 
   int Extent[2];
   int UsedExtent[2];
-  double **Raster;
+  double** Raster;
   double Tolerance;
 
 private:
@@ -309,7 +295,5 @@ private:
   void operator=(const vtkImageStencilRaster&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-

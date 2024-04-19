@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAnnotation.cxx
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkAnnotation.h"
 #include "vtkInformation.h"
@@ -31,6 +14,7 @@
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAnnotation);
 
 vtkCxxSetObjectMacro(vtkAnnotation, Selection, vtkSelection);
@@ -61,7 +45,7 @@ void vtkAnnotation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Selection: ";
-  if(this->Selection)
+  if (this->Selection)
   {
     os << "\n";
     this->Selection->PrintSelf(os, indent.GetNextIndent());
@@ -89,33 +73,33 @@ void vtkAnnotation::ShallowCopy(vtkDataObject* other)
 
   vtkInformation* info = this->GetInformation();
   vtkInformation* otherInfo = obj->GetInformation();
-  if(otherInfo->Has(vtkAnnotation::ENABLE()))
+  if (otherInfo->Has(vtkAnnotation::ENABLE()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::ENABLE());
+    info->CopyEntry(otherInfo, vtkAnnotation::ENABLE());
   }
-  if(otherInfo->Has(vtkAnnotation::HIDE()))
+  if (otherInfo->Has(vtkAnnotation::HIDE()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::HIDE());
+    info->CopyEntry(otherInfo, vtkAnnotation::HIDE());
   }
-  if(otherInfo->Has(vtkAnnotation::LABEL()))
+  if (otherInfo->Has(vtkAnnotation::LABEL()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::LABEL());
+    info->CopyEntry(otherInfo, vtkAnnotation::LABEL());
   }
-  if(otherInfo->Has(vtkAnnotation::COLOR()))
+  if (otherInfo->Has(vtkAnnotation::COLOR()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::COLOR());
+    info->CopyEntry(otherInfo, vtkAnnotation::COLOR());
   }
-  if(otherInfo->Has(vtkAnnotation::OPACITY()))
+  if (otherInfo->Has(vtkAnnotation::OPACITY()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::OPACITY());
+    info->CopyEntry(otherInfo, vtkAnnotation::OPACITY());
   }
-  if(otherInfo->Has(vtkAnnotation::DATA()))
+  if (otherInfo->Has(vtkAnnotation::DATA()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::DATA());
+    info->CopyEntry(otherInfo, vtkAnnotation::DATA());
   }
-  if(otherInfo->Has(vtkAnnotation::ICON_INDEX()))
+  if (otherInfo->Has(vtkAnnotation::ICON_INDEX()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::ICON_INDEX());
+    info->CopyEntry(otherInfo, vtkAnnotation::ICON_INDEX());
   }
 }
 
@@ -133,33 +117,33 @@ void vtkAnnotation::DeepCopy(vtkDataObject* other)
 
   vtkInformation* info = this->GetInformation();
   vtkInformation* otherInfo = obj->GetInformation();
-  if(otherInfo->Has(vtkAnnotation::ENABLE()))
+  if (otherInfo->Has(vtkAnnotation::ENABLE()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::ENABLE());
+    info->CopyEntry(otherInfo, vtkAnnotation::ENABLE());
   }
-  if(otherInfo->Has(vtkAnnotation::HIDE()))
+  if (otherInfo->Has(vtkAnnotation::HIDE()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::HIDE());
+    info->CopyEntry(otherInfo, vtkAnnotation::HIDE());
   }
-  if(otherInfo->Has(vtkAnnotation::LABEL()))
+  if (otherInfo->Has(vtkAnnotation::LABEL()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::LABEL());
+    info->CopyEntry(otherInfo, vtkAnnotation::LABEL());
   }
-  if(otherInfo->Has(vtkAnnotation::COLOR()))
+  if (otherInfo->Has(vtkAnnotation::COLOR()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::COLOR());
+    info->CopyEntry(otherInfo, vtkAnnotation::COLOR());
   }
-  if(otherInfo->Has(vtkAnnotation::OPACITY()))
+  if (otherInfo->Has(vtkAnnotation::OPACITY()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::OPACITY());
+    info->CopyEntry(otherInfo, vtkAnnotation::OPACITY());
   }
-  if(otherInfo->Has(vtkAnnotation::DATA()))
+  if (otherInfo->Has(vtkAnnotation::DATA()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::DATA());
+    info->CopyEntry(otherInfo, vtkAnnotation::DATA());
   }
-  if(otherInfo->Has(vtkAnnotation::ICON_INDEX()))
+  if (otherInfo->Has(vtkAnnotation::ICON_INDEX()))
   {
-    info->CopyEntry(otherInfo,vtkAnnotation::ICON_INDEX());
+    info->CopyEntry(otherInfo, vtkAnnotation::ICON_INDEX());
   }
 }
 
@@ -186,3 +170,4 @@ vtkAnnotation* vtkAnnotation::GetData(vtkInformationVector* v, int i)
 {
   return vtkAnnotation::GetData(v->GetInformationObject(i));
 }
+VTK_ABI_NAMESPACE_END

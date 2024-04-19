@@ -1,43 +1,21 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_NOERR, EX_WARN, etc
 
 /*!
-The function ex_get_nodal_var() reads the values of a single nodal
+\internal
+\ingroup ResultsData
+\note This function is called internally by ex_get_var() to handle
+the reading of nodal variable values.
+
+The function ex__get_nodal_var() reads the values of a single nodal
 variable for a single time step. Memory must be allocated for the
 nodal variable values array before this function is invoked.
 
@@ -46,36 +24,35 @@ code must declare the array passed to be the appropriate type
 (float or double) to match the compute word size passed in
 ex_create() or ex_open().
 
-\return In case of an error, ex_get_nodal_var() returns a negative
+\return In case of an error, ex__get_nodal_var() returns a negative
 number; a warning will return a positive number. Possible causes of
 errors include:
-  -  data file not properly opened with call to ex_create() or ex_open()
-  -  specified nodal variable does not exist.
-  -  a warning value is returned if no nodal variables are stored in the file.
+-  data file not properly opened with call to ex_create() or ex_open()
+-  specified nodal variable does not exist.
+-  a warning value is returned if no nodal variables are stored in the file.
 
 \param[in] exoid                exodus file ID returned from a previous call to
 ex_create()
-                                or ex_open().
+or ex_open().
 
 \param[in] time_step            The time step, as described under ex_put_time(),
 at which the
-                                nodal variable values are desired. This is
+nodal variable values are desired. This is
 essentially an index (in
-                                the time dimension) into the nodal variable
+the time dimension) into the nodal variable
 values array stored in
-                                the database. The first time step is 1.
+the database. The first time step is 1.
 
 \param[in] nodal_var_index      The index of the desired nodal variable. The
 first variable
-                                has an index of 1.
+has an index of 1.
 
 \param[in] num_nodes            The number of nodal points.
 
 \param[out]  nodal_var_vals     Returned array of num_nodes values of the
 nodal_var_index-th
-                                nodal variable for the time_step-th time
+nodal variable for the time_step-th time
 step.
-
 
 For example, the following demonstrates how this function would be
 used:
@@ -90,20 +67,22 @@ var_index = 2;
 
 var_values = (float *) calloc (num_nodes, sizeof(float));
 error = ex_get_nodal_var(exoid, time_step, var_index, num_nodes,
-                         var_values);
+var_values);
 ~~~
 
 */
 
-int ex_get_nodal_var_int(int exoid, int time_step, int nodal_var_index, int64_t num_nodes,
-                         void *nodal_var_vals)
+int ex__get_nodal_var(int exoid, int time_step, int nodal_var_index, int64_t num_nodes,
+                      void *nodal_var_vals)
 {
   int    varid;
   int    status;
   size_t start[3], count[3];
   char   errmsg[MAX_ERR_LENGTH];
 
-  ex_check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   /* inquire previously defined variable */
 
@@ -146,7 +125,7 @@ int ex_get_nodal_var_int(int exoid, int time_step, int nodal_var_index, int64_t 
     count[1] = num_nodes;
   }
 
-  if (ex_comp_ws(exoid) == 4) {
+  if (ex__comp_ws(exoid) == 4) {
     status = nc_get_vara_float(exoid, varid, start, count, nodal_var_vals);
   }
   else {

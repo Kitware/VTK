@@ -1,69 +1,85 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOGeometry import vtkBYUReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkLight,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingAnnotation import vtkCubeAxesActor
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # read in an interesting object and outline it
 #
-fohe = vtk.vtkBYUReader()
+fohe = vtkBYUReader()
 fohe.SetGeometryFileName(VTK_DATA_ROOT + "/Data/teapot.g")
 
-normals = vtk.vtkPolyDataNormals()
+normals = vtkPolyDataNormals()
 normals.SetInputConnection(fohe.GetOutputPort())
 
-foheMapper = vtk.vtkPolyDataMapper()
+foheMapper = vtkPolyDataMapper()
 foheMapper.SetInputConnection(normals.GetOutputPort())
 
-foheActor = vtk.vtkLODActor()
+foheActor = vtkLODActor()
 foheActor.SetMapper(foheMapper)
 
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(normals.GetOutputPort())
 
-mapOutline = vtk.vtkPolyDataMapper()
+mapOutline = vtkPolyDataMapper()
 mapOutline.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(mapOutline)
 outlineActor.GetProperty().SetColor(0, 0, 0)
 
 # Create the RenderWindow, Renderer, and setup viewports
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetClippingRange(1.60187, 20.0842)
 camera.SetFocalPoint(0.21406, 1.5, 0)
 camera.SetPosition(11.63, 6.32, 5.77)
 camera.SetViewUp(0.180325, 0.549245, -0.815974)
 
-light = vtk.vtkLight()
+light = vtkLight()
 light.SetFocalPoint(0.21406, 1.5, 0)
 light.SetPosition(8.3761, 4.94858, 4.12505)
 
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0, 0, 0.33, 0.5)
 ren1.SetActiveCamera(camera)
 ren1.AddLight(light)
 
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0.33, 0, 0.66, 0.5)
 ren2.SetActiveCamera(camera)
 ren2.AddLight(light)
 
-ren3 = vtk.vtkRenderer()
+ren3 = vtkRenderer()
 ren3.SetViewport(0.66, 0, 1.0, 0.5)
 ren3.SetActiveCamera(camera)
 ren3.AddLight(light)
 
-ren4 = vtk.vtkRenderer()
+ren4 = vtkRenderer()
 ren4.SetViewport(0, 0.5, 0.5, 1.0)
 ren4.SetActiveCamera(camera)
 ren4.AddLight(light)
 
-ren5 = vtk.vtkRenderer()
+ren5 = vtkRenderer()
 ren5.SetViewport(0.5, 0.5, 1.0, 1.0)
 ren5.SetActiveCamera(camera)
 ren5.AddLight(light)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
@@ -74,7 +90,7 @@ renWin.SetWindowName("VTK - Cube Axes")
 
 renWin.SetSize(600, 600)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size
@@ -103,7 +119,7 @@ normals.Update()
 
 bounds = normals.GetOutput().GetBounds()
 
-axes = vtk.vtkCubeAxesActor()
+axes = vtkCubeAxesActor()
 axes.SetBounds(
   bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
 axes.SetCamera(ren1.GetActiveCamera())
@@ -114,7 +130,7 @@ axes.SetFlyModeToOuterEdges()
 
 ren1.AddViewProp(axes)
 
-axes2 = vtk.vtkCubeAxesActor()
+axes2 = vtkCubeAxesActor()
 axes2.SetBounds(
   bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
 axes2.SetCamera(ren2.GetActiveCamera())
@@ -125,7 +141,7 @@ axes2.SetFlyModeToClosestTriad()
 
 ren2.AddViewProp(axes2)
 
-axes3 = vtk.vtkCubeAxesActor()
+axes3 = vtkCubeAxesActor()
 axes3.SetBounds(
   bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
 axes3.SetCamera(ren2.GetActiveCamera())
@@ -138,7 +154,7 @@ ren3.AddViewProp(axes3)
 
 bounds2 = axes3.GetBounds()
 
-axes4 = vtk.vtkCubeAxesActor()
+axes4 = vtkCubeAxesActor()
 axes4.SetBounds(
   bounds2[0], bounds2[1], bounds2[2], bounds2[3], bounds2[4], bounds2[5])
 axes4.SetCamera(ren2.GetActiveCamera())
@@ -149,7 +165,7 @@ axes4.SetFlyModeToStaticTriad()
 
 ren4.AddViewProp(axes4)
 
-axes5 = vtk.vtkCubeAxesActor()
+axes5 = vtkCubeAxesActor()
 axes5.SetBounds(
   bounds2[0], bounds2[1], bounds2[2], bounds2[3], bounds2[4], bounds2[5])
 axes5.SetCamera(ren2.GetActiveCamera())
@@ -165,11 +181,9 @@ renWin.Render()
 #
 iren.Initialize()
 
-def TkCheckAbort (object_binding, event_name):
-    foo = renWin.GetEventPending()
-    if (foo != 0):
+def TkCheckAbort(obj=None, event=""):
+    if renWin.GetEventPending():
         renWin.SetAbortRender(1)
-        pass
 
 renWin.AddObserver("AbortCheckEvent", TkCheckAbort)
 

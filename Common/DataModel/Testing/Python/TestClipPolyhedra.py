@@ -1,44 +1,57 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkPlane
+from vtkmodules.vtkFiltersGeneral import vtkClipDataSet
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
+from vtkmodules.vtkIOExodus import vtkExodusIIReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 renWin.SetSize(600,200)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Read input dataset that has n-faced polyhedra
-reader = vtk.vtkExodusIIReader()
-reader.SetFileName(str(VTK_DATA_ROOT) + "/Data/cube-1.exo")
+reader = vtkExodusIIReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/cube-1.exo")
 reader.Update()
 dataset = reader.GetOutput()
 
 # clip the dataset
-clipper = vtk.vtkClipDataSet()
+clipper = vtkClipDataSet()
 clipper.SetInputData(dataset.GetBlock(0).GetBlock(0))
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetNormal(0.5,0.5,0.5)
 plane.SetOrigin(0.5,0.5,0.5)
 clipper.SetClipFunction(plane)
 clipper.Update()
 
 # get surface representation to render
-surfaceFilter = vtk.vtkDataSetSurfaceFilter()
+surfaceFilter = vtkDataSetSurfaceFilter()
 surfaceFilter.SetInputData(clipper.GetOutput())
 surfaceFilter.Update()
 surface = surfaceFilter.GetOutput()
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputData(surfaceFilter.GetOutput())
 mapper.Update()
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetRepresentationToSurface()
 actor.GetProperty().EdgeVisibilityOn()

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVRMLImporter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkVRMLImporter
  * @brief   imports VRML 2.0 files.
@@ -49,7 +37,7 @@
  *
  * @sa
  * vtkImporter
-*/
+ */
 
 #ifndef vtkVRMLImporter_h
 #define vtkVRMLImporter_h
@@ -57,6 +45,7 @@
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkAlgorithm;
 class vtkProperty;
@@ -74,27 +63,27 @@ class vtkCellArray;
 class VTKIOIMPORT_EXPORT vtkVRMLImporter : public vtkImporter
 {
 public:
-  static vtkVRMLImporter *New();
+  static vtkVRMLImporter* New();
 
   vtkTypeMacro(vtkVRMLImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the file to read.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the resolution for Sphere, Cone and Cylinder shape sources.
    * Default is 12.
    */
   vtkSetMacro(ShapeResolution, int);
   vtkGetMacro(ShapeResolution, int);
-  //@}
+  ///@}
 
   /**
    * In the VRML spec you can DEF and USE nodes (name them),
@@ -104,7 +93,12 @@ public:
    * You will have to check and correctly cast the object since
    * this only returns vtkObjects.
    */
-  vtkObject* GetVRMLDEFObject(const char *name);
+  vtkObject* GetVRMLDEFObject(const char* name);
+
+  /**
+   * Get a printable string describing the outputs
+   */
+  std::string GetOutputsDescription() override;
 
 protected:
   vtkVRMLImporter();
@@ -118,7 +112,7 @@ protected:
   void ImportLights(vtkRenderer*) override {}
   void ImportProperties(vtkRenderer*) override {}
 
-  //@{
+  ///@{
   /**
    * Needed by the yacc/lex grammar used
    */
@@ -127,15 +121,15 @@ protected:
   virtual void enterField(const char*);
   virtual void exitField();
   virtual void useNode(const char*);
-  //@}
+  ///@}
 
   /**
    * Return the file pointer to the open file.
    */
-  FILE *GetFileFD() { return this->FileFD; }
+  FILE* GetFileFD() { return this->FileFD; }
 
-  char *FileName;
-  FILE *FileFD;
+  char* FileName;
+  FILE* FileFD;
   int ShapeResolution;
 
   friend class vtkVRMLYaccData;
@@ -163,9 +157,9 @@ private:
   vtkFloatArray* CurrentScalars;
   vtkPolyDataMapper* CurrentMapper;
 
-private:
   vtkVRMLImporter(const vtkVRMLImporter&) = delete;
   void operator=(const vtkVRMLImporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

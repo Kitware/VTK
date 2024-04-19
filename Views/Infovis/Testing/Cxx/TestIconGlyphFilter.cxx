@@ -1,13 +1,6 @@
-
-/*
- * Copyright 2007 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2007 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include <vtkIconGlyphFilter.h>
 
@@ -16,48 +9,46 @@
 #include <vtkFollower.h>
 #include <vtkGraphLayoutView.h>
 #include <vtkGraphMapper.h>
+#include <vtkImageData.h>
 #include <vtkMutableUndirectedGraph.h>
+#include <vtkPNGReader.h>
 #include <vtkPointData.h>
-#include <vtkPoints.h>
 #include <vtkPointSet.h>
+#include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkPNGReader.h>
-#include <vtkRenderedGraphRepresentation.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderedGraphRepresentation.h>
+#include <vtkRenderer.h>
 #include <vtkTexture.h>
-#include <vtkImageData.h>
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
-
-int TestIconGlyphFilter( int argc, char *argv[])
+int TestIconGlyphFilter(int argc, char* argv[])
 {
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Tango/TangoIcons.png");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Tango/TangoIcons.png");
 
   int imageDims[3];
 
-  vtkPNGReader * imageReader = vtkPNGReader::New();
+  vtkPNGReader* imageReader = vtkPNGReader::New();
 
   imageReader->SetFileName(fname);
   imageReader->Update();
 
-  delete [] fname;
+  delete[] fname;
 
   imageReader->GetOutput()->GetDimensions(imageDims);
 
-  vtkMutableUndirectedGraph * graph = vtkMutableUndirectedGraph::New();
-  vtkPoints * points = vtkPoints::New();
-  vtkDoubleArray * pointData = vtkDoubleArray::New();
+  vtkMutableUndirectedGraph* graph = vtkMutableUndirectedGraph::New();
+  vtkPoints* points = vtkPoints::New();
+  vtkDoubleArray* pointData = vtkDoubleArray::New();
   pointData->SetNumberOfComponents(3);
-  points->SetData(static_cast<vtkDataArray *>(pointData));
+  points->SetData(static_cast<vtkDataArray*>(pointData));
   graph->SetPoints(points);
 
-  vtkIntArray * iconIndex = vtkIntArray::New();
+  vtkIntArray* iconIndex = vtkIntArray::New();
   iconIndex->SetName("IconIndex");
   iconIndex->SetNumberOfComponents(1);
 
@@ -98,18 +89,19 @@ int TestIconGlyphFilter( int argc, char *argv[])
   iconIndex->InsertNextTuple1(1);
   iconIndex->InsertNextTuple1(29);
 
-  vtkGraphLayoutView *view = vtkGraphLayoutView::New();
+  vtkGraphLayoutView* view = vtkGraphLayoutView::New();
   view->DisplayHoverTextOff();
   view->SetRepresentationFromInput(graph);
   view->SetLayoutStrategyToSimple2D();
   view->ResetCamera();
 
-  vtkTexture * texture =  vtkTexture::New();
+  vtkTexture* texture = vtkTexture::New();
   texture->SetInputConnection(imageReader->GetOutputPort());
   view->SetIconTexture(texture);
-  int size[] = {24, 24};
+  int size[] = { 24, 24 };
   view->SetIconSize(size);
-  vtkRenderedGraphRepresentation* rep = static_cast<vtkRenderedGraphRepresentation*>(view->GetRepresentation());
+  vtkRenderedGraphRepresentation* rep =
+    static_cast<vtkRenderedGraphRepresentation*>(view->GetRepresentation());
   rep->UseVertexIconTypeMapOff();
   rep->SetVertexSelectedIcon(12);
   rep->SetVertexIconSelectionModeToSelectedIcon();
@@ -121,8 +113,8 @@ int TestIconGlyphFilter( int argc, char *argv[])
 
   view->GetInteractor()->Initialize();
   view->Render();
-  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 18);
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 0.05);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     view->GetInteractor()->Start();
   }
@@ -137,4 +129,3 @@ int TestIconGlyphFilter( int argc, char *argv[])
 
   return !retVal;
 }
-

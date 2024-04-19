@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInEdgeIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkInEdgeIterator
  * @brief   Iterates through all incoming edges to a vertex.
@@ -30,7 +14,7 @@
  *
  * @sa
  * vtkGraph vtkOutEdgeIterator
-*/
+ */
 
 #ifndef vtkInEdgeIterator_h
 #define vtkInEdgeIterator_h
@@ -40,29 +24,30 @@
 
 #include "vtkGraph.h" // For edge type definitions
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraphEdge;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkInEdgeIterator : public vtkObject
 {
 public:
-  static vtkInEdgeIterator *New();
+  static vtkInEdgeIterator* New();
   vtkTypeMacro(vtkInEdgeIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the iterator with a graph and vertex.
    */
-  void Initialize(vtkGraph *g, vtkIdType v);
+  void Initialize(vtkGraph* g, vtkIdType v);
 
-  //@{
+  ///@{
   /**
    * Get the graph and vertex associated with this iterator.
    */
   vtkGetObjectMacro(Graph, vtkGraph);
   vtkGetMacro(Vertex, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the next edge in the graph.
    */
@@ -72,7 +57,7 @@ public:
     ++this->Current;
     return e;
   }
-  //@}
+  ///@}
 
   /**
    * Just like Next(), but
@@ -81,15 +66,12 @@ public:
    * The graph edge is owned by this iterator, and changes
    * after each call to NextGraphEdge().
    */
-  vtkGraphEdge *NextGraphEdge();
+  vtkGraphEdge* NextGraphEdge();
 
   /**
    * Whether this iterator has more edges.
    */
-  bool HasNext()
-  {
-    return this->Current != this->End;
-  }
+  bool HasNext() { return this->Current != this->End; }
 
 protected:
   vtkInEdgeIterator();
@@ -99,17 +81,18 @@ protected:
    * Protected method for setting the graph used
    * by Initialize().
    */
-  virtual void SetGraph(vtkGraph *graph);
+  virtual void SetGraph(vtkGraph* graph);
 
-  vtkGraph           *Graph;
-  const vtkInEdgeType *Current;
-  const vtkInEdgeType *End;
-  vtkIdType            Vertex;
-  vtkGraphEdge       *GraphEdge;
+  vtkGraph* Graph;
+  const vtkInEdgeType* Current;
+  const vtkInEdgeType* End;
+  vtkIdType Vertex;
+  vtkGraphEdge* GraphEdge;
 
 private:
   vtkInEdgeIterator(const vtkInEdgeIterator&) = delete;
   void operator=(const vtkInEdgeIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

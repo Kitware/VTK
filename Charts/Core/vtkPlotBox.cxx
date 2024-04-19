@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPlotBox.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkPlotBox.h"
 
@@ -28,9 +16,9 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
-#include "vtkNew.h"
 #include "vtkScalarsToColors.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -42,17 +30,17 @@
 #include <algorithm>
 #include <vector>
 
-class vtkPlotBox::Private :
-    public std::vector< std::vector<double> >
+VTK_ABI_NAMESPACE_BEGIN
+class vtkPlotBox::Private : public std::vector<std::vector<double>>
 {
 public:
   Private() = default;
 };
 
-//-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotBox)
+//------------------------------------------------------------------------------
+vtkStandardNewMacro(vtkPlotBox);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotBox::vtkPlotBox()
 {
   this->Storage = new vtkPlotBox::Private();
@@ -69,7 +57,7 @@ vtkPlotBox::vtkPlotBox()
   this->TitleProperties->SetJustificationToCentered();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPlotBox::~vtkPlotBox()
 {
   delete this->Storage;
@@ -79,30 +67,11 @@ vtkPlotBox::~vtkPlotBox()
     this->LookupTable->UnRegister(this);
   }
 
-
   this->TitleProperties->Delete();
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotBox::Update()
-{
-  if (!this->Visible)
-  {
-    return;
-  }
-  // Check if we have an input
-  vtkTable *table = this->Data->GetInput();
-  if (!table)
-  {
-    vtkDebugMacro(<< "Update event called with no input table set.");
-    return;
-  }
-
-  this->UpdateTableCache(table);
-}
-
-//-----------------------------------------------------------------------------
-bool vtkPlotBox::Paint(vtkContext2D *painter)
+//------------------------------------------------------------------------------
+bool vtkPlotBox::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotBox.");
@@ -114,33 +83,29 @@ bool vtkPlotBox::Paint(vtkContext2D *painter)
 
   if (this->Storage->empty() || this->Storage->at(0).size() != 5)
   {
-    vtkErrorMacro( << "Input table must contain 5 rows per column. These rows hold min, quartile 1, median, quartile 2 and max. Use vtkComputeQuartiles to create a proper table.");
+    vtkErrorMacro(
+      << "Input table must contain 5 rows per column. These rows hold min, quartile 1, median, "
+         "quartile 2 and max. Use vtkComputeQuartiles to create a proper table.");
     return false;
   }
 
-  vtkChartBox *parent = vtkChartBox::SafeDownCast(this->Parent);
+  vtkChartBox* parent = vtkChartBox::SafeDownCast(this->Parent);
 
   int nbCols = static_cast<int>(this->Storage->size());
   for (int i = 0; i < nbCols; i++)
   {
-    vtkStdString colName = parent->GetVisibleColumns()->GetValue(i);
-    int index;
-    this->GetInput()->GetRowData()->GetAbstractArray(colName.c_str(), index);
+    std::string colName = parent->GetVisibleColumns()->GetValue(i);
+    int index = this->GetInput()->GetColumnIndex(colName.c_str());
     double rgb[4];
     this->LookupTable->GetIndexedColor(index, rgb);
-    unsigned char crgba[4] =
-      {
-      static_cast<unsigned char>(rgb[0] * 255.),
-      static_cast<unsigned char>(rgb[1] * 255.),
-      static_cast<unsigned char>(rgb[2] * 255.),
-      255
-      };
+    unsigned char crgba[4] = { static_cast<unsigned char>(rgb[0] * 255.),
+      static_cast<unsigned char>(rgb[1] * 255.), static_cast<unsigned char>(rgb[2] * 255.), 255 };
 
     if (parent->GetSelectedColumn() == i)
     {
-      crgba[0] = crgba[0]^255;
-      crgba[1] = crgba[1]^255;
-      crgba[2] = crgba[2]^255;
+      crgba[0] = crgba[0] ^ 255;
+      crgba[1] = crgba[1] ^ 255;
+      crgba[2] = crgba[2] ^ 255;
     }
     DrawBoxPlot(i, crgba, parent->GetXPosition(i), painter);
   }
@@ -148,9 +113,8 @@ bool vtkPlotBox::Paint(vtkContext2D *painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
-                             vtkContext2D *painter)
+//------------------------------------------------------------------------------
+void vtkPlotBox::DrawBoxPlot(int i, unsigned char* rgba, double x, vtkContext2D* painter)
 {
   std::vector<double>& colQuartiles = this->Storage->at(i);
   if (colQuartiles.size() < 5)
@@ -169,7 +133,7 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
   double hBoxW = this->BoxWidth * 0.25;
 
   // Fetch the quartiles and median
-  double* q = &colQuartiles[0];
+  double* q = colQuartiles.data();
 
   // Draw the box
   painter->DrawQuad(xpos, q[1], xneg, q[1], xneg, q[3], xpos, q[3]);
@@ -197,7 +161,7 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
   painter->DrawLine(xneg, q[2], xpos, q[2]);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStringArray* vtkPlotBox::GetLabels()
 {
   if (this->Labels)
@@ -207,7 +171,7 @@ vtkStringArray* vtkPlotBox::GetLabels()
   return nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkPlotBox::PaintLegend(vtkContext2D* painter, const vtkRectf& rec, int)
 {
   if (this->Storage->empty() || this->Storage->at(0).size() < 5)
@@ -215,14 +179,14 @@ bool vtkPlotBox::PaintLegend(vtkContext2D* painter, const vtkRectf& rec, int)
     return false;
   }
 
-  vtkChartBox *parent = vtkChartBox::SafeDownCast(this->Parent);
+  vtkChartBox* parent = vtkChartBox::SafeDownCast(this->Parent);
 
   painter->ApplyTextProp(this->TitleProperties);
 
   int nbCols = static_cast<int>(this->Storage->size());
   for (int i = 0; i < nbCols; i++)
   {
-    vtkStdString colName = parent->GetVisibleColumns()->GetValue(i);
+    std::string colName = parent->GetVisibleColumns()->GetValue(i);
     if (this->GetLabels() && this->GetLabels()->GetNumberOfValues() > i)
     {
       colName = this->GetLabels()->GetValue(parent->GetColumnId(colName));
@@ -232,11 +196,10 @@ bool vtkPlotBox::PaintLegend(vtkContext2D* painter, const vtkRectf& rec, int)
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotBox::SetInputData(vtkTable* table)
 {
-  if (table == this->Data->GetInput() &&
-    (!table || table->GetMTime() < this->BuildTime))
+  if (table == this->Data->GetInput() && (!table || table->GetMTime() < this->BuildTime))
   {
     return;
   }
@@ -244,7 +207,7 @@ void vtkPlotBox::SetInputData(vtkTable* table)
   this->vtkPlot::SetInputData(table);
 
   bool updateVisibility = table != this->Data->GetInput();
-  vtkChartBox *parent = vtkChartBox::SafeDownCast(this->Parent);
+  vtkChartBox* parent = vtkChartBox::SafeDownCast(this->Parent);
 
   if (parent && table && updateVisibility)
   {
@@ -267,44 +230,22 @@ void vtkPlotBox::SetInputData(vtkTable* table)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace
 {
 // See if the point is within tolerance.
-bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
-             const vtkVector2f& current)
+bool inRange(const vtkVector2f& point, const vtkVector2f& tol, const vtkVector2f& current)
 {
-  return current.GetX() > point.GetX() - tol.GetX() &&
-         current.GetX() < point.GetX() + tol.GetX() &&
-         current.GetY() > point.GetY() - tol.GetY() &&
-         current.GetY() < point.GetY() + tol.GetY();
+  return current.GetX() > point.GetX() - tol.GetX() && current.GetX() < point.GetX() + tol.GetX() &&
+    current.GetY() > point.GetY() - tol.GetY() && current.GetY() < point.GetY() + tol.GetY();
 }
 }
 
-//-----------------------------------------------------------------------------
-vtkIdType vtkPlotBox::GetNearestPoint(const vtkVector2f& point,
-                                      const vtkVector2f& tol,
-                                      vtkVector2f* location,
-                                      vtkIdType* vtkNotUsed(segmentId))
+//------------------------------------------------------------------------------
+vtkIdType vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol,
+  vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
-#ifndef VTK_LEGACY_REMOVE
-  if (!this->LegacyRecursionFlag)
-  {
-    this->LegacyRecursionFlag = true;
-    vtkIdType ret = this->GetNearestPoint(point, tol, location);
-    this->LegacyRecursionFlag = false;
-    if (ret != -1)
-    {
-      VTK_LEGACY_REPLACED_BODY(
-        vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location),
-        "VTK 8.3",
-        vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location, vtkIdType* segmentId));
-      return ret;
-    }
-  }
-#endif // VTK_LEGACY_REMOVE
-
-  vtkChartBox *parent = vtkChartBox::SafeDownCast(this->Parent);
+  vtkChartBox* parent = vtkChartBox::SafeDownCast(this->Parent);
 
   int nbCols = static_cast<int>(this->Storage->size());
   for (int i = 0; i < nbCols; i++)
@@ -328,15 +269,19 @@ vtkIdType vtkPlotBox::GetNearestPoint(const vtkVector2f& point,
     }
   }
   return -1;
-
 }
-//-----------------------------------------------------------------------------
-bool vtkPlotBox::UpdateTableCache(vtkTable *table)
+//------------------------------------------------------------------------------
+bool vtkPlotBox::UpdateCache()
 {
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+
   // Each boxplot is a column in our storage array,
   // they are scaled from 0.0 to 1.0
-  vtkChartBox *parent = vtkChartBox::SafeDownCast(this->Parent);
-
+  vtkChartBox* parent = vtkChartBox::SafeDownCast(this->Parent);
+  vtkTable* table = this->Data->GetInput();
   if (!parent || !table || table->GetNumberOfColumns() == 0)
   {
     return false;
@@ -352,7 +297,7 @@ bool vtkPlotBox::UpdateTableCache(vtkTable *table)
     std::vector<double>& col = this->Storage->at(i);
     col.resize(rows);
     vtkSmartPointer<vtkDataArray> data =
-        vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(cols->GetValue(i)));
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(cols->GetValue(i).c_str()));
     if (!data)
     {
       continue;
@@ -375,8 +320,8 @@ bool vtkPlotBox::UpdateTableCache(vtkTable *table)
   return true;
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotBox::SetLookupTable(vtkScalarsToColors *lut)
+//------------------------------------------------------------------------------
+void vtkPlotBox::SetLookupTable(vtkScalarsToColors* lut)
 {
   if (this->LookupTable != lut)
   {
@@ -393,8 +338,8 @@ void vtkPlotBox::SetLookupTable(vtkScalarsToColors *lut)
   }
 }
 
-//-----------------------------------------------------------------------------
-vtkScalarsToColors *vtkPlotBox::GetLookupTable()
+//------------------------------------------------------------------------------
+vtkScalarsToColors* vtkPlotBox::GetLookupTable()
 {
   if (this->LookupTable == nullptr)
   {
@@ -403,15 +348,14 @@ vtkScalarsToColors *vtkPlotBox::GetLookupTable()
   return this->LookupTable;
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotBox::SetColumnColor(const vtkStdString& colName, double *rgb)
+//------------------------------------------------------------------------------
+void vtkPlotBox::SetColumnColor(const vtkStdString& colName, double* rgb)
 {
   if (this->LookupTable == nullptr)
   {
     this->CreateDefaultLookupTable();
   }
-  int index;
-  this->GetInput()->GetRowData()->GetAbstractArray(colName.c_str(), index);
+  int index = this->GetInput()->GetColumnIndex(colName.c_str());
   vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->LookupTable);
   if (index >= 0 && lut)
   {
@@ -420,7 +364,7 @@ void vtkPlotBox::SetColumnColor(const vtkStdString& colName, double *rgb)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPlotBox::CreateDefaultLookupTable()
 {
   // There must be an input to create a lookup table
@@ -435,14 +379,15 @@ void vtkPlotBox::CreateDefaultLookupTable()
     // Consistent Register/UnRegisters.
     this->LookupTable->Register(this);
     this->LookupTable->Delete();
-    vtkTable *table = this->GetInput();
+    vtkTable* table = this->GetInput();
     lut->SetNumberOfColors(table->GetNumberOfColumns());
     this->LookupTable->Build();
   }
 }
 
-//-----------------------------------------------------------------------------
-void vtkPlotBox::PrintSelf(ostream &os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkPlotBox::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

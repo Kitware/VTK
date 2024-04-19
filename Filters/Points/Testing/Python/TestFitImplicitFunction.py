@@ -1,36 +1,54 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkCommonDataModel import vtkSphere
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkBoundedPointSource,
+    vtkFitImplicitFunction,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPointGaussianMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Interpolate onto a volume
 
 # Parameters for debugging
 NPts = 1000000
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(31415)
 
 # create pipeline
 #
-points = vtk.vtkBoundedPointSource()
+points = vtkBoundedPointSource()
 points.SetNumberOfPoints(NPts)
 points.ProduceRandomScalarsOn()
 points.ProduceCellOutputOff()
 points.Update()
 
 # Create a sphere implicit function
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter(0.9,0.1,0.1)
 sphere.SetRadius(0.33)
 
 # Extract points within sphere
-extract = vtk.vtkFitImplicitFunction()
+extract = vtkFitImplicitFunction()
 extract.SetInputConnection(points.GetOutputPort())
 extract.SetImplicitFunction(sphere)
 extract.SetThreshold(0.005)
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 extract.Update()
 timer.StopTimer()
@@ -40,31 +58,31 @@ print("   Number removed: {0}".format(extract.GetNumberOfPointsRemoved()))
 print("   Original number of points: {0}".format(NPts))
 
 # First output are the non-outliers
-extMapper = vtk.vtkPointGaussianMapper()
+extMapper = vtkPointGaussianMapper()
 extMapper.SetInputConnection(extract.GetOutputPort())
 extMapper.EmissiveOff()
 extMapper.SetScaleFactor(0.0)
 
-extActor = vtk.vtkActor()
+extActor = vtkActor()
 extActor.SetMapper(extMapper)
 
 # Create an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(points.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

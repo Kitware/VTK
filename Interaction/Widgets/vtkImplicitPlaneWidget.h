@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImplicitPlaneWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImplicitPlaneWidget
  * @brief   3D widget for manipulating an infinite plane
@@ -59,7 +47,7 @@
  * @sa
  * vtk3DWidget vtkBoxWidget vtkPlaneWidget vtkLineWidget vtkPointWidget
  * vtkSphereWidget vtkImagePlaneWidget
-*/
+ */
 
 #ifndef vtkImplicitPlaneWidget_h
 #define vtkImplicitPlaneWidget_h
@@ -67,6 +55,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataSourceWidget.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkCellPicker;
@@ -89,25 +78,26 @@ public:
   /**
    * Instantiate the object.
    */
-  static vtkImplicitPlaneWidget *New();
+  static vtkImplicitPlaneWidget* New();
 
-  vtkTypeMacro(vtkImplicitPlaneWidget,vtkPolyDataSourceWidget);
+  vtkTypeMacro(vtkImplicitPlaneWidget, vtkPolyDataSourceWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods that satisfy the superclass' API.
    */
   void SetEnabled(int) override;
   void PlaceWidget(double bounds[6]) override;
-  void PlaceWidget() override
-    {this->Superclass::PlaceWidget();}
-  void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax) override
-    {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
-  //@}
+  void PlaceWidget() override { this->Superclass::PlaceWidget(); }
+  void PlaceWidget(
+    double xmin, double xmax, double ymin, double ymax, double zmin, double zmax) override
+  {
+    this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
+  }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the origin of the plane.
    */
@@ -115,19 +105,19 @@ public:
   virtual void SetOrigin(double x[3]);
   double* GetOrigin() VTK_SIZEHINT(3);
   void GetOrigin(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the normal to the plane.
    */
   void SetNormal(double x, double y, double z);
-  void SetNormal(double x[3]);
+  void SetNormal(double n[3]);
   double* GetNormal() VTK_SIZEHINT(3);
   void GetNormal(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the plane widget to be aligned with one of the x-y-z axes.
    * If one axis is set on, the other two will be set off.
@@ -136,27 +126,27 @@ public:
    * not aligned.
    */
   void SetNormalToXAxis(vtkTypeBool);
-  vtkGetMacro(NormalToXAxis,vtkTypeBool);
-  vtkBooleanMacro(NormalToXAxis,vtkTypeBool);
+  vtkGetMacro(NormalToXAxis, vtkTypeBool);
+  vtkBooleanMacro(NormalToXAxis, vtkTypeBool);
   void SetNormalToYAxis(vtkTypeBool);
-  vtkGetMacro(NormalToYAxis,vtkTypeBool);
-  vtkBooleanMacro(NormalToYAxis,vtkTypeBool);
+  vtkGetMacro(NormalToYAxis, vtkTypeBool);
+  vtkBooleanMacro(NormalToYAxis, vtkTypeBool);
   void SetNormalToZAxis(vtkTypeBool);
-  vtkGetMacro(NormalToZAxis,vtkTypeBool);
-  vtkBooleanMacro(NormalToZAxis,vtkTypeBool);
-  //@}
+  vtkGetMacro(NormalToZAxis, vtkTypeBool);
+  vtkBooleanMacro(NormalToZAxis, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off tubing of the wire outline of the plane. The tube thickens
    * the line by wrapping with a vtkTubeFilter.
    */
-  vtkSetMacro(Tubing,vtkTypeBool);
-  vtkGetMacro(Tubing,vtkTypeBool);
-  vtkBooleanMacro(Tubing,vtkTypeBool);
-  //@}
+  vtkSetMacro(Tubing, vtkTypeBool);
+  vtkGetMacro(Tubing, vtkTypeBool);
+  vtkBooleanMacro(Tubing, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable the drawing of the plane. In some cases the plane
    * interferes with the object that it is operating on (i.e., the
@@ -164,62 +154,62 @@ public:
    * z-buffer artifacts.)
    */
   void SetDrawPlane(vtkTypeBool plane);
-  vtkGetMacro(DrawPlane,vtkTypeBool);
-  vtkBooleanMacro(DrawPlane,vtkTypeBool);
-  //@}
+  vtkGetMacro(DrawPlane, vtkTypeBool);
+  vtkBooleanMacro(DrawPlane, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to translate the bounding box by grabbing it
    * with the left mouse button.
    */
-  vtkSetMacro(OutlineTranslation,vtkTypeBool);
-  vtkGetMacro(OutlineTranslation,vtkTypeBool);
-  vtkBooleanMacro(OutlineTranslation,vtkTypeBool);
-  //@}
+  vtkSetMacro(OutlineTranslation, vtkTypeBool);
+  vtkGetMacro(OutlineTranslation, vtkTypeBool);
+  vtkBooleanMacro(OutlineTranslation, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to move the widget outside of the input's bound
    */
-  vtkSetMacro(OutsideBounds,vtkTypeBool);
-  vtkGetMacro(OutsideBounds,vtkTypeBool);
-  vtkBooleanMacro(OutsideBounds,vtkTypeBool);
-  //@}
+  vtkSetMacro(OutsideBounds, vtkTypeBool);
+  vtkGetMacro(OutsideBounds, vtkTypeBool);
+  vtkBooleanMacro(OutsideBounds, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to scale with the mouse
    */
-  vtkSetMacro(ScaleEnabled,vtkTypeBool);
-  vtkGetMacro(ScaleEnabled,vtkTypeBool);
-  vtkBooleanMacro(ScaleEnabled,vtkTypeBool);
-  //@}
+  vtkSetMacro(ScaleEnabled, vtkTypeBool);
+  vtkGetMacro(ScaleEnabled, vtkTypeBool);
+  vtkBooleanMacro(ScaleEnabled, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to translate the origin (sphere)
    * with the left mouse button.
    */
-  vtkSetMacro(OriginTranslation,vtkTypeBool);
-  vtkGetMacro(OriginTranslation,vtkTypeBool);
-  vtkBooleanMacro(OriginTranslation,vtkTypeBool);
-  //@}
+  vtkSetMacro(OriginTranslation, vtkTypeBool);
+  vtkGetMacro(OriginTranslation, vtkTypeBool);
+  vtkBooleanMacro(OriginTranslation, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default the arrow is 30% of the diagonal length. DiagonalRatio control
    * this ratio in the interval [0-2]
    */
-  vtkSetClampMacro(DiagonalRatio,double,0,2);
-  vtkGetMacro(DiagonalRatio,double);
-  //@}
+  vtkSetClampMacro(DiagonalRatio, double, 0, 2);
+  vtkGetMacro(DiagonalRatio, double);
+  ///@}
 
   /**
    * Grab the polydata that defines the plane. The polydata contains a single
    * polygon that is clipped by the bounding box.
    */
-  void GetPolyData(vtkPolyData *pd);
+  void GetPolyData(vtkPolyData* pd);
 
   /**
    * Satisfies superclass API.  This returns a pointer to the underlying
@@ -233,7 +223,7 @@ public:
    * vtkImplicitFunction, meaning that it can be used by a variety of filters
    * to perform clipping, cutting, and selection of data.
    */
-  void GetPlane(vtkPlane *plane);
+  void GetPlane(vtkPlane* plane);
 
   /**
    * Satisfies the superclass API.  This will change the state of the widget
@@ -246,38 +236,38 @@ public:
    */
   void SizeHandles() override;
 
-  //@{
+  ///@{
   /**
    * Get the properties on the normal (line and cone).
    */
-  vtkGetObjectMacro(NormalProperty,vtkProperty);
-  vtkGetObjectMacro(SelectedNormalProperty,vtkProperty);
-  //@}
+  vtkGetObjectMacro(NormalProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedNormalProperty, vtkProperty);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the plane properties. The properties of the plane when selected
    * and unselected can be manipulated.
    */
-  vtkGetObjectMacro(PlaneProperty,vtkProperty);
-  vtkGetObjectMacro(SelectedPlaneProperty,vtkProperty);
-  //@}
+  vtkGetObjectMacro(PlaneProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedPlaneProperty, vtkProperty);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the property of the outline.
    */
-  vtkGetObjectMacro(OutlineProperty,vtkProperty);
-  vtkGetObjectMacro(SelectedOutlineProperty,vtkProperty);
-  //@}
+  vtkGetObjectMacro(OutlineProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the property of the intersection edges. (This property also
    * applies to the edges when tubed.)
    */
-  vtkGetObjectMacro(EdgesProperty,vtkProperty);
-  //@}
+  vtkGetObjectMacro(EdgesProperty, vtkProperty);
+  ///@}
 
 protected:
   vtkImplicitPlaneWidget();
@@ -287,7 +277,7 @@ protected:
   int State;
   enum WidgetState
   {
-    Start=0,
+    Start = 0,
     MovingPlane,
     MovingOutline,
     MovingOrigin,
@@ -297,9 +287,9 @@ protected:
     Outside
   };
 
-  //handles the events
-  static void ProcessEvents(vtkObject* object, unsigned long event,
-                            void* clientdata, void* calldata);
+  // handles the events
+  static void ProcessEvents(
+    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   // ProcessEvents() dispatches to these methods.
   void OnLeftButtonDown();
@@ -317,89 +307,89 @@ protected:
   void UpdateRepresentation();
 
   // The actual plane which is being manipulated
-  vtkPlane *Plane;
+  vtkPlane* Plane;
 
   // The bounding box is represented by a single voxel image data
-  vtkImageData      *Box;
-  vtkOutlineFilter  *Outline;
-  vtkPolyDataMapper *OutlineMapper;
-  vtkActor          *OutlineActor;
+  vtkImageData* Box;
+  vtkOutlineFilter* Outline;
+  vtkPolyDataMapper* OutlineMapper;
+  vtkActor* OutlineActor;
   void HighlightOutline(int highlight);
-  vtkTypeBool OutlineTranslation; //whether the outline can be moved
-  vtkTypeBool ScaleEnabled; //whether the widget can be scaled
-  vtkTypeBool OutsideBounds; //whether the widget can be moved outside input's bounds
+  vtkTypeBool OutlineTranslation; // whether the outline can be moved
+  vtkTypeBool ScaleEnabled;       // whether the widget can be scaled
+  vtkTypeBool OutsideBounds;      // whether the widget can be moved outside input's bounds
 
   // The cut plane is produced with a vtkCutter
-  vtkCutter         *Cutter;
-  vtkPolyDataMapper *CutMapper;
-  vtkActor          *CutActor;
-  vtkTypeBool               DrawPlane;
+  vtkCutter* Cutter;
+  vtkPolyDataMapper* CutMapper;
+  vtkActor* CutActor;
+  vtkTypeBool DrawPlane;
   virtual void HighlightPlane(int highlight);
 
   // Optional tubes are represented by extracting boundary edges and tubing
-  vtkFeatureEdges   *Edges;
-  vtkTubeFilter     *EdgesTuber;
-  vtkPolyDataMapper *EdgesMapper;
-  vtkActor          *EdgesActor;
-  vtkTypeBool               Tubing; //control whether tubing is on
+  vtkFeatureEdges* Edges;
+  vtkTubeFilter* EdgesTuber;
+  vtkPolyDataMapper* EdgesMapper;
+  vtkActor* EdgesActor;
+  vtkTypeBool Tubing; // control whether tubing is on
 
   // Control final length of the arrow:
   double DiagonalRatio;
 
   // The + normal cone
-  vtkConeSource     *ConeSource;
-  vtkPolyDataMapper *ConeMapper;
-  vtkActor          *ConeActor;
+  vtkConeSource* ConeSource;
+  vtkPolyDataMapper* ConeMapper;
+  vtkActor* ConeActor;
   void HighlightNormal(int highlight);
 
   // The + normal line
-  vtkLineSource     *LineSource;
-  vtkPolyDataMapper *LineMapper;
-  vtkActor          *LineActor;
+  vtkLineSource* LineSource;
+  vtkPolyDataMapper* LineMapper;
+  vtkActor* LineActor;
 
   // The - normal cone
-  vtkConeSource     *ConeSource2;
-  vtkPolyDataMapper *ConeMapper2;
-  vtkActor          *ConeActor2;
+  vtkConeSource* ConeSource2;
+  vtkPolyDataMapper* ConeMapper2;
+  vtkActor* ConeActor2;
 
   // The - normal line
-  vtkLineSource     *LineSource2;
-  vtkPolyDataMapper *LineMapper2;
-  vtkActor          *LineActor2;
+  vtkLineSource* LineSource2;
+  vtkPolyDataMapper* LineMapper2;
+  vtkActor* LineActor2;
 
   // The origin positioning handle
-  vtkSphereSource   *Sphere;
-  vtkPolyDataMapper *SphereMapper;
-  vtkActor          *SphereActor;
-  vtkTypeBool OriginTranslation; //whether the origin (sphere) can be moved
+  vtkSphereSource* Sphere;
+  vtkPolyDataMapper* SphereMapper;
+  vtkActor* SphereActor;
+  vtkTypeBool OriginTranslation; // whether the origin (sphere) can be moved
 
   // Do the picking
-  vtkCellPicker *Picker;
+  vtkCellPicker* Picker;
 
   // Register internal Pickers within PickingManager
   void RegisterPickers() override;
 
   // Transform the normal (used for rotation)
-  vtkTransform *Transform;
+  vtkTransform* Transform;
 
   // Methods to manipulate the plane
   void ConstrainOrigin(double x[3]);
-  void Rotate(int X, int Y, double *p1, double *p2, double *vpn);
-  void TranslatePlane(double *p1, double *p2);
-  void TranslateOutline(double *p1, double *p2);
-  void TranslateOrigin(double *p1, double *p2);
-  void Push(double *p1, double *p2);
-  void Scale(double *p1, double *p2, int X, int Y);
+  void Rotate(int X, int Y, double* p1, double* p2, double* vpn);
+  void TranslatePlane(double* p1, double* p2);
+  void TranslateOutline(double* p1, double* p2);
+  void TranslateOrigin(double* p1, double* p2);
+  void Push(double* p1, double* p2);
+  void Scale(double* p1, double* p2, int X, int Y);
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
-  vtkProperty *NormalProperty;
-  vtkProperty *SelectedNormalProperty;
-  vtkProperty *PlaneProperty;
-  vtkProperty *SelectedPlaneProperty;
-  vtkProperty *OutlineProperty;
-  vtkProperty *SelectedOutlineProperty;
-  vtkProperty *EdgesProperty;
+  vtkProperty* NormalProperty;
+  vtkProperty* SelectedNormalProperty;
+  vtkProperty* PlaneProperty;
+  vtkProperty* SelectedPlaneProperty;
+  vtkProperty* OutlineProperty;
+  vtkProperty* SelectedOutlineProperty;
+  vtkProperty* EdgesProperty;
   void CreateDefaultProperties();
 
   void GeneratePlane();
@@ -409,4 +399,5 @@ private:
   void operator=(const vtkImplicitPlaneWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

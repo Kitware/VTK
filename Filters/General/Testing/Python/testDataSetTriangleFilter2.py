@@ -1,28 +1,42 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersGeneral import (
+    vtkDataSetTriangleFilter,
+    vtkShrinkFilter,
+)
+from vtkmodules.vtkIOLegacy import vtkDataSetReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer, and RenderWindowInteractor
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create pipeline
 #
-reader = vtk.vtkDataSetReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/uGridEx.vtk")
-tris = vtk.vtkDataSetTriangleFilter()
+reader = vtkDataSetReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/uGridEx.vtk")
+tris = vtkDataSetTriangleFilter()
 tris.SetInputConnection(reader.GetOutputPort())
-shrink = vtk.vtkShrinkFilter()
+shrink = vtkShrinkFilter()
 shrink.SetInputConnection(tris.GetOutputPort())
 shrink.SetShrinkFactor(.8)
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(shrink.GetOutputPort())
 mapper.SetScalarRange(0,26)
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 # add the actor to the renderer; set the size
 #

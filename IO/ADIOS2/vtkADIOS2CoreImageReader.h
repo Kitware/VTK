@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkADIOS2CoreImageReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkADIOS2CoreImageReader
  * @brief   Read ADIOS2 bp files.
@@ -31,16 +19,17 @@
 #define vtkADIOS2CoreImageReader_h
 
 #include <map>    // For independently time stepped array indexing
+#include <memory> // For std::unique_ptr
 #include <string> // For variable name index mapping
 #include <vector> // For independently time stepped array indexing
 
 #include "vtkDataObjectAlgorithm.h"
-#include "vtkMultiProcessController.h" // For the process controller
-#include "vtkSetGet.h"                 // For property get/set macros
-#include "vtkSmartPointer.h"           // For the object cache
+#include "vtkSetGet.h"       // For property get/set macros
+#include "vtkSmartPointer.h" // For the object cache
 
 #include "vtkIOADIOS2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkDataObject;
@@ -49,6 +38,7 @@ class vtkDataSetAttributes;
 class vtkFieldData;
 class vtkImageData;
 class vtkMultiBlockDataSet;
+class vtkMultiProcessController;
 class vtkStringArray;
 
 //----------------------------------------------------------------------------
@@ -63,49 +53,48 @@ public:
   };
   using Params = std::map<std::string, std::string>;
   using StringToParams = std::map<std::string, Params>;
-  using InquireVariablesType = std::vector<std::pair<std::string, VarType>>;
-  static vtkADIOS2CoreImageReader* New(void);
-  vtkTypeMacro(vtkADIOS2CoreImageReader,vtkDataObjectAlgorithm);
+  using InquireVariablesType = std::map<std::string, VarType>;
+  static vtkADIOS2CoreImageReader* New();
+  vtkTypeMacro(vtkADIOS2CoreImageReader, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
 
   /**
    * Test whether or not a given file should even be attempted for use with this
    * reader.
    */
-  int CanReadFile(const std::string& name);
+  int CanReadFile(VTK_FILEPATH const std::string& name);
 
-  virtual int CanReadFile(const char* filename);
+  virtual int CanReadFile(VTK_FILEPATH const char* filename);
 
-  //@{
+  ///@{
   /**
    * Get/Set the input filename
    */
   vtkSetMacro(FileName, std::string);
   vtkGetMacro(FileName, std::string);
-  //@}
+  ///@}
 
-  void SetFileName(const char* filename);
+  void SetFileName(VTK_FILEPATH const char* filename);
 
-  //@{
+  ///@{
   /**
    * Get/Set the origin of output vtkImageData.
    * Default to be the origin point.
    */
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the spacing of output vtkImageData
    * Default to be 1.0, 1.0, 1.0.
    */
   vtkSetVector3Macro(Spacing, double);
   vtkGetVector3Macro(Spacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the array to deduce the dimension
    * of vtkImageData. You can toggle the DimensionArrayAsCell
@@ -114,29 +103,29 @@ public:
   vtkStringArray* GetAllDimensionArrays();
   vtkSetMacro(DimensionArray, std::string);
   vtkGetMacro(DimensionArray, std::string);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the assumption that the dimension array is cell data.
    * On by default.
    */
-  vtkSetMacro(DimensionArrayAsCell, bool)
+  vtkSetMacro(DimensionArrayAsCell, bool);
   vtkGetMacro(DimensionArrayAsCell, bool);
   vtkBooleanMacro(DimensionArrayAsCell, bool);
-  //@}
+  ///@}
 
   vtkStringArray* GetAllTimeStepArrays();
-  //@{
+  ///@{
   /**
    * Get/Set the name of the time step array. Once it's set, vtk will try to populate the
    * time step info from this array.
    */
   vtkSetMacro(TimeStepArray, std::string);
   vtkGetMacro(TimeStepArray, std::string);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get information about arrays. As is typical with readers this
    * is only valid after the filename is set and UpdateInformation() has been
@@ -149,17 +138,21 @@ public:
   int GetNumberOfArrays();
   const char* GetArrayName(int index);
 
-  //@{
+  ///@{
   /**
    * Set the array that should be read in. Based on the dimension info,
    * proper adios2 arrays will be read in as point or cell dota.
    */
   void SetArrayStatus(const char* name, int status);
   int GetArrayStatus(const char* name);
-  //@}
+  ///@}
 
+  /**
+   * Overridden to take into account mtimes for vtkDataArraySelection instances.
+   */
+  vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the assumption that the order of input data is column major.
    * Off by default.
@@ -167,12 +160,12 @@ public:
    * we **flip the dimensions** here to avoid a deep copy.
    *
    */
-  vtkSetMacro(IsColumnMajor, bool)
+  vtkSetMacro(IsColumnMajor, bool);
   vtkGetMacro(IsColumnMajor, bool);
   vtkBooleanMacro(IsColumnMajor, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the active scalar on each image block
    */
@@ -180,32 +173,31 @@ public:
   std::pair<std::string, VarType>& GetActiveScalar();
   const std::pair<std::string, VarType>& GetActiveScalar() const;
 
-  //@{
+  ///@{
   /**
    * Get the available variables. Call this function after calling RequestInformation
    */
   StringToParams& GetAvilableVariables();
   const StringToParams& GetAvilableVariables() const;
 
-  //@{
+  ///@{
   /**
    * Get the available attributes. Call this function after calling RequestInformation
    */
   StringToParams& GetAvailableAttributes();
   const StringToParams& GetAvailableAttributes() const;
 
-  //@{
+  ///@{
   /**
    * Set the MPI controller
    */
   void SetController(vtkMultiProcessController*);
-  //@}
+  ///@}
 
   /**
    * The main interface which triggers the reader to start
    */
-  virtual int ProcessRequest(vtkInformation*, vtkInformationVector**,
-    vtkInformationVector*) override;
+  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkADIOS2CoreImageReader();
@@ -213,12 +205,10 @@ protected:
 
   int RequestDataObjectInternal(vtkInformationVector*);
 
-  virtual int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **input,
-                                 vtkInformationVector *output) override;
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector **input,
-                          vtkInformationVector *output) override;
+  int RequestInformation(
+    vtkInformation* request, vtkInformationVector** input, vtkInformationVector* output) override;
+  int RequestData(
+    vtkInformation* request, vtkInformationVector** input, vtkInformationVector* output) override;
 
   std::string FetchTypeStringFromVarName(const std::string& name);
 
@@ -239,16 +229,16 @@ protected:
   bool GatherTimeSteps();
 
   // Helper function for InitWorkDistribution to calculate how many blocks each process shall read
-  template<typename T>
+  template <typename T>
   void CalculateWorkDistribution(const std::string& varName);
 
   // Helper function for ReadImageBlocks to populate vtk data array from adios variable
-  template<typename T, template<typename...> class U>
-  vtkSmartPointer<vtkAbstractArray> PopulateDataArrayFromVar(const std::string& varName,
-                                size_t blockIndex);
+  template <typename T, template <typename...> class U>
+  vtkSmartPointer<vtkAbstractArray> PopulateDataArrayFromVar(
+    const std::string& varName, size_t blockIndex);
 
   // Helper function to gather time steps from adios time array
-  template<typename T>
+  template <typename T>
   void GatherTimeStepsFromADIOSTimeArray();
 
   std::string FileName;
@@ -274,4 +264,5 @@ private:
   vtkADIOS2CoreImageReader(const vtkADIOS2CoreImageReader&) = delete;
   void operator=(const vtkADIOS2CoreImageReader&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

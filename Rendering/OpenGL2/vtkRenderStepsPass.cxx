@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderStepsPass.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkRenderStepsPass.h"
 #include "vtkObjectFactory.h"
@@ -26,18 +14,18 @@
 #include "vtkTranslucentPass.h"
 #include "vtkVolumetricPass.h"
 
-
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderStepsPass);
 
-vtkCxxSetObjectMacro(vtkRenderStepsPass,CameraPass,vtkCameraPass);
-vtkCxxSetObjectMacro(vtkRenderStepsPass,LightsPass,vtkRenderPass);
-vtkCxxSetObjectMacro(vtkRenderStepsPass,OpaquePass,vtkRenderPass);
-vtkCxxSetObjectMacro(vtkRenderStepsPass,TranslucentPass,vtkRenderPass);
-vtkCxxSetObjectMacro(vtkRenderStepsPass,VolumetricPass,vtkRenderPass);
-vtkCxxSetObjectMacro(vtkRenderStepsPass,OverlayPass,vtkRenderPass);
-vtkCxxSetObjectMacro(vtkRenderStepsPass,PostProcessPass,vtkRenderPass);
+vtkCxxSetObjectMacro(vtkRenderStepsPass, CameraPass, vtkCameraPass);
+vtkCxxSetObjectMacro(vtkRenderStepsPass, LightsPass, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkRenderStepsPass, OpaquePass, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkRenderStepsPass, TranslucentPass, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkRenderStepsPass, VolumetricPass, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkRenderStepsPass, OverlayPass, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkRenderStepsPass, PostProcessPass, vtkRenderPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderStepsPass::vtkRenderStepsPass()
 {
   this->CameraPass = vtkCameraPass::New();
@@ -47,14 +35,14 @@ vtkRenderStepsPass::vtkRenderStepsPass()
   this->VolumetricPass = vtkVolumetricPass::New();
   this->OverlayPass = vtkOverlayPass::New();
   this->SequencePass = vtkSequencePass::New();
-  vtkRenderPassCollection *rpc = vtkRenderPassCollection::New();
+  vtkRenderPassCollection* rpc = vtkRenderPassCollection::New();
   this->SequencePass->SetPasses(rpc);
   rpc->Delete();
   this->CameraPass->SetDelegatePass(this->SequencePass);
   this->PostProcessPass = nullptr;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkRenderStepsPass::~vtkRenderStepsPass()
 {
   if (this->CameraPass)
@@ -99,7 +87,7 @@ vtkRenderStepsPass::~vtkRenderStepsPass()
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -111,7 +99,7 @@ void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "(none)" <<endl;
+    os << "(none)" << endl;
   }
   os << indent << "LightsPass:";
   if (this->LightsPass != nullptr)
@@ -120,7 +108,7 @@ void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "(none)" <<endl;
+    os << "(none)" << endl;
   }
   os << indent << "opaquePass:";
   if (this->OpaquePass != nullptr)
@@ -129,7 +117,7 @@ void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "(none)" <<endl;
+    os << "(none)" << endl;
   }
   os << indent << "TranslucentPass:";
   if (this->TranslucentPass != nullptr)
@@ -138,7 +126,7 @@ void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "(none)" <<endl;
+    os << "(none)" << endl;
   }
   os << indent << "VolumetricPass:";
   if (this->VolumetricPass != nullptr)
@@ -147,7 +135,7 @@ void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "(none)" <<endl;
+    os << "(none)" << endl;
   }
   os << indent << "OverlayPass:";
   if (this->OverlayPass != nullptr)
@@ -156,7 +144,7 @@ void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "(none)" <<endl;
+    os << "(none)" << endl;
   }
   os << indent << "PostProcessPass:";
   if (this->PostProcessPass != nullptr)
@@ -165,20 +153,19 @@ void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "(none)" <<endl;
+    os << "(none)" << endl;
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
-void vtkRenderStepsPass::Render(const vtkRenderState *s)
+void vtkRenderStepsPass::Render(const vtkRenderState* s)
 {
   assert("pre: s_exists" && s != nullptr);
 
-  vtkRenderPassCollection *passes =
-    this->SequencePass->GetPasses();
+  vtkRenderPassCollection* passes = this->SequencePass->GetPasses();
   passes->RemoveAllItems();
 
   if (this->LightsPass)
@@ -215,12 +202,12 @@ void vtkRenderStepsPass::Render(const vtkRenderState *s)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.
 // \pre w_exists: w!=0
-void vtkRenderStepsPass::ReleaseGraphicsResources(vtkWindow *w)
+void vtkRenderStepsPass::ReleaseGraphicsResources(vtkWindow* w)
 {
   assert("pre: w_exists" && w != nullptr);
 
@@ -253,3 +240,4 @@ void vtkRenderStepsPass::ReleaseGraphicsResources(vtkWindow *w)
     this->PostProcessPass->ReleaseGraphicsResources(w);
   }
 }
+VTK_ABI_NAMESPACE_END

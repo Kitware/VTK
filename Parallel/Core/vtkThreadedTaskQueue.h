@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkThreadedTaskQueue.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkThreadedTaskQueue
  * @brief simple threaded task queue
@@ -63,21 +51,23 @@
 #if !defined(__WRAP__)
 namespace vtkThreadedTaskQueueInternals
 {
-template<typename R>
+VTK_ABI_NAMESPACE_BEGIN
+template <typename R>
 class TaskQueue;
 
-template<typename R>
+template <typename R>
 class ResultQueue;
-};
+VTK_ABI_NAMESPACE_END
+}
 
-template<typename R, typename... Args>
+VTK_ABI_NAMESPACE_BEGIN
+
+template <typename R, typename... Args>
 class vtkThreadedTaskQueue
 {
 public:
-  vtkThreadedTaskQueue(std::function<R(Args...)> worker,
-    bool strict_ordering = true,
-    int buffer_size = -1,
-    int max_concurrent_tasks = -1);
+  vtkThreadedTaskQueue(std::function<R(Args...)> worker, bool strict_ordering = true,
+    int buffer_size = -1, int max_concurrent_tasks = -1);
   ~vtkThreadedTaskQueue();
 
   /**
@@ -114,21 +104,19 @@ private:
 
   std::function<R(Args...)> Worker;
 
-  std::unique_ptr<vtkThreadedTaskQueueInternals::TaskQueue<R> > Tasks;
-  std::unique_ptr<vtkThreadedTaskQueueInternals::ResultQueue<R> > Results;
+  std::unique_ptr<vtkThreadedTaskQueueInternals::TaskQueue<R>> Tasks;
+  std::unique_ptr<vtkThreadedTaskQueueInternals::ResultQueue<R>> Results;
 
   int NumberOfThreads;
   std::unique_ptr<std::thread[]> Threads;
 };
 
-template<typename... Args>
+template <typename... Args>
 class vtkThreadedTaskQueue<void, Args...>
 {
 public:
-  vtkThreadedTaskQueue(std::function<void(Args...)> worker,
-    bool strict_ordering = true,
-    int buffer_size = -1,
-    int max_concurrent_tasks = -1);
+  vtkThreadedTaskQueue(std::function<void(Args...)> worker, bool strict_ordering = true,
+    int buffer_size = -1, int max_concurrent_tasks = -1);
   ~vtkThreadedTaskQueue();
 
   /**
@@ -153,7 +141,7 @@ private:
 
   std::function<void(Args...)> Worker;
 
-  std::unique_ptr<vtkThreadedTaskQueueInternals::TaskQueue<void> > Tasks;
+  std::unique_ptr<vtkThreadedTaskQueueInternals::TaskQueue<void>> Tasks;
 
   std::condition_variable ResultsCV;
   std::mutex NextResultIdMutex;
@@ -163,6 +151,7 @@ private:
   std::unique_ptr<std::thread[]> Threads;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkThreadedTaskQueue.txx"
 
 #endif // !defined(__WRAP__)

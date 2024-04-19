@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCallbackCommand.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCallbackCommand
  * @brief   supports function callbacks
@@ -33,21 +21,21 @@
  *
  * @sa
  * vtkCommand vtkOldStyleCallbackCommand
-*/
+ */
 
 #ifndef vtkCallbackCommand_h
 #define vtkCallbackCommand_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCommand.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkCallbackCommand : public vtkCommand
 {
 public:
-  vtkTypeMacro(vtkCallbackCommand,vtkCommand);
+  vtkTypeMacro(vtkCallbackCommand, vtkCommand);
 
-  static vtkCallbackCommand *New()
-    {return new vtkCallbackCommand;};
+  static vtkCallbackCommand* New() { return new vtkCallbackCommand; }
 
   /**
    * Satisfy the superclass API for callbacks. Recall that the caller is
@@ -55,50 +43,43 @@ public:
    * vtkCommand.h); and calldata is information sent when the callback
    * was invoked (e.g., progress value in the vtkCommand::ProgressEvent).
    */
-  void Execute(vtkObject *caller,
-               unsigned long eid,
-               void *callData) override;
+  void Execute(vtkObject* caller, unsigned long eid, void* callData) override;
 
   /**
    * Methods to set and get client and callback information, and the callback
    * function.
    */
-  virtual void SetClientData(void *cd)
-    { this->ClientData = cd; }
-  virtual void* GetClientData()
-    { return this->ClientData; }
-  virtual void SetCallback(void (*f)(vtkObject *caller, unsigned long eid,
-                                     void *clientdata, void *calldata))
-    { this->Callback = f; }
-  virtual void SetClientDataDeleteCallback(void (*f)(void *))
-    { this->ClientDataDeleteCallback = f; }
+  virtual void SetClientData(void* cd) { this->ClientData = cd; }
+  virtual void* GetClientData() { return this->ClientData; }
+  virtual void SetCallback(
+    void (*f)(vtkObject* caller, unsigned long eid, void* clientdata, void* calldata))
+  {
+    this->Callback = f;
+  }
+  virtual void SetClientDataDeleteCallback(void (*f)(void*)) { this->ClientDataDeleteCallback = f; }
 
   /**
    * Set/Get the abort flag on execute. If this is set to true the AbortFlag
    * will be set to On automatically when the Execute method is triggered *and*
    * a callback is set.
    */
-  void SetAbortFlagOnExecute(int f)
-    { this->AbortFlagOnExecute = f; }
-  int GetAbortFlagOnExecute()
-    { return this->AbortFlagOnExecute; }
-  void AbortFlagOnExecuteOn()
-    { this->SetAbortFlagOnExecute(1); }
-  void AbortFlagOnExecuteOff()
-    { this->SetAbortFlagOnExecute(0); }
+  void SetAbortFlagOnExecute(int f) { this->AbortFlagOnExecute = f; }
+  int GetAbortFlagOnExecute() { return this->AbortFlagOnExecute; }
+  void AbortFlagOnExecuteOn() { this->SetAbortFlagOnExecute(1); }
+  void AbortFlagOnExecuteOff() { this->SetAbortFlagOnExecute(0); }
 
-  void (*Callback)(vtkObject *, unsigned long, void *, void *);
-  void (*ClientDataDeleteCallback)(void *);
+  void (*Callback)(vtkObject*, unsigned long, void*, void*);
+  void (*ClientDataDeleteCallback)(void*);
 
 protected:
-
   int AbortFlagOnExecute;
-  void *ClientData;
+  void* ClientData;
 
   vtkCallbackCommand();
   ~vtkCallbackCommand() override;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkCallbackCommand.h

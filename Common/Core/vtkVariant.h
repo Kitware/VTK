@@ -1,188 +1,180 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVariant.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkVariant
- * @brief   A atomic type representing the union of many types
- *
- *
+ * @brief   A type representing the union of many types.
  *
  * @par Thanks:
  * Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
  * Sandia National Laboratories for their help in developing this class.
-*/
+ */
 
 #ifndef vtkVariant_h
 #define vtkVariant_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
-#include "vtkSystemIncludes.h" // To define ostream
-#include "vtkSetGet.h"         // For vtkNotUsed macro
-#include "vtkObject.h"         // For vtkObject's warning support
+#include "vtkObject.h"           // For vtkObject's warning support
+#include "vtkSetGet.h"           // For vtkNotUsed macro
 #include "vtkStdString.h"
-#include "vtkUnicodeString.h"
+#include "vtkSystemIncludes.h" // To define ostream
+#include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
 
 //
 // The following should be eventually placed in vtkSetGet.h
 //
 
 // This is same as extended template macro with an additional case for VTK_VARIANT
-#define vtkExtraExtendedTemplateMacro(call)                                 \
-  vtkExtendedTemplateMacro(call);                                            \
+#define vtkExtraExtendedTemplateMacro(call)                                                        \
+  vtkExtendedTemplateMacro(call);                                                                  \
   vtkTemplateMacroCase(VTK_VARIANT, vtkVariant, call)
 
 // This is same as Iterator Template macro with an additional case for VTK_VARIANT
-#define vtkExtendedArrayIteratorTemplateMacro(call)                                      \
-  vtkArrayIteratorTemplateMacro(call);                                                   \
-  vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call);
+#define vtkExtendedArrayIteratorTemplateMacro(call)                                                \
+  vtkArrayIteratorTemplateMacro(call);                                                             \
+  vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call)
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStdString;
-class vtkUnicodeString;
 class vtkObjectBase;
 class vtkAbstractArray;
 class vtkVariant;
 struct vtkVariantLessThan;
 
-VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
+VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkVariant& val);
 
 class VTKCOMMONCORE_EXPORT vtkVariant
 {
 public:
-
   /**
-   * Create an invalid variant.
+   * Create an invalid variant. The type will be VTK_VOID and IsValid will return false.
    */
   vtkVariant();
 
   /**
    * Destruct the variant.
+   * For the VTK_STRING case, invokes delete on the string.
+   * For the VTK_OBJECT case, invokes Delete() on the object.
    */
   ~vtkVariant();
 
   /**
    * Copy constructor.
    */
-  vtkVariant(const vtkVariant & other);
+  vtkVariant(const vtkVariant& other);
 
   /**
-   * Create a bool variant. Internally store it as char.
+   * Create a bool variant. Internally store it as char. The type will be VTK_CHAR and IsValid will
+   * return true.
    */
   vtkVariant(bool value);
 
   /**
-   * Create a char variant.
+   * Create a char variant. The type will be VTK_CHAR and IsValid will return true.
    */
   vtkVariant(char value);
 
   /**
-   * Create an unsigned char variant.
+   * Create an unsigned char variant. The type will be VTK_UNSIGNED_CHAR and IsValid will return
+   * true.
    */
   vtkVariant(unsigned char value);
 
   /**
-   * Create a signed char variant.
+   * Create a signed char variant. The type will be VTK_SIGNED_CHAR and IsValid will return true.
    */
   vtkVariant(signed char value);
 
   /**
-   * Create a short variant.
+   * Create a short variant. The type will be VTK_SHORT and IsValid will return true.
    */
   vtkVariant(short value);
 
   /**
-   * Create an unsigned short variant.
+   * Create an unsigned short variant. The type will be VTK_UNSIGNED_SHORT and IsValid will return
+   * true.
    */
   vtkVariant(unsigned short value);
 
   /**
-   * Create an integer variant.
+   * Create an integer variant. The type will be VTK_INT and IsValid will return true.
    */
   vtkVariant(int value);
 
   /**
-   * Create an unsigned integer variant.
+   * Create an unsigned integer variant. The type will be VTK_UNSIGNED_INT and IsValid will return
+   * true.
    */
   vtkVariant(unsigned int value);
 
   /**
-   * Create an long variant.
+   * Create an long variant. The type will be VTK_LONG and IsValid will return true.
    */
   vtkVariant(long value);
 
   /**
-   * Create an unsigned long variant.
+   * Create an unsigned long variant. The type will be VTK_UNSIGNED_LONG and IsValid will return
+   * true.
    */
   vtkVariant(unsigned long value);
 
   /**
-   * Create a long long variant.
+   * Create a long long variant. The type will be VTK_LONG_LONG and IsValid will return true.
    */
   vtkVariant(long long value);
 
   /**
-   * Create an unsigned long long variant.
+   * Create an unsigned long long variant. The type will be VTK_UNSIGNED_LONG_LONG and IsValid will
+   * return true.
    */
   vtkVariant(unsigned long long value);
 
   /**
-   * Create a float variant.
+   * Create a float variant. The type will be VTK_FLOAT and IsValid will return true.
    */
   vtkVariant(float value);
 
   /**
-   * Create a double variant.
+   * Create a double variant. The type will be VTK_DOUBLE and IsValid will return true.
    */
   vtkVariant(double value);
 
   /**
    * Create a string variant from a const char*.
+   * If nullptr is passed, the type will be VTK_VOID and IsValid will return false;
+   * else the type will be VTK_STRING and IsValid will return true.
    */
   vtkVariant(const char* value);
 
   /**
    * Create a string variant from a std string.
+   * The type will be VTK_STRING and IsValid will return true.
    */
   vtkVariant(vtkStdString value);
 
   /**
-   * Create a Unicode string variant
-   */
-  vtkVariant(const vtkUnicodeString& value);
-
-  /**
    * Create a vtkObjectBase variant.
+   * If nullptr is passed, the type will be VTK_VOID and IsValid will return false;
+   * else the type will be VTK_OBJECT and IsValid will return true.
    */
   vtkVariant(vtkObjectBase* value);
 
   /**
-   * Create a variant of a specific type.
+   * Create a new variant by copying the given variant but converting it to the given type.
+   * \p type must be one of: VTK_STRING, VTK_OBJECT, VTK_CHAR, VTK_SIGNED_CHAR, VTK_UNSIGNED_CHAR,
+   * VTK_SHORT, VTK_UNSIGNED_SHORT, VTK_INT, VTK_UNSIGNED_INT, VTK_LONG, VTK_UNSIGNED_LONG,
+   * VTK_LONG_LONG, VTK_UNSIGNED_LONG_LONG, VTK_FLOAT, VTK_DOUBLE.
    */
-  vtkVariant(const vtkVariant &other, unsigned int type);
+  vtkVariant(const vtkVariant& other, unsigned int type);
 
   /**
    * Copy the value of one variant into another.
    */
-  vtkVariant & operator= (const vtkVariant & other);
+  vtkVariant& operator=(const vtkVariant& other);
 
   /**
-   * Get whether the variant value is valid.
+   * Get whether the variant value is valid. Simple scalar types are always considered valid.
+   * Strings and pointers are considered valid only if non-nullptr.
    */
   bool IsValid() const;
 
@@ -190,11 +182,6 @@ public:
    * Get whether the variant is a string.
    */
   bool IsString() const;
-
-  /**
-   * Get whether the variant is a Unicode string.
-   */
-  bool IsUnicodeString() const;
 
   /**
    * Get whether the variant is any numeric type.
@@ -257,16 +244,6 @@ public:
   bool IsUnsignedLong() const;
 
   /**
-   * Legacy.  Returns false.  The variant is never an __int64.
-   */
-  bool Is__Int64() const;
-
-  /**
-   * Legacy.  Returns false.  The variant is never an unsigned __int64.
-   */
-  bool IsUnsigned__Int64() const;
-
-  /**
    * Get whether the variant is long long.
    */
   bool IsLongLong() const;
@@ -277,12 +254,12 @@ public:
   bool IsUnsignedLongLong() const;
 
   /**
-   * Get whether the variant is a VTK object pointer.
+   * Get whether the variant is a VTK object pointer (i.e. vtkObjectBase or a subclass thereof).
    */
   bool IsVTKObject() const;
 
   /**
-   * Get whether the variant is a VTK array (i.e. a subclass of vtkAbstractArray).
+   * Get whether the variant is a VTK array (i.e. vtkAbstractArray or a subclass thereof).
    */
   bool IsArray() const;
 
@@ -296,17 +273,24 @@ public:
    */
   const char* GetTypeAsString() const;
 
+  enum StringFormatting
+  {
+    DEFAULT_FORMATTING = 0,
+    FIXED_FORMATTING = 1,
+    SCIENTIFIC_FORMATTING = 2
+  };
+
   /**
    * Convert the variant to a string.
+   * Set the formatting argument to either DEFAULT_FORMATTING, FIXED_FORMATTING,
+   * SCIENTIFIC_FORMATTING to control the formatting. Set the precision
+   * argument to control the precision of the output. These two parameters have no effect when the
+   * variant is not a floating-point value or an array of floating-point values.
+   * See the std doc for more information.
    */
-  vtkStdString ToString() const;
+  vtkStdString ToString(int formatting = DEFAULT_FORMATTING, int precision = 6) const;
 
-  /**
-   * convert the variant to a Unicode string.
-   */
-  vtkUnicodeString ToUnicodeString() const;
-
-  //@{
+  ///@{
   /**
    * Convert the variant to a numeric type:
    * If it holds a numeric, cast to the appropriate type.
@@ -316,52 +300,37 @@ public:
    * to the appropriate type.
    * Fail if it holds a VTK object which is not an array.
    */
-  float ToFloat(bool *valid) const;
-  float ToFloat() const {
-    return this->ToFloat(nullptr); };
-  double ToDouble(bool *valid) const;
-  double ToDouble() const {
-    return this->ToDouble(nullptr); };
-  char ToChar(bool *valid) const;
-  char ToChar() const {
-    return this->ToChar(nullptr); };
-  unsigned char ToUnsignedChar(bool *valid) const;
-  unsigned char ToUnsignedChar() const {
-    return this->ToUnsignedChar(nullptr); };
-  signed char ToSignedChar(bool *valid) const;
-  signed char ToSignedChar() const {
-    return this->ToSignedChar(nullptr); };
-  short ToShort(bool *valid) const;
-  short ToShort() const {
-    return this->ToShort(nullptr); };
-  unsigned short ToUnsignedShort(bool *valid) const;
-  unsigned short ToUnsignedShort() const {
-    return this->ToUnsignedShort(nullptr); };
-  int ToInt(bool *valid) const;
-  int ToInt() const {
-    return this->ToInt(nullptr); };
-  unsigned int ToUnsignedInt(bool *valid) const;
-  unsigned int ToUnsignedInt() const {
-    return this->ToUnsignedInt(nullptr); };
-  long ToLong(bool *valid) const;
-  long ToLong() const {
-    return this->ToLong(nullptr); };
-  unsigned long ToUnsignedLong(bool *valid) const;
-  unsigned long ToUnsignedLong() const {
-    return this->ToUnsignedLong(nullptr); };
-  long long ToLongLong(bool *valid) const;
-  long long ToLongLong() const {
-    return this->ToLongLong(nullptr); };
-  unsigned long long ToUnsignedLongLong(bool *valid) const;
-  unsigned long long ToUnsignedLongLong() const {
-    return this->ToUnsignedLongLong(nullptr); };
-  vtkTypeInt64 ToTypeInt64(bool *valid) const;
-  vtkTypeInt64 ToTypeInt64() const {
-    return this->ToTypeInt64(nullptr); };
-  vtkTypeUInt64 ToTypeUInt64(bool *valid) const;
-  vtkTypeUInt64 ToTypeUInt64() const {
-    return this->ToTypeUInt64(nullptr); };
-  //@}
+  float ToFloat(bool* valid) const;
+  float ToFloat() const { return this->ToFloat(nullptr); }
+  double ToDouble(bool* valid) const;
+  double ToDouble() const { return this->ToDouble(nullptr); }
+  char ToChar(bool* valid) const;
+  char ToChar() const { return this->ToChar(nullptr); }
+  unsigned char ToUnsignedChar(bool* valid) const;
+  unsigned char ToUnsignedChar() const { return this->ToUnsignedChar(nullptr); }
+  signed char ToSignedChar(bool* valid) const;
+  signed char ToSignedChar() const { return this->ToSignedChar(nullptr); }
+  short ToShort(bool* valid) const;
+  short ToShort() const { return this->ToShort(nullptr); }
+  unsigned short ToUnsignedShort(bool* valid) const;
+  unsigned short ToUnsignedShort() const { return this->ToUnsignedShort(nullptr); }
+  int ToInt(bool* valid) const;
+  int ToInt() const { return this->ToInt(nullptr); }
+  unsigned int ToUnsignedInt(bool* valid) const;
+  unsigned int ToUnsignedInt() const { return this->ToUnsignedInt(nullptr); }
+  long ToLong(bool* valid) const;
+  long ToLong() const { return this->ToLong(nullptr); }
+  unsigned long ToUnsignedLong(bool* valid) const;
+  unsigned long ToUnsignedLong() const { return this->ToUnsignedLong(nullptr); }
+  long long ToLongLong(bool* valid) const;
+  long long ToLongLong() const { return this->ToLongLong(nullptr); }
+  unsigned long long ToUnsignedLongLong(bool* valid) const;
+  unsigned long long ToUnsignedLongLong() const { return this->ToUnsignedLongLong(nullptr); }
+  vtkTypeInt64 ToTypeInt64(bool* valid) const;
+  vtkTypeInt64 ToTypeInt64() const { return this->ToTypeInt64(nullptr); }
+  vtkTypeUInt64 ToTypeUInt64(bool* valid) const;
+  vtkTypeUInt64 ToTypeUInt64() const { return this->ToTypeUInt64(nullptr); }
+  ///@}
 
   /**
    * Return the VTK object, or nullptr if not of that type.
@@ -385,7 +354,7 @@ public:
    */
   bool IsEqual(const vtkVariant& other) const;
 
-  //@{
+  ///@{
   /**
    * Compare two variants for equality, greater than, and less than.
    * These operators use the value represented by the variant instead
@@ -416,25 +385,22 @@ public:
    * The actual definitions of these operators are in
    * vtkVariantInlineOperators.cxx.
    */
-  bool operator==(const vtkVariant &other) const;
-  bool operator!=(const vtkVariant &other) const;
-  bool operator<(const vtkVariant &other) const;
-  bool operator>(const vtkVariant &other) const;
-  bool operator<=(const vtkVariant &other) const;
-  bool operator>=(const vtkVariant &other) const;
-  //@}
+  bool operator==(const vtkVariant& other) const;
+  bool operator!=(const vtkVariant& other) const;
+  bool operator<(const vtkVariant& other) const;
+  bool operator>(const vtkVariant& other) const;
+  bool operator<=(const vtkVariant& other) const;
+  bool operator>=(const vtkVariant& other) const;
+  ///@}
 
-  friend VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
+  friend VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkVariant& val);
 
 private:
-
   template <typename T>
-  T ToNumeric(bool *valid, T* vtkNotUsed(ignored)) const;
+  T ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const;
 
-  union
-  {
+  union {
     vtkStdString* String;
-    vtkUnicodeString* UnicodeString;
     float Float;
     double Double;
     char Char;
@@ -451,16 +417,16 @@ private:
     vtkObjectBase* VTKObject;
   } Data;
 
-  unsigned char Valid;
-  unsigned char Type;
+  bool Valid;
+  unsigned int Type;
 
   friend struct vtkVariantLessThan;
   friend struct vtkVariantEqual;
   friend struct vtkVariantStrictWeakOrder;
   friend struct vtkVariantStrictEquality;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkVariantInlineOperators.h" // needed for operator== and company
 
 // A STL-style function object so you can compare two variants using
@@ -469,16 +435,17 @@ private:
 // compare values.  It satisfies the STL requirement for a comparison
 // function for ordered containers like map and set.
 
+VTK_ABI_NAMESPACE_BEGIN
 struct VTKCOMMONCORE_EXPORT vtkVariantLessThan
 {
 public:
-  bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
+  bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
 };
 
 struct VTKCOMMONCORE_EXPORT vtkVariantEqual
 {
 public:
-  bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
+  bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
 };
 
 struct VTKCOMMONCORE_EXPORT vtkVariantStrictWeakOrder
@@ -493,8 +460,9 @@ public:
 struct VTKCOMMONCORE_EXPORT vtkVariantStrictEquality
 {
 public:
-  bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
+  bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkVariant.h

@@ -1,81 +1,99 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGeoTransform.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkGeoTransform
  * @brief   A transformation between two geographic coordinate systems
  *
  * This class takes two geographic projections and transforms point
  * coordinates between them.
-*/
+ */
 
 #ifndef vtkGeoTransform_h
 #define vtkGeoTransform_h
 
-#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkAbstractTransform.h"
+#include "vtkGeovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGeoProjection;
 
+/**
+ * @class vtkGeoTransform
+ * @brief Describe a geographic transform
+ *
+ * Describe a geographic transform either using PROJ strings or using
+ * vtkGeoProjection classes.
+ *
+ * WARNING:
+ * Normal vectors have to be removed before a transform using this class
+ * otherwise the transform will be a no-operation. See
+ * vtkGeoTransform::InternalTransformDerivative.
+ */
 class VTKGEOVISCORE_EXPORT vtkGeoTransform : public vtkAbstractTransform
 {
 public:
   static vtkGeoTransform* New();
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
-  vtkTypeMacro(vtkGeoTransform,vtkAbstractTransform);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  vtkTypeMacro(vtkGeoTransform, vtkAbstractTransform);
 
-  //@{
+  ///@{
   /**
-   * The source geographic projection.
+   * The source geographic projection, which can be set using
+   * an external vtkGeoProjection, or using a proj string, in which
+   * case the projection is allocated internally.
    */
   void SetSourceProjection(vtkGeoProjection* source);
-  vtkGetObjectMacro(SourceProjection,vtkGeoProjection);
-  //@}
+  void SetSourceProjection(const char* proj);
+  vtkGetObjectMacro(SourceProjection, vtkGeoProjection);
+  ///@}
 
-  //@{
+  ///@{
   /**
-   * The target geographic projection.
+   * If true, we transform (x, y, z) otherwise
+   * we transform (x, y) and leave z unchanged. Default is false.
+   * This is used when converting from/to cartesian (cart) coordinate,
+   * but it could be used for other transforms as well.
+   *
+   * WARNING:
+   * 3D transforms work only if the transform is specified using PROJ strings or
+   * using vtkGeoProjection that are specified using PROJ strings.
+   */
+  vtkSetMacro(TransformZCoordinate, bool);
+  vtkGetMacro(TransformZCoordinate, bool);
+  ///@}
+
+  ///@{
+  /**
+   * The target geographic projection, which can be set using
+   * an external vtkGeoProjection, or using a proj string, in which
+   * case the projection is allocated internally.
    */
   void SetDestinationProjection(vtkGeoProjection* dest);
-  vtkGetObjectMacro(DestinationProjection,vtkGeoProjection);
-  //@}
+  void SetDestinationProjection(const char* proj);
+  vtkGetObjectMacro(DestinationProjection, vtkGeoProjection);
+  ///@}
 
   /**
    * Transform many points at once.
    */
-  void TransformPoints( vtkPoints* src, vtkPoints* dst ) override;
+  void TransformPoints(vtkPoints* src, vtkPoints* dst) override;
 
   /**
    * Invert the transformation.
    */
   void Inverse() override;
 
-  //@{
+  ///@{
   /**
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformPoint( const float in[3], float out[3] ) override;
-  void InternalTransformPoint( const double in[3], double out[3] ) override;
-  //@}
+  void InternalTransformPoint(const float in[3], float out[3]) override;
+  void InternalTransformPoint(const double in[3], double out[3]) override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Computes Universal Transverse Mercator (UTM) zone given the
    * longitude and latitude of the point.
@@ -84,22 +102,21 @@ public:
    *
    */
   static int ComputeUTMZone(double lon, double lat);
-  static int ComputeUTMZone(double* lonlat)
-  {
-    return ComputeUTMZone(lonlat[0], lonlat[1]);
-  }
-  //@}
+  static int ComputeUTMZone(double* lonlat) { return ComputeUTMZone(lonlat[0], lonlat[1]); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This will transform a point and, at the same time, calculate a
    * 3x3 Jacobian matrix that provides the partial derivatives of the
    * transformation at that point.  This method does not call Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] ) override;
-  void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] ) override;
-  //@}
+  void InternalTransformDerivative(
+    const float in[3], float out[3], float derivative[3][3]) override;
+  void InternalTransformDerivative(
+    const double in[3], double out[3], double derivative[3][3]) override;
+  ///@}
 
   /**
    * Make another transform of the same type.
@@ -110,14 +127,15 @@ protected:
   vtkGeoTransform();
   ~vtkGeoTransform() override;
 
-  void InternalTransformPoints( double* ptsInOut, vtkIdType numPts, int stride );
-
+  void InternalTransformPoints(double* ptsInOut, vtkIdType numPts, int stride);
   vtkGeoProjection* SourceProjection;
   vtkGeoProjection* DestinationProjection;
+  bool TransformZCoordinate;
 
 private:
-  vtkGeoTransform( const vtkGeoTransform& ) = delete;
-  void operator = ( const vtkGeoTransform& ) = delete;
+  vtkGeoTransform(const vtkGeoTransform&) = delete;
+  void operator=(const vtkGeoTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGeoTransform_h

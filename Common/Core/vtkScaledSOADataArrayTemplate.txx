@@ -1,20 +1,14 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkScaledSOADataArrayTemplate.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkScaledSOADataArrayTemplate_txx
 #define vtkScaledSOADataArrayTemplate_txx
+
+#ifdef VTK_SCALED_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
+#define VTK_GDA_VALUERANGE_INSTANTIATING
+#include "vtkDataArrayPrivate.txx"
+#undef VTK_GDA_VALUERANGE_INSTANTIATING
+#endif
 
 #include "vtkScaledSOADataArrayTemplate.h"
 
@@ -24,23 +18,23 @@
 #include <cassert>
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-vtkScaledSOADataArrayTemplate<ValueType>*
-vtkScaledSOADataArrayTemplate<ValueType>::New()
+VTK_ABI_NAMESPACE_BEGIN
+template <class ValueType>
+vtkScaledSOADataArrayTemplate<ValueType>* vtkScaledSOADataArrayTemplate<ValueType>::New()
 {
   VTK_STANDARD_NEW_BODY(vtkScaledSOADataArrayTemplate<ValueType>);
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 vtkScaledSOADataArrayTemplate<ValueType>::vtkScaledSOADataArrayTemplate()
-  : AoSCopy(nullptr),
-    Scale(1)
+  : AoSCopy(nullptr)
+  , Scale(1)
 {
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 vtkScaledSOADataArrayTemplate<ValueType>::~vtkScaledSOADataArrayTemplate()
 {
   for (size_t cc = 0; cc < this->Data.size(); ++cc)
@@ -56,7 +50,7 @@ vtkScaledSOADataArrayTemplate<ValueType>::~vtkScaledSOADataArrayTemplate()
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 void vtkScaledSOADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
 {
   this->GenericDataArrayType::SetNumberOfComponents(val);
@@ -74,19 +68,19 @@ void vtkScaledSOADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 vtkArrayIterator* vtkScaledSOADataArrayTemplate<ValueType>::NewIterator()
 {
-  vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
+  vtkArrayIterator* iter = vtkArrayIteratorTemplate<ValueType>::New();
   iter->Initialize(this);
   return iter;
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkScaledSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray *other)
+template <class ValueType>
+void vtkScaledSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray* other)
 {
-  SelfType *o = SelfType::FastDownCast(other);
+  SelfType* o = SelfType::FastDownCast(other);
   if (o)
   {
     this->Size = o->Size;
@@ -98,8 +92,8 @@ void vtkScaledSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray *other)
     assert(this->Data.size() == o->Data.size());
     for (size_t cc = 0; cc < this->Data.size(); ++cc)
     {
-      vtkBuffer<ValueType> *thisBuffer = this->Data[cc];
-      vtkBuffer<ValueType> *otherBuffer = o->Data[cc];
+      vtkBuffer<ValueType>* thisBuffer = this->Data[cc];
+      vtkBuffer<ValueType>* otherBuffer = o->Data[cc];
       if (thisBuffer != otherBuffer)
       {
         thisBuffer->Delete();
@@ -116,15 +110,14 @@ void vtkScaledSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray *other)
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 void vtkScaledSOADataArrayTemplate<ValueType>::InsertTuples(
-    vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-    vtkAbstractArray *source)
+  vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source)
 {
   // First, check for the common case of typeid(source) == typeid(this). This
   // way we don't waste time redoing the other checks in the superclass, and
   // can avoid doing a dispatch for the most common usage of this method.
-  SelfType *other = vtkArrayDownCast<SelfType>(source);
+  SelfType* other = vtkArrayDownCast<SelfType>(source);
   if (!other)
   {
     // Let the superclass handle dispatch/fallback.
@@ -141,8 +134,7 @@ void vtkScaledSOADataArrayTemplate<ValueType>::InsertTuples(
   if (other->GetNumberOfComponents() != numComps)
   {
     vtkErrorMacro("Number of components do not match: Source: "
-                  << other->GetNumberOfComponents() << " Dest: "
-                  << this->GetNumberOfComponents());
+      << other->GetNumberOfComponents() << " Dest: " << this->GetNumberOfComponents());
     return;
   }
 
@@ -152,8 +144,8 @@ void vtkScaledSOADataArrayTemplate<ValueType>::InsertTuples(
   if (maxSrcTupleId >= other->GetNumberOfTuples())
   {
     vtkErrorMacro("Source array too small, requested tuple at index "
-                  << maxSrcTupleId << ", but there are only "
-                  << other->GetNumberOfTuples() << " tuples in the array.");
+      << maxSrcTupleId << ", but there are only " << other->GetNumberOfTuples()
+      << " tuples in the array.");
     return;
   }
 
@@ -172,43 +164,42 @@ void vtkScaledSOADataArrayTemplate<ValueType>::InsertTuples(
   std::vector<ValueType> vals(numComps);
   for (vtkIdType i = 0; i < n; i++)
   {
-    other->GetTypedTuple(i+srcStart, vals.data());
-    this->SetTypedTuple(i+dstStart, vals.data()); // will automatically scale data
+    other->GetTypedTuple(i + srcStart, vals.data());
+    this->SetTypedTuple(i + dstStart, vals.data()); // will automatically scale data
   }
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkScaledSOADataArrayTemplate<ValueType>::FillTypedComponent(int compIdx,
-                                                                 ValueType value)
+template <class ValueType>
+void vtkScaledSOADataArrayTemplate<ValueType>::FillTypedComponent(int compIdx, ValueType value)
 {
-  ValueType *buffer = this->Data[compIdx]->GetBuffer();
+  ValueType* buffer = this->Data[compIdx]->GetBuffer();
   value /= this->Scale;
   std::fill(buffer, buffer + this->GetNumberOfTuples(), value);
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkScaledSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
-                                                       vtkIdType size,
-                                                       bool updateMaxId,
-                                                       bool save, int deleteMethod)
+template <class ValueType>
+void vtkScaledSOADataArrayTemplate<ValueType>::SetArray(
+  int comp, ValueType* array, vtkIdType size, bool updateMaxId, bool save, int deleteMethod)
 {
   const int numComps = this->GetNumberOfComponents();
   if (comp >= numComps || comp < 0)
   {
-    vtkErrorMacro("Invalid component number '" << comp << "' specified. "
-      "Use `SetNumberOfComponents` first to set the number of components.");
+    vtkErrorMacro("Invalid component number '"
+      << comp
+      << "' specified. "
+         "Use `SetNumberOfComponents` first to set the number of components.");
     return;
   }
 
   this->Data[comp]->SetBuffer(array, size);
 
-  if(deleteMethod == VTK_DATA_ARRAY_DELETE)
+  if (deleteMethod == VTK_DATA_ARRAY_DELETE)
   {
-    this->Data[comp]->SetFreeFunction(save != 0, ::operator delete[] );
+    this->Data[comp]->SetFreeFunction(save != 0, ::operator delete[]);
   }
-  else if(deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
+  else if (deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
   {
 #ifdef _WIN32
     this->Data[comp]->SetFreeFunction(save != 0, _aligned_free);
@@ -216,8 +207,7 @@ void vtkScaledSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* arr
     this->Data[comp]->SetFreeFunction(save != 0, free);
 #endif
   }
-  else if(deleteMethod == VTK_DATA_ARRAY_USER_DEFINED ||
-          deleteMethod == VTK_DATA_ARRAY_FREE)
+  else if (deleteMethod == VTK_DATA_ARRAY_USER_DEFINED || deleteMethod == VTK_DATA_ARRAY_FREE)
   {
     this->Data[comp]->SetFreeFunction(save != 0, free);
   }
@@ -231,25 +221,28 @@ void vtkScaledSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* arr
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkScaledSOADataArrayTemplate<ValueType>::SetArrayFreeFunction(void (*callback)(void *))
+template <class ValueType>
+void vtkScaledSOADataArrayTemplate<ValueType>::SetArrayFreeFunction(void (*callback)(void*))
 {
-  const int numComps =  this->GetNumberOfComponents();
-  for(int i=0; i < numComps; ++i)
+  const int numComps = this->GetNumberOfComponents();
+  for (int i = 0; i < numComps; ++i)
   {
     this->SetArrayFreeFunction(i, callback);
   }
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkScaledSOADataArrayTemplate<ValueType>::SetArrayFreeFunction(int comp, void (*callback)(void *))
+template <class ValueType>
+void vtkScaledSOADataArrayTemplate<ValueType>::SetArrayFreeFunction(
+  int comp, void (*callback)(void*))
 {
   const int numComps = this->GetNumberOfComponents();
   if (comp >= numComps || comp < 0)
   {
-    vtkErrorMacro("Invalid component number '" << comp << "' specified. "
-      "Use `SetNumberOfComponents` first to set the number of components.");
+    vtkErrorMacro("Invalid component number '"
+      << comp
+      << "' specified. "
+         "Use `SetNumberOfComponents` first to set the number of components.");
     return;
   }
   this->Data[comp]->SetFreeFunction(false, callback);
@@ -271,7 +264,7 @@ vtkScaledSOADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 bool vtkScaledSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 {
   for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)
@@ -285,7 +278,7 @@ bool vtkScaledSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuple
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 bool vtkScaledSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 {
   for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)
@@ -299,22 +292,22 @@ bool vtkScaledSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTup
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void *vtkScaledSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueIdx)
+template <class ValueType>
+void* vtkScaledSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueIdx)
 {
   // Allow warnings to be silenced:
-  const char *silence = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
+  const char* silence = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
   if (!silence)
   {
-    vtkWarningMacro(<<"GetVoidPointer called. This is very expensive for "
-                      "non-array-of-structs subclasses, as the scalar array "
-                      "must be generated for each call. Using the "
-                      "vtkGenericDataArray API with vtkArrayDispatch are "
-                      "preferred. Define the environment variable "
-                      "VTK_SILENCE_GET_VOID_POINTER_WARNINGS to silence "
-                      "this warning. Additionally, for the vtkScaledSOADataArrayTemplate "
-                      "class we also set Scale to 1 since we've scaled how "
-                      "we're storing the data in memory now. ");
+    vtkWarningMacro(<< "GetVoidPointer called. This is very expensive for "
+                       "non-array-of-structs subclasses, as the scalar array "
+                       "must be generated for each call. Using the "
+                       "vtkGenericDataArray API with vtkArrayDispatch are "
+                       "preferred. Define the environment variable "
+                       "VTK_SILENCE_GET_VOID_POINTER_WARNINGS to silence "
+                       "this warning. Additionally, for the vtkScaledSOADataArrayTemplate "
+                       "class we also set Scale to 1 since we've scaled how "
+                       "we're storing the data in memory now. ");
   }
 
   size_t numValues = this->GetNumberOfValues();
@@ -326,7 +319,7 @@ void *vtkScaledSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueId
 
   if (!this->AoSCopy->Allocate(static_cast<vtkIdType>(numValues)))
   {
-    vtkErrorMacro(<<"Error allocating a buffer of " << numValues << " '"
+    vtkErrorMacro(<< "Error allocating a buffer of " << numValues << " '"
                   << this->GetDataTypeAsString() << "' elements.");
     return nullptr;
   }
@@ -341,8 +334,8 @@ void *vtkScaledSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueId
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkScaledSOADataArrayTemplate<ValueType>::ExportToVoidPointer(void *voidPtr)
+template <class ValueType>
+void vtkScaledSOADataArrayTemplate<ValueType>::ExportToVoidPointer(void* voidPtr)
 {
   vtkIdType numTuples = this->GetNumberOfTuples();
   if (this->NumberOfComponents * numTuples == 0)
@@ -357,14 +350,15 @@ void vtkScaledSOADataArrayTemplate<ValueType>::ExportToVoidPointer(void *voidPtr
     return;
   }
 
-  ValueType *ptr = static_cast<ValueType*>(voidPtr);
+  ValueType* ptr = static_cast<ValueType*>(voidPtr);
   for (vtkIdType t = 0; t < numTuples; ++t)
   {
     for (int c = 0; c < this->NumberOfComponents; ++c)
     {
-      *ptr++ = this->Data[c]->GetBuffer()[t]*this->Scale;
+      *ptr++ = this->Data[c]->GetBuffer()[t] * this->Scale;
     }
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

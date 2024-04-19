@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDebugLeaksManager.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDebugLeaksManager.h"
 #include "vtkDebugLeaks.h"
 
@@ -19,16 +7,17 @@
 // order across translation units enforced by this manager.  Disable
 // them for this object file.
 #if defined(_MSC_VER)
-# pragma optimize("g", off)
+#pragma optimize("g", off)
 #endif
 
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
+VTK_ABI_NAMESPACE_BEGIN
 static unsigned int vtkDebugLeaksManagerCount;
 
 vtkDebugLeaksManager::vtkDebugLeaksManager()
 {
-  if(++vtkDebugLeaksManagerCount == 1)
+  if (++vtkDebugLeaksManagerCount == 1)
   {
     vtkDebugLeaks::ClassInitialize();
   }
@@ -36,12 +25,13 @@ vtkDebugLeaksManager::vtkDebugLeaksManager()
 
 vtkDebugLeaksManager::~vtkDebugLeaksManager()
 {
-  if(--vtkDebugLeaksManagerCount == 0)
+  if (--vtkDebugLeaksManagerCount == 0)
   {
     vtkDebugLeaks::ClassFinalize();
   }
 }
 
 #if defined(_MSC_VER)
-# pragma optimize("g", on)
+#pragma optimize("g", on)
 #endif
+VTK_ABI_NAMESPACE_END

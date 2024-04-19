@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCellIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkCellIterator
@@ -60,17 +48,21 @@
  * (cell type, then point ids, then points/full cell) to prevent wasted cycles
  * fetching unnecessary data. Also note that at the end of the loop, the
  * iterator must be deleted as these iterators are vtkObject subclasses.
-*/
+ */
 
 #ifndef vtkCellIterator_h
 #define vtkCellIterator_h
 
+#include "vtkCellArray.h"             // For inline methods
+#include "vtkCellType.h"              // For VTK_EMPTY_CELL
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkCellType.h" // For VTK_EMPTY_CELL
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_4_0
+#include "vtkIdList.h"                // For inline methods
+#include "vtkIdTypeArray.h"           // For inline methods
+#include "vtkNew.h"                   // For vtkNew
 #include "vtkObject.h"
-#include "vtkNew.h" // For vtkNew
-#include "vtkIdList.h" // For inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericCell;
 class vtkPoints;
 
@@ -78,7 +70,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellIterator : public vtkObject
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkAbstractTypeMacro(vtkCellIterator, vtkObject)
+  vtkAbstractTypeMacro(vtkCellIterator, vtkObject);
 
   /**
    * Reset to the first cell.
@@ -116,27 +108,34 @@ public:
    * Get the ids of the points in the current cell.
    * This should only be called when IsDoneWithTraversal() returns false.
    */
-  vtkIdList *GetPointIds();
+  vtkIdList* GetPointIds();
 
   /**
    * Get the points in the current cell.
    * This is usually a very expensive call, and should be avoided when possible.
    * This should only be called when IsDoneWithTraversal() returns false.
    */
-  vtkPoints *GetPoints();
+  vtkPoints* GetPoints();
 
   /**
    * Get the faces for a polyhedral cell. This is only valid when CellType
    * is VTK_POLYHEDRON.
    */
-  vtkIdList *GetFaces();
+  vtkCellArray* GetCellFaces();
+
+  /**
+   * Get the faces for a polyhedral cell. This is only valid when CellType
+   * is VTK_POLYHEDRON.
+   */
+  VTK_DEPRECATED_IN_9_4_0("Please use GetCellFaces instead.")
+  vtkIdList* GetFaces();
 
   /**
    * Write the current full cell information into the argument.
    * This is usually a very expensive call, and should be avoided when possible.
    * This should only be called when IsDoneWithTraversal() returns false.
    */
-  void GetCell(vtkGenericCell *cell);
+  void GetCell(vtkGenericCell* cell);
 
   /**
    * Return the number of points in the current cell.
@@ -180,21 +179,21 @@ protected:
   virtual void FetchPoints() = 0;
 
   /**
-   * Lookup the cell faces in the data set and store them in this->Points.
+   * Lookup the cell faces in the data set and store them in this->Faces.
    * Few data sets support faces, so this method has a no-op default
    * implementation. See vtkUnstructuredGrid::GetFaceStream for
    * a description of the layout that Faces should have.
    */
-  virtual void FetchFaces() { }
+  virtual void FetchFaces() {}
 
   int CellType;
-  vtkPoints *Points;
-  vtkIdList *PointIds;
-  vtkIdList *Faces;
+  vtkPoints* Points;
+  vtkIdList* PointIds;
+  vtkCellArray* Faces;
 
 private:
-  vtkCellIterator(const vtkCellIterator &) = delete;
-  void operator=(const vtkCellIterator &) = delete;
+  vtkCellIterator(const vtkCellIterator&) = delete;
+  void operator=(const vtkCellIterator&) = delete;
 
   enum
   {
@@ -211,19 +210,14 @@ private:
     this->CellType = VTK_EMPTY_CELL;
   }
 
-  void SetCache(unsigned char flags)
-  {
-    this->CacheFlags |= flags;
-  }
+  void SetCache(unsigned char flags) { this->CacheFlags |= flags; }
 
-  bool CheckCache(unsigned char flags)
-  {
-    return (this->CacheFlags & flags) == flags;
-  }
+  bool CheckCache(unsigned char flags) { return (this->CacheFlags & flags) == flags; }
 
   vtkNew<vtkPoints> PointsContainer;
   vtkNew<vtkIdList> PointIdsContainer;
-  vtkNew<vtkIdList> FacesContainer;
+  vtkNew<vtkCellArray> FacesContainer;
+  vtkNew<vtkIdList> LegacyFacesContainer;
   unsigned char CacheFlags;
 };
 
@@ -275,7 +269,7 @@ inline vtkPoints* vtkCellIterator::GetPoints()
 }
 
 //------------------------------------------------------------------------------
-inline vtkIdList *vtkCellIterator::GetFaces()
+inline vtkCellArray* vtkCellIterator::GetCellFaces()
 {
   if (!this->CheckCache(FacesFlag))
   {
@@ -283,6 +277,27 @@ inline vtkIdList *vtkCellIterator::GetFaces()
     this->SetCache(FacesFlag);
   }
   return this->Faces;
+}
+
+//------------------------------------------------------------------------------
+// To be removed when deprecating
+inline vtkIdList* vtkCellIterator::GetFaces()
+{
+  if (!this->CheckCache(FacesFlag))
+  {
+    this->FetchFaces();
+    this->SetCache(FacesFlag);
+  }
+  // Export Legacy Format
+  vtkNew<vtkIdTypeArray> tmp;
+  this->Faces->ExportLegacyFormat(tmp);
+  this->LegacyFacesContainer->Initialize();
+  this->LegacyFacesContainer->InsertNextId(this->Faces->GetNumberOfCells());
+  for (vtkIdType idx = 0; idx < tmp->GetNumberOfValues(); ++idx)
+  {
+    this->LegacyFacesContainer->InsertNextId(tmp->GetValue(idx));
+  }
+  return this->LegacyFacesContainer;
 }
 
 //------------------------------------------------------------------------------
@@ -328,22 +343,33 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
     case VTK_HIGHER_ORDER_TRIANGLE:
     case VTK_HIGHER_ORDER_QUAD:
     case VTK_HIGHER_ORDER_POLYGON:
+    case VTK_LAGRANGE_CURVE:
+    case VTK_LAGRANGE_TRIANGLE:
+    case VTK_LAGRANGE_QUADRILATERAL:
+    case VTK_BEZIER_CURVE:
+    case VTK_BEZIER_TRIANGLE:
+    case VTK_BEZIER_QUADRILATERAL:
       return 0;
 
     case VTK_TETRA:
     case VTK_QUADRATIC_TETRA:
     case VTK_PARAMETRIC_TETRA_REGION:
     case VTK_HIGHER_ORDER_TETRAHEDRON:
+    case VTK_LAGRANGE_TETRAHEDRON:
+    case VTK_BEZIER_TETRAHEDRON:
       return 4;
 
     case VTK_PYRAMID:
     case VTK_QUADRATIC_PYRAMID:
+    case VTK_TRIQUADRATIC_PYRAMID:
     case VTK_HIGHER_ORDER_PYRAMID:
     case VTK_WEDGE:
     case VTK_QUADRATIC_WEDGE:
     case VTK_QUADRATIC_LINEAR_WEDGE:
     case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
     case VTK_HIGHER_ORDER_WEDGE:
+    case VTK_LAGRANGE_WEDGE:
+    case VTK_BEZIER_WEDGE:
       return 5;
 
     case VTK_VOXEL:
@@ -353,6 +379,8 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
     case VTK_HIGHER_ORDER_HEXAHEDRON:
     case VTK_PARAMETRIC_HEX_REGION:
     case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+    case VTK_LAGRANGE_HEXAHEDRON:
+    case VTK_BEZIER_HEXAHEDRON:
       return 6;
 
     case VTK_PENTAGONAL_PRISM:
@@ -367,7 +395,7 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
         this->FetchFaces();
         this->SetCache(FacesFlag);
       }
-      return this->Faces->GetNumberOfIds() != 0 ? this->Faces->GetId(0) : 0;
+      return this->Faces->GetNumberOfCells();
 
     default:
       vtkGenericWarningMacro("Unknown cell type: " << this->CellType);
@@ -377,4 +405,5 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
   return 0;
 }
 
-#endif //vtkCellIterator_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkCellIterator_h

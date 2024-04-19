@@ -1,5 +1,30 @@
 #!/usr/bin/env python
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
+from vtkmodules.vtkFiltersParallel import vtkTransmitStructuredDataPiece
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOLegacy import vtkDataSetWriter
+from vtkmodules.vtkIOParallel import (
+    vtkMultiBlockPLOT3DReader,
+    vtkPDataSetReader,
+    vtkPDataSetWriter,
+)
+from vtkmodules.vtkImagingSources import vtkImageMandelbrotSource
+from vtkmodules.vtkParallelCore import vtkDummyController
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
+import os
 
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 def DoPlot3DReaderTests(reader):
     # Ensure disable function works.
@@ -28,59 +53,57 @@ def DoPlot3DReaderTests(reader):
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 #
 # If the current directory is writable, then test the witers
 #
-if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
-    channel.close()
-    file.delete("-force", "test.tmp")
+if os.access(".", os.W_OK):
     # ====== Structured Grid ======
     # First save out a grid in parallel form.
-    reader = vtk.vtkMultiBlockPLOT3DReader()
-    reader.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-    reader.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+    reader = vtkMultiBlockPLOT3DReader()
+    reader.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+    reader.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
     reader.Update()
 
     # before we continue on with the test, let's quickly do some
     # vtkMultiBlockPLOT3DReader option tests.
     DoPlot3DReaderTests(reader)
 
-    contr = vtk.vtkDummyController()
-    extract = vtk.vtkTransmitStructuredDataPiece()
+    contr = vtkDummyController()
+    extract = vtkTransmitStructuredDataPiece()
     extract.SetController(contr)
     extract.SetInputData(reader.GetOutput().GetBlock(0))
-    writer = vtk.vtkPDataSetWriter()
+    writer = vtkPDataSetWriter()
     writer.SetFileName("comb.pvtk")
     writer.SetInputConnection(extract.GetOutputPort())
     writer.SetNumberOfPieces(4)
     writer.Write()
-    pReader = vtk.vtkPDataSetReader()
+    pReader = vtkPDataSetReader()
     pReader.SetFileName("comb.pvtk")
-    surface = vtk.vtkDataSetSurfaceFilter()
+    surface = vtkDataSetSurfaceFilter()
     surface.SetInputConnection(pReader.GetOutputPort())
-    mapper = vtk.vtkPolyDataMapper()
+    mapper = vtkPolyDataMapper()
     mapper.SetInputConnection(surface.GetOutputPort())
     mapper.SetNumberOfPieces(2)
     mapper.SetPiece(0)
     mapper.SetGhostLevel(1)
     mapper.Update()
-    w = vtk.vtkDataSetWriter()
+    w = vtkDataSetWriter()
 #    w.SetInputData(mapper.GetInput())
     w.SetInputData(surface.GetInput())
-    w.SetFileName("foo.vtk")
+    w.SetFileName(os.path.join(".", "foo.vtk"))
     w.SetFileTypeToASCII()
     w.Write()
-    file.delete("-force", "comb.pvtk")
-    file.delete("-force", "comb.0.vtk")
-    file.delete("-force", "comb.1.vtk")
-    file.delete("-force", "comb.2.vtk")
-    file.delete("-force", "comb.3.vtk")
-    actor = vtk.vtkActor()
+    os.remove("comb.pvtk")
+    os.remove("comb.0.vtk")
+    os.remove("comb.1.vtk")
+    os.remove("comb.2.vtk")
+    os.remove("comb.3.vtk")
+    actor = vtkActor()
     actor.SetMapper(mapper)
     actor.SetPosition(-5,0,-29)
     # Add the actors to the renderer, set the background and size
@@ -88,24 +111,24 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     ren1.AddActor(actor)
     # ====== ImageData ======
     # First save out a grid in parallel form.
-    fractal = vtk.vtkImageMandelbrotSource()
+    fractal = vtkImageMandelbrotSource()
     fractal.SetWholeExtent(0,9,0,9,0,9)
     fractal.SetSampleCX(0.1,0.1,0.1,0.1)
     fractal.SetMaximumNumberOfIterations(10)
-    extract2 = vtk.vtkTransmitStructuredDataPiece()
+    extract2 = vtkTransmitStructuredDataPiece()
     extract2.SetController(contr)
     extract2.SetInputConnection(fractal.GetOutputPort())
-    writer2 = vtk.vtkPDataSetWriter()
+    writer2 = vtkPDataSetWriter()
     writer.SetFileName("fractal.pvtk")
     writer.SetInputConnection(extract2.GetOutputPort())
     writer.SetNumberOfPieces(4)
     writer.Write()
-    pReader2 = vtk.vtkPDataSetReader()
+    pReader2 = vtkPDataSetReader()
     pReader2.SetFileName("fractal.pvtk")
-    iso = vtk.vtkContourFilter()
+    iso = vtkContourFilter()
     iso.SetInputConnection(pReader2.GetOutputPort())
     iso.SetValue(0,4)
-    mapper2 = vtk.vtkPolyDataMapper()
+    mapper2 = vtkPolyDataMapper()
     mapper2.SetInputConnection(iso.GetOutputPort())
     mapper2.SetNumberOfPieces(3)
     mapper2.SetPiece(0)
@@ -113,12 +136,12 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     mapper2.Update()
     # Strip the ghost cells requested by the contour filter
     mapper2.GetInput().RemoveGhostCells()
-    file.delete("-force", "fractal.pvtk")
-    file.delete("-force", "fractal.0.vtk")
-    file.delete("-force", "fractal.1.vtk")
-    file.delete("-force", "fractal.2.vtk")
-    file.delete("-force", "fractal.3.vtk")
-    actor2 = vtk.vtkActor()
+    os.remove("fractal.pvtk")
+    os.remove("fractal.0.vtk")
+    os.remove("fractal.1.vtk")
+    os.remove("fractal.2.vtk")
+    os.remove("fractal.3.vtk")
+    actor2 = vtkActor()
     actor2.SetMapper(mapper2)
     actor2.SetScale(5,5,5)
     actor2.SetPosition(6,6,6)
@@ -127,27 +150,27 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     ren1.AddActor(actor2)
     # ====== PolyData ======
     # First save out a grid in parallel form.
-    sphere = vtk.vtkSphereSource()
+    sphere = vtkSphereSource()
     sphere.SetRadius(2)
-    writer3 = vtk.vtkPDataSetWriter()
+    writer3 = vtkPDataSetWriter()
     writer3.SetFileName("sphere.pvtk")
     writer3.SetInputConnection(sphere.GetOutputPort())
     writer3.SetNumberOfPieces(4)
     writer3.Write()
-    pReader3 = vtk.vtkPDataSetReader()
+    pReader3 = vtkPDataSetReader()
     pReader3.SetFileName("sphere.pvtk")
-    mapper3 = vtk.vtkPolyDataMapper()
+    mapper3 = vtkPolyDataMapper()
     mapper3.SetInputConnection(pReader3.GetOutputPort())
     mapper3.SetNumberOfPieces(2)
     mapper3.SetPiece(0)
     mapper3.SetGhostLevel(1)
     mapper3.Update()
-    file.delete("-force", "sphere.pvtk")
-    file.delete("-force", "sphere.0.vtk")
-    file.delete("-force", "sphere.1.vtk")
-    file.delete("-force", "sphere.2.vtk")
-    file.delete("-force", "sphere.3.vtk")
-    actor3 = vtk.vtkActor()
+    os.remove("sphere.pvtk")
+    os.remove("sphere.0.vtk")
+    os.remove("sphere.1.vtk")
+    os.remove("sphere.2.vtk")
+    os.remove("sphere.3.vtk")
+    actor3 = vtkActor()
     actor3.SetMapper(mapper3)
     actor3.SetPosition(6,6,6)
     # Add the actors to the renderer, set the background and size
@@ -164,7 +187,7 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     if pReader3.GetOutput().GetNumberOfCells() != 48:
         print("pReader3 output should have 48 cells but has %d" % pReader3.GetOutput().GetNumberOfCells())
         sys.exit(1)
-    pass
+
 ren1.SetBackground(0.1,0.2,0.4)
 renWin.SetSize(300,300)
 # render the image
@@ -175,5 +198,4 @@ cam1.Elevation(40)
 ren1.ResetCamera()
 cam1.Zoom(1.2)
 iren.Initialize()
-# prevent the tk window from showing up then start the event loop
 # --- end of script --

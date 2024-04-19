@@ -1,48 +1,31 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkXGMLReader.cxx
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
-  -------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkXGMLReader.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
-#include "vtkAbstractArray.h"
-#include "vtkIdTypeArray.h"
-
+#include "vtksys/FStream.hxx"
 
 #include <cassert>
-#include <fstream>
-#include <sstream>
-#include <map>
 #include <cctype> // for isspace, isdigit
+#include <fstream>
+#include <map>
+#include <sstream>
 
 // Copied from vtkTulipReader.cxx ..
-static int my_getline(std::istream& stream, vtkStdString &output, char delim='\n');
+VTK_ABI_NAMESPACE_BEGIN
+static int my_getline(std::istream& stream, std::string& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkXGMLReader);
 
@@ -62,25 +45,26 @@ void vtkXGMLReader::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
 }
 
 #define MAX_NR_PROPERTIES 50
 
 struct vtkXGMLProperty
 {
-  enum {
+  enum
+  {
     NODE_PROP,
     EDGE_PROP
   };
-  int Kind;  // :: NODE_PROP or EDGE_PROP
-  vtkAbstractArray *Data;
+  int Kind; // :: NODE_PROP or EDGE_PROP
+  vtkAbstractArray* Data;
 };
 
 struct vtkXGMLReaderToken
 {
-  enum {
+  enum
+  {
     OPEN_GROUP,
     CLOSE_GROUP,
     KEYWORD,
@@ -90,12 +74,10 @@ struct vtkXGMLReaderToken
     END_OF_FILE
   };
   int Type;
-  vtkStdString StringValue;
+  std::string StringValue;
   int IntValue;
   double DoubleValue;
 };
-
-
 
 static void vtkXGMLReaderNextToken(std::istream& in, vtkXGMLReaderToken& tok)
 {
@@ -104,7 +86,7 @@ static void vtkXGMLReaderNextToken(std::istream& in, vtkXGMLReaderToken& tok)
   {
     while (!in.eof() && ch == ';')
     {
-      vtkStdString comment;
+      std::string comment;
       my_getline(in, comment);
       ch = in.peek();
     }
@@ -171,22 +153,19 @@ static void vtkXGMLReaderNextToken(std::istream& in, vtkXGMLReaderToken& tok)
   }
 }
 
-int vtkXGMLReader::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkXGMLReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkIdType nr_of_nodes = 0;       // as read from file
-  vtkIdType nr_of_edges = 0;       // as read from file
+  vtkIdType nr_of_nodes = 0; // as read from file
+  vtkIdType nr_of_edges = 0; // as read from file
   int nr_of_properties = 0;
   vtkXGMLProperty property_table[MAX_NR_PROPERTIES];
-  vtkStdString name;
+  std::string name;
   int kind;
   int i;
   vtkIdType dst, id = 0, src = 0;
   double d = 0.;
   vtkIdTypeArray *edgeIds, *nodeIds;
-
 
   if (this->FileName == nullptr)
   {
@@ -194,8 +173,8 @@ int vtkXGMLReader::RequestData(
     return 0;
   }
 
-  std::ifstream fin(this->FileName);
-  if(!fin.is_open())
+  vtksys::ifstream fin(this->FileName);
+  if (!fin.is_open())
   {
     vtkErrorMacro("Could not open file " << this->FileName << ".");
     return 0;
@@ -236,11 +215,11 @@ int vtkXGMLReader::RequestData(
     {
       if (nr_of_properties == MAX_NR_PROPERTIES)
       {
-        vtkErrorMacro(<<"Too many properties in file.");
+        vtkErrorMacro(<< "Too many properties in file.");
         return 0;
       }
-      kind = (tok.StringValue == "node_data") ? vtkXGMLProperty::NODE_PROP
-        : vtkXGMLProperty::EDGE_PROP;
+      kind =
+        (tok.StringValue == "node_data") ? vtkXGMLProperty::NODE_PROP : vtkXGMLProperty::EDGE_PROP;
       vtkXGMLReaderNextToken(fin, tok);
       assert(tok.Type == vtkXGMLReaderToken::KEYWORD);
       name = tok.StringValue;
@@ -260,15 +239,15 @@ int vtkXGMLReader::RequestData(
         property_table[nr_of_properties].Data = vtkStringArray::New();
       }
       property_table[nr_of_properties].Kind = kind;
-      property_table[nr_of_properties].Data->SetName(name);
+      property_table[nr_of_properties].Data->SetName(name.c_str());
       property_table[nr_of_properties].Data->SetNumberOfTuples(
         kind == vtkXGMLProperty::NODE_PROP ? nr_of_nodes : nr_of_edges);
       nr_of_properties++;
     }
     else
     {
-      vtkErrorMacro(<<"Parse error (header): unexpected token ")
-        return 0;
+      vtkErrorMacro(<< "Parse error (header): unexpected token ");
+      return 0;
     }
     vtkXGMLReaderNextToken(fin, tok);
   }
@@ -299,19 +278,23 @@ int vtkXGMLReader::RequestData(
         for (i = 0; i < nr_of_properties; i++)
         {
           if (property_table[i].Kind == vtkXGMLProperty::NODE_PROP &&
-              property_table[i].Data->GetName() == tok.StringValue) { break; }
+            property_table[i].Data->GetName() == tok.StringValue)
+          {
+            break;
+          }
         }
         if (i == nr_of_properties)
         {
-          vtkErrorMacro(<<"Undefined node property ");
-          cout << tok.StringValue<<"\n";
+          vtkErrorMacro(<< "Undefined node property ");
+          cout << tok.StringValue << "\n";
           return 0;
         }
         vtkXGMLReaderNextToken(fin, tok);
         if (property_table[i].Data->GetDataType() == VTK_INT)
         {
           assert(tok.Type == vtkXGMLReaderToken::INT);
-          vtkArrayDownCast<vtkIntArray>(property_table[i].Data)->SetValue(nodeIdMap[id], tok.IntValue);
+          vtkArrayDownCast<vtkIntArray>(property_table[i].Data)
+            ->SetValue(nodeIdMap[id], tok.IntValue);
         }
         else if (property_table[i].Data->GetDataType() == VTK_DOUBLE)
         {
@@ -320,13 +303,14 @@ int vtkXGMLReader::RequestData(
           else if (tok.Type == vtkXGMLReaderToken::INT)
             d = (double)tok.IntValue;
           else
-            vtkErrorMacro(<<"Expected double or int.\n");
+            vtkErrorMacro(<< "Expected double or int.\n");
           vtkArrayDownCast<vtkDoubleArray>(property_table[i].Data)->SetValue(nodeIdMap[id], d);
         }
         else
         {
           assert(tok.Type == vtkXGMLReaderToken::TEXT);
-          vtkArrayDownCast<vtkStringArray>(property_table[i].Data)->SetValue(nodeIdMap[id], tok.StringValue);
+          vtkArrayDownCast<vtkStringArray>(property_table[i].Data)
+            ->SetValue(nodeIdMap[id], tok.StringValue);
         }
       }
       vtkXGMLReaderNextToken(fin, tok);
@@ -371,18 +355,22 @@ int vtkXGMLReader::RequestData(
         for (i = 0; i < nr_of_properties; i++)
         {
           if (property_table[i].Kind == vtkXGMLProperty::EDGE_PROP &&
-              property_table[i].Data->GetName() == tok.StringValue) { break; }
+            property_table[i].Data->GetName() == tok.StringValue)
+          {
+            break;
+          }
         }
         if (i == nr_of_properties)
         {
-          vtkErrorMacro(<<"Undefined node property ");
+          vtkErrorMacro(<< "Undefined node property ");
           return 0;
         }
         vtkXGMLReaderNextToken(fin, tok);
         if (property_table[i].Data->GetDataType() == VTK_INT)
         {
           assert(tok.Type == vtkXGMLReaderToken::INT);
-          vtkArrayDownCast<vtkIntArray>(property_table[i].Data)->SetValue(edgeIdMap[id], tok.IntValue);
+          vtkArrayDownCast<vtkIntArray>(property_table[i].Data)
+            ->SetValue(edgeIdMap[id], tok.IntValue);
         }
         else if (property_table[i].Data->GetDataType() == VTK_DOUBLE)
         {
@@ -391,13 +379,14 @@ int vtkXGMLReader::RequestData(
           else if (tok.Type == vtkXGMLReaderToken::INT)
             d = (double)tok.IntValue;
           else
-            vtkErrorMacro(<<"Expected double or int.\n");
+            vtkErrorMacro(<< "Expected double or int.\n");
           vtkArrayDownCast<vtkDoubleArray>(property_table[i].Data)->SetValue(nodeIdMap[id], d);
         }
         else
         {
           assert(tok.Type == vtkXGMLReaderToken::TEXT);
-          vtkArrayDownCast<vtkStringArray>(property_table[i].Data)->SetValue(edgeIdMap[id], tok.StringValue);
+          vtkArrayDownCast<vtkStringArray>(property_table[i].Data)
+            ->SetValue(edgeIdMap[id], tok.StringValue);
         }
       }
       vtkXGMLReaderNextToken(fin, tok);
@@ -431,7 +420,7 @@ int vtkXGMLReader::RequestData(
       property_table[i].Data->Delete();
     }
   }
-  vtkFloatArray *weights = vtkFloatArray::New();
+  vtkFloatArray* weights = vtkFloatArray::New();
   weights->SetName("edge weight");
   weights->SetNumberOfTuples(nr_of_edges);
   edgeIds = vtkIdTypeArray::New();
@@ -439,8 +428,8 @@ int vtkXGMLReader::RequestData(
   edgeIds->SetNumberOfTuples(nr_of_edges);
   for (i = 0; i < nr_of_edges; i++)
   {
-    weights->SetValue(i,1.0);
-    edgeIds->SetValue(i,i);
+    weights->SetValue(i, 1.0);
+    edgeIds->SetValue(i, i);
   }
 
   nodeIds = vtkIdTypeArray::New();
@@ -448,7 +437,7 @@ int vtkXGMLReader::RequestData(
   nodeIds->SetNumberOfTuples(nr_of_nodes);
   for (i = 0; i < nr_of_nodes; i++)
   {
-    nodeIds->SetValue(i,i);
+    nodeIds->SetValue(i, i);
   }
   builder->GetEdgeData()->AddArray(weights);
   builder->GetEdgeData()->SetPedigreeIds(edgeIds);
@@ -460,22 +449,20 @@ int vtkXGMLReader::RequestData(
   vtkGraph* output = vtkGraph::GetData(outputVector);
   if (!output->CheckedShallowCopy(builder))
   {
-    vtkErrorMacro(<<"Invalid graph structure.");
+    vtkErrorMacro(<< "Invalid graph structure.");
     return 0;
   }
 
   return 1;
 }
 
-static int
-my_getline(std::istream& in, vtkStdString &out, char delimiter)
+static int my_getline(std::istream& in, std::string& out, char delimiter)
 {
-  out = vtkStdString();
+  out = std::string();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
 
-  while ((nextValue = in.get()) != EOF &&
-         numCharactersRead < out.max_size())
+  while ((nextValue = in.get()) != EOF && numCharactersRead < out.max_size())
   {
     ++numCharactersRead;
 
@@ -492,3 +479,4 @@ my_getline(std::istream& in, vtkStdString &out, char delimiter)
 
   return numCharactersRead;
 }
+VTK_ABI_NAMESPACE_END

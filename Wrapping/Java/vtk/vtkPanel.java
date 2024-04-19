@@ -10,8 +10,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-
 import javax.swing.SwingUtilities;
+
 
 /**
  * Java AWT component that encapsulate vtkRenderWindow, vtkRenderer, vtkCamera,
@@ -22,9 +22,11 @@ import javax.swing.SwingUtilities;
  *
  * @author Kitware
  */
-public class vtkPanel extends Canvas implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
+public class vtkPanel
+  extends Canvas implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener
+{
   private static final long serialVersionUID = 1L;
-  protected vtkRenderWindow rw = new vtkRenderWindow();
+  protected vtkRenderWindow rw = new vtkOpenGLRenderWindow();
   protected vtkRenderer ren = new vtkRenderer();
   protected vtkCamera cam = null;
   protected vtkLight lgt = new vtkLight();
@@ -43,22 +45,21 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
   // panel.lock();
   // // Code that causes a render
   // panel.unlock();
-  public void lock() {
-    Lock();
-  }
+  public void lock() { Lock(); }
 
-  public void unlock() {
-    UnLock();
-  }
+  public void unlock() { UnLock(); }
 
-  public void Delete() {
-    if(rendering) {
+  public void Delete()
+  {
+    if (rendering)
+    {
       return;
     }
     rendering = true;
     // We prevent any further rendering
 
-    if (this.getParent() != null) {
+    if (this.getParent() != null)
+    {
       this.getParent().remove(this);
     }
     // Free internal VTK objects
@@ -66,9 +67,12 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     cam = null;
     lgt = null;
     // On linux we prefer to have a memory leak instead of a crash
-    if(!rw.GetClassName().equals("vtkXOpenGLRenderWindow")) {
+    if (!rw.GetClassName().equals("vtkXOpenGLRenderWindow"))
+    {
       rw = null;
-    } else {
+    }
+    else
+    {
       System.out.println("The renderwindow has been kept around to prevent a crash");
     }
   }
@@ -79,7 +83,8 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
 
   protected native int UnLock();
 
-  public vtkPanel() {
+  public vtkPanel()
+  {
     rw.AddRenderer(ren);
     addMouseListener(this);
     addMouseMotionListener(this);
@@ -89,7 +94,8 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     rw.SetSize(200, 200);
   }
 
-  public vtkPanel(vtkRenderWindow renwin) {
+  public vtkPanel(vtkRenderWindow renwin)
+  {
     rw = renwin;
     rw.AddRenderer(ren);
     addMouseListener(this);
@@ -99,11 +105,13 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     rw.SetSize(200, 200);
   }
 
-  public void Report() {
+  public void Report()
+  {
 
     // must be performed on awt event thread
     Runnable updateAComponent = new Runnable() {
-      public void run() {
+      public void run()
+      {
         Lock();
         System.out.println("direct rendering = " + (rw.IsDirect() == 1));
         System.out.println("opengl supported = " + (rw.SupportsOpenGL() == 1));
@@ -113,50 +121,55 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     };
 
     SwingUtilities.invokeLater(updateAComponent);
-
   }
 
-  public vtkRenderer GetRenderer() {
-    return ren;
-  }
+  public vtkRenderer GetRenderer() { return ren; }
 
-  public vtkRenderWindow GetRenderWindow() {
-    return rw;
-  }
+  public vtkRenderWindow GetRenderWindow() { return rw; }
 
-  public void setSize(int x, int y) {
+  public void setSize(int x, int y)
+  {
     super.setSize(x, y);
-    if (windowset == 1) {
+    if (windowset == 1)
+    {
       Lock();
       rw.SetSize(x, y);
       UnLock();
     }
   }
 
-  public void addNotify() {
+  public void addNotify()
+  {
     super.addNotify();
     windowset = 0;
     rw.SetForceMakeCurrent();
     rendering = false;
   }
 
-  public void removeNotify() {
+  public void removeNotify()
+  {
     rendering = true;
     super.removeNotify();
   }
 
-  public synchronized void Render() {
-    if (!rendering) {
+  public synchronized void Render()
+  {
+    if (!rendering)
+    {
       rendering = true;
-      if (ren.VisibleActorCount() == 0) {
+      if (ren.VisibleActorCount() == 0)
+      {
         rendering = false;
         return;
       }
-      if (rw != null) {
-        if (windowset == 0) {
+      if (rw != null)
+      {
+        if (windowset == 0)
+        {
           // set the window id and the active camera
           cam = ren.GetActiveCamera();
-          if (lightingset == 0) {
+          if (lightingset == 0)
+          {
             ren.AddLight(lgt);
             lgt.SetPosition(cam.GetPosition());
             lgt.SetFocalPoint(cam.GetFocalPoint());
@@ -171,115 +184,114 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         }
         Lock();
         rw.Render();
+        if (rw instanceof vtkOpenGLRenderWindow)
+        {
+          ((vtkOpenGLRenderWindow)rw).BlitDisplayFramebuffer();
+        }
         UnLock();
         rendering = false;
       }
     }
   }
 
-  public boolean isWindowSet() {
-    return (this.windowset == 1);
-  }
+  public boolean isWindowSet() { return (this.windowset == 1); }
 
-  public void paint(Graphics g) {
-    this.Render();
-  }
+  public void paint(Graphics g) { this.Render(); }
 
-  public void update(Graphics g) {
-    paint(g);
-  }
+  public void update(Graphics g) { paint(g); }
 
-  public void LightFollowCameraOn() {
-    this.LightFollowCamera = 1;
-  }
+  public void LightFollowCameraOn() { this.LightFollowCamera = 1; }
 
-  public void LightFollowCameraOff() {
-    this.LightFollowCamera = 0;
-  }
+  public void LightFollowCameraOff() { this.LightFollowCamera = 0; }
 
-  public void InteractionModeRotate() {
-    this.InteractionMode = 1;
-  }
+  public void InteractionModeRotate() { this.InteractionMode = 1; }
 
-  public void InteractionModeTranslate() {
-    this.InteractionMode = 2;
-  }
+  public void InteractionModeTranslate() { this.InteractionMode = 2; }
 
-  public void InteractionModeZoom() {
-    this.InteractionMode = 3;
-  }
+  public void InteractionModeZoom() { this.InteractionMode = 3; }
 
-  public void UpdateLight() {
+  public void UpdateLight()
+  {
     lgt.SetPosition(cam.GetPosition());
     lgt.SetFocalPoint(cam.GetFocalPoint());
   }
 
-  public void resetCameraClippingRange() {
+  public void resetCameraClippingRange()
+  {
     Lock();
     ren.ResetCameraClippingRange();
     UnLock();
   }
 
-  public void resetCamera() {
+  public void resetCamera()
+  {
     Lock();
     ren.ResetCamera();
     UnLock();
   }
 
-  public void mouseClicked(MouseEvent e) {
+  public void mouseClicked(MouseEvent e) {}
 
-  }
-
-  public void mousePressed(MouseEvent e) {
+  public void mousePressed(MouseEvent e)
+  {
 
     if (ren.VisibleActorCount() == 0)
       return;
     rw.SetDesiredUpdateRate(5.0);
     lastX = e.getX();
     lastY = e.getY();
-    if ((e.getModifiers() == InputEvent.BUTTON2_MASK) || (e.getModifiers() == (InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK))) {
+    int mods = e.getModifiersEx();
+    int ShiftMouseButton1 = InputEvent.BUTTON1_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK;
+    int MouseButton2 =  InputEvent.BUTTON2_DOWN_MASK;
+    int MouseButton3 = InputEvent.BUTTON3_DOWN_MASK;
+    if (((mods & MouseButton2) == MouseButton2) || ((mods & ShiftMouseButton1) == ShiftMouseButton1))
+    {
       InteractionModeTranslate();
-    } else if (e.getModifiers() == InputEvent.BUTTON3_MASK) {
+    }
+    else if ((mods & MouseButton3) == MouseButton3)
+    {
       InteractionModeZoom();
-    } else {
+    }
+    else
+    {
       InteractionModeRotate();
     }
   }
 
-  public void mouseReleased(MouseEvent e) {
-    rw.SetDesiredUpdateRate(0.01);
-  }
+  public void mouseReleased(MouseEvent e) { rw.SetDesiredUpdateRate(0.01); }
 
-  public void mouseEntered(MouseEvent e) {
-    this.requestFocus();
-  }
+  public void mouseEntered(MouseEvent e) { this.requestFocus(); }
 
-  public void mouseExited(MouseEvent e) {
-  }
+  public void mouseExited(MouseEvent e) {}
 
-  public void mouseMoved(MouseEvent e) {
+  public void mouseMoved(MouseEvent e)
+  {
     lastX = e.getX();
     lastY = e.getY();
   }
 
-  public void mouseDragged(MouseEvent e) {
+  public void mouseDragged(MouseEvent e)
+  {
     if (ren.VisibleActorCount() == 0)
       return;
     int x = e.getX();
     int y = e.getY();
     // rotate
-    if (this.InteractionMode == 1) {
+    if (this.InteractionMode == 1)
+    {
       cam.Azimuth(lastX - x);
       cam.Elevation(y - lastY);
       cam.OrthogonalizeViewUp();
       resetCameraClippingRange();
-      if (this.LightFollowCamera == 1) {
+      if (this.LightFollowCamera == 1)
+      {
         lgt.SetPosition(cam.GetPosition());
         lgt.SetFocalPoint(cam.GetFocalPoint());
       }
     }
     // translate
-    if (this.InteractionMode == 2) {
+    if (this.InteractionMode == 2)
+    {
       double FPoint[];
       double PPoint[];
       double APoint[] = new double[3];
@@ -301,7 +313,8 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
       ren.SetDisplayPoint(APoint);
       ren.DisplayToWorld();
       RPoint = ren.GetWorldPoint();
-      if (RPoint[3] != 0.0) {
+      if (RPoint[3] != 0.0)
+      {
         RPoint[0] = RPoint[0] / RPoint[3];
         RPoint[1] = RPoint[1] / RPoint[3];
         RPoint[2] = RPoint[2] / RPoint[3];
@@ -311,17 +324,23 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
        * Compute a translation vector, moving everything 1/2 the distance
        * to the cursor. (Arbitrary scale factor)
        */
-      cam.SetFocalPoint((FPoint[0] - RPoint[0]) / 2.0 + FPoint[0], (FPoint[1] - RPoint[1]) / 2.0 + FPoint[1], (FPoint[2] - RPoint[2]) / 2.0 + FPoint[2]);
-      cam.SetPosition((FPoint[0] - RPoint[0]) / 2.0 + PPoint[0], (FPoint[1] - RPoint[1]) / 2.0 + PPoint[1], (FPoint[2] - RPoint[2]) / 2.0 + PPoint[2]);
+      cam.SetFocalPoint((FPoint[0] - RPoint[0]) / 2.0 + FPoint[0],
+        (FPoint[1] - RPoint[1]) / 2.0 + FPoint[1], (FPoint[2] - RPoint[2]) / 2.0 + FPoint[2]);
+      cam.SetPosition((FPoint[0] - RPoint[0]) / 2.0 + PPoint[0],
+        (FPoint[1] - RPoint[1]) / 2.0 + PPoint[1], (FPoint[2] - RPoint[2]) / 2.0 + PPoint[2]);
       resetCameraClippingRange();
     }
     // zoom
-    if (this.InteractionMode == 3) {
+    if (this.InteractionMode == 3)
+    {
       double zoomFactor;
       zoomFactor = Math.pow(1.02, (y - lastY));
-      if (cam.GetParallelProjection() == 1) {
+      if (cam.GetParallelProjection() == 1)
+      {
         cam.SetParallelScale(cam.GetParallelScale() / zoomFactor);
-      } else {
+      }
+      else
+      {
         cam.Dolly(zoomFactor);
         resetCameraClippingRange();
       }
@@ -331,58 +350,68 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     this.Render();
   }
 
-  public void mouseWheelMoved(MouseWheelEvent e) {
+  public void mouseWheelMoved(MouseWheelEvent e)
+  {
     if (ren.VisibleActorCount() == 0 || e.getWheelRotation() == 0)
       return;
     int exponent;
     exponent = -10 * e.getWheelRotation() / Math.abs(e.getWheelRotation());
     double zoomFactor;
     zoomFactor = Math.pow(1.02, exponent);
-    if (cam.GetParallelProjection() == 1) {
+    if (cam.GetParallelProjection() == 1)
+    {
       cam.SetParallelScale(cam.GetParallelScale() / zoomFactor);
-    } else {
+    }
+    else
+    {
       cam.Dolly(zoomFactor);
       resetCameraClippingRange();
     }
     this.Render();
   }
 
-  public void keyTyped(KeyEvent e) {
-  }
+  public void keyTyped(KeyEvent e) {}
 
-  public void keyPressed(KeyEvent e) {
+  public void keyPressed(KeyEvent e)
+  {
     if (ren.VisibleActorCount() == 0)
       return;
     char keyChar = e.getKeyChar();
 
-    if ('r' == keyChar) {
+    if ('r' == keyChar)
+    {
       resetCamera();
       this.Render();
     }
-    if ('u' == keyChar) {
+    if ('u' == keyChar)
+    {
       pickActor(lastX, lastY);
     }
-    if ('w' == keyChar) {
+    if ('w' == keyChar)
+    {
       vtkActorCollection ac;
       vtkActor anActor;
       int i;
 
       ac = ren.GetActors();
       ac.InitTraversal();
-      for (i = 0; i < ac.GetNumberOfItems(); i++) {
+      for (i = 0; i < ac.GetNumberOfItems(); i++)
+      {
         anActor = ac.GetNextActor();
         anActor.GetProperty().SetRepresentationToWireframe();
       }
       this.Render();
     }
-    if ('s' == keyChar) {
+    if ('s' == keyChar)
+    {
       vtkActorCollection ac;
       vtkActor anActor;
       int i;
 
       ac = ren.GetActors();
       ac.InitTraversal();
-      for (i = 0; i < ac.GetNumberOfItems(); i++) {
+      for (i = 0; i < ac.GetNumberOfItems(); i++)
+      {
         anActor = ac.GetNextActor();
         anActor.GetProperty().SetRepresentationToSurface();
       }
@@ -390,7 +419,8 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     }
   }
 
-  public void HardCopy(String filename, int mag) {
+  public void HardCopy(String filename, int mag)
+  {
 
     Lock();
 
@@ -408,7 +438,8 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     UnLock();
   }
 
-  public void pickActor(int x, int y) {
+  public void pickActor(int x, int y)
+  {
 
     vtkPropPicker picker = new vtkPropPicker();
 
@@ -420,7 +451,5 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
       System.out.println(picker.GetActor().GetClassName());
   }
 
-  public void keyReleased(KeyEvent e) {
-  }
-
+  public void keyReleased(KeyEvent e) {}
 }

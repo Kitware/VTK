@@ -3,3 +3,5 @@ MFIXReader/**          vtk-is-large-data
 NetCDF/**              vtk-is-large-data
 SLAC/**                vtk-is-large-data
 WindBladeReader/**     vtk-is-large-data
+Exodus/SAND2017-5827O-FSM_Residual-bad-eigen.e      vtk-is-large-data
+Exodus/SAND2017-5827O-FSM_Residual_good-eigen.e     vtk-is-large-data

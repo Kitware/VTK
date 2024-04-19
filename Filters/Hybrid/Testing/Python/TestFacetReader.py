@@ -1,23 +1,34 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersHybrid import vtkFacetReader
+from vtkmodules.vtkRenderingCore import (
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetBackground(0,0,0)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.SetSize(300,300)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-facet0 = vtk.vtkFacetReader()
-facet0.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/clown.facet")
-Mapper5 = vtk.vtkPolyDataMapper()
+facet0 = vtkFacetReader()
+facet0.SetFileName(VTK_DATA_ROOT + "/Data/clown.facet")
+Mapper5 = vtkPolyDataMapper()
 Mapper5.SetInputConnection(facet0.GetOutputPort())
 Mapper5.UseLookupTableScalarRangeOff()
 Mapper5.SetScalarVisibility(1)
 Mapper5.SetScalarModeToDefault()
-Actor5 = vtk.vtkLODActor()
+Actor5 = vtkLODActor()
 Actor5.SetMapper(Mapper5)
 Actor5.GetProperty().SetRepresentationToSurface()
 Actor5.GetProperty().SetInterpolationToGouraud()
@@ -29,7 +40,7 @@ Actor5.GetProperty().SetSpecularColor(1,1,1)
 Actor5.GetProperty().SetColor(1,1,1)
 Actor5.SetNumberOfCloudPoints(30000)
 ren1.AddActor(Actor5)
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetClippingRange(3,6)
 camera.SetFocalPoint(.1,.03,-.5)
 camera.SetPosition(4.4,-0.5,-.5)

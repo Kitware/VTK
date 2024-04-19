@@ -1,7 +1,7 @@
 set(classes
   vtkAbstractGridConnectivity
+  vtkAttributeSmoothingFilter
   vtkCompositeDataGeometryFilter
-  vtkDataSetGhostGenerator
   vtkDataSetRegionSurfaceFilter
   vtkDataSetSurfaceFilter
   vtkExplicitStructuredGridSurfaceFilter
@@ -10,19 +10,20 @@ set(classes
   vtkImageDataGeometryFilter
   vtkImageDataToUniformGrid
   vtkLinearToQuadraticCellsFilter
+  vtkMarkBoundaryFilter
   vtkProjectSphereFilter
+  vtkRecoverGeometryWireframe
   vtkRectilinearGridGeometryFilter
   vtkRectilinearGridPartitioner
   vtkStructuredAMRGridConnectivity
   vtkStructuredAMRNeighbor
   vtkStructuredGridConnectivity
   vtkStructuredGridGeometryFilter
-  vtkStructuredGridGhostDataGenerator
   vtkStructuredGridPartitioner
   vtkStructuredNeighbor
   vtkStructuredPointsGeometryFilter
-  vtkUniformGridGhostDataGenerator
   vtkUnstructuredGridGeometryFilter)
 
 vtk_module_add_module(VTK::FiltersGeometry
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::FiltersGeometry)

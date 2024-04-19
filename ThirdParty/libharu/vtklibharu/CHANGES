@@ -64,7 +64,7 @@ Version 2.2.0 (2010.10.12)
  - Fixed bug #10 (missing HPDF_LoadPngImageFromMem from win32/msvc/libhpdf.def).
  - Fixed bug #7 (HPDF_String_SetValue() is declared twice).
  - Fixed bug #6 (possible NULL dereference in HPDF_LoadPngImageFromFile2()).
- - Fixed bug #5 (possible NULL derefernce in HPDF_LoadRawImageFromFile()).
+ - Fixed bug #5 (possible NULL dereference in HPDF_LoadRawImageFromFile()).
  - Fixed bug #4 (possible NULL dereference in HPDF_AToI()).
  - Fixed bug #2 (Ruby binding: hpdf_insert_page has stray printf).
 
@@ -91,7 +91,7 @@ Version 2.0.7 (2006.11.05)
   HPDF_Image_GetSize2().
 
 Version 2.0.6 (2006.10.16)
- - Added opacity and blend-mode featurs.
+ - Added opacity and blend-mode features.
  - Added slide-show functions (contributed by Adrian Nelson). 
  - Added an interface for VB6 (contributed by Ko, Chi-Chih).
  - Fixed a bug that HPDF_MemStream_Rewrite() may cause segmentation fault.
@@ -108,7 +108,7 @@ Version 2.0.5 (2006.09.20)
  - Fixed a bug that causes program crash when using interlaced PNG images.
 
 Version 2.0.4 (2006.08.25)
- - Fixed a bug of the TrueType font feature related to composit glyph.
+ - Fixed a bug of the TrueType font feature related to composite glyph.
 
 Version 2.0.3 (2006.08.20)
  - Fixed a bug that HPDF_Page_TextRect() always returns 

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGlyphSource2DResolution.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Description
 // This tests the circle resolution parameter for vtkGlyphSource2D
@@ -27,9 +15,9 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
 int TestGlyphSource2DResolution(int argc, char* argv[])
@@ -55,21 +43,17 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
   for (int i = 0; i < 100; ++i)
   {
     randomSequence->Next();
-    double x = randomSequence->GetValue()*size;
+    double x = randomSequence->GetValue() * size;
     randomSequence->Next();
-    double y = randomSequence->GetValue()*size;
-    pts->InsertNextPoint(x,
-                         y,
-                         0.0);
+    double y = randomSequence->GetValue() * size;
+    pts->InsertNextPoint(x, y, 0.0);
     randomSequence->Next();
-    scalars->InsertNextValue(5.0*randomSequence->GetValue());
+    scalars->InsertNextValue(5.0 * randomSequence->GetValue());
     randomSequence->Next();
-    double ihat = randomSequence->GetValue()*2-1;
+    double ihat = randomSequence->GetValue() * 2 - 1;
     randomSequence->Next();
-    double jhat = randomSequence->GetValue()*2-1;
-    vectors->InsertNextTuple3(ihat,
-                              jhat,
-                              0.0);
+    double jhat = randomSequence->GetValue() * 2 - 1;
+    vectors->InsertNextTuple3(ihat, jhat, 0.0);
   }
 
   vtkNew<vtkGlyphSource2D> gs;
@@ -114,7 +98,7 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
   glypher->SetSourceConnection(3, gs3->GetOutputPort());
   glypher->SetSourceConnection(4, gs4->GetOutputPort());
   glypher->SetIndexModeToScalar();
-  glypher->SetRange(0,5);
+  glypher->SetRange(0, 5);
   glypher->SetScaleModeToScaleByVector();
 
   vtkNew<vtkPolyDataMapper2D> mapper;
@@ -135,7 +119,7 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
   ren->SetBackground(0.3, 0.3, 0.3);
   ren->ResetCamera();
 
-  renWin->SetSize(size+1, size-1); //NPOT size
+  renWin->SetSize(size + 1, size - 1); // NPOT size
   renWin->AddRenderer(ren);
   renWin->Render();
 

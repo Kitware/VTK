@@ -1,33 +1,20 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBlockDistribution.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*
- * Copyright (C) 2008 The Trustees of Indiana University.
- * Use, modification and distribution is subject to the Boost Software
- * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
- */
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (C) 2008 The Trustees of Indiana University.
+// SPDX-License-Identifier: BSD-3-Clause AND BSL-1.0
 /**
  * @class   vtkBlockDistribution
  * @brief   A helper class that manages a block distribution of N elements of data.
  *
  *
  *
-*/
+ */
 
 #ifndef vtkBlockDistribution_h
 #define vtkBlockDistribution_h
 
+#include "vtkABINamespace.h"
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBlockDistribution
 {
 public:
@@ -86,7 +73,8 @@ private:
 // ----------------------------------------------------------------------
 
 inline vtkBlockDistribution::vtkBlockDistribution(vtkIdType N, vtkIdType P)
-  : NumElements(N), NumProcessors(P)
+  : NumElements(N)
+  , NumProcessors(P)
 {
 }
 
@@ -94,14 +82,13 @@ inline vtkBlockDistribution::vtkBlockDistribution(vtkIdType N, vtkIdType P)
 
 inline vtkIdType vtkBlockDistribution::GetBlockSize(vtkIdType rank)
 {
-  return (this->NumElements / this->NumProcessors)
-       + (rank < this->NumElements % this->NumProcessors? 1 : 0);
+  return (this->NumElements / this->NumProcessors) +
+    (rank < this->NumElements % this->NumProcessors ? 1 : 0);
 }
 
 // ----------------------------------------------------------------------
 
-inline vtkIdType
-vtkBlockDistribution::GetProcessorOfElement(vtkIdType globalIndex)
+inline vtkIdType vtkBlockDistribution::GetProcessorOfElement(vtkIdType globalIndex)
 {
   vtkIdType smallBlockSize = this->NumElements / this->NumProcessors;
   vtkIdType cutoffProcessor = this->NumElements % this->NumProcessors;
@@ -119,8 +106,7 @@ vtkBlockDistribution::GetProcessorOfElement(vtkIdType globalIndex)
 
 // ----------------------------------------------------------------------
 
-inline vtkIdType
-vtkBlockDistribution::GetLocalIndexOfElement(vtkIdType globalIndex)
+inline vtkIdType vtkBlockDistribution::GetLocalIndexOfElement(vtkIdType globalIndex)
 {
   vtkIdType rank = this->GetProcessorOfElement(globalIndex);
   return globalIndex - this->GetFirstGlobalIndexOnProcessor(rank);
@@ -128,8 +114,7 @@ vtkBlockDistribution::GetLocalIndexOfElement(vtkIdType globalIndex)
 
 // ----------------------------------------------------------------------
 
-inline vtkIdType
-vtkBlockDistribution::GetFirstGlobalIndexOnProcessor(vtkIdType rank)
+inline vtkIdType vtkBlockDistribution::GetFirstGlobalIndexOnProcessor(vtkIdType rank)
 {
   vtkIdType estimate = rank * (this->NumElements / this->NumProcessors + 1);
   vtkIdType cutoffProcessor = this->NumElements % this->NumProcessors;
@@ -145,11 +130,11 @@ vtkBlockDistribution::GetFirstGlobalIndexOnProcessor(vtkIdType rank)
 
 // ----------------------------------------------------------------------
 
-inline vtkIdType
-vtkBlockDistribution::GetGlobalIndex(vtkIdType localIndex, vtkIdType rank)
+inline vtkIdType vtkBlockDistribution::GetGlobalIndex(vtkIdType localIndex, vtkIdType rank)
 {
   return this->GetFirstGlobalIndexOnProcessor(rank) + localIndex;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkBlockDistribution.h

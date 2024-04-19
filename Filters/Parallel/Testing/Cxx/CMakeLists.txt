@@ -1,5 +1,7 @@
 vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
+  TestAlignImageDataSetFilter.cxx,NO_VALID
   TestAngularPeriodicFilter.cxx
+  TestPOutlineFilter.cxx,NO_VALID
   )
 vtk_test_cxx_executable(vtkFiltersParallelCxxTests testsStd)
 
@@ -9,7 +11,10 @@ if (TARGET VTK::ParallelMPI)
     TESTING_DATA
     DistributedData.cxx
     DistributedDataRenderPass.cxx
+    PTextureMapToSphere.cxx
+    TestPHyperTreeGridProbeFilter.cxx
     TestPExtractDataArraysOverTime.cxx,NO_VALID
+    TestPartitionBalancer.cxx,NO_VALID
     TransmitImageData.cxx
     TransmitImageDataRenderPass.cxx
     TransmitRectilinearGrid.cxx
@@ -17,16 +22,18 @@ if (TARGET VTK::ParallelMPI)
     )
   vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI no_data_tests
     ParallelResampling.cxx
-    PCellDataToPointData.cxx
     UnitTestPMaskPoints.cxx
+    TestGenerateProcessIds.cxx,NO_VALID
+    TestPOutlineFilter.cxx,NO_VALID
     )
 
   # We want 4 processes to test the vtkAggregateDataSetFilter
-  # properly
+  # and vtkHyperTreeGridGhostCellsGenerator properly
   set(vtkFiltersParallelCxxTests-MPI_NUMPROCS 4)
   vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI no_data_tests_4_procs
     AggregateDataSet.cxx
-    )
+    TestHyperTreeGridGhostCellsGenerator.cxx,NO_VALID
+  )
 
 
   set(all_tests

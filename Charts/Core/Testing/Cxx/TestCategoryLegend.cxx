@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestCategoryLegend.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCategoryLegend.h"
 
@@ -20,16 +8,16 @@
 #include "vtkNew.h"
 #include "vtkVariantArray.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestCategoryLegend(int argc, char* argv[])
 {
   vtkNew<vtkVariantArray> values;
@@ -60,7 +48,7 @@ int TestCategoryLegend(int argc, char* argv[])
   vtkNew<vtkContextView> contextView;
   contextView->GetScene()->AddItem(trans);
   contextView->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  contextView->GetRenderWindow()->SetSize(300,200);
+  contextView->GetRenderWindow()->SetSize(300, 200);
   contextView->GetRenderWindow()->SetMultiSamples(0);
   contextView->GetRenderWindow()->Render();
 

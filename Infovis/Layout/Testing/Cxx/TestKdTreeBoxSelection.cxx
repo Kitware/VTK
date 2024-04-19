@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestKdTreeBoxSelection.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkActor.h"
 #include "vtkAreaPicker.h"
@@ -40,10 +24,10 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRandomGraphSource.h"
-#include "vtkSimple2DLayoutStrategy.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSimple2DLayoutStrategy.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
@@ -52,13 +36,13 @@
 #include "vtkTreeLevelsFilter.h"
 #include "vtkTreeMapToPolyData.h"
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //
 // Make a vtkTree from a kd-tree
 //
-void BuildTree(vtkIdType parent, vtkKdNode *parentVertex, vtkMutableDirectedGraph *tree, vtkFloatArray *rectArray)
+void BuildTree(vtkIdType parent, vtkKdNode* parentVertex, vtkMutableDirectedGraph* tree,
+  vtkFloatArray* rectArray)
 {
   double bounds[6];
   parentVertex->GetBounds(bounds);
@@ -72,7 +56,7 @@ void BuildTree(vtkIdType parent, vtkKdNode *parentVertex, vtkMutableDirectedGrap
   }
 }
 
-int TestKdTreeBoxSelection(int argc, char *argv[])
+int TestKdTreeBoxSelection(int argc, char* argv[])
 {
   bool interactive = false;
   bool threedim = false;
@@ -90,8 +74,8 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
     }
 
     cerr << argv[0] << " options:\n"
-      << "  -I run interactively\n"
-      << "  -d three-dimensional\n";
+         << "  -I run interactively\n"
+         << "  -d three-dimensional\n";
     return 0;
   }
 
@@ -136,9 +120,8 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   //
 
   VTK_CREATE(vtkIdTypeArray, selection);
-  double bounds[6] =
-    {-2, 2, -0.5, 3, -1, 1};
-    //{-1, 1, -1, 1, -1, 1};
+  double bounds[6] = { -2, 2, -0.5, 3, -1, 1 };
+  //{-1, 1, -1, 1, -1, 1};
   kdTree->FindPointsInArea(bounds, selection);
 
   //
@@ -158,7 +141,7 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   selectPoly->SetPoints(selectPoints);
 
   VTK_CREATE(vtkSphereSource, selectSphere);
-  selectSphere->SetRadius(1.1*glyphSize);
+  selectSphere->SetRadius(1.1 * glyphSize);
 
   VTK_CREATE(vtkGlyph3D, selectGlyph);
   selectGlyph->SetInputData(0, selectPoly);
@@ -219,8 +202,8 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
 
   VTK_CREATE(vtkActor, treeActor);
   treeActor->SetMapper(treeMapper);
-  //treeActor->GetProperty()->SetRepresentationToWireframe();
-  //treeActor->GetProperty()->SetOpacity(0.2);
+  // treeActor->GetProperty()->SetRepresentationToWireframe();
+  // treeActor->GetProperty()->SetOpacity(0.2);
 
   //
   // Create graph actor
@@ -300,4 +283,3 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
 
   return 0;
 }
-

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVectorDot.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkVectorDot
  * @brief   generate scalars from dot product of vectors and normals (e.g., show displacement plot)
@@ -30,26 +18,27 @@
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
-*/
+ */
 
 #ifndef vtkVectorDot_h
 #define vtkVectorDot_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkVectorDot : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkVectorDot,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkVectorDot, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with scalar range (-1,1).
    */
-  static vtkVectorDot *New();
+  static vtkVectorDot* New();
 
-  //@{
+  ///@{
   /**
    * Enable/disable the mapping of scalars into a specified range. This will
    * significantly improve the performance of the algorithm but the resulting
@@ -57,41 +46,42 @@ public:
    * data. By default, MapScalars is enabled, and the output scalar
    * values will fall into the range ScalarRange.
    */
-  vtkSetMacro(MapScalars,vtkTypeBool);
-  vtkGetMacro(MapScalars,vtkTypeBool);
-  vtkBooleanMacro(MapScalars,vtkTypeBool);
-  //@}
+  vtkSetMacro(MapScalars, vtkTypeBool);
+  vtkGetMacro(MapScalars, vtkTypeBool);
+  vtkBooleanMacro(MapScalars, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the range into which to map the scalars. This mapping only
    * occurs if MapScalars is enabled.
    */
-  vtkSetVector2Macro(ScalarRange,double);
-  vtkGetVectorMacro(ScalarRange,double,2);
-  //@}
+  vtkSetVector2Macro(ScalarRange, double);
+  vtkGetVectorMacro(ScalarRange, double, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the actual range of the generated scalars (prior to mapping).
    * Note that the data is valid only after the filter executes.
    */
-  vtkGetVectorMacro(ActualRange,double,2);
-  //@}
+  vtkGetVectorMacro(ActualRange, double, 2);
+  ///@}
 
 protected:
   vtkVectorDot();
-  ~vtkVectorDot() override {}
+  ~vtkVectorDot() override = default;
 
   vtkTypeBool MapScalars;
   double ScalarRange[2];
   double ActualRange[2];
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkVectorDot(const vtkVectorDot&) = delete;
   void operator=(const vtkVectorDot&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

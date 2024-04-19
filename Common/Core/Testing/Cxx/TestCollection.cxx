@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestCollection.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCollection.h"
 #include "vtkCollectionRange.h"
@@ -24,7 +12,7 @@
 bool TestRegister();
 bool TestRemoveItem(int index, bool removeIndex);
 
-int TestCollection(int,char *[])
+int TestCollection(int, char*[])
 {
   bool res = true;
   res = TestRegister() && res;
@@ -41,8 +29,8 @@ int TestCollection(int,char *[])
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static bool IsEqualRange(vtkCollection* collection,
-                         const std::vector<vtkSmartPointer<vtkIntArray> >& v)
+static bool IsEqualRange(
+  vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray>>& v)
 {
   const auto range = vtk::Range(collection);
   if (range.size() != static_cast<int>(v.size()))
@@ -66,7 +54,7 @@ static bool IsEqualRange(vtkCollection* collection,
   return true;
 }
 
-static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray> >& v)
+static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray>>& v)
 {
   if (collection->GetNumberOfItems() != static_cast<int>(v.size()))
   {
@@ -76,7 +64,7 @@ static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer
   vtkCollectionSimpleIterator it;
   int i = 0;
   for (collection->InitTraversal(it);
-       (dataArray = vtkIntArray::SafeDownCast(collection->GetNextItemAsObject(it))) ; ++i)
+       (dataArray = vtkIntArray::SafeDownCast(collection->GetNextItemAsObject(it))); ++i)
   {
     if (v[i] != dataArray)
     {
@@ -111,12 +99,12 @@ bool TestRegister()
 bool TestRemoveItem(int index, bool removeIndex)
 {
   vtkNew<vtkCollection> collection;
-  std::vector<vtkSmartPointer<vtkIntArray> > objects;
+  std::vector<vtkSmartPointer<vtkIntArray>> objects;
   for (int i = 0; i < 10; ++i)
   {
     vtkNew<vtkIntArray> object;
     collection->AddItem(object);
-    objects.push_back(object.GetPointer());
+    objects.emplace_back(object.GetPointer());
   }
   if (removeIndex)
   {

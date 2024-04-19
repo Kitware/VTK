@@ -1,38 +1,51 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersHybrid import vtkEarthSource
+from vtkmodules.vtkFiltersSources import vtkTexturedSphereSource
+from vtkmodules.vtkIOImage import vtkPNMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-tss = vtk.vtkTexturedSphereSource()
+tss = vtkTexturedSphereSource()
 tss.SetThetaResolution(18)
 tss.SetPhiResolution(9)
-earthMapper = vtk.vtkPolyDataMapper()
+earthMapper = vtkPolyDataMapper()
 earthMapper.SetInputConnection(tss.GetOutputPort())
-earthActor = vtk.vtkActor()
+earthActor = vtkActor()
 earthActor.SetMapper(earthMapper)
 # load in the texture map
 #
-atext = vtk.vtkTexture()
-pnmReader = vtk.vtkPNMReader()
-pnmReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/earth.ppm")
+atext = vtkTexture()
+pnmReader = vtkPNMReader()
+pnmReader.SetFileName(VTK_DATA_ROOT + "/Data/earth.ppm")
 atext.SetInputConnection(pnmReader.GetOutputPort())
 atext.InterpolateOn()
 earthActor.SetTexture(atext)
 # create a earth source and actor
 #
-es = vtk.vtkEarthSource()
+es = vtkEarthSource()
 es.SetRadius(0.501)
 es.SetOnRatio(2)
-earth2Mapper = vtk.vtkPolyDataMapper()
+earth2Mapper = vtkPolyDataMapper()
 earth2Mapper.SetInputConnection(es.GetOutputPort())
-earth2Actor = vtk.vtkActor()
+earth2Actor = vtkActor()
 earth2Actor.SetMapper(earth2Mapper)
 # Add the actors to the renderer, set the background and size
 #

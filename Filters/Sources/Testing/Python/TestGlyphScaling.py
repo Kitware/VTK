@@ -1,6 +1,19 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkFiltersCore import vtkGlyph2D
+from vtkmodules.vtkFiltersSources import vtkGlyphSource2D
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 
@@ -26,13 +39,13 @@ fixedScales = [ 0.5, 1.0, 1.5, 2.0 ]
 
 for i in range(numRows):
   for j in range(1, 5):
-    points = vtk.vtkPoints()
+    points = vtkPoints()
     points.InsertNextPoint(j*3, i*3, 0)
 
-    polydata = vtk.vtkPolyData()
+    polydata = vtkPolyData()
     polydata.SetPoints(points)
 
-    glyphSource = vtk.vtkGlyphSource2D()
+    glyphSource = vtkGlyphSource2D()
 
     glyphSource.SetGlyphType(i)
     glyphSource.FilledOff()
@@ -42,30 +55,30 @@ for i in range(numRows):
     if GLYPH_TYPES[i] == 'VTK_TRIANGLE_GLYPH':
       glyphSource.SetRotationAngle(90)
 
-    glyph2D = vtk.vtkGlyph2D()
+    glyph2D = vtkGlyph2D()
     glyph2D.SetSourceConnection(glyphSource.GetOutputPort())
     glyph2D.SetInputData(polydata)
     glyph2D.Update()
 
-    mapper = vtk.vtkPolyDataMapper()
+    mapper = vtkPolyDataMapper()
     mapper.SetInputConnection(glyph2D.GetOutputPort())
     mapper.Update()
 
-    actor = vtk.vtkActor()
+    actor = vtkActor()
     actor.SetMapper(mapper)
 
     actors.append(actor)
 
 # Set up the renderer, render window, and interactor.
-renderer = vtk.vtkRenderer()
+renderer = vtkRenderer()
 
 for actor in actors:
   renderer.AddActor(actor)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetSize(400,600)
 renWin.AddRenderer(renderer)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 iren.Initialize()

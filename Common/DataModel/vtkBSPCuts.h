@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBSPCuts.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkBSPCuts
@@ -31,7 +16,7 @@
  *
  * @sa
  *      vtkKdTree vtkKdNode vtkDistributedDataFilter
-*/
+ */
 
 #ifndef vtkBSPCuts_h
 #define vtkBSPCuts_h
@@ -39,14 +24,20 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkKdNode;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkBSPCuts : public vtkDataObject
 {
 public:
-  static vtkBSPCuts *New();
+  static vtkBSPCuts* New();
   vtkTypeMacro(vtkBSPCuts, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Returns VTK_BSP_CUTS.
+   */
+  int GetDataObjectType() override { return VTK_BSP_CUTS; }
 
   /**
    * Initialize the cuts with arrays of information.  This type of
@@ -65,24 +56,21 @@ public:
    * npoints - optional number of points in the spatial region
    */
 
-  void CreateCuts(double *bounds,
-                  int ncuts, int *dim, double *coord,
-                  int *lower, int *upper,
-                  double *lowerDataCoord, double *upperDataCoord,
-                  int *npoints);
+  void CreateCuts(double* bounds, int ncuts, int* dim, double* coord, int* lower, int* upper,
+    double* lowerDataCoord, double* upperDataCoord, int* npoints);
 
   /**
    * Initialize the cuts from a tree of vtkKdNode's
    */
 
-  void CreateCuts(vtkKdNode *kd);
+  void CreateCuts(vtkKdNode* kd);
 
   /**
    * Return a tree of vtkKdNode's representing the cuts specified
    * in this object.  This is our copy, don't delete it.
    */
 
-  vtkKdNode *GetKdNodeTree(){return this->Top;}
+  vtkKdNode* GetKdNodeTree() { return this->Top; }
 
   /**
    * Get the number of cuts in the partitioning, which also the size of
@@ -95,72 +83,71 @@ public:
    * Get the arrays representing the cuts in the partitioning.
    */
 
-  int GetArrays(int len, int *dim, double *coord, int *lower, int *upper,
-                double *lowerDataCoord, double *upperDataCoord, int *npoints);
+  int GetArrays(int len, int* dim, double* coord, int* lower, int* upper, double* lowerDataCoord,
+    double* upperDataCoord, int* npoints);
 
   /**
    * Compare these cuts with those of the other tree.  Returns true if
    * the two trees are the same.
    */
-  int Equals(vtkBSPCuts *other, double tolerance = 0.0);
+  int Equals(vtkBSPCuts* other, double tolerance = 0.0);
 
   void PrintTree();
   void PrintArrays();
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkBSPCuts* GetData(vtkInformation* info);
-  static vtkBSPCuts* GetData(vtkInformationVector* v, int i=0);
-  //@}
+  static vtkBSPCuts* GetData(vtkInformationVector* v, int i = 0);
+  ///@}
 
   /**
    * Restore data object to initial state,
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Shallow copy.  These copy the data, but not any of the
    * pipeline connections.
    */
-  void ShallowCopy(vtkDataObject *src) override;
-  void DeepCopy(vtkDataObject *src) override;
-  //@}
+  void ShallowCopy(vtkDataObject* src) override;
+  void DeepCopy(vtkDataObject* src) override;
+  ///@}
 
 protected:
-
   vtkBSPCuts();
   ~vtkBSPCuts() override;
 
-  static void DeleteAllDescendants(vtkKdNode *kd);
+  static void DeleteAllDescendants(vtkKdNode* kd);
 
-  static int CountNodes(vtkKdNode *kd);
-  static void SetMinMaxId(vtkKdNode *kd);
-  static void _PrintTree(vtkKdNode *kd, int depth);
+  static int CountNodes(vtkKdNode* kd);
+  static void SetMinMaxId(vtkKdNode* kd);
+  static void PrintTree_(vtkKdNode* kd, int depth);
 
-  void BuildTree(vtkKdNode *kd, int idx);
-  int WriteArray(vtkKdNode *kd, int loc);
+  void BuildTree(vtkKdNode* kd, int idx);
+  int WriteArray(vtkKdNode* kd, int loc);
 
   void ResetArrays();
   void AllocateArrays(int size);
 
-  vtkKdNode *Top;
+  vtkKdNode* Top;
 
   // required cut information
 
-  int NumberOfCuts;// number of cuts, also length of each array
-  int *Dim;        // dimension (x/y/z - 0/1/2) where cut occurs
-  double *Coord;   // location of cut along axis
-  int *Lower;               // location in arrays of left (lower) child info
-  int *Upper;               // location in arrays of right (lower) child info
+  int NumberOfCuts; // number of cuts, also length of each array
+  int* Dim;         // dimension (x/y/z - 0/1/2) where cut occurs
+  double* Coord;    // location of cut along axis
+  int* Lower;       // location in arrays of left (lower) child info
+  int* Upper;       // location in arrays of right (lower) child info
 
   // optional cut information
 
-  double *LowerDataCoord;   // coordinate of uppermost data in lower half
-  double *UpperDataCoord;   // coordinate of lowermost data in upper half
-  int *Npoints;             // number of data values in partition
+  double* LowerDataCoord; // coordinate of uppermost data in lower half
+  double* UpperDataCoord; // coordinate of lowermost data in upper half
+  int* Npoints;           // number of data values in partition
 
   double Bounds[6];
 
@@ -168,4 +155,5 @@ protected:
   void operator=(const vtkBSPCuts&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

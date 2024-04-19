@@ -1,26 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkPiecewiseFunction
+from vtkmodules.vtkImagingCore import (
+    vtkImageAppendComponents,
+    vtkImageShiftScale,
+    vtkImageThreshold,
+)
+from vtkmodules.vtkImagingMorphological import vtkImageContinuousDilate3D
+from vtkmodules.vtkImagingSources import (
+    vtkImageGaussianSource,
+    vtkImageGridSource,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkColorTransferFunction,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkVolume,
+    vtkVolumeProperty,
+)
+from vtkmodules.vtkRenderingVolume import vtkFixedPointVolumeRayCastMapper
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.vtkRenderingVolumeOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 class FixedPointRayCasterNearest(object):
@@ -31,7 +39,7 @@ class FixedPointRayCasterNearest(object):
         self.iren = iren
 
         # Create a gaussian
-        gs = vtk.vtkImageGaussianSource()
+        gs = vtkImageGaussianSource()
         gs.SetWholeExtent(0, 30, 0, 30, 0, 30)
         gs.SetMaximum(255.0)
         gs.SetStandardDeviation(5)
@@ -39,19 +47,19 @@ class FixedPointRayCasterNearest(object):
 
         # threshold to leave a gap that should show up for
         # gradient opacity
-        t = vtk.vtkImageThreshold()
+        t = vtkImageThreshold()
         t.SetInputConnection(gs.GetOutputPort())
         t.ReplaceInOn()
         t.SetInValue(0)
         t.ThresholdBetween(150, 200)
 
         # Use a shift scale to convert to unsigned char
-        ss = vtk.vtkImageShiftScale()
+        ss = vtkImageShiftScale()
         ss.SetInputConnection(t.GetOutputPort())
         ss.SetOutputScalarTypeToUnsignedChar()
 
         # grid will be used for two component dependent
-        grid0 = vtk.vtkImageGridSource()
+        grid0 = vtkImageGridSource()
         grid0.SetDataScalarTypeToUnsignedChar()
         grid0.SetGridSpacing(10, 10, 10)
         grid0.SetLineValue(200)
@@ -59,127 +67,127 @@ class FixedPointRayCasterNearest(object):
         grid0.SetDataExtent(0, 30, 0, 30, 0, 30)
 
         # use dilation to thicken the grid
-        d = vtk.vtkImageContinuousDilate3D()
+        d = vtkImageContinuousDilate3D()
         d.SetInputConnection(grid0.GetOutputPort())
         d.SetKernelSize(3, 3, 3)
 
         # Now make a two component dependent
-        iac = vtk.vtkImageAppendComponents()
+        iac = vtkImageAppendComponents()
         iac.AddInputConnection(d.GetOutputPort())
         iac.AddInputConnection(ss.GetOutputPort())
 
         # Some more gaussians for the four component independent case
-        gs1 = vtk.vtkImageGaussianSource()
+        gs1 = vtkImageGaussianSource()
         gs1.SetWholeExtent(0, 30, 0, 30, 0, 30)
         gs1.SetMaximum(255.0)
         gs1.SetStandardDeviation(4)
         gs1.SetCenter(5, 5, 5)
 
-        t1 = vtk.vtkImageThreshold()
+        t1 = vtkImageThreshold()
         t1.SetInputConnection(gs1.GetOutputPort())
         t1.ReplaceInOn()
         t1.SetInValue(0)
         t1.ThresholdBetween(150, 256)
 
-        gs2 = vtk.vtkImageGaussianSource()
+        gs2 = vtkImageGaussianSource()
         gs2.SetWholeExtent(0, 30, 0, 30, 0, 30)
         gs2.SetMaximum(255.0)
         gs2.SetStandardDeviation(4)
         gs2.SetCenter(12, 12, 12)
 
-        gs3 = vtk.vtkImageGaussianSource()
+        gs3 = vtkImageGaussianSource()
         gs3.SetWholeExtent(0, 30, 0, 30, 0, 30)
         gs3.SetMaximum(255.0)
         gs3.SetStandardDeviation(4)
         gs3.SetCenter(19, 19, 19)
 
-        t3 = vtk.vtkImageThreshold()
+        t3 = vtkImageThreshold()
         t3.SetInputConnection(gs3.GetOutputPort())
         t3.ReplaceInOn()
         t3.SetInValue(0)
         t3.ThresholdBetween(150, 256)
 
-        gs4 = vtk.vtkImageGaussianSource()
+        gs4 = vtkImageGaussianSource()
         gs4.SetWholeExtent(0, 30, 0, 30, 0, 30)
         gs4.SetMaximum(255.0)
         gs4.SetStandardDeviation(4)
         gs4.SetCenter(26, 26, 26)
 
         # we need a few append filters ...
-        iac1 = vtk.vtkImageAppendComponents()
+        iac1 = vtkImageAppendComponents()
         iac1.AddInputConnection(t1.GetOutputPort())
         iac1.AddInputConnection(gs2.GetOutputPort())
 
-        iac2 = vtk.vtkImageAppendComponents()
+        iac2 = vtkImageAppendComponents()
         iac2.AddInputConnection(iac1.GetOutputPort())
         iac2.AddInputConnection(t3.GetOutputPort())
 
-        iac3 = vtk.vtkImageAppendComponents()
+        iac3 = vtkImageAppendComponents()
         iac3.AddInputConnection(iac2.GetOutputPort())
         iac3.AddInputConnection(gs4.GetOutputPort())
 
         # create the four component dependent -
         # use lines in x, y, z for colors
-        gridR = vtk.vtkImageGridSource()
+        gridR = vtkImageGridSource()
         gridR.SetDataScalarTypeToUnsignedChar()
         gridR.SetGridSpacing(10, 100, 100)
         gridR.SetLineValue(250)
         gridR.SetFillValue(100)
         gridR.SetDataExtent(0, 30, 0, 30, 0, 30)
 
-        dR = vtk.vtkImageContinuousDilate3D()
+        dR = vtkImageContinuousDilate3D()
         dR.SetInputConnection(gridR.GetOutputPort())
         dR.SetKernelSize(2, 2, 2)
 
-        gridG = vtk.vtkImageGridSource()
+        gridG = vtkImageGridSource()
         gridG.SetDataScalarTypeToUnsignedChar()
         gridG.SetGridSpacing(100, 10, 100)
         gridG.SetLineValue(250)
         gridG.SetFillValue(100)
         gridG.SetDataExtent(0, 30, 0, 30, 0, 30)
 
-        dG = vtk.vtkImageContinuousDilate3D()
+        dG = vtkImageContinuousDilate3D()
         dG.SetInputConnection(gridG.GetOutputPort())
         dG.SetKernelSize(2, 2, 2)
 
-        gridB = vtk.vtkImageGridSource()
+        gridB = vtkImageGridSource()
         gridB.SetDataScalarTypeToUnsignedChar()
         gridB.SetGridSpacing(100, 100, 10)
         gridB.SetLineValue(0)
         gridB.SetFillValue(250)
         gridB.SetDataExtent(0, 30, 0, 30, 0, 30)
 
-        dB = vtk.vtkImageContinuousDilate3D()
+        dB = vtkImageContinuousDilate3D()
         dB.SetInputConnection(gridB.GetOutputPort())
         dB.SetKernelSize(2, 2, 2)
 
         # need some appending
-        iacRG = vtk.vtkImageAppendComponents()
+        iacRG = vtkImageAppendComponents()
         iacRG.AddInputConnection(dR.GetOutputPort())
         iacRG.AddInputConnection(dG.GetOutputPort())
 
-        iacRGB = vtk.vtkImageAppendComponents()
+        iacRGB = vtkImageAppendComponents()
         iacRGB.AddInputConnection(iacRG.GetOutputPort())
         iacRGB.AddInputConnection(dB.GetOutputPort())
 
-        iacRGBA = vtk.vtkImageAppendComponents()
+        iacRGBA = vtkImageAppendComponents()
         iacRGBA.AddInputConnection(iacRGB.GetOutputPort())
         iacRGBA.AddInputConnection(ss.GetOutputPort())
 
         # We need a bunch of opacity functions
 
         # this one is a simple ramp to .2
-        rampPoint2 = vtk.vtkPiecewiseFunction()
+        rampPoint2 = vtkPiecewiseFunction()
         rampPoint2.AddPoint(0, 0.0)
         rampPoint2.AddPoint(255, 0.2)
 
         # this one is a simple ramp to 1
-        ramp1 = vtk.vtkPiecewiseFunction()
+        ramp1 = vtkPiecewiseFunction()
         ramp1.AddPoint(0, 0.0)
         ramp1.AddPoint(255, 1.0)
 
         # this one shows a sharp surface
-        surface = vtk.vtkPiecewiseFunction()
+        surface = vtkPiecewiseFunction()
         surface.AddPoint(0, 0.0)
         surface.AddPoint(10, 0.0)
         surface.AddPoint(50, 1.0)
@@ -187,12 +195,12 @@ class FixedPointRayCasterNearest(object):
 
 
         # this one is constant 1
-        constant1 = vtk.vtkPiecewiseFunction()
+        constant1 = vtkPiecewiseFunction()
         constant1.AddPoint(0, 1.0)
         constant1.AddPoint(255, 1.0)
 
         # this one is used for gradient opacity
-        gop = vtk.vtkPiecewiseFunction()
+        gop = vtkPiecewiseFunction()
         gop.AddPoint(0, 0.0)
         gop.AddPoint(20, 0.0)
         gop.AddPoint(60, 1.0)
@@ -202,38 +210,38 @@ class FixedPointRayCasterNearest(object):
         # We need a bunch of color functions
 
         # This one is a simple rainbow
-        rainbow = vtk.vtkColorTransferFunction()
+        rainbow = vtkColorTransferFunction()
         rainbow.SetColorSpaceToHSV()
         rainbow.HSVWrapOff()
         rainbow.AddHSVPoint(0, 0.1, 1.0, 1.0)
         rainbow.AddHSVPoint(255, 0.9, 1.0, 1.0)
 
         # this is constant red
-        red = vtk.vtkColorTransferFunction()
+        red = vtkColorTransferFunction()
         red.AddRGBPoint(0, 1, 0, 0)
         red.AddRGBPoint(255, 1, 0, 0)
 
         # this is constant green
-        green = vtk.vtkColorTransferFunction()
+        green = vtkColorTransferFunction()
         green.AddRGBPoint(0, 0, 1, 0)
         green.AddRGBPoint(255, 0, 1, 0)
 
         # this is constant blue
-        blue = vtk.vtkColorTransferFunction()
+        blue = vtkColorTransferFunction()
         blue.AddRGBPoint(0, 0, 0, 1)
         blue.AddRGBPoint(255, 0, 0, 1)
 
         # this is constant yellow
-        yellow = vtk.vtkColorTransferFunction()
+        yellow = vtkColorTransferFunction()
         yellow.AddRGBPoint(0, 1, 1, 0)
         yellow.AddRGBPoint(255, 1, 1, 0)
 
 
-        #ren = vtk.vtkRenderer()
-        #renWin = vtk.vtkRenderWindow()
+        #ren = vtkRenderer()
+        #renWin = vtkRenderWindow()
         self.renWin.AddRenderer(self.ren)
         self.renWin.SetSize(500, 500)
-        #iren = vtk.vtkRenderWindowInteractor()
+        #iren = vtkRenderWindowInteractor()
         self.iren.SetRenderWindow(self.renWin)
 
         self.ren.GetCullers().InitTraversal()
@@ -256,12 +264,12 @@ class FixedPointRayCasterNearest(object):
         for i in range(0, 5):
             for j in range(0, 5):
 
-                self.volumeProperty[i][j] = vtk.vtkVolumeProperty()
-                self.volumeMapper[i][j] = vtk.vtkFixedPointVolumeRayCastMapper()
+                self.volumeProperty[i][j] = vtkVolumeProperty()
+                self.volumeMapper[i][j] = vtkFixedPointVolumeRayCastMapper()
                 self.volumeMapper[i][j].SetSampleDistance(0.25)
                 self.volumeMapper[i][j].SetNumberOfThreads(1)
 
-                volume[i][j] = vtk.vtkVolume()
+                volume[i][j] = vtkVolume()
                 volume[i][j].SetMapper(self.volumeMapper[i][j])
                 volume[i][j].SetProperty(self.volumeProperty[i][j])
 
@@ -393,12 +401,12 @@ class FixedPointRayCasterNearest(object):
         ''' Return the volumeMapper so other tests can use it.'''
         return self.volumeMapper
 
-class TestFixedPointRayCasterNearest(vtk.test.Testing.vtkTest):
+class TestFixedPointRayCasterNearest(vtkmodules.test.Testing.vtkTest):
 
     def testFixedPointRayCasterNearest(self):
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
-        iRen = vtk.vtkRenderWindowInteractor()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
+        iRen = vtkRenderWindowInteractor()
 
         tFPRCN = FixedPointRayCasterNearest(ren, renWin, iRen)
 
@@ -407,8 +415,8 @@ class TestFixedPointRayCasterNearest(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "TestFixedPointRayCasterNearest.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=10)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=10)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestFixedPointRayCasterNearest, 'test')])
+     vtkmodules.test.Testing.main([(TestFixedPointRayCasterNearest, 'test')])

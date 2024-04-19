@@ -1,28 +1,39 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersGeneral import vtkReflectionFilter
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-cone = vtk.vtkConeSource()
-reflect = vtk.vtkReflectionFilter()
+cone = vtkConeSource()
+reflect = vtkReflectionFilter()
 reflect.SetInputConnection(cone.GetOutputPort())
 reflect.SetPlaneToXMax()
-reflect2 = vtk.vtkReflectionFilter()
+reflect2 = vtkReflectionFilter()
 reflect2.SetInputConnection(reflect.GetOutputPort())
 reflect2.SetPlaneToYMax()
-reflect3 = vtk.vtkReflectionFilter()
+reflect3 = vtkReflectionFilter()
 reflect3.SetInputConnection(reflect2.GetOutputPort())
 reflect3.SetPlaneToZMax()
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(reflect3.GetOutputPort())
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.AddActor(actor)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.SetSize(200,200)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 iren.Initialize()
 renWin.Render()

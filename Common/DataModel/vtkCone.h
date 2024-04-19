@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCone.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCone
  * @brief   implicit function for a cone
@@ -26,7 +14,7 @@
  * @warning
  * The cone is infinite in extent. To truncate the cone use the
  * vtkImplicitBoolean in combination with clipping planes.
-*/
+ */
 
 #ifndef vtkCone_h
 #define vtkCone_h
@@ -34,41 +22,42 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkCone : public vtkImplicitFunction
 {
 public:
   /**
    * Construct cone with angle of 45 degrees.
    */
-  static vtkCone *New();
+  static vtkCone* New();
 
-  vtkTypeMacro(vtkCone,vtkImplicitFunction);
+  vtkTypeMacro(vtkCone, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Evaluate cone equation.
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate cone normal.
    */
   void EvaluateGradient(double x[3], double g[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the cone angle (expressed in degrees).
    */
-  vtkSetClampMacro(Angle,double,0.0,89.0);
-  vtkGetMacro(Angle,double);
-  //@}
+  vtkSetClampMacro(Angle, double, 0.0, 89.0);
+  vtkGetMacro(Angle, double);
+  ///@}
 
 protected:
   vtkCone();
-  ~vtkCone() override {}
+  ~vtkCone() override = default;
 
   double Angle;
 
@@ -77,6 +66,5 @@ private:
   void operator=(const vtkCone&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

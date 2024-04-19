@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkIOODBC_AutoInit.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkODBCDatabase.h"
 
@@ -20,14 +8,14 @@
 #include <string>
 
 // Registration of ODBC dynamically with the vtkSQLDatabase factory method.
-vtkSQLDatabase * ODBCCreateFunction(const char* URL)
+VTK_ABI_NAMESPACE_BEGIN
+vtkSQLDatabase* ODBCCreateFunction(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
   std::string protocol, unused;
-  vtkODBCDatabase *db = 0;
+  vtkODBCDatabase* db = nullptr;
 
-  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
-      protocol == "odbc")
+  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) && protocol == "odbc")
   {
     db = vtkODBCDatabase::New();
     db->ParseURL(URL);
@@ -45,3 +33,4 @@ VTKIOODBC_EXPORT void vtkIOODBC_AutoInit_Construct()
     vtkSQLDatabase::RegisterCreateFromURLCallback(ODBCCreateFunction);
   }
 }
+VTK_ABI_NAMESPACE_END

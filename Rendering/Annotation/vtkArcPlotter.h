@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkArcPlotter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkArcPlotter
  * @brief   plot data along an arbitrary polyline
@@ -36,48 +24,50 @@
  *
  * @sa
  * vtkXYPlotActor
-*/
+ */
 
 #ifndef vtkArcPlotter_h
 #define vtkArcPlotter_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
-#define VTK_PLOT_SCALARS    1
-#define VTK_PLOT_VECTORS    2
-#define VTK_PLOT_NORMALS    3
-#define VTK_PLOT_TCOORDS    4
-#define VTK_PLOT_TENSORS    5
+#define VTK_PLOT_SCALARS 1
+#define VTK_PLOT_VECTORS 2
+#define VTK_PLOT_NORMALS 3
+#define VTK_PLOT_TCOORDS 4
+#define VTK_PLOT_TENSORS 5
 #define VTK_PLOT_FIELD_DATA 6
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkDataArray;
 class vtkPointData;
 class vtkPoints;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkArcPlotter : public vtkPolyDataAlgorithm
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkArcPlotter : public vtkPolyDataAlgorithm
 {
 public:
   /**
    * Instantiate with no default camera and plot mode set to
    * VTK_SCALARS.
    */
-  static vtkArcPlotter *New();
+  static vtkArcPlotter* New();
 
-  vtkTypeMacro(vtkArcPlotter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkArcPlotter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify a camera used to orient the plot along the arc. If no camera
    * is specified, then the orientation of the plot is arbitrary.
    */
   virtual void SetCamera(vtkCamera*);
-  vtkGetObjectMacro(Camera,vtkCamera);
-  //@}
+  vtkGetObjectMacro(Camera, vtkCamera);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify which data to plot: scalars, vectors, normals, texture coords,
    * tensors, or field data. If the data has more than one component, use
@@ -85,79 +75,78 @@ public:
    */
   vtkSetMacro(PlotMode, int);
   vtkGetMacro(PlotMode, int);
-  void SetPlotModeToPlotScalars() {this->SetPlotMode(VTK_PLOT_SCALARS);};
-  void SetPlotModeToPlotVectors() {this->SetPlotMode(VTK_PLOT_VECTORS);};
-  void SetPlotModeToPlotNormals() {this->SetPlotMode(VTK_PLOT_NORMALS);};
-  void SetPlotModeToPlotTCoords() {this->SetPlotMode(VTK_PLOT_TCOORDS);};
-  void SetPlotModeToPlotTensors() {this->SetPlotMode(VTK_PLOT_TENSORS);};
-  void SetPlotModeToPlotFieldData()
-            {this->SetPlotMode(VTK_PLOT_FIELD_DATA);};
-  //@}
+  void SetPlotModeToPlotScalars() { this->SetPlotMode(VTK_PLOT_SCALARS); }
+  void SetPlotModeToPlotVectors() { this->SetPlotMode(VTK_PLOT_VECTORS); }
+  void SetPlotModeToPlotNormals() { this->SetPlotMode(VTK_PLOT_NORMALS); }
+  void SetPlotModeToPlotTCoords() { this->SetPlotMode(VTK_PLOT_TCOORDS); }
+  void SetPlotModeToPlotTensors() { this->SetPlotMode(VTK_PLOT_TENSORS); }
+  void SetPlotModeToPlotFieldData() { this->SetPlotMode(VTK_PLOT_FIELD_DATA); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the component number to plot if the data has more than one
    * component. If the value of the plot component is == (-1), then all
    * the components will be plotted.
    */
-  vtkSetMacro(PlotComponent,int);
-  vtkGetMacro(PlotComponent,int);
-  //@}
+  vtkSetMacro(PlotComponent, int);
+  vtkGetMacro(PlotComponent, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the radius of the "median" value of the first plotted component.
    */
-  vtkSetClampMacro(Radius,double,0.0,VTK_FLOAT_MAX);
-  vtkGetMacro(Radius,double);
-  //@}
+  vtkSetClampMacro(Radius, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Radius, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the height of the plot. (The radius combined with the height
    * define the location of the plot relative to the generating polyline.)
    */
-  vtkSetClampMacro(Height,double,0.0,VTK_FLOAT_MAX);
-  vtkGetMacro(Height,double);
-  //@}
+  vtkSetClampMacro(Height, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Height, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an offset that translates each subsequent plot (if there is
    * more than one component plotted) from the defining arc (i.e., polyline).
    */
   vtkSetClampMacro(Offset, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Offset, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a boolean to control whether to use default normals.
    * By default, normals are automatically computed from the generating
    * polyline and camera.
    */
-  vtkSetMacro(UseDefaultNormal,vtkTypeBool);
-  vtkGetMacro(UseDefaultNormal,vtkTypeBool);
-  vtkBooleanMacro(UseDefaultNormal,vtkTypeBool);
-  //@}
+  vtkSetMacro(UseDefaultNormal, vtkTypeBool);
+  vtkGetMacro(UseDefaultNormal, vtkTypeBool);
+  vtkBooleanMacro(UseDefaultNormal, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default normal to use if you do not wish automatic normal
    * calculation. The arc plot will be generated using this normal.
    */
-  vtkSetVector3Macro(DefaultNormal,float);
-  vtkGetVectorMacro(DefaultNormal,float,3);
-  //@}
+  vtkSetVector3Macro(DefaultNormal, float);
+  vtkGetVectorMacro(DefaultNormal, float, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the field data array to plot. This instance variable is
    * only applicable if field data is plotted.
    */
-  vtkSetClampMacro(FieldDataArray,int,0,VTK_INT_MAX);
-  vtkGetMacro(FieldDataArray,int);
-  //@}
+  vtkSetClampMacro(FieldDataArray, int, 0, VTK_INT_MAX);
+  vtkGetMacro(FieldDataArray, int);
+  ///@}
 
   /**
    * New GetMTime because of camera dependency.
@@ -168,34 +157,33 @@ protected:
   vtkArcPlotter();
   ~vtkArcPlotter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  vtkIdType OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
-                        vtkPoints *newPts, double offset,
-                        double *range, double val);
-  int  ProcessComponents(vtkIdType numPts, vtkPointData *pd);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkIdType OffsetPoint(vtkIdType ptId, vtkPoints* inPts, double n[3], vtkPoints* newPts,
+    double offset, double* range, double val);
+  int ProcessComponents(vtkIdType numPts, vtkPointData* pd);
 
-  vtkCamera *Camera;
-  int       PlotMode;
-  int       PlotComponent;
-  double     Radius;
-  double     Height;
-  double     Offset;
-  float     DefaultNormal[3];
-  vtkTypeBool       UseDefaultNormal;
-  int       FieldDataArray;
-
-private:
-  vtkDataArray *Data;
-  double    *DataRange;
-  double   *Tuple;
-  int       NumberOfComponents;
-  int       ActiveComponent;
-  int       StartComp;
-  int       EndComp;
+  vtkCamera* Camera;
+  int PlotMode;
+  int PlotComponent;
+  double Radius;
+  double Height;
+  double Offset;
+  float DefaultNormal[3];
+  vtkTypeBool UseDefaultNormal;
+  int FieldDataArray;
 
 private:
+  vtkDataArray* Data;
+  double* DataRange;
+  double* Tuple;
+  int NumberOfComponents;
+  int ActiveComponent;
+  int StartComp;
+  int EndComp;
+
   vtkArcPlotter(const vtkArcPlotter&) = delete;
   void operator=(const vtkArcPlotter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

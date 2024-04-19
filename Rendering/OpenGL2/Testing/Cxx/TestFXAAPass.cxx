@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // This test is unlikely to fail if FXAA isn't working, but can be used to
 // quickly check the same scene with/without FXAA enabled.
@@ -141,7 +130,6 @@ int TestFXAAPass(int argc, char* argv[])
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderer> rendererFXAA;
-  rendererFXAA->UseFXAAOn();
 
   // custom passes
   vtkNew<vtkCameraPass> cameraP;
@@ -149,6 +137,7 @@ int TestFXAAPass(int argc, char* argv[])
   vtkNew<vtkDefaultPass> defaultP;
   vtkNew<vtkLightsPass> lights;
   vtkNew<vtkOpenGLFXAAPass> fxaa;
+  fxaa->SetFXAAOptions(rendererFXAA->GetFXAAOptions());
 
   vtkNew<vtkRenderPassCollection> passes;
   passes->AddItem(lights);

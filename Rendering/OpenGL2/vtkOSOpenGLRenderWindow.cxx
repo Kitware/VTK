@@ -1,17 +1,5 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkOSOpenGLRenderWindow.cxx
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtk_glew.h"
 #include <GL/gl.h>
 
@@ -29,12 +17,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/osmesa.h>
 
 #include "vtkOSOpenGLRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLProperty.h"
-#include "vtkOpenGLTexture.h"
+#include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
-#include "vtkOpenGLActor.h"
+#include "vtkOpenGLProperty.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLTexture.h"
 
 #include "vtkCommand.h"
 #include "vtkIdList.h"
@@ -44,56 +32,48 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtksys/SystemTools.hxx"
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOSOpenGLRenderWindow;
 class vtkRenderWindow;
 
-typedef OSMesaContext GLAPIENTRY (*OSMesaCreateContextAttribs_func)( const int *attribList, OSMesaContext sharelist );
-
+typedef OSMesaContext(GLAPIENTRY* OSMesaCreateContextAttribs_func)(
+  const int* attribList, OSMesaContext sharelist);
 
 class vtkOSOpenGLRenderWindowInternal
 {
   friend class vtkOSOpenGLRenderWindow;
-private:
-  vtkOSOpenGLRenderWindowInternal(vtkRenderWindow*);
 
-  // store previous settings of on screen window
-  int ScreenDoubleBuffer;
-  int ScreenMapped;
+private:
+  vtkOSOpenGLRenderWindowInternal();
 
   // OffScreen stuff
   OSMesaContext OffScreenContextId;
-  void *OffScreenWindow;
+  void* OffScreenWindow;
 };
 
-vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal(
-  vtkRenderWindow *rw)
+vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal()
 {
-
-  this->ScreenMapped = rw->GetMapped();
-  this->ScreenDoubleBuffer = rw->GetDoubleBuffer();
-
   // OpenGL specific
   this->OffScreenContextId = nullptr;
   this->OffScreenWindow = nullptr;
 }
 
-
 vtkStandardNewMacro(vtkOSOpenGLRenderWindow);
 
 // a couple of routines for offscreen rendering
-void vtkOSMesaDestroyWindow(void *Window)
+void vtkOSMesaDestroyWindow(void* Window)
 {
   free(Window);
 }
 
-void *vtkOSMesaCreateWindow(int width, int height)
+void* vtkOSMesaCreateWindow(int width, int height)
 {
-  return malloc(width*height*4);
+  return malloc(width * height * 4);
 }
 
 vtkOSOpenGLRenderWindow::vtkOSOpenGLRenderWindow()
 {
-//   this->ParentId = (Window)nullptr;
+  //   this->ParentId = nullptr;
   this->ScreenSize[0] = 1280;
   this->ScreenSize[1] = 1024;
   this->OwnDisplay = 0;
@@ -101,8 +81,9 @@ vtkOSOpenGLRenderWindow::vtkOSOpenGLRenderWindow()
   this->ForceMakeCurrent = 0;
   this->OwnWindow = 0;
   this->ShowWindow = false;
+  this->UseOffScreenBuffers = true;
 
-  this->Internal = new vtkOSOpenGLRenderWindowInternal(this);
+  this->Internal = new vtkOSOpenGLRenderWindowInternal();
 }
 
 // free up memory & close the window
@@ -110,11 +91,10 @@ vtkOSOpenGLRenderWindow::~vtkOSOpenGLRenderWindow()
 {
   // close-down all system-specific drawing resources
   this->Finalize();
-
-  vtkRenderer *ren;
+  vtkRenderer* ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
-  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
+  while ((ren = this->Renderers->GetNextRenderer(rit)))
   {
     ren->SetRenderWindow(nullptr);
   }
@@ -163,7 +143,6 @@ void vtkOSOpenGLRenderWindow::DestroyWindow()
 
   // make sure all other code knows we're not mapped anymore
   this->Mapped = 0;
-
 }
 
 void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
@@ -172,25 +151,19 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 
   if (!this->Internal->OffScreenWindow)
   {
-    this->Internal->OffScreenWindow = vtkOSMesaCreateWindow(width,height);
+    this->Internal->OffScreenWindow = vtkOSMesaCreateWindow(width, height);
     this->OwnWindow = 1;
   }
-#if (OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 1102) && defined(OSMESA_CONTEXT_MAJOR_VERSION)
+#if (OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 1102) &&                                 \
+  defined(OSMESA_CONTEXT_MAJOR_VERSION)
   if (!this->Internal->OffScreenContextId)
   {
-    static const int attribs[] = {
-       OSMESA_FORMAT, OSMESA_RGBA,
-       OSMESA_DEPTH_BITS, 32,
-       OSMESA_STENCIL_BITS, 0,
-       OSMESA_ACCUM_BITS, 0,
-       OSMESA_PROFILE, OSMESA_CORE_PROFILE,
-       OSMESA_CONTEXT_MAJOR_VERSION, 3,
-       OSMESA_CONTEXT_MINOR_VERSION, 2,
-       0 };
+    static const int attribs[] = { OSMESA_FORMAT, OSMESA_RGBA, OSMESA_DEPTH_BITS, 32,
+      OSMESA_STENCIL_BITS, 0, OSMESA_ACCUM_BITS, 0, OSMESA_PROFILE, OSMESA_CORE_PROFILE,
+      OSMESA_CONTEXT_MAJOR_VERSION, 3, OSMESA_CONTEXT_MINOR_VERSION, 2, 0 };
 
     OSMesaCreateContextAttribs_func OSMesaCreateContextAttribs =
-       (OSMesaCreateContextAttribs_func)
-       OSMesaGetProcAddress("OSMesaCreateContextAttribs");
+      (OSMesaCreateContextAttribs_func)OSMesaGetProcAddress("OSMesaCreateContextAttribs");
 
     if (OSMesaCreateContextAttribs != nullptr)
     {
@@ -213,8 +186,7 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 
   // tell our renderers about us
   vtkRenderer* ren;
-  for (this->Renderers->InitTraversal();
-       (ren = this->Renderers->GetNextItem());)
+  for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
   {
     ren->SetRenderWindow(0);
     ren->SetRenderWindow(this);
@@ -246,16 +218,22 @@ void vtkOSOpenGLRenderWindow::DestroyOffScreenWindow()
 
 void vtkOSOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
 {
-  if(this->Internal->OffScreenContextId)
+  auto& internal = (*this->Internal);
+  if (internal.OffScreenContextId)
   {
-    this->DestroyOffScreenWindow();
-    this->CreateOffScreenWindow(width, height);
+    // in past, we used to destroy the context and recreate one on resize. this
+    // is totally unnecessary; we just recreate the buffer and make it current.
+    vtkOSMesaDestroyWindow(internal.OffScreenWindow);
+    internal.OffScreenWindow = vtkOSMesaCreateWindow(width, height);
+
+    // Call MakeCurrent to ensure that we're no longer using the old memory
+    // buffer.
+    this->MakeCurrent();
   }
 }
 
-
 // Initialize the window for rendering.
-void vtkOSOpenGLRenderWindow::WindowInitialize (void)
+void vtkOSOpenGLRenderWindow::WindowInitialize()
 {
   this->CreateAWindow();
 
@@ -263,8 +241,7 @@ void vtkOSOpenGLRenderWindow::WindowInitialize (void)
 
   // tell our renderers about us
   vtkRenderer* ren;
-  for (this->Renderers->InitTraversal();
-       (ren = this->Renderers->GetNextItem());)
+  for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
   {
     ren->SetRenderWindow(0);
     ren->SetRenderWindow(this);
@@ -274,9 +251,9 @@ void vtkOSOpenGLRenderWindow::WindowInitialize (void)
 }
 
 // Initialize the rendering window.
-void vtkOSOpenGLRenderWindow::Initialize (void)
+void vtkOSOpenGLRenderWindow::Initialize()
 {
-  if(! (this->Internal->OffScreenContextId))
+  if (!(this->Internal->OffScreenContextId))
   {
     // initialize offscreen window
     int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
@@ -285,11 +262,10 @@ void vtkOSOpenGLRenderWindow::Initialize (void)
   }
 }
 
-void vtkOSOpenGLRenderWindow::Finalize (void)
+void vtkOSOpenGLRenderWindow::Finalize()
 {
   // clean and destroy window
   this->DestroyWindow();
-
 }
 
 // Change the window to fill the entire screen.
@@ -310,22 +286,19 @@ void vtkOSOpenGLRenderWindow::WindowRemap()
 }
 
 // Specify the size of the rendering window.
-void vtkOSOpenGLRenderWindow::SetSize(int width,int height)
+void vtkOSOpenGLRenderWindow::SetSize(int width, int height)
 {
-  if ((this->Size[0] != width)||(this->Size[1] != height))
+  if ((this->Size[0] != width) || (this->Size[1] != height))
   {
     this->Superclass::SetSize(width, height);
-    if (!this->UseOffScreenBuffers)
-    {
-      this->ResizeOffScreenWindow(width, height);
-    }
+    this->ResizeOffScreenWindow(width, height);
     this->Modified();
   }
 }
 
 void vtkOSOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "OffScreenContextId: " << this->Internal->OffScreenContextId << "\n";
 }
@@ -335,55 +308,52 @@ void vtkOSOpenGLRenderWindow::MakeCurrent()
   // set the current window
   if (this->Internal->OffScreenContextId)
   {
-    if (OSMesaMakeCurrent(this->Internal->OffScreenContextId,
-                          this->Internal->OffScreenWindow, GL_UNSIGNED_BYTE,
-                          this->Size[0], this->Size[1]) != GL_TRUE)
+    if (OSMesaMakeCurrent(this->Internal->OffScreenContextId, this->Internal->OffScreenWindow,
+          GL_UNSIGNED_BYTE, this->Size[0], this->Size[1]) != GL_TRUE)
     {
       vtkWarningMacro("failed call to OSMesaMakeCurrent");
     }
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkOSOpenGLRenderWindow::IsCurrent()
 {
-  bool result=false;
-  if(this->Internal->OffScreenContextId)
+  bool result = false;
+  if (this->Internal->OffScreenContextId)
   {
-    result=this->Internal->OffScreenContextId==OSMesaGetCurrentContext();
+    result = this->Internal->OffScreenContextId == OSMesaGetCurrentContext();
   }
   return result;
 }
-
 
 void vtkOSOpenGLRenderWindow::SetForceMakeCurrent()
 {
   this->ForceMakeCurrent = 1;
 }
 
-void *vtkOSOpenGLRenderWindow::GetGenericContext()
+void* vtkOSOpenGLRenderWindow::GetGenericContext()
 {
-  return (void *)this->Internal->OffScreenContextId;
+  return (void*)this->Internal->OffScreenContextId;
 }
 
-int vtkOSOpenGLRenderWindow::GetEventPending()
+vtkTypeBool vtkOSOpenGLRenderWindow::GetEventPending()
 {
   return 0;
 }
 
 // Get the size of the screen in pixels
-int *vtkOSOpenGLRenderWindow::GetScreenSize()
+int* vtkOSOpenGLRenderWindow::GetScreenSize()
 {
-
   this->ScreenSize[0] = 1280;
   this->ScreenSize[1] = 1024;
   return this->ScreenSize;
 }
 
 // Get the position in screen coordinates (pixels) of the window.
-int *vtkOSOpenGLRenderWindow::GetPosition(void)
+int* vtkOSOpenGLRenderWindow::GetPosition()
 {
   return this->Position;
 }
@@ -391,7 +361,7 @@ int *vtkOSOpenGLRenderWindow::GetPosition(void)
 // Move the window to a new position on the display.
 void vtkOSOpenGLRenderWindow::SetPosition(int x, int y)
 {
-  if ((this->Position[0] != x)||(this->Position[1] != y))
+  if ((this->Position[0] != x) || (this->Position[1] != y))
   {
     this->Modified();
   }
@@ -400,65 +370,64 @@ void vtkOSOpenGLRenderWindow::SetPosition(int x, int y)
 }
 
 // Set this RenderWindow's X window id to a pre-existing window.
-void vtkOSOpenGLRenderWindow::SetWindowInfo(const char *info)
+void vtkOSOpenGLRenderWindow::SetWindowInfo(const char* info)
 {
   int tmp;
 
   this->OwnDisplay = 1;
 
-  sscanf(info,"%i",&tmp);
-
+  sscanf(info, "%i", &tmp);
 }
 
 // Set this RenderWindow's X window id to a pre-existing window.
-void vtkOSOpenGLRenderWindow::SetNextWindowInfo(const char *info)
+void vtkOSOpenGLRenderWindow::SetNextWindowInfo(const char* info)
 {
   int tmp;
-  sscanf(info,"%i",&tmp);
+  sscanf(info, "%i", &tmp);
 
-//   this->SetNextWindowId((Window)tmp);
+  //   this->SetNextWindowId((Window)tmp);
 }
 
 // Sets the X window id of the window that WILL BE created.
-void vtkOSOpenGLRenderWindow::SetParentInfo(const char *info)
+void vtkOSOpenGLRenderWindow::SetParentInfo(const char* info)
 {
   int tmp;
 
   // get the default display connection
   this->OwnDisplay = 1;
 
-  sscanf(info,"%i",&tmp);
+  sscanf(info, "%i", &tmp);
 
-//   this->SetParentId(tmp);
+  //   this->SetParentId(tmp);
 }
 
-void vtkOSOpenGLRenderWindow::SetWindowId(void *arg)
+void vtkOSOpenGLRenderWindow::SetWindowId(void* arg)
 {
   (void)arg;
-//   this->SetWindowId((Window)arg);
+  //   this->SetWindowId((Window)arg);
 }
-void vtkOSOpenGLRenderWindow::SetParentId(void *arg)
+void vtkOSOpenGLRenderWindow::SetParentId(void* arg)
 {
   (void)arg;
-//   this->SetParentId((Window)arg);
+  //   this->SetParentId((Window)arg);
 }
 
 const char* vtkOSOpenGLRenderWindow::ReportCapabilities()
 {
   MakeCurrent();
 
-//   int scrnum = DefaultScreen(this->DisplayId);
+  //   int scrnum = DefaultScreen(this->DisplayId);
 
-  const char *glVendor = (const char *) glGetString(GL_VENDOR);
-  const char *glRenderer = (const char *) glGetString(GL_RENDERER);
-  const char *glVersion = (const char *) glGetString(GL_VERSION);
-  const char *glExtensions = (const char *) glGetString(GL_EXTENSIONS);
+  const char* glVendor = (const char*)glGetString(GL_VENDOR);
+  const char* glRenderer = (const char*)glGetString(GL_RENDERER);
+  const char* glVersion = (const char*)glGetString(GL_VERSION);
+  const char* glExtensions = (const char*)glGetString(GL_EXTENSIONS);
 
   std::ostringstream strm;
   strm << "OpenGL vendor string:  " << glVendor << endl;
   strm << "OpenGL renderer string:  " << glRenderer << endl;
   strm << "OpenGL version string:  " << glVersion << endl;
-  strm << "OpenGL extensions:  " << glExtensions << endl;
+  strm << "OpenGL extensions:  " << (glExtensions ? glExtensions : "(none)") << endl;
   delete[] this->Capabilities;
   size_t len = strm.str().length();
   this->Capabilities = new char[len + 1];
@@ -473,29 +442,28 @@ int vtkOSOpenGLRenderWindow::SupportsOpenGL()
   return 1;
 }
 
-
-int vtkOSOpenGLRenderWindow::IsDirect()
+vtkTypeBool vtkOSOpenGLRenderWindow::IsDirect()
 {
   MakeCurrent();
   return 0;
 }
 
-
-void vtkOSOpenGLRenderWindow::SetWindowName(const char * cname)
+void vtkOSOpenGLRenderWindow::SetWindowName(const char* cname)
 {
-  char *name = new char[ strlen(cname)+1 ];
+  char* name = new char[strlen(cname) + 1];
   strcpy(name, cname);
-  vtkOpenGLRenderWindow::SetWindowName( name );
-  delete [] name;
+  vtkOpenGLRenderWindow::SetWindowName(name);
+  delete[] name;
 }
 
-void vtkOSOpenGLRenderWindow::SetNextWindowId(void *arg)
+void vtkOSOpenGLRenderWindow::SetNextWindowId(void* arg)
 {
   (void)arg;
 }
 
 // This probably has been moved to superclass.
-void *vtkOSOpenGLRenderWindow::GetGenericWindowId()
+void* vtkOSOpenGLRenderWindow::GetGenericWindowId()
 {
-  return (void *)this->Internal->OffScreenWindow;
+  return (void*)this->Internal->OffScreenWindow;
 }
+VTK_ABI_NAMESPACE_END

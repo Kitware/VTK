@@ -1,57 +1,52 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridToExplicitStructuredGrid.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkUnstructuredGridToExplicitStructuredGrid.h"
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkExplicitStructuredGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkDataArray.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridToExplicitStructuredGrid);
 
-//-----------------------------------------------------------------------------
-vtkUnstructuredGridToExplicitStructuredGrid::vtkUnstructuredGridToExplicitStructuredGrid()
+//------------------------------------------------------------------------------
+void vtkUnstructuredGridToExplicitStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->WholeExtent[0] = this->WholeExtent[1] = this->WholeExtent[2] =
-  this->WholeExtent[3] = this->WholeExtent[4] = this->WholeExtent[5] = 0;
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "WholeExtent: (" << this->WholeExtent[0] << ", " << this->WholeExtent[1] << ", "
+     << this->WholeExtent[2] << ", " << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
+     << this->WholeExtent[5] << ")\n";
 }
 
-// ----------------------------------------------------------------------------
-int vtkUnstructuredGridToExplicitStructuredGrid::RequestInformation(
-   vtkInformation *vtkNotUsed(request),
-   vtkInformationVector **vtkNotUsed(inputVector),
-   vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+vtkUnstructuredGridToExplicitStructuredGrid::vtkUnstructuredGridToExplicitStructuredGrid()
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-    this->WholeExtent, 6);
+  this->WholeExtent[0] = this->WholeExtent[1] = this->WholeExtent[2] = this->WholeExtent[3] =
+    this->WholeExtent[4] = this->WholeExtent[5] = 0;
+}
+
+//------------------------------------------------------------------------------
+int vtkUnstructuredGridToExplicitStructuredGrid::RequestInformation(
+  vtkInformation* vtkNotUsed(request), vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent, 6);
 
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(vtkInformation*,
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector)
+//------------------------------------------------------------------------------
+int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Retrieve input and output
   vtkUnstructuredGrid* input = vtkUnstructuredGrid::GetData(inputVector[0], 0);
@@ -88,9 +83,8 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(vtkInformation*,
   extents[4] = static_cast<int>(std::floor(r[0]));
   extents[5] = static_cast<int>(std::floor(r[1] + 1));
 
-  vtkIdType expectedCells = (extents[1] - extents[0]) *
-    (extents[3] - extents[2]) *
-    (extents[5] - extents[4]);
+  vtkIdType expectedCells =
+    (extents[1] - extents[0]) * (extents[3] - extents[2]) * (extents[5] - extents[4]);
 
   // Copy input point data to output
   output->GetCellData()->CopyAllocate(input->GetCellData(), expectedCells);
@@ -99,50 +93,66 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(vtkInformation*,
   output->SetExtent(extents);
 
   vtkIdType nbCells = input->GetNumberOfCells();
-  vtkNew<vtkCellArray> cells;
-  output->SetCells(cells.Get());
 
-  // Initialize the cell array
-  cells->AllocateEstimate(expectedCells, 8);
-  vtkIdType ids[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-  for (vtkIdType i = 0; i < expectedCells; i++)
+  bool hasBlanks = (expectedCells != nbCells);
+  if (!hasBlanks)
   {
-    cells->InsertNextCell(8, ids);
-    if (expectedCells != nbCells)
+    // if we have the same number of cells, we need to check if all cells are valid and not empty
+    for (vtkIdType i = 0; i < nbCells; i++)
     {
-      output->GetCellData()->CopyData(input->GetCellData(), 0, i);
-      // Blank after copying the cell data to ensure it is not overwrited
+      int cellType = input->GetCellType(i);
+      if (cellType != VTK_HEXAHEDRON && cellType != VTK_VOXEL)
+      {
+        hasBlanks = true;
+        break;
+      }
+    }
+  }
+
+  if (hasBlanks)
+  {
+    for (vtkIdType i = 0; i < expectedCells; i++)
+    {
+      output->GetCellData()->CopyData(input->GetCellData(), vtkIdType(0), i);
+      // Blank after copying the cell data to ensure it is not overwritten
       output->BlankCell(i);
     }
   }
 
   int progressCount = 0;
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = nbCells / 20 + 1;
 
   // Copy unstructured cells
+  vtkCellArray* cells = output->GetCells();
   for (vtkIdType i = 0; i < nbCells && !abort; i++)
   {
     if (progressCount >= progressInterval)
     {
       vtkDebugMacro("Process cell #" << i);
       this->UpdateProgress(static_cast<double>(i) / nbCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
       progressCount = 0;
     }
     progressCount++;
 
     int cellType = input->GetCellType(i);
+
+    if (cellType == VTK_EMPTY_CELL)
+    {
+      // ignore empty cells
+      continue;
+    }
+
     if (cellType != VTK_HEXAHEDRON && cellType != VTK_VOXEL)
     {
       vtkErrorMacro("Cell " << i << " is of type " << cellType << " while "
-        << "hexahedron or voxel is expected!");
+                            << "hexahedron or voxel is expected!");
       continue;
     }
 
     // Compute the structured cell index from IJK indices
-    vtkIdType cellId = output->ComputeCellId(
-      static_cast<int>(std::floor(iArray->GetTuple1(i))),
+    vtkIdType cellId = output->ComputeCellId(static_cast<int>(std::floor(iArray->GetTuple1(i))),
       static_cast<int>(std::floor(jArray->GetTuple1(i))),
       static_cast<int>(std::floor(kArray->GetTuple1(i))));
     if (cellId < 0)
@@ -152,11 +162,12 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(vtkInformation*,
     }
 
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     input->GetCellPoints(i, npts, pts);
     if (cellType == VTK_VOXEL)
     {
       // Change point order: voxels and hexahedron don't have same connectivity.
+      vtkIdType ids[8];
       ids[0] = pts[0];
       ids[1] = pts[1];
       ids[2] = pts[3];
@@ -172,9 +183,9 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(vtkInformation*,
       cells->ReplaceCellAtId(cellId, 8, pts);
     }
     output->GetCellData()->CopyData(input->GetCellData(), i, cellId);
-    if (expectedCells != nbCells)
+    if (hasBlanks)
     {
-      // Unblank after copying the cell data to ensure it is not overwrited
+      // Unblank after copying the cell data to ensure it is not overwritten
       output->UnBlankCell(cellId);
     }
   }
@@ -184,10 +195,11 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(vtkInformation*,
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkUnstructuredGridToExplicitStructuredGrid::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

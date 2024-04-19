@@ -1,21 +1,34 @@
 #!/usr/bin/env python
 
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkGlyph3D
+from vtkmodules.vtkFiltersExtraction import vtkExtractGrid
+from vtkmodules.vtkFiltersSources import vtkGlyphSource2D
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 
 # create planes
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create pipeline
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
+pl3d = vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName( vtkGetDataRoot() + '/Data/combxyz.bin' )
 pl3d.SetQFileName( vtkGetDataRoot() + '/Data/combq.bin' )
 pl3d.SetScalarFunctionNumber( 100 )
@@ -23,25 +36,25 @@ pl3d.SetVectorFunctionNumber( 202 )
 pl3d.Update()
 pl3d_output = pl3d.GetOutput().GetBlock(0)
 
-eg = vtk.vtkExtractGrid()
+eg = vtkExtractGrid()
 eg.SetInputData(pl3d_output)
 eg.SetSampleRate(4,4,4)
 
-gs = vtk.vtkGlyphSource2D()
+gs = vtkGlyphSource2D()
 gs.SetGlyphTypeToThickArrow()
 gs.SetScale( 1 )
 gs.FilledOff()
 gs.CrossOff()
 
-glyph = vtk.vtkGlyph3D()
+glyph = vtkGlyph3D()
 glyph.SetInputConnection(eg.GetOutputPort())
 glyph.SetSourceConnection(gs.GetOutputPort())
 glyph.SetScaleFactor( 0.75 )
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(glyph.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 ren.AddActor(actor)

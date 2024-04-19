@@ -1,6 +1,22 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOGeometry import vtkBYUReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkLight,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingAnnotation import vtkCubeAxesActor
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This example illustrates how one may explicitly specify the range of each
@@ -12,51 +28,51 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 #
 # read in an interesting object and outline it
 #
-fohe = vtk.vtkBYUReader()
+fohe = vtkBYUReader()
 fohe.SetGeometryFileName(VTK_DATA_ROOT + "/Data/teapot.g")
 
-normals = vtk.vtkPolyDataNormals()
+normals = vtkPolyDataNormals()
 normals.SetInputConnection(fohe.GetOutputPort())
 
-foheMapper = vtk.vtkPolyDataMapper()
+foheMapper = vtkPolyDataMapper()
 foheMapper.SetInputConnection(normals.GetOutputPort())
 
-foheActor = vtk.vtkLODActor()
+foheActor = vtkLODActor()
 foheActor.SetMapper(foheMapper)
 foheActor.GetProperty().SetDiffuseColor(0.7, 0.3, 0.0)
 
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(normals.GetOutputPort())
 
-mapOutline = vtk.vtkPolyDataMapper()
+mapOutline = vtkPolyDataMapper()
 mapOutline.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(mapOutline)
 outlineActor.GetProperty().SetColor(0, 0, 0)
 
 # Create the RenderWindow, Renderer, and setup viewports
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetClippingRange(1.0, 100.0)
 camera.SetFocalPoint(0.9, 1.0, 0.0)
 camera.SetPosition(11.63, 6.0, 10.77)
 
-light = vtk.vtkLight()
+light = vtkLight()
 light.SetFocalPoint(0.21406, 1.5, 0)
 light.SetPosition(8.3761, 4.94858, 4.12505)
 
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetActiveCamera(camera)
 ren2.AddLight(light)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren2)
 renWin.SetWindowName("VTK - Cube Axes custom range")
 
 renWin.SetSize(600, 600)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size
@@ -68,7 +84,7 @@ ren2.SetBackground(0.1, 0.2, 0.4)
 normals.Update()
 
 bounds = normals.GetOutput().GetBounds()
-axes2 = vtk.vtkCubeAxesActor()
+axes2 = vtkCubeAxesActor()
 axes2.SetBounds(
   bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
 axes2.SetXAxisRange(20, 300)
@@ -90,11 +106,9 @@ renWin.Render()
 #
 iren.Initialize()
 
-def TkCheckAbort (object_binding, event_name):
-    foo = renWin.GetEventPending()
-    if (foo != 0):
+def TkCheckAbort(obj=None, event=""):
+    if renWin.GetEventPending():
         renWin.SetAbortRender(1)
-        pass
 
 renWin.AddObserver("AbortCheckEvent", TkCheckAbort)
 

@@ -1,28 +1,20 @@
-/*
- * Copyright 2007 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2007 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
-
-#include "ui_SimpleView.h"
 #include "SimpleView.h"
+#include "ui_SimpleView.h"
 
-#include <vtkDataObjectToTable.h>
-#include <vtkElevationFilter.h>
 #include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkSmartPointer.h"
+#include <vtkAttributeDataToTableFilter.h>
+#include <vtkElevationFilter.h>
 #include <vtkNew.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkQtTableView.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
-#include "vtkSmartPointer.h"
+#include <vtkRenderer.h>
 #include <vtkVectorText.h>
-
-
 
 // Constructor
 SimpleView::SimpleView()
@@ -41,8 +33,8 @@ SimpleView::SimpleView()
   text->SetText("VTK and Qt!");
   vtkNew<vtkElevationFilter> elevation;
   elevation->SetInputConnection(text->GetOutputPort());
-  elevation->SetLowPoint(0,0,0);
-  elevation->SetHighPoint(10,0,0);
+  elevation->SetLowPoint(0, 0, 0);
+  elevation->SetHighPoint(10, 0, 0);
 
   // Mapper
   vtkNew<vtkPolyDataMapper> mapper;
@@ -65,9 +57,9 @@ SimpleView::SimpleView()
 
   // Just a bit of Qt interest: Culling off the
   // point data and handing it to a vtkQtTableView
-  vtkNew<vtkDataObjectToTable> toTable;
+  vtkNew<vtkAttributeDataToTableFilter> toTable;
   toTable->SetInputConnection(elevation->GetOutputPort());
-  toTable->SetFieldType(vtkDataObjectToTable::POINT_DATA);
+  toTable->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
   // Here we take the end of the VTK pipeline and give it to a Qt View
   this->TableView->SetRepresentationFromInputConnection(toTable->GetOutputPort());
@@ -75,21 +67,17 @@ SimpleView::SimpleView()
   // Set up action signals and slots
   connect(this->ui->actionOpenFile, SIGNAL(triggered()), this, SLOT(slotOpenFile()));
   connect(this->ui->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
-
 };
 
 SimpleView::~SimpleView()
 {
   // The smart pointers should clean up for up
-
 }
 
 // Action to be taken upon file open
-void SimpleView::slotOpenFile()
+void SimpleView::slotOpenFile() {}
+
+void SimpleView::slotExit()
 {
-
-}
-
-void SimpleView::slotExit() {
   qApp->exit();
 }

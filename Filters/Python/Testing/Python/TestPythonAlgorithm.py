@@ -1,18 +1,22 @@
-import vtk
-from vtk.util import vtkAlgorithm as vta
-from vtk.test import Testing
+from vtkmodules.vtkCommonDataModel import vtkImageData
+from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
+from vtkmodules.vtkFiltersPython import vtkPythonAlgorithm
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.util import vtkAlgorithm as vta
+from vtkmodules.test import Testing
 
 class TestPythonAlgorithm(Testing.vtkTest):
     def testSource(self):
         class MyAlgorithm(vta.VTKAlgorithm):
             def __init__(self):
                 vta.VTKAlgorithm.__init__(self, nInputPorts=0, outputType='vtkImageData')
-                self.Wavelet = vtk.vtkRTAnalyticSource()
+                self.Wavelet = vtkRTAnalyticSource()
 
             def RequestInformation(self, vtkself, request, inInfo, outInfo):
                 self.Wavelet.UpdateInformation()
                 wOutInfo = self.Wavelet.GetOutputInformation(0)
-                vtkSDDP = vtk.vtkStreamingDemandDrivenPipeline
+                vtkSDDP = vtkStreamingDemandDrivenPipeline
                 outInfo.GetInformationObject(0).Set(vtkSDDP.WHOLE_EXTENT(), wOutInfo.Get(vtkSDDP.WHOLE_EXTENT()), 6)
                 return 1
 
@@ -22,18 +26,18 @@ class TestPythonAlgorithm(Testing.vtkTest):
                 out.ShallowCopy(self.Wavelet.GetOutput())
                 return 1
 
-        ex = vtk.vtkPythonAlgorithm()
+        ex = vtkPythonAlgorithm()
         ex.SetPythonObject(MyAlgorithm())
 
         ex.Update()
 
-        w = vtk.vtkRTAnalyticSource()
+        w = vtkRTAnalyticSource()
         w.Update()
 
         output = ex.GetOutputDataObject(0)
         self.assertEqual(output.GetPointData().GetScalars().GetRange(),\
             w.GetOutput().GetPointData().GetScalars().GetRange())
-        vtkSDDP = vtk.vtkStreamingDemandDrivenPipeline
+        vtkSDDP = vtkStreamingDemandDrivenPipeline
         self.assertEqual(ex.GetOutputInformation(0).Get(vtkSDDP.WHOLE_EXTENT()),\
             w.GetOutputInformation(0).Get(vtkSDDP.WHOLE_EXTENT()))
 
@@ -41,19 +45,19 @@ class TestPythonAlgorithm(Testing.vtkTest):
         class MyAlgorithm(vta.VTKPythonAlgorithmBase):
             def __init__(self):
                 vta.VTKPythonAlgorithmBase.__init__(self, nInputPorts=0, outputType='vtkImageData')
-                self.Wavelet = vtk.vtkRTAnalyticSource()
+                self.Wavelet = vtkRTAnalyticSource()
 
             def RequestInformation(self, request, inInfo, outInfo):
                 self.Wavelet.UpdateInformation()
                 wOutInfo = self.Wavelet.GetOutputInformation(0)
-                vtkSDDP = vtk.vtkStreamingDemandDrivenPipeline
+                vtkSDDP = vtkStreamingDemandDrivenPipeline
                 outInfo.GetInformationObject(0).Set(
                     vtkSDDP.WHOLE_EXTENT(), wOutInfo.Get(vtkSDDP.WHOLE_EXTENT()), 6)
                 return 1
 
             def RequestData(self, request, inInfo, outInfo):
                 self.Wavelet.Update()
-                out = vtk.vtkImageData.GetData(outInfo)
+                out = vtkImageData.GetData(outInfo)
                 out.ShallowCopy(self.Wavelet.GetOutput())
                 return 1
 
@@ -61,13 +65,13 @@ class TestPythonAlgorithm(Testing.vtkTest):
 
         ex.Update()
 
-        w = vtk.vtkRTAnalyticSource()
+        w = vtkRTAnalyticSource()
         w.Update()
 
         output = ex.GetOutputDataObject(0)
         self.assertEqual(output.GetPointData().GetScalars().GetRange(),\
             w.GetOutput().GetPointData().GetScalars().GetRange())
-        vtkSDDP = vtk.vtkStreamingDemandDrivenPipeline
+        vtkSDDP = vtkStreamingDemandDrivenPipeline
         self.assertEqual(ex.GetOutputInformation(0).Get(vtkSDDP.WHOLE_EXTENT()),\
             w.GetOutputInformation(0).Get(vtkSDDP.WHOLE_EXTENT()))
 
@@ -79,9 +83,9 @@ class TestPythonAlgorithm(Testing.vtkTest):
                 out.ShallowCopy(inp)
                 return 1
 
-        sphere = vtk.vtkSphereSource()
+        sphere = vtkSphereSource()
 
-        ex = vtk.vtkPythonAlgorithm()
+        ex = vtkPythonAlgorithm()
         ex.SetPythonObject(MyAlgorithm())
 
         ex.SetInputConnection(sphere.GetOutputPort())
@@ -104,7 +108,7 @@ class TestPythonAlgorithm(Testing.vtkTest):
                 out.ShallowCopy(inp)
                 return 1
 
-        sphere = vtk.vtkSphereSource()
+        sphere = vtkSphereSource()
 
         ex = MyAlgorithm()
         ex.SetInputConnection(sphere.GetOutputPort())

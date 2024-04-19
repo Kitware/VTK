@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleJoystickActor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInteractorStyleJoystickActor
  * @brief   manipulate objects in the scene independently of one another
@@ -29,27 +17,30 @@
  * @sa
  * vtkInteractorStyleJoystickCamera vtkInteractorStyleTrackballActor
  * vtkInteractorStyleTrackballCamera
-*/
+ */
 
 #ifndef vtkInteractorStyleJoystickActor_h
 #define vtkInteractorStyleJoystickActor_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellPicker;
 
 // motion flags
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleJoystickActor : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleJoystickActor
+  : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleJoystickActor *New();
+  static vtkInteractorStyleJoystickActor* New();
 
-  vtkTypeMacro(vtkInteractorStyleJoystickActor,vtkInteractorStyle);
+  vtkTypeMacro(vtkInteractorStyleJoystickActor, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
@@ -61,7 +52,7 @@ public:
   void OnMiddleButtonUp() override;
   void OnRightButtonDown() override;
   void OnRightButtonUp() override;
-  //@}
+  ///@}
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
@@ -79,20 +70,18 @@ protected:
 
   void FindPickedActor(int x, int y);
 
-  void Prop3DTransform(vtkProp3D *prop3D,
-                       double *boxCenter,
-                       int numRotation,
-                       double **rotate,
-                       double *scale);
+  void Prop3DTransform(
+    vtkProp3D* prop3D, double* boxCenter, int numRotation, double** rotate, double* scale);
 
   double MotionFactor;
 
-  vtkProp3D *InteractionProp;
-  vtkCellPicker *InteractionPicker;
+  vtkProp3D* InteractionProp;
+  vtkCellPicker* InteractionPicker;
 
 private:
   vtkInteractorStyleJoystickActor(const vtkInteractorStyleJoystickActor&) = delete;
   void operator=(const vtkInteractorStyleJoystickActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

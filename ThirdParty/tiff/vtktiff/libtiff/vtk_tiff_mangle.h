@@ -1,18 +1,11 @@
 #ifndef vtk_tiff_mangle_h
 #define vtk_tiff_mangle_h
 
-#define libport_dummy_function vtktiff_libport_dummy_function
-#define LogL10fromY vtktiff_LogL10fromY
-#define LogL10toY vtktiff_LogL10toY
-#define LogL16fromY vtktiff_LogL16fromY
-#define LogL16toY vtktiff_LogL16toY
-#define LogLuv24fromXYZ vtktiff_LogLuv24fromXYZ
-#define LogLuv24toXYZ vtktiff_LogLuv24toXYZ
-#define LogLuv32fromXYZ vtktiff_LogLuv32fromXYZ
-#define LogLuv32toXYZ vtktiff_LogLuv32toXYZ
+
 #define TIFFAccessTagMethods vtktiff_TIFFAccessTagMethods
 #define _TIFFBuiltinCODECS vtktiff__TIFFBuiltinCODECS
 #define _TIFFcalloc vtktiff__TIFFcalloc
+#define _TIFFCastUInt64ToSSize vtktiff__TIFFCastUInt64ToSSize
 #define _TIFFCheckFieldIsValidForCodec vtktiff__TIFFCheckFieldIsValidForCodec
 #define _TIFFCheckMalloc vtktiff__TIFFCheckMalloc
 #define TIFFCheckpointDirectory vtktiff_TIFFCheckpointDirectory
@@ -20,9 +13,12 @@
 #define TIFFCheckTile vtktiff_TIFFCheckTile
 #define TIFFCIELabToRGBInit vtktiff_TIFFCIELabToRGBInit
 #define TIFFCIELabToXYZ vtktiff_TIFFCIELabToXYZ
+#define _TIFFClampDoubleToFloat vtktiff__TIFFClampDoubleToFloat
+#define _TIFFClampDoubleToUInt32 vtktiff__TIFFClampDoubleToUInt32
 #define TIFFCleanup vtktiff_TIFFCleanup
 #define TIFFClientdata vtktiff_TIFFClientdata
 #define TIFFClientOpen vtktiff_TIFFClientOpen
+#define TIFFClientOpenExt vtktiff_TIFFClientOpenExt
 #define TIFFClose vtktiff_TIFFClose
 #define TIFFComputeStrip vtktiff_TIFFComputeStrip
 #define TIFFComputeTile vtktiff_TIFFComputeTile
@@ -30,6 +26,7 @@
 #define TIFFCreateCustomDirectory vtktiff_TIFFCreateCustomDirectory
 #define TIFFCreateDirectory vtktiff_TIFFCreateDirectory
 #define TIFFCreateEXIFDirectory vtktiff_TIFFCreateEXIFDirectory
+#define TIFFCreateGPSDirectory vtktiff_TIFFCreateGPSDirectory
 #define TIFFCurrentDirectory vtktiff_TIFFCurrentDirectory
 #define TIFFCurrentDirOffset vtktiff_TIFFCurrentDirOffset
 #define TIFFCurrentRow vtktiff_TIFFCurrentRow
@@ -38,12 +35,14 @@
 #define _TIFFDataSize vtktiff__TIFFDataSize
 #define TIFFDataWidth vtktiff_TIFFDataWidth
 #define TIFFDefaultDirectory vtktiff_TIFFDefaultDirectory
-#define TIFFDefaultStripSize vtktiff_TIFFDefaultStripSize
 #define _TIFFDefaultStripSize vtktiff__TIFFDefaultStripSize
-#define TIFFDefaultTileSize vtktiff_TIFFDefaultTileSize
+#define TIFFDefaultStripSize vtktiff_TIFFDefaultStripSize
 #define _TIFFDefaultTileSize vtktiff__TIFFDefaultTileSize
+#define TIFFDefaultTileSize vtktiff_TIFFDefaultTileSize
+#define TIFFDeferStrileArrayWriting vtktiff_TIFFDeferStrileArrayWriting
 #define TIFFError vtktiff_TIFFError
 #define TIFFErrorExt vtktiff_TIFFErrorExt
+#define TIFFErrorExtR vtktiff_TIFFErrorExtR
 #define _TIFFerrorHandler vtktiff__TIFFerrorHandler
 #define _TIFFerrorHandlerExt vtktiff__TIFFerrorHandlerExt
 #define _TIFFFax3fillruns vtktiff__TIFFFax3fillruns
@@ -53,10 +52,14 @@
 #define TIFFFaxWhiteCodes vtktiff_TIFFFaxWhiteCodes
 #define TIFFFaxWhiteTable vtktiff_TIFFFaxWhiteTable
 #define TIFFFdOpen vtktiff_TIFFFdOpen
+#define TIFFFdOpenExt vtktiff_TIFFFdOpenExt
 #define TIFFFieldDataType vtktiff_TIFFFieldDataType
+#define TIFFFieldIsAnonymous vtktiff_TIFFFieldIsAnonymous
 #define TIFFFieldName vtktiff_TIFFFieldName
 #define TIFFFieldPassCount vtktiff_TIFFFieldPassCount
 #define TIFFFieldReadCount vtktiff_TIFFFieldReadCount
+#define TIFFFieldSetGetCountSize vtktiff_TIFFFieldSetGetCountSize
+#define TIFFFieldSetGetSize vtktiff_TIFFFieldSetGetSize
 #define TIFFFieldTag vtktiff_TIFFFieldTag
 #define TIFFFieldWithName vtktiff_TIFFFieldWithName
 #define TIFFFieldWithTag vtktiff_TIFFFieldWithTag
@@ -72,6 +75,7 @@
 #define TIFFFlush vtktiff_TIFFFlush
 #define TIFFFlushData vtktiff_TIFFFlushData
 #define TIFFFlushData1 vtktiff_TIFFFlushData1
+#define TIFFForceStrileArrayWriting vtktiff_TIFFForceStrileArrayWriting
 #define _TIFFfree vtktiff__TIFFfree
 #define TIFFFreeDirectory vtktiff_TIFFFreeDirectory
 #define TIFFGetBitRevTable vtktiff_TIFFGetBitRevTable
@@ -82,12 +86,17 @@
 #define TIFFGetField vtktiff_TIFFGetField
 #define TIFFGetFieldDefaulted vtktiff_TIFFGetFieldDefaulted
 #define _TIFFGetFields vtktiff__TIFFGetFields
+#define _TIFFGetGpsFields vtktiff__TIFFGetGpsFields
 #define TIFFGetMapFileProc vtktiff_TIFFGetMapFileProc
 #define _TIFFgetMode vtktiff__TIFFgetMode
 #define TIFFGetMode vtktiff_TIFFGetMode
 #define TIFFGetReadProc vtktiff_TIFFGetReadProc
 #define TIFFGetSeekProc vtktiff_TIFFGetSeekProc
 #define TIFFGetSizeProc vtktiff_TIFFGetSizeProc
+#define TIFFGetStrileByteCount vtktiff_TIFFGetStrileByteCount
+#define TIFFGetStrileByteCountWithErr vtktiff_TIFFGetStrileByteCountWithErr
+#define TIFFGetStrileOffset vtktiff_TIFFGetStrileOffset
+#define TIFFGetStrileOffsetWithErr vtktiff_TIFFGetStrileOffsetWithErr
 #define TIFFGetTagListCount vtktiff_TIFFGetTagListCount
 #define TIFFGetTagListEntry vtktiff_TIFFGetTagListEntry
 #define TIFFGetUnmapFileProc vtktiff_TIFFGetUnmapFileProc
@@ -99,14 +108,13 @@
 #define TIFFInitCCITTRLEW vtktiff_TIFFInitCCITTRLEW
 #define TIFFInitDumpMode vtktiff_TIFFInitDumpMode
 #define TIFFInitJPEG vtktiff_TIFFInitJPEG
-#define TIFFInitLZW vtktiff_TIFFInitLZW
 #define TIFFInitNeXT vtktiff_TIFFInitNeXT
+#define TIFFInitOJPEG vtktiff_TIFFInitOJPEG
 #define TIFFInitPackBits vtktiff_TIFFInitPackBits
-#define TIFFInitPixarLog vtktiff_TIFFInitPixarLog
-#define TIFFInitSGILog vtktiff_TIFFInitSGILog
 #define TIFFInitThunderScan vtktiff_TIFFInitThunderScan
 #define TIFFInitZIP vtktiff_TIFFInitZIP
 #define TIFFIsBigEndian vtktiff_TIFFIsBigEndian
+#define TIFFIsBigTIFF vtktiff_TIFFIsBigTIFF
 #define TIFFIsByteSwapped vtktiff_TIFFIsByteSwapped
 #define TIFFIsCODECConfigured vtktiff_TIFFIsCODECConfigured
 #define TIFFIsMSB2LSB vtktiff_TIFFIsMSB2LSB
@@ -122,6 +130,7 @@
 #define _TIFFMergeFields vtktiff__TIFFMergeFields
 #define _TIFFMultiply32 vtktiff__TIFFMultiply32
 #define _TIFFMultiply64 vtktiff__TIFFMultiply64
+#define _TIFFMultiplySSize vtktiff__TIFFMultiplySSize
 #define _TIFFNoPostDecode vtktiff__TIFFNoPostDecode
 #define _TIFFNoPreCode vtktiff__TIFFNoPreCode
 #define _TIFFNoRowDecode vtktiff__TIFFNoRowDecode
@@ -135,7 +144,14 @@
 #define TIFFNumberOfStrips vtktiff_TIFFNumberOfStrips
 #define TIFFNumberOfTiles vtktiff_TIFFNumberOfTiles
 #define TIFFOpen vtktiff_TIFFOpen
+#define TIFFOpenExt vtktiff_TIFFOpenExt
+#define TIFFOpenOptionsAlloc vtktiff_TIFFOpenOptionsAlloc
+#define TIFFOpenOptionsFree vtktiff_TIFFOpenOptionsFree
+#define TIFFOpenOptionsSetErrorHandlerExtR vtktiff_TIFFOpenOptionsSetErrorHandlerExtR
+#define TIFFOpenOptionsSetMaxSingleMemAlloc vtktiff_TIFFOpenOptionsSetMaxSingleMemAlloc
+#define TIFFOpenOptionsSetWarningHandlerExtR vtktiff_TIFFOpenOptionsSetWarningHandlerExtR
 #define TIFFOpenW vtktiff_TIFFOpenW
+#define TIFFOpenWExt vtktiff_TIFFOpenWExt
 #define TIFFPredictorCleanup vtktiff_TIFFPredictorCleanup
 #define TIFFPredictorInit vtktiff_TIFFPredictorInit
 #define _TIFFprintAscii vtktiff__TIFFprintAscii
@@ -154,6 +170,8 @@
 #define TIFFReadEncodedTile vtktiff_TIFFReadEncodedTile
 #define _TIFFReadEncodedTileAndAllocBuffer vtktiff__TIFFReadEncodedTileAndAllocBuffer
 #define TIFFReadEXIFDirectory vtktiff_TIFFReadEXIFDirectory
+#define TIFFReadFromUserBuffer vtktiff_TIFFReadFromUserBuffer
+#define TIFFReadGPSDirectory vtktiff_TIFFReadGPSDirectory
 #define TIFFReadRawStrip vtktiff_TIFFReadRawStrip
 #define TIFFReadRawTile vtktiff_TIFFReadRawTile
 #define TIFFReadRGBAImage vtktiff_TIFFReadRGBAImage
@@ -190,6 +208,7 @@
 #define TIFFSetFileName vtktiff_TIFFSetFileName
 #define TIFFSetFileno vtktiff_TIFFSetFileno
 #define _TIFFsetFloatArray vtktiff__TIFFsetFloatArray
+#define _TIFFSetGetFieldSize vtktiff__TIFFSetGetFieldSize
 #define _TIFFsetLongArray vtktiff__TIFFsetLongArray
 #define TIFFSetMode vtktiff_TIFFSetMode
 #define _TIFFsetShortArray vtktiff__TIFFsetShortArray
@@ -236,6 +255,7 @@
 #define TIFFVTileSize64 vtktiff_TIFFVTileSize64
 #define TIFFWarning vtktiff_TIFFWarning
 #define TIFFWarningExt vtktiff_TIFFWarningExt
+#define TIFFWarningExtR vtktiff_TIFFWarningExtR
 #define _TIFFwarningHandler vtktiff__TIFFwarningHandler
 #define _TIFFwarningHandlerExt vtktiff__TIFFwarningHandlerExt
 #define TIFFWriteBufferSetup vtktiff_TIFFWriteBufferSetup
@@ -251,8 +271,5 @@
 #define TIFFXYZToRGB vtktiff_TIFFXYZToRGB
 #define TIFFYCbCrtoRGB vtktiff_TIFFYCbCrtoRGB
 #define TIFFYCbCrToRGBInit vtktiff_TIFFYCbCrToRGBInit
-#define uv_decode vtktiff_uv_decode
-#define uv_encode vtktiff_uv_encode
-#define XYZtoRGB24 vtktiff_XYZtoRGB24
 
 #endif

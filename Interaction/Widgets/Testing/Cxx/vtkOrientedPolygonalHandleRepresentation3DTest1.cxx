@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOrientedPolygonalHandleRepresentation3D.h"
 
 #include <cstdlib>
@@ -7,12 +9,13 @@
 
 #include "vtkProperty2D.h"
 
-int vtkOrientedPolygonalHandleRepresentation3DTest1(int , char * [] )
+int vtkOrientedPolygonalHandleRepresentation3DTest1(int, char*[])
 {
-  vtkSmartPointer< vtkOrientedPolygonalHandleRepresentation3D > node1 = vtkSmartPointer< vtkOrientedPolygonalHandleRepresentation3D >::New();
+  vtkSmartPointer<vtkOrientedPolygonalHandleRepresentation3D> node1 =
+    vtkSmartPointer<vtkOrientedPolygonalHandleRepresentation3D>::New();
 
-  EXERCISE_BASIC_ABSTRACT_POLYGONAL_HANDLE_REPRESENTATION3D_METHODS(vtkOrientedPolygonalHandleRepresentation3D, node1);
-
+  EXERCISE_BASIC_ABSTRACT_POLYGONAL_HANDLE_REPRESENTATION3D_METHODS(
+    vtkOrientedPolygonalHandleRepresentation3D, node1);
 
   return EXIT_SUCCESS;
 }

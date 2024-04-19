@@ -3,23 +3,29 @@
 import sys
 import math
 from functools import partial
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkColorTransferFunction,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+    vtkTextActor3D,
+    vtkTextProperty,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-    from Tkinter import Pack
-else:
-    # for Python3
-    import tkinter
-    from tkinter import Pack
+import tkinter
+from tkinter import Pack
 
 #from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
-from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
-from vtk.tk.vtkTkImageViewerWidget import vtkTkImageViewerWidget
+from vtkmodules.tk.vtkTkRenderWidget import vtkTkRenderWidget
+from vtkmodules.tk.vtkTkImageViewerWidget import vtkTkImageViewerWidget
 
 # Tkinter constants.
 E = tkinter.E
@@ -64,12 +70,12 @@ class TestTextActor3DViewer(Testing.vtkTest):
             self.root.quit()
 
         def AddSphere(ren):
-            objSource = vtk.vtkSphereSource()
+            objSource = vtkSphereSource()
 
-            objMapper = vtk.vtkPolyDataMapper()
+            objMapper = vtkPolyDataMapper()
             objMapper.SetInputConnection(objSource.GetOutputPort())
 
-            objActor = vtk.vtkActor()
+            objActor = vtkActor()
             objActor.SetMapper(objMapper)
             objActor.GetProperty().SetRepresentationToWireframe()
 
@@ -77,7 +83,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
 
         def AddOneTextActor(baseTextProp):
             name = "ia"
-            self.textActors[name] = vtk.vtkTextActor3D()
+            self.textActors[name] = vtkTextActor3D()
             # This adjustment is needed to reduce the difference
             # between the Tcl and Python versions.
             self.textActors[name].SetOrigin(0, -0.127878, 0)
@@ -89,7 +95,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
 
         # Add many text actors.
         def AddManyTextActors(baseTextProp):
-            lut = vtk.vtkColorTransferFunction()
+            lut = vtkColorTransferFunction()
             lut.SetColorSpaceToHSV()
             lut.AddRGBPoint(0.0, 0.0, 1.0, 1.0)
             lut.AddRGBPoint(1.0, 1.0, 1.0, 1.0)
@@ -97,7 +103,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
             for i in range(0, 10):
                 name = "ia" + str(i)
 
-                self.textActors[name] = vtk.vtkTextActor3D()
+                self.textActors[name] = vtkTextActor3D()
                 self.textActors[name].SetOrientation(0, i*36, 0)
                 #self.textActors[name].SetPosition(math.cos(i * 0.0314), 0, 0)
                 # This adjustment is needed to reduce the diffierence
@@ -129,9 +135,9 @@ class TestTextActor3DViewer(Testing.vtkTest):
 
             self.tkrw.Render()
 
-        ren = vtk.vtkRenderer()
+        ren = vtkRenderer()
         ren.SetBackground(0.1, 0.2, 0.4)
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
         #self.renWin.SetSize(600, 600)
 
@@ -148,7 +154,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.tkrw.pack(side=LEFT, fill=BOTH, expand=YES)
 
         # Base text property
-        baseTextProp = vtk.vtkTextProperty()
+        baseTextProp = vtkTextProperty()
         baseTextProp.SetFontSize(48)
         baseTextProp.ShadowOn()
         baseTextProp.SetColor(1.0, 0.0, 0.0)

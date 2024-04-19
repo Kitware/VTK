@@ -21,6 +21,8 @@
 #define gl2psLineWidth vtkgl2ps_gl2psLineWidth
 #define gl2psPointSize vtkgl2ps_gl2psPointSize
 #define gl2psSetOptions vtkgl2ps_gl2psSetOptions
+#define gl2psSetTexScaling vtkgl2ps_gl2psSetTexScaling
+#define gl2psSorting vtkgl2ps_gl2psSorting
 #define gl2psSpecial vtkgl2ps_gl2psSpecial
 #define gl2psSpecialColor vtkgl2ps_gl2psSpecialColor
 #define gl2psText vtkgl2ps_gl2psText

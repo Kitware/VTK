@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestOTDensityMap.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
@@ -24,8 +12,8 @@
 
 #include <iostream>
 
-//----------------------------------------------------------------------------
-int TestOTDensityMap(int, char* [])
+//------------------------------------------------------------------------------
+int TestOTDensityMap(int, char*[])
 {
   vtkNew<vtkDoubleArray> arrFirstVariable;
   arrFirstVariable->SetName("Math");
@@ -41,13 +29,11 @@ int TestOTDensityMap(int, char* [])
   const int numNotes = 20;
   table->SetNumberOfRows(numNotes);
 
-  const double MathValue[] = {
-    18, 20, 20, 16, 12, 14, 16, 14, 14, 13, 16, 18, 6, 10, 16, 14, 4, 16, 16, 14
-  };
+  const double MathValue[] = { 18, 20, 20, 16, 12, 14, 16, 14, 14, 13, 16, 18, 6, 10, 16, 14, 4, 16,
+    16, 14 };
 
-  const double FrenchValue[] = {
-    14, 12, 14, 16, 12, 14, 16, 4, 4, 10, 6, 20, 14, 16, 14, 14, 12, 2, 14, 8
-  };
+  const double FrenchValue[] = { 14, 12, 14, 16, 12, 14, 16, 4, 4, 10, 6, 20, 14, 16, 14, 14, 12, 2,
+    14, 8 };
 
   for (int i = 0; i < numNotes; ++i)
   {
@@ -86,13 +72,8 @@ int TestOTDensityMap(int, char* [])
 
   int tablesNRows[] = { 44, 89, 52, 94, 36, 48, 10 };
 
-  double tablesYValues[] = { 12.80000019073486328125,
-    14.934099197387695312,
-    11.056828498840332031,
-    19.480913162231445312,
-    8.7593898773193359375,
-    15.193044662475585938,
-    19.2800006866455078125 };
+  double tablesYValues[] = { 12.80000019073486328125, 14.934099197387695312, 11.056828498840332031,
+    19.480913162231445312, 8.7593898773193359375, 15.193044662475585938, 19.2800006866455078125 };
 
   int nTable = 0;
   for (unsigned int i = 0; i < mbTable->GetNumberOfBlocks(); i++)

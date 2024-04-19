@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOTDensityMap.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOTDensityMap
  * @brief
@@ -20,7 +8,7 @@
  * The Output will be a MultiBlock of table, each table containing
  * X and Y coordinate of a density map line.
  *
-*/
+ */
 
 #ifndef vtkOTDensityMap_h
 #define vtkOTDensityMap_h
@@ -32,6 +20,7 @@
 
 #include <map> // For map
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkInformationDoubleKey;
 class vtkPolyData;
@@ -47,9 +36,9 @@ public:
   /**
    * Check contour values to return actual mtime
    */
-  virtual vtkMTimeType GetMTime() override;
+  vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Methods to set / get density lines values.
    * Values are expected to be between 0 and 1.
@@ -92,9 +81,9 @@ public:
    * Get the number of contours in the list of contour values.
    */
   int GetNumberOfContours();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get grid subdivisions,
    * aka the number of point in each dimensions of the grid
@@ -104,9 +93,9 @@ public:
    */
   void SetGridSubdivisions(int gridSubdivisions);
   vtkGetMacro(GridSubdivisions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get number of points to compute
    * the contour values approximations using a LogPDF.
@@ -116,12 +105,11 @@ public:
    */
   vtkGetMacro(ContourApproximationNumberOfPoints, int);
   virtual void SetContourApproximationNumberOfPoints(int val);
-  //@}
+  ///@}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
-  int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   /**
@@ -131,7 +119,7 @@ public:
 
 protected:
   vtkOTDensityMap();
-  ~vtkOTDensityMap();
+  ~vtkOTDensityMap() override;
 
   /**
    * Protected method to find the next cellid in specified direction on
@@ -145,24 +133,16 @@ protected:
    * up is an input, allowing to specify the direction to follow. In any case, if the
    * next cell id cannot be found in this direction, the other direction will be tried, this is the
    * case where we consider the cell points are inverted.
-   * currentPointIndices is an optional output, if != nullptr, the current cell points will be stored
-   * in.
+   * currentPointIndices is an optional output, if != nullptr, the current cell points will be
+   * stored in.
    */
-  virtual vtkIdType FindNextCellId(vtkPolyData* pd,
-    vtkIdType cellId,
-    vtkIdType previousCellId,
-    bool& invertedPoints,
-    bool up = true,
-    vtkIdList* currentPointIndices = nullptr);
+  virtual vtkIdType FindNextCellId(vtkPolyData* pd, vtkIdType cellId, vtkIdType previousCellId,
+    bool& invertedPoints, bool up = true, vtkIdList* currentPointIndices = nullptr);
 
   void ClearCache();
-  void BuildContours(vtkPolyData* contourPd,
-    int numContours,
-    const double* contourValues,
-    const double* densityPDFContourValues,
-    const char* xArrayName,
-    const char* yArrayName,
-    std::multimap<double, vtkSmartPointer<vtkTable> >& contoursMap);
+  void BuildContours(vtkPolyData* contourPd, int numContours, const double* contourValues,
+    const double* densityPDFContourValues, const char* xArrayName, const char* yArrayName,
+    std::multimap<double, vtkSmartPointer<vtkTable>>& contoursMap);
 
   // Cache
   class OTDensityCache;
@@ -183,4 +163,5 @@ private:
   void operator=(const vtkOTDensityMap&) = delete;
   vtkOTDensityMap(const vtkOTDensityMap&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

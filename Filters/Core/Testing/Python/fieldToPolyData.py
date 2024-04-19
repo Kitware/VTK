@@ -1,17 +1,36 @@
 #!/usr/bin/env python
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkDataObjectToDataSetFilter,
+    vtkDataSetToDataObjectFilter,
+    vtkFieldDataToAttributeDataFilter,
+)
+from vtkmodules.vtkIOLegacy import (
+    vtkDataObjectReader,
+    vtkDataObjectWriter,
+    vtkPolyDataReader,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This example demonstrates the reading of a field and conversion to PolyData
 # The output should be the same as polyEx.tcl.
 
 # Create a reader and write out the field
-reader = vtk.vtkPolyDataReader()
+reader = vtkPolyDataReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/polyEx.vtk")
 
-ds2do = vtk.vtkDataSetToDataObjectFilter()
+ds2do = vtkDataSetToDataObjectFilter()
 ds2do.SetInputConnection(reader.GetOutputPort())
 
 # NOTE: This test only works if the current directory is writable
@@ -20,17 +39,17 @@ try:
     channel = open("PolyField.vtk", "wb")
     channel.close()
 
-    writer = vtk.vtkDataObjectWriter()
+    writer = vtkDataObjectWriter()
     writer.SetInputConnection(ds2do.GetOutputPort())
     writer.SetFileName("PolyField.vtk")
     writer.Write()
 
     # create pipeline
     #
-    dor = vtk.vtkDataObjectReader()
+    dor = vtkDataObjectReader()
     dor.SetFileName("PolyField.vtk")
 
-    do2ds = vtk.vtkDataObjectToDataSetFilter()
+    do2ds = vtkDataObjectToDataSetFilter()
     do2ds.SetInputConnection(dor.GetOutputPort())
     do2ds.SetDataSetTypeToPolyData()
     do2ds.SetPointComponent(0, "Points", 0)
@@ -38,24 +57,24 @@ try:
     do2ds.SetPointComponent(2, "Points", 2)
     do2ds.SetPolysComponent("Polys", 0)
 
-    fd2ad = vtk.vtkFieldDataToAttributeDataFilter()
+    fd2ad = vtkFieldDataToAttributeDataFilter()
     fd2ad.SetInputConnection(do2ds.GetOutputPort())
     fd2ad.SetInputFieldToDataObjectField()
     fd2ad.SetOutputAttributeDataToPointData()
     fd2ad.SetScalarComponent(0, "my_scalars", 0)
 
-    mapper = vtk.vtkPolyDataMapper()
+    mapper = vtkPolyDataMapper()
     mapper.SetInputConnection(fd2ad.GetOutputPort())
     mapper.SetScalarRange(fd2ad.GetOutput().GetScalarRange())
 
-    actor = vtk.vtkActor()
+    actor = vtkActor()
     actor.SetMapper(mapper)
 
     # Create the RenderWindow, Renderer and both Actors
-    ren1 = vtk.vtkRenderer()
-    renWin = vtk.vtkRenderWindow()
+    ren1 = vtkRenderer()
+    renWin = vtkRenderWindow()
     renWin.AddRenderer(ren1)
-    iren = vtk.vtkRenderWindowInteractor()
+    iren = vtkRenderWindowInteractor()
     iren.SetRenderWindow(renWin)
 
     ren1.AddActor(actor)

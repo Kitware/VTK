@@ -25,5 +25,5 @@ else:
       status = os.WEXITSTATUS(retVal)
     except:
       status = 0
-      print "Cannot get exit status"
+      print("Cannot get exit status")
     sys.exit(status)

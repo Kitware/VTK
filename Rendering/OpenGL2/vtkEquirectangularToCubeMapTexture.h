@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkEquirectangularToCubeMapTexture.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkEquirectangularToCubeMapTexture
  * @brief   compute a cubemap texture based on a standard equirectangular projection
@@ -29,6 +17,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLTexture;
@@ -41,13 +30,13 @@ public:
   vtkTypeMacro(vtkEquirectangularToCubeMapTexture, vtkOpenGLTexture);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the input equirectangular 2D texture.
    */
   void SetInputTexture(vtkOpenGLTexture* texture);
   vtkGetObjectMacro(InputTexture, vtkOpenGLTexture);
-  //@}
+  ///@}
 
   /**
    * Implement base class method.
@@ -59,14 +48,14 @@ public:
    */
   void Render(vtkRenderer* ren) override { this->Load(ren); }
 
-  //@{
+  ///@{
   /**
    * Set/Get size of each face of the output cubemap texture.
    * Default is 512.
    */
   vtkGetMacro(CubeMapSize, unsigned int);
   vtkSetMacro(CubeMapSize, unsigned int);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this texture.
@@ -88,4 +77,5 @@ private:
   void operator=(const vtkEquirectangularToCubeMapTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

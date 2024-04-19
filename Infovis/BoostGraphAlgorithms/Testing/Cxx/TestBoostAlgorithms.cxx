@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestBoostAlgorithms.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkActor.h"
 #include "vtkBoostBrandesCentrality.h"
 #include "vtkBoostBreadthFirstSearch.h"
@@ -33,22 +17,20 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-#include <boost/version.hpp>
 #include "vtkBoostBiconnectedComponents.h"
+#include <boost/version.hpp>
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 template <typename Algorithm>
-void RenderGraph(vtkRenderer* ren, Algorithm* alg,
-  double xoffset, double yoffset,
-  const char* vertColorArray, double vertMin, double vertMax,
-  const char* edgeColorArray, double edgeMin, double edgeMax)
+void RenderGraph(vtkRenderer* ren, Algorithm* alg, double xoffset, double yoffset,
+  const char* vertColorArray, double vertMin, double vertMax, const char* edgeColorArray,
+  double edgeMin, double edgeMax)
 {
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);
   graphToPoly->SetInputConnection(alg->GetOutputPort());
@@ -162,8 +144,8 @@ int TestBoostAlgorithms(int argc, char* argv[])
   // Only available in Boost 1.33 or later
   VTK_CREATE(vtkBoostBiconnectedComponents, biconn);
   biconn->SetInputData(g);
-  RenderGraph(ren, biconn.GetPointer(), 0, 0, "biconnected component", -1, 3, "biconnected component", -1, 3);
-
+  RenderGraph(
+    ren, biconn.GetPointer(), 0, 0, "biconnected component", -1, 3, "biconnected component", -1, 3);
 
   // Test breadth first search
   VTK_CREATE(vtkBoostBreadthFirstSearch, bfs);
@@ -211,4 +193,3 @@ int TestBoostAlgorithms(int argc, char* argv[])
 
   return !retVal;
 }
-

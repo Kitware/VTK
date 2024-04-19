@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAdjacencyMatrixToEdgeTable.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkAdjacencyMatrixToEdgeTable
@@ -28,7 +11,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkAdjacencyMatrixToEdgeTable_h
 #define vtkAdjacencyMatrixToEdgeTable_h
@@ -36,6 +19,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkAdjacencyMatrixToEdgeTable : public vtkTableAlgorithm
 {
 public:
@@ -43,34 +27,34 @@ public:
   vtkTypeMacro(vtkAdjacencyMatrixToEdgeTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specifies whether rows or columns become the "source" in the output edge table.
    * 0 = rows, 1 = columns.  Default: 0
    */
   vtkGetMacro(SourceDimension, vtkIdType);
   vtkSetMacro(SourceDimension, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls the name of the output table column that contains edge weights.
    * Default: "value"
    */
   vtkGetStringMacro(ValueArrayName);
   vtkSetStringMacro(ValueArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specifies the minimum number of adjacent edges to include for each source vertex.
    * Default: 0
    */
   vtkGetMacro(MinimumCount, vtkIdType);
   vtkSetMacro(MinimumCount, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specifies a minimum threshold that an edge weight must exceed to be included in
    * the output.
@@ -78,7 +62,7 @@ public:
    */
   vtkGetMacro(MinimumThreshold, double);
   vtkSetMacro(MinimumThreshold, double);
-  //@}
+  ///@}
 
 protected:
   vtkAdjacencyMatrixToEdgeTable();
@@ -86,10 +70,7 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkIdType SourceDimension;
   char* ValueArrayName;
@@ -101,5 +82,5 @@ private:
   void operator=(const vtkAdjacencyMatrixToEdgeTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

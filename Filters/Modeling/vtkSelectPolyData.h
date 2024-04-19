@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSelectPolyData.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSelectPolyData
  * @brief   select portion of polygonal mesh; generate selection scalars
@@ -38,12 +26,23 @@
  * loop, the closest point in the mesh is found. The result is a loop
  * of closest point ids from the mesh. Then, the edges in the mesh
  * connecting the closest points (and laying along the lines forming
- * the loop) are found. A greedy edge tracking procedure is used as
- * follows. At the current point, the mesh edge oriented in the
+ * the loop) are found. Edges between the points can be searched using
+ * one of these methods:
+ * A) Greedy edge tracking.
+ * At the current point, the mesh edge oriented in the
  * direction of and whose end point is closest to the line is
  * chosen. The edge is followed to the new end point, and the
  * procedure is repeated. This process continues until the entire loop
- * has been created.
+ * has been created. This method is simple and fast but heuristic,
+ * and edge search can randomly fail ("Can't follow edge" error)
+ * even for simple, flawless meshes when edge search arrives to a point
+ * from where there is no edge pointing towards the next loop point.
+ * B) Dijkstra shortest path. This method guarantees to find the shortest
+ * path between the loop points.
+ *
+ * By default the greedy edge tracking method is used to preserve
+ * backward compatibility, but generally the Dijkstra shortest path
+ * method is recommended due to its robustness.
  *
  * To determine what portion of the mesh is inside and outside of the
  * loop, three options are possible. 1) the smallest connected region,
@@ -73,7 +72,7 @@
  *
  * @sa
  * vtkImplicitSelectionLoop
-*/
+ */
 
 #ifndef vtkSelectPolyData_h
 #define vtkSelectPolyData_h
@@ -85,6 +84,10 @@
 #define VTK_INSIDE_LARGEST_REGION 1
 #define VTK_INSIDE_CLOSEST_POINT_REGION 2
 
+#define VTK_GREEDY_EDGE_SEARCH 0
+#define VTK_DIJKSTRA_EDGE_SEARCH 1
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCharArray;
 class vtkPoints;
 class vtkIdList;
@@ -97,12 +100,12 @@ public:
    * GenerateSelectionScalars turned off. The unselected output
    * is not generated, and the inside mode is the smallest region.
    */
-  static vtkSelectPolyData *New();
+  static vtkSelectPolyData* New();
 
-  vtkTypeMacro(vtkSelectPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSelectPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag to control behavior of the filter. If
    * GenerateSelectionScalars is on, then the output of the filter
@@ -110,74 +113,103 @@ public:
    * If off, the filter outputs the cells laying inside the loop, and
    * does not generate scalars.
    */
-  vtkSetMacro(GenerateSelectionScalars,vtkTypeBool);
-  vtkGetMacro(GenerateSelectionScalars,vtkTypeBool);
-  vtkBooleanMacro(GenerateSelectionScalars,vtkTypeBool);
-  //@}
+  vtkSetMacro(GenerateSelectionScalars, vtkTypeBool);
+  vtkGetMacro(GenerateSelectionScalars, vtkTypeBool);
+  vtkBooleanMacro(GenerateSelectionScalars, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * Name of the Selection Scalars array. Default is "Selection".
+   */
+  vtkSetStringMacro(SelectionScalarsArrayName);
+  vtkGetStringMacro(SelectionScalarsArrayName);
+  ///@}
+
+  ///@{
   /**
    * Set/Get the InsideOut flag. When off, the mesh within the loop is
    * extracted. When on, the mesh outside the loop is extracted.
    */
-  vtkSetMacro(InsideOut,vtkTypeBool);
-  vtkGetMacro(InsideOut,vtkTypeBool);
-  vtkBooleanMacro(InsideOut,vtkTypeBool);
-  //@}
+  vtkSetMacro(InsideOut, vtkTypeBool);
+  vtkGetMacro(InsideOut, vtkTypeBool);
+  vtkBooleanMacro(InsideOut, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * Set the edge search mode. VTK_GREEDY_EDGE_SEARCH is simple and fast,
+   * VTK_DIJKSTRA_EDGE_SEARCH is more robust and guaranteed to provide
+   * shortest path between loop points.
+   * If the algorithm fails with "Can't follow edge" error then switch to
+   * Dijkstra method.
+   * The default is VTK_GREEDY_EDGE_SEARCH for backward compatibility.
+   */
+  vtkSetClampMacro(EdgeSearchMode, int, VTK_GREEDY_EDGE_SEARCH, VTK_DIJKSTRA_EDGE_SEARCH);
+  vtkGetMacro(EdgeSearchMode, int);
+  void SetEdgeSearchModeToGreedy() { this->SetEdgeSearchMode(VTK_GREEDY_EDGE_SEARCH); }
+  void SetEdgeSearchModeToDijkstra() { this->SetEdgeSearchMode(VTK_DIJKSTRA_EDGE_SEARCH); }
+  const char* GetEdgeSearchModeAsString();
+  ///@}
+
+  ///@{
   /**
    * Set/Get the array of point coordinates defining the loop. There must
    * be at least three points used to define a loop.
    */
   virtual void SetLoop(vtkPoints*);
-  vtkGetObjectMacro(Loop,vtkPoints);
-  //@}
+  vtkGetObjectMacro(Loop, vtkPoints);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the point used in SelectionModeToClosestPointRegion.
    */
-  vtkSetVector3Macro(ClosestPoint,double);
-  vtkGetVector3Macro(ClosestPoint,double);
-  //@}
+  vtkSetVector3Macro(ClosestPoint, double);
+  vtkGetVector3Macro(ClosestPoint, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how inside/outside of loop is defined.
    */
-  vtkSetClampMacro(SelectionMode,int,
-             VTK_INSIDE_SMALLEST_REGION,VTK_INSIDE_CLOSEST_POINT_REGION);
-  vtkGetMacro(SelectionMode,int);
-  void SetSelectionModeToSmallestRegion()
-    {this->SetSelectionMode(VTK_INSIDE_SMALLEST_REGION);};
-  void SetSelectionModeToLargestRegion()
-    {this->SetSelectionMode(VTK_INSIDE_LARGEST_REGION);};
+  vtkSetClampMacro(SelectionMode, int, VTK_INSIDE_SMALLEST_REGION, VTK_INSIDE_CLOSEST_POINT_REGION);
+  vtkGetMacro(SelectionMode, int);
+  void SetSelectionModeToSmallestRegion() { this->SetSelectionMode(VTK_INSIDE_SMALLEST_REGION); }
+  void SetSelectionModeToLargestRegion() { this->SetSelectionMode(VTK_INSIDE_LARGEST_REGION); }
   void SetSelectionModeToClosestPointRegion()
-    {this->SetSelectionMode(VTK_INSIDE_CLOSEST_POINT_REGION);};
-  const char *GetSelectionModeAsString();
-  //@}
+  {
+    this->SetSelectionMode(VTK_INSIDE_CLOSEST_POINT_REGION);
+  }
+  const char* GetSelectionModeAsString();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether a second output is generated. The second output
    * contains the polygonal data that's not been selected.
    */
-  vtkSetMacro(GenerateUnselectedOutput,vtkTypeBool);
-  vtkGetMacro(GenerateUnselectedOutput,vtkTypeBool);
-  vtkBooleanMacro(GenerateUnselectedOutput,vtkTypeBool);
-  //@}
+  vtkSetMacro(GenerateUnselectedOutput, vtkTypeBool);
+  vtkGetMacro(GenerateUnselectedOutput, vtkTypeBool);
+  vtkBooleanMacro(GenerateUnselectedOutput, vtkTypeBool);
+  ///@}
 
   /**
    * Return output that hasn't been selected (if GenreateUnselectedOutput is
    * enabled).
    */
-  vtkPolyData *GetUnselectedOutput();
+  vtkPolyData* GetUnselectedOutput();
+
+  /**
+   * Return output port that hasn't been selected (if GenreateUnselectedOutput is
+   * enabled).
+   */
+  vtkAlgorithmOutput* GetUnselectedOutputPort();
 
   /**
    * Return the (mesh) edges of the selection region.
    */
-  vtkPolyData *GetSelectionEdges();
+  vtkPolyData* GetSelectionEdges();
 
   // Overload GetMTime() because we depend on Loop
   vtkMTimeType GetMTime() override;
@@ -186,34 +218,59 @@ protected:
   vtkSelectPolyData();
   ~vtkSelectPolyData() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  // Compute point list that forms a continuous loop overy the mesh,
+  void GreedyEdgeSearch(vtkPolyData* mesh, vtkIdList* edgeIds);
+  void DijkstraEdgeSearch(vtkPolyData* mesh, vtkIdList* edgeIds);
+
+  // Returns maximum front cell ID
+  vtkIdType ComputeTopologicalDistance(
+    vtkPolyData* mesh, vtkIdList* edgeIds, vtkIntArray* pointMarks, vtkIntArray* cellMarks);
+
+  // Get closest cell to a position that is not at the boundary
+  vtkIdType GetClosestCellId(vtkPolyData* mesh, vtkIntArray* pointMarks);
+
+  // Starting from maxFrontCell, without crossing the boundary, set all cell and point marks to -1.
+  void FillMarksInRegion(vtkPolyData* mesh, vtkIdList* edgePointIds, vtkIntArray* pointMarks,
+    vtkIntArray* cellMarks, vtkIdType cellIdInSelectedRegion);
+
+  void SetClippedResultToOutput(vtkPointData* originalPointData, vtkCellData* originalCellData,
+    vtkPolyData* mesh, vtkIntArray* cellMarks, vtkPolyData* output);
+
+  void SetSelectionScalarsToOutput(vtkPointData* originalPointData, vtkCellData* originalCellData,
+    vtkPolyData* mesh, vtkIdList* edgeIds, vtkIntArray* pointMarks, vtkPolyData* output);
 
   vtkTypeBool GenerateSelectionScalars;
+  char* SelectionScalarsArrayName;
   vtkTypeBool InsideOut;
-  vtkPoints *Loop;
+  int EdgeSearchMode;
+  vtkPoints* Loop;
   int SelectionMode;
   double ClosestPoint[3];
   vtkTypeBool GenerateUnselectedOutput;
 
 private:
-  vtkPolyData *Mesh;
-  void GetPointNeighbors (vtkIdType ptId, vtkIdList *nei);
-private:
+  static void GetPointNeighbors(vtkPolyData* mesh, vtkIdType ptId, vtkIdList* nei);
+
+  // Helper function to check if the edge between pointId1 and pointId2 is present in the
+  // edgePointIds (as direct neighbors).
+  static bool IsBoundaryEdge(vtkIdType pointId1, vtkIdType pointId2, vtkIdList* edgePointIds);
+
   vtkSelectPolyData(const vtkSelectPolyData&) = delete;
   void operator=(const vtkSelectPolyData&) = delete;
 };
 
-//@{
 /**
  * Return the method of determining in/out of loop as a string.
  */
-inline const char *vtkSelectPolyData::GetSelectionModeAsString(void)
+inline const char* vtkSelectPolyData::GetSelectionModeAsString()
 {
-  if ( this->SelectionMode == VTK_INSIDE_SMALLEST_REGION )
+  if (this->SelectionMode == VTK_INSIDE_SMALLEST_REGION)
   {
     return "InsideSmallestRegion";
   }
-  else if ( this->SelectionMode == VTK_INSIDE_LARGEST_REGION )
+  else if (this->SelectionMode == VTK_INSIDE_LARGEST_REGION)
   {
     return "InsideLargestRegion";
   }
@@ -222,8 +279,26 @@ inline const char *vtkSelectPolyData::GetSelectionModeAsString(void)
     return "InsideClosestPointRegion";
   }
 }
-//@}
 
+/**
+ * Return the edge search mode as a string.
+ */
+inline const char* vtkSelectPolyData::GetEdgeSearchModeAsString()
+{
+  if (this->EdgeSearchMode == VTK_GREEDY_EDGE_SEARCH)
+  {
+    return "GreedyEdgeSearch";
+  }
+  else if (this->EdgeSearchMode == VTK_DIJKSTRA_EDGE_SEARCH)
+  {
+    return "DijkstraEdgeSearch";
+  }
+  else
+  {
+    // This should never occur
+    return "Invalid";
+  }
+}
+
+VTK_ABI_NAMESPACE_END
 #endif
-
-

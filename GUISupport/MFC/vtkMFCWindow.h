@@ -1,35 +1,22 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMFCWindow.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkMFCWindow_h
 #define vtkMFCWindow_h
 
-#include "vtkGUISupportMFCModule.h" // For export macro
 #include "afxwin.h"
+#include "vtkGUISupportMFCModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWin32OpenGLRenderWindow;
 class vtkRenderWindowInteractor;
-
-#include "vtkMFCConfigure.h"
 
 //! class to display a VTK window in an MFC window
 class VTKGUISUPPORTMFC_EXPORT vtkMFCWindow : public CWnd
 {
 public:
   //! constructor requires a parent
-  vtkMFCWindow(CWnd *pcWnd);
+  vtkMFCWindow(CWnd* pcWnd);
   //! destructor
   virtual ~vtkMFCWindow();
 
@@ -49,7 +36,6 @@ public:
   virtual vtkRenderWindowInteractor* GetInteractor();
 
 protected:
-
   //! handle size events
   afx_msg void OnSize(UINT nType, int cx, int cy);
   //! handle paint events
@@ -79,6 +65,7 @@ protected:
   DECLARE_MESSAGE_MAP()
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkMFCWindow.h

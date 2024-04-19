@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #import <Cocoa/Cocoa.h>
 
 #import "vtkCocoaGLView.h"
@@ -16,6 +18,6 @@
 - (void)cleanUpVTKSupport;
 
 // Accessors for the vtkRenderer.
-@property(readwrite, nonatomic, nullable, getter=getRenderer) vtkRenderer* renderer;
+@property (readwrite, nonatomic, nullable, getter=getRenderer) vtkRenderer* renderer;
 
 @end

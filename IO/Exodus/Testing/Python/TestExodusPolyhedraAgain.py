@@ -1,11 +1,24 @@
 #!/usr/bin/env python
 
-from vtk import *
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkDataSetAttributes
+from vtkmodules.vtkFiltersCore import vtkAssignAttribute
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
+from vtkmodules.vtkIOExodus import vtkExodusIIReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCompositePolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 rdr = vtkExodusIIReader()
-rdr.SetFileName(str(VTK_DATA_ROOT) + "/Data/shared_face_polyhedra.exo")
+rdr.SetFileName(VTK_DATA_ROOT + "/Data/shared_face_polyhedra.exo")
 rdr.Update()
 
 srf = vtkDataSetSurfaceFilter()

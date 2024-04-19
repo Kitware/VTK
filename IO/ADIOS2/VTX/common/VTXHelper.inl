@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    VTXHelper.inl
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * VTXHelper.inl
@@ -31,6 +19,7 @@ namespace vtx
 {
 namespace helper
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template<class T>
 std::vector<T> StringToVector(const std::string& input) noexcept
@@ -75,6 +64,7 @@ void Print(const std::vector<T>& input, const std::string& name)
   std::cout << oss.str() << "\n";
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace helper
 } // end namespace vtx
 

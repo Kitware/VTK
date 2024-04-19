@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # This test loads an Exodus file with NaNs and we test that the vtkDataArray
 # returns a correct range for the array with NaNs i.e. not including the NaN.
-from vtk import *
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOExodus import vtkExodusIIReader
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 rdr = vtkExodusIIReader()
-rdr.SetFileName(str(VTK_DATA_ROOT) + "/Data/cyl_with_NaN.g")
+rdr.SetFileName(VTK_DATA_ROOT + "/Data/cyl_with_NaN.g")
 rdr.UpdateInformation()
 rdr.SetPointResultArrayStatus("dist_from_origin", 1);
 rdr.Update()

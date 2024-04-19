@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGlobFileNames.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGlobFileNames
  * @brief   find files that match a wildcard pattern
@@ -31,7 +19,7 @@
  * case-insensitive matches on Windows.
  * @sa
  * vtkDirectory
-*/
+ */
 
 #ifndef vtkGlobFileNames_h
 #define vtkGlobFileNames_h
@@ -39,22 +27,23 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 class VTKIOCORE_EXPORT vtkGlobFileNames : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Return the class name as a string.
    */
-  vtkTypeMacro(vtkGlobFileNames,vtkObject);
-  //@}
+  vtkTypeMacro(vtkGlobFileNames, vtkObject);
+  ///@}
 
   /**
    * Create a new vtkGlobFileNames object.
    */
-  static vtkGlobFileNames *New();
+  static vtkGlobFileNames* New();
 
   /**
    * Print directory to stream.
@@ -66,7 +55,7 @@ public:
    */
   void Reset();
 
-  //@{
+  ///@{
   /**
    * Set the directory in which to perform the glob.  If this is
    * not set, then the current directory will be used.  Also, if
@@ -74,9 +63,9 @@ public:
    * starts with "/" or a drive letter) then that absolute path
    * will be used and Directory will be ignored.
    */
-  vtkSetStringMacro(Directory);
-  vtkGetStringMacro(Directory);
-  //@}
+  vtkSetFilePathMacro(Directory);
+  vtkGetFilePathMacro(Directory);
+  ///@}
 
   /**
    * Search for all files that match the given expression,
@@ -84,16 +73,16 @@ public:
    * be called repeatedly to add files matching additional patterns.
    * Returns 1 if successful, otherwise returns zero.
    */
-  int AddFileNames(const char* pattern);
+  int AddFileNames(VTK_FILEPATH const char* pattern);
 
-  //@{
+  ///@{
   /**
    * Recurse into subdirectories.
    */
   vtkSetMacro(Recurse, vtkTypeBool);
   vtkBooleanMacro(Recurse, vtkTypeBool);
   vtkGetMacro(Recurse, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Return the number of files found.
@@ -103,36 +92,36 @@ public:
   /**
    * Return the file at the given index, the indexing is 0 based.
    */
-  const char* GetNthFileName(int index);
+  VTK_FILEPATH const char* GetNthFileName(int index);
 
-  //@{
+  ///@{
   /**
    * Get an array that contains all the file names.
    */
   vtkGetObjectMacro(FileNames, vtkStringArray);
-  //@}
+  ///@}
 
 protected:
-  //@{
+  ///@{
   /**
    * Set the wildcard pattern.
    */
-  vtkSetStringMacro(Pattern);
-  vtkGetStringMacro(Pattern);
-  //@}
+  vtkSetFilePathMacro(Pattern);
+  vtkGetFilePathMacro(Pattern);
+  ///@}
 
   vtkGlobFileNames();
   ~vtkGlobFileNames() override;
 
 private:
-  char* Directory;          // Directory for search.
-  char* Pattern;            // Wildcard pattern
-  vtkTypeBool Recurse;              // Recurse into subdirectories
-  vtkStringArray *FileNames;    // VTK array of files
+  char* Directory;           // Directory for search.
+  char* Pattern;             // Wildcard pattern
+  vtkTypeBool Recurse;       // Recurse into subdirectories
+  vtkStringArray* FileNames; // VTK array of files
 
-private:
   vtkGlobFileNames(const vtkGlobFileNames&) = delete;
   void operator=(const vtkGlobFileNames&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

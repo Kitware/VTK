@@ -1,0 +1,19 @@
+"""This is the vtk module"""
+
+# this module has the same contents as vtkmodules.all
+@_vtk_python_external_imports@
+
+# useful macro for getting type names
+from vtkmodules.util.vtkConstants import vtkImageScalarTypeNameMacro
+
+# import convenience decorators
+from vtkmodules.util.misc import calldata_type
+
+# import the vtkVariant helpers
+from vtkmodules.util.vtkVariant import *
+
+# clone parts of vtkmodules to make this look like a package
+import vtkmodules as _vtk_package
+__path__ = _vtk_package.__path__
+__version__ = _vtk_package.__version__
+del _vtk_package

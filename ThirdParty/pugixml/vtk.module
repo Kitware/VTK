@@ -2,4 +2,6 @@ NAME
   VTK::pugixml
 LIBRARY_NAME
   vtkpugixml
+TEST_DEPENDS
+  VTK::TestingCore
 THIRD_PARTY

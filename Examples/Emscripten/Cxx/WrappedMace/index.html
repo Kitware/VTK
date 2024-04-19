@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <script type="text/javascript" src="WrappedMace.js"></script>
+    <script type="text/javascript">
+      var guard = false;
+      function eventForward(e) {
+        if (guard) {
+          return;
+        }
+        guard = true;
+        const eventClone = new e.constructor(e.type, e);
+        Module.canvas.dispatchEvent(eventClone);
+        guard = false;
+      }
+      var Module = {
+        canvas: (function () {
+          var canvas = document.getElementById("canvas");
+          // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+          // application robust, you may want to override this behavior before shipping!
+          // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+          canvas.addEventListener(
+            "webglcontextlost",
+            function (e) {
+              alert("WebGL context lost. You will need to reload the page.");
+              e.preventDefault();
+            },
+            false
+          );
+          return canvas;
+        })(),
+        onRuntimeInitialized: function () {},
+      };
+      document.addEventListener("keypress", eventForward, false);
+      document.addEventListener("keydown", eventForward, false);
+      document.addEventListener("keyup", eventForward, false);
+      var vtk = createWrappedMaceModule(Module).then((runtime) => {
+        var renderer = new Module.vtkRenderer();
+        var renWin = new Module.vtkRenderWindow();
+        renWin.AddRenderer(renderer);
+        var iren = new Module.vtkRenderWindowInteractor();
+        iren.SetRenderWindow(renWin);
+
+        var sphere = new Module.vtkSphereSource();
+        sphere.SetThetaResolution(8);
+        sphere.SetPhiResolution(8);
+
+        var sphereMapper = new Module.vtkPolyDataMapper();
+        sphereMapper.SetInputConnection(sphere.GetOutputPort());
+        var sphereActor = new Module.vtkActor();
+        sphereActor.SetMapper(sphereMapper);
+
+        var cone = new Module.vtkConeSource();
+        cone.SetResolution(6);
+
+        var glyph = new Module.vtkGlyph3D();
+        glyph.SetInputConnection(sphere.GetOutputPort());
+        glyph.SetSourceConnection(cone.GetOutputPort());
+        glyph.SetVectorModeToUseNormal();
+        glyph.SetScaleModeToScaleByVector();
+        glyph.SetScaleFactor(0.25);
+
+        var spikeMapper = new Module.vtkPolyDataMapper();
+        spikeMapper.SetInputConnection(glyph.GetOutputPort());
+        var spikeActor = new Module.vtkActor();
+        spikeActor.SetMapper(spikeMapper);
+
+        renderer.AddActor(sphereActor);
+        renderer.AddActor(spikeActor);
+        renderer.SetBackground(0.2, 0.3, 0.4);
+        renWin.SetSize(300, 300);
+
+        // interact with data
+        renWin.Render();
+
+        // expose to the console for easy access
+        runtime.instances = {
+          renderer,
+          renWin,
+          iren,
+          cone,
+          glyph,
+          sphere,
+          sphereMapper,
+          sphereActor,
+          spikeMapper,
+          spikeActor,
+        };
+
+        iren.Start();
+      });
+    </script>
+  </body>
+</html>

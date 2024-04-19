@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkArrayDataReader.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkArrayDataReader
@@ -31,47 +14,50 @@
  *
  * @sa
  * vtkArrayDataWriter
-*/
+ */
 
 #ifndef vtkArrayDataReader_h
 #define vtkArrayDataReader_h
 
-#include "vtkIOCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkIOCoreModule.h" // For export macro
+#include "vtkStdString.h"    // for vtkStdString
 
-class VTKIOCORE_EXPORT vtkArrayDataReader :
-  public vtkArrayDataAlgorithm
+VTK_ABI_NAMESPACE_BEGIN
+class vtkArrayData;
+
+class VTKIOCORE_EXPORT vtkArrayDataReader : public vtkArrayDataAlgorithm
 {
 public:
   static vtkArrayDataReader* New();
   vtkTypeMacro(vtkArrayDataReader, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the filesystem location from which data will be read.
    */
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileName);
-  //@}
+  vtkGetFilePathMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The input string to parse. If you set the input string, you must also set
    * the ReadFromInputString flag to parse the string instead of a file.
    */
   virtual void SetInputString(const vtkStdString& string);
   virtual vtkStdString GetInputString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to read from an input string as opposed to a file, which is the default.
    */
   vtkSetMacro(ReadFromInputString, bool);
   vtkGetMacro(ReadFromInputString, bool);
   vtkBooleanMacro(ReadFromInputString, bool);
-  //@}
+  ///@}
 
   /**
    * Read an arbitrary array from a stream.  Note: you MUST always
@@ -89,10 +75,7 @@ protected:
   vtkArrayDataReader();
   ~vtkArrayDataReader() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* FileName;
   vtkStdString InputString;
@@ -103,4 +86,5 @@ private:
   void operator=(const vtkArrayDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

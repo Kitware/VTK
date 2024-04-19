@@ -160,7 +160,7 @@ HPDF_String_Write  (HPDF_String   obj,
                 pbuf = buf;
             }
 
-            if (btype != HPDF_BYTE_TYPE_TRIAL) {
+            if (btype != HPDF_BYTE_TYPE_TRAIL) {
                 if (btype == HPDF_BYTE_TYPE_LEAD) {
                     HPDF_BYTE b2 = src[i + 1];
                     HPDF_UINT16 char_code = (HPDF_UINT16)((HPDF_UINT) b * 256 + b2);

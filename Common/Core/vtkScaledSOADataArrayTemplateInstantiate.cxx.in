@@ -1,0 +1,11 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
+// This file generates an instantiation of vtkScaledSOADataArrayTemplate.
+// For AoS arrays, this is done in the more derived classes, for example
+// compiling vtkFloatArray.cxx instantiates vtkAOSDataArrayTemplate<float>.
+
+#define VTK_SCALED_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
+#include "vtkScaledSOADataArrayTemplate.txx"
+
+VTK_SCALED_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(@INSTANTIATION_VALUE_TYPE@);

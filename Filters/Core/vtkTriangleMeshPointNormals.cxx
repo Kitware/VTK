@@ -1,137 +1,135 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTriangleMeshPointNormals.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTriangleMeshPointNormals.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTriangleMeshPointNormals);
 
 namespace
 {
-template<typename ptDataType>
-const char* computeNormalsDirection(vtkPolyData* mesh, float *n)
+
+struct ComputeNormalsDirection
 {
-  ptDataType *points = reinterpret_cast<ptDataType*>
-    (mesh->GetPoints()->GetData()->GetVoidPointer(0));
-  vtkIdType v0Offset, v1Offset, v2Offset;
-  ptDataType *p0, *p1, *p2;
-  float a[3], b[3], tn[3];
-
-  auto cellIter =
-      vtkSmartPointer<vtkCellArrayIterator>::Take(mesh->GetPolys()->NewIterator());
-  for (cellIter->GoToFirstCell();
-       !cellIter->IsDoneWithTraversal();
-       cellIter->GoToNextCell())
+  template <typename ArrayT>
+  void operator()(ArrayT* pointArray, vtkPolyData* mesh, vtkFloatArray* normalsArray,
+    vtkTriangleMeshPointNormals* self)
   {
-    vtkIdType cellSize;
-    const vtkIdType *cell;
-    cellIter->GetCurrentCell(cellSize, cell);
+    const auto points = vtk::DataArrayTupleRange<3>(pointArray);
+    auto normals = vtk::DataArrayTupleRange<3>(normalsArray);
 
-    // First value in cellArray indicates number of points in cell.
-    // We need 3 to compute normals.
-    if (cellSize == 3)
+    float a[3], b[3], tn[3];
+
+    auto cellIter = vtk::TakeSmartPointer(mesh->GetPolys()->NewIterator());
+    int checkAbortInterval = std::min(mesh->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
+    int progressCounter = 0;
+    for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
-      // vertex offsets
-      v0Offset = 3 * cell[0];
-      v1Offset = 3 * cell[1];
-      v2Offset = 3 * cell[2];
-      // pointer to each vertex
-      p0 = points + v0Offset;
-      p1 = points + v1Offset;
-      p2 = points + v2Offset;
-      // two vectors
-      a[0] = p2[0] - p1[0];
-      a[1] = p2[1] - p1[1];
-      a[2] = p2[2] - p1[2];
-      b[0] = p0[0] - p1[0];
-      b[1] = p0[1] - p1[1];
-      b[2] = p0[2] - p1[2];
-      // cell normals by cross-product
-      // (no need to normalize those + it's faster not to)
-      tn[0] = (a[1] * b[2] - a[2] * b[1]);
-      tn[1] = (a[2] * b[0] - a[0] * b[2]);
-      tn[2] = (a[0] * b[1] - a[1] * b[0]);
-      // append triangle normals to point normals
-      *(n + v0Offset) += tn[0];
-      *(n + v0Offset + 1) += tn[1];
-      *(n + v0Offset + 2) += tn[2];
-      *(n + v1Offset) += tn[0];
-      *(n + v1Offset + 1) += tn[1];
-      *(n + v1Offset + 2) += tn[2];
-      *(n + v2Offset) += tn[0];
-      *(n + v2Offset + 1) += tn[1];
-      *(n + v2Offset + 2) += tn[2];
-    }
-    // If degenerate cell
-    else if (cellSize < 3)
-    {
-      return "Some cells are degenerate (less than 3 points). "
-             "Use vtkCleanPolyData beforehand to correct this.";
-    }
-    // If cell not triangle
-    else
-    {
-      return "Some cells have too many points (more than 3 points). "
-             "Use vtkTriangulate to correct this.";
+      if (progressCounter % checkAbortInterval == 0 && self->CheckAbort())
+      {
+        break;
+      }
+      progressCounter++;
+      vtkIdType cellSize;
+      const vtkIdType* cell;
+      cellIter->GetCurrentCell(cellSize, cell);
+
+      // First value in cellArray indicates number of points in cell.
+      // We need 3 to compute normals.
+      if (cellSize == 3)
+      {
+        const auto p0 = points[cell[0]];
+        const auto p1 = points[cell[1]];
+        const auto p2 = points[cell[2]];
+        auto n0 = normals[cell[0]];
+        auto n1 = normals[cell[1]];
+        auto n2 = normals[cell[2]];
+
+        // two vectors
+        a[0] = static_cast<float>(p2[0] - p1[0]);
+        a[1] = static_cast<float>(p2[1] - p1[1]);
+        a[2] = static_cast<float>(p2[2] - p1[2]);
+        b[0] = static_cast<float>(p0[0] - p1[0]);
+        b[1] = static_cast<float>(p0[1] - p1[1]);
+        b[2] = static_cast<float>(p0[2] - p1[2]);
+
+        // cell normals by cross-product
+        // (no need to normalize those + it's faster not to)
+        tn[0] = (a[1] * b[2] - a[2] * b[1]);
+        tn[1] = (a[2] * b[0] - a[0] * b[2]);
+        tn[2] = (a[0] * b[1] - a[1] * b[0]);
+
+        // append triangle normals to point normals
+        n0[0] += tn[0];
+        n0[1] += tn[1];
+        n0[2] += tn[2];
+        n1[0] += tn[0];
+        n1[1] += tn[1];
+        n1[2] += tn[2];
+        n2[0] += tn[0];
+        n2[1] += tn[1];
+        n2[2] += tn[2];
+      }
+      // If degenerate cell
+      else if (cellSize < 3)
+      {
+        vtkGenericWarningMacro("Some cells are degenerate (less than 3 points). "
+                               "Use vtkCleanPolyData beforehand to correct this.");
+        return;
+      }
+      // If cell not triangle
+      else
+      {
+        vtkGenericWarningMacro("Some cells have too many points (more than 3 points). "
+                               "Use vtkTriangulate to correct this.");
+        return;
+      }
     }
   }
-  return nullptr;
-}
-}
+};
+
+} // end anon namespace
 
 // Generate normals for polygon meshes
-int vtkTriangleMeshPointNormals::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTriangleMeshPointNormals::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDebugMacro(<<"Generating surface normals");
+  vtkDebugMacro(<< "Generating surface normals");
 
   vtkIdType numPts = input->GetNumberOfPoints(); // nbr of points from input
-  if ( numPts < 1 )
+  if (numPts < 1)
   {
-    vtkDebugMacro(<<"No data to generate normals for!");
+    vtkDebugMacro(<< "No data to generate normals for!");
     return 1;
   }
 
-  if (input->GetVerts()->GetNumberOfCells() != 0 ||
-      input->GetLines()->GetNumberOfCells() != 0 ||
-      input->GetStrips()->GetNumberOfCells() != 0)
+  if (input->GetVerts()->GetNumberOfCells() != 0 || input->GetLines()->GetNumberOfCells() != 0 ||
+    input->GetStrips()->GetNumberOfCells() != 0)
   {
-    vtkErrorMacro(<< "Can not compute normals for a mesh with Verts, Lines or Strips, as it will "
-                  << "corrupt the number of points used during the normals computation."
-                  << "Make sure your input PolyData only has triangles (Polys with 3 components)).");
+    vtkErrorMacro(
+      << "Can not compute normals for a mesh with Verts, Lines or Strips, as it will "
+      << "corrupt the number of points used during the normals computation."
+      << "Make sure your input PolyData only has triangles (Polys with 3 components)).");
     return 0;
   }
 
@@ -150,7 +148,7 @@ int vtkTriangleMeshPointNormals::RequestData(
   output->GetPointData()->PassData(input->GetPointData());
 
   // Prepare array for normals
-  vtkFloatArray *normals = vtkFloatArray::New();
+  vtkFloatArray* normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetNumberOfTuples(numPts);
   normals->SetName("Normals");
@@ -160,33 +158,36 @@ int vtkTriangleMeshPointNormals::RequestData(
 
   this->UpdateProgress(0.1);
 
-  // Compute normals direction
-  float *n = reinterpret_cast<float*>(normals->GetVoidPointer(0));
-  switch (output->GetPoints()->GetDataType())
-  {
-    vtkTemplateMacro(
-      const char *warning = computeNormalsDirection<VTK_TT>(output, n);
-      if(warning)
-      {
-        vtkWarningMacro( << warning);
-      }
-    );
+  // Fast-path for float/double points:
+  using vtkArrayDispatch::Reals;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  ComputeNormalsDirection worker;
+
+  vtkDataArray* points = output->GetPoints()->GetData();
+  if (!Dispatcher::Execute(points, worker, output, normals, this))
+  { // fallback for integral point arrays
+    worker(points, output, normals, this);
   }
+
   this->UpdateProgress(0.5);
 
   // Normalize point normals
   float l;
   unsigned int i3;
+  float* n = normals->GetPointer(0);
+  vtkIdType checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
   for (vtkIdType i = 0; i < numPts; ++i)
   {
-    i3 = i * 3;
-    if ((l = sqrt(n[i3] * n[i3] +
-        n[i3 + 1] * n[i3 + 1] +
-        n[i3 + 2] * n[i3 + 2])) != 0.0)
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
-        n[i3] /= l;
-        n[i3 + 1] /= l;
-        n[i3 + 2] /= l;
+      break;
+    }
+    i3 = i * 3;
+    if ((l = sqrt(n[i3] * n[i3] + n[i3 + 1] * n[i3 + 1] + n[i3 + 2] * n[i3 + 2])) != 0.0)
+    {
+      n[i3] /= l;
+      n[i3 + 1] /= l;
+      n[i3 + 2] /= l;
     }
   }
   this->UpdateProgress(0.9);
@@ -199,5 +200,6 @@ int vtkTriangleMeshPointNormals::RequestData(
 
 void vtkTriangleMeshPointNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

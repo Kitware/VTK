@@ -1,22 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkShader
  * @brief   encapsulate a glsl shader
  *
  * vtkShader represents a shader, vertex, fragment, geometry etc
-*/
+ */
 
 #ifndef vtkShader_h
 #define vtkShader_h
@@ -30,10 +19,11 @@
 /**
  * @brief Vertex or Fragment shader, combined into a ShaderProgram.
  *
- * This class creates a Vertex, Fragment or Geometry shader, that can be
- * attached to a ShaderProgram in order to render geometry etc.
+ * This class creates a Vertex, Fragment, Geometry or Compute shader,
+ * that can be attached to a ShaderProgram in order to render geometry etc.
  */
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkShader : public vtkObject
 {
 public:
@@ -44,10 +34,13 @@ public:
   /** Available shader types. */
   enum Type
   {
-    Vertex,   /**< Vertex shader */
-    Fragment, /**< Fragment shader */
-    Geometry, /**< Geometry shader */
-    Unknown   /**< Unknown (default) */
+    Vertex,         /**< Vertex shader */
+    Fragment,       /**< Fragment shader */
+    Geometry,       /**< Geometry shader */
+    Compute,        /**< Compute shader */
+    TessControl,    /**< Tessellation Control*/
+    TessEvaluation, /**< Tessellation Evaluation*/
+    Unknown         /**< Unknown (default) */
   };
 
   /** Set the shader type. */
@@ -78,6 +71,12 @@ public:
    * Shader.
    */
   void Cleanup();
+
+  /** Check if compute shaders are supported. */
+  static bool IsComputeShaderSupported();
+
+  /** Check if tessellation shaders are supported. */
+  static bool IsTessellationShaderSupported();
 
   class ReplacementSpec
   {
@@ -133,4 +132,5 @@ private:
   void operator=(const vtkShader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

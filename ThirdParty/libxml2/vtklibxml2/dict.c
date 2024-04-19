@@ -10,7 +10,7 @@
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE AUTHORS AND
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE AUTHORS AND
  * CONTRIBUTORS ACCEPT NO RESPONSIBILITY IN ANY CONCEIVABLE MANNER.
  *
  * Author: daniel@veillard.com
@@ -20,12 +20,8 @@
 #include "libxml.h"
 
 #include <limits.h>
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-#ifdef HAVE_TIME_H
 #include <time.h>
-#endif
 
 /*
  * Following http://www.ocert.org/advisories/ocert-2011-003.html
@@ -38,7 +34,7 @@
  *  list we will use the BigKey algo as soon as the hash size grows
  *  over MIN_DICT_SIZE so this actually works
  */
-#if defined(HAVE_RAND) && defined(HAVE_SRAND) && defined(HAVE_TIME)
+#if !defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION)
 #define DICT_RANDOMIZATION
 #endif
 
@@ -131,7 +127,7 @@ struct _xmlDict {
  * A mutex for modifying the reference counter for shared
  * dictionaries.
  */
-static xmlRMutexPtr xmlDictMutex = NULL;
+static xmlMutexPtr xmlDictMutex = NULL;
 
 /*
  * Whether the dictionary mutex was initialized.
@@ -150,8 +146,10 @@ static unsigned int rand_seed = 0;
 /**
  * xmlInitializeDict:
  *
+ * DEPRECATED: This function will be made private. Call xmlInitParser to
+ * initialize the library.
+ *
  * Do the dictionary mutex initialization.
- * this function is deprecated
  *
  * Returns 0 if initialization was already done, and 1 if that
  * call led to the initialization
@@ -176,9 +174,9 @@ int __xmlInitializeDict(void) {
     if (xmlDictInitialized)
         return(1);
 
-    if ((xmlDictMutex = xmlNewRMutex()) == NULL)
+    if ((xmlDictMutex = xmlNewMutex()) == NULL)
         return(0);
-    xmlRMutexLock(xmlDictMutex);
+    xmlMutexLock(xmlDictMutex);
 
 #ifdef DICT_RANDOMIZATION
 #ifdef HAVE_RAND_R
@@ -189,7 +187,7 @@ int __xmlInitializeDict(void) {
 #endif
 #endif
     xmlDictInitialized = 1;
-    xmlRMutexUnlock(xmlDictMutex);
+    xmlMutexUnlock(xmlDictMutex);
     return(1);
 }
 
@@ -200,19 +198,24 @@ int __xmlRandom(void) {
     if (xmlDictInitialized == 0)
         __xmlInitializeDict();
 
-    xmlRMutexLock(xmlDictMutex);
+    xmlMutexLock(xmlDictMutex);
 #ifdef HAVE_RAND_R
     ret = rand_r(& rand_seed);
 #else
     ret = rand();
 #endif
-    xmlRMutexUnlock(xmlDictMutex);
+    xmlMutexUnlock(xmlDictMutex);
     return(ret);
 }
 #endif
 
 /**
  * xmlDictCleanup:
+ *
+ * DEPRECATED: This function will be made private. Call xmlCleanupParser
+ * to free global state but see the warnings there. xmlCleanupParser
+ * should be only called once at program exit. In most cases, you don't
+ * have call cleanup functions at all.
  *
  * Free the dictionary mutex. Do not call unless sure the library
  * is not in use anymore !
@@ -222,7 +225,7 @@ xmlDictCleanup(void) {
     if (!xmlDictInitialized)
         return;
 
-    xmlFreeRMutex(xmlDictMutex);
+    xmlFreeMutex(xmlDictMutex);
 
     xmlDictInitialized = 0;
 }
@@ -371,6 +374,9 @@ found_pool:
  * http://burtleburtle.net/bob/hash/doobs.html
  */
 
+#ifdef __clang__
+ATTRIBUTE_NO_SANITIZE("unsigned-integer-overflow")
+#endif
 static uint32_t
 xmlDictComputeBigKey(const xmlChar* data, int namelen, int seed) {
     uint32_t hash;
@@ -403,6 +409,9 @@ xmlDictComputeBigKey(const xmlChar* data, int namelen, int seed) {
  *
  * Neither of the two strings must be NULL.
  */
+#ifdef __clang__
+ATTRIBUTE_NO_SANITIZE("unsigned-integer-overflow")
+#endif
 static unsigned long
 xmlDictComputeBigQKey(const xmlChar *prefix, int plen,
                       const xmlChar *name, int len, int seed)
@@ -445,7 +454,7 @@ xmlDictComputeFastKey(const xmlChar *name, int namelen, int seed) {
     unsigned long value = seed;
 
     if (name == NULL) return(0);
-    value = *name;
+    value += *name;
     value <<= 5;
     if (namelen > 10) {
         value += name[namelen - 1];
@@ -641,9 +650,9 @@ xmlDictReference(xmlDictPtr dict) {
             return(-1);
 
     if (dict == NULL) return -1;
-    xmlRMutexLock(xmlDictMutex);
+    xmlMutexLock(xmlDictMutex);
     dict->ref_counter++;
-    xmlRMutexUnlock(xmlDictMutex);
+    xmlMutexUnlock(xmlDictMutex);
     return(0);
 }
 
@@ -727,7 +736,7 @@ xmlDictGrow(xmlDictPtr dict, size_t size) {
 		dict->dict[key].next = entry;
 	    } else {
 	        /*
-		 * we don't have much ways to alert from herei
+		 * we don't have much ways to alert from here
 		 * result is losing an entry and unicity guarantee
 		 */
 	        ret = -1;
@@ -805,14 +814,14 @@ xmlDictFree(xmlDictPtr dict) {
             return;
 
     /* decrement the counter, it may be shared by a parser and docs */
-    xmlRMutexLock(xmlDictMutex);
+    xmlMutexLock(xmlDictMutex);
     dict->ref_counter--;
     if (dict->ref_counter > 0) {
-        xmlRMutexUnlock(xmlDictMutex);
+        xmlMutexUnlock(xmlDictMutex);
         return;
     }
 
-    xmlRMutexUnlock(xmlDictMutex);
+    xmlMutexUnlock(xmlDictMutex);
 
     if (dict->subdict != NULL) {
         xmlDictFree(dict->subdict);
@@ -1202,7 +1211,7 @@ xmlDictQLookup(xmlDictPtr dict, const xmlChar *prefix, const xmlChar *name) {
  * @dict: the dictionary
  * @str: the string
  *
- * check if a string is owned by the disctionary
+ * check if a string is owned by the dictionary
  *
  * Returns 1 if true, 0 if false and -1 in case of error
  * -1 in case of error
@@ -1287,5 +1296,3 @@ xmlDictGetUsage(xmlDictPtr dict) {
     return(limit);
 }
 
-#define bottom_dict
-#include "elfgcchack.h"

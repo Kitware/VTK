@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkOpenGLHelper_h
 #define vtkOpenGLHelper_h
@@ -18,6 +7,7 @@
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkTimeStamp.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLIndexBufferObject;
 class vtkOpenGLShaderCache;
 class vtkOpenGLVertexArrayObject;
@@ -30,24 +20,25 @@ class vtkWindow;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHelper
 {
 public:
-  vtkShaderProgram *Program;
+  vtkShaderProgram* Program;
   vtkTimeStamp ShaderSourceTime;
-  vtkOpenGLVertexArrayObject *VAO;
+  vtkOpenGLVertexArrayObject* VAO;
   vtkTimeStamp AttributeUpdateTime;
   int PrimitiveType;
   unsigned int ShaderChangeValue;
 
-  vtkOpenGLIndexBufferObject *IBO;
+  vtkOpenGLIndexBufferObject* IBO;
 
   vtkOpenGLHelper();
   ~vtkOpenGLHelper();
-  void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow* win);
 
- private:
+private:
   vtkOpenGLHelper(const vtkOpenGLHelper&) = delete;
   vtkOpenGLHelper& operator=(const vtkOpenGLHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLHelper_h
 
 // VTK-HeaderTest-Exclude: vtkOpenGLHelper.h

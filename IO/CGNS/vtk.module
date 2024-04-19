@@ -1,0 +1,28 @@
+NAME
+  VTK::IOCGNSReader
+LIBRARY_NAME
+  vtkIOCGNSReader
+KIT
+  VTK::Parallel
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::ParallelCore
+PRIVATE_DEPENDS
+  VTK::cgns
+  VTK::FiltersExtraction
+  VTK::ParallelCore
+  VTK::hdf5
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::InteractionStyle
+  VTK::TestingCore
+  VTK::TestingRendering

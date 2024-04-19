@@ -1,43 +1,29 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, EX_NOERR, etc
 
-/*
- * reads the id map
+/*!
+ * \ingroup ModelDescription
+ *
+ * reads the a portion of the values of the id map for the entity type specified by `map_type`
+ * The beginning location of the read is a `start_entity_num` which is 1-based. The read will
+ * return `num_entities` values starting at that location.  Requirements are:
+ * - `start_entity_num > 0`
+ * - `start_entity_num + num_entities - 1 <= num_entity` which is the number of entities of
+ * specified type (e.g. elements)
+ *
+ * \param      exoid            exodus file id
+ * \param      map_type         type (edge block, face block, edge set, ... )
+ * \param      start_entity_num index of first entity in block to read (1-based)
+ * \param      num_entities     number of entries to read in this block/set
+ * \param      map              the values read are returned here.
  */
 
 int ex_get_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_entity_num,
@@ -53,7 +39,9 @@ int ex_get_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_enti
   const char *tname;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   switch (map_type) {
   case EX_NODE_MAP:
@@ -95,10 +83,18 @@ int ex_get_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_enti
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  if (start_entity_num < 1) {
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: start index (%" PRId64 ") must be greater than 0 in file id %d",
+             start_entity_num, exoid);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
+
   if (start_entity_num + num_entities - 1 > num_entries) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: start index (%" PRId64 ") + entity count (%" PRId64
-             ") is larger than total number of entities (%" ST_ZU ") in file id %d",
+             ") is larger than total number of entities (%zu) in file id %d",
              start_entity_num, num_entities, num_entries, exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);

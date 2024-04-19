@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPointCloudFilter.h
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See LICENSE file for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-CLAUSE
 /**
  * @class   vtkPointCloudFilter
  * @brief   abstract class for filtering a point cloud
@@ -52,7 +40,7 @@
  *
  * @sa
  * vtkRadiusOutlierRemoval vtkPointGaussianMapper vtkThresholdPoints
-*/
+ */
 
 #ifndef vtkPointCloudFilter_h
 #define vtkPointCloudFilter_h
@@ -60,19 +48,20 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointSet;
 class vtkPolyData;
 
 class VTKFILTERSPOINTS_EXPORT vtkPointCloudFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods to obtain type information, and print information.
    */
-  vtkTypeMacro(vtkPointCloudFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPointCloudFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Retrieve a map which indicates, on a point-by-point basis, where each
@@ -90,7 +79,7 @@ public:
    */
   vtkIdType GetNumberOfPointsRemoved();
 
-  //@{
+  ///@{
   /**
    * If this method is enabled (true), then a second output will be created
    * that contains the outlier points. By default this is off (false).  Note
@@ -98,22 +87,22 @@ public:
    * are listed as well, with similar meaning, except their value is negated
    * and shifted by -1.
    */
-  vtkSetMacro(GenerateOutliers,bool);
-  vtkGetMacro(GenerateOutliers,bool);
-  vtkBooleanMacro(GenerateOutliers,bool);
-  //@}
+  vtkSetMacro(GenerateOutliers, bool);
+  vtkGetMacro(GenerateOutliers, bool);
+  vtkBooleanMacro(GenerateOutliers, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this method is enabled (true), then the outputs will contain a vertex
    * cells (i.e., a vtkPolyVertex for each output). This takes a lot more
    * memory but some VTK filters need cells to function properly. By default
    * this is off (false).
    */
-  vtkSetMacro(GenerateVertices,bool);
-  vtkGetMacro(GenerateVertices,bool);
-  vtkBooleanMacro(GenerateVertices,bool);
-  //@}
+  vtkSetMacro(GenerateVertices, bool);
+  vtkGetMacro(GenerateVertices, bool);
+  vtkBooleanMacro(GenerateVertices, bool);
+  ///@}
 
 protected:
   vtkPointCloudFilter();
@@ -121,10 +110,10 @@ protected:
 
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned on error.
-  virtual int FilterPoints(vtkPointSet *input) = 0;
+  virtual int FilterPoints(vtkPointSet* input) = 0;
 
   // Keep track of which points are removed through the point map
-  vtkIdType *PointMap;
+  vtkIdType* PointMap;
   vtkIdType NumberOfPointsRemoved;
 
   // Does a second output need to be created?
@@ -133,16 +122,15 @@ protected:
   // Should output vertex cells be created?
   bool GenerateVertices;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void GenerateVerticesIfRequested(vtkPolyData *output);
+  void GenerateVerticesIfRequested(vtkPolyData* output);
 
 private:
   vtkPointCloudFilter(const vtkPointCloudFilter&) = delete;
   void operator=(const vtkPointCloudFilter&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestExtractDataArraysOverTime.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkMPI.h"
 #include "vtkPExtractDataArraysOverTime.h"
 
@@ -31,11 +19,14 @@
 #include <string>
 
 #define expect(x, msg)                                                                             \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "rank=" << rank << ", line=" << __LINE__ << ": " msg << endl;                          \
-    return false;                                                                                  \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      cerr << "rank=" << rank << ", line=" << __LINE__ << ": " msg << endl;                        \
+      return false;                                                                                \
+    }                                                                                              \
+  } while (false)
 
 namespace
 {
@@ -59,11 +50,12 @@ bool ValidateStats(vtkMultiBlockDataSet* mb, int num_timesteps, int rank)
   {
     vtkTable* b0 = vtkTable::SafeDownCast(mb->GetBlock(0));
     expect(b0 != nullptr, "expecting a vtkTable for block " << cc);
-    expect(b0->GetNumberOfRows() == num_timesteps, "mismatched rows, expecting "
-        << num_timesteps << ", got " << b0->GetNumberOfRows() << "for block " << cc);
+    expect(b0->GetNumberOfRows() == num_timesteps,
+      "mismatched rows, expecting " << num_timesteps << ", got " << b0->GetNumberOfRows()
+                                    << "for block " << cc);
     expect(b0->GetNumberOfColumns() > 100, "mismatched columns in block " << cc);
-    expect(b0->GetColumnByName("max(DISPL (0))") != nullptr, "missing 'max(DISPL (0))' for block "
-        << cc);
+    expect(b0->GetColumnByName("max(DISPL (0))") != nullptr,
+      "missing 'max(DISPL (0))' for block " << cc);
   }
   return true;
 }
@@ -84,15 +76,15 @@ bool ValidateGID(vtkMultiBlockDataSet* mb, int num_timesteps, const char* bname,
 
   vtkTable* b0 = vtkTable::SafeDownCast(mb->GetBlock(0));
   expect(b0 != nullptr, "expecting a vtkTable for block 0");
-  expect(b0->GetNumberOfRows() == num_timesteps, "mismatched rows, expecting "
-      << num_timesteps << ", got " << b0->GetNumberOfRows());
+  expect(b0->GetNumberOfRows() == num_timesteps,
+    "mismatched rows, expecting " << num_timesteps << ", got " << b0->GetNumberOfRows());
   expect(b0->GetNumberOfColumns() >= 5, "mismatched columns");
   expect(b0->GetColumnByName("EQPS") != nullptr, "missing EQPS.");
 
   const char* name = mb->GetMetaData(0u)->Get(vtkCompositeDataSet::NAME());
   expect(name != nullptr, "expecting non-null name.");
-  expect(strcmp(name, bname) == 0, "block name not matching, expected '" << bname << "', got '"
-                                                                         << name << "'");
+  expect(strcmp(name, bname) == 0,
+    "block name not matching, expected '" << bname << "', got '" << name << "'");
   return true;
 }
 
@@ -114,8 +106,8 @@ bool ValidateID(vtkMultiBlockDataSet* mb, int num_timesteps, const char* bname, 
   {
     vtkTable* b0 = vtkTable::SafeDownCast(mb->GetBlock(cc));
     expect(b0 != nullptr, "expecting a vtkTable for block " << cc);
-    expect(b0->GetNumberOfRows() == num_timesteps, "mismatched rows, expecting "
-        << num_timesteps << ", got " << b0->GetNumberOfRows());
+    expect(b0->GetNumberOfRows() == num_timesteps,
+      "mismatched rows, expecting " << num_timesteps << ", got " << b0->GetNumberOfRows());
     expect(b0->GetNumberOfColumns() >= 5, "mismatched columns");
     expect(b0->GetColumnByName("EQPS") != nullptr, "missing EQPS.");
 
@@ -124,8 +116,8 @@ bool ValidateID(vtkMultiBlockDataSet* mb, int num_timesteps, const char* bname, 
 
     std::ostringstream stream;
     stream << bname << " rank=" << cc;
-    expect(stream.str() == name, "block name not matching, expected '" << stream.str() << "', got '"
-                                                                       << name << "'");
+    expect(stream.str() == name,
+      "block name not matching, expected '" << stream.str() << "', got '" << name << "'");
   }
   return true;
 }
@@ -232,7 +224,7 @@ int TestPExtractDataArraysOverTime(int argc, char* argv[])
   extractor->UpdatePiece(myrank, numranks, 0);
   if (!AllRanksSucceeded(
         ValidateID(vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)),
-          num_timesteps, "id=0 block=2", myrank)))
+          num_timesteps, "originalId=99 block=2", myrank)))
   {
     cerr << "Failed to validate dataset at line: " << __LINE__ << endl;
     return EXIT_FAILURE;

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPassSelectedArrays.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkPassSelectedArrays
  * @brief pass through chosen arrays
@@ -37,6 +25,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkSmartPointer.h" // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 
 class VTKFILTERSGENERAL_EXPORT vtkPassSelectedArrays : public vtkPassInputTypeAlgorithm
@@ -46,7 +35,7 @@ public:
   vtkTypeMacro(vtkPassSelectedArrays, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Enable/disable this filter. When disabled, this filter passes all input arrays
    * irrespective of the array selections. Default is `true`.
@@ -54,7 +43,7 @@ public:
   vtkSetMacro(Enabled, bool);
   vtkGetMacro(Enabled, bool);
   vtkBooleanMacro(Enabled, bool);
-  //@}
+  ///@}
 
   /**
    * Returns the vtkDataArraySelection instance associated with a particular
@@ -64,7 +53,7 @@ public:
    */
   vtkDataArraySelection* GetArraySelection(int association);
 
-  //@{
+  ///@{
   /**
    * Convenience methods that call `GetArraySelection` with corresponding
    * association type.
@@ -93,7 +82,7 @@ public:
   {
     return this->GetArraySelection(vtkDataObject::FIELD_ASSOCIATION_ROWS);
   }
-  //@}
+  ///@}
 
 protected:
   vtkPassSelectedArrays();
@@ -110,4 +99,5 @@ private:
   vtkSmartPointer<vtkDataArraySelection> ArraySelections[vtkDataObject::NUMBER_OF_ASSOCIATIONS];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

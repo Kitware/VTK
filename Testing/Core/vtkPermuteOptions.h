@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPermuteOptions.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkPermuteOptions_h
 #define vtkPermuteOptions_h
@@ -119,6 +107,7 @@
  * returns false. E.g. the third iteration will be named
  * "ByteOrder.BigEndian-CompressorType.LZ4".
  */
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ObjType>
 class vtkPermuteOptions
 {
@@ -126,25 +115,25 @@ class vtkPermuteOptions
 
   struct Value
   {
-    Value(const std::string &name, std::function<void(ObjType*)> setter)
+    Value(const std::string& name, std::function<void(ObjType*)> setter)
       : Name(name)
       , Setter(setter)
     {
     }
 
-    void Apply(ObjType *obj) const
-    {
-      this->Setter(obj);
-    }
+    void Apply(ObjType* obj) const { this->Setter(obj); }
 
-    std::string Name; // user-readable option name
+    std::string Name;                     // user-readable option name
     std::function<void(ObjType*)> Setter; // Sets the option to a single values
   };
 
   struct Option
   {
-    Option(const std::string &name) : Name(name) {}
-    std::string Name; // user-readable option name
+    Option(const std::string& name)
+      : Name(name)
+    {
+    }
+    std::string Name;          // user-readable option name
     std::vector<Value> Values; // list of values to test for this option
   };
 
@@ -156,7 +145,7 @@ class vtkPermuteOptions
 
   Option& FindOrCreateOption(const std::string& name)
   {
-    for (Option &opt : this->Options)
+    for (Option& opt : this->Options)
     {
       if (opt.Name == name)
       {
@@ -168,7 +157,7 @@ class vtkPermuteOptions
     return this->Options.back();
   }
 
-  void RecursePermutations(Permutation &perm, size_t level)
+  void RecursePermutations(Permutation& perm, size_t level)
   {
     const size_t maxIdx = this->Options[level].Values.size();
 
@@ -200,7 +189,7 @@ class vtkPermuteOptions
     this->PermutationTime.Modified();
   }
 
-  void Apply(ObjType *obj, const Permutation& perm) const
+  void Apply(ObjType* obj, const Permutation& perm) const
   {
     const size_t numOpts = this->Options.size();
     assert("Sane permutation" && perm.size() == numOpts);
@@ -224,8 +213,7 @@ class vtkPermuteOptions
       size_t valIdx = perm[i];
       assert("ValueIdx in range" && valIdx < this->Options[i].Values.size());
 
-      out << (i != 0 ? "-" : "")
-          << this->Options[i].Name << "."
+      out << (i != 0 ? "-" : "") << this->Options[i].Name << "."
           << this->Options[i].Values[valIdx].Name;
     }
 
@@ -239,34 +227,27 @@ public:
   }
 
   template <typename SetterType, typename ValueType>
-  void AddOptionValue(const std::string &optionName,
-                      SetterType setter,
-                      const std::string &valueName,
-                      ValueType value)
+  void AddOptionValue(
+    const std::string& optionName, SetterType setter, const std::string& valueName, ValueType value)
   {
     using std::placeholders::_1;
 
     std::function<void(ObjType*)> func = std::bind(setter, _1, value);
-    Option &opt = this->FindOrCreateOption(optionName);
+    Option& opt = this->FindOrCreateOption(optionName);
     opt.Values.emplace_back(valueName, func);
     this->OptionTime.Modified();
   }
 
   template <typename SetterType, typename ValueType>
-  void AddOptionValues(const std::string &optionName,
-                       SetterType setter,
-                       const std::string &valueName,
-                       ValueType value)
+  void AddOptionValues(
+    const std::string& optionName, SetterType setter, const std::string& valueName, ValueType value)
   {
     this->AddOptionValue(optionName, setter, valueName, value);
   }
 
-  template <typename SetterType, typename ValueType, typename ... Tail>
-  void AddOptionValues(const std::string &optionName,
-                       SetterType setter,
-                       const std::string &valueName,
-                       ValueType value,
-                       Tail ... tail)
+  template <typename SetterType, typename ValueType, typename... Tail>
+  void AddOptionValues(const std::string& optionName, SetterType setter,
+    const std::string& valueName, ValueType value, Tail... tail)
   {
     this->AddOptionValue(optionName, setter, valueName, value);
     this->AddOptionValues(optionName, setter, tail...);
@@ -285,7 +266,7 @@ public:
   bool IsDoneWithPermutations() const
   {
     assert("Modified options without resetting permutations." &&
-           this->PermutationTime > this->OptionTime);
+      this->PermutationTime > this->OptionTime);
 
     return this->CurrentPermutation >= this->Permutations.size();
   }
@@ -293,16 +274,16 @@ public:
   void GoToNextPermutation()
   {
     assert("Modified options without resetting permutations." &&
-           this->PermutationTime > this->OptionTime);
+      this->PermutationTime > this->OptionTime);
     assert("Invalid permutation." && !this->IsDoneWithPermutations());
 
     ++this->CurrentPermutation;
   }
 
-  void ApplyCurrentPermutation(ObjType *obj) const
+  void ApplyCurrentPermutation(ObjType* obj) const
   {
     assert("Modified options without resetting permutations." &&
-           this->PermutationTime > this->OptionTime);
+      this->PermutationTime > this->OptionTime);
     assert("Invalid permutation." && !this->IsDoneWithPermutations());
 
     this->Apply(obj, this->Permutations[this->CurrentPermutation]);
@@ -311,11 +292,12 @@ public:
   std::string GetCurrentPermutationName() const
   {
     assert("Modified options without resetting permutations." &&
-           this->PermutationTime > this->OptionTime);
+      this->PermutationTime > this->OptionTime);
     assert("Invalid permutation." && !this->IsDoneWithPermutations());
     return this->NamePermutation(this->Permutations[this->CurrentPermutation]);
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPermuteOptions.h

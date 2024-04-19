@@ -1,16 +1,24 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImport import vtkVRMLImporter
+from vtkmodules.vtkRenderingCore import (
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-importer = vtk.vtkVRMLImporter()
+importer = vtkVRMLImporter()
 importer.SetRenderWindow(renWin)
-importer.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/bot2.wrl")
+importer.SetFileName(VTK_DATA_ROOT + "/Data/bot2.wrl")
 importer.Read()
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 importer.GetRenderer().SetBackground(0.1,0.2,0.4)
 importer.GetRenderWindow().SetSize(300,300)

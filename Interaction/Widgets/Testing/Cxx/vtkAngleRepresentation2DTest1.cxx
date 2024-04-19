@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAngleRepresentation2D.h"
 
 #include <cstdlib>
@@ -5,13 +7,14 @@
 
 #include "WidgetTestingMacros.h"
 
-int vtkAngleRepresentation2DTest1(int , char * [] )
+int vtkAngleRepresentation2DTest1(int, char*[])
 {
-  vtkSmartPointer< vtkAngleRepresentation2D > node1 = vtkSmartPointer< vtkAngleRepresentation2D >::New();
+  vtkSmartPointer<vtkAngleRepresentation2D> node1 =
+    vtkSmartPointer<vtkAngleRepresentation2D>::New();
 
   EXERCISE_BASIC_ANGLE_REPRESENTATION_METHODS(vtkAngleRepresentation2D, node1);
 
-  vtkLeaderActor2D *actor = node1->GetRay1();
+  vtkLeaderActor2D* actor = node1->GetRay1();
   if (actor == nullptr)
   {
     std::cout << "Ray 1 is null." << std::endl;

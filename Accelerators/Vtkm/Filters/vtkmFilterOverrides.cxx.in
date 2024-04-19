@@ -1,0 +1,51 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
+#include <vtkmFilterOverrides.h>
+
+#include <vtkObjectFactory.h>
+
+#include <vector>
+
+VTK_ABI_NAMESPACE_BEGIN
+namespace
+{
+
+bool vtkmFilterOverridesEnabled = VTK_ENABLE_VTKM_OVERRIDES != 0;
+
+struct FilterOverrides
+{
+  const char* Base;
+  const char* Override;
+};
+
+#if VTK_ENABLE_VTKM_OVERRIDES
+const std::vector<FilterOverrides> overrides = @VTKM_OVERRIDES_INITIALIZER_LIST_STRING@
+#endif
+
+} // namespace
+
+void vtkmFilterOverrides::SetEnabled(bool value)
+{
+  static_cast<void>(value);
+
+#if VTK_ENABLE_VTKM_OVERRIDES
+  if (vtkmFilterOverridesEnabled == value)
+  {
+    return;
+  }
+
+  for (const auto& ovr : overrides)
+  {
+    vtkObjectFactory::SetAllEnableFlags(value, ovr.Base, ovr.Override);
+  }
+
+  vtkmFilterOverridesEnabled = value;
+#endif
+}
+
+bool vtkmFilterOverrides::GetEnabled()
+{
+  return vtkmFilterOverridesEnabled;
+}
+VTK_ABI_NAMESPACE_END

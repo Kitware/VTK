@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGeometricErrorMetric.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGeometricErrorMetric
  * @brief   Objects that compute
@@ -23,7 +11,7 @@
  *
  * @sa
  * vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric
-*/
+ */
 
 #ifndef vtkGeometricErrorMetric_h
 #define vtkGeometricErrorMetric_h
@@ -31,6 +19,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGenericSubdivisionErrorMetric.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericDataSet;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkGeometricErrorMetric : public vtkGenericSubdivisionErrorMetric
@@ -40,24 +29,24 @@ public:
    * Construct the error metric with a default squared absolute geometric
    * accuracy equal to 1.
    */
-  static vtkGeometricErrorMetric *New();
+  static vtkGeometricErrorMetric* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK type and error macros.
    */
-  vtkTypeMacro(vtkGeometricErrorMetric,vtkGenericSubdivisionErrorMetric);
+  vtkTypeMacro(vtkGeometricErrorMetric, vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the squared absolute geometric accuracy. See
    * SetAbsoluteGeometricTolerance() for details.
    * \post positive_result: result>0
    */
   vtkGetMacro(AbsoluteGeometricTolerance, double);
-  //@}
+  ///@}
 
   /**
    * Set the geometric accuracy with a squared absolute value.
@@ -76,8 +65,7 @@ public:
    * \pre valid_range_value: value>0 && value<1
    * \pre ds_exists: ds!=0
    */
-  void SetRelativeGeometricTolerance(double value,
-                                     vtkGenericDataSet *ds);
+  void SetRelativeGeometricTolerance(double value, vtkGenericDataSet* ds);
 
   /**
    * Does the edge need to be subdivided according to the distance between
@@ -97,8 +85,8 @@ public:
    * \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    */
-  int RequiresEdgeSubdivision(double *leftPoint, double *midPoint, double *rightPoint,
-                              double alpha) override;
+  int RequiresEdgeSubdivision(
+    double* leftPoint, double* midPoint, double* rightPoint, double alpha) override;
 
   /**
    * Return the error at the mid-point. It will return an error relative to
@@ -113,8 +101,7 @@ public:
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    * \post positive_result: result>=0
    */
-  double GetError(double *leftPoint, double *midPoint,
-                  double *rightPoint, double alpha) override;
+  double GetError(double* leftPoint, double* midPoint, double* rightPoint, double alpha) override;
 
   /**
    * Return the type of output of GetError()
@@ -130,9 +117,7 @@ protected:
    * and a point z. Property: if x and y are equal, the line is a point and
    * the result is the square distance between points x and z.
    */
-  double Distance2LinePoint(double x[3],
-                            double y[3],
-                            double z[3]);
+  double Distance2LinePoint(double x[3], double y[3], double z[3]);
 
   double AbsoluteGeometricTolerance;
   double SmallestSize;
@@ -143,4 +128,5 @@ private:
   void operator=(const vtkGeometricErrorMetric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

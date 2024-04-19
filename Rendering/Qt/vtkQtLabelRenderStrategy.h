@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtLabelRenderStrategy.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkQtLabelRenderStrategy
  * @brief   Renders labels with Qt
@@ -20,14 +8,15 @@
  * This class uses Qt to render labels and compute sizes. The labels are
  * rendered to a QImage, then EndFrame() converts that image to a vtkImageData
  * and textures the image onto a quad spanning the render area.
-*/
+ */
 
 #ifndef vtkQtLabelRenderStrategy_h
 #define vtkQtLabelRenderStrategy_h
 
-#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabelRenderStrategy.h"
+#include "vtkRenderingQtModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLabelSizeCalculator;
 class vtkLabeledDataMapper;
 class vtkPlaneSource;
@@ -39,7 +28,7 @@ class vtkTextureMapToPlane;
 
 class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrategy
 {
- public:
+public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkQtLabelRenderStrategy, vtkLabelRenderStrategy);
   static vtkQtLabelRenderStrategy* New();
@@ -47,27 +36,16 @@ class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStra
   /**
    * Compute the bounds of a label. Must be performed after the renderer is set.
    */
-  void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label,
-                                  double bds[4]) override
-    { this->Superclass::ComputeLabelBounds(tprop, label, bds); }
-  void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label,
-                                  double bds[4]) override;
+  void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4]) override;
 
-  //@{
+  ///@{
   /**
    * Render a label at a location in world coordinates.
    * Must be performed between StartFrame() and EndFrame() calls.
    */
-  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label) override
-    { this->Superclass::RenderLabel(x, tprop, label); }
-  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label,
-                           int maxWidth) override
-    { this->Superclass::RenderLabel(x, tprop, label, maxWidth); }
-  void RenderLabel(int x[2], vtkTextProperty* tprop,
-                           vtkUnicodeString label) override;
-  void RenderLabel(int x[2], vtkTextProperty* tprop,
-                           vtkUnicodeString label, int maxWidth) override;
-  //@}
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label) override;
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth) override;
+  ///@}
 
   /**
    * Start a rendering frame. Renderer must be set.
@@ -84,7 +62,7 @@ class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStra
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
 
 protected:
   vtkQtLabelRenderStrategy();
@@ -106,4 +84,5 @@ private:
   void operator=(const vtkQtLabelRenderStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

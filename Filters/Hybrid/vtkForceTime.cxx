@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkForceTime.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-    This software is distributed WITHOUT ANY WARRANTY; without even
-    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-    PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkForceTime.h"
 
 #include "vtkDataObject.h"
@@ -21,9 +9,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkForceTime);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkForceTime::vtkForceTime()
 {
   this->ForcedTime = 0.0;
@@ -33,7 +22,7 @@ vtkForceTime::vtkForceTime()
   this->PipelineTimeFlag = false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkForceTime::~vtkForceTime()
 {
   if (this->Cache != nullptr)
@@ -43,7 +32,7 @@ vtkForceTime::~vtkForceTime()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkForceTime::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -52,14 +41,13 @@ void vtkForceTime::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IgnorePipelineTime: " << this->IgnorePipelineTime << endl;
 }
 
-//----------------------------------------------------------------------------
-int vtkForceTime::RequestInformation(vtkInformation * vtkNotUsed(request),
-                                     vtkInformationVector **inputVector,
-                                     vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkForceTime::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_RANGE()))
   {
@@ -70,20 +58,17 @@ int vtkForceTime::RequestInformation(vtkInformation * vtkNotUsed(request),
       range[0] = this->ForcedTime;
       range[1] = this->ForcedTime;
     }
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
-                 range, 2);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
   }
 
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
-    double *inTimes =
-      inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    int numTimes =
-      inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    double *outTimes;
+    double* inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    int numTimes = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    double* outTimes;
     if (this->IgnorePipelineTime)
     {
-      outTimes = new double [numTimes];
+      outTimes = new double[numTimes];
       for (int i = 0; i < numTimes; i++)
       {
         outTimes[i] = this->ForcedTime;
@@ -93,12 +78,11 @@ int vtkForceTime::RequestInformation(vtkInformation * vtkNotUsed(request),
     {
       outTimes = inTimes;
     }
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                 outTimes, numTimes);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), outTimes, numTimes);
 
     if (this->IgnorePipelineTime)
     {
-      delete [] outTimes;
+      delete[] outTimes;
     }
   }
 
@@ -111,10 +95,9 @@ int vtkForceTime::RequestInformation(vtkInformation * vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkForceTime::RequestData(vtkInformation *request,
-                              vtkInformationVector **inputVector,
-                              vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkForceTime::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDataObject* inData = vtkDataObject::GetData(inputVector[0], 0);
   vtkDataObject* outData = vtkDataObject::GetData(outputVector, 0);
@@ -146,37 +129,35 @@ int vtkForceTime::RequestData(vtkInformation *request,
     this->PipelineTimeFlag = false;
   }
   outData->ShallowCopy(this->Cache);
+  this->CheckAbort();
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkForceTime::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-                                      vtkInformationVector** inputVector,
-                                      vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (this->IgnorePipelineTime && !this->Cache)
   {
-    double *inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    double* inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     if (inTimes)
     {
       // Save current pipeline time step
-      this->PipelineTime =
-        inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-                  this->ForcedTime);
+      this->PipelineTime = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->ForcedTime);
     }
   }
   else if (this->PipelineTimeFlag)
   {
     // Restore pipeline time
-    double *inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    double* inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     if (inTimes)
     {
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-                  this->PipelineTime);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->PipelineTime);
     }
   }
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

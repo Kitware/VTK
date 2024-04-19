@@ -1,31 +1,17 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestRect.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkRect.h"
 
-namespace {
+namespace
+{
 
-//----------------------------------------------------------------------------
-template<class T>
-int TestAddPoint(vtkRect<T> & expandRect,
-                 T x, T y,
-                 const vtkRect<T> & expected)
+//------------------------------------------------------------------------------
+template <class T>
+int TestAddPoint(vtkRect<T>& expandRect, T x, T y, const vtkRect<T>& expected)
 {
   int returnValue = 0;
 
-  std::cout << "Adding point (" << x << ", " << y << ") to rect "
-            << expandRect << " ... ";
+  std::cout << "Adding point (" << x << ", " << y << ") to rect " << expandRect << " ... ";
 
   expandRect.AddPoint(x, y);
 
@@ -55,8 +41,7 @@ int TestAddPoint(vtkRect<T> & expandRect,
 
   if (returnValue != EXIT_SUCCESS)
   {
-    std::cout << "failed. Expected " << expected << ", got "
-              << expandRect << "." << std::endl;
+    std::cout << "failed. Expected " << expected << ", got " << expandRect << "." << std::endl;
   }
   else
   {
@@ -66,12 +51,9 @@ int TestAddPoint(vtkRect<T> & expandRect,
   return returnValue;
 }
 
-
-//----------------------------------------------------------------------------
-template<class T>
-int TestAddRect(vtkRect<T> & expandRect,
-                vtkRect<T> & addRect,
-                const vtkRect<T> & expected)
+//------------------------------------------------------------------------------
+template <class T>
+int TestAddRect(vtkRect<T>& expandRect, vtkRect<T>& addRect, const vtkRect<T>& expected)
 {
   int returnValue = 0;
 
@@ -105,8 +87,7 @@ int TestAddRect(vtkRect<T> & expandRect,
 
   if (returnValue != EXIT_SUCCESS)
   {
-    std::cout << "failed. Expected " << expected << ", got "
-              << expandRect << "." << std::endl;
+    std::cout << "failed. Expected " << expected << ", got " << expandRect << "." << std::endl;
   }
   else
   {
@@ -118,8 +99,8 @@ int TestAddRect(vtkRect<T> & expandRect,
 
 } // end anonymous namespace
 
-//----------------------------------------------------------------------------
-int TestRect(int, char *[])
+//------------------------------------------------------------------------------
+int TestRect(int, char*[])
 {
   int result = 0;
 
@@ -200,23 +181,23 @@ int TestRect(int, char *[])
   vtkRectd addRect;
 
   // These five cases should exercise all the branches in vtkRect::AddRect().
-  expandRect   = vtkRectd(0, 0, 4, 4);
-  addRect      = vtkRectd(-1, 3, 2, 2);
+  expandRect = vtkRectd(0, 0, 4, 4);
+  addRect = vtkRectd(-1, 3, 2, 2);
   expectedRect = vtkRectd(-1, 0, 5, 5);
   result += TestAddRect(expandRect, addRect, expectedRect);
 
-  expandRect   = vtkRectd(0, 0, 4, 4);
-  addRect      = vtkRectd(3, 0, 2, 4);
+  expandRect = vtkRectd(0, 0, 4, 4);
+  addRect = vtkRectd(3, 0, 2, 4);
   expectedRect = vtkRectd(0, 0, 5, 4);
   result += TestAddRect(expandRect, addRect, expectedRect);
 
-  expandRect   = vtkRectd(0, 0, 4, 4);
-  addRect      = vtkRectd(0, -1, 4, 2);
+  expandRect = vtkRectd(0, 0, 4, 4);
+  addRect = vtkRectd(0, -1, 4, 2);
   expectedRect = vtkRectd(0, -1, 4, 5);
   result += TestAddRect(expandRect, addRect, expectedRect);
 
-  expandRect   = vtkRectd(0, 0, 4, 4);
-  addRect      = vtkRectd(1, 1, 2, 2);
+  expandRect = vtkRectd(0, 0, 4, 4);
+  addRect = vtkRectd(1, 1, 2, 2);
   expectedRect = vtkRectd(0, 0, 4, 4);
   result += TestAddRect(expandRect, addRect, expectedRect);
 

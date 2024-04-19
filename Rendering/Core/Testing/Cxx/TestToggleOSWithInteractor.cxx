@@ -1,25 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestOSConeCxx.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This test covers offscreen rendering.
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
@@ -37,27 +25,27 @@ int TestToggleOSWithInteractor(int argc, char* argv[])
   // run through a couple cases
 
   vtkNew<vtkSphereSource> sphere;
-  sphere->SetRadius( 10.0 );
+  sphere->SetRadius(10.0);
 
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection( sphere->GetOutputPort() );
+  mapper->SetInputConnection(sphere->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper( mapper );
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor( actor );
+  renderer->AddActor(actor);
 
   {
     vtkNew<vtkRenderWindow> renderWindow;
-    renderWindow->AddRenderer( renderer );
+    renderWindow->AddRenderer(renderer);
 
     // 1) Try calling SupportsOpenGL to make sure that
     // doesn't crash
     renderWindow->SupportsOpenGL();
 
     vtkNew<vtkRenderWindowInteractor> interactor;
-    interactor->SetRenderWindow( renderWindow );
+    interactor->SetRenderWindow(renderWindow);
 
     interactor->Initialize();
 
@@ -72,10 +60,10 @@ int TestToggleOSWithInteractor(int argc, char* argv[])
     // 3) try doing it again with a new window
     // but using existing old actor/rederer
     vtkNew<vtkRenderWindow> renderWindow;
-    renderWindow->AddRenderer( renderer );
+    renderWindow->AddRenderer(renderer);
 
     vtkNew<vtkRenderWindowInteractor> interactor;
-    interactor->SetRenderWindow( renderWindow );
+    interactor->SetRenderWindow(renderWindow);
 
     interactor->Initialize();
 
@@ -96,18 +84,18 @@ int TestToggleOSWithInteractor(int argc, char* argv[])
   {
     // 5) try doing it again with a new everything
     vtkNew<vtkActor> actor2;
-    actor2->SetMapper( mapper );
+    actor2->SetMapper(mapper);
     actor2->GetProperty()->SetAmbient(1.0);
     actor2->GetProperty()->SetDiffuse(0.0);
 
     vtkNew<vtkRenderer> renderer2;
-    renderer2->AddActor( actor2 );
+    renderer2->AddActor(actor2);
 
     vtkNew<vtkRenderWindow> renderWindow;
-    renderWindow->AddRenderer( renderer2 );
+    renderWindow->AddRenderer(renderer2);
 
     vtkNew<vtkRenderWindowInteractor> interactor;
-    interactor->SetRenderWindow( renderWindow );
+    interactor->SetRenderWindow(renderWindow);
 
     interactor->Initialize();
 
@@ -117,17 +105,16 @@ int TestToggleOSWithInteractor(int argc, char* argv[])
     renderWindow->OffScreenRenderingOff();
     renderWindow->Render();
 
-    retVal = vtkRegressionTestImage( renderWindow );
-    if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    retVal = vtkRegressionTestImage(renderWindow);
+    if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       interactor->Start();
     }
-
   }
 
   return !retVal;
 #else
-int TestToggleOSWithInteractor(int, char* [])
+int TestToggleOSWithInteractor(int, char*[])
 {
   return 0;
 #endif

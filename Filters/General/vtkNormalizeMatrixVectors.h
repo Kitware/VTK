@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkNormalizeMatrixVectors.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-NVIDIA-USGov
 
 /**
  * @class   vtkNormalizeMatrixVectors
@@ -27,14 +10,15 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkNormalizeMatrixVectors_h
 #define vtkNormalizeMatrixVectors_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkNormalizeMatrixVectors : public vtkArrayDataAlgorithm
 {
 public:
@@ -42,30 +26,27 @@ public:
   vtkTypeMacro(vtkNormalizeMatrixVectors, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Controls whether to normalize row-vectors or column-vectors.  0 = rows, 1 = columns.
    */
   vtkGetMacro(VectorDimension, int);
   vtkSetMacro(VectorDimension, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Value of p in p-norm normalization, subject to p >= 1.  Default is p=2 (Euclidean norm).
    */
   vtkGetMacro(PValue, double);
   vtkSetMacro(PValue, double);
-  //@}
+  ///@}
 
 protected:
   vtkNormalizeMatrixVectors();
   ~vtkNormalizeMatrixVectors() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int VectorDimension;
   double PValue;
@@ -75,5 +56,5 @@ private:
   void operator=(const vtkNormalizeMatrixVectors&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

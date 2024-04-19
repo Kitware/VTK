@@ -1,23 +1,41 @@
 #!/usr/bin/env python
 import math
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import vtkDelaunay2D
+from vtkmodules.vtkFiltersGeneral import vtkShrinkPolyData
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create some points on a sphere such that the data is not in the form
 # of z = f(x,y)
 #
-math1 = vtk.vtkMath()
-points = vtk.vtkPoints()
-vectors = vtk.vtkFloatArray()
+math1 = vtkMath()
+points = vtkPoints()
+vectors = vtkFloatArray()
 vectors.SetNumberOfComponents(3)
 i = 0
 while i < 100:
@@ -29,31 +47,31 @@ while i < 100:
       math.sin(theta) * math.sin(phi), math.cos(phi))
     i = i + 1
 
-profile = vtk.vtkPolyData()
+profile = vtkPolyData()
 profile.SetPoints(points)
 profile.GetPointData().SetVectors(vectors)
 
 # build a transform that rotates this data into z = f(x,y)
 #
-transform = vtk.vtkTransform()
+transform = vtkTransform()
 transform.RotateX(90)
 
 # triangulate the data using the specified transform
 #
-del1 = vtk.vtkDelaunay2D()
+del1 = vtkDelaunay2D()
 del1.SetInputData(profile)
 del1.SetTransform(transform)
 del1.BoundingTriangulationOff()
 del1.SetTolerance(0.001)
 del1.SetAlpha(0.0)
 
-shrink = vtk.vtkShrinkPolyData()
+shrink = vtkShrinkPolyData()
 shrink.SetInputConnection(del1.GetOutputPort())
 
-map = vtk.vtkPolyDataMapper()
+map = vtkPolyDataMapper()
 map.SetInputConnection(shrink.GetOutputPort())
 
-triangulation = vtk.vtkActor()
+triangulation = vtkActor()
 triangulation.SetMapper(map)
 triangulation.GetProperty().SetColor(1, 0, 0)
 triangulation.GetProperty().BackfaceCullingOn()

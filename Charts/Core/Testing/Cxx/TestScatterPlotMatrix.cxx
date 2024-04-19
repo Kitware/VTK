@@ -1,33 +1,42 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestScatterPlotMatrix.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkMath.h"
-#include "vtkScatterPlotMatrix.h"
-#include "vtkRenderWindow.h"
+#include "vtkCallbackCommand.h"
 #include "vtkChart.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderTimerLog.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkScatterPlotMatrix.h"
+#include "vtkTable.h"
 
-//----------------------------------------------------------------------------
-int TestScatterPlotMatrix(int, char * [])
+namespace
+{
+
+void RenderComplete(vtkObject* obj, unsigned long, void*, void*)
+{
+  vtkRenderWindow* renWin = vtkRenderWindow::SafeDownCast(obj);
+  assert(renWin);
+
+  vtkRenderTimerLog* timer = renWin->GetRenderTimer();
+  while (timer->FrameReady())
+  {
+    std::cout << "-- Frame Timing:------------------------------------------\n";
+    timer->PopFirstReadyFrame().Print(std::cout);
+    std::cout << "\n";
+  }
+}
+
+} // end anon namespace
+
+//------------------------------------------------------------------------------
+int TestScatterPlotMatrix(int argc, char* argv[])
 {
   // Set up a 2D scene, add a chart to it
   vtkNew<vtkContextView> view;
@@ -54,7 +63,20 @@ int TestScatterPlotMatrix(int, char * [])
   table->AddColumn(tangent);
   // Test the chart scatter plot matrix
   int numPoints = 100;
-  float inc = 4.0 * vtkMath::Pi() / (numPoints-1);
+  // Setup the rendertimer observer:
+  for (int i = 0; i < argc; ++i)
+  {
+    if (std::string(argv[i]) == "-timeit")
+    {
+      numPoints = 10000000; // 10 million
+      vtkNew<vtkCallbackCommand> renderCompleteCB;
+      renderCompleteCB->SetCallback(RenderComplete);
+      view->GetRenderWindow()->GetRenderTimer()->LoggingEnabledOn();
+      view->GetRenderWindow()->AddObserver(vtkCommand::EndEvent, renderCompleteCB);
+      break;
+    }
+  }
+  float inc = 4.0 * vtkMath::Pi() / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -71,8 +93,8 @@ int TestScatterPlotMatrix(int, char * [])
   matrix->SetNumberOfBins(7);
 
   view->Render();
-  matrix->GetMainChart()->SetActionToButton(vtkChart::SELECT_POLYGON,
-                                            vtkContextMouseEvent::RIGHT_BUTTON);
+  matrix->GetMainChart()->SetActionToButton(
+    vtkChart::SELECT_POLYGON, vtkContextMouseEvent::RIGHT_BUTTON);
 
   // Test animation by releasing a right click on subchart (1,2)
   vtkContextMouseEvent mouseEvent;
@@ -84,7 +106,7 @@ int TestScatterPlotMatrix(int, char * [])
   mouseEvent.SetPos(pos);
   matrix->MouseButtonReleaseEvent(mouseEvent);
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

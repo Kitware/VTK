@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkReaderAlgorithm.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkReaderAlgorithm
  * @brief   Superclass for readers that implement a simplified API.
@@ -26,19 +14,26 @@
  * partitions), caching, mapping time requests to indices etc.
  * This class implements the most basic API which is specialized as
  * needed by subclasses (for file series for example).
-*/
+ */
 
 #ifndef vtkReaderAlgorithm_h
 #define vtkReaderAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkReaderAlgorithm : public vtkAlgorithm
 {
 public:
-  vtkTypeMacro(vtkReaderAlgorithm,vtkAlgorithm);
+  vtkTypeMacro(vtkReaderAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Overridden to call appropriate handle pipeline request from executive.
+   */
+  vtkTypeBool ProcessRequest(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
   /**
    * This can be overridden by a subclass to create an output that
@@ -49,10 +44,7 @@ public:
    * return currentOutput without changing its reference count if the
    * types are same.
    */
-  virtual vtkDataObject* CreateOutput(vtkDataObject* currentOutput)
-  {
-    return currentOutput;
-  }
+  virtual vtkDataObject* CreateOutput(vtkDataObject* currentOutput) { return currentOutput; }
 
   /**
    * Provide meta-data for the pipeline. This meta-data cannot vary over
@@ -68,12 +60,10 @@ public:
    * These include things like whole extent. Subclasses may have specialized
    * interfaces making this simpler.
    */
-  virtual int ReadTimeDependentMetaData(
-    int /*timestep*/, vtkInformation* /*metadata*/)
+  virtual int ReadTimeDependentMetaData(int /*timestep*/, vtkInformation* /*metadata*/)
   {
     return 1;
   }
-
 
   /**
    * Read the mesh (connectivity) for a given set of data partitioning,
@@ -83,8 +73,7 @@ public:
    * with any caching implemented by the executive (i.e. cause more reads).
    */
   virtual int ReadMesh(
-    int piece, int npieces, int nghosts, int timestep,
-    vtkDataObject* output) = 0;
+    int piece, int npieces, int nghosts, int timestep, vtkDataObject* output) = 0;
 
   /**
    * Read the points. The reader populates the input data object. This is
@@ -92,8 +81,7 @@ public:
    * mesh.
    */
   virtual int ReadPoints(
-    int piece, int npieces, int nghosts, int timestep,
-    vtkDataObject* output) = 0;
+    int piece, int npieces, int nghosts, int timestep, vtkDataObject* output) = 0;
 
   /**
    * Read all the arrays (point, cell, field etc.). This is called after
@@ -101,8 +89,7 @@ public:
    * points.
    */
   virtual int ReadArrays(
-    int piece, int npieces, int nghosts, int timestep,
-    vtkDataObject* output) = 0;
+    int piece, int npieces, int nghosts, int timestep, vtkDataObject* output) = 0;
 
 protected:
   vtkReaderAlgorithm();
@@ -113,4 +100,5 @@ private:
   void operator=(const vtkReaderAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

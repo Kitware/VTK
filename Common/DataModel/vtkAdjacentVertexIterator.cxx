@@ -1,31 +1,16 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAdjacentVertexIterator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkAdjacentVertexIterator.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkGraph.h"
+#include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAdjacentVertexIterator, Graph, vtkGraph);
 vtkStandardNewMacro(vtkAdjacentVertexIterator);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAdjacentVertexIterator::vtkAdjacentVertexIterator()
 {
   this->Vertex = 0;
@@ -34,7 +19,7 @@ vtkAdjacentVertexIterator::vtkAdjacentVertexIterator()
   this->Graph = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAdjacentVertexIterator::~vtkAdjacentVertexIterator()
 {
   if (this->Graph)
@@ -43,8 +28,8 @@ vtkAdjacentVertexIterator::~vtkAdjacentVertexIterator()
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkAdjacentVertexIterator::Initialize(vtkGraph *graph, vtkIdType v)
+//------------------------------------------------------------------------------
+void vtkAdjacentVertexIterator::Initialize(vtkGraph* graph, vtkIdType v)
 {
   this->SetGraph(graph);
   this->Vertex = v;
@@ -53,10 +38,10 @@ void vtkAdjacentVertexIterator::Initialize(vtkGraph *graph, vtkIdType v)
   this->End = this->Current + nedges;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAdjacentVertexIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Graph: " << (this->Graph ? "" : "(null)") << endl;
   if (this->Graph)
   {
@@ -64,3 +49,4 @@ void vtkAdjacentVertexIterator::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "Vertex: " << this->Vertex << endl;
 }
+VTK_ABI_NAMESPACE_END

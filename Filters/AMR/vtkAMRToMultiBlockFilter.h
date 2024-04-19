@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    vtkAMRToMultiBlockFilter.h
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAMRToMultiBlockFilter
  *
@@ -21,7 +9,7 @@
  *
  * @sa
  * vtkOverlappingAMR vtkMultiBlockDataSet
-*/
+ */
 
 #ifndef vtkAMRToMultiBlockFilter_h
 #define vtkAMRToMultiBlockFilter_h
@@ -29,6 +17,7 @@
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 class vtkIndent;
@@ -36,46 +25,44 @@ class vtkMultiProcessController;
 class vtkOverlappingAMR;
 class vtkMultiBlockDataSet;
 
-class VTKFILTERSAMR_EXPORT vtkAMRToMultiBlockFilter :
-  public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSAMR_EXPORT vtkAMRToMultiBlockFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkAMRToMultiBlockFilter* New();
-  vtkTypeMacro(vtkAMRToMultiBlockFilter, vtkMultiBlockDataSetAlgorithm );
-  void PrintSelf(ostream &oss, vtkIndent indent ) override;
+  vtkTypeMacro(vtkAMRToMultiBlockFilter, vtkMultiBlockDataSetAlgorithm);
+  void PrintSelf(ostream& oss, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
-   * Set/Get a multiprocess controller for paralle processing.
+   * Set/Get a multiprocess controller for parallel processing.
    * By default this parameter is set to nullptr by the constructor.
    */
-  vtkSetMacro( Controller, vtkMultiProcessController* );
-  vtkGetMacro( Controller, vtkMultiProcessController* );
-  //@}
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  ///@}
 
   // Standard pipeline routines
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
-  int RequestData(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkAMRToMultiBlockFilter();
   ~vtkAMRToMultiBlockFilter() override;
 
-  //@{
+  ///@{
   /**
    * Copies the AMR data to the output multi-block datastructure.
    */
-  void CopyAMRToMultiBlock(
-      vtkOverlappingAMR *amr, vtkMultiBlockDataSet *mbds);
-  vtkMultiProcessController *Controller;
-  //@}
+  void CopyAMRToMultiBlock(vtkOverlappingAMR* amr, vtkMultiBlockDataSet* mbds);
+  vtkMultiProcessController* Controller;
+  ///@}
 
 private:
-  vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter& ) = delete;
-  void operator=(const vtkAMRToMultiBlockFilter& ) = delete;
+  vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter&) = delete;
+  void operator=(const vtkAMRToMultiBlockFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRToMultiBlockFilter_h */

@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 //
 //  VTKView.h
 //
@@ -11,10 +13,10 @@ class vtkRenderWindow;
 
 @interface VTKView : GLKView
 
-- (void)displayCoordinates:(int *)coordinates ofTouch:(CGPoint)touchPoint;
-- (void)normalizedCoordinates:(double *)coordinates ofTouch:(CGPoint)touch;
+- (void)displayCoordinates:(int*)coordinates ofTouch:(CGPoint)touchPoint;
+- (void)normalizedCoordinates:(double*)coordinates ofTouch:(CGPoint)touch;
 
-@property (assign, readonly) vtkRenderWindow *renderWindow;
-@property (assign, readonly) vtkIOSRenderWindowInteractor *interactor;
+@property (assign, readonly) vtkRenderWindow* renderWindow;
+@property (assign, readonly) vtkIOSRenderWindowInteractor* interactor;
 
 @end

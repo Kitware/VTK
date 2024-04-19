@@ -1,37 +1,49 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersExtraction import vtkExtractGrid
+from vtkmodules.vtkFiltersGeneral import vtkWarpVector
+from vtkmodules.vtkIOLegacy import vtkDataSetReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create pipeline
 #
-reader = vtk.vtkDataSetReader()
+reader = vtkDataSetReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/RectGrid2.vtk")
 reader.Update()
 
-warper = vtk.vtkWarpVector()
+warper = vtkWarpVector()
 warper.SetInputConnection(reader.GetOutputPort())
 warper.SetScaleFactor(0.2)
 
-extract = vtk.vtkExtractGrid()
+extract = vtkExtractGrid()
 extract.SetInputConnection(warper.GetOutputPort())
 extract.SetVOI(0, 100, 0, 100, 7, 15)
 
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(extract.GetOutputPort())
 mapper.SetScalarRange(0.197813, 0.710419)
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Graphics stuff
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

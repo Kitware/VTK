@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQuantizePolyDataPoints.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkQuantizePolyDataPoints
  * @brief   quantizes x,y,z coordinates of points
@@ -37,28 +25,29 @@
  *
  * @sa
  * vtkCleanPolyData
-*/
+ */
 
 #ifndef vtkQuantizePolyDataPoints_h
 #define vtkQuantizePolyDataPoints_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkCleanPolyData.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkQuantizePolyDataPoints : public vtkCleanPolyData
 {
 public:
-  static vtkQuantizePolyDataPoints *New();
-  vtkTypeMacro(vtkQuantizePolyDataPoints,vtkCleanPolyData);
+  static vtkQuantizePolyDataPoints* New();
+  vtkTypeMacro(vtkQuantizePolyDataPoints, vtkCleanPolyData);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify quantization grain size. Default is 0.25
    */
-  vtkSetClampMacro(QFactor,double,1E-5,VTK_FLOAT_MAX);
-  vtkGetMacro(QFactor,double);
-  //@}
+  vtkSetClampMacro(QFactor, double, 1E-5, VTK_FLOAT_MAX);
+  vtkGetMacro(QFactor, double);
+  ///@}
 
   /**
    * Perform quantization on a point
@@ -72,14 +61,14 @@ public:
 
 protected:
   vtkQuantizePolyDataPoints();
-  ~vtkQuantizePolyDataPoints() override {}
+  ~vtkQuantizePolyDataPoints() override = default;
 
   double QFactor;
+
 private:
   vtkQuantizePolyDataPoints(const vtkQuantizePolyDataPoints&) = delete;
   void operator=(const vtkQuantizePolyDataPoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

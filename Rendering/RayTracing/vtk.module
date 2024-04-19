@@ -4,14 +4,19 @@ LIBRARY_NAME
   vtkRenderingRayTracing
 IMPLEMENTS
   VTK::RenderingVolume
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
+  VTK::CommonCore
   VTK::CommonDataModel
+  VTK::DomainsChemistry
   VTK::RenderingCore
   VTK::RenderingOpenGL2
   VTK::RenderingSceneGraph
   VTK::RenderingVolume
 PRIVATE_DEPENDS
-  VTK::CommonCore
   VTK::IOImage
   VTK::IOLegacy
   VTK::IOXML
@@ -29,22 +34,26 @@ TEST_DEPENDS
   VTK::FiltersModeling
   VTK::FiltersSources
   VTK::FiltersTexture
+  VTK::IOChemistry
   VTK::IOGeometry
   VTK::IOImage
+  VTK::IOImport
   VTK::IOLegacy
   VTK::IOPLY
+  VTK::IOParallel
   VTK::IOXML
   VTK::ImagingGeneral
   VTK::ImagingHybrid
   VTK::ImagingSources
   VTK::InteractionStyle
-  VTK::InteractionStyle
-  #VTK::ParallelMPI
+  VTK::InteractionWidgets
   VTK::RenderingAnnotation
   VTK::RenderingFreeType
-  #VTK::RenderingParallel
   VTK::RenderingVolume
   VTK::RenderingVolumeAMR
   VTK::RenderingVolumeOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI
+  VTK::RenderingParallel

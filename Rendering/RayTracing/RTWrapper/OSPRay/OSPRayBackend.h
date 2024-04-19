@@ -1,6 +1,8 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #pragma once
 
-#include <ospray/ospray.h>
+#include <ospray/ospray_util.h>
 
 #include "../Backend.h"
 
@@ -9,9 +11,11 @@
 #include <stdexcept>
 #include <stdlib.h>
 #include <vector>
+#include <iostream>
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
 
   OSPFrameBufferFormat convert(RTWFrameBufferFormat format)
   {
@@ -19,6 +23,8 @@ namespace RTW
     {
     case RTW_FB_RGBA8:
       return OSP_FB_RGBA8;
+    case RTW_FB_SRGBA:
+      return OSP_FB_SRGBA;
     case RTW_FB_RGBA32F:
       return OSP_FB_RGBA32F;
     default:
@@ -69,13 +75,26 @@ namespace RTW
   public:
     RTWError Init() override
     {
-      RTWError ret = static_cast<RTWError>(ospInit(nullptr, nullptr));
+      static bool once = false;
+      RTWError ret = RTW_NO_ERROR;
+      if (!once) {
+        ret = static_cast<RTWError>(ospInit(nullptr, nullptr));
+        OSPDevice device = ospGetCurrentDevice();
+        if (!device)
+        {
+          std::runtime_error("OSPRay device could not be fetched!");
+        }
+        ospDeviceSetErrorCallback(device, [](void *, OSPError, const char *errorDetails) {
+          std::cerr << "OSPRay ERROR: " << errorDetails << std::endl;
+        }, nullptr);
+        once = true;
+      }
       return ret;
     }
 
     void Shutdown() override
     {
-      ospShutdown();
+      //do nothing here. Since OSPRay 2
     }
 
     bool IsSupported(RTWFeature feature) const override
@@ -98,9 +117,43 @@ namespace RTW
       return false;
     }
 
-    RTWData NewData(size_t numElements, RTWDataType dataType, const void *source, const uint32_t dataCreationFlags) override
+    RTWData NewCopyData1D(const void *source, RTWDataType dataType, size_t numElements) override
     {
-      return reinterpret_cast<RTWData>(ospNewData(numElements, static_cast<OSPDataType>(dataType), source, dataCreationFlags));
+      OSPData data = ospNewData1D(static_cast<OSPDataType>(dataType), numElements);
+      ospCommit(data);
+      OSPData shared = ospNewSharedData1D(source, static_cast<OSPDataType>(dataType), numElements);
+      ospCommit(shared);
+      ospCopyData1D(shared, data, 0);
+      ospCommit(data);
+      ospRelease(shared);
+      return reinterpret_cast<RTWData>(data);
+    }
+    RTWData NewCopyData2D(const void *source, RTWDataType dataType, size_t numElements, size_t numElements2) override
+    {
+      OSPData data = ospNewData2D(static_cast<OSPDataType>(dataType), numElements, numElements2);
+      ospCommit(data);
+      OSPData shared = ospNewSharedData2D(source, static_cast<OSPDataType>(dataType), numElements, numElements2);
+      ospCommit(shared);
+      ospCopyData2D(shared, data, 0, 0);
+      ospCommit(data);
+      ospRelease(shared);
+      return reinterpret_cast<RTWData>(data);
+    }
+    RTWData NewCopyData3D(const void *source, RTWDataType dataType, size_t numElements, size_t numElements2, size_t numElements3) override
+    {
+      OSPData data = ospNewData(static_cast<OSPDataType>(dataType), numElements, numElements2, numElements3);
+      ospCommit(data);
+      OSPData shared = ospNewSharedData3D(source, static_cast<OSPDataType>(dataType), numElements, numElements2, numElements3);
+      ospCommit(shared);
+      ospCopyData(shared, data, 0, 0, 0);
+      ospCommit(data);
+      ospRelease(shared);
+      return reinterpret_cast<RTWData>(data);
+    }
+
+    RTWData NewData(RTWDataType dataType, size_t numElements) override
+    {
+      return reinterpret_cast<RTWData>(ospNewData(static_cast<OSPDataType>(dataType), numElements));
     }
 
     RTWGeometry NewGeometry(const char *type) override
@@ -108,19 +161,45 @@ namespace RTW
       return reinterpret_cast<RTWGeometry>(ospNewGeometry(type));
     }
 
+    RTWGroup NewGroup() override
+    {
+      return reinterpret_cast<RTWGroup>(ospNewGroup());
+    }
+
+    RTWData NewSharedData1D(const void* sharedData, RTWDataType type, uint32_t numItems1) override
+    {
+      return reinterpret_cast<RTWData>(ospNewSharedData1D(sharedData, (OSPDataType)((int)type), numItems1));
+    }
+
+    RTWData NewSharedData2D(const void* sharedData, RTWDataType type, uint32_t numItems1, uint32_t numItems2) override
+    {
+      return reinterpret_cast<RTWData>(ospNewSharedData2D(sharedData, (OSPDataType)((int)type), numItems1, numItems2));
+    }
+
+    RTWData NewSharedData3D(const void* sharedData, RTWDataType type, uint32_t numItems1, uint32_t numItems2,
+      uint32_t numItems3) override
+    {
+      return reinterpret_cast<RTWData>(ospNewSharedData3D(sharedData, (OSPDataType)((int)type),
+        numItems1, numItems2, numItems3));
+    }
+
     RTWTexture NewTexture(const char* type) override
     {
       return reinterpret_cast<RTWTexture>(ospNewTexture(type));
     }
 
-    RTWLight NewLight3(const char *light_type) override
+    RTWLight NewLight(const char *light_type) override
     {
-      return reinterpret_cast<RTWLight>(ospNewLight3(light_type));
+      return reinterpret_cast<RTWLight>(ospNewLight(light_type));
     }
 
-    RTWMaterial NewMaterial2(const char *renderer_type, const char *material_type) override
+    RTWMaterial NewMaterial(const char *material_type) override
     {
-      return reinterpret_cast<RTWMaterial>(ospNewMaterial2(renderer_type, material_type));
+#if OSPRAY_VERSION_MAJOR < 3
+      return reinterpret_cast<RTWMaterial>(ospNewMaterial(nullptr, material_type));
+#else
+      return reinterpret_cast<RTWMaterial>(ospNewMaterial(material_type));
+#endif
     }
 
     RTWVolume NewVolume(const char *type) override
@@ -143,36 +222,34 @@ namespace RTW
       return reinterpret_cast<RTWCamera>(ospNewCamera(type));
     }
 
-    RTWModel NewModel() override
+    RTWGeometricModel NewGeometricModel(RTWGeometry geometry) override
     {
-      return reinterpret_cast<RTWModel>(ospNewModel());
+     return reinterpret_cast<RTWGeometricModel>(ospNewGeometricModel(reinterpret_cast<OSPGeometry>(geometry)));
     }
 
-    RTWGeometry NewInstance(RTWModel modelToInstantiate, const rtw::affine3f &transform) override
+    RTWVolumetricModel NewVolumetricModel(RTWVolume volume) override
     {
-      osp::affine3f xfm;
-      memcpy(&xfm, &transform, sizeof(osp::affine3f));
-      return reinterpret_cast<RTWGeometry>(ospNewInstance(reinterpret_cast<OSPModel>(modelToInstantiate), xfm));
+     return reinterpret_cast<RTWVolumetricModel>(ospNewVolumetricModel(reinterpret_cast<OSPVolume>(volume)));
+    }
+
+    RTWWorld NewWorld() override
+    {
+      return reinterpret_cast<RTWWorld>(ospNewWorld());
+    }
+
+    RTWInstance NewInstance(RTWGroup geometry) override
+    {
+      return reinterpret_cast<RTWInstance>(ospNewInstance(reinterpret_cast<OSPGroup>(geometry)));
     }
 
     RTWFrameBuffer NewFrameBuffer(const rtw::vec2i &size, const RTWFrameBufferFormat format, const uint32_t frameBufferChannels) override
     {
-      return reinterpret_cast<RTWFrameBuffer>(ospNewFrameBuffer(osp::vec2i{ size.x, size.y }, convert(format), frameBufferChannels));
+      return reinterpret_cast<RTWFrameBuffer>(ospNewFrameBuffer(size.x, size.y, convert(format), frameBufferChannels));
     }
 
     void Release(RTWObject object) override
     {
       ospRelease(reinterpret_cast<OSPObject>(object));
-    }
-
-    void AddGeometry(RTWModel model, RTWGeometry geometry) override
-    {
-      ospAddGeometry(reinterpret_cast<OSPModel>(model), reinterpret_cast<OSPGeometry>(geometry));
-    }
-
-    void AddVolume(RTWModel model, RTWVolume volume) override
-    {
-      ospAddVolume(reinterpret_cast<OSPModel>(model), reinterpret_cast<OSPVolume>(volume));
     }
 
     void SetString(RTWObject object, const char *id, const char *s) override
@@ -185,49 +262,82 @@ namespace RTW
       ospSetObject(reinterpret_cast<OSPObject>(object), id, reinterpret_cast<OSPObject>(other));
     }
 
-    void SetData(RTWObject object, const char *id, RTWData data) override
-    {
-      ospSetData(reinterpret_cast<OSPObject>(object), id, reinterpret_cast<OSPData>(data));
+    void SetObjectAsData(RTWObject target, const char *id, RTWDataType type, RTWObject obj) override{
+      ospSetObjectAsData(reinterpret_cast<OSPObject>(target), id, (OSPDataType)type,
+       reinterpret_cast<OSPObject>(obj));
     }
 
-    void SetMaterial(RTWGeometry geometry, RTWMaterial material) override
+    void SetParam(RTWObject object, const char *id, RTWDataType dataType, const void* mem) override
     {
-      ospSetMaterial(reinterpret_cast<OSPGeometry>(geometry), reinterpret_cast<OSPMaterial>(material));
+      ospSetParam(reinterpret_cast<OSPObject>(object), id, static_cast<OSPDataType>(dataType),
+        mem);
     }
 
-    void Set1i(RTWObject object, const char *id, int32_t x) override
+    void SetInt(RTWObject object, const char *id, int32_t x) override
     {
-      ospSet1i(reinterpret_cast<OSPObject>(object), id, x);
+      ospSetInt(reinterpret_cast<OSPObject>(object), id, x);
     }
 
-    void Set1f(RTWObject object, const char *id, float x) override
+    void SetUInt(RTWObject object, const char *id, uint32_t x) override
     {
-      ospSet1f(reinterpret_cast<OSPObject>(object), id, x);
+#if OSPRAY_VERSION_MAJOR < 3
+      ospSetInt(reinterpret_cast<OSPObject>(object), id, static_cast<int>(x));
+#else
+      ospSetUInt(reinterpret_cast<OSPObject>(object), id, x);
+#endif
     }
 
-    void Set2f(RTWObject object, const char *id, float x, float y) override
+    void SetBool(RTWObject object, const char *id, bool x) override
     {
-      ospSet2f(reinterpret_cast<OSPObject>(object), id, x, y);
+      ospSetBool(reinterpret_cast<OSPObject>(object), id, x);
     }
 
-    void Set2i(RTWObject object, const char *id, int x, int y) override
+    void SetFloat(RTWObject object, const char *id, float x) override
     {
-      ospSet2i(reinterpret_cast<OSPObject>(object), id, x, y);
+      ospSetFloat(reinterpret_cast<OSPObject>(object), id, x);
     }
 
-    void Set3i(RTWObject object, const char *id, int x, int y, int z) override
+    void SetLinear2f(RTWObject object, const char *id, float x, float y, float z, float w) override
     {
-      ospSet3i(reinterpret_cast<OSPObject>(object), id, x, y, z);
+#if OSPRAY_VERSION_MAJOR < 3
+      ospSetVec4f(reinterpret_cast<OSPObject>(object), id, x, y, z, w);
+#else
+      ospSetLinear2f(reinterpret_cast<OSPObject>(object), id, x, y, z, w);
+#endif
     }
 
-    void Set3f(RTWObject object, const char *id, float x, float y, float z) override
+    void SetBox1f(RTWObject object, const char *id, float x, float y) override
     {
-      ospSet3f(reinterpret_cast<OSPObject>(object), id, x, y, z);
+#if OSPRAY_VERSION_MAJOR < 3
+      ospSetVec2f(reinterpret_cast<OSPObject>(object), id, x, y);
+#else
+      ospSetBox1f(reinterpret_cast<OSPObject>(object), id, x, y);
+#endif
     }
 
-    void Set4f(RTWObject object, const char *id, float x, float y, float z, float w) override
+    void SetVec2f(RTWObject object, const char *id, float x, float y) override
     {
-      ospSet4f(reinterpret_cast<OSPObject>(object), id, x, y, z, w);
+      ospSetVec2f(reinterpret_cast<OSPObject>(object), id, x, y);
+    }
+
+    void SetVec2i(RTWObject object, const char *id, int x, int y) override
+    {
+      ospSetVec2i(reinterpret_cast<OSPObject>(object), id, x, y);
+    }
+
+    void SetVec3i(RTWObject object, const char *id, int x, int y, int z) override
+    {
+      ospSetVec3i(reinterpret_cast<OSPObject>(object), id, x, y, z);
+    }
+
+    void SetVec3f(RTWObject object, const char *id, float x, float y, float z) override
+    {
+      ospSetVec3f(reinterpret_cast<OSPObject>(object), id, x, y, z);
+    }
+
+    void SetVec4f(RTWObject object, const char *id, float x, float y, float z, float w) override
+    {
+      ospSetVec4f(reinterpret_cast<OSPObject>(object), id, x, y, z, w);
     }
 
     void RemoveParam(RTWObject object, const char *id) override
@@ -235,26 +345,20 @@ namespace RTW
       ospRemoveParam(reinterpret_cast<OSPObject>(object), id);
     }
 
-    RTWError SetRegion(RTWVolume volume, void *source, const rtw::vec3i &regionCoords, const rtw::vec3i &regionSize) override
-    {
-      return static_cast<RTWError>(ospSetRegion(reinterpret_cast<OSPVolume>(volume), source,
-        osp::vec3i{ regionCoords.x, regionCoords.y, regionCoords.z },
-        osp::vec3i{ regionSize.x, regionSize.y, regionSize.z }));
-    }
-
     void Commit(RTWObject object) override
     {
       ospCommit(reinterpret_cast<OSPObject>(object));
     }
 
-    float RenderFrame(RTWFrameBuffer frameBuffer, RTWRenderer renderer, const uint32_t frameBufferChannels) override
+    float RenderFrame(RTWFrameBuffer frameBuffer, RTWRenderer renderer, RTWCamera camera, RTWWorld world) override
     {
-      return ospRenderFrame(reinterpret_cast<OSPFrameBuffer>(frameBuffer), reinterpret_cast<OSPRenderer>(renderer), frameBufferChannels);
+      return ospRenderFrameBlocking(reinterpret_cast<OSPFrameBuffer>(frameBuffer), reinterpret_cast<OSPRenderer>(renderer),
+      reinterpret_cast<OSPCamera>(camera), reinterpret_cast<OSPWorld>(world));
     }
 
-    void FrameBufferClear(RTWFrameBuffer frameBuffer, const uint32_t frameBufferChannels) override
+    void FrameBufferClear(RTWFrameBuffer frameBuffer) override
     {
-      ospFrameBufferClear(reinterpret_cast<OSPFrameBuffer>(frameBuffer), frameBufferChannels);
+      ospResetAccumulation(reinterpret_cast<OSPFrameBuffer>(frameBuffer));
     }
 
     const void* MapFrameBuffer(RTWFrameBuffer frameBuffer, const RTWFrameBufferChannel channel) override
@@ -284,4 +388,5 @@ namespace RTW
       return 0;
     }
   };
+VTK_ABI_NAMESPACE_END
 }

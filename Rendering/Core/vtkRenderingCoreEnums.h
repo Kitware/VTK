@@ -1,22 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderingCoreEnums.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkRenderingCoreEnums_h
 #define vtkRenderingCoreEnums_h
 
+#include "vtkABINamespace.h"
+
 // Marker shapes for plotting
+VTK_ABI_NAMESPACE_BEGIN
 enum
 {
   VTK_MARKER_NONE = 0,
@@ -26,8 +17,9 @@ enum
   VTK_MARKER_CIRCLE,
   VTK_MARKER_DIAMOND,
 
-  VTK_MARKER_UNKNOWN  // Must be last.
+  VTK_MARKER_UNKNOWN // Must be last.
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkRenderingCoreEnums_h
 // VTK-HeaderTest-Exclude: vtkRenderingCoreEnums.h

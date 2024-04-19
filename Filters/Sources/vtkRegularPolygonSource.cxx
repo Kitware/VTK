@@ -1,37 +1,30 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRegularPolygonSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkRegularPolygonSource.h"
 
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRegularPolygonSource);
 
 vtkRegularPolygonSource::vtkRegularPolygonSource()
 {
   this->NumberOfSides = 6;
-  this->Center[0] = 0.0; this->Center[1] = 0.0; this->Center[2] = 0.0;
-  this->Normal[0] = 0.0; this->Normal[1] = 0.0; this->Normal[2] = 1.0;
+  this->Center[0] = 0.0;
+  this->Center[1] = 0.0;
+  this->Center[2] = 0.0;
+  this->Normal[0] = 0.0;
+  this->Normal[1] = 0.0;
+  this->Normal[2] = 1.0;
   this->Radius = 0.5;
   this->GeneratePolygon = 1;
   this->GeneratePolyline = 1;
@@ -40,29 +33,26 @@ vtkRegularPolygonSource::vtkRegularPolygonSource()
   this->SetNumberOfInputPorts(0);
 }
 
-int vtkRegularPolygonSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkRegularPolygonSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // Get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   double x[3], r[3];
-  int i, j, numPts=this->NumberOfSides;
-  vtkPoints *newPoints;
-  vtkCellArray *newPoly;
-  vtkCellArray *newLine;
+  int i, j, numPts = this->NumberOfSides;
+  vtkPoints* newPoints;
+  vtkCellArray* newPoly;
+  vtkCellArray* newLine;
 
   // Prepare to produce the output; create the connectivity array(s)
   newPoints = vtkPoints::New();
 
   // Set the desired precision for the points in the output.
-  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPoints->SetDataType(VTK_DOUBLE);
   }
@@ -73,26 +63,26 @@ int vtkRegularPolygonSource::RequestData(
 
   newPoints->Allocate(numPts);
 
-  if ( this->GeneratePolyline )
+  if (this->GeneratePolyline)
   {
     newLine = vtkCellArray::New();
     newLine->AllocateEstimate(1, numPts);
-    newLine->InsertNextCell(numPts+1);
-    for (i=0; i<numPts; i++)
+    newLine->InsertNextCell(numPts + 1);
+    for (i = 0; i < numPts; i++)
     {
       newLine->InsertCellPoint(i);
     }
-    newLine->InsertCellPoint(0); //close the polyline
+    newLine->InsertCellPoint(0); // close the polyline
     output->SetLines(newLine);
     newLine->Delete();
   }
 
-  if ( this->GeneratePolygon )
+  if (this->GeneratePolygon)
   {
     newPoly = vtkCellArray::New();
     newPoly->AllocateEstimate(1, numPts);
     newPoly->InsertNextCell(numPts);
-    for (i=0; i<numPts; i++)
+    for (i = 0; i < numPts; i++)
     {
       newPoly->InsertCellPoint(i);
     }
@@ -108,7 +98,7 @@ int vtkRegularPolygonSource::RequestData(
   n[0] = this->Normal[0];
   n[1] = this->Normal[1];
   n[2] = this->Normal[2];
-  if ( vtkMath::Normalize(n) == 0.0 )
+  if (vtkMath::Normalize(n) == 0.0)
   {
     n[0] = 0.0;
     n[1] = 0.0;
@@ -120,39 +110,39 @@ int vtkRegularPolygonSource::RequestData(
   axis[0] = 1.0;
   axis[1] = 0.0;
   axis[2] = 0.0;
-  vtkMath::Cross(n,axis,px);
-  if ( vtkMath::Normalize(px) > 1.0E-3 )
+  vtkMath::Cross(n, axis, px);
+  if (vtkMath::Normalize(px) > 1.0E-3)
   {
     foundPlaneVector = 1;
   }
-  if ( ! foundPlaneVector )
+  if (!foundPlaneVector)
   {
     axis[0] = 0.0;
     axis[1] = 1.0;
     axis[2] = 0.0;
-    vtkMath::Cross(n,axis,px);
-    if ( vtkMath::Normalize(px) > 1.0E-3 )
+    vtkMath::Cross(n, axis, px);
+    if (vtkMath::Normalize(px) > 1.0E-3)
     {
       foundPlaneVector = 1;
     }
   }
-  if ( ! foundPlaneVector )
+  if (!foundPlaneVector)
   {
     axis[0] = 0.0;
     axis[1] = 0.0;
     axis[2] = 1.0;
-    vtkMath::Cross(n,axis,px);
+    vtkMath::Cross(n, axis, px);
     vtkMath::Normalize(px);
   }
-  vtkMath::Cross(px,n,py); //created two orthogonal axes in the polygon plane, px & py
+  vtkMath::Cross(px, n, py); // created two orthogonal axes in the polygon plane, px & py
 
   // Now run around normal vector to produce polygon points.
   double theta = 2.0 * vtkMath::Pi() / numPts;
-  for (j=0; j<numPts; j++)
+  for (j = 0; j < numPts; j++)
   {
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
-      r[i] = px[i]*cos((double)j*theta) + py[i]*sin((double)j*theta);
+      r[i] = px[i] * cos((double)j * theta) + py[i] * sin((double)j * theta);
       x[i] = this->Center[i] + this->Radius * r[i];
     }
     newPoints->InsertNextPoint(x);
@@ -166,17 +156,15 @@ int vtkRegularPolygonSource::RequestData(
 
 void vtkRegularPolygonSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Number of Sides: " << this->NumberOfSides << "\n";
 
-  os << indent << "Center: (" << this->Center[0] << ", "
-                              << this->Center[1] << ", "
-                              << this->Center[2] << ")\n";
+  os << indent << "Center: (" << this->Center[0] << ", " << this->Center[1] << ", "
+     << this->Center[2] << ")\n";
 
-  os << indent << "Normal: (" << this->Normal[0] << ", "
-                              << this->Normal[1] << ", "
-                              << this->Normal[2] << ")\n";
+  os << indent << "Normal: (" << this->Normal[0] << ", " << this->Normal[1] << ", "
+     << this->Normal[2] << ")\n";
 
   os << indent << "Radius: " << this->Radius << "\n";
 
@@ -186,3 +174,4 @@ void vtkRegularPolygonSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

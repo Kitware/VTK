@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTypedDataArray.txx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkTypedDataArray_txx
 #define vtkTypedDataArray_txx
@@ -19,24 +7,21 @@
 #include "vtkTypedDataArray.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <typename Scalar>
-vtkTypedDataArray<Scalar>::vtkTypedDataArray()
-{
-}
+vtkTypedDataArray<Scalar>::vtkTypedDataArray() = default;
 
 //------------------------------------------------------------------------------
 template <typename Scalar>
-vtkTypedDataArray<Scalar>::~vtkTypedDataArray()
-{
-}
+vtkTypedDataArray<Scalar>::~vtkTypedDataArray() = default;
 
 //------------------------------------------------------------------------------
 template <typename Scalar>
 bool vtkTypedDataArray<Scalar>::AllocateTuples(vtkIdType)
 {
-  vtkErrorMacro(<<"This method is not preferred for vtkTypedDataArray "
-                "implementations. Either add an appropriate implementation, or "
-                "use Allocate instead.");
+  vtkErrorMacro(<< "This method is not preferred for vtkTypedDataArray "
+                   "implementations. Either add an appropriate implementation, or "
+                   "use Allocate instead.");
   return false;
 }
 
@@ -44,45 +29,44 @@ bool vtkTypedDataArray<Scalar>::AllocateTuples(vtkIdType)
 template <typename Scalar>
 bool vtkTypedDataArray<Scalar>::ReallocateTuples(vtkIdType)
 {
-  vtkErrorMacro(<<"This method is not preferred for vtkTypedDataArray "
-                "implementations. Either add an appropriate implementation, or "
-                "use Resize instead.");
+  vtkErrorMacro(<< "This method is not preferred for vtkTypedDataArray "
+                   "implementations. Either add an appropriate implementation, or "
+                   "use Resize instead.");
   return false;
 }
 
 //------------------------------------------------------------------------------
-template <typename Scalar> inline
-int vtkTypedDataArray<Scalar>::GetDataType()
+template <typename Scalar>
+inline int vtkTypedDataArray<Scalar>::GetDataType() const
 {
   return vtkTypeTraits<Scalar>::VTK_TYPE_ID;
 }
 
 //------------------------------------------------------------------------------
-template <typename Scalar> inline
-int vtkTypedDataArray<Scalar>::GetDataTypeSize()
+template <typename Scalar>
+inline int vtkTypedDataArray<Scalar>::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(Scalar));
 }
 
 //------------------------------------------------------------------------------
-template <typename Scalar> inline
-typename vtkTypedDataArray<Scalar>::ValueType
-vtkTypedDataArray<Scalar>::GetTypedComponent(vtkIdType tupleIdx, int comp) const
+template <typename Scalar>
+inline typename vtkTypedDataArray<Scalar>::ValueType vtkTypedDataArray<Scalar>::GetTypedComponent(
+  vtkIdType tupleIdx, int comp) const
 {
   return this->GetValue(tupleIdx * this->NumberOfComponents + comp);
 }
 
 //------------------------------------------------------------------------------
-template <typename Scalar> inline
-void vtkTypedDataArray<Scalar>::SetTypedComponent(vtkIdType tupleIdx, int comp,
-                                                  ValueType v)
+template <typename Scalar>
+inline void vtkTypedDataArray<Scalar>::SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType v)
 {
   this->SetValue(tupleIdx * this->NumberOfComponents + comp, v);
 }
 
 //------------------------------------------------------------------------------
-template <typename Scalar> inline vtkTypedDataArray<Scalar> *
-vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
+template <typename Scalar>
+inline vtkTypedDataArray<Scalar>* vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray* source)
 {
   if (source)
   {
@@ -90,8 +74,7 @@ vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
     {
       case vtkAbstractArray::TypedDataArray:
       case vtkAbstractArray::MappedDataArray:
-        if (vtkDataTypesCompare(source->GetDataType(),
-                                vtkTypeTraits<Scalar>::VTK_TYPE_ID))
+        if (vtkDataTypesCompare(source->GetDataType(), vtkTypeTraits<Scalar>::VTK_TYPE_ID))
         {
           return static_cast<vtkTypedDataArray<Scalar>*>(source);
         }
@@ -101,4 +84,5 @@ vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
   return nullptr;
 }
 
-#endif //vtkTypedDataArray_txx
+VTK_ABI_NAMESPACE_END
+#endif // vtkTypedDataArray_txx

@@ -108,7 +108,16 @@ XdmfTIFFController::readToArray(XdmfArray * const array,
                                 unsigned int amount,
                                 shared_ptr<const XdmfArrayType> type)
 {
-  if (type == XdmfArrayType::UInt32())
+  if (type == XdmfArrayType::UInt64())
+  {
+    uint64_t * offsetpointer = &(((uint64_t *)pointer)[start]);
+    array->insert(offset,
+                  offsetpointer,
+                  amount,
+                  1,
+                  stride);
+  }
+  else if (type == XdmfArrayType::UInt32())
   {
     unsigned int * offsetpointer = &(((unsigned int *)pointer)[start]);
     array->insert(offset,
@@ -229,6 +238,9 @@ XdmfTIFFController::read(XdmfArray * const array)
         else if (bitsPerSample / 8 == 4) {
           tiffDataType = XdmfArrayType::UInt32();
         }
+        else if (bitsPerSample / 8 == 8) {
+          tiffDataType = XdmfArrayType::UInt64();
+        }
 
         // the buffer is a number of bytes equal to the scan line size
         buf = _TIFFmalloc(scanlinesize );
@@ -315,6 +327,9 @@ XdmfTIFFController::read(XdmfArray * const array)
         }
         else if (bitsPerSample == 4) {
           tiffDataType = XdmfArrayType::UInt32();
+        }
+        else if (bitsPerSample == 8) {
+          tiffDataType = XdmfArrayType::UInt64();
         }
 
         // the buffer is a number of bytes equal to the scan line size
@@ -442,6 +457,9 @@ XDMFTIFFCONTROLLER * XdmfTIFFControllerNew(char * filePath,
       case XDMF_ARRAY_TYPE_UINT32:
         buildType = XdmfArrayType::UInt32();
         break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        buildType = XdmfArrayType::UInt64();
+        break;
       case XDMF_ARRAY_TYPE_INT8:
         buildType = XdmfArrayType::Int8();
         break;
@@ -481,6 +499,9 @@ XDMFTIFFCONTROLLER * XdmfTIFFControllerNew(char * filePath,
         break;
       case XDMF_ARRAY_TYPE_UINT32:
         buildType = XdmfArrayType::UInt32();
+        break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        buildType = XdmfArrayType::UInt64();
         break;
       case XDMF_ARRAY_TYPE_INT8:
         buildType = XdmfArrayType::Int8();
@@ -539,6 +560,9 @@ XDMFTIFFCONTROLLER * XdmfTIFFControllerNewHyperslab(char * filePath,
       case XDMF_ARRAY_TYPE_UINT32:
         buildType = XdmfArrayType::UInt32();
         break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        buildType = XdmfArrayType::UInt64();
+        break;
      case XDMF_ARRAY_TYPE_INT8:
         buildType = XdmfArrayType::Int8();
         break;
@@ -581,6 +605,9 @@ XDMFTIFFCONTROLLER * XdmfTIFFControllerNewHyperslab(char * filePath,
         break;
       case XDMF_ARRAY_TYPE_UINT32:
         buildType = XdmfArrayType::UInt32();
+        break;
+      case XDMF_ARRAY_TYPE_UINT64:
+        buildType = XdmfArrayType::UInt64();
         break;
      case XDMF_ARRAY_TYPE_INT8:
         buildType = XdmfArrayType::Int8();

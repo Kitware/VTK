@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTensorProbeWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTensorProbeWidget
  * @brief   a widget to probe tensors on a polyline
@@ -26,49 +14,52 @@
  * For instance dragging the ellipsoid around with
  * vtkEllipsoidTensorProbeRepresentation will manifest itself with the
  * ellipsoid shape changing as needed along the trajectory.
-*/
+ */
 
 #ifndef vtkTensorProbeWidget_h
 #define vtkTensorProbeWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTensorProbeRepresentation;
 class vtkPolyData;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkTensorProbeWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkTensorProbeWidget : public vtkAbstractWidget
 {
 public:
   /**
    * Instantiate this class.
    */
-  static vtkTensorProbeWidget *New();
+  static vtkTensorProbeWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class macros.
    */
   vtkTypeMacro(vtkTensorProbeWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkTensorProbeRepresentation *r)
+  void SetRepresentation(vtkTensorProbeRepresentation* r)
   {
-    this->Superclass::SetWidgetRepresentation(
-        reinterpret_cast<vtkWidgetRepresentation*>(r));
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
   }
 
   /**
    * Return the representation as a vtkTensorProbeRepresentation.
    */
-  vtkTensorProbeRepresentation *GetTensorProbeRepresentation()
-    {return reinterpret_cast<vtkTensorProbeRepresentation*>(this->WidgetRep);}
+  vtkTensorProbeRepresentation* GetTensorProbeRepresentation()
+  {
+    return reinterpret_cast<vtkTensorProbeRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * See vtkWidgetRepresentation for details.
@@ -80,21 +71,19 @@ protected:
   ~vtkTensorProbeWidget() override;
 
   // 1 when the probe has been selected, for instance when dragging it around
-  int           Selected;
+  int Selected;
 
-  int           LastEventPosition[2];
+  int LastEventPosition[2];
 
   // Callback interface to capture events and respond
-  static void SelectAction    (vtkAbstractWidget*);
-  static void MoveAction      (vtkAbstractWidget*);
-  static void EndSelectAction (vtkAbstractWidget*);
+  static void SelectAction(vtkAbstractWidget*);
+  static void MoveAction(vtkAbstractWidget*);
+  static void EndSelectAction(vtkAbstractWidget*);
 
 private:
-  vtkTensorProbeWidget(
-      const vtkTensorProbeWidget&) = delete;
+  vtkTensorProbeWidget(const vtkTensorProbeWidget&) = delete;
   void operator=(const vtkTensorProbeWidget&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

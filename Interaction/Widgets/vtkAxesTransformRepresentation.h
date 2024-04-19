@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAxesTransformRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAxesTransformRepresentation
  * @brief   represent the vtkAxesTransformWidget
@@ -24,14 +12,16 @@
  * occluded.
  * @sa
  * vtkDistanceWidget vtkDistanceRepresentation vtkDistanceRepresentation2D
-*/
+ */
 
 #ifndef vtkAxesTransformRepresentation_h
 #define vtkAxesTransformRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHandleRepresentation;
 class vtkPoints;
 class vtkPolyData;
@@ -46,34 +36,34 @@ class vtkDoubleArray;
 class vtkTransformPolyDataFilter;
 class vtkProperty;
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkAxesTransformRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkAxesTransformRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**
    * Instantiate class.
    */
-  static vtkAxesTransformRepresentation *New();
+  static vtkAxesTransformRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkAxesTransformRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkAxesTransformRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the two handle representations used for the
    * vtkAxesTransformWidget. (Note: properties can be set by grabbing these
    * representations and setting the properties appropriately.)
    */
-  vtkGetObjectMacro(OriginRepresentation,vtkHandleRepresentation);
-  vtkGetObjectMacro(SelectionRepresentation,vtkHandleRepresentation);
-  //@}
+  vtkGetObjectMacro(OriginRepresentation, vtkHandleRepresentation);
+  vtkGetObjectMacro(SelectionRepresentation, vtkHandleRepresentation);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to Set/Get the coordinates of the two points defining
    * this representation. Note that methods are available for both
@@ -84,24 +74,24 @@ public:
   void SetOriginWorldPosition(double pos[3]);
   void SetOriginDisplayPosition(double pos[3]);
   void GetOriginDisplayPosition(double pos[3]);
-  //@}
+  ///@}
 
   /**
    * Specify a scale to control the size of the widget. Large values make the
    * the widget larger.
    */
 
-  //@{
+  ///@{
   /**
    * The tolerance representing the distance to the widget (in pixels) in
    * which the cursor is considered near enough to the end points of
    * the widget to be active.
    */
-  vtkSetClampMacro(Tolerance,int,1,100);
-  vtkGetMacro(Tolerance,int);
-  //@}
+  vtkSetClampMacro(Tolerance, int, 1, 100);
+  vtkGetMacro(Tolerance, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the format to use for labelling information during
    * transformation. Note that an empty string results in no label, or a
@@ -109,14 +99,24 @@ public:
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
   /**
    * Enum used to communicate interaction state.
    */
-  enum {Outside=0,OnOrigin,OnX,OnY,OnZ,OnXEnd,OnYEnd,OnZEnd};
+  enum
+  {
+    Outside = 0,
+    OnOrigin,
+    OnX,
+    OnY,
+    OnZ,
+    OnXEnd,
+    OnYEnd,
+    OnZEnd
+  };
 
-  //@{
+  ///@{
   /**
    * The interaction state may be set from a widget (e.g., vtkLineWidget2) or
    * other object. This controls how the interaction with the widget
@@ -126,30 +126,30 @@ public:
    * widget feature), then based on events, the widget may modify this
    * further.
    */
-  vtkSetClampMacro(InteractionState,int,Outside,OnZEnd);
-  //@}
+  vtkSetClampMacro(InteractionState, int, Outside, OnZEnd);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Method to satisfy superclasses' API.
    */
   void BuildRepresentation() override;
-  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
-  double *GetBounds() override;
-  //@}
+  double* GetBounds() override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
-  //@}
+  void ReleaseGraphicsResources(vtkWindow* w) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Scale text (font size along each dimension). This helps control
    * the appearance of the 3D text.
@@ -162,52 +162,52 @@ public:
     scale[2] = z;
     this->SetLabelScale(scale);
   }
-  virtual void SetLabelScale( double scale[3] );
-  virtual double * GetLabelScale();
-  //@}
+  virtual void SetLabelScale(double scale[3]);
+  virtual double* GetLabelScale();
+  ///@}
 
   /**
    * Get the distance annotation property
    */
-  virtual vtkProperty *GetLabelProperty();
+  virtual vtkProperty* GetLabelProperty();
 
 protected:
   vtkAxesTransformRepresentation();
   ~vtkAxesTransformRepresentation() override;
 
   // The handle and the rep used to close the handles
-  vtkHandleRepresentation *OriginRepresentation;
-  vtkHandleRepresentation *SelectionRepresentation;
+  vtkHandleRepresentation* OriginRepresentation;
+  vtkHandleRepresentation* SelectionRepresentation;
 
   // Selection tolerance for the handles
   int Tolerance;
 
   // Format for printing the distance
-  char *LabelFormat;
+  char* LabelFormat;
 
   // The line
-  vtkPoints         *LinePoints;
-  vtkPolyData       *LinePolyData;
-  vtkPolyDataMapper *LineMapper;
-  vtkActor          *LineActor;
+  vtkPoints* LinePoints;
+  vtkPolyData* LinePolyData;
+  vtkPolyDataMapper* LineMapper;
+  vtkActor* LineActor;
 
   // The distance label
-  vtkVectorText     *LabelText;
-  vtkPolyDataMapper *LabelMapper;
-  vtkFollower       *LabelActor;
+  vtkVectorText* LabelText;
+  vtkPolyDataMapper* LabelMapper;
+  vtkFollower* LabelActor;
 
   // The 3D disk tick marks
-  vtkPoints         *GlyphPoints;
-  vtkDoubleArray    *GlyphVectors;
-  vtkPolyData       *GlyphPolyData;
-  vtkCylinderSource *GlyphCylinder;
-  vtkTransformPolyDataFilter *GlyphXForm;
-  vtkGlyph3D        *Glyph3D;
-  vtkPolyDataMapper *GlyphMapper;
-  vtkActor          *GlyphActor;
+  vtkPoints* GlyphPoints;
+  vtkDoubleArray* GlyphVectors;
+  vtkPolyData* GlyphPolyData;
+  vtkCylinderSource* GlyphCylinder;
+  vtkTransformPolyDataFilter* GlyphXForm;
+  vtkGlyph3D* Glyph3D;
+  vtkPolyDataMapper* GlyphMapper;
+  vtkActor* GlyphActor;
 
   // Support GetBounds() method
-  vtkBox *BoundingBox;
+  vtkBox* BoundingBox;
 
   double LastEventPosition[3];
 
@@ -216,4 +216,5 @@ private:
   void operator=(const vtkAxesTransformRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

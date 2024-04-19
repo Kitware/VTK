@@ -15,9 +15,10 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/json/vtkjsoncpp_config.h")
 
 vtk_module_add_module(VTK::jsoncpp
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
-  HEADERS_SUBDIR vtkjsoncpp/json)
+  HEADERS_SUBDIR "vtkjsoncpp")
 if (VTK_REQUIRE_LARGE_FILE_SUPPORT)
   target_compile_definitions(jsoncpp
     PRIVATE

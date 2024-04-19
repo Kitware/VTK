@@ -1,7 +1,10 @@
 # Tests paraview/paraview#18391
 
-from vtkmodules.util.misc import vtkGetDataRoot, vtkGetTempDir
-from vtk import vtkXMLGenericDataObjectReader, vtkDoubleArray, vtkDataSetWriter, vtkPDataSetReader
+from vtkmodules.vtkCommonCore import vtkDoubleArray
+from vtkmodules.vtkIOLegacy import vtkDataSetWriter
+from vtkmodules.vtkIOParallel import vtkPDataSetReader
+from vtkmodules.vtkIOXML import vtkXMLGenericDataObjectReader
+from vtkmodules.util.misc import vtkGetDataRoot,vtkGetTempDir
 
 from os.path import join
 

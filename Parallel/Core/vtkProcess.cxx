@@ -1,54 +1,45 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProcess.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkProcess.h"
 #include "vtkMultiProcessController.h"
 
-
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkProcess::vtkProcess()
 {
-  this->Controller=nullptr;
-  this->ReturnValue=0;
+  this->Controller = nullptr;
+  this->ReturnValue = 0;
 }
 
-// ----------------------------------------------------------------------------
-vtkMultiProcessController *vtkProcess::GetController()
+//------------------------------------------------------------------------------
+vtkProcess::~vtkProcess()
+{
+  this->SetController(nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkMultiProcessController* vtkProcess::GetController()
 {
   return this->Controller;
 }
 
-// ----------------------------------------------------------------------------
-void vtkProcess::SetController(vtkMultiProcessController *aController)
-{
-  this->Controller=aController;
-}
+//------------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkProcess, Controller, vtkMultiProcessController);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkProcess::GetReturnValue()
 {
   return this->ReturnValue;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkProcess::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ReturnValue: " << this->ReturnValue << endl;
   os << indent << "Controller: ";
-  if(this->Controller)
+  if (this->Controller)
   {
     os << endl;
     this->Controller->PrintSelf(os, indent.GetNextIndent());
@@ -58,3 +49,4 @@ void vtkProcess::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

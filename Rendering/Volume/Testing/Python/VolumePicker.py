@@ -1,44 +1,63 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkCommonDataModel import (
+    vtkPiecewiseFunction,
+    vtkPlane,
+)
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import (
+    vtkMarchingCubes,
+    vtkPolyDataNormals,
+    vtkStripper,
+)
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkIOImage import vtkVolume16Reader
+from vtkmodules.vtkImagingCore import vtkImageMapToColors
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkColorTransferFunction,
+    vtkDataSetMapper,
+    vtkImageActor,
+    vtkPolyDataMapper,
+    vtkProperty,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkVolume,
+    vtkVolumeProperty,
+)
+from vtkmodules.vtkRenderingVolume import (
+    vtkFixedPointVolumeRayCastMapper,
+    vtkVolumePicker,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.vtkRenderingVolumeOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class VolumePicker(vtk.test.Testing.vtkTest):
+class VolumePicker(vtkmodules.test.Testing.vtkTest):
 
     def testVolumePicker(self):
         # volume render a medical data set
 
         # renderer and interactor
-        ren = vtk.vtkRenderer()
+        ren = vtkRenderer()
 
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin)
 
         # read the volume
-        v16 = vtk.vtkVolume16Reader()
+        v16 = vtkVolume16Reader()
         v16.SetDataDimensions(64, 64)
         v16.SetImageRange(1, 93)
         v16.SetDataByteOrderToLittleEndian()
@@ -48,27 +67,27 @@ class VolumePicker(vtk.test.Testing.vtkTest):
         #---------------------------------------------------------
         # set up the volume rendering
 
-        volumeMapper = vtk.vtkFixedPointVolumeRayCastMapper()
+        volumeMapper = vtkFixedPointVolumeRayCastMapper()
         volumeMapper.SetInputConnection(v16.GetOutputPort())
 
-        volumeColor = vtk.vtkColorTransferFunction()
+        volumeColor = vtkColorTransferFunction()
         volumeColor.AddRGBPoint(0, 0.0, 0.0, 0.0)
         volumeColor.AddRGBPoint(180, 0.3, 0.1, 0.2)
         volumeColor.AddRGBPoint(1000, 1.0, 0.7, 0.6)
         volumeColor.AddRGBPoint(2000, 1.0, 1.0, 0.9)
 
-        volumeScalarOpacity = vtk.vtkPiecewiseFunction()
+        volumeScalarOpacity = vtkPiecewiseFunction()
         volumeScalarOpacity.AddPoint(0, 0.0)
         volumeScalarOpacity.AddPoint(180, 0.0)
         volumeScalarOpacity.AddPoint(1000, 0.2)
         volumeScalarOpacity.AddPoint(2000, 0.8)
 
-        volumeGradientOpacity = vtk.vtkPiecewiseFunction()
+        volumeGradientOpacity = vtkPiecewiseFunction()
         volumeGradientOpacity.AddPoint(0, 0.0)
         volumeGradientOpacity.AddPoint(90, 0.5)
         volumeGradientOpacity.AddPoint(100, 1.0)
 
-        volumeProperty = vtk.vtkVolumeProperty()
+        volumeProperty = vtkVolumeProperty()
         volumeProperty.SetColor(volumeColor)
         volumeProperty.SetScalarOpacity(volumeScalarOpacity)
         volumeProperty.SetGradientOpacity(volumeGradientOpacity)
@@ -78,56 +97,56 @@ class VolumePicker(vtk.test.Testing.vtkTest):
         volumeProperty.SetDiffuse(0.6)
         volumeProperty.SetSpecular(0.1)
 
-        volume = vtk.vtkVolume()
+        volume = vtkVolume()
         volume.SetMapper(volumeMapper)
         volume.SetProperty(volumeProperty)
 
         #---------------------------------------------------------
         # Do the surface rendering
-        boneExtractor = vtk.vtkMarchingCubes()
+        boneExtractor = vtkMarchingCubes()
         boneExtractor.SetInputConnection(v16.GetOutputPort())
         boneExtractor.SetValue(0, 1150)
 
-        boneNormals = vtk.vtkPolyDataNormals()
+        boneNormals = vtkPolyDataNormals()
         boneNormals.SetInputConnection(boneExtractor.GetOutputPort())
         boneNormals.SetFeatureAngle(60.0)
 
-        boneStripper = vtk.vtkStripper()
+        boneStripper = vtkStripper()
         boneStripper.SetInputConnection(boneNormals.GetOutputPort())
 
-        boneMapper = vtk.vtkPolyDataMapper()
+        boneMapper = vtkPolyDataMapper()
         boneMapper.SetInputConnection(boneStripper.GetOutputPort())
         boneMapper.ScalarVisibilityOff()
 
-        boneProperty = vtk.vtkProperty()
+        boneProperty = vtkProperty()
         boneProperty.SetColor(1.0, 1.0, 0.9)
 
-        bone = vtk.vtkActor()
+        bone = vtkActor()
         bone.SetMapper(boneMapper)
         bone.SetProperty(boneProperty)
 
         #---------------------------------------------------------
         # Create an image actor
 
-        table = vtk.vtkLookupTable()
+        table = vtkLookupTable()
         table.SetRange(0, 2000)
         table.SetRampToLinear()
         table.SetValueRange(0, 1)
         table.SetHueRange(0, 0)
         table.SetSaturationRange(0, 0)
 
-        mapToColors = vtk.vtkImageMapToColors()
+        mapToColors = vtkImageMapToColors()
         mapToColors.SetInputConnection(v16.GetOutputPort())
         mapToColors.SetLookupTable(table)
 
-        imageActor = vtk.vtkImageActor()
+        imageActor = vtkImageActor()
         imageActor.GetMapper().SetInputConnection(mapToColors.GetOutputPort())
         imageActor.SetDisplayExtent(32, 32, 0, 63, 0, 92)
 
         #---------------------------------------------------------
         # make a transform and some clipping planes
 
-        transform = vtk.vtkTransform()
+        transform = vtkTransform()
         transform.RotateWXYZ(-20, 0.0, -0.7, 0.7)
 
         volume.SetUserTransform(transform)
@@ -136,11 +155,11 @@ class VolumePicker(vtk.test.Testing.vtkTest):
 
         c = volume.GetCenter()
 
-        volumeClip = vtk.vtkPlane()
+        volumeClip = vtkPlane()
         volumeClip.SetNormal(0, 1, 0)
         volumeClip.SetOrigin(c)
 
-        boneClip = vtk.vtkPlane()
+        boneClip = vtkPlane()
         boneClip.SetNormal(0, 0, 1)
         boneClip.SetOrigin(c)
 
@@ -163,7 +182,7 @@ class VolumePicker(vtk.test.Testing.vtkTest):
 
         #---------------------------------------------------------
         # the cone should point along the Z axis
-        coneSource = vtk.vtkConeSource()
+        coneSource = vtkConeSource()
         coneSource.CappingOn()
         coneSource.SetHeight(12)
         coneSource.SetRadius(5)
@@ -172,7 +191,7 @@ class VolumePicker(vtk.test.Testing.vtkTest):
         coneSource.SetDirection(-1, 0, 0)
 
         #---------------------------------------------------------
-        picker = vtk.vtkVolumePicker()
+        picker = vtkVolumePicker()
         picker.SetTolerance(1.0e-6)
         picker.SetVolumeOpacityIsovalue(0.01)
         # This should usually be left alone, but is used here to increase coverage
@@ -192,9 +211,9 @@ class VolumePicker(vtk.test.Testing.vtkTest):
         p = picker.GetPickPosition()
         n = picker.GetPickNormal()
 
-        coneActor1 = vtk.vtkActor()
+        coneActor1 = vtkActor()
         coneActor1.PickableOff()
-        coneMapper1 = vtk.vtkDataSetMapper()
+        coneMapper1 = vtkDataSetMapper()
         coneMapper1.SetInputConnection(coneSource.GetOutputPort())
         coneActor1.SetMapper(coneMapper1)
         coneActor1.GetProperty().SetColor(1, 0, 0)
@@ -207,9 +226,9 @@ class VolumePicker(vtk.test.Testing.vtkTest):
         p = picker.GetPickPosition()
         n = picker.GetPickNormal()
 
-        coneActor2 = vtk.vtkActor()
+        coneActor2 = vtkActor()
         coneActor2.PickableOff()
-        coneMapper2 = vtk.vtkDataSetMapper()
+        coneMapper2 = vtkDataSetMapper()
         coneMapper2.SetInputConnection(coneSource.GetOutputPort())
         coneActor2.SetMapper(coneMapper2)
         coneActor2.GetProperty().SetColor(1, 0, 0)
@@ -222,9 +241,9 @@ class VolumePicker(vtk.test.Testing.vtkTest):
         p = picker.GetPickPosition()
         n = picker.GetPickNormal()
 
-        coneActor3 = vtk.vtkActor()
+        coneActor3 = vtkActor()
         coneActor3.PickableOff()
-        coneMapper3 = vtk.vtkDataSetMapper()
+        coneMapper3 = vtkDataSetMapper()
         coneMapper3.SetInputConnection(coneSource.GetOutputPort())
         coneActor3.SetMapper(coneMapper3)
         coneActor3.GetProperty().SetColor(1, 0, 0)
@@ -238,9 +257,9 @@ class VolumePicker(vtk.test.Testing.vtkTest):
         p = picker.GetPickPosition()
         n = picker.GetPickNormal()
 
-        coneActor4 = vtk.vtkActor()
+        coneActor4 = vtkActor()
         coneActor4.PickableOff()
-        coneMapper4 = vtk.vtkDataSetMapper()
+        coneMapper4 = vtkDataSetMapper()
         coneMapper4.SetInputConnection(coneSource.GetOutputPort())
         coneActor4.SetMapper(coneMapper4)
         coneActor4.GetProperty().SetColor(1, 0, 0)
@@ -255,8 +274,8 @@ class VolumePicker(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "VolumePicker.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(VolumePicker, 'test')])
+     vtkmodules.test.Testing.main([(VolumePicker, 'test')])

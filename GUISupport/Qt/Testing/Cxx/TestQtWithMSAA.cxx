@@ -1,18 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestQVTKOpenGLWidgetWithMSAA.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-// Tests QVTKOpenGLWidget/QVTKOpenGLNativeWidget/QVTKOpenGLWindow with MSAA
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+// Tests QVTKOpenGLStereoWidget/QVTKOpenGLNativeWidget/QVTKOpenGLWindow with MSAA
 #include "TestQtCommon.h"
 #include "vtkActor.h"
 #include "vtkGenericOpenGLRenderWindow.h"
@@ -46,7 +34,7 @@ int TestQtWithMSAA(int argc, char* argv[])
   auto widgetOrWindow = detail::create_widget_or_window(type, window);
 
   vtkNew<vtkRenderer> ren;
-  ren->SetGradientBackground(1);
+  ren->SetGradientBackground(true);
   ren->SetBackground2(0.7, 0.7, 0.7);
   window->AddRenderer(ren);
 
@@ -62,11 +50,11 @@ int TestQtWithMSAA(int argc, char* argv[])
 
   vtktesting->SetRenderWindow(window);
 
-  int retVal = vtktesting->RegressionTest(10);
+  int retVal = vtktesting->RegressionTest(0.05);
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:
-      return app.exec();
+      return QApplication::exec();
     case vtkTesting::FAILED:
     case vtkTesting::NOT_RUN:
       return EXIT_FAILURE;

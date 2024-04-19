@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkScenePicker.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkScenePicker
  * @brief   Picks an entire viewport at one shot.
@@ -33,19 +21,20 @@
  * - Unlike a vtkHoverWidget, this class is not timer based. The hover widget
  *   picks a scene when the mouse is over an actor for a specified duration.
  * - This class uses a vtkHardwareSelector under the hood. Hence, it will
- *   work only for actors that have opaque geomerty and are rendered by a
+ *   work only for actors that have opaque geometry and are rendered by a
  *   vtkPolyDataMapper.
  *
  * @sa
  * vtkHoverWidget vtkHardwareSelector
-*/
+ */
 
 #ifndef vtkScenePicker_h
 #define vtkScenePicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkProp;
 class vtkHardwareSelector;
@@ -63,13 +52,13 @@ public:
   vtkTypeMacro(vtkScenePicker, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the renderer. Scene picks are restricted to the viewport.
    */
   virtual void SetRenderer(vtkRenderer*);
   vtkGetObjectMacro(Renderer, vtkRenderer);
-  //@}
+  ///@}
 
   /**
    * Get cell id at the pick position.
@@ -92,7 +81,7 @@ public:
    */
   vtkProp* GetViewProp(int displayPos[2]);
 
-  //@{
+  ///@{
   /**
    * Vertex picking (using the method GetVertexId()), required
    * additional resources and can slow down still render time by
@@ -101,7 +90,7 @@ public:
   vtkSetMacro(EnableVertexPicking, vtkTypeBool);
   vtkGetMacro(EnableVertexPicking, vtkTypeBool);
   vtkBooleanMacro(EnableVertexPicking, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkScenePicker();
@@ -120,7 +109,7 @@ protected:
   // The RenderWindowInteractor must be set, so that avoid scene picks (which
   // involve extra renders) during interaction. This is done by observing the
   // RenderWindowInteractor for start and end interaction events.
-  void SetInteractor(vtkRenderWindowInteractor *);
+  void SetInteractor(vtkRenderWindowInteractor*);
 
   vtkTypeBool EnableVertexPicking;
   vtkHardwareSelector* Selector;
@@ -134,9 +123,11 @@ protected:
   vtkScenePickerSelectionRenderCommand* SelectionRenderCommand;
 
   vtkTimeStamp PickRenderTime;
+
 private:
   vtkScenePicker(const vtkScenePicker&) = delete;
   void operator=(const vtkScenePicker&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

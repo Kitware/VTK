@@ -1,31 +1,44 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersModeling import (
+    vtkSpherePuzzle,
+    vtkSpherePuzzleArrows,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create a rendering window and renderer
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 renWin.SetSize(400, 400)
 
-puzzle = vtk.vtkSpherePuzzle()
+puzzle = vtkSpherePuzzle()
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(puzzle.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-arrows = vtk.vtkSpherePuzzleArrows()
+arrows = vtkSpherePuzzleArrows()
 
-mapper2 = vtk.vtkPolyDataMapper()
+mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection(arrows.GetOutputPort())
 
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
 
 # Add the actors to the renderer, set the background and size
@@ -51,7 +64,6 @@ def MotionCallback (x, y):
     if (val != LastVal):
         renWin.Render()
         LastVal = val
-        pass
 
 def ButtonCallback (x, y):
     WindowY = 400

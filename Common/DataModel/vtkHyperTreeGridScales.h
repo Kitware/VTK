@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridScales.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHyperTreeGridScales
  * @brief   A specifalized type of vtkHyperTreeGrid for the case
@@ -24,107 +12,88 @@
  * This class was written by Jacques-Bernard Lekien (CEA)
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridScales_h
 #define vtkHyperTreeGridScales_h
 
-#include <vector> // For std::vector
+#include "vtkABINamespace.h"
 
+#include <cstring> // For memcpy
+#include <vector>  // For std::vector
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGridScales
 {
 public:
   /**
-   * JB Construit cette classe a partir du scale de la maille
-   * d'origine d'un HyperTree et du subdivision factor
+   * Build this class from the original scale mesh and subdivision factor
    */
-  vtkHyperTreeGridScales( double branchfactor, const double scale[3] ) :
-    BranchFactor( branchfactor ), CurrentFailLevel( 1 ), CellScales( scale, scale + 3 )
+  vtkHyperTreeGridScales(double branchfactor, const double scale[3])
+    : BranchFactor(branchfactor)
+    , CurrentFailLevel(1)
+    , CellScales(scale, scale + 3)
   {
   }
 
   ~vtkHyperTreeGridScales() = default;
 
-  /**
-   * JB Retourne le scale des mailles du niveau demande
-   */
-  double GetBranchFactor() const
-  {
-    return this->BranchFactor;
-  }
+  double GetBranchFactor() const { return this->BranchFactor; }
 
-  /**
-   * JB Retourne le scale des mailles du niveau demande
-   */
   double* GetScale(unsigned int level) const
   {
-    this->Update( level );
+    this->Update(level);
     return this->CellScales.data() + 3 * level;
   }
 
-  /**
-   * JB
-   */
   double GetScaleX(unsigned int level) const
   {
-    this->Update( level );
-    return this->CellScales[ 3 * level + 0 ];
+    this->Update(level);
+    return this->CellScales[3 * level + 0];
   }
 
-  /**
-   * JB
-   */
   double GetScaleY(unsigned int level) const
   {
-    this->Update( level );
-    return this->CellScales[ 3 * level + 1 ];
+    this->Update(level);
+    return this->CellScales[3 * level + 1];
   }
 
-  /**
-   * JB
-   */
   double GetScaleZ(unsigned int level) const
   {
-    this->Update( level );
-    return this->CellScales[ 3 * level + 2 ];
+    this->Update(level);
+    return this->CellScales[3 * level + 2];
   }
 
   /**
-   * JB Retourne le scale des mailles du niveau demande
+   * Return the mesh scale at the given level
    */
   void GetScale(unsigned int level, double scale[3]) const
   {
-    this->Update( level );
-    memcpy( scale, this->CellScales.data() + 3 * level, 3 * sizeof( double ) );
+    this->Update(level);
+    memcpy(scale, this->CellScales.data() + 3 * level, 3 * sizeof(double));
   }
 
-  /**
-   * JB
-   */
-  unsigned int GetCurrentFailLevel() const
-  {
-    return this->CurrentFailLevel;
-  }
+  unsigned int GetCurrentFailLevel() const { return this->CurrentFailLevel; }
 
 private:
+  vtkHyperTreeGridScales(const vtkHyperTreeGridScales&) = delete;
+  vtkHyperTreeGridScales& operator=(const vtkHyperTreeGridScales&) = delete;
 
   /**
-   * JB Update the cell scales table afin de repondre que la
-   * table puisse retourner la taille de la maille pour ce niveau
-   * demande
+   * Update the cell scale table in order for the table to return the mesh at the given level.
    */
-  void Update( unsigned int level ) const
+  void Update(unsigned int level) const
   {
-    if ( level < this->CurrentFailLevel )
+    if (level < this->CurrentFailLevel)
     {
       return;
     }
     this->CurrentFailLevel = level + 1;
-    this->CellScales.resize( 3 * this->CurrentFailLevel );
-    auto current = this->CellScales.begin() + 3 * ( this->CurrentFailLevel - 1 );
+    this->CellScales.resize(3 * this->CurrentFailLevel);
+    auto current = this->CellScales.begin() + 3 * (this->CurrentFailLevel - 1);
     auto previous = current - 3;
     auto end = this->CellScales.end();
-    for ( ; current != end ; ++ current, ++ previous)
+    for (; current != end; ++current, ++previous)
     {
       *current = *previous / this->BranchFactor;
     }
@@ -142,5 +111,6 @@ private:
   mutable std::vector<double> CellScales;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridScales.h

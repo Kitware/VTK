@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkTestUtilities.h"
 #include <vtkActor.h>
@@ -18,23 +7,22 @@
 #include <vtkDateToNumeric.h>
 #include <vtkNew.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkXMLPolyDataReader.h>
 
-int TestDateToNumeric(int argc, char *argv[])
+int TestDateToNumeric(int argc, char* argv[])
 {
-  char* fileName =
-    vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/mine_with_dates.vtp");
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mine_with_dates.vtp");
 
   // Read the data
   vtkNew<vtkXMLPolyDataReader> reader;
-  reader->SetFileName (fileName);
-  delete [] fileName;
+  reader->SetFileName(fileName);
+  delete[] fileName;
 
   vtkNew<vtkDateToNumeric> d2n;
-  d2n->SetInputConnection (reader->GetOutputPort());
+  d2n->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(d2n->GetOutputPort());

@@ -24,8 +24,9 @@ endif ()
 
 find_path(OpenVR_INCLUDE_DIR
   NAMES
-    openvr_driver.h
+    openvr.h
   PATH_SUFFIXES
+    openvr
     headers
     public/headers
     steam
@@ -34,7 +35,7 @@ find_path(OpenVR_INCLUDE_DIR
 mark_as_advanced(OpenVR_INCLUDE_DIR)
 
 find_library(OpenVR_LIBRARY
-  NAMES openvr_api
+  NAMES openvr_api64 openvr_api
   PATH_SUFFIXES
     "${OpenVR_PLATFORM}"
     "bin/${OpenVR_PLATFORM}"

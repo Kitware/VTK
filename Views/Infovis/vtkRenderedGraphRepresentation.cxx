@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderedGraphRepresentation.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkRenderedGraphRepresentation.h"
 
@@ -61,9 +45,9 @@
 #include "vtkProperty.h"
 #include "vtkRandomLayoutStrategy.h"
 #include "vtkRemoveHiddenData.h"
-#include "vtkRenderer.h"
 #include "vtkRenderView.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkScalarBarActor.h"
 #include "vtkScalarBarWidget.h"
 #include "vtkSelection.h"
@@ -81,44 +65,42 @@
 #include "vtkVertexDegree.h"
 #include "vtkViewTheme.h"
 
-#include <cctype>
 #include <algorithm>
+#include <cctype>
 
-
-
-
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
 {
-  this->ApplyColors         = vtkSmartPointer<vtkApplyColors>::New();
-  this->VertexDegree        = vtkSmartPointer<vtkVertexDegree>::New();
-  this->EmptyPolyData       = vtkSmartPointer<vtkPolyData>::New();
-  this->EdgeCenters         = vtkSmartPointer<vtkEdgeCenters>::New();
-  this->GraphToPoints       = vtkSmartPointer<vtkGraphToPoints>::New();
+  this->ApplyColors = vtkSmartPointer<vtkApplyColors>::New();
+  this->VertexDegree = vtkSmartPointer<vtkVertexDegree>::New();
+  this->EmptyPolyData = vtkSmartPointer<vtkPolyData>::New();
+  this->EdgeCenters = vtkSmartPointer<vtkEdgeCenters>::New();
+  this->GraphToPoints = vtkSmartPointer<vtkGraphToPoints>::New();
   this->VertexLabelHierarchy = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
-  this->EdgeLabelHierarchy  = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
-  this->Layout              = vtkSmartPointer<vtkGraphLayout>::New();
-  this->Coincident          = vtkSmartPointer<vtkPerturbCoincidentVertices>::New();
-  this->EdgeLayout          = vtkSmartPointer<vtkEdgeLayout>::New();
-  this->GraphToPoly         = vtkSmartPointer<vtkGraphToPolyData>::New();
-  this->EdgeMapper          = vtkSmartPointer<vtkPolyDataMapper>::New();
-  this->EdgeActor           = vtkSmartPointer<vtkActor>::New();
-  this->VertexGlyph         = vtkSmartPointer<vtkGraphToGlyphs>::New();
-  this->VertexMapper        = vtkSmartPointer<vtkPolyDataMapper>::New();
-  this->VertexActor         = vtkSmartPointer<vtkActor>::New();
-  this->OutlineGlyph        = vtkSmartPointer<vtkGraphToGlyphs>::New();
-  this->OutlineMapper       = vtkSmartPointer<vtkPolyDataMapper>::New();
-  this->OutlineActor        = vtkSmartPointer<vtkActor>::New();
-  this->VertexScalarBar     = vtkSmartPointer<vtkScalarBarWidget>::New();
-  this->EdgeScalarBar       = vtkSmartPointer<vtkScalarBarWidget>::New();
-  this->RemoveHiddenGraph   = vtkSmartPointer<vtkRemoveHiddenData>::New();
-  this->ApplyVertexIcons    = vtkSmartPointer<vtkApplyIcons>::New();
-  this->VertexIconPoints    = vtkSmartPointer<vtkGraphToPoints>::New();
+  this->EdgeLabelHierarchy = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
+  this->Layout = vtkSmartPointer<vtkGraphLayout>::New();
+  this->Coincident = vtkSmartPointer<vtkPerturbCoincidentVertices>::New();
+  this->EdgeLayout = vtkSmartPointer<vtkEdgeLayout>::New();
+  this->GraphToPoly = vtkSmartPointer<vtkGraphToPolyData>::New();
+  this->EdgeMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  this->EdgeActor = vtkSmartPointer<vtkActor>::New();
+  this->VertexGlyph = vtkSmartPointer<vtkGraphToGlyphs>::New();
+  this->VertexMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  this->VertexActor = vtkSmartPointer<vtkActor>::New();
+  this->OutlineGlyph = vtkSmartPointer<vtkGraphToGlyphs>::New();
+  this->OutlineMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  this->OutlineActor = vtkSmartPointer<vtkActor>::New();
+  this->VertexScalarBar = vtkSmartPointer<vtkScalarBarWidget>::New();
+  this->EdgeScalarBar = vtkSmartPointer<vtkScalarBarWidget>::New();
+  this->RemoveHiddenGraph = vtkSmartPointer<vtkRemoveHiddenData>::New();
+  this->ApplyVertexIcons = vtkSmartPointer<vtkApplyIcons>::New();
+  this->VertexIconPoints = vtkSmartPointer<vtkGraphToPoints>::New();
   this->VertexIconTransform = vtkSmartPointer<vtkTransformCoordinateSystems>::New();
-  this->VertexIconGlyph     = vtkSmartPointer<vtkIconGlyphFilter>::New();
-  this->VertexIconMapper    = vtkSmartPointer<vtkPolyDataMapper2D>::New();
-  this->VertexIconActor     = vtkSmartPointer<vtkTexturedActor2D>::New();
+  this->VertexIconGlyph = vtkSmartPointer<vtkIconGlyphFilter>::New();
+  this->VertexIconMapper = vtkSmartPointer<vtkPolyDataMapper2D>::New();
+  this->VertexIconActor = vtkSmartPointer<vtkTexturedActor2D>::New();
 
   this->VertexHoverArrayName = nullptr;
   this->EdgeHoverArrayName = nullptr;
@@ -145,10 +127,9 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
      VertexDegree -> GraphToPoints
      GraphToPoints -> VertexLabelHierarchy -> "vtkRenderView Labels"
      GraphToPoints -> VertexIcons -> VertexIconPriority -> "vtkRenderView Icons"
-     ApplyVertexIcons -> VertexIconPoints -> VertexIconTransform -> VertexIconGlyphFilter -> VertexIconMapper -> VertexIconActor
-     VertexDegree -> EdgeCenters
-     EdgeCenters -> EdgeLabelHierarchy -> "vtkRenderView Labels"
-     EdgeCenters -> EdgeIcons -> EdgeIconPriority -> "vtkRenderView Icons"
+     ApplyVertexIcons -> VertexIconPoints -> VertexIconTransform -> VertexIconGlyphFilter ->
+   VertexIconMapper -> VertexIconActor VertexDegree -> EdgeCenters EdgeCenters -> EdgeLabelHierarchy
+   -> "vtkRenderView Labels" EdgeCenters -> EdgeIcons -> EdgeIconPriority -> "vtkRenderView Icons"
    }
    </graphviz>
   */
@@ -183,8 +164,10 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->VertexIconActor->SetMapper(this->VertexIconMapper);
   this->VertexIconTransform->SetInputCoordinateSystemToWorld();
   this->VertexIconTransform->SetOutputCoordinateSystemToDisplay();
-  this->VertexIconGlyph->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "vtkApplyIcons icon");
-  this->ApplyVertexIcons->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "icon");
+  this->VertexIconGlyph->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "vtkApplyIcons icon");
+  this->ApplyVertexIcons->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "icon");
   this->VertexIconActor->VisibilityOff();
 
   this->GraphToPoints->SetInputConnection(this->VertexDegree->GetOutputPort());
@@ -193,13 +176,12 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->VertexLabelHierarchy->SetInputData(this->EmptyPolyData);
 
   // Set default parameters
-  vtkSmartPointer<vtkDirectedGraph> g =
-    vtkSmartPointer<vtkDirectedGraph>::New();
+  vtkSmartPointer<vtkDirectedGraph> g = vtkSmartPointer<vtkDirectedGraph>::New();
   this->Layout->SetInputData(g);
   vtkSmartPointer<vtkFast2DLayoutStrategy> strategy =
     vtkSmartPointer<vtkFast2DLayoutStrategy>::New();
   this->Layout->SetLayoutStrategy(strategy);
-  //this->Layout->SetZRange(0.001);
+  // this->Layout->SetZRange(0.001);
   this->Layout->SetZRange(0.0);
   vtkSmartPointer<vtkArcParallelEdgeStrategy> edgeStrategy =
     vtkSmartPointer<vtkArcParallelEdgeStrategy>::New();
@@ -231,8 +213,7 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->VertexScalarBar->GetScalarBarActor()->VisibilityOff();
   this->EdgeScalarBar->GetScalarBarActor()->VisibilityOff();
 
-  vtkSmartPointer<vtkViewTheme> theme =
-    vtkSmartPointer<vtkViewTheme>::New();
+  vtkSmartPointer<vtkViewTheme> theme = vtkSmartPointer<vtkViewTheme>::New();
   this->ApplyViewTheme(theme);
 }
 
@@ -314,13 +295,12 @@ void vtkRenderedGraphRepresentation::SetEdgeLabelVisibility(bool b)
 bool vtkRenderedGraphRepresentation::GetVertexLabelVisibility()
 {
   return this->VertexLabelHierarchy->GetInputConnection(0, 0) ==
-         this->GraphToPoints->GetOutputPort();
+    this->GraphToPoints->GetOutputPort();
 }
 
 bool vtkRenderedGraphRepresentation::GetEdgeLabelVisibility()
 {
-  return this->EdgeLabelHierarchy->GetInputConnection(0, 0) ==
-         this->EdgeCenters->GetOutputPort();
+  return this->EdgeLabelHierarchy->GetInputConnection(0, 0) == this->EdgeCenters->GetOutputPort();
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeVisibility(bool b)
@@ -330,7 +310,7 @@ void vtkRenderedGraphRepresentation::SetEdgeVisibility(bool b)
 
 bool vtkRenderedGraphRepresentation::GetEdgeVisibility()
 {
-  return this->EdgeActor->GetVisibility() ? true : false;
+  return this->EdgeActor->GetVisibility() != 0;
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeSelection(bool b)
@@ -365,7 +345,8 @@ vtkTextProperty* vtkRenderedGraphRepresentation::GetEdgeLabelTextProperty()
 
 void vtkRenderedGraphRepresentation::SetVertexIconArrayName(const char* name)
 {
-  this->ApplyVertexIcons->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  this->ApplyVertexIcons->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeIconArrayName(const char*)
@@ -419,7 +400,7 @@ void vtkRenderedGraphRepresentation::SetEdgeIconVisibility(bool)
 
 bool vtkRenderedGraphRepresentation::GetVertexIconVisibility()
 {
-  return (this->VertexIconActor->GetVisibility() ? true : false);
+  return this->VertexIconActor->GetVisibility() != 0;
 }
 
 bool vtkRenderedGraphRepresentation::GetEdgeIconVisibility()
@@ -535,8 +516,8 @@ bool vtkRenderedGraphRepresentation::GetColorVerticesByArray()
 void vtkRenderedGraphRepresentation::SetVertexColorArrayName(const char* name)
 {
   this->SetVertexColorArrayNameInternal(name);
-  this->ApplyColors->SetInputArrayToProcess(0, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  this->ApplyColors->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
   this->VertexScalarBar->GetScalarBarActor()->SetTitle(name);
 }
 
@@ -558,8 +539,7 @@ bool vtkRenderedGraphRepresentation::GetColorEdgesByArray()
 void vtkRenderedGraphRepresentation::SetEdgeColorArrayName(const char* name)
 {
   this->SetEdgeColorArrayNameInternal(name);
-  this->ApplyColors->SetInputArrayToProcess(1, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_EDGES, name);
+  this->ApplyColors->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_EDGES, name);
   this->EdgeScalarBar->GetScalarBarActor()->SetTitle(name);
 }
 
@@ -663,7 +643,7 @@ void vtkRenderedGraphRepresentation::SetVertexScalarBarVisibility(bool b)
 
 bool vtkRenderedGraphRepresentation::GetVertexScalarBarVisibility()
 {
-  return this->VertexScalarBar->GetScalarBarActor()->GetVisibility() ? true : false;
+  return this->VertexScalarBar->GetScalarBarActor()->GetVisibility() != 0;
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeScalarBarVisibility(bool b)
@@ -673,7 +653,7 @@ void vtkRenderedGraphRepresentation::SetEdgeScalarBarVisibility(bool b)
 
 bool vtkRenderedGraphRepresentation::GetEdgeScalarBarVisibility()
 {
-  return this->EdgeScalarBar->GetScalarBarActor()->GetVisibility() ? true : false;
+  return this->EdgeScalarBar->GetScalarBarActor()->GetVisibility() != 0;
 }
 
 vtkScalarBarWidget* vtkRenderedGraphRepresentation::GetVertexScalarBar()
@@ -688,7 +668,7 @@ vtkScalarBarWidget* vtkRenderedGraphRepresentation::GetEdgeScalarBar()
 
 bool vtkRenderedGraphRepresentation::IsLayoutComplete()
 {
-  return this->Layout->IsLayoutComplete() ? true : false;
+  return this->Layout->IsLayoutComplete() != 0;
 }
 
 void vtkRenderedGraphRepresentation::UpdateLayout()
@@ -831,9 +811,7 @@ void vtkRenderedGraphRepresentation::SetLayoutStrategy(const char* name)
 }
 
 void vtkRenderedGraphRepresentation::SetLayoutStrategyToAssignCoordinates(
-  const char* xarr,
-  const char* yarr,
-  const char* zarr)
+  const char* xarr, const char* yarr, const char* zarr)
 {
   vtkAssignCoordinatesLayoutStrategy* s =
     vtkAssignCoordinatesLayoutStrategy::SafeDownCast(this->GetLayoutStrategy());
@@ -849,13 +827,9 @@ void vtkRenderedGraphRepresentation::SetLayoutStrategyToAssignCoordinates(
 }
 
 void vtkRenderedGraphRepresentation::SetLayoutStrategyToTree(
-  bool radial,
-  double angle,
-  double leafSpacing,
-  double logSpacing)
+  bool radial, double angle, double leafSpacing, double logSpacing)
 {
-  vtkTreeLayoutStrategy* s =
-    vtkTreeLayoutStrategy::SafeDownCast(this->GetLayoutStrategy());
+  vtkTreeLayoutStrategy* s = vtkTreeLayoutStrategy::SafeDownCast(this->GetLayoutStrategy());
   if (!s)
   {
     s = vtkTreeLayoutStrategy::New();
@@ -869,10 +843,7 @@ void vtkRenderedGraphRepresentation::SetLayoutStrategyToTree(
 }
 
 void vtkRenderedGraphRepresentation::SetLayoutStrategyToCosmicTree(
-  const char* nodeSizeArrayName,
-  bool sizeLeafNodesOnly,
-  int layoutDepth,
-  vtkIdType layoutRoot)
+  const char* nodeSizeArrayName, bool sizeLeafNodesOnly, int layoutDepth, vtkIdType layoutRoot)
 {
   vtkCosmicTreeLayoutStrategy* s =
     vtkCosmicTreeLayoutStrategy::SafeDownCast(this->GetLayoutStrategy());
@@ -948,8 +919,7 @@ void vtkRenderedGraphRepresentation::SetEdgeLayoutStrategy(const char* name)
 
 void vtkRenderedGraphRepresentation::SetEdgeLayoutStrategyToGeo(double explodeFactor)
 {
-  vtkGeoEdgeStrategy* s =
-    vtkGeoEdgeStrategy::SafeDownCast(this->GetLayoutStrategy());
+  vtkGeoEdgeStrategy* s = vtkGeoEdgeStrategy::SafeDownCast(this->GetLayoutStrategy());
   if (!s)
   {
     s = vtkGeoEdgeStrategy::New();
@@ -978,8 +948,8 @@ bool vtkRenderedGraphRepresentation::AddToView(vtkView* view)
     rv->GetRenderer()->AddActor(this->VertexIconActor);
     rv->AddLabels(this->VertexLabelHierarchy->GetOutputPort());
     rv->AddLabels(this->EdgeLabelHierarchy->GetOutputPort());
-    //rv->AddIcons(this->VertexIconPriority->GetOutputPort());
-    //rv->AddIcons(this->EdgeIconPriority->GetOutputPort());
+    // rv->AddIcons(this->VertexIconPriority->GetOutputPort());
+    // rv->AddIcons(this->EdgeIconPriority->GetOutputPort());
     rv->RegisterProgress(this->Layout);
     rv->RegisterProgress(this->EdgeCenters);
     rv->RegisterProgress(this->GraphToPoints);
@@ -1014,8 +984,8 @@ bool vtkRenderedGraphRepresentation::RemoveFromView(vtkView* view)
     rv->GetRenderer()->RemoveActor(this->VertexIconActor);
     rv->RemoveLabels(this->VertexLabelHierarchy->GetOutputPort());
     rv->RemoveLabels(this->EdgeLabelHierarchy->GetOutputPort());
-    //rv->RemoveIcons(this->VertexIcons->GetOutputPort());
-    //rv->RemoveIcons(this->EdgeIcons->GetOutputPort());
+    // rv->RemoveIcons(this->VertexIcons->GetOutputPort());
+    // rv->RemoveIcons(this->EdgeIcons->GetOutputPort());
     rv->UnRegisterProgress(this->Layout);
     rv->UnRegisterProgress(this->EdgeCenters);
     rv->UnRegisterProgress(this->GraphToPoints);
@@ -1039,8 +1009,7 @@ void vtkRenderedGraphRepresentation::PrepareForRendering(vtkRenderView* view)
   this->Superclass::PrepareForRendering(view);
 
   this->VertexIconActor->SetTexture(view->GetIconTexture());
-  if (this->VertexIconActor->GetTexture() &&
-      this->VertexIconActor->GetTexture()->GetInput())
+  if (this->VertexIconActor->GetTexture() && this->VertexIconActor->GetTexture()->GetInput())
   {
     this->VertexIconGlyph->SetIconSize(view->GetIconSize());
     this->VertexIconGlyph->SetDisplaySize(view->GetDisplaySize());
@@ -1060,10 +1029,8 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
 {
   // Search for selection nodes relating to the vertex and edges
   // of the graph.
-  vtkSmartPointer<vtkSelectionNode> vertexNode =
-    vtkSmartPointer<vtkSelectionNode>::New();
-  vtkSmartPointer<vtkSelectionNode> edgeNode =
-    vtkSmartPointer<vtkSelectionNode>::New();
+  vtkSmartPointer<vtkSelectionNode> vertexNode = vtkSmartPointer<vtkSelectionNode>::New();
+  vtkSmartPointer<vtkSelectionNode> edgeNode = vtkSmartPointer<vtkSelectionNode>::New();
   bool foundEdgeNode = false;
 
   if (sel->GetNumberOfNodes() > 0)
@@ -1071,8 +1038,7 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
     for (unsigned int i = 0; i < sel->GetNumberOfNodes(); ++i)
     {
       vtkSelectionNode* node = sel->GetNode(i);
-      vtkProp* prop = vtkProp::SafeDownCast(
-        node->GetProperties()->Get(vtkSelectionNode::PROP()));
+      vtkProp* prop = vtkProp::SafeDownCast(node->GetProperties()->Get(vtkSelectionNode::PROP()));
       if (node->GetContentType() == vtkSelectionNode::FRUSTUM)
       {
         // A frustum selection can be used to select vertices and edges.
@@ -1116,25 +1082,22 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
     // First, convert the cell selection on the polydata to
     // a pedigree ID selection (or index selection if there are no
     // pedigree IDs).
-    vtkSmartPointer<vtkSelection> vertexSel =
-      vtkSmartPointer<vtkSelection>::New();
+    vtkSmartPointer<vtkSelection> vertexSel = vtkSmartPointer<vtkSelection>::New();
     vertexSel->AddNode(vertexNode);
 
-    vtkPolyData* poly = vtkPolyData::SafeDownCast(
-      this->VertexGlyph->GetOutput());
-    vtkSmartPointer<vtkTable> temp =
-      vtkSmartPointer<vtkTable>::New();
+    vtkPolyData* poly = vtkPolyData::SafeDownCast(this->VertexGlyph->GetOutput());
+    vtkSmartPointer<vtkTable> temp = vtkSmartPointer<vtkTable>::New();
     temp->SetRowData(vtkPolyData::SafeDownCast(poly)->GetCellData());
     vtkSelection* polyConverted = nullptr;
     if (poly->GetCellData()->GetPedigreeIds())
     {
-      polyConverted = vtkConvertSelection::ToSelectionType(
-        vertexSel, poly, vtkSelectionNode::PEDIGREEIDS);
+      polyConverted =
+        vtkConvertSelection::ToSelectionType(vertexSel, poly, vtkSelectionNode::PEDIGREEIDS);
     }
     else
     {
-      polyConverted = vtkConvertSelection::ToSelectionType(
-        vertexSel, poly, vtkSelectionNode::INDICES);
+      polyConverted =
+        vtkConvertSelection::ToSelectionType(vertexSel, poly, vtkSelectionNode::INDICES);
     }
 
     // Now that we have a pedigree or index selection, interpret this
@@ -1150,26 +1113,22 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
     // For all output selection nodes, select all the edges among selected vertices.
     for (unsigned int i = 0; i < vertexConverted->GetNumberOfNodes(); ++i)
     {
-      if ((vertexConverted->GetNode(i)->GetSelectionList()->
-          GetNumberOfTuples() > 0) && (input->GetNumberOfEdges()) > 0)
+      if ((vertexConverted->GetNode(i)->GetSelectionList()->GetNumberOfTuples() > 0) &&
+        (input->GetNumberOfEdges()) > 0)
       {
         // Get the list of selected vertices.
         selectedVerticesFound = true;
-        vtkSmartPointer<vtkIdTypeArray> selectedVerts =
-          vtkSmartPointer<vtkIdTypeArray>::New();
-        vtkConvertSelection::GetSelectedVertices(
-          vertexConverted, input, selectedVerts);
+        vtkSmartPointer<vtkIdTypeArray> selectedVerts = vtkSmartPointer<vtkIdTypeArray>::New();
+        vtkConvertSelection::GetSelectedVertices(vertexConverted, input, selectedVerts);
 
-        if( this->EdgeSelection )
+        if (this->EdgeSelection)
         {
           // Get the list of induced edges on these vertices.
-          vtkSmartPointer<vtkIdTypeArray> selectedEdges =
-            vtkSmartPointer<vtkIdTypeArray>::New();
+          vtkSmartPointer<vtkIdTypeArray> selectedEdges = vtkSmartPointer<vtkIdTypeArray>::New();
           input->GetInducedEdges(selectedVerts, selectedEdges);
 
           // Create an edge index selection containing the induced edges.
-          vtkSmartPointer<vtkSelection> edgeSelection =
-            vtkSmartPointer<vtkSelection>::New();
+          vtkSmartPointer<vtkSelection> edgeSelection = vtkSmartPointer<vtkSelection>::New();
           vtkSmartPointer<vtkSelectionNode> edgeSelectionNode =
             vtkSmartPointer<vtkSelectionNode>::New();
           edgeSelectionNode->SetSelectionList(selectedEdges);
@@ -1204,21 +1163,19 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
     // First, convert the cell selection on the polydata to
     // a pedigree ID selection (or index selection if there are no
     // pedigree IDs).
-    vtkSmartPointer<vtkSelection> edgeSel =
-      vtkSmartPointer<vtkSelection>::New();
+    vtkSmartPointer<vtkSelection> edgeSel = vtkSmartPointer<vtkSelection>::New();
     edgeSel->AddNode(edgeNode);
-    vtkPolyData* poly = vtkPolyData::SafeDownCast(
-      this->GraphToPoly->GetOutput());
+    vtkPolyData* poly = vtkPolyData::SafeDownCast(this->GraphToPoly->GetOutput());
     vtkSelection* polyConverted = nullptr;
     if (poly->GetCellData()->GetPedigreeIds())
     {
-      polyConverted = vtkConvertSelection::ToSelectionType(
-        edgeSel, poly, vtkSelectionNode::PEDIGREEIDS);
+      polyConverted =
+        vtkConvertSelection::ToSelectionType(edgeSel, poly, vtkSelectionNode::PEDIGREEIDS);
     }
     else
     {
-      polyConverted = vtkConvertSelection::ToSelectionType(
-        edgeSel, poly, vtkSelectionNode::INDICES);
+      polyConverted =
+        vtkConvertSelection::ToSelectionType(edgeSel, poly, vtkSelectionNode::INDICES);
     }
 
     // Now that we have a pedigree or index selection, interpret this
@@ -1245,9 +1202,7 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
 }
 
 int vtkRenderedGraphRepresentation::RequestData(
-  vtkInformation*,
-  vtkInformationVector**,
-  vtkInformationVector*)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
   this->Layout->SetInputConnection(this->GetInternalOutputPort());
   this->ApplyColors->SetInputConnection(1, this->GetInternalAnnotationOutputPort());
@@ -1296,19 +1251,19 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   }
 
   this->GetVertexLabelTextProperty()->ShallowCopy(theme->GetPointTextProperty());
-  this->GetVertexLabelTextProperty()->SetLineOffset(-2*baseSize);
+  this->GetVertexLabelTextProperty()->SetLineOffset(-2 * baseSize);
   this->GetEdgeLabelTextProperty()->ShallowCopy(theme->GetCellTextProperty());
 
   // Moronic hack.. the circles seem to be really small so make them bigger
   if (this->VertexGlyph->GetGlyphType() == vtkGraphToGlyphs::CIRCLE)
   {
-      this->VertexGlyph->SetScreenSize(baseSize*2+1);
-      this->OutlineGlyph->SetScreenSize(baseSize*2+1);
+    this->VertexGlyph->SetScreenSize(baseSize * 2 + 1);
+    this->OutlineGlyph->SetScreenSize(baseSize * 2 + 1);
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6] )
+//------------------------------------------------------------------------------
+void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6])
 {
   // Bring the graph up to date
   this->Layout->Update();
@@ -1328,7 +1283,7 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
   vtkSmartPointer<vtkIdTypeArray> edgeList = vtkSmartPointer<vtkIdTypeArray>::New();
   bool hasEdges = false;
   vtkSmartPointer<vtkIdTypeArray> vertexList = vtkSmartPointer<vtkIdTypeArray>::New();
-  for( unsigned int m = 0; m < converted->GetNumberOfNodes(); ++m)
+  for (unsigned int m = 0; m < converted->GetNumberOfNodes(); ++m)
   {
     vtkSelectionNode* node = converted->GetNode(m);
     vtkIdTypeArray* list = nullptr;
@@ -1351,9 +1306,9 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
         int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());
         if (inverse)
         {
-          vtkIdType num =
-            (node->GetFieldType() == vtkSelectionNode::VERTEX) ?
-            data->GetNumberOfVertices() : data->GetNumberOfEdges();
+          vtkIdType num = (node->GetFieldType() == vtkSelectionNode::VERTEX)
+            ? data->GetNumberOfVertices()
+            : data->GetNumberOfEdges();
           for (vtkIdType j = 0; j < num; ++j)
           {
             if (curList->LookupValue(j) < 0 && list->LookupValue(j) < 0)
@@ -1375,14 +1330,14 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
           }
         }
       } // end if (curList)
-    } // end if (list)
-  } // end for each child
+    }   // end if (list)
+  }     // end for each child
 
   vtkIdType i;
-  if(hasEdges)
+  if (hasEdges)
   {
     vtkIdType numSelectedEdges = edgeList->GetNumberOfTuples();
-    for( i = 0; i < numSelectedEdges; ++i)
+    for (i = 0; i < numSelectedEdges; ++i)
     {
       vtkIdType eid = edgeList->GetValue(i);
       vertexList->InsertNextValue(data->GetSourceVertex(eid));
@@ -1429,7 +1384,7 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
   }
 }
 
-vtkUnicodeString vtkRenderedGraphRepresentation::GetHoverTextInternal(vtkSelection* sel)
+std::string vtkRenderedGraphRepresentation::GetHoverStringInternal(vtkSelection* sel)
 {
   vtkGraph* input = vtkGraph::SafeDownCast(this->GetInput());
   vtkSmartPointer<vtkIdTypeArray> selectedItems = vtkSmartPointer<vtkIdTypeArray>::New();
@@ -1444,30 +1399,35 @@ vtkUnicodeString vtkRenderedGraphRepresentation::GetHoverTextInternal(vtkSelecti
   }
   if (selectedItems->GetNumberOfTuples() == 0 || !hoverArrName)
   {
-    return vtkUnicodeString();
+    return "";
   }
   vtkAbstractArray* arr = data->GetAbstractArray(hoverArrName);
   if (!arr)
   {
-    return vtkUnicodeString();
+    return "";
   }
   vtkIdType item = selectedItems->GetValue(0);
-  return arr->GetVariantValue(item).ToUnicodeString();
+  return arr->GetVariantValue(item).ToString();
 }
 
 void vtkRenderedGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "LayoutStrategyName: "
-     << (this->LayoutStrategyName ? this->LayoutStrategyName : "(none)") << endl;
+  os << indent
+     << "LayoutStrategyName: " << (this->LayoutStrategyName ? this->LayoutStrategyName : "(none)")
+     << endl;
   os << indent << "EdgeLayoutStrategyName: "
      << (this->EdgeLayoutStrategyName ? this->EdgeLayoutStrategyName : "(none)") << endl;
   os << indent << "VertexHoverArrayName: "
      << (this->VertexHoverArrayName ? this->VertexHoverArrayName : "(none)") << endl;
-  os << indent << "EdgeHoverArrayName: "
-     << (this->EdgeHoverArrayName ? this->EdgeHoverArrayName : "(none)") << endl;
-  os << indent << "HideVertexLabelsOnInteraction: "
-     << (this->HideVertexLabelsOnInteraction ? "On" : "Off") << endl;
-  os << indent << "HideEdgeLabelsOnInteraction: "
-     << (this->HideEdgeLabelsOnInteraction ? "On" : "Off") << endl;
+  os << indent
+     << "EdgeHoverArrayName: " << (this->EdgeHoverArrayName ? this->EdgeHoverArrayName : "(none)")
+     << endl;
+  os << indent
+     << "HideVertexLabelsOnInteraction: " << (this->HideVertexLabelsOnInteraction ? "On" : "Off")
+     << endl;
+  os << indent
+     << "HideEdgeLabelsOnInteraction: " << (this->HideEdgeLabelsOnInteraction ? "On" : "Off")
+     << endl;
 }
+VTK_ABI_NAMESPACE_END

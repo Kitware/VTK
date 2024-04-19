@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLogger.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkLogger
  * @brief logging framework for use in VTK and in applications based on VTK
@@ -49,6 +37,27 @@
  * that, use `vtkLogger::SetThreadName`. Calling `vtkLogger::Init` will set the name
  * for the main thread.
  *
+ * You can choose to turn on signal handlers for intercepting signals. By default,
+ * all signal handlers are disabled. The following is a list of signal handlers
+ * and the corresponding static variable that can be used to enable/disable each
+ * signal handler.
+ *
+ * - SIGABRT - `vtkLogger::EnableSigabrtHandler`
+ * - SIGBUS - `vtkLogger::EnableSigbusHandler`
+ * - SIGFPE - `vtkLogger::EnableSigfpeHandler`
+ * - SIGILL - `vtkLogger::EnableSigillHandler`
+ * - SIGINT - `vtkLogger::EnableSigintHandler`
+ * - SIGSEGV - `vtkLogger::EnableSigsegvHandler`
+ * - SIGTERM - `vtkLogger::EnableSigtermHandler`
+ *
+ * To enable any of these signal handlers, set their value to `true` prior to calling
+ * `vtkLogger::Init(argc, argv)` or `vtkLogger::Init()`.
+ *
+ * When signal handlers are enabled,
+ * to prevent the logging framework from intercepting signals from your application,
+ * you can set the static variable `vtkLogger::EnableUnsafeSignalHandler` to `false`
+ * prior to calling `vtkLogger::Init(argc, argv)` or `vtkLogger::Init()`.
+ *
  * @section Logging Logging
  *
  * vtkLogger provides several macros (again, based on `loguru`) that can be
@@ -64,6 +73,11 @@
  * usage.
  *
  * @code{.cpp}
+ *
+ *  // Optional, leaving this as the default value `true` will let the logging
+ *  // framework log signals such as segmentation faults.
+ *
+ *  vtkLogger::EnableUnsafeSignalHandler = false;
  *
  *  // Optional, but useful to time-stamp the start of the log.
  *  // Will also detect verbosity level on the command line as -v.
@@ -147,23 +161,25 @@
 #include <string> // needed for std::string
 
 #if defined(_MSC_VER)
-#include <sal.h>	// Needed for _In_z_ etc annotations
+#include <sal.h> // Needed for _In_z_ etc annotations
 #endif
 
 // this is copied from `loguru.hpp`
 #if defined(__clang__) || defined(__GNUC__)
-  // Helper macro for declaring functions as having similar signature to printf.
-  // This allows the compiler to catch format errors at compile-time.
-  #define VTK_PRINTF_LIKE(fmtarg, firstvararg) __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
-  #define VTK_FORMAT_STRING_TYPE const char*
+// Helper macro for declaring functions as having similar signature to printf.
+// This allows the compiler to catch format errors at compile-time.
+#define VTK_PRINTF_LIKE(fmtarg, firstvararg)                                                       \
+  __attribute__((__format__(__printf__, fmtarg, firstvararg)))
+#define VTK_FORMAT_STRING_TYPE const char*
 #elif defined(_MSC_VER)
-  #define VTK_PRINTF_LIKE(fmtarg, firstvararg)
-  #define VTK_FORMAT_STRING_TYPE _In_z_ _Printf_format_string_ const char*
+#define VTK_PRINTF_LIKE(fmtarg, firstvararg)
+#define VTK_FORMAT_STRING_TYPE _In_z_ _Printf_format_string_ const char*
 #else
-  #define VTK_PRINTF_LIKE(fmtarg, firstvararg)
-  #define VTK_FORMAT_STRING_TYPE const char*
+#define VTK_PRINTF_LIKE(fmtarg, firstvararg)
+#define VTK_FORMAT_STRING_TYPE const char*
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkLogger : public vtkObjectBase
 {
 public:
@@ -235,6 +251,11 @@ public:
    * You can also use something else instead of '-v' flag by the via
    * `verbosity_flag` argument. You can also set to nullptr to skip parsing
    * verbosity level from the command line arguments.
+   *
+   * For applications that do not want loguru to handle any signals, i.e.,
+   * print a stack trace when a signal is intercepted, the
+   * `vtkLogger::EnableUnsafeSignalHandler` static member variable
+   * should be set to `false`.
    * @{
    */
   static void Init(int& argc, char* argv[], const char* verbosity_flag = "-v");
@@ -248,6 +269,14 @@ public:
    * Default is 0.
    */
   static void SetStderrVerbosity(Verbosity level);
+
+  /**
+   * Set internal messages verbosity level. The library used by VTK, `loguru`
+   * generates log messages during initialization and at exit. These are logged
+   * as log level VERBOSITY_1, by default. One can change that using this
+   * method. Typically, you want to call this before `vtkLogger::Init`.
+   */
+  static void SetInternalVerbosityLevel(Verbosity level);
 
   /**
    * Support log file modes: `TRUNCATE` truncates the file clearing any existing
@@ -272,13 +301,13 @@ public:
    */
   static void EndLogToFile(const char* path);
 
-  //@{
+  ///@{
   /**
    * Get/Set the name to identify the current thread in the log output.
    */
   static void SetThreadName(const std::string& name);
   static std::string GetThreadName();
-  //@}
+  ///@}
 
   /**
    * Returns a printable string for a vtkObjectBase instance.
@@ -302,14 +331,14 @@ public:
     const char* message;     // User message goes here.
   };
 
-  //@{
+  ///@{
   /**
    * Callback handle types.
    */
   using LogHandlerCallbackT = void (*)(void* user_data, const Message& message);
   using CloseHandlerCallbackT = void (*)(void* user_data);
   using FlushHandlerCallbackT = void (*)(void* user_data);
-  //@}
+  ///@}
 
   /**
    * Add a callback to call on each log message with a  verbosity less or equal
@@ -320,11 +349,8 @@ public:
    * Note that if logging is disabled at compile time, then these callback will
    * never be called.
    */
-  static void AddCallback(const char* id,
-    LogHandlerCallbackT callback,
-    void* user_data,
-    Verbosity verbosity,
-    CloseHandlerCallbackT on_close = nullptr,
+  static void AddCallback(const char* id, LogHandlerCallbackT callback, void* user_data,
+    Verbosity verbosity, CloseHandlerCallbackT on_close = nullptr,
     FlushHandlerCallbackT on_flush = nullptr);
 
   /**
@@ -359,22 +385,23 @@ public:
    * Accepted string values are OFF, ERROR, WARNING, INFO, TRACE, MAX, INVALID or ASCII
    * representation for an integer in the range [-9,9].
    */
-  static Verbosity ConvertToVerbosity(const char* value);
+  static Verbosity ConvertToVerbosity(const char* text);
 
-  //@{
+  ///@{
   /**
    * @internal
    *
    * Not intended for public use, please use the logging macros instead.
    */
-  static void Log(Verbosity verbosity, const char* fname, unsigned int lineno, const char* txt);
+  static void Log(
+    Verbosity verbosity, VTK_FILEPATH const char* fname, unsigned int lineno, const char* txt);
   static void StartScope(
-    Verbosity verbosity, const char* id, const char* fname, unsigned int lineno);
+    Verbosity verbosity, const char* id, VTK_FILEPATH const char* fname, unsigned int lineno);
   static void EndScope(const char* id);
 #if !defined(__WRAP__)
-  static void LogF(Verbosity verbosity, const char* fname, unsigned int lineno,
-      VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(4, 5);
-  static void StartScopeF(Verbosity verbosity, const char* id, const char* fname,
+  static void LogF(Verbosity verbosity, VTK_FILEPATH const char* fname, unsigned int lineno,
+    VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(4, 5);
+  static void StartScopeF(Verbosity verbosity, const char* id, VTK_FILEPATH const char* fname,
     unsigned int lineno, VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(5, 6);
 
   class VTKCOMMONCORE_EXPORT LogScopeRAII
@@ -386,7 +413,8 @@ public:
     ~LogScopeRAII();
 #if defined(_MSC_VER) && _MSC_VER > 1800
     // see loguru.hpp for the reason why this is needed on MSVC
-    LogScopeRAII(LogScopeRAII&& other) : Internals(other.Internals)
+    LogScopeRAII(LogScopeRAII&& other)
+      : Internals(other.Internals)
     {
       other.Internals = nullptr;
     }
@@ -401,7 +429,22 @@ public:
     LSInternals* Internals;
   };
 #endif
-  //@}
+  ///@}
+
+  /**
+   * Flag to enable/disable the logging frameworks printing of a stack trace
+   * when catching signals, which could lead to crashes and deadlocks in
+   * certain circumstances.
+   */
+  static bool EnableUnsafeSignalHandler;
+  static bool EnableSigabrtHandler;
+  static bool EnableSigbusHandler;
+  static bool EnableSigfpeHandler;
+  static bool EnableSigillHandler;
+  static bool EnableSigintHandler;
+  static bool EnableSigsegvHandler;
+  static bool EnableSigtermHandler;
+
 protected:
   vtkLogger();
   ~vtkLogger() override;
@@ -409,9 +452,10 @@ protected:
 private:
   vtkLogger(const vtkLogger&) = delete;
   void operator=(const vtkLogger&) = delete;
+  static vtkLogger::Verbosity InternalVerbosityLevel;
 };
 
-//@{
+///@{
 /**
  * Add to log given the verbosity level.
  * The text will be logged when the log verbosity is set to the specified level
@@ -432,19 +476,22 @@ private:
     : vtkLogger::LogF(level, __FILE__, __LINE__, __VA_ARGS__)
 #define vtkLogF(verbosity_name, ...) vtkVLogF(vtkLogger::VERBOSITY_##verbosity_name, __VA_ARGS__)
 #define vtkVLog(level, x)                                                                          \
-  if ((level) <= vtkLogger::GetCurrentVerbosityCutoff())                                           \
+  do                                                                                               \
   {                                                                                                \
-    vtkOStrStreamWrapper::EndlType endl;                                                           \
-    vtkOStrStreamWrapper::UseEndl(endl);                                                           \
-    vtkOStrStreamWrapper vtkmsg;                                                                   \
-    vtkmsg << "" x;                                                                                \
-    vtkLogger::Log(level, __FILE__, __LINE__, vtkmsg.str());                                       \
-    vtkmsg.rdbuf()->freeze(0);                                                                     \
-  }
+    if ((level) <= vtkLogger::GetCurrentVerbosityCutoff())                                         \
+    {                                                                                              \
+      vtkOStrStreamWrapper::EndlType const endl;                                                   \
+      vtkOStrStreamWrapper::UseEndl(endl);                                                         \
+      vtkOStrStreamWrapper vtkmsg;                                                                 \
+      vtkmsg << "" x;                                                                              \
+      vtkLogger::Log(level, __FILE__, __LINE__, vtkmsg.str());                                     \
+      vtkmsg.rdbuf()->freeze(0);                                                                   \
+    }                                                                                              \
+  } while (false)
 #define vtkLog(verbosity_name, x) vtkVLog(vtkLogger::VERBOSITY_##verbosity_name, x)
-//@}
+///@}
 
-//@{
+///@{
 /**
  * Add to log only when the `cond` passes.
  *
@@ -466,17 +513,20 @@ private:
   vtkVLogIfF(vtkLogger::VERBOSITY_##verbosity_name, cond, __VA_ARGS__)
 
 #define vtkVLogIf(level, cond, x)                                                                  \
-  if ((level) <= vtkLogger::GetCurrentVerbosityCutoff() && (cond))                                 \
+  do                                                                                               \
   {                                                                                                \
-    vtkOStrStreamWrapper::EndlType endl;                                                           \
-    vtkOStrStreamWrapper::UseEndl(endl);                                                           \
-    vtkOStrStreamWrapper vtkmsg;                                                                   \
-    vtkmsg << "" x;                                                                                \
-    vtkLogger::Log(level, __FILE__, __LINE__, vtkmsg.str());                                       \
-    vtkmsg.rdbuf()->freeze(0);                                                                     \
-  }
+    if ((level) <= vtkLogger::GetCurrentVerbosityCutoff() && (cond))                               \
+    {                                                                                              \
+      vtkOStrStreamWrapper::EndlType endl;                                                         \
+      vtkOStrStreamWrapper::UseEndl(endl);                                                         \
+      vtkOStrStreamWrapper vtkmsg;                                                                 \
+      vtkmsg << "" x;                                                                              \
+      vtkLogger::Log(level, __FILE__, __LINE__, vtkmsg.str());                                     \
+      vtkmsg.rdbuf()->freeze(0);                                                                   \
+    }                                                                                              \
+  } while (false)
 #define vtkLogIf(verbosity_name, cond, x) vtkVLogIf(vtkLogger::VERBOSITY_##verbosity_name, cond, x)
-//@}
+///@}
 
 #define VTKLOG_CONCAT_IMPL(s1, s2) s1##s2
 #define VTKLOG_CONCAT(s1, s2) VTKLOG_CONCAT_IMPL(s1, s2)
@@ -490,10 +540,10 @@ private:
 #define vtkLogScopeF(verbosity_name, ...)                                                          \
   vtkVLogScopeF(vtkLogger::VERBOSITY_##verbosity_name, __VA_ARGS__)
 
-#define vtkLogScopeFunction(verbosity_name) vtkLogScopeF(verbosity_name, __func__)
-#define vtkVLogScopeFunction(level) vtkVLogScopeF(level, __func__)
+#define vtkLogScopeFunction(verbosity_name) vtkLogScopeF(verbosity_name, "%s", __func__)
+#define vtkVLogScopeFunction(level) vtkVLogScopeF(level, "%s", __func__)
 
-//@{
+///@{
 /**
  * Explicitly mark start and end of log scope. This is useful in cases where the
  * start and end of the scope does not happen within the same C++ scope.
@@ -508,7 +558,7 @@ private:
 #define vtkVLogStartScope(level, id) vtkLogger::StartScope(level, id, __FILE__, __LINE__)
 #define vtkVLogStartScopeF(level, id, ...)                                                         \
   vtkLogger::StartScopeF(level, id, __FILE__, __LINE__, __VA_ARGS__)
-//@}
+///@}
 
 /**
  * Convenience macro to generate an identifier string for any vtkObjectBase subclass.
@@ -517,4 +567,5 @@ private:
  */
 #define vtkLogIdentifier(vtkobject) vtkLogger::GetIdentifier(vtkobject).c_str()
 
+VTK_ABI_NAMESPACE_END
 #endif

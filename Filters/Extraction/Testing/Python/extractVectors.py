@@ -1,74 +1,90 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkContourFilter,
+    vtkPolyDataNormals,
+    vtkStructuredGridOutlineFilter,
+)
+from vtkmodules.vtkFiltersExtraction import vtkExtractVectorComponents
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create pipeline
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
-pl3d.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-pl3d.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+pl3d = vtkMultiBlockPLOT3DReader()
+pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
 output = pl3d.GetOutput().GetBlock(0)
-vx = vtk.vtkExtractVectorComponents()
+vx = vtkExtractVectorComponents()
 vx.SetInputData(output)
 vx.Update()
-isoVx = vtk.vtkContourFilter()
+isoVx = vtkContourFilter()
 isoVx.SetInputData(vx.GetVxComponent())
 isoVx.SetValue(0,.38)
-normalsVx = vtk.vtkPolyDataNormals()
+normalsVx = vtkPolyDataNormals()
 normalsVx.SetInputConnection(isoVx.GetOutputPort())
 normalsVx.SetFeatureAngle(45)
-isoVxMapper = vtk.vtkPolyDataMapper()
+isoVxMapper = vtkPolyDataMapper()
 isoVxMapper.SetInputConnection(normalsVx.GetOutputPort())
 isoVxMapper.ScalarVisibilityOff()
-isoVxActor = vtk.vtkActor()
+isoVxActor = vtkActor()
 isoVxActor.SetMapper(isoVxMapper)
 isoVxActor.GetProperty().SetColor(1,0.7,0.6)
-vy = vtk.vtkExtractVectorComponents()
+vy = vtkExtractVectorComponents()
 vy.SetInputData(output)
 vy.Update()
-isoVy = vtk.vtkContourFilter()
+isoVy = vtkContourFilter()
 isoVy.SetInputData(vy.GetVyComponent())
 isoVy.SetValue(0,.38)
-normalsVy = vtk.vtkPolyDataNormals()
+normalsVy = vtkPolyDataNormals()
 normalsVy.SetInputConnection(isoVy.GetOutputPort())
 normalsVy.SetFeatureAngle(45)
-isoVyMapper = vtk.vtkPolyDataMapper()
+isoVyMapper = vtkPolyDataMapper()
 isoVyMapper.SetInputConnection(normalsVy.GetOutputPort())
 isoVyMapper.ScalarVisibilityOff()
-isoVyActor = vtk.vtkActor()
+isoVyActor = vtkActor()
 isoVyActor.SetMapper(isoVyMapper)
 isoVyActor.GetProperty().SetColor(0.7,1,0.6)
-vz = vtk.vtkExtractVectorComponents()
+vz = vtkExtractVectorComponents()
 vz.SetInputData(output)
 vz.Update()
-isoVz = vtk.vtkContourFilter()
+isoVz = vtkContourFilter()
 isoVz.SetInputData(vz.GetVzComponent())
 isoVz.SetValue(0,.38)
-normalsVz = vtk.vtkPolyDataNormals()
+normalsVz = vtkPolyDataNormals()
 normalsVz.SetInputConnection(isoVz.GetOutputPort())
 normalsVz.SetFeatureAngle(45)
-isoVzMapper = vtk.vtkPolyDataMapper()
+isoVzMapper = vtkPolyDataMapper()
 isoVzMapper.SetInputConnection(normalsVz.GetOutputPort())
 isoVzMapper.ScalarVisibilityOff()
-isoVzActor = vtk.vtkActor()
+isoVzActor = vtkActor()
 isoVzActor.SetMapper(isoVzMapper)
 isoVzActor.GetProperty().SetColor(0.4,0.5,1)
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 outline.SetInputData(output)
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 # Add the actors to the renderer, set the background and size
 #

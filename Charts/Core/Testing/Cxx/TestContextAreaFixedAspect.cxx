@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestContextAreaFixedAspect.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkPropItem.h"
 
@@ -31,22 +19,21 @@
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRect.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStripper.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
-//----------------------------------------------------------------------------
-int TestContextAreaFixedAspect(int argc, char *argv[])
+//------------------------------------------------------------------------------
+int TestContextAreaFixedAspect(int argc, char* argv[])
 {
   // Prepare some data for plotting:
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");
   vtkNew<vtkDEMReader> demReader;
   demReader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   // Get dataset metadata:
   demReader->Update();
@@ -116,8 +103,8 @@ int TestContextAreaFixedAspect(int argc, char *argv[])
   view->GetInteractor()->Initialize();
 
   vtkNew<vtkContextArea> area;
-  area->SetDrawAreaBounds(vtkRectd(bounds.GetBound(0), bounds.GetBound(2),
-                                   bounds.GetLength(0), bounds.GetLength(1)));
+  area->SetDrawAreaBounds(
+    vtkRectd(bounds.GetBound(0), bounds.GetBound(2), bounds.GetLength(0), bounds.GetLength(1)));
   area->SetFixedAspect(bounds.GetLength(0) / bounds.GetLength(1));
 
   area->GetAxis(vtkAxis::TOP)->SetTitle("Top Axis");
@@ -127,7 +114,7 @@ int TestContextAreaFixedAspect(int argc, char *argv[])
 
   for (int i = 0; i < 4; ++i)
   {
-    vtkAxis *axis = area->GetAxis(static_cast<vtkAxis::Location>(i));
+    vtkAxis* axis = area->GetAxis(static_cast<vtkAxis::Location>(i));
     axis->GetLabelProperties()->SetColor(.6, .6, .9);
     axis->GetTitleProperties()->SetColor(.6, .6, .9);
     axis->GetPen()->SetColor(.6 * 255, .6 * 255, .9 * 255, 255);

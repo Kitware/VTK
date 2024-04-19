@@ -1,29 +1,13 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGeoMath.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkGeoMath
  * @brief   Useful geographic calculations
  *
  *
  * vtkGeoMath provides some useful geographic calculations.
-*/
+ */
 
 #ifndef vtkGeoMath_h
 #define vtkGeoMath_h
@@ -31,17 +15,18 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkGeoMath : public vtkObject
 {
 public:
-  static vtkGeoMath *New();
+  static vtkGeoMath* New();
   vtkTypeMacro(vtkGeoMath, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns the average radius of the earth in meters.
    */
-  static double EarthRadiusMeters() {return 6356750.0;}
+  static double EarthRadiusMeters() { return 6356750.0; }
 
   /**
    * Returns the squared distance between two points.
@@ -52,9 +37,9 @@ public:
    * Converts a (longitude, latitude, altitude) triple to
    * world coordinates where the center of the earth is at the origin.
    * Units are in meters.
-   * Note that having altitude realtive to sea level causes issues.
+   * Note that having altitude relative to sea level causes issues.
    */
-  static void   LongLatAltToRect(double lla[3], double rect[3]);
+  static void LongLatAltToRect(double longLatAlt[3], double rect[3]);
 
 protected:
   vtkGeoMath();
@@ -65,4 +50,5 @@ private:
   void operator=(const vtkGeoMath&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

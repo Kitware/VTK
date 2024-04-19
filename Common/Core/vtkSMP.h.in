@@ -1,0 +1,22 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#ifndef vtkSMP_h
+#define vtkSMP_h
+
+/* vtkSMPTools back-end */
+#define VTK_SMP_@VTK_SMP_IMPLEMENTATION_TYPE@
+#define VTK_SMP_BACKEND "@VTK_SMP_IMPLEMENTATION_TYPE@"
+
+// Preprocessor symbols which indicate the availability of backends.
+#cmakedefine01 VTK_SMP_ENABLE_OPENMP
+#cmakedefine01 VTK_SMP_ENABLE_SEQUENTIAL
+#cmakedefine01 VTK_SMP_ENABLE_STDTHREAD
+#cmakedefine01 VTK_SMP_ENABLE_TBB
+
+// Defines which indicate whether the default is a specific backend.
+#cmakedefine01 VTK_SMP_DEFAULT_IMPLEMENTATION_OPENMP
+#cmakedefine01 VTK_SMP_DEFAULT_IMPLEMENTATION_SEQUENTIAL
+#cmakedefine01 VTK_SMP_DEFAULT_IMPLEMENTATION_STDTHREAD
+#cmakedefine01 VTK_SMP_DEFAULT_IMPLEMENTATION_TBB
+
+#endif

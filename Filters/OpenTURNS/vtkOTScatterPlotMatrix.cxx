@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOTScatterPlotMatrix.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkOTScatterPlotMatrix.h"
 
@@ -38,6 +26,7 @@
 #include <vector>
 
 // Static density values for now
+VTK_ABI_NAMESPACE_BEGIN
 static const int nDensityValues = 3;
 static const double densityValues[3] = { 0.1, 0.5, 0.9 };
 
@@ -59,7 +48,7 @@ public:
         std::make_pair(densityValues[i], vtkColor4ub(r * 255, g * 255, b * 255)));
     }
   }
-  ~DensityMapSettings() {}
+  ~DensityMapSettings() = default;
 
   vtkNew<vtkPen> PlotPen;
   bool ShowDensityMap;
@@ -68,9 +57,9 @@ public:
   std::map<double, vtkColor4ub> DensityMapColorMap;
 };
 
-vtkStandardNewMacro(vtkOTScatterPlotMatrix)
+vtkStandardNewMacro(vtkOTScatterPlotMatrix);
 
-  vtkOTScatterPlotMatrix::vtkOTScatterPlotMatrix()
+vtkOTScatterPlotMatrix::vtkOTScatterPlotMatrix()
 {
   this->DensityMapsSettings[vtkScatterPlotMatrix::SCATTERPLOT] =
     new vtkOTScatterPlotMatrix::DensityMapSettings;
@@ -83,12 +72,9 @@ vtkOTScatterPlotMatrix::~vtkOTScatterPlotMatrix()
   delete this->DensityMapsSettings[vtkScatterPlotMatrix::ACTIVEPLOT];
 }
 
-//---------------------------------------------------------------------------
-void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
-  int plotType,
-  vtkStdString row,
-  vtkStdString column,
-  int plotCorner)
+//------------------------------------------------------------------------------
+void vtkOTScatterPlotMatrix::AddSupplementaryPlot(
+  vtkChart* chart, int plotType, vtkStdString row, vtkStdString column, int plotCorner)
 {
   vtkChartXY* xy = vtkChartXY::SafeDownCast(chart);
 
@@ -114,8 +100,8 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
     density->SetValue(0, 0.1);
     density->SetValue(1, 0.5);
     density->SetValue(2, 0.9);
-    density->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, row);
-    density->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, column);
+    density->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, row.c_str());
+    density->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, column.c_str());
     density->Update();
 
     // Iterate over multiblock output to drow the density maps
@@ -181,7 +167,7 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTScatterPlotMatrix::SetDensityMapVisibility(int plotType, bool visible)
 {
   if (plotType != NOPLOT && plotType != HISTOGRAM &&
@@ -196,7 +182,7 @@ void vtkOTScatterPlotMatrix::SetDensityMapVisibility(int plotType, bool visible)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTScatterPlotMatrix::SetDensityLineSize(int plotType, float size)
 {
   if (plotType != NOPLOT && plotType != HISTOGRAM &&
@@ -211,10 +197,9 @@ void vtkOTScatterPlotMatrix::SetDensityLineSize(int plotType, float size)
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkOTScatterPlotMatrix::SetDensityMapColor(int plotType,
-  unsigned int densityLineIndex,
-  const vtkColor4ub& color)
+//------------------------------------------------------------------------------
+void vtkOTScatterPlotMatrix::SetDensityMapColor(
+  int plotType, unsigned int densityLineIndex, const vtkColor4ub& color)
 {
   if (plotType != NOPLOT && plotType != HISTOGRAM &&
     densityLineIndex < this->DensityMapsSettings[plotType]->DensityMapValues.size())
@@ -232,19 +217,19 @@ void vtkOTScatterPlotMatrix::SetDensityMapColor(int plotType,
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTScatterPlotMatrix::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkScalarsToColors* vtkOTScatterPlotMatrix::GetTransferFunction()
 {
   return this->TransferFunction;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOTScatterPlotMatrix::SetTransferFunction(vtkScalarsToColors* stc)
 {
   if (this->TransferFunction.Get() != stc)
@@ -253,3 +238,4 @@ void vtkOTScatterPlotMatrix::SetTransferFunction(vtkScalarsToColors* stc)
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

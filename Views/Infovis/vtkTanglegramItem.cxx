@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTanglegramItem.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTanglegramItem.h"
 
 #include "vtkColorSeries.h"
@@ -32,9 +20,10 @@
 
 #include <queue>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTanglegramItem);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTanglegramItem::vtkTanglegramItem()
 {
   this->Dendrogram1 = vtkSmartPointer<vtkDendrogramItem>::New();
@@ -63,15 +52,15 @@ vtkTanglegramItem::vtkTanglegramItem()
   this->CorrespondenceLineWidth = 2.0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTanglegramItem::~vtkTanglegramItem()
 {
-  delete []this->Tree1Label;
-  delete []this->Tree2Label;
+  delete[] this->Tree1Label;
+  delete[] this->Tree2Label;
 }
 
-//-----------------------------------------------------------------------------
-void vtkTanglegramItem::SetTree1(vtkTree *tree)
+//------------------------------------------------------------------------------
+void vtkTanglegramItem::SetTree1(vtkTree* tree)
 {
   this->Dendrogram1->SetTree(tree);
   this->Dendrogram1->SetOrientation(this->Orientation);
@@ -79,8 +68,8 @@ void vtkTanglegramItem::SetTree1(vtkTree *tree)
   this->TreeReordered = false;
 }
 
-//-----------------------------------------------------------------------------
-void vtkTanglegramItem::SetTree2(vtkTree *tree)
+//------------------------------------------------------------------------------
+void vtkTanglegramItem::SetTree2(vtkTree* tree)
 {
   this->Dendrogram2->SetTree(tree);
   this->Dendrogram2->SetOrientation((this->Orientation + 2) % 4);
@@ -88,14 +77,14 @@ void vtkTanglegramItem::SetTree2(vtkTree *tree)
   this->TreeReordered = false;
 }
 
-//-----------------------------------------------------------------------------
-vtkTable * vtkTanglegramItem::GetTable()
+//------------------------------------------------------------------------------
+vtkTable* vtkTanglegramItem::GetTable()
 {
   return this->Table;
 }
 
-//-----------------------------------------------------------------------------
-void vtkTanglegramItem::SetTable(vtkTable *table)
+//------------------------------------------------------------------------------
+void vtkTanglegramItem::SetTable(vtkTable* table)
 {
   if (table == nullptr)
   {
@@ -109,8 +98,8 @@ void vtkTanglegramItem::SetTable(vtkTable *table)
   this->TreeReordered = false;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkTanglegramItem::Paint(vtkContext2D *painter)
+//------------------------------------------------------------------------------
+bool vtkTanglegramItem::Paint(vtkContext2D* painter)
 {
   this->RefreshBuffers(painter);
 
@@ -143,8 +132,8 @@ bool vtkTanglegramItem::Paint(vtkContext2D *painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
-void vtkTanglegramItem::RefreshBuffers(vtkContext2D *painter)
+//------------------------------------------------------------------------------
+void vtkTanglegramItem::RefreshBuffers(vtkContext2D* painter)
 {
   this->Dendrogram1->PrepareToPaint(painter);
   this->Spacing = this->Dendrogram1->GetLeafSpacing();
@@ -156,25 +145,23 @@ void vtkTanglegramItem::RefreshBuffers(vtkContext2D *painter)
   this->LabelWidth2 = this->Dendrogram2->GetLabelWidth();
 
   this->Tree1Names = vtkArrayDownCast<vtkStringArray>(
-    this->Dendrogram1->GetPrunedTree()->GetVertexData()->
-    GetAbstractArray("node name"));
+    this->Dendrogram1->GetPrunedTree()->GetVertexData()->GetAbstractArray("node name"));
 
   this->Tree2Names = vtkArrayDownCast<vtkStringArray>(
-    this->Dendrogram2->GetPrunedTree()->GetVertexData()->
-    GetAbstractArray("node name"));
+    this->Dendrogram2->GetPrunedTree()->GetVertexData()->GetAbstractArray("node name"));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::PositionTree2()
 {
   // values used to calculate the amount of space we should leave between
   // the two trees.
-  double averageX =
-    ((fabs(this->Tree1Bounds[1] - this->Tree1Bounds[0]) +
-      fabs(this->Tree2Bounds[1] - this->Tree2Bounds[0])) / 2.0);
-  double averageY =
-    ((fabs(this->Tree1Bounds[3] - this->Tree1Bounds[2]) +
-      fabs(this->Tree2Bounds[3] - this->Tree2Bounds[2])) / 2.0);
+  double averageX = ((fabs(this->Tree1Bounds[1] - this->Tree1Bounds[0]) +
+                       fabs(this->Tree2Bounds[1] - this->Tree2Bounds[0])) /
+    2.0);
+  double averageY = ((fabs(this->Tree1Bounds[3] - this->Tree1Bounds[2]) +
+                       fabs(this->Tree2Bounds[3] - this->Tree2Bounds[2])) /
+    2.0);
 
   // the starting X position for tree #2
   double x, x1, x2;
@@ -182,16 +169,14 @@ void vtkTanglegramItem::PositionTree2()
   // the starting Y position for tree #2
   double y, y1, y2;
 
-  switch(this->Orientation)
+  switch (this->Orientation)
   {
     case vtkDendrogramItem::DOWN_TO_UP:
       x1 = (this->Tree1Bounds[1] + this->Tree1Bounds[0]) / 2.0;
       x2 = (this->Tree2Bounds[1] + this->Tree2Bounds[0]) / 2.0;
       x = x1 - x2;
 
-      y = this->Tree1Bounds[3] +
-        fabs(this->Tree2Bounds[3] - this->Tree2Bounds[2]) +
-        averageY;
+      y = this->Tree1Bounds[3] + fabs(this->Tree2Bounds[3] - this->Tree2Bounds[2]) + averageY;
       break;
 
     case vtkDendrogramItem::UP_TO_DOWN:
@@ -199,16 +184,12 @@ void vtkTanglegramItem::PositionTree2()
       x2 = (this->Tree2Bounds[1] + this->Tree2Bounds[0]) / 2.0;
       x = x1 - x2;
 
-      y = this->Tree1Bounds[2] -
-        fabs(this->Tree2Bounds[3] - this->Tree2Bounds[2]) -
-        averageY;
+      y = this->Tree1Bounds[2] - fabs(this->Tree2Bounds[3] - this->Tree2Bounds[2]) - averageY;
       break;
 
     case vtkDendrogramItem::RIGHT_TO_LEFT:
 
-      x = this->Tree1Bounds[0] -
-        fabs(this->Tree2Bounds[1] - this->Tree2Bounds[0]) -
-        averageX;
+      x = this->Tree1Bounds[0] - fabs(this->Tree2Bounds[1] - this->Tree2Bounds[0]) - averageX;
 
       y1 = (this->Tree1Bounds[3] + this->Tree1Bounds[2]) / 2.0;
       y2 = (this->Tree2Bounds[3] + this->Tree2Bounds[2]) / 2.0;
@@ -218,9 +199,7 @@ void vtkTanglegramItem::PositionTree2()
     case vtkDendrogramItem::LEFT_TO_RIGHT:
     default:
 
-      x = this->Tree1Bounds[1] +
-        fabs(this->Tree2Bounds[1] - this->Tree2Bounds[0]) +
-        averageX;
+      x = this->Tree1Bounds[1] + fabs(this->Tree2Bounds[1] - this->Tree2Bounds[0]) + averageX;
 
       y1 = (this->Tree1Bounds[3] + this->Tree1Bounds[2]) / 2.0;
       y2 = (this->Tree2Bounds[3] + this->Tree2Bounds[2]) / 2.0;
@@ -232,8 +211,8 @@ void vtkTanglegramItem::PositionTree2()
   this->PositionSet = true;
 }
 
-//-----------------------------------------------------------------------------
-void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
+//------------------------------------------------------------------------------
+void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D* painter)
 {
   double textOrientation = painter->GetTextProp()->GetOrientation();
   painter->GetTextProp()->SetOrientation(0.0);
@@ -241,8 +220,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
   float previousWidth = painter->GetPen()->GetWidth();
   painter->GetPen()->SetWidth(this->CorrespondenceLineWidth);
 
-  for (vtkIdType row = 0; row < this->Table->GetNumberOfRows();
-       ++row)
+  for (vtkIdType row = 0; row < this->Table->GetNumberOfRows(); ++row)
   {
     std::string source = this->SourceNames->GetValue(row);
     vtkIdType tree1Index = this->Tree1Names->LookupValue(source);
@@ -251,7 +229,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
       continue;
     }
 
-    double sourcePosition[2] = {0, 0};
+    double sourcePosition[2] = { 0, 0 };
     if (!this->Dendrogram1->GetPositionOfVertex(source, sourcePosition))
     {
       continue;
@@ -280,7 +258,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
         continue;
       }
 
-      double targetPosition[2] = {0, 0};
+      double targetPosition[2] = { 0, 0 };
       if (!this->Dendrogram2->GetPositionOfVertex(target, targetPosition))
       {
         continue;
@@ -289,11 +267,9 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
       targetEdgePosition[0] = targetPosition[0];
       targetEdgePosition[1] = targetPosition[1];
 
-      int fontSize =
-        painter->ComputeFontSizeForBoundedString("Igq", VTK_FLOAT_MAX,
-                                                 this->Spacing);
+      int fontSize = painter->ComputeFontSizeForBoundedString("Igq", VTK_FLOAT_MAX, this->Spacing);
 
-      switch(this->Orientation)
+      switch (this->Orientation)
       {
         case vtkDendrogramItem::DOWN_TO_UP:
           if (fontSize < this->MinimumVisibleFontSize)
@@ -305,16 +281,14 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
           {
             float stringBounds[4];
             painter->ComputeStringBounds(source, stringBounds);
-            sourcePosition[1] =
-              this->Tree1Bounds[3] - (this->LabelWidth1 - stringBounds[2]);
+            sourcePosition[1] = this->Tree1Bounds[3] - (this->LabelWidth1 - stringBounds[2]);
 
             sourceEdgePosition[1] = this->Tree1Bounds[3] + this->Spacing;
 
             targetEdgePosition[1] = this->Tree2Bounds[2] - this->Spacing;
 
             painter->ComputeStringBounds(target, stringBounds);
-            targetPosition[1] =
-              this->Tree2Bounds[2] + (this->LabelWidth2 - stringBounds[2]);
+            targetPosition[1] = this->Tree2Bounds[2] + (this->LabelWidth2 - stringBounds[2]);
           }
           break;
 
@@ -328,16 +302,14 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
           {
             float stringBounds[4];
             painter->ComputeStringBounds(source, stringBounds);
-            sourcePosition[1] =
-              this->Tree1Bounds[2] + (this->LabelWidth1 - stringBounds[2]);
+            sourcePosition[1] = this->Tree1Bounds[2] + (this->LabelWidth1 - stringBounds[2]);
 
             sourceEdgePosition[1] = this->Tree1Bounds[2] - this->Spacing;
 
             targetEdgePosition[1] = this->Tree2Bounds[3] + this->Spacing;
 
             painter->ComputeStringBounds(target, stringBounds);
-            targetPosition[1] =
-              this->Tree2Bounds[3] - (this->LabelWidth2 - stringBounds[2]);
+            targetPosition[1] = this->Tree2Bounds[3] - (this->LabelWidth2 - stringBounds[2]);
           }
           break;
 
@@ -351,16 +323,14 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
           {
             float stringBounds[4];
             painter->ComputeStringBounds(source, stringBounds);
-            sourcePosition[0] =
-              this->Tree1Bounds[0] + (this->LabelWidth1 - stringBounds[2]);
+            sourcePosition[0] = this->Tree1Bounds[0] + (this->LabelWidth1 - stringBounds[2]);
 
             sourceEdgePosition[0] = this->Tree1Bounds[0] - this->Spacing;
 
             targetEdgePosition[0] = this->Tree2Bounds[1] + this->Spacing;
 
             painter->ComputeStringBounds(target, stringBounds);
-            targetPosition[0] =
-              this->Tree2Bounds[1] - (this->LabelWidth2 - stringBounds[2]);
+            targetPosition[0] = this->Tree2Bounds[1] - (this->LabelWidth2 - stringBounds[2]);
           }
           break;
 
@@ -375,16 +345,14 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
           {
             float stringBounds[4];
             painter->ComputeStringBounds(source, stringBounds);
-            sourcePosition[0] =
-              this->Tree1Bounds[1] - (this->LabelWidth1 - stringBounds[2]);
+            sourcePosition[0] = this->Tree1Bounds[1] - (this->LabelWidth1 - stringBounds[2]);
 
             sourceEdgePosition[0] = this->Tree1Bounds[1] + this->Spacing;
 
             targetEdgePosition[0] = this->Tree2Bounds[0] - this->Spacing;
 
             painter->ComputeStringBounds(target, stringBounds);
-            targetPosition[0] =
-              this->Tree2Bounds[0] + (this->LabelWidth2 - stringBounds[2]);
+            targetPosition[0] = this->Tree2Bounds[0] + (this->LabelWidth2 - stringBounds[2]);
           }
           break;
       }
@@ -395,24 +363,24 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
       if (fontSize < this->MinimumVisibleFontSize)
       {
         painter->GetPen()->SetColorF(color[0], color[1], color[2]);
-        painter->DrawLine(sourcePosition[0], sourcePosition[1],
-                          targetPosition[0], targetPosition[1]);
+        painter->DrawLine(
+          sourcePosition[0], sourcePosition[1], targetPosition[0], targetPosition[1]);
         continue;
       }
 
       painter->GetPen()->SetColorF(0.0, 0.0, 0.0);
       painter->GetPen()->SetLineType(vtkPen::DOT_LINE);
 
-      painter->DrawLine(sourcePosition[0], sourcePosition[1],
-                        sourceEdgePosition[0], sourceEdgePosition[1]);
+      painter->DrawLine(
+        sourcePosition[0], sourcePosition[1], sourceEdgePosition[0], sourceEdgePosition[1]);
 
-      painter->DrawLine(targetEdgePosition[0], targetEdgePosition[1],
-                        targetPosition[0], targetPosition[1]);
+      painter->DrawLine(
+        targetEdgePosition[0], targetEdgePosition[1], targetPosition[0], targetPosition[1]);
 
       painter->GetPen()->SetColorF(color[0], color[1], color[2]);
       painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
-      painter->DrawLine(sourceEdgePosition[0], sourceEdgePosition[1],
-                        targetEdgePosition[0], targetEdgePosition[1]);
+      painter->DrawLine(
+        sourceEdgePosition[0], sourceEdgePosition[1], targetEdgePosition[0], targetEdgePosition[1]);
     }
   }
 
@@ -421,8 +389,8 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
   painter->GetPen()->SetWidth(previousWidth);
 }
 
-//-----------------------------------------------------------------------------
-void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
+//------------------------------------------------------------------------------
+void vtkTanglegramItem::PaintTreeLabels(vtkContext2D* painter)
 {
   int fontSize = painter->GetTextProp()->GetFontSize();
   painter->GetTextProp()->SetFontSize(fontSize + this->LabelSizeDifference);
@@ -436,7 +404,7 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
   painter->GetTextProp()->BoldOn();
 
   double x, y;
-  switch(this->Orientation)
+  switch (this->Orientation)
   {
     case vtkDendrogramItem::DOWN_TO_UP:
       if (this->Tree1Label != nullptr)
@@ -494,7 +462,7 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
         y = this->Tree1Bounds[3] + this->Spacing * 2.0;
         painter->DrawString(x, y, this->Tree1Label);
       }
-  painter->GetTextProp()->SetOrientation(0.0);
+      painter->GetTextProp()->SetOrientation(0.0);
       if (this->Tree2Label != nullptr)
       {
         x = this->Tree2Bounds[0] + this->LabelWidth1 + this->Spacing / 2.0;
@@ -504,32 +472,30 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
       break;
   }
 
-
   painter->GetTextProp()->SetFontSize(fontSize);
   painter->GetTextProp()->SetJustification(justification);
   painter->GetTextProp()->SetOrientation(textOrientation);
   painter->GetTextProp()->BoldOff();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::ReorderTree()
 {
   if (this->Dendrogram1->GetTree()->GetNumberOfVertices() == 0 ||
-      this->Dendrogram2->GetTree()->GetNumberOfVertices() == 0 ||
-      this->Table == nullptr)
+    this->Dendrogram2->GetTree()->GetNumberOfVertices() == 0 || this->Table == nullptr)
   {
     return;
   }
 
-  vtkTree *tree = this->Dendrogram2->GetTree();
+  vtkTree* tree = this->Dendrogram2->GetTree();
 
-  this->Tree2Names = vtkArrayDownCast<vtkStringArray>(
-    tree->GetVertexData()-> GetAbstractArray("node name"));
+  this->Tree2Names =
+    vtkArrayDownCast<vtkStringArray>(tree->GetVertexData()->GetAbstractArray("node name"));
 
   vtkNew<vtkTreeBFSIterator> bfsIterator;
   bfsIterator->SetTree(tree);
   bfsIterator->SetStartVertex(tree->GetRoot());
-  while(bfsIterator->HasNext())
+  while (bfsIterator->HasNext())
   {
     vtkIdType vertex = bfsIterator->Next();
     if (tree->GetNumberOfChildren(vertex) < 2)
@@ -542,8 +508,8 @@ void vtkTanglegramItem::ReorderTree()
   this->TreeReordered = true;
 }
 
-//-----------------------------------------------------------------------------
-void vtkTanglegramItem::ReorderTreeAtVertex(vtkIdType parent, vtkTree *tree)
+//------------------------------------------------------------------------------
+void vtkTanglegramItem::ReorderTreeAtVertex(vtkIdType parent, vtkTree* tree)
 {
   // Set up a priority queue to reorganize the vertices.  This queue sorts all
   // the children of parent based on their "score".  This score roughly
@@ -551,14 +517,14 @@ void vtkTanglegramItem::ReorderTreeAtVertex(vtkIdType parent, vtkTree *tree)
   // dendrogram to minimize crossings.  See the comments within
   // GetPositionScoreForVertex() for more info.
   std::priority_queue<vtkDendrogramItem::WeightedVertex,
-                      std::vector<vtkDendrogramItem::WeightedVertex>,
-                      vtkDendrogramItem::CompareWeightedVertices> queue;
+    std::vector<vtkDendrogramItem::WeightedVertex>, vtkDendrogramItem::CompareWeightedVertices>
+    queue;
 
-  for(vtkIdType i = 0; i < tree->GetNumberOfChildren(parent); ++i)
+  for (vtkIdType i = 0; i < tree->GetNumberOfChildren(parent); ++i)
   {
     vtkIdType child = tree->GetChild(parent, i);
     double score = this->GetPositionScoreForVertex(child, tree);
-    vtkDendrogramItem::WeightedVertex wv = {child, score};
+    vtkDendrogramItem::WeightedVertex wv = { child, score };
     queue.push(wv);
   }
 
@@ -573,22 +539,21 @@ void vtkTanglegramItem::ReorderTreeAtVertex(vtkIdType parent, vtkTree *tree)
   tree->ReorderChildren(parent, newChildOrder);
 }
 
-//-----------------------------------------------------------------------------
-double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex,
-                                                    vtkTree *tree)
+//------------------------------------------------------------------------------
+double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex, vtkTree* tree)
 {
   // score will be the average "height" (y coordinate for unrotated tanglegram)
   // of all the leaf nodes in the fixed tree that are associated with leaf nodes
   // that descend from the vertex parameter.
   double score = 0.0;
   double numLeafNodesFound = 0.0;
-  double position[2] = {0, 0};
+  double position[2] = { 0, 0 };
 
   // which dimension (x or y) should be used to calculate this vertex's score.
   // this is determined by the orientation of our tanglegram.
   int dimension = 1;
   if (this->Orientation == vtkDendrogramItem::DOWN_TO_UP ||
-      this->Orientation == vtkDendrogramItem::UP_TO_DOWN)
+    this->Orientation == vtkDendrogramItem::UP_TO_DOWN)
   {
     dimension = 0;
   }
@@ -598,7 +563,7 @@ double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex,
   dfsIterator->SetStartVertex(vertex);
 
   // search for leaf nodes that descend from this vertex
-  while(dfsIterator->HasNext())
+  while (dfsIterator->HasNext())
   {
     vtkIdType v = dfsIterator->Next();
     if (!tree->IsLeaf(v))
@@ -610,8 +575,8 @@ double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex,
     std::string tree2Name = this->Tree2Names->GetValue(v);
 
     // find where this name appears in the correspondence table
-    vtkDoubleArray *column = vtkArrayDownCast<vtkDoubleArray>(
-      this->Table->GetColumnByName(tree2Name.c_str()));
+    vtkDoubleArray* column =
+      vtkArrayDownCast<vtkDoubleArray>(this->Table->GetColumnByName(tree2Name.c_str()));
 
     if (column == nullptr)
     {
@@ -642,7 +607,7 @@ double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex,
 
   int sign = 1;
   if (this->Orientation == vtkDendrogramItem::LEFT_TO_RIGHT ||
-      this->Orientation == vtkDendrogramItem::UP_TO_DOWN)
+    this->Orientation == vtkDendrogramItem::UP_TO_DOWN)
   {
     // multiply by -1 because we want high numbers to be near the top.
     sign = -1;
@@ -651,7 +616,7 @@ double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex,
   return sign * score / numLeafNodesFound;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::SetOrientation(int orientation)
 {
   this->Orientation = orientation;
@@ -659,13 +624,13 @@ void vtkTanglegramItem::SetOrientation(int orientation)
   this->Dendrogram2->SetOrientation((this->Orientation + 2) % 4);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTanglegramItem::GetOrientation()
 {
   return this->Orientation;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::GenerateLookupTable()
 {
   this->LookupTable->SetNumberOfTableValues(255);
@@ -680,8 +645,7 @@ void vtkTanglegramItem::GenerateLookupTable()
   double min = VTK_DOUBLE_MAX;
   double max = VTK_DOUBLE_MIN;
 
-  for (vtkIdType row = 0; row < this->Table->GetNumberOfRows();
-       ++row)
+  for (vtkIdType row = 0; row < this->Table->GetNumberOfRows(); ++row)
   {
     for (vtkIdType col = 1; col < this->Table->GetNumberOfColumns(); ++col)
     {
@@ -704,9 +668,8 @@ void vtkTanglegramItem::GenerateLookupTable()
   this->LookupTable->SetRange(min, max);
 }
 
-//-----------------------------------------------------------------------------
-bool vtkTanglegramItem::MouseDoubleClickEvent(
-  const vtkContextMouseEvent &event)
+//------------------------------------------------------------------------------
+bool vtkTanglegramItem::MouseDoubleClickEvent(const vtkContextMouseEvent& event)
 {
   bool tree1Changed = this->Dendrogram1->MouseDoubleClickEvent(event);
   bool tree2Changed = false;
@@ -718,29 +681,30 @@ bool vtkTanglegramItem::MouseDoubleClickEvent(
   return tree1Changed || tree2Changed;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float vtkTanglegramItem::GetTreeLineWidth()
 {
   return this->Dendrogram1->GetLineWidth();
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTanglegramItem::SetTreeLineWidth(float width)
 {
   this->Dendrogram1->SetLineWidth(width);
   this->Dendrogram2->SetLineWidth(width);
 }
 
-//-----------------------------------------------------------------------------
-bool vtkTanglegramItem::Hit(const vtkContextMouseEvent &vtkNotUsed(mouse))
+//------------------------------------------------------------------------------
+bool vtkTanglegramItem::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   // If we are interactive, we want to catch anything that propagates to the
   // background, otherwise we do not want any mouse events.
   return this->Interactive;
 }
 
-//-----------------------------------------------------------------------------
-void vtkTanglegramItem::PrintSelf(ostream &os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkTanglegramItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -1,13 +1,17 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkImageReader2Factory
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
-createReader = vtk.vtkImageReader2Factory()
-reader = createReader.CreateImageReader2("" + str(VTK_DATA_ROOT) + "/Data/beach.jpg")
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.jpg")
-viewer = vtk.vtkImageViewer()
+createReader = vtkImageReader2Factory()
+reader = createReader.CreateImageReader2(VTK_DATA_ROOT + "/Data/beach.jpg")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/beach.jpg")
+viewer = vtkImageViewer()
 viewer.SetInputConnection(reader.GetOutputPort())
 viewer.SetColorWindow(256)
 viewer.SetColorLevel(127.5)

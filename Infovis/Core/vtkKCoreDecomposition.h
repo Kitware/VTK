@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkKCoreDecomposition.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkKCoreDecomposition
  * @brief   Compute the k-core decomposition of the input graph.
@@ -36,33 +20,34 @@
  * @par Thanks:
  * Thanks to Thomas Otahal from Sandia National Laboratories for providing this
  * implementation.
-*/
+ */
 
 #ifndef vtkKCoreDecomposition_h
 #define vtkKCoreDecomposition_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 
 class VTKINFOVISCORE_EXPORT vtkKCoreDecomposition : public vtkGraphAlgorithm
 {
 public:
-  static vtkKCoreDecomposition *New();
+  static vtkKCoreDecomposition* New();
 
   vtkTypeMacro(vtkKCoreDecomposition, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the output array name. If no output array name is
    * set then the name 'KCoreDecompositionNumbers' is used.
    */
   vtkSetStringMacro(OutputArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Directed graphs only.  Use only the in edges to
    * compute the vertex degree of a vertex.  The default
@@ -72,9 +57,9 @@ public:
   vtkSetMacro(UseInDegreeNeighbors, bool);
   vtkGetMacro(UseInDegreeNeighbors, bool);
   vtkBooleanMacro(UseInDegreeNeighbors, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Directed graphs only.  Use only the out edges to
    * compute the vertex degree of a vertex.  The default
@@ -84,9 +69,9 @@ public:
   vtkSetMacro(UseOutDegreeNeighbors, bool);
   vtkGetMacro(UseOutDegreeNeighbors, bool);
   vtkBooleanMacro(UseOutDegreeNeighbors, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check the input graph for self loops and parallel
    * edges.  The k-core is not defined for graphs that
@@ -95,16 +80,15 @@ public:
   vtkSetMacro(CheckInputGraph, bool);
   vtkGetMacro(CheckInputGraph, bool);
   vtkBooleanMacro(CheckInputGraph, bool);
-  //@}
+  ///@}
 
 protected:
   vtkKCoreDecomposition();
   ~vtkKCoreDecomposition() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-
   char* OutputArrayName;
 
   bool UseInDegreeNeighbors;
@@ -112,11 +96,11 @@ private:
   bool CheckInputGraph;
 
   // K-core partitioning implementation
-  void Cores(vtkGraph* g,
-             vtkIntArray* KCoreNumbers);
+  void Cores(vtkGraph* g, vtkIntArray* KCoreNumbers);
 
   vtkKCoreDecomposition(const vtkKCoreDecomposition&) = delete;
   void operator=(const vtkKCoreDecomposition&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

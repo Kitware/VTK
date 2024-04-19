@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQuadricLODActor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkQuadricLODActor
  * @brief   a specific level-of-detail strategy using the
@@ -45,14 +33,15 @@
  *
  * @sa
  * vtkLODActor vtkQuadricClustering
-*/
+ */
 
 #ifndef vtkQuadricLODActor_h
 #define vtkQuadricLODActor_h
 
-#include "vtkRenderingLODModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingLODModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadricClustering;
 class vtkPolyDataMapper;
 class vtkCamera;
@@ -64,17 +53,17 @@ public:
   /**
    * Creates a vtkQuadricLODActor.
    */
-  static vtkQuadricLODActor *New();
+  static vtkQuadricLODActor* New();
 
-  //@{
+  ///@{
   /**
    * Standard class methods.
    */
   vtkTypeMacro(vtkQuadricLODActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to build the LOD immediately (i.e., on the first render)
    * or to wait until the LOD is requested in a subsequent render. By default,
@@ -83,9 +72,9 @@ public:
   vtkSetMacro(DeferLODConstruction, vtkTypeBool);
   vtkGetMacro(DeferLODConstruction, vtkTypeBool);
   vtkBooleanMacro(DeferLODConstruction, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off a flag to control whether the underlying pipeline is static.
    * If static, this means that the data pipeline executes once and then not
@@ -96,17 +85,21 @@ public:
   vtkSetMacro(Static, vtkTypeBool);
   vtkGetMacro(Static, vtkTypeBool);
   vtkBooleanMacro(Static, vtkTypeBool);
-  //@}
+  ///@}
 
   enum DataConfigurationEnum
   {
     UNKNOWN = 0,
-    XLINE, YLINE, ZLINE,
-    XYPLANE, XZPLANE, YZPLANE,
+    XLINE,
+    YLINE,
+    ZLINE,
+    XYPLANE,
+    XZPLANE,
+    YZPLANE,
     XYZVOLUME
   };
 
-  //@{
+  ///@{
   /**
    * Force the binning of the quadric clustering according to application
    * knowledge relative to the dimension of the data. For example, if you
@@ -120,27 +113,19 @@ public:
    * will attempt to figure the dimension of the class automatically using
    * the CollapseDimensionRatio ivar.
    */
-  vtkSetClampMacro(DataConfiguration, int, UNKNOWN,XYZVOLUME);
+  vtkSetClampMacro(DataConfiguration, int, UNKNOWN, XYZVOLUME);
   vtkGetMacro(DataConfiguration, int);
-  void SetDataConfigurationToUnknown()
-    { this->SetDataConfiguration(UNKNOWN); }
-  void SetDataConfigurationToXLine()
-    { this->SetDataConfiguration(XLINE); }
-  void SetDataConfigurationToYLine()
-    { this->SetDataConfiguration(YLINE); }
-  void SetDataConfigurationToZLine()
-    { this->SetDataConfiguration(ZLINE); }
-  void SetDataConfigurationToXYPlane()
-    { this->SetDataConfiguration(XYPLANE); }
-  void SetDataConfigurationToYZPlane()
-    { this->SetDataConfiguration(YZPLANE); }
-  void SetDataConfigurationToXZPlane()
-    { this->SetDataConfiguration(XZPLANE); }
-  void SetDataConfigurationToXYZVolume()
-    { this->SetDataConfiguration(XYZVOLUME); }
-  //@}
+  void SetDataConfigurationToUnknown() { this->SetDataConfiguration(UNKNOWN); }
+  void SetDataConfigurationToXLine() { this->SetDataConfiguration(XLINE); }
+  void SetDataConfigurationToYLine() { this->SetDataConfiguration(YLINE); }
+  void SetDataConfigurationToZLine() { this->SetDataConfiguration(ZLINE); }
+  void SetDataConfigurationToXYPlane() { this->SetDataConfiguration(XYPLANE); }
+  void SetDataConfigurationToYZPlane() { this->SetDataConfiguration(YZPLANE); }
+  void SetDataConfigurationToXZPlane() { this->SetDataConfiguration(XZPLANE); }
+  void SetDataConfigurationToXYZVolume() { this->SetDataConfiguration(XYZVOLUME); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the data configuration is set to UNKNOWN, this class attempts to
    * figure out the dimensionality of the data using CollapseDimensionRatio.
@@ -150,17 +135,17 @@ public:
    */
   vtkSetClampMacro(CollapseDimensionRatio, double, 0.0, 1.0);
   vtkGetMacro(CollapseDimensionRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This class will create a vtkQuadricClustering algorithm automatically.
    * However, if you would like to specify the filter to use, or to access it
    * and configure it, these method provide access to the filter.
    */
-  void SetLODFilter(vtkQuadricClustering *lodFilter);
+  void SetLODFilter(vtkQuadricClustering* lodFilter);
   vtkGetObjectMacro(LODFilter, vtkQuadricClustering);
-  //@}
+  ///@}
 
   enum PropTypeEnum
   {
@@ -168,66 +153,58 @@ public:
     ACTOR
   };
 
-  //@{
+  ///@{
   /**
    * Indicate that this actor is actually a follower.
    * By default, the prop type is a vtkActor.
    */
   vtkSetClampMacro(PropType, int, FOLLOWER, ACTOR);
   vtkGetMacro(PropType, int);
-  void SetPropTypeToFollower()
-    { this->SetPropType(FOLLOWER); }
-  void SetPropTypeToActor()
-    { this->SetPropType(ACTOR); }
-  //@}
+  void SetPropTypeToFollower() { this->SetPropType(FOLLOWER); }
+  void SetPropTypeToActor() { this->SetPropType(ACTOR); }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the camera to follow. This method is only applicable when the
    * prop type is set to a vtkFollower.
    */
   void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera, vtkCamera);
-  //@}
+  ///@}
 
   /**
    * This causes the actor to be rendered. Depending on the frame rate request,
    * it will use either a full resolution render or an interactive render (i.e.,
    * it will use the decimated geometry).
    */
-  void Render(vtkRenderer *, vtkMapper *) override;
-
-  /**
-   * This method is used internally by the rendering process. We override
-   * the superclass method to properly set the estimated render time.
-   */
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  void Render(vtkRenderer*, vtkMapper*) override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
    * Shallow copy of an LOD actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
 protected:
   vtkQuadricLODActor();
   ~vtkQuadricLODActor() override;
 
   // Renders the LOD
-  vtkActor *LODActor;
-  vtkPolyDataMapper *LODMapper;
+  vtkActor* LODActor;
+  vtkPolyDataMapper* LODMapper;
 
   // Keep track of the requested interactive frame rate
   double CachedInteractiveFrameRate;
 
   // Support various strategies
-  vtkQuadricClustering *LODFilter;
+  vtkQuadricClustering* LODFilter;
 
   // Specify whether the mapper's should be set in to Static mode.
   vtkTypeBool Static;
@@ -238,7 +215,7 @@ protected:
 
   // Control whether this is a follower or regular actor
   int PropType;
-  vtkCamera *Camera;
+  vtkCamera* Camera;
 
   // Specify to defer construction of the LOD.
   vtkTypeBool DeferLODConstruction;
@@ -251,4 +228,5 @@ private:
   void operator=(const vtkQuadricLODActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

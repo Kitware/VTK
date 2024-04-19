@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStaticEdgeLocatorTemplate.txx
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See LICENSE file for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-CLAUSE
 #include "vtkStaticEdgeLocatorTemplate.h"
 
 #include "vtkSMPTools.h"
@@ -21,24 +9,31 @@
 
 //----------------------------------------------------------------------------
 // Gather coincident edges into contiguous runs. Use this for merging edges.
+VTK_ABI_NAMESPACE_BEGIN
 template <typename IDType, typename EdgeData>
-const IDType* vtkStaticEdgeLocatorTemplate<IDType,EdgeData>::
-MergeEdges(vtkIdType numEdges, MergeTupleType *mergeArray,vtkIdType &numUniqueEdges)
+const IDType* vtkStaticEdgeLocatorTemplate<IDType, EdgeData>::MergeEdges(
+  vtkIdType numEdges, EdgeTupleType* mergeArray, vtkIdType& numUniqueEdges)
 {
   // Sort the edges. Note that the sort is first on V0, then V1. So both
-  // V0 and V1 are sorted in ascending order.
-  this->NumEdges = numEdges;
+  // V0 and V1 are sorted in ascending order. Look out for empty cases.
+  this->MergeOffsets.clear(); // make sure offsets are empty initially
+  if ((this->NumEdges = numEdges) <= 0)
+  {
+    numUniqueEdges = 0;
+    return nullptr;
+  }
   this->MergeArray = mergeArray;
+
   vtkSMPTools::Sort(this->MergeArray, this->MergeArray + numEdges);
 
   // Now build offsets, i.e., determine the number of unique edges and determine
   // the offsets into each identical group of edges.
   this->MergeOffsets.push_back(0);
-  IDType curOffset=0;
+  IDType curOffset = 0;
 
-  for ( IDType eId=1; eId < numEdges; ++eId )
+  for (IDType eId = 1; eId < numEdges; ++eId)
   {
-    if ( this->MergeArray[curOffset] != this->MergeArray[eId] )
+    if (this->MergeArray[curOffset] != this->MergeArray[eId])
     {
       this->MergeOffsets.push_back(eId);
       curOffset = eId;
@@ -56,8 +51,8 @@ MergeEdges(vtkIdType numEdges, MergeTupleType *mergeArray,vtkIdType &numUniqueEd
 // Build the locator from the edge array provided. The edgeArray is sorted,
 // then offsets into the array provide rapid access to edges.
 template <typename IDType, typename EdgeData>
-vtkIdType vtkStaticEdgeLocatorTemplate<IDType,EdgeData>::
-BuildLocator(vtkIdType numEdges, EdgeTupleType *edgeArray)
+vtkIdType vtkStaticEdgeLocatorTemplate<IDType, EdgeData>::BuildLocator(
+  vtkIdType numEdges, EdgeTupleType* edgeArray)
 {
   // Sort the edges. Note that the sort is first on V0, then V1. So both
   // V0 and V1 are sorted in ascending order.
@@ -66,8 +61,7 @@ BuildLocator(vtkIdType numEdges, EdgeTupleType *edgeArray)
 
   // Remove duplicates. What's left is a list of unique edges, with their
   // position in the edge array corresponding to their edge id.
-  EdgeTupleType *end =
-    std::unique(this->EdgeArray, this->EdgeArray + numEdges);
+  EdgeTupleType* end = std::unique(this->EdgeArray, this->EdgeArray + numEdges);
   this->NumEdges = end - this->EdgeArray;
 
   // Create an offset array to accelerate finding edges (v0,v1). Basically
@@ -76,34 +70,34 @@ BuildLocator(vtkIdType numEdges, EdgeTupleType *edgeArray)
   // two edges (a,b) & (c,d) (with (a,b)id < (c,d,)id,
   // then a<=c; and if a==c, then b<d.
   this->MinV0 = this->EdgeArray[0].V0;
-  this->MaxV0 = this->EdgeArray[this->NumEdges-1].V0;
+  this->MaxV0 = this->EdgeArray[this->NumEdges - 1].V0;
   this->V0Range = this->MaxV0 - this->MinV0 + 1;
   this->NDivs = (this->V0Range / this->NumEdgesPerBin) + 1;
-  this->EdgeOffsets = new IDType[this->NDivs+1]; //one extra simplifies math
+  this->EdgeOffsets = new IDType[this->NDivs + 1]; // one extra simplifies math
 
   IDType pos, curPos = 0;
   IDType num, idx = 0;
   this->EdgeOffsets[idx++] = curPos;
-  for ( IDType eId=0; eId < this->NumEdges; ++eId )
+  for (IDType eId = 0; eId < this->NumEdges; ++eId)
   {
     pos = this->HashBin(this->EdgeArray[eId].V0);
-    if ( pos > curPos )
+    if (pos > curPos)
     {
       num = pos - curPos;
-      for ( IDType i=0; i < num; ++i )
+      for (IDType i = 0; i < num; ++i)
       {
         this->EdgeOffsets[idx++] = eId;
       }
       curPos = pos;
     }
   }
-  while ( idx <= this->NDivs )
+  while (idx <= this->NDivs)
   {
-    this->EdgeOffsets[idx++] = this->NumEdges; //mark the end
+    this->EdgeOffsets[idx++] = this->NumEdges; // mark the end
   }
 
   return this->NumEdges;
 }
 
-
+VTK_ABI_NAMESPACE_END
 #endif

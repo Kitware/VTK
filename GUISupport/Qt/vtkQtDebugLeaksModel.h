@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtDebugLeaksModel.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkQtDebugLeaksModel
  * @brief   model class that observes the vtkDebugLeaks singleton
@@ -20,7 +8,7 @@
  * This class is used internally by the vtkQtDebugLeaksView.  It installs an
  * observer on the vtkDebugLeaks singleton and uses the observer to maintain
  * a model of all vtkObjectBase derived objects that are alive in memory.
-*/
+ */
 
 #ifndef vtkQtDebugLeaksModel_h
 #define vtkQtDebugLeaksModel_h
@@ -28,6 +16,7 @@
 #include "vtkGUISupportQtModule.h" // For export macro
 #include <QStandardItemModel>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBase;
 
 class VTKGUISUPPORTQT_EXPORT vtkQtDebugLeaksModel : public QStandardItemModel
@@ -35,8 +24,7 @@ class VTKGUISUPPORTQT_EXPORT vtkQtDebugLeaksModel : public QStandardItemModel
   Q_OBJECT
 
 public:
-
-  vtkQtDebugLeaksModel(QObject* p=nullptr);
+  vtkQtDebugLeaksModel(QObject* p = nullptr);
   ~vtkQtDebugLeaksModel() override;
 
   /**
@@ -51,7 +39,7 @@ public:
    */
   QStandardItemModel* referenceCountModel(const QString& className);
 
-protected slots:
+protected Q_SLOTS:
 
   void addObject(vtkObjectBase* object);
   void removeObject(vtkObjectBase* object);
@@ -60,10 +48,9 @@ protected slots:
   void onAboutToQuit();
 
   // Inherited method from QAbstractItemModel
-  Qt::ItemFlags flags(const QModelIndex &index) const override;
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 private:
-
   class qInternal;
   qInternal* Internal;
 
@@ -73,7 +60,6 @@ private:
   Q_DISABLE_COPY(vtkQtDebugLeaksModel);
 };
 
-
 // TODO - move to private
 //-----------------------------------------------------------------------------
 class ReferenceCountModel : public QStandardItemModel
@@ -81,19 +67,19 @@ class ReferenceCountModel : public QStandardItemModel
   Q_OBJECT
 
 public:
-  ReferenceCountModel(QObject* p=nullptr);
+  ReferenceCountModel(QObject* p = nullptr);
   ~ReferenceCountModel() override;
   void addObject(vtkObjectBase* obj);
   void removeObject(vtkObjectBase* obj);
   QString pointerAsString(void* ptr);
 
   // Inherited method from QAbstractItemModel
-  Qt::ItemFlags flags(const QModelIndex &index) const override;
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-protected slots:
+protected Q_SLOTS:
   void updateReferenceCounts();
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtDebugLeaksModel.h

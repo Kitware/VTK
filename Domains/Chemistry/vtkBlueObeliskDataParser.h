@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBlueObeliskDataParser.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBlueObeliskDataParser
  * @brief   Fill a vtkBlueObeliskData
@@ -31,7 +19,7 @@
  *
  * @sa
  * vtkPeriodicTable vtkBlueObeliskData
-*/
+ */
 
 #ifndef vtkBlueObeliskDataParser_h
 #define vtkBlueObeliskDataParser_h
@@ -41,67 +29,68 @@
 
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkBlueObeliskData;
 class vtkFloatArray;
-class vtkStdString;
 class vtkStringArray;
 class vtkUnsignedShortArray;
 
 class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskDataParser : public vtkXMLParser
 {
- public:
+public:
   vtkTypeMacro(vtkBlueObeliskDataParser, vtkXMLParser);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkBlueObeliskDataParser * New();
+  static vtkBlueObeliskDataParser* New();
 
   /**
    * Set the target vtkBlueObeliskData object that this parser will
    * populate
    */
-  virtual void SetTarget(vtkBlueObeliskData *bodr);
+  virtual void SetTarget(vtkBlueObeliskData* bodr);
 
   /**
    * Start parsing
    */
   int Parse() override;
 
-  //@{
+  ///@{
   /**
    * These are only implemented to prevent compiler warnings about hidden
    * virtual overloads. This function simply call Parse(); the arguments are
    * ignored.
    */
-  int Parse(const char *) override;
-  int Parse(const char *, unsigned int) override;
-  //@}
+  int Parse(const char*) override;
+  int Parse(const char*, unsigned int) override;
+  ///@}
 
 protected:
   vtkBlueObeliskDataParser();
   ~vtkBlueObeliskDataParser() override;
 
-  void StartElement(const char *name, const char **attr) override;
-  void EndElement(const char *name) override;
+  void StartElement(const char* name, const char** attr) override;
+  void EndElement(const char* name) override;
 
-  void CharacterDataHandler(const char *data, int length) override;
+  void CharacterDataHandler(const char* data, int length) override;
 
-  void SetCurrentValue(const char *data, int length);
-  void SetCurrentValue(const char *data);
+  void SetCurrentValue(const char* data, int length);
+  void SetCurrentValue(const char* data);
 
-  vtkBlueObeliskData *Target;
+  vtkBlueObeliskData* Target;
 
   bool IsProcessingAtom;
-  void NewAtomStarted(const char **attr);
+  void NewAtomStarted(const char** attr);
   void NewAtomFinished();
 
   bool IsProcessingValue;
-  void NewValueStarted(const char **attr);
+  void NewValueStarted(const char** attr);
   void NewValueFinished();
 
   std::string CharacterDataValueBuffer;
 
-  enum AtomValueType {
+  enum AtomValueType
+  {
     None = 0,
     AtomicNumber,
     Symbol,
@@ -124,11 +113,11 @@ protected:
   } CurrentValueType;
 
   int CurrentAtomicNumber;
-  vtkStdString *CurrentSymbol;
-  vtkStdString *CurrentName;
-  vtkStdString *CurrentPeriodicTableBlock;
-  vtkStdString *CurrentElectronicConfiguration;
-  vtkStdString *CurrentFamily;
+  std::string* CurrentSymbol;
+  std::string* CurrentName;
+  std::string* CurrentPeriodicTableBlock;
+  std::string* CurrentElectronicConfiguration;
+  std::string* CurrentFamily;
   float CurrentMass;
   float CurrentExactMass;
   float CurrentIonizationEnergy;
@@ -146,39 +135,34 @@ private:
   vtkBlueObeliskDataParser(const vtkBlueObeliskDataParser&) = delete;
   void operator=(const vtkBlueObeliskDataParser&) = delete;
 
-  //@{
+  ///@{
   /**
    * Resize array if needed and set the entry at ind to val.
    */
-  static void ResizeArrayIfNeeded(vtkAbstractArray *arr, vtkIdType ind);
-  static void ResizeAndSetValue(vtkStdString *val,
-                                vtkStringArray *arr,
-                                vtkIdType ind);
-  static void ResizeAndSetValue(float val,
-                                vtkFloatArray *arr,
-                                vtkIdType ind);
-  static void ResizeAndSetValue(unsigned short val,
-                                vtkUnsignedShortArray *arr,
-                                vtkIdType ind);
-  //@}
+  static void ResizeArrayIfNeeded(vtkAbstractArray* arr, vtkIdType ind);
+  static void ResizeAndSetValue(std::string* val, vtkStringArray* arr, vtkIdType ind);
+  static void ResizeAndSetValue(float val, vtkFloatArray* arr, vtkIdType ind);
+  static void ResizeAndSetValue(unsigned short val, vtkUnsignedShortArray* arr, vtkIdType ind);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Parse types from const char *
    */
-  static int parseInt(const char *);
-  static float parseFloat(const char *);
-  static void parseFloat3(const char * str, float[3]);
-  static unsigned short parseUnsignedShort(const char *);
-  //@}
+  static int parseInt(const char*);
+  static float parseFloat(const char*);
+  static void parseFloat3(const char* str, float[3]);
+  static unsigned short parseUnsignedShort(const char*);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convert a string to lower case. This will modify the input string
    * and return the input pointer.
    */
-  static vtkStdString * ToLower(vtkStdString *);
+  static std::string* ToLower(std::string*);
+  ///@}
 };
-  //@}
 
+VTK_ABI_NAMESPACE_END
 #endif

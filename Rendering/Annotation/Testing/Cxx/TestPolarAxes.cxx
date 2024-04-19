@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPolarAxes.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware SAS 2011
 
 #include "vtkBYUReader.h"
 #include "vtkCamera.h"
-#include "vtkLight.h"
 #include "vtkLODActor.h"
+#include "vtkLight.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPolarAxesActor.h"
@@ -26,21 +14,21 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPolarAxes(int argc, char* argv[])
 {
   vtkNew<vtkBYUReader> reader;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
   reader->SetGeometryFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkPolyDataNormals> normals;
   normals->SetInputConnection(reader->GetOutputPort());
@@ -87,16 +75,15 @@ int TestPolarAxes(int argc, char* argv[])
   polaxes->SetRequestedNumberOfRadialAxes(10);
   polaxes->SetCamera(renderer->GetActiveCamera());
   polaxes->SetPolarLabelFormat("%6.1f");
-  polaxes->GetLastRadialAxisProperty()->SetColor(.0, .0, 1.);
-  polaxes->GetSecondaryRadialAxesProperty()->SetColor(.0, .0, 1.);
-  polaxes->GetPolarArcsProperty()->SetColor(1., .0, 0.);
-  polaxes->GetSecondaryPolarArcsProperty()->SetColor(1., 1., 1.);
-  polaxes->GetPolarAxisProperty()->SetColor(.2, .2, .2);
-  polaxes->GetPolarAxisTitleTextProperty()->SetColor(1, 1, 0);
-  polaxes->GetPolarAxisLabelTextProperty()->SetColor(0, 1, 1);
-  polaxes->GetSecondaryRadialAxesTextProperty()->SetColor(1, 0, 1);
-  polaxes->SetNumberOfPolarAxisTicks(9);
-  polaxes->SetAutoSubdividePolarAxis(false);
+  polaxes->GetLastRadialAxisProperty()->SetColor(0.0, 1.0, 0.0);
+  polaxes->GetSecondaryRadialAxesProperty()->SetColor(0.0, 0.0, 1.0);
+  polaxes->GetPolarArcsProperty()->SetColor(1.0, 0.0, 0.0);
+  polaxes->GetSecondaryPolarArcsProperty()->SetColor(1.0, 0.0, 1.0);
+  polaxes->GetPolarAxisProperty()->SetColor(1.0, 0.5, 0.0);
+  polaxes->GetPolarAxisTitleTextProperty()->SetColor(0.0, 0.0, 0.0);
+  polaxes->GetPolarAxisLabelTextProperty()->SetColor(1.0, 1.0, 0.0);
+  polaxes->GetLastRadialAxisTextProperty()->SetColor(0.0, 0.5, 0.0);
+  polaxes->GetSecondaryRadialAxesTextProperty()->SetColor(0.0, 1.0, 1.0);
   polaxes->SetScreenSize(9.0);
 
   vtkNew<vtkRenderWindow> renWin;

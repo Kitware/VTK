@@ -1,20 +1,36 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkMath,
+)
+from vtkmodules.vtkFiltersProgrammable import vtkProgrammableAttributeDataFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingAnnotation import vtkScalarBarActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create pipeline
 #
 # create sphere to color
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetThetaResolution(20)
 sphere.SetPhiResolution(40)
-def colorCells (__vtk__temp0=0,__vtk__temp1=0):
-    randomColorGenerator = vtk.vtkMath()
+def colorCells(obj=None, event=""):
+    randomColorGenerator = vtkMath()
     input = randomColors.GetInput()
     output = randomColors.GetOutput()
     numCells = input.GetNumberOfCells()
-    colors = vtk.vtkFloatArray()
+    colors = vtkFloatArray()
     colors.SetNumberOfTuples(numCells)
     i = 0
     while i < numCells:
@@ -24,22 +40,19 @@ def colorCells (__vtk__temp0=0,__vtk__temp1=0):
     output.GetCellData().CopyScalarsOff()
     output.GetCellData().PassData(input.GetCellData())
     output.GetCellData().SetScalars(colors)
-    del colors
-    #reference counting - it's ok
-    del randomColorGenerator
 
 # Compute random scalars (colors) for each cell
-randomColors = vtk.vtkProgrammableAttributeDataFilter()
+randomColors = vtkProgrammableAttributeDataFilter()
 randomColors.SetInputConnection(sphere.GetOutputPort())
 randomColors.SetExecuteMethod(colorCells)
 # mapper and actor
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(randomColors.GetOutputPort())
 mapper.SetScalarRange(randomColors.GetPolyDataOutput().GetScalarRange())
-sphereActor = vtk.vtkActor()
+sphereActor = vtkActor()
 sphereActor.SetMapper(mapper)
 # Create a scalar bar
-scalarBar = vtk.vtkScalarBarActor()
+scalarBar = vtkScalarBarActor()
 scalarBar.SetLookupTable(mapper.GetLookupTable())
 scalarBar.SetTitle("Temperature")
 scalarBar.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
@@ -47,15 +60,15 @@ scalarBar.GetPositionCoordinate().SetValue(0.1,0.01)
 scalarBar.SetOrientationToHorizontal()
 scalarBar.SetWidth(0.8)
 scalarBar.SetHeight(0.17)
-# Test the Get/Set Position 
+# Test the Get/Set Position
 scalarBar.SetPosition(scalarBar.GetPosition())
 # Create graphics stuff
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 ren1.AddActor(sphereActor)
 ren1.AddActor2D(scalarBar)
@@ -67,5 +80,4 @@ ren1.GetActiveCamera().Zoom(1.5)
 renWin.Render()
 scalarBar.SetNumberOfLabels(8)
 renWin.Render()
-# prevent the tk window from showing up then start the event loop
 # --- end of script --

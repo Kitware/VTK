@@ -1,22 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeIterator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkTreeIterator.h"
 
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkTreeIterator::vtkTreeIterator()
 {
   this->Tree = nullptr;
@@ -28,7 +17,7 @@ vtkTreeIterator::~vtkTreeIterator()
 {
   if (this->Tree)
   {
-    this->Tree->Delete();
+    this->Tree->UnRegister(this);
     this->Tree = nullptr;
   }
 }
@@ -43,20 +32,12 @@ void vtkTreeIterator::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkTreeIterator::SetTree(vtkTree* tree)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): setting Tree to " << tree );
-  if (this->Tree != tree)
+  bool needs_init = this->Tree != tree;
+  vtkSetObjectBodyMacro(Tree, vtkTree, tree);
+  if (needs_init)
   {
-    vtkTree* temp = this->Tree;
-    this->Tree = tree;
-    if (this->Tree != nullptr) { this->Tree->Register(this); }
-    if (temp != nullptr)
-    {
-      temp->UnRegister(this);
-    }
     this->StartVertex = -1;
     this->Initialize();
-    this->Modified();
   }
 }
 
@@ -73,7 +54,7 @@ void vtkTreeIterator::SetStartVertex(vtkIdType vertex)
 vtkIdType vtkTreeIterator::Next()
 {
   vtkIdType last = this->NextId;
-  if(last != -1)
+  if (last != -1)
   {
     this->NextId = this->NextInternal();
   }
@@ -89,3 +70,4 @@ void vtkTreeIterator::Restart()
 {
   this->Initialize();
 }
+VTK_ABI_NAMESPACE_END

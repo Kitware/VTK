@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageConstantPad.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageConstantPad
  * @brief   Makes image larger by padding with constant.
@@ -22,49 +10,45 @@
  *
  * @sa
  * vtkImageWrapPad vtkImageMirrorPad
-*/
+ */
 
 #ifndef vtkImageConstantPad_h
 #define vtkImageConstantPad_h
 
-
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImagePadFilter.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {
 public:
-  static vtkImageConstantPad *New();
-  vtkTypeMacro(vtkImageConstantPad,vtkImagePadFilter);
+  static vtkImageConstantPad* New();
+  vtkTypeMacro(vtkImageConstantPad, vtkImagePadFilter);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the pad value.
    */
   vtkSetMacro(Constant, double);
   vtkGetMacro(Constant, double);
-  //@}
-
+  ///@}
 
 protected:
   vtkImageConstantPad();
-  ~vtkImageConstantPad() override {}
+  ~vtkImageConstantPad() override = default;
 
   double Constant;
 
-  void ThreadedRequestData (vtkInformation* request,
-                            vtkInformationVector** inputVector,
-                            vtkInformationVector* outputVector,
-                            vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
+    int id) override;
+
 private:
   vtkImageConstantPad(const vtkImageConstantPad&) = delete;
   void operator=(const vtkImageConstantPad&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-

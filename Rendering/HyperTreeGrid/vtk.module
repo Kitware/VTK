@@ -1,0 +1,18 @@
+NAME
+  VTK::RenderingHyperTreeGrid
+LIBRARY_NAME
+  vtkRenderingHyperTreeGrid
+IMPLEMENTABLE
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::FiltersHybrid
+  VTK::FiltersHyperTree

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
 // This header is automatically #included in every source file in the Xcode project.
 
 // OpenGL is deprecated in macOS, but used extensively by VTK, so silence compiler warnings.

@@ -15,3 +15,4 @@ set(headers
 vtk_module_add_module(VTK::IOMINC
   CLASSES ${classes}
   HEADERS ${headers})
+vtk_add_test_mangling(VTK::IOMINC)

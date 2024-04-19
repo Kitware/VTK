@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLStructuredGridReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLStructuredGridReader
  * @brief   Read VTK XML StructuredGrid files.
@@ -24,7 +12,7 @@
  *
  * @sa
  * vtkXMLPStructuredGridReader
-*/
+ */
 
 #ifndef vtkXMLStructuredGridReader_h
 #define vtkXMLStructuredGridReader_h
@@ -32,22 +20,23 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredGrid;
 
 class VTKIOXML_EXPORT vtkXMLStructuredGridReader : public vtkXMLStructuredDataReader
 {
 public:
-  vtkTypeMacro(vtkXMLStructuredGridReader,vtkXMLStructuredDataReader);
+  vtkTypeMacro(vtkXMLStructuredGridReader, vtkXMLStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkXMLStructuredGridReader *New();
+  static vtkXMLStructuredGridReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
-  vtkStructuredGrid *GetOutput();
-  vtkStructuredGrid *GetOutput(int idx);
-  //@}
+  vtkStructuredGrid* GetOutput();
+  vtkStructuredGrid* GetOutput(int idx);
+  ///@}
 
 protected:
   vtkXMLStructuredGridReader();
@@ -72,4 +61,5 @@ private:
   void operator=(const vtkXMLStructuredGridReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

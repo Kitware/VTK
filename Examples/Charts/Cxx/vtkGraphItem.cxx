@@ -1,31 +1,19 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGraphItem.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkGraphItem.h"
 
 #include "vtkEdgeListIterator.h"
-#include "vtkOutEdgeIterator.h"
 #include "vtkGraph.h"
 #include "vtkMinimalStandardRandomSequence.h"
+#include "vtkOutEdgeIterator.h"
 #include "vtkVariant.h"
 
-#include "vtkContext2D.h"
-#include "vtkContextScene.h"
-#include "vtkContextMouseEvent.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
+#include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
+#include "vtkPen.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
 
@@ -35,31 +23,28 @@
 #include <utility>
 #include <vector>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraphItem, Graph, vtkGraph);
 vtkStandardNewMacro(vtkGraphItem);
 
 class vtkGraphItem::Implementation
 {
 public:
-  Implementation()
-  {
-    Random = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
-  }
+  Implementation() { Random = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New(); }
 
   void CheckPositionSize(vtkIdType i)
   {
     while (i >= static_cast<vtkIdType>(this->Position.size()))
     {
-      int size[2] = {100, 100};
+      int size[2] = { 100, 100 };
       if (this->Item->GetScene())
       {
         this->Item->GetScene()->GetGeometry(size);
       }
       this->Random->Next();
-      float x = static_cast<int>(this->Random->GetValue()*size[0]);
+      float x = static_cast<int>(this->Random->GetValue() * size[0]);
       this->Random->Next();
-      float y = static_cast<int>(this->Random->GetValue()*size[1]);
+      float y = static_cast<int>(this->Random->GetValue() * size[1]);
       this->Position.push_back(std::make_pair(x, y));
     }
   }
@@ -101,11 +86,11 @@ public:
   vtkSmartPointer<vtkMinimalStandardRandomSequence> Random;
   vtkGraphItem* Item;
 
-  std::vector<std::pair<float, float> > Position;
-  std::vector<std::pair<float, float> > Velocity;
+  std::vector<std::pair<float, float>> Position;
+  std::vector<std::pair<float, float>> Velocity;
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphItem::vtkGraphItem()
 {
   this->Impl = new Implementation();
@@ -116,15 +101,15 @@ vtkGraphItem::vtkGraphItem()
   this->HitVertex = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphItem::~vtkGraphItem()
 {
   delete this->Impl;
   this->SetGraph(nullptr);
 }
 
-//-----------------------------------------------------------------------------
-bool vtkGraphItem::Paint(vtkContext2D *painter)
+//------------------------------------------------------------------------------
+bool vtkGraphItem::Paint(vtkContext2D* painter)
 {
   painter->GetTextProp()->SetVerticalJustificationToCentered();
   painter->GetTextProp()->SetJustificationToCentered();
@@ -135,12 +120,12 @@ bool vtkGraphItem::Paint(vtkContext2D *painter)
 
   vtkSmartPointer<vtkEdgeListIterator> it = vtkSmartPointer<vtkEdgeListIterator>::New();
   this->Graph->GetEdges(it);
-  float line[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+  float line[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
   while (it->HasNext())
   {
     vtkEdgeType e = it->Next();
     this->Impl->GetPosition(e.Source, line);
-    this->Impl->GetPosition(e.Target, line+2);
+    this->Impl->GetPosition(e.Target, line + 2);
     for (int i = 0; i < 4; ++i)
     {
       line[i] += 10.0f;
@@ -148,7 +133,7 @@ bool vtkGraphItem::Paint(vtkContext2D *painter)
     painter->DrawLine(line);
   }
 
-  float dims[4] = {0.0f, 0.0f, 20.0f, 20.0f};
+  float dims[4] = { 0.0f, 0.0f, 20.0f, 20.0f };
   for (vtkIdType i = 0; i < this->Graph->GetNumberOfVertices(); ++i)
   {
     this->Impl->GetPosition(i, dims);
@@ -161,17 +146,15 @@ bool vtkGraphItem::Paint(vtkContext2D *painter)
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkGraphItem::Hit(const vtkContextMouseEvent &mouse)
+//------------------------------------------------------------------------------
+bool vtkGraphItem::Hit(const vtkContextMouseEvent& mouse)
 {
-  float pos[2] = {0.0f, 0.0f};
-  for (vtkIdType i = this->Graph->GetNumberOfVertices()-1; i >= 0; --i)
+  float pos[2] = { 0.0f, 0.0f };
+  for (vtkIdType i = this->Graph->GetNumberOfVertices() - 1; i >= 0; --i)
   {
     this->Impl->GetPosition(i, pos);
-    if (mouse.GetPos()[0] > pos[0] &&
-        mouse.GetPos()[0] < pos[0] + 20.0f &&
-        mouse.GetPos()[1] > pos[1] &&
-        mouse.GetPos()[1] < pos[1] + 20.0f)
+    if (mouse.GetPos()[0] > pos[0] && mouse.GetPos()[0] < pos[0] + 20.0f &&
+      mouse.GetPos()[1] > pos[1] && mouse.GetPos()[1] < pos[1] + 20.0f)
     {
       this->HitVertex = i;
       return true;
@@ -180,15 +163,15 @@ bool vtkGraphItem::Hit(const vtkContextMouseEvent &mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkGraphItem::MouseEnterEvent(const vtkContextMouseEvent &)
+//------------------------------------------------------------------------------
+bool vtkGraphItem::MouseEnterEvent(const vtkContextMouseEvent&)
 {
   this->MouseOver = true;
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+//------------------------------------------------------------------------------
+bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   int deltaX = static_cast<int>(mouse.GetPos()[0] - this->LastPosition[0]);
   int deltaY = static_cast<int>(mouse.GetPos()[1] - this->LastPosition[1]);
@@ -226,15 +209,15 @@ bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   return false;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkGraphItem::MouseLeaveEvent(const vtkContextMouseEvent &)
+//------------------------------------------------------------------------------
+bool vtkGraphItem::MouseLeaveEvent(const vtkContextMouseEvent&)
 {
   this->MouseOver = false;
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+//------------------------------------------------------------------------------
+bool vtkGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   this->MouseButtonPressed = mouse.GetButton();
   this->LastPosition[0] = mouse.GetPos()[0];
@@ -242,14 +225,14 @@ bool vtkGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
   return true;
 }
 
-//-----------------------------------------------------------------------------
-bool vtkGraphItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
+//------------------------------------------------------------------------------
+bool vtkGraphItem::MouseButtonReleaseEvent(const vtkContextMouseEvent&)
 {
   this->MouseButtonPressed = -1;
   return true;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGraphItem::UpdatePositions()
 {
   vtkIdType numVerts = this->Graph->GetNumberOfVertices();
@@ -257,17 +240,17 @@ void vtkGraphItem::UpdatePositions()
   float dampenLast = 0.5f;
   float springConstant = 0.3f;
   float repulseConstant = 1.0f;
-  //float restDistance = 40.0f;
-  //float dampenLast = 0.5f;
-  //float springConstant = 0.1f;
-  //float repulseConstant = 2.0f;
+  // float restDistance = 40.0f;
+  // float dampenLast = 0.5f;
+  // float springConstant = 0.1f;
+  // float repulseConstant = 2.0f;
   float epsilon = 0.0000001f;
   float border = 20.0f;
   vtkSmartPointer<vtkOutEdgeIterator> it = vtkSmartPointer<vtkOutEdgeIterator>::New();
   float uPos[2];
   float vPos[2];
   float uVel[2];
-  int geom[2] = {100, 100};
+  int geom[2] = { 100, 100 };
   if (this->GetScene())
   {
     this->GetScene()->GetGeometry(geom);
@@ -286,7 +269,7 @@ void vtkGraphItem::UpdatePositions()
       this->Impl->GetPosition(v, vPos);
       float deltaX = uPos[0] - vPos[0];
       float deltaY = uPos[1] - vPos[1];
-      float distSquared = deltaX*deltaX + deltaY*deltaY;
+      float distSquared = deltaX * deltaX + deltaY * deltaY;
       // Avoid divide by zero
       distSquared += epsilon;
       fx += repulseConstant * deltaX / distSquared;
@@ -304,12 +287,12 @@ void vtkGraphItem::UpdatePositions()
       this->Impl->GetPosition(v, vPos);
       float deltaX = uPos[0] - vPos[0];
       float deltaY = uPos[1] - vPos[1];
-      float dist = sqrt(deltaX*deltaX + deltaY*deltaY);
-      float force = springConstant*(dist - restDistance);
+      float dist = sqrt(deltaX * deltaX + deltaY * deltaY);
+      float force = springConstant * (dist - restDistance);
       fx -= force * deltaX / dist;
       fy -= force * deltaY / dist;
     }
-    float center[2] = {uPos[0] + 10.0f, uPos[1] + 10.0f};
+    float center[2] = { uPos[0] + 10.0f, uPos[1] + 10.0f };
     // Change the force if it is near the edge
     if (center[0] < border)
     {
@@ -329,8 +312,8 @@ void vtkGraphItem::UpdatePositions()
     }
     // Update velocity and position
     this->Impl->GetVelocity(u, uVel);
-    uVel[0] = dampenLast*uVel[0] + fx;
-    uVel[1] = dampenLast*uVel[1] + fy;
+    uVel[0] = dampenLast * uVel[0] + fx;
+    uVel[1] = dampenLast * uVel[1] + fy;
     uPos[0] += uVel[0];
     uPos[1] += uVel[1];
     this->Impl->SetPosition(u, uPos);
@@ -338,8 +321,8 @@ void vtkGraphItem::UpdatePositions()
   }
 }
 
-//-----------------------------------------------------------------------------
-void vtkGraphItem::PrintSelf(ostream &os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkGraphItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

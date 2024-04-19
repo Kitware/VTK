@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkArrayInterpolate.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkArrayInterpolate
@@ -39,27 +22,26 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArrayInterpolate_h
 #define vtkArrayInterpolate_h
 
 #include "vtkTypedArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayExtents;
 class vtkArraySlices;
 class vtkArrayWeights;
 
 //
 
-template<typename T>
-void vtkInterpolate(
-  vtkTypedArray<T>* source_array,
-  const vtkArraySlices& source_slices,
-  const vtkArrayWeights& source_weights,
-  const vtkArrayExtents& target_slice,
+template <typename T>
+void vtkInterpolate(vtkTypedArray<T>* source_array, const vtkArraySlices& source_slices,
+  const vtkArrayWeights& source_weights, const vtkArrayExtents& target_slice,
   vtkTypedArray<T>* target_array);
 
+VTK_ABI_NAMESPACE_END
 #include "vtkArrayInterpolate.txx"
 
 #endif

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRowQueryToTable.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkRowQueryToTable.h"
 
 #include "vtkInformation.h"
@@ -31,6 +15,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRowQueryToTable);
 
 vtkRowQueryToTable::vtkRowQueryToTable()
@@ -71,9 +56,7 @@ vtkMTimeType vtkRowQueryToTable::GetMTime()
   return mTime;
 }
 
-int vtkRowQueryToTable::RequestData(
-  vtkInformation*,
-  vtkInformationVector** vtkNotUsed(inputVector),
+int vtkRowQueryToTable::RequestData(vtkInformation*, vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
   if (this->Query == nullptr)
@@ -120,15 +103,15 @@ int vtkRowQueryToTable::RequestData(
     {
       int i = 1;
       std::ostringstream oss;
-      vtkStdString newName;
+      std::string newName;
       do
       {
         oss.str("");
         oss << name << "_" << i;
         newName = oss.str();
         ++i;
-      } while (output->GetColumnByName(newName));
-      arr->SetName(newName);
+      } while (output->GetColumnByName(newName.c_str()));
+      arr->SetName(newName.c_str());
     }
     else
     {
@@ -150,10 +133,10 @@ int vtkRowQueryToTable::RequestData(
 
     // Update progress every 100 rows
     numRows++;
-    if ((numRows%100)==0)
+    if ((numRows % 100) == 0)
     {
       // 1% for every 100 rows, and then 'spin around'
-      progressGuess = ((numRows/100)%100)*.01;
+      progressGuess = ((numRows / 100) % 100) * .01;
       this->UpdateProgress(progressGuess);
     }
   }
@@ -161,5 +144,4 @@ int vtkRowQueryToTable::RequestData(
 
   return 1;
 }
-
-
+VTK_ABI_NAMESPACE_END

@@ -106,7 +106,7 @@ public class vtkReferenceInformation {
 
   public String toString() {
     final StringBuilder builder = new StringBuilder(50);
-    builder.append("VTK Gabage Collection: free(");
+    builder.append("VTK Garbage Collection: free(");
     builder.append(this.numberOfObjectsToFree);
     builder.append(") - keep(");
     builder.append(this.numberOfObjectsStillReferenced);

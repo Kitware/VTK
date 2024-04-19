@@ -1,29 +1,38 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkFiltersCore import (
+    vtkElevationFilter,
+    vtkPolyDataNormals,
+)
+from vtkmodules.vtkFiltersGeneral import vtkWarpScalar
+from vtkmodules.vtkFiltersGeometry import vtkImageDataGeometryFilter
+from vtkmodules.vtkIOImage import vtkDEMReader
+from vtkmodules.vtkImagingCore import vtkImageShrink3D
+from vtkmodules.vtkInteractionWidgets import (
+    vtkSphereRepresentation,
+    vtkSphereWidget2,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkInteractorEventRecorder,
+    vtkLight,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestSphereWidget(vtk.test.Testing.vtkTest):
+class TestSphereWidget(vtkmodules.test.Testing.vtkTest):
 
     def testSphereWidget(self):
 
@@ -222,12 +231,12 @@ class TestSphereWidget(vtk.test.Testing.vtkTest):
 
         # Start by loading some data.
         #
-        dem = vtk.vtkDEMReader()
+        dem = vtkDEMReader()
         dem.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
         dem.Update()
 
         Scale = 2
-        lut = vtk.vtkLookupTable()
+        lut = vtkLookupTable()
         lut.SetHueRange(0.6, 0)
         lut.SetSaturationRange(1.0, 0)
         lut.SetValueRange(0.5, 1.0)
@@ -236,30 +245,30 @@ class TestSphereWidget(vtk.test.Testing.vtkTest):
         hi = Scale * dem.GetElevationBounds()[1]
 
 
-        shrink = vtk.vtkImageShrink3D()
+        shrink = vtkImageShrink3D()
         shrink.SetShrinkFactors(4, 4, 1)
         shrink.SetInputConnection(dem.GetOutputPort())
         shrink.AveragingOn()
 
-        geom = vtk.vtkImageDataGeometryFilter()
+        geom = vtkImageDataGeometryFilter()
         geom.SetInputConnection(shrink.GetOutputPort())
         geom.ReleaseDataFlagOn()
 
-        warp = vtk.vtkWarpScalar()
+        warp = vtkWarpScalar()
         warp.SetInputConnection(geom.GetOutputPort())
         warp.SetNormal(0, 0, 1)
         warp.UseNormalOn()
         warp.SetScaleFactor(Scale)
         warp.ReleaseDataFlagOn()
 
-        elevation = vtk.vtkElevationFilter()
+        elevation = vtkElevationFilter()
         elevation.SetInputConnection(warp.GetOutputPort())
         elevation.SetLowPoint(0, 0, lo)
         elevation.SetHighPoint(0, 0, hi)
         elevation.SetScalarRange(lo, hi)
         elevation.ReleaseDataFlagOn()
 
-        normals = vtk.vtkPolyDataNormals()
+        normals = vtkPolyDataNormals()
         normals.SetInputConnection(elevation.GetOutputPort())
         normals.SetFeatureAngle(60)
         normals.ConsistencyOff()
@@ -267,21 +276,21 @@ class TestSphereWidget(vtk.test.Testing.vtkTest):
         normals.ReleaseDataFlagOn()
         normals.Update()
 
-        demMapper = vtk.vtkPolyDataMapper()
+        demMapper = vtkPolyDataMapper()
         demMapper.SetInputConnection(normals.GetOutputPort())
         demMapper.SetScalarRange(lo, hi)
         demMapper.SetLookupTable(lut)
 
-        demActor = vtk.vtkActor()
+        demActor = vtkActor()
         demActor.SetMapper(demMapper)
 
         # Create the RenderWindow, Renderer and both Actors
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.SetMultiSamples(0)
         renWin.AddRenderer(ren)
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin)
         iRen.LightFollowCameraOff()
         #    iRen.SetInteractorStyle("")
@@ -293,21 +302,21 @@ class TestSphereWidget(vtk.test.Testing.vtkTest):
             light.SetPosition(rep.GetHandlePosition())
 
         # Associate the line widget with the interactor
-        rep = vtk.vtkSphereRepresentation()
+        rep = vtkSphereRepresentation()
         rep.SetPlaceFactor(4)
         rep.PlaceWidget(normals.GetOutput().GetBounds())
         rep.HandleVisibilityOn()
         rep.SetRepresentationToWireframe()
         #  rep HandleVisibilityOff
         #  rep HandleTextOff
-        sphereWidget = vtk.vtkSphereWidget2()
+        sphereWidget = vtkSphereWidget2()
         sphereWidget.SetInteractor(iRen)
         sphereWidget.SetRepresentation(rep)
         #  sphereWidget.TranslationEnabledOff()
         #  sphereWidget.ScalingEnabledOff()
         sphereWidget.AddObserver("InteractionEvent", MoveLight)
 
-        recorder = vtk.vtkInteractorEventRecorder()
+        recorder = vtkInteractorEventRecorder()
         recorder.SetInteractor(iRen)
         #  recorder.SetFileName("c:/record.log")
         #  recorder.Record()
@@ -330,7 +339,7 @@ class TestSphereWidget(vtk.test.Testing.vtkTest):
         cam1.Azimuth(125)
         cam1.Zoom(1.25)
 
-        light = vtk.vtkLight()
+        light = vtkLight()
         light.SetFocalPoint(rep.GetCenter())
         light.SetPosition(rep.GetHandlePosition())
         ren.AddLight(light)
@@ -345,8 +354,8 @@ class TestSphereWidget(vtk.test.Testing.vtkTest):
         recorder.Play()
 
         img_file = "TestSphereWidget.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestSphereWidget, 'test')])
+     vtkmodules.test.Testing.main([(TestSphereWidget, 'test')])

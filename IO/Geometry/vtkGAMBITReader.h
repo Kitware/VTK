@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGAMBITReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGAMBITReader
  * @brief   reads a dataset in Fluent GAMBIT neutral file format
@@ -27,7 +15,7 @@
  *
  * @sa
  * vtkAVSucdReader
-*/
+ */
 
 #ifndef vtkGAMBITReader_h
 #define vtkGAMBITReader_h
@@ -35,53 +23,54 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class VTKIOGEOMETRY_EXPORT vtkGAMBITReader : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkGAMBITReader *New();
-  vtkTypeMacro(vtkGAMBITReader,vtkUnstructuredGridAlgorithm);
+  static vtkGAMBITReader* New();
+  vtkTypeMacro(vtkGAMBITReader, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the file name of the GAMBIT data file to read.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total number of cells. The number of cells is only valid after a
    * successful read of the data file is performed.
    */
-  vtkGetMacro(NumberOfCells,int);
-  //@}
+  vtkGetMacro(NumberOfCells, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total number of nodes. The number of nodes is only valid after a
    * successful read of the data file is performed.
    */
-  vtkGetMacro(NumberOfNodes,int);
-  //@}
+  vtkGetMacro(NumberOfNodes, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of data components at the nodes and cells.
    */
-  vtkGetMacro(NumberOfNodeFields,int);
-  vtkGetMacro(NumberOfCellFields,int);
-  //@}
+  vtkGetMacro(NumberOfNodeFields, int);
+  vtkGetMacro(NumberOfCellFields, int);
+  ///@}
 
 protected:
   vtkGAMBITReader();
   ~vtkGAMBITReader() override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char *FileName;
+  char* FileName;
 
   int NumberOfNodes;
   int NumberOfCells;
@@ -91,33 +80,34 @@ protected:
   int NumberOfBoundaryConditionSets;
   int NumberOfCoordinateDirections;
   int NumberOfVelocityComponents;
-  ifstream *FileStream;
+  istream* FileStream;
 
   enum GAMBITCellType
   {
-    EDGE    = 1,
-    QUAD    = 2,
-    TRI     = 3,
-    BRICK   = 4,
-    PRISM   = 5,
-    TETRA   = 6,
+    EDGE = 1,
+    QUAD = 2,
+    TRI = 3,
+    BRICK = 4,
+    PRISM = 5,
+    TETRA = 6,
     PYRAMID = 7
   };
 
 private:
-  void ReadFile(vtkUnstructuredGrid *output);
-  void ReadGeometry(vtkUnstructuredGrid *output);
-  void ReadNodeData(vtkUnstructuredGrid *output);
-  void ReadCellData(vtkUnstructuredGrid *output);
+  void ReadFile(vtkUnstructuredGrid* output);
+  void ReadGeometry(vtkUnstructuredGrid* output);
+  void ReadNodeData(vtkUnstructuredGrid* output);
+  void ReadCellData(vtkUnstructuredGrid* output);
 
-  void ReadXYZCoords(vtkDoubleArray *coords);
+  void ReadXYZCoords(vtkDoubleArray* coords);
 
-  void ReadCellConnectivity(vtkUnstructuredGrid *output);
-  void ReadMaterialTypes(vtkUnstructuredGrid *output);
-  void ReadBoundaryConditionSets(vtkUnstructuredGrid *output);
+  void ReadCellConnectivity(vtkUnstructuredGrid* output);
+  void ReadMaterialTypes(vtkUnstructuredGrid* output);
+  void ReadBoundaryConditionSets(vtkUnstructuredGrid* output);
 
   vtkGAMBITReader(const vtkGAMBITReader&) = delete;
   void operator=(const vtkGAMBITReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

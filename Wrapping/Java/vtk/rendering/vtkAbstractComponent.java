@@ -21,7 +21,7 @@ import vtk.vtkRenderer;
  *
  * @authors Sebastien Jourdain - sebastien.jourdain@kitware.com, Kitware Inc 2012
  *          Joachim Pouderoux - joachim.pouderoux@kitware.com, Kitware SAS 2012
- * @copyright This work was supported by CEA/CESTA
+ * @thanks  This work was supported by CEA/CESTA
  *            Commissariat a l'Energie Atomique et aux Energies Alternatives,
  *            15 avenue des Sablieres, CS 60001, 33116 Le Barp, France.
  */

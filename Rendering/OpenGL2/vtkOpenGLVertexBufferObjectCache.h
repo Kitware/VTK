@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLTexture.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOpenGLVertexBufferObjectCache
  * @brief   manage vertex buffer objects shared within a context
@@ -22,15 +10,16 @@
  *
  *
  *
-*/
+ */
 
 #ifndef vtkOpenGLVertexBufferObjectCache_h
 #define vtkOpenGLVertexBufferObjectCache_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
-#include <map> // for methods
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <map>                         // for methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLVertexBufferObject;
 class vtkDataArray;
 class vtkTimeStamp;
@@ -38,7 +27,7 @@ class vtkTimeStamp;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLVertexBufferObjectCache : public vtkObject
 {
 public:
-  static vtkOpenGLVertexBufferObjectCache *New();
+  static vtkOpenGLVertexBufferObjectCache* New();
   vtkTypeMacro(vtkOpenGLVertexBufferObjectCache, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -49,17 +38,15 @@ public:
    * The return value has been registered, you are responsible
    * for deleting it. The data array pointers are also registered.
    */
-  vtkOpenGLVertexBufferObject* GetVBO(
-    vtkDataArray *array,
-    int destType);
+  vtkOpenGLVertexBufferObject* GetVBO(vtkDataArray* array, int destType);
 
   /**
    * Removes all references to a given vertex buffer
    * object.
    */
-  void RemoveVBO(vtkOpenGLVertexBufferObject *vbo);
+  void RemoveVBO(vtkOpenGLVertexBufferObject* vbo);
 
-  typedef std::map<vtkDataArray*, vtkOpenGLVertexBufferObject *> VBOMap;
+  typedef std::map<vtkDataArray*, vtkOpenGLVertexBufferObject*> VBOMap;
 
 protected:
   vtkOpenGLVertexBufferObjectCache();
@@ -70,7 +57,7 @@ protected:
 private:
   vtkOpenGLVertexBufferObjectCache(const vtkOpenGLVertexBufferObjectCache&) = delete;
   void operator=(const vtkOpenGLVertexBufferObjectCache&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

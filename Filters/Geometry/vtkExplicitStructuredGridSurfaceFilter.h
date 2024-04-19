@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExplicitStructuredGridSurfaceFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkExplicitStructuredGridSurfaceFilter
  * @brief   Filter which creates a surface (polydata) from an explicit structured grid.
@@ -23,6 +11,7 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExplicitStructuredGrid;
 class vtkIdTypeArray;
 class vtkMultiProcessController;
@@ -34,14 +23,12 @@ public:
   vtkTypeMacro(vtkExplicitStructuredGridSurfaceFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If on, the output polygonal dataset will have a celldata array that
    * holds the cell index of the original 3D cell that produced each output
    * cell. This is useful for cell picking. The default is off to conserve
-   * memory. Note that PassThroughCellIds will be ignored if UseStrips is on,
-   * since in that case each tringle strip can represent more than on of the
-   * input cells.
+   * memory.
    */
   vtkSetMacro(PassThroughCellIds, int);
   vtkGetMacro(PassThroughCellIds, int);
@@ -49,9 +36,9 @@ public:
   vtkSetMacro(PassThroughPointIds, int);
   vtkGetMacro(PassThroughPointIds, int);
   vtkBooleanMacro(PassThroughPointIds, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If PassThroughCellIds or PassThroughPointIds is on, then these ivars
    * control the name given to the field in which the ids are written into.  If
@@ -68,7 +55,7 @@ public:
   {
     return (this->OriginalPointIdsName ? this->OriginalPointIdsName : "vtkOriginalPointIds");
   }
-  //@}
+  ///@}
 
 protected:
   vtkExplicitStructuredGridSurfaceFilter();
@@ -98,4 +85,5 @@ private:
   void operator=(const vtkExplicitStructuredGridSurfaceFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,9 +1,12 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (C) Copyright © 2017 Kitware, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
+
 //
 //  VTKViewerDocument.swift
 //  VTKViewer
 //
-//  Created by Benjamin on 24/11/2017.
-//  Copyright © 2017 Kitware, Inc. All rights reserved.
+//  Created by Benjamin Beney on 24/11/2017.
 //
 
 import Foundation

@@ -23,12 +23,12 @@ extern "C" {
     EXTERNL int
     NC4_create(const char *path, int cmode,
                size_t initialsz, int basepe, size_t *chunksizehintp,
-               void* parameters, NC_Dispatch*, NC*);
+               void* parameters, const NC_Dispatch*, int);
 
     EXTERNL int
     NC4_open(const char *path, int mode,
              int basepe, size_t *chunksizehintp,
-             void* parameters, NC_Dispatch*, NC*);
+             void* parameters, const NC_Dispatch*, int);
 
     EXTERNL int
     NC4_redef(int ncid);
@@ -50,12 +50,6 @@ extern "C" {
     NC4_set_fill(int ncid, int fillmode, int *old_modep);
 
     EXTERNL int
-    NC4_set_base_pe(int ncid, int pe);
-
-    EXTERNL int
-    NC4_inq_base_pe(int ncid, int *pe);
-
-    EXTERNL int
     NC4_inq_format(int ncid, int *formatp);
 
     EXTERNL int
@@ -70,19 +64,10 @@ extern "C" {
 /* Begin _dim */
 
     EXTERNL int
-    NC4_def_dim(int ncid, const char *name, size_t len, int *idp);
-
-    EXTERNL int
     NC4_inq_dimid(int ncid, const char *name, int *idp);
 
     EXTERNL int
-    NC4_inq_dim(int ncid, int dimid, char *name, size_t *lenp);
-
-    EXTERNL int
     NC4_inq_unlimdim(int ncid, int *unlimdimidp);
-
-    EXTERNL int
-    NC4_rename_dim(int ncid, int dimid, const char *name);
 
 /* End _dim */
 /* Begin _att */
@@ -116,8 +101,7 @@ extern "C" {
                     int *shufflep, int *deflatep, int *deflate_levelp,
                     int *fletcher32p, int *contiguousp, size_t *chunksizesp,
                     int *no_fill, void *fill_valuep, int *endiannessp,
-                    unsigned int* idp, size_t* nparamsp, unsigned int* params
-        );
+                    unsigned int* idp, size_t* nparamsp, unsigned int* params);
 
     EXTERNL int
     NC4_inq_varid(int ncid, const char *name, int *varidp);
@@ -262,6 +246,17 @@ extern "C" {
     EXTERNL int
     NC4_show_metadata(int);
 
+    EXTERNL int
+    NC4_inq_var_filter_ids(int ncid, int varid, size_t* nfilters, unsigned int* filterids);
+    EXTERNL int
+    NC4_inq_var_filter_info(int ncid, int varid, unsigned int id, size_t* nparams, unsigned int* params);
+
+    EXTERNL int
+    NC4_def_var_quantize(int ncid, int varid, int quantize_mode, int nsd);
+
+    EXTERNL int
+    NC4_inq_var_quantize(int ncid, int varid, int *quantize_modep, int *nsdp);
+    
 #if defined(__cplusplus)
 }
 #endif

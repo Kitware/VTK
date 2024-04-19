@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGeoEdgeStrategy.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkGeoEdgeStrategy
  * @brief   Layout graph edges on a globe as arcs.
@@ -25,22 +9,23 @@
  * vtkGeoEdgeStrategy produces arcs for each edge in the input graph.
  * This is useful for viewing lines on a sphere (e.g. the earth).
  * The arcs may "jump" above the sphere's surface using ExplodeFactor.
-*/
+ */
 
 #ifndef vtkGeoEdgeStrategy_h
 #define vtkGeoEdgeStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkEdgeLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkGeoEdgeStrategy : public vtkEdgeLayoutStrategy
 {
 public:
-  static vtkGeoEdgeStrategy *New();
-  vtkTypeMacro(vtkGeoEdgeStrategy,vtkEdgeLayoutStrategy);
+  static vtkGeoEdgeStrategy* New();
+  vtkTypeMacro(vtkGeoEdgeStrategy, vtkEdgeLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The base radius used to determine the earth's surface.
    * Default is the earth's radius in meters.
@@ -48,9 +33,9 @@ public:
    */
   vtkSetMacro(GlobeRadius, double);
   vtkGetMacro(GlobeRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Factor on which to "explode" the arcs away from the surface.
    * A value of 0.0 keeps the values on the surface.
@@ -60,16 +45,16 @@ public:
    */
   vtkSetMacro(ExplodeFactor, double);
   vtkGetMacro(ExplodeFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The number of subdivisions in the arc.
    * The default is 20.
    */
   vtkSetMacro(NumberOfSubdivisions, int);
   vtkGetMacro(NumberOfSubdivisions, int);
-  //@}
+  ///@}
 
   /**
    * Perform the layout.
@@ -78,7 +63,7 @@ public:
 
 protected:
   vtkGeoEdgeStrategy();
-  ~vtkGeoEdgeStrategy() override {}
+  ~vtkGeoEdgeStrategy() override = default;
 
   double GlobeRadius;
   double ExplodeFactor;
@@ -89,4 +74,5 @@ private:
   void operator=(const vtkGeoEdgeStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

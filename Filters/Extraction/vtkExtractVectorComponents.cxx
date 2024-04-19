@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractVectorComponents.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExtractVectorComponents.h"
 
 #include "vtkArrayDispatch.h"
@@ -25,9 +13,12 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
+//------------------------------------------------------------------------------
 vtkExtractVectorComponents::vtkExtractVectorComponents()
 {
   this->ExtractToFieldData = 0;
@@ -35,52 +26,57 @@ vtkExtractVectorComponents::vtkExtractVectorComponents()
   this->OutputsInitialized = 0;
 }
 
+//------------------------------------------------------------------------------
 vtkExtractVectorComponents::~vtkExtractVectorComponents() = default;
 
+//------------------------------------------------------------------------------
 // Get the output dataset representing velocity x-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 0.)
-vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
+vtkDataSet* vtkExtractVectorComponents::GetVxComponent()
 {
   return this->GetOutput(0);
 }
 
+//------------------------------------------------------------------------------
 // Get the output dataset representing velocity y-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 1.)
-vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
+vtkDataSet* vtkExtractVectorComponents::GetVyComponent()
 {
   return this->GetOutput(1);
 }
 
+//------------------------------------------------------------------------------
 // Get the output dataset representing velocity z-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 2.)
-vtkDataSet *vtkExtractVectorComponents::GetVzComponent()
+vtkDataSet* vtkExtractVectorComponents::GetVzComponent()
 {
   return this->GetOutput(2);
 }
 
+//------------------------------------------------------------------------------
 // Specify the input data or filter.
-void vtkExtractVectorComponents::SetInputData(vtkDataSet *input)
+void vtkExtractVectorComponents::SetInputData(vtkDataSet* input)
 {
-  if (this->GetNumberOfInputConnections(0) > 0 && this->GetInput(0) == input )
+  if (this->GetNumberOfInputConnections(0) > 0 && this->GetInput(0) == input)
   {
     return;
   }
 
   this->Superclass::SetInputData(0, input);
 
-  if ( input == nullptr )
+  if (input == nullptr)
   {
     return;
   }
 
-  vtkDataSet *output;
-  if ( ! this->OutputsInitialized )
+  vtkDataSet* output;
+  if (!this->OutputsInitialized)
   {
     output = input->NewInstance();
     this->GetExecutive()->SetOutputData(0, output);
@@ -98,7 +94,7 @@ void vtkExtractVectorComponents::SetInputData(vtkDataSet *input)
   // since the input has changed we might need to create a new output
   // It seems that output 0 is the correct type as a result of the call to
   // the superclass's SetInput.  Check the type of output 1 instead.
-  if (strcmp(this->GetOutput(1)->GetClassName(),input->GetClassName()))
+  if (strcmp(this->GetOutput(1)->GetClassName(), input->GetClassName()) != 0)
   {
     output = input->NewInstance();
     this->GetExecutive()->SetOutputData(0, output);
@@ -109,57 +105,98 @@ void vtkExtractVectorComponents::SetInputData(vtkDataSet *input)
     output = input->NewInstance();
     this->GetExecutive()->SetOutputData(2, output);
     output->Delete();
-    vtkWarningMacro(<<" a new output had to be created since the input type changed.");
+    vtkWarningMacro(<< " a new output had to be created since the input type changed.");
   }
 }
-namespace {
 
-struct vtkExtractComponents {
-  template <class T>
-  void operator()(T *vectors, vtkDataArray *vx, vtkDataArray *vy,
-                  vtkDataArray *vz) {
-    T *x = T::FastDownCast(vx);
-    T *y = T::FastDownCast(vy);
-    T *z = T::FastDownCast(vz);
+//------------------------------------------------------------------------------
+namespace
+{
+template <typename ArrayT>
+class ExtractVectorComponentsFunctor
+{
+  ArrayT* ArrayX;
+  ArrayT* ArrayY;
+  ArrayT* ArrayZ;
+  ArrayT* Vector;
+  vtkExtractVectorComponents* Filter;
 
-    const auto inRange = vtk::DataArrayTupleRange<3>(vectors);
-    //mark out ranges as single component for better perf
-    auto outX = vtk::DataArrayValueRange<1>(x).begin();
-    auto outY = vtk::DataArrayValueRange<1>(y).begin();
-    auto outZ = vtk::DataArrayValueRange<1>(z).begin();
+public:
+  ExtractVectorComponentsFunctor(vtkDataArray* arrayX, vtkDataArray* arrayY, vtkDataArray* arrayZ,
+    ArrayT* vector, vtkExtractVectorComponents* filter)
+    : Vector(vector)
+    , Filter(filter)
+  {
+    this->ArrayX = ArrayT::FastDownCast(arrayX);
+    this->ArrayY = ArrayT::FastDownCast(arrayY);
+    this->ArrayZ = ArrayT::FastDownCast(arrayZ);
+  }
 
-    for (auto value : inRange) {
-      *outX++ = value[0];
-      *outY++ = value[1];
-      *outZ++ = value[2];
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    const auto inVector = vtk::DataArrayTupleRange<3>(this->Vector, begin, end);
+
+    // mark out ranges as single component for better perf
+    auto outX = vtk::DataArrayValueRange<1>(this->ArrayX, begin, end).begin();
+    auto outY = vtk::DataArrayValueRange<1>(this->ArrayY, begin, end).begin();
+    auto outZ = vtk::DataArrayValueRange<1>(this->ArrayZ, begin, end).begin();
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
+
+    for (auto tuple : inVector)
+    {
+      if (begin % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+      }
+      begin++;
+
+      *outX++ = tuple[0];
+      *outY++ = tuple[1];
+      *outZ++ = tuple[2];
     }
+  }
+};
+
+struct ExtractVectorComponentsWorker
+{
+  template <class ArrayT>
+  void operator()(ArrayT* vectors, vtkDataArray* vx, vtkDataArray* vy, vtkDataArray* vz,
+    vtkExtractVectorComponents* filter)
+  {
+    ExtractVectorComponentsFunctor<ArrayT> functor(vx, vy, vz, vectors, filter);
+    vtkSMPTools::For(0, vectors->GetNumberOfTuples(), functor);
   }
 };
 } // namespace
 
-int vtkExtractVectorComponents::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkExtractVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType numVectors = 0, numVectorsc = 0;
   vtkDataArray *vectors, *vectorsc;
   vtkDataArray *vx, *vy, *vz;
   vtkDataArray *vxc, *vyc, *vzc;
-  vtkPointData *pd, *outVx, *outVy=nullptr, *outVz=nullptr;
-  vtkCellData *cd, *outVxc, *outVyc=nullptr, *outVzc=nullptr;
+  vtkPointData *pd, *outVx, *outVy = nullptr, *outVz = nullptr;
+  vtkCellData *cd, *outVxc, *outVyc = nullptr, *outVzc = nullptr;
 
-  vtkDebugMacro(<<"Extracting vector components...");
+  vtkDebugMacro(<< "Extracting vector components...");
 
   // taken out of previous update method.
   output->CopyStructure(input);
@@ -183,12 +220,10 @@ int vtkExtractVectorComponents::RequestData(
 
   vectors = pd->GetVectors();
   vectorsc = cd->GetVectors();
-  if ( (vectors == nullptr ||
-        ((numVectors = vectors->GetNumberOfTuples()) < 1) ) &&
-       (vectorsc == nullptr ||
-        ((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))
+  if ((vectors == nullptr || ((numVectors = vectors->GetNumberOfTuples()) < 1)) &&
+    (vectorsc == nullptr || ((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))
   {
-    vtkErrorMacro(<<"No vector data to extract!");
+    vtkErrorMacro(<< "No vector data to extract!");
     return 1;
   }
 
@@ -209,7 +244,7 @@ int vtkExtractVectorComponents::RequestData(
   size_t newNameSize;
   if (name)
   {
-    newNameSize = strlen(name)+10;
+    newNameSize = strlen(name) + 10;
   }
   else
   {
@@ -233,9 +268,10 @@ int vtkExtractVectorComponents::RequestData(
     snprintf(newName, newNameSize, "%s-z", name);
     vz->SetName(newName);
 
-    if(!vtkArrayDispatch::Dispatch::Execute(vectors, vtkExtractComponents{}, vx, vy, vz))
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          vectors, ExtractVectorComponentsWorker{}, vx, vy, vz, this))
     {
-      vtkExtractComponents{}(vectors, vx, vy, vz);
+      ExtractVectorComponentsWorker{}(vectors, vx, vy, vz, this);
     }
 
     outVx->PassData(pd);
@@ -277,9 +313,10 @@ int vtkExtractVectorComponents::RequestData(
     snprintf(newName, newNameSize, "%s-z", name);
     vzc->SetName(newName);
 
-    if(!vtkArrayDispatch::Dispatch::Execute(vectorsc, vtkExtractComponents{}, vxc, vyc, vzc))
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          vectorsc, ExtractVectorComponentsWorker{}, vxc, vyc, vzc, this))
     {
-      vtkExtractComponents{}(vectorsc, vxc, vyc, vzc);
+      ExtractVectorComponentsWorker{}(vectorsc, vxc, vyc, vzc, this);
     }
 
     outVxc->PassData(cd);
@@ -307,12 +344,16 @@ int vtkExtractVectorComponents::RequestData(
   }
   delete[] newName;
 
+  this->CheckAbort();
+
   return 1;
 }
 
+//------------------------------------------------------------------------------
 void vtkExtractVectorComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ExtractToFieldData: " << this->ExtractToFieldData << endl;
 }
+VTK_ABI_NAMESPACE_END

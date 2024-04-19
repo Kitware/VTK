@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderViewBase.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkRenderViewBase.h"
 
@@ -19,11 +7,12 @@
 #include "vtkGenericRenderWindowInteractor.h"
 #include "vtkInteractorObserver.h"
 #include "vtkObjectFactory.h"
-#include "vtkRendererCollection.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderViewBase);
 
 vtkRenderViewBase::vtkRenderViewBase()
@@ -51,9 +40,9 @@ void vtkRenderViewBase::SetRenderer(vtkRenderer* newren)
   vtkRendererCollection* rens = this->RenderWindow->GetRenderers();
   vtkCollectionSimpleIterator cookie;
   rens->InitTraversal(cookie);
-  while(vtkRenderer *ren = rens->GetNextRenderer(cookie))
+  while (vtkRenderer* ren = rens->GetNextRenderer(cookie))
   {
-    if (ren->GetLayer()<2)
+    if (ren->GetLayer() < 2)
     {
       ren->SetRenderWindow(nullptr);
       this->RenderWindow->RemoveRenderer(ren);
@@ -80,7 +69,7 @@ void vtkRenderViewBase::SetRenderWindow(vtkRenderWindow* win)
 
   // move renderers to new window
   vtkRendererCollection* rens = this->RenderWindow->GetRenderers();
-  while(rens->GetNumberOfItems())
+  while (rens->GetNumberOfItems())
   {
     vtkRenderer* ren = rens->GetFirstRenderer();
     ren->SetRenderWindow(nullptr);
@@ -88,8 +77,8 @@ void vtkRenderViewBase::SetRenderWindow(vtkRenderWindow* win)
     this->RenderWindow->RemoveRenderer(ren);
   }
 
-  vtkSmartPointer<vtkInteractorObserver> style = this->GetInteractor()?
-        this->GetInteractor()->GetInteractorStyle() : nullptr;
+  vtkSmartPointer<vtkInteractorObserver> style =
+    this->GetInteractor() ? this->GetInteractor()->GetInteractorStyle() : nullptr;
   this->RenderWindow = win;
   if (this->GetInteractor())
   {
@@ -97,8 +86,7 @@ void vtkRenderViewBase::SetRenderWindow(vtkRenderWindow* win)
   }
   else if (style)
   {
-    vtkGenericRenderWindowInteractor* iren =
-        vtkGenericRenderWindowInteractor::New();
+    vtkGenericRenderWindowInteractor* iren = vtkGenericRenderWindowInteractor::New();
     win->SetInteractor(iren);
     iren->SetInteractorStyle(style);
     iren->Delete();
@@ -117,8 +105,8 @@ void vtkRenderViewBase::SetInteractor(vtkRenderWindowInteractor* interactor)
     return;
   }
 
-  vtkSmartPointer<vtkInteractorObserver> style = this->GetInteractor() ?
-        this->GetInteractor()->GetInteractorStyle() : nullptr;
+  vtkSmartPointer<vtkInteractorObserver> style =
+    this->GetInteractor() ? this->GetInteractor()->GetInteractorStyle() : nullptr;
   this->RenderWindow->SetInteractor(interactor);
 
   if (this->GetInteractor())
@@ -127,8 +115,7 @@ void vtkRenderViewBase::SetInteractor(vtkRenderWindowInteractor* interactor)
   }
   else if (style && this->RenderWindow)
   {
-    vtkGenericRenderWindowInteractor* iren =
-        vtkGenericRenderWindowInteractor::New();
+    vtkGenericRenderWindowInteractor* iren = vtkGenericRenderWindowInteractor::New();
     this->RenderWindow->SetInteractor(iren);
     iren->SetInteractorStyle(style);
     iren->Delete();
@@ -182,3 +169,4 @@ void vtkRenderViewBase::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

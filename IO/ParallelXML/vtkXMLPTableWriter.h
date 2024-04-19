@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPTableWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPTableWriter
  * @brief   Write PVTK XML UnstructuredGrid files.
@@ -25,7 +13,7 @@
  *
  * @sa
  * vtkXMLTableWriter
-*/
+ */
 
 #ifndef vtkXMLPTableWriter_h
 #define vtkXMLPTableWriter_h
@@ -33,6 +21,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPDataObjectWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkMultiProcessController;
 class vtkTable;
@@ -61,8 +50,8 @@ protected:
   ~vtkXMLPTableWriter() override;
 
   /**
-  * see algorithm for more info
-  */
+   * see algorithm for more info
+   */
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
@@ -112,4 +101,5 @@ private:
   void SetupPieceFileNameExtension() override;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

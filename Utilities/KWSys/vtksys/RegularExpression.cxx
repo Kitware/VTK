@@ -28,8 +28,8 @@
 #  include "RegularExpression.hxx.in"
 #endif
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 namespace KWSYS_NAMESPACE {
 
@@ -359,7 +359,7 @@ bool RegularExpression::compile(const char* exp)
   this->regmatch.clear();
 
   // Small enough for pointer-storage convention?
-  if (comp.regsize >= 32767L) { // Probably could be 65535L.
+  if (comp.regsize >= 65535L) {
     // RAISE Error, SYM(RegularExpression), SYM(Expr_Too_Big),
     printf("RegularExpression::compile(): Expression too big.\n");
     return false;
@@ -367,8 +367,7 @@ bool RegularExpression::compile(const char* exp)
 
   // Allocate space.
   //#ifndef _WIN32
-  if (this->program != nullptr)
-    delete[] this->program;
+  delete[] this->program;
   //#endif
   this->program = new char[comp.regsize];
   this->progsize = static_cast<int>(comp.regsize);

@@ -1,22 +1,10 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMotionFXCFGReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkMotionFXCFGReader.h"
 
 #include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
@@ -24,7 +12,6 @@
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
 #include "vtkSTLReader.h"
@@ -40,34 +27,40 @@
 // Set to 1 to generate debugging trace if grammar match fails.
 #include "vtkMotionFXCFGGrammar.h" // grammar
 
+#include <cassert>
 #include <cctype>
 #include <fstream>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 //=============================================================================
 namespace impl
 {
+VTK_ABI_NAMESPACE_BEGIN
 struct Motion;
 
-using MapOfVectorOfMotions = std::map<std::string, std::vector<std::shared_ptr<const impl::Motion> > >;
+using MapOfVectorOfMotions =
+  std::map<std::string, std::vector<std::shared_ptr<const impl::Motion>>>;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // this exception is fired to indicate that a required parameter is missing for
 // the motion definition.
 class MissingParameterError : public std::runtime_error
 {
 public:
   MissingParameterError(const std::string& what_arg)
-    : std::runtime_error(what_arg){};
+    : std::runtime_error(what_arg)
+  {
+  }
   MissingParameterError(const char* what_arg)
-    : std::runtime_error(what_arg){};
+    : std::runtime_error(what_arg)
+  {
+  }
 };
 
-
-
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // these are a bunch of convenience methods used in constructors for various
 // motion types that read parameter values from a map of params and then sets
 // appropriate member variable. If the parameter is missing, then raises
@@ -108,12 +101,11 @@ void set(double& ref, const char* pname, const MapType& params)
   ref = iter->second.DoubleValue[0];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // this is a variant of set that doesn't raise MissingParameterError exception
 // instead set the param to the default value indicated.
 template <typename Value, typename MapType>
-void set(Value& ref, const char* pname, const MapType& params,
-  const Value& defaultValue)
+void set(Value& ref, const char* pname, const MapType& params, const Value& defaultValue)
 {
   try
   {
@@ -125,9 +117,9 @@ void set(Value& ref, const char* pname, const MapType& params,
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Superclass for all motions
-// The member variable names match the keyworks in the cfg file and hence are
+// The member variable names match the keywords in the cfg file and hence are
 // left lower-case.
 struct Motion
 {
@@ -150,12 +142,12 @@ struct Motion
   template <typename MapType>
   Motion(const MapType& params)
   {
-    set(this->tstart_prescribe, "tstart_prescribe", params);
-    set(this->tend_prescribe, "tend_prescribe", params);
+    set(this->tstart_prescribe, "tstart_prescribe", params, 0.0);
+    set(this->tend_prescribe, "tend_prescribe", params, VTK_DOUBLE_MAX);
     set(this->t_damping, "t_damping", params, 0.0);
     set(this->stl, "stl", params);
   }
-  virtual ~Motion() {}
+  virtual ~Motion() = default;
 
   virtual bool Move(vtkPoints* pts, double time) const = 0;
 
@@ -171,7 +163,6 @@ protected:
     {
       // s = u*tA + 0.5 * a * (tA)^2
       const double tA = std::min(time - this->tstart_prescribe, this->t_damping);
-      ;
       assert(tA >= 0.0);
       const double tA2 = tA * tA;
       s = s + (init_velocity * tA + acceleration * (tA2 / 2.0));
@@ -200,15 +191,12 @@ protected:
     void operator()(InputArrayType* darray)
     {
       VTK_ASSUME(darray->GetNumberOfComponents() == 3);
-      using ValueType = typename vtkDataArrayAccessor<InputArrayType>::APIType;
-      vtkDataArrayAccessor<InputArrayType> accessor(darray);
+      using ValueType = vtk::GetAPIType<InputArrayType>;
 
       vtkSMPTools::For(0, darray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
-        for (vtkIdType cc = begin; cc < end; ++cc)
+        auto drange = vtk::DataArrayTupleRange(darray, begin, end);
+        for (auto tuple : drange)
         {
-          vtkVector3<ValueType> tuple;
-          accessor.Get(cc, tuple.GetData());
-
           vtkVector4<ValueType> in, out;
           in[0] = tuple[0];
           in[1] = tuple[1];
@@ -220,14 +208,14 @@ protected:
           out[0] /= out[3];
           out[1] /= out[3];
           out[2] /= out[3];
-          accessor.Set(cc, out.GetData());
+          tuple.SetTuple(out.GetData());
         }
       });
     }
   };
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Move given velocity
 struct ImposeVelMotion : public Motion
 {
@@ -290,26 +278,21 @@ private:
     template <typename InputArrayType>
     void operator()(InputArrayType* darray)
     {
-      VTK_ASSUME(darray->GetNumberOfComponents() == 3);
-      using ValueType = typename vtkDataArrayAccessor<InputArrayType>::APIType;
-      vtkDataArrayAccessor<InputArrayType> accessor(darray);
+      using T = vtk::GetAPIType<InputArrayType>;
 
       vtkSMPTools::For(0, darray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
-        for (vtkIdType cc = begin; cc < end; ++cc)
+        for (auto tuple : vtk::DataArrayTupleRange<3>(darray, begin, end))
         {
-          vtkVector3<ValueType> tuple;
-          accessor.Get(cc, tuple.GetData());
-          tuple[0] += this->Displacement[0];
-          tuple[1] += this->Displacement[1];
-          tuple[2] += this->Displacement[2];
-          accessor.Set(cc, tuple.GetData());
+          tuple[0] += static_cast<T>(this->Displacement[0]);
+          tuple[1] += static_cast<T>(this->Displacement[1]);
+          tuple[2] += static_cast<T>(this->Displacement[2]);
         }
       });
     }
   };
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Rotate around an arbitrary axis.
 struct RotateAxisMotion : public Motion
 {
@@ -369,7 +352,7 @@ struct RotateAxisMotion : public Motion
     if (theta != 0.0)
     {
       // theta is in radians.
-      // convert to degress
+      // convert to degrees
       theta = vtkMath::DegreesFromRadians(theta);
 
       vtkNew<vtkTransform> transform;
@@ -388,7 +371,7 @@ struct RotateAxisMotion : public Motion
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Rotate around x,y,z coordinate axes.
 struct RotateMotion : public Motion
 {
@@ -452,7 +435,7 @@ struct RotateMotion : public Motion
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Planetary motion
 struct PlanetaryMotion : public Motion
 {
@@ -557,7 +540,7 @@ struct PlanetaryMotion : public Motion
       transform->Translate(-this->orbit_cntr[0], -this->orbit_cntr[1], -this->orbit_cntr[2]);
 
       // day_theta is in radians.
-      // convert to degress
+      // convert to degrees
       day_theta = vtkMath::DegreesFromRadians(day_theta);
 
       transform->Translate(this->initial_centerOfDayRotation.GetData());
@@ -575,7 +558,7 @@ struct PlanetaryMotion : public Motion
   }
 };
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Move given a position file.
 struct PositionFileMotion : public Motion
 {
@@ -616,10 +599,8 @@ struct PositionFileMotion : public Motion
   template <typename MapType>
   PositionFileMotion(const MapType& params)
     : Motion(params)
-    , positionFile()
     , isOrientation(false)
     , initial_centerOfMass{ VTK_DOUBLE_MAX }
-    , positions()
   {
     std::string motion_type;
     set(motion_type, "motion_type", params);
@@ -631,15 +612,7 @@ struct PositionFileMotion : public Motion
     std::string s_isOrientation;
     set(s_isOrientation, "isOrientation", params, std::string("false"));
     s_isOrientation = vtksys::SystemTools::LowerCase(s_isOrientation);
-    if (s_isOrientation == "true" || s_isOrientation == "1")
-    {
-      this->isOrientation = true;
-    }
-    else
-    {
-      // default.
-      this->isOrientation = false;
-    }
+    this->isOrientation = s_isOrientation == "true" || s_isOrientation == "1";
   }
 
   // read_position_file is defined later since it needs the Actions namespace.
@@ -680,7 +653,7 @@ struct PositionFileMotion : public Motion
     }
 
     vtkVector3d cumulativeS(0.0); //, cumulativeTheta(0.0);
-    if (this->isOrientation == false)
+    if (!this->isOrientation)
     {
       for (auto citer = this->positions.begin(); citer != iter; ++citer)
       {
@@ -748,6 +721,158 @@ struct PositionFileMotion : public Motion
   }
 };
 
+//-----------------------------------------------------------------------------
+// Move given a universal transform file.
+struct UniversalTransformMotion : public Motion
+{
+  // name of the file that contains the transformation data
+  // as a function of time.
+  std::string utm;
+
+  struct tuple_type
+  {
+    vtkVector3d translation_vector;
+    vtkVector3d rotation_center;
+    vtkVector4d quaternion;
+    vtkVector3d linear_scale;
+
+    tuple_type()
+      : translation_vector(0.0)
+      , rotation_center(0.0)
+      , quaternion(0.0)
+      , linear_scale(0.0)
+    {
+    }
+  };
+
+  mutable std::map<double, tuple_type> transforms; // (derived).
+
+  template <typename MapType>
+  UniversalTransformMotion(const MapType& params)
+    : Motion(params)
+  {
+    std::string motion_type;
+    set(motion_type, "motion_type", params);
+    assert(motion_type == "UNIVERSAL_TRANSFORM");
+
+    set(this->utm, "utm", params);
+  }
+
+  // read_universaltransform_file is defined later since it needs the Actions namespace.
+  bool read_universaltransform_file(const std::string& rootDir) const;
+
+  bool Move(vtkPoints* pts, double time) const override
+  {
+    if (this->transforms.empty())
+    {
+      // at least one entry is required
+      return false;
+    }
+
+    // let's clamp to time range in the universal transform file
+    time = std::min(this->transforms.rbegin()->first, time);
+    time = std::max(this->transforms.begin()->first, time);
+
+    auto next = this->transforms.lower_bound(time);
+    auto prev = next;
+
+    vtkNew<vtkTransform> transform;
+    transform->PostMultiply();
+
+    double t;
+    if (next->first > time)
+    {
+      prev = std::prev(next);
+      const double interval = (next->first - prev->first);
+      const double dt = std::min(time - prev->first, interval);
+      t = dt / interval; // normalized dt
+    }
+    else // this also handles single entry files
+    {
+      t = 0.0;
+    }
+
+    const vtkVector3d rotation_center =
+      prev->second.rotation_center * (1.0 - t) + next->second.rotation_center * t;
+    transform->Translate((rotation_center * -1.0).GetData());
+
+    const vtkVector3d linear_scale =
+      prev->second.linear_scale * (1.0 - t) + next->second.linear_scale * t;
+    transform->Scale(linear_scale.GetData());
+
+    double quatdotprod = prev->second.quaternion.Dot(next->second.quaternion);
+
+    if (quatdotprod < 0.0)
+    {
+      next->second.quaternion = -next->second.quaternion;
+      quatdotprod = -quatdotprod;
+    }
+
+    vtkVector4d quatnow;
+    if (quatdotprod > 0.9995) // linear interpolation (LERP)
+    {
+      quatnow = prev->second.quaternion * (1.0 - t) + next->second.quaternion * t;
+    }
+    else // spherical linear interpolation (SLERP)
+    {
+      const double thdiff = std::acos(quatdotprod);
+      const double sndiff = std::sin(thdiff);
+      const double cfi = sin((1.0 - t) * thdiff) / sndiff;
+      const double cfn = sin(t * thdiff) / sndiff;
+      quatnow = prev->second.quaternion * cfi + next->second.quaternion * cfn;
+    }
+
+    const double quatmag = quatnow.Norm();
+    const double oquatmag = 1.0 / quatmag;
+    if (quatmag > 0.1) // Should never lead to division by zero for a quaternion
+    {
+      quatnow = quatnow * oquatmag;
+    }
+
+    vtkVector3d axis;
+    double angle;
+    if (quatnow[3] == 1.0)
+    {
+      // Arbitrary axis
+      axis[0] = 1.0;
+      axis[1] = 0.0;
+      axis[2] = 0.0;
+      angle = 0.0;
+    }
+    else if (quatnow[3] == 0.0)
+    {
+      // Arbitrary axis
+      axis[0] = 1.0;
+      axis[1] = 0.0;
+      axis[2] = 0.0;
+      angle = 180.0;
+    }
+    else
+    {
+      const double coeff = 1.0 / std::sqrt(1.0 - quatnow[3] * quatnow[3]);
+      angle = vtkMath::DegreesFromRadians(2.0 * std::acos(quatnow[3]));
+      axis[0] = quatnow[0] * coeff;
+      axis[1] = quatnow[1] * coeff;
+      axis[2] = quatnow[2] * coeff;
+      axis.Normalize(); // Should never lead to division by zero for a quaternion
+    }
+
+    transform->RotateWXYZ(angle, axis.GetData());
+
+    const vtkVector3d translation_vector =
+      prev->second.translation_vector * (1.0 - t) + next->second.translation_vector * t;
+    transform->Translate(translation_vector.GetData());
+
+    ApplyTransform worker(transform);
+    // transform points.
+    using PointTypes = vtkTypeList::Create<float, double>;
+    vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
+    pts->GetData()->Modified();
+    return true;
+  }
+};
+
+//-----------------------------------------------------------------------------
 template <typename MapType>
 std::shared_ptr<const Motion> CreateMotion(const MapType& params)
 {
@@ -784,6 +909,10 @@ std::shared_ptr<const Motion> CreateMotion(const MapType& params)
     {
       return std::make_shared<PositionFileMotion>(params);
     }
+    else if (motion_type == "UNIVERSAL_TRANSFORM")
+    {
+      return std::make_shared<UniversalTransformMotion>(params);
+    }
     vtkGenericWarningMacro("Unsupported motion_type '" << motion_type << "'. Skipping.");
   }
   catch (const MissingParameterError& e)
@@ -795,6 +924,7 @@ std::shared_ptr<const Motion> CreateMotion(const MapType& params)
 
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END
 }
 
 //=============================================================================
@@ -802,13 +932,16 @@ namespace Actions
 {
 using namespace tao::pegtl;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // actions when parsing LegacyPositionFile::Grammar or
 // OrientationsPositionFile::Grammar
 namespace PositionFile
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename Rule>
-struct action : nothing<Rule> {};
+struct action : nothing<Rule>
+{
+};
 
 template <>
 struct action<MotionFX::Common::Number>
@@ -859,13 +992,57 @@ struct action<MotionFX::OrientationsPositionFile::Row>
     active_numbers.clear();
   }
 };
+VTK_ABI_NAMESPACE_END
 } // namespace PositionFile
+
+//-----------------------------------------------------------------------------
+// actions when parsing UniversalTransformRow::Grammar
+namespace UniversalTransformFile
+{
+VTK_ABI_NAMESPACE_BEGIN
+template <typename Rule>
+struct action : nothing<Rule>
+{
+};
+
+template <>
+struct action<MotionFX::Common::Number>
+{
+  // if a Number is encountered, push it into the set of active_numbers.
+  template <typename Input, typename OtherState>
+  static void apply(const Input& in, std::vector<double>& active_numbers, OtherState&)
+  {
+    active_numbers.push_back(std::atof(in.string().c_str()));
+  }
+};
+
+template <>
+struct action<MotionFX::UniversalTransformRow::Row>
+{
+  template <typename UniversalTransformType>
+  static void apply0(std::vector<double>& active_numbers, UniversalTransformType& state)
+  {
+    assert(active_numbers.size() == 14);
+    using tuple_type = typename UniversalTransformType::mapped_type;
+    tuple_type tuple;
+    tuple.translation_vector = vtkVector3d(active_numbers[1], active_numbers[2], active_numbers[3]);
+    tuple.rotation_center = vtkVector3d(active_numbers[4], active_numbers[5], active_numbers[6]);
+    tuple.quaternion =
+      vtkVector4d(active_numbers[7], active_numbers[8], active_numbers[9], active_numbers[10]);
+    tuple.linear_scale = vtkVector3d(active_numbers[11], active_numbers[12], active_numbers[13]);
+    state[active_numbers[0]] = tuple;
+    active_numbers.clear();
+  }
+};
+VTK_ABI_NAMESPACE_END
+} // namespace UniversalTransformSpace
 
 //-----------------------------------------------------------------------------
 // actions when parsing CFG::Grammar
 namespace CFG
 {
-//-----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+//------------------------------------------------------------------------------
 // When parsing CFG, we need to accumulate values and keep track of them.
 // Value and ActiveState help us do that.
 struct Value
@@ -886,19 +1063,24 @@ struct ActiveState
   std::map<std::string, Value> ActiveParameters;
   impl::MapOfVectorOfMotions& Motions;
 
-  ActiveState(impl::MapOfVectorOfMotions& motions) : Motions(motions) {}
-  ~ActiveState() {}
+  ActiveState(impl::MapOfVectorOfMotions& motions)
+    : Motions(motions)
+  {
+  }
+  ~ActiveState() = default;
 
 private:
   ActiveState(const ActiveState&) = delete;
   void operator=(const ActiveState&) = delete;
 };
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 template <typename Rule>
-struct action : nothing<Rule> {};
+struct action : nothing<Rule>
+{
+};
 
-template<>
+template <>
 struct action<MotionFX::CFG::Value>
 {
 
@@ -907,7 +1089,7 @@ struct action<MotionFX::CFG::Value>
   {
     auto content = in.string();
     // the value can have trailing spaces; remove them.
-    while (content.size() > 0 && std::isspace(content.back()))
+    while (!content.empty() && std::isspace(content.back()))
     {
       content.pop_back();
     }
@@ -930,6 +1112,7 @@ struct action<MotionFX::CFG::Value>
           vtkGenericWarningMacro("Expecting number, got '" << val << "'");
         }
       }
+      state.ActiveValue.StringValue = tupleRe.match(1);
     }
     else if (numberRe.find(content))
     {
@@ -990,21 +1173,23 @@ struct action<MotionFX::CFG::Grammar>
     // let's sort all motions according to tstart_prescribe.
     for (auto& apair : state.Motions)
     {
-      std::sort(
-        apair.second.begin(), apair.second.end(), [](const std::shared_ptr<const impl::Motion>& m0,
-                                                    const std::shared_ptr<const impl::Motion>& m1) {
+      std::sort(apair.second.begin(), apair.second.end(),
+        [](const std::shared_ptr<const impl::Motion>& m0,
+          const std::shared_ptr<const impl::Motion>& m1) {
           return m0->tstart_prescribe < m1->tstart_prescribe;
         });
     }
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace CFG
 
 } // namespace Actions
 
 namespace impl
 {
+VTK_ABI_NAMESPACE_BEGIN
 bool PositionFileMotion::read_position_file(const std::string& rootDir) const
 {
   // read positionFile.
@@ -1015,15 +1200,13 @@ bool PositionFileMotion::read_position_file(const std::string& rootDir) const
     {
       std::vector<double> numbers;
       tao::pegtl::parse<MotionFX::OrientationsPositionFile::Grammar,
-        Actions::PositionFile::action/*, tao::pegtl::tracer*/>(
-        in, numbers, this->positions);
+        Actions::PositionFile::action /*, tao::pegtl::tracer*/>(in, numbers, this->positions);
     }
     else
     {
       std::vector<double> numbers;
       tao::pegtl::parse<MotionFX::LegacyPositionFile::Grammar,
-        Actions::PositionFile::action/*, tao::pegtl::tracer*/>(
-        in, numbers, this->positions);
+        Actions::PositionFile::action /*, tao::pegtl::tracer*/>(in, numbers, this->positions);
     }
     return true;
   }
@@ -1033,18 +1216,38 @@ bool PositionFileMotion::read_position_file(const std::string& rootDir) const
   }
   return false;
 }
+
+bool UniversalTransformMotion::read_universaltransform_file(const std::string& rootDir) const
+{
+  // read universalTransformFile.
+  try
+  {
+    tao::pegtl::read_input<> in(rootDir + "/" + this->utm);
+    std::vector<double> numbers;
+    tao::pegtl::parse<MotionFX::UniversalTransformRow::Grammar,
+      Actions::UniversalTransformFile::action /*, tao::pegtl::tracer*/>(
+      in, numbers, this->transforms);
+    return true;
+  }
+  catch (const tao::pegtl::input_error& e)
+  {
+    vtkGenericWarningMacro(
+      "UniversalTransformMotion::read_universaltransform_file failed: " << e.what());
+  }
+  return false;
+}
+VTK_ABI_NAMESPACE_END
 } // impl
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMotionFXCFGReader::vtkInternals
 {
 public:
   vtkInternals()
-    : Motions()
-    , TimeRange(0, -1)
-    , Geometries()
+    : TimeRange(0, -1)
   {
   }
-  ~vtkInternals() {}
+  ~vtkInternals() = default;
 
   const vtkVector2d& GetTimeRange() const { return this->TimeRange; }
 
@@ -1053,7 +1256,7 @@ public:
     tao::pegtl::read_input<> in(filename);
     Actions::CFG::ActiveState state(this->Motions);
     tao::pegtl::parse<MotionFX::CFG::Grammar, Actions::CFG::action>(in, state);
-    if (this->Motions.size() == 0)
+    if (this->Motions.empty())
     {
       vtkGenericWarningMacro(
         "No valid 'motions' were parsed from the CFG file. "
@@ -1084,8 +1287,7 @@ public:
         vtkPolyData* pd = reader->GetOutput();
         if (pd->GetNumberOfPoints() > 0)
         {
-          this->Geometries.push_back(
-            std::pair<std::string, vtkSmartPointer<vtkPolyData> >(iter->first, pd));
+          this->Geometries.emplace_back(iter->first, pd);
           ++iter;
           continue;
         }
@@ -1095,7 +1297,7 @@ public:
       iter = this->Motions.erase(iter);
     }
 
-    if (this->Motions.size() == 0)
+    if (this->Motions.empty())
     {
       vtkGenericWarningMacro("All parsed `motion`s were skipped!");
       return false;
@@ -1106,10 +1308,13 @@ public:
     {
       for (const auto& motion : pair.second)
       {
-        if (auto mpf =
-              std::dynamic_pointer_cast<const impl::PositionFileMotion>(motion))
+        if (auto mpf = std::dynamic_pointer_cast<const impl::PositionFileMotion>(motion))
         {
           mpf->read_position_file(dir);
+        }
+        else if (auto mut = std::dynamic_pointer_cast<const impl::UniversalTransformMotion>(motion))
+        {
+          mut->read_universaltransform_file(dir);
         }
       }
     }
@@ -1168,28 +1373,27 @@ private:
 
   impl::MapOfVectorOfMotions Motions;
   vtkVector2d TimeRange;
-  std::vector<std::pair<std::string, vtkSmartPointer<vtkPolyData> > > Geometries;
+  std::vector<std::pair<std::string, vtkSmartPointer<vtkPolyData>>> Geometries;
 };
 
 vtkStandardNewMacro(vtkMotionFXCFGReader);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMotionFXCFGReader::vtkMotionFXCFGReader()
-  : FileName()
-  , TimeResolution(100)
+  : TimeResolution(100)
   , Internals(nullptr)
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMotionFXCFGReader::~vtkMotionFXCFGReader()
 {
   delete this->Internals;
   this->Internals = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMotionFXCFGReader::SetFileName(const char* fname)
 {
   const std::string arg(fname ? fname : "");
@@ -1201,7 +1405,7 @@ void vtkMotionFXCFGReader::SetFileName(const char* fname)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMotionFXCFGReader::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -1224,7 +1428,7 @@ int vtkMotionFXCFGReader::RequestInformation(
     timesteps.back() = trange[1];
 
     outInfo->Set(
-      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timesteps[0], this->TimeResolution);
+      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timesteps.data(), this->TimeResolution);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), trange.GetData(), 2);
   }
   else
@@ -1235,7 +1439,7 @@ int vtkMotionFXCFGReader::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMotionFXCFGReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -1269,7 +1473,7 @@ int vtkMotionFXCFGReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkMotionFXCFGReader::ReadMetaData()
 {
   if (this->FileNameMTime < this->MetaDataMTime)
@@ -1283,14 +1487,14 @@ bool vtkMotionFXCFGReader::ReadMetaData()
   if (vtksys::SystemTools::TestFileAccess(
         this->FileName, vtksys::TEST_FILE_OK | vtksys::TEST_FILE_READ))
   {
-    auto* interals = new vtkInternals();
-    if (interals->Parse(this->FileName))
+    auto* internals = new vtkInternals();
+    if (internals->Parse(this->FileName))
     {
-      this->Internals = interals;
+      this->Internals = internals;
       this->MetaDataMTime.Modified();
       return true;
     }
-    delete interals;
+    delete internals;
   }
   else
   {
@@ -1299,10 +1503,11 @@ bool vtkMotionFXCFGReader::ReadMetaData()
   return (this->Internals != nullptr);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMotionFXCFGReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << this->FileName << endl;
   os << indent << "TimeResolution: " << this->TimeResolution << endl;
 }
+VTK_ABI_NAMESPACE_END

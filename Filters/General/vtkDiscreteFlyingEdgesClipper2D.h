@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDiscreteFlyingEdgesClipper2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDiscreteFlyingEdgesClipper2D
  * @brief   generate filled regions from segmented 2D image data
@@ -47,30 +35,31 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkDiscreteFlyingEdges2D vtkDiscreteMarchingCubes vtkContourLoopExtraction
- * vtkFlyingEdges2D vtkFlyingEdges3D
+ * vtkSurfaceNets2D vtkDiscreteFlyingEdges2D vtkDiscreteMarchingCubes
+ * vtkContourLoopExtraction vtkFlyingEdges2D vtkFlyingEdges3D
  */
 
 #ifndef vtkDiscreteFlyingEdgesClipper2D_h
 #define vtkDiscreteFlyingEdgesClipper2D_h
 
+#include "vtkContourValues.h"        // Needed for direct access to ContourValues
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkContourValues.h" // Needed for direct access to ContourValues
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKFILTERSGENERAL_EXPORT vtkDiscreteFlyingEdgesClipper2D : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, printing, and type information.
    */
-  static vtkDiscreteFlyingEdgesClipper2D *New();
-  vtkTypeMacro(vtkDiscreteFlyingEdgesClipper2D,vtkPolyDataAlgorithm);
+  static vtkDiscreteFlyingEdgesClipper2D* New();
+  vtkTypeMacro(vtkDiscreteFlyingEdgesClipper2D, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The modified time is a function of the contour values because we delegate to
@@ -85,84 +74,81 @@ public:
    * type. During execution the contour values are static cast to the type of
    * the scalar values.)
    */
-  void SetValue(int i, double value)
-    {this->ContourValues->SetValue(i,value);}
+  void SetValue(int i, double value) { this->ContourValues->SetValue(i, value); }
 
   /**
    * Get the ith contour value.
    */
-  double GetValue(int i)
-    {return this->ContourValues->GetValue(i);}
+  double GetValue(int i) { return this->ContourValues->GetValue(i); }
 
   /**
    * Get a pointer to an array of contour values. There will be
    * GetNumberOfContours() values in the list.
    */
-  double *GetValues()
-    {return this->ContourValues->GetValues();}
+  double* GetValues() { return this->ContourValues->GetValues(); }
 
   /**
    * Fill a supplied list with contour values. There will be
    * GetNumberOfContours() values in the list. Make sure you allocate
    * enough memory to hold the list.
    */
-  void GetValues(double *contourValues)
-    {this->ContourValues->GetValues(contourValues);}
+  void GetValues(double* contourValues) { this->ContourValues->GetValues(contourValues); }
 
   /**
    * Set the number of contours to place into the list. You only really
    * need to use this method to reduce list size. The method SetValue()
    * will automatically increase list size as needed.
    */
-  void SetNumberOfContours(int number)
-    {this->ContourValues->SetNumberOfContours(number);}
+  void SetNumberOfContours(int number) { this->ContourValues->SetNumberOfContours(number); }
 
   /**
    * Get the number of contours in the list of contour values.
    */
-  vtkIdType GetNumberOfContours()
-    {return this->ContourValues->GetNumberOfContours();}
+  vtkIdType GetNumberOfContours() { return this->ContourValues->GetNumberOfContours(); }
 
-  //@{
+  ///@{
   /**
    * Generate numContours equally spaced contour values between the specified
    * range. Contour values will include min/max range values.
    */
   void GenerateValues(int numContours, double range[2])
-    {this->ContourValues->GenerateValues(numContours, range);}
+  {
+    this->ContourValues->GenerateValues(numContours, range);
+  }
   void GenerateValues(int numContours, double rangeStart, double rangeEnd)
-    {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
-  //@}
+  {
+    this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
+  }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Option to set the cell scalars of the output. The scalars will be the
    * contour values. By default this flag is on.
    */
-  vtkSetMacro(ComputeScalars,int);
-  vtkGetMacro(ComputeScalars,int);
-  vtkBooleanMacro(ComputeScalars,int);
-  //@}
+  vtkSetMacro(ComputeScalars, vtkTypeBool);
+  vtkGetMacro(ComputeScalars, vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get which component of a multi-component scalar array to contour on;
    * defaults to 0.
    */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
-  //@}
+  ///@}
 
 protected:
   vtkDiscreteFlyingEdgesClipper2D();
   ~vtkDiscreteFlyingEdgesClipper2D() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkContourValues *ContourValues;
-  int ComputeScalars;
+  vtkContourValues* ContourValues;
+  vtkTypeBool ComputeScalars;
   int ArrayComponent;
 
 private:
@@ -170,5 +156,5 @@ private:
   void operator=(const vtkDiscreteFlyingEdgesClipper2D&) = delete;
 };
 
-
+VTK_ABI_NAMESPACE_END
 #endif

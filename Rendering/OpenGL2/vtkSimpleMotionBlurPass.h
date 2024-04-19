@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSimpleMotionBlurPass.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSimpleMotionBlurPass
  * @brief   Avergae frames to simulate motion blur.
@@ -24,14 +12,15 @@
  *
  * @sa
  * vtkRenderPass
-*/
+ */
 
 #ifndef vtkSimpleMotionBlurPass_h
 #define vtkSimpleMotionBlurPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDepthImageProcessingPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
@@ -40,24 +29,24 @@ class vtkTextureObject;
 class VTKRENDERINGOPENGL2_EXPORT vtkSimpleMotionBlurPass : public vtkDepthImageProcessingPass
 {
 public:
-  static vtkSimpleMotionBlurPass *New();
-  vtkTypeMacro(vtkSimpleMotionBlurPass,vtkDepthImageProcessingPass);
+  static vtkSimpleMotionBlurPass* New();
+  vtkTypeMacro(vtkSimpleMotionBlurPass, vtkDepthImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Set the number of sub frames for doing motion blur.
    * Once this is set greater than one, you will no longer see a new frame
@@ -68,7 +57,7 @@ public:
    */
   vtkGetMacro(SubFrames, int);
   virtual void SetSubFrames(int subFrames);
-  //@}
+  ///@}
 
   /**
    *  Set the format to use for the depth texture
@@ -90,7 +79,7 @@ public:
   // Get the Color texture object
   vtkGetObjectMacro(ColorTexture, vtkTextureObject);
 
- protected:
+protected:
   /**
    * Default constructor. DelegatePass is set to NULL.
    */
@@ -104,12 +93,12 @@ public:
   /**
    * Graphics resources.
    */
-  vtkOpenGLFramebufferObject *FrameBufferObject;
-  vtkTextureObject *ColorTexture; // render target for the scene
-  vtkTextureObject *AccumulationTexture[2]; // where we add the colors
-  vtkTextureObject *DepthTexture; // render target for the depth
+  vtkOpenGLFramebufferObject* FrameBufferObject;
+  vtkTextureObject* ColorTexture;           // render target for the scene
+  vtkTextureObject* AccumulationTexture[2]; // where we add the colors
+  vtkTextureObject* DepthTexture;           // render target for the depth
 
-  //@{
+  ///@{
   /**
    * Cache viewport values for depth peeling.
    */
@@ -117,19 +106,20 @@ public:
   int ViewportY;
   int ViewportWidth;
   int ViewportHeight;
-  //@}
+  ///@}
 
   int DepthFormat;
   int ColorFormat;
 
-  int SubFrames;               // number of sub frames
-  int CurrentSubFrame;         // what one are we on
+  int SubFrames;       // number of sub frames
+  int CurrentSubFrame; // what one are we on
   int ActiveAccumulationTexture;
-  vtkOpenGLHelper *BlendProgram;
+  vtkOpenGLHelper* BlendProgram;
 
- private:
+private:
   vtkSimpleMotionBlurPass(const vtkSimpleMotionBlurPass&) = delete;
   void operator=(const vtkSimpleMotionBlurPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

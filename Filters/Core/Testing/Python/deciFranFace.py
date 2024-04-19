@@ -1,53 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkDecimatePro
+from vtkmodules.vtkIOImage import vtkPNGReader
+from vtkmodules.vtkIOLegacy import vtkPolyDataReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class deciFranFace(vtk.test.Testing.vtkTest):
+class deciFranFace(vtkmodules.test.Testing.vtkTest):
 
     def testDeciFranFace(self):
 
         # Create the RenderWindow, Renderer and both Actors
         #
-        ren1 = vtk.vtkRenderer()
-        ren2 = vtk.vtkRenderer()
-        ren3 = vtk.vtkRenderer()
-        ren4 = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren1 = vtkRenderer()
+        ren2 = vtkRenderer()
+        ren3 = vtkRenderer()
+        ren4 = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren1)
         renWin.AddRenderer(ren2)
         renWin.AddRenderer(ren3)
         renWin.AddRenderer(ren4)
 
-        pnm1 = vtk.vtkPNGReader()
+        pnm1 = vtkPNGReader()
         pnm1.SetFileName(VTK_DATA_ROOT + "/Data/fran_cut.png")
-        atext = vtk.vtkTexture()
+        atext = vtkTexture()
         atext.SetInputConnection(pnm1.GetOutputPort())
         atext.InterpolateOn()
 
         # create a cyberware source
         #
-        fran = vtk.vtkPolyDataReader()
+        fran = vtkPolyDataReader()
         fran.SetFileName(VTK_DATA_ROOT + "/Data/fran_cut.vtk")
 
         # Create a table of decimation conditions
@@ -62,7 +61,7 @@ class deciFranFace(vtk.test.Testing.vtkTest):
         for topology in boundaryVertexDeletion:
             for accumulate in accumulates:
                 idx = topology + accumulate
-                deci.update({idx: vtk.vtkDecimatePro()})
+                deci.update({idx: vtkDecimatePro()})
                 deci[idx].SetInputConnection(fran.GetOutputPort())
                 deci[idx].SetTargetReduction(.95)
                 if topology == "On":
@@ -73,9 +72,9 @@ class deciFranFace(vtk.test.Testing.vtkTest):
                     deci[idx].AccumulateErrorOn()
                 elif accumulate == "Off":
                     deci[idx].AccumulateErrorOff()
-                mapper.update({idx: vtk.vtkPolyDataMapper()})
+                mapper.update({idx: vtkPolyDataMapper()})
                 mapper[idx].SetInputConnection(deci[idx].GetOutputPort())
-                actor.update({idx: vtk.vtkActor()})
+                actor.update({idx: vtkActor()})
                 actor[idx].SetMapper(mapper[idx])
                 actor[idx].SetTexture(atext)
 
@@ -91,7 +90,7 @@ class deciFranFace(vtk.test.Testing.vtkTest):
         ren3.AddActor(actor["OffOn"])
         ren4.AddActor(actor["OffOff"])
 
-        camera = vtk.vtkCamera()
+        camera = vtkCamera()
         ren1.SetActiveCamera(camera)
         ren2.SetActiveCamera(camera)
         ren3.SetActiveCamera(camera)
@@ -115,13 +114,13 @@ class deciFranFace(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "deciFranFace.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(deciFranFace, 'test')])
+     vtkmodules.test.Testing.main([(deciFranFace, 'test')])

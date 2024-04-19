@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStreamGraph.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkStreamGraph
  * @brief   combines two graphs
@@ -31,14 +15,15 @@
  *
  * If you can use an edge window array to filter out old edges based on a
  * moving threshold.
-*/
+ */
 
 #ifndef vtkStreamGraph_h
 #define vtkStreamGraph_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkMergeGraphs;
 class vtkMutableDirectedGraph;
@@ -50,10 +35,10 @@ class VTKINFOVISCORE_EXPORT vtkStreamGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkStreamGraph* New();
-  vtkTypeMacro(vtkStreamGraph,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkStreamGraph, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Whether to use an edge window array. The default is to
    * not use a window array.
@@ -61,17 +46,17 @@ public:
   vtkSetMacro(UseEdgeWindow, bool);
   vtkGetMacro(UseEdgeWindow, bool);
   vtkBooleanMacro(UseEdgeWindow, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The edge window array. The default array name is "time".
    */
   vtkSetStringMacro(EdgeWindowArrayName);
   vtkGetStringMacro(EdgeWindowArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The time window amount. Edges with values lower
    * than the maximum value minus this window will be
@@ -80,16 +65,13 @@ public:
    */
   vtkSetMacro(EdgeWindow, double);
   vtkGetMacro(EdgeWindow, double);
-  //@}
+  ///@}
 
 protected:
   vtkStreamGraph();
   ~vtkStreamGraph() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMutableGraphHelper* CurrentGraph;
   vtkMergeGraphs* MergeGraphs;
@@ -102,5 +84,5 @@ private:
   void operator=(const vtkStreamGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

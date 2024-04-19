@@ -37,12 +37,12 @@ For example, this is the "scalar_per_node" variable file
 
 """
 
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOEnSight import vtkGenericEnSightReader
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-reader = vtk.vtkGenericEnSightReader()
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/emptyParts_bin.case")
+reader = vtkGenericEnSightReader()
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/emptyParts_bin.case")
 reader.ReadAllVariablesOn()
 reader.Update()
 case = reader.GetOutput()

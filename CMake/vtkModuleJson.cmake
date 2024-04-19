@@ -1,13 +1,20 @@
-#[==[
-@ingroup module-impl
-@brief Output a boolean to JSON
+#[==[.rst:
+*************
+vtkModuleJSON
+*************
+#]==]
+#[==[.rst:
+.. cmake:command:: _vtk_json_bool
 
-Appends a condition as a JSON boolean with the given dictionary key name to the
-given string variable.
+  Output a boolean to JSON. |module-impl|
 
-~~~
-_vtk_json_bool(<output> <name> <cond>)
-~~~
+  Appends a condition as a JSON boolean with the given dictionary key name to the
+  given string variable.
+
+  .. code-block:: cmake
+
+     _vtk_json_bool(<output> <name> <cond>)
+
 #]==]
 macro (_vtk_json_bool output name cond)
   if (${cond})
@@ -19,16 +26,18 @@ macro (_vtk_json_bool output name cond)
   unset(val)
 endmacro ()
 
-#[==[
-@ingroup module-impl
-@brief Output a string list to JSON
+#[==[.rst:
+.. cmake:command:: _vtk_json_string_list
 
-Appends a variable as a JSON list of strings with the given dictionary key name
-to the given string variable.
+  Output a string list to JSON. |module-impl|
 
-~~~
-_vtk_json_string_list(<output> <name> <cond>)
-~~~
+  Appends a variable as a JSON list of strings with the given dictionary key name
+  to the given string variable.
+
+  .. code-block:: cmake
+
+      _vtk_json_string_list(<output> <name> <cond>)
+
 #]==]
 macro (_vtk_json_string_list output name var)
   set(list "[")
@@ -42,70 +51,72 @@ macro (_vtk_json_string_list output name var)
   unset(list)
 endmacro ()
 
-#[==[
-@ingroup module-support
-@brief JSON metadata representation of modules
+#[==[.rst:
+.. cmake:command:: vtk_module_json
 
-Information about the modules built and/or available may be dumped to a JSON
-file.
+  JSON metadata representation of modules. |module-support|
 
-~~~
-vtk_module_json(
-  MODULES   <module>...
-  OUTPUT    <path>)
-~~~
+  Information about the modules built and/or available may be dumped to a JSON
+  file.
 
-  * `MODULES`: (Required) The modules to output information for.
-  * `OUTPUT`: (Required) A JSON file describing the modules built will
-    be output to this path. Relative paths are rooted to `CMAKE_BINARY_DIR`.
+  .. code-block:: cmake
 
-Example output:
+     vtk_module_json(
+        MODULES   <module>...
+        OUTPUT    <path>)
 
-~~~{.json}
-{
-  "modules": [
+
+  * ``MODULES``: (Required) The modules to output information for.
+  * ``OUTPUT``: (Required) A JSON file describing the modules built will
+     be output to this path. Relative paths are rooted to :cmake:variable:`CMAKE_BINARY_DIR`.
+
+  Example output:
+
+  .. code-block::
+
     {
-      "name": "...",
-      "library_name": "...",
-      "enabled": <bool>,
-      "implementable": <bool>,
-      "third_party": <bool>,
-      "wrap_exclude": <bool>,
-      "kit": "...",
-      "depends": [
-        "..."
-      ],
-      "optional_depends": [
-        "..."
-      ],
-      "private_depends": [
-        "..."
-      ],
-      "implements": [
-        "..."
-      ],
-      "headers": [
-        "..."
-      ]
-    }
-  ],
-  "kits": [
-    {
-      "name": "...",
-      "enabled": <bool>,
       "modules": [
+        {
+          "name": "...",
+          "library_name": "...",
+          "enabled": <bool>,
+          "implementable": <bool>,
+          "third_party": <bool>,
+          "wrap_exclude": <bool>,
+          "kit": "...",
+          "depends": [
+            "..."
+          ],
+          "optional_depends": [
+            "..."
+          ],
+          "private_depends": [
+            "..."
+          ],
+          "implements": [
+            "..."
+          ],
+          "headers": [
+            "..."
+          ]
+        }
+      ],
+      "kits": [
+        {
+          "name": "...",
+          "enabled": <bool>,
+          "modules": [
+          ]
+        }
       ]
     }
-  ]
-}
-~~~
+
 #]==]
 function (vtk_module_json)
-  cmake_parse_arguments(_vtk_json
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_json
     ""
     "OUTPUT"
-    "MODULES"
-    ${ARGN})
+    "MODULES")
 
   if (_vtk_json_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -123,7 +134,7 @@ function (vtk_module_json)
   endif ()
 
   if (NOT IS_ABSOLUTE "${_vtk_json_OUTPUT}")
-    set(_vtk_json_OUTPUT "${CMAKE_BINARY_DIR}/${_vtk_json_OUTPUT}")
+    string(PREPEND _vtk_json_OUTPUT "${CMAKE_BINARY_DIR}/")
   endif ()
 
   set(_vtk_json_kits)
@@ -153,6 +164,8 @@ function (vtk_module_json)
       PROPERTY "_vtk_module_${_vtk_json_module}_library_name")
     get_property(_vtk_json_module_file GLOBAL
       PROPERTY "_vtk_module_${_vtk_json_module}_file")
+    get_property(_vtk_json_licenses GLOBAL
+      PROPERTY "_vtk_module_${_vtk_json_module}_licenses")
 
     set(_vtk_json_kit_name "null")
     if (_vtk_json_kit)
@@ -184,6 +197,7 @@ function (vtk_module_json)
     _vtk_json_string_list(_vtk_json_contents "private_depends" _vtk_json_private_depends)
     _vtk_json_string_list(_vtk_json_contents "implements" _vtk_json_implements)
     _vtk_json_string_list(_vtk_json_contents "headers" _vtk_json_headers)
+    _vtk_json_string_list(_vtk_json_contents "licenses" _vtk_json_licences)
     string(APPEND _vtk_json_contents "}, ")
   endforeach ()
   string(APPEND _vtk_json_contents "}, ")

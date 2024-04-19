@@ -2,7 +2,7 @@
 #define DIY_MPI_HPP
 
 #ifndef DIY_NO_MPI
-#include <mpi.h>
+#include <vtk_mpi.h>
 #else
 #include "mpi/no-mpi.hpp"
 #endif

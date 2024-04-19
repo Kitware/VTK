@@ -8,8 +8,8 @@ Provides the following variables:
 
 # No .pc files are shipped with ODBC on Windows.
 set(_ODBC_use_pkgconfig 0)
-if (NOT WIN32)
-  find_package(PkgConfig)
+if (NOT MSVC)
+  find_package(PkgConfig QUIET)
   if (PkgConfig_FOUND)
     set(_ODBC_use_pkgconfig 1)
   endif ()
@@ -36,6 +36,10 @@ if (_ODBC_use_pkgconfig)
       add_library(ODBC::ODBC INTERFACE IMPORTED)
       target_link_libraries(ODBC::ODBC
         INTERFACE "PkgConfig::${_odbc_target}")
+      if (MINGW AND _odbc_target STREQUAL "_unixodbc")
+        set_target_properties(ODBC::ODBC PROPERTIES
+          INTERFACE_COMPILE_DEFINITIONS SQL_WCHART_CONVERT)
+      endif ()
     endif ()
   endif ()
   unset(_odbc_target)
@@ -45,7 +49,7 @@ else ()
     PATHS
       "C:/Program Files/ODBC"
       "C:/ODBC"
-    PATH_SUFFIXES include include/odbc
+    PATH_SUFFIXES include include/odbc libiodbc
     DOC "Location of sql.h")
   mark_as_advanced(ODBC_INCLUDE_DIR)
   find_library(ODBC_LIBRARY

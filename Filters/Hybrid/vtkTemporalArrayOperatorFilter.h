@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTemporalArrayOperatorFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-    This software is distributed WITHOUT ANY WARRANTY; without even
-    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-    PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTemporalArrayOperatorFilter
  * @brief   perform simple mathematical operation on a data array at different time
@@ -29,13 +17,13 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiTimeStepAlgorithm.h"
 
-class VTKFILTERSHYBRID_EXPORT vtkTemporalArrayOperatorFilter :
-  public vtkMultiTimeStepAlgorithm
+VTK_ABI_NAMESPACE_BEGIN
+class VTKFILTERSHYBRID_EXPORT vtkTemporalArrayOperatorFilter : public vtkMultiTimeStepAlgorithm
 {
 public:
   static vtkTemporalArrayOperatorFilter* New();
   vtkTypeMacro(vtkTemporalArrayOperatorFilter, vtkMultiTimeStepAlgorithm);
-  void PrintSelf(ostream &OS, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum OperatorType
   {
@@ -45,31 +33,31 @@ public:
     DIV = 3
   };
 
-  //@{
+  ///@{
   /**
    * @brief Set/Get the operator to apply. Default is ADD (0).
    */
   vtkSetMacro(Operator, int);
   vtkGetMacro(Operator, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * @brief Set/Get the first time step.
    */
   vtkSetMacro(FirstTimeStepIndex, int);
   vtkGetMacro(FirstTimeStepIndex, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * @brief Set/Get the second time step.
    */
   vtkSetMacro(SecondTimeStepIndex, int);
   vtkGetMacro(SecondTimeStepIndex, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * @brief Set/Get the suffix to be append to the output array name.
    * If not specified, output will be suffixed with '_' and the operation
@@ -77,7 +65,7 @@ public:
    */
   vtkSetStringMacro(OutputArrayNameSuffix);
   vtkGetStringMacro(OutputArrayNameSuffix);
-  //@}
+  ///@}
 
 protected:
   vtkTemporalArrayOperatorFilter();
@@ -86,14 +74,11 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 
-  int RequestDataObject(vtkInformation*, vtkInformationVector**,
-                        vtkInformationVector*) override;
-  int RequestInformation(vtkInformation*, vtkInformationVector**,
-                         vtkInformationVector*) override;
-  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) override;
-  int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int Execute(vtkInformation* request, const std::vector<vtkSmartPointer<vtkDataObject>>& inputs,
+    vtkInformationVector* outputVector) override;
 
   int GetInputArrayAssociation();
   virtual vtkDataObject* Process(vtkDataObject*, vtkDataObject*);
@@ -107,8 +92,9 @@ protected:
   char* OutputArrayNameSuffix;
 
 private:
-  vtkTemporalArrayOperatorFilter(const vtkTemporalArrayOperatorFilter &) = delete;
-  void operator=(const vtkTemporalArrayOperatorFilter &) = delete;
+  vtkTemporalArrayOperatorFilter(const vtkTemporalArrayOperatorFilter&) = delete;
+  void operator=(const vtkTemporalArrayOperatorFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,38 +1,30 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkJPEGReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkJPEGReader.h"
 
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkToolkits.h"
 #include <vtksys/SystemTools.hxx>
 
-extern "C" {
+#include <vector>
+
+extern "C"
+{
 #include "vtk_jpeg.h"
-#include <csetjmp>
+#include <setjmp.h>
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkJPEGReader);
 
+VTK_ABI_NAMESPACE_END
 
-#if defined ( _MSC_VER )
-#if defined ( _WIN64 )
-#pragma warning ( disable : 4324 ) // structure was padded at end...
+#if defined(_MSC_VER)
+#if defined(_WIN64)
+#pragma warning(disable : 4324) // structure was padded at end...
 #endif
 #endif
 
@@ -40,65 +32,64 @@ vtkStandardNewMacro(vtkJPEGReader);
 // can longjmp out of the jpeg library
 struct vtk_jpeg_error_mgr
 {
-  struct jpeg_error_mgr pub;    /* "public" fields */
-  jmp_buf setjmp_buffer;        /* for return to caller */
+  struct jpeg_error_mgr pub; /* "public" fields */
+  jmp_buf setjmp_buffer;     /* for return to caller */
   vtkJPEGReader* JPEGReader;
-  FILE *fp;
+  FILE* fp;
 };
 
+namespace
+{
 // this is called on jpeg error conditions
-extern "C" void vtk_jpeg_error_exit (j_common_ptr cinfo)
+void vtk_jpeg_error_exit(j_common_ptr cinfo)
 {
   /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
-  vtk_jpeg_error_mgr * err = reinterpret_cast<vtk_jpeg_error_mgr*>(cinfo->err);
+  vtk_jpeg_error_mgr* err = reinterpret_cast<vtk_jpeg_error_mgr*>(cinfo->err);
 
   /* Return control to the setjmp point */
   longjmp(err->setjmp_buffer, 1);
 }
 
-extern "C" void vtk_jpeg_output_message (j_common_ptr cinfo)
+void vtk_jpeg_output_message(j_common_ptr cinfo)
 {
   char buffer[JMSG_LENGTH_MAX];
 
   /* Create the message */
-  (*cinfo->err->format_message) (cinfo, buffer);
-  vtk_jpeg_error_mgr * err = reinterpret_cast<vtk_jpeg_error_mgr*>(cinfo->err);
-  vtkWarningWithObjectMacro(err->JPEGReader,
-                            "libjpeg error: " <<  buffer);
+  (*cinfo->err->format_message)(cinfo, buffer);
+  vtk_jpeg_error_mgr* err = reinterpret_cast<vtk_jpeg_error_mgr*>(cinfo->err);
+  vtkWarningWithObjectMacro(err->JPEGReader, "libjpeg error: " << buffer);
+  cinfo->err->num_warnings++;
 }
 
-extern "C" void jpg_null (j_decompress_ptr vtkNotUsed(cinfo))
-{
-}
+void jpg_null(j_decompress_ptr vtkNotUsed(cinfo)) {}
 
-extern "C" boolean fill_input_buffer (j_decompress_ptr vtkNotUsed(cinfo))
+boolean fill_input_buffer(j_decompress_ptr vtkNotUsed(cinfo))
 {
   vtkGenericWarningMacro(<< "libjpeg error: unexpected end of JPEG data!");
-  return TRUE;
+  return FALSE;
 }
 
-extern "C" void skip_input_data (j_decompress_ptr cinfo, long num_bytes)
+void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 {
-  struct jpeg_source_mgr* src = (struct jpeg_source_mgr*) cinfo->src;
+  struct jpeg_source_mgr* src = (struct jpeg_source_mgr*)cinfo->src;
 
   if (num_bytes > 0)
   {
-    src->next_input_byte += (size_t) num_bytes;
-    src->bytes_in_buffer -= (size_t) num_bytes;
+    src->next_input_byte += (size_t)num_bytes;
+    src->bytes_in_buffer -= (size_t)num_bytes;
   }
 }
 
 // Read JPEG image from a memory buffer
 #if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
-extern "C" void jMemSrc (j_decompress_ptr cinfo, const void* buffer, long nbytes)
+void jMemSrc(j_decompress_ptr cinfo, const void* buffer, long nbytes)
 #else
-extern "C" void jpeg_mem_src (j_decompress_ptr cinfo, const void* buffer, long nbytes)
+void jpeg_mem_src(j_decompress_ptr cinfo, const void* buffer, long nbytes)
 #endif
 {
-  cinfo->src = (struct jpeg_source_mgr *)
-      (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-      sizeof(struct jpeg_source_mgr));
-  cinfo->src = (struct jpeg_source_mgr*) cinfo->src;
+  cinfo->src = (struct jpeg_source_mgr*)(*cinfo->mem->alloc_small)(
+    (j_common_ptr)cinfo, JPOOL_PERMANENT, sizeof(struct jpeg_source_mgr));
+  cinfo->src = (struct jpeg_source_mgr*)cinfo->src;
   cinfo->src->init_source = jpg_null;
   cinfo->src->fill_input_buffer = fill_input_buffer;
   cinfo->src->skip_input_data = skip_input_data;
@@ -107,13 +98,16 @@ extern "C" void jpeg_mem_src (j_decompress_ptr cinfo, const void* buffer, long n
   cinfo->src->bytes_in_buffer = nbytes;
   cinfo->src->next_input_byte = (const JOCTET*)buffer;
 }
+}
 
 #ifdef _MSC_VER
 // Let us get rid of this funny warning on /W4:
 // warning C4611: interaction between '_setjmp' and C++ object
 // destruction is non-portable
-#pragma warning( disable : 4611 )
+#pragma warning(disable : 4611)
 #endif
+
+VTK_ABI_NAMESPACE_BEGIN
 
 void vtkJPEGReader::ExecuteInformation()
 {
@@ -128,14 +122,15 @@ void vtkJPEGReader::ExecuteInformation()
     return;
   }
 
+  // reset the error code before reading
+  this->ErrorCode = 0;
+
   if (!this->MemoryBuffer)
   {
     jerr.fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
     if (!jerr.fp)
     {
-      vtkErrorWithObjectMacro(this,
-                              "Unable to open file "
-                              << this->InternalFileName);
+      vtkErrorWithObjectMacro(this, "Unable to open file " << this->InternalFileName);
       return;
     }
   }
@@ -144,8 +139,8 @@ void vtkJPEGReader::ExecuteInformation()
     if (this->MemoryBufferLength == 0)
     {
       vtkErrorWithObjectMacro(this,
-                              "Trying to read a JPEG image from "
-                              "a zero-length memory buffer!");
+        "Trying to read a JPEG image from "
+        "a zero-length memory buffer!");
       return;
     }
   }
@@ -157,6 +152,7 @@ void vtkJPEGReader::ExecuteInformation()
   jerr.pub.error_exit = vtk_jpeg_error_exit;
   // for any output message call vtk_jpeg_output_message
   jerr.pub.output_message = vtk_jpeg_output_message;
+  jerr.pub.num_warnings = 0;
   if (setjmp(jerr.setjmp_buffer))
   {
     // clean up
@@ -166,13 +162,13 @@ void vtkJPEGReader::ExecuteInformation()
     {
       fclose(jerr.fp);
       // this is not a valid jpeg file
-      vtkErrorWithObjectMacro(this, "libjpeg could not read file: "
-                              << this->InternalFileName);
+      vtkErrorWithObjectMacro(this, "libjpeg could not read file: " << this->InternalFileName);
     }
     else
     {
-      vtkErrorWithObjectMacro(this, "libjpeg could not read file from memory buffer: "
-                              << (this->MemoryBuffer ? "<ptr>" : "(null)"));
+      vtkErrorWithObjectMacro(this,
+        "libjpeg could not read file from memory buffer: " << (this->MemoryBuffer ? "<ptr>"
+                                                                                  : "(null)"));
     }
     return;
   }
@@ -207,7 +203,7 @@ void vtkJPEGReader::ExecuteInformation()
   this->DataExtent[3] = cinfo.output_height - 1;
 
   this->SetDataScalarTypeToUnsignedChar();
-  this->SetNumberOfScalarComponents( cinfo.output_components );
+  this->SetNumberOfScalarComponents(cinfo.output_components);
 
   this->vtkImageReader2::ExecuteInformation();
 
@@ -221,8 +217,7 @@ void vtkJPEGReader::ExecuteInformation()
 }
 
 template <class OT>
-int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
-                          int *outExt, vtkIdType *outInc, long)
+int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType* outInc, long)
 {
   // certain variables must be stored here for longjmp
   struct vtk_jpeg_error_mgr jerr;
@@ -245,6 +240,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   jerr.pub.error_exit = vtk_jpeg_error_exit;
   // for any output message call vtk_jpeg_output_message
   jerr.pub.output_message = vtk_jpeg_output_message;
+  jerr.pub.num_warnings = 0;
   if (setjmp(jerr.setjmp_buffer))
   {
     // clean up
@@ -286,18 +282,18 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
     maxChunk = 4096;
   }
   vtkIdType rowbytes = cinfo.output_components * cinfo.output_width;
-  unsigned char *tempImage = new unsigned char [rowbytes*maxChunk];
-  JSAMPROW *row_pointers = new JSAMPROW [maxChunk];
+  std::vector<unsigned char> tempImage(rowbytes * maxChunk);
+  std::vector<JSAMPROW> row_pointers(maxChunk);
   for (unsigned int ui = 0; ui < maxChunk; ++ui)
   {
-    row_pointers[ui] = tempImage + rowbytes*ui;
+    row_pointers[ui] = tempImage.data() + rowbytes * ui;
   }
 
   // read the bulk data
-  long outSize = cinfo.output_components*(outExt[1] - outExt[0] + 1);
+  long outSize = cinfo.output_components * (outExt[1] - outExt[0] + 1);
   while (cinfo.output_scanline < cinfo.output_height)
   {
-    JDIMENSION linesRead = jpeg_read_scanlines(&cinfo, row_pointers, maxChunk);
+    JDIMENSION linesRead = jpeg_read_scanlines(&cinfo, row_pointers.data(), maxChunk);
 
     // copy the data into the outPtr
     long destLine = cinfo.output_height - cinfo.output_scanline;
@@ -305,11 +301,9 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
     {
       if (destLine >= outExt[2] && destLine <= outExt[3])
       {
-        OT *outPtr2 = outPtr + (destLine - outExt[2])*outInc[1];
-        memcpy(outPtr2,
-               row_pointers[linesRead - i - 1]
-               + outExt[0]*cinfo.output_components,
-               outSize);
+        OT* outPtr2 = outPtr + (destLine - outExt[2]) * outInc[1];
+        memcpy(
+          outPtr2, row_pointers[linesRead - i - 1] + outExt[0] * cinfo.output_components, outSize);
       }
       destLine++;
     }
@@ -321,58 +315,54 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   // destroy the decompression object
   jpeg_destroy_decompress(&cinfo);
 
-  delete [] tempImage;
-  delete [] row_pointers;
-
   // close the file
   if (jerr.fp)
   {
     fclose(jerr.fp);
   }
-  return 0;
+  return jerr.pub.num_warnings;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
-void vtkJPEGReaderUpdate(vtkJPEGReader *self, vtkImageData *data, OT *outPtr)
+void vtkJPEGReader::InternalUpdate(vtkImageData* data, OT* outPtr)
 {
   vtkIdType outIncr[3];
   int outExtent[6];
-  OT *outPtr2;
+  OT* outPtr2;
 
   data->GetExtent(outExtent);
   data->GetIncrements(outIncr);
 
-  long pixSize = data->GetNumberOfScalarComponents()*sizeof(OT);
+  long pixSize = data->GetNumberOfScalarComponents() * sizeof(OT);
 
   outPtr2 = outPtr;
   int idx2;
   for (idx2 = outExtent[4]; idx2 <= outExtent[5]; ++idx2)
   {
-    self->ComputeInternalFileName(idx2);
+    this->ComputeInternalFileName(idx2);
     // read in a JPEG file
-    if ( vtkJPEGReaderUpdate2(self, outPtr2, outExtent, outIncr, pixSize) == 2 )
+    if (vtkJPEGReaderUpdate2(this, outPtr2, outExtent, outIncr, pixSize) != 0)
     {
-      const char* fn = self->GetInternalFileName();
-      vtkErrorWithObjectMacro(self, "libjpeg could not read file: " << fn);
+      const char* fn = this->GetInternalFileName();
+      vtkErrorMacro("libjpeg could not read file: " << fn);
+      this->ErrorCode = 2;
+      return;
     }
 
-    self->UpdateProgress((idx2 - outExtent[4])/
-                         (outExtent[5] - outExtent[4] + 1.0));
+    this->UpdateProgress((idx2 - outExtent[4]) / (outExtent[5] - outExtent[4] + 1.0));
     outPtr2 += outIncr[2];
   }
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkJPEGReader::ExecuteDataWithInformation(vtkDataObject *output,
-                                               vtkInformation *outInfo)
+void vtkJPEGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output, outInfo);
+  vtkImageData* data = this->AllocateOutputData(output, outInfo);
 
   if (this->InternalFileName == nullptr)
   {
@@ -385,25 +375,29 @@ void vtkJPEGReader::ExecuteDataWithInformation(vtkDataObject *output,
   data->GetPointData()->GetScalars()->SetName("JPEGImage");
 
   // Call the correct templated function for the output
-  void *outPtr;
+  void* outPtr;
+
+  // reset the error code before reading
+  this->ErrorCode = 0;
 
   // Call the correct templated function for the input
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
   {
-    vtkTemplateMacro(vtkJPEGReaderUpdate(this, data, (VTK_TT *)(outPtr)));
+    vtkTemplateMacro(this->InternalUpdate(data, (VTK_TT*)(outPtr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
   }
 }
-
-
 
 int vtkJPEGReader::CanReadFile(const char* fname)
 {
   // certain variables must be stored here for longjmp
   struct vtk_jpeg_error_mgr jerr;
   jerr.JPEGReader = this;
+
+  // reset the error code before reading
+  this->ErrorCode = 0;
 
   // open the file
   jerr.fp = vtksys::SystemTools::Fopen(fname, "rb");
@@ -421,8 +415,8 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   }
   // check for the magic stuff:
   // 0xFF followed by 0xD8
-  if( ( (static_cast<unsigned char>(magic[0]) != 0xFF) ||
-        (static_cast<unsigned char>(magic[1]) != 0xD8) ) )
+  if (((static_cast<unsigned char>(magic[0]) != 0xFF) ||
+        (static_cast<unsigned char>(magic[1]) != 0xD8)))
   {
     fclose(jerr.fp);
     return 0;
@@ -461,12 +455,12 @@ int vtkJPEGReader::CanReadFile(const char* fname)
 }
 #ifdef _MSC_VER
 // Put the warning back
-#pragma warning( default : 4611 )
+#pragma warning(default : 4611)
 #endif
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkJPEGReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

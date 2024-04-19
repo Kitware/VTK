@@ -1,13 +1,26 @@
+set(theora_external_targets THEORA::THEORA)
+if (NOT WIN32 OR (WIN32 AND (MSYS OR MINGW)))
+  list(APPEND theora_external_targets
+    THEORA::ENC
+    THEORA::DEC)
+endif ()
+
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtktheora/COPYING"
-    VERSION       "1.1.1"
+    LICENSE_FILES
+      "vtktheora/COPYING"
+    SPDX_LICENSE_IDENTIFIER
+      "BSD-3-Clause"
+    SPDX_COPYRIGHT_TEXT
+      "Copyright (C) 2002-2009 Xiph.org Foundation"
+    SPDX_DOWNLOAD_LOCATION
+      "git+https://gitlab.kitware.com/third-party/theora.git@for/vtk-20220517-1.1.1"
+    VERSION
+      "1.1.1"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE THEORA
-    TARGETS THEORA::THEORA
-            THEORA::DEC
-            THEORA::ENC
+    TARGETS ${theora_external_targets}
     STANDARD_INCLUDE_DIRS)
 
 configure_file(

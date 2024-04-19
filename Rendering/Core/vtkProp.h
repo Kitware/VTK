@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProp.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkProp
  * @brief   abstract superclass for all actors, volumes and annotations
@@ -23,15 +11,17 @@
  * variables that control visibility, picking, and dragging.
  * @sa
  * vtkActor2D vtkActor vtkVolume vtkProp3D
-*/
+ */
 
 #ifndef vtkProp_h
 #define vtkProp_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include <vector> // for method args
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
+#include <vector>                   // for method args
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAssemblyPath;
 class vtkAssemblyPaths;
 class vtkHardwareSelector;
@@ -44,7 +34,7 @@ class vtkInformationIntegerKey;
 class vtkInformationDoubleVectorKey;
 class vtkShaderProperty;
 
-class VTKRENDERINGCORE_EXPORT vtkProp : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkProp : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProp, vtkObject);
@@ -55,20 +45,20 @@ public:
    * able to collect all the actors or volumes. These methods
    * are used in that process.
    */
-  virtual void GetActors(vtkPropCollection *) {}
-  virtual void GetActors2D(vtkPropCollection *) {}
-  virtual void GetVolumes(vtkPropCollection *) {}
+  virtual void GetActors(vtkPropCollection*) {}
+  virtual void GetActors2D(vtkPropCollection*) {}
+  virtual void GetVolumes(vtkPropCollection*) {}
 
-  //@{
+  ///@{
   /**
    * Set/Get visibility of this vtkProp. Initial value is true.
    */
   vtkSetMacro(Visibility, vtkTypeBool);
   vtkGetMacro(Visibility, vtkTypeBool);
   vtkBooleanMacro(Visibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the pickable instance variable.  This determines if the vtkProp
    * can be picked (typically using the mouse). Also see dragable.
@@ -77,14 +67,14 @@ public:
   vtkSetMacro(Pickable, vtkTypeBool);
   vtkGetMacro(Pickable, vtkTypeBool);
   vtkBooleanMacro(Pickable, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Method fires PickEvent if the prop is picked.
    */
   virtual void Pick();
 
-  //@{
+  ///@{
   /**
    * Set/Get the value of the dragable instance variable. This determines if
    * an Prop, once picked, can be dragged (translated) through space.
@@ -97,7 +87,7 @@ public:
   vtkSetMacro(Dragable, vtkTypeBool);
   vtkGetMacro(Dragable, vtkTypeBool);
   vtkBooleanMacro(Dragable, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Return the mtime of anything that would cause the rendered image to
@@ -105,10 +95,9 @@ public:
    * prop plus anything else it depends on such as properties, textures
    * etc.
    */
-  virtual vtkMTimeType GetRedrawMTime()
-    { return this->GetMTime(); }
+  virtual vtkMTimeType GetRedrawMTime() { return this->GetMTime(); }
 
-  //@{
+  ///@{
   /**
    * In case the Visibility flag is true, tell if the bounds of this prop
    * should be taken into account or ignored during the computation of other
@@ -118,21 +107,20 @@ public:
   vtkSetMacro(UseBounds, bool);
   vtkGetMacro(UseBounds, bool);
   vtkBooleanMacro(UseBounds, bool);
-  //@}
+  ///@}
 
   /**
    * Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    * in world coordinates. NULL means that the bounds are not defined.
    */
-  virtual double *GetBounds() VTK_SIZEHINT(6)
-    { return nullptr; }
+  virtual double* GetBounds() VTK_SIZEHINT(6) { return nullptr; }
 
   /**
    * Shallow copy of this vtkProp.
    */
-  virtual void ShallowCopy(vtkProp *prop);
+  virtual void ShallowCopy(vtkProp* prop);
 
-  //@{
+  ///@{
   /**
    * vtkProp and its subclasses can be picked by subclasses of
    * vtkAbstractPicker (e.g., vtkPropPicker). The following methods interface
@@ -146,21 +134,19 @@ public:
    * GetNextPath() returns a NULL pointer when the list is exhausted.
    */
   virtual void InitPathTraversal();
-  virtual vtkAssemblyPath *GetNextPath();
-  virtual int GetNumberOfPaths()
-    { return 1; }
-  //@}
+  virtual vtkAssemblyPath* GetNextPath();
+  virtual int GetNumberOfPaths() { return 1; }
+  ///@}
 
   /**
    * These methods are used by subclasses to place a matrix (if any) in the
    * prop prior to rendering. Generally used only for picking. See vtkProp3D
    * for more information.
    */
-  virtual void PokeMatrix(vtkMatrix4x4 *vtkNotUsed(matrix)) {}
-  virtual vtkMatrix4x4 *GetMatrix()
-    { return nullptr; }
+  virtual void PokeMatrix(vtkMatrix4x4* vtkNotUsed(matrix)) {}
+  virtual vtkMatrix4x4* GetMatrix() { return nullptr; }
 
-  //@{
+  ///@{
   /**
    * Set/Get property keys. Property keys can be digest by some rendering
    * passes.
@@ -168,15 +154,17 @@ public:
    * shadow mapping render pass. Keys are documented in render pass classes.
    * Initial value is NULL.
    */
-  vtkGetObjectMacro(PropertyKeys,vtkInformation);
-  virtual void SetPropertyKeys(vtkInformation *keys);
-  //@}
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
+  vtkGetObjectMacro(PropertyKeys, vtkInformation);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
+  virtual void SetPropertyKeys(vtkInformation* keys);
+  ///@}
 
   /**
    * Tells if the prop has all the required keys.
    * \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
    */
-  virtual bool HasKeys(vtkInformation *requiredKeys);
+  virtual bool HasKeys(vtkInformation* requiredKeys);
 
   /**
    * Optional Key Indicating the texture unit for general texture mapping
@@ -187,7 +175,7 @@ public:
    * is being used.  This key can be used to pass that information
    * down to a mapper.
    */
-  static vtkInformationIntegerKey *GeneralTextureUnit();
+  static vtkInformationIntegerKey* GeneralTextureUnit();
 
   /**
    * Optional Key Indicating the texture transform for general texture mapping
@@ -198,7 +186,7 @@ public:
    * is being used.  This key can be used to pass that information
    * down to a mapper.
    */
-  static vtkInformationDoubleVectorKey *GeneralTextureTransform();
+  static vtkInformationDoubleVectorKey* GeneralTextureTransform();
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -216,14 +204,10 @@ public:
    * Each of these methods return an integer value indicating
    * whether or not this render method was applied to this data.
    */
-  virtual int RenderOpaqueGeometry(vtkViewport *)
-    { return 0; }
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *)
-    { return 0; }
-  virtual int RenderVolumetricGeometry(vtkViewport *)
-    { return 0; }
-  virtual int RenderOverlay(vtkViewport *)
-    { return 0; }
+  virtual int RenderOpaqueGeometry(vtkViewport*) { return 0; }
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*) { return 0; }
+  virtual int RenderVolumetricGeometry(vtkViewport*) { return 0; }
+  virtual int RenderOverlay(vtkViewport*) { return 0; }
 
   /**
    * Render the opaque geometry only if the prop has all the requiredKeys.
@@ -234,8 +218,7 @@ public:
    * \pre v_exists: v!=0
    * \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
    */
-  virtual bool RenderFilteredOpaqueGeometry(vtkViewport *v,
-                                            vtkInformation *requiredKeys);
+  virtual bool RenderFilteredOpaqueGeometry(vtkViewport* v, vtkInformation* requiredKeys);
 
   /**
    * Render the translucent polygonal geometry only if the prop has all the
@@ -248,8 +231,7 @@ public:
    * \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
    */
   virtual bool RenderFilteredTranslucentPolygonalGeometry(
-    vtkViewport *v,
-    vtkInformation *requiredKeys);
+    vtkViewport* v, vtkInformation* requiredKeys);
 
   /**
    * Render the volumetric geometry only if the prop has all the
@@ -261,8 +243,7 @@ public:
    * \pre v_exists: v!=0
    * \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
    */
-  virtual bool RenderFilteredVolumetricGeometry(vtkViewport *v,
-                                                vtkInformation *requiredKeys);
+  virtual bool RenderFilteredVolumetricGeometry(vtkViewport* v, vtkInformation* requiredKeys);
 
   /**
    * Render in the overlay of the viewport only if the prop has all the
@@ -274,8 +255,7 @@ public:
    * \pre v_exists: v!=0
    * \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
    */
-  virtual bool RenderFilteredOverlay(vtkViewport *v,
-                                     vtkInformation *requiredKeys);
+  virtual bool RenderFilteredOverlay(vtkViewport* v, vtkInformation* requiredKeys);
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -288,8 +268,7 @@ public:
    * polygonal geometry will return true.
    * Default implementation return false.
    */
-  virtual vtkTypeBool HasTranslucentPolygonalGeometry()
-    { return 0; }
+  virtual vtkTypeBool HasTranslucentPolygonalGeometry() { return 0; }
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -302,8 +281,7 @@ public:
    * polygonal geometry will return true.
    * Default implementation return true.
    */
-  virtual vtkTypeBool HasOpaqueGeometry()
-    { return 1; }
+  virtual vtkTypeBool HasOpaqueGeometry() { return 1; }
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -311,7 +289,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *) {}
+  virtual void ReleaseGraphicsResources(vtkWindow*) {}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -325,10 +303,8 @@ public:
    * The no-arguments version simply returns the value of the variable with
    * no estimation.
    */
-  virtual double GetEstimatedRenderTime( vtkViewport * )
-    { return this->EstimatedRenderTime; }
-  virtual double GetEstimatedRenderTime()
-    { return this->EstimatedRenderTime; }
+  virtual double GetEstimatedRenderTime(vtkViewport*) { return this->EstimatedRenderTime; }
+  virtual double GetEstimatedRenderTime() { return this->EstimatedRenderTime; }
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -338,7 +314,10 @@ public:
    * value.
    */
   virtual void SetEstimatedRenderTime(double t)
-    { this->EstimatedRenderTime = t; this->SavedEstimatedRenderTime = t; }
+  {
+    this->EstimatedRenderTime = t;
+    this->SavedEstimatedRenderTime = t;
+  }
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -349,8 +328,9 @@ public:
    * aborted.
    */
   virtual void RestoreEstimatedRenderTime()
-    { this->EstimatedRenderTime = this->SavedEstimatedRenderTime; }
-
+  {
+    this->EstimatedRenderTime = this->SavedEstimatedRenderTime;
+  }
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -365,10 +345,12 @@ public:
    * to rebuild matrices at every render because the estimated render time
    * is changing)
    */
-  virtual void AddEstimatedRenderTime(double t, vtkViewport *vtkNotUsed(vp))
-    { this->EstimatedRenderTime += t; }
+  virtual void AddEstimatedRenderTime(double t, vtkViewport* vtkNotUsed(vp))
+  {
+    this->EstimatedRenderTime += t;
+  }
 
-  //@{
+  ///@{
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -379,21 +361,21 @@ public:
    * 0.0. This way, each of the ways that this prop may be rendered can
    * be timed and added together into this value.
    */
-  virtual void SetAllocatedRenderTime(double t, vtkViewport *vtkNotUsed(v))
+  virtual void SetAllocatedRenderTime(double t, vtkViewport* vtkNotUsed(v))
   {
     this->AllocatedRenderTime = t;
     this->SavedEstimatedRenderTime = this->EstimatedRenderTime;
     this->EstimatedRenderTime = 0.0;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    */
   vtkGetMacro(AllocatedRenderTime, double);
-  //@}
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -402,8 +384,7 @@ public:
    * for culling and is a number between 0 and 1. It is used
    * to create the allocated render time value.
    */
-  void SetRenderTimeMultiplier( double t )
-    { this->RenderTimeMultiplier = t; }
+  void SetRenderTimeMultiplier(double t) { this->RenderTimeMultiplier = t; }
   vtkGetMacro(RenderTimeMultiplier, double);
 
   /**
@@ -411,7 +392,7 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Used to construct assembly paths and perform part traversal.
    */
-  virtual void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
+  virtual void BuildPaths(vtkAssemblyPaths* paths, vtkAssemblyPath* path);
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -419,46 +400,46 @@ public:
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
    */
-  virtual bool GetSupportsSelection()
-    { return false; }
+  virtual bool GetSupportsSelection() { return false; }
 
   /**
    * allows a prop to update a selections color buffers
    *
    */
   virtual void ProcessSelectorPixelBuffers(
-    vtkHardwareSelector * /* sel */,
-    std::vector<unsigned int> & /* pixeloffsets */) { };
+    vtkHardwareSelector* /* sel */, std::vector<unsigned int>& /* pixeloffsets */)
+  {
+  }
 
-  //@{
+  ///@{
   /**
    * Get the number of consumers
    */
-  vtkGetMacro(NumberOfConsumers,int);
-  //@}
+  vtkGetMacro(NumberOfConsumers, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add or remove or get or check a consumer,
    */
-  void AddConsumer(vtkObject *c);
-  void RemoveConsumer(vtkObject *c);
-  vtkObject *GetConsumer(int i);
-  int IsConsumer(vtkObject *c);
-  //@}
+  void AddConsumer(vtkObject* c);
+  void RemoveConsumer(vtkObject* c);
+  vtkObject* GetConsumer(int i);
+  int IsConsumer(vtkObject* c);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the shader property.
    */
-  virtual void SetShaderProperty(vtkShaderProperty *property);
-  virtual vtkShaderProperty *GetShaderProperty();
-  //@}
+  virtual void SetShaderProperty(vtkShaderProperty* property);
+  virtual vtkShaderProperty* GetShaderProperty();
+  ///@}
 
-  //@{
+  ///@{
   // Get if we are in the translucent polygonal geometry pass
-  virtual bool IsRenderingTranslucentPolygonalGeometry() { return false; };
-  //@}
+  virtual bool IsRenderingTranslucentPolygonalGeometry() { return false; }
+  ///@}
 
 protected:
   vtkProp();
@@ -476,20 +457,21 @@ protected:
 
   // how many consumers does this object have
   int NumberOfConsumers;
-  vtkObject **Consumers;
+  vtkObject** Consumers;
 
   // support multi-part props and access to paths of prop
   // stuff that follows is used to build the assembly hierarchy
-  vtkAssemblyPaths *Paths;
+  vtkAssemblyPaths* Paths;
 
-  vtkInformation *PropertyKeys;
+  vtkInformation* PropertyKeys;
 
   // User-defined shader replacement and uniform variables
-  vtkShaderProperty *ShaderProperty;
+  vtkShaderProperty* ShaderProperty;
 
 private:
   vtkProp(const vtkProp&) = delete;
   void operator=(const vtkProp&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

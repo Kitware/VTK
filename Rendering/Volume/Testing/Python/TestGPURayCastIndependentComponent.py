@@ -1,27 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastIndependentComponent.py
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
 
 import sys
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkPiecewiseFunction
+from vtkmodules.vtkIOXML import vtkXMLImageDataReader
+from vtkmodules.vtkRenderingCore import (
+    vtkColorTransferFunction,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkVolume,
+)
+from vtkmodules.vtkRenderingVolume import vtkGPUVolumeRayCastMapper
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.vtkRenderingVolumeOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 '''
@@ -31,21 +29,21 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 '''
 sys.dont_write_bytecode = True
 
-class TestGPURayCastIndependentComponent(vtk.test.Testing.vtkTest):
+class TestGPURayCastIndependentComponent(vtkmodules.test.Testing.vtkTest):
 
     def test(self):
         dataRoot = vtkGetDataRoot()
-        reader =  vtk.vtkXMLImageDataReader()
-        reader.SetFileName("" + str(dataRoot) + "/Data/vase_4comp.vti")
+        reader =  vtkXMLImageDataReader()
+        reader.SetFileName(dataRoot + "/Data/vase_4comp.vti")
 
-        volume = vtk.vtkVolume()
-        #mapper = vtk.vtkFixedPointVolumeRayCastMapper()
-        mapper = vtk.vtkGPUVolumeRayCastMapper()
+        volume = vtkVolume()
+        #mapper = vtkFixedPointVolumeRayCastMapper()
+        mapper = vtkGPUVolumeRayCastMapper()
         mapper.SetSampleDistance(0.1)
         mapper.SetAutoAdjustSampleDistances(0)
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
-        iRen = vtk.vtkRenderWindowInteractor()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
+        iRen = vtkRenderWindowInteractor()
 
         # Set connections
         mapper.SetInputConnection(reader.GetOutputPort());
@@ -55,42 +53,42 @@ class TestGPURayCastIndependentComponent(vtk.test.Testing.vtkTest):
         iRen.SetRenderWindow(renWin)
 
         # Define opacity transfer function and color functions
-        opacityFunc1 = vtk.vtkPiecewiseFunction()
+        opacityFunc1 = vtkPiecewiseFunction()
         opacityFunc1.AddPoint(0.0, 0.0);
         opacityFunc1.AddPoint(60.0, 0.1);
         opacityFunc1.AddPoint(255.0, 0.0);
 
-        opacityFunc2 = vtk.vtkPiecewiseFunction()
+        opacityFunc2 = vtkPiecewiseFunction()
         opacityFunc2.AddPoint(0.0, 0.0);
         opacityFunc2.AddPoint(60.0, 0.0);
         opacityFunc2.AddPoint(120.0, 0.1);
         opacityFunc1.AddPoint(255.0, 0.0);
 
-        opacityFunc3 = vtk.vtkPiecewiseFunction()
+        opacityFunc3 = vtkPiecewiseFunction()
         opacityFunc3.AddPoint(0.0, 0.0);
         opacityFunc3.AddPoint(120.0, 0.0);
         opacityFunc3.AddPoint(180.0, 0.1);
         opacityFunc3.AddPoint(255.0, 0.0);
 
-        opacityFunc4 = vtk.vtkPiecewiseFunction()
+        opacityFunc4 = vtkPiecewiseFunction()
         opacityFunc4.AddPoint(0.0, 0.0);
         opacityFunc4.AddPoint(180.0, 0.0);
         opacityFunc4.AddPoint(255.0, 0.1);
 
         # Color transfer functions
-        color1 = vtk.vtkColorTransferFunction()
+        color1 = vtkColorTransferFunction()
         color1.AddRGBPoint(0.0, 1.0, 0.0, 0.0);
         color1.AddRGBPoint(60.0, 1.0, 0.0, 0.0);
 
-        color2 = vtk.vtkColorTransferFunction()
+        color2 = vtkColorTransferFunction()
         color2.AddRGBPoint(60.0, 0.0, 0.0, 1.0);
         color2.AddRGBPoint(120.0, 0.0, 0.0, 1.0);
 
-        color3 = vtk.vtkColorTransferFunction()
+        color3 = vtkColorTransferFunction()
         color3.AddRGBPoint(120.0, 0.0, 1.0, 0.0);
         color3.AddRGBPoint(180.0, 0.0, 1.0, 0.0);
 
-        color4 = vtk.vtkColorTransferFunction()
+        color4 = vtkColorTransferFunction()
         color4.AddRGBPoint(180.0, 0.0, 0.0, 0.0);
         color4.AddRGBPoint(239.0, 0.0, 0.0, 0.0);
 
@@ -112,9 +110,9 @@ class TestGPURayCastIndependentComponent(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "TestGPURayCastIndependentComponent.png"
-        vtk.test.Testing.compareImage(
-          iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=10)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(
+          iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=10)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestGPURayCastIndependentComponent, 'test')])
+     vtkmodules.test.Testing.main([(TestGPURayCastIndependentComponent, 'test')])

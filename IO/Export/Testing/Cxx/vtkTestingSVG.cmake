@@ -12,6 +12,8 @@ function(vtk_add_svg_test)
   foreach(test ${tests})
     string(REGEX REPLACE ",.*" "" testsrc "${test}")
     get_filename_component(TName ${testsrc} NAME_WE)
+    set(vtk_testing "VTK_TESTING=1;${image_compare_method}")
+
 
     # Convert svg to png
     add_test(NAME ${_vtk_build_test}Cxx-${TName}-RasterizePNG
@@ -27,6 +29,7 @@ function(vtk_add_svg_test)
         DEPENDS "${_vtk_build_test}Cxx-${TName}"
         REQUIRED_FILES "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}.svg"
         LABELS "${vtkIOExport_TEST_LABELS}"
+        ENVIRONMENT "${vtk_testing}"
     )
 
     get_filename_component(TName ${test} NAME_WE)
@@ -51,6 +54,7 @@ function(vtk_add_svg_test)
         DEPENDS "${_vtk_build_test}Cxx-${TName}-RasterizePNG"
         REQUIRED_FILES "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
         LABELS "${_vtk_build_test_labels}"
+        ENVIRONMENT "${vtk_testing}"
         )
   endforeach()
 endfunction()

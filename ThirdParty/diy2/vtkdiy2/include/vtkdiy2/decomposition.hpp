@@ -460,8 +460,8 @@ fill_bounds(Bounds& bounds,                  //!< (output) bounds
       bounds.max[i] += ghosts[i];
     } else
     {
-      bounds.min[i] = std::max(domain.min[i], bounds.min[i] - ghosts[i]);
-      bounds.max[i] = std::min(domain.max[i], bounds.max[i] + ghosts[i]);
+      bounds.min[i] = (std::max)(domain.min[i], bounds.min[i] - ghosts[i]);
+      bounds.max[i] = (std::min)(domain.max[i], bounds.max[i] + ghosts[i]);
     }
   }
 }
@@ -652,7 +652,7 @@ point_to_gid(const Point& p) const
     for (int axis = dim - 1; axis >= 0; --axis)
     {
       int bottom  = detail::BoundsHelper<Bounds>::lower(p[axis], divisions[axis], domain.min[axis], domain.max[axis], share_face[axis]);
-          bottom  = std::max(0, bottom);
+          bottom  = (std::max)(0, bottom);
 
       // coupled with coords_to_gid
       gid *= divisions[axis];
@@ -692,8 +692,8 @@ top_bottom(int& top, int& bottom, const Point& p, int axis) const
 
     if (!wrap[axis])
     {
-        bottom  = std::max(0, bottom);
-        top     = std::min(divisions[axis], top);
+        bottom  = (std::max)(0, bottom);
+        top     = (std::min)(divisions[axis], top);
     }
 }
 

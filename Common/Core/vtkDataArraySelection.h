@@ -1,27 +1,25 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataArraySelection.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkDataArraySelection
- * @brief   Store on/off settings for data arrays for a vtkSource.
+ * @class vtkDataArraySelection
+ * @brief Store on/off settings for data arrays, etc.
  *
- * vtkDataArraySelection can be used by vtkSource subclasses to store
- * on/off settings for whether each vtkDataArray in its input should
- * be passed in the source's output.  This is primarily intended to
- * allow file readers to configure what data arrays are read from the
- * file.
-*/
+ * vtkDataArraySelection is intended to be used by algorithms that want to
+ * expose a API that allow the user to enable/disable a collection of entities,
+ * such as arrays. Readers, for example, can use vtkDataArraySelection to let
+ * the user choose which array to read from the file.
+ *
+ * Originally intended for selecting data arrays (hence the name), this class
+ * can be used for letting users choose other items too, for example,
+ * vtkIOSSReader uses vtkDataArraySelection to let users choose
+ * which blocks to read.
+ *
+ * Unlike most other vtkObject subclasses, vtkDataArraySelection has public API
+ * that need not modify the MTime for the object. These M-Time non-modifying
+ * methods are typically intended for use within the algorithm or reader to
+ * populate the vtkDataArraySelection instance with available array names and
+ * their default values.
+ */
 
 #ifndef vtkDataArraySelection_h
 #define vtkDataArraySelection_h
@@ -29,12 +27,13 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-class vtkDataArraySelectionInternals;
+#include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkDataArraySelection : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkDataArraySelection,vtkObject);
+  vtkTypeMacro(vtkDataArraySelection, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDataArraySelection* New();
 
@@ -101,7 +100,7 @@ public:
   /**
    * Get an index of the array with the given name.
    */
-  int GetArrayIndex(const char *name) const;
+  int GetArrayIndex(const char* name) const;
 
   /**
    * Get the index of an array with the given name among those
@@ -126,7 +125,7 @@ public:
    * This method will call `this->Modified()` if the enable state for the
    * array changed.
    */
-  void SetArraySetting(const char* name, int status);
+  void SetArraySetting(const char* name, int setting);
 
   /**
    * Remove all array entries.
@@ -148,7 +147,7 @@ public:
    * Also note for arrays already known to this instance (i.e.
    * `this->ArrayExists(name) == true`, this method has no effect.
    */
-  int AddArray(const char* name, bool state=true);
+  int AddArray(const char* name, bool state = true);
 
   /**
    * Remove an array setting given its index.
@@ -164,7 +163,7 @@ public:
    */
   void RemoveArrayByName(const char* name);
 
-  //@{
+  ///@{
   /**
    * Set the list of arrays that have entries.  For arrays that
    * already have entries, the settings are copied.  For arrays that
@@ -178,9 +177,8 @@ public:
    * This method **does not** call `this->Modified()`.
    */
   void SetArrays(const char* const* names, int numArrays);
-  void SetArraysWithDefault(const char* const* names, int numArrays,
-                            int defaultStatus);
-  //@}
+  void SetArraysWithDefault(const char* const* names, int numArrays, int defaultStatus);
+  ///@}
 
   /**
    * Copy the selections from the given vtkDataArraySelection instance.
@@ -189,17 +187,21 @@ public:
    */
   void CopySelections(vtkDataArraySelection* selections);
 
+  ///@{
   /**
    * Update `this` to include values from `other`. For arrays that don't
    * exist in `this` but exist in `other`, they will get added to `this` with
    * the same array setting as in `other`. Array settings for arrays already in
    * `this` are left unchanged.
    *
-   * This method will call `this->Modified()` if the array selections changed.
+   * This method will call `this->Modified()` if the array selections changed
+   * unless @a skipModified is set to true (default is false).
    */
-  void Union(vtkDataArraySelection* other);
+  void Union(vtkDataArraySelection* other) { this->Union(other, false); }
+  void Union(vtkDataArraySelection* other, bool skipModified);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set enabled state for any unknown arrays. Default is 0 i.e. not
    * enabled. When set to 1, `ArrayIsEnabled` will return 1 for any
@@ -207,19 +209,32 @@ public:
    */
   vtkSetMacro(UnknownArraySetting, int);
   vtkGetMacro(UnknownArraySetting, int);
-  //@}
+  ///@}
+
+  /**
+   * Copy contents of other. The MTime for this instance is modified only if
+   * values are different.
+   */
+  void DeepCopy(const vtkDataArraySelection* other);
+
+  /**
+   * Returns true if the two array selections are equivalent.
+   */
+  bool IsEqual(const vtkDataArraySelection* other) const;
+
 protected:
   vtkDataArraySelection();
   ~vtkDataArraySelection() override;
 
-  // Internal implementation details.
-  vtkDataArraySelectionInternals* Internal;
-
-  int UnknownArraySetting;
-
 private:
   vtkDataArraySelection(const vtkDataArraySelection&) = delete;
   void operator=(const vtkDataArraySelection&) = delete;
+
+  // Internal implementation details.
+  class vtkInternals;
+  std::unique_ptr<vtkInternals> Internal;
+  int UnknownArraySetting;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

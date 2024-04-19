@@ -1,19 +1,16 @@
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
-
-#include "ui_CustomLinkView.h"
 #include "CustomLinkView.h"
+#include "ui_CustomLinkView.h"
 
+#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkAnnotationLink.h>
+#include <vtkAttributeDataToTableFilter.h>
 #include <vtkCommand.h>
-#include <vtkDataObjectToTable.h>
 #include <vtkDataRepresentation.h>
 #include <vtkEventQtSlotConnect.h>
-#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkGraphLayoutView.h>
 #include <vtkQtTableView.h>
 #include <vtkQtTreeView.h>
@@ -27,14 +24,12 @@
 #include <vtkViewUpdater.h>
 #include <vtkXMLTreeReader.h>
 
-
 #include <QDir>
 #include <QFileDialog>
 #include <QTreeView>
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // Constructor
 CustomLinkView::CustomLinkView()
@@ -42,14 +37,13 @@ CustomLinkView::CustomLinkView()
   this->ui = new Ui_CustomLinkView;
   this->ui->setupUi(this);
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
-  this->ui->vtkGraphViewWidget->SetRenderWindow(renderWindow);
+  this->ui->vtkGraphViewWidget->setRenderWindow(renderWindow);
 
-
-  this->XMLReader    = vtkSmartPointer<vtkXMLTreeReader>::New();
-  this->GraphView    = vtkSmartPointer<vtkGraphLayoutView>::New();
-  this->TreeView     = vtkSmartPointer<vtkQtTreeView>::New();
-  this->TableView    = vtkSmartPointer<vtkQtTableView>::New();
-  this->ColumnView   = vtkSmartPointer<vtkQtTreeView>::New();
+  this->XMLReader = vtkSmartPointer<vtkXMLTreeReader>::New();
+  this->GraphView = vtkSmartPointer<vtkGraphLayoutView>::New();
+  this->TreeView = vtkSmartPointer<vtkQtTreeView>::New();
+  this->TableView = vtkSmartPointer<vtkQtTableView>::New();
+  this->ColumnView = vtkSmartPointer<vtkQtTreeView>::New();
   this->ColumnView->SetUseColumnView(1);
 
   // Tell the table view to sort selections that it receives (but does
@@ -62,11 +56,9 @@ CustomLinkView::CustomLinkView()
   this->ui->columnFrame->layout()->addWidget(this->ColumnView->GetWidget());
 
   // Graph View needs to get my render window
-  this->GraphView->SetInteractor(
-    this->ui->vtkGraphViewWidget->GetInteractor());
+  this->GraphView->SetInteractor(this->ui->vtkGraphViewWidget->interactor());
 
-  this->GraphView->SetRenderWindow(
-    this->ui->vtkGraphViewWidget->GetRenderWindow());
+  this->GraphView->SetRenderWindow(this->ui->vtkGraphViewWidget->renderWindow());
 
   // Set up the theme on the graph view :)
   vtkViewTheme* theme = vtkViewTheme::CreateNeonTheme();
@@ -74,18 +66,14 @@ CustomLinkView::CustomLinkView()
   theme->Delete();
 
   // Set up action signals and slots
-  connect(this->ui->actionOpenXMLFile, SIGNAL(triggered()), this,
-    SLOT(slotOpenXMLFile()));
-  connect(this->ui->actionExit, SIGNAL(triggered()), this,
-    SLOT(slotExit()));
+  connect(this->ui->actionOpenXMLFile, SIGNAL(triggered()), this, SLOT(slotOpenXMLFile()));
+  connect(this->ui->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
 
   // Apply application stylesheet
-  QString css =
-    "* { font: bold italic 18px \"Calibri\"; color: midnightblue }";
-  css +=
-    "QTreeView { font: bold italic 16px \"Calibri\"; color: midnightblue }";
-  //qApp->setStyleSheet(css); // Seems to cause a bug on some systems
-                              // But at least it's here as an example
+  QString css = "* { font: bold italic 18px \"Calibri\"; color: midnightblue }";
+  css += "QTreeView { font: bold italic 16px \"Calibri\"; color: midnightblue }";
+  // qApp->setStyleSheet(css); // Seems to cause a bug on some systems
+  // But at least it's here as an example
 
   this->GraphView->Render();
 };
@@ -93,14 +81,10 @@ CustomLinkView::CustomLinkView()
 // Set up the annotation between the vtk and qt views
 void CustomLinkView::SetupCustomLink()
 {
-  this->TreeView->GetRepresentation()->SetSelectionType(
-    vtkSelectionNode::PEDIGREEIDS);
-  this->TableView->GetRepresentation()->SetSelectionType(
-    vtkSelectionNode::PEDIGREEIDS);
-  this->ColumnView->GetRepresentation()->SetSelectionType(
-    vtkSelectionNode::PEDIGREEIDS);
-  this->GraphView->GetRepresentation()->SetSelectionType(
-    vtkSelectionNode::PEDIGREEIDS);
+  this->TreeView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
+  this->TableView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
+  this->ColumnView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
+  this->GraphView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
 
   // Set up the theme on the graph view :)
   vtkViewTheme* theme = vtkViewTheme::CreateNeonTheme();
@@ -116,36 +100,20 @@ void CustomLinkView::SetupCustomLink()
   // vtkCommand::SelectionChangedEvent, pointer to object
   // which has the given slot. vtkEvent of type SelectionChangedEvent
   // from reach representation should invoke selectionChanged.
-  Connections->Connect(
-    this->GraphView->GetRepresentation(),
-    vtkCommand::SelectionChangedEvent,
-    this,
+  Connections->Connect(this->GraphView->GetRepresentation(), vtkCommand::SelectionChangedEvent,
+    this, SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
+
+  Connections->Connect(this->TreeView->GetRepresentation(), vtkCommand::SelectionChangedEvent, this,
     SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
 
-  Connections->Connect(
-    this->TreeView->GetRepresentation(),
-    vtkCommand::SelectionChangedEvent,
-    this,
-    SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
+  Connections->Connect(this->TableView->GetRepresentation(), vtkCommand::SelectionChangedEvent,
+    this, SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
 
-  Connections->Connect(
-    this->TableView->GetRepresentation(),
-    vtkCommand::SelectionChangedEvent,
-    this,
-    SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
-
-  Connections->Connect(
-    this->ColumnView->GetRepresentation(),
-    vtkCommand::SelectionChangedEvent,
-    this,
-    SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
-
+  Connections->Connect(this->ColumnView->GetRepresentation(), vtkCommand::SelectionChangedEvent,
+    this, SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
 }
 
-CustomLinkView::~CustomLinkView()
-{
-
-}
+CustomLinkView::~CustomLinkView() {}
 
 // Action to be taken upon graph file open
 void CustomLinkView::slotOpenXMLFile()
@@ -155,10 +123,7 @@ void CustomLinkView::slotOpenXMLFile()
 
   // Open the text data file
   QString fileName = QFileDialog::getOpenFileName(
-    this,
-    "Select the text data file",
-    QDir::homePath(),
-    "XML Files (*.xml);;All Files (*.*)");
+    this, "Select the text data file", QDir::homePath(), "XML Files (*.xml);;All Files (*.*)");
 
   if (fileName.isNull())
   {
@@ -167,7 +132,7 @@ void CustomLinkView::slotOpenXMLFile()
   }
 
   // Create XML reader
-  this->XMLReader->SetFileName( fileName.toLatin1() );
+  this->XMLReader->SetFileName(fileName.toUtf8().data());
   this->XMLReader->ReadTagNameOff();
   this->XMLReader->Update();
 
@@ -186,10 +151,8 @@ void CustomLinkView::slotOpenXMLFile()
   treeStrat->SetLogSpacingValue(1);
   this->GraphView->SetLayoutStrategy(treeStrat);
 
-
   // Set the input to the graph view
-  this->GraphView->SetRepresentationFromInputConnection(
-    this->XMLReader->GetOutputPort());
+  this->GraphView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
 
   // Okay now do an explicit reset camera so that
   // the user doesn't have to move the mouse
@@ -197,17 +160,14 @@ void CustomLinkView::slotOpenXMLFile()
   this->GraphView->ResetCamera();
 
   // Now hand off tree to the tree view
-  this->TreeView->SetRepresentationFromInputConnection(
-    this->XMLReader->GetOutputPort());
-  this->ColumnView->SetRepresentationFromInputConnection(
-    this->XMLReader->GetOutputPort());
+  this->TreeView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
+  this->ColumnView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
 
   // Extract a table and give to table view
-  VTK_CREATE(vtkDataObjectToTable, toTable);
+  VTK_CREATE(vtkAttributeDataToTableFilter, toTable);
   toTable->SetInputConnection(this->XMLReader->GetOutputPort());
-  toTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
-  this->TableView->SetRepresentationFromInputConnection(
-    toTable->GetOutputPort());
+  toTable->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_VERTICES);
+  this->TableView->SetRepresentationFromInputConnection(toTable->GetOutputPort());
 
   this->SetupCustomLink();
 
@@ -223,7 +183,6 @@ void CustomLinkView::slotOpenXMLFile()
   this->TableView->Update();
   this->ColumnView->Update();
 
-
   // Force a render on the graph view
   this->GraphView->Render();
 }
@@ -237,22 +196,16 @@ void CustomLinkView::slotExit()
 // push it to the default vtkAnnotationLink associated with each
 // vtkDataRepresentation of each view type and then call Update or
 // Render (if it is a vtkRenderView) on each view.
-void CustomLinkView::selectionChanged(vtkObject*,
-                                      unsigned long,
-                                      void* vtkNotUsed(clientData),
-                                      void* callData)
+void CustomLinkView::selectionChanged(
+  vtkObject*, unsigned long, void* vtkNotUsed(clientData), void* callData)
 {
   vtkSelection* selection = reinterpret_cast<vtkSelection*>(callData);
-  if(selection)
+  if (selection)
   {
-    this->GraphView->GetRepresentation()->GetAnnotationLink()->
-      SetCurrentSelection(selection);
-    this->TreeView->GetRepresentation()->GetAnnotationLink()->
-      SetCurrentSelection(selection);
-    this->TableView->GetRepresentation()->GetAnnotationLink()->
-      SetCurrentSelection(selection);
-    this->ColumnView->GetRepresentation()->GetAnnotationLink()->
-      SetCurrentSelection(selection);
+    this->GraphView->GetRepresentation()->GetAnnotationLink()->SetCurrentSelection(selection);
+    this->TreeView->GetRepresentation()->GetAnnotationLink()->SetCurrentSelection(selection);
+    this->TableView->GetRepresentation()->GetAnnotationLink()->SetCurrentSelection(selection);
+    this->ColumnView->GetRepresentation()->GetAnnotationLink()->SetCurrentSelection(selection);
 
     this->TreeView->Update();
     this->TableView->Update();

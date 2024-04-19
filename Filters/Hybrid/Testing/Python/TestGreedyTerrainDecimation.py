@@ -1,15 +1,28 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
+from vtkmodules.vtkFiltersHybrid import vtkGreedyTerrainDecimation
+from vtkmodules.vtkIOImage import vtkDEMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.6, 0)
 lut.SetSaturationRange(1.0, 0)
 lut.SetValueRange(0.5, 1.0)
 
 # Read the data: a height field results
-demReader = vtk.vtkDEMReader()
+demReader = vtkDEMReader()
 demReader.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
 demReader.Update()
 
@@ -17,7 +30,7 @@ lo = demReader.GetOutput().GetScalarRange()[0]
 hi = demReader.GetOutput().GetScalarRange()[1]
 
 # Decimate the terrain
-deci = vtk.vtkGreedyTerrainDecimation()
+deci = vtkGreedyTerrainDecimation()
 deci.SetInputConnection(demReader.GetOutputPort())
 deci.BoundaryVertexDeletionOn()
 #  deci.SetErrorMeasureToSpecifiedReduction()
@@ -29,26 +42,26 @@ deci.SetNumberOfTriangles(5000)
 #  deci.SetErrorMeasureToRelativeError()
 #  deci.SetAbsoluteError(0.01)
 
-normals = vtk.vtkPolyDataNormals()
+normals = vtkPolyDataNormals()
 normals.SetInputConnection(deci.GetOutputPort())
 normals.SetFeatureAngle(60)
 normals.ConsistencyOn()
 normals.SplittingOff()
 
-demMapper = vtk.vtkPolyDataMapper()
+demMapper = vtkPolyDataMapper()
 demMapper.SetInputConnection(normals.GetOutputPort())
 demMapper.SetScalarRange(lo, hi)
 demMapper.SetLookupTable(lut)
 
-actor = vtk.vtkLODActor()
+actor = vtkLODActor()
 actor.SetMapper(demMapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

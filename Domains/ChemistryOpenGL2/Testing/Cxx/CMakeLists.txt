@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkDomainsChemistryOpenGL2CxxTests tests
   TestPDBBallAndStickTranslucent.cxx
   )
 vtk_test_cxx_executable(vtkDomainsChemistryOpenGL2CxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
 

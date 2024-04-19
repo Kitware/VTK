@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkThreadedImageWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class    vtkThreadedImageWriter
  * @brief    class used to compress/write images using threads to prevent
@@ -29,6 +17,7 @@
 #include "vtkIOAsynchronousModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOASYNCHRONOUS_EXPORT vtkThreadedImageWriter : public vtkObject
@@ -54,7 +43,7 @@ public:
    * You may run into thread safety issues. Typically, the caller code will
    * simply release reference to the data and stop using it.
    */
-  void EncodeAndWrite(vtkImageData* image, const char* fileName);
+  void EncodeAndWrite(vtkImageData* image, VTK_FILEPATH const char* fileName);
 
   /**
    * Define the number of worker thread to use.
@@ -81,4 +70,5 @@ private:
   vtkTypeUInt32 MaxThreads;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

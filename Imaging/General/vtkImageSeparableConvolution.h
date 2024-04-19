@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageSeparableConvolution.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageSeparableConvolution
  * @brief    3 1D convolutions on an image
@@ -24,38 +12,37 @@
  * convolve separable filters that can be decomposed into 1 or more 1D
  * convolutions.  It also handles arbitrarily large kernel sizes, and
  * uses edge replication to handle boundaries.
-*/
+ */
 
 #ifndef vtkImageSeparableConvolution_h
 #define vtkImageSeparableConvolution_h
 
-
-#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
+#include "vtkImagingGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 
 class VTKIMAGINGGENERAL_EXPORT vtkImageSeparableConvolution : public vtkImageDecomposeFilter
 {
 public:
-  static vtkImageSeparableConvolution *New();
-  vtkTypeMacro(vtkImageSeparableConvolution,vtkImageDecomposeFilter);
-
+  static vtkImageSeparableConvolution* New();
+  vtkTypeMacro(vtkImageSeparableConvolution, vtkImageDecomposeFilter);
 
   // Set the X convolution kernel, a null value indicates no convolution to
   // be done.  The kernel must be of odd length
   virtual void SetXKernel(vtkFloatArray*);
-  vtkGetObjectMacro ( XKernel, vtkFloatArray );
+  vtkGetObjectMacro(XKernel, vtkFloatArray);
 
   // Set the Y convolution kernel, a null value indicates no convolution to
   // be done The kernel must be of odd length
   virtual void SetYKernel(vtkFloatArray*);
-  vtkGetObjectMacro ( YKernel, vtkFloatArray );
+  vtkGetObjectMacro(YKernel, vtkFloatArray);
 
   // Set the Z convolution kernel, a null value indicates no convolution to
   // be done The kernel must be of odd length
   virtual void SetZKernel(vtkFloatArray*);
-  vtkGetObjectMacro ( ZKernel, vtkFloatArray );
+  vtkGetObjectMacro(ZKernel, vtkFloatArray);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -73,28 +60,15 @@ protected:
   vtkFloatArray* YKernel;
   vtkFloatArray* ZKernel;
 
-  int IterativeRequestData(vtkInformation*,
-                                   vtkInformationVector**,
-                                   vtkInformationVector*) override;
+  int IterativeRequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int IterativeRequestInformation(vtkInformation* in,
-                                          vtkInformation* out) override;
-  int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out) override;
+  int IterativeRequestInformation(vtkInformation* in, vtkInformation* out) override;
+  int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;
 
 private:
   vtkImageSeparableConvolution(const vtkImageSeparableConvolution&) = delete;
   void operator=(const vtkImageSeparableConvolution&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-
-
-
-
-
-
-
-

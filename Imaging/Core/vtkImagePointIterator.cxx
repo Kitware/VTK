@@ -1,22 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImagePointIterator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkImagePointIterator.h"
 #include "vtkImageData.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkImagePointIterator::vtkImagePointIterator()
 {
   this->Origin[0] = 0.0;
@@ -30,10 +19,9 @@ vtkImagePointIterator::vtkImagePointIterator()
   this->Position[2] = 0.0;
 }
 
-//----------------------------------------------------------------------------
-vtkImagePointIterator::vtkImagePointIterator(
-  vtkImageData *image, const int extent[6], vtkImageStencilData *stencil,
-  vtkAlgorithm *algorithm, int threadId)
+//------------------------------------------------------------------------------
+vtkImagePointIterator::vtkImagePointIterator(vtkImageData* image, const int extent[6],
+  vtkImageStencilData* stencil, vtkAlgorithm* algorithm, int threadId)
   : vtkImagePointDataIterator(image, extent, stencil, algorithm, threadId)
 {
   image->GetOrigin(this->Origin);
@@ -41,14 +29,13 @@ vtkImagePointIterator::vtkImagePointIterator(
   this->UpdatePosition();
 }
 
-//----------------------------------------------------------------------------
-void vtkImagePointIterator::Initialize(
-  vtkImageData *image, const int extent[6], vtkImageStencilData *stencil,
-  vtkAlgorithm *algorithm, int threadId)
+//------------------------------------------------------------------------------
+void vtkImagePointIterator::Initialize(vtkImageData* image, const int extent[6],
+  vtkImageStencilData* stencil, vtkAlgorithm* algorithm, int threadId)
 {
-  this->vtkImagePointDataIterator::Initialize(
-    image, extent, stencil, algorithm, threadId);
+  this->vtkImagePointDataIterator::Initialize(image, extent, stencil, algorithm, threadId);
   image->GetOrigin(this->Origin);
   image->GetSpacing(this->Spacing);
   this->UpdatePosition();
 }
+VTK_ABI_NAMESPACE_END

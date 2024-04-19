@@ -1,60 +1,49 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataPointPlacer.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPolyDataPointPlacer.h"
 
+#include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
+#include "vtkInteractorObserver.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
 #include "vtkPropPicker.h"
-#include "vtkAssemblyPath.h"
-#include "vtkAssemblyNode.h"
-#include "vtkInteractorObserver.h"
+#include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataPointPlacer);
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataPointPlacer::vtkPolyDataPointPlacer()
 {
-  this->SurfaceProps    = vtkPropCollection::New();
-  this->PropPicker      = vtkPropPicker::New();
+  this->SurfaceProps = vtkPropCollection::New();
+  this->PropPicker = vtkPropPicker::New();
   this->PropPicker->PickFromListOn();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPolyDataPointPlacer::~vtkPolyDataPointPlacer()
 {
   this->SurfaceProps->Delete();
   this->PropPicker->Delete();
 }
 
-//----------------------------------------------------------------------
-void vtkPolyDataPointPlacer::AddProp(vtkProp *prop)
+//------------------------------------------------------------------------------
+void vtkPolyDataPointPlacer::AddProp(vtkProp* prop)
 {
   this->SurfaceProps->AddItem(prop);
   this->PropPicker->AddPickList(prop);
 }
 
-//----------------------------------------------------------------------
-void vtkPolyDataPointPlacer::RemoveViewProp(vtkProp *prop)
+//------------------------------------------------------------------------------
+void vtkPolyDataPointPlacer::RemoveViewProp(vtkProp* prop)
 {
-  this->SurfaceProps->RemoveItem( prop );
-  this->PropPicker->DeletePickList( prop );
+  this->SurfaceProps->RemoveItem(prop);
+  this->PropPicker->DeletePickList(prop);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataPointPlacer::RemoveAllProps()
 {
   this->SurfaceProps->RemoveAllItems();
@@ -62,38 +51,41 @@ void vtkPolyDataPointPlacer::RemoveAllProps()
                                           // old props from it...
 }
 
-//----------------------------------------------------------------------
-int vtkPolyDataPointPlacer::HasProp(vtkProp *prop)
+//------------------------------------------------------------------------------
+vtkTypeBool vtkPolyDataPointPlacer::HasProp(vtkProp* prop)
 {
-  return this->SurfaceProps->IsItemPresent(prop);
+  int index = this->SurfaceProps->IndexOfFirstOccurence(prop);
+
+#if defined(VTK_LEGACY_REMOVE)
+  return (index >= 0);
+#else
+  // The implementation used to call IsItemPresent(), which, despite its name,
+  // returned an index, not a boolean.  Preserve the old behaviour.  0 means
+  // the item is not found, otherwise return the index + 1.
+  return index + 1;
+#endif
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPolyDataPointPlacer::GetNumberOfProps()
 {
   return this->SurfaceProps->GetNumberOfItems();
 }
 
-//----------------------------------------------------------------------
-int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
-                                        double  displayPos[2],
-                                        double *vtkNotUsed(refWorldPos),
-                                        double  worldPos[3],
-                                        double  worldOrient[9] )
+//------------------------------------------------------------------------------
+int vtkPolyDataPointPlacer::ComputeWorldPosition(vtkRenderer* ren, double displayPos[2],
+  double* vtkNotUsed(refWorldPos), double worldPos[3], double worldOrient[9])
 {
   return this->ComputeWorldPosition(ren, displayPos, worldPos, worldOrient);
 }
 
-//----------------------------------------------------------------------
-int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
-                                      double displayPos[2],
-                                      double worldPos[3],
-                                      double vtkNotUsed(worldOrient)[9] )
+//------------------------------------------------------------------------------
+int vtkPolyDataPointPlacer::ComputeWorldPosition(
+  vtkRenderer* ren, double displayPos[2], double worldPos[3], double vtkNotUsed(worldOrient)[9])
 {
-  if ( this->PropPicker->Pick(displayPos[0],
-                              displayPos[1], 0.0, ren) )
+  if (this->PropPicker->Pick(displayPos[0], displayPos[1], 0.0, ren))
   {
-    if (vtkAssemblyPath *path = this->PropPicker->GetPath())
+    if (vtkAssemblyPath* path = this->PropPicker->GetPath())
     {
 
       // We are checking if the prop present in the path is present
@@ -101,19 +93,19 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       // If not, no prop will be picked.
 
       bool found = false;
-      vtkAssemblyNode *node = nullptr;
+      vtkAssemblyNode* node = nullptr;
       vtkCollectionSimpleIterator sit;
       this->SurfaceProps->InitTraversal(sit);
 
-      while (vtkProp *p = this->SurfaceProps->GetNextProp(sit))
+      while (vtkProp* p = this->SurfaceProps->GetNextProp(sit))
       {
         vtkCollectionSimpleIterator psit;
         path->InitTraversal(psit);
 
-        for ( int i = 0; i < path->GetNumberOfItems() && !found ; ++i )
+        for (int i = 0; i < path->GetNumberOfItems() && !found; ++i)
         {
           node = path->GetNextNode(psit);
-          found = ( node->GetViewProp() == p );
+          found = (node->GetViewProp() == p);
         }
 
         if (found)
@@ -122,12 +114,12 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
 
           // Raise height by 0.01 ... this should be a method..
           double displyPos[3];
-          vtkInteractorObserver::ComputeWorldToDisplay(ren,
-              worldPos[0], worldPos[1], worldPos[2], displyPos);
+          vtkInteractorObserver::ComputeWorldToDisplay(
+            ren, worldPos[0], worldPos[1], worldPos[2], displyPos);
           displyPos[2] -= 0.01;
           double w[4];
-          vtkInteractorObserver::ComputeDisplayToWorld(ren,
-              displyPos[0], displyPos[1], displyPos[2], w);
+          vtkInteractorObserver::ComputeDisplayToWorld(
+            ren, displyPos[0], displyPos[1], displyPos[2], w);
           worldPos[0] = w[0];
           worldPos[1] = w[1];
           worldPos[2] = w[2];
@@ -141,23 +133,21 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   return 0;
 }
 
-//----------------------------------------------------------------------
-int vtkPolyDataPointPlacer::ValidateWorldPosition( double worldPos[3],
-                                           double *vtkNotUsed(worldOrient) )
+//------------------------------------------------------------------------------
+int vtkPolyDataPointPlacer::ValidateWorldPosition(
+  double worldPos[3], double* vtkNotUsed(worldOrient))
 {
-  return this->ValidateWorldPosition( worldPos );
+  return this->ValidateWorldPosition(worldPos);
 }
 
-//----------------------------------------------------------------------
-int vtkPolyDataPointPlacer::ValidateWorldPosition(
-                     double vtkNotUsed(worldPos)[3] )
+//------------------------------------------------------------------------------
+int vtkPolyDataPointPlacer::ValidateWorldPosition(double vtkNotUsed(worldPos)[3])
 {
   return 1;
 }
 
-//----------------------------------------------------------------------
-int vtkPolyDataPointPlacer::ValidateDisplayPosition( vtkRenderer *,
-                                      double vtkNotUsed(displayPos)[2] )
+//------------------------------------------------------------------------------
+int vtkPolyDataPointPlacer::ValidateDisplayPosition(vtkRenderer*, double vtkNotUsed(displayPos)[2])
 {
   // We could check here to ensure that the display point picks one of the
   // terrain props, but the contour representation always calls
@@ -171,10 +161,10 @@ int vtkPolyDataPointPlacer::ValidateDisplayPosition( vtkRenderer *,
   return 1;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPolyDataPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "PropPicker: " << this->PropPicker << endl;
   if (this->PropPicker)
@@ -188,4 +178,4 @@ void vtkPolyDataPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
     this->SurfaceProps->PrintSelf(os, indent.GetNextIndent());
   }
 }
-
+VTK_ABI_NAMESPACE_END

@@ -1,29 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkImagingMath import vtkImageLogic
+from vtkmodules.vtkImagingSources import vtkImageEllipsoidSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor2D,
+    vtkImageMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestAllLogic(vtk.test.Testing.vtkTest):
+class TestAllLogic(vtkmodules.test.Testing.vtkTest):
 
     def testAllLogic(self):
 
@@ -32,7 +28,7 @@ class TestAllLogic(vtk.test.Testing.vtkTest):
 
         # Image pipeline
 
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
 
         logics = ["And", "Or", "Xor", "Nand", "Nor", "Not"]
         types = ["Float", "Double", "UnsignedInt", "UnsignedLong", "UnsignedShort", "UnsignedChar"]
@@ -47,19 +43,19 @@ class TestAllLogic(vtk.test.Testing.vtkTest):
         for idx, operator in enumerate(logics):
             ScalarType = types[idx]
 
-            sphere1.append(vtk.vtkImageEllipsoidSource())
+            sphere1.append(vtkImageEllipsoidSource())
             sphere1[idx].SetCenter(95, 100, 0)
             sphere1[idx].SetRadius(70, 70, 70)
             eval('sphere1[idx].SetOutputScalarTypeTo' + ScalarType + '()')
             sphere1[idx].Update()
 
-            sphere2.append(vtk.vtkImageEllipsoidSource())
+            sphere2.append(vtkImageEllipsoidSource())
             sphere2[idx].SetCenter(161, 100, 0)
             sphere2[idx].SetRadius(70, 70, 70)
             eval('sphere2[idx].SetOutputScalarTypeTo' + ScalarType + '()')
             sphere2[idx].Update()
 
-            logic.append(vtk.vtkImageLogic())
+            logic.append(vtkImageLogic())
             logic[idx].SetInput1Data(sphere1[idx].GetOutput())
             if operator != "Not":
                 logic[idx].SetInput2Data(sphere2[idx].GetOutput())
@@ -67,15 +63,15 @@ class TestAllLogic(vtk.test.Testing.vtkTest):
             logic[idx].SetOutputTrueValue(150)
             eval('logic[idx].SetOperationTo' + operator + '()')
 
-            mapper.append(vtk.vtkImageMapper())
+            mapper.append(vtkImageMapper())
             mapper[idx].SetInputConnection(logic[idx].GetOutputPort())
             mapper[idx].SetColorWindow(255)
             mapper[idx].SetColorLevel(127.5)
 
-            actor.append(vtk.vtkActor2D())
+            actor.append(vtkActor2D())
             actor[idx].SetMapper(mapper[idx])
 
-            imager.append(vtk.vtkRenderer())
+            imager.append(vtkRenderer())
             imager[idx].AddActor2D(actor[idx])
 
             renWin.AddRenderer(imager[idx])
@@ -93,13 +89,13 @@ class TestAllLogic(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "TestAllLogic.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestAllLogic, 'test')])
+     vtkmodules.test.Testing.main([(TestAllLogic, 'test')])

@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPointHandleRepresentation3D.h"
 
 #include <cstdlib>
@@ -7,9 +9,10 @@
 
 #include "vtkProperty.h"
 
-int vtkPointHandleRepresentation3DTest1(int , char * [] )
+int vtkPointHandleRepresentation3DTest1(int, char*[])
 {
-  vtkSmartPointer< vtkPointHandleRepresentation3D > node1 = vtkSmartPointer< vtkPointHandleRepresentation3D >::New();
+  vtkSmartPointer<vtkPointHandleRepresentation3D> node1 =
+    vtkSmartPointer<vtkPointHandleRepresentation3D>::New();
 
   EXERCISE_BASIC_HANDLE_REPRESENTATION_METHODS(vtkPointHandleRepresentation3D, node1);
 
@@ -61,8 +64,9 @@ int vtkPointHandleRepresentation3DTest1(int , char * [] )
       col[1] != colour[1] ||
       col[2] != colour[2])
     {
-    std::cerr << "Got wrong colour back after setting it! Expected " << colour[0] << ", " << colour[1] << ", " << colour[2] << ", but got " << col[0] << ", " << col[1] << ", " << col[2] << std::endl;
-    return EXIT_FAILURE;
+    std::cerr << "Got wrong colour back after setting it! Expected " << colour[0] << ", " <<
+  colour[1] << ", " << colour[2] << ", but got " << col[0] << ", " << col[1] << ", " << col[2] <<
+  std::endl; return EXIT_FAILURE;
     }
 
   vtkSmartPointer<vtkProperty> prop2 = vtkSmartPointer<vtkProperty>::New();
@@ -87,8 +91,9 @@ int vtkPointHandleRepresentation3DTest1(int , char * [] )
       col[1] != colour[1] ||
       col[2] != colour[2])
     {
-    std::cerr << "Got wrong selected colour back after setting it! Expected " << colour[0] << ", " << colour[1] << ", " << colour[2] << ", but got " << col[0] << ", " << col[1] << ", " << col[2] << std::endl;
-    return EXIT_FAILURE;
+    std::cerr << "Got wrong selected colour back after setting it! Expected " << colour[0] << ", "
+  << colour[1] << ", " << colour[2] << ", but got " << col[0] << ", " << col[1] << ", " << col[2] <<
+  std::endl; return EXIT_FAILURE;
     }
   */
   // clamped 0-1

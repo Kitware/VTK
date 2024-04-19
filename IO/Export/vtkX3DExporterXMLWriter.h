@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkX3DExporterXMLWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkX3DExporterXMLWriter
  * @brief   X3D Exporter XML Writer
  *
  * vtkX3DExporterXMLWriter
-*/
+ */
 
 #ifndef vtkX3DExporterXMLWriter_h
 #define vtkX3DExporterXMLWriter_h
@@ -26,13 +14,14 @@
 #include "vtkX3DExporterWriter.h"
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkX3DExporterXMLNodeInfoStack;
 
 class VTKIOEXPORT_EXPORT vtkX3DExporterXMLWriter : public vtkX3DExporterWriter
 {
 
 public:
-  static vtkX3DExporterXMLWriter *New();
+  static vtkX3DExporterXMLWriter* New();
   vtkTypeMacro(vtkX3DExporterXMLWriter, vtkX3DExporterWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -73,20 +62,18 @@ protected:
   ~vtkX3DExporterXMLWriter() override;
 
 private:
-
-  const char* GetNewline() { return "\n"; };
+  const char* GetNewline() { return "\n"; }
   void AddDepth();
   void SubDepth();
 
   std::string ActTab;
   int Depth;
-  ostream *OutputStream;
+  ostream* OutputStream;
   vtkX3DExporterXMLNodeInfoStack* InfoStack;
 
   vtkX3DExporterXMLWriter(const vtkX3DExporterXMLWriter&) = delete;
   void operator=(const vtkX3DExporterXMLWriter&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

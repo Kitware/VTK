@@ -1,17 +1,32 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkFloatArray
+from vtkmodules.vtkCommonDataModel import vtkFieldData
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
+from vtkmodules.vtkFiltersHybrid import vtkWeightedTransformFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # use a sphere as a basis of the shape
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetPhiResolution(40)
 sphere.SetThetaResolution(40)
 sphere.Update()
 sphereData = sphere.GetOutput()
 
 # create a data array to hold the weighting coefficients
-tfarray = vtk.vtkFloatArray()
+tfarray = vtkFloatArray()
 npoints = sphereData.GetNumberOfPoints()
 tfarray.SetNumberOfComponents(2)
 tfarray.SetNumberOfTuples(npoints)
@@ -35,26 +50,26 @@ while i < npoints:
     i += 1
 
 # create field data to hold the array, and bind it to the sphere
-fd = vtk.vtkFieldData()
+fd = vtkFieldData()
 tfarray.SetName("weights")
 sphereData.GetPointData().AddArray(tfarray)
 
 # use an ordinary transform to stretch the shape
-stretch = vtk.vtkTransform()
+stretch = vtkTransform()
 stretch.Scale(1, 1, 3.2)
 
-stretchFilter = vtk.vtkTransformFilter()
+stretchFilter = vtkTransformFilter()
 stretchFilter.SetInputData(sphereData)
 stretchFilter.SetTransform(stretch)
 
 # now, for the weighted transform stuff
-weightedTrans = vtk.vtkWeightedTransformFilter()
+weightedTrans = vtkWeightedTransformFilter()
 
 # create two transforms to interpolate between
-identity = vtk.vtkTransform()
+identity = vtkTransform()
 identity.Identity()
 
-rotated = vtk.vtkTransform()
+rotated = vtkTransform()
 rotatedAngle = 45
 rotated.RotateX(rotatedAngle)
 
@@ -67,10 +82,10 @@ weightedTrans.SetWeightArray("weights")
 
 weightedTrans.SetInputConnection(stretchFilter.GetOutputPort())
 
-weightedTransMapper = vtk.vtkPolyDataMapper()
+weightedTransMapper = vtkPolyDataMapper()
 weightedTransMapper.SetInputConnection(weightedTrans.GetOutputPort())
 
-weightedTransActor = vtk.vtkActor()
+weightedTransActor = vtkActor()
 weightedTransActor.SetMapper(weightedTransMapper)
 weightedTransActor.GetProperty().SetDiffuseColor(0.8, 0.8, 0.1)
 weightedTransActor.GetProperty().SetRepresentationToSurface()
@@ -79,10 +94,10 @@ weightedTransActor.GetProperty().SetRepresentationToSurface()
 #
 # Create the rendering stuff
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(weightedTransActor)

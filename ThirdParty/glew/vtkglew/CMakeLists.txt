@@ -8,15 +8,16 @@ set(headers
   include/GL/wglew.h)
 
 vtk_module_add_module(VTK::glew
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
-  HEADERS_SUBDIR "vtkglew/include/GL")
+  HEADERS_SUBDIR "vtkglew")
 target_compile_definitions(glew
   PRIVATE
     GLEW_NO_GLU)
 
 
-if(VTK_OPENGL_HAS_OSMESA AND UNIX)
+if(VTK_OPENGL_HAS_OSMESA)
   target_compile_definitions(glew
     PRIVATE
       GLEW_OSMESA)
@@ -41,6 +42,10 @@ if (BUILD_SHARED_LIBS)
       target_link_libraries(glew
         PRIVATE
           -nostdlib)
+      # https://discourse.vtk.org/t/1898
+      target_compile_options(glew
+        PRIVATE
+          -minline-all-stringops)
     endif()
   endif ()
 else ()

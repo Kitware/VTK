@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLRenderTimer.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkOpenGLRenderTimer
@@ -32,8 +20,9 @@
 #define vtkOpenGLRenderTimer_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkType.h" // For vtkTypeUint64, etc
+#include "vtkType.h"                   // For vtkTypeUint64, etc
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderTimer
 {
 public:
@@ -76,16 +65,16 @@ public:
    */
   bool Ready();
 
-  //@{
+  ///@{
   /**
    * If Ready() returns true, get the elapsed time in the requested units.
    */
   float GetElapsedSeconds();
   float GetElapsedMilliseconds();
   vtkTypeUInt64 GetElapsedNanoseconds();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This class can also be used in a reusable manner where the start and stop
    * events stay in flight until they are both completed. Calling ReusableStart
@@ -114,7 +103,7 @@ public:
   void ReusableStart();
   void ReusableStop();
   float GetReusableElapsedSeconds();
-  //@}
+  ///@}
 
   /**
    * If Ready() returns true, return the start or stop time in nanoseconds.
@@ -148,6 +137,7 @@ private:
   void operator=(const vtkOpenGLRenderTimer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLRenderTimer_h
 
 // VTK-HeaderTest-Exclude: vtkOpenGLRenderTimer.h

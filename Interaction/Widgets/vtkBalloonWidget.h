@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBalloonWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkBalloonWidget
  * @brief   popup text balloons above instance of vtkProp when hovering occurs
@@ -66,14 +54,16 @@
  *
  * @sa
  * vtkAbstractWidget
-*/
+ */
 
 #ifndef vtkBalloonWidget_h
 #define vtkBalloonWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHoverWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBalloonRepresentation;
 class vtkProp;
 class vtkAbstractPropPicker;
@@ -81,22 +71,21 @@ class vtkStdString;
 class vtkPropMap;
 class vtkImageData;
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkBalloonWidget : public vtkHoverWidget
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkBalloonWidget : public vtkHoverWidget
 {
 public:
   /**
    * Instantiate this class.
    */
-  static vtkBalloonWidget *New();
+  static vtkBalloonWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for a VTK class.
    */
-  vtkTypeMacro(vtkBalloonWidget,vtkHoverWidget);
+  vtkTypeMacro(vtkBalloonWidget, vtkHoverWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The method for activating and deactivating this widget. This method
@@ -109,60 +98,65 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkBalloonRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkBalloonRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkBalloonRepresentation.
    */
-  vtkBalloonRepresentation *GetBalloonRepresentation()
-    {return reinterpret_cast<vtkBalloonRepresentation*>(this->WidgetRep);}
+  vtkBalloonRepresentation* GetBalloonRepresentation()
+  {
+    return reinterpret_cast<vtkBalloonRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
    */
   void CreateDefaultRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Add and remove text and/or an image to be associated with a vtkProp. You
    * may add one or both of them.
    */
-  void AddBalloon(vtkProp *prop, vtkStdString *str, vtkImageData *img);
-  void AddBalloon(vtkProp *prop, const char *str, vtkImageData *img);
-  void AddBalloon(vtkProp *prop, const char *str) //for wrapping
-    {this->AddBalloon(prop,str,nullptr);}
-  void RemoveBalloon(vtkProp *prop);
-  //@}
+  void AddBalloon(vtkProp* prop, vtkStdString* str, vtkImageData* img);
+  void AddBalloon(vtkProp* prop, const char* str, vtkImageData* img);
+  void AddBalloon(vtkProp* prop, const char* str) // for wrapping
+  {
+    this->AddBalloon(prop, str, nullptr);
+  }
+  void RemoveBalloon(vtkProp* prop);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to retrieve the information associated with each vtkProp (i.e.,
    * the information that makes up each balloon). A nullptr will be returned if
    * the vtkProp does not exist, or if a string or image have not been
    * associated with the specified vtkProp.
    */
-  const char *GetBalloonString(vtkProp *prop);
-  vtkImageData *GetBalloonImage(vtkProp *prop);
-  //@}
+  const char* GetBalloonString(vtkProp* prop);
+  vtkImageData* GetBalloonImage(vtkProp* prop);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Update the balloon string or image. If the specified prop does not exist,
    * then nothing is added not changed.
    */
-  void UpdateBalloonString(vtkProp *prop, const char *str);
-  void UpdateBalloonImage(vtkProp *prop, vtkImageData *image);
-  //@}
+  void UpdateBalloonString(vtkProp* prop, const char* str);
+  void UpdateBalloonImage(vtkProp* prop, vtkImageData* image);
+  ///@}
 
   /**
    * Return the current vtkProp that is being hovered over. Note that the
    * value may be nullptr (if hovering over nothing or the mouse is moving).
    */
-  virtual vtkProp *GetCurrentProp()
-    {return this->CurrentProp;}
+  virtual vtkProp* GetCurrentProp() { return this->CurrentProp; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the object used to perform pick operations. Since the
    * vtkBalloonWidget operates on vtkProps, the picker must be a subclass of
@@ -170,12 +164,12 @@ public:
    * vtkPropPicker is used.)
    */
   void SetPicker(vtkAbstractPropPicker*);
-  vtkGetObjectMacro(Picker,vtkAbstractPropPicker);
-  //@}
+  vtkGetObjectMacro(Picker, vtkAbstractPropPicker);
+  ///@}
 
   /*
-  * Register internal Pickers within PickingManager
-  */
+   * Register internal Pickers within PickingManager
+   */
   void RegisterPickers() override;
 
 protected:
@@ -187,17 +181,18 @@ protected:
   int SubclassHoverAction() override;
 
   // Classes for managing balloons
-  vtkPropMap *PropMap; //PIMPL'd map of (vtkProp,vtkStdString)
+  vtkPropMap* PropMap; // PIMPL'd map of (vtkProp,vtkStdString)
 
   // Support for picking
-  vtkAbstractPropPicker *Picker;
+  vtkAbstractPropPicker* Picker;
 
   // The vtkProp that is being hovered over (which may be nullptr)
-  vtkProp *CurrentProp;
+  vtkProp* CurrentProp;
 
 private:
   vtkBalloonWidget(const vtkBalloonWidget&) = delete;
   void operator=(const vtkBalloonWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

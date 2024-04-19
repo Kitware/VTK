@@ -1,6 +1,27 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    reference,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+    vtkStaticPointLocator,
+)
+from vtkmodules.vtkFiltersCore import vtkGlyph3D
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # retrieve named colors
@@ -10,7 +31,7 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Control resolution of test (sphere resolution)
@@ -18,11 +39,11 @@ res = 18
 
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create pipeline. Two spheres: one is the target to
@@ -31,33 +52,33 @@ iren.SetRenderWindow(renWin)
 # serve as starting points that shoot rays towards the
 # center of the fist sphere.
 #
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetThetaResolution(2*res)
 sphere.SetPhiResolution(res)
 sphere.Update()
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(sphere.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Now the locator
-loc = vtk.vtkStaticPointLocator()
+loc = vtkStaticPointLocator()
 loc.SetDataSet(sphere.GetOutput())
 loc.SetNumberOfPointsPerBucket(5)
 loc.BuildLocator()
 
-locPD = vtk.vtkPolyData()
+locPD = vtkPolyData()
 loc.GenerateRepresentation(4,locPD)
-locMapper = vtk.vtkPolyDataMapper()
+locMapper = vtkPolyDataMapper()
 locMapper.SetInputData(locPD)
-locActor = vtk.vtkActor()
+locActor = vtkActor()
 locActor.SetMapper(locMapper)
 locActor.GetProperty().SetRepresentationToWireframe()
 
 # Now the outer sphere
-sphere2 = vtk.vtkSphereSource()
+sphere2 = vtkSphereSource()
 sphere2.SetThetaResolution(res)
 sphere2.SetPhiResolution(int(res/2))
 sphere2.SetRadius(3*sphere.GetRadius())
@@ -65,19 +86,19 @@ sphere2.Update()
 
 # Generate intersection points
 center = sphere.GetCenter()
-polyInts = vtk.vtkPolyData()
-pts = vtk.vtkPoints()
+polyInts = vtkPolyData()
+pts = vtkPoints()
 spherePts = sphere2.GetOutput().GetPoints()
 numRays = spherePts.GetNumberOfPoints()
 pts.SetNumberOfPoints(numRays + 1)
 
-polyRays = vtk.vtkPolyData()
-rayPts = vtk.vtkPoints()
+polyRays = vtkPolyData()
+rayPts = vtkPoints()
 rayPts.SetNumberOfPoints(numRays + 1)
-lines = vtk.vtkCellArray()
+lines = vtkCellArray()
 
-t = vtk.reference(0.0)
-ptId = vtk.reference(0)
+t = reference(0.0)
+ptId = reference(0)
 xyz = [0.0,0.0,0.0]
 lineInt = [0.0,0.0,0.0]
 xInt = [0.0,0.0,0.0]
@@ -87,7 +108,7 @@ rayPts.SetPoint(0,center)
 for i in range(0, numRays):
     spherePts.GetPoint(i,xyz)
     rayPts.SetPoint(i+1,xyz)
-    cellId = vtk.reference(i);
+    cellId = reference(i);
     hit = loc.IntersectWithLine(xyz, center, 0.05, t, lineInt, xInt, ptId)
     if ( hit == 0 ):
         print("Missed: {}".format(i))
@@ -104,26 +125,26 @@ polyRays.SetPoints(rayPts)
 polyRays.SetLines(lines)
 
 # Glyph the intersection points
-glyphSphere = vtk.vtkSphereSource()
+glyphSphere = vtkSphereSource()
 glyphSphere.SetPhiResolution(6)
 glyphSphere.SetThetaResolution(12)
 
-glypher = vtk.vtkGlyph3D()
+glypher = vtkGlyph3D()
 glypher.SetInputData(polyInts)
 glypher.SetSourceConnection(glyphSphere.GetOutputPort())
 glypher.SetScaleFactor(0.05)
 
-glyphMapper = vtk.vtkPolyDataMapper()
+glyphMapper = vtkPolyDataMapper()
 glyphMapper.SetInputConnection(glypher.GetOutputPort())
 
-glyphActor = vtk.vtkActor()
+glyphActor = vtkActor()
 glyphActor.SetMapper(glyphMapper)
 glyphActor.GetProperty().SetColor(GetRGBColor('peacock'))
 
-linesMapper = vtk.vtkPolyDataMapper()
+linesMapper = vtkPolyDataMapper()
 linesMapper.SetInputData(polyRays)
 
-linesActor = vtk.vtkActor()
+linesActor = vtkActor()
 linesActor.SetMapper(linesMapper)
 linesActor.GetProperty().SetColor(GetRGBColor('tomato'))
 

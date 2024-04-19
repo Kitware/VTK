@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtAbstractModelAdapter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkQtAbstractModelAdapter
  * @brief   Superclass for Qt model adapters.
@@ -30,7 +14,7 @@
  *
  * @sa
  * vtkQtTableModelAdapter vtkQtTreeModelAdapter
-*/
+ */
 
 #ifndef vtkQtAbstractModelAdapter_h
 #define vtkQtAbstractModelAdapter_h
@@ -39,6 +23,7 @@
 #include <QAbstractItemModel>
 #include <QItemSelection> // Needed for selection methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkSelection;
 
@@ -47,39 +32,38 @@ class VTKGUISUPPORTQT_EXPORT vtkQtAbstractModelAdapter : public QAbstractItemMod
   Q_OBJECT
 
 public:
-
   // The view types.
-  enum {
+  enum
+  {
     FULL_VIEW,
     DATA_VIEW
   };
 
-  vtkQtAbstractModelAdapter(QObject* p) :
-    QAbstractItemModel(p),
-    ViewType(FULL_VIEW),
-    KeyColumn(-1),
-    ColorColumn(-1),
-    DataStartColumn(-1),
-    DataEndColumn(-1)
-    { }
+  vtkQtAbstractModelAdapter(QObject* p)
+    : QAbstractItemModel(p)
+    , ViewType(FULL_VIEW)
+    , KeyColumn(-1)
+    , ColorColumn(-1)
+    , DataStartColumn(-1)
+    , DataEndColumn(-1)
+  {
+  }
 
-  //@{
+  ///@{
   /**
    * Set/Get the VTK data object as input to this adapter
    */
-  virtual void SetVTKDataObject(vtkDataObject *data) = 0;
+  virtual void SetVTKDataObject(vtkDataObject* data) = 0;
   virtual vtkDataObject* GetVTKDataObject() const = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Selection conversion from VTK land to Qt land
    */
-  virtual vtkSelection* QModelIndexListToVTKIndexSelection(
-    const QModelIndexList qmil) const = 0;
-  virtual QItemSelection VTKIndexSelectionToQItemSelection(
-    vtkSelection *vtksel) const = 0;
-  //@}
+  virtual vtkSelection* QModelIndexListToVTKIndexSelection(QModelIndexList qmil) const = 0;
+  virtual QItemSelection VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const = 0;
+  ///@}
 
   /**
    * Set/Get the view type.
@@ -118,14 +102,21 @@ public:
    * The default is no data columns.
    */
   virtual void SetDataColumnRange(int c1, int c2)
-    { this->DataStartColumn = c1; this->DataEndColumn = c2; }
+  {
+    this->DataStartColumn = c1;
+    this->DataEndColumn = c2;
+  }
 
   // We make the reset() method public because it isn't always possible for
   // an adapter to know when its input has changed, so it must be callable
   // by an outside entity.
   /// \sa beginResetModel, endResetModel
   /// \deprecated
-  void reset() { QAbstractItemModel::beginResetModel(); QAbstractItemModel::endResetModel();}
+  void reset()
+  {
+    QAbstractItemModel::beginResetModel();
+    QAbstractItemModel::endResetModel();
+  }
 
   // We make the beginResetModel() and endResetModel() methods public because it
   // isn't always possible for an adapter to know when its input has changed,
@@ -133,12 +124,10 @@ public:
   void beginResetModel() { QAbstractItemModel::beginResetModel(); }
   void endResetModel() { QAbstractItemModel::endResetModel(); }
 
-
-signals:
+Q_SIGNALS:
   void modelChanged();
 
 protected:
-
   /**
    * Map a column index in the QAbstractItemModel to a vtkTable column.
    * If the argument is out of range or cannot be mapped then
@@ -153,5 +142,6 @@ protected:
   int DataEndColumn;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtAbstractModelAdapter.h

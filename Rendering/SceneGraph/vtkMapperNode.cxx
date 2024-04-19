@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMapperNode.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkMapperNode.h"
 
 #include "vtkAbstractArray.h"
@@ -30,27 +18,23 @@
 #include "vtkProperty.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMapperNode);
 
-//----------------------------------------------------------------------------
-vtkMapperNode::vtkMapperNode()
-{
-}
+//------------------------------------------------------------------------------
+vtkMapperNode::vtkMapperNode() = default;
 
-//----------------------------------------------------------------------------
-vtkMapperNode::~vtkMapperNode()
-{
-}
+//------------------------------------------------------------------------------
+vtkMapperNode::~vtkMapperNode() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
-vtkAbstractArray *vtkMapperNode::GetArrayToProcess(
-  vtkDataSet* input, int& cellFlag)
+//------------------------------------------------------------------------------
+vtkAbstractArray* vtkMapperNode::GetArrayToProcess(vtkDataSet* input, int& cellFlag)
 {
   cellFlag = -1;
   vtkAbstractVolumeMapper* mapper = vtkAbstractVolumeMapper::SafeDownCast(this->GetRenderable());
@@ -59,9 +43,9 @@ vtkAbstractArray *vtkMapperNode::GetArrayToProcess(
     return nullptr;
   }
 
-  vtkAbstractArray *scalars;
+  vtkAbstractArray* scalars;
   int scalarMode = mapper->GetScalarMode();
-  if ( scalarMode == VTK_SCALAR_MODE_DEFAULT )
+  if (scalarMode == VTK_SCALAR_MODE_DEFAULT)
   {
     scalars = input->GetPointData()->GetScalars();
     cellFlag = 0;
@@ -73,13 +57,13 @@ vtkAbstractArray *vtkMapperNode::GetArrayToProcess(
     return scalars;
   }
 
-  if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
+  if (scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA)
   {
     scalars = input->GetPointData()->GetScalars();
     cellFlag = 0;
     return scalars;
   }
-  if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
+  if (scalarMode == VTK_SCALAR_MODE_USE_CELL_DATA)
   {
     scalars = input->GetCellData()->GetScalars();
     cellFlag = 1;
@@ -87,12 +71,12 @@ vtkAbstractArray *vtkMapperNode::GetArrayToProcess(
   }
 
   int arrayAccessMode = mapper->GetArrayAccessMode();
-  const char *arrayName = mapper->GetArrayName();
+  const char* arrayName = mapper->GetArrayName();
   int arrayId = mapper->GetArrayId();
-  vtkPointData *pd;
-  vtkCellData *cd;
-  vtkFieldData *fd;
-  if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
+  vtkPointData* pd;
+  vtkCellData* cd;
+  vtkFieldData* fd;
+  if (scalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
   {
     pd = input->GetPointData();
     if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
@@ -107,7 +91,7 @@ vtkAbstractArray *vtkMapperNode::GetArrayToProcess(
     return scalars;
   }
 
-  if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+  if (scalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
   {
     cd = input->GetCellData();
     if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
@@ -122,7 +106,7 @@ vtkAbstractArray *vtkMapperNode::GetArrayToProcess(
     return scalars;
   }
 
-  if ( scalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA )
+  if (scalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA)
   {
     fd = input->GetFieldData();
     if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
@@ -139,3 +123,4 @@ vtkAbstractArray *vtkMapperNode::GetArrayToProcess(
 
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeLayoutStrategy.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkTreeLayoutStrategy
  * @brief   hierarchical layout
@@ -38,18 +22,19 @@
  *
  * If the input is not a tree but a general graph, this strategy first extracts
  * a tree from the graph using a breadth-first search starting at vertex ID 0.
-*/
+ */
 
 #ifndef vtkTreeLayoutStrategy_h
 #define vtkTreeLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkTreeLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkTreeLayoutStrategy *New();
+  static vtkTreeLayoutStrategy* New();
 
   vtkTypeMacro(vtkTreeLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -59,7 +44,7 @@ public:
    */
   void Layout() override;
 
-  //@{
+  ///@{
   /**
    * The sweep angle of the tree.
    * For a standard tree layout, this should be between 0 and 180.
@@ -67,9 +52,9 @@ public:
    */
   vtkSetClampMacro(Angle, double, 0, 360);
   vtkGetMacro(Angle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set, the tree is laid out with levels on concentric circles
    * around the root. If unset (default), the tree is laid out with
@@ -78,9 +63,9 @@ public:
   vtkSetMacro(Radial, bool);
   vtkGetMacro(Radial, bool);
   vtkBooleanMacro(Radial, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The spacing of tree levels. Levels near zero give more space
    * to levels near the root, while levels near one (the default)
@@ -89,9 +74,9 @@ public:
    */
   vtkSetMacro(LogSpacingValue, double);
   vtkGetMacro(LogSpacingValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The spacing of leaves.  Levels near one evenly space leaves
    * with no gaps between subtrees.  Levels near zero creates
@@ -99,27 +84,27 @@ public:
    */
   vtkSetClampMacro(LeafSpacing, double, 0.0, 1.0);
   vtkGetMacro(LeafSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the array to use to determine the distance from the
    * root.
    */
   vtkSetStringMacro(DistanceArrayName);
   vtkGetStringMacro(DistanceArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The amount of counter-clockwise rotation to apply after the
    * layout.
    */
   vtkSetMacro(Rotation, double);
   vtkGetMacro(Rotation, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set and the input is not a tree but a general graph, the filter
    * will reverse the edges on the graph before extracting a tree using
@@ -128,7 +113,7 @@ public:
   vtkSetMacro(ReverseEdges, bool);
   vtkGetMacro(ReverseEdges, bool);
   vtkBooleanMacro(ReverseEdges, bool);
-  //@}
+  ///@}
 
 protected:
   vtkTreeLayoutStrategy();
@@ -138,15 +123,14 @@ protected:
   bool Radial;
   double LogSpacingValue;
   double LeafSpacing;
-  char *DistanceArrayName;
+  char* DistanceArrayName;
   double Rotation;
   bool ReverseEdges;
 
 private:
-
   vtkTreeLayoutStrategy(const vtkTreeLayoutStrategy&) = delete;
   void operator=(const vtkTreeLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

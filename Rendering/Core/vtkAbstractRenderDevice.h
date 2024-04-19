@@ -1,29 +1,19 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef vtkAbstractRenderDevice_h
 #define vtkAbstractRenderDevice_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include <string> // For std::string
+#include "vtkRenderingCoreModule.h" // For export macro
+#include <string>                   // For std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRecti;
 
 class VTKRENDERINGCORE_EXPORT vtkAbstractRenderDevice : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkAbstractRenderDevice, vtkObject)
+  vtkTypeMacro(vtkAbstractRenderDevice, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -44,10 +34,10 @@ public:
   /**
    * @brief Create a window with the desired geometry.
    * @param geometry The geometry in screen coordinates for the window.
+   * @param name The name of the window.
    * @return True on success, false on failure.
    */
-  virtual bool CreateNewWindow(const vtkRecti &geometry,
-                               const std::string &name) = 0;
+  virtual bool CreateNewWindow(const vtkRecti& geometry, const std::string& name) = 0;
 
   /**
    * @brief Make the context current so that it can be used by OpenGL. This is
@@ -68,4 +58,5 @@ private:
   void operator=(const vtkAbstractRenderDevice&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

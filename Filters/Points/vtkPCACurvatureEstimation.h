@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPCACurvatureEstimation.h
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See LICENSE file for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-CLAUSE
 /**
  * @class   vtkPCACurvatureEstimation
  * @brief   generate curvature estimates using
@@ -46,7 +34,7 @@
  *
  * @sa
  * vtkPCANormalEstimation
-*/
+ */
 
 #ifndef vtkPCACurvatureEstimation_h
 #define vtkPCACurvatureEstimation_h
@@ -54,42 +42,42 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
-
 
 class VTKFILTERSPOINTS_EXPORT vtkPCACurvatureEstimation : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkPCACurvatureEstimation *New();
-  vtkTypeMacro(vtkPCACurvatureEstimation,vtkPolyDataAlgorithm);
+  static vtkPCACurvatureEstimation* New();
+  vtkTypeMacro(vtkPCACurvatureEstimation, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For each sampled point, specify the number of the closest, surrounding
    * points used to estimate the normal (the so called k-neighborhood). By
    * default 25 points are used. Smaller numbers may speed performance at the
    * cost of accuracy.
    */
-  vtkSetClampMacro(SampleSize,int,1,VTK_INT_MAX);
-  vtkGetMacro(SampleSize,int);
-  //@}
+  vtkSetClampMacro(SampleSize, int, 1, VTK_INT_MAX);
+  vtkGetMacro(SampleSize, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point locator. By default a vtkStaticPointLocator is
    * used. The locator performs efficient searches to locate points
    * around a sample point.
    */
-  void SetLocator(vtkAbstractPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkAbstractPointLocator);
-  //@}
+  void SetLocator(vtkAbstractPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
+  ///@}
 
 protected:
   vtkPCACurvatureEstimation();
@@ -97,16 +85,15 @@ protected:
 
   // IVars
   int SampleSize;
-  vtkAbstractPointLocator *Locator;
+  vtkAbstractPointLocator* Locator;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkPCACurvatureEstimation(const vtkPCACurvatureEstimation&) = delete;
   void operator=(const vtkPCACurvatureEstimation&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

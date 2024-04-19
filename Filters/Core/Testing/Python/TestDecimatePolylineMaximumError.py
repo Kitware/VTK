@@ -1,43 +1,58 @@
 #!/usr/bin/env python
 
 # Decimate polyline with maximum error
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkDecimatePolylineFilter,
+    vtkFeatureEdges,
+    vtkStripper,
+)
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create rendering stuff
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
-iRen = vtk.vtkRenderWindowInteractor()
+iRen = vtkRenderWindowInteractor()
 iRen.SetRenderWindow(renWin);
 
 # Plane source is used to create a polyline around boundary and then
 # decimated.
-ps = vtk.vtkPlaneSource()
+ps = vtkPlaneSource()
 ps.SetResolution(50,100)
 
-fe = vtk.vtkFeatureEdges()
+fe = vtkFeatureEdges()
 fe.SetInputConnection(ps.GetOutputPort())
 fe.BoundaryEdgesOn()
 fe.FeatureEdgesOff()
 fe.NonManifoldEdgesOff()
 
-s = vtk.vtkStripper()
+s = vtkStripper()
 s.SetInputConnection(fe.GetOutputPort())
 
-deci = vtk.vtkDecimatePolylineFilter()
+deci = vtkDecimatePolylineFilter()
 deci.SetInputConnection(s.GetOutputPort())
 deci.SetMaximumError(0.00001)
 deci.SetTargetReduction(0.99)
 deci.Update()
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(deci.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Add the actors to the renderer, set the background and size

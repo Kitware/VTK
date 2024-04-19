@@ -13,7 +13,6 @@ vtk_add_test_cxx(vtkInfovisCoreCxxTests tests
   TestArrayNorm.cxx,NO_VALID,NO_DATA
   TestCollapseVerticesByArray.cxx,NO_VALID
   TestContinuousScatterPlot.cxx,NO_VALID
-  TestDataObjectToTable.cxx,NO_VALID
   TestExtractSelectedTree.cxx,NO_VALID
   TestExtractSelectedGraph.cxx,NO_VALID
   TestGraphAlgorithms.cxx
@@ -24,26 +23,12 @@ vtk_add_test_cxx(vtkInfovisCoreCxxTests tests
   TestRemoveIsolatedVertices.cxx,NO_VALID
   TestStreamGraph.cxx,NO_VALID
   TestTableToArray.cxx,NO_VALID
+  TestTableToGraph.cxx
   TestThresholdTable.cxx,NO_VALID
   TestTreeDifferenceFilter.cxx,NO_VALID
+  TestWordCloud
+  UnitTestWordCloud
   )
-
-# add to the list but don't define a test
-list(APPEND tests UnitTestWordCloud.cxx)
-list(APPEND tests TestWordCloud.cxx)
-
-ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
-  NAME VTK::InfovisCoreCxxTests-UnitTestWordCloud
-  COMMAND vtkInfovisCoreCxxTests UnitTestWordCloud
-  DATA{../../../../Testing/Data/Gettysburg.txt} DATA{../../../../Testing/Data/Canterbury.ttf} DATA{../../../../Testing/Data/hearts.png} DATA{../../../../Testing/Data/hearts8bit.png}  DATA{../../../../Testing/Data/NLTKStopList.txt})
-
-ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
-  NAME VTK::InfovisCoreCxxTests-TestWordCloud
-  COMMAND vtkInfovisCoreCxxTests TestWordCloud
-  DATA{../../../../Testing/Data/Gettysburg.txt} DATA{../../../../Testing/Data/Canterbury.ttf}
-  -V DATA{../Data/Baseline/TestWordCloud.png,:}
-  -T "${VTK_TEST_OUTPUT_DIR}"
-)
 
 set(all_tests
   ${tests}
@@ -51,4 +36,7 @@ set(all_tests
   ${output_tests}
   ${custom_tests}
   )
-vtk_test_cxx_executable(vtkInfovisCoreCxxTests all_tests RENDERING_FACTORY)
+vtk_test_cxx_executable(vtkInfovisCoreCxxTests all_tests
+   DISABLE_FLOATING_POINT_EXCEPTIONS
+   RENDERING_FACTORY
+   )

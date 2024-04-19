@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeLevelsFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkTreeLevelsFilter
  * @brief   adds level and leaf fields to a vtkTree
@@ -30,7 +14,7 @@
  * @par Thanks:
  * Thanks to Brian Wylie from Sandia National Laboratories for creating this
  * class.
-*/
+ */
 
 #ifndef vtkTreeLevelsFilter_h
 #define vtkTreeLevelsFilter_h
@@ -38,22 +22,24 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkTreeLevelsFilter : public vtkTreeAlgorithm
 {
 public:
-  static vtkTreeLevelsFilter *New();
-  vtkTypeMacro(vtkTreeLevelsFilter,vtkTreeAlgorithm);
+  static vtkTreeLevelsFilter* New();
+  vtkTypeMacro(vtkTreeLevelsFilter, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkTreeLevelsFilter();
-  ~vtkTreeLevelsFilter() override {}
+  ~vtkTreeLevelsFilter() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkTreeLevelsFilter(const vtkTreeLevelsFilter&) = delete;
   void operator=(const vtkTreeLevelsFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

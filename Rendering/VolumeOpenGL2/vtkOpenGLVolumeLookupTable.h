@@ -1,20 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLVolumeLookupTable.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*=============================================================================
-Copyright and License information
-=============================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkOpenGLVolumeLookupTable
  * @brief Base class for OpenGL texture management of scalar color,
@@ -23,16 +8,17 @@ Copyright and License information
 
 #ifndef vtkOpenGLVolumeLookupTable_h
 #define vtkOpenGLVolumeLookupTable_h
-#ifndef __VTK_WRAP__
 
 #include "vtkObject.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
 class vtkWindow;
 
-class vtkOpenGLVolumeLookupTable : public vtkObject
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLVolumeLookupTable : public vtkObject
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeLookupTable, vtkObject);
@@ -48,16 +34,15 @@ public:
   /**
    * Activate / deactivate the internal texture object
    */
-  //@{
+  ///@{
   void Activate();
   void Deactivate();
-  //@}
+  ///@}
 
   /**
    * Get the maximum supported texture width for the target OpenGL environment.
    */
-  int GetMaximumSupportedTextureWidth(vtkOpenGLRenderWindow* renWin,
-                                      int idealWidth);
+  int GetMaximumSupportedTextureWidth(vtkOpenGLRenderWindow* renWin, int idealWidth);
 
   /**
    * Release graphics resources
@@ -67,13 +52,8 @@ public:
   /**
    * Update the internal texture object using the transfer function provided.
    */
-  virtual void Update(vtkObject* func,
-                      double scalarRange[2],
-                      int blendMode,
-                      double sampleDistance,
-                      double unitDistance,
-                      int filterValue,
-                      vtkOpenGLRenderWindow* renWin);
+  virtual void Update(vtkObject* func, double scalarRange[2], int blendMode, double sampleDistance,
+    double unitDistance, int filterValue, vtkOpenGLRenderWindow* renWin);
 
   /**
    * Get access to the texture height used by this object
@@ -87,7 +67,7 @@ public:
 
 protected:
   vtkOpenGLVolumeLookupTable() = default;
-  virtual ~vtkOpenGLVolumeLookupTable() override;
+  ~vtkOpenGLVolumeLookupTable() override;
 
   double LastRange[2] = { 0.0, 0.0 };
   float* Table = nullptr;
@@ -101,27 +81,20 @@ protected:
   /**
    * Test whether the internal function needs to be updated.
    */
-  virtual bool NeedsUpdate(vtkObject* func,
-                           double scalarRange[2],
-                           int blendMode,
-                           double sampleDistance);
+  virtual bool NeedsUpdate(
+    vtkObject* func, double scalarRange[2], int blendMode, double sampleDistance);
 
   /**
    * Internal method to actually update the texture object
    */
-  virtual void InternalUpdate(vtkObject* func,
-                              int blendMode,
-                              double sampleDistance,
-                              double unitDistance,
-                              int filterValue);
+  virtual void InternalUpdate(
+    vtkObject* func, int blendMode, double sampleDistance, double unitDistance, int filterValue);
 
   /**
    * Compute ideal width and height for the texture based on function provided
    */
-  virtual void ComputeIdealTextureSize(vtkObject* func,
-                                       int& width,
-                                       int& height,
-                                       vtkOpenGLRenderWindow* renWin);
+  virtual void ComputeIdealTextureSize(
+    vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* renWin);
 
   /**
    * Allocate internal data table
@@ -133,6 +106,5 @@ private:
   void operator=(const vtkOpenGLVolumeLookupTable&) = delete;
 };
 
-#endif //__VTK_WRAP__
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLVolumeLookupTable_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeLookupTable.h

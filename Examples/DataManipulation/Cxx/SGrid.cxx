@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    SGrid.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This example shows how to manually create a structured grid.
 // The basic idea is to instantiate vtkStructuredGrid, set its dimensions,
 // and then assign points defining the grid coordinate. The number of
@@ -43,7 +31,7 @@ int main()
   vtkNew<vtkNamedColors> colors;
 
   float rMin = 0.5, rMax = 1.0, deltaRad, deltaZ;
-  std::array<int, 3> dims = {{13, 11, 11}};
+  std::array<int, 3> dims = { { 13, 11, 11 } };
 
   // Create the structured grid.
   vtkNew<vtkStructuredGrid> sgrid;

@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVRML.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (C) 1996 Silicon Graphics, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 /* ======================================================================
 
    Importer based on BNF Yacc and Lex parser definition from:
 
     **************************************************
         * VRML 2.0 Parser
-        * Copyright (C) 1996 Silicon Graphics, Inc.
         *
         * Author(s) :    Gavin Bell
         *                Daniel Woods (first port)
@@ -39,6 +27,7 @@
 #include <new>
 
 // Use a user-managed heap to remove memory leaks
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkVRMLAllocator
 {
   static void Initialize()
@@ -49,10 +38,7 @@ struct vtkVRMLAllocator
     }
   }
 
-  static void* AllocateMemory(size_t n)
-  {
-    return Heap->AllocateMemory(n);
-  }
+  static void* AllocateMemory(size_t n) { return Heap->AllocateMemory(n); }
 
   static void CleanUp()
   {
@@ -63,24 +49,22 @@ struct vtkVRMLAllocator
     }
   }
 
-  static char* StrDup(const char *str)
-  {
-    return Heap->StringDup(str);
-  }
+  static char* StrDup(const char* str) { return Heap->StringDup(str); }
 
-  static vtkHeap *Heap;
+  static vtkHeap* Heap;
 };
 
 template <class T>
 class vtkVRMLVectorType
 {
 public:
-  vtkVRMLVectorType(int usenew = 0) : UseNew(usenew)
+  vtkVRMLVectorType(int usenew = 0)
+    : UseNew(usenew)
   {
     this->Init();
   }
 
-  ~vtkVRMLVectorType(void)
+  ~vtkVRMLVectorType()
   {
     if (this->UseNew)
     {
@@ -94,8 +78,9 @@ public:
     if (!this->UseNew)
     {
       vtkVRMLAllocator::Initialize();
+      // NOLINTNEXTLINE(bugprone-sizeof-expression)
       void* mem = vtkVRMLAllocator::AllocateMemory(this->Allocated * sizeof(T));
-      this->Data = new(mem) T[this->Allocated];
+      this->Data = new (mem) T[this->Allocated];
     }
     else
     {
@@ -113,8 +98,9 @@ public:
       T* temp = this->Data;
       if (!this->UseNew)
       {
+        // NOLINTNEXTLINE(bugprone-sizeof-expression)
         void* mem = vtkVRMLAllocator::AllocateMemory(this->Allocated * sizeof(T));
-        this->Data = new(mem) T[this->Allocated];
+        this->Data = new (mem) T[this->Allocated];
       }
       else
       {
@@ -124,6 +110,7 @@ public:
       {
         return;
       }
+      // NOLINTNEXTLINE(bugprone-sizeof-expression)
       memcpy((void*)this->Data, (void*)temp, oldSize * sizeof(T));
       if (this->UseNew)
       {
@@ -138,15 +125,11 @@ public:
     this->Used = newSize;
   }
 
-  int Count(void) const
-  {
-    return this->Used;
-  }
+  int Count() const { return this->Used; }
 
   T& Get(int index) const
   {
-    return (index > this->Used) ?
-      this->Data[this->Used - 1] : this->Data[index];
+    return (index > this->Used) ? this->Data[this->Used - 1] : this->Data[index];
   }
 
   T& operator[](int index)
@@ -158,10 +141,7 @@ public:
     return this->Data[index];
   }
 
-  operator T*() const
-  {
-    return this->Data;
-  }
+  operator T*() const { return this->Data; }
 
   vtkVRMLVectorType<T>& operator+=(T datum)
   {
@@ -184,29 +164,20 @@ public:
     return this->Data[this->Used];
   }
 
-  T& Top()
-  {
-    return this->Data[this->Used - 1];
-  }
+  T& Top() { return this->Data[this->Used - 1]; }
 
-  void* operator new(size_t n)
-  {
-    return vtkVRMLAllocator::AllocateMemory(n);
-  }
+  void* operator new(size_t n) { return vtkVRMLAllocator::AllocateMemory(n); }
 
-  void operator delete(void *)
-  {
-  }
+  void operator delete(void*) {}
 
 protected:
-  T *Data;
+  T* Data;
   int UseNew;
   int Allocated;
   int Used;
 };
 
-static const char standardNodes[][2042] = {
-  "#VRML V2.0 utf8 \n\
+static const char standardNodes[][2042] = { "#VRML V2.0 utf8 \n\
 # \n\
 # ************************************************** \n\
 # * VRML 2.0 Parser \n\
@@ -682,8 +653,9 @@ PROTO Viewpoint [ \n\
 PROTO WorldInfo [ \n\
   field MFString info  [] \n\
   field SFString title \"\" \n\
-] { }",""
-};
+] { }",
+  "" };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkVRML.h

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7...3.12)
+cmake_minimum_required(VERSION 3.8...3.12)
 project(NativeVTK)
 
 if (CMAKE_BINARY_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)

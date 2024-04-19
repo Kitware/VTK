@@ -16,7 +16,8 @@ set(headers
   src/H5PartPrivate.h
   src/H5PartTypes.h
   src/Underscore.h
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkh5part_export.h")
+  src/vtk_h5part_mangle.h
+  "${CMAKE_CURRENT_BINARY_DIR}/src/vtkh5part_export.h")
 
 set(sources
   src/H5Block.c
@@ -32,11 +33,15 @@ set(sources
   src/TestUnderscoreC.c)
 
 vtk_module_add_module(VTK::h5part
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkh5part")
+vtk_module_include(VTK::h5part
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>")
 
 include(GenerateExportHeader)
 generate_export_header(h5part
   EXPORT_MACRO_NAME VTKH5PART_EXPORT
-  EXPORT_FILE_NAME vtkh5part_export.h)
+  EXPORT_FILE_NAME src/vtkh5part_export.h)

@@ -1,21 +1,9 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataObjectTreeInternals.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDataObjectTreeInternals
  *
-*/
+ */
 
 #ifndef vtkDataObjectTreeInternals_h
 #define vtkDataObjectTreeInternals_h
@@ -28,12 +16,13 @@
 
 //-----------------------------------------------------------------------------
 // Item in the VectorOfDataObjects.
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkDataObjectTreeItem
 {
   vtkSmartPointer<vtkDataObject> DataObject;
   vtkSmartPointer<vtkInformation> MetaData;
 
-  vtkDataObjectTreeItem(vtkDataObject* dobj =nullptr, vtkInformation* info=nullptr)
+  vtkDataObjectTreeItem(vtkDataObject* dobj = nullptr, vtkInformation* info = nullptr)
   {
     this->DataObject = dobj;
     this->MetaData = info;
@@ -51,17 +40,13 @@ public:
   VectorOfDataObjects Children;
 };
 
-
 //-----------------------------------------------------------------------------
 class vtkDataObjectTreeIndex : public std::vector<unsigned int>
 {
-  int IsValid()
-  {
-    return (this->size()> 0);
-  }
+  int IsValid() { return !this->empty(); }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
 
 // VTK-HeaderTest-Exclude: vtkDataObjectTreeInternals.h

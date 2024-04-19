@@ -55,12 +55,15 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(sources
   metaUtils.cxx
+  metaArray.cxx
   metaArrow.cxx
   metaBlob.cxx
   metaCommand.cxx
   metaContour.cxx
   metaDTITube.cxx
   metaEllipse.cxx
+  metaFEMObject.cxx
+  metaForm.cxx
   metaGroup.cxx
   metaGaussian.cxx
   metaImage.cxx
@@ -69,27 +72,43 @@ set(sources
   metaLine.cxx
   metaMesh.cxx
   metaObject.cxx
-  metaOutput.cxx
   metaScene.cxx
   metaSurface.cxx
   metaTube.cxx
-  metaVesselTube.cxx
   metaTransform.cxx
   metaTubeGraph.cxx
-  metaForm.cxx
-  metaArray.cxx
-  metaFEMObject.cxx
+  metaVesselTube.cxx
   )
 
 set(headers
-  metaTypes.h
+  localMetaConfiguration.h
+  metaArray.h
+  metaArrow.h
+  metaBlob.h
   metaCommand.h
   metaContour.h
-  metaMesh.h
-  metaOutput.h
-  metaForm.h
-  metaArray.h
+  metaDTITube.h
+  metaEllipse.h
+  metaEvent.h
   metaFEMObject.h
+  metaForm.h
+  metaGaussian.h
+  metaGroup.h
+  metaImage.h
+  metaImageTypes.h
+  metaImageUtils.h
+  metaLandmark.h
+  metaLine.h
+  metaMesh.h
+  metaObject.h
+  metaScene.h
+  metaSurface.h
+  metaTube.h
+  metaTransform.h
+  metaTubeGraph.h
+  metaTypes.h
+  metaUtils.h
+  metaVesselTube.h
   "${CMAKE_CURRENT_BINARY_DIR}/metaIOConfig.h"
 )
 
@@ -105,13 +124,13 @@ else ()
   )
 endif ()
 
-INCLUDE_REGULAR_EXPRESSION("^.*$")
+include_regular_expression("^.*$")
 
 # Need nsl to resolve gethostbyname on SunOS-5.8
 # and socket also
-IF(CMAKE_SYSTEM MATCHES "SunOS.*")
-  TARGET_LINK_LIBRARIES(${METAIO_TARGET} PRIVATE socket nsl)
-ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
+if(CMAKE_SYSTEM MATCHES "SunOS.*")
+  target_link_libraries(${METAIO_TARGET} PRIVATE socket nsl)
+endif()
 
 target_link_libraries(${METAIO_TARGET} PUBLIC
   ${METAIO_LIBXML2_LIBRARIES}
@@ -122,16 +141,17 @@ if(METAIO_LIBRARY_PROPERTIES)
                         PROPERTIES ${METAIO_LIBRARY_PROPERTIES})
 endif()
 
-IF(WIN32)
-  IF(BORLAND)
-    TARGET_LINK_LIBRARIES(${METAIO_TARGET} PRIVATE import32)
-  ELSE(BORLAND)
-    TARGET_LINK_LIBRARIES(${METAIO_TARGET} PRIVATE comctl32 wsock32)
-  ENDIF(BORLAND)
-ENDIF(WIN32)
+if(WIN32)
+  if(BORLAND)
+    target_link_libraries(${METAIO_TARGET} PRIVATE import32)
+  else()
+    target_link_libraries(${METAIO_TARGET} PRIVATE comctl32 wsock32)
+  endif()
+endif()
 
-
-#ADD_SUBDIRECTORY(tests)
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
 
 if(NOT METAIO_INSTALL_NO_LIBRARIES)
   install(TARGETS ${METAIO_TARGET}
@@ -140,7 +160,7 @@ if(NOT METAIO_INSTALL_NO_LIBRARIES)
     LIBRARY DESTINATION ${METAIO_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
     ARCHIVE DESTINATION ${METAIO_INSTALL_ARCHIVE_DIR} COMPONENT Development
     )
-endif(NOT METAIO_INSTALL_NO_LIBRARIES)
+endif()
 # TODO: Install Copyright.txt
 if(NOT METAIO_INSTALL_NO_DEVELOPMENT)
   install(FILES ${headers}

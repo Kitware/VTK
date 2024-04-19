@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkObserverMediator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkObserverMediator
  * @brief   manage contention for cursors and other resources
@@ -26,18 +14,18 @@
  *
  * @sa
  * vtkAbstractWidget vtkWidgetRepresentation
-*/
+ */
 
 #ifndef vtkObserverMediator_h
 #define vtkObserverMediator_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindowInteractor;
 class vtkInteractorObserver;
 class vtkObserverMap;
-
 
 class VTKRENDERINGCORE_EXPORT vtkObserverMediator : public vtkObject
 {
@@ -45,31 +33,31 @@ public:
   /**
    * Instantiate the class.
    */
-  static vtkObserverMediator *New();
+  static vtkObserverMediator* New();
 
-  //@{
+  ///@{
   /**
    * Standard macros.
    */
-  vtkTypeMacro(vtkObserverMediator,vtkObject);
+  vtkTypeMacro(vtkObserverMediator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the instance of vtkRenderWindow whose cursor shape is
    * to be managed.
    */
   void SetInteractor(vtkRenderWindowInteractor* iren);
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
-  //@}
+  ///@}
 
   /**
    * Method used to request a cursor shape. Note that the shape is specified
    * using one of the integral values determined in vtkRenderWindow.h. The
    * method returns a non-zero value if the shape was successfully changed.
    */
-  int RequestCursorShape(vtkInteractorObserver*, int cursorShape);
+  int RequestCursorShape(vtkInteractorObserver*, int requestedShape);
 
   /**
    * Remove all requests for cursor shape from a given interactor.
@@ -81,20 +69,21 @@ protected:
   ~vtkObserverMediator() override;
 
   // The render window whose cursor we are controlling
-  vtkRenderWindowInteractor *Interactor;
+  vtkRenderWindowInteractor* Interactor;
 
   // A map whose key is the observer*, and whose data value is a cursor
   // request. Note that a special compare function is used to sort the
   // widgets based on the observer's priority.
-  vtkObserverMap *ObserverMap; //given a widget*, return its data
+  vtkObserverMap* ObserverMap; // given a widget*, return its data
 
   // The current observer and cursor shape
-  vtkInteractorObserver *CurrentObserver;
-  int                    CurrentCursorShape;
+  vtkInteractorObserver* CurrentObserver;
+  int CurrentCursorShape;
 
 private:
   vtkObserverMediator(const vtkObserverMediator&) = delete;
   void operator=(const vtkObserverMediator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,22 +1,6 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkSQLDatabase.h
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkSQLDatabase
  * @brief   maintain a connection to an sql database
@@ -48,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
  * @sa
  * vtkSQLQuery
  * vtkSQLDatabaseSchema
-*/
+ */
 
 #ifndef vtkSQLDatabase_h
 #define vtkSQLDatabase_h
@@ -58,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStdString.h" // Because at least one method returns a vtkStdString
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationObjectBaseKey;
 class vtkSQLDatabaseSchema;
 class vtkSQLQuery;
@@ -66,16 +51,16 @@ class vtkStringArray;
 // This is a list of features that each database may or may not
 // support.  As yet (April 2008) we don't provide access to most of
 // them.
-#define VTK_SQL_FEATURE_TRANSACTIONS            1000
-#define VTK_SQL_FEATURE_QUERY_SIZE              1001
-#define VTK_SQL_FEATURE_BLOB                    1002
-#define VTK_SQL_FEATURE_UNICODE                 1003
-#define VTK_SQL_FEATURE_PREPARED_QUERIES        1004
-#define VTK_SQL_FEATURE_NAMED_PLACEHOLDERS      1005
+#define VTK_SQL_FEATURE_TRANSACTIONS 1000
+#define VTK_SQL_FEATURE_QUERY_SIZE 1001
+#define VTK_SQL_FEATURE_BLOB 1002
+#define VTK_SQL_FEATURE_UNICODE 1003
+#define VTK_SQL_FEATURE_PREPARED_QUERIES 1004
+#define VTK_SQL_FEATURE_NAMED_PLACEHOLDERS 1005
 #define VTK_SQL_FEATURE_POSITIONAL_PLACEHOLDERS 1006
-#define VTK_SQL_FEATURE_LAST_INSERT_ID          1007
-#define VTK_SQL_FEATURE_BATCH_OPERATIONS        1008
-#define VTK_SQL_FEATURE_TRIGGERS                1009 // supported
+#define VTK_SQL_FEATURE_LAST_INSERT_ID 1007
+#define VTK_SQL_FEATURE_BATCH_OPERATIONS 1008
+#define VTK_SQL_FEATURE_TRIGGERS 1009 // supported
 
 // Default size for columns types which require a size to be specified
 // (i.e., VARCHAR), when no size has been specified
@@ -137,7 +122,7 @@ public:
   /**
    * Get the list of fields for a particular table.
    */
-  virtual vtkStringArray* GetRecord(const char *table) = 0;
+  virtual vtkStringArray* GetRecord(const char* table) = 0;
 
   /**
    * Return whether a feature is supported by the database.
@@ -156,25 +141,28 @@ public:
    * It must be overwritten for those SQL backends which allow such
    * preambles such as, e.g., MySQL.
    */
-  virtual vtkStdString GetTablePreamble( bool ) { return vtkStdString(); }
+  virtual vtkStdString GetTablePreamble(bool) { return vtkStdString(); }
 
   /**
    * Return the SQL string with the syntax to create a column inside a
    * "CREATE TABLE" SQL statement.
    * NB: this method implements the following minimally-portable syntax:
+   * \code
    * <column name> <column type> <column attributes>
+   * \endcode
    * It must be overwritten for those SQL backends which have a different
    * syntax such as, e.g., MySQL.
    */
-  virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
-                                               int tblHandle,
-                                               int colHandle );
+  virtual vtkStdString GetColumnSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle);
 
   /**
    * Return the SQL string with the syntax to create an index inside a
    * "CREATE TABLE" SQL statement.
    * NB1: this method implements the following minimally-portable syntax:
+   * \code
    * <index type> [<index name>] (<column name 1>,... )
+   * \endcode
    * It must be overwritten for those SQL backends which have a different
    * syntax such as, e.g., MySQL.
    * NB2: this method does not assume that INDEX creation is supported
@@ -182,10 +170,8 @@ public:
    * in the schema, a CREATE INDEX statement is returned and skipped is
    * set to true. Otherwise, skipped will always be returned false.
    */
-  virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
-                                              int tblHandle,
-                                              int idxHandle,
-                                              bool& skipped );
+  virtual vtkStdString GetIndexSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int idxHandle, bool& skipped);
 
   /**
    * Return the SQL string with the syntax to create a trigger using a
@@ -193,32 +179,33 @@ public:
    * NB1: support is contingent on VTK_FEATURE_TRIGGERS being recognized as
    * a supported feature. Not all backends (e.g., SQLite) support it.
    * NB2: this method implements the following minimally-portable syntax:
+   * \code
    * <trigger name> {BEFORE | AFTER} <event> ON <table name> FOR EACH ROW <trigger action>
+   * \endcode
    * It must be overwritten for those SQL backends which have a different
    * syntax such as, e.g., PostgreSQL.
    */
-  virtual vtkStdString GetTriggerSpecification( vtkSQLDatabaseSchema* schema,
-                                                int tblHandle,
-                                                int trgHandle );
+  virtual vtkStdString GetTriggerSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int trgHandle);
 
   /**
    * Create a the proper subclass given a URL.
    * The URL format for SQL databases is a true URL of the form:
    * 'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
    */
-  static VTK_NEWINSTANCE vtkSQLDatabase* CreateFromURL( const char* URL );
+  static VTK_NEWINSTANCE vtkSQLDatabase* CreateFromURL(const char* URL);
 
   /**
    * Effect a database schema.
    */
-  virtual bool EffectSchema( vtkSQLDatabaseSchema*, bool dropIfExists = false );
+  virtual bool EffectSchema(vtkSQLDatabaseSchema*, bool dropIfExists = false);
 
   /**
    * Type for CreateFromURL callback.
    */
   typedef vtkSQLDatabase* (*CreateFunction)(const char* URL);
 
-  //@{
+  ///@{
   /**
    * Provides mechanism to register/unregister additional callbacks to create
    * concrete subclasses of vtkSQLDatabase to handle different protocols.
@@ -227,7 +214,7 @@ public:
   static void RegisterCreateFromURLCallback(CreateFunction callback);
   static void UnRegisterCreateFromURLCallback(CreateFunction callback);
   static void UnRegisterAllCreateFromURLCallbacks();
-  //@}
+  ///@}
 
   /**
    * Stores the database class pointer as an information key. This is currently
@@ -248,20 +235,20 @@ protected:
    * given the URL. This is called by CreateFromURL() to initialize the instance.
    * Look at CreateFromURL() for details about the URL format.
    */
-  virtual bool ParseURL( const char* url ) = 0;
+  virtual bool ParseURL(const char* url) = 0;
 
 private:
-  vtkSQLDatabase(const vtkSQLDatabase &) = delete;
-  void operator=(const vtkSQLDatabase &) = delete;
+  vtkSQLDatabase(const vtkSQLDatabase&) = delete;
+  void operator=(const vtkSQLDatabase&) = delete;
 
-  //@{
+  ///@{
   /**
    * Datastructure used to store registered callbacks.
    */
   class vtkCallbackVector;
   static vtkCallbackVector* Callbacks;
-  //@}
-
+  ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSQLDatabase_h

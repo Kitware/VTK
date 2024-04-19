@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPBRMapping.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This test covers the PBR Interpolation shading
 // It renders a cube with custom texture mapping
 
@@ -27,6 +15,7 @@
 #include "vtkLight.h"
 #include "vtkNew.h"
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLSkybox.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkPBRIrradianceTexture.h"
@@ -38,13 +27,12 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int TestPBRMapping(int argc, char* argv[])
 {
   vtkNew<vtkOpenGLRenderer> renderer;
@@ -65,9 +53,6 @@ int TestPBRMapping(int argc, char* argv[])
 
   vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
   irradiance->SetIrradianceStep(0.3);
-  vtkSmartPointer<vtkPBRPrefilterTexture> prefilter = renderer->GetEnvMapPrefiltered();
-  prefilter->SetPrefilterSamples(64);
-  prefilter->SetPrefilterSize(64);
 
   vtkNew<vtkOpenGLTexture> textureCubemap;
   textureCubemap->CubeMapOn();
@@ -89,7 +74,7 @@ int TestPBRMapping(int argc, char* argv[])
     textureCubemap->SetInputConnection(i, flip->GetOutputPort());
   }
 
-  renderer->SetEnvironmentCubeMap(textureCubemap);
+  renderer->SetEnvironmentTexture(textureCubemap);
   renderer->UseImageBasedLightingOn();
 
   vtkNew<vtkCubeSource> cube;
@@ -131,18 +116,32 @@ int TestPBRMapping(int argc, char* argv[])
   normal->InterpolateOn();
   normal->SetInputConnection(normalReader->GetOutputPort());
 
+  vtkNew<vtkPNGReader> anisotropyReader;
+  char* anisotropyname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Anisotropy.png");
+  anisotropyReader->SetFileName(anisotropyname);
+  delete[] anisotropyname;
+
+  vtkNew<vtkTexture> anisotropy;
+  anisotropy->InterpolateOn();
+  anisotropy->SetInputConnection(anisotropyReader->GetOutputPort());
+
   vtkNew<vtkActor> actor;
   actor->SetOrientation(0.0, 25.0, 0.0);
   actor->SetMapper(mapper);
   actor->GetProperty()->SetInterpolationToPBR();
 
-  // set metallic and roughness to 1.0 as they act as multipliers with texture value
+  // set metallic, roughness, anisotropy and anisotropyRotation
+  // to 1.0 as they act as multipliers with texture value
   actor->GetProperty()->SetMetallic(1.0);
   actor->GetProperty()->SetRoughness(1.0);
+  actor->GetProperty()->SetAnisotropy(1.0);
+  actor->GetProperty()->SetAnisotropyRotation(1.0);
 
   actor->GetProperty()->SetBaseColorTexture(albedo);
   actor->GetProperty()->SetORMTexture(material);
   actor->GetProperty()->SetNormalTexture(normal);
+  actor->GetProperty()->SetAnisotropyTexture(anisotropy);
 
   renderer->AddActor(actor);
 

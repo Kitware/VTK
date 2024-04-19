@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPointInterpolator2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPointInterpolator2D
  * @brief   interpolate point cloud attribute data
@@ -55,41 +43,41 @@
  *
  * @sa
  * vtkPointInterpolator
-*/
+ */
 
 #ifndef vtkPointInterpolator2D_h
 #define vtkPointInterpolator2D_h
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPointInterpolator.h"
-#include "vtkStdString.h"        // For vtkStdString ivars
+#include "vtkStdString.h" // For vtkStdString ivars
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPOINTS_EXPORT vtkPointInterpolator2D : public vtkPointInterpolator
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing.
    */
-  static vtkPointInterpolator2D *New();
-  vtkTypeMacro(vtkPointInterpolator2D,vtkPointInterpolator);
+  static vtkPointInterpolator2D* New();
+  vtkTypeMacro(vtkPointInterpolator2D, vtkPointInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to take the z-coordinate values of the source points as
    * attributes to be interpolated. This is in addition to any other point
    * attribute data associated with the source. By default this is enabled.
    */
-  vtkSetMacro(InterpolateZ,bool);
-  vtkGetMacro(InterpolateZ,bool);
-  vtkBooleanMacro(InterpolateZ,bool);
-  //@}
+  vtkSetMacro(InterpolateZ, bool);
+  vtkGetMacro(InterpolateZ, bool);
+  vtkBooleanMacro(InterpolateZ, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the name of the output array containing z values. This method is
    * only applicable when InterpolateZ is enabled. By default the output
@@ -97,7 +85,7 @@ public:
    */
   vtkSetMacro(ZArrayName, vtkStdString);
   vtkGetMacro(ZArrayName, vtkStdString);
-  //@}
+  ///@}
 
 protected:
   vtkPointInterpolator2D();
@@ -110,12 +98,12 @@ protected:
   vtkStdString ZArrayName;
 
   // The driver of the algorithm
-  void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output) override;
+  void Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet* output) override;
 
 private:
   vtkPointInterpolator2D(const vtkPointInterpolator2D&) = delete;
   void operator=(const vtkPointInterpolator2D&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

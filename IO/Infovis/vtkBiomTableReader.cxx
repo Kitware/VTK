@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBiomTableReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkBiomTableReader.h"
 
 #include "vtkByteSwap.h"
@@ -27,20 +15,22 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
+#include "vtksys/FStream.hxx"
 
 #include <algorithm>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBiomTableReader);
 
 #ifdef read
 #undef read
 #endif
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBiomTableReader::vtkBiomTableReader()
 {
-  vtkTable *output = vtkTable::New();
+  vtkTable* output = vtkTable::New();
   this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty.
@@ -48,43 +38,42 @@ vtkBiomTableReader::vtkBiomTableReader()
   output->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBiomTableReader::~vtkBiomTableReader() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkBiomTableReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTable* vtkBiomTableReader::GetOutput(int idx)
 {
   return vtkTable::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
-//----------------------------------------------------------------------------
-void vtkBiomTableReader::SetOutput(vtkTable *output)
+//------------------------------------------------------------------------------
+void vtkBiomTableReader::SetOutput(vtkTable* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
-int vtkBiomTableReader::ReadMeshSimple(const std::string& fname,
-                                       vtkDataObject* doOutput)
+//------------------------------------------------------------------------------
+int vtkBiomTableReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOutput)
 {
-  vtkDebugMacro(<<"Reading biom table...");
+  vtkDebugMacro(<< "Reading biom table...");
 
-  if(fname.empty())
+  if (fname.empty())
   {
-    vtkErrorMacro(<<"Input filename not set");
+    vtkErrorMacro(<< "Input filename not set");
     return 1;
   }
 
-  std::ifstream ifs( fname, std::ifstream::in );
-  if(!ifs.good())
+  vtksys::ifstream ifs(fname.c_str(), vtksys::ifstream::in);
+  if (!ifs.good())
   {
-    vtkErrorMacro(<<"Unable to open " << fname << " for reading");
+    vtkErrorMacro(<< "Unable to open " << fname << " for reading");
     return 1;
   }
 
@@ -92,8 +81,8 @@ int vtkBiomTableReader::ReadMeshSimple(const std::string& fname,
   this->FileContents.reserve(ifs.tellg());
   ifs.seekg(0, std::ios::beg);
 
-  this->FileContents.assign((std::istreambuf_iterator<char>(ifs)),
-                             std::istreambuf_iterator<char>());
+  this->FileContents.assign(
+    (std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 
   this->ParseShape();
   this->ParseDataType();
@@ -102,9 +91,9 @@ int vtkBiomTableReader::ReadMeshSimple(const std::string& fname,
   rowNames->SetName("name");
   vtkTable* output = vtkTable::SafeDownCast(doOutput);
   output->AddColumn(rowNames);
-  for ( int i = 1; i < this->NumberOfColumns + 1; ++i )
+  for (int i = 1; i < this->NumberOfColumns + 1; ++i)
   {
-    switch(this->DataType)
+    switch (this->DataType)
     {
       case VTK_INT:
       {
@@ -130,11 +119,11 @@ int vtkBiomTableReader::ReadMeshSimple(const std::string& fname,
   }
   output->SetNumberOfRows(this->NumberOfRows);
 
-  //row names are stored in another column.  add it before the rest of the data
+  // row names are stored in another column.  add it before the rest of the data
   this->ParseRows();
 
   this->ParseSparseness();
-  if(this->Sparse)
+  if (this->Sparse)
   {
     this->InitializeData();
     this->ParseSparseData();
@@ -155,105 +144,103 @@ void vtkBiomTableReader::ParseShape()
 
   // find "shape":
   size_t pos1 = this->FileContents.find("\"shape\":");
-  if (pos1 == std::string::npos )
+  if (pos1 == std::string::npos)
   {
-    vtkErrorMacro(<<"shape not found in input file");
+    vtkErrorMacro(<< "shape not found in input file");
     return;
   }
 
   // find [
-  size_t pos2 = this->FileContents.find('[', pos1+1);
-  if (pos2 == std::string::npos )
+  size_t pos2 = this->FileContents.find('[', pos1 + 1);
+  if (pos2 == std::string::npos)
   {
-    vtkErrorMacro(<<"shape field not formatted properly");
+    vtkErrorMacro(<< "shape field not formatted properly");
     return;
   }
 
   // find ,
-  size_t pos3 = this->FileContents.find(',', pos2+1);
-  if (pos3 == std::string::npos )
+  size_t pos3 = this->FileContents.find(',', pos2 + 1);
+  if (pos3 == std::string::npos)
   {
-    vtkErrorMacro(<<"shape field not formatted properly");
+    vtkErrorMacro(<< "shape field not formatted properly");
     return;
   }
 
   // find ]
-  size_t pos4 = this->FileContents.find(']', pos3+1);
-  if (pos4 == std::string::npos )
+  size_t pos4 = this->FileContents.find(']', pos3 + 1);
+  if (pos4 == std::string::npos)
   {
-    vtkErrorMacro(<<"shape field not formatted properly");
+    vtkErrorMacro(<< "shape field not formatted properly");
     return;
   }
 
   // number of rows is between "[" and ","
-  this->NumberOfRows =
-    atoi(this->FileContents.substr(pos2+1,pos3-pos2).c_str());
+  this->NumberOfRows = atoi(this->FileContents.substr(pos2 + 1, pos3 - pos2).c_str());
 
   // number of columns is between "," and "]"
-  this->NumberOfColumns =
-    atoi(this->FileContents.substr(pos3+1,pos4-pos3-1).c_str());
+  this->NumberOfColumns = atoi(this->FileContents.substr(pos3 + 1, pos4 - pos3 - 1).c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseDataType()
 {
   // find "matrix_element_type":
   size_t pos1 = this->FileContents.find("\"matrix_element_type\":");
-  if (pos1 == std::string::npos )
+  if (pos1 == std::string::npos)
   {
-    vtkErrorMacro(<<"matrix_element_type not found in input file");
+    vtkErrorMacro(<< "matrix_element_type not found in input file");
     return;
   }
 
   // find :
-  size_t pos2 = this->FileContents.find(':', pos1+1);
-  if (pos2 == std::string::npos )
+  size_t pos2 = this->FileContents.find(':', pos1 + 1);
+  if (pos2 == std::string::npos)
   {
-    vtkErrorMacro(<<"matrix_element_type field not formatted properly");
+    vtkErrorMacro(<< "matrix_element_type field not formatted properly");
     return;
   }
 
   // find first double quote
-  size_t pos3 = this->FileContents.find('\"', pos2+1);
-  if (pos3 == std::string::npos )
+  size_t pos3 = this->FileContents.find('\"', pos2 + 1);
+  if (pos3 == std::string::npos)
   {
-    vtkErrorMacro(<<"matrix_element_type field not formatted properly");
+    vtkErrorMacro(<< "matrix_element_type field not formatted properly");
     return;
   }
 
   // find second double quote
-  size_t pos4 = this->FileContents.find('\"', pos3+1);
-  if (pos4 == std::string::npos )
+  size_t pos4 = this->FileContents.find('\"', pos3 + 1);
+  if (pos4 == std::string::npos)
   {
-    vtkErrorMacro(<<"matrix_element_type field not formatted properly");
+    vtkErrorMacro(<< "matrix_element_type field not formatted properly");
     return;
   }
 
   // element type lies between these quotes
-  std::string data_type = this->FileContents.substr(pos3+1,pos4-pos3-1);
-  if (strcmp(data_type.c_str(), "int") == 0)
+  std::string data_type = this->FileContents.substr(pos3 + 1, pos4 - pos3 - 1);
+  if (data_type == "int")
   {
     this->DataType = VTK_INT;
   }
-  else if (strcmp(data_type.c_str(), "float") == 0)
+  else if (data_type == "float")
   {
     this->DataType = VTK_FLOAT;
   }
-  else if (strcmp(data_type.c_str(), "unicode") == 0)
+  else if (data_type == "unicode")
   {
     this->DataType = VTK_STRING;
   }
   else
   {
-    vtkErrorMacro(<<"unrecognized value found for matrix_element_type");
+    vtkErrorMacro(<< "unrecognized value found for matrix_element_type");
     this->DataType = VTK_VOID;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::InitializeData()
 {
-  switch(this->DataType)
+  switch (this->DataType)
   {
     case VTK_INT:
     {
@@ -280,70 +267,70 @@ void vtkBiomTableReader::InitializeData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::FillData(vtkVariant v)
 {
-  for(int row = 0; row < this->NumberOfRows; ++row)
+  for (int row = 0; row < this->NumberOfRows; ++row)
   {
-    for(int col = 1; col < this->NumberOfColumns + 1; ++col)
+    for (int col = 1; col < this->NumberOfColumns + 1; ++col)
     {
       this->GetOutput()->SetValue(row, col, v);
     }
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseSparseness()
 {
   // find "matrix_type":
   size_t pos1 = this->FileContents.find("\"matrix_type\":");
-  if (pos1 == std::string::npos )
+  if (pos1 == std::string::npos)
   {
-    vtkErrorMacro(<<"matrix_type not found in input file");
+    vtkErrorMacro(<< "matrix_type not found in input file");
     return;
   }
 
   // find first double quote
-  size_t pos2 = this->FileContents.find('\"', pos1+13);
-  if (pos2 == std::string::npos )
+  size_t pos2 = this->FileContents.find('\"', pos1 + 13);
+  if (pos2 == std::string::npos)
   {
-    vtkErrorMacro(<<"matrix_type field not formatted properly");
+    vtkErrorMacro(<< "matrix_type field not formatted properly");
     return;
   }
 
   // find second double quote
-  size_t pos3 = this->FileContents.find('\"', pos2+1);
-  if (pos2 == std::string::npos )
+  size_t pos3 = this->FileContents.find('\"', pos2 + 1);
+  if (pos2 == std::string::npos)
   {
-    vtkErrorMacro(<<"matrix_type field not formatted properly");
+    vtkErrorMacro(<< "matrix_type field not formatted properly");
     return;
   }
 
   // We should find either 'sparse' or 'dense' between these quotes
-  std::string matrix_type = this->FileContents.substr(pos2+1,pos3-pos2-1);
-  if (matrix_type.compare("sparse") == 0)
+  std::string matrix_type = this->FileContents.substr(pos2 + 1, pos3 - pos2 - 1);
+  if (matrix_type == "sparse")
   {
     this->Sparse = true;
   }
-  else if (matrix_type.compare("dense") == 0)
+  else if (matrix_type == "dense")
   {
     this->Sparse = false;
   }
   else
   {
-    vtkErrorMacro(<<"matrix_type field not formatted properly");
+    vtkErrorMacro(<< "matrix_type field not formatted properly");
     return;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseSparseData()
 {
   // find "data":
   size_t pos1 = this->FileContents.find("\"data\":");
   if (pos1 == std::string::npos)
   {
-    vtkErrorMacro(<<"data not found in input file");
+    vtkErrorMacro(<< "data not found in input file");
     return;
   }
 
@@ -351,67 +338,65 @@ void vtkBiomTableReader::ParseSparseData()
   size_t pos_start = this->FileContents.find('[', pos1) + 1;
   if (pos_start == std::string::npos)
   {
-    vtkErrorMacro(<<"data field not formatted properly");
+    vtkErrorMacro(<< "data field not formatted properly");
     return;
   }
 
-  while(1)
+  while (true)
   {
     // find [ (beginning of triplet)
     pos1 = this->FileContents.find('[', pos_start);
     if (pos1 == std::string::npos)
     {
-      vtkErrorMacro(<<"data field not formatted properly");
+      vtkErrorMacro(<< "data field not formatted properly");
       return;
     }
     // find first comma
     size_t pos2 = this->FileContents.find(',', pos1 + 1);
     if (pos2 == std::string::npos)
     {
-      vtkErrorMacro(<<"data field not formatted properly");
+      vtkErrorMacro(<< "data field not formatted properly");
       return;
     }
     // find second comma
     size_t pos3 = this->FileContents.find(',', pos2 + 1);
     if (pos3 == std::string::npos)
     {
-      vtkErrorMacro(<<"data field not formatted properly");
+      vtkErrorMacro(<< "data field not formatted properly");
       return;
     }
     // find ] (end of triplet)
     size_t pos4 = this->FileContents.find(']', pos3 + 1);
     if (pos4 == std::string::npos)
     {
-      vtkErrorMacro(<<"data field not formatted properly");
+      vtkErrorMacro(<< "data field not formatted properly");
       return;
     }
     // row is between "[" and ","
-    int row =
-      atoi(this->FileContents.substr(pos1+1,pos2-pos1).c_str());
+    int row = atoi(this->FileContents.substr(pos1 + 1, pos2 - pos1).c_str());
 
     // column is between first and second comma
-    int column = 1 +
-      atoi(this->FileContents.substr(pos2+1,pos3-pos2-1).c_str());
+    int column = 1 + atoi(this->FileContents.substr(pos2 + 1, pos3 - pos2 - 1).c_str());
 
-    std::string value = this->FileContents.substr(pos3+1,pos4-pos3-1);
+    std::string value = this->FileContents.substr(pos3 + 1, pos4 - pos3 - 1);
     this->InsertValue(row, column, value);
 
     pos_start = pos4 + 1;
-    if (strcmp(this->FileContents.substr(pos_start, 1).c_str(), ",") != 0)
+    if (this->FileContents.substr(pos_start, 1) != ",")
     {
       return;
     }
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseDenseData()
 {
   // find "data":
   size_t pos1 = this->FileContents.find("\"data\":");
   if (pos1 == std::string::npos)
   {
-    vtkErrorMacro(<<"data not found in input file");
+    vtkErrorMacro(<< "data not found in input file");
     return;
   }
 
@@ -419,7 +404,7 @@ void vtkBiomTableReader::ParseDenseData()
   size_t pos_start = this->FileContents.find('[', pos1) + 1;
   if (pos_start == std::string::npos)
   {
-    vtkErrorMacro(<<"data field not formatted properly");
+    vtkErrorMacro(<< "data field not formatted properly");
     return;
   }
 
@@ -429,7 +414,7 @@ void vtkBiomTableReader::ParseDenseData()
     size_t pos_row_1 = this->FileContents.find('[', pos_start);
     if (pos_row_1 == std::string::npos)
     {
-      vtkErrorMacro(<<"data field not formatted properly");
+      vtkErrorMacro(<< "data field not formatted properly");
       return;
     }
     int currentCol;
@@ -439,45 +424,43 @@ void vtkBiomTableReader::ParseDenseData()
       size_t pos_row_2 = this->FileContents.find(',', pos_row_1 + 1);
       if (pos_row_2 == std::string::npos)
       {
-        vtkErrorMacro(<<"data field not formatted properly");
+        vtkErrorMacro(<< "data field not formatted properly");
         return;
       }
 
       // parse data value and insert it into the table
-      std::string value =
-        this->FileContents.substr(pos_row_1 + 1, pos_row_2 - pos_row_1 - 1);
+      std::string value = this->FileContents.substr(pos_row_1 + 1, pos_row_2 - pos_row_1 - 1);
       this->InsertValue(currentRow, currentCol, value);
 
       pos_row_1 = pos_row_2;
     }
 
-    //the last value of the row ends with a ] instead of a comma
+    // the last value of the row ends with a ] instead of a comma
     size_t pos_row_2 = this->FileContents.find(']', pos_row_1 + 1);
     if (pos_row_2 == std::string::npos)
     {
-      vtkErrorMacro(<<"data field not formatted properly");
+      vtkErrorMacro(<< "data field not formatted properly");
       return;
     }
-    std::string value =
-      this->FileContents.substr(pos_row_1 + 1, pos_row_2 - pos_row_1 - 1);
+    std::string value = this->FileContents.substr(pos_row_1 + 1, pos_row_2 - pos_row_1 - 1);
     this->InsertValue(currentRow, currentCol, value);
     pos_start = pos_row_2;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::InsertValue(int row, int col, const std::string& value)
 {
   std::stringstream stream;
   stream << value;
 
-  switch(this->DataType)
+  switch (this->DataType)
   {
     case VTK_INT:
       int i;
       if (!(stream >> i))
       {
-        vtkErrorMacro(<<"error converting '" << value << " to integer");
+        vtkErrorMacro(<< "error converting '" << value << " to integer");
       }
       else
       {
@@ -489,7 +472,7 @@ void vtkBiomTableReader::InsertValue(int row, int col, const std::string& value)
       float f;
       if (!(stream >> f))
       {
-        vtkErrorMacro(<<"error converting '" << value << " to float");
+        vtkErrorMacro(<< "error converting '" << value << " to float");
       }
       else
       {
@@ -504,14 +487,14 @@ void vtkBiomTableReader::InsertValue(int row, int col, const std::string& value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseColumns()
 {
   // find "columns":
   size_t pos_start = this->FileContents.find("\"columns\":");
   if (pos_start == std::string::npos)
   {
-    vtkErrorMacro(<<"columns not found in input file");
+    vtkErrorMacro(<< "columns not found in input file");
     return;
   }
 
@@ -521,19 +504,18 @@ void vtkBiomTableReader::ParseColumns()
     size_t pos_column_1 = this->FileContents.find("\"id\":", pos_start);
     if (pos_column_1 == std::string::npos)
     {
-      vtkErrorMacro(<<"columns field not formatted properly");
+      vtkErrorMacro(<< "columns field not formatted properly");
       return;
     }
     size_t pos_column_2 = this->FileContents.find("\", \"metadata\":", pos_column_1);
     if (pos_column_2 == std::string::npos)
     {
-      vtkErrorMacro(<<"columns field not formatted properly");
+      vtkErrorMacro(<< "columns field not formatted properly");
       return;
     }
-    std::string name =
-      this->FileContents.substr(pos_column_1 + 5, pos_column_2 - pos_column_1 - 5);
+    std::string name = this->FileContents.substr(pos_column_1 + 5, pos_column_2 - pos_column_1 - 5);
     // remove quotes
-    name.erase( remove( name.begin(), name.end(), '\"' ), name.end());
+    name.erase(remove(name.begin(), name.end(), '\"'), name.end());
     // trim whitespace
     const size_t beginStr = name.find_first_not_of(" \t");
     const size_t endStr = name.find_last_not_of(" \t");
@@ -542,18 +524,18 @@ void vtkBiomTableReader::ParseColumns()
     this->GetOutput()->GetColumn(currentCol)->SetName(name.c_str());
     pos_start = pos_column_2;
 
-    //this is where we would capture the metadata for this column
+    // this is where we would capture the metadata for this column
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseRows()
 {
   // find "rows":
   size_t pos_start = this->FileContents.find("\"rows\":");
   if (pos_start == std::string::npos)
   {
-    vtkErrorMacro(<<"rows not found in input file");
+    vtkErrorMacro(<< "rows not found in input file");
     return;
   }
 
@@ -563,19 +545,18 @@ void vtkBiomTableReader::ParseRows()
     size_t pos_row_1 = this->FileContents.find("\"id\":", pos_start);
     if (pos_row_1 == std::string::npos)
     {
-      vtkErrorMacro(<<"rows field not formatted properly");
+      vtkErrorMacro(<< "rows field not formatted properly");
       return;
     }
     size_t pos_row_2 = this->FileContents.find("\", \"metadata\":", pos_row_1);
     if (pos_row_2 == std::string::npos)
     {
-      vtkErrorMacro(<<"rows field not formatted properly");
+      vtkErrorMacro(<< "rows field not formatted properly");
       return;
     }
-    std::string name =
-      this->FileContents.substr(pos_row_1 + 5, pos_row_2 - pos_row_1 - 5);
+    std::string name = this->FileContents.substr(pos_row_1 + 5, pos_row_2 - pos_row_1 - 5);
     // remove quotes
-    name.erase( remove( name.begin(), name.end(), '\"' ), name.end());
+    name.erase(remove(name.begin(), name.end(), '\"'), name.end());
     // trim whitespace
     const size_t beginStr = name.find_first_not_of(" \t");
     const size_t endStr = name.find_last_not_of(" \t");
@@ -585,25 +566,25 @@ void vtkBiomTableReader::ParseRows()
     this->GetOutput()->SetValue(currentRow, 0, vtkVariant(name));
     pos_start = pos_row_2;
 
-    //this is where we would capture the metadata for this row
+    // this is where we would capture the metadata for this row
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::ParseId()
 {
   bool done = false;
   size_t pos_start = 0;
-  while( !done )
+  while (!done)
   {
     size_t pos_id = this->FileContents.find("\"id\":", pos_start);
     if (pos_id == std::string::npos)
     {
-      vtkErrorMacro(<<"top-level id not found in input file");
+      vtkErrorMacro(<< "top-level id not found in input file");
       return;
     }
 
-    //check that this is the toplevel id by matching preceding brackets
+    // check that this is the toplevel id by matching preceding brackets
     std::string substring = this->FileContents.substr(0, pos_id);
     int numOpenBrackets = std::count(substring.begin(), substring.end(), '[');
     int numClosedBrackets = std::count(substring.begin(), substring.end(), ']');
@@ -611,18 +592,17 @@ void vtkBiomTableReader::ParseId()
     if (numOpenBrackets == numClosedBrackets)
     {
       size_t pos_comma = this->FileContents.find(',', pos_id + 1);
-      if (pos_comma == std::string::npos )
+      if (pos_comma == std::string::npos)
       {
-        vtkErrorMacro(<<"top-level id field not formatted properly");
+        vtkErrorMacro(<< "top-level id field not formatted properly");
         return;
       }
-      std::string name =
-        this->FileContents.substr(pos_id + 5, pos_comma - pos_id - 5);
-      //remove trailing whitespace in our captured name
+      std::string name = this->FileContents.substr(pos_id + 5, pos_comma - pos_id - 5);
+      // remove trailing whitespace in our captured name
       size_t pos_id_begin = name.find_first_not_of(" \t");
       name = name.substr(pos_id_begin);
-      //remove double quotes in the name
-      name.erase( remove( name.begin(), name.end(), '\"' ), name.end());
+      // remove double quotes in the name
+      name.erase(remove(name.begin(), name.end(), '\"'), name.end());
       done = true;
     }
     else
@@ -632,15 +612,16 @@ void vtkBiomTableReader::ParseId()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBiomTableReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBiomTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

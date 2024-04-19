@@ -1,17 +1,6 @@
-/*=========================================================================
-
-   Program: ParaView
-   Module:    vtkDepthImageProcessingPass.h
-
-  Copyright (c) Sandia Corporation, Kitware Inc.
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation, Kitware Inc
+// SPDX-License-Identifier: BSD-3-Clause
 /*----------------------------------------------------------------------
 Acknowledgement:
 This algorithm is the result of joint work by Electricité de France,
@@ -29,7 +18,7 @@ Ph.D. thesis of Christian BOUCHENY.
  *
  * @sa
  * vtkRenderPass vtkDepthImageProcessingPass vtkEDLShading
-*/
+ */
 
 #ifndef vtkDepthImageProcessingPass_h
 #define vtkDepthImageProcessingPass_h
@@ -37,6 +26,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;
@@ -48,7 +38,7 @@ public:
   vtkTypeMacro(vtkDepthImageProcessingPass, vtkImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
- protected:
+protected:
   /**
    * Default constructor. DelegatePass is set to NULL.
    */
@@ -68,14 +58,9 @@ public:
    * \pre colortarget_exists: colortarget!=0
    * \pre colortarget_has_context: colortarget->GetContext()!=0
    */
-  virtual void RenderDelegate(const vtkRenderState *s,
-                      int width,
-                      int height,
-                      int newWidth,
-                      int newHeight,
-                      vtkOpenGLFramebufferObject *fbo,
-                      vtkTextureObject *colortarget,
-                      vtkTextureObject *depthtarget);
+  virtual void RenderDelegate(const vtkRenderState* s, int width, int height, int newWidth,
+    int newHeight, vtkOpenGLFramebufferObject* fbo, vtkTextureObject* colortarget,
+    vtkTextureObject* depthtarget);
 
   /**
    * Read parent size - for sake of code clarity
@@ -84,16 +69,17 @@ public:
    */
   void ReadWindowSize(const vtkRenderState* s);
 
-  int    Origin[2];   // Viewport origin
-  int    Width;       // parent window width
-  int    Height;      // parent window height
-  int    W;           // this width
-  int    H;           // this height
-  int    ExtraPixels; // w(h) = width(height) + 2*extrapixels
+  int Origin[2];   // Viewport origin
+  int Width;       // parent window width
+  int Height;      // parent window height
+  int W;           // this width
+  int H;           // this height
+  int ExtraPixels; // w(h) = width(height) + 2*extrapixels
 
- private:
+private:
   vtkDepthImageProcessingPass(const vtkDepthImageProcessingPass&) = delete;
   void operator=(const vtkDepthImageProcessingPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

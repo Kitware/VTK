@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBridgePointIteratorOnDataSet.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME vtkBridgePointIteratorOnDataSet - Implementation of vtkGenericPointIterator.
 // .SECTION Description
 // It is just an example that show how to implement the Generic. It is also
@@ -23,52 +11,53 @@
 
 #include <cassert>
 
-#include "vtkObjectFactory.h"
 #include "vtkBridgeDataSet.h"
 #include "vtkDataSet.h"
+#include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgePointIteratorOnDataSet);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Default constructor.
 vtkBridgePointIteratorOnDataSet::vtkBridgePointIteratorOnDataSet()
 {
-  this->DataSet=nullptr;
-  this->Size=0;
+  this->DataSet = nullptr;
+  this->Size = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Destructor.
 vtkBridgePointIteratorOnDataSet::~vtkBridgePointIteratorOnDataSet()
 {
-   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,0);
+  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, static_cast<vtkBridgeDataSet*>(nullptr));
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBridgePointIteratorOnDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Move iterator to first position if any (loop initialization).
 void vtkBridgePointIteratorOnDataSet::Begin()
 {
-  this->Id=0;
+  this->Id = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Is there no point at iterator position? (exit condition).
 vtkTypeBool vtkBridgePointIteratorOnDataSet::IsAtEnd()
 {
-  return (this->Id<0) || (this->Id>=this->Size);
+  return (this->Id < 0) || (this->Id >= this->Size);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Move iterator to next position. (loop progression).
 // \pre not_off: !IsAtEnd()
@@ -78,22 +67,22 @@ void vtkBridgePointIteratorOnDataSet::Next()
   this->Id++;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Point at iterator position.
 // \pre not_off: !IsAtEnd()
 // \post result_exists: result!=0
-double *vtkBridgePointIteratorOnDataSet::GetPosition()
+double* vtkBridgePointIteratorOnDataSet::GetPosition()
 {
   assert("pre: not_off" && !IsAtEnd());
 
-  double *result=this->DataSet->Implementation->GetPoint(this->Id);
+  double* result = this->DataSet->Implementation->GetPoint(this->Id);
 
-  assert("post: result_exists" && result!=nullptr);
+  assert("post: result_exists" && result != nullptr);
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Point at iterator position.
 // \pre not_off: !IsAtEnd()
@@ -101,11 +90,11 @@ double *vtkBridgePointIteratorOnDataSet::GetPosition()
 void vtkBridgePointIteratorOnDataSet::GetPosition(double x[3])
 {
   assert("pre: not_off" && !IsAtEnd());
-  assert("pre: x_exists" && x!=nullptr);
-  this->DataSet->Implementation->GetPoint(this->Id,x);
+  assert("pre: x_exists" && x != nullptr);
+  this->DataSet->Implementation->GetPoint(this->Id, x);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Unique identifier for the point, could be non-contiguous
 // \pre not_off: !IsAtEnd()
@@ -116,15 +105,16 @@ vtkIdType vtkBridgePointIteratorOnDataSet::GetId()
   return this->Id;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Description:
 // Used internally by vtkBridgeDataSet.
 // Iterate over points of `ds'.
 // \pre ds_exists: ds!=0
-void vtkBridgePointIteratorOnDataSet::InitWithDataSet(vtkBridgeDataSet *ds)
+void vtkBridgePointIteratorOnDataSet::InitWithDataSet(vtkBridgeDataSet* ds)
 {
-  assert("pre: ds_exists" && ds!=nullptr);
+  assert("pre: ds_exists" && ds != nullptr);
 
-  vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
-  this->Size=ds->GetNumberOfPoints();
+  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, ds);
+  this->Size = ds->GetNumberOfPoints();
 }
+VTK_ABI_NAMESPACE_END

@@ -1,0 +1,14 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
+#include "vtkDataArrayPrivate.txx"
+
+#define VTK_TYPED_VALUERANGE_INSTANTIATING
+#include "vtkTypedDataArray.h"
+
+namespace vtkDataArrayPrivate
+{
+VTK_ABI_NAMESPACE_BEGIN
+VTK_INSTANTIATE_VALUERANGE_VALUETYPE(@INSTANTIATION_VALUE_TYPE@)
+VTK_ABI_NAMESPACE_END
+}

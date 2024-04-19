@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkDataSetAttributes.h"
 #include "vtkIntArray.h"
@@ -35,7 +37,7 @@ int TestStreamGraph(int, char*[])
   for (int i = 0; i < 10; ++i)
   {
     src->SetValue(0, i);
-    tgt->SetValue(0, i+1);
+    tgt->SetValue(0, i + 1);
     time->SetValue(0, i);
     t2g->Modified();
     stream->Update();

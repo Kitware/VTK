@@ -152,33 +152,39 @@ print DEST_FILE
   if exists $args{"logo"} && -f $args{"logo"};
 
 print DEST_FILE
-  "  \@par VTK:\n"
-  "   VTK is an open-source software system for image processing, 3D \n"
-  "   graphics, volume rendering and visualization. VTK includes many \n"
-  "   advanced algorithms (e.g., surface reconstruction, implicit modelling, \n"
-  "   decimation) and rendering techniques (e.g., hardware-accelerated \n"
-  "   volume rendering, LOD control).\n"
-  "   \@par \n"
-  "   VTK is used by academicians for teaching and research; by government \n"
-  "   research institutions such as Los Alamos National Lab in the US or \n"
-  "   CINECA in Italy; and by many commercial firms who use VTK to build or \n"
-  "   extend products. \n"
-  "   \@par \n"
-  "   The origin of VTK is with the textbook \"The Visualization Toolkit, an \n"
-  "   Object-Oriented Approach to 3D Graphics\" originally published by \n"
-  "   Prentice Hall and now published by Kitware, Inc. (Third Edition ISBN \n"
-  "   1-930934-07-6). VTK has grown (since its initial release in 1994) to a \n"
-  "   world-wide user base in the commercial, academic, and research \n"
-  "   communities. \n"
+  "  \@par VTK:\n",
+  "   VTK is an open-source software system for image processing, 3D \n",
+  "   graphics, volume rendering and visualization. VTK includes many \n",
+  "   advanced algorithms (e.g., surface reconstruction, implicit modelling, \n",
+  "   decimation) and rendering techniques (e.g., hardware-accelerated \n",
+  "   volume rendering, LOD control).\n",
+  "   \@par \n",
+  "   VTK is used by academicians for teaching and research; by government \n",
+  "   research institutions such as Los Alamos National Lab in the US or \n",
+  "   CINECA in Italy; and by many commercial firms who use VTK to build or \n",
+  "   extend products. \n",
+  "   \@par \n",
+  "   The origin of VTK is with the textbook \"The Visualization Toolkit, an \n",
+  "   Object-Oriented Approach to 3D Graphics\" originally published by \n",
+  "   Prentice Hall and now published by Kitware, Inc. (Third Edition ISBN \n",
+  "   1-930934-07-6). VTK has grown (since its initial release in 1994) to a \n",
+  "   world-wide user base in the commercial, academic, and research \n",
+  "   communities. \n",
+  "   A more recent PDF version of the textbook is available from the link below.\n",
+  "   \@par \n",
+  "   There is now a large collection of VTK Examples that showcase VTK features.\n",
+  "   This is also a useful learning resource. See the link below.\n",
   "  \@par Useful links:\n",
-  "  \@li VTK Home: http://www.vtk.org\n",
+  "  \@li VTK Home: https://vtk.org/\n",
   "  \@li VTK Source: https://gitlab.kitware.com/vtk/vtk\n",
   "  \@li VTK Discourse Forum: https://discourse.vtk.org\n",
-  "  \@li VTK FAQ: http://www.vtk.org/Wiki/VTK_FAQ\n",
-  "  \@li VTK Wiki: http://www.vtk.org/Wiki/\n",
-  "  \@li VTK Dashboard: http://www.cdash.org/CDash/index.php?project=VTK\n",
-  "  \@li Commercial <a href=\"https://www.kitware.com/products/support.html\">support</a> "
-  "  and <a href=\"http://www.kitware.com/products/protraining.php\">training<\a> "
+  "  \@li VTK FAQ: https://www.vtk.org/Wiki/VTK_FAQ\n",
+  "  \@li VTK Wiki: https://www.vtk.org/Wiki/\n",
+  "  \@li VTK Textbook: https://gitlab.kitware.com/vtk/textbook/raw/master/VTKBook/VTKTextBook.pdf\n",
+  "  \@li VTK Examples: https://kitware.github.io/vtk-examples/site/\n",
+  "  \@li VTK Dashboard: https://open.cdash.org/index.php?project=VTK\n",
+  "  \@li Commercial <a href=\"https://www.kitware.com/products/support.html\">support</a> ",
+  "  and <a href=\"https://www.kitware.com/products/protraining.php\">training</a> ",
   "  are available from Kitware\n",
   " ",
   "*/\n\n";

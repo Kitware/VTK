@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -25,53 +25,45 @@
 /* Module Setup */
 /****************/
 
-#include "H5FDmodule.h"         /* This source code file is part of the H5FD module */
-#define H5FD_TESTING		/* Suppress warning about H5FD testing funcs    */
-
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
+#define H5FD_TESTING    /* Suppress warning about H5FD testing funcs    */
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions    */
-#include "H5FDpkg.h"        /* File Drivers         */
+#include "H5private.h" /* Generic Functions    */
+#include "H5FDpkg.h"   /* File Drivers         */
 
 /****************/
 /* Local Macros */
 /****************/
 
-
 /******************/
 /* Local Typedefs */
 /******************/
-
 
 /********************/
 /* Package Typedefs */
 /********************/
 
-
 /********************/
 /* Local Prototypes */
 /********************/
-
 
 /*********************/
 /* Package Variables */
 /*********************/
 
-
 /*****************************/
 /* Library Private Variables */
 /*****************************/
-
 
 /*******************/
 /* Local Variables */
 /*******************/
 
-
 /*-------------------------------------------------------------------------
- * Function:	H5FD_supports_swmr_test()
+ * Function:	H5FD__supports_swmr_test()
  *
  * Purpose:	    Determines if a VFD supports SWMR.
  *
@@ -98,19 +90,16 @@
  *-------------------------------------------------------------------------
  */
 hbool_t
-H5FD_supports_swmr_test(const char *vfd_name)
+H5FD__supports_swmr_test(const char *vfd_name)
 {
     hbool_t ret_value = FALSE;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if(!vfd_name || !HDstrcmp(vfd_name, ""))
+    if (!vfd_name || !HDstrcmp(vfd_name, "") || !HDstrcmp(vfd_name, "nomatch"))
         ret_value = TRUE;
     else
-        ret_value = !HDstrcmp(vfd_name, "log")
-            || !HDstrcmp(vfd_name, "sec2");
+        ret_value = !HDstrcmp(vfd_name, "log") || !HDstrcmp(vfd_name, "sec2");
 
     FUNC_LEAVE_NOAPI(ret_value)
-    
-} /* end H5FD_supports_swmr_test() */
-
+} /* end H5FD__supports_swmr_test() */

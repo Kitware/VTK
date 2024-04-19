@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPTableReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPTableReader
  * @brief   Read PVTK XML Table files.
@@ -24,7 +12,7 @@
  *
  * @sa
  * vtkXMLTableReader
-*/
+ */
 
 #ifndef vtkXMLPTableReader_h
 #define vtkXMLPTableReader_h
@@ -32,6 +20,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPDataObjectReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 class vtkXMLTableReader;
 
@@ -42,18 +31,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPTableReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkTable* GetOutput();
   vtkTable* GetOutput(int idx);
-  //@}
+  ///@}
 
   /**
-  * For the specified port, copy the information this reader sets up in
-  * SetupOutputInformation to outInfo
-  */
+   * For the specified port, copy the information this reader sets up in
+   * SetupOutputInformation to outInfo
+   */
   void CopyOutputInformation(vtkInformation* outInfo, int port) override;
 
   /**
@@ -67,14 +56,14 @@ public:
    */
   const char* GetColumnArrayName(int index);
 
-  //@{
+  ///@{
   /**
    * Get/Set whether the column array with the given name is to
    * be read.
    */
   int GetColumnArrayStatus(const char* name);
   void SetColumnArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
   /**
    * Get the data array selection tables used to configure which data
@@ -97,9 +86,9 @@ protected:
   vtkIdType GetNumberOfRows();
 
   /**
-  * Get the number of rows in the given piece.  Valid after
-  * UpdateInformation.
-  */
+   * Get the number of rows in the given piece.  Valid after
+   * UpdateInformation.
+   */
   virtual vtkIdType GetNumberOfRowsInPiece(int piece);
 
   vtkTable* GetOutputAsTable();
@@ -194,27 +183,27 @@ protected:
     vtkInformationVector* outputVector) override;
 
   /**
-  * Callback registered with the PieceProgressObserver.
-  */
+   * Callback registered with the PieceProgressObserver.
+   */
   void PieceProgressCallback() override;
 
   /**
-  * Check whether the given array element is an enabled array.
-  */
+   * Check whether the given array element is an enabled array.
+   */
   int ColumnIsEnabled(vtkXMLDataElement* elementRowData);
 
   int GetNumberOfRowArrays();
   const char* GetRowArrayName(int index);
 
   /**
-  * The update request.
-  */
+   * The update request.
+   */
   int UpdatePieceId;
   int UpdateNumberOfPieces;
 
   /**
-  * The range of pieces from the file that will form the UpdatePiece.
-  */
+   * The range of pieces from the file that will form the UpdatePiece.
+   */
   int StartPiece;
   int EndPiece;
   vtkIdType TotalNumberOfRows;
@@ -223,8 +212,8 @@ protected:
   vtkXMLTableReader** PieceReaders;
 
   /**
-  * The PRowData element representations.
-  */
+   * The PRowData element representations.
+   */
   vtkXMLDataElement* PRowElement;
 
   vtkDataArraySelection* ColumnSelection;
@@ -234,4 +223,5 @@ private:
   void operator=(const vtkXMLPTableReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

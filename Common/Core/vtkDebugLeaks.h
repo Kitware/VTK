@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDebugLeaks.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkDebugLeaks
  * @brief identify memory leaks at program termination
@@ -52,19 +40,22 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkToolkits.h" // Needed for VTK_DEBUG_LEAKS macro setting.
+#include "vtkDebug.h"             // Needed for VTK_DEBUG_LEAKS macro setting.
 #include "vtkDebugLeaksManager.h" // Needed for proper singleton initialization
 
+#include <mutex> // for std::mutex
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDebugLeaksHashTable;
 class vtkDebugLeaksTraceManager;
-class vtkSimpleCriticalSection;
 class vtkDebugLeaksObserver;
 
 class VTKCOMMONCORE_EXPORT vtkDebugLeaks : public vtkObject
 {
 public:
-  static vtkDebugLeaks *New();
-  vtkTypeMacro(vtkDebugLeaks,vtkObject);
+  static vtkDebugLeaks* New();
+  vtkTypeMacro(vtkDebugLeaks, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Call this when creating a class.
@@ -92,21 +83,21 @@ public:
    */
   static int PrintCurrentLeaks();
 
-  //@{
+  ///@{
   /**
    * Get/Set flag for exiting with an error when leaks are present.
    * Default is on when VTK_DEBUG_LEAKS is on and off otherwise.
    */
   static int GetExitError();
   static void SetExitError(int);
-  //@}
+  ///@}
 
   static void SetDebugLeaksObserver(vtkDebugLeaksObserver* observer);
   static vtkDebugLeaksObserver* GetDebugLeaksObserver();
 
 protected:
-  vtkDebugLeaks(){}
-  ~vtkDebugLeaks() override{}
+  vtkDebugLeaks() = default;
+  ~vtkDebugLeaks() override = default;
 
   static int DisplayMessageBox(const char*);
 
@@ -122,7 +113,7 @@ protected:
 private:
   static vtkDebugLeaksHashTable* MemoryTable;
   static vtkDebugLeaksTraceManager* TraceManager;
-  static vtkSimpleCriticalSection* CriticalSection;
+  static std::mutex* CriticalSection;
   static vtkDebugLeaksObserver* Observer;
   static int ExitError;
 
@@ -133,12 +124,13 @@ private:
 // This class defines callbacks for debugging tools. The callbacks are not for general use.
 // The objects passed as arguments to the callbacks are in partially constructed or destructed
 // state and accessing them may cause undefined behavior.
-class VTKCOMMONCORE_EXPORT vtkDebugLeaksObserver {
+class VTKCOMMONCORE_EXPORT vtkDebugLeaksObserver
+{
 public:
-  virtual ~vtkDebugLeaksObserver() {}
+  virtual ~vtkDebugLeaksObserver() = default;
   virtual void ConstructingObject(vtkObjectBase*) = 0;
   virtual void DestructingObject(vtkObjectBase*) = 0;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkDebugLeaks_h
-// VTK-HeaderTest-Exclude: vtkDebugLeaks.h

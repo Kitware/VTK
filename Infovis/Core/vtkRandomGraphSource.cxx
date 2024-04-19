@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRandomGraphSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkRandomGraphSource.h"
 
 #include "vtkCellData.h"
@@ -32,12 +16,13 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
-#include <set>
 #include <algorithm>
+#include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRandomGraphSource);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkRandomGraphSource::vtkRandomGraphSource()
 {
@@ -45,9 +30,9 @@ vtkRandomGraphSource::vtkRandomGraphSource()
   this->NumberOfEdges = 10;
   this->EdgeProbability = 0.5;
   this->IncludeEdgeWeights = false;
-  this->Directed = 0;
-  this->UseEdgeProbability = 0;
-  this->StartWithTree = 0;
+  this->Directed = false;
+  this->UseEdgeProbability = false;
+  this->StartWithTree = false;
   this->AllowSelfLoops = false;
   this->AllowParallelEdges = false;
   this->GeneratePedigreeIds = true;
@@ -62,7 +47,7 @@ vtkRandomGraphSource::vtkRandomGraphSource()
   this->SetNumberOfOutputPorts(1);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkRandomGraphSource::~vtkRandomGraphSource()
 {
@@ -71,10 +56,9 @@ vtkRandomGraphSource::~vtkRandomGraphSource()
   this->SetEdgeWeightArrayName(nullptr);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-void
-vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfVertices: " << this->NumberOfVertices << endl;
@@ -88,21 +72,18 @@ vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AllowParallelEdges: " << this->AllowParallelEdges << endl;
   os << indent << "GeneratePedigreeIds: " << this->GeneratePedigreeIds << endl;
   os << indent << "VertexPedigreeIdArrayName: "
-    << (this->VertexPedigreeIdArrayName ? this->VertexPedigreeIdArrayName : "(null)") << endl;
+     << (this->VertexPedigreeIdArrayName ? this->VertexPedigreeIdArrayName : "(null)") << endl;
   os << indent << "EdgePedigreeIdArrayName: "
-    << (this->EdgePedigreeIdArrayName ? this->EdgePedigreeIdArrayName : "(null)") << endl;
+     << (this->EdgePedigreeIdArrayName ? this->EdgePedigreeIdArrayName : "(null)") << endl;
   os << indent << "EdgeWeightArrayName: "
-    << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(null)") << endl;
+     << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(null)") << endl;
   os << indent << "Seed: " << this->Seed << endl;
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-int
-vtkRandomGraphSource::RequestData(
-  vtkInformation*,
-  vtkInformationVector**,
-  vtkInformationVector *outputVector)
+int vtkRandomGraphSource::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   // Seed the random number generator so we can produce repeatable results
   vtkMath::RandomSeed(this->Seed);
@@ -167,7 +148,7 @@ vtkRandomGraphSource::RequestData(
   else
   {
     // Don't duplicate edges.
-    std::set< std::pair<vtkIdType, vtkIdType> > existingEdges;
+    std::set<std::pair<vtkIdType, vtkIdType>> existingEdges;
 
     vtkIdType MaxEdges;
     if (this->AllowParallelEdges)
@@ -180,7 +161,7 @@ vtkRandomGraphSource::RequestData(
     }
     else
     {
-      MaxEdges = (this->NumberOfVertices * (this->NumberOfVertices-1)) / 2;
+      MaxEdges = (this->NumberOfVertices * (this->NumberOfVertices - 1)) / 2;
     }
 
     if (this->NumberOfEdges > MaxEdges)
@@ -213,10 +194,9 @@ vtkRandomGraphSource::RequestData(
 
         std::pair<vtkIdType, vtkIdType> newEdge(s, t);
 
-        if (this->AllowParallelEdges
-          || existingEdges.find(newEdge) == existingEdges.end())
+        if (this->AllowParallelEdges || existingEdges.find(newEdge) == existingEdges.end())
         {
-          vtkDebugMacro(<<"Adding edge " << s << " to " << t);
+          vtkDebugMacro(<< "Adding edge " << s << " to " << t);
           if (this->Directed)
           {
             dirBuilder->AddEdge(s, t);
@@ -233,12 +213,12 @@ vtkRandomGraphSource::RequestData(
   }
 
   // Copy the structure into the output.
-  vtkGraph *output = vtkGraph::GetData(outputVector);
+  vtkGraph* output = vtkGraph::GetData(outputVector);
   if (this->Directed)
   {
     if (!output->CheckedShallowCopy(dirBuilder))
     {
-      vtkErrorMacro(<<"Invalid structure.");
+      vtkErrorMacro(<< "Invalid structure.");
       return 0;
     }
   }
@@ -246,7 +226,7 @@ vtkRandomGraphSource::RequestData(
   {
     if (!output->CheckedShallowCopy(undirBuilder))
     {
-      vtkErrorMacro(<<"Invalid structure.");
+      vtkErrorMacro(<< "Invalid structure.");
       return 0;
     }
   }
@@ -259,7 +239,7 @@ vtkRandomGraphSource::RequestData(
         << "edge weights array name must be defined.");
       return 0;
     }
-    vtkFloatArray *weights = vtkFloatArray::New();
+    vtkFloatArray* weights = vtkFloatArray::New();
     weights->SetName(this->EdgeWeightArrayName);
     for (vtkIdType i = 0; i < output->GetNumberOfEdges(); ++i)
     {
@@ -278,8 +258,7 @@ vtkRandomGraphSource::RequestData(
       return 0;
     }
     vtkIdType numVert = output->GetNumberOfVertices();
-    vtkSmartPointer<vtkIdTypeArray> vertIds =
-      vtkSmartPointer<vtkIdTypeArray>::New();
+    vtkSmartPointer<vtkIdTypeArray> vertIds = vtkSmartPointer<vtkIdTypeArray>::New();
     vertIds->SetName(this->VertexPedigreeIdArrayName);
     vertIds->SetNumberOfTuples(numVert);
     for (vtkIdType i = 0; i < numVert; ++i)
@@ -289,8 +268,7 @@ vtkRandomGraphSource::RequestData(
     output->GetVertexData()->SetPedigreeIds(vertIds);
 
     vtkIdType numEdge = output->GetNumberOfEdges();
-    vtkSmartPointer<vtkIdTypeArray> edgeIds =
-      vtkSmartPointer<vtkIdTypeArray>::New();
+    vtkSmartPointer<vtkIdTypeArray> edgeIds = vtkSmartPointer<vtkIdTypeArray>::New();
     edgeIds->SetName(this->EdgePedigreeIdArrayName);
     edgeIds->SetNumberOfTuples(numEdge);
     for (vtkIdType i = 0; i < numEdge; ++i)
@@ -303,18 +281,15 @@ vtkRandomGraphSource::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkRandomGraphSource::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector**,
-  vtkInformationVector* )
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
-  vtkDataObject *current = this->GetExecutive()->GetOutputData(0);
-  if (!current
-    || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
-    || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
+  vtkDataObject* current = this->GetExecutive()->GetOutputData(0);
+  if (!current || (this->Directed && !vtkDirectedGraph::SafeDownCast(current)) ||
+    (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
   {
-    vtkGraph *output = nullptr;
+    vtkGraph* output = nullptr;
     if (this->Directed)
     {
       output = vtkDirectedGraph::New();
@@ -329,5 +304,4 @@ int vtkRandomGraphSource::RequestDataObject(
 
   return 1;
 }
-
-
+VTK_ABI_NAMESPACE_END

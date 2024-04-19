@@ -6,6 +6,10 @@ CONDITION
   VTK_WRAP_PYTHON
 GROUPS
   MPI
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::Python

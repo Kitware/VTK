@@ -1,49 +1,39 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLActor.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOpenGLActor
  * @brief   OpenGL actor
  *
  * vtkOpenGLActor is a concrete implementation of the abstract class vtkActor.
  * vtkOpenGLActor interfaces to the OpenGL rendering library.
-*/
+ */
 
 #ifndef vtkOpenGLActor_h
 #define vtkOpenGLActor_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationIntegerKey;
 class vtkOpenGLRenderer;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLActor : public vtkActor
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLActor : public vtkActor
 {
 public:
-  static vtkOpenGLActor *New();
+  static vtkOpenGLActor* New();
   vtkTypeMacro(vtkOpenGLActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Actual actor render method.
    */
-  void Render(vtkRenderer *ren, vtkMapper *mapper) override;
+  void Render(vtkRenderer* ren, vtkMapper* mapper) override;
 
-  virtual void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
+  virtual void GetKeyMatrices(vtkMatrix4x4*& WCVCMatrix, vtkMatrix3x3*& normalMatrix);
 
   /**
    * If this key is set in GetPropertyKeys(), the glDepthMask will be adjusted
@@ -65,9 +55,9 @@ protected:
   vtkOpenGLActor();
   ~vtkOpenGLActor() override;
 
-  vtkMatrix4x4 *MCWCMatrix;
-  vtkMatrix3x3 *NormalMatrix;
-  vtkTransform *NormalTransform;
+  vtkMatrix4x4* MCWCMatrix;
+  vtkMatrix3x3* NormalMatrix;
+  vtkTransform* NormalTransform;
   vtkTimeStamp KeyMatrixTime;
 
 private:
@@ -75,4 +65,5 @@ private:
   void operator=(const vtkOpenGLActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

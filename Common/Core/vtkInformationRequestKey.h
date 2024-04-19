@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInformationRequestKey.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInformationRequestKey
  * @brief   Key for pointer to pointer.
  *
  * vtkInformationRequestKey is used to represent keys for pointer
  * to pointer values in vtkInformation.h
-*/
+ */
 
 #ifndef vtkInformationRequestKey_h
 #define vtkInformationRequestKey_h
@@ -28,10 +16,11 @@
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkInformationRequestKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationRequestKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationRequestKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationRequestKey(const char* name, const char* location);
@@ -42,12 +31,12 @@ public:
    * name and a location. This method is provided for wrappers. Use the
    * constructor directly from C++ instead.
    */
-  static vtkInformationRequestKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationRequestKey* MakeKey(const char* name, const char* location)
   {
     return new vtkInformationRequestKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -55,7 +44,7 @@ public:
   void Set(vtkInformation* info);
   void Remove(vtkInformation* info) override;
   int Has(vtkInformation* info) override;
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information
@@ -74,4 +63,5 @@ private:
   void operator=(const vtkInformationRequestKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

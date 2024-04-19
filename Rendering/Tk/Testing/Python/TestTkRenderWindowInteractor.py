@@ -1,17 +1,18 @@
 import os, sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-    from Tkinter import Pack
-else:
-    # for Python3
-    import tkinter
-    from tkinter import Pack
+import tkinter
+from tkinter import Pack
 
-from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
+from vtkmodules.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
 
 
 class TestTkRenderWindowInteractor(Testing.vtkTest):
@@ -24,7 +25,7 @@ class TestTkRenderWindowInteractor(Testing.vtkTest):
     root = tkinter.Tk()
 
     # create a rendering window and renderer
-    ren = vtk.vtkRenderer()
+    ren = vtkRenderer()
     tkrw = vtkTkRenderWindowInteractor(root, width=300, height=300)
     tkrw.Initialize()
     tkrw.pack()
@@ -32,11 +33,11 @@ class TestTkRenderWindowInteractor(Testing.vtkTest):
     rw.AddRenderer(ren)
 
     # create an actor and give it cone geometry
-    cs = vtk.vtkConeSource()
+    cs = vtkConeSource()
     cs.SetResolution(8)
-    map = vtk.vtkPolyDataMapper()
+    map = vtkPolyDataMapper()
     map.SetInputConnection(cs.GetOutputPort())
-    act = vtk.vtkActor()
+    act = vtkActor()
     act.SetMapper(map)
 
     # assign our actor to the renderer

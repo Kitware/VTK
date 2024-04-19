@@ -1,24 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeRingView.cxx
-
-  -------------------------------------------------------------------------
-    Copyright 2008 Sandia Corporation.
-    Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-    the U.S. Government retains certain rights in this software.
-  -------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkTreeRingView.h"
 
 #include "vtkObjectFactory.h"
@@ -26,14 +8,15 @@
 #include "vtkStackedTreeLayoutStrategy.h"
 #include "vtkTreeRingToPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeRingView);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeRingView::vtkTreeRingView() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTreeRingView::~vtkTreeRingView() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::SetRootAngles(double start, double end)
 {
   vtkStackedTreeLayoutStrategy* s =
@@ -45,7 +28,7 @@ void vtkTreeRingView::SetRootAngles(double start, double end)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::SetRootAtCenter(bool center)
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -56,7 +39,7 @@ void vtkTreeRingView::SetRootAtCenter(bool center)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkTreeRingView::GetRootAtCenter()
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -68,7 +51,7 @@ bool vtkTreeRingView::GetRootAtCenter()
   return false;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::SetLayerThickness(double thickness)
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -79,7 +62,7 @@ void vtkTreeRingView::SetLayerThickness(double thickness)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTreeRingView::GetLayerThickness()
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -91,7 +74,7 @@ double vtkTreeRingView::GetLayerThickness()
   return 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::SetInteriorRadius(double rad)
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -102,7 +85,7 @@ void vtkTreeRingView::SetInteriorRadius(double rad)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTreeRingView::GetInteriorRadius()
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -114,7 +97,7 @@ double vtkTreeRingView::GetInteriorRadius()
   return 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::SetInteriorLogSpacingValue(double value)
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -125,7 +108,7 @@ void vtkTreeRingView::SetInteriorLogSpacingValue(double value)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 double vtkTreeRingView::GetInteriorLogSpacingValue()
 {
   vtkStackedTreeLayoutStrategy* st =
@@ -137,9 +120,9 @@ double vtkTreeRingView::GetInteriorLogSpacingValue()
   return 0.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTreeRingView::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
-
+VTK_ABI_NAMESPACE_END

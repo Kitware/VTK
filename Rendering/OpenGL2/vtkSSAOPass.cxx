@@ -1,22 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSSAOPass.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkSSAOPass.h"
 
+#include "vtkInformation.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
@@ -24,19 +14,23 @@
 #include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
-#include "vtkTextureObject.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include <random>
+#include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSSAOPass);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSSAOPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -97,7 +91,7 @@ void vtkSSAOPass::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int w, int h)
 {
   if (this->ColorTexture == nullptr)
@@ -119,26 +113,26 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
     // see "Scalable ambient obscurance"
     this->PositionTexture = vtkTextureObject::New();
     this->PositionTexture->SetContext(renWin);
-    this->PositionTexture->SetFormat(GL_RGB);
-    this->PositionTexture->SetInternalFormat(GL_RGB16F);
+    this->PositionTexture->SetFormat(GL_RGBA);
+    this->PositionTexture->SetInternalFormat(GL_RGBA16F);
     this->PositionTexture->SetDataType(GL_FLOAT);
     this->PositionTexture->SetWrapS(vtkTextureObject::ClampToEdge);
     this->PositionTexture->SetWrapT(vtkTextureObject::ClampToEdge);
     this->PositionTexture->SetMinificationFilter(vtkTextureObject::NearestMipmapNearest);
     this->PositionTexture->SetMaxLevel(10);
-    this->PositionTexture->Allocate2D(w, h, 3, VTK_FLOAT);
+    this->PositionTexture->Allocate2D(w, h, 4, VTK_FLOAT);
   }
 
   if (this->NormalTexture == nullptr)
   {
     this->NormalTexture = vtkTextureObject::New();
     this->NormalTexture->SetContext(renWin);
-    this->NormalTexture->SetFormat(GL_RGB);
-    this->NormalTexture->SetInternalFormat(GL_RGB16F);
+    this->NormalTexture->SetFormat(GL_RGBA);
+    this->NormalTexture->SetInternalFormat(GL_RGBA16F);
     this->NormalTexture->SetDataType(GL_FLOAT);
     this->NormalTexture->SetWrapS(vtkTextureObject::ClampToEdge);
     this->NormalTexture->SetWrapT(vtkTextureObject::ClampToEdge);
-    this->NormalTexture->Allocate2D(w, h, 3, VTK_FLOAT);
+    this->NormalTexture->Allocate2D(w, h, 4, VTK_FLOAT);
   }
 
   if (this->SSAOTexture == nullptr)
@@ -155,7 +149,7 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
   {
     this->DepthTexture = vtkTextureObject::New();
     this->DepthTexture->SetContext(renWin);
-    this->DepthTexture->AllocateDepth(w, h, vtkTextureObject::Float32);
+    this->DepthTexture->AllocateDepth(w, h, this->DepthFormat);
   }
 
   if (this->FrameBufferObject == nullptr)
@@ -165,7 +159,7 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
   }
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSSAOPass::ComputeKernel()
 {
   std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
@@ -196,11 +190,12 @@ void vtkSSAOPass::ComputeKernel()
   }
 }
 
-// ----------------------------------------------------------------------------
-bool vtkSSAOPass::SetShaderParameters(vtkShaderProgram* vtkNotUsed(program), vtkAbstractMapper* mapper,
-  vtkProp* vtkNotUsed(prop), vtkOpenGLVertexArrayObject* vtkNotUsed(VAO))
+//------------------------------------------------------------------------------
+bool vtkSSAOPass::SetShaderParameters(vtkShaderProgram* vtkNotUsed(program),
+  vtkAbstractMapper* mapper, vtkProp* vtkNotUsed(prop), vtkOpenGLVertexArrayObject* vtkNotUsed(VAO))
 {
-  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
+  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr ||
+    mapper->IsA("vtkOpenGLGPUVolumeRayCastMapper"))
   {
     this->FrameBufferObject->ActivateDrawBuffers(3);
   }
@@ -208,11 +203,45 @@ bool vtkSSAOPass::SetShaderParameters(vtkShaderProgram* vtkNotUsed(program), vtk
   {
     this->FrameBufferObject->ActivateDrawBuffers(1);
   }
-
   return true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkSSAOPass::PreRenderProp(vtkProp* prop)
+{
+  // Create information and add the vtkOpenGLRenderPass information key
+  this->Superclass::PreRenderProp(prop);
+
+  vtkVolume* volume = vtkVolume::SafeDownCast(prop);
+  if (volume)
+  {
+    // Shading must be enabled to compute normals
+    if (!volume->GetProperty()->GetShade())
+    {
+      vtkErrorMacro("Shading must be enabled for volumes to support SSAO.");
+    }
+
+    vtkInformation* info = volume->GetPropertyKeys();
+    info->Set(vtkOpenGLActor::GLDepthMaskOverride(), 1);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkSSAOPass::PostRenderProp(vtkProp* prop)
+{
+  // Clean the vtkOpenGLRenderPass information key
+  this->Superclass::PostRenderProp(prop);
+
+  // Clean the GLDepthMaskOverride information key
+  vtkVolume* volume = vtkVolume::SafeDownCast(prop);
+  if (volume)
+  {
+    vtkInformation* info = volume->GetPropertyKeys();
+    info->Remove(vtkOpenGLActor::GLDepthMaskOverride());
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
 {
   this->PreRender(s);
@@ -227,15 +256,41 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
   this->FrameBufferObject->AddDepthAttachment(this->DepthTexture);
   this->FrameBufferObject->StartNonOrtho(w, h);
 
+  // Clear color and depth.
+  // This is only required for the vtkRenderer built-in UseSSAO feature
+  // where the DelegatePass does not use a vtkCameraPass for clearing.
+  vtkOpenGLRenderer* glRen = vtkOpenGLRenderer::SafeDownCast(s->GetRenderer());
+  if (glRen && glRen->GetUseSSAO() && glRen->GetErase())
+  {
+    vtkOpenGLState* ostate = glRen->GetState();
+    GLbitfield clear_mask = 0;
+    if (!glRen->Transparent())
+    {
+      clear_mask |= GL_COLOR_BUFFER_BIT;
+    }
+
+    if (!glRen->GetPreserveDepthBuffer())
+    {
+      ostate->vtkglClearDepth(static_cast<GLclampf>(1.0));
+      clear_mask |= GL_DEPTH_BUFFER_BIT;
+      ostate->vtkglDepthMask(GL_TRUE);
+    }
+
+    ostate->vtkglClear(clear_mask);
+  }
+
   this->DelegatePass->Render(s);
   this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
+
+  this->FrameBufferObject->RemoveColorAttachments(3);
+  this->FrameBufferObject->RemoveDepthAttachment();
 
   this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
   this->PostRender(s);
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projection, int w, int h)
 {
   if (this->SSAOQuadHelper && this->SSAOQuadHelper->ShaderChangeValue < this->GetMTime())
@@ -266,42 +321,45 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl", ssDecl.str());
 
     std::stringstream ssImpl;
-    ssImpl << "\n"
-              "  float occlusion = 0.0;\n"
-              "  float depth = texture(texDepth, texCoord).r;\n"
-              "  if (depth < 1.0)\n"
-              "  {\n"
-              "    vec3 fragPosVC = texture(texPosition, texCoord).xyz;\n"
-              "    vec4 fragPosDC = matProjection * vec4(fragPosVC, 1.0);\n"
-              "    fragPosDC.xyz /= fragPosDC.w;\n"
-              "    fragPosDC.xyz = fragPosDC.xyz * 0.5 + 0.5;\n"
-              "    if (fragPosDC.z - depth < 0.0001)\n"
-              "    {\n"
-              "      vec3 normal = texture(texNormal, texCoord).rgb;\n"
-              "      vec2 tilingShift = size / textureSize(texNoise, 0);\n"
-              "      float randomAngle = 6.283185 * texture(texNoise, texCoord * tilingShift).r;\n"
-              "      vec3 randomVec = vec3(cos(randomAngle), sin(randomAngle), 0.0);\n"
-              "      vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));\n"
-              "      vec3 bitangent = cross(normal, tangent);\n"
-              "      mat3 TBN = mat3(tangent, bitangent, normal);\n"
-              "      const int kernelSize = "
-           << this->KernelSize
-           << ";\n"
-              "      for (int i = 0; i < kernelSize; i++)\n"
-              "      {\n"
-              "        vec3 sampleVC = TBN * samples[i];\n"
-              "        sampleVC = fragPosVC + sampleVC * kernelRadius;\n"
-              "        vec4 sampleDC = matProjection * vec4(sampleVC, 1.0);\n"
-              "        sampleDC.xyz /= sampleDC.w;\n"
-              "        sampleDC.xyz = sampleDC.xyz * 0.5 + 0.5;\n" // to clip space
-              "        float sampleDepth = textureLod(texPosition, sampleDC.xy, 40.0 * distance(fragPosDC.xy, sampleDC.xy)).z;\n"
-              "        float rangeCheck = smoothstep(0.0, 1.0, kernelRadius / abs(fragPosVC.z - sampleDepth));\n"
-              "        occlusion += (sampleDepth >= sampleVC.z + kernelBias ? 1.0 : 0.0) * rangeCheck;\n"
-              "      }\n"
-              "      occlusion = occlusion / float(kernelSize);\n"
-              "    }\n"
-              "  }\n"
-              "  gl_FragData[0] = vec4(vec3(1.0 - occlusion), 1.0);\n";
+    ssImpl
+      << "\n"
+         "  float occlusion = 0.0;\n"
+         "  float depth = texture(texDepth, texCoord).r;\n"
+         "  if (depth > 0.0 && depth < 1.0)\n" // discard background and overlay
+         "  {\n"
+         "    vec3 fragPosVC = texture(texPosition, texCoord).xyz;\n"
+         "    vec4 fragPosDC = matProjection * vec4(fragPosVC, 1.0);\n"
+         "    fragPosDC.xyz /= fragPosDC.w;\n"
+         "    fragPosDC.xyz = fragPosDC.xyz * 0.5 + 0.5;\n"
+         "    if (fragPosDC.z - depth < 0.0001)\n"
+         "    {\n"
+         "      vec3 normal = texture(texNormal, texCoord).rgb;\n"
+         "      vec2 tilingShift = vec2(size) / vec2(textureSize(texNoise, 0));\n"
+         "      float randomAngle = 6.283185 * texture(texNoise, texCoord * tilingShift).r;\n"
+         "      vec3 randomVec = vec3(cos(randomAngle), sin(randomAngle), 0.0);\n"
+         "      vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));\n"
+         "      vec3 bitangent = cross(normal, tangent);\n"
+         "      mat3 TBN = mat3(tangent, bitangent, normal);\n"
+         "      const int kernelSize = "
+      << this->KernelSize
+      << ";\n"
+         "      for (int i = 0; i < kernelSize; i++)\n"
+         "      {\n"
+         "        vec3 sampleVC = TBN * samples[i];\n"
+         "        sampleVC = fragPosVC + sampleVC * kernelRadius;\n"
+         "        vec4 sampleDC = matProjection * vec4(sampleVC, 1.0);\n"
+         "        sampleDC.xyz /= sampleDC.w;\n"
+         "        sampleDC.xyz = sampleDC.xyz * 0.5 + 0.5;\n" // to clip space
+         "        float sampleDepth = textureLod(texPosition, sampleDC.xy, 40.0 * "
+         "distance(fragPosDC.xy, sampleDC.xy)).z;\n"
+         "        float rangeCheck = smoothstep(0.0, 1.0, kernelRadius / abs(fragPosVC.z - "
+         "sampleDepth));\n"
+         "        occlusion += (sampleDepth >= sampleVC.z + kernelBias ? 1.0 : 0.0) * rangeCheck;\n"
+         "      }\n"
+         "      occlusion = occlusion / float(kernelSize);\n"
+         "    }\n"
+         "  }\n"
+         "  gl_FragData[0] = vec4(vec3(1.0 - occlusion), 1.0);\n";
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl", ssImpl.str());
 
@@ -346,6 +404,8 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
 
   this->SSAOQuadHelper->Render();
 
+  this->FrameBufferObject->RemoveColorAttachments(1);
+
   this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
   this->DepthTexture->Deactivate();
@@ -353,7 +413,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
   this->NormalTexture->Deactivate();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
 {
   vtkOpenGLState* ostate = renWin->GetState();
@@ -383,7 +443,7 @@ void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
     {
       ssImpl << "  ivec2 size = textureSize(texSSAO, 0);"
                 "  float ao = 0.195346 * texture(texSSAO, texCoord).r + \n"
-                "    0.077847	* texture(texSSAO, texCoord + vec2(-1, -1) / size).r +\n"
+                "    0.077847 * texture(texSSAO, texCoord + vec2(-1, -1) / size).r +\n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(-1, 1) / size).r +\n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(1, -1) / size).r +\n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(1, 1) / size).r +\n"
@@ -425,6 +485,7 @@ void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
   this->CombineQuadHelper->Program->SetUniformi("texDepth", this->DepthTexture->GetTextureUnit());
 
   ostate->vtkglEnable(GL_DEPTH_TEST);
+  ostate->vtkglDepthFunc(GL_LEQUAL);
   ostate->vtkglClear(GL_DEPTH_BUFFER_BIT);
 
   this->CombineQuadHelper->Render();
@@ -434,7 +495,7 @@ void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
   this->SSAOTexture->Deactivate();
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSSAOPass::Render(const vtkRenderState* s)
 {
   vtkOpenGLClearErrorMacro();
@@ -455,8 +516,16 @@ void vtkSSAOPass::Render(const vtkRenderState* s)
   }
 
   // create FBO and texture
-  int x, y, w, h;
-  r->GetTiledSizeAndOrigin(&w, &h, &x, &y);
+  int x = 0, y = 0, w, h;
+  vtkFrameBufferObjectBase* fbo = s->GetFrameBuffer();
+  if (fbo)
+  {
+    fbo->GetLastSize(w, h);
+  }
+  else
+  {
+    r->GetTiledSizeAndOrigin(&w, &h, &x, &y);
+  }
 
   this->InitializeGraphicsResources(renWin, w, h);
 
@@ -488,12 +557,15 @@ void vtkSSAOPass::Render(const vtkRenderState* s)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSSAOPass::PreReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
   std::string& vtkNotUsed(geometryShader), std::string& fragmentShader, vtkAbstractMapper* mapper,
   vtkProp* vtkNotUsed(prop))
 {
-  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
+  // The mapper may be a vtkCompositePolyDataMapper, in that case, we should not return.
+  // It is hard to determine if that CPDM uses OpenGL delegates. But if execution reaches
+  // here, it is very likely that OpenGL classes are used.
+  if (vtkPolyDataMapper::SafeDownCast(mapper) != nullptr)
   {
     // apply SSAO after lighting
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::Light::Impl",
@@ -502,15 +574,45 @@ bool vtkSSAOPass::PreReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
       false);
   }
 
+  if (mapper->IsA("vtkOpenGLGPUVolumeRayCastMapper"))
+  {
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeLighting::Dec",
+      "vec3 g_dataNormal; \n"
+      "//VTK::ComputeLighting::Dec\n",
+      false);
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::RenderToImage::Dec",
+      "//VTK::RenderToImage::Dec\n"
+      "  //VTK::SSAO::Dec\n",
+      false);
+
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::RenderToImage::Init",
+      "//VTK::RenderToImage::Init\n"
+      "  //VTK::SSAO::Init\n",
+      false);
+
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::RenderToImage::Impl",
+      "//VTK::RenderToImage::Impl\n"
+      "  //VTK::SSAO::Impl\n",
+      false);
+
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::RenderToImage::Exit",
+      "//VTK::RenderToImage::Exit\n"
+      "  //VTK::SSAO::Exit\n",
+      false);
+  }
+
   return true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkSSAOPass::PostReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
   std::string& vtkNotUsed(geometryShader), std::string& fragmentShader, vtkAbstractMapper* mapper,
   vtkProp* vtkNotUsed(prop))
 {
-  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
+  // The mapper may be a vtkCompositePolyDataMapper, in that case, we should not return.
+  // It is hard to determine if that CPDM uses OpenGL delegates. But if execution reaches
+  // here, it is very likely that OpenGL classes are used.
+  if (vtkPolyDataMapper::SafeDownCast(mapper) != nullptr)
   {
     if (fragmentShader.find("vertexVC") != std::string::npos &&
       fragmentShader.find("normalVCVSOutput") != std::string::npos)
@@ -531,10 +633,58 @@ bool vtkSSAOPass::PostReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
     }
   }
 
+  if (mapper->IsA("vtkOpenGLGPUVolumeRayCastMapper"))
+  {
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::SSAO::Dec",
+      "vec3 l_ssaoFragNormal;\n"
+      "vec3 l_ssaoFragPos;\n"
+      "bool l_ssaoUpdateDepth;\n",
+      false);
+
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::SSAO::Init",
+      "l_ssaoFragPos = vec3(-1.0);\n"
+      "l_ssaoUpdateDepth = true;\n",
+      false);
+
+    std::stringstream ssaoImpl;
+    ssaoImpl << "if (!g_skip && g_fragColor.a > " << this->VolumeOpacityThreshold
+             << " && l_ssaoUpdateDepth)\n"
+                "{\n"
+                "  l_ssaoFragPos = g_dataPos;\n"
+                "  l_ssaoFragNormal = g_dataNormal;\n"
+                "  l_ssaoUpdateDepth = false;\n"
+                "}";
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::SSAO::Impl", ssaoImpl.str(), false);
+
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::SSAO::Exit",
+      "if (l_ssaoFragPos == vec3(-1.0))\n"
+      "{\n"
+      "  gl_FragDepth = 1.0;\n"
+      "}\n"
+      "else\n"
+      "{\n"
+      "  vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\n"
+      "                    in_volumeMatrix[0] * in_textureDatasetMatrix[0] *\n"
+      "                    vec4(l_ssaoFragPos, 1.0);\n"
+      "  depthValue /= depthValue.w;\n"
+      "  gl_FragDepth = 0.5 * (gl_DepthRange.far - gl_DepthRange.near) * depthValue.z + 0.5 * "
+      "(gl_DepthRange.far + gl_DepthRange.near);\n"
+      "  gl_FragData[1] = in_modelViewMatrix * in_volumeMatrix[0] * in_textureDatasetMatrix[0] * "
+      "vec4(l_ssaoFragPos, 1.0);\n"
+      "  gl_FragData[2] = vec4(normalize(l_ssaoFragNormal), 1.0);\n"
+      "}",
+      false);
+  }
+
+  vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeLighting::Exit",
+    "//VTK::ComputeLighting::Exit\n"
+    "g_dataNormal = -shading_gradient.xyz;",
+    false);
+
   return true;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkSSAOPass::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Superclass::ReleaseGraphicsResources(w);
@@ -580,3 +730,4 @@ void vtkSSAOPass::ReleaseGraphicsResources(vtkWindow* w)
     this->DepthTexture = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

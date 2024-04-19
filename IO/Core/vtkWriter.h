@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWriter
  * @brief   abstract class to write data to file(s)
@@ -26,14 +14,15 @@
  *
  * @sa
  * vtkXMLDataSetWriter vtkDataSetWriter vtkImageWriter vtkMCubesWriter
-*/
+ */
 
 #ifndef vtkWriter_h
 #define vtkWriter_h
 
-#include "vtkIOCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkIOCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 
 #define VTK_ASCII 1
@@ -42,7 +31,7 @@ class vtkDataObject;
 class VTKIOCORE_EXPORT vtkWriter : public vtkAlgorithm
 {
 public:
-  vtkTypeMacro(vtkWriter,vtkAlgorithm);
+  vtkTypeMacro(vtkWriter, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -69,33 +58,33 @@ public:
    */
   void EncodeWriteString(ostream* out, const char* name, bool doublePercent);
 
-  //@{
+  ///@{
   /**
    * Set/get the input to this writer.
    */
-  void SetInputData(vtkDataObject *input);
-  void SetInputData(int index, vtkDataObject *input);
-  //@}
+  void SetInputData(vtkDataObject* input);
+  void SetInputData(int index, vtkDataObject* input);
+  ///@}
 
-  vtkDataObject *GetInput();
-  vtkDataObject *GetInput(int port);
+  vtkDataObject* GetInput();
+  vtkDataObject* GetInput(int port);
 
 protected:
   vtkWriter();
   ~vtkWriter() override;
 
-  vtkTypeBool ProcessRequest(vtkInformation *request,
-                             vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector) override;
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
-  virtual void WriteData() = 0; //internal method subclasses must respond to
+  virtual void WriteData() = 0; // internal method subclasses must respond to
   vtkTimeStamp WriteTime;
+
 private:
   vtkWriter(const vtkWriter&) = delete;
   void operator=(const vtkWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

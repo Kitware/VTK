@@ -1,8 +1,13 @@
 set(classes
+  vtkMultiBlockUnstructuredGridVolumeMapper
   vtkMultiBlockVolumeMapper
   vtkOpenGLGPUVolumeRayCastMapper
   vtkOpenGLProjectedTetrahedraMapper
   vtkOpenGLRayCastImageDisplayHelper
+  vtkSmartVolumeMapper
+  vtkVolumeTexture)
+
+set(nowrap_classes
   vtkOpenGLVolumeGradientOpacityTable
   vtkOpenGLVolumeLookupTable
   vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D
@@ -10,31 +15,29 @@ set(classes
   vtkOpenGLVolumeOpacityTable
   vtkOpenGLVolumeRGBTable
   vtkOpenGLVolumeTransferFunction2D
-  vtkSmartVolumeMapper
-  vtkVolumeInputHelper
-  vtkVolumeTexture)
+  vtkVolumeInputHelper)
 
 set(shader_files
   shaders/raycasterfs.glsl
   shaders/raycastervs.glsl
-  shaders/vtkglProjectedTetrahedraVS.glsl
-  shaders/vtkglProjectedTetrahedraFS.glsl)
+  shaders/vtkglProjectedTetrahedraFS.glsl
+  shaders/vtkglProjectedTetrahedraVS.glsl)
 
-set(template_classes
+set(nowrap_template_classes
   vtkOpenGLVolumeLookupTables
 )
 
 set(sources)
-set(headers)
+set(private_headers)
 foreach (shader_file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${shader_file}"
-    EXPORT_SYMBOL "VTKRENDERINGVOLUMEOPENGL2_EXPORT"
     EXPORT_HEADER "vtkRenderingVolumeOpenGL2Module.h"
+    EXPORT_SYMBOL "VTKRENDERINGVOLUMEOPENGL2_NO_EXPORT"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND sources ${source})
-  list(APPEND header ${header})
+  list(APPEND private_headers ${header})
 endforeach ()
 
 # Now for the object factory.
@@ -56,6 +59,8 @@ vtk_object_factory_configure(
 
 vtk_module_add_module(VTK::RenderingVolumeOpenGL2
   CLASSES ${classes}
-  TEMPLATE_CLASSES  ${template_classes}
+  NOWRAP_CLASSES ${nowrap_classes}
+  NOWRAP_TEMPLATE_CLASSES  ${nowrap_template_classes}
   SOURCES ${sources} ${vtk_object_factory_source}
-  PRIVATE_HEADERS ${headers} ${vtk_object_factory_header})
+  PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
+vtk_add_test_mangling(VTK::RenderingVolumeOpenGL2)

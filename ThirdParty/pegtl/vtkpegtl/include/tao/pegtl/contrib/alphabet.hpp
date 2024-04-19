@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2015-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_CONTRIB_ALPHABET_HPP
@@ -12,59 +12,59 @@ namespace tao
    {
       namespace alphabet
       {
-         static const int a = 'a';
-         static const int b = 'b';
-         static const int c = 'c';
-         static const int d = 'd';
-         static const int e = 'e';
-         static const int f = 'f';
-         static const int g = 'g';
-         static const int h = 'h';
-         static const int i = 'i';
-         static const int j = 'j';
-         static const int k = 'k';
-         static const int l = 'l';
-         static const int m = 'm';
-         static const int n = 'n';
-         static const int o = 'o';
-         static const int p = 'p';
-         static const int q = 'q';
-         static const int r = 'r';
-         static const int s = 's';
-         static const int t = 't';
-         static const int u = 'u';
-         static const int v = 'v';
-         static const int w = 'w';
-         static const int x = 'x';
-         static const int y = 'y';
-         static const int z = 'z';
+         static const int a = 'a';  // NOLINT
+         static const int b = 'b';  // NOLINT
+         static const int c = 'c';  // NOLINT
+         static const int d = 'd';  // NOLINT
+         static const int e = 'e';  // NOLINT
+         static const int f = 'f';  // NOLINT
+         static const int g = 'g';  // NOLINT
+         static const int h = 'h';  // NOLINT
+         static const int i = 'i';  // NOLINT
+         static const int j = 'j';  // NOLINT
+         static const int k = 'k';  // NOLINT
+         static const int l = 'l';  // NOLINT
+         static const int m = 'm';  // NOLINT
+         static const int n = 'n';  // NOLINT
+         static const int o = 'o';  // NOLINT
+         static const int p = 'p';  // NOLINT
+         static const int q = 'q';  // NOLINT
+         static const int r = 'r';  // NOLINT
+         static const int s = 's';  // NOLINT
+         static const int t = 't';  // NOLINT
+         static const int u = 'u';  // NOLINT
+         static const int v = 'v';  // NOLINT
+         static const int w = 'w';  // NOLINT
+         static const int x = 'x';  // NOLINT
+         static const int y = 'y';  // NOLINT
+         static const int z = 'z';  // NOLINT
 
-         static const int A = 'A';
-         static const int B = 'B';
-         static const int C = 'C';
-         static const int D = 'D';
-         static const int E = 'E';
-         static const int F = 'F';
-         static const int G = 'G';
-         static const int H = 'H';
-         static const int I = 'I';
-         static const int J = 'J';
-         static const int K = 'K';
-         static const int L = 'L';
-         static const int M = 'M';
-         static const int N = 'N';
-         static const int O = 'O';
-         static const int P = 'P';
-         static const int Q = 'Q';
-         static const int R = 'R';
-         static const int S = 'S';
-         static const int T = 'T';
-         static const int U = 'U';
-         static const int V = 'V';
-         static const int W = 'W';
-         static const int X = 'X';
-         static const int Y = 'Y';
-         static const int Z = 'Z';
+         static const int A = 'A';  // NOLINT
+         static const int B = 'B';  // NOLINT
+         static const int C = 'C';  // NOLINT
+         static const int D = 'D';  // NOLINT
+         static const int E = 'E';  // NOLINT
+         static const int F = 'F';  // NOLINT
+         static const int G = 'G';  // NOLINT
+         static const int H = 'H';  // NOLINT
+         static const int I = 'I';  // NOLINT
+         static const int J = 'J';  // NOLINT
+         static const int K = 'K';  // NOLINT
+         static const int L = 'L';  // NOLINT
+         static const int M = 'M';  // NOLINT
+         static const int N = 'N';  // NOLINT
+         static const int O = 'O';  // NOLINT
+         static const int P = 'P';  // NOLINT
+         static const int Q = 'Q';  // NOLINT
+         static const int R = 'R';  // NOLINT
+         static const int S = 'S';  // NOLINT
+         static const int T = 'T';  // NOLINT
+         static const int U = 'U';  // NOLINT
+         static const int V = 'V';  // NOLINT
+         static const int W = 'W';  // NOLINT
+         static const int X = 'X';  // NOLINT
+         static const int Y = 'Y';  // NOLINT
+         static const int Z = 'Z';  // NOLINT
 
       }  // namespace alphabet
 

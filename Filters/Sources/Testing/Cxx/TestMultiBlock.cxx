@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestMultiBlock.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This example demonstrates how hierarchical box (uniform rectilinear)
 // AMR datasets can be processed using the new vtkHierarchicalBoxDataSet class.
 //
@@ -22,19 +10,19 @@
 
 #include "vtkCamera.h"
 #include "vtkCellDataToPointData.h"
+#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
 #include "vtkExtractBlock.h"
-#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkOutlineCornerFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShrinkPolyData.h"
 #include "vtkTestUtilities.h"
 
@@ -45,22 +33,20 @@ int TestMultiBlock(int argc, char* argv[])
   prototype->Delete();
 
   // Standard rendering classes
-  vtkRenderer *ren = vtkRenderer::New();
+  vtkRenderer* ren = vtkRenderer::New();
   vtkCamera* cam = ren->GetActiveCamera();
   cam->SetPosition(-5.1828, 5.89733, 8.97969);
   cam->SetFocalPoint(14.6491, -2.08677, -8.92362);
   cam->SetViewUp(0.210794, 0.95813, -0.193784);
 
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
-  char* xyzname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mbwavelet_ascii.xyz");
-  char* qname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mbwavelet_ascii.q");
+  char* xyzname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mbwavelet_ascii.xyz");
+  char* qname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mbwavelet_ascii.q");
 
   vtkMultiBlockPLOT3DReader* reader = vtkMultiBlockPLOT3DReader::New();
   reader->SetXYZFileName(xyzname);
@@ -71,8 +57,7 @@ int TestMultiBlock(int argc, char* argv[])
   delete[] qname;
 
   // geometry filter
-  vtkCompositeDataGeometryFilter* geom =
-    vtkCompositeDataGeometryFilter::New();
+  vtkCompositeDataGeometryFilter* geom = vtkCompositeDataGeometryFilter::New();
   geom->SetInputConnection(0, reader->GetOutputPort(0));
 
   vtkShrinkPolyData* shrink = vtkShrinkPolyData::New();
@@ -92,8 +77,7 @@ int TestMultiBlock(int argc, char* argv[])
   ocf->SetInputConnection(0, reader->GetOutputPort(0));
 
   // geometry filter
-  vtkCompositeDataGeometryFilter* geom2 =
-    vtkCompositeDataGeometryFilter::New();
+  vtkCompositeDataGeometryFilter* geom2 = vtkCompositeDataGeometryFilter::New();
   geom2->SetInputConnection(0, ocf->GetOutputPort(0));
 
   // Rendering objects
@@ -115,8 +99,7 @@ int TestMultiBlock(int argc, char* argv[])
   contour->SetValue(0, 149);
 
   // geometry filter
-  vtkCompositeDataGeometryFilter* geom3 =
-    vtkCompositeDataGeometryFilter::New();
+  vtkCompositeDataGeometryFilter* geom3 = vtkCompositeDataGeometryFilter::New();
   geom3->SetInputConnection(0, contour->GetOutputPort(0));
 
   // Rendering objects
@@ -137,11 +120,11 @@ int TestMultiBlock(int argc, char* argv[])
   geom3->Delete();
   contMapper->Delete();
   contActor->Delete();
-  ren->SetBackground(1,1,1);
-  renWin->SetSize(300,300);
+  ren->SetBackground(1, 1, 1);
+  renWin->SetSize(300, 300);
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

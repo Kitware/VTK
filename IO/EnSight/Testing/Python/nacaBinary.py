@@ -1,29 +1,45 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkCommonExecutionModel import (
+    vtkAlgorithm,
+    vtkCompositeDataPipeline,
+)
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOEnSight import vtkEnSightGoldBinaryReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkHierarchicalPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # we need to use composite data pipeline with multiblock datasets
-alg = vtk.vtkAlgorithm()
-pip = vtk.vtkCompositeDataPipeline()
+alg = vtkAlgorithm()
+pip = vtkCompositeDataPipeline()
 alg.SetDefaultExecutivePrototype(pip)
 del pip
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-reader = vtk.vtkEnSightGoldBinaryReader()
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/naca.bin.case")
+reader = vtkEnSightGoldBinaryReader()
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/naca.bin.case")
 reader.SetTimeValue(3)
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.667,0.0)
 lut.SetTableRange(0.636,1.34)
-geom = vtk.vtkGeometryFilter()
+geom = vtkGeometryFilter()
 geom.SetInputConnection(reader.GetOutputPort())
-blockMapper0 = vtk.vtkHierarchicalPolyDataMapper()
+blockMapper0 = vtkHierarchicalPolyDataMapper()
 blockMapper0.SetInputConnection(geom.GetOutputPort())
-blockActor0 = vtk.vtkActor()
+blockActor0 = vtkActor()
 blockActor0.SetMapper(blockMapper0)
 ren1.AddActor(blockActor0)
 ren1.ResetCamera()

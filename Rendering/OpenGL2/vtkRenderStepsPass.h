@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkRenderStepsPass.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkRenderStepsPass
  * @brief   Execute render passes sequentially.
@@ -28,109 +16,111 @@
  *
  * @sa
  * vtkRenderPass
-*/
+ */
 
 #ifndef vtkRenderStepsPass_h
 #define vtkRenderStepsPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSequencePass;
 class vtkCameraPass;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkRenderStepsPass : public vtkRenderPass
 {
 public:
-  static vtkRenderStepsPass *New();
-  vtkTypeMacro(vtkRenderStepsPass,vtkRenderPass);
+  static vtkRenderStepsPass* New();
+  vtkTypeMacro(vtkRenderStepsPass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the Camera Step
    */
   vtkGetObjectMacro(CameraPass, vtkCameraPass);
-  void SetCameraPass(vtkCameraPass *);
-  //@}
+  void SetCameraPass(vtkCameraPass*);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the Lights Step
    */
   vtkGetObjectMacro(LightsPass, vtkRenderPass);
-  void SetLightsPass(vtkRenderPass *);
-  //@}
+  void SetLightsPass(vtkRenderPass*);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the Opaque Step
    */
   vtkGetObjectMacro(OpaquePass, vtkRenderPass);
-  void SetOpaquePass(vtkRenderPass *);
-  //@}
+  void SetOpaquePass(vtkRenderPass*);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the translucent Step
    */
   vtkGetObjectMacro(TranslucentPass, vtkRenderPass);
-  void SetTranslucentPass(vtkRenderPass *);
-  //@}
+  void SetTranslucentPass(vtkRenderPass*);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the Volume Step
    */
   vtkGetObjectMacro(VolumetricPass, vtkRenderPass);
-  void SetVolumetricPass(vtkRenderPass *);
-  //@}
+  void SetVolumetricPass(vtkRenderPass*);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the Overlay Step
    */
   vtkGetObjectMacro(OverlayPass, vtkRenderPass);
-  void SetOverlayPass(vtkRenderPass *);
-  //@}
+  void SetOverlayPass(vtkRenderPass*);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the PostProcess Step
    */
   vtkGetObjectMacro(PostProcessPass, vtkRenderPass);
-  void SetPostProcessPass(vtkRenderPass *);
-  //@}
+  void SetPostProcessPass(vtkRenderPass*);
+  ///@}
 
 protected:
   vtkRenderStepsPass();
   ~vtkRenderStepsPass() override;
 
-  vtkCameraPass *CameraPass;
-  vtkRenderPass *LightsPass;
-  vtkRenderPass *OpaquePass;
-  vtkRenderPass *TranslucentPass;
-  vtkRenderPass *VolumetricPass;
-  vtkRenderPass *OverlayPass;
-  vtkRenderPass *PostProcessPass;
-  vtkSequencePass *SequencePass;
+  vtkCameraPass* CameraPass;
+  vtkRenderPass* LightsPass;
+  vtkRenderPass* OpaquePass;
+  vtkRenderPass* TranslucentPass;
+  vtkRenderPass* VolumetricPass;
+  vtkRenderPass* OverlayPass;
+  vtkRenderPass* PostProcessPass;
+  vtkSequencePass* SequencePass;
 
 private:
   vtkRenderStepsPass(const vtkRenderStepsPass&) = delete;
   void operator=(const vtkRenderStepsPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

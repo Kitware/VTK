@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkUniformHyperTreeGrid.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkUniformHyperTreeGrid
  * @brief   A specifalized type of vtkHyperTreeGrid for the case
@@ -22,21 +10,23 @@
  *
  * @par Thanks:
  * This class was written by Philippe Pebay, NexGen Analytics 2017
- * JB modify for introduce Scales by Jacques-Bernard Lekien, CEA 2018.
+ * Modified to introduce Scales by Jacques-Bernard Lekien, CEA 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkUniformHyperTreeGrid_h
 #define vtkUniformHyperTreeGrid_h
 
-#include "limits.h" // UINT_MAX
-
-#include <memory> // std::shared_ptr
+#include <algorithm> // std::min/std::max
+#include <cmath>     // std::round
+#include <limits>    // std::numeric_limits
+#include <memory>    // std::shared_ptr
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkHyperTreeGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkHyperTreeGridScales;
 
@@ -58,24 +48,24 @@ public:
    */
   void CopyStructure(vtkDataObject*) override;
 
-  virtual void Initialize() override;
+  void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get origin of grid
    */
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get scale of root cells along each direction
    */
   void SetGridScale(double, double, double);
   void SetGridScale(double*);
   vtkGetVector3Macro(GridScale, double);
-  //@}
+  ///@}
 
   /**
    * Set all scales at once when root cells are d-cubes
@@ -83,13 +73,13 @@ public:
   void SetGridScale(double);
 
   /**
-   * Return a pointer to the geometry bounding box in the form
+   * Return a pointer to the grid bounding box in the form
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double* GetBounds() VTK_SIZEHINT(6) override;
+  void GetGridBounds(double bounds[6]) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the grid coordinates in the x-direction.
    * NB: Set method deactivated in the case of uniform grids.
@@ -97,14 +87,9 @@ public:
    */
   void SetXCoordinates(vtkDataArray* XCoordinates) override;
   vtkDataArray* GetXCoordinates() override;
-  /* JB A faire pour les Get !
-  const vtkDataArray* GetXCoordinates() const override {
-    throw std::domain_error("Cannot use GetZCoordinates on UniformHyperTreeGrid");
-  };
-  */
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the grid coordinates in the y-direction.
    * NB: Set method deactivated in the case of uniform grids.
@@ -112,14 +97,9 @@ public:
    */
   void SetYCoordinates(vtkDataArray* YCoordinates) override;
   vtkDataArray* GetYCoordinates() override;
-  /* JB A faire pour les Get !
-  const vtkDataArray* GetYCoordinates() const override {
-    throw std::domain_error("Cannot use GetZCoordinates on UniformHyperTreeGrid");
-  };
-  */
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the grid coordinates in the z-direction.
    * NB: Set method deactivated in the case of uniform grids.
@@ -127,29 +107,23 @@ public:
    */
   void SetZCoordinates(vtkDataArray* ZCoordinates) override;
   vtkDataArray* GetZCoordinates() override;
-  /* JB A faire pour les Get !
-  const vtkDataArray* GetZCoordinates() const override {
-    throw std::domain_error("Cannot use GetZCoordinates on UniformHyperTreeGrid");
-  };
-  */
-  // JB A faire pour les autre Get !
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
-   * JB Augented services on Coordinates.
+   * Augented services on Coordinates.
    */
   void CopyCoordinates(const vtkHyperTreeGrid* output) override;
   void SetFixedCoordinates(unsigned int axis, double value) override;
-  //@}
+  ///@}
 
   /**
-   * Convert the global index of a root to its Spacial coordinates origin and size.
+   * Convert the global index of a root to its Spatial coordinates origin and size.
    */
   void GetLevelZeroOriginAndSizeFromIndex(vtkIdType, double*, double*) override;
 
   /**
-   * Convert the global index of a root to its Spacial coordinates origin and size.
+   * Convert the global index of a root to its Spatial coordinates origin and size.
    */
   void GetLevelZeroOriginFromIndex(vtkIdType, double*) override;
 
@@ -195,45 +169,43 @@ protected:
    */
   double GridScale[3];
 
-  //@{
+  ///@{
   /**
    * Keep track of whether coordinates have been explicitly computed
    */
   bool ComputedXCoordinates;
   bool ComputedYCoordinates;
   bool ComputedZCoordinates;
-  //@}
+  ///@}
 
-  unsigned int FindDichotomicX(double value) const override
+  unsigned int FindDichotomic(double value, unsigned char dim, double tol) const
   {
-    if (value < this->Origin[0] ||
-      value > this->Origin[0] + this->GridScale[0] * (this->GetDimensions()[0] - 1))
+    unsigned int maxIdx = this->GetDimensions()[dim] - 1;
+    if (value < (this->Origin[dim] - tol) ||
+      value > (this->Origin[dim] + tol + this->GridScale[dim] * maxIdx))
     {
-      return UINT_MAX;
+      return std::numeric_limits<unsigned int>::max();
     }
-    return round((value - this->Origin[0]) / this->GridScale[0]);
-  };
-  unsigned int FindDichotomicY(double value) const override
+
+    long idx = std::round((value - this->Origin[dim]) / this->GridScale[dim]);
+    return std::min(std::max(idx, 0l), static_cast<long>(maxIdx));
+  }
+
+  unsigned int FindDichotomicX(double value, double tolerance = 0.0) const override
   {
-    if (value < this->Origin[1] ||
-      value > this->Origin[1] + this->GridScale[1] * (this->GetDimensions()[1] - 1))
-    {
-      return UINT_MAX;
-    }
-    return round((value - this->Origin[1]) / this->GridScale[1]);
-  };
-  unsigned int FindDichotomicZ(double value) const override
+    return this->FindDichotomic(value, 0, tolerance);
+  }
+  unsigned int FindDichotomicY(double value, double tolerance = 0.0) const override
   {
-    if (value < this->Origin[2] ||
-      value > this->Origin[2] + this->GridScale[2] * (this->GetDimensions()[2] - 1))
-    {
-      return UINT_MAX;
-    }
-    return round((value - this->Origin[2]) / this->GridScale[2]);
-  };
+    return this->FindDichotomic(value, 1, tolerance);
+  }
+  unsigned int FindDichotomicZ(double value, double tolerance = 0.0) const override
+  {
+    return this->FindDichotomic(value, 2, tolerance);
+  }
 
   /**
-   * JB Storage of pre-computed per-level cell scales
+   * Storage of pre-computed per-level cell scales
    */
   mutable std::shared_ptr<vtkHyperTreeGridScales> Scales;
 
@@ -242,4 +214,5 @@ private:
   void operator=(const vtkUniformHyperTreeGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

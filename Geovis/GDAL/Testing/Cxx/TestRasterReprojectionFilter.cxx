@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestRasterReprojectionFiltercxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-   This software is distributed WITHOUT ANY WARRANTY; without even
-   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-   PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Description
 // Test for the vtkRasterReprojectionFilter using GDAL
@@ -35,8 +23,7 @@ int TestRasterReprojectionFilter(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/GIS/sa052483.tif");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/GIS/sa052483.tif");
 
   // Load input file
   vtkNew<vtkGDALRasterReader> reader;
@@ -49,8 +36,8 @@ int TestRasterReprojectionFilter(int argc, char* argv[])
   double expectedNodata = -32768;
   if (nodata != expectedNodata)
   {
-    std::cerr << "Error NoData value. Found: " << nodata << ". Expected: "
-              << expectedNodata << std::endl;
+    std::cerr << "Error NoData value. Found: " << nodata << ". Expected: " << expectedNodata
+              << std::endl;
     return 1;
   }
 

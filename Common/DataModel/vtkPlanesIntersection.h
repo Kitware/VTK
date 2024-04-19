@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPlanesIntersection.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkPlanesIntersection
@@ -26,7 +11,7 @@
  *
  *    A subclass of vtkPlanes, this class determines whether it
  *    intersects an axis aligned box.   This is motivated by the
- *    need to intersect the axis aligned region of a spacial
+ *    need to intersect the axis aligned region of a spatial
  *    decomposition of volume data with various other regions.
  *    It uses the algorithm from Graphics Gems IV, page 81.
  *
@@ -37,7 +22,7 @@
  *    or computed by the subclass.)  So Delete and recreate if you want
  *    to change the set of planes.
  *
-*/
+ */
 
 #ifndef vtkPlanesIntersection_h
 #define vtkPlanesIntersection_h
@@ -45,6 +30,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPlanes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkPointsProjectedHull;
 class vtkCell;
@@ -56,7 +42,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPlanesIntersection : public vtkPlanes
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPlanesIntersection *New();
+  static vtkPlanesIntersection* New();
 
   /**
    * It helps if you know the vertices of the convex region.
@@ -64,22 +50,19 @@ public:
    * are 3-tuples.
    */
 
-  void SetRegionVertices(vtkPoints *pts);
-  void SetRegionVertices(double *v, int nvertices);
+  void SetRegionVertices(vtkPoints* pts);
+  void SetRegionVertices(double* v, int nvertices);
   int GetNumberOfRegionVertices();
   // Retained for backward compatibility
-  int GetNumRegionVertices()
-  {
-    return this->GetNumberOfRegionVertices();
-  }
-  int GetRegionVertices(double *v, int nvertices);
+  int GetNumRegionVertices() { return this->GetNumberOfRegionVertices(); }
+  int GetRegionVertices(double* v, int nvertices);
 
   /**
    * Return 1 if the axis aligned box defined by R intersects
    * the region defined by the planes, or 0 otherwise.
    */
 
-  int IntersectsRegion(vtkPoints *R);
+  int IntersectsRegion(vtkPoints* R);
 
   /**
    * A convenience function provided by this class, returns
@@ -89,7 +72,7 @@ public:
    * The points must define a planar polygon.
    */
 
-  static int PolygonIntersectsBBox(double bounds[6], vtkPoints *pts);
+  static int PolygonIntersectsBBox(double bounds[6], vtkPoints* pts);
 
   /**
    * Another convenience function provided by this class, returns
@@ -98,25 +81,23 @@ public:
    * counter-clockwise order from the outside of the cell.
    */
 
-  static vtkPlanesIntersection *Convert3DCell(vtkCell *cell);
+  static vtkPlanesIntersection* Convert3DCell(vtkCell* cell);
 
 protected:
-
-  static void ComputeNormal(double *p1, double *p2, double *p3, double normal[3]);
-  static double EvaluatePlaneEquation(double *x, double *p);
-  static void PlaneEquation(double *n, double *x, double *p);
-  static int GoodNormal(double *n);
+  static void ComputeNormal(double* p1, double* p2, double* p3, double normal[3]);
+  static double EvaluatePlaneEquation(double* x, double* p);
+  static void PlaneEquation(double* n, double* x, double* p);
+  static int GoodNormal(double* n);
   static int Invert3x3(double M[3][3]);
 
   vtkPlanesIntersection();
   ~vtkPlanesIntersection() override;
 
 private:
-
-  int IntersectsBoundingBox(vtkPoints *R);
-  int EnclosesBoundingBox(vtkPoints *R);
-  int EvaluateFacePlane(int plane, vtkPoints *R);
-  int IntersectsProjection(vtkPoints *R, int direction);
+  int IntersectsBoundingBox(vtkPoints* R);
+  int EnclosesBoundingBox(vtkPoints* R);
+  int EvaluateFacePlane(int plane, vtkPoints* R);
+  int IntersectsProjection(vtkPoints* R, int direction);
 
   void SetPlaneEquations();
   void ComputeRegionVertices();
@@ -124,18 +105,17 @@ private:
   void planesMatrix(int p1, int p2, int p3, double M[3][3]) const;
   int duplicate(double testv[3]) const;
   void planesRHS(int p1, int p2, int p3, double r[3]) const;
-  int outsideRegion(double v[3]) ;
+  int outsideRegion(double v[3]);
 
   // plane equations
-  double *Planes;
+  double* Planes;
 
   // vertices of convex regions enclosed by the planes, also
   //    the ccw hull of that region projected in 3 orthog. directions
-  vtkPointsProjectedHull *RegionPts;
+  vtkPointsProjectedHull* RegionPts;
 
   vtkPlanesIntersection(const vtkPlanesIntersection&) = delete;
   void operator=(const vtkPlanesIntersection&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif
-
-

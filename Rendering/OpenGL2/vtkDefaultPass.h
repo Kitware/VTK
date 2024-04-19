@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDefaultPass.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDefaultPass
  * @brief   Implement the basic render passes.
@@ -24,27 +12,28 @@
  * key checking.
  *
  * This pass expects an initialized depth buffer and color buffer.
- * Initialized buffers means they have been cleared with farest z-value and
+ * Initialized buffers means they have been cleared with farthest z-value and
  * background color/gradient/transparent color.
  *
  * @sa
  * vtkRenderPass
-*/
+ */
 
 #ifndef vtkDefaultPass_h
 #define vtkDefaultPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkDefaultPassLayerList; // Pimpl
 
 class VTKRENDERINGOPENGL2_EXPORT vtkDefaultPass : public vtkRenderPass
 {
 public:
-  static vtkDefaultPass *New();
-  vtkTypeMacro(vtkDefaultPass,vtkRenderPass);
+  static vtkDefaultPass* New();
+  vtkTypeMacro(vtkDefaultPass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -53,9 +42,9 @@ public:
    * RenderVolumetricGeometry(), RenderOverlay()
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
- protected:
+protected:
   /**
    * Default constructor.
    */
@@ -70,54 +59,54 @@ public:
    * Opaque pass without key checking.
    * \pre s_exists: s!=0
    */
-  virtual void RenderOpaqueGeometry(const vtkRenderState *s);
+  virtual void RenderOpaqueGeometry(const vtkRenderState* s);
 
   /**
    * Opaque pass with key checking.
    * \pre s_exists: s!=0
    */
-  virtual void RenderFilteredOpaqueGeometry(const vtkRenderState *s);
+  virtual void RenderFilteredOpaqueGeometry(const vtkRenderState* s);
 
   /**
    * Translucent pass without key checking.
    * \pre s_exists: s!=0
    */
-  virtual void RenderTranslucentPolygonalGeometry(const vtkRenderState *s);
+  virtual void RenderTranslucentPolygonalGeometry(const vtkRenderState* s);
 
   /**
    * Translucent pass with key checking.
    * \pre s_exists: s!=0
    */
-  virtual void RenderFilteredTranslucentPolygonalGeometry(
-    const vtkRenderState *s);
+  virtual void RenderFilteredTranslucentPolygonalGeometry(const vtkRenderState* s);
 
   /**
    * Volume pass without key checking.
    * \pre s_exists: s!=0
    */
-  virtual void RenderVolumetricGeometry(const vtkRenderState *s);
+  virtual void RenderVolumetricGeometry(const vtkRenderState* s);
 
   /**
    * Translucent pass with key checking.
    * \pre s_exists: s!=0
    */
-  virtual void RenderFilteredVolumetricGeometry(const vtkRenderState *s);
+  virtual void RenderFilteredVolumetricGeometry(const vtkRenderState* s);
 
   /**
    * Overlay pass without key checking.
    * \pre s_exists: s!=0
    */
-  virtual void RenderOverlay(const vtkRenderState *s);
+  virtual void RenderOverlay(const vtkRenderState* s);
 
   /**
    * Overlay pass with key checking.
    * \pre s_exists: s!=0
    */
-  virtual void RenderFilteredOverlay(const vtkRenderState *s);
+  virtual void RenderFilteredOverlay(const vtkRenderState* s);
 
- private:
+private:
   vtkDefaultPass(const vtkDefaultPass&) = delete;
   void operator=(const vtkDefaultPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

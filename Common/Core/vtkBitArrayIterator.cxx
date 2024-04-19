@@ -1,25 +1,14 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkBitArrayIterator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkBitArrayIterator.h"
 
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBitArrayIterator);
 vtkCxxSetObjectMacro(vtkBitArrayIterator, Array, vtkBitArray);
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBitArrayIterator::vtkBitArrayIterator()
 {
   this->Array = nullptr;
@@ -27,14 +16,14 @@ vtkBitArrayIterator::vtkBitArrayIterator()
   this->TupleSize = 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkBitArrayIterator::~vtkBitArrayIterator()
 {
   this->SetArray(nullptr);
-  delete [] this->Tuple;
+  delete[] this->Tuple;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBitArrayIterator::Initialize(vtkAbstractArray* a)
 {
   vtkBitArray* b = vtkArrayDownCast<vtkBitArray>(a);
@@ -46,13 +35,13 @@ void vtkBitArrayIterator::Initialize(vtkAbstractArray* a)
   this->SetArray(b);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractArray* vtkBitArrayIterator::GetArray()
 {
   return this->Array;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int* vtkBitArrayIterator::GetTuple(vtkIdType id)
 {
   if (!this->Array)
@@ -64,8 +53,8 @@ int* vtkBitArrayIterator::GetTuple(vtkIdType id)
   if (this->TupleSize < numComps)
   {
     this->TupleSize = static_cast<int>(numComps);
-    delete [] this->Tuple;
-    this->Tuple = new int [this->TupleSize];
+    delete[] this->Tuple;
+    this->Tuple = new int[this->TupleSize];
   }
   vtkIdType loc = id * numComps;
   for (int j = 0; j < numComps; j++)
@@ -75,7 +64,7 @@ int* vtkBitArrayIterator::GetTuple(vtkIdType id)
   return this->Tuple;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkBitArrayIterator::GetValue(vtkIdType id)
 {
   if (this->Array)
@@ -86,7 +75,7 @@ int vtkBitArrayIterator::GetValue(vtkIdType id)
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBitArrayIterator::SetValue(vtkIdType id, int value)
 {
   if (this->Array)
@@ -95,8 +84,8 @@ void vtkBitArrayIterator::SetValue(vtkIdType id, int value)
   }
 }
 
-//-----------------------------------------------------------------------------
-vtkIdType vtkBitArrayIterator::GetNumberOfTuples()
+//------------------------------------------------------------------------------
+vtkIdType vtkBitArrayIterator::GetNumberOfTuples() const
 {
   if (this->Array)
   {
@@ -104,8 +93,8 @@ vtkIdType vtkBitArrayIterator::GetNumberOfTuples()
   }
   return 0;
 }
-//-----------------------------------------------------------------------------
-vtkIdType vtkBitArrayIterator::GetNumberOfValues()
+//------------------------------------------------------------------------------
+vtkIdType vtkBitArrayIterator::GetNumberOfValues() const
 {
   if (this->Array)
   {
@@ -113,8 +102,8 @@ vtkIdType vtkBitArrayIterator::GetNumberOfValues()
   }
   return 0;
 }
-//-----------------------------------------------------------------------------
-int vtkBitArrayIterator::GetNumberOfComponents()
+//------------------------------------------------------------------------------
+int vtkBitArrayIterator::GetNumberOfComponents() const
 {
   if (this->Array)
   {
@@ -123,8 +112,8 @@ int vtkBitArrayIterator::GetNumberOfComponents()
   return 0;
 }
 
-//-----------------------------------------------------------------------------
-int vtkBitArrayIterator::GetDataType()
+//------------------------------------------------------------------------------
+int vtkBitArrayIterator::GetDataType() const
 {
   if (this->Array)
   {
@@ -132,8 +121,8 @@ int vtkBitArrayIterator::GetDataType()
   }
   return 0;
 }
-//-----------------------------------------------------------------------------
-int vtkBitArrayIterator::GetDataTypeSize()
+//------------------------------------------------------------------------------
+int vtkBitArrayIterator::GetDataTypeSize() const
 {
   if (this->Array)
   {
@@ -142,8 +131,9 @@ int vtkBitArrayIterator::GetDataTypeSize()
   return 0;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkBitArrayIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

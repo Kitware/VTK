@@ -1,9 +1,12 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright © 2016 Kitware Inc.
+// SPDX-License-Identifier: BSD-3-Clause
+
 //
 //  main.m
 //  PlaneView
 //
 //  Created by Ken Martin on 2/5/16.
-//  Copyright © 2016 Kitware Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

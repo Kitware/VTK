@@ -125,7 +125,7 @@ int oc_ilog64(ogg_int64_t _v){
   _v|=_v>>16;
   _v|=_v>>32;
   _v=(_v>>1)+1;
-  ret+=OC_DEBRUIJN_IDX64[_v*0x218A392CD3D5DBF>>58&0x3F];
+  ret+=OC_DEBRUIJN_IDX64[_v*0x218A392CD3D5DBFU>>58&0x3F];
   return ret;
 #  endif
 # endif

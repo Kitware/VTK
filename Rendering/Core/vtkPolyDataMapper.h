@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataMapper.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPolyDataMapper
  * @brief   map vtkPolyData to graphics primitives
@@ -20,45 +8,59 @@
  * to graphics primitives. vtkPolyDataMapper serves as a superclass for
  * device-specific poly data mappers, that actually do the mapping to the
  * rendering/graphics hardware/software.
-*/
+ */
 
 #ifndef vtkPolyDataMapper_h
 #define vtkPolyDataMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
-//#include "vtkTexture.h" // used to include texture unit enum.
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
+#include <cstdint> // For uintptr_t
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkRenderer;
 class vtkRenderWindow;
 
-class VTKRENDERINGCORE_EXPORT vtkPolyDataMapper : public vtkMapper
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkPolyDataMapper : public vtkMapper
 {
 public:
-  static vtkPolyDataMapper *New();
+  static vtkPolyDataMapper* New();
   vtkTypeMacro(vtkPolyDataMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act) = 0;
+  virtual void RenderPiece(vtkRenderer*, vtkActor*) {}
 
   /**
    * This calls RenderPiece (in a for loop if streaming is necessary).
    */
-  void Render(vtkRenderer *ren, vtkActor *act) override;
+  void Render(vtkRenderer* ren, vtkActor* act) override;
 
-  //@{
+  using MapperHashType = std::uintptr_t;
+  /**
+   * This hash integer is computed by concrete graphics implementation of this class.
+   * For two different polydata instances, concrete implementations MUST return identical value,
+   * if both the polydata can be batched together for device uploads.
+   *
+   * @note: For example, the OpenGL impl is capable of grouping polydata
+   * that are similar in terms of the availability of scalars, normals and tcoords.
+   */
+  virtual MapperHashType GenerateHash(vtkPolyData*) { return 0; }
+
+  ///@{
   /**
    * Specify the input data to map.
    */
-  void SetInputData(vtkPolyData *in);
-  vtkPolyData *GetInput();
-  //@}
+  void SetInputData(vtkPolyData* in);
+  vtkPolyData* GetInput();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Bring this algorithm's outputs up-to-date.
    */
@@ -66,9 +68,9 @@ public:
   void Update() override;
   vtkTypeBool Update(int port, vtkInformationVector* requests) override;
   vtkTypeBool Update(vtkInformation* requests) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If you want only a part of the data, specify by setting the piece.
    */
@@ -78,28 +80,44 @@ public:
   vtkGetMacro(NumberOfPieces, int);
   vtkSetMacro(NumberOfSubPieces, int);
   vtkGetMacro(NumberOfSubPieces, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of ghost cells to return.
    */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
-  //@}
+  ///@}
+
+  ///@{
+  /**
+   * Accessors / Mutators for handling seams on wrapping surfaces. Letters U and V stand for
+   * texture coordinates (u,v).
+   *
+   * @note Implementation taken from the work of Marco Tarini:
+   * Cylindrical and Toroidal Parameterizations Without Vertex Seams
+   * Journal of Graphics Tools, 2012, number 3, volume 16, pages 144-150.
+   */
+  vtkSetMacro(SeamlessU, bool);
+  vtkGetMacro(SeamlessU, bool);
+  vtkBooleanMacro(SeamlessU, bool);
+  vtkSetMacro(SeamlessV, bool);
+  vtkGetMacro(SeamlessV, bool);
+  vtkBooleanMacro(SeamlessV, bool);
+  ///@}
 
   /**
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() VTK_SIZEHINT(6) override;
-  void GetBounds(double bounds[6]) override
-    { this->Superclass::GetBounds(bounds); }
+  double* GetBounds() VTK_SIZEHINT(6) override;
+  void GetBounds(double bounds[6]) override { this->Superclass::GetBounds(bounds); }
 
   /**
    * Make a shallow copy of this mapper.
    */
-  void ShallowCopy(vtkAbstractMapper *m) override;
+  void ShallowCopy(vtkAbstractMapper* m) override;
 
   /**
    * Select a data array from the point/cell data
@@ -113,16 +131,14 @@ public:
    * the attribute. If -1, then all components are passed.
    * Currently only point data is supported.
    */
-  virtual void MapDataArrayToVertexAttribute(
-    const char* vertexAttributeName,
+  virtual void MapDataArrayToVertexAttribute(const char* vertexAttributeName,
     const char* dataArrayName, int fieldAssociation, int componentno = -1);
 
   // Specify a data array to use as the texture coordinate
   // for a named texture. See vtkProperty.h for how to
   // name textures.
   virtual void MapDataArrayToMultiTextureAttribute(
-    const char *textureName,
-    const char* dataArrayName, int fieldAssociation, int componentno = -1);
+    const char* textureName, const char* dataArrayName, int fieldAssociation, int componentno = -1);
 
   /**
    * Remove a vertex attribute mapping.
@@ -137,13 +153,67 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  vtkTypeBool ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  /**\brief Methods for VBO coordinate shift+scale-computation.
+   *
+   * By default, shift and scale vectors are enabled
+   * whenever CreateVBO is called with points whose
+   * bounds are many bbox-lengths away from the origin.
+   *
+   * Shifting and scaling may be completely disabled,
+   * or manually specified, or left at the default.
+   *
+   * Manual specification is for the case when you
+   * will be calling AppendVBO instead of just CreateVBO
+   * and know better bounds than the what CreateVBO
+   * might produce.
+   *
+   * The automatic method tells CreatVBO to compute shift and
+   * scale vectors that remap the points to the unit cube.
+   *
+   * The camera method will shift scale the VBO so that the visible
+   * part of the data has reasonable values.
+   */
+  enum ShiftScaleMethodType
+  {
+    DISABLE_SHIFT_SCALE,     //!< Do not shift/scale point coordinates. Ever!
+    AUTO_SHIFT_SCALE,        //!< The default, automatic computation.
+    ALWAYS_AUTO_SHIFT_SCALE, //!< Always shift scale using auto computed values
+    MANUAL_SHIFT_SCALE,      //!< Manual shift/scale (for use with AppendVBO)
+    AUTO_SHIFT,              //!< Only Apply the shift
+    NEAR_PLANE_SHIFT_SCALE,  //!< Shift scale based on camera settings
+    FOCAL_POINT_SHIFT_SCALE  //!< Shift scale based on camera settings
+  };
+
+  /**\brief A convenience method for enabling/disabling
+   *   the VBO's shift+scale transform.
+   */
+  virtual void SetVBOShiftScaleMethod(int) {}
+  virtual int GetVBOShiftScaleMethod() { return this->ShiftScaleMethod; }
+
+  /**\brief Pause per-render updates to VBO shift+scale parameters.
+   *
+   * For large datasets, re-uploading the VBO during user interaction
+   * can cause stutters in the framerate. Interactors can use this
+   * method to force UpdateCameraShiftScale to return immediately
+   * (without changes) while users are zooming/rotating/etc. and then
+   * re-enable shift-scale just before a still render.
+   *
+   * This setting has no effect unless the shift-scale method is set
+   * to NEAR_PLANE_SHIFT_SCALE or FOCAL_POINT_SHIFT_SCALE.
+   *
+   * Changing this setting does **not** mark the mapper as modified as
+   * that would force a VBO upload – defeating its own purpose.
+   */
+  virtual void SetPauseShiftScale(bool pauseShiftScale) { this->PauseShiftScale = pauseShiftScale; }
+  vtkGetMacro(PauseShiftScale, bool);
+  vtkBooleanMacro(PauseShiftScale, bool);
 
 protected:
   vtkPolyDataMapper();
-  ~vtkPolyDataMapper() override {}
+  ~vtkPolyDataMapper() override = default;
 
   /**
    * Called in GetBounds(). When this method is called, the consider the input
@@ -156,6 +226,9 @@ protected:
   int NumberOfPieces;
   int NumberOfSubPieces;
   int GhostLevel;
+  bool SeamlessU, SeamlessV;
+  int ShiftScaleMethod; // for points
+  bool PauseShiftScale;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
@@ -164,4 +237,5 @@ private:
   void operator=(const vtkPolyDataMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

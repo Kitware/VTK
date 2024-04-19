@@ -6,14 +6,27 @@ set(classes
   vtkHyperTreeGridContour
   vtkHyperTreeGridDepthLimiter
   vtkHyperTreeGridEvaluateCoarse
-  vtkHyperTreeGridEvaluateCoarse
+  vtkHyperTreeGridExtractGhostCells
+  vtkHyperTreeGridFeatureEdges
   vtkHyperTreeGridGeometry
-  vtkImageDataToHyperTreeGrid
+  vtkHyperTreeGridGradient
   vtkHyperTreeGridPlaneCutter
   vtkHyperTreeGridThreshold
   vtkHyperTreeGridToDualGrid
   vtkHyperTreeGridToUnstructuredGrid
+  vtkHyperTreeGridVisibleLeavesSize
+  vtkImageDataToHyperTreeGrid
+)
+
+set(private_classes
+  vtkHyperTreeGridGeometryImpl
+  vtkHyperTreeGridGeometry1DImpl
+  vtkHyperTreeGridGeometry2DImpl
+  vtkHyperTreeGridGeometry3DImpl
+  vtkHyperTreeGridGeometrySmallDimensionsImpl
 )
 
 vtk_module_add_module(VTK::FiltersHyperTree
-  CLASSES ${classes})
+  CLASSES ${classes}
+  PRIVATE_CLASSES ${private_classes})
+vtk_add_test_mangling(VTK::FiltersHyperTree)

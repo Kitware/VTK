@@ -8,7 +8,7 @@ set(headers
   double-conversion/ieee.h
   double-conversion/strtod.h
   double-conversion/utils.h
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkdoubleconversion_export.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/double-conversion/vtkdoubleconversion_export.h")
 
 set(sources
   double-conversion/bignum.cc
@@ -21,11 +21,15 @@ set(sources
   double-conversion/strtod.cc)
 
 vtk_module_add_module(VTK::doubleconversion
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkdoubleconversion")
+vtk_module_include(VTK::doubleconversion
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/double-conversion>")
 
 include(GenerateExportHeader)
 generate_export_header(doubleconversion
   EXPORT_MACRO_NAME VTKDOUBLECONVERSION_EXPORT
-  EXPORT_FILE_NAME vtkdoubleconversion_export.h)
+  EXPORT_FILE_NAME double-conversion/vtkdoubleconversion_export.h)

@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestIntersectionPolyDataFilter4.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include <vtkIntersectionPolyDataFilter.h>
 
@@ -21,7 +10,7 @@
 // This test exercises the conditions that previously led to an out-of-bounds
 // memory access when computing the intersection between two surfaces, at least
 // one of which was not entirely enclosed (the sphere ending at Theta=305 below).
-int TestIntersectionPolyDataFilter4(int, char *[])
+int TestIntersectionPolyDataFilter4(int, char*[])
 {
   vtkNew<vtkSphereSource> sphere1;
   sphere1->SetStartTheta(0.0);

@@ -1,22 +1,54 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCellArrayIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkCellArrayIterator
  * @brief   Encapsulate traversal logic for vtkCellArray.
-*/
+ *
+ * This is iterator for thread-safe traversal of a vtkCellArray. It provides
+ * random access and forward iteration. Typical usage for forward iteration
+ * looks like:
+ *
+ * ```
+ * auto iter = vtk::TakeSmartPointer(cellArray->NewIterator());
+ * for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
+ * {
+ *   // do work with iter
+ *   iter->GetCurrentCell(numCellPts, cellPts);
+ * }
+ * ```
+ *
+ * Typical usage for random access looks like:
+ *
+ * ```
+ * auto iter = vtk::TakeSmartPointer(cellArray->NewIterator());
+ * iter->GetCellAtId(cellId, numCellPts, cellPts);
+ * ```
+ *
+ * Here @a cellId is the id of the ith cell in the vtkCellArray;
+ * @a numCellPts is the number of points defining the cell represented
+ * as vtkIdType; and @a cellPts is a pointer to the point ids defined
+ * as vtkIdType const*&.
+ *
+ * Internally the iterator may copy data from the vtkCellArray, or reference
+ * the internal vtkCellArray storage. This depends on the relationship of
+ * vtkIdType to the type and structure of internal storage. If the type of
+ * storage is the same as vtkIdType, and the storage is a single-component
+ * AOS array (i.e., a 1D array), then shared access to the vtkCellArray
+ * storage is provided. Otherwise, the data from storage is copied into an
+ * internal iterator buffer. (Of course copying is slower and can result in
+ * 3-4x reduction in traversal performance. On the other hand, the
+ * vtkCellArray can use the appropriate storage to save memory, perform
+ * zero-copy, and/or efficiently represent the cell connectivity
+ * information.) Note that referencing internal vtkCellArray storage has
+ * implications on the validity of the iterator. If the underlying
+ * vtkCellArray storage changes while iterating, and the iterator is
+ * referencing this storage, unpredictable and catastrophic results are
+ * likely - hence do not modify the vtkCellArray while iterating.
+ *
+ * @sa
+ * vtkCellArray
+ */
 
 #ifndef vtkCellArrayIterator_h
 #define vtkCellArrayIterator_h
@@ -24,48 +56,36 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkCellArray.h" // Needed for inline methods
-#include "vtkIdList.h" // Needed for inline methods
+#include "vtkCellArray.h"    // Needed for inline methods
+#include "vtkIdList.h"       // Needed for inline methods
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
-#include <cassert> // for assert
+#include <cassert>     // for assert
 #include <type_traits> // for std::enable_if
 
-/**
- * @brief The vtkCellArrayIterator class provides thread-safe iteration of a
- * vtkCellArray.
- *
- * See the vtkCellArray class documentation for more details.
- */
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkCellArrayIterator : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCellArrayIterator, vtkObject)
+  ///@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
+  vtkTypeMacro(vtkCellArrayIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkCellArrayIterator *New();
+  static vtkCellArrayIterator* New();
+  ///@}
 
-  /** The vtkCellArray object being iterated. */
+  /**
+   * Return the vtkCellArray object over which iteration is occurring.
+   */
   vtkCellArray* GetCellArray() { return this->CellArray; }
 
   /**
-   * Initialize the iterator. This will revalidate the iterator if the
-   * underlying vtkCellArray has been modified.
-   */
-  void GoToFirstCell()
-  {
-    this->CurrentCellId = 0;
-    this->NumberOfCells = this->CellArray->GetNumberOfCells();
-  }
-
-  /** Advance the iterator to the next cell. */
-  void GoToNextCell()
-  {
-    ++this->CurrentCellId;
-  }
-
-  /**
-   * Intialize the iterator to a specific cell. This will revalidate the
-   * iterator if the underlying vtkCellArray has been modified.
+   * Initialize the iterator to a specific cell. This will revalidate the
+   * iterator if the underlying vtkCellArray has been modified. This method
+   * can always be used to set the starting location for forward iteration,
+   * and it is also used to support random access.
    */
   void GoToCell(vtkIdType cellId)
   {
@@ -75,57 +95,104 @@ public:
   }
 
   /**
-   * Returns true if the iterator has completed the traversal.
+   * The following are methods supporting random access iteration.
    */
-  bool IsDoneWithTraversal()
-  {
-    return this->CurrentCellId >= this->NumberOfCells;
-  }
 
-  /** Returns the id of the current cell. */
-  vtkIdType GetCurrentCellId() const
+  ///@{
+  /**
+   * Initialize the iterator to a specific cell and return the cell. Note
+   * that methods passing vtkIdLists always copy data from the vtkCellArray
+   * storage buffer into the vtkIdList. Otherwise, a fastpath returning
+   * (numCellPts,cellPts) which may return a pointer to internal vtkCellArray
+   * storage is possible, if vtkIdType is the same as the vtkCellArray buffer
+   * (which is typical).
+   */
+  void GetCellAtId(vtkIdType cellId, vtkIdType& numCellPts, vtkIdType const*& cellPts)
   {
-    return this->CurrentCellId;
+    this->GoToCell(cellId);
+    this->GetCurrentCell(numCellPts, cellPts);
+  }
+  void GetCellAtId(vtkIdType cellId, vtkIdList* cellIds)
+  {
+    this->GoToCell(cellId);
+    this->GetCurrentCell(cellIds);
+  }
+  vtkIdList* GetCellAtId(vtkIdType cellId)
+  {
+    this->GoToCell(cellId);
+    return this->GetCurrentCell();
+  }
+  ///@}
+
+  /**
+   * The following are methods supporting forward iteration.
+   */
+
+  /**
+   * Initialize the iterator for forward iteration. This will revalidate the
+   * iterator if the underlying vtkCellArray has been modified.
+   */
+  void GoToFirstCell()
+  {
+    this->CurrentCellId = 0;
+    this->NumberOfCells = this->CellArray->GetNumberOfCells();
   }
 
   /**
-   * Returns the definition of the current cell. Note that cellPoints is a
-   * ref-to-const-pointer, and should be used as:
-   *
-   * ```
-   * vtkIdType cellSize;
-   * const vtkIdType *cellPoints;
-   * iter->GetCurrentCell(cellSize, cellPoints):
-   * ```
-   *
-   * @warning Subsequent calls to this method may invalidate previous call
-   * results.
+   * Advance the forward iterator to the next cell.
    */
-  void GetCurrentCell(vtkIdType &cellSize, vtkIdType const *&cellPoints)
+  void GoToNextCell() { ++this->CurrentCellId; }
+
+  /**
+   * Returns true if the iterator has completed the traversal.
+   */
+  bool IsDoneWithTraversal() { return this->CurrentCellId >= this->NumberOfCells; }
+
+  /**
+   * Returns the id of the current cell during forward iteration.
+   */
+  vtkIdType GetCurrentCellId() const { return this->CurrentCellId; }
+
+  ///@{
+  /**
+   * Returns the definition of the current cell during forward
+   * traversal. Note that methods passing vtkIdLists always copy data from
+   * the vtkCellArray storage buffer into the vtkIdList. Otherwise, a
+   * fastpath returning (numCellPts,cellPts) - which may return a pointer to
+   * internal vtkCellArray storage - is possible, if vtkIdType is the same as
+   * the vtkCellArray storage (which is typical).
+   */
+  void GetCurrentCell(vtkIdType& cellSize, vtkIdType const*& cellPoints)
   {
     assert(this->CurrentCellId < this->NumberOfCells);
-    // The vtkCellArray::GetCellAtId that returns a pointer is not thread-safe,
-    // since it may refer to an internal buffer. Use our internal buffer
-    // instead, which won't be clobbered by another thread.
-    this->CellArray->GetCellAtId(this->CurrentCellId, this->TempCell);
-    cellSize = this->TempCell->GetNumberOfIds();
-    cellPoints = this->TempCell->GetPointer(0);
+    // Either refer to vtkCellArray storage buffer, or copy into local buffer
+    if (this->CellArray->IsStorageShareable())
+    {
+      this->CellArray->GetCellAtId(this->CurrentCellId, cellSize, cellPoints);
+    }
+    else // or copy into local iterator buffer.
+    {
+      this->CellArray->GetCellAtId(this->CurrentCellId, this->TempCell);
+      cellSize = this->TempCell->GetNumberOfIds();
+      cellPoints = this->TempCell->GetPointer(0);
+    }
   }
-
-  /** Returns the definition of the current cell. */
-  void GetCurrentCell(vtkIdList *ids)
+  void GetCurrentCell(vtkIdList* ids)
   {
     assert(this->CurrentCellId < this->NumberOfCells);
     this->CellArray->GetCellAtId(this->CurrentCellId, ids);
   }
-
-  /** Returns the definition of the current cell. */
   vtkIdList* GetCurrentCell()
   {
     assert(this->CurrentCellId < this->NumberOfCells);
     this->CellArray->GetCellAtId(this->CurrentCellId, this->TempCell);
     return this->TempCell;
   }
+  ///@}
+
+  /**
+   * Specialized methods for performing operations on the vtkCellArray.
+   */
 
   /**
    * Replace the current cell with the ids in `list`. Note that this method
@@ -133,7 +200,7 @@ public:
    * ids (e.g. `list` must contain the same number of entries as the current
    * cell's points).
    */
-  void ReplaceCurrentCell(vtkIdList *list)
+  void ReplaceCurrentCell(vtkIdList* list)
   {
     assert(this->CurrentCellId < this->NumberOfCells);
     this->CellArray->ReplaceCellAtId(this->CurrentCellId, list);
@@ -144,7 +211,7 @@ public:
    * CANNOT change the number of points in the cell, it can only redefine the
    * ids (e.g. `npts` must equal the current cell's number of points).
    */
-  void ReplaceCurrentCell(vtkIdType npts, const vtkIdType *pts)
+  void ReplaceCurrentCell(vtkIdType npts, const vtkIdType* pts)
   {
     assert(this->CurrentCellId < this->NumberOfCells);
     this->CellArray->ReplaceCellAtId(this->CurrentCellId, npts, pts);
@@ -165,7 +232,7 @@ protected:
   vtkCellArrayIterator() = default;
   ~vtkCellArrayIterator() override = default;
 
-  vtkSetMacro(CellArray, vtkCellArray*)
+  vtkSetMacro(CellArray, vtkCellArray*);
 
   vtkSmartPointer<vtkCellArray> CellArray;
   vtkNew<vtkIdList> TempCell;
@@ -177,4 +244,5 @@ private:
   void operator=(const vtkCellArrayIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCellArrayIterator_h

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataAlgorithm.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
 * @class vtkContinuousScatterplot
 * @brief Given a 3D domain space represented by an
@@ -23,7 +11,7 @@
 * cells to depict the density distribution of the data projection in the bivariate range
 * space.
 *
-* @section Introduction
+* @section vtkContinuousScatterplot-introduction Introduction
 * Given a bivariate field (f1,f2) defined on an unstructured grid which is
 * composed of tetrahedral cells, we can initially subdivide each cell based on its
 * projection in the range into a number of fragments along the first field f1, we refer
@@ -54,7 +42,7 @@
 * bin density to pixel transparency, then the image can be displayed as a continuous
 * scatterplot.
 
-* @section Algorithm
+* @section vtkContinuousScatterplot-algorithm Algorithm
 * The algorithm of this filter can be described as:
 *   Require: R.1 The domain space is an unstructured grid data set composed of
 *                tetrahedral cells;
@@ -132,7 +120,7 @@
 *        distribution over the bins will be exported as a point data array in the output
 *        data structure.
 *
-* @section VTK Filter Design
+* @section vtkContinuousScatterplot-filter-design VTK Filter Design
 * The input and output ports of the filter:
 *      Input port : the input data set should be a vtkUnstructuredGrid, with each of its
 *                   cell defined as a tetrahedron. At least two scalar fields are
@@ -144,7 +132,7 @@
 *                   is stored in an point data array named "volume" in the output
 *                   vtkImageData.
 *
-* @section How To Use This Filter
+* @section vtkContinuousScatterplot-how-to-use How To Use This Filter
 * Suppose we have a tetrahedral mesh stored in a vtkUnstructuredGrid, we call this
 * data set "inputData". This data set has two scalar arrays whose names are "f1"
 * and "f2" respectively. We would like the resolution of output image set to (resX,resY).
@@ -169,9 +157,10 @@
 #ifndef vtkContinuousScatterplot_h
 #define vtkContinuousScatterplot_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkContinuousScatterplot : public vtkImageAlgorithm
 {
 public:
@@ -180,25 +169,25 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-  * Get the tolerance used when comparing floating point numbers for equality.
-  */
+   * Get the tolerance used when comparing floating point numbers for equality.
+   */
   vtkGetMacro(Epsilon, double);
 
   /**
-  * Set the tolerance used when comparing floating point numbers for equality.
-  */
+   * Set the tolerance used when comparing floating point numbers for equality.
+   */
   vtkSetMacro(Epsilon, double);
 
   /**
-  * Specify the name of the first field to be used in subdividing the dataset.
-  * Specify the resolution along x axis of the output image.
-  */
+   * Specify the name of the first field to be used in subdividing the dataset.
+   * Specify the resolution along x axis of the output image.
+   */
   void SetField1(const char* fieldName, vtkIdType ResX);
 
   /**
-  * Specify the name of the second field to be used in subdividing the dataset.
-  * Specify the resolution along y axis of the output image.
-  */
+   * Specify the name of the second field to be used in subdividing the dataset.
+   * Specify the resolution along y axis of the output image.
+   */
   void SetField2(const char* fieldName, vtkIdType ResY);
 
 protected:
@@ -209,8 +198,7 @@ protected:
 
   // Configure out port to be a vtkImageData data set.
   int FillOutputPortInformation(int port, vtkInformation* info) override;
-  int RequestData(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Set the tolerance used when comparing floating numbers for equality.
   double Epsilon;
@@ -225,4 +213,5 @@ private:
   vtkContinuousScatterplot(const vtkContinuousScatterplot&) = delete;
   void operator=(const vtkContinuousScatterplot&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

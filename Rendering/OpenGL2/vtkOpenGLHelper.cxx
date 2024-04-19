@@ -1,16 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenGLHelper.h"
 
 #include "vtkOpenGLIndexBufferObject.h"
@@ -18,6 +7,7 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkShaderProgram.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkOpenGLHelper::vtkOpenGLHelper()
 {
   this->Program = nullptr;
@@ -32,10 +22,9 @@ vtkOpenGLHelper::~vtkOpenGLHelper()
   this->VAO->Delete();
 }
 
-void vtkOpenGLHelper::ReleaseGraphicsResources(vtkWindow * win)
+void vtkOpenGLHelper::ReleaseGraphicsResources(vtkWindow* win)
 {
-  vtkOpenGLRenderWindow *rwin =
-   vtkOpenGLRenderWindow::SafeDownCast(win);
+  vtkOpenGLRenderWindow* rwin = vtkOpenGLRenderWindow::SafeDownCast(win);
   if (rwin)
   {
     // Ensure that the context is current before releasing any
@@ -52,3 +41,4 @@ void vtkOpenGLHelper::ReleaseGraphicsResources(vtkWindow * win)
   this->IBO->ReleaseGraphicsResources();
   this->VAO->ReleaseGraphicsResources();
 }
+VTK_ABI_NAMESPACE_END

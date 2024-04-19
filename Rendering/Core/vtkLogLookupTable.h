@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLogLookupTable.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkLogLookupTable
  * @brief   map scalars into colors using log (base 10) scale
@@ -21,28 +9,31 @@
  *
  * @sa
  * vtkLookupTable
-*/
+ */
 
 #ifndef vtkLogLookupTable_h
 #define vtkLogLookupTable_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkLookupTable.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkLogLookupTable : public vtkLookupTable
 {
 public:
-  static vtkLogLookupTable *New();
+  static vtkLogLookupTable* New();
 
   vtkTypeMacro(vtkLogLookupTable, vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkLogLookupTable(int sze = 256, int ext = 256);
-  ~vtkLogLookupTable() override {}
+  ~vtkLogLookupTable() override = default;
+
 private:
   vtkLogLookupTable(const vtkLogLookupTable&) = delete;
   void operator=(const vtkLogLookupTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

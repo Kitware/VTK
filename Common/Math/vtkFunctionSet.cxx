@@ -1,20 +1,8 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFunctionSet.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkFunctionSet.h"
 
-
+VTK_ABI_NAMESPACE_BEGIN
 vtkFunctionSet::vtkFunctionSet()
 {
   this->NumFuncs = 0;
@@ -23,9 +11,8 @@ vtkFunctionSet::vtkFunctionSet()
 
 void vtkFunctionSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "Number of functions: " << this->NumFuncs
-     << "\n";
-  os << indent << "Number of independent variables: " << this->NumIndepVars
-     << "\n";
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Number of functions: " << this->NumFuncs << "\n";
+  os << indent << "Number of independent variables: " << this->NumIndepVars << "\n";
 }
+VTK_ABI_NAMESPACE_END

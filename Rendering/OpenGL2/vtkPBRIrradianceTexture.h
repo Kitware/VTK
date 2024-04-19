@@ -1,22 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPBRIrradianceTexture.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPBRIrradianceTexture
  * @brief   precompute irradiance texture used in physically based rendering
  *
- * Irradiance texture is a cubemap which average light of a hemisphere of the input cubemap.
+ * Irradiance texture is a cubemap which average light of a hemisphere of the input texture.
+ * The input texture can be a cubemap or an equirectangular projection.
  * It is used in Image Base Lighting to compute the diffuse part.
  */
 
@@ -26,6 +15,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLTexture;
@@ -38,13 +28,13 @@ public:
   vtkTypeMacro(vtkPBRIrradianceTexture, vtkOpenGLTexture);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
-   * Get/Set the input cubemap.
+   * Get/Set the input texture.
    */
-  void SetInputCubeMap(vtkOpenGLTexture* texture);
-  vtkGetObjectMacro(InputCubeMap, vtkOpenGLTexture);
-  //@}
+  void SetInputTexture(vtkOpenGLTexture* texture);
+  vtkGetObjectMacro(InputTexture, vtkOpenGLTexture);
+  ///@}
 
   /**
    * Implement base class method.
@@ -56,16 +46,16 @@ public:
    */
   void Render(vtkRenderer* ren) override { this->Load(ren); }
 
-  //@{
+  ///@{
   /**
    * Set/Get size of texture.
    * Default is 256.
    */
   vtkGetMacro(IrradianceSize, unsigned int);
   vtkSetMacro(IrradianceSize, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size of steps in radians used to sample hemisphere.
    * Default is (pi/64).
@@ -74,18 +64,18 @@ public:
    */
   vtkGetMacro(IrradianceStep, float);
   vtkSetMacro(IrradianceStep, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the conversion to linear color space.
-   * If the input cubemap is in sRGB color space and the conversion is not done by OpenGL
+   * If the input texture is in sRGB color space and the conversion is not done by OpenGL
    * directly with the texture format, the conversion can be done in the shader with this flag.
    */
   vtkGetMacro(ConvertToLinear, bool);
   vtkSetMacro(ConvertToLinear, bool);
   vtkBooleanMacro(ConvertToLinear, bool);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this texture.
@@ -101,7 +91,7 @@ protected:
 
   float IrradianceStep = 0.04908738521; // pi / 64
   unsigned int IrradianceSize = 256;
-  vtkOpenGLTexture* InputCubeMap = nullptr;
+  vtkOpenGLTexture* InputTexture = nullptr;
   bool ConvertToLinear = false;
 
 private:
@@ -109,4 +99,5 @@ private:
   void operator=(const vtkPBRIrradianceTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageCityBlockDistance.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageCityBlockDistance
  * @brief   1,2 or 3D distance map.
@@ -27,43 +15,36 @@
  * mask is initially negative, the output distances will be negative.
  * Distances maps can have inside (negative regions)
  * and outsides (positive regions).
-*/
+ */
 
 #ifndef vtkImageCityBlockDistance_h
 #define vtkImageCityBlockDistance_h
 
-
-#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
+#include "vtkImagingGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFilter
 {
 public:
-  static vtkImageCityBlockDistance *New();
-  vtkTypeMacro(vtkImageCityBlockDistance,vtkImageDecomposeFilter);
+  static vtkImageCityBlockDistance* New();
+  vtkTypeMacro(vtkImageCityBlockDistance, vtkImageDecomposeFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageCityBlockDistance();
-  ~vtkImageCityBlockDistance() override {}
+  ~vtkImageCityBlockDistance() override = default;
 
-  int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out) override;
-  int IterativeRequestData(vtkInformation*,
-                                    vtkInformationVector**,
-                                    vtkInformationVector*) override;
+  int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;
+  int IterativeRequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void AllocateOutputScalars(vtkImageData *outData,
-                             int* updateExtent,
-                             int* wholeExtent,
-                             vtkInformation* outInfo);
+  void AllocateOutputScalars(
+    vtkImageData* outData, int* updateExtent, int* wholeExtent, vtkInformation* outInfo);
 
 private:
   vtkImageCityBlockDistance(const vtkImageCityBlockDistance&) = delete;
   void operator=(const vtkImageCityBlockDistance&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-
-// VTK-HeaderTest-Exclude: vtkImageCityBlockDistance.h

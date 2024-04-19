@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include <vtkActor.h>
 #include <vtkImageActor.h>
 #include <vtkImageData.h>
@@ -8,9 +10,9 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSphereSource.h>
 #include <vtkTestUtilities.h>
 #include <vtkUnsignedCharArray.h>
@@ -39,14 +41,13 @@ int TestRenderToImage(int argc, char* argv[])
   renderWindow->Render();
 
   // Render to the image
-  vtkOpenGLRenderWindow* glRenderWindow =
-    vtkOpenGLRenderWindow::SafeDownCast(renderWindow);
+  vtkOpenGLRenderWindow* glRenderWindow = vtkOpenGLRenderWindow::SafeDownCast(renderWindow);
 
   glRenderWindow->SetShowWindow(false);
   glRenderWindow->SetUseOffScreenBuffers(true);
   renderWindow->Render();
   // Create an (empty) image at the window size
-  int *size = renderWindow->GetSize();
+  const int* size = renderWindow->GetSize();
   vtkNew<vtkImageData> image;
   image->SetDimensions(size[0], size[1], 1);
   image->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
@@ -64,7 +65,7 @@ int TestRenderToImage(int argc, char* argv[])
   glRenderWindow->SetUseOffScreenBuffers(true);
   renderWindow->Render();
   // Capture the framebuffer to the image, again
-  renderWindow->GetPixelData(0, 0, size[0]-1, size[1]-1, 0,
+  renderWindow->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0,
     vtkArrayDownCast<vtkUnsignedCharArray>(image->GetPointData()->GetScalars()));
   glRenderWindow->SetShowWindow(true);
   glRenderWindow->SetUseOffScreenBuffers(false);

@@ -1,19 +1,5 @@
 //VTK::System::Dec
 
-//=========================================================================
-//
-//  Program:   Visualization Toolkit
-//  Module:    vtkLineIntegralConvolution2D_fs2.glsl
-//
-//  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-//  All rights reserved.
-//  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-//
-//     This software is distributed WITHOUT ANY WARRANTY; without even
-//     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-//     PURPOSE.  See the above copyright notice for more information.
-//
-//=========================================================================
 
 // high-pass filter stage employed by vtkLineIntegralConvolution2D
 // between LIC pass 1 and LIC pass 2. filtered LIC pass 1, becomes
@@ -50,7 +36,7 @@ void main(void)
 {
   vec2 lictc = tcoordVC.st;
 
-  // compute the convolution but don't use convovled values if
+  // compute the convolution but don't use convolved values if
   // any masked fragments on the stencil. Fragments outside
   // the valid domain are masked during initialization, and
   // texture wrap parameters are clamp to border with border

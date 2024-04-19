@@ -1,31 +1,19 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    vtkPipelineGraphSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
+#include "vtkPipelineGraphSource.h"
 #include "vtkAbstractArray.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkAnnotationLink.h"
+#include "vtkArray.h"
 #include "vtkArrayData.h"
 #include "vtkCollection.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkGraph.h"
-#include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
-#include "vtkPipelineGraphSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -35,12 +23,12 @@
 #include <map>
 #include <sstream>
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPipelineGraphSource);
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkPipelineGraphSource::vtkPipelineGraphSource()
 {
@@ -49,7 +37,7 @@ vtkPipelineGraphSource::vtkPipelineGraphSource()
   this->Sinks = vtkCollection::New();
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 vtkPipelineGraphSource::~vtkPipelineGraphSource()
 {
@@ -60,18 +48,18 @@ vtkPipelineGraphSource::~vtkPipelineGraphSource()
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkPipelineGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 void vtkPipelineGraphSource::AddSink(vtkObject* sink)
 {
-  if (sink != nullptr && !this->Sinks->IsItemPresent(sink))
+  if (sink != nullptr && this->Sinks->IndexOfFirstOccurence(sink) < 0)
   {
     this->Sinks->AddItem(sink);
     this->Modified();
@@ -80,51 +68,50 @@ void vtkPipelineGraphSource::AddSink(vtkObject* sink)
 
 void vtkPipelineGraphSource::RemoveSink(vtkObject* sink)
 {
-  if (sink != nullptr && this->Sinks->IsItemPresent(sink))
+  if (sink != nullptr && this->Sinks->IndexOfFirstOccurence(sink) >= 0)
   {
     this->Sinks->RemoveItem(sink);
     this->Modified();
   }
 }
 
-// ----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-static void InsertObject(
-  vtkObject* object,
-  std::map<vtkObject*, vtkIdType>& object_map,
-  vtkMutableDirectedGraph* builder,
-  vtkStringArray* vertex_class_name_array,
-  vtkVariantArray* vertex_object_array,
-  vtkStringArray* edge_output_port_array,
-  vtkStringArray* edge_input_port_array,
-  vtkStringArray* edge_class_name_array,
+static void InsertObject(vtkObject* object, std::map<vtkObject*, vtkIdType>& object_map,
+  vtkMutableDirectedGraph* builder, vtkStringArray* vertex_class_name_array,
+  vtkVariantArray* vertex_object_array, vtkStringArray* edge_output_port_array,
+  vtkStringArray* edge_input_port_array, vtkStringArray* edge_class_name_array,
   vtkVariantArray* edge_object_array)
 {
-  if(!object)
+  if (!object)
     return;
 
-  if(object_map.count(object))
+  if (object_map.count(object))
     return;
 
   // Insert pipeline algorithms ...
-  if(vtkAlgorithm* const algorithm = vtkAlgorithm::SafeDownCast(object))
+  if (vtkAlgorithm* const algorithm = vtkAlgorithm::SafeDownCast(object))
   {
     object_map[algorithm] = builder->AddVertex();
     vertex_class_name_array->InsertNextValue(algorithm->GetClassName());
     vertex_object_array->InsertNextValue(algorithm);
 
     // Recursively insert algorithm inputs ...
-    for(int i = 0; i != algorithm->GetNumberOfInputPorts(); ++i)
+    for (int i = 0; i != algorithm->GetNumberOfInputPorts(); ++i)
     {
-      for(int j = 0; j != algorithm->GetNumberOfInputConnections(i); ++j)
+      for (int j = 0; j != algorithm->GetNumberOfInputConnections(i); ++j)
       {
         vtkAlgorithm* const input_algorithm = algorithm->GetInputConnection(i, j)->GetProducer();
-        InsertObject(input_algorithm, object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
+        InsertObject(input_algorithm, object_map, builder, vertex_class_name_array,
+          vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array,
+          edge_object_array);
 
         builder->AddEdge(object_map[input_algorithm], object_map[algorithm]);
 
-        vtkDataObject* input_data = input_algorithm->GetOutputDataObject(algorithm->GetInputConnection(i, j)->GetIndex());
-        edge_output_port_array->InsertNextValue(vtkVariant(algorithm->GetInputConnection(i, j)->GetIndex()).ToString());
+        vtkDataObject* input_data =
+          input_algorithm->GetOutputDataObject(algorithm->GetInputConnection(i, j)->GetIndex());
+        edge_output_port_array->InsertNextValue(
+          vtkVariant(algorithm->GetInputConnection(i, j)->GetIndex()).ToString());
         edge_input_port_array->InsertNextValue(vtkVariant(i).ToString());
         edge_class_name_array->InsertNextValue(input_data ? input_data->GetClassName() : "");
         edge_object_array->InsertNextValue(input_data);
@@ -134,9 +121,7 @@ static void InsertObject(
 }
 
 int vtkPipelineGraphSource::RequestData(
-  vtkInformation*,
-  vtkInformationVector**,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   // Setup the graph data structure ...
   VTK_CREATE(vtkMutableDirectedGraph, builder);
@@ -173,24 +158,26 @@ int vtkPipelineGraphSource::RequestData(
 
   // Recursively insert pipeline components into the graph ...
   std::map<vtkObject*, vtkIdType> object_map;
-  for(vtkIdType i = 0; i != this->Sinks->GetNumberOfItems(); ++i)
+  for (vtkIdType i = 0; i != this->Sinks->GetNumberOfItems(); ++i)
   {
-    InsertObject(this->Sinks->GetItemAsObject(i), object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
+    InsertObject(this->Sinks->GetItemAsObject(i), object_map, builder, vertex_class_name_array,
+      vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array,
+      edge_object_array);
   }
 
   // Finish creating the output graph ...
   vtkDirectedGraph* const output_graph = vtkDirectedGraph::GetData(outputVector);
-  if(!output_graph->CheckedShallowCopy(builder))
+  if (!output_graph->CheckedShallowCopy(builder))
   {
-    vtkErrorMacro(<<"Invalid graph structure");
+    vtkErrorMacro(<< "Invalid graph structure");
     return 0;
   }
 
   return 1;
 }
 
-
-void vtkPipelineGraphSource::PipelineToDot(vtkAlgorithm* sink, ostream& output, const vtkStdString& graph_name)
+void vtkPipelineGraphSource::PipelineToDot(
+  vtkAlgorithm* sink, ostream& output, const vtkStdString& graph_name)
 {
   vtkSmartPointer<vtkCollection> sinks = vtkSmartPointer<vtkCollection>::New();
   sinks->AddItem(sink);
@@ -198,12 +185,13 @@ void vtkPipelineGraphSource::PipelineToDot(vtkAlgorithm* sink, ostream& output, 
   PipelineToDot(sinks, output, graph_name);
 }
 
-namespace {
+namespace
+{
 
 void replace_all(std::string& str, const std::string& oldStr, const std::string& newStr)
 {
   size_t pos = 0;
-  while((pos = str.find(oldStr, pos)) != std::string::npos)
+  while ((pos = str.find(oldStr, pos)) != std::string::npos)
   {
     str.replace(pos, oldStr.length(), newStr);
     pos += newStr.length();
@@ -212,21 +200,26 @@ void replace_all(std::string& str, const std::string& oldStr, const std::string&
 
 }
 
-void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output, const vtkStdString& graph_name)
+void vtkPipelineGraphSource::PipelineToDot(
+  vtkCollection* sinks, ostream& output, const vtkStdString& graph_name)
 {
   // Create a graph representation of the pipeline ...
   vtkSmartPointer<vtkPipelineGraphSource> pipeline = vtkSmartPointer<vtkPipelineGraphSource>::New();
-  for(vtkIdType i = 0; i != sinks->GetNumberOfItems(); ++i)
+  for (vtkIdType i = 0; i != sinks->GetNumberOfItems(); ++i)
   {
     pipeline->AddSink(sinks->GetItemAsObject(i));
   }
   pipeline->Update();
   vtkGraph* const pipeline_graph = pipeline->GetOutput();
 
-  vtkAbstractArray* const vertex_object_array = pipeline_graph->GetVertexData()->GetAbstractArray("object");
-  vtkAbstractArray* const edge_output_port_array = pipeline_graph->GetEdgeData()->GetAbstractArray("output_port");
-  vtkAbstractArray* const edge_input_port_array = pipeline_graph->GetEdgeData()->GetAbstractArray("input_port");
-  vtkAbstractArray* const edge_object_array = pipeline_graph->GetEdgeData()->GetAbstractArray("object");
+  vtkAbstractArray* const vertex_object_array =
+    pipeline_graph->GetVertexData()->GetAbstractArray("object");
+  vtkAbstractArray* const edge_output_port_array =
+    pipeline_graph->GetEdgeData()->GetAbstractArray("output_port");
+  vtkAbstractArray* const edge_input_port_array =
+    pipeline_graph->GetEdgeData()->GetAbstractArray("input_port");
+  vtkAbstractArray* const edge_object_array =
+    pipeline_graph->GetEdgeData()->GetAbstractArray("object");
 
   output << "digraph \"" << graph_name << "\"\n";
   output << "{\n";
@@ -236,7 +229,7 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
   output << "  edge [ fontname=\"helvetica\" fontsize=\"9\" ]\n\n";
 
   // Write-out vertices ...
-  for(vtkIdType i = 0; i != pipeline_graph->GetNumberOfVertices(); ++i)
+  for (vtkIdType i = 0; i != pipeline_graph->GetNumberOfVertices(); ++i)
   {
     vtkObjectBase* const object = vertex_object_array->GetVariantValue(i).ToVTKObject();
 
@@ -245,91 +238,96 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
 
     std::string line;
     std::string object_state;
-    while(std::getline(buffer, line))
+    while (std::getline(buffer, line))
     {
       replace_all(line, "\"", "'");
       replace_all(line, "\r", "");
       replace_all(line, "\n", "");
 
-      if(0 == line.find("Debug:"))
+      if (0 == line.find("Debug:"))
         continue;
-      if(0 == line.find("Modified Time:"))
+      if (0 == line.find("Modified Time:"))
         continue;
-      if(0 == line.find("Reference Count:"))
+      if (0 == line.find("Reference Count:"))
         continue;
-      if(0 == line.find("Registered Events:"))
+      if (0 == line.find("Registered Events:"))
         continue;
-      if(0 == line.find("Executive:"))
+      if (0 == line.find("Executive:"))
         continue;
-      if(0 == line.find("ErrorCode:"))
+      if (0 == line.find("ErrorCode:"))
         continue;
-      if(0 == line.find("Information:"))
+      if (0 == line.find("Information:"))
         continue;
-      if(0 == line.find("AbortExecute:"))
+      if (0 == line.find("AbortExecute:"))
         continue;
-      if(0 == line.find("Progress:"))
+      if (0 == line.find("Progress:"))
         continue;
-      if(0 == line.find("Progress Text:"))
+      if (0 == line.find("Progress Text:"))
         continue;
-      if(0 == line.find("  "))
+      if (0 == line.find("  "))
         continue;
 
       object_state += line + "\\n";
     }
 
     std::string fillcolor = "#ccffcc";
-    if(vtkAnnotationLink::SafeDownCast(object))
+    if (vtkAnnotationLink::SafeDownCast(object))
     {
       fillcolor = "#ccccff";
     }
 
-    output << "  " << "node_" << object << " [ fillcolor=\"" << fillcolor << "\" label=\"{" << object->GetClassName() << "|" << object_state << "}\" vtk_class_name=\"" << object->GetClassName() << "\" ]\n";
+    output << "  "
+           << "node_" << object << " [ fillcolor=\"" << fillcolor << "\" label=\"{"
+           << object->GetClassName() << "|" << object_state << "}\" vtk_class_name=\""
+           << object->GetClassName() << "\" ]\n";
   }
 
   // Write-out edges ...
   vtkSmartPointer<vtkEdgeListIterator> edges = vtkSmartPointer<vtkEdgeListIterator>::New();
   edges->SetGraph(pipeline_graph);
-  while(edges->HasNext())
+  while (edges->HasNext())
   {
     vtkEdgeType edge = edges->Next();
     vtkObjectBase* const source = vertex_object_array->GetVariantValue(edge.Source).ToVTKObject();
     vtkObjectBase* const target = vertex_object_array->GetVariantValue(edge.Target).ToVTKObject();
-    const vtkStdString output_port = edge_output_port_array->GetVariantValue(edge.Id).ToString();
-    const vtkStdString input_port = edge_input_port_array->GetVariantValue(edge.Id).ToString();
+    const std::string output_port = edge_output_port_array->GetVariantValue(edge.Id).ToString();
+    const std::string input_port = edge_input_port_array->GetVariantValue(edge.Id).ToString();
     vtkObjectBase* const object = edge_object_array->GetVariantValue(edge.Id).ToVTKObject();
 
     std::string color = "black";
-    if(vtkTree::SafeDownCast(object))
+    if (vtkTree::SafeDownCast(object))
     {
       color = "#00bb00";
     }
-    else if(vtkTable::SafeDownCast(object))
+    else if (vtkTable::SafeDownCast(object))
     {
       color = "blue";
     }
-    else if(vtkArrayData* const array_data = vtkArrayData::SafeDownCast(object))
+    else if (vtkArrayData* const array_data = vtkArrayData::SafeDownCast(object))
     {
-      if(array_data->GetNumberOfArrays())
+      if (array_data->GetNumberOfArrays())
       {
         color = "";
-        for(vtkIdType i = 0; i != array_data->GetNumberOfArrays(); ++i)
+        for (vtkIdType i = 0; i != array_data->GetNumberOfArrays(); ++i)
         {
-          if(i)
+          if (i)
             color += ":";
 
-          if(array_data->GetArray(i)->IsDense())
+          if (array_data->GetArray(i)->IsDense())
             color += "purple";
           else
             color += "red";
         }
       }
     }
-    else if(vtkGraph::SafeDownCast(object))
+    else if (vtkGraph::SafeDownCast(object))
     {
       color = "#cc6600";
     }
 
-    output << "  " << "node_" << source << " -> " << "node_" << target;
+    output << "  "
+           << "node_" << source << " -> "
+           << "node_" << target;
     output << " [";
     output << " color=\"" << color << "\" fontcolor=\"" << color << "\"";
     output << " label=\"" << (object ? object->GetClassName() : "") << "\"";
@@ -340,3 +338,4 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
 
   output << "}\n";
 }
+VTK_ABI_NAMESPACE_END

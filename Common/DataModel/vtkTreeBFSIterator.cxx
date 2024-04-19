@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeBFSIterator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkTreeBFSIterator.h"
 
@@ -22,6 +10,7 @@
 #include <queue>
 using std::queue;
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTreeBFSIteratorInternals
 {
 public:
@@ -87,7 +76,7 @@ void vtkTreeBFSIterator::Initialize()
 
 vtkIdType vtkTreeBFSIterator::NextInternal()
 {
-  if(this->Color->GetValue(this->StartVertex) == this->WHITE)
+  if (this->Color->GetValue(this->StartVertex) == this->WHITE)
   {
     this->Color->SetValue(this->StartVertex, this->GRAY);
     this->Internals->Queue.push(this->StartVertex);
@@ -98,10 +87,10 @@ vtkIdType vtkTreeBFSIterator::NextInternal()
     vtkIdType currentId = this->Internals->Queue.front();
     this->Internals->Queue.pop();
 
-    for(vtkIdType childNum = 0; childNum < this->Tree->GetNumberOfChildren(currentId); childNum++)
+    for (vtkIdType childNum = 0; childNum < this->Tree->GetNumberOfChildren(currentId); childNum++)
     {
       vtkIdType childId = this->Tree->GetChild(currentId, childNum);
-      if(this->Color->GetValue(childId) == this->WHITE)
+      if (this->Color->GetValue(childId) == this->WHITE)
       {
         // Found a white vertex; make it gray, add it to the queue
         this->Color->SetValue(childId, this->GRAY);
@@ -114,3 +103,4 @@ vtkIdType vtkTreeBFSIterator::NextInternal()
   }
   return -1;
 }
+VTK_ABI_NAMESPACE_END

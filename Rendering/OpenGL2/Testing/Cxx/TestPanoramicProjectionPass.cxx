@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPanoramicProjectionPass.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This test covers the tone mapping post-processing render pass.
 // It renders an opaque actor with a lot of lights.
 
@@ -22,11 +10,11 @@
 #include "vtkCamera.h"
 #include "vtkCameraPass.h"
 #include "vtkCullerCollection.h"
-#include "vtkPanoramicProjectionPass.h"
 #include "vtkLight.h"
 #include "vtkLightsPass.h"
 #include "vtkOpaquePass.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkPanoramicProjectionPass.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderPassCollection.h"
@@ -85,8 +73,7 @@ int TestPanoramicProjectionPass(int argc, char* argv[])
   {
     double f = (i & 1) ? -2.0 : 2.0;
     double x = (i & 2) ? 1.0 : 0.0;
-    double c[3] = { static_cast<double>((i + 1) & 1),
-      static_cast<double>(((i + 1) >> 1) & 1),
+    double c[3] = { static_cast<double>((i + 1) & 1), static_cast<double>(((i + 1) >> 1) & 1),
       static_cast<double>(((i + 1) >> 2) & 1) };
     vtkNew<vtkActor> actor;
     actor->SetMapper(mapper);

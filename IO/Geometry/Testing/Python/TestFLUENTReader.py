@@ -1,28 +1,39 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOGeometry import vtkFLUENTReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCompositePolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Read some Fluent UCD data in ASCII form
-r = vtk.vtkFLUENTReader()
-r.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/room.cas")
+r = vtkFLUENTReader()
+r.SetFileName(VTK_DATA_ROOT + "/Data/room.cas")
 r.EnableAllCellArrays()
 
-g = vtk.vtkGeometryFilter()
+g = vtkGeometryFilter()
 g.SetInputConnection(r.GetOutputPort())
 
-FluentMapper = vtk.vtkCompositePolyDataMapper2()
+FluentMapper = vtkCompositePolyDataMapper()
 FluentMapper.SetInputConnection(g.GetOutputPort())
 FluentMapper.SetScalarModeToUseCellFieldData()
 FluentMapper.SelectColorArray("PRESSURE")
 FluentMapper.SetScalarRange(-31, 44)
-FluentActor = vtk.vtkActor()
+FluentActor = vtkActor()
 FluentActor.SetMapper(FluentMapper)
 
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTexturedActor2D.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTexturedActor2D.h"
 
 #include "vtkInformation.h"
@@ -19,23 +7,24 @@
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTexturedActor2D);
 
 vtkCxxSetObjectMacro(vtkTexturedActor2D, Texture, vtkTexture);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTexturedActor2D::vtkTexturedActor2D()
 {
   this->Texture = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTexturedActor2D::~vtkTexturedActor2D()
 {
   this->SetTexture(nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedActor2D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Superclass::ReleaseGraphicsResources(win);
@@ -47,12 +36,12 @@ void vtkTexturedActor2D::ReleaseGraphicsResources(vtkWindow* win)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTexturedActor2D::RenderOverlay(vtkViewport* viewport)
 {
   // Render the texture.
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
-  vtkInformation *info = this->GetPropertyKeys();
+  vtkInformation* info = this->GetPropertyKeys();
   if (this->Texture)
   {
     this->Texture->Render(ren);
@@ -62,22 +51,21 @@ int vtkTexturedActor2D::RenderOverlay(vtkViewport* viewport)
       this->SetPropertyKeys(info);
       info->Delete();
     }
-    info->Set(vtkProp::GeneralTextureUnit(),
-      this->Texture->GetTextureUnit());
+    info->Set(vtkProp::GeneralTextureUnit(), this->Texture->GetTextureUnit());
   }
   else if (info)
   {
     info->Remove(vtkProp::GeneralTextureUnit());
   }
-  int result=this->Superclass::RenderOverlay(viewport);
+  int result = this->Superclass::RenderOverlay(viewport);
   if (this->Texture)
   {
     this->Texture->PostRender(ren);
   }
-   return result;
+  return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTexturedActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   // Render the texture.
@@ -86,7 +74,7 @@ int vtkTexturedActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   {
     this->Texture->Render(ren);
   }
-  int result=this->Superclass::RenderOpaqueGeometry(viewport);
+  int result = this->Superclass::RenderOpaqueGeometry(viewport);
   if (this->Texture)
   {
     this->Texture->PostRender(ren);
@@ -94,9 +82,8 @@ int vtkTexturedActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   return result;
 }
 
-//-----------------------------------------------------------------------------
-int vtkTexturedActor2D::RenderTranslucentPolygonalGeometry(
-  vtkViewport* viewport)
+//------------------------------------------------------------------------------
+int vtkTexturedActor2D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
   // Render the texture.
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
@@ -104,7 +91,7 @@ int vtkTexturedActor2D::RenderTranslucentPolygonalGeometry(
   {
     this->Texture->Render(ren);
   }
-  int result=this->Superclass::RenderTranslucentPolygonalGeometry(viewport);
+  int result = this->Superclass::RenderTranslucentPolygonalGeometry(viewport);
   if (this->Texture)
   {
     this->Texture->PostRender(ren);
@@ -112,7 +99,7 @@ int vtkTexturedActor2D::RenderTranslucentPolygonalGeometry(
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMTimeType vtkTexturedActor2D::GetMTime()
 {
   vtkMTimeType mTime = vtkActor2D::GetMTime();
@@ -125,7 +112,7 @@ vtkMTimeType vtkTexturedActor2D::GetMTime()
   return mTime;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedActor2D::ShallowCopy(vtkProp* prop)
 {
   vtkTexturedActor2D* a = vtkTexturedActor2D::SafeDownCast(prop);
@@ -138,7 +125,7 @@ void vtkTexturedActor2D::ShallowCopy(vtkProp* prop)
   this->Superclass::ShallowCopy(prop);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkTexturedActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -148,4 +135,4 @@ void vtkTexturedActor2D::PrintSelf(ostream& os, vtkIndent indent)
     this->Texture->PrintSelf(os, indent.GetNextIndent());
   }
 }
-
+VTK_ABI_NAMESPACE_END

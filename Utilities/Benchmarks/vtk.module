@@ -2,6 +2,10 @@ NAME
   VTK::UtilitiesBenchmarks
 LIBRARY_NAME
   vtkUtilitiesBenchmarks
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonComputationalGeometry
   VTK::CommonCore

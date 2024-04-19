@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLUnstructuredGridWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLUnstructuredGridWriter
  * @brief   Write VTK XML UnstructuredGrid files.
@@ -25,7 +13,7 @@
  *
  * @sa
  * vtkXMLPUnstructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLUnstructuredGridWriter_h
 #define vtkXMLUnstructuredGridWriter_h
@@ -33,13 +21,13 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLUnstructuredDataWriter.h"
 
-
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGridBase;
 
 class VTKIOXML_EXPORT vtkXMLUnstructuredGridWriter : public vtkXMLUnstructuredDataWriter
 {
 public:
-  vtkTypeMacro(vtkXMLUnstructuredGridWriter,vtkXMLUnstructuredDataWriter);
+  vtkTypeMacro(vtkXMLUnstructuredGridWriter, vtkXMLUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLUnstructuredGridWriter* New();
 
@@ -77,11 +65,12 @@ protected:
 
   // Positions of attributes for each piece.
   vtkTypeInt64* NumberOfCellsPositions;
-  OffsetsManagerArray *CellsOM; //one per piece
+  OffsetsManagerArray* CellsOM; // one per piece
 
 private:
   vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&) = delete;
   void operator=(const vtkXMLUnstructuredGridWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

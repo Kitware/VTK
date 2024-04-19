@@ -1,6 +1,27 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkImageData,
+    vtkStaticPointLocator,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import vtkStructuredGridOutlineFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkGaussianKernel,
+    vtkPointInterpolator,
+)
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Interpolate onto a volume
@@ -11,7 +32,7 @@ res = 40
 # create pipeline
 #
 extent = [0,56, 0,32, 0,24]
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
+pl3d = vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
@@ -25,7 +46,7 @@ center = output.GetCenter()
 bounds = output.GetBounds()
 length = output.GetLength()
 
-probe = vtk.vtkImageData()
+probe = vtkImageData()
 probe.SetDimensions(res,res,res)
 probe.SetOrigin(bounds[0],bounds[2],bounds[4])
 probe.SetSpacing((bounds[1]-bounds[0])/(res-1),
@@ -33,17 +54,17 @@ probe.SetSpacing((bounds[1]-bounds[0])/(res-1),
                  (bounds[5]-bounds[4])/(res-1))
 
 # Reuse the locator
-locator = vtk.vtkStaticPointLocator()
+locator = vtkStaticPointLocator()
 locator.SetDataSet(output)
 locator.BuildLocator()
 
 # Use a gaussian kernel------------------------------------------------
-gaussianKernel = vtk.vtkGaussianKernel()
+gaussianKernel = vtkGaussianKernel()
 gaussianKernel.SetRadius(0.5)
 gaussianKernel.SetSharpness(4)
 print ("Radius: {0}".format(gaussianKernel.GetRadius()))
 
-interpolator = vtk.vtkPointInterpolator()
+interpolator = vtkPointInterpolator()
 interpolator.SetInputData(probe)
 interpolator.SetSourceData(output)
 interpolator.SetKernel(gaussianKernel)
@@ -51,36 +72,36 @@ interpolator.SetLocator(locator)
 interpolator.SetNullPointsStrategyToClosestPoint()
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 interpolator.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Interpolate Points (Volume probe): {0}".format(time))
 
-intMapper = vtk.vtkDataSetMapper()
+intMapper = vtkDataSetMapper()
 intMapper.SetInputConnection(interpolator.GetOutputPort())
 
-intActor = vtk.vtkActor()
+intActor = vtkActor()
 intActor.SetMapper(intMapper)
 
 # Create an outline
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 outline.SetInputData(output)
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

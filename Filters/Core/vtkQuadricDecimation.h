@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQuadricDecimation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkQuadricDecimation
  * @brief   reduce the number of triangles in a mesh
@@ -51,14 +39,16 @@
  * @par Thanks:
  * Thanks to Bradley Lowekamp of the National Library of Medicine/NIH for
  * contributing this class.
-*/
+ */
 
 #ifndef vtkQuadricDecimation_h
 #define vtkQuadricDecimation_h
 
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEdgeTable;
 class vtkIdList;
 class vtkPointData;
@@ -70,9 +60,9 @@ class VTKFILTERSCORE_EXPORT vtkQuadricDecimation : public vtkPolyDataAlgorithm
 public:
   vtkTypeMacro(vtkQuadricDecimation, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkQuadricDecimation *New();
+  static vtkQuadricDecimation* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the desired reduction (expressed as a fraction of the original
    * number of triangles). The actual reduction may be less depending on
@@ -80,9 +70,9 @@ public:
    */
   vtkSetClampMacro(TargetReduction, double, 0.0, 1.0);
   vtkGetMacro(TargetReduction, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Decide whether to include data attributes in the error metric. If off,
    * then only geometric error is used to control the decimation. By default
@@ -91,9 +81,9 @@ public:
   vtkSetMacro(AttributeErrorMetric, vtkTypeBool);
   vtkGetMacro(AttributeErrorMetric, vtkTypeBool);
   vtkBooleanMacro(AttributeErrorMetric, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Decide whether to activate volume preservation which greatly reduces errors
    * in triangle normal direction. If off, volume preservation is disabled and
@@ -104,9 +94,57 @@ public:
   vtkSetMacro(VolumePreservation, vtkTypeBool);
   vtkGetMacro(VolumePreservation, vtkTypeBool);
   vtkBooleanMacro(VolumePreservation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * Parameters related to adding a probabilistic uncertainty to the position and normals of the
+   * quadrics following [1]. The goal using these parameters is to regularize the point finding
+   * algorithm so as to have better quality mesh elements at the cost of a slightly lower precision
+   * on the geometry potentially (mostly at sharp edges). Can also be useful for decimating meshes
+   * that have been triangulated on noisy data.
+   *
+   * Regularize: boolean property determining whether or not to use the regularization method
+   * Regularization: user defined variable that can be used to adjust the level of
+   * regularization. One can think of it as the standard deviation of the probability distribution
+   * of normals in the context of noisy data.
+   *
+   * [1] P. Trettner and L. Kobbelt, Fast and Robust QEF Minimization using Probabilistic Quadrics,
+   * EUROGRAPHICS, Volume 39, Number 2 (2020)
+   */
+  vtkSetMacro(Regularize, vtkTypeBool);
+  vtkGetMacro(Regularize, vtkTypeBool);
+  vtkBooleanMacro(Regularize, vtkTypeBool);
+  vtkSetMacro(Regularization, double);
+  vtkGetMacro(Regularization, double);
+  ///@}
+
+  ///@{
+  /**
+   * Parameters related to the treatment of the boundary of the mesh during decimation.
+   *
+   * WeighBoundaryConstraintsByLength: When this boolean is set to true, use the legacy weighting by
+   * boundary_edge_length instead of by boundary_edge_length^2 for backwards compatibility (default
+   * to false) BoundaryWeightFactor: A floating point factor to weigh the boundary quadric
+   * constraints by: higher factors further constrain the boundary.
+   */
+  vtkSetMacro(WeighBoundaryConstraintsByLength, vtkTypeBool);
+  vtkGetMacro(WeighBoundaryConstraintsByLength, vtkTypeBool);
+  vtkBooleanMacro(WeighBoundaryConstraintsByLength, vtkTypeBool);
+  vtkSetMacro(BoundaryWeightFactor, double);
+  vtkGetMacro(BoundaryWeightFactor, double);
+  ///@}
+
+  ///@{
+  /**
+   * Getter/Setter for mapping point data to the output during decimation.
+   */
+  vtkGetMacro(MapPointData, bool);
+  vtkSetMacro(MapPointData, bool);
+  vtkBooleanMacro(MapPointData, bool);
+  ///@}
+
+  ///@{
   /**
    * If attribute errors are to be included in the metric (i.e.,
    * AttributeErrorMetric is on), then the following flags control which
@@ -128,9 +166,9 @@ public:
   vtkSetMacro(TensorsAttribute, vtkTypeBool);
   vtkGetMacro(TensorsAttribute, vtkTypeBool);
   vtkBooleanMacro(TensorsAttribute, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scaling weight contribution of the attribute. These
    * values are used to weight the contribution of the attributes
@@ -146,21 +184,21 @@ public:
   vtkGetMacro(NormalsWeight, double);
   vtkGetMacro(TCoordsWeight, double);
   vtkGetMacro(TensorsWeight, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the actual reduction. This value is only valid after the
    * filter has executed.
    */
   vtkGetMacro(ActualReduction, double);
-  //@}
+  ///@}
 
 protected:
   vtkQuadricDecimation();
   ~vtkQuadricDecimation() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Do the dirty work of eliminating the edge; return the number of
@@ -176,7 +214,7 @@ protected:
   /**
    * Free boundary edges are weighted
    */
-  void AddBoundaryConstraints(void);
+  void AddBoundaryConstraints();
 
   /**
    * Compute quadric for this vertex.
@@ -189,40 +227,45 @@ protected:
    */
   void AddQuadric(vtkIdType oldPtId, vtkIdType newPtId);
 
-  //@{
+  ///@{
   /**
    * Compute cost for contracting this edge and the point that gives us this
    * cost.
    */
-  double ComputeCost(vtkIdType edgeId, double *x);
-  double ComputeCost2(vtkIdType edgeId, double *x);
-  //@}
+  double ComputeCost(vtkIdType edgeId, double* x);
+  double ComputeCost2(vtkIdType edgeId, double* x);
+  ///@}
 
   /**
    * Find all edges that will have an endpoint change ids because of an edge
    * collapse.  p1Id and p2Id are the endpoints of the edge.  p2Id is the
    * pointId being removed.
    */
-  void FindAffectedEdges(vtkIdType p1Id, vtkIdType p2Id, vtkIdList *edges);
+  void FindAffectedEdges(vtkIdType p1Id, vtkIdType p2Id, vtkIdList* edges);
 
   /**
    * Find a cell that uses this edge.
    */
   vtkIdType GetEdgeCellId(vtkIdType p1Id, vtkIdType p2Id);
 
-  int IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, const double *x);
-  int TrianglePlaneCheck(const double t0[3], const double t1[3],
-                         const double t2[3],  const double *x);
-  void ComputeNumberOfComponents(void);
-  void UpdateEdgeData(vtkIdType ptoId, vtkIdType pt1Id);
+  int IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, const double* x);
+  int TrianglePlaneCheck(
+    const double t0[3], const double t1[3], const double t2[3], const double* x);
+  void ComputeNumberOfComponents();
+  void UpdateEdgeData(vtkIdType pt0Id, vtkIdType pt1Id);
 
-  //@{
+  ///@{
   /**
    * Helper function to set and get the point and it's attributes as an array
+   *
+   * The setter needs the entire edge for interpolation of point data
    */
-  void SetPointAttributeArray(vtkIdType ptId, const double *x);
-  void GetPointAttributeArray(vtkIdType ptId, double *x);
-  //@}
+  VTK_DEPRECATED_IN_9_3_0("Deprecated in favor of the method taking the indexes of both points on "
+                          "the edge to interpolate point data")
+  void SetPointAttributeArray(vtkIdType ptId, const double* x);
+  void SetPointAttributeArray(vtkIdType ptId[2], const double* x);
+  void GetPointAttributeArray(vtkIdType ptId, double* x);
+  ///@}
 
   /**
    * Find out how many components there are for each attribute for this
@@ -232,8 +275,10 @@ protected:
 
   double TargetReduction;
   double ActualReduction;
-  vtkTypeBool   AttributeErrorMetric;
-  vtkTypeBool   VolumePreservation;
+  vtkTypeBool AttributeErrorMetric;
+  vtkTypeBool VolumePreservation;
+
+  bool MapPointData = false;
 
   vtkTypeBool ScalarsAttribute;
   vtkTypeBool VectorsAttribute;
@@ -247,40 +292,48 @@ protected:
   double TCoordsWeight;
   double TensorsWeight;
 
-  int               NumberOfEdgeCollapses;
-  vtkEdgeTable     *Edges;
-  vtkIdList        *EndPoint1List;
-  vtkIdList        *EndPoint2List;
-  vtkPriorityQueue *EdgeCosts;
-  vtkDoubleArray   *TargetPoints;
-  int               NumberOfComponents;
-  vtkPolyData      *Mesh;
+  int NumberOfEdgeCollapses;
+  vtkEdgeTable* Edges;
+  vtkIdList* EndPoint1List;
+  vtkIdList* EndPoint2List;
+  vtkPriorityQueue* EdgeCosts;
+  vtkDoubleArray* TargetPoints;
+  int NumberOfComponents;
+  vtkPolyData* Mesh;
 
   struct ErrorQuadric
   {
-    double *Quadric;
+    double* Quadric;
   };
 
-
   // One ErrorQuadric per point
-  ErrorQuadric *ErrorQuadrics;
+  ErrorQuadric* ErrorQuadrics;
+
+  // Controlling regularization behavior
+  vtkTypeBool Regularize = false;
+  double Regularization = 0.05;
+
+  // Controlling the boundary weighting behavior
+  vtkTypeBool WeighBoundaryConstraintsByLength = false;
+  double BoundaryWeightFactor = 1.0;
 
   // Contains 4 doubles per point. Length = nPoints * 4
-  double *VolumeConstraints;
+  double* VolumeConstraints;
   int AttributeComponents[6];
-  double        AttributeScale[6];
+  double AttributeScale[6];
 
   // Temporary variables for performance
-  vtkIdList *CollapseCellIds;
-  double *TempX;
-  double *TempQuad;
-  double *TempB;
-  double **TempA;
-  double *TempData;
+  vtkIdList* CollapseCellIds;
+  double* TempX;
+  double* TempQuad;
+  double* TempB;
+  double** TempA;
+  double* TempData;
 
 private:
   vtkQuadricDecimation(const vtkQuadricDecimation&) = delete;
   void operator=(const vtkQuadricDecimation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

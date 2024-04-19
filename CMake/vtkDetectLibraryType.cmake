@@ -1,5 +1,3 @@
-include(CMakeParseArguments)
-
 #[==[
 @brief Detect library type of a library
 
@@ -16,11 +14,10 @@ vtk_detect_library_type(<variable>
 ~~~
 #]==]
 function (vtk_detect_library_type output)
-  cmake_parse_arguments(vdlt
+  cmake_parse_arguments(PARSE_ARGV 1 vdlt
     ""
     "PATH"
-    ""
-    ${ARGN})
+    "")
 
   if (NOT DEFINED vdlt_PATH)
     message(FATAL_ERROR
@@ -101,7 +98,8 @@ endfunction ()
 @brief Detect whether an imported target is shared or not
 
 This is intended for use with modules using
-@ref vtk_module_third_party_external to detect whether that module is shared or
+[vtk_module_third_party_external](https://docs.vtk.org/en/latest/api/cmake/vtkModule.html#command:vtk_module_third_party_external)
+to detect whether that module is shared or
 not. Generally, this should be replaced with the `Find` module providing this
 information and modifying the usage requirements as necessary instead, but it
 is not always possible.

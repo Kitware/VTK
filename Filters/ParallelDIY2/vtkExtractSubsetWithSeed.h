@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExtractSubsetWithSeed.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkExtractSubsetWithSeed
  * @brief extract a line or plane in the ijk space starting with a seed
@@ -36,6 +24,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkExtractSubsetWithSeed : public vtkDataObjectAlgorithm
@@ -45,14 +34,14 @@ public:
   vtkTypeMacro(vtkExtractSubsetWithSeed, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the extraction seed point. This is specified in world coordinates
    * i.e. x-y-z space.
    */
   vtkSetVector3Macro(Seed, double);
   vtkGetVector3Macro(Seed, double);
-  //@}
+  ///@}
 
   enum
   {
@@ -63,7 +52,7 @@ public:
     PLANE_JK,
     PLANE_KI,
   };
-  //@{
+  ///@{
   /**
    * Get/Set the directions in the ijk spaced to extract starting with the
    * seed.
@@ -76,16 +65,16 @@ public:
   void SetDirectionToPlaneIJ() { this->SetDirection(PLANE_IJ); }
   void SetDirectionToPlaneJK() { this->SetDirection(PLANE_JK); }
   void SetDirectionToPlaneKI() { this->SetDirection(PLANE_KI); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the controller to use. By default
    * vtkMultiProcessController::GlobalController will be used.
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 protected:
   vtkExtractSubsetWithSeed();
   ~vtkExtractSubsetWithSeed() override;
@@ -106,4 +95,5 @@ private:
   vtkMultiProcessController* Controller = nullptr;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

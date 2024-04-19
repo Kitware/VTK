@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTextureMapToPlane.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTextureMapToPlane
  * @brief   generate texture coordinates by mapping points to plane
@@ -35,91 +23,92 @@
  * @sa
  *  vtkPlaneSource vtkTextureMapToCylinder
  * vtkTextureMapToSphere vtkThresholdTextureCoords
-*/
+ */
 
 #ifndef vtkTextureMapToPlane_h
 #define vtkTextureMapToPlane_h
 
-#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersTextureModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToPlane : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkTextureMapToPlane,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkTextureMapToPlane, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with s,t range=(0,1) and automatic plane generation turned on.
    */
-  static vtkTextureMapToPlane *New();
+  static vtkTextureMapToPlane* New();
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the origin of the plane. Used in conjunction with
    * the Point1 and Point2 ivars to specify a map plane.
    */
-  vtkSetVector3Macro(Origin,double);
-  vtkGetVectorMacro(Origin,double,3);
-  //@}
+  vtkSetVector3Macro(Origin, double);
+  vtkGetVectorMacro(Origin, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the first axis of the plane.
    */
-  vtkSetVector3Macro(Point1,double);
-  vtkGetVectorMacro(Point1,double,3);
-  //@}
+  vtkSetVector3Macro(Point1, double);
+  vtkGetVectorMacro(Point1, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the second axis of the plane.
    */
-  vtkSetVector3Macro(Point2,double);
-  vtkGetVectorMacro(Point2,double,3);
-  //@}
+  vtkSetVector3Macro(Point2, double);
+  vtkGetVectorMacro(Point2, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify plane normal. An alternative way to specify a map plane. Using
    * this method, the object will scale the resulting texture coordinate
    * between the SRange and TRange specified.
    */
-  vtkSetVector3Macro(Normal,double);
-  vtkGetVectorMacro(Normal,double,3);
-  //@}
+  vtkSetVector3Macro(Normal, double);
+  vtkGetVectorMacro(Normal, double, 3);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify s-coordinate range for texture s-t coordinate pair.
    */
-  vtkSetVector2Macro(SRange,double);
-  vtkGetVectorMacro(SRange,double,2);
-  //@}
+  vtkSetVector2Macro(SRange, double);
+  vtkGetVectorMacro(SRange, double, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify t-coordinate range for texture s-t coordinate pair.
    */
-  vtkSetVector2Macro(TRange,double);
-  vtkGetVectorMacro(TRange,double,2);
-  //@}
+  vtkSetVector2Macro(TRange, double);
+  vtkGetVectorMacro(TRange, double, 2);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off automatic plane generation.
    */
-  vtkSetMacro(AutomaticPlaneGeneration,vtkTypeBool);
-  vtkGetMacro(AutomaticPlaneGeneration,vtkTypeBool);
-  vtkBooleanMacro(AutomaticPlaneGeneration,vtkTypeBool);
-  //@}
+  vtkSetMacro(AutomaticPlaneGeneration, vtkTypeBool);
+  vtkGetMacro(AutomaticPlaneGeneration, vtkTypeBool);
+  vtkBooleanMacro(AutomaticPlaneGeneration, vtkTypeBool);
+  ///@}
 
 protected:
   vtkTextureMapToPlane();
-  ~vtkTextureMapToPlane() override {}
+  ~vtkTextureMapToPlane() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  void ComputeNormal(vtkDataSet *output);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void ComputeNormal(vtkDataSet* output);
 
   double Origin[3];
   double Point1[3];
@@ -134,4 +123,5 @@ private:
   void operator=(const vtkTextureMapToPlane&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

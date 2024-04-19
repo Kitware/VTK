@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkQtListView.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkQtListView.h"
 
@@ -32,8 +16,8 @@
 #include "vtkAnnotationLayers.h"
 #include "vtkAnnotationLink.h"
 #include "vtkApplyColors.h"
+#include "vtkAttributeDataToTableFilter.h"
 #include "vtkConvertSelection.h"
-#include "vtkDataObjectToTable.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkGraph.h"
@@ -49,17 +33,28 @@
 #include "vtkTable.h"
 #include "vtkViewTheme.h"
 
+namespace
+{
+const std::map<int, int> FIELD_ASSOCIATION_MAP = { { vtkQtListView::FIELD_DATA,
+                                                     vtkDataObject::FIELD_ASSOCIATION_NONE },
+  { vtkQtListView::POINT_DATA, vtkDataObject::FIELD_ASSOCIATION_POINTS },
+  { vtkQtListView::CELL_DATA, vtkDataObject::FIELD_ASSOCIATION_CELLS },
+  { vtkQtListView::VERTEX_DATA, vtkDataObject::FIELD_ASSOCIATION_VERTICES },
+  { vtkQtListView::EDGE_DATA, vtkDataObject::FIELD_ASSOCIATION_EDGES },
+  { vtkQtListView::ROW_DATA, vtkDataObject::FIELD_ASSOCIATION_ROWS } };
+}
+
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtListView);
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtListView::vtkQtListView()
 {
   this->ApplyColors = vtkSmartPointer<vtkApplyColors>::New();
-  this->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
+  this->DataObjectToTable = vtkSmartPointer<vtkAttributeDataToTableFilter>::New();
   this->ApplyColors->SetInputConnection(0, this->DataObjectToTable->GetOutputPort(0));
 
-  this->DataObjectToTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
+  this->DataObjectToTable->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_VERTICES);
   this->FieldType = vtkQtListView::VERTEX_DATA;
 
   this->ListView = new QListView();
@@ -87,17 +82,16 @@ vtkQtListView::vtkQtListView()
 
   this->ColorArrayNameInternal = nullptr;
   this->IconIndexArrayNameInternal = nullptr;
-  double defCol[3] = {0.827,0.827,0.827};
+  double defCol[3] = { 0.827, 0.827, 0.827 };
   this->ApplyColors->SetDefaultPointColor(defCol);
   this->ApplyColors->SetUseCurrentAnnotationColor(true);
 
   QObject::connect(this->ListView->selectionModel(),
-      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-      this,
-      SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+    SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
+    SLOT(slotQtSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkQtListView::~vtkQtListView()
 {
   delete this->ListView;
@@ -105,29 +99,29 @@ vtkQtListView::~vtkQtListView()
   delete this->TableSorter;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 QWidget* vtkQtListView::GetWidget()
 {
   return this->ListView;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtListView::SetAlternatingRowColors(bool state)
 {
   this->ListView->setAlternatingRowColors(state);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtListView::SetEnableDragDrop(bool state)
 {
   this->ListView->setDragEnabled(state);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtListView::SetFieldType(int type)
 {
-  this->DataObjectToTable->SetFieldType(type);
-  if(this->FieldType != type)
+  this->DataObjectToTable->SetFieldAssociation(::FIELD_ASSOCIATION_MAP.at(type));
+  if (this->FieldType != type)
   {
     this->FieldType = type;
     this->Modified();
@@ -141,12 +135,12 @@ void vtkQtListView::SetIconSheet(QImage sheet)
 
 void vtkQtListView::SetIconSheetSize(int w, int h)
 {
-  this->TableAdapter->SetIconSheetSize(w,h);
+  this->TableAdapter->SetIconSheetSize(w, h);
 }
 
 void vtkQtListView::SetIconSize(int w, int h)
 {
-  this->TableAdapter->SetIconSize(w,h);
+  this->TableAdapter->SetIconSize(w, h);
 }
 
 void vtkQtListView::SetIconArrayName(const char* name)
@@ -161,12 +155,20 @@ void vtkQtListView::SetDecorationStrategy(int value)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+void vtkQtListView::SetFilterRegExp(const QRegularExpression& pattern)
+{
+  this->ListView->selectionModel()->clearSelection();
+  this->TableSorter->setFilterRegularExpression(pattern);
+}
+#else
 void vtkQtListView::SetFilterRegExp(const QRegExp& pattern)
 {
   this->ListView->selectionModel()->clearSelection();
   this->TableSorter->setFilterRegExp(pattern);
 }
+#endif
 
 void vtkQtListView::SetColorByArray(bool b)
 {
@@ -181,8 +183,7 @@ bool vtkQtListView::GetColorByArray()
 void vtkQtListView::SetColorArrayName(const char* name)
 {
   this->SetColorArrayNameInternal(name);
-  this->ApplyColors->SetInputArrayToProcess(0, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_ROWS, name);
+  this->ApplyColors->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, name);
 }
 
 const char* vtkQtListView::GetColorArrayName()
@@ -205,7 +206,7 @@ void vtkQtListView::AddRepresentationInternal(vtkDataRepresentation* rep)
 
   this->DataObjectToTable->SetInputConnection(0, conn);
 
-  if(annConn)
+  if (annConn)
   {
     this->ApplyColors->SetInputConnection(1, annConn);
   }
@@ -222,23 +223,24 @@ void vtkQtListView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
   this->TableAdapter->SetVTKDataObject(nullptr);
 }
 
-//----------------------------------------------------------------------------
-void vtkQtListView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
+//------------------------------------------------------------------------------
+void vtkQtListView::slotQtSelectionChanged(
+  const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
 {
   // Convert to the correct type of selection
   vtkDataObject* data = this->TableAdapter->GetVTKDataObject();
-  if(!data)
+  if (!data)
     return;
 
   // Map the selected rows through the sorter map before sending to model
   const QModelIndexList selectedRows = this->ListView->selectionModel()->selectedRows();
   QModelIndexList origRows;
-  for(int i=0; i<selectedRows.size(); ++i)
+  for (int i = 0; i < selectedRows.size(); ++i)
   {
     origRows.push_back(this->TableSorter->mapToSource(selectedRows[i]));
   }
 
-  vtkSelection *VTKIndexSelectList =
+  vtkSelection* VTKIndexSelectList =
     this->TableAdapter->QModelIndexListToVTKIndexSelection(origRows);
 
   // Convert to the correct type of selection
@@ -256,46 +258,46 @@ void vtkQtListView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   this->LastSelectionMTime = rep->GetAnnotationLink()->GetMTime();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtListView::SetVTKSelection()
 {
   vtkDataRepresentation* rep = this->GetRepresentation();
-  vtkDataObject *d = this->TableAdapter->GetVTKDataObject();
-  vtkAlgorithmOutput *annConn = rep->GetInternalAnnotationOutputPort();
-  vtkAnnotationLayers* a = vtkAnnotationLayers::SafeDownCast(annConn->GetProducer()->GetOutputDataObject(0));
+  vtkDataObject* d = this->TableAdapter->GetVTKDataObject();
+  vtkAlgorithmOutput* annConn = rep->GetInternalAnnotationOutputPort();
+  vtkAnnotationLayers* a =
+    vtkAnnotationLayers::SafeDownCast(annConn->GetProducer()->GetOutputDataObject(0));
   vtkSelection* s = a->GetCurrentAnnotation()->GetSelection();
 
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
     s, d, vtkSelectionNode::INDICES, nullptr, vtkSelectionNode::ROW));
 
-  if(!selection || selection->GetNumberOfNodes() == 0)
+  if (!selection || selection->GetNumberOfNodes() == 0)
   {
     return;
   }
 
-  if(selection->GetNode(0)->GetSelectionList()->GetNumberOfTuples())
+  if (selection->GetNode(0)->GetSelectionList()->GetNumberOfTuples())
   {
-    QItemSelection qisList = this->TableAdapter->
-      VTKIndexSelectionToQItemSelection(selection);
+    QItemSelection qisList = this->TableAdapter->VTKIndexSelectionToQItemSelection(selection);
     QItemSelection sortedSel = this->TableSorter->mapSelectionFromSource(qisList);
 
     // Here we want the qt model to have it's selection changed
     // but we don't want to emit the selection.
     QObject::disconnect(this->ListView->selectionModel(),
-      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-      this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+      SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
+      SLOT(slotQtSelectionChanged(const QItemSelection&, const QItemSelection&)));
 
-    this->ListView->selectionModel()->select(sortedSel,
-      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    this->ListView->selectionModel()->select(
+      sortedSel, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 
     QObject::connect(this->ListView->selectionModel(),
-     SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-     this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+      SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
+      SLOT(slotQtSelectionChanged(const QItemSelection&, const QItemSelection&)));
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtListView::Update()
 {
   vtkDataRepresentation* rep = this->GetRepresentation();
@@ -317,11 +319,10 @@ void vtkQtListView::Update()
   selConn = rep->GetInternalSelectionOutputPort();
   selConn->GetProducer()->Update();
 
-  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
+  vtkDataObject* d = conn->GetProducer()->GetOutputDataObject(0);
   vtkMTimeType atime = rep->GetAnnotationLink()->GetMTime();
-  if (d->GetMTime() > this->LastInputMTime ||
-      this->GetMTime() > this->LastMTime  ||
-      atime > this->LastSelectionMTime)
+  if (d->GetMTime() > this->LastInputMTime || this->GetMTime() > this->LastMTime ||
+    atime > this->LastSelectionMTime)
   {
     this->DataObjectToTable->Update();
     this->ApplyColors->Update();
@@ -362,11 +363,11 @@ void vtkQtListView::ApplyViewTheme(vtkViewTheme* theme)
   this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkQtListView::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ApplyRowColors: " << (this->ApplyRowColors ? "true" : "false") << endl;
 }
-
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkSystemIncludes.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkSystemIncludes
  * @brief   transition VTK to ANSI C++, centralize
@@ -19,7 +7,7 @@
  *
  * The vtkSystemIncludes centralizes the inclusion of system include
  * files.
-*/
+ */
 
 #ifndef vtkSystemIncludes_h
 #define vtkSystemIncludes_h
@@ -34,9 +22,9 @@
 // forward-declared.  This significantly improves compile time on some
 // platforms.
 #if defined(VTK_STREAMS_FWD_ONLY)
-# include "vtkIOStreamFwd.h" // Forward-declare the C++ streams.
+#include "vtkIOStreamFwd.h" // Forward-declare the C++ streams.
 #else
-# include "vtkIOStream.h"    // Include the real C++ streams.
+#include "vtkIOStream.h" // Include the real C++ streams.
 #endif
 
 // Setup the basic types to be used by VTK.
@@ -49,7 +37,8 @@
 #define VTK_USE_EXECUTIVES
 
 #define VTK_SYSTEM_INCLUDES_INSIDE
-#include "vtkOStreamWrapper.h"    // Include the ostream wrapper.
+#include "vtkOStreamWrapper.h" // Include the ostream wrapper.
+
 #include "vtkOStrStreamWrapper.h" // Include the ostrstream wrapper.
 #undef VTK_SYSTEM_INCLUDES_INSIDE
 
@@ -59,91 +48,73 @@
 #include <string.h>
 
 // These types define error codes for vtk functions
-#define VTK_OK                 1
-#define VTK_ERROR              2
+#define VTK_OK 1
+#define VTK_ERROR 2
 
 // These types define different text properties
-#define VTK_ARIAL          0
-#define VTK_COURIER        1
-#define VTK_TIMES          2
-#define VTK_UNKNOWN_FONT   3
-#define VTK_FONT_FILE      4
+#define VTK_ARIAL 0
+#define VTK_COURIER 1
+#define VTK_TIMES 2
+#define VTK_UNKNOWN_FONT 3
+#define VTK_FONT_FILE 4
 
-#define VTK_TEXT_LEFT     0
+#define VTK_TEXT_LEFT 0
 #define VTK_TEXT_CENTERED 1
-#define VTK_TEXT_RIGHT    2
+#define VTK_TEXT_RIGHT 2
 
 #define VTK_TEXT_BOTTOM 0
-#define VTK_TEXT_TOP    2
+#define VTK_TEXT_TOP 2
 
 #define VTK_TEXT_GLOBAL_ANTIALIASING_SOME 0
 #define VTK_TEXT_GLOBAL_ANTIALIASING_NONE 1
 #define VTK_TEXT_GLOBAL_ANTIALIASING_ALL 2
 
-#define VTK_LUMINANCE       1
+#define VTK_LUMINANCE 1
 #define VTK_LUMINANCE_ALPHA 2
-#define VTK_RGB             3
-#define VTK_RGBA            4
+#define VTK_RGB 3
+#define VTK_RGBA 4
 
 #define VTK_COLOR_MODE_DEFAULT 0
 #define VTK_COLOR_MODE_MAP_SCALARS 1
 #define VTK_COLOR_MODE_DIRECT_SCALARS 2
 
 // Constants for InterpolationType
-#define VTK_NEAREST_INTERPOLATION       0
-#define VTK_LINEAR_INTERPOLATION        1
-#define VTK_CUBIC_INTERPOLATION         2
+#define VTK_NEAREST_INTERPOLATION 0
+#define VTK_LINEAR_INTERPOLATION 1
+#define VTK_CUBIC_INTERPOLATION 2
 
 // Constants for SlabType
-#define VTK_IMAGE_SLAB_MIN  0
-#define VTK_IMAGE_SLAB_MAX  1
+#define VTK_IMAGE_SLAB_MIN 0
+#define VTK_IMAGE_SLAB_MAX 1
 #define VTK_IMAGE_SLAB_MEAN 2
-#define VTK_IMAGE_SLAB_SUM  3
+#define VTK_IMAGE_SLAB_SUM 3
 
 // For volume rendering
-#define VTK_MAX_VRCOMP                  4
-
-// If VTK_USE_PTHREADS is defined, then the multithreaded
-// function is of type void *, and returns nullptr
-// Otherwise the type is void which is correct for WIN32
-#ifdef VTK_USE_PTHREADS
-#define VTK_THREAD_RETURN_VALUE  nullptr
-#define VTK_THREAD_RETURN_TYPE   void *
-#endif
-
-#ifdef VTK_USE_WIN32_THREADS
-#define VTK_THREAD_RETURN_VALUE 0
-#define VTK_THREAD_RETURN_TYPE vtkWindowsDWORD __stdcall
-#endif
-
-#if !defined(VTK_USE_PTHREADS) && !defined(VTK_USE_WIN32_THREADS)
-#define VTK_THREAD_RETURN_VALUE
-#define VTK_THREAD_RETURN_TYPE void
-#endif
+#define VTK_MAX_VRCOMP 4
 
 // For encoding
 
-#define VTK_ENCODING_NONE         0 // to specify that no encoding should occur
-#define VTK_ENCODING_US_ASCII     1
-#define VTK_ENCODING_UNICODE      2
-#define VTK_ENCODING_UTF_8        3
-#define VTK_ENCODING_ISO_8859_1   4
-#define VTK_ENCODING_ISO_8859_2   5
-#define VTK_ENCODING_ISO_8859_3   6
-#define VTK_ENCODING_ISO_8859_4   7
-#define VTK_ENCODING_ISO_8859_5   8
-#define VTK_ENCODING_ISO_8859_6   9
-#define VTK_ENCODING_ISO_8859_7   10
-#define VTK_ENCODING_ISO_8859_8   11
-#define VTK_ENCODING_ISO_8859_9   12
-#define VTK_ENCODING_ISO_8859_10  13
-#define VTK_ENCODING_ISO_8859_11  14
-#define VTK_ENCODING_ISO_8859_12  15
-#define VTK_ENCODING_ISO_8859_13  16
-#define VTK_ENCODING_ISO_8859_14  17
-#define VTK_ENCODING_ISO_8859_15  18
-#define VTK_ENCODING_ISO_8859_16  19
-#define VTK_ENCODING_UNKNOWN      20  // leave this one at the end
+#define VTK_ENCODING_NONE 0 // to specify that no encoding should occur
+#define VTK_ENCODING_US_ASCII 1
+#define VTK_ENCODING_UNICODE 2
+#define VTK_ENCODING_UTF_8 3
+#define VTK_ENCODING_ISO_8859_1 4
+#define VTK_ENCODING_ISO_8859_2 5
+#define VTK_ENCODING_ISO_8859_3 6
+#define VTK_ENCODING_ISO_8859_4 7
+#define VTK_ENCODING_ISO_8859_5 8
+#define VTK_ENCODING_ISO_8859_6 9
+#define VTK_ENCODING_ISO_8859_7 10
+#define VTK_ENCODING_ISO_8859_8 11
+#define VTK_ENCODING_ISO_8859_9 12
+#define VTK_ENCODING_ISO_8859_10 13
+#define VTK_ENCODING_ISO_8859_11 14
+#define VTK_ENCODING_ISO_8859_12 15
+#define VTK_ENCODING_ISO_8859_13 16
+#define VTK_ENCODING_ISO_8859_14 17
+#define VTK_ENCODING_ISO_8859_15 18
+#define VTK_ENCODING_ISO_8859_16 19
+#define VTK_ENCODING_UNKNOWN 20 // leave this one at the end
 
 #endif
 // VTK-HeaderTest-Exclude: vtkSystemIncludes.h

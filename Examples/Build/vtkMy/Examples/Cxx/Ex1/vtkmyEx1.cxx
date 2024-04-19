@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkmyEx1.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // This example creates a couple of class instances and print them to
 // the standard output. No rendering window is created.
@@ -32,7 +20,7 @@ int main()
   //
   cout << "Create vtkBar object and print it." << endl;
 
-  vtkBar *bar = vtkBar::New();
+  vtkBar* bar = vtkBar::New();
   bar->Print(cout);
 
   //
@@ -40,7 +28,7 @@ int main()
   //
   cout << "Create vtkBar2 object and print it." << endl;
 
-  vtkBar2 *bar2 = vtkBar2::New();
+  vtkBar2* bar2 = vtkBar2::New();
   bar2->Print(cout);
 
   //
@@ -48,7 +36,7 @@ int main()
   //
   cout << "Create vtkImageFoo object and print it." << endl;
 
-  vtkImageFoo *imagefoo = vtkImageFoo::New();
+  vtkImageFoo* imagefoo = vtkImageFoo::New();
   imagefoo->Print(cout);
 
   cout << "Looks good ?" << endl;

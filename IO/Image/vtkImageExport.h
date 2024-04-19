@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageExport.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageExport
  * @brief   Export VTK images to third-party systems.
@@ -27,7 +15,7 @@
  * size.
  * @sa
  * vtkImageImport
-*/
+ */
 
 #ifndef vtkImageExport_h
 #define vtkImageExport_h
@@ -35,11 +23,12 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkImageExport : public vtkImageAlgorithm
 {
 public:
-  static vtkImageExport *New();
-  vtkTypeMacro(vtkImageExport,vtkImageAlgorithm);
+  static vtkImageExport* New();
+  vtkTypeMacro(vtkImageExport, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -47,16 +36,18 @@ public:
    */
   vtkIdType GetDataMemorySize();
 
-  //@{
+  ///@{
   /**
    * Get the (x,y,z) index dimensions of the data.  Please note
    * that C arrays are indexed in decreasing order, i.e. array[z][y][x].
    */
-  void GetDataDimensions(int *ptr);
-  int *GetDataDimensions() VTK_SIZEHINT(3) {
+  void GetDataDimensions(int* ptr);
+  int* GetDataDimensions() VTK_SIZEHINT(3)
+  {
     this->GetDataDimensions(this->DataDimensions);
-    return this->DataDimensions; }
-  //@}
+    return this->DataDimensions;
+  }
+  ///@}
 
   /**
    * Get the number of scalar components of the data.  Please note that
@@ -70,29 +61,31 @@ public:
    * must match the scalar type of the data.
    */
   int GetDataScalarType();
-  const char *GetDataScalarTypeAsString() {
-    return vtkImageScalarTypeNameMacro(this->GetDataScalarType()); }
+  const char* GetDataScalarTypeAsString()
+  {
+    return vtkImageScalarTypeNameMacro(this->GetDataScalarType());
+  }
 
-  //@{
+  ///@{
   /**
    * Get miscellaneous additional information about the data.
    */
-  int *GetDataExtent() VTK_SIZEHINT(6);
-  void GetDataExtent(int *ptr);
-  double *GetDataSpacing() VTK_SIZEHINT(3);
-  void GetDataSpacing(double *ptr);
-  double *GetDataOrigin() VTK_SIZEHINT(3);
-  void GetDataOrigin(double *ptr);
-  double *GetDataDirection() VTK_SIZEHINT(9);
-  void GetDataDirection(double *ptr);
-  //@}
+  int* GetDataExtent() VTK_SIZEHINT(6);
+  void GetDataExtent(int* ptr);
+  double* GetDataSpacing() VTK_SIZEHINT(3);
+  void GetDataSpacing(double* ptr);
+  double* GetDataOrigin() VTK_SIZEHINT(3);
+  void GetDataOrigin(double* ptr);
+  double* GetDataDirection() VTK_SIZEHINT(9);
+  void GetDataDirection(double* ptr);
+  ///@}
 
   /**
    * Get the input object from the image pipeline.
    */
-  vtkImageData *GetInput();
+  vtkImageData* GetInput();
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the data goes to the exported memory starting
    * in the lower left corner or upper left corner.  Default: On.
@@ -104,27 +97,27 @@ public:
   vtkBooleanMacro(ImageLowerLeft, vtkTypeBool);
   vtkGetMacro(ImageLowerLeft, vtkTypeBool);
   vtkSetMacro(ImageLowerLeft, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the void pointer of the C array to export the data to.
    * From python, you can specify a pointer to a string that is
    * large enough to hold the data.
    */
-  void SetExportVoidPointer(void *);
-  void *GetExportVoidPointer() { return this->ExportVoidPointer; };
-  //@}
+  void SetExportVoidPointer(void*);
+  void* GetExportVoidPointer() { return this->ExportVoidPointer; }
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The main interface: update the pipeline and export the image
    * to the memory pointed to by SetExportVoidPointer().  You can
    * also specify a void pointer when you call Export().
    */
-  void Export() { this->Export(this->ExportVoidPointer); };
-  virtual void Export(void *);
-  //@}
+  void Export() { this->Export(this->ExportVoidPointer); }
+  virtual void Export(void*);
+  ///@}
 
   /**
    * An alternative to Export(): Use with caution.   Update the
@@ -133,14 +126,14 @@ public:
    * is updated.
    * WARNING: This method ignores the ImageLowerLeft flag.
    */
-  void *GetPointerToData();
+  void* GetPointerToData();
 
   /**
    * Get the user data that should be passed to the callback functions.
    */
   void* GetCallbackUserData();
 
-  //@{
+  ///@{
   /**
    * These are function pointer types for the pipeline connection
    * callbacks.  See further documentation in vtkImageImport.h.
@@ -157,34 +150,33 @@ public:
   typedef void (*UpdateDataCallbackType)(void*);
   typedef int* (*DataExtentCallbackType)(void*);
   typedef void* (*BufferPointerCallbackType)(void*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get pointers to the pipeline interface callbacks.
    */
-  UpdateInformationCallbackType     GetUpdateInformationCallback() const;
-  PipelineModifiedCallbackType      GetPipelineModifiedCallback() const;
-  WholeExtentCallbackType           GetWholeExtentCallback() const;
-  SpacingCallbackType               GetSpacingCallback() const;
-  OriginCallbackType                GetOriginCallback() const;
-  DirectionCallbackType             GetDirectionCallback() const;
-  ScalarTypeCallbackType            GetScalarTypeCallback() const;
-  NumberOfComponentsCallbackType    GetNumberOfComponentsCallback() const;
+  UpdateInformationCallbackType GetUpdateInformationCallback() const;
+  PipelineModifiedCallbackType GetPipelineModifiedCallback() const;
+  WholeExtentCallbackType GetWholeExtentCallback() const;
+  SpacingCallbackType GetSpacingCallback() const;
+  OriginCallbackType GetOriginCallback() const;
+  DirectionCallbackType GetDirectionCallback() const;
+  ScalarTypeCallbackType GetScalarTypeCallback() const;
+  NumberOfComponentsCallbackType GetNumberOfComponentsCallback() const;
   PropagateUpdateExtentCallbackType GetPropagateUpdateExtentCallback() const;
-  UpdateDataCallbackType            GetUpdateDataCallback() const;
-  DataExtentCallbackType            GetDataExtentCallback() const;
-  BufferPointerCallbackType         GetBufferPointerCallback() const;
-  //@}
+  UpdateDataCallbackType GetUpdateDataCallback() const;
+  DataExtentCallbackType GetDataExtentCallback() const;
+  BufferPointerCallbackType GetBufferPointerCallback() const;
+  ///@}
 
 protected:
   vtkImageExport();
   ~vtkImageExport() override;
 
   // This is called by the superclass.
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   virtual void UpdateInformationCallback();
   virtual int PipelineModifiedCallback();
@@ -201,7 +193,7 @@ protected:
 
   vtkTypeBool ImageLowerLeft;
   int DataDimensions[3];
-  void *ExportVoidPointer;
+  void* ExportVoidPointer;
 
   vtkMTimeType LastPipelineMTime;
 
@@ -226,6 +218,5 @@ private:
   vtkInformation* GetInputInformation();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

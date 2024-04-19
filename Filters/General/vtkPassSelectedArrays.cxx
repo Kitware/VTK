@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPassSelectedArrays.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPassSelectedArrays.h"
 
 #include "vtkCommand.h"
@@ -20,8 +8,9 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPassSelectedArrays);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPassSelectedArrays::vtkPassSelectedArrays()
   : Enabled(true)
 {
@@ -40,10 +29,10 @@ vtkPassSelectedArrays::vtkPassSelectedArrays()
   }
 }
 
-//----------------------------------------------------------------------------
-vtkPassSelectedArrays::~vtkPassSelectedArrays() {}
+//------------------------------------------------------------------------------
+vtkPassSelectedArrays::~vtkPassSelectedArrays() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArraySelection* vtkPassSelectedArrays::GetArraySelection(int association)
 {
   if (association >= 0 && association < vtkDataObject::NUMBER_OF_ASSOCIATIONS)
@@ -54,7 +43,7 @@ vtkDataArraySelection* vtkPassSelectedArrays::GetArraySelection(int association)
   return nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassSelectedArrays::FillInputPortInformation(int, vtkInformation* info)
 {
   // Skip composite data sets so that executives will treat this as a simple filter
@@ -67,7 +56,7 @@ int vtkPassSelectedArrays::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPassSelectedArrays::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -83,6 +72,10 @@ int vtkPassSelectedArrays::RequestData(
   // now filter arrays for each of the associations.
   for (int association = 0; association < vtkDataObject::NUMBER_OF_ASSOCIATIONS; ++association)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
     {
       continue;
@@ -129,7 +122,7 @@ int vtkPassSelectedArrays::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPassSelectedArrays::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -147,3 +140,4 @@ void vtkPassSelectedArrays::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RowDataArraySelection: " << endl;
   this->GetRowDataArraySelection()->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

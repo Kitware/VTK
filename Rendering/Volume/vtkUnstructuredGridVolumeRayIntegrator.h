@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridVolumeRayIntegrator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkUnstructuredGridVolumeRayIntegrator
@@ -26,14 +14,15 @@
  * @sa
  * vtkUnstructuredGridVolumeRayCastMapper
  * vtkUnstructuredGridVolumeRayCastFunction
-*/
+ */
 
 #ifndef vtkUnstructuredGridVolumeRayIntegrator_h
 #define vtkUnstructuredGridVolumeRayIntegrator_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVolume;
 class vtkDoubleArray;
 class vtkDataArray;
@@ -41,14 +30,13 @@ class vtkDataArray;
 class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayIntegrator : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkUnstructuredGridVolumeRayIntegrator,vtkObject);
+  vtkTypeMacro(vtkUnstructuredGridVolumeRayIntegrator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set up the integrator with the given properties and scalars.
    */
-  virtual void Initialize(vtkVolume *volume,
-                          vtkDataArray* scalars) = 0;
+  virtual void Initialize(vtkVolume* volume, vtkDataArray* scalars) = 0;
 
   /**
    * Given a set of intersections (defined by the three arrays), compute
@@ -59,10 +47,8 @@ public:
    * value of the volume in front of the segments passed in, and the result
    * will be placed back into /c color.
    */
-  virtual void Integrate(vtkDoubleArray *intersectionLengths,
-                         vtkDataArray *nearIntersections,
-                         vtkDataArray *farIntersections,
-                         float color[4]) = 0;
+  virtual void Integrate(vtkDoubleArray* intersectionLengths, vtkDataArray* nearIntersections,
+    vtkDataArray* farIntersections, float color[4]) = 0;
 
 protected:
   vtkUnstructuredGridVolumeRayIntegrator();
@@ -73,5 +59,5 @@ private:
   void operator=(const vtkUnstructuredGridVolumeRayIntegrator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-

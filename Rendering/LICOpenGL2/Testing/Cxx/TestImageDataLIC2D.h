@@ -1,20 +1,8 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestImageDataLIC2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#ifndef  __TestImageDataLIC2D_h
-#define  __TestImageDataLIC2D_h
+#ifndef __TestImageDataLIC2D_h
+#define __TestImageDataLIC2D_h
 
 // Example demonstrating use of vtkImageDataLIC2D filter.
 // Typical usage:

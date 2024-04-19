@@ -1,22 +1,26 @@
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkSphereSource.h"
-#include "vtkCubeSource.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSmartPointer.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkCompositePolyDataMapper2.h"
-#include "vtkCompositeDataDisplayAttributes.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkLookupTable.h"
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
 #include "vtkActor.h"
+#include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkCompositePolyDataMapper.h"
+#include "vtkCubeSource.h"
+#include "vtkDataArray.h"
+#include "vtkLookupTable.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkDataArray.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 
 #include <set>
-
-static vtkSmartPointer<vtkMultiBlockDataSet> vtkCreateData()
+namespace
+{
+vtkSmartPointer<vtkMultiBlockDataSet> vtkCreateData()
 {
   auto data = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   data->SetNumberOfBlocks(3 * 3 * 2);
@@ -45,59 +49,60 @@ static vtkSmartPointer<vtkMultiBlockDataSet> vtkCreateData()
   }
   return data;
 }
+}
 
 int TestBlockVisibility(int argc, char* argv[])
 {
   // Standard rendering classes
-  vtkSmartPointer< vtkRenderer > renderer = vtkSmartPointer< vtkRenderer >::New();
-  vtkSmartPointer< vtkRenderWindow > renWin = vtkSmartPointer< vtkRenderWindow >::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
   renWin->AddRenderer(renderer);
-  vtkSmartPointer< vtkRenderWindowInteractor > iren =
-      vtkSmartPointer< vtkRenderWindowInteractor >::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // We create a multiblock dataset with 18 blocks (spheres & cubes) and set the
   // block visibility to a pattern.
 
-  auto mbds = vtkCreateData();
+  auto mbds = ::vtkCreateData();
 
-  vtkSmartPointer< vtkCompositePolyDataMapper2 > mapper =
-      vtkSmartPointer< vtkCompositePolyDataMapper2 >::New();
+  vtkSmartPointer<vtkCompositePolyDataMapper> mapper =
+    vtkSmartPointer<vtkCompositePolyDataMapper>::New();
   mapper->SetInputDataObject(mbds);
   // mapper->SetColorModeToMapScalars();
   // mapper->SetScalarModeToUsePointData();
   // mapper->ScalarVisibilityOn();
   mapper->ScalarVisibilityOff();
 
-  vtkSmartPointer< vtkCompositeDataDisplayAttributes > attrs =
-      vtkSmartPointer< vtkCompositeDataDisplayAttributes >::New();
+  vtkSmartPointer<vtkCompositeDataDisplayAttributes> attrs =
+    vtkSmartPointer<vtkCompositeDataDisplayAttributes>::New();
   mapper->SetCompositeDataDisplayAttributes(attrs);
 
-  const int visblocks[] = {  0, 3, 4, 7, 8, 11, 13, 14, 17 };
+  const int visblocks[] = { 0, 3, 4, 7, 8, 11, 13, 14, 17 };
   std::set<int> vis(visblocks, visblocks + sizeof(visblocks) / sizeof(visblocks[0]));
   for (int i = 0; i < static_cast<int>(mbds->GetNumberOfBlocks()); ++i)
   {
     vtkDataObject* blk = mbds->GetBlock(i);
-    attrs->SetBlockVisibility(blk, vis.find(i) != vis.end() ? 1 : 0);
+    attrs->SetBlockVisibility(blk, vis.find(i) != vis.end());
   }
 
   int numVisited = 0;
   int numVisible = 0;
-  attrs->VisitVisibilities(
-    [&numVisited, &numVisible](vtkDataObject*, bool visible)
+  attrs->VisitVisibilities([&numVisited, &numVisible](vtkDataObject*, bool visible) {
+    if (visible)
     {
-      if (visible) { ++numVisible; }
-      ++numVisited;
-      return false; // do not terminate loop early.
+      ++numVisible;
     }
-  );
+    ++numVisited;
+    return false; // do not terminate loop early.
+  });
 
   if (numVisited != static_cast<int>(mbds->GetNumberOfBlocks()))
   {
-    vtkGenericWarningMacro(
-      "ERROR: Visited " << numVisited << " blocks instead of expected " << mbds->GetNumberOfBlocks());
+    vtkGenericWarningMacro("ERROR: Visited " << numVisited << " blocks instead of expected "
+                                             << mbds->GetNumberOfBlocks());
   }
 
   if (numVisible != static_cast<int>(vis.size()))
@@ -106,17 +111,17 @@ int TestBlockVisibility(int argc, char* argv[])
       "ERROR: " << numVisible << " visible blocks instead of expected " << vis.size());
   }
 
-  vtkSmartPointer< vtkActor > actor = vtkSmartPointer< vtkActor >::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
 
   // Standard testing code.
-  renderer->SetBackground(0.5,0.5,0.5);
-  renWin->SetSize(300,300);
+  renderer->SetBackground(0.5, 0.5, 0.5);
+  renWin->SetSize(300, 300);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

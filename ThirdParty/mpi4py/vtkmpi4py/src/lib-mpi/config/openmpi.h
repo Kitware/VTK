@@ -7,6 +7,7 @@
 #include "mpi-22.h"
 #include "mpi-30.h"
 #include "mpi-31.h"
+#include "mpi-40.h"
 
 #ifndef OMPI_HAVE_FORTRAN_LOGICAL1
 #define OMPI_HAVE_FORTRAN_LOGICAL1 0
@@ -68,7 +69,7 @@
 
 #ifdef OMPI_PROVIDE_MPI_FILE_INTERFACE
 #if OMPI_PROVIDE_MPI_FILE_INTERFACE == 0
-#include "openmpi-io.h"
+#include "mpi-io.h"
 #endif
 #endif
 
@@ -142,8 +143,8 @@
 #endif
 
 #if OMPI_NUMVERSION >= 40000
-#undef  PyMPI_HAVE_MPI_LB
-#undef  PyMPI_HAVE_MPI_UB
+#undef PyMPI_HAVE_MPI_LB
+#undef PyMPI_HAVE_MPI_UB
 #endif /* OMPI >= 4.0.0 */
 
 #endif /* !PyMPI_CONFIG_OPENMPI_H */

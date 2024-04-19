@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParallelCoordinatesInteractorStyle.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkParallelCoordinatesInteractorStyle
  * @brief   interactive manipulation of the camera specialized for parallel coordinates
@@ -40,49 +24,53 @@
  * @sa
  * vtkInteractorStyle vtkInteractorStyleTrackballActor
  * vtkInteractorStyleJoystickCamera vtkInteractorStyleJoystickActor
-*/
+ */
 
 #ifndef vtkParallelCoordinatesInteractorStyle_h
 #define vtkParallelCoordinatesInteractorStyle_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkParallelCoordinatesInteractorStyle : public vtkInteractorStyleTrackballCamera
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkParallelCoordinatesInteractorStyle
+  : public vtkInteractorStyleTrackballCamera
 {
 public:
-  static vtkParallelCoordinatesInteractorStyle *New();
+  static vtkParallelCoordinatesInteractorStyle* New();
   vtkTypeMacro(vtkParallelCoordinatesInteractorStyle, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum {
-    INTERACT_HOVER=0,
+  enum
+  {
+    INTERACT_HOVER = 0,
     INTERACT_INSPECT,
     INTERACT_ZOOM,
     INTERACT_PAN
   };
 
-  //@{
+  ///@{
   /**
    * Get the cursor positions in pixel coords
    */
-  vtkGetVector2Macro(CursorStartPosition,int);
-  vtkGetVector2Macro(CursorCurrentPosition,int);
-  vtkGetVector2Macro(CursorLastPosition,int);
-  //@}
+  vtkGetVector2Macro(CursorStartPosition, int);
+  vtkGetVector2Macro(CursorCurrentPosition, int);
+  vtkGetVector2Macro(CursorLastPosition, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the cursor positions in a given coordinate system
    */
-  void GetCursorStartPosition(vtkViewport *viewport, double pos[2]);
-  void GetCursorCurrentPosition(vtkViewport *viewport, double pos[2]);
-  void GetCursorLastPosition(vtkViewport *viewport, double pos[2]);
-  //@}
+  void GetCursorStartPosition(vtkViewport* viewport, double pos[2]);
+  void GetCursorCurrentPosition(vtkViewport* viewport, double pos[2]);
+  void GetCursorLastPosition(vtkViewport* viewport, double pos[2]);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
@@ -95,25 +83,25 @@ public:
   void OnRightButtonDown() override;
   void OnRightButtonUp() override;
   void OnLeave() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   virtual void StartInspect(int x, int y);
   virtual void Inspect(int x, int y);
   virtual void EndInspect();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   void StartZoom() override;
   void Zoom() override;
   void EndZoom() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   void StartPan() override;
   void Pan() override;
   void EndPan() override;
-  //@}
+  ///@}
 
   /**
    * Override the "fly-to" (f keypress) for images.
@@ -133,4 +121,5 @@ private:
   void operator=(const vtkParallelCoordinatesInteractorStyle&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

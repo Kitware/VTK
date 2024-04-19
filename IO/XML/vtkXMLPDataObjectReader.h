@@ -1,24 +1,12 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPDataObjectReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPDataObjectReader
  * @brief   Superclass for PVTK XML file readers.
  *
  * vtkXMLPDataObjectReader provides functionality common to all PVTK XML
  * file readers. Concrete subclasses call upon this functionality when needed.
-*/
+ */
 
 #ifndef vtkXMLPDataObjectReader_h
 #define vtkXMLPDataObjectReader_h
@@ -26,6 +14,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOXML_EXPORT vtkXMLPDataObjectReader : public vtkXMLReader
 {
 public:
@@ -57,8 +46,8 @@ protected:
   virtual void SetupPieces(int numPieces);
 
   /**
-  * Pipeline execute information driver.  Called by vtkXMLReader.
-  */
+   * Pipeline execute information driver.  Called by vtkXMLReader.
+   */
   int ReadXMLInformation() override;
 
   /**
@@ -76,44 +65,44 @@ protected:
    */
   virtual int ReadPiece(vtkXMLDataElement* ePiece) = 0;
 
-  //@{
+  ///@{
   /**
    * Methods for creating a filename for each piece in the dataset
    */
   char* CreatePieceFileName(const char* fileName);
   void SplitFileName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
-  * Callback registered with the PieceProgressObserver.
-  */
+   * Callback registered with the PieceProgressObserver.
+   */
   static void PieceProgressCallbackFunction(vtkObject*, unsigned long, void*, void*);
   virtual void PieceProgressCallback() = 0;
-  //@}
+  ///@}
 
   /**
-  * Pieces from the input summary file.
-  */
+   * Pieces from the input summary file.
+   */
   int NumberOfPieces;
 
   /**
-  * The piece currently being read.
-  */
+   * The piece currently being read.
+   */
   int Piece;
 
   /**
-  * The path to the input file without the file name.
-  */
+   * The path to the input file without the file name.
+   */
   char* PathName;
 
-  //@{
+  ///@{
   /**
-  * Information per-piece.
-  */
+   * Information per-piece.
+   */
   vtkXMLDataElement** PieceElements;
   int* CanReadPieceFlag;
-  //@}
+  ///@}
 
   vtkCallbackCommand* PieceProgressObserver;
 
@@ -122,4 +111,5 @@ private:
   void operator=(const vtkXMLPDataObjectReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

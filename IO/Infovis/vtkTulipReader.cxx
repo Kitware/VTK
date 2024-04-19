@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTulipReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkTulipReader.h"
 
@@ -34,25 +18,26 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkVariantArray.h"
+#include "vtksys/FStream.hxx"
 
 #include <cassert>
+#include <cctype>
 #include <fstream>
-#include <sstream>
 #include <map>
 #include <set>
+#include <sstream>
 #include <stack>
 #include <vector>
-#include <cctype>
 
 // I need a safe way to read a line of arbitrary length.  It exists on
 // some platforms but not others so I'm afraid I have to write it
 // myself.
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
-static int my_getline(std::istream& stream, vtkStdString &output, char delim='\n');
+VTK_ABI_NAMESPACE_BEGIN
+static int my_getline(std::istream& stream, std::string& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkTulipReader);
 
@@ -73,8 +58,7 @@ void vtkTulipReader::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
 }
 
 int vtkTulipReader::FillOutputPortInformation(int port, vtkInformation* info)
@@ -99,13 +83,14 @@ struct vtkTulipReaderCluster
   int clusterId;
   int parentId;
   static const int NO_PARENT = -1;
-  vtkStdString name;
+  std::string name;
   vtkSmartPointer<vtkIdTypeArray> nodes;
 };
 
 struct vtkTulipReaderToken
 {
-  enum {
+  enum
+  {
     OPEN_PAREN,
     CLOSE_PAREN,
     KEYWORD,
@@ -115,7 +100,7 @@ struct vtkTulipReaderToken
     END_OF_FILE
   };
   int Type;
-  vtkStdString StringValue;
+  std::string StringValue;
   int IntValue;
   double DoubleValue;
 };
@@ -127,7 +112,7 @@ static void vtkTulipReaderNextToken(std::istream& in, vtkTulipReaderToken& tok)
   {
     while (!in.eof() && ch == ';')
     {
-      vtkStdString comment;
+      std::string comment;
       my_getline(in, comment);
       ch = in.peek();
     }
@@ -194,10 +179,8 @@ static void vtkTulipReaderNextToken(std::istream& in, vtkTulipReaderToken& tok)
   }
 }
 
-int vtkTulipReader::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkTulipReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   if (this->FileName == nullptr)
   {
@@ -205,8 +188,8 @@ int vtkTulipReader::RequestData(
     return 0;
   }
 
-  std::ifstream fin(this->FileName);
-  if(!fin.is_open())
+  vtksys::ifstream fin(this->FileName);
+  if (!fin.is_open())
   {
     vtkErrorMacro("Could not open file " << this->FileName << ".");
     return 0;
@@ -284,7 +267,7 @@ int vtkTulipReader::RequestData(
       int clusterId = tok.IntValue;
       vtkTulipReaderNextToken(fin, tok);
       assert(tok.Type == vtkTulipReaderToken::TEXT);
-      vtkStdString clusterName = tok.StringValue;
+      std::string clusterName = tok.StringValue;
 
       vtkTulipReaderCluster newCluster;
       newCluster.clusterId = clusterId;
@@ -338,16 +321,16 @@ int vtkTulipReader::RequestData(
     {
       vtkTulipReaderNextToken(fin, tok);
       assert(tok.Type == vtkTulipReaderToken::INT);
-      //int clusterId = tok.IntValue;
+      // int clusterId = tok.IntValue;
       // We only read properties for cluster 0 (the whole graph).
 
       vtkTulipReaderNextToken(fin, tok);
       assert(tok.Type == vtkTulipReaderToken::KEYWORD);
-      vtkStdString type = tok.StringValue;
+      std::string type = tok.StringValue;
 
       vtkTulipReaderNextToken(fin, tok);
       assert(tok.Type == vtkTulipReaderToken::TEXT);
-      vtkStdString name = tok.StringValue;
+      std::string name = tok.StringValue;
 
       // The existing types are the following
       // bool : This type is used to store boolean on elements.
@@ -381,13 +364,13 @@ int vtkTulipReader::RequestData(
           assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::KEYWORD);
-          vtkStdString key = tok.StringValue;
+          std::string key = tok.StringValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::TEXT || tok.Type == vtkTulipReaderToken::INT);
           int id = tok.IntValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::TEXT);
-          vtkStdString value = tok.StringValue;
+          std::string value = tok.StringValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::CLOSE_PAREN);
           vtkTulipReaderNextToken(fin, tok);
@@ -427,10 +410,9 @@ int vtkTulipReader::RequestData(
           assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::KEYWORD);
-          vtkStdString key = tok.StringValue;
+          std::string key = tok.StringValue;
           vtkTulipReaderNextToken(fin, tok);
-          assert(tok.Type == vtkTulipReaderToken::TEXT ||
-            tok.Type == vtkTulipReaderToken::INT);
+          assert(tok.Type == vtkTulipReaderToken::TEXT || tok.Type == vtkTulipReaderToken::INT);
           int id = tok.IntValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::TEXT);
@@ -478,10 +460,9 @@ int vtkTulipReader::RequestData(
           assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::KEYWORD);
-          vtkStdString key = tok.StringValue;
+          std::string key = tok.StringValue;
           vtkTulipReaderNextToken(fin, tok);
-          assert(tok.Type == vtkTulipReaderToken::TEXT ||
-            tok.Type == vtkTulipReaderToken::INT);
+          assert(tok.Type == vtkTulipReaderToken::TEXT || tok.Type == vtkTulipReaderToken::INT);
           int id = tok.IntValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::TEXT);
@@ -561,7 +542,7 @@ int vtkTulipReader::RequestData(
   vtkGraph* output = vtkGraph::GetData(outputVector);
   if (!output->CheckedShallowCopy(builder))
   {
-    vtkErrorMacro(<<"Invalid graph structure.");
+    vtkErrorMacro(<< "Invalid graph structure.");
     return 0;
   }
 
@@ -570,14 +551,14 @@ int vtkTulipReader::RequestData(
     vtkSmartPointer<vtkAnnotationLayers>::New();
 
   // Determine list of unique cluster names.
-  std::set<vtkStdString> uniqueLabels;
+  std::set<std::string> uniqueLabels;
   for (size_t i = 0; i < clusters.size(); ++i)
   {
     uniqueLabels.insert(clusters.at(i).name);
   }
 
   // Create annotations.
-  std::set<vtkStdString>::iterator labels = uniqueLabels.begin();
+  std::set<std::string>::iterator labels = uniqueLabels.begin();
   for (; labels != uniqueLabels.end(); ++labels)
   {
     vtkSmartPointer<vtkAnnotation> annotation = vtkSmartPointer<vtkAnnotation>::New();
@@ -586,11 +567,10 @@ int vtkTulipReader::RequestData(
     annotation->GetInformation()->Set(vtkAnnotation::LABEL(), labels->c_str());
     annotation->GetInformation()->Set(vtkAnnotation::ENABLE(), 1);
 
-    vtkSmartPointer<vtkSelection> selection =
-      vtkSmartPointer<vtkSelection>::New();
+    vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
     for (size_t i = 0; i < clusters.size(); ++i)
     {
-      if (clusters.at(i).name.compare(labels->c_str()) == 0)
+      if (clusters.at(i).name == *labels)
       {
         vtkSelectionNode* selectionNode = vtkSelectionNode::New();
         selectionNode->SetFieldType(vtkSelectionNode::VERTEX);
@@ -612,15 +592,13 @@ int vtkTulipReader::RequestData(
   return 1;
 }
 
-static int
-my_getline(std::istream& in, vtkStdString &out, char delimiter)
+static int my_getline(std::istream& in, std::string& out, char delimiter)
 {
-  out = vtkStdString();
+  out = std::string();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
 
-  while ((nextValue = in.get()) != EOF &&
-         numCharactersRead < out.max_size())
+  while ((nextValue = in.get()) != EOF && numCharactersRead < out.max_size())
   {
     ++numCharactersRead;
 
@@ -637,5 +615,4 @@ my_getline(std::istream& in, vtkStdString &out, char delimiter)
 
   return numCharactersRead;
 }
-
-
+VTK_ABI_NAMESPACE_END

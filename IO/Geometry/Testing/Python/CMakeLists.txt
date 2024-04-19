@@ -12,7 +12,4 @@ vtk_add_test_python(
   TestChacoReader.py
   TestSimplePointsReader.py
   TestPlot3DMeta.py
-  TestXYZMol.py
-  caffeine.py
-  caffeine_notrailingwhitespaces.py
   )

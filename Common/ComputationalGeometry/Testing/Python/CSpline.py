@@ -1,27 +1,50 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkCommonComputationalGeometry import vtkCardinalSpline
+from vtkmodules.vtkFiltersCore import (
+    vtkGlyph3D,
+    vtkTubeFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Now create the RenderWindow, Renderer and Interactor
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-math = vtk.vtkMath()
+math = vtkMath()
 
 numberOfInputPoints = 30
 
-aSplineX = vtk.vtkCardinalSpline()
-aSplineY = vtk.vtkCardinalSpline()
-aSplineZ = vtk.vtkCardinalSpline()
+aSplineX = vtkCardinalSpline()
+aSplineY = vtkCardinalSpline()
+aSplineZ = vtkCardinalSpline()
 
 # generate random points
 
-inputPoints = vtk.vtkPoints()
+inputPoints = vtkPoints()
 i = 0
 while i < numberOfInputPoints:
     x = math.Random(0, 1)
@@ -33,22 +56,22 @@ while i < numberOfInputPoints:
     inputPoints.InsertPoint(i, x, y, z)
     i += 1
 
-inputData = vtk.vtkPolyData()
+inputData = vtkPolyData()
 inputData.SetPoints(inputPoints)
 
-balls = vtk.vtkSphereSource()
+balls = vtkSphereSource()
 balls.SetRadius(.01)
 balls.SetPhiResolution(10)
 balls.SetThetaResolution(10)
 
-glyphPoints = vtk.vtkGlyph3D()
+glyphPoints = vtkGlyph3D()
 glyphPoints.SetInputData(inputData)
 glyphPoints.SetSourceConnection(balls.GetOutputPort())
 
-glyphMapper = vtk.vtkPolyDataMapper()
+glyphMapper = vtkPolyDataMapper()
 glyphMapper.SetInputConnection(glyphPoints.GetOutputPort())
 
-glyph = vtk.vtkActor()
+glyph = vtkActor()
 glyph.SetMapper(glyphMapper)
 glyph.GetProperty().SetDiffuseColor(1, 0.4, 0.4)
 glyph.GetProperty().SetSpecular(.3)
@@ -57,8 +80,8 @@ glyph.GetProperty().SetSpecularPower(30)
 ren1.AddActor(glyph)
 
 # create a polyline
-points = vtk.vtkPoints()
-profileData = vtk.vtkPolyData()
+points = vtkPoints()
+profileData = vtkPolyData()
 
 numberOfOutputPoints = 400
 offset = 1.0
@@ -74,7 +97,7 @@ def fit ():
 
 fit()
 
-lines = vtk.vtkCellArray()
+lines = vtkCellArray()
 lines.InsertNextCell(numberOfOutputPoints)
 
 i = 0
@@ -85,15 +108,15 @@ while i < numberOfOutputPoints:
 profileData.SetPoints(points)
 profileData.SetLines(lines)
 
-profileTubes = vtk.vtkTubeFilter()
+profileTubes = vtkTubeFilter()
 profileTubes.SetNumberOfSides(8)
 profileTubes.SetInputData(profileData)
 profileTubes.SetRadius(.005)
 
-profileMapper = vtk.vtkPolyDataMapper()
+profileMapper = vtkPolyDataMapper()
 profileMapper.SetInputConnection(profileTubes.GetOutputPort())
 
-profile = vtk.vtkActor()
+profile = vtkActor()
 profile.SetMapper(profileMapper)
 profile.GetProperty().SetDiffuseColor(1, 1, 0.6)
 profile.GetProperty().SetSpecular(.3)

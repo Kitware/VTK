@@ -5,9 +5,24 @@ Test NIFTI support in VTK by reading a file, writing it, and
 then re-reading it to ensure that the contents are identical.
 """
 
-import vtk
-from vtk.util.misc import vtkGetDataRoot
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.vtkIOImage import (
+    vtkNIFTIImageReader,
+    vtkNIFTIImageWriter,
+)
+from vtkmodules.vtkImagingMath import vtkImageMathematics
+from vtkmodules.vtkInteractionStyle import vtkInteractorStyleImage
+from vtkmodules.vtkRenderingCore import (
+    vtkImageSlice,
+    vtkImageSliceMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
+from vtkmodules.util.misc import vtkGetTempDir
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 VTK_TEMP_DIR = vtkGetTempDir()
@@ -25,9 +40,9 @@ dispfile = "avg152T1_RL_nifti.nii.gz"
 def TestDisplay(file1):
     """Display the output"""
 
-    inpath = os.path.join(str(VTK_DATA_ROOT), "Data", file1)
+    inpath = os.path.join(VTK_DATA_ROOT, "Data", file1)
 
-    reader = vtk.vtkNIFTIImageReader()
+    reader = vtkNIFTIImageReader()
     reader.SetFileName(inpath)
     reader.Update()
 
@@ -42,31 +57,31 @@ def TestDisplay(file1):
         center2 = (center[0] + 0.5*spacing[0], center[1], center[2])
     vrange = reader.GetOutput().GetScalarRange()
 
-    map1 = vtk.vtkImageSliceMapper()
+    map1 = vtkImageSliceMapper()
     map1.BorderOn()
     map1.SliceAtFocalPointOn()
     map1.SliceFacesCameraOn()
     map1.SetInputConnection(reader.GetOutputPort())
-    map2 = vtk.vtkImageSliceMapper()
+    map2 = vtkImageSliceMapper()
     map2.BorderOn()
     map2.SliceAtFocalPointOn()
     map2.SliceFacesCameraOn()
     map2.SetInputConnection(reader.GetOutputPort())
 
-    slice1 = vtk.vtkImageSlice()
+    slice1 = vtkImageSlice()
     slice1.SetMapper(map1)
     slice1.GetProperty().SetColorWindow(vrange[1]-vrange[0])
     slice1.GetProperty().SetColorLevel(0.5*(vrange[0]+vrange[1]))
-    slice2 = vtk.vtkImageSlice()
+    slice2 = vtkImageSlice()
     slice2.SetMapper(map2)
     slice2.GetProperty().SetColorWindow(vrange[1]-vrange[0])
     slice2.GetProperty().SetColorLevel(0.5*(vrange[0]+vrange[1]))
 
     ratio = size[0]*1.0/(size[0]+size[2])
 
-    ren1 = vtk.vtkRenderer()
+    ren1 = vtkRenderer()
     ren1.SetViewport(0,0,ratio,1.0)
-    ren2 = vtk.vtkRenderer()
+    ren2 = vtkRenderer()
     ren2.SetViewport(ratio,0.0,1.0,1.0)
     ren1.AddViewProp(slice1)
     ren2.AddViewProp(slice2)
@@ -84,13 +99,13 @@ def TestDisplay(file1):
     cam2.SetPosition(center2[0] + 100.0, center2[1], center2[2])
 
     if "-I" in sys.argv:
-        style = vtk.vtkInteractorStyleImage()
+        style = vtkInteractorStyleImage()
         style.SetInteractionModeToImageSlicing()
 
-        iren = vtk.vtkRenderWindowInteractor()
+        iren = vtkRenderWindowInteractor()
         iren.SetInteractorStyle(style)
 
-    renwin = vtk.vtkRenderWindow()
+    renwin = vtkRenderWindow()
     renwin.SetSize((size[0] + size[2]) // 2 * 2, size[1] // 2 * 2) # keep size even
     renwin.AddRenderer(ren1)
     renwin.AddRenderer(ren2)
@@ -107,16 +122,16 @@ def TestDisplay(file1):
 def TestReadWriteRead(infile, outfile):
     """Read, write, and re-read a file, return difference."""
 
-    inpath = os.path.join(str(VTK_DATA_ROOT), "Data", infile)
+    inpath = os.path.join(VTK_DATA_ROOT, "Data", infile)
     outpath = os.path.join(str(VTK_TEMP_DIR), outfile)
 
     # read a NIFTI file
-    reader = vtk.vtkNIFTIImageReader()
+    reader = vtkNIFTIImageReader()
     reader.SetFileName(inpath)
     reader.TimeAsVectorOn()
     reader.Update()
 
-    writer = vtk.vtkNIFTIImageWriter()
+    writer = vtkNIFTIImageWriter()
     writer.SetInputConnection(reader.GetOutputPort())
     writer.SetFileName(outpath)
     # copy most information directory from the header
@@ -128,12 +143,12 @@ def TestReadWriteRead(infile, outfile):
     writer.SetSFormMatrix(reader.GetSFormMatrix())
     writer.Write()
 
-    reader2 = vtk.vtkNIFTIImageReader()
+    reader2 = vtkNIFTIImageReader()
     reader2.SetFileName(outpath)
     reader2.TimeAsVectorOn()
     reader2.Update()
 
-    diff = vtk.vtkImageMathematics()
+    diff = vtkImageMathematics()
     diff.SetOperationToSubtract()
     diff.SetInputConnection(0,reader.GetOutputPort())
     diff.SetInputConnection(1,reader2.GetOutputPort())

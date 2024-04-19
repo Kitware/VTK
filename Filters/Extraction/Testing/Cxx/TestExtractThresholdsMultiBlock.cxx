@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestExtractThresholdsMultiBlock.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This tests point, cell, and row selection and extraction from a multiblock data set
 // made up of two vtkPolyDatas and vtkTable.
 
@@ -144,10 +132,12 @@ int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   }
   if (!vtkPointSet::SafeDownCast(extracted->GetBlock(1)))
   {
-    std::cerr << "Block 1 was not a vtkPointSet, but a " << extracted->GetBlock(1)->GetClassName() << " instead." << std::endl;
+    std::cerr << "Block 1 was not a vtkPointSet, but a " << extracted->GetBlock(1)->GetClassName()
+              << " instead." << std::endl;
     return EXIT_FAILURE;
   }
-  if (vtkPointSet::SafeDownCast(extracted->GetBlock(1))->GetPoints()->GetData()->GetDataType() != VTK_DOUBLE)
+  if (vtkPointSet::SafeDownCast(extracted->GetBlock(1))->GetPoints()->GetData()->GetDataType() !=
+    VTK_DOUBLE)
   {
     std::cerr << "Output for block 1 should have points with double precision" << std::endl;
     return EXIT_FAILURE;
@@ -180,7 +170,7 @@ int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)
     std::cerr << "Output was not a vtkMultiBlockDataSet." << std::endl;
     return EXIT_FAILURE;
   }
-  if (extracted->GetBlock(0) || extracted->GetBlock(1) || ! extracted->GetBlock(2))
+  if (extracted->GetBlock(0) || extracted->GetBlock(1) || !extracted->GetBlock(2))
   {
     std::cerr << "Blocks were not as expected" << std::endl;
     return EXIT_FAILURE;
@@ -191,5 +181,5 @@ int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)
     return EXIT_FAILURE;
   }
 
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

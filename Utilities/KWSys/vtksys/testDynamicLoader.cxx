@@ -8,6 +8,25 @@
 #  include <be/kernel/OS.h> /* disable_debugger() API. */
 #endif
 
+// Needed for __GLIBC__ test macro.
+#ifdef __linux__
+#  include <features.h>
+
+// Will define LIBDL_SO macro on systems with glibc.
+#  ifdef __GLIBC__
+#    include <gnu/lib-names.h>
+// Define to LIBC_SO, if not defined by above header.
+#    ifndef LIBDL_SO
+#      define LIBDL_SO LIBC_SO
+#    endif
+#  endif
+
+// Define the LIBDL_SO macro, if not defined above.
+#  ifndef LIBDL_SO
+#    define LIBDL_SO "libdl.so"
+#  endif
+#endif
+
 // Work-around CMake dependency scanning limitation.  This must
 // duplicate the above list of headers.
 #if 0
@@ -21,11 +40,15 @@
 // left on disk.
 #include <testSystemTools.h>
 
+// For TestDynamicLoaderData, which, though not referenced literally,
+// is referenced semantically.
+#include "testDynload.h"
+
 static std::string GetLibName(const char* lname, const char* subdir = nullptr)
 {
   // Construct proper name of lib
   std::string slname;
-  slname = EXECUTABLE_OUTPUT_PATH;
+  slname = RUNTIME_OUTPUT_DIRECTORY;
   if (subdir) {
     slname += "/";
     slname += subdir;
@@ -107,8 +130,8 @@ int testDynamicLoader(int argc, char* argv[])
   // This one is actually fun to test, since dlopen is by default
   // loaded...wonder why :)
   res += TestDynamicLoader("foobar.lib", "dlopen", 0, 1, 0);
-  res += TestDynamicLoader("libdl.so", "dlopen", 1, 1, 1);
-  res += TestDynamicLoader("libdl.so", "TestDynamicLoader", 1, 0, 1);
+  res += TestDynamicLoader(LIBDL_SO, "dlopen", 1, 1, 1);
+  res += TestDynamicLoader(LIBDL_SO, "TestDynamicLoader", 1, 0, 1);
 #endif
   // Now try on the generated library
   std::string libname = GetLibName(KWSYS_NAMESPACE_STRING "TestDynload");

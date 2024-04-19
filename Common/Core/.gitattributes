@@ -1,0 +1,2 @@
+vtkMersenneTwister_Private.cxx            -format.clang-format
+vtkWin32OutputWindowProcessEncodedData.c  -format.clang-format

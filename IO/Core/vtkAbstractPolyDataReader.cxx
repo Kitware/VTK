@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAbstractPolyDataReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .SECTION See Also
 // vtkOBJReader vtkPLYReader vtkSTLReader
 #include "vtkAbstractPolyDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractPolyDataReader::vtkAbstractPolyDataReader()
-  : vtkPolyDataAlgorithm()
 {
   this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
@@ -30,7 +18,7 @@ vtkAbstractPolyDataReader::~vtkAbstractPolyDataReader()
 
 void vtkAbstractPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "FileName: " <<
-    (this->FileName ? this->FileName : "NONE") << endl;
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "NONE") << endl;
 }
+VTK_ABI_NAMESPACE_END

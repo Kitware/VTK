@@ -1,23 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestMotionFXCFGReaderCommon.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef TestMotionFXCFGReaderCommon_h
 #define TestMotionFXCFGReaderCommon_h
 
 #include <vtkActor.h>
 #include <vtkCallbackCommand.h>
-#include <vtkCompositePolyDataMapper2.h>
+#include <vtkCompositePolyDataMapper.h>
 #include <vtkInformation.h>
 #include <vtkMotionFXCFGReader.h>
 #include <vtkNew.h>
@@ -40,7 +28,7 @@ struct ClientData
 {
   vtkSmartPointer<vtkRenderWindow> Window;
   vtkSmartPointer<vtkMotionFXCFGReader> Reader;
-  vtkSmartPointer<vtkCompositePolyDataMapper2> Mapper;
+  vtkSmartPointer<vtkCompositePolyDataMapper> Mapper;
   std::vector<double> TimeSteps;
   int CurrentIndex;
 
@@ -74,7 +62,8 @@ struct ClientData
 
   void Render()
   {
-    assert(this->CurrentIndex >= 0 && this->CurrentIndex < static_cast<int>(this->TimeSteps.size()));
+    assert(
+      this->CurrentIndex >= 0 && this->CurrentIndex < static_cast<int>(this->TimeSteps.size()));
     this->Reader->UpdateTimeStep(this->TimeSteps[this->CurrentIndex]);
     this->Mapper->SetInputDataObject(this->Reader->GetOutputDataObject(0));
     this->Window->Render();
@@ -133,7 +122,7 @@ int Test(int argc, char* argv[], const char* dfile, const InitializationCallback
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkCompositePolyDataMapper2> mapper;
+  vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkActor> actor;
@@ -143,7 +132,7 @@ int Test(int argc, char* argv[], const char* dfile, const InitializationCallback
   initCallback(renWin, renderer, reader);
 
   std::vector<double> ts(numTimeSteps);
-  outInfo->Get(SDDP::TIME_STEPS(), &ts[0]);
+  outInfo->Get(SDDP::TIME_STEPS(), ts.data());
 
   // for baseline comparison, we'll jump to the middle of the
   // time sequence and do a capture.

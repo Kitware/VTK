@@ -1,23 +1,12 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    vtkAbstractGridConnectivity.cxx
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAbstractGridConnectivity.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractGridConnectivity::vtkAbstractGridConnectivity()
 {
-  this->NumberOfGrids                = 0;
-  this->NumberOfGhostLayers          = 0;
+  this->NumberOfGrids = 0;
+  this->NumberOfGhostLayers = 0;
   this->AllocatedGhostDataStructures = false;
 }
 
@@ -29,9 +18,10 @@ vtkAbstractGridConnectivity::~vtkAbstractGridConnectivity()
 }
 
 //------------------------------------------------------------------------------
-void vtkAbstractGridConnectivity::PrintSelf(std::ostream &os, vtkIndent indent )
+void vtkAbstractGridConnectivity::PrintSelf(std::ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
   os << "NumberOfGrids: " << this->NumberOfGrids << std::endl;
   os << "NumberOfGhostLayers: " << this->NumberOfGhostLayers << std::endl;
 }
+VTK_ABI_NAMESPACE_END

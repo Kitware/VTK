@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataObjectReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDataObjectReader
  * @brief   read vtk field data file
@@ -26,46 +14,48 @@
  * Binary files written on one system may not be readable on other systems.
  * @sa
  * vtkFieldData vtkDataObjectWriter
-*/
+ */
 
 #ifndef vtkDataObjectReader_h
 #define vtkDataObjectReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 
 class VTKIOLEGACY_EXPORT vtkDataObjectReader : public vtkDataReader
 {
 public:
-  static vtkDataObjectReader *New();
-  vtkTypeMacro(vtkDataObjectReader,vtkDataReader);
+  static vtkDataObjectReader* New();
+  vtkTypeMacro(vtkDataObjectReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output field of this reader.
    */
-  vtkDataObject *GetOutput();
-  vtkDataObject *GetOutput(int idx);
-  void SetOutput(vtkDataObject *);
-  //@}
+  vtkDataObject* GetOutput();
+  vtkDataObject* GetOutput(int idx);
+  void SetOutput(vtkDataObject*);
+  ///@}
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
+  int ReadMeshSimple(VTK_FILEPATH const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkDataObjectReader();
   ~vtkDataObjectReader() override;
 
   int FillOutputPortInformation(int, vtkInformation*) override;
+
 private:
   vtkDataObjectReader(const vtkDataObjectReader&) = delete;
   void operator=(const vtkDataObjectReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

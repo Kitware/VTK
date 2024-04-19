@@ -1,61 +1,49 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestOSConeCxx.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This test covers offscreen rendering.
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkConeSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestOSConeCxx(int argc, char* argv[])
 {
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-  //renWin->SetShowWindow(false);
-  //renWin->OffScreenRenderingOn();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  // renWin->SetShowWindow(false);
+  // renWin->OffScreenRenderingOn();
   renWin->SetMultiSamples(0);
 
-  vtkRenderer *renderer = vtkRenderer::New();
+  vtkRenderer* renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
   renderer->Delete();
 
-  vtkConeSource *cone=vtkConeSource::New();
-  vtkPolyDataMapper *mapper=vtkPolyDataMapper::New();
+  vtkConeSource* cone = vtkConeSource::New();
+  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(cone->GetOutputPort());
   cone->Delete();
 
-  vtkActor *actor=vtkActor::New();
+  vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
   mapper->Delete();
 
   renderer->AddActor(actor);
   actor->Delete();
 
-  renderer->SetBackground(0.2,0.3,0.4);
+  renderer->SetBackground(0.2, 0.3, 0.4);
   renWin->Render();
   renWin->SetShowWindow(false);
   renWin->SetUseOffScreenBuffers(true);
-  renderer->SetBackground(0,0,0);
+  renderer->SetBackground(0, 0, 0);
 
   renWin->Render();
   renWin->Render();
@@ -79,7 +67,7 @@ int TestOSConeCxx(int argc, char* argv[])
   iren->Delete();
 #else // the interactor version fails with OSMesa.
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
   renWin->Delete();
 #endif
   return !retVal;

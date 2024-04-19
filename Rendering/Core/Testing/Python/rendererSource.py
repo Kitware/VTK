@@ -1,6 +1,27 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonExecutionModel import vtkCastToConcrete
+from vtkmodules.vtkFiltersCore import (
+    vtkContourFilter,
+    vtkPolyDataNormals,
+    vtkProbeFilter,
+    vtkStructuredGridOutlineFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkRendererSource,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,22 +30,22 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-ren2 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+ren2 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create pipeline for ren1
 #
-pl3d2 = vtk.vtkMultiBlockPLOT3DReader()
+pl3d2 = vtkMultiBlockPLOT3DReader()
 pl3d2.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d2.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d2.SetScalarFunctionNumber(153)
@@ -32,7 +53,7 @@ pl3d2.Update()
 
 output2 = pl3d2.GetOutput().GetBlock(0)
 
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
+pl3d = vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(120)
@@ -41,37 +62,37 @@ pl3d.Update()
 
 output = pl3d.GetOutput().GetBlock(0)
 
-iso = vtk.vtkContourFilter()
+iso = vtkContourFilter()
 iso.SetInputData(output)
 iso.SetValue(0, -100000)
 
-probe2 = vtk.vtkProbeFilter()
+probe2 = vtkProbeFilter()
 probe2.SetInputConnection(iso.GetOutputPort())
 probe2.SetSourceData(output2)
 
-cast2 = vtk.vtkCastToConcrete()
+cast2 = vtkCastToConcrete()
 cast2.SetInputConnection(probe2.GetOutputPort())
 
-normals = vtk.vtkPolyDataNormals()
+normals = vtkPolyDataNormals()
 normals.SetInputConnection(cast2.GetOutputPort())
 normals.SetFeatureAngle(45)
 
-isoMapper = vtk.vtkPolyDataMapper()
+isoMapper = vtkPolyDataMapper()
 isoMapper.SetInputConnection(normals.GetOutputPort())
 isoMapper.ScalarVisibilityOn()
 isoMapper.SetScalarRange(output2.GetPointData().GetScalars().GetRange())
 
-isoActor = vtk.vtkActor()
+isoActor = vtkActor()
 isoActor.SetMapper(isoMapper)
 isoActor.GetProperty().SetColor(GetRGBColor('bisque'))
 
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 outline.SetInputData(output)
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Add the actors to the renderer, set the background and size
@@ -92,12 +113,12 @@ cam1.SetFocalPoint(9.71821, 0.458166, 29.3999)
 cam1.SetPosition(2.7439, -37.3196, 38.7167)
 cam1.SetViewUp(-0.16123, 0.264271, 0.950876)
 
-aPlane = vtk.vtkPlaneSource()
+aPlane = vtkPlaneSource()
 
-aPlaneMapper = vtk.vtkPolyDataMapper()
+aPlaneMapper = vtkPolyDataMapper()
 aPlaneMapper.SetInputConnection(aPlane.GetOutputPort())
 
-screen = vtk.vtkActor()
+screen = vtkActor()
 screen.SetMapper(aPlaneMapper)
 
 ren2.AddActor(screen)
@@ -111,11 +132,11 @@ ren2.ResetCameraClippingRange()
 
 renWin.Render()
 
-ren1Image = vtk.vtkRendererSource()
+ren1Image = vtkRendererSource()
 ren1Image.SetInput(ren1)
 ren1Image.DepthValuesOn()
 
-aTexture = vtk.vtkTexture()
+aTexture = vtkTexture()
 aTexture.SetInputConnection(ren1Image.GetOutputPort())
 
 screen.SetTexture(aTexture)

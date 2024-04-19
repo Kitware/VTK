@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    pipe2.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkContourFilter.h"
 #include "vtkImageData.h"
@@ -25,8 +13,7 @@
 
 // Pipe 2 for PipelineParallelism.
 // See PipelineParallelism.cxx for more information.
-void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
-           void* vtkNotUsed(arg))
+void pipe2(vtkMultiProcessController* vtkNotUsed(controller), void* vtkNotUsed(arg))
 {
   // Input port
   vtkInputPort* ip = vtkInputPort::New();
@@ -72,7 +59,7 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
 
   // Get more data. With every update the XFreq of the rtSource
   // is increased.
-  for (int i=0; i<17; i++)
+  for (int i = 0; i < 17; i++)
   {
     cf->GetOutput()->Update();
     pd->ShallowCopy(cf->GetOutput());
@@ -89,7 +76,4 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
   actor->Delete();
   ren->Delete();
   renWin->Delete();
-
 }
-
-

@@ -1,0 +1,65 @@
+r"""
+Currently, this package is experimental and may change in the future.
+"""
+from __future__ import absolute_import
+import sys
+
+
+def _windows_dll_path():
+    import os
+    _vtk_python_path = '@VTK_PYTHON_SITE_PACKAGES_SUFFIX@/vtkmodules'
+    _vtk_dll_path = '@CMAKE_INSTALL_BINDIR@'
+    # Compute the DLL path based on the location of the file and traversing up
+    # the installation prefix to append the DLL path.
+    _vtk_dll_directory = os.path.dirname(os.path.abspath(__file__))
+    # Loop while we have components to remove.
+    while _vtk_python_path not in ('', '.', '/'):
+        # Strip a directory away.
+        _vtk_python_path = os.path.dirname(_vtk_python_path)
+        _vtk_dll_directory = os.path.dirname(_vtk_dll_directory)
+    _vtk_dll_directory = os.path.join(_vtk_dll_directory, _vtk_dll_path)
+    if os.path.exists(_vtk_dll_directory):
+        # We never remove this path; it is required for VTK to work and there's
+        # no scope where we can easily remove the directory again.
+        _ = os.add_dll_directory(_vtk_dll_directory)
+
+    # Build tree support.
+    try:
+        from . import _build_paths
+
+        # Add any paths needed for the build tree.
+        for path in _build_paths.paths:
+            if os.path.exists(path):
+                _ = os.add_dll_directory(path)
+    except ImportError:
+        # Relocatable install tree (or non-Windows).
+        pass
+
+
+# CPython 3.8 added behaviors which modified the DLL search path on Windows to
+# only search "blessed" paths. When importing SMTK, ensure that SMTK's DLLs are
+# in this set of "blessed" paths.
+if sys.version_info >= (3, 8) and sys.platform == 'win32':
+    _windows_dll_path()
+
+
+#------------------------------------------------------------------------------
+# this little trick is for static builds of VTK. In such builds, if
+# the user imports this Python package in a non-statically linked Python
+# interpreter i.e. not of the of the VTK-python executables, then we import the
+# static components importer module.
+def _load_vtkmodules_static():
+    if 'vtkmodules_vtkCommonCore' not in sys.builtin_module_names:
+        import _vtkmodules_static
+
+@_vtkmodules_static_import@
+
+
+#------------------------------------------------------------------------------
+# list the contents
+__all__ = [
+@_vtkmodules_all@]
+
+#------------------------------------------------------------------------------
+# get the version
+__version__ = "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@"

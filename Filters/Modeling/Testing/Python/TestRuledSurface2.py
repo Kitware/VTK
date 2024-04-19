@@ -1,51 +1,74 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPlane,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkAppendPolyData,
+    vtkCleanPolyData,
+    vtkCutter,
+    vtkStripper,
+)
+from vtkmodules.vtkFiltersModeling import vtkRuledSurfaceFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetPhiResolution(15)
 sphere.SetThetaResolution(30)
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetNormal(1,0,0)
-cut = vtk.vtkCutter()
+cut = vtkCutter()
 cut.SetInputConnection(sphere.GetOutputPort())
 cut.SetCutFunction(plane)
 cut.GenerateCutScalarsOn()
-strip = vtk.vtkStripper()
+strip = vtkStripper()
 strip.SetInputConnection(cut.GetOutputPort())
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.InsertPoint(0,1,0,0)
-lines = vtk.vtkCellArray()
+lines = vtkCellArray()
 lines.InsertNextCell(2)
 #number of points
 lines.InsertCellPoint(0)
 lines.InsertCellPoint(0)
-tip = vtk.vtkPolyData()
+tip = vtkPolyData()
 tip.SetPoints(points)
 tip.SetLines(lines)
-appendPD = vtk.vtkAppendPolyData()
+appendPD = vtkAppendPolyData()
 appendPD.AddInputConnection(strip.GetOutputPort())
 appendPD.AddInputData(tip)
 # extrude profile to make coverage
 #
-extrude = vtk.vtkRuledSurfaceFilter()
+extrude = vtkRuledSurfaceFilter()
 extrude.SetInputConnection(appendPD.GetOutputPort())
 extrude.SetRuledModeToPointWalk()
-clean = vtk.vtkCleanPolyData()
+clean = vtkCleanPolyData()
 clean.SetInputConnection(extrude.GetOutputPort())
 clean.ConvertPolysToLinesOff()
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(clean.GetOutputPort())
 mapper.ScalarVisibilityOff()
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetOpacity(.4)
 ren1.AddActor(actor)

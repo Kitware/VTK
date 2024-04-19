@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDateToNumeric.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDateToNumeric.h"
 
 #include "vtkCommand.h"
@@ -22,31 +10,31 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
+#include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
-#include <ctime>
 
 // old versions of gcc are missing some pices of c++11 such as std::get_time
 // so use
 
-#if (defined(__GNUC__) && (__GNUC__ < 5)) || defined (ANDROID)
+#if (defined(__GNUC__) && (__GNUC__ < 5) && !defined(__clang__)) || defined(ANDROID)
 #define USE_STRPTIME
 #include "time.h"
 #endif
 
-
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDateToNumeric);
-//----------------------------------------------------------------------------
-vtkDateToNumeric::vtkDateToNumeric() :
-  DateFormat(nullptr)
+//------------------------------------------------------------------------------
+vtkDateToNumeric::vtkDateToNumeric()
+  : DateFormat(nullptr)
 {
 }
 
-//----------------------------------------------------------------------------
-vtkDateToNumeric::~vtkDateToNumeric() {}
+//------------------------------------------------------------------------------
+vtkDateToNumeric::~vtkDateToNumeric() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDateToNumeric::FillInputPortInformation(int, vtkInformation* info)
 {
   // Skip composite data sets so that executives will treat this as a simple filter
@@ -59,7 +47,7 @@ int vtkDateToNumeric::FillInputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkDateToNumeric::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -70,15 +58,19 @@ int vtkDateToNumeric::RequestData(
   std::vector<std::string> formats;
   if (this->DateFormat)
   {
-    formats.push_back(this->DateFormat);
+    formats.emplace_back(this->DateFormat);
   }
   // default formats
-  formats.push_back("%Y-%m-%d %H:%M:%S");
-  formats.push_back("%d/%m/%Y %H:%M:%S");
+  formats.emplace_back("%Y-%m-%d %H:%M:%S");
+  formats.emplace_back("%d/%m/%Y %H:%M:%S");
 
   // now filter arrays for each of the associations.
   for (int association = 0; association < vtkDataObject::NUMBER_OF_ASSOCIATIONS; ++association)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
     {
       continue;
@@ -96,17 +88,17 @@ int vtkDateToNumeric::RequestData(
 
     for (int idx = 0, max = inFD->GetNumberOfArrays(); idx < max; ++idx)
     {
-      vtkStringArray *inarray = vtkStringArray::SafeDownCast(inFD->GetAbstractArray(idx));
+      vtkStringArray* inarray = vtkStringArray::SafeDownCast(inFD->GetAbstractArray(idx));
       if (inarray && inarray->GetName())
       {
         // look at the first value to see if it is a date we can parse
         auto inval = inarray->GetValue(0);
         std::string useFormat;
-        for (auto & format : formats)
+        for (auto& format : formats)
         {
 #ifdef USE_STRPTIME
           struct tm atime;
-          auto result = strptime(inval.c_str() ,format.c_str(), &atime);
+          auto result = strptime(inval.c_str(), format.c_str(), &atime);
           if (result)
           {
             useFormat = format;
@@ -123,7 +115,7 @@ int vtkDateToNumeric::RequestData(
           }
 #endif
         }
-        if (useFormat.size())
+        if (!useFormat.empty())
         {
           vtkNew<vtkDoubleArray> newArray;
           std::string newName = inarray->GetName();
@@ -135,7 +127,7 @@ int vtkDateToNumeric::RequestData(
             inval = inarray->GetValue(i);
 #ifdef USE_STRPTIME
             struct tm atime;
-            auto result = strptime(inval.c_str() ,useFormat.c_str(), &atime);
+            auto result = strptime(inval.c_str(), useFormat.c_str(), &atime);
             if (result)
             {
               auto etime = mktime(&atime);
@@ -175,9 +167,10 @@ int vtkDateToNumeric::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDateToNumeric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "DateFormat: " << (this->DateFormat ? this->DateFormat : "(none)");
 }
+VTK_ABI_NAMESPACE_END

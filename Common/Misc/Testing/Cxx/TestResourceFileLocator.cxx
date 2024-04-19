@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkResourceFileLocator.h"
@@ -5,7 +7,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-int TestResourceFileLocator(int, char* [])
+int TestResourceFileLocator(int, char*[])
 {
   auto vtklib = vtkGetLibraryPathForSymbol(GetVTKVersion);
   if (vtklib.empty())

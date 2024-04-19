@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTree.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkTree
  * @brief   A rooted tree data structure.
@@ -41,7 +25,7 @@
  *
  * @sa
  * vtkDirectedGraph vtkMutableDirectedGraph vtkGraph
-*/
+ */
 
 #ifndef vtkTree_h
 #define vtkTree_h
@@ -49,32 +33,32 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDirectedAcyclicGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkTree : public vtkDirectedAcyclicGraph
 {
 public:
-  static vtkTree *New();
+  static vtkTree* New();
   vtkTypeMacro(vtkTree, vtkDirectedAcyclicGraph);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_TREE;}
+  int GetDataObjectType() override { return VTK_TREE; }
 
-  //@{
+  ///@{
   /**
    * Get the root vertex of the tree.
    */
   vtkGetMacro(Root, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Get the number of children of a vertex.
    */
-  vtkIdType GetNumberOfChildren(vtkIdType v)
-    { return this->GetOutDegree(v); }
+  vtkIdType GetNumberOfChildren(vtkIdType v) { return this->GetOutDegree(v); }
 
   /**
    * Get the i-th child of a parent vertex.
@@ -86,8 +70,7 @@ public:
    * This is a convenience method that functions exactly like
    * GetAdjacentVertices.
    */
-  void GetChildren(vtkIdType v, vtkAdjacentVertexIterator *it)
-    { this->GetAdjacentVertices(v, it); }
+  void GetChildren(vtkIdType v, vtkAdjacentVertexIterator* it) { this->GetAdjacentVertices(v, it); }
 
   /**
    * Get the parent of a vertex.
@@ -111,13 +94,13 @@ public:
    */
   bool IsLeaf(vtkIdType vertex);
 
-  //@{
+  ///@{
   /**
    * Retrieve a graph from an information vector.
    */
-  static vtkTree *GetData(vtkInformation *info);
-  static vtkTree *GetData(vtkInformationVector *v, int i=0);
-  //@}
+  static vtkTree* GetData(vtkInformation* info);
+  static vtkTree* GetData(vtkInformationVector* v, int i = 0);
+  ///@}
 
   /**
    * Reorder the children of a parent vertex.
@@ -125,7 +108,7 @@ public:
    * just in a different order.
    * This does not change the topology of the tree.
    */
-  virtual void ReorderChildren(vtkIdType parent, vtkIdTypeArray *children);
+  virtual void ReorderChildren(vtkIdType parent, vtkIdTypeArray* children);
 
 protected:
   vtkTree();
@@ -135,7 +118,7 @@ protected:
    * Check the storage, and accept it if it is a valid
    * tree.
    */
-  bool IsStructureValid(vtkGraph *g) override;
+  bool IsStructureValid(vtkGraph* g) override;
 
   /**
    * The root of the tree.
@@ -147,4 +130,5 @@ private:
   void operator=(const vtkTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

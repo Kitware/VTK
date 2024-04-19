@@ -3,7 +3,7 @@ vtk_add_test_cxx(vtkRenderingLabelCxxTests tests
   TestDynamic2DLabelMapper.cxx
   TestLabelPlacer.cxx
   TestLabelPlacer2D.cxx
-  TestLabelPlacerCoincidentPoints.cxx
+  TestLabelPlacerCoincidentPoints.cxx, LOOSE_VALID
   TestLabelPlacementMapper.cxx
   TestLabelPlacementMapper2D.cxx
   TestLabelPlacementMapperCoincidentPoints.cxx

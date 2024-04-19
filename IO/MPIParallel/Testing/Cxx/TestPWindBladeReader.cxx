@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestPWindBladeReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // .NAME Test of vtkPWindBladeReader
 // .SECTION Description
 // Tests the vtkPWindBladeReader.
@@ -20,29 +8,29 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkMPIController.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGeometryFilter.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMPIController.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkTestUtilities.h"
+#include "vtkUnstructuredGrid.h"
 
 void AddColor(vtkDataSet* grid)
 {
   vtkFloatArray* color = vtkFloatArray::New();
   color->SetNumberOfTuples(grid->GetNumberOfPoints());
-  for(vtkIdType i=0;i<grid->GetNumberOfPoints();i++)
+  for (vtkIdType i = 0; i < grid->GetNumberOfPoints(); i++)
   {
     color->SetValue(i, 1.);
   }
@@ -52,24 +40,26 @@ void AddColor(vtkDataSet* grid)
   color->Delete();
 }
 
-int TestPWindBladeReader( int argc, char *argv[] )
+int TestPWindBladeReader(int argc, char* argv[])
 {
   vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize(&argc, &argv, 0);
-  controller->SetGlobalController(controller);
+  vtkMPIController::SetGlobalController(controller);
 
   // Read file name.
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/WindBladeReader/test1_topo.wind");
+  char* fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/WindBladeReader/test1_topo.wind");
 
   // Create the reader.
   vtkSmartPointer<vtkWindBladeReader> reader = vtkSmartPointer<vtkWindBladeReader>::New();
-  if(reader->IsA("vtkPWindBladeReader") == false)
+  if (!reader->IsA("vtkPWindBladeReader"))
   {
-    vtkGenericWarningMacro("Tried to make a vtkPWindBladeReader but got a vtkWindBladeReader instead.");
+    vtkGenericWarningMacro(
+      "Tried to make a vtkPWindBladeReader but got a vtkWindBladeReader instead.");
     return 1;
   }
   reader->SetFilename(fname);
-  delete [] fname;
+  delete[] fname;
 
   // Convert to PolyData.
   vtkGeometryFilter* fieldGeometryFilter = vtkGeometryFilter::New();
@@ -81,8 +71,7 @@ int TestPWindBladeReader( int argc, char *argv[] )
 
   fieldGeometryFilter->UpdateInformation();
   vtkExecutive* executive = fieldGeometryFilter->GetExecutive();
-  vtkInformationVector* inputVector =
-    executive->GetInputInformation(0);
+  vtkInformationVector* inputVector = executive->GetInputInformation(0);
   double timeReq = 10;
   inputVector->GetInformationObject(0)->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
@@ -101,21 +90,18 @@ int TestPWindBladeReader( int argc, char *argv[] )
 
   // Create a mapper.
   vtkPolyDataMapper* fieldMapper = vtkPolyDataMapper::New();
-  fieldMapper->SetInputConnection(
-        fieldGeometryFilter->GetOutputPort());
+  fieldMapper->SetInputConnection(fieldGeometryFilter->GetOutputPort());
   fieldMapper->ScalarVisibilityOn();
   fieldMapper->SetColorModeToMapScalars();
   fieldMapper->SetScalarRange(.964, 1.0065);
-  fieldMapper->SetScalarModeToUsePointFieldData ();
+  fieldMapper->SetScalarModeToUsePointFieldData();
   fieldMapper->SelectColorArray("Density");
 
   vtkPolyDataMapper* bladeMapper = vtkPolyDataMapper::New();
-  bladeMapper->SetInputConnection(
-        bladeGeometryFilter->GetOutputPort());
+  bladeMapper->SetInputConnection(bladeGeometryFilter->GetOutputPort());
   bladeMapper->ScalarVisibilityOn();
   vtkPolyDataMapper* groundMapper = vtkPolyDataMapper::New();
-  groundMapper->SetInputConnection(
-         groundGeometryFilter->GetOutputPort());
+  groundMapper->SetInputConnection(groundGeometryFilter->GetOutputPort());
   groundMapper->ScalarVisibilityOn();
 
   // Create the actor.
@@ -126,7 +112,7 @@ int TestPWindBladeReader( int argc, char *argv[] )
   double position[3];
   bladeActor->GetPosition(position);
   bladeActor->RotateZ(90);
-  bladeActor->SetPosition(position[0]+100, position[1]+100, position[2]-150);
+  bladeActor->SetPosition(position[0] + 100, position[1] + 100, position[2] - 150);
   vtkActor* groundActor = vtkActor::New();
   groundActor->SetMapper(groundMapper);
 
@@ -134,7 +120,7 @@ int TestPWindBladeReader( int argc, char *argv[] )
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   vtkRenderer* ren = vtkRenderer::New();
   renWin->AddRenderer(ren);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   vtkCamera* camera = ren->GetActiveCamera();
@@ -143,21 +129,30 @@ int TestPWindBladeReader( int argc, char *argv[] )
   bounds[2] -= 150;
   ren->ResetCamera(bounds);
   camera->Elevation(-90);
-  camera->SetViewUp(0,0,1);
+  camera->SetViewUp(0, 0, 1);
   camera->Zoom(1.2);
 
   ren->AddActor(fieldActor);
   ren->AddActor(bladeActor);
   ren->AddActor(groundActor);
-  ren->SetBackground(1,1,1);
-  renWin->SetSize(300,300);
+  ren->SetBackground(1, 1, 1);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal;
+  if (controller->GetLocalProcessId() == 0)
+  {
+    retVal = vtkRegressionTestImage(renWin);
+  }
+  else
+  {
+    // Let non-zero ranks believe they passed - rank 0 will do the regression testing
+    retVal = vtkRegressionTester::PASSED;
+  }
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
@@ -176,7 +171,7 @@ int TestPWindBladeReader( int argc, char *argv[] )
   iren->Delete();
 
   controller->Finalize(0);
-  controller->SetGlobalController(nullptr);
+  vtkMPIController::SetGlobalController(nullptr);
   controller->Delete();
 
   return !retVal;

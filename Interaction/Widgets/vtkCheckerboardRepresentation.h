@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkCheckerboardRepresentation.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCheckerboardRepresentation
  * @brief   represent the vtkCheckerboardWidget
@@ -27,63 +15,66 @@
  * @sa
  * vtkCheckerboardWidget vtkImageCheckerboard vtkImageActor vtkSliderWidget
  * vtkRectilinearWipeWidget
-*/
+ */
 
 #ifndef vtkCheckerboardRepresentation_h
 #define vtkCheckerboardRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageCheckerboard;
 class vtkImageActor;
 class vtkSliderRepresentation3D;
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkCheckerboardRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkCheckerboardRepresentation
+  : public vtkWidgetRepresentation
 {
 public:
   /**
    * Instantiate class.
    */
-  static vtkCheckerboardRepresentation *New();
+  static vtkCheckerboardRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkCheckerboardRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkCheckerboardRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an instance of vtkImageCheckerboard to manipulate.
    */
-  void SetCheckerboard(vtkImageCheckerboard *chkrbrd);
-  vtkGetObjectMacro(Checkerboard,vtkImageCheckerboard);
-  //@}
+  void SetCheckerboard(vtkImageCheckerboard* chkrbrd);
+  vtkGetObjectMacro(Checkerboard, vtkImageCheckerboard);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an instance of vtkImageActor to decorate.
    */
-  void SetImageActor(vtkImageActor *imageActor);
-  vtkGetObjectMacro(ImageActor,vtkImageActor);
-  //@}
+  void SetImageActor(vtkImageActor* imageActor);
+  vtkGetObjectMacro(ImageActor, vtkImageActor);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the offset of the ends of the sliders (on the boundary edges of
    * the image) from the corner of the image. The offset is expressed as a
    * normalized fraction of the border edges.
    */
-  vtkSetClampMacro(CornerOffset,double,0.0,0.4);
-  vtkGetMacro(CornerOffset,double);
-  //@}
+  vtkSetClampMacro(CornerOffset, double, 0.0, 0.4);
+  vtkGetMacro(CornerOffset, double);
+  ///@}
 
-  enum {
-    TopSlider=0,
+  enum
+  {
+    TopSlider = 0,
     RightSlider,
     BottomSlider,
     LeftSlider
@@ -95,9 +86,9 @@ public:
    */
   void SliderValueChanged(int sliderNum);
 
-  //@{
+  ///@{
   /**
-   * Set and get the instances of vtkSliderRepresention used to implement this
+   * Set and get the instances of vtkSliderRepresentation used to implement this
    * representation. Normally default representations are created, but you can
    * specify the ones you want to use.
    */
@@ -105,38 +96,38 @@ public:
   void SetRightRepresentation(vtkSliderRepresentation3D*);
   void SetBottomRepresentation(vtkSliderRepresentation3D*);
   void SetLeftRepresentation(vtkSliderRepresentation3D*);
-  vtkGetObjectMacro(TopRepresentation,vtkSliderRepresentation3D);
-  vtkGetObjectMacro(RightRepresentation,vtkSliderRepresentation3D);
-  vtkGetObjectMacro(BottomRepresentation,vtkSliderRepresentation3D);
-  vtkGetObjectMacro(LeftRepresentation,vtkSliderRepresentation3D);
-  //@}
+  vtkGetObjectMacro(TopRepresentation, vtkSliderRepresentation3D);
+  vtkGetObjectMacro(RightRepresentation, vtkSliderRepresentation3D);
+  vtkGetObjectMacro(BottomRepresentation, vtkSliderRepresentation3D);
+  vtkGetObjectMacro(LeftRepresentation, vtkSliderRepresentation3D);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods required by superclass.
    */
   void BuildRepresentation() override;
   void GetActors(vtkPropCollection*) override;
-  void ReleaseGraphicsResources(vtkWindow *w) override;
-  int RenderOverlay(vtkViewport *viewport) override;
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
+  int RenderOverlay(vtkViewport* viewport) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
 protected:
   vtkCheckerboardRepresentation();
   ~vtkCheckerboardRepresentation() override;
 
   // Instances that this class manipulates
-  vtkImageCheckerboard *Checkerboard;
-  vtkImageActor        *ImageActor;
+  vtkImageCheckerboard* Checkerboard;
+  vtkImageActor* ImageActor;
 
   // The internal widgets for each side
-  vtkSliderRepresentation3D *TopRepresentation;
-  vtkSliderRepresentation3D *RightRepresentation;
-  vtkSliderRepresentation3D *BottomRepresentation;
-  vtkSliderRepresentation3D *LeftRepresentation;
+  vtkSliderRepresentation3D* TopRepresentation;
+  vtkSliderRepresentation3D* RightRepresentation;
+  vtkSliderRepresentation3D* BottomRepresentation;
+  vtkSliderRepresentation3D* LeftRepresentation;
 
   // The corner offset
   double CornerOffset;
@@ -149,4 +140,5 @@ private:
   void operator=(const vtkCheckerboardRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

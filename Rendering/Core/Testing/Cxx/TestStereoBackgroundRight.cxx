@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkConeSource.h"
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"
@@ -11,8 +13,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestStereoBackgroundRight(int argc, char* argv[])
 {
@@ -26,8 +27,7 @@ int TestStereoBackgroundRight(int argc, char* argv[])
   VTK_CREATE(vtkJPEGReader, imgReader);
   VTK_CREATE(vtkImageData, image);
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-                  argc, argv, "Data/beach.jpg");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.jpg");
   imgReader->SetFileName(fname);
   delete[] fname;
 

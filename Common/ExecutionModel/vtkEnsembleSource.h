@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkEnsembleSource.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkEnsembleSource
  * @brief   source that manages dataset ensembles
@@ -22,14 +10,15 @@
  * as well as accept a pipeline request using the UPDATE_MEMBER key.
  * Note that it is expected that all ensemble members produce data of the
  * same type.
-*/
+ */
 
 #ifndef vtkEnsembleSource_h
 #define vtkEnsembleSource_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkEnsembleSourceInternal;
 class vtkTable;
 class vtkInformationDataObjectMetaDataKey;
@@ -39,8 +28,8 @@ class vtkInformationIntegerKey;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkEnsembleSource : public vtkAlgorithm
 {
 public:
-  static vtkEnsembleSource *New();
-  vtkTypeMacro(vtkEnsembleSource,vtkAlgorithm);
+  static vtkEnsembleSource* New();
+  vtkTypeMacro(vtkEnsembleSource, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -60,7 +49,7 @@ public:
    */
   unsigned int GetNumberOfMembers();
 
-  //@{
+  ///@{
   /**
    * Set/Get the current ensemble member to process. Note that this data member
    * will not be used if the UPDATE_MEMBER key is present in the pipeline. Also,
@@ -69,7 +58,7 @@ public:
    */
   vtkSetMacro(CurrentMember, unsigned int);
   vtkGetMacro(CurrentMember, unsigned int);
-  //@}
+  ///@}
 
   /**
    * Set the meta-data that will be propagated downstream. Make sure that this table
@@ -96,9 +85,8 @@ protected:
 
   friend class vtkInformationEnsembleMemberRequestKey;
 
-  vtkTypeBool ProcessRequest(vtkInformation *request,
-                             vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 
   vtkAlgorithm* GetCurrentReader(vtkInformation*);
@@ -113,4 +101,5 @@ private:
   void operator=(const vtkEnsembleSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

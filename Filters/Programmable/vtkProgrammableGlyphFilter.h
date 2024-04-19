@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProgrammableGlyphFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkProgrammableGlyphFilter
  * @brief   control the generation and placement of glyphs at input points
@@ -56,30 +44,31 @@
  *
  * @sa
  * vtkGlyph3D vtkTensorGlyph vtkCellCenters
-*/
+ */
 
 #ifndef vtkProgrammableGlyphFilter_h
 #define vtkProgrammableGlyphFilter_h
 
-#define VTK_COLOR_BY_INPUT  0
+#define VTK_COLOR_BY_INPUT 0
 #define VTK_COLOR_BY_SOURCE 1
 
 #include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointData;
 
 class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkProgrammableGlyphFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkProgrammableGlyphFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with nullptr GlyphMethod() and no source object. The ColorMode
    * is set to color by the input.
    */
-  static vtkProgrammableGlyphFilter *New();
+  static vtkProgrammableGlyphFilter* New();
 
   /**
    * Setup a connection for the source to use as the glyph.
@@ -88,15 +77,15 @@ public:
    */
   void SetSourceConnection(vtkAlgorithmOutput* output);
 
-  //@{
+  ///@{
   /**
    * Set/Get the source to use for this glyph.
    * Note that SetSourceData() does not set a pipeline connection but
    * directly uses the polydata.
    */
-  void SetSourceData(vtkPolyData *source);
-  vtkPolyData *GetSource();
-  //@}
+  void SetSourceData(vtkPolyData* source);
+  vtkPolyData* GetSource();
+  ///@}
 
   /**
    * Signature definition for programmable method callbacks. Methods passed to
@@ -106,76 +95,75 @@ public:
    * header files themselves because it prevents the internal VTK wrapper
    * generators from wrapping these methods.
    */
-  typedef void (*ProgrammableMethodCallbackType)(void *arg);
+  typedef void (*ProgrammableMethodCallbackType)(void* arg);
 
   /**
    * Specify function to be called for each input point.
    */
-  void SetGlyphMethod(void (*f)(void *), void *arg);
+  void SetGlyphMethod(void (*f)(void*), void* arg);
 
   /**
    * Set the arg delete method. This is used to free user memory that might
    * be associated with the GlyphMethod().
    */
-  void SetGlyphMethodArgDelete(void (*f)(void *));
+  void SetGlyphMethodArgDelete(void (*f)(void*));
 
-  //@{
+  ///@{
   /**
    * Get the current point id during processing. Value only valid during the
    * Execute() method of this filter. (Meant to be called by the GlyphMethod().)
    */
   vtkGetMacro(PointId, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the current point coordinates during processing. Value only valid during the
    * Execute() method of this filter. (Meant to be called by the GlyphMethod().)
    */
-  vtkGetVector3Macro(Point,double);
-  //@}
+  vtkGetVector3Macro(Point, double);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the set of point data attributes for the input. A convenience to the
    * programmer to be used in the GlyphMethod(). Only valid during the Execute()
    * method of this filter.
    */
-  vtkGetObjectMacro(PointData,vtkPointData);
-  //@}
+  vtkGetObjectMacro(PointData, vtkPointData);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Either color by the input or source scalar data.
    */
-  vtkSetMacro(ColorMode,int);
-  vtkGetMacro(ColorMode,int);
-  void SetColorModeToColorByInput()
-    {this->SetColorMode(VTK_COLOR_BY_INPUT);};
-  void SetColorModeToColorBySource()
-    {this->SetColorMode(VTK_COLOR_BY_SOURCE);};
-  const char *GetColorModeAsString();
-  //@}
+  vtkSetMacro(ColorMode, int);
+  vtkGetMacro(ColorMode, int);
+  void SetColorModeToColorByInput() { this->SetColorMode(VTK_COLOR_BY_INPUT); }
+  void SetColorModeToColorBySource() { this->SetColorMode(VTK_COLOR_BY_SOURCE); }
+  const char* GetColorModeAsString();
+  ///@}
 
 protected:
   vtkProgrammableGlyphFilter();
   ~vtkProgrammableGlyphFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
-  double Point[3]; // Coordinates of point
+  double Point[3];   // Coordinates of point
   vtkIdType PointId; // Current point id during processing
-  vtkPointData *PointData;
+  vtkPointData* PointData;
   int ColorMode;
 
   ProgrammableMethodCallbackType GlyphMethod; // Support GlyphMethod
   ProgrammableMethodCallbackType GlyphMethodArgDelete;
-  void *GlyphMethodArg;
+  void* GlyphMethodArg;
 
 private:
   vtkProgrammableGlyphFilter(const vtkProgrammableGlyphFilter&) = delete;
   void operator=(const vtkProgrammableGlyphFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

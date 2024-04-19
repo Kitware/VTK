@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkFitImplicitFunction.h
-
-  Copyright (c) Kitware, Inc.
-  All rights reserved.
-  See LICENSE file for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-CLAUSE
 /**
  * @class   vtkFitImplicitFunction
  * @brief   extract points on the surface of an implicit function
@@ -47,7 +35,7 @@
  *
  * @sa
  * vtkPointCloudFilter vtkExtractPoints vtkImplicitFunction
-*/
+ */
 
 #ifndef vtkFitImplicitFunction_h
 #define vtkFitImplicitFunction_h
@@ -55,41 +43,41 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPointCloudFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 class vtkPointSet;
-
 
 class VTKFILTERSPOINTS_EXPORT vtkFitImplicitFunction : public vtkPointCloudFilter
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkFitImplicitFunction *New();
-  vtkTypeMacro(vtkFitImplicitFunction,vtkPointCloudFilter);
+  static vtkFitImplicitFunction* New();
+  vtkTypeMacro(vtkFitImplicitFunction, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function defining a surface on which points
    * are to be extracted.
    */
   virtual void SetImplicitFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
-  //@}
+  vtkGetObjectMacro(ImplicitFunction, vtkImplicitFunction);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a threshold value which defines a fuzzy extraction surface.
    * Since in this filter the implicit surface is defined as f(x,y,z)=0;
    * the extracted points are (-Threshold <= f(x,y,z) < Threshold).
    */
-  vtkSetClampMacro(Threshold,double,0.0,VTK_FLOAT_MAX);
-  vtkGetMacro(Threshold,double);
-  //@}
+  vtkSetClampMacro(Threshold, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Threshold, double);
+  ///@}
 
   /**
    * Return the MTime taking into account changes to the implicit function.
@@ -100,17 +88,17 @@ protected:
   vtkFitImplicitFunction();
   ~vtkFitImplicitFunction() override;
 
-  vtkImplicitFunction *ImplicitFunction;
+  vtkImplicitFunction* ImplicitFunction;
   double Threshold;
 
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
-  int FilterPoints(vtkPointSet *input) override;
+  int FilterPoints(vtkPointSet* input) override;
 
 private:
   vtkFitImplicitFunction(const vtkFitImplicitFunction&) = delete;
   void operator=(const vtkFitImplicitFunction&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

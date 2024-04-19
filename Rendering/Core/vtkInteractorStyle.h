@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyle.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkInteractorStyle
  * @brief   provide event-driven interface to the rendering window (defines trackball mode)
@@ -87,41 +75,47 @@
  *
  * @sa
  * vtkInteractorStyleTrackball
-*/
+ */
 
 #ifndef vtkInteractorStyle_h
 #define vtkInteractorStyle_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorObserver.h"
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 // Motion flags
 
-#define VTKIS_START             0
-#define VTKIS_NONE              0
+#define VTKIS_START 0
+#define VTKIS_NONE 0
 
-#define VTKIS_ROTATE            1
-#define VTKIS_PAN               2
-#define VTKIS_SPIN              3
-#define VTKIS_DOLLY             4
-#define VTKIS_ZOOM              5
-#define VTKIS_USCALE            6
-#define VTKIS_TIMER             7
-#define VTKIS_FORWARDFLY        8
-#define VTKIS_REVERSEFLY        9
-#define VTKIS_TWO_POINTER      10
-#define VTKIS_CLIP             11
-#define VTKIS_PICK                   12 // perform a pick at the last location
-#define VTKIS_LOAD_CAMERA_POSE       13 // iterate through saved camera poses
-#define VTKIS_POSITION_PROP          14 // adjust the position, orientation of a prop
-#define VTKIS_EXIT                   15 // call exit callback
-#define VTKIS_TOGGLE_DRAW_CONTROLS   16 // draw device controls helpers
-#define VTKIS_MENU                   17 // invoke an application menu
-#define VTKIS_GESTURE                18 // touch interaction in progress
+#define VTKIS_ROTATE 1
+#define VTKIS_PAN 2
+#define VTKIS_SPIN 3
+#define VTKIS_DOLLY 4
+#define VTKIS_ZOOM 5
+#define VTKIS_USCALE 6
+#define VTKIS_TIMER 7
+#define VTKIS_FORWARDFLY 8
+#define VTKIS_REVERSEFLY 9
+#define VTKIS_TWO_POINTER 10
+#define VTKIS_CLIP 11
+#define VTKIS_PICK 12                 // perform a pick at the last location
+#define VTKIS_LOAD_CAMERA_POSE 13     // iterate through saved camera poses
+#define VTKIS_POSITION_PROP 14        // adjust the position, orientation of a prop
+#define VTKIS_EXIT 15                 // call exit callback
+#define VTKIS_TOGGLE_DRAW_CONTROLS 16 // draw device controls helpers
+#define VTKIS_MENU 17                 // invoke an application menu
+#define VTKIS_GESTURE 18              // touch interaction in progress
+#define VTKIS_ENV_ROTATE 19           // rotate the renderer environment texture
+#define VTKIS_GROUNDMOVEMENT 20       // horizontal movement according to the 4 directions
+#define VTKIS_ELEVATION 21            // vertical movement (up and down)
+#define VTKIS_TELEPORTATION 22        // teleportation (move instantly between two positions)
 
 #define VTKIS_ANIM_OFF 0
-#define VTKIS_ANIM_ON  1
+#define VTKIS_ANIM_ON 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkActor;
 class vtkCallbackCommand;
@@ -131,9 +125,10 @@ class vtkOutlineSource;
 class vtkPolyDataMapper;
 class vtkProp3D;
 class vtkProp;
+class vtkStringArray;
 class vtkTDxInteractorStyle;
 
-class VTKRENDERINGCORE_EXPORT vtkInteractorStyle : public vtkInteractorObserver
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkInteractorStyle : public vtkInteractorObserver
 {
 public:
   /**
@@ -141,16 +136,16 @@ public:
    * parent. This class should not normally be instantiated by application
    * programmers.
    */
-  static vtkInteractorStyle *New();
+  static vtkInteractorStyle* New();
 
-  vtkTypeMacro(vtkInteractorStyle,vtkInteractorObserver);
+  vtkTypeMacro(vtkInteractorStyle, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set/Get the Interactor wrapper being controlled by this object.
    * (Satisfy superclass API.)
    */
-  void SetInteractor(vtkRenderWindowInteractor *interactor) override;
+  void SetInteractor(vtkRenderWindowInteractor* interactor) override;
 
   /**
    * Turn on/off this interactor. Interactor styles operate a little
@@ -161,7 +156,7 @@ public:
    */
   void SetEnabled(int) override;
 
-  //@{
+  ///@{
   /**
    * If AutoAdjustCameraClippingRange is on, then before each render the
    * camera clipping range will be adjusted to "fit" the whole scene. Clipping
@@ -170,53 +165,53 @@ public:
    * will be made per render, but the camera clipping range will still
    * be reset when the camera is reset.
    */
-  vtkSetClampMacro(AutoAdjustCameraClippingRange, vtkTypeBool, 0, 1 );
-  vtkGetMacro(AutoAdjustCameraClippingRange, vtkTypeBool );
-  vtkBooleanMacro(AutoAdjustCameraClippingRange, vtkTypeBool );
-  //@}
+  vtkSetClampMacro(AutoAdjustCameraClippingRange, vtkTypeBool, 0, 1);
+  vtkGetMacro(AutoAdjustCameraClippingRange, vtkTypeBool);
+  vtkBooleanMacro(AutoAdjustCameraClippingRange, vtkTypeBool);
+  ///@}
 
   /**
    * When an event occurs, we must determine which Renderer the event
    * occurred within, since one RenderWindow may contain multiple
    * renderers.
    */
-  void FindPokedRenderer(int,int);
+  void FindPokedRenderer(int, int);
 
-  //@{
+  ///@{
   /**
    * Some useful information for interaction
    */
-  vtkGetMacro(State,int);
-  //@}
+  vtkGetMacro(State, int);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get timer hint
    */
-  vtkGetMacro(UseTimers,vtkTypeBool);
-  vtkSetMacro(UseTimers,vtkTypeBool);
-  vtkBooleanMacro(UseTimers,vtkTypeBool);
-  //@}
+  vtkGetMacro(UseTimers, vtkTypeBool);
+  vtkSetMacro(UseTimers, vtkTypeBool);
+  vtkBooleanMacro(UseTimers, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If using timers, specify the default timer interval (in
    * milliseconds). Care must be taken when adjusting the timer interval from
    * the default value of 10 milliseconds--it may adversely affect the
    * interactors.
    */
-  vtkSetClampMacro(TimerDuration,unsigned long,1,100000);
-  vtkGetMacro(TimerDuration,unsigned long);
-  //@}
+  vtkSetClampMacro(TimerDuration, unsigned long, 1, 100000);
+  vtkGetMacro(TimerDuration, unsigned long);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Does ProcessEvents handle observers on this class or not
    */
-  vtkSetMacro(HandleObservers,vtkTypeBool);
-  vtkGetMacro(HandleObservers,vtkTypeBool);
-  vtkBooleanMacro(HandleObservers,vtkTypeBool);
-  //@}
+  vtkSetMacro(HandleObservers, vtkTypeBool);
+  vtkGetMacro(HandleObservers, vtkTypeBool);
+  vtkBooleanMacro(HandleObservers, vtkTypeBool);
+  ///@}
 
   /**
    * Generic event bindings can be overridden in subclasses
@@ -228,19 +223,31 @@ public:
   virtual void OnMiddleButtonUp() {}
   virtual void OnRightButtonDown() {}
   virtual void OnRightButtonUp() {}
+  virtual void OnLeftButtonDoubleClick() {}
+  virtual void OnMiddleButtonDoubleClick() {}
+  virtual void OnRightButtonDoubleClick() {}
   virtual void OnMouseWheelForward() {}
   virtual void OnMouseWheelBackward() {}
+  virtual void OnMouseWheelLeft() {}
+  virtual void OnMouseWheelRight() {}
   virtual void OnFourthButtonDown() {}
   virtual void OnFourthButtonUp() {}
   virtual void OnFifthButtonDown() {}
   virtual void OnFifthButtonUp() {}
 
-
   /**
    * Generic 3D event bindings can be overridden in subclasses
    */
-  virtual void OnMove3D(vtkEventData *) {}
-  virtual void OnButton3D(vtkEventData *) {}
+  virtual void OnMove3D(vtkEventData*) {}
+  virtual void OnButton3D(vtkEventData*) {}
+  virtual void OnPick3D(vtkEventData*) {}
+  virtual void OnClip3D(vtkEventData*) {}
+  virtual void OnSelect3D(vtkEventData*) {}
+  virtual void OnMenu3D(vtkEventData*) {}
+  virtual void OnNextPose3D(vtkEventData*) {}
+  virtual void OnPositionProp3D(vtkEventData*) {}
+  virtual void OnViewerMovement3D(vtkEventData*) {}
+  virtual void OnElevation3D(vtkEventData*) {}
 
   /**
    * OnChar is triggered when an ASCII key is pressed. Some basic key presses
@@ -294,6 +301,7 @@ public:
   virtual void Dolly() {}
   virtual void Zoom() {}
   virtual void UniformScale() {}
+  virtual void EnvironmentRotate() {}
 
   /**
    * gesture based events
@@ -313,15 +321,15 @@ public:
   virtual void OnTap() {}
   virtual void OnLongTap() {}
 
-  //@{
+  ///@{
   /**
    * utility routines used by state changes
    */
   virtual void StartState(int newstate);
   virtual void StopState();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Interaction mode entry points used internally.
    */
@@ -345,30 +353,47 @@ public:
   virtual void EndTwoPointer();
   virtual void StartGesture();
   virtual void EndGesture();
-  //@}
+  virtual void StartEnvRotate();
+  virtual void EndEnvRotate();
+  ///@}
 
-  //@{
+  /**
+   * When the mouse location is updated while dragging files.
+   * The argument contains the position relative to the window of the mouse
+   * where the files are dropped.
+   * It is called before OnDropFiles.
+   */
+  virtual void OnDropLocation(double* vtkNotUsed(position)) {}
+
+  /**
+   * When files are dropped on the render window.
+   * The argument contains the list of file paths dropped.
+   * It is called after OnDropLocation.
+   */
+  virtual void OnDropFiles(vtkStringArray* vtkNotUsed(filePaths)) {}
+
+  ///@{
   /**
    * When picking successfully selects an actor, this method highlights the
    * picked prop appropriately. Currently this is done by placing a bounding
    * box around a picked vtkProp3D, and using the PickColor to highlight a
    * vtkProp2D.
    */
-  virtual void HighlightProp(vtkProp *prop);
-  virtual void HighlightActor2D(vtkActor2D *actor2D);
-  virtual void HighlightProp3D(vtkProp3D *prop3D);
-  //@}
+  virtual void HighlightProp(vtkProp* prop);
+  virtual void HighlightActor2D(vtkActor2D* actor2D);
+  virtual void HighlightProp3D(vtkProp3D* prop3D);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the pick color (used by default to color vtkActor2D's).
    * The color is expressed as red/green/blue values between (0.0,1.0).
    */
-  vtkSetVector3Macro(PickColor,double);
+  vtkSetVector3Macro(PickColor, double);
   vtkGetVectorMacro(PickColor, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the mouse wheel motion factor. Default to 1.0. Set it to a
    * different value to emphasize or de-emphasize the action triggered by
@@ -376,22 +401,23 @@ public:
    */
   vtkSetMacro(MouseWheelMotionFactor, double);
   vtkGetMacro(MouseWheelMotionFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * 3Dconnexion device interactor style. Initial value is a pointer to an
    * object of class vtkTdxInteractorStyleCamera.
    */
-  vtkGetObjectMacro(TDxStyle,vtkTDxInteractorStyle);
-  virtual void SetTDxStyle(vtkTDxInteractorStyle *tdxStyle);
-  //@}
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
+  vtkGetObjectMacro(TDxStyle, vtkTDxInteractorStyle);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
+  virtual void SetTDxStyle(vtkTDxInteractorStyle* tdxStyle);
+  ///@}
 
   /**
    * Called by the callback to process 3DConnexion device events.
    */
-  void DelegateTDxEvent(unsigned long event,
-                        void *calldata);
+  void DelegateTDxEvent(unsigned long event, void* calldata);
 
 protected:
   vtkInteractorStyle();
@@ -400,10 +426,8 @@ protected:
   /**
    * Main process event method
    */
-  static void ProcessEvents(vtkObject* object,
-                            unsigned long event,
-                            void* clientdata,
-                            void* calldata);
+  static void ProcessEvents(
+    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   // Keep track of current state
   int State;
@@ -412,32 +436,33 @@ protected:
   // Should observers be handled here, should we fire timers
   vtkTypeBool HandleObservers;
   vtkTypeBool UseTimers;
-  int TimerId; //keep track of the timers that are created/destroyed
+  int TimerId; // keep track of the timers that are created/destroyed
 
   vtkTypeBool AutoAdjustCameraClippingRange;
 
   // For picking and highlighting props
-  vtkOutlineSource   *Outline;
-  vtkPolyDataMapper  *OutlineMapper;
-  vtkActor           *OutlineActor;
-  vtkRenderer        *PickedRenderer;
-  vtkProp            *CurrentProp;
-  vtkActor2D         *PickedActor2D;
-  int                PropPicked;      // bool: prop picked?
-  double             PickColor[3];    // support 2D picking
-  double             MouseWheelMotionFactor;
+  vtkOutlineSource* Outline;
+  vtkPolyDataMapper* OutlineMapper;
+  vtkActor* OutlineActor;
+  vtkRenderer* PickedRenderer;
+  vtkProp* CurrentProp;
+  vtkActor2D* PickedActor2D;
+  int PropPicked;      // bool: prop picked?
+  double PickColor[3]; // support 2D picking
+  double MouseWheelMotionFactor;
 
   // Control the timer duration
-  unsigned long  TimerDuration; //in milliseconds
+  unsigned long TimerDuration; // in milliseconds
 
   // Forward events to the RenderWindowInteractor
-  vtkEventForwarderCommand * EventForwarder;
+  vtkEventForwarderCommand* EventForwarder;
 
-  vtkTDxInteractorStyle *TDxStyle;
+  vtkTDxInteractorStyle* TDxStyle;
 
 private:
   vtkInteractorStyle(const vtkInteractorStyle&) = delete;
   void operator=(const vtkInteractorStyle&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

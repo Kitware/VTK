@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLRenderPass.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkOpenGLRenderPass.h"
 
@@ -23,32 +11,30 @@
 
 #include <cassert>
 
-vtkInformationKeyMacro(vtkOpenGLRenderPass, RenderPasses, ObjectBaseVector)
+VTK_ABI_NAMESPACE_BEGIN
+vtkInformationKeyMacro(vtkOpenGLRenderPass, RenderPasses, ObjectBaseVector);
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderPass::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkOpenGLRenderPass::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderPass::PreReplaceShaderValues(
-  std::string &, std::string &, std::string &,
-  vtkAbstractMapper *, vtkProp *)
+  std::string&, std::string&, std::string&, vtkAbstractMapper*, vtkProp*)
 {
   return true;
 }
 bool vtkOpenGLRenderPass::PostReplaceShaderValues(
-  std::string &, std::string &, std::string &,
-  vtkAbstractMapper *, vtkProp *)
+  std::string&, std::string&, std::string&, vtkAbstractMapper*, vtkProp*)
 {
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLRenderPass::SetShaderParameters(vtkShaderProgram *,
-                                              vtkAbstractMapper *, vtkProp *,
-                                              vtkOpenGLVertexArrayObject *)
+bool vtkOpenGLRenderPass::SetShaderParameters(
+  vtkShaderProgram*, vtkAbstractMapper*, vtkProp*, vtkOpenGLVertexArrayObject*)
 {
   return true;
 }
@@ -66,14 +52,23 @@ vtkOpenGLRenderPass::vtkOpenGLRenderPass() = default;
 vtkOpenGLRenderPass::~vtkOpenGLRenderPass() = default;
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderPass::PreRender(const vtkRenderState *s)
+void vtkOpenGLRenderPass::PreRender(const vtkRenderState* s)
 {
   assert("Render state valid." && s);
   size_t numProps = s->GetPropArrayCount();
   for (size_t i = 0; i < numProps; ++i)
   {
-    vtkProp *prop = s->GetPropArray()[i];
-    vtkInformation *info = prop->GetPropertyKeys();
+    vtkProp* prop = s->GetPropArray()[i];
+    this->PreRenderProp(prop);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLRenderPass::PreRenderProp(vtkProp* prop)
+{
+  if (prop)
+  {
+    vtkInformation* info = prop->GetPropertyKeys();
     if (!info)
     {
       info = vtkInformation::New();
@@ -85,14 +80,23 @@ void vtkOpenGLRenderPass::PreRender(const vtkRenderState *s)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderPass::PostRender(const vtkRenderState *s)
+void vtkOpenGLRenderPass::PostRender(const vtkRenderState* s)
 {
   assert("Render state valid." && s);
   size_t numProps = s->GetPropArrayCount();
   for (size_t i = 0; i < numProps; ++i)
   {
-    vtkProp *prop = s->GetPropArray()[i];
-    vtkInformation *info = prop->GetPropertyKeys();
+    vtkProp* prop = s->GetPropArray()[i];
+    this->PostRenderProp(prop);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLRenderPass::PostRenderProp(vtkProp* prop)
+{
+  if (prop)
+  {
+    vtkInformation* info = prop->GetPropertyKeys();
     if (info)
     {
       info->Remove(vtkOpenGLRenderPass::RenderPasses(), this);
@@ -103,3 +107,4 @@ void vtkOpenGLRenderPass::PostRender(const vtkRenderState *s)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

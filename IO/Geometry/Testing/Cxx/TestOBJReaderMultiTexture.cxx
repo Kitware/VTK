@@ -1,36 +1,23 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestOBJReaderMultiTexture.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-#include "vtkOBJReader.h"
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDebugLeaks.h"
+#include "vtkOBJReader.h"
 
-#include "vtkPointData.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkTestUtilities.h"
 
 //------------------------------------------------------------------------------
-int TestOBJReaderMultiTexture(int argc, char *argv[])
+int TestOBJReaderMultiTexture(int argc, char* argv[])
 {
   // Create the reader.
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-    "Data/obj_multitexture.obj");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/obj_multitexture.obj");
 
   vtkNew<vtkOBJReader> reader;
   reader->SetFileName(fname);
   reader->Update();
 
-  vtkPolyData *data = reader->GetOutput();
+  vtkPolyData* data = reader->GetOutput();
 
   delete[] fname;
 
@@ -84,8 +71,8 @@ int TestOBJReaderMultiTexture(int argc, char *argv[])
     // Testing values outside [4, 7]
     if (i < 4 || i > 7)
     {
-      if ((currentTCoord0[0] == -1 && currentTCoord0[1] == -1)
-        || !(currentTCoord1[0] == -1 && currentTCoord1[1] == -1))
+      if ((currentTCoord0[0] == -1 && currentTCoord0[1] == -1) ||
+        !(currentTCoord1[0] == -1 && currentTCoord1[1] == -1))
       {
         std::cerr << "Unexpected texture values" << std::endl;
         return EXIT_FAILURE;
@@ -94,8 +81,8 @@ int TestOBJReaderMultiTexture(int argc, char *argv[])
     // Testing values inside [4, 7]
     else
     {
-      if (!(currentTCoord0[0] == -1 && currentTCoord0[1] == -1)
-        || (currentTCoord1[0] == -1 && currentTCoord1[1] == -1))
+      if (!(currentTCoord0[0] == -1 && currentTCoord0[1] == -1) ||
+        (currentTCoord1[0] == -1 && currentTCoord1[1] == -1))
       {
         std::cerr << "Unexpected texture values" << std::endl;
         return EXIT_FAILURE;

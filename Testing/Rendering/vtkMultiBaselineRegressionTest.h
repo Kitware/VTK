@@ -1,24 +1,27 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef vtkMultiBaselineRegressionTest_h
 #define vtkMultiBaselineRegressionTest_h
 
-#include "vtkTesting.h"
 #include "vtkNew.h"
 #include "vtkRenderWindow.h"
+#include "vtkTesting.h"
 
 #include "vtksys/SystemTools.hxx"
 
 #include <string.h>
 
 /**\brief Run a regression test with an explicitly-provided image filename.
-  *
-  * Unlike the traditional C++ image-based test macro (vtkRegressionTestImage),
-  * this templated function accepts the name of a baseline image.
-  * It uses the existing vtkTesting infrastructure to expand the image name
-  * into a full path by replacing the implied filename component of the valid
-  * image (specified with "-V" on the command line) with the given \a img
-  * value. The directory portion of the valid image path preceding is untouched.
-  */
-template<typename T>
+ *
+ * Unlike the traditional C++ image-based test macro (vtkRegressionTestImage),
+ * this templated function accepts the name of a baseline image.
+ * It uses the existing vtkTesting infrastructure to expand the image name
+ * into a full path by replacing the implied filename component of the valid
+ * image (specified with "-V" on the command line) with the given \a img
+ * value. The directory portion of the valid image path preceding is untouched.
+ */
+VTK_ABI_NAMESPACE_BEGIN
+template <typename T>
 int RegressionTestWithImageName(
   int argc, char* argv[], T* rw, const std::string& img, double thresh = 10.)
 {
@@ -60,5 +63,6 @@ int RegressionTestWithImageName(
   return vtkTesting::NOT_RUN;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkMultiBaselineRegressionTest.h

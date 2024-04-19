@@ -1,33 +1,17 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkPComputeHistogram2DOutliers.cxx
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2009 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 #include "vtkPComputeHistogram2DOutliers.h"
 //------------------------------------------------------------------------------
 #include "vtkCollection.h"
 #include "vtkCommunicator.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkImageData.h"
-#include "vtkImageMedian3D.h"
-#include "vtkImageGradientMagnitude.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkImageData.h"
+#include "vtkImageGradientMagnitude.h"
+#include "vtkImageMedian3D.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
@@ -38,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPComputeHistogram2DOutliers);
 vtkCxxSetObjectMacro(vtkPComputeHistogram2DOutliers, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -54,16 +39,14 @@ vtkPComputeHistogram2DOutliers::~vtkPComputeHistogram2DOutliers()
 //------------------------------------------------------------------------------
 void vtkPComputeHistogram2DOutliers::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 //------------------------------------------------------------------------------
 int vtkPComputeHistogram2DOutliers::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if(!this->Superclass::RequestData(request,inputVector,outputVector))
+  if (!this->Superclass::RequestData(request, inputVector, outputVector))
     return 0;
 
   if (!this->Controller || this->Controller->GetNumberOfProcesses() <= 1)
@@ -80,12 +63,11 @@ int vtkPComputeHistogram2DOutliers::RequestData(
   }
 
   // get the output
-  vtkInformation *outTableInfo = outputVector->GetInformationObject(OUTPUT_SELECTED_TABLE_DATA);
-  vtkTable* outputTable = vtkTable::SafeDownCast(
-    outTableInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outTableInfo = outputVector->GetInformationObject(OUTPUT_SELECTED_TABLE_DATA);
+  vtkTable* outputTable = vtkTable::SafeDownCast(outTableInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int numProcesses = this->Controller->GetNumberOfProcesses();
-  //int myId = this->Controller->GetLocalProcessId();
+  // int myId = this->Controller->GetLocalProcessId();
 
   // 1) leave the selected rows alone, since they don't make sense for multiple nodes
   //
@@ -93,7 +75,7 @@ int vtkPComputeHistogram2DOutliers::RequestData(
   // 2) gather the selected data together
   // for each column, make a new one and add it to a new table
   vtkSmartPointer<vtkTable> gatheredTable = vtkSmartPointer<vtkTable>::New();
-  for (int i=0; i<outputTable->GetNumberOfColumns(); i++)
+  for (int i = 0; i < outputTable->GetNumberOfColumns(); i++)
   {
     vtkAbstractArray* col = vtkArrayDownCast<vtkAbstractArray>(outputTable->GetColumn(i));
     if (!col)
@@ -101,17 +83,17 @@ int vtkPComputeHistogram2DOutliers::RequestData(
 
     vtkIdType myLength = col->GetNumberOfTuples();
     vtkIdType totalLength = 0;
-    std::vector<vtkIdType> recvLengths(numProcesses,0);
-    std::vector<vtkIdType> recvOffsets(numProcesses,0);
+    std::vector<vtkIdType> recvLengths(numProcesses, 0);
+    std::vector<vtkIdType> recvOffsets(numProcesses, 0);
 
     // gathers all of the array lengths together
-    comm->AllGather(&myLength, &recvLengths[0], 1);
+    comm->AllGather(&myLength, recvLengths.data(), 1);
 
     // compute the displacements
     vtkIdType typeSize = col->GetDataTypeSize();
-    for (int j=0; j<numProcesses; j++)
+    for (int j = 0; j < numProcesses; j++)
     {
-      recvOffsets[j] = totalLength*typeSize;
+      recvOffsets[j] = totalLength * typeSize;
       totalLength += recvLengths[j];
       recvLengths[j] *= typeSize;
     }
@@ -120,10 +102,10 @@ int vtkPComputeHistogram2DOutliers::RequestData(
     vtkAbstractArray* received = vtkAbstractArray::CreateArray(col->GetDataType());
     received->SetNumberOfTuples(totalLength);
 
-    char* sendBuf = (char*) col->GetVoidPointer(0);
-    char* recvBuf = (char*) received->GetVoidPointer(0);
+    char* sendBuf = (char*)col->GetVoidPointer(0);
+    char* recvBuf = (char*)received->GetVoidPointer(0);
 
-    comm->AllGatherV(sendBuf, recvBuf, myLength*typeSize, &recvLengths[0], &recvOffsets[0]);
+    comm->AllGatherV(sendBuf, recvBuf, myLength * typeSize, recvLengths.data(), recvOffsets.data());
 
     gatheredTable->AddColumn(received);
     received->Delete();
@@ -133,3 +115,4 @@ int vtkPComputeHistogram2DOutliers::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

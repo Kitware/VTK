@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    Arrays.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This example demonstrate the use of VTK data arrays as attribute
 // data as well as field data. It creates geometry (vtkPolyData) as
 // well as attribute data explicitly.
@@ -50,10 +38,8 @@ int main()
   // Assign each tuple. There are 5 specialized versions of SetTuple:
   // SetTuple1 SetTuple2 SetTuple3 SetTuple4 SetTuple9
   // These take 1, 2, 3, 4 and 9 components respectively.
-  std::array<std::array<double, 3>, 4> pts = {{{{0.0, 0.0, 0.0}},
-                                               {{0.0, 1.0, 0.0}},
-                                               {{1.0, 0.0, 0.0}},
-                                               {{1.0, 1.0, 0.0}}}};
+  std::array<std::array<double, 3>, 4> pts = { { { { 0.0, 0.0, 0.0 } }, { { 0.0, 1.0, 0.0 } },
+    { { 1.0, 0.0, 0.0 } }, { { 1.0, 1.0, 0.0 } } } };
   for (auto i = 0ul; i < pts.size(); ++i)
   {
     pcoords->SetTuple(i, pts[i].data());
@@ -119,7 +105,6 @@ int main()
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(ren);
   renWin->SetSize(600, 600);
-
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);

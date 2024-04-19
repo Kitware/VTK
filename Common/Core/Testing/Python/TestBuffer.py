@@ -11,12 +11,20 @@ Created on Aug 1, 2015 by David Gobbi
 
 import sys
 import struct
-import vtk
-from vtk.test import Testing
+import vtkmodules.vtkCommonCore
+from vtkmodules.vtkCommonCore import (
+    VTK_SIZEOF_ID_TYPE,
+    VTK_SIZEOF_LONG,
+    buffer_shared,
+    vtkBitArray,
+    vtkCharArray,
+    vtkFloatArray,
+)
+from vtkmodules.test import Testing
 
 # array types and the corresponding format
-lsize = vtk.VTK_SIZEOF_LONG
-idsize = vtk.VTK_SIZEOF_ID_TYPE
+lsize = VTK_SIZEOF_LONG
+idsize = VTK_SIZEOF_ID_TYPE
 if idsize == 8:
     idchar = 'q'
 else:
@@ -34,10 +42,8 @@ arrayType = {
 class TestBuffer(Testing.vtkTest):
     def testOneDimensionalDataArray(self):
         """Test one-dimensional data array."""
-        if sys.hexversion < 0x02070000:
-            return
         for atype,ainfo in arrayType.items():
-            aclass = getattr(vtk, 'vtk' + atype + 'Array')
+            aclass = getattr(vtkmodules.vtkCommonCore, 'vtk' + atype + 'Array')
             a = aclass()
             a.InsertNextValue(10)
             a.InsertNextValue(7)
@@ -60,10 +66,8 @@ class TestBuffer(Testing.vtkTest):
 
     def testTwoDimensionalDataArray(self):
         """Test data array with components."""
-        if sys.hexversion < 0x02070000:
-            return
         for atype,ainfo in arrayType.items():
-            aclass = getattr(vtk, 'vtk' + atype + 'Array')
+            aclass = getattr(vtkmodules.vtkCommonCore, 'vtk' + atype + 'Array')
             a = aclass()
             a.SetNumberOfComponents(3)
             a.InsertNextTuple((10, 7, 4))
@@ -80,10 +84,8 @@ class TestBuffer(Testing.vtkTest):
 
     def testCharArray(self):
         """Test the special case of the char array."""
-        if sys.hexversion < 0x02070000:
-            return
         # bit array is actually stored as a byte array
-        a = vtk.vtkCharArray()
+        a = vtkCharArray()
         a.SetNumberOfComponents(5)
         a.InsertNextTypedTuple("hello")
         a.InsertNextTypedTuple("world")
@@ -98,10 +100,8 @@ class TestBuffer(Testing.vtkTest):
 
     def testBitArray(self):
         """Test the special case of the bit array."""
-        if sys.hexversion < 0x02070000:
-            return
         # bit array is actually stored as a byte array
-        a = vtk.vtkBitArray()
+        a = vtkBitArray()
         a.InsertNextValue(0)
         a.InsertNextValue(1)
         a.InsertNextValue(1)
@@ -117,30 +117,25 @@ class TestBuffer(Testing.vtkTest):
     def testBufferShared(self):
         """Test the special buffer_shared() check that VTK provides."""
         a = bytearray(b'hello')
-        self.assertEqual(vtk.buffer_shared(a, a), True)
+        self.assertEqual(buffer_shared(a, a), True)
         b = bytearray(b'hello')
-        self.assertEqual(vtk.buffer_shared(a, b), False)
+        self.assertEqual(buffer_shared(a, b), False)
 
-        a = vtk.vtkFloatArray()
+        a = vtkFloatArray()
         a.SetNumberOfComponents(3)
         a.InsertNextTuple((10, 7, 4))
         a.InsertNextTuple((85, 8, 2))
 
-        b = vtk.vtkFloatArray()
+        b = vtkFloatArray()
         b.SetVoidArray(a, 6, True)
-        self.assertEqual(vtk.buffer_shared(a, b), True)
+        self.assertEqual(buffer_shared(a, b), True)
 
-        c = vtk.vtkFloatArray()
+        c = vtkFloatArray()
         c.DeepCopy(a)
-        self.assertEqual(vtk.buffer_shared(a, c), False)
+        self.assertEqual(buffer_shared(a, c), False)
 
-        if sys.hexversion >= 0x02070000:
-            m = memoryview(a)
-            self.assertEqual(vtk.buffer_shared(a, m), True)
-
-        if sys.hexversion < 0x03000000:
-            m = buffer(a)
-            self.assertEqual(vtk.buffer_shared(a, m), True)
+        m = memoryview(a)
+        self.assertEqual(buffer_shared(a, m), True)
 
 if __name__ == "__main__":
     Testing.main([(TestBuffer, 'test')])

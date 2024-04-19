@@ -1,26 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVisibilitySort.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-/*
- * Copyright 2003 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2003 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkVisibilitySort
@@ -41,14 +21,15 @@
  * loop holding the visibility sort should also report that to the garbage
  * collector.
  *
-*/
+ */
 
 #ifndef vtkVisibilitySort_h
 #define vtkVisibilitySort_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkDataSet;
 class vtkMatrix4x4;
@@ -58,9 +39,9 @@ class VTKRENDERINGCORE_EXPORT vtkVisibilitySort : public vtkObject
 {
 public:
   vtkTypeMacro(vtkVisibilitySort, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * To facilitate incremental sorting algorithms, the cells are retrieved
    * in an iteration process.  That is, call InitTraversal to start the
@@ -73,47 +54,47 @@ public:
    * after subsequent calls to GetNextCells.
    */
   virtual void InitTraversal() = 0;
-  virtual vtkIdTypeArray *GetNextCells() = 0;
-  //@}
+  virtual vtkIdTypeArray* GetNextCells() = 0;
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of cells that GetNextCells will return
    * in one invocation.
    */
   vtkSetClampMacro(MaxCellsReturned, int, 1, VTK_INT_MAX);
   vtkGetMacro(MaxCellsReturned, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the matrix that transforms from object space to world space.
    * Generally, you get this matrix from a call to GetMatrix of a vtkProp3D
    * (vtkActor).
    */
-  virtual void SetModelTransform(vtkMatrix4x4 *mat);
+  virtual void SetModelTransform(vtkMatrix4x4* mat);
   vtkGetObjectMacro(ModelTransform, vtkMatrix4x4);
-  //@}
+  ///@}
 
   vtkGetObjectMacro(InverseModelTransform, vtkMatrix4x4);
 
-  //@{
+  ///@{
   /**
    * Set/Get the camera that specifies the viewing parameters.
    */
-  virtual void SetCamera(vtkCamera *camera);
+  virtual void SetCamera(vtkCamera* camera);
   vtkGetObjectMacro(Camera, vtkCamera);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the data set containing the cells to sort.
    */
-  virtual void SetInput(vtkDataSet *data);
+  virtual void SetInput(vtkDataSet* data);
   vtkGetObjectMacro(Input, vtkDataSet);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the sorting direction.  Be default, the direction is set
    * to back to front.
@@ -122,17 +103,20 @@ public:
   vtkSetMacro(Direction, int);
   void SetDirectionToBackToFront() { this->SetDirection(BACK_TO_FRONT); }
   void SetDirectionToFrontToBack() { this->SetDirection(FRONT_TO_BACK); }
-  //@}
+  ///@}
 
-  enum { BACK_TO_FRONT, FRONT_TO_BACK };
+  enum
+  {
+    BACK_TO_FRONT,
+    FRONT_TO_BACK
+  };
 
-  //@{
+  ///@{
   /**
    * Overwritten to enable garbage collection.
    */
-  void Register(vtkObjectBase *o) override;
-  void UnRegister(vtkObjectBase *o) override;
-  //@}
+  bool UsesGarbageCollector() const override { return true; }
+  ///@}
 
 protected:
   vtkVisibilitySort();
@@ -140,21 +124,21 @@ protected:
 
   vtkTimeStamp LastSortTime;
 
-  vtkMatrix4x4 *ModelTransform;
-  vtkMatrix4x4 *InverseModelTransform;
-  vtkCamera *Camera;
-  vtkDataSet *Input;
+  vtkMatrix4x4* ModelTransform;
+  vtkMatrix4x4* InverseModelTransform;
+  vtkCamera* Camera;
+  vtkDataSet* Input;
 
   int MaxCellsReturned;
 
   int Direction;
 
-  void ReportReferences(vtkGarbageCollector *collector) override;
+  void ReportReferences(vtkGarbageCollector* collector) override;
 
 private:
-  vtkVisibilitySort(const vtkVisibilitySort &) = delete;
-  void operator=(const vtkVisibilitySort &) = delete;
+  vtkVisibilitySort(const vtkVisibilitySort&) = delete;
+  void operator=(const vtkVisibilitySort&) = delete;
 };
 
-#endif //vtkVisibilitySort_h
-
+VTK_ABI_NAMESPACE_END
+#endif // vtkVisibilitySort_h

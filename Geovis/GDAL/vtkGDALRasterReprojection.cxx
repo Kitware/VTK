@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGDALRasterReprojection.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-   This software is distributed WITHOUT ANY WARRANTY; without even
-   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-   PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGDALRasterReprojection.h"
 
 // VTK Includes
@@ -23,20 +11,19 @@
 #include <gdalwarper.h>
 #include <ogr_spatialref.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGDALRasterReprojection);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGDALRasterReprojection::vtkGDALRasterReprojection()
 {
   this->MaxError = 0.0;
   this->ResamplingAlgorithm = 0;
 }
 
-//----------------------------------------------------------------------------
-vtkGDALRasterReprojection::~vtkGDALRasterReprojection()
-{
-}
+//------------------------------------------------------------------------------
+vtkGDALRasterReprojection::~vtkGDALRasterReprojection() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkGDALRasterReprojection::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
@@ -46,30 +33,24 @@ void vtkGDALRasterReprojection::PrintSelf(ostream& os, vtkIndent indent)
      << std::endl;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
-                                                        const char* projection,
-                                                        double geoTransform[6],
-                                                        int* nPixels,
-                                                        int* nLines,
-                                                        double maxError)
+  const char* projection, double geoTransform[6], int* nPixels, int* nLines, double maxError)
 {
   // Create OGRSpatialReference for projection
   OGRSpatialReference ref;
   OGRErr errcode = ref.SetFromUserInput(projection);
   if (errcode != OGRERR_NONE)
   {
-    vtkWarningMacro(<< "OGRSpatialReference::SetFromUserInput(" << projection
-                    << ") returned " << errcode
-                    << ". You might need to set GDAL_DATA.");
+    vtkWarningMacro(<< "OGRSpatialReference::SetFromUserInput(" << projection << ") returned "
+                    << errcode << ". You might need to set GDAL_DATA.");
   }
-  char* outputWKT = NULL;
+  char* outputWKT = nullptr;
   errcode = ref.exportToWkt(&outputWKT);
   if (errcode != OGRERR_NONE)
   {
     vtkWarningMacro(<< "OGRSpatialReference::exportToWKT("
-                    << ") returned " << errcode
-                    << ". You might need to set GDAL_DATA.");
+                    << ") returned " << errcode << ". You might need to set GDAL_DATA.");
     std::cout << "Resulting outputWKT: \n" << outputWKT << std::endl;
   }
 
@@ -78,7 +59,7 @@ bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
   bool useGCPs = false;
   int order = 0; // only applies to GCP transforms
   void* transformer = GDALCreateGenImgProjTransformer(
-    dataset, inputWKT, NULL, outputWKT, useGCPs, maxError, order);
+    dataset, inputWKT, nullptr, outputWKT, useGCPs, maxError, order);
   CPLFree(outputWKT);
   if (transformer == nullptr)
   {
@@ -86,16 +67,11 @@ bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
   }
 
   // Estimate transform coefficients and output image dimensions
-  CPLErr err = GDALSuggestedWarpOutput(dataset,
-                                       GDALGenImgProjTransform,
-                                       transformer,
-                                       geoTransform,
-                                       nPixels,
-                                       nLines);
+  CPLErr err = GDALSuggestedWarpOutput(
+    dataset, GDALGenImgProjTransform, transformer, geoTransform, nPixels, nLines);
   if (err == CE_Failure)
   {
-    vtkErrorMacro(<< "GDALSuggestedWarpOutput failed with message: "
-                  << CPLGetLastErrorMsg());
+    vtkErrorMacro(<< "GDALSuggestedWarpOutput failed with message: " << CPLGetLastErrorMsg());
   }
   GDALDestroyGenImgProjTransformer(transformer);
   // std::cout << "Output image: " << *nPixels << " by " << *nLines <<
@@ -104,9 +80,8 @@ bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
   return true;
 }
 
-//----------------------------------------------------------------------------
-bool vtkGDALRasterReprojection::Reproject(GDALDataset* input,
-                                          GDALDataset* output)
+//------------------------------------------------------------------------------
+bool vtkGDALRasterReprojection::Reproject(GDALDataset* input, GDALDataset* output)
 {
   // Convert this->ResamplingAlgorithm to GDALResampleAlg
   GDALResampleAlg algorithm = GRA_NearestNeighbour;
@@ -137,7 +112,7 @@ bool vtkGDALRasterReprojection::Reproject(GDALDataset* input,
   }
 
   GDALProgressFunc progressFcn = GDALTermProgress;
-  void* progressArg = NULL;
+  void* progressArg = nullptr;
   double memoryLimit = 0.0; // use default
   GDALWarpOptions* warpOptions = GDALCreateWarpOptions();
 
@@ -146,44 +121,31 @@ bool vtkGDALRasterReprojection::Reproject(GDALDataset* input,
   warpOptions->nBandCount = 0; // all bands
   warpOptions->pfnProgress = GDALTermProgress;
 
-  warpOptions->pTransformerArg =
-    GDALCreateGenImgProjTransformer(input,
-                                    GDALGetProjectionRef(input),
-                                    output,
-                                    GDALGetProjectionRef(output),
-                                    false,
-                                    0.0,
-                                    1);
+  warpOptions->pTransformerArg = GDALCreateGenImgProjTransformer(
+    input, GDALGetProjectionRef(input), output, GDALGetProjectionRef(output), false, 0.0, 1);
   if (warpOptions->pTransformerArg == nullptr)
   {
-    std::cerr << "Could not create transformer " << GDALGetProjectionRef(input)
-              << " " << GDALGetProjectionRef(output) << std::endl;
+    std::cerr << "Could not create transformer " << GDALGetProjectionRef(input) << " "
+              << GDALGetProjectionRef(output) << std::endl;
   }
   warpOptions->pfnTransformer = GDALGenImgProjTransform;
 
   // multithreaded option seems to cause a data race
-  // char** stringWarpOptions = NULL;
+  // char** stringWarpOptions = nullptr;
   // stringWarpOptions =
   //   CSLSetNameValue(stringWarpOptions, "NUM_THREADS", "ALL_CPUS");
   // warpOptions->papszWarpOptions = stringWarpOptions;
 
-  CPLErr err = GDALReprojectImage(input,
-                                  input->GetProjectionRef(),
-                                  output,
-                                  output->GetProjectionRef(),
-                                  algorithm,
-                                  memoryLimit,
-                                  this->MaxError,
-                                  progressFcn,
-                                  progressArg,
-                                  warpOptions);
+  CPLErr err =
+    GDALReprojectImage(input, input->GetProjectionRef(), output, output->GetProjectionRef(),
+      algorithm, memoryLimit, this->MaxError, progressFcn, progressArg, warpOptions);
   if (err == CE_Failure)
   {
-    vtkErrorMacro(<< "GDALReprojectImage failed with message: "
-                  << CPLGetLastErrorMsg());
+    vtkErrorMacro(<< "GDALReprojectImage failed with message: " << CPLGetLastErrorMsg());
     return false;
   }
   // std::cout << "warp returned: " << err << std::endl;
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

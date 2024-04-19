@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataSetAttributesFieldList.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDataSetAttributesFieldList.h"
 
 #include "vtkDataArray.h"
@@ -32,12 +20,13 @@
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 /**
  * FieldInfo is used to store metadata about a field.
  */
 struct FieldInfo
 {
-  //@{
+  ///@{
   /**
    * These attributes are used to compare two fields. If they match,
    * then the fields can be treated as similar, hence can be merged.
@@ -45,9 +34,9 @@ struct FieldInfo
   std::string Name;
   int Type;
   int NumberOfComponents;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These store metadata that may be present on any input field.
    * These are passed to the output in `CopyAllocate`
@@ -55,13 +44,13 @@ struct FieldInfo
   vtkSmartPointer<vtkLookupTable> LUT;
   vtkSmartPointer<vtkInformation> Information;
   std::vector<std::string> ComponentNames;
-  //@}
+  ///@}
 
   /**
    * An array where `AttributeTypes[j][i]==true` if this field is marked
    * as the i'th attribute type on the j'th input idx.
    */
-  std::vector<std::array<bool, vtkDataSetAttributes::NUM_ATTRIBUTES> > AttributeTypes;
+  std::vector<std::array<bool, vtkDataSetAttributes::NUM_ATTRIBUTES>> AttributeTypes;
 
   /**
    * Location of this field in the input vtkDataSetAttributes instance at the
@@ -76,13 +65,10 @@ struct FieldInfo
   mutable int OutputLocation;
 
   FieldInfo()
-    : Name()
-    , Type(VTK_VOID)
+    : Type(VTK_VOID)
     , NumberOfComponents(0)
     , LUT(nullptr)
     , Information(nullptr)
-    , ComponentNames{}
-    , Location{}
     , OutputLocation(-1)
   {
   }
@@ -206,7 +192,7 @@ struct FieldInfo
     }
   }
 
-  //@{
+  ///@{
   /**
    * These methods are used by `UnionFieldList` to pad a FieldInfo instance.
    * Calling these methods clears `AttributeTypes` since it indicates that this
@@ -219,7 +205,7 @@ struct FieldInfo
 
     std::array<bool, vtkDataSetAttributes::NUM_ATTRIBUTES> curattrs;
     std::fill(curattrs.begin(), curattrs.end(), false);
-    this->AttributeTypes.push_back(std::move(curattrs));
+    this->AttributeTypes.push_back(curattrs);
   }
 
   void PreExtendForUnion(int count)
@@ -230,7 +216,7 @@ struct FieldInfo
     std::fill(curattrs.begin(), curattrs.end(), false);
     this->AttributeTypes.insert(this->AttributeTypes.begin(), count, curattrs);
   }
-  //@}
+  ///@}
 };
 
 std::multimap<std::string, FieldInfo> GetFields(vtkDataSetAttributes* dsa)
@@ -249,7 +235,7 @@ std::multimap<std::string, FieldInfo> GetFields(vtkDataSetAttributes* dsa)
     std::transform(attribute_indices.begin(), attribute_indices.end(), curattrs.begin(),
       [cc](int idx) { return idx == cc; });
 
-    finfo.AttributeTypes.push_back(std::move(curattrs));
+    finfo.AttributeTypes.push_back(curattrs);
 
     fields.insert(std::make_pair(finfo.Name, std::move(finfo)));
   }
@@ -304,7 +290,10 @@ void remove_if(Container& cont, ForwardIt first, ForwardIt second, UnaryPredicat
     }
   }
 }
-}
+VTK_ABI_NAMESPACE_END
+} // namespace detail
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkDataSetAttributesFieldList::vtkInternals
 {
@@ -323,7 +312,7 @@ public:
 
   vtkInternals()
     : NumberOfTuples(0)
-    , NumberOfInputs(-1)
+    , NumberOfInputs(0)
     , Mode(NONE)
   {
   }
@@ -332,7 +321,7 @@ public:
   {
     this->Fields.clear();
     this->NumberOfTuples = 0;
-    this->NumberOfInputs = -1;
+    this->NumberOfInputs = 0;
     this->Mode = NONE;
   }
 
@@ -368,26 +357,43 @@ public:
 
     return nullptr;
   }
-};
 
-//----------------------------------------------------------------------------
+  /**
+   * This method can be used to determine if an array with the specified name
+   * exists after intersection or union operations.
+   */
+  detail::FieldInfo* HasArray(const char* name)
+  {
+    for (auto& pair : this->Fields)
+    {
+      auto& fieldInfo = pair.second;
+      if (name != nullptr && fieldInfo.Name == name)
+      {
+        return &fieldInfo;
+      }
+    }
+
+    return nullptr;
+  }
+
+}; // vtkInternals
+
+//------------------------------------------------------------------------------
 vtkDataSetAttributesFieldList::vtkDataSetAttributesFieldList(int vtkNotUsed(number_of_inputs))
   : Internals(new vtkDataSetAttributesFieldList::vtkInternals())
 {
 }
 
-//----------------------------------------------------------------------------
-vtkDataSetAttributesFieldList::~vtkDataSetAttributesFieldList()
-{
-}
+//------------------------------------------------------------------------------
+vtkDataSetAttributesFieldList::~vtkDataSetAttributesFieldList() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::Reset()
 {
   this->Internals->Reset();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::InitializeFieldList(vtkDataSetAttributes* dsa)
 {
   this->Internals->Reset();
@@ -398,18 +404,18 @@ void vtkDataSetAttributesFieldList::InitializeFieldList(vtkDataSetAttributes* ds
   // initialize OutputLocation to match the input location for 0th input. This
   // is to support legacy use-cases where FieldList was used without
   // calling CopyAllocate.
-  for (auto &pair : this->Internals->Fields)
+  for (auto& pair : this->Internals->Fields)
   {
-      auto& fieldInfo = pair.second;
-      fieldInfo.OutputLocation = fieldInfo.Location.front();
+    auto& fieldInfo = pair.second;
+    fieldInfo.OutputLocation = fieldInfo.Location.front();
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::IntersectFieldList(vtkDataSetAttributes* dsa)
 {
   auto& internals = *this->Internals;
-  if (internals.NumberOfInputs == -1)
+  if (internals.NumberOfInputs == 0)
   {
     // called without calling InitializeFieldList, just call it.
     this->InitializeFieldList(dsa);
@@ -478,11 +484,11 @@ void vtkDataSetAttributesFieldList::IntersectFieldList(vtkDataSetAttributes* dsa
   internals.NumberOfInputs++;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::UnionFieldList(vtkDataSetAttributes* dsa)
 {
   auto& internals = *this->Internals;
-  if (internals.NumberOfInputs == -1)
+  if (internals.NumberOfInputs == 0)
   {
     // called without calling InitializeFieldList, just call it.
     this->InitializeFieldList(dsa);
@@ -554,7 +560,7 @@ void vtkDataSetAttributesFieldList::UnionFieldList(vtkDataSetAttributes* dsa)
   internals.NumberOfInputs++;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::CopyAllocate(
   vtkDataSetAttributes* output, int ctype, vtkIdType sz, vtkIdType ext) const
 {
@@ -630,7 +636,7 @@ void vtkDataSetAttributesFieldList::CopyAllocate(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::CopyData(int inputIndex, vtkDataSetAttributes* input,
   vtkIdType fromId, vtkDataSetAttributes* output, vtkIdType toId) const
 {
@@ -651,7 +657,7 @@ void vtkDataSetAttributesFieldList::CopyData(int inputIndex, vtkDataSetAttribute
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::CopyData(int inputIndex, vtkDataSetAttributes* input,
   vtkIdType inputStart, vtkIdType numValues, vtkDataSetAttributes* output, vtkIdType outStart) const
 {
@@ -672,7 +678,7 @@ void vtkDataSetAttributesFieldList::CopyData(int inputIndex, vtkDataSetAttribute
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::InterpolatePoint(int inputIndex, vtkDataSetAttributes* input,
   vtkIdList* inputIds, double* weights, vtkDataSetAttributes* output, vtkIdType toId) const
 {
@@ -716,7 +722,7 @@ void vtkDataSetAttributesFieldList::InterpolatePoint(int inputIndex, vtkDataSetA
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::TransformData(int inputIndex, vtkDataSetAttributes* input,
   vtkDataSetAttributes* output, std::function<void(vtkAbstractArray*, vtkAbstractArray*)> op) const
 {
@@ -737,13 +743,73 @@ void vtkDataSetAttributesFieldList::TransformData(int inputIndex, vtkDataSetAttr
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkAbstractArray> vtkDataSetAttributesFieldList::CreateArray(int type) const
 {
   return vtkSmartPointer<vtkAbstractArray>::Take(vtkAbstractArray::CreateArray(type));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+int vtkDataSetAttributesFieldList::GetNumberOfArrays()
+{
+  auto& internals = *this->Internals;
+  return static_cast<int>(internals.Fields.size());
+}
+
+//------------------------------------------------------------------------------
+void vtkDataSetAttributesFieldList::BuildPrototype(
+  vtkDataSetAttributes* proto, vtkDataSetAttributes* ordering)
+{
+  // Create data arrays present in this field list and associate them with
+  // the prototype.
+  auto& internals = *this->Internals;
+
+  // Check whether ordering is required.
+  if (ordering == nullptr)
+  {
+    for (auto& pair : internals.Fields)
+    {
+      auto& fieldInfo = pair.second;
+      auto array = this->CreateArray(fieldInfo.Type);
+      array->SetName(fieldInfo.Name.c_str());
+      array->SetNumberOfComponents(fieldInfo.NumberOfComponents);
+      int idx = proto->AddArray(array);
+      for (int attrType = 0; attrType < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attrType)
+      {
+        if (fieldInfo.AttributeTypes[0][attrType])
+        {
+          proto->SetActiveAttribute(idx, attrType);
+          break;
+        }
+      }
+    } // for all fields
+  }
+  else // an ordering of the data arrays is specified
+  {
+    vtkIdType numArrays = ordering->GetNumberOfArrays();
+    for (auto arrayNum = 0; arrayNum < numArrays; ++arrayNum)
+    {
+      detail::FieldInfo* fieldInfo;
+      if ((fieldInfo = this->Internals->HasArray(ordering->GetArrayName(arrayNum))) != nullptr)
+      {
+        auto array = this->CreateArray(fieldInfo->Type);
+        array->SetName(fieldInfo->Name.c_str());
+        array->SetNumberOfComponents(fieldInfo->NumberOfComponents);
+        int idx = proto->AddArray(array);
+        for (int attrType = 0; attrType < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attrType)
+        {
+          if (fieldInfo->AttributeTypes[0][attrType])
+          {
+            proto->SetActiveAttribute(idx, attrType);
+            break;
+          }
+        }
+      }
+    }
+  } // ordering of data arrays
+}
+
+//------------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "vtkDataSetAttributesFieldList (" << this << ")\n";
@@ -753,3 +819,4 @@ void vtkDataSetAttributesFieldList::PrintSelf(ostream& os, vtkIndent indent)
     pair.second.PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -1,22 +1,11 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLState.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-#include "vtk_glew.h"
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenGLState.h"
+#include "vtk_glew.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
@@ -27,6 +16,8 @@
 #include "vtkOpenGLError.h"
 
 #include <cmath>
+
+#include "vtksys/SystemInformation.hxx"
 
 // If you define NO_CACHE then all state->vtkgl* calls
 // will get passed down to OpenGL regardless of the current
@@ -44,52 +35,53 @@
 //    printed.
 // 3) All methods check the cache state to see if anything is out of sync
 //
+// #undef VTK_REPORT_OPENGL_ERRORS
 #ifdef VTK_REPORT_OPENGL_ERRORS
-#include "vtksys/SystemInformation.hxx"
 
 // this method checks all the cached state to make sure
 // nothing is out of sync. It can be slow.
+VTK_ABI_NAMESPACE_BEGIN
 void vtkOpenGLState::CheckState()
 {
   bool error = false;
 
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Checking OpenGL State");
+
   GLboolean params[4];
 
+  auto& cs = this->Stack.top();
+
   ::glGetBooleanv(GL_DEPTH_WRITEMASK, params);
-  if (params[0] != this->CurrentState.DepthMask)
+  if (params[0] != cs.DepthMask)
   {
     vtkGenericWarningMacro("Error in cache state for GL_DEPTH_WRITEMASK");
     this->ResetGLDepthMaskState();
     error = true;
   }
   ::glGetBooleanv(GL_COLOR_WRITEMASK, params);
-  if (
-      params[0] != this->CurrentState.ColorMask[0] ||
-      params[1] != this->CurrentState.ColorMask[1] ||
-      params[2] != this->CurrentState.ColorMask[2] ||
-      params[3] != this->CurrentState.ColorMask[3]
-      )
+  if (params[0] != cs.ColorMask[0] || params[1] != cs.ColorMask[1] ||
+    params[2] != cs.ColorMask[2] || params[3] != cs.ColorMask[3])
   {
     vtkGenericWarningMacro("Error in cache state for GL_COLOR_WRITEMASK");
     this->ResetGLColorMaskState();
     error = true;
   }
   ::glGetBooleanv(GL_BLEND, params);
-  if ((params[0] != 0) != this->CurrentState.Blend)
+  if ((params[0] != 0) != cs.Blend)
   {
     vtkGenericWarningMacro("Error in cache state for GL_BLEND");
     this->ResetEnumState(GL_BLEND);
     error = true;
   }
   ::glGetBooleanv(GL_DEPTH_TEST, params);
-  if ((params[0] != 0) != this->CurrentState.DepthTest)
+  if ((params[0] != 0) != cs.DepthTest)
   {
     vtkGenericWarningMacro("Error in cache state for GL_DEPTH_TEST");
     this->ResetEnumState(GL_DEPTH_TEST);
     error = true;
   }
   ::glGetBooleanv(GL_CULL_FACE, params);
-  if ((params[0] != 0) != this->CurrentState.CullFace)
+  if ((params[0] != 0) != cs.CullFace)
   {
     vtkGenericWarningMacro("Error in cache state for GL_CULL_FACE");
     this->ResetEnumState(GL_CULL_FACE);
@@ -97,7 +89,7 @@ void vtkOpenGLState::CheckState()
   }
 #ifdef GL_MULTISAMPLE
   ::glGetBooleanv(GL_MULTISAMPLE, params);
-  if ((params[0] != 0) != this->CurrentState.MultiSample)
+  if ((params[0] != 0) != cs.MultiSample)
   {
     vtkGenericWarningMacro("Error in cache state for GL_MULTISAMPLE");
     this->ResetEnumState(GL_MULTISAMPLE);
@@ -105,19 +97,28 @@ void vtkOpenGLState::CheckState()
   }
 #endif
   ::glGetBooleanv(GL_SCISSOR_TEST, params);
-  if ((params[0] != 0) != this->CurrentState.ScissorTest)
+  if ((params[0] != 0) != cs.ScissorTest)
   {
     vtkGenericWarningMacro("Error in cache state for GL_SCISSOR_TEST");
     this->ResetEnumState(GL_SCISSOR_TEST);
     error = true;
   }
   ::glGetBooleanv(GL_STENCIL_TEST, params);
-  if ((params[0] != 0) != this->CurrentState.StencilTest)
+  if ((params[0] != 0) != cs.StencilTest)
   {
     vtkGenericWarningMacro("Error in cache state for GL_STENCIL_TEST");
     this->ResetEnumState(GL_STENCIL_TEST);
     error = true;
   }
+#ifdef GL_TEXTURE_CUBE_MAP_SEAMLESS
+  ::glGetBooleanv(GL_TEXTURE_CUBE_MAP_SEAMLESS, params);
+  if ((params[0] != 0) != cs.CubeMapSeamless)
+  {
+    vtkGenericWarningMacro("Error in cache state for GL_TEXTURE_CUBE_MAP_SEAMLESS");
+    this->ResetEnumState(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    error = true;
+  }
+#endif
 
   GLint iparams[4];
 #if defined(__APPLE__)
@@ -126,87 +127,79 @@ void vtkOpenGLState::CheckState()
   this->ResetGLViewportState();
 #endif
   ::glGetIntegerv(GL_VIEWPORT, iparams);
-  if (
-      iparams[0] != this->CurrentState.Viewport[0] ||
-      iparams[1] != this->CurrentState.Viewport[1] ||
-      iparams[2] != this->CurrentState.Viewport[2] ||
-      iparams[3] != this->CurrentState.Viewport[3]
-      )
+  if (iparams[0] != cs.Viewport[0] || iparams[1] != cs.Viewport[1] ||
+    iparams[2] != cs.Viewport[2] || iparams[3] != cs.Viewport[3])
   {
     vtkGenericWarningMacro("Error in cache state for GL_VIEWPORT");
     this->ResetGLViewportState();
     error = true;
   }
   ::glGetIntegerv(GL_SCISSOR_BOX, iparams);
-  if (
-      iparams[0] != this->CurrentState.Scissor[0] ||
-      iparams[1] != this->CurrentState.Scissor[1] ||
-      iparams[2] != this->CurrentState.Scissor[2] ||
-      iparams[3] != this->CurrentState.Scissor[3]
-      )
+  if (iparams[0] != cs.Scissor[0] || iparams[1] != cs.Scissor[1] || iparams[2] != cs.Scissor[2] ||
+    iparams[3] != cs.Scissor[3])
   {
     vtkGenericWarningMacro("Error in cache state for GL_SCISSOR_BOX");
     this->ResetGLScissorState();
     error = true;
   }
   ::glGetIntegerv(GL_CULL_FACE_MODE, iparams);
-  if (iparams[0] != static_cast<int>(this->CurrentState.CullFaceMode))
+  if (iparams[0] != static_cast<int>(cs.CullFaceMode))
   {
     vtkGenericWarningMacro("Error in cache state for GL_CULL_FACE_MODE");
     this->ResetGLCullFaceState();
     error = true;
   }
   ::glGetIntegerv(GL_ACTIVE_TEXTURE, iparams);
-  if (iparams[0] != static_cast<int>(this->CurrentState.ActiveTexture))
+  if (iparams[0] != static_cast<int>(cs.ActiveTexture))
   {
     vtkGenericWarningMacro("Error in cache state for GL_ACTIVE_TEXTURE");
     this->ResetGLActiveTexture();
     error = true;
   }
   ::glGetIntegerv(GL_DEPTH_FUNC, iparams);
-  if (iparams[0] != static_cast<int>(this->CurrentState.DepthFunc))
+  if (iparams[0] != static_cast<int>(cs.DepthFunc))
   {
     vtkGenericWarningMacro("Error in cache state for GL_DEPTH_FUNC");
     this->ResetGLDepthFuncState();
     error = true;
   }
   ::glGetIntegerv(GL_BLEND_SRC_RGB, iparams);
-  if (iparams[0] != static_cast<int>(this->CurrentState.BlendFunc[0]))
+  if (iparams[0] != static_cast<int>(cs.BlendFunc[0]))
   {
     vtkGenericWarningMacro("Error in cache state for GL_BLEND_SRC_RGB");
     this->ResetGLBlendFuncState();
     error = true;
   }
   ::glGetIntegerv(GL_BLEND_SRC_ALPHA, iparams);
-  if (iparams[0] != static_cast<int>(this->CurrentState.BlendFunc[2]))
+  if (iparams[0] != static_cast<int>(cs.BlendFunc[2]))
   {
     vtkGenericWarningMacro("Error in cache state for GL_BLEND_SRC_ALPHA");
     this->ResetGLBlendFuncState();
     error = true;
   }
   ::glGetIntegerv(GL_BLEND_DST_RGB, iparams);
-  if (iparams[0] != static_cast<int>(this->CurrentState.BlendFunc[1]))
+  if (iparams[0] != static_cast<int>(cs.BlendFunc[1]))
   {
     vtkGenericWarningMacro("Error in cache state for GL_BLEND_DST_RGB");
     this->ResetGLBlendFuncState();
     error = true;
   }
   ::glGetIntegerv(GL_BLEND_DST_ALPHA, iparams);
-  if (iparams[0] != static_cast<int>(this->CurrentState.BlendFunc[3]))
+  if (iparams[0] != static_cast<int>(cs.BlendFunc[3]))
   {
     vtkGenericWarningMacro("Error in cache state for GL_BLEND_DST_ALPHA");
     this->ResetGLBlendFuncState();
     error = true;
   }
   ::glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, iparams);
-  if (iparams[0] != static_cast<int>(this->CurrentState.DrawBinding.GetBinding()))
+  if (iparams[0] != static_cast<int>(cs.DrawBinding.GetBinding()))
   {
     vtkGenericWarningMacro("Error in cache state for GL_DRAW_FRAMEBUFFER_BINDING");
     this->ResetFramebufferBindings();
     error = true;
   }
   ::glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, iparams);
-  if (iparams[0] != static_cast<int>(this->CurrentState.ReadBinding.GetBinding()))
+  if (iparams[0] != static_cast<int>(cs.ReadBinding.GetBinding()))
   {
     vtkGenericWarningMacro("Error in cache state for GL_READ_FRAMEBUFFER_BINDING");
     this->ResetFramebufferBindings();
@@ -215,7 +208,7 @@ void vtkOpenGLState::CheckState()
   unsigned int sval;
 #ifdef GL_DRAW_BUFFER
   ::glGetIntegerv(GL_DRAW_BUFFER, iparams);
-  sval = this->CurrentState.DrawBinding.GetDrawBuffer(0);
+  sval = cs.DrawBinding.GetDrawBuffer(0);
   if (sval == GL_BACK_LEFT)
   {
     sval = GL_BACK;
@@ -226,13 +219,14 @@ void vtkOpenGLState::CheckState()
   }
   if (iparams[0] != static_cast<int>(sval))
   {
-    vtkGenericWarningMacro("Error in cache state for GL_DRAW_BUFFER got " << iparams[0] << " expected" << this->CurrentState.DrawBinding.GetDrawBuffer(0));
+    vtkGenericWarningMacro("Error in cache state for GL_DRAW_BUFFER got "
+      << iparams[0] << " expected" << cs.DrawBinding.GetDrawBuffer(0));
     this->ResetFramebufferBindings();
     error = true;
   }
 #endif
   ::glGetIntegerv(GL_READ_BUFFER, iparams);
-  sval = this->CurrentState.ReadBinding.GetReadBuffer();
+  sval = cs.ReadBinding.GetReadBuffer();
   // handle odd left right stuff
   if (sval == GL_BACK_LEFT)
   {
@@ -249,20 +243,14 @@ void vtkOpenGLState::CheckState()
     error = true;
   }
 
-
   GLfloat fparams[4];
   // note people do set this to nan
   ::glGetFloatv(GL_COLOR_CLEAR_VALUE, fparams);
-  if (
-      (!(std::isnan(fparams[0]) && std::isnan(this->CurrentState.ClearColor[0]))
-        && fparams[0] != this->CurrentState.ClearColor[0]) ||
-      (!(std::isnan(fparams[1]) && std::isnan(this->CurrentState.ClearColor[1]))
-        && fparams[1] != this->CurrentState.ClearColor[1]) ||
-      (!(std::isnan(fparams[2]) && std::isnan(this->CurrentState.ClearColor[2]))
-        && fparams[2] != this->CurrentState.ClearColor[2]) ||
-      (!(std::isnan(fparams[3]) && std::isnan(this->CurrentState.ClearColor[3]))
-        && fparams[3] != this->CurrentState.ClearColor[3])
-      )
+  if ((!(std::isnan(fparams[0]) && std::isnan(cs.ClearColor[0])) &&
+        fparams[0] != cs.ClearColor[0]) ||
+    (!(std::isnan(fparams[1]) && std::isnan(cs.ClearColor[1])) && fparams[1] != cs.ClearColor[1]) ||
+    (!(std::isnan(fparams[2]) && std::isnan(cs.ClearColor[2])) && fparams[2] != cs.ClearColor[2]) ||
+    (!(std::isnan(fparams[3]) && std::isnan(cs.ClearColor[3])) && fparams[3] != cs.ClearColor[3]))
   {
     vtkGenericWarningMacro("Error in cache state for GL_COLOR_CLEAR_VALUE");
     this->ResetGLClearColorState();
@@ -274,30 +262,23 @@ void vtkOpenGLState::CheckState()
     std::string msg = vtksys::SystemInformation::GetProgramStack(0, 0);
     vtkGenericWarningMacro("at stack loc\n" << msg);
   }
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Finished Checking OpenGL State");
 }
 
-namespace {
-bool reportOpenGLErrors(std::string &result)
+namespace
+{
+bool reportOpenGLErrors(std::string& result)
 {
   const int maxErrors = 16;
-  unsigned int errCode[maxErrors] = {0};
-  const char *errDesc[maxErrors] = {nullptr};
+  unsigned int errCode[maxErrors] = { 0 };
+  const char* errDesc[maxErrors] = { nullptr };
 
-  int numErrors
-    = vtkGetOpenGLErrors(
-        maxErrors,
-        errCode,
-        errDesc);
+  int numErrors = vtkGetOpenGLErrors(maxErrors, errCode, errDesc);
 
   if (numErrors)
   {
     std::ostringstream oss;
-    vtkPrintOpenGLErrors(
-          oss,
-          maxErrors,
-          numErrors,
-          errCode,
-          errDesc);
+    vtkPrintOpenGLErrors(oss, maxErrors, numErrors, errCode, errDesc);
 
     oss << "\n with stack trace of\n" << vtksys::SystemInformation::GetProgramStack(0, 0);
     result = oss.str();
@@ -306,21 +287,21 @@ bool reportOpenGLErrors(std::string &result)
   return false;
 }
 
-
 } // anon namespace
 
 #define vtkOpenGLCheckStateMacro() this->CheckState()
 
-#define vtkCheckOpenGLErrorsWithStack(message) \
-{ \
-  std::string _tmp; \
-  if (reportOpenGLErrors(_tmp)) \
-  { \
-    vtkGenericWarningMacro("Error " << message << _tmp); \
-    vtkOpenGLClearErrorMacro(); \
-  } \
-}
+#define vtkCheckOpenGLErrorsWithStack(message)                                                     \
+  {                                                                                                \
+    std::string _tmp;                                                                              \
+    if (reportOpenGLErrors(_tmp))                                                                  \
+    {                                                                                              \
+      vtkGenericWarningMacro("Error " << message << _tmp);                                         \
+      vtkOpenGLClearErrorMacro();                                                                  \
+    }                                                                                              \
+  }
 
+VTK_ABI_NAMESPACE_END
 #else // VTK_REPORT_OPENGL_ERRORS
 
 #define vtkCheckOpenGLErrorsWithStack(message)
@@ -331,9 +312,10 @@ bool reportOpenGLErrors(std::string &result)
 //
 //////////////////////////////////////////////////////////////////////////////
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkOpenGLState::BufferBindingState::BufferBindingState()
 {
-  this->Framebuffer = nullptr;
+  // this->Framebuffer = nullptr;
   this->ReadBuffer = GL_NONE;
   this->DrawBuffers[0] = GL_BACK;
 }
@@ -346,85 +328,84 @@ vtkOpenGLState::BufferBindingState::BufferBindingState()
 
 unsigned int vtkOpenGLState::BufferBindingState::GetBinding()
 {
-  if (this->Framebuffer)
-  {
-    return this->Framebuffer->GetFBOIndex();
-  }
+  // if (this->Framebuffer)
+  // {
+  //   return this->Framebuffer->GetFBOIndex();
+  // }
   return this->Binding;
 }
 
 unsigned int vtkOpenGLState::BufferBindingState::GetDrawBuffer(unsigned int val)
 {
-  if (this->Framebuffer)
-  {
-    return this->Framebuffer->GetActiveDrawBuffer(val);
-  }
+  // if (this->Framebuffer)
+  // {
+  //   return this->Framebuffer->GetActiveDrawBuffer(val);
+  // }
   return this->DrawBuffers[val];
 }
 
 unsigned int vtkOpenGLState::BufferBindingState::GetReadBuffer()
 {
-  if (this->Framebuffer)
-  {
-    return this->Framebuffer->GetActiveReadBuffer();
-  }
+  // if (this->Framebuffer)
+  // {
+  //   return this->Framebuffer->GetActiveReadBuffer();
+  // }
   return this->ReadBuffer;
 }
 
-
-vtkOpenGLState::ScopedglDepthMask::ScopedglDepthMask(vtkOpenGLState *s)
+vtkOpenGLState::ScopedglDepthMask::ScopedglDepthMask(vtkOpenGLState* s)
 {
   this->State = s;
-  this->Value = this->State->CurrentState.DepthMask;
+  this->Value = this->State->Stack.top().DepthMask;
   this->Method = &vtkOpenGLState::vtkglDepthMask;
 }
 
-vtkOpenGLState::ScopedglColorMask::ScopedglColorMask(vtkOpenGLState *s)
+vtkOpenGLState::ScopedglColorMask::ScopedglColorMask(vtkOpenGLState* s)
 {
   this->State = s;
-  this->Value = this->State->CurrentState.ColorMask;
+  this->Value = this->State->Stack.top().ColorMask;
   this->Method = &vtkOpenGLState::ColorMask;
 }
 
-vtkOpenGLState::ScopedglDepthFunc::ScopedglDepthFunc(vtkOpenGLState *s)
+vtkOpenGLState::ScopedglDepthFunc::ScopedglDepthFunc(vtkOpenGLState* s)
 {
   this->State = s;
-  this->Value = this->State->CurrentState.DepthFunc;
+  this->Value = this->State->Stack.top().DepthFunc;
   this->Method = &vtkOpenGLState::vtkglDepthFunc;
 }
 
-vtkOpenGLState::ScopedglClearColor::ScopedglClearColor(vtkOpenGLState *s)
+vtkOpenGLState::ScopedglClearColor::ScopedglClearColor(vtkOpenGLState* s)
 {
   this->State = s;
-  this->Value = this->State->CurrentState.ClearColor;
+  this->Value = this->State->Stack.top().ClearColor;
   this->Method = &vtkOpenGLState::ClearColor;
 }
 
-vtkOpenGLState::ScopedglScissor::ScopedglScissor(vtkOpenGLState *s)
+vtkOpenGLState::ScopedglScissor::ScopedglScissor(vtkOpenGLState* s)
 {
   this->State = s;
-  this->Value = this->State->CurrentState.Scissor;
+  this->Value = this->State->Stack.top().Scissor;
   this->Method = &vtkOpenGLState::Scissor;
 }
 
-vtkOpenGLState::ScopedglViewport::ScopedglViewport(vtkOpenGLState *s)
+vtkOpenGLState::ScopedglViewport::ScopedglViewport(vtkOpenGLState* s)
 {
   this->State = s;
-  this->Value = this->State->CurrentState.Viewport;
+  this->Value = this->State->Stack.top().Viewport;
   this->Method = &vtkOpenGLState::Viewport;
 }
 
-vtkOpenGLState::ScopedglBlendFuncSeparate::ScopedglBlendFuncSeparate(vtkOpenGLState *s)
+vtkOpenGLState::ScopedglBlendFuncSeparate::ScopedglBlendFuncSeparate(vtkOpenGLState* s)
 {
   this->State = s;
-  this->Value = this->State->CurrentState.BlendFunc;
+  this->Value = this->State->Stack.top().BlendFunc;
   this->Method = &vtkOpenGLState::BlendFuncSeparate;
 }
 
-vtkOpenGLState::ScopedglActiveTexture::ScopedglActiveTexture(vtkOpenGLState *s)
+vtkOpenGLState::ScopedglActiveTexture::ScopedglActiveTexture(vtkOpenGLState* s)
 {
   this->State = s;
-  this->Value = this->State->CurrentState.ActiveTexture;
+  this->Value = this->State->Stack.top().ActiveTexture;
   this->Method = &vtkOpenGLState::vtkglActiveTexture;
 }
 
@@ -433,24 +414,20 @@ void vtkOpenGLState::ColorMask(std::array<GLboolean, 4> val)
   this->vtkglColorMask(val[0], val[1], val[2], val[3]);
 }
 
-void vtkOpenGLState::vtkglColorMask(
-  GLboolean r, GLboolean g, GLboolean b, GLboolean a
-  )
+void vtkOpenGLState::vtkglColorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
-  if (this->CurrentState.ColorMask[0] != r ||
-      this->CurrentState.ColorMask[1] != g ||
-      this->CurrentState.ColorMask[2] != b ||
-      this->CurrentState.ColorMask[3] != a)
+  if (cs.ColorMask[0] != r || cs.ColorMask[1] != g || cs.ColorMask[2] != b || cs.ColorMask[3] != a)
 #endif
   {
-    this->CurrentState.ColorMask[0] = r;
-    this->CurrentState.ColorMask[1] = g;
-    this->CurrentState.ColorMask[2] = b;
-    this->CurrentState.ColorMask[3] = a;
-    ::glColorMask(r,g,b,a);
+    cs.ColorMask[0] = r;
+    cs.ColorMask[1] = g;
+    cs.ColorMask[2] = b;
+    cs.ColorMask[3] = a;
+    ::glColorMask(r, g, b, a);
   }
 
   vtkCheckOpenGLErrorsWithStack("glColorMask");
@@ -461,24 +438,21 @@ void vtkOpenGLState::ClearColor(std::array<GLclampf, 4> val)
   this->vtkglClearColor(val[0], val[1], val[2], val[3]);
 }
 
-void vtkOpenGLState::vtkglClearColor(
-  GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha
-  )
+void vtkOpenGLState::vtkglClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
-  if (this->CurrentState.ClearColor[0] != red ||
-      this->CurrentState.ClearColor[1] != green ||
-      this->CurrentState.ClearColor[2] != blue ||
-      this->CurrentState.ClearColor[3] != alpha)
+  if (cs.ClearColor[0] != red || cs.ClearColor[1] != green || cs.ClearColor[2] != blue ||
+    cs.ClearColor[3] != alpha)
 #endif
   {
-    this->CurrentState.ClearColor[0] = red;
-    this->CurrentState.ClearColor[1] = green;
-    this->CurrentState.ClearColor[2] = blue;
-    this->CurrentState.ClearColor[3] = alpha;
-    ::glClearColor(red,green,blue,alpha);
+    cs.ClearColor[0] = red;
+    cs.ClearColor[1] = green;
+    cs.ClearColor[2] = blue;
+    cs.ClearColor[3] = alpha;
+    ::glClearColor(red, green, blue, alpha);
   }
 
   vtkCheckOpenGLErrorsWithStack("glClearColor");
@@ -487,12 +461,13 @@ void vtkOpenGLState::vtkglClearColor(
 void vtkOpenGLState::vtkglClearDepth(double val)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
-  if (this->CurrentState.ClearDepth != val)
+  if (cs.ClearDepth != val)
 #endif
   {
-    this->CurrentState.ClearDepth = val;
+    cs.ClearDepth = val;
 #ifdef GL_ES_VERSION_3_0
     ::glClearDepthf(static_cast<GLclampf>(val));
 #else
@@ -502,67 +477,39 @@ void vtkOpenGLState::vtkglClearDepth(double val)
   vtkCheckOpenGLErrorsWithStack("glClearDepth");
 }
 
-void vtkOpenGLState::vtkBindFramebuffer(unsigned int target,
-  vtkOpenGLFramebufferObject *fo)
+void vtkOpenGLState::vtkBindFramebuffer(unsigned int target, vtkOpenGLFramebufferObject* fo)
 {
-  vtkOpenGLCheckStateMacro();
-
-  if (target == GL_DRAW_FRAMEBUFFER || target == GL_FRAMEBUFFER)
-  {
-  #ifndef NO_CACHE
-    if (this->CurrentState.DrawBinding.Framebuffer != fo)
-  #endif
-    {
-      this->CurrentState.DrawBinding.Binding = 0;
-      this->CurrentState.DrawBinding.Framebuffer = fo;
-      ::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fo ? fo->GetFBOIndex() : 0);
-    }
-  }
-
-  if (target == GL_READ_FRAMEBUFFER || target == GL_FRAMEBUFFER)
-  {
-  #ifndef NO_CACHE
-    if (this->CurrentState.ReadBinding.Framebuffer != fo)
-  #endif
-    {
-      this->CurrentState.ReadBinding.Binding = 0;
-      this->CurrentState.ReadBinding.Framebuffer = fo;
-      ::glBindFramebuffer(GL_READ_FRAMEBUFFER, fo ? fo->GetFBOIndex() : 0);
-    }
-  }
-
-  vtkCheckOpenGLErrorsWithStack("glBindFramebuffer");
+  this->vtkglBindFramebuffer(target, fo ? fo->GetFBOIndex() : 0);
 }
 
 void vtkOpenGLState::vtkglBindFramebuffer(unsigned int target, unsigned int val)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
   if (target == GL_DRAW_FRAMEBUFFER || target == GL_FRAMEBUFFER)
   {
-  #ifndef NO_CACHE
-    if (this->CurrentState.DrawBinding.Framebuffer || this->CurrentState.DrawBinding.Binding != val)
-  #endif
+#ifndef NO_CACHE
+    if (cs.DrawBinding.Binding != val)
+#endif
     {
-      this->CurrentState.DrawBinding.Binding = val;
-      this->CurrentState.DrawBinding.Framebuffer = nullptr;
+      cs.DrawBinding.Binding = val;
       ::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, val);
 #ifdef GL_DRAW_BUFFER
-      ::glGetIntegerv(GL_DRAW_BUFFER, (int *)&this->CurrentState.DrawBinding.DrawBuffers[0]);
+      ::glGetIntegerv(GL_DRAW_BUFFER, (int*)&cs.DrawBinding.DrawBuffers[0]);
 #endif
     }
   }
 
   if (target == GL_READ_FRAMEBUFFER || target == GL_FRAMEBUFFER)
   {
-  #ifndef NO_CACHE
-    if (this->CurrentState.ReadBinding.Framebuffer || this->CurrentState.ReadBinding.Binding != val)
-  #endif
+#ifndef NO_CACHE
+    if (cs.ReadBinding.Binding != val)
+#endif
     {
-      this->CurrentState.ReadBinding.Binding = val;
-      this->CurrentState.ReadBinding.Framebuffer = nullptr;
+      cs.ReadBinding.Binding = val;
       ::glBindFramebuffer(GL_READ_FRAMEBUFFER, val);
-      ::glGetIntegerv(GL_READ_BUFFER, (int*)&this->CurrentState.ReadBinding.ReadBuffer);
+      ::glGetIntegerv(GL_READ_BUFFER, (int*)&cs.ReadBinding.ReadBuffer);
     }
   }
 
@@ -572,29 +519,29 @@ void vtkOpenGLState::vtkglBindFramebuffer(unsigned int target, unsigned int val)
 void vtkOpenGLState::vtkglDrawBuffer(unsigned int val)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
-  if ((this->CurrentState.DrawBinding.Framebuffer ||
-       this->CurrentState.DrawBinding.Binding) && val < GL_COLOR_ATTACHMENT0
-       && val != GL_NONE)
+  if (cs.DrawBinding.Binding && val < GL_COLOR_ATTACHMENT0 && val != GL_NONE)
   {
     // todo get rid of the && and make this always an error if FO is set
     vtkGenericWarningMacro(
       "A vtkOpenGLFramebufferObject is currently bound but a hardware draw buffer was requested.");
+    std::string msg = vtksys::SystemInformation::GetProgramStack(0, 0);
+    vtkGenericWarningMacro("at stack loc\n" << msg);
   }
 
 #ifndef NO_CACHE
-  if (this->CurrentState.DrawBinding.DrawBuffers[0] != val)
+  if (cs.DrawBinding.DrawBuffers[0] != val)
 #endif
   {
-    this->CurrentState.DrawBinding.DrawBuffers[0] = val;
-    ::glDrawBuffers(1, this->CurrentState.DrawBinding.DrawBuffers);
+    cs.DrawBinding.DrawBuffers[0] = val;
+    ::glDrawBuffers(1, cs.DrawBinding.DrawBuffers);
   }
 
   // change all stack entries for the same framebuffer
-  for (auto &se : this->DrawBindings)
+  for (auto& se : this->DrawBindings)
   {
-    if (se.Framebuffer == this->CurrentState.DrawBinding.Framebuffer
-        && se.Binding == this->CurrentState.DrawBinding.Binding)
+    if (se.Binding == cs.DrawBinding.Binding)
     {
       se.DrawBuffers[0] = val;
     }
@@ -603,7 +550,7 @@ void vtkOpenGLState::vtkglDrawBuffer(unsigned int val)
   vtkCheckOpenGLErrorsWithStack("glDrawBuffer");
 }
 
-void vtkOpenGLState::vtkglDrawBuffers(unsigned int count, unsigned int *vals)
+void vtkOpenGLState::vtkglDrawBuffers(unsigned int count, unsigned int* vals)
 {
   vtkOpenGLCheckStateMacro();
 
@@ -612,20 +559,19 @@ void vtkOpenGLState::vtkglDrawBuffers(unsigned int count, unsigned int *vals)
     return;
   }
 
-  if ((this->CurrentState.DrawBinding.Framebuffer ||
-       this->CurrentState.DrawBinding.Binding) && vals[0] < GL_COLOR_ATTACHMENT0
-       && vals[0] != GL_NONE)
+  auto& cs = this->Stack.top();
+  if (cs.DrawBinding.Binding && vals[0] < GL_COLOR_ATTACHMENT0 && vals[0] != GL_NONE)
   {
     // todo get rid of the && and make this always an error if FO is set
     vtkGenericWarningMacro(
-      "A vtkOpenGLFramebufferObject is currently bound but a hardware draw bufer was requested.");
+      "A vtkOpenGLFramebufferObject is currently bound but hardware draw buffers were requested.");
   }
 
 #ifndef NO_CACHE
   bool changed = false;
   for (int i = 0; i < static_cast<int>(count) && i < 10; ++i)
   {
-    if (vals[i] != this->CurrentState.DrawBinding.DrawBuffers[i])
+    if (vals[i] != cs.DrawBinding.DrawBuffers[i])
     {
       changed = true;
     }
@@ -639,16 +585,15 @@ void vtkOpenGLState::vtkglDrawBuffers(unsigned int count, unsigned int *vals)
   {
     for (unsigned int i = 0; i < count && i < 10; ++i)
     {
-      this->CurrentState.DrawBinding.DrawBuffers[i] = vals[i];
+      cs.DrawBinding.DrawBuffers[i] = vals[i];
     }
     ::glDrawBuffers(count, vals);
   }
 
   // change all stack entries for the same framebuffer
-  for (auto &se : this->DrawBindings)
+  for (auto& se : this->DrawBindings)
   {
-    if (se.Framebuffer == this->CurrentState.DrawBinding.Framebuffer
-        && se.Binding == this->CurrentState.DrawBinding.Binding)
+    if (se.Binding == cs.DrawBinding.Binding)
     {
       for (unsigned int i = 0; i < count && i < 10; ++i)
       {
@@ -661,9 +606,7 @@ void vtkOpenGLState::vtkglDrawBuffers(unsigned int count, unsigned int *vals)
 }
 
 void vtkOpenGLState::vtkDrawBuffers(
-  unsigned int count,
-  unsigned int *vals,
-  vtkOpenGLFramebufferObject *fo)
+  unsigned int count, unsigned int* vals, vtkOpenGLFramebufferObject* fo)
 {
   vtkOpenGLCheckStateMacro();
 
@@ -672,67 +615,39 @@ void vtkOpenGLState::vtkDrawBuffers(
     return;
   }
 
-  if (this->CurrentState.DrawBinding.Framebuffer == nullptr ||
-      (vals[0] < GL_COLOR_ATTACHMENT0 && vals[0] != GL_NONE))
-  {
-    vtkGenericWarningMacro(
-      "A vtkOpenGLFramebufferObject is not currently bound. This method should only"
-      " be called from vtkOpenGLFramebufferObject.");
-  }
-
-  if (fo != this->CurrentState.DrawBinding.Framebuffer)
+  auto& cs = this->Stack.top();
+  if (fo->GetFBOIndex() != cs.DrawBinding.Binding)
   {
     vtkGenericWarningMacro(
       "Attempt to set draw buffers from a Framebuffer Object that is not bound.");
   }
 
-#ifndef NO_CACHE
-  bool changed = false;
-  for (int i = 0; i < static_cast<int>(count) && i < 10; ++i)
-  {
-    if (vals[i] != this->CurrentState.DrawBinding.GetDrawBuffer(i))
-    {
-      changed = true;
-    }
-  }
-  if (count > 10)
-  {
-    changed = true;
-  }
-  if (changed)
-#endif
-  {
-    ::glDrawBuffers(count, vals);
-  }
-
-  vtkCheckOpenGLErrorsWithStack("glDrawBuffers");
+  this->vtkglDrawBuffers(count, vals);
 }
 
 void vtkOpenGLState::vtkglReadBuffer(unsigned int val)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
-  if ((this->CurrentState.ReadBinding.Framebuffer ||
-       this->CurrentState.ReadBinding.Binding) && val < GL_COLOR_ATTACHMENT0
-       && val != GL_NONE)
+  if (cs.ReadBinding.Binding && val < GL_COLOR_ATTACHMENT0 && val != GL_NONE)
   {
     vtkGenericWarningMacro(
-      "A vtkOpenGLFramebufferObject is currently bound but a hardware draw bufer was requested.");
+      "A vtkOpenGLFramebufferObject is currently bound but a hardware read buffer was requested.");
   }
 
 #ifndef NO_CACHE
-  if (this->CurrentState.ReadBinding.ReadBuffer != val)
+  if (cs.ReadBinding.ReadBuffer != val)
 #endif
   {
-    this->CurrentState.ReadBinding.ReadBuffer = val;
+    cs.ReadBinding.ReadBuffer = val;
     ::glReadBuffer(val);
   }
 
   // change all stack entries for the same framebuffer
-  for (auto &se : this->ReadBindings)
+  for (auto& se : this->ReadBindings)
   {
-    if (se.Framebuffer == this->CurrentState.ReadBinding.Framebuffer
-        && se.Binding == this->CurrentState.ReadBinding.Binding)
+    if (se.Binding == cs.ReadBinding.Binding)
     {
       se.ReadBuffer = val;
     }
@@ -741,44 +656,30 @@ void vtkOpenGLState::vtkglReadBuffer(unsigned int val)
   vtkCheckOpenGLErrorsWithStack("glReadBuffer");
 }
 
-void vtkOpenGLState::vtkReadBuffer(unsigned int val, vtkOpenGLFramebufferObject *fo)
+void vtkOpenGLState::vtkReadBuffer(unsigned int val, vtkOpenGLFramebufferObject* fo)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
-  if (this->CurrentState.ReadBinding.Framebuffer == nullptr ||
-      (val < GL_COLOR_ATTACHMENT0 && val != GL_NONE))
-  {
-    vtkGenericWarningMacro(
-      "A vtkOpenGLFramebufferObject is not currently bound. This method should only"
-      " be called from vtkOpenGLFramebufferObject.");
-  }
-
-  if (fo != this->CurrentState.ReadBinding.Framebuffer)
+  if (fo->GetFBOIndex() != cs.ReadBinding.Binding)
   {
     vtkGenericWarningMacro(
       "Attempt to set read buffer from a Framebuffer Object that is not bound.");
   }
 
-#ifndef NO_CACHE
-  if (this->CurrentState.ReadBinding.ReadBuffer != val)
-#endif
-  {
-    this->CurrentState.ReadBinding.ReadBuffer = val;
-    ::glReadBuffer(val);
-  }
-
-  vtkCheckOpenGLErrorsWithStack("glReadBuffer");
+  this->vtkglReadBuffer(val);
 }
 
 void vtkOpenGLState::vtkglDepthFunc(GLenum val)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
-  if (this->CurrentState.DepthFunc != val)
+  if (cs.DepthFunc != val)
 #endif
   {
-    this->CurrentState.DepthFunc = val;
+    cs.DepthFunc = val;
     ::glDepthFunc(val);
   }
   vtkCheckOpenGLErrorsWithStack("glDepthFunc");
@@ -787,15 +688,158 @@ void vtkOpenGLState::vtkglDepthFunc(GLenum val)
 void vtkOpenGLState::vtkglDepthMask(GLboolean val)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
-  if (this->CurrentState.DepthMask != val)
+  if (cs.DepthMask != val)
 #endif
   {
-    this->CurrentState.DepthMask = val;
+    cs.DepthMask = val;
     ::glDepthMask(val);
   }
   vtkCheckOpenGLErrorsWithStack("glDepthMask");
+}
+
+void vtkOpenGLState::vtkglPointSize(GLfloat val)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+#ifndef NO_CACHE
+  if (cs.PointSize != val)
+#endif
+  {
+    cs.PointSize = val;
+#ifndef GL_ES_VERSION_3_0
+    ::glPointSize(val);
+#endif
+  }
+  vtkCheckOpenGLErrorsWithStack("glPointSize");
+}
+
+void vtkOpenGLState::vtkglLineWidth(GLfloat val)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+#ifndef NO_CACHE
+  if (cs.LineWidth != val)
+#endif
+  {
+    cs.LineWidth = val;
+    ::glLineWidth(val);
+  }
+  vtkCheckOpenGLErrorsWithStack("glLineWidth");
+}
+
+void vtkOpenGLState::vtkglStencilMask(GLuint mask)
+{
+  this->vtkglStencilMaskSeparate(GL_FRONT_AND_BACK, mask);
+}
+
+void vtkOpenGLState::vtkglStencilMaskSeparate(GLuint face, GLuint mask)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+  if (face == GL_FRONT || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilMaskFront != mask)
+#endif
+    {
+      cs.StencilMaskFront = mask;
+      ::glStencilMaskSeparate(GL_FRONT, mask);
+    }
+  }
+
+  if (face == GL_BACK || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilMaskBack != mask)
+#endif
+    {
+      cs.StencilMaskBack = mask;
+      ::glStencilMaskSeparate(GL_BACK, mask);
+    }
+  }
+
+  vtkCheckOpenGLErrorsWithStack("glStencilMaskSeparate");
+}
+
+void vtkOpenGLState::vtkglStencilOp(GLuint sfail, GLuint dpfail, GLuint dppass)
+{
+  this->vtkglStencilOpSeparate(GL_FRONT_AND_BACK, sfail, dpfail, dppass);
+}
+
+void vtkOpenGLState::vtkglStencilOpSeparate(GLuint face, GLuint sfail, GLuint dpfail, GLuint dppass)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+  std::array<unsigned int, 3> vals = { sfail, dpfail, dppass };
+
+  if (face == GL_FRONT || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilOpFront != vals)
+#endif
+    {
+      cs.StencilOpFront = vals;
+      ::glStencilOpSeparate(GL_FRONT, vals[0], vals[1], vals[2]);
+    }
+  }
+
+  if (face == GL_BACK || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilOpBack != vals)
+#endif
+    {
+      cs.StencilOpBack = vals;
+      ::glStencilOpSeparate(GL_BACK, vals[0], vals[1], vals[2]);
+    }
+  }
+
+  vtkCheckOpenGLErrorsWithStack("glStencilOpSeparate");
+}
+
+void vtkOpenGLState::vtkglStencilFunc(GLuint func, GLint ref, GLuint mask)
+{
+  this->vtkglStencilFuncSeparate(GL_FRONT_AND_BACK, func, ref, mask);
+}
+
+void vtkOpenGLState::vtkglStencilFuncSeparate(
+  unsigned int face, unsigned int func, int ref, unsigned int mask)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+  std::array<unsigned int, 3> vals = { func, static_cast<unsigned int>(ref), mask };
+
+  if (face == GL_FRONT || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilFuncFront != vals)
+#endif
+    {
+      cs.StencilFuncFront = vals;
+      ::glStencilFuncSeparate(GL_FRONT, vals[0], static_cast<GLint>(vals[1]), vals[2]);
+    }
+  }
+
+  if (face == GL_BACK || face == GL_FRONT_AND_BACK)
+  {
+#ifndef NO_CACHE
+    if (cs.StencilFuncBack != vals)
+#endif
+    {
+      cs.StencilFuncBack = vals;
+      ::glStencilFuncSeparate(GL_BACK, vals[0], static_cast<GLint>(vals[1]), vals[2]);
+    }
+  }
+
+  vtkCheckOpenGLErrorsWithStack("glStencilFuncSeparate");
 }
 
 void vtkOpenGLState::BlendFuncSeparate(std::array<GLenum, 4> val)
@@ -803,24 +847,20 @@ void vtkOpenGLState::BlendFuncSeparate(std::array<GLenum, 4> val)
   this->vtkglBlendFuncSeparate(val[0], val[1], val[2], val[3]);
 }
 
-void vtkOpenGLState::vtkglBlendFuncSeparate(
-  GLenum val1, GLenum val2,
-  GLenum val3, GLenum val4
-  )
+void vtkOpenGLState::vtkglBlendFuncSeparate(GLenum val1, GLenum val2, GLenum val3, GLenum val4)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
-  if (this->CurrentState.BlendFunc[0] != val1 ||
-      this->CurrentState.BlendFunc[1] != val2 ||
-      this->CurrentState.BlendFunc[2] != val3 ||
-      this->CurrentState.BlendFunc[3] != val4)
+  if (cs.BlendFunc[0] != val1 || cs.BlendFunc[1] != val2 || cs.BlendFunc[2] != val3 ||
+    cs.BlendFunc[3] != val4)
 #endif
   {
-    this->CurrentState.BlendFunc[0] = val1;
-    this->CurrentState.BlendFunc[1] = val2;
-    this->CurrentState.BlendFunc[2] = val3;
-    this->CurrentState.BlendFunc[3] = val4;
+    cs.BlendFunc[0] = val1;
+    cs.BlendFunc[1] = val2;
+    cs.BlendFunc[2] = val3;
+    cs.BlendFunc[3] = val4;
     ::glBlendFuncSeparate(val1, val2, val3, val4);
   }
   vtkCheckOpenGLErrorsWithStack("glBlendFuncSeparate");
@@ -828,20 +868,20 @@ void vtkOpenGLState::vtkglBlendFuncSeparate(
 
 void vtkOpenGLState::vtkglBlendEquation(GLenum val)
 {
-  this->vtkglBlendEquationSeparate(val,val);
+  this->vtkglBlendEquationSeparate(val, val);
 }
 
 void vtkOpenGLState::vtkglBlendEquationSeparate(GLenum val, GLenum val2)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
-  if (this->CurrentState.BlendEquationValue1 != val ||
-      this->CurrentState.BlendEquationValue2 != val2)
+  if (cs.BlendEquationValue1 != val || cs.BlendEquationValue2 != val2)
 #endif
   {
-    this->CurrentState.BlendEquationValue1 =  val;
-    this->CurrentState.BlendEquationValue2 =  val2;
+    cs.BlendEquationValue1 = val;
+    cs.BlendEquationValue2 = val2;
     ::glBlendEquationSeparate(val, val2);
   }
 
@@ -851,12 +891,13 @@ void vtkOpenGLState::vtkglBlendEquationSeparate(GLenum val, GLenum val2)
 void vtkOpenGLState::vtkglCullFace(GLenum val)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
-  if (this->CurrentState.CullFaceMode != val)
+  if (cs.CullFaceMode != val)
 #endif
   {
-    this->CurrentState.CullFaceMode =  val;
+    cs.CullFaceMode = val;
     ::glCullFace(val);
   }
   vtkCheckOpenGLErrorsWithStack("glCullFace");
@@ -865,12 +906,13 @@ void vtkOpenGLState::vtkglCullFace(GLenum val)
 void vtkOpenGLState::vtkglActiveTexture(unsigned int val)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
-  if (this->CurrentState.ActiveTexture != val)
+  if (cs.ActiveTexture != val)
 #endif
   {
-    this->CurrentState.ActiveTexture = val;
+    cs.ActiveTexture = val;
     ::glActiveTexture(val);
   }
   vtkCheckOpenGLErrorsWithStack("glActiveTexture");
@@ -884,19 +926,18 @@ void vtkOpenGLState::Viewport(std::array<GLint, 4> val)
 void vtkOpenGLState::vtkglViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #if !defined(NO_CACHE) && !defined(__APPLE__)
-  if (this->CurrentState.Viewport[0] != x ||
-      this->CurrentState.Viewport[1] != y ||
-      this->CurrentState.Viewport[2] != width ||
-      this->CurrentState.Viewport[3] != height)
+  if (cs.Viewport[0] != x || cs.Viewport[1] != y || cs.Viewport[2] != width ||
+    cs.Viewport[3] != height)
 #endif
   {
-    this->CurrentState.Viewport[0] = x;
-    this->CurrentState.Viewport[1] = y;
-    this->CurrentState.Viewport[2] = width;
-    this->CurrentState.Viewport[3] = height;
-    ::glViewport(x,y,width,height);
+    cs.Viewport[0] = x;
+    cs.Viewport[1] = y;
+    cs.Viewport[2] = width;
+    cs.Viewport[3] = height;
+    ::glViewport(x, y, width, height);
   }
 
   vtkCheckOpenGLErrorsWithStack("glViewport");
@@ -910,19 +951,17 @@ void vtkOpenGLState::Scissor(std::array<GLint, 4> val)
 void vtkOpenGLState::vtkglScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
-  if (this->CurrentState.Scissor[0] != x ||
-      this->CurrentState.Scissor[1] != y ||
-      this->CurrentState.Scissor[2] != width ||
-      this->CurrentState.Scissor[3] != height)
+  if (cs.Scissor[0] != x || cs.Scissor[1] != y || cs.Scissor[2] != width || cs.Scissor[3] != height)
 #endif
   {
-    this->CurrentState.Scissor[0] = x;
-    this->CurrentState.Scissor[1] = y;
-    this->CurrentState.Scissor[2] = width;
-    this->CurrentState.Scissor[3] = height;
-    ::glScissor(x,y,width,height);
+    cs.Scissor[0] = x;
+    cs.Scissor[1] = y;
+    cs.Scissor[2] = width;
+    cs.Scissor[3] = height;
+    ::glScissor(x, y, width, height);
   }
   vtkCheckOpenGLErrorsWithStack("glScissor");
 }
@@ -930,6 +969,7 @@ void vtkOpenGLState::vtkglScissor(GLint x, GLint y, GLsizei width, GLsizei heigh
 void vtkOpenGLState::SetEnumState(GLenum cap, bool val)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
 #ifndef NO_CACHE
   bool changed = false;
@@ -939,52 +979,70 @@ void vtkOpenGLState::SetEnumState(GLenum cap, bool val)
   switch (cap)
   {
     case GL_BLEND:
-      if (this->CurrentState.Blend != val)
+      if (cs.Blend != val)
       {
-        this->CurrentState.Blend = val;
-        changed = true;
-      }
-      break;
-    case GL_DEPTH_TEST:
-      if (this->CurrentState.DepthTest != val)
-      {
-        this->CurrentState.DepthTest = val;
+        cs.Blend = val;
         changed = true;
       }
       break;
     case GL_CULL_FACE:
-      if (this->CurrentState.CullFace != val)
+      if (cs.CullFace != val)
       {
-        this->CurrentState.CullFace = val;
+        cs.CullFace = val;
         changed = true;
       }
       break;
+    case GL_DEPTH_TEST:
+      if (cs.DepthTest != val)
+      {
+        cs.DepthTest = val;
+        changed = true;
+      }
+      break;
+#ifdef GL_LINE_SMOOTH
+    case GL_LINE_SMOOTH:
+      if (cs.LineSmooth != val)
+      {
+        cs.LineSmooth = val;
+        changed = true;
+      }
+      break;
+#endif
 #ifdef GL_MULTISAMPLE
     case GL_MULTISAMPLE:
-      if (this->CurrentState.MultiSample != val)
+      if (cs.MultiSample != val)
       {
-        this->CurrentState.MultiSample = val;
+        cs.MultiSample = val;
         changed = true;
       }
       break;
 #endif
     case GL_SCISSOR_TEST:
-      if (this->CurrentState.ScissorTest != val)
+      if (cs.ScissorTest != val)
       {
-        this->CurrentState.ScissorTest = val;
+        cs.ScissorTest = val;
         changed = true;
       }
       break;
     case GL_STENCIL_TEST:
-      if (this->CurrentState.StencilTest != val)
+      if (cs.StencilTest != val)
       {
-        this->CurrentState.StencilTest = val;
+        cs.StencilTest = val;
         changed = true;
       }
       break;
+#ifdef GL_TEXTURE_CUBE_MAP_SEAMLESS
+    case GL_TEXTURE_CUBE_MAP_SEAMLESS:
+      if (cs.CubeMapSeamless != val)
+      {
+        cs.CubeMapSeamless = val;
+        changed = true;
+      }
+      break;
+#endif
     default:
       changed = true;
-    }
+  }
 
   if (!changed)
   {
@@ -1006,32 +1064,43 @@ void vtkOpenGLState::ResetEnumState(GLenum cap)
 {
   GLboolean params;
   ::glGetBooleanv(cap, &params);
+  auto& cs = this->Stack.top();
 
   switch (cap)
   {
     case GL_BLEND:
-      this->CurrentState.Blend = params != 0;
-      break;
-    case GL_DEPTH_TEST:
-      this->CurrentState.DepthTest = params != 0;
+      cs.Blend = params != 0;
       break;
     case GL_CULL_FACE:
-      this->CurrentState.CullFace = params != 0;
+      cs.CullFace = params != 0;
       break;
+    case GL_DEPTH_TEST:
+      cs.DepthTest = params != 0;
+      break;
+#ifdef GL_LINE_SMOOTH
+    case GL_LINE_SMOOTH:
+      cs.LineSmooth = params != 0;
+      break;
+#endif
 #ifdef GL_MULTISAMPLE
     case GL_MULTISAMPLE:
-      this->CurrentState.MultiSample = params != 0;
+      cs.MultiSample = params != 0;
       break;
 #endif
     case GL_SCISSOR_TEST:
-      this->CurrentState.ScissorTest = params != 0;
+      cs.ScissorTest = params != 0;
       break;
     case GL_STENCIL_TEST:
-      this->CurrentState.StencilTest = params != 0;
+      cs.StencilTest = params != 0;
       break;
+#ifdef GL_TEXTURE_CUBE_MAP_SEAMLESS
+    case GL_TEXTURE_CUBE_MAP_SEAMLESS:
+      cs.CubeMapSeamless = params != 0;
+      break;
+#endif
     default:
       break;
-    }
+  }
 }
 
 void vtkOpenGLState::vtkglEnable(GLenum cap)
@@ -1041,91 +1110,108 @@ void vtkOpenGLState::vtkglEnable(GLenum cap)
 
 // return cached value if we have it
 // otherwise forward to opengl
-void vtkOpenGLState::vtkglGetBooleanv(GLenum pname, GLboolean *params)
+void vtkOpenGLState::vtkglGetBooleanv(GLenum pname, GLboolean* params)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
   switch (pname)
   {
     case GL_DEPTH_WRITEMASK:
-      *params = this->CurrentState.DepthMask;
+      *params = cs.DepthMask;
       break;
     case GL_COLOR_WRITEMASK:
-      params[0] = this->CurrentState.ColorMask[0];
-      params[1] = this->CurrentState.ColorMask[1];
-      params[2] = this->CurrentState.ColorMask[2];
-      params[3] = this->CurrentState.ColorMask[3];
+      params[0] = cs.ColorMask[0];
+      params[1] = cs.ColorMask[1];
+      params[2] = cs.ColorMask[2];
+      params[3] = cs.ColorMask[3];
       break;
     case GL_BLEND:
-      *params = this->CurrentState.Blend;
-      break;
-    case GL_DEPTH_TEST:
-      *params = this->CurrentState.DepthTest;
+      *params = cs.Blend;
       break;
     case GL_CULL_FACE:
-      *params = this->CurrentState.CullFace;
+      *params = cs.CullFace;
       break;
+    case GL_DEPTH_TEST:
+      *params = cs.DepthTest;
+      break;
+#ifdef GL_LINE_SMOOTH
+    case GL_LINE_SMOOTH:
+      *params = cs.LineSmooth;
+      break;
+#endif
 #ifdef GL_MULTISAMPLE
     case GL_MULTISAMPLE:
-      *params = this->CurrentState.MultiSample;
+      *params = cs.MultiSample;
       break;
 #endif
     case GL_SCISSOR_TEST:
-      *params = this->CurrentState.ScissorTest;
+      *params = cs.ScissorTest;
       break;
     case GL_STENCIL_TEST:
-      *params = this->CurrentState.StencilTest;
+      *params = cs.StencilTest;
       break;
+#ifdef GL_TEXTURE_CUBE_MAP_SEAMLESS
+    case GL_TEXTURE_CUBE_MAP_SEAMLESS:
+      *params = cs.CubeMapSeamless;
+      break;
+#endif
     default:
       ::glGetBooleanv(pname, params);
   }
   vtkCheckOpenGLErrorsWithStack("glGetBoolean");
 }
 
-void vtkOpenGLState::vtkglGetIntegerv(GLenum pname, GLint *params)
+void vtkOpenGLState::vtkglGetIntegerv(GLenum pname, GLint* params)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
   switch (pname)
   {
     case GL_VIEWPORT:
-      params[0] = this->CurrentState.Viewport[0];
-      params[1] = this->CurrentState.Viewport[1];
-      params[2] = this->CurrentState.Viewport[2];
-      params[3] = this->CurrentState.Viewport[3];
+      params[0] = cs.Viewport[0];
+      params[1] = cs.Viewport[1];
+      params[2] = cs.Viewport[2];
+      params[3] = cs.Viewport[3];
       break;
     case GL_SCISSOR_BOX:
-      params[0] = this->CurrentState.Scissor[0];
-      params[1] = this->CurrentState.Scissor[1];
-      params[2] = this->CurrentState.Scissor[2];
-      params[3] = this->CurrentState.Scissor[3];
+      params[0] = cs.Scissor[0];
+      params[1] = cs.Scissor[1];
+      params[2] = cs.Scissor[2];
+      params[3] = cs.Scissor[3];
       break;
     case GL_CULL_FACE_MODE:
-      *params = this->CurrentState.CullFaceMode;
+      *params = cs.CullFaceMode;
       break;
     case GL_DEPTH_FUNC:
-      *params = this->CurrentState.DepthFunc;
+      *params = cs.DepthFunc;
       break;
     case GL_BLEND_SRC_RGB:
-      *params = this->CurrentState.BlendFunc[0];
+      *params = cs.BlendFunc[0];
       break;
     case GL_BLEND_SRC_ALPHA:
-      *params = this->CurrentState.BlendFunc[2];
+      *params = cs.BlendFunc[2];
       break;
     case GL_BLEND_DST_RGB:
-      *params = this->CurrentState.BlendFunc[1];
+      *params = cs.BlendFunc[1];
       break;
     case GL_BLEND_DST_ALPHA:
-      *params = this->CurrentState.BlendFunc[3];
+      *params = cs.BlendFunc[3];
       break;
+#ifdef GL_ARB_tessellation_shader
+    case GL_MAX_TESS_GEN_LEVEL:
+      *params = this->MaxTessellationLevel;
+      break;
+#endif
     case GL_MAX_TEXTURE_SIZE:
-      *params = this->CurrentState.MaxTextureSize;
+      *params = this->MaxTextureSize;
       break;
     case GL_MAJOR_VERSION:
-      *params = this->CurrentState.MajorVersion;
+      *params = this->MajorVersion;
       break;
     case GL_MINOR_VERSION:
-      *params = this->CurrentState.MinorVersion;
+      *params = this->MinorVersion;
       break;
     default:
       ::glGetIntegerv(pname, params);
@@ -1135,12 +1221,12 @@ void vtkOpenGLState::vtkglGetIntegerv(GLenum pname, GLint *params)
 }
 
 #ifdef GL_ES_VERSION_3_0
-void vtkOpenGLState::vtkglGetDoublev(GLenum pname, double *)
+void vtkOpenGLState::vtkglGetDoublev(GLenum pname, double*)
 {
   vtkGenericWarningMacro("glGetDouble not supported on OpenGL ES, requested: " << pname);
 }
 #else
-void vtkOpenGLState::vtkglGetDoublev(GLenum pname, double *params)
+void vtkOpenGLState::vtkglGetDoublev(GLenum pname, double* params)
 {
   vtkOpenGLCheckStateMacro();
   ::glGetDoublev(pname, params);
@@ -1148,17 +1234,18 @@ void vtkOpenGLState::vtkglGetDoublev(GLenum pname, double *params)
 }
 #endif
 
-void vtkOpenGLState::vtkglGetFloatv(GLenum pname, GLfloat *params)
+void vtkOpenGLState::vtkglGetFloatv(GLenum pname, GLfloat* params)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
   switch (pname)
   {
     case GL_COLOR_CLEAR_VALUE:
-      params[0] = this->CurrentState.ClearColor[0];
-      params[1] = this->CurrentState.ClearColor[1];
-      params[2] = this->CurrentState.ClearColor[2];
-      params[3] = this->CurrentState.ClearColor[3];
+      params[0] = cs.ClearColor[0];
+      params[1] = cs.ClearColor[1];
+      params[2] = cs.ClearColor[2];
+      params[3] = cs.ClearColor[3];
       break;
     default:
       ::glGetFloatv(pname, params);
@@ -1166,34 +1253,44 @@ void vtkOpenGLState::vtkglGetFloatv(GLenum pname, GLfloat *params)
   vtkCheckOpenGLErrorsWithStack("glGetFloat");
 }
 
-void vtkOpenGLState::GetBlendFuncState(int *v)
+void vtkOpenGLState::GetBlendFuncState(int* v)
 {
-  v[0] = this->CurrentState.BlendFunc[0];
-  v[1] = this->CurrentState.BlendFunc[1];
-  v[2] = this->CurrentState.BlendFunc[2];
-  v[3] = this->CurrentState.BlendFunc[3];
+  auto& cs = this->Stack.top();
+  v[0] = cs.BlendFunc[0];
+  v[1] = cs.BlendFunc[1];
+  v[2] = cs.BlendFunc[2];
+  v[3] = cs.BlendFunc[3];
 }
 
 bool vtkOpenGLState::GetEnumState(GLenum cap)
 {
   vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
 
   switch (cap)
   {
     case GL_BLEND:
-      return this->CurrentState.Blend;
-    case GL_DEPTH_TEST:
-      return this->CurrentState.DepthTest;
+      return cs.Blend;
     case GL_CULL_FACE:
-      return this->CurrentState.CullFace;
+      return cs.CullFace;
+    case GL_DEPTH_TEST:
+      return cs.DepthTest;
+#ifdef GL_LINE_SMOOTH
+    case GL_LINE_SMOOTH:
+      return cs.LineSmooth;
+#endif
 #ifdef GL_MULTISAMPLE
     case GL_MULTISAMPLE:
-      return this->CurrentState.MultiSample;
+      return cs.MultiSample;
 #endif
     case GL_SCISSOR_TEST:
-      return this->CurrentState.ScissorTest;
+      return cs.ScissorTest;
     case GL_STENCIL_TEST:
-      return this->CurrentState.StencilTest;
+      return cs.StencilTest;
+#ifdef GL_TEXTURE_CUBE_MAP_SEAMLESS
+    case GL_TEXTURE_CUBE_MAP_SEAMLESS:
+      return cs.CubeMapSeamless;
+#endif
     default:
       vtkGenericWarningMacro("Bad request for enum status");
   }
@@ -1205,198 +1302,443 @@ void vtkOpenGLState::vtkglDisable(GLenum cap)
   this->SetEnumState(cap, false);
 }
 
+void vtkOpenGLState::vtkglPixelStorei(unsigned int cap, int val)
+{
+  vtkOpenGLCheckStateMacro();
+  auto& cs = this->Stack.top();
+
+#ifndef NO_CACHE
+  bool changed = false;
+#else
+  bool changed = true;
+#endif
+  switch (cap)
+  {
+    case GL_PACK_ALIGNMENT:
+      if (cs.PackAlignment != val)
+      {
+        cs.PackAlignment = val;
+        changed = true;
+      }
+      break;
+    case GL_UNPACK_ALIGNMENT:
+      if (cs.UnpackAlignment != val)
+      {
+        cs.UnpackAlignment = val;
+        changed = true;
+      }
+      break;
+    case GL_UNPACK_ROW_LENGTH:
+      if (cs.UnpackRowLength != val)
+      {
+        cs.UnpackRowLength = val;
+        changed = true;
+      }
+      break;
+    case GL_UNPACK_IMAGE_HEIGHT:
+      if (cs.UnpackImageHeight != val)
+      {
+        cs.UnpackImageHeight = val;
+        changed = true;
+      }
+      break;
+    default:
+      changed = true;
+  }
+
+  if (!changed)
+  {
+    return;
+  }
+
+  ::glPixelStorei(cap, val);
+  vtkCheckOpenGLErrorsWithStack("glPixelStorei");
+}
+
+// make the recorded state match OpenGL driver
+// Initialize makes OpenGL match the state
+// This makes the state match OpenGL
+void vtkOpenGLState::Reset()
+{
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Resetting OpenGL State");
+  this->ResetGLClearColorState();
+  this->ResetGLClearDepthState();
+  this->ResetGLDepthFuncState();
+  this->ResetGLDepthMaskState();
+  this->ResetGLColorMaskState();
+  this->ResetGLViewportState();
+  this->ResetGLScissorState();
+  this->ResetGLBlendFuncState();
+  this->ResetGLBlendEquationState();
+  this->ResetGLCullFaceState();
+  this->ResetGLActiveTexture();
+  this->ResetFramebufferBindings();
+
+  this->ResetEnumState(GL_BLEND);
+  this->ResetEnumState(GL_CULL_FACE);
+  this->ResetEnumState(GL_DEPTH_TEST);
+#ifdef GL_LINE_SMOOTH
+  this->ResetEnumState(GL_LINE_SMOOTH);
+#endif
+  this->ResetEnumState(GL_STENCIL_TEST);
+  this->ResetEnumState(GL_SCISSOR_TEST);
+#ifdef GL_TEXTURE_CUBE_MAP_SEAMLESS
+  this->ResetEnumState(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+#endif
+#ifdef GL_MULTISAMPLE
+  this->ResetEnumState(GL_MULTISAMPLE);
+#endif
+
+  auto& cs = this->Stack.top();
+
+  GLint ival;
+
+#ifdef GL_POINT_SIZE
+  ::glGetFloatv(GL_POINT_SIZE, &cs.PointSize);
+#endif
+  ::glGetFloatv(GL_LINE_WIDTH, &cs.LineWidth);
+
+  ::glGetIntegerv(GL_PACK_ALIGNMENT, &cs.PackAlignment);
+  ::glGetIntegerv(GL_UNPACK_ALIGNMENT, &cs.UnpackAlignment);
+  ::glGetIntegerv(GL_UNPACK_ROW_LENGTH, &cs.UnpackRowLength);
+  ::glGetIntegerv(GL_UNPACK_IMAGE_HEIGHT, &cs.UnpackImageHeight);
+
+  ::glGetIntegerv(GL_STENCIL_BACK_WRITEMASK, &ival);
+  cs.StencilMaskBack = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_WRITEMASK, &ival);
+  cs.StencilMaskFront = static_cast<unsigned int>(ival);
+
+  ::glGetIntegerv(GL_STENCIL_BACK_FAIL, &ival);
+  cs.StencilOpBack[0] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_BACK_PASS_DEPTH_FAIL, &ival);
+  cs.StencilOpBack[1] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_BACK_PASS_DEPTH_PASS, &ival);
+  cs.StencilOpBack[2] = static_cast<unsigned int>(ival);
+
+  ::glGetIntegerv(GL_STENCIL_FAIL, &ival);
+  cs.StencilOpFront[0] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_PASS_DEPTH_FAIL, &ival);
+  cs.StencilOpFront[1] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_PASS_DEPTH_PASS, &ival);
+  cs.StencilOpFront[2] = static_cast<unsigned int>(ival);
+
+  ::glGetIntegerv(GL_STENCIL_BACK_FUNC, &ival);
+  cs.StencilFuncBack[0] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_BACK_REF, &ival);
+  cs.StencilFuncBack[1] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_BACK_VALUE_MASK, &ival);
+  cs.StencilFuncBack[2] = static_cast<unsigned int>(ival);
+
+  ::glGetIntegerv(GL_STENCIL_FUNC, &ival);
+  cs.StencilFuncFront[0] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_REF, &ival);
+  cs.StencilFuncFront[1] = static_cast<unsigned int>(ival);
+  ::glGetIntegerv(GL_STENCIL_VALUE_MASK, &ival);
+  cs.StencilFuncFront[2] = static_cast<unsigned int>(ival);
+
+  ::glGetIntegerv(GL_CURRENT_PROGRAM, &cs.BoundProgram);
+  ::glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &cs.BoundVAO);
+  ::glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &cs.BoundArrayBuffer);
+  ::glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &cs.BoundElementArrayBuffer);
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Finished Resetting OpenGL State");
+}
+
+void vtkOpenGLState::Push()
+{
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Pushing OpenGL State");
+  this->Stack.push(this->Stack.top());
+  this->PushFramebufferBindings();
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Finished Pushing OpenGL State");
+}
+
+void vtkOpenGLState::Pop()
+{
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Popping OpenGL State");
+  this->Stack.pop();
+  auto& cs = this->Stack.top();
+
+  this->PopFramebufferBindings();
+
+  cs.Blend ? ::glEnable(GL_BLEND) : ::glDisable(GL_BLEND);
+  cs.DepthTest ? ::glEnable(GL_DEPTH_TEST) : ::glDisable(GL_DEPTH_TEST);
+#ifdef GL_LINE_SMOOTH
+  cs.LineSmooth ? ::glEnable(GL_LINE_SMOOTH) : ::glDisable(GL_LINE_SMOOTH);
+#endif
+  cs.StencilTest ? ::glEnable(GL_STENCIL_TEST) : ::glDisable(GL_STENCIL_TEST);
+  cs.ScissorTest ? ::glEnable(GL_SCISSOR_TEST) : ::glDisable(GL_SCISSOR_TEST);
+  cs.CullFace ? ::glEnable(GL_CULL_FACE) : ::glDisable(GL_CULL_FACE);
+#ifdef GL_TEXTURE_CUBE_MAP_SEAMLESS
+  cs.CubeMapSeamless ? ::glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS)
+                     : ::glDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+#endif
+#ifdef GL_MULTISAMPLE
+  cs.MultiSample = glIsEnabled(GL_MULTISAMPLE) == GL_TRUE;
+#endif
+
+  ::glBlendFuncSeparate(cs.BlendFunc[0], cs.BlendFunc[1], cs.BlendFunc[2], cs.BlendFunc[3]);
+
+  ::glClearColor(cs.ClearColor[0], cs.ClearColor[1], cs.ClearColor[2], cs.ClearColor[3]);
+
+  ::glColorMask(cs.ColorMask[0], cs.ColorMask[1], cs.ColorMask[2], cs.ColorMask[3]);
+
+  ::glDepthFunc(cs.DepthFunc);
+
+#ifdef GL_ES_VERSION_3_0
+  ::glClearDepthf(cs.ClearDepth);
+#else
+  ::glClearDepth(cs.ClearDepth);
+#endif
+
+  ::glDepthMask(cs.DepthMask);
+
+#ifndef GL_ES_VERSION_3_0
+  ::glPointSize(cs.PointSize);
+#endif
+  ::glLineWidth(cs.LineWidth);
+
+  ::glPixelStorei(GL_PACK_ALIGNMENT, cs.PackAlignment);
+  ::glPixelStorei(GL_UNPACK_ALIGNMENT, cs.UnpackAlignment);
+  ::glPixelStorei(GL_UNPACK_ROW_LENGTH, cs.UnpackRowLength);
+  ::glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, cs.UnpackImageHeight);
+
+  ::glStencilMaskSeparate(GL_FRONT, cs.StencilMaskFront);
+  ::glStencilMaskSeparate(GL_BACK, cs.StencilMaskBack);
+  ::glStencilOpSeparate(GL_FRONT, cs.StencilOpFront[0], cs.StencilOpFront[1], cs.StencilOpFront[2]);
+  ::glStencilOpSeparate(GL_BACK, cs.StencilOpBack[0], cs.StencilOpBack[1], cs.StencilOpBack[2]);
+  ::glStencilFuncSeparate(GL_FRONT, cs.StencilFuncFront[0],
+    static_cast<GLint>(cs.StencilFuncFront[1]), cs.StencilFuncFront[2]);
+  ::glStencilFuncSeparate(GL_BACK, cs.StencilFuncBack[0], static_cast<GLint>(cs.StencilFuncBack[1]),
+    cs.StencilFuncBack[2]);
+
+  ::glViewport(cs.Viewport[0], cs.Viewport[1], cs.Viewport[2], cs.Viewport[3]);
+
+  ::glScissor(cs.Scissor[0], cs.Scissor[1], cs.Scissor[2], cs.Scissor[3]);
+
+  ::glCullFace(cs.CullFaceMode);
+
+  ::glBlendEquationSeparate(cs.BlendEquationValue1, cs.BlendEquationValue2);
+
+  if (this->ShaderCache)
+  {
+    this->ShaderCache->ReleaseCurrentShader();
+  }
+  ::glUseProgram(cs.BoundProgram);
+
+  ::glActiveTexture(cs.ActiveTexture);
+
+  ::glBindVertexArray(cs.BoundVAO);
+  ::glBindBuffer(GL_ARRAY_BUFFER, cs.BoundArrayBuffer);
+  ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cs.BoundElementArrayBuffer);
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Finished Popping OpenGL State");
+}
+
 // make the hardware openglstate match the
 // state ivars
-void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
+void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow*)
 {
   this->TextureUnitManager->Initialize();
   this->InitializeTextureInternalFormats();
+  auto& cs = this->Stack.top();
 
-  this->CurrentState.Blend
-    ? ::glEnable(GL_BLEND) : ::glDisable(GL_BLEND);
-  this->CurrentState.DepthTest
-    ? ::glEnable(GL_DEPTH_TEST) : ::glDisable(GL_DEPTH_TEST);
-  this->CurrentState.StencilTest
-    ? ::glEnable(GL_STENCIL_TEST) : ::glDisable(GL_STENCIL_TEST);
-  this->CurrentState.ScissorTest
-    ? ::glEnable(GL_SCISSOR_TEST) : ::glDisable(GL_SCISSOR_TEST);
-  this->CurrentState.CullFace
-    ? ::glEnable(GL_CULL_FACE) : ::glDisable(GL_CULL_FACE);
-
-#ifdef GL_MULTISAMPLE
-  this->CurrentState.MultiSample = glIsEnabled(GL_MULTISAMPLE) == GL_TRUE;
+  cs.Blend ? ::glEnable(GL_BLEND) : ::glDisable(GL_BLEND);
+  cs.CullFace ? ::glEnable(GL_CULL_FACE) : ::glDisable(GL_CULL_FACE);
+  cs.DepthTest ? ::glEnable(GL_DEPTH_TEST) : ::glDisable(GL_DEPTH_TEST);
+#ifdef GL_LINE_SMOOTH
+  cs.LineSmooth ? ::glEnable(GL_LINE_SMOOTH) : ::glDisable(GL_LINE_SMOOTH);
 #endif
+#ifdef GL_MULTISAMPLE
+  cs.MultiSample = glIsEnabled(GL_MULTISAMPLE) == GL_TRUE;
+#endif
+  cs.StencilTest ? ::glEnable(GL_STENCIL_TEST) : ::glDisable(GL_STENCIL_TEST);
+  cs.ScissorTest ? ::glEnable(GL_SCISSOR_TEST) : ::glDisable(GL_SCISSOR_TEST);
 
   // initialize blending for transparency
-  ::glBlendFuncSeparate(
-    this->CurrentState.BlendFunc[0],
-    this->CurrentState.BlendFunc[1],
-    this->CurrentState.BlendFunc[2],
-    this->CurrentState.BlendFunc[3]);
+  ::glBlendFuncSeparate(cs.BlendFunc[0], cs.BlendFunc[1], cs.BlendFunc[2], cs.BlendFunc[3]);
 
-  ::glClearColor(
-    this->CurrentState.ClearColor[0],
-    this->CurrentState.ClearColor[1],
-    this->CurrentState.ClearColor[2],
-    this->CurrentState.ClearColor[3]);
+  ::glClearColor(cs.ClearColor[0], cs.ClearColor[1], cs.ClearColor[2], cs.ClearColor[3]);
 
-  ::glColorMask(
-    this->CurrentState.ColorMask[0],
-    this->CurrentState.ColorMask[1],
-    this->CurrentState.ColorMask[2],
-    this->CurrentState.ColorMask[3]);
+  ::glColorMask(cs.ColorMask[0], cs.ColorMask[1], cs.ColorMask[2], cs.ColorMask[3]);
 
-  ::glDepthFunc( this->CurrentState.DepthFunc );
+  ::glDepthFunc(cs.DepthFunc);
+
+#ifndef GL_ES_VERSION_3_0
+  ::glPointSize(cs.PointSize);
+#endif
+  ::glLineWidth(cs.LineWidth);
+
+  ::glPixelStorei(GL_PACK_ALIGNMENT, cs.PackAlignment);
+  ::glPixelStorei(GL_UNPACK_ALIGNMENT, cs.UnpackAlignment);
+  ::glPixelStorei(GL_UNPACK_ROW_LENGTH, cs.UnpackRowLength);
+  ::glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, cs.UnpackImageHeight);
+
+  ::glStencilMaskSeparate(GL_FRONT, cs.StencilMaskFront);
+  ::glStencilMaskSeparate(GL_BACK, cs.StencilMaskBack);
+  ::glStencilOpSeparate(GL_FRONT, cs.StencilOpFront[0], cs.StencilOpFront[1], cs.StencilOpFront[2]);
+  ::glStencilOpSeparate(GL_BACK, cs.StencilOpBack[0], cs.StencilOpBack[1], cs.StencilOpBack[2]);
+  ::glStencilFuncSeparate(GL_FRONT, cs.StencilFuncFront[0],
+    static_cast<GLint>(cs.StencilFuncFront[1]), cs.StencilFuncFront[2]);
+  ::glStencilFuncSeparate(GL_BACK, cs.StencilFuncBack[0], static_cast<GLint>(cs.StencilFuncBack[1]),
+    cs.StencilFuncBack[2]);
 
 #ifdef GL_ES_VERSION_3_0
-  ::glClearDepthf(this->CurrentState.ClearDepth);
+  ::glClearDepthf(cs.ClearDepth);
 #else
-  ::glClearDepth(this->CurrentState.ClearDepth);
+  ::glClearDepth(cs.ClearDepth);
 #endif
 
-  ::glDepthMask(this->CurrentState.DepthMask);
+  ::glDepthMask(cs.DepthMask);
 
-  ::glViewport(
-    this->CurrentState.Viewport[0],
-    this->CurrentState.Viewport[1],
-    this->CurrentState.Viewport[2],
-    this->CurrentState.Viewport[3]);
+  ::glViewport(cs.Viewport[0], cs.Viewport[1], cs.Viewport[2], cs.Viewport[3]);
 
-  ::glScissor(
-    this->CurrentState.Scissor[0],
-    this->CurrentState.Scissor[1],
-    this->CurrentState.Scissor[2],
-    this->CurrentState.Scissor[3]);
+  ::glScissor(cs.Scissor[0], cs.Scissor[1], cs.Scissor[2], cs.Scissor[3]);
 
-  ::glCullFace(this->CurrentState.CullFaceMode);
+  ::glCullFace(cs.CullFaceMode);
 
-  ::glBlendEquationSeparate(
-    this->CurrentState.BlendEquationValue1,
-    this->CurrentState.BlendEquationValue2);
+  ::glBlendEquationSeparate(cs.BlendEquationValue1, cs.BlendEquationValue2);
 
   // strictly query values below here
-  ::glGetIntegerv(GL_MAX_TEXTURE_SIZE,
-    &this->CurrentState.MaxTextureSize);
-  ::glGetIntegerv(GL_MAJOR_VERSION,
-    &this->CurrentState.MajorVersion);
-  ::glGetIntegerv(GL_MINOR_VERSION,
-    &this->CurrentState.MinorVersion);
+#ifdef GL_ARB_tessellation_shader
+  ::glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &this->MaxTessellationLevel);
+#endif
+  ::glGetIntegerv(GL_MAX_TEXTURE_SIZE, &this->MaxTextureSize);
+  ::glGetIntegerv(GL_MAJOR_VERSION, &this->MajorVersion);
+  ::glGetIntegerv(GL_MINOR_VERSION, &this->MinorVersion);
+  char const* tmp = reinterpret_cast<const char*>(::glGetString(GL_VENDOR));
+  this->Vendor = tmp ? tmp : std::string();
+  tmp = reinterpret_cast<char const*>(::glGetString(GL_RENDERER));
+  this->Renderer = tmp ? tmp : std::string();
+  tmp = reinterpret_cast<char const*>(::glGetString(GL_VERSION));
+  this->Version = tmp ? tmp : std::string();
 
-  ::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->CurrentState.DrawBinding.GetBinding());
-  ::glBindFramebuffer(GL_READ_FRAMEBUFFER, this->CurrentState.ReadBinding.GetBinding());
-  unsigned int vals[1];
-  vals[0] = this->CurrentState.DrawBinding.GetDrawBuffer(0);
-  ::glDrawBuffers(1, vals);
-  ::glReadBuffer(this->CurrentState.ReadBinding.GetReadBuffer());
+  this->ResetFramebufferBindings();
+}
+
+void vtkOpenGLState::GetCurrentDrawFramebufferState(
+  unsigned int& drawBinding, unsigned int& drawBuffer)
+{
+  auto& cs = this->Stack.top();
+  drawBinding = cs.DrawBinding.Binding;
+  drawBuffer = cs.DrawBinding.DrawBuffers[0];
 }
 
 void vtkOpenGLState::ResetFramebufferBindings()
 {
-  ::glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, (int*)&this->CurrentState.DrawBinding.Binding);
+  auto& cs = this->Stack.top();
+  ::glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, (int*)&cs.DrawBinding.Binding);
 #ifdef GL_DRAW_BUFFER
-  ::glGetIntegerv(GL_DRAW_BUFFER, (int *)&this->CurrentState.DrawBinding.DrawBuffers[0]);
+  ::glGetIntegerv(GL_DRAW_BUFFER, (int*)&cs.DrawBinding.DrawBuffers[0]);
 #endif
 
-  ::glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, (int*)&this->CurrentState.ReadBinding.Binding);
-  ::glGetIntegerv(GL_READ_BUFFER, (int*)&this->CurrentState.ReadBinding.ReadBuffer);
+  ::glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, (int*)&cs.ReadBinding.Binding);
+  ::glGetIntegerv(GL_READ_BUFFER, (int*)&cs.ReadBinding.ReadBuffer);
 }
 
 void vtkOpenGLState::ResetGLClearColorState()
 {
+  auto& cs = this->Stack.top();
   GLfloat fparams[4];
   ::glGetFloatv(GL_COLOR_CLEAR_VALUE, fparams);
-  this->CurrentState.ClearColor[0] = fparams[0];
-  this->CurrentState.ClearColor[1] = fparams[1];
-  this->CurrentState.ClearColor[2] = fparams[2];
-  this->CurrentState.ClearColor[3] = fparams[3];
+  cs.ClearColor[0] = fparams[0];
+  cs.ClearColor[1] = fparams[1];
+  cs.ClearColor[2] = fparams[2];
+  cs.ClearColor[3] = fparams[3];
 }
 
 void vtkOpenGLState::ResetGLClearDepthState()
 {
+  auto& cs = this->Stack.top();
   GLfloat fparams;
   ::glGetFloatv(GL_DEPTH_CLEAR_VALUE, &fparams);
-  this->CurrentState.ClearDepth = fparams;
+  cs.ClearDepth = fparams;
 }
 
 void vtkOpenGLState::ResetGLDepthFuncState()
 {
+  auto& cs = this->Stack.top();
   GLint iparams;
   ::glGetIntegerv(GL_DEPTH_FUNC, &iparams);
-  this->CurrentState.DepthFunc = static_cast<unsigned int>(iparams);
+  cs.DepthFunc = static_cast<unsigned int>(iparams);
 }
 
 void vtkOpenGLState::ResetGLDepthMaskState()
 {
+  auto& cs = this->Stack.top();
   GLboolean params;
   ::glGetBooleanv(GL_DEPTH_WRITEMASK, &params);
-  this->CurrentState.DepthMask = params;
+  cs.DepthMask = params;
 }
 
 void vtkOpenGLState::ResetGLColorMaskState()
 {
+  auto& cs = this->Stack.top();
   GLboolean params[4];
   ::glGetBooleanv(GL_COLOR_WRITEMASK, params);
-  this->CurrentState.ColorMask[0] = params[0];
-  this->CurrentState.ColorMask[1] = params[1];
-  this->CurrentState.ColorMask[2] = params[2];
-  this->CurrentState.ColorMask[3] = params[3];
-
+  cs.ColorMask[0] = params[0];
+  cs.ColorMask[1] = params[1];
+  cs.ColorMask[2] = params[2];
+  cs.ColorMask[3] = params[3];
 }
 
 void vtkOpenGLState::ResetGLViewportState()
 {
+  auto& cs = this->Stack.top();
   GLint iparams[4];
   ::glGetIntegerv(GL_VIEWPORT, iparams);
-  this->CurrentState.Viewport[0] = iparams[0];
-  this->CurrentState.Viewport[1] = iparams[1];
-  this->CurrentState.Viewport[2] = iparams[2];
-  this->CurrentState.Viewport[3] = iparams[3];
+  cs.Viewport[0] = iparams[0];
+  cs.Viewport[1] = iparams[1];
+  cs.Viewport[2] = iparams[2];
+  cs.Viewport[3] = iparams[3];
 }
 
 void vtkOpenGLState::ResetGLScissorState()
 {
+  auto& cs = this->Stack.top();
   GLint iparams[4];
   ::glGetIntegerv(GL_SCISSOR_BOX, iparams);
-  this->CurrentState.Scissor[0] = iparams[0];
-  this->CurrentState.Scissor[1] = iparams[1];
-  this->CurrentState.Scissor[2] = iparams[2];
-  this->CurrentState.Scissor[3] = iparams[3];
+  cs.Scissor[0] = iparams[0];
+  cs.Scissor[1] = iparams[1];
+  cs.Scissor[2] = iparams[2];
+  cs.Scissor[3] = iparams[3];
 }
 
 void vtkOpenGLState::ResetGLBlendFuncState()
 {
+  auto& cs = this->Stack.top();
   GLint iparams;
   ::glGetIntegerv(GL_BLEND_SRC_RGB, &iparams);
-  this->CurrentState.BlendFunc[0] = static_cast<unsigned int>(iparams);
+  cs.BlendFunc[0] = static_cast<unsigned int>(iparams);
   ::glGetIntegerv(GL_BLEND_SRC_ALPHA, &iparams);
-  this->CurrentState.BlendFunc[2] = static_cast<unsigned int>(iparams);
+  cs.BlendFunc[2] = static_cast<unsigned int>(iparams);
   ::glGetIntegerv(GL_BLEND_DST_RGB, &iparams);
-  this->CurrentState.BlendFunc[1] = static_cast<unsigned int>(iparams);
+  cs.BlendFunc[1] = static_cast<unsigned int>(iparams);
   ::glGetIntegerv(GL_BLEND_DST_ALPHA, &iparams);
-  this->CurrentState.BlendFunc[3] = static_cast<unsigned int>(iparams);
+  cs.BlendFunc[3] = static_cast<unsigned int>(iparams);
 }
 
 void vtkOpenGLState::ResetGLBlendEquationState()
 {
+  auto& cs = this->Stack.top();
   GLint iparams;
   ::glGetIntegerv(GL_BLEND_EQUATION_RGB, &iparams);
-  this->CurrentState.BlendEquationValue1 = static_cast<unsigned int>(iparams);
+  cs.BlendEquationValue1 = static_cast<unsigned int>(iparams);
   ::glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &iparams);
-  this->CurrentState.BlendEquationValue2 = static_cast<unsigned int>(iparams);
+  cs.BlendEquationValue2 = static_cast<unsigned int>(iparams);
 }
 
 void vtkOpenGLState::ResetGLCullFaceState()
 {
+  auto& cs = this->Stack.top();
   GLint iparams;
   ::glGetIntegerv(GL_CULL_FACE_MODE, &iparams);
-  this->CurrentState.CullFaceMode = static_cast<unsigned int>(iparams);
+  cs.CullFaceMode = static_cast<unsigned int>(iparams);
 }
 
 void vtkOpenGLState::ResetGLActiveTexture()
 {
+  auto& cs = this->Stack.top();
   GLint iparams;
   ::glGetIntegerv(GL_ACTIVE_TEXTURE, &iparams);
-  this->CurrentState.ActiveTexture = static_cast<unsigned int>(iparams);
+  cs.ActiveTexture = static_cast<unsigned int>(iparams);
 }
 
 void vtkOpenGLState::vtkglClear(GLbitfield val)
@@ -1404,15 +1746,26 @@ void vtkOpenGLState::vtkglClear(GLbitfield val)
   ::glClear(val);
 }
 
-// ----------------------------------------------------------------------------
+void vtkOpenGLState::vtkglBlitFramebuffer(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0,
+  int dstY0, int dstX1, int dstY1, unsigned int mask, unsigned int filter)
+{
+  // ON APPLE MACOS you must turn off scissor test for DEPTH blits to work
+  vtkOpenGLState::ScopedglEnableDisable stsaver(this, GL_SCISSOR_TEST);
+  this->vtkglDisable(GL_SCISSOR_TEST);
+
+  ::glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+  vtkCheckOpenGLErrorsWithStack("glBlitFramebuffer");
+}
+
+//------------------------------------------------------------------------------
 // Description:
 // Returns its texture unit manager object.
-vtkTextureUnitManager *vtkOpenGLState::GetTextureUnitManager()
+vtkTextureUnitManager* vtkOpenGLState::GetTextureUnitManager()
 {
   return this->TextureUnitManager;
 }
 
-void vtkOpenGLState::SetTextureUnitManager(vtkTextureUnitManager *tum)
+void vtkOpenGLState::SetTextureUnitManager(vtkTextureUnitManager* tum)
 {
   if (this->TextureUnitManager == tum)
   {
@@ -1429,14 +1782,14 @@ void vtkOpenGLState::SetTextureUnitManager(vtkTextureUnitManager *tum)
   this->TextureUnitManager = tum;
 }
 
-void vtkOpenGLState::ActivateTexture(vtkTextureObject *texture)
+void vtkOpenGLState::ActivateTexture(vtkTextureObject* texture)
 {
   // Only add if it isn't already there
-  typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
+  typedef std::map<const vtkTextureObject*, int>::const_iterator TRIter;
   TRIter found = this->TextureResourceIds.find(texture);
   if (found == this->TextureResourceIds.end())
   {
-    int activeUnit =  this->GetTextureUnitManager()->Allocate();
+    int activeUnit = this->GetTextureUnitManager()->Allocate();
     if (activeUnit < 0)
     {
       vtkGenericWarningMacro("Hardware does not support the number of textures defined.");
@@ -1451,10 +1804,10 @@ void vtkOpenGLState::ActivateTexture(vtkTextureObject *texture)
   }
 }
 
-void vtkOpenGLState::DeactivateTexture(vtkTextureObject *texture)
+void vtkOpenGLState::DeactivateTexture(vtkTextureObject* texture)
 {
   // Only deactivate if it isn't already there
-  typedef std::map<const vtkTextureObject *, int>::iterator TRIter;
+  typedef std::map<const vtkTextureObject*, int>::iterator TRIter;
   TRIter found = this->TextureResourceIds.find(texture);
   if (found != this->TextureResourceIds.end())
   {
@@ -1463,10 +1816,10 @@ void vtkOpenGLState::DeactivateTexture(vtkTextureObject *texture)
   }
 }
 
-int vtkOpenGLState::GetTextureUnitForTexture(vtkTextureObject *texture)
+int vtkOpenGLState::GetTextureUnitForTexture(vtkTextureObject* texture)
 {
   // Only deactivate if it isn't already there
-  typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
+  typedef std::map<const vtkTextureObject*, int>::const_iterator TRIter;
   TRIter found = this->TextureResourceIds.find(texture);
   if (found != this->TextureResourceIds.end())
   {
@@ -1481,16 +1834,29 @@ void vtkOpenGLState::VerifyNoActiveTextures()
   if (!this->TextureResourceIds.empty())
   {
     vtkGenericWarningMacro("There are still active textures when there should not be.");
-    typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
+    typedef std::map<const vtkTextureObject*, int>::const_iterator TRIter;
     TRIter found = this->TextureResourceIds.begin();
-    for ( ; found != this->TextureResourceIds.end(); ++found)
+    for (; found != this->TextureResourceIds.end(); ++found)
     {
-      vtkGenericWarningMacro("Leaked for texture object: " << const_cast<vtkTextureObject *>(found->first));
+      vtkGenericWarningMacro(
+        "Leaked for texture object: " << const_cast<vtkTextureObject*>(found->first));
     }
   }
 }
 
 vtkStandardNewMacro(vtkOpenGLState);
+
+void vtkOpenGLState::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "MajorVersion: " << this->MajorVersion << '\n'
+     << indent << "MinorVersion: " << this->MinorVersion << '\n'
+     << indent << "MaxTessellationLevel: " << this->MaxTessellationLevel << '\n'
+     << indent << "MaxTextureSize: " << this->MaxTextureSize << '\n'
+     << indent << "Vendor: " << this->Vendor << '\n'
+     << indent << "Renderer: " << this->Renderer << '\n'
+     << indent << "Version: " << this->Version << '\n';
+}
 
 vtkCxxSetObjectMacro(vtkOpenGLState, VBOCache, vtkOpenGLVertexBufferObjectCache);
 
@@ -1498,7 +1864,7 @@ vtkCxxSetObjectMacro(vtkOpenGLState, VBOCache, vtkOpenGLVertexBufferObjectCache)
 // ::Initialize we can just set the state to the current
 // values (knowing that they are set). The reason we want
 // Initialize to set to the current values is to reduce
-// OpenGL churn in cases where application call Initialize
+// OpenGL churn in cases where applications call Initialize
 // often without really changing many of the values. For example
 //
 // viewport(0,0,100,100);
@@ -1515,66 +1881,100 @@ vtkCxxSetObjectMacro(vtkOpenGLState, VBOCache, vtkOpenGLVertexBufferObjectCache)
 // not required.
 //
 vtkOpenGLState::vtkOpenGLState()
+  : MajorVersion(-1)
+  , MinorVersion(-1)
+  , MaxTessellationLevel(-1)
+  , MaxTextureSize(-1)
 {
   this->ShaderCache = vtkOpenGLShaderCache::New();
   this->VBOCache = vtkOpenGLVertexBufferObjectCache::New();
 
   this->TextureUnitManager = vtkTextureUnitManager::New();
 
-  this->CurrentState.Blend = true;
-  this->CurrentState.DepthTest = true;
-  this->CurrentState.StencilTest = false;
-  this->CurrentState.ScissorTest = true;
-  this->CurrentState.CullFace = false;
+  this->Stack.emplace();
 
-  this->CurrentState.MultiSample = false;
+  auto& cs = this->Stack.top();
+
+  cs.Blend = true;
+  cs.DepthTest = true;
+  cs.StencilTest = false;
+  cs.ScissorTest = true;
+  cs.CullFace = false;
+  cs.CubeMapSeamless = false;
+  cs.LineSmooth = false;
+  cs.MultiSample = false;
+
+  cs.LineWidth = 1.0;
+  cs.PointSize = 1.0;
+
+  cs.StencilMaskFront = 0xFF;
+  cs.StencilMaskBack = 0xFF;
+
+  cs.StencilOpFront[0] = GL_KEEP;
+  cs.StencilOpFront[1] = GL_KEEP;
+  cs.StencilOpFront[2] = GL_KEEP;
+  cs.StencilOpBack[0] = GL_KEEP;
+  cs.StencilOpBack[1] = GL_KEEP;
+  cs.StencilOpBack[2] = GL_KEEP;
+
+  cs.StencilFuncFront[0] = GL_ALWAYS;
+  cs.StencilFuncFront[1] = 0;
+  cs.StencilFuncFront[2] = 0xFF;
+  cs.StencilFuncBack[0] = GL_ALWAYS;
+  cs.StencilFuncBack[1] = 0;
+  cs.StencilFuncBack[2] = 0xFF;
+
+  cs.PackAlignment = 1;
+  cs.UnpackAlignment = 1;
+  cs.UnpackRowLength = 0;
+  cs.UnpackImageHeight = 0;
 
   // initialize blending for transparency
-  this->CurrentState.BlendFunc[0] = GL_SRC_ALPHA;
-  this->CurrentState.BlendFunc[1] = GL_ONE_MINUS_SRC_ALPHA;
-  this->CurrentState.BlendFunc[2] = GL_ONE;
-  this->CurrentState.BlendFunc[3] = GL_ONE_MINUS_SRC_ALPHA;
+  cs.BlendFunc[0] = GL_SRC_ALPHA;
+  cs.BlendFunc[1] = GL_ONE_MINUS_SRC_ALPHA;
+  cs.BlendFunc[2] = GL_ONE;
+  cs.BlendFunc[3] = GL_ONE_MINUS_SRC_ALPHA;
 
-  this->CurrentState.ClearColor[0] = 0.0;
-  this->CurrentState.ClearColor[1] = 0.0;
-  this->CurrentState.ClearColor[2] = 0.0;
-  this->CurrentState.ClearColor[3] = 0.0;
+  cs.ClearColor[0] = 0.0;
+  cs.ClearColor[1] = 0.0;
+  cs.ClearColor[2] = 0.0;
+  cs.ClearColor[3] = 0.0;
 
-  this->CurrentState.ColorMask[0] = GL_TRUE;
-  this->CurrentState.ColorMask[1] = GL_TRUE;
-  this->CurrentState.ColorMask[2] = GL_TRUE;
-  this->CurrentState.ColorMask[3] = GL_TRUE;
+  cs.ColorMask[0] = GL_TRUE;
+  cs.ColorMask[1] = GL_TRUE;
+  cs.ColorMask[2] = GL_TRUE;
+  cs.ColorMask[3] = GL_TRUE;
 
-  this->CurrentState.DepthFunc = GL_LEQUAL;
+  cs.DepthFunc = GL_LEQUAL;
 
-  this->CurrentState.ClearDepth = 1.0;
+  cs.ClearDepth = 1.0;
 
-  this->CurrentState.DepthMask = GL_TRUE;
+  cs.DepthMask = GL_TRUE;
 
-  this->CurrentState.Viewport[0] = 0;
-  this->CurrentState.Viewport[1] = 0;
-  this->CurrentState.Viewport[2] = 1;
-  this->CurrentState.Viewport[3] = 1;
+  cs.Viewport[0] = 0;
+  cs.Viewport[1] = 0;
+  cs.Viewport[2] = 1;
+  cs.Viewport[3] = 1;
 
-  this->CurrentState.Scissor[0] = 0;
-  this->CurrentState.Scissor[1] = 0;
-  this->CurrentState.Scissor[2] = 1;
-  this->CurrentState.Scissor[3] = 1;
+  cs.Scissor[0] = 0;
+  cs.Scissor[1] = 0;
+  cs.Scissor[2] = 1;
+  cs.Scissor[3] = 1;
 
-  this->CurrentState.CullFaceMode = GL_BACK;
-  this->CurrentState.ActiveTexture = GL_TEXTURE0;
+  cs.CullFaceMode = GL_BACK;
+  cs.ActiveTexture = GL_TEXTURE0;
 
-  this->CurrentState.BlendEquationValue1 = GL_FUNC_ADD;
-  this->CurrentState.BlendEquationValue2 = GL_FUNC_ADD;
+  cs.BlendEquationValue1 = GL_FUNC_ADD;
+  cs.BlendEquationValue2 = GL_FUNC_ADD;
 
-  this->CurrentState.DrawBinding.Binding = 0;
-  this->CurrentState.ReadBinding.Binding = 0;
-  this->CurrentState.DrawBinding.DrawBuffers[0] = GL_BACK_LEFT;
+  cs.DrawBinding.Binding = 0;
+  cs.ReadBinding.Binding = 0;
+  cs.DrawBinding.DrawBuffers[0] = GL_BACK_LEFT;
   for (int i = 1; i < 10; ++i)
   {
-    this->CurrentState.DrawBinding.DrawBuffers[i] = GL_NONE;
+    cs.DrawBinding.DrawBuffers[i] = GL_NONE;
   }
-  this->CurrentState.ReadBinding.ReadBuffer = GL_BACK_LEFT;
+  cs.ReadBinding.ReadBuffer = GL_BACK_LEFT;
 }
 
 vtkOpenGLState::~vtkOpenGLState()
@@ -1587,52 +1987,58 @@ vtkOpenGLState::~vtkOpenGLState()
 
 void vtkOpenGLState::PushDrawFramebufferBinding()
 {
-  this->DrawBindings.push_back(this->CurrentState.DrawBinding);
+  auto& cs = this->Stack.top();
+  this->DrawBindings.push_back(cs.DrawBinding);
 }
 
 void vtkOpenGLState::PushReadFramebufferBinding()
 {
-  this->ReadBindings.push_back(this->CurrentState.ReadBinding);
+  auto& cs = this->Stack.top();
+  this->ReadBindings.push_back(cs.ReadBinding);
 }
 
 void vtkOpenGLState::PopDrawFramebufferBinding()
 {
-  if (this->DrawBindings.size())
+  if (!this->DrawBindings.empty())
   {
-    BufferBindingState &bbs  = this->DrawBindings.back();
+    auto& cs = this->Stack.top();
+    BufferBindingState& bbs = this->DrawBindings.back();
     ::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, bbs.GetBinding());
-    this->CurrentState.DrawBinding = bbs;
+    cs.DrawBinding = bbs;
     this->DrawBindings.pop_back();
   }
   else
   {
-    vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.")
+    vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.");
+    abort();
   }
 }
 
 void vtkOpenGLState::PopReadFramebufferBinding()
 {
-  if (this->ReadBindings.size())
+  if (!this->ReadBindings.empty())
   {
-    BufferBindingState &bbs = this->ReadBindings.back();
+    auto& cs = this->Stack.top();
+    BufferBindingState& bbs = this->ReadBindings.back();
     ::glBindFramebuffer(GL_READ_FRAMEBUFFER, bbs.GetBinding());
-    this->CurrentState.ReadBinding = bbs;
+    cs.ReadBinding = bbs;
     this->ReadBindings.pop_back();
   }
   else
   {
-    vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.")
+    vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.");
+    abort();
   }
 }
 
 int vtkOpenGLState::GetDefaultTextureInternalFormat(
-  int vtktype, int numComponents,
-  bool needInt, bool needFloat, bool needSRGB)
+  int vtktype, int numComponents, bool needInt, bool needFloat, bool needSRGB)
 {
   // 0 = none
   // 1 = float
   // 2 = int
-  if (vtktype >= VTK_UNICODE_STRING)
+  int dtypeCount = sizeof(this->TextureInternalFormats) / sizeof(this->TextureInternalFormats[0]);
+  if (vtktype >= dtypeCount)
   {
     return 0;
   }
@@ -1650,15 +2056,28 @@ int vtkOpenGLState::GetDefaultTextureInternalFormat(
     switch (result)
     {
 #ifdef GL_ES_VERSION_3_0
-      case GL_RGB: result = GL_SRGB8; break;
-      case GL_RGBA: result = GL_SRGB8_ALPHA8; break;
+      case GL_RGB:
+        result = GL_SRGB8;
+        break;
+      case GL_RGBA:
+        result = GL_SRGB8_ALPHA8;
+        break;
 #else
-      case GL_RGB: result = GL_SRGB; break;
-      case GL_RGBA: result = GL_SRGB_ALPHA; break;
+      case GL_RGB:
+        result = GL_SRGB;
+        break;
+      case GL_RGBA:
+        result = GL_SRGB_ALPHA;
+        break;
 #endif
-      case GL_RGB8: result = GL_SRGB8; break;
-      case GL_RGBA8: result = GL_SRGB8_ALPHA8; break;
-      default: break;
+      case GL_RGB8:
+        result = GL_SRGB8;
+        break;
+      case GL_RGBA8:
+        result = GL_SRGB8_ALPHA8;
+        break;
+      default:
+        break;
     }
   }
   return result;
@@ -1671,11 +2090,12 @@ void vtkOpenGLState::InitializeTextureInternalFormats()
   // 2 = int
 
   // initialize to zero
-  for (int dtype = 0; dtype < VTK_UNICODE_STRING; dtype++)
+  int dtypeCount = sizeof(this->TextureInternalFormats) / sizeof(this->TextureInternalFormats[0]);
+  for (int dtype = 0; dtype < dtypeCount; dtype++)
   {
     for (int ctype = 0; ctype < 3; ctype++)
     {
-      for (int comp = 0; comp <= 4; comp++)
+      for (int comp = 0; comp < 5; comp++)
       {
         this->TextureInternalFormats[dtype][ctype][comp] = 0;
       }
@@ -1750,10 +2170,8 @@ void vtkOpenGLState::InitializeTextureInternalFormats()
   // this is due to Mesa being impacted by a patent issue with SGI
   // that is due to expire in the US in summer 2018
 #ifndef GL_ES_VERSION_3_0
-  const char *glVersion =
-    reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  if (glVersion && strstr(glVersion,"Mesa") != nullptr &&
-      !GLEW_ARB_texture_float)
+  const char* glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+  if (glVersion && strstr(glVersion, "Mesa") != nullptr && !GLEW_ARB_texture_float)
   {
     // mesa without float support cannot even use
     // uchar textures with underlying float data
@@ -1775,3 +2193,4 @@ void vtkOpenGLState::InitializeTextureInternalFormats()
   this->TextureInternalFormats[VTK_SHORT][1][4] = GL_RGBA32F;
 #endif
 }
+VTK_ABI_NAMESPACE_END

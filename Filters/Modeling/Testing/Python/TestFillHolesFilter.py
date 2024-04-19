@@ -1,20 +1,35 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersModeling import vtkFillHolesFilter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create some data, remove some polygons
-pd = vtk.vtkPolyData()
-pts = vtk.vtkPoints()
-polys = vtk.vtkCellArray()
+pd = vtkPolyData()
+pts = vtkPoints()
+polys = vtkCellArray()
 pd.SetPoints(pts)
 pd.SetPolys(polys)
 xRes = 10
@@ -46,21 +61,20 @@ while j <= yRes:
             polys.InsertCellPoint(i + ((j - 1) * yPtsRes))
             polys.InsertCellPoint(i + (j * yPtsRes))
             polys.InsertCellPoint(i - 1 + (j * yPtsRes))
-            pass
         i += 1
     j += 1
 
 # Fill the holes
-fill = vtk.vtkFillHolesFilter()
+fill = vtkFillHolesFilter()
 fill.SetInputData(pd)
 fill.SetHoleSize(20.0)
 
 # Mapping and actor
-map = vtk.vtkPolyDataMapper()
+map = vtkPolyDataMapper()
 #    map SetInput pd
 map.SetInputConnection(fill.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(map)
 actor.GetProperty().SetColor(1, 0, 0)
 

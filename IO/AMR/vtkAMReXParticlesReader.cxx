@@ -1,18 +1,7 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAMReXParticlesReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAMReXParticlesReader.h"
+#include "vtkAMReXGridReaderInternal.h"
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkCellArray.h"
@@ -29,6 +18,7 @@
 #include "vtkPolyData.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
@@ -41,15 +31,17 @@
 
 using vtksystools = vtksys::SystemTools;
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // returns empty string on failure.
-std::string ReadAndBroadCastFile(const std::string& filename, vtkMultiProcessController* controller)
+std::string ReadAndBroadCastFile(
+  const std::string& filename, vtkMultiProcessController* controller, vtkAMReXParticlesReader* self)
 {
   std::string contents;
   if (controller == nullptr || controller->GetLocalProcessId() == 0)
   {
-    std::ifstream stream(filename, std::ios::binary);
+    vtksys::ifstream stream(filename.c_str(), std::ios::binary);
     if (stream)
     {
       stream.seekg(0, std::ios::end);
@@ -69,6 +61,10 @@ std::string ReadAndBroadCastFile(const std::string& filename, vtkMultiProcessCon
       contents = data;
       delete[] data;
       data = nullptr;
+    }
+    else
+    {
+      vtkErrorWithObjectMacro(self, "Failed to open file '" << filename << "'.");
     }
   }
   else if (controller && controller->GetLocalProcessId() > 0)
@@ -95,12 +91,12 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
 {
   template <typename RealType, typename IntType>
   bool ReadParticles(
-    vtkPolyData* pd, const int count, istream& ifp, const vtkAMReXParticlesReader* self) const
+    vtkPolyData* pd, int count, istream& ifp, const vtkAMReXParticlesReader* self) const
   {
     auto selection = self->GetPointDataArraySelection();
 
     // read integer data.
-    vtkNew<vtkAOSDataArrayTemplate<IntType> > istuff;
+    vtkNew<vtkAOSDataArrayTemplate<IntType>> istuff;
     if (this->is_checkpoint)
     {
       istuff->SetNumberOfComponents(this->num_int);
@@ -113,7 +109,7 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
     }
 
     // read real data.
-    vtkNew<vtkAOSDataArrayTemplate<RealType> > rstuff;
+    vtkNew<vtkAOSDataArrayTemplate<RealType>> rstuff;
     rstuff->SetNumberOfComponents(this->num_real);
     rstuff->SetNumberOfTuples(count);
     if (!ifp.read(reinterpret_cast<char*>(rstuff->GetPointer(0)),
@@ -151,7 +147,7 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
         }
         else
         {
-          vtkNew<vtkAOSDataArrayTemplate<IntType> > iarray;
+          vtkNew<vtkAOSDataArrayTemplate<IntType>> iarray;
           iarray->SetName(name.c_str());
           iarray->SetNumberOfComponents(1);
           iarray->SetNumberOfTuples(count);
@@ -181,19 +177,10 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
       std::vector<RealType*> rptrs(this->num_real, nullptr);
 
       assert(this->num_real_base == this->dim);
-      vtkNew<vtkAOSDataArrayTemplate<RealType> > coords;
+      vtkNew<vtkAOSDataArrayTemplate<RealType>> coords;
       coords->SetName("Points");
-      coords->SetNumberOfComponents(3);
+      coords->SetNumberOfComponents(this->num_real_base);
       coords->SetNumberOfTuples(count);
-      if (this->num_real_base < 3)
-      {
-        // fill with 0, since this->dim may be less than 3.
-        std::fill_n(coords->GetPointer(0), 3*count, 0.0);
-      }
-
-      vtkNew<vtkPoints> pts;
-      pts->SetData(coords);
-      pd->SetPoints(pts);
 
       rptrs[0] = coords->GetPointer(0);
       for (int cc = this->num_real_base; cc < this->num_real; ++cc)
@@ -203,7 +190,7 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
         {
           continue;
         }
-        vtkNew<vtkAOSDataArrayTemplate<RealType> > rarray;
+        vtkNew<vtkAOSDataArrayTemplate<RealType>> rarray;
         rarray->SetName(name.c_str());
         rarray->SetNumberOfComponents(1);
         rarray->SetNumberOfTuples(count);
@@ -226,6 +213,29 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
           }
         }
       }
+
+      vtkNew<vtkPoints> pts;
+      if (this->num_real_base == 3)
+      {
+        pts->SetData(coords);
+      }
+      else
+      {
+        // convert to 3-components.
+        vtkNew<vtkAOSDataArrayTemplate<RealType>> newcoords;
+        newcoords->SetName("Points");
+        newcoords->SetNumberOfComponents(3);
+        newcoords->SetNumberOfTuples(count);
+        std::fill_n(newcoords->GetPointer(0), 3 * count, 0.0);
+        RealType tuple[3] = { 0, 0, 0 };
+        for (int cc = 0; cc < count; ++cc)
+        {
+          coords->GetTypedTuple(cc, tuple);
+          newcoords->SetTypedTuple(cc, tuple);
+        }
+        pts->SetData(newcoords);
+      }
+      pd->SetPoints(pts);
     }
 
     //// Now build connectivity information.
@@ -306,13 +316,10 @@ public:
   int finest_level;
   int num_levels;
   std::vector<int> grids_per_level;
-  std::vector<std::vector<GridInfo> > grids;
+  std::vector<std::vector<GridInfo>> grids;
 
   AMReXParticleHeader()
     : DataFormatZeroFill(5)
-    , real_component_names()
-    , int_component_names()
-    , int_base_component_names()
     , int_type(0)
     , real_type(0)
     , dim(0)
@@ -327,8 +334,6 @@ public:
     , max_next_id(0)
     , finest_level(0)
     , num_levels(0)
-    , grids_per_level()
-    , grids()
   {
   }
 
@@ -378,14 +383,14 @@ public:
     }
   }
 
-  bool Parse(const std::string& headerData)
+  bool Parse(const std::string& headerData, vtkAMReXParticlesReader* self)
   {
     std::istringstream hstream(headerData);
     std::string version;
     hstream >> version;
     if (version.empty())
     {
-      vtkGenericWarningMacro("Failed to read version string.");
+      vtkErrorWithObjectMacro(self, "Failed to read version string.");
       return false;
     }
 
@@ -397,12 +402,14 @@ public:
     // Appended to the latter version string are either "_single" or "_double" to
     // indicate how the particles were written.
     // "Version_Two_Dot_Zero" -- this is the AMReX particle file format
+    // All Version 2.0 to 2.x should support appending "_single", or "_double"
+    // to indicate file format
     if (version.find("Version_One_Dot_Zero") != std::string::npos)
     {
       this->real_type = 64;
     }
     else if (version.find("Version_One_Dot_One") != std::string::npos ||
-      version.find("Version_Two_Dot_Zero") != std::string::npos)
+      version.find("Version_Two_Dot") != std::string::npos)
     {
       if (version.find("_single") != std::string::npos)
       {
@@ -414,20 +421,20 @@ public:
       }
       else
       {
-        vtkGenericWarningMacro("Bad version string: " << version);
+        vtkErrorWithObjectMacro(self, "Bad version string: " << version);
         return false;
       }
     }
     else
     {
-      vtkGenericWarningMacro("Bad version string: " << version);
+      vtkErrorWithObjectMacro(self, "Bad version string: " << version);
       return false;
     }
 
     hstream >> this->dim;
     if (this->dim != 1 && this->dim != 2 && this->dim != 3)
     {
-      vtkGenericWarningMacro("dim must be 1, 2, or 3.");
+      vtkErrorWithObjectMacro(self, "dim must be 1, 2, or 3.");
       return false;
     }
 
@@ -437,7 +444,8 @@ public:
     hstream >> this->num_real_extra;
     if (this->num_real_extra < 0 || this->num_real_extra > 1024)
     {
-      vtkGenericWarningMacro("potentially incorrect num_real_extra=" << this->num_real_extra);
+      vtkErrorWithObjectMacro(
+        self, "potentially incorrect num_real_extra=" << this->num_real_extra);
       return false;
     }
     this->real_component_names.resize(this->num_real_extra);
@@ -449,7 +457,7 @@ public:
     hstream >> this->num_int_extra;
     if (this->num_int_extra < 0 || this->num_int_extra > 1024)
     {
-      vtkGenericWarningMacro("potentially incorrect num_int_extra=" << this->num_int_extra);
+      vtkErrorWithObjectMacro(self, "potentially incorrect num_int_extra=" << this->num_int_extra);
       return false;
     }
     this->int_component_names.resize(this->num_int_extra);
@@ -465,21 +473,21 @@ public:
     hstream >> this->num_particles;
     if (this->num_particles < 0)
     {
-      vtkGenericWarningMacro("num_particles must be >=0");
+      vtkErrorWithObjectMacro(self, "num_particles must be >=0");
       return false;
     }
 
     hstream >> this->max_next_id;
     if (this->max_next_id <= 0)
     {
-      vtkGenericWarningMacro("max_next_id must be > 0");
+      vtkErrorWithObjectMacro(self, "max_next_id must be > 0");
       return false;
     }
 
     hstream >> this->finest_level;
     if (this->finest_level < 0)
     {
-      vtkGenericWarningMacro("finest_level must be >= 0");
+      vtkErrorWithObjectMacro(self, "finest_level must be >= 0");
       return false;
     }
 
@@ -493,8 +501,8 @@ public:
     }
     else
     {
-      this->int_base_component_names.push_back("id");
-      this->int_base_component_names.push_back("cpu");
+      this->int_base_component_names.emplace_back("id");
+      this->int_base_component_names.emplace_back("cpu");
     }
 
     this->grids_per_level.resize(this->num_levels, 0);
@@ -531,7 +539,7 @@ public:
 
     const std::string& fname =
       this->GetDATAFileName(self->PlotFileName, self->ParticleType, level, gridInfo.which);
-    std::ifstream ifp(fname, std::ios::binary);
+    vtksys::ifstream ifp(fname.c_str(), std::ios::binary);
     if (!ifp.good())
     {
       return false;
@@ -572,13 +580,11 @@ public:
 
 vtkStandardNewMacro(vtkAMReXParticlesReader);
 vtkCxxSetObjectMacro(vtkAMReXParticlesReader, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMReXParticlesReader::vtkAMReXParticlesReader()
   : Controller(nullptr)
-  , PlotFileName()
-  , PlotFileNameMTime()
-  , MetaDataMTime()
   , ParticleType("particles")
+  , dataTimeStep(0)
   , Header(nullptr)
 {
   this->SetNumberOfInputPorts(0);
@@ -588,14 +594,14 @@ vtkAMReXParticlesReader::vtkAMReXParticlesReader()
     vtkCommand::ModifiedEvent, this, &vtkAMReXParticlesReader::Modified);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAMReXParticlesReader::~vtkAMReXParticlesReader()
 {
   this->SetController(nullptr);
   delete this->Header;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXParticlesReader::SetPlotFileName(const char* fname)
 {
   const std::string filename(fname == nullptr ? "" : fname);
@@ -607,7 +613,7 @@ void vtkAMReXParticlesReader::SetPlotFileName(const char* fname)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXParticlesReader::SetParticleType(const std::string& str)
 {
   if (this->ParticleType != str)
@@ -618,27 +624,27 @@ void vtkAMReXParticlesReader::SetParticleType(const std::string& str)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkDataArraySelection* vtkAMReXParticlesReader::GetPointDataArraySelection() const
 {
   return this->PointDataArraySelection;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXParticlesReader::CanReadFile(const char* fname, const char* particleType)
 {
   if (fname && vtksystools::FileIsDirectory(fname))
   {
     if (!vtksystools::FileExists(std::string(fname) + "/Header", true))
     {
-      return false;
+      return 0;
     }
 
     if (particleType == nullptr)
     {
       // may be should check for existence of subdirectories that could
       // potentially contain particles?
-      return true;
+      return 1;
     }
 
     // now let's confirm it has "particles" directory.
@@ -648,14 +654,13 @@ int vtkAMReXParticlesReader::CanReadFile(const char* fname, const char* particle
       const std::string header(particles + "/Header");
       if (vtksystools::FileExists(header, /*isFile*/ true))
       {
-        std::ifstream ifp(header.c_str(), std::ios::binary);
+        vtksys::ifstream ifp(header.c_str(), std::ios::binary);
         if (ifp)
         {
           std::string header_line;
           if (std::getline(ifp, header_line))
           {
-            return (header_line == "Version_Two_Dot_Zero_double" ||
-              header_line == "Version_Two_Dot_Zero_float");
+            return (header_line.find("Version_Two_Dot") != std::string::npos) ? 1 : 0;
           }
         }
       }
@@ -664,13 +669,13 @@ int vtkAMReXParticlesReader::CanReadFile(const char* fname, const char* particle
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* vtkAMReXParticlesReader::GetPlotFileName() const
 {
   return (this->PlotFileName.empty() ? nullptr : this->PlotFileName.c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkAMReXParticlesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -688,7 +693,7 @@ void vtkAMReXParticlesReader::PrintSelf(ostream& os, vtkIndent indent)
   this->PointDataArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXParticlesReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -700,10 +705,13 @@ int vtkAMReXParticlesReader::RequestInformation(
 
   auto outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+  // set the timestep value
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->dataTimeStep, 1);
+
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkAMReXParticlesReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -744,7 +752,7 @@ int vtkAMReXParticlesReader::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMReXParticlesReader::ReadMetaData()
 {
   if (this->MetaDataMTime > this->PlotFileNameMTime)
@@ -768,18 +776,36 @@ bool vtkAMReXParticlesReader::ReadMetaData()
   }
 
   const std::string hdrFileName = this->PlotFileName + "/" + this->ParticleType + "/Header";
-  const auto headerData = ::ReadAndBroadCastFile(hdrFileName, this->Controller);
+  const auto headerData = ::ReadAndBroadCastFile(hdrFileName, this->Controller, this);
   if (headerData.empty())
   {
     return false;
   }
 
   auto headerPtr = new AMReXParticleHeader();
-  if (!headerPtr->Parse(headerData))
+  if (!headerPtr->Parse(headerData, this))
   {
     delete headerPtr;
     return false;
   }
+
+  // read the top level header to get time information
+  const std::string gridHdrFileName = this->PlotFileName + "/Header";
+  const auto gridHeaderData = ::ReadAndBroadCastFile(gridHdrFileName, this->Controller, this);
+  if (gridHeaderData.empty())
+  {
+    return false;
+  }
+
+  auto gridHeaderPtr = new vtkAMReXGridHeader();
+  if (!gridHeaderPtr->Parse(gridHeaderData))
+  {
+    delete gridHeaderPtr;
+    return false;
+  }
+  // Add time information.
+  this->dataTimeStep = gridHeaderPtr->time;
+  delete gridHeaderPtr;
 
   this->Header = headerPtr;
   this->Header->PopulatePointArraySelection(this->PointDataArraySelection);
@@ -787,9 +813,9 @@ bool vtkAMReXParticlesReader::ReadMetaData()
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkAMReXParticlesReader::ReadLevel(
-  const int level, vtkMultiPieceDataSet* levelDS, const int piece_idx, const int num_pieces) const
+  int level, vtkMultiPieceDataSet* levelDS, int piece_idx, int num_pieces) const
 {
   assert(level >= 0 && this->Header != nullptr && piece_idx >= 0 && num_pieces >= 1);
 
@@ -808,7 +834,7 @@ bool vtkAMReXParticlesReader::ReadLevel(
   for (int cc = start_grid_idx; cc < start_grid_idx + grids_count; ++cc)
   {
     vtkNew<vtkPolyData> pd;
-    if (header.ReadGrid(level, cc, pd, this) == false)
+    if (!header.ReadGrid(level, cc, pd, this))
     {
       vtkGenericWarningMacro("Failed to read grid for level " << level << ", index " << cc);
       return false;
@@ -818,3 +844,4 @@ bool vtkAMReXParticlesReader::ReadLevel(
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

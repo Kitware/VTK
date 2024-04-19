@@ -1,0 +1,59 @@
+/* ------------------------------------------------------------------------- *
+ * CGNS - CFD General Notation System (http://www.cgns.org)                  *
+ * CGNS/MLL - Mid-Level Library header file                                  *
+ * ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- *
+
+  This software is provided 'as-is', without any express or implied warranty.
+  In no event will the authors be held liable for any damages arising from
+  the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+
+  2. Altered source versions must be plainly marked as such, and must not
+     be misrepresented as being the original software.
+
+  3. This notice may not be removed or altered from any source distribution.
+
+ * ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- *
+   This file has been generated during the CGNS/MLL installation.
+   This is a snapshot of the parameters used for CGNS/MLL production and
+   some PATHS parameters (headers or shared libs) may change or
+   disappear (for example in case of cross-compilation).
+ * ------------------------------------------------------------------------- */
+
+#ifndef CGNSCONFIG_H
+#define CGNSCONFIG_H
+
+#define CG_BUILD_DEBUG     @BUILDDEBUG@
+#define CG_BUILD_FORTRAN   @BUILDFORTRAN@
+#define CG_BUILD_BASESCOPE @BUILDBASESCOPE@
+
+#define HDF5_INCLUDE_PATH "@HDF5INC@"
+#define HDF5_LIBRARY      "@HDF5LIB@"
+
+#define HDF5_NEED_MPI     @H5NEEDMPI@
+#define HDF5_NEED_SZIP    @H5NEEDSZIP@
+#define HDF5_NEED_ZLIB    @H5NEEDZLIB@
+
+#define MPI_INCLUDE_PATH "@MPIINC@"
+#define MPI_LIBRARY      "@MPILIBS@"
+#define SZIP_LIBRARY     "@SZIPLIB@"
+#define ZLIB_LIBRARY     "@ZLIBLIB@"
+
+#define MPI_INC          "@MPIINC@"
+#define MPI_LIBS         "@MPILIBS@"
+
+#include "cgnstypes.h"
+
+#endif

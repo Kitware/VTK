@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkLightWidget.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkLightWidget.h"
 
 #include "vtkCallbackCommand.h"
@@ -24,9 +12,10 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLightWidget);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLightWidget::vtkLightWidget()
 {
   // Define widget events
@@ -42,7 +31,7 @@ vtkLightWidget::vtkLightWidget()
     vtkWidgetEvent::EndScale, this, vtkLightWidget::EndSelectAction);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::SelectAction(vtkAbstractWidget* w)
 {
   vtkLightWidget* self = vtkLightWidget::SafeDownCast(w);
@@ -67,7 +56,7 @@ void vtkLightWidget::SelectAction(vtkAbstractWidget* w)
   self->EventCallbackCommand->SetAbortFlag(1);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::MoveAction(vtkAbstractWidget* w)
 {
   vtkLightWidget* self = vtkLightWidget::SafeDownCast(w);
@@ -111,7 +100,7 @@ void vtkLightWidget::MoveAction(vtkAbstractWidget* w)
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::EndSelectAction(vtkAbstractWidget* w)
 {
   vtkLightWidget* self = vtkLightWidget::SafeDownCast(w);
@@ -129,7 +118,7 @@ void vtkLightWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::ScaleAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
@@ -171,7 +160,7 @@ void vtkLightWidget::ScaleAction(vtkAbstractWidget* w)
   self->Render();
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
@@ -180,21 +169,22 @@ void vtkLightWidget::CreateDefaultRepresentation()
   }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::SetRepresentation(vtkLightRepresentation* r)
 {
   this->Superclass::SetWidgetRepresentation(r);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLightRepresentation* vtkLightWidget::GetLightRepresentation()
 {
   return vtkLightRepresentation::SafeDownCast(this->WidgetRep);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLightWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "WidgetActive: " << this->WidgetActive << endl;
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

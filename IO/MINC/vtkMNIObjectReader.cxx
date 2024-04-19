@@ -1,50 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMNIObjectReader.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*=========================================================================
-
-Copyright (c) 2006 Atamai, Inc.
-
-Use, modification and redistribution of the software, in source or
-binary forms, are permitted provided that the following terms and
-conditions are met:
-
-1) Redistribution of the source code, in verbatim or modified
-   form, must retain the above copyright notice, this license,
-   the following disclaimer, and any notices that refer to this
-   license and/or the following disclaimer.
-
-2) Redistribution in binary form must include the above copyright
-   notice, a copy of this license and the following disclaimer
-   in the documentation or with other materials provided with the
-   distribution.
-
-3) Modified copies of the source code must be clearly marked as such,
-   and must not be misrepresented as verbatim copies of the source code.
-
-THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE SOFTWARE "AS IS"
-WITHOUT EXPRESSED OR IMPLIED WARRANTY INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE.  IN NO EVENT SHALL ANY COPYRIGHT HOLDER OR OTHER PARTY WHO MAY
-MODIFY AND/OR REDISTRIBUTE THE SOFTWARE UNDER THE TERMS OF THIS LICENSE
-BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, LOSS OF DATA OR DATA BECOMING INACCURATE
-OR LOSS OF PROFIT OR BUSINESS INTERRUPTION) ARISING IN ANY WAY OUT OF
-THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGES.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) 2006 Atamai, Inc.
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkMNIObjectReader.h"
 
@@ -54,21 +10,22 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkProperty.h"
 #include "vtkMath.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkProperty.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <cctype>
 
 #include <string>
 #include <vector>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #ifndef VTK_BINARY
@@ -76,12 +33,13 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_BINARY 2
 #endif
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMNIObjectReader);
 
 #define VTK_MNIOBJ_LINE_LENGTH 256
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNIObjectReader::vtkMNIObjectReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -101,24 +59,23 @@ vtkMNIObjectReader::vtkMNIObjectReader()
   this->CharPointer = this->LineText;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMNIObjectReader::~vtkMNIObjectReader()
 {
   if (this->Property)
   {
     this->Property->Delete();
   }
-  delete [] this->FileName;
-  delete [] this->LineText;
+  delete[] this->FileName;
+  delete[] this->LineText;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMNIObjectReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "none") << "\n";
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "none") << "\n";
   os << indent << "Property: " << this->Property << "\n";
   if (this->Property)
   {
@@ -126,7 +83,7 @@ void vtkMNIObjectReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkMNIObjectReader::CanReadFile(const char* fname)
 {
   // First make sure the file exists.  This prevents an empty file
@@ -140,7 +97,7 @@ int vtkMNIObjectReader::CanReadFile(const char* fname)
   // Try to read the first line of the file.
   int status = 0;
 
-  ifstream infile(fname);
+  vtksys::ifstream infile(fname);
 
   if (infile.good())
   {
@@ -150,10 +107,8 @@ int vtkMNIObjectReader::CanReadFile(const char* fname)
     {
       objType = toupper(objType);
 
-      if (objType == 'P' || objType == 'L' ||
-          objType == 'M' || objType == 'F' ||
-          objType == 'X' || objType == 'Q' ||
-          objType == 'T')
+      if (objType == 'P' || objType == 'L' || objType == 'M' || objType == 'F' || objType == 'X' ||
+        objType == 'Q' || objType == 'T')
       {
         status = 1;
       }
@@ -165,13 +120,13 @@ int vtkMNIObjectReader::CanReadFile(const char* fname)
   return status;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Internal function to read in a line up to 256 characters and then
 // skip to the next line in the file.
-int vtkMNIObjectReader::ReadLine(char *line, unsigned int maxlen)
+int vtkMNIObjectReader::ReadLine(char* line, unsigned int maxlen)
 {
   this->LineNumber++;
-  istream &infile = *this->InputStream;
+  istream& infile = *this->InputStream;
 
   infile.getline(line, maxlen);
   this->CharPointer = line;
@@ -187,15 +142,15 @@ int vtkMNIObjectReader::ReadLine(char *line, unsigned int maxlen)
       // Read 256 chars; ignoring the rest of the line.
       infile.clear();
       infile.ignore(VTK_INT_MAX, '\n');
-      vtkWarningMacro("Overlength line (limit is 255) in "
-                      << this->FileName << ":" << this->LineNumber);
+      vtkWarningMacro(
+        "Overlength line (limit is 255) in " << this->FileName << ":" << this->LineNumber);
     }
   }
 
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Skip all whitespace, reading additional lines if necessary
 int vtkMNIObjectReader::SkipWhitespace()
 {
@@ -207,7 +162,7 @@ int vtkMNIObjectReader::SkipWhitespace()
   // Only skip whitespace in ASCII files
   do
   {
-    char *cp = this->CharPointer;
+    char* cp = this->CharPointer;
 
     // Skip leading whitespace
     while (isspace(*cp))
@@ -220,30 +175,27 @@ int vtkMNIObjectReader::SkipWhitespace()
       this->CharPointer = cp;
       return 1;
     }
-  }
-  while (this->ReadLine(this->LineText, VTK_MNIOBJ_LINE_LENGTH));
+  } while (this->ReadLine(this->LineText, VTK_MNIOBJ_LINE_LENGTH));
 
   return 0;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Read floating-point values into a vtkFloatArray.
-int vtkMNIObjectReader::ParseValues(vtkDataArray *array, vtkIdType n)
+int vtkMNIObjectReader::ParseValues(vtkDataArray* array, vtkIdType n)
 {
   int dataType = array->GetDataType();
-  array->SetNumberOfTuples(n/array->GetNumberOfComponents());
+  array->SetNumberOfTuples(n / array->GetNumberOfComponents());
 
   if (this->FileType == VTK_BINARY)
   {
     // The .obj files use native machine endianness
-    this->InputStream->read((char *)array->GetVoidPointer(0),
-                            n*array->GetDataTypeSize());
+    this->InputStream->read((char*)array->GetVoidPointer(0), n * array->GetDataTypeSize());
 
     // Switch ABGR to RGBA colors
-    if (dataType == VTK_UNSIGNED_CHAR &&
-        array->GetNumberOfComponents() == 4)
+    if (dataType == VTK_UNSIGNED_CHAR && array->GetNumberOfComponents() == 4)
     {
-      unsigned char *data = (unsigned char *)array->GetVoidPointer(0);
+      unsigned char* data = (unsigned char*)array->GetVoidPointer(0);
       for (vtkIdType i = 0; i < n; i += 4)
       {
         unsigned char abgr[4];
@@ -268,54 +220,51 @@ int vtkMNIObjectReader::ParseValues(vtkDataArray *array, vtkIdType n)
   {
     if (!this->SkipWhitespace())
     {
-      vtkErrorMacro("Unexpected end of file " << this->FileName
-                    << ":" << this->LineNumber);
+      vtkErrorMacro("Unexpected end of file " << this->FileName << ":" << this->LineNumber);
       return 0;
     }
 
-    char *cp = this->CharPointer;
+    char* cp = this->CharPointer;
 
     switch (dataType)
     {
       case VTK_FLOAT:
       {
         double val = strtod(cp, &cp);
-        static_cast<vtkFloatArray *>(array)->SetValue(i, val);
+        static_cast<vtkFloatArray*>(array)->SetValue(i, val);
       }
-        break;
+      break;
       case VTK_INT:
       {
         unsigned long lval = strtoul(cp, &cp, 10);
         if (lval > static_cast<unsigned long>(VTK_INT_MAX))
         {
-          vtkErrorMacro("Value " << lval << " is too large for int "
-                        << this->FileName << ":" << this->LineNumber);
+          vtkErrorMacro("Value " << lval << " is too large for int " << this->FileName << ":"
+                                 << this->LineNumber);
           return 0;
         }
         int val = static_cast<int>(lval);
-        static_cast<vtkIntArray *>(array)->SetValue(i, val);
+        static_cast<vtkIntArray*>(array)->SetValue(i, val);
       }
-        break;
+      break;
       case VTK_UNSIGNED_CHAR:
       {
         double dval = strtod(cp, &cp);
         if (dval < 0.0 || dval > 1.0)
         {
-          vtkErrorMacro("Color value must be [0..1] "
-                        << this->FileName << ":" << this->LineNumber);
+          vtkErrorMacro("Color value must be [0..1] " << this->FileName << ":" << this->LineNumber);
           return 0;
         }
-        unsigned char val = static_cast<unsigned char>(dval*255.0);
-        static_cast<vtkUnsignedCharArray *>(array)->SetValue(i, val);
+        unsigned char val = static_cast<unsigned char>(dval * 255.0);
+        static_cast<vtkUnsignedCharArray*>(array)->SetValue(i, val);
       }
-        break;
+      break;
     }
 
     // If nothing was read, there was a syntax error
     if (cp == this->CharPointer)
     {
-      vtkErrorMacro("Syntax error " << this->FileName
-                    << ":" << this->LineNumber);
+      vtkErrorMacro("Syntax error " << this->FileName << ":" << this->LineNumber);
       return 0;
     }
 
@@ -325,14 +274,14 @@ int vtkMNIObjectReader::ParseValues(vtkDataArray *array, vtkIdType n)
   return 1;
 }
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Read an integer value
-int vtkMNIObjectReader::ParseIdValue(vtkIdType *value)
+int vtkMNIObjectReader::ParseIdValue(vtkIdType* value)
 {
   if (this->FileType == VTK_BINARY)
   {
     int val;
-    this->InputStream->read((char *)(&val), sizeof(int));
+    this->InputStream->read((char*)(&val), sizeof(int));
     *value = val;
 
     return !this->InputStream->fail();
@@ -341,19 +290,17 @@ int vtkMNIObjectReader::ParseIdValue(vtkIdType *value)
   // The rest of the code is for ASCII files
   if (!this->SkipWhitespace())
   {
-    vtkErrorMacro("Unexpected end of file " << this->FileName
-                  << ":" << this->LineNumber);
+    vtkErrorMacro("Unexpected end of file " << this->FileName << ":" << this->LineNumber);
     return 0;
   }
 
-  char *cp = this->CharPointer;
+  char* cp = this->CharPointer;
 
-  long lval = strtol(cp, &cp, 10);
-  if (lval > static_cast<long>(VTK_INT_MAX) ||
-      lval < static_cast<long>(VTK_INT_MIN))
+  long long lval = strtoll(cp, &cp, 10);
+  if (lval > static_cast<long long>(VTK_INT_MAX) || lval < static_cast<long long>(VTK_INT_MIN))
   {
-    vtkErrorMacro("Value " << lval << " is too large for int "
-                  << this->FileName << ":" << this->LineNumber);
+    vtkErrorMacro(
+      "Value " << lval << " is too large for int " << this->FileName << ":" << this->LineNumber);
     return 0;
   }
 
@@ -362,8 +309,7 @@ int vtkMNIObjectReader::ParseIdValue(vtkIdType *value)
   // If no bytes were read, that means there was a syntax error
   if (cp == this->CharPointer)
   {
-    vtkErrorMacro("Syntax error " << this->FileName
-                  << ":" << this->LineNumber);
+    vtkErrorMacro("Syntax error " << this->FileName << ":" << this->LineNumber);
     return 0;
   }
 
@@ -372,10 +318,10 @@ int vtkMNIObjectReader::ParseIdValue(vtkIdType *value)
   return 1;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadProperty(vtkProperty *property)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadProperty(vtkProperty* property)
 {
-  vtkFloatArray *tmpArray = vtkFloatArray::New();
+  vtkFloatArray* tmpArray = vtkFloatArray::New();
 
   int status = this->ParseValues(tmpArray, 5);
 
@@ -393,10 +339,10 @@ int vtkMNIObjectReader::ReadProperty(vtkProperty *property)
   return status;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadLineThickness(vtkProperty *property)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadLineThickness(vtkProperty* property)
 {
-  vtkFloatArray *tmpArray = vtkFloatArray::New();
+  vtkFloatArray* tmpArray = vtkFloatArray::New();
 
   int status = this->ParseValues(tmpArray, 1);
 
@@ -410,8 +356,8 @@ int vtkMNIObjectReader::ReadLineThickness(vtkProperty *property)
   return status;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadNumberOfPoints(vtkIdType *numPoints)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadNumberOfPoints(vtkIdType* numPoints)
 {
   int status = this->ParseIdValue(numPoints);
 
@@ -420,22 +366,22 @@ int vtkMNIObjectReader::ReadNumberOfPoints(vtkIdType *numPoints)
     if (*numPoints < 0)
     {
       // Don't support "compressed" data yet
-      vtkErrorMacro("Bad number of points -> " << *numPoints << " "
-                    << this->FileName << ":" << this->LineNumber);
+      vtkErrorMacro("Bad number of points -> " << *numPoints << " " << this->FileName << ":"
+                                               << this->LineNumber);
       status = 0;
     }
-    else if (*numPoints > VTK_ID_MAX/4)
+    else if (*numPoints > VTK_ID_MAX / 4)
     {
-      vtkErrorMacro("Too many points -> " << *numPoints << " "
-                    << this->FileName << ":" << this->LineNumber);
+      vtkErrorMacro(
+        "Too many points -> " << *numPoints << " " << this->FileName << ":" << this->LineNumber);
       status = 0;
     }
   }
 
   return status;
 }
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadNumberOfCells(vtkIdType *numCells)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadNumberOfCells(vtkIdType* numCells)
 {
   int status = this->ParseIdValue(numCells);
 
@@ -443,14 +389,14 @@ int vtkMNIObjectReader::ReadNumberOfCells(vtkIdType *numCells)
   {
     if (*numCells < 0)
     {
-      vtkErrorMacro("Bad number of cells -> " << *numCells << " "
-                    << this->FileName << ":" << this->LineNumber);
+      vtkErrorMacro(
+        "Bad number of cells -> " << *numCells << " " << this->FileName << ":" << this->LineNumber);
       status = 0;
     }
-    else if (*numCells > VTK_ID_MAX/4)
+    else if (*numCells > VTK_ID_MAX / 4)
     {
-      vtkErrorMacro("Too many cells -> " << *numCells << " "
-                    << this->FileName << ":" << this->LineNumber);
+      vtkErrorMacro(
+        "Too many cells -> " << *numCells << " " << this->FileName << ":" << this->LineNumber);
       status = 0;
     }
   }
@@ -458,11 +404,11 @@ int vtkMNIObjectReader::ReadNumberOfCells(vtkIdType *numCells)
   return status;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadPoints(vtkPolyData *data, vtkIdType numPoints)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadPoints(vtkPolyData* data, vtkIdType numPoints)
 {
-  vtkPoints *points = vtkPoints::New();
-  int status = this->ParseValues(points->GetData(), 3*numPoints);
+  vtkPoints* points = vtkPoints::New();
+  int status = this->ParseValues(points->GetData(), 3 * numPoints);
 
   if (status != 0)
   {
@@ -474,12 +420,12 @@ int vtkMNIObjectReader::ReadPoints(vtkPolyData *data, vtkIdType numPoints)
   return status;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadNormals(vtkPolyData *data, vtkIdType numPoints)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadNormals(vtkPolyData* data, vtkIdType numPoints)
 {
-  vtkFloatArray *normals = vtkFloatArray::New();
+  vtkFloatArray* normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
-  int status = this->ParseValues(normals, 3*numPoints);
+  int status = this->ParseValues(normals, 3 * numPoints);
 
   if (status != 0)
   {
@@ -491,10 +437,9 @@ int vtkMNIObjectReader::ReadNormals(vtkPolyData *data, vtkIdType numPoints)
   return status;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadColors(vtkProperty *property,
-                                   vtkPolyData *data, vtkIdType numPoints,
-                                   vtkIdType numCells)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadColors(
+  vtkProperty* property, vtkPolyData* data, vtkIdType numPoints, vtkIdType numCells)
 {
   // Find out what kind of coloring is used
   vtkIdType colorType = 0;
@@ -515,16 +460,15 @@ int vtkMNIObjectReader::ReadColors(vtkProperty *property,
   }
   else if (colorType != 0)
   {
-    vtkErrorMacro("Color number must be 0, 1 or 2 " << this->FileName
-                  << ":" << this->LineNumber);
+    vtkErrorMacro("Color number must be 0, 1 or 2 " << this->FileName << ":" << this->LineNumber);
     return 0;
   }
 
   // Read the colors
-  vtkUnsignedCharArray *colors = vtkUnsignedCharArray::New();
+  vtkUnsignedCharArray* colors = vtkUnsignedCharArray::New();
   colors->SetName("Colors");
   colors->SetNumberOfComponents(4);
-  int status = this->ParseValues(colors, 4*numColors);
+  int status = this->ParseValues(colors, 4 * numColors);
 
   if (status != 0)
   {
@@ -532,9 +476,8 @@ int vtkMNIObjectReader::ReadColors(vtkProperty *property,
     {
       data->GetCellData()->SetScalars(nullptr);
       data->GetPointData()->SetScalars(nullptr);
-      property->SetColor(colors->GetValue(0)/255.0,
-                               colors->GetValue(1)/255.0,
-                               colors->GetValue(2)/255.0);
+      property->SetColor(
+        colors->GetValue(0) / 255.0, colors->GetValue(1) / 255.0, colors->GetValue(2) / 255.0);
     }
     else if (colorType == 1)
     {
@@ -555,13 +498,12 @@ int vtkMNIObjectReader::ReadColors(vtkProperty *property,
   return status;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadCells(vtkPolyData *data, vtkIdType numCells,
-                                  int cellType)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadCells(vtkPolyData* data, vtkIdType numCells, int cellType)
 {
-  vtkIntArray *endIndices = vtkIntArray::New();
-  vtkIntArray *cellIndices = vtkIntArray::New();
-  vtkCellArray *cellArray = vtkCellArray::New();
+  vtkIntArray* endIndices = vtkIntArray::New();
+  vtkIntArray* cellIndices = vtkIntArray::New();
+  vtkCellArray* cellArray = vtkCellArray::New();
 
   // Read the cell end indices
   int status = this->ParseValues(endIndices, numCells);
@@ -582,7 +524,7 @@ int vtkMNIObjectReader::ReadCells(vtkPolyData *data, vtkIdType numCells,
   {
     cellArray->AllocateExact(numCells, endIndices->GetValue(numCells - 1));
 
-    vtkPoints *points = data->GetPoints();
+    vtkPoints* points = data->GetPoints();
     vtkIdType numPoints = points->GetNumberOfPoints();
     vtkIdType lastEndIndex = 0;
     for (vtkIdType i = 0; i < numCells; i++)
@@ -599,8 +541,8 @@ int vtkMNIObjectReader::ReadCells(vtkPolyData *data, vtkIdType numCells,
         if (idx > numPoints)
         {
           vtkErrorMacro("Index " << idx << " is greater than the"
-                        << " total number of points " << numPoints << " "
-                        << this->FileName);
+                                 << " total number of points " << numPoints << " "
+                                 << this->FileName);
           return 0;
         }
         cellArray->InsertCellPoint(idx);
@@ -626,8 +568,8 @@ int vtkMNIObjectReader::ReadCells(vtkPolyData *data, vtkIdType numCells,
   return status;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadPolygonObject(vtkPolyData *output)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadPolygonObject(vtkPolyData* output)
 {
   // Read the surface property
   if (this->ReadProperty(this->Property) == 0)
@@ -676,8 +618,8 @@ int vtkMNIObjectReader::ReadPolygonObject(vtkPolyData *output)
   return 1;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadLineObject(vtkPolyData *output)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadLineObject(vtkPolyData* output)
 {
   // Read the line thickness
   if (this->ReadLineThickness(this->Property) == 0)
@@ -720,11 +662,11 @@ int vtkMNIObjectReader::ReadLineObject(vtkPolyData *output)
   return 1;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::ReadFile(vtkPolyData *output)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::ReadFile(vtkPolyData* output)
 {
   // Initialize the property to default values
-  vtkProperty *property = vtkProperty::New();
+  vtkProperty* property = vtkProperty::New();
   this->Property->DeepCopy(property);
   property->Delete();
 
@@ -744,7 +686,7 @@ int vtkMNIObjectReader::ReadFile(vtkPolyData *output)
   }
 
   // Make sure that the file is readable.
-  ifstream infile(this->FileName, ios::in);
+  vtksys::ifstream infile(this->FileName, ios::in);
 
   if (infile.fail())
   {
@@ -769,13 +711,10 @@ int vtkMNIObjectReader::ReadFile(vtkPolyData *output)
     fileType = VTK_BINARY;
   }
 
-  if (objType != 'P' && objType != 'L' &&
-      objType != 'M' && objType != 'F' &&
-      objType != 'X' && objType != 'Q' &&
-      objType != 'T' && objType != 'V')
+  if (objType != 'P' && objType != 'L' && objType != 'M' && objType != 'F' && objType != 'X' &&
+    objType != 'Q' && objType != 'T' && objType != 'V')
   {
-    vtkErrorMacro("ReadFile: File is not a MNI obj file: "
-                  << this->FileName);
+    vtkErrorMacro("ReadFile: File is not a MNI obj file: " << this->FileName);
     infile.close();
     return 0;
   }
@@ -801,7 +740,7 @@ int vtkMNIObjectReader::ReadFile(vtkPolyData *output)
     // Read the line, include the type char in line text for
     // use in error reporting
     this->LineText[0] = objType;
-    status = this->ReadLine(&this->LineText[1], VTK_MNIOBJ_LINE_LENGTH-1);
+    status = this->ReadLine(&this->LineText[1], VTK_MNIOBJ_LINE_LENGTH - 1);
   }
 
   if (status != 0)
@@ -821,11 +760,11 @@ int vtkMNIObjectReader::ReadFile(vtkPolyData *output)
       case 'T':
       case 'V':
       {
-        vtkErrorMacro("ReadFile: Reading of obj type \"" << (char)objType <<
-                      "\" is not supported: " << this->FileName);
+        vtkErrorMacro("ReadFile: Reading of obj type \""
+          << (char)objType << "\" is not supported: " << this->FileName);
         status = 0;
       }
-        break;
+      break;
     }
   }
 
@@ -850,22 +789,18 @@ int vtkMNIObjectReader::ReadFile(vtkPolyData *output)
   return status;
 }
 
-//-------------------------------------------------------------------------
-int vtkMNIObjectReader::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkMNIObjectReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // all of the data in the first piece.
-  if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
-      > 0)
+  if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
   {
     return 0;
   }
@@ -873,3 +808,4 @@ int vtkMNIObjectReader::RequestData(
   // read the file
   return this->ReadFile(output);
 }
+VTK_ABI_NAMESPACE_END

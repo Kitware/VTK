@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleRubberBand2D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkInteractorStyleRubberBand2D
  * @brief   A rubber band interactor for a 2D view
@@ -35,20 +19,23 @@
  * Right mouse - Zoom.
  * Middle mouse - Pan.
  * Scroll wheel - Zoom.
-*/
+ */
 
 #ifndef vtkInteractorStyleRubberBand2D_h
 #define vtkInteractorStyleRubberBand2D_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBand2D : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleRubberBand2D
+  : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleRubberBand2D *New();
+  static vtkInteractorStyleRubberBand2D* New();
   vtkTypeMacro(vtkInteractorStyleRubberBand2D, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -62,14 +49,14 @@ public:
   void OnMouseWheelForward() override;
   void OnMouseWheelBackward() override;
 
-  //@{
+  ///@{
   /**
    * Whether to invoke a render when the mouse moves.
    */
   vtkSetMacro(RenderOnMouseMove, bool);
   vtkGetMacro(RenderOnMouseMove, bool);
   vtkBooleanMacro(RenderOnMouseMove, bool);
-  //@}
+  ///@}
 
   /**
    * Selection types
@@ -80,12 +67,12 @@ public:
     SELECT_UNION = 1
   };
 
-  //@{
+  ///@{
   /**
    * Current interaction state
    */
   vtkGetMacro(Interaction, int);
-  //@}
+  ///@}
 
   enum
   {
@@ -95,15 +82,15 @@ public:
     SELECTING
   };
 
-  //@{
+  ///@{
   /**
    * Access to the start and end positions (display coordinates) of the rubber
    * band pick area. This is a convenience method for the wrapped languages
    * since the event callData is lost when using those wrappings.
    */
-  vtkGetVector2Macro(StartPosition,int);
-  vtkGetVector2Macro(EndPosition,int);
-  //@}
+  vtkGetVector2Macro(StartPosition, int);
+  vtkGetVector2Macro(EndPosition, int);
+  ///@}
 
 protected:
   vtkInteractorStyleRubberBand2D();
@@ -132,4 +119,5 @@ private:
   void operator=(const vtkInteractorStyleRubberBand2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

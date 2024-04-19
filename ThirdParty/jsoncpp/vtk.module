@@ -2,4 +2,6 @@ NAME
   VTK::jsoncpp
 LIBRARY_NAME
   vtkjsoncpp
+TEST_DEPENDS
+  VTK::TestingCore
 THIRD_PARTY

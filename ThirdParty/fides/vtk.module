@@ -1,0 +1,13 @@
+NAME
+  VTK::fides
+LIBRARY_NAME
+  vtkfides
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::vtkvtkm
+OPTIONAL_DEPENDS
+  VTK::mpi
+THIRD_PARTY

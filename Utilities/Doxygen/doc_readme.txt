@@ -134,7 +134,7 @@ Meaning that:
 
     Use --help to display the default value associated to --to.
 
-    Note that you might restrict the conversion to a set of particuliar
+    Note that you might restrict the conversion to a set of particular
     directories or files if you want to document a specific VTK part only:
     just add these parts as parameters. Example:
 

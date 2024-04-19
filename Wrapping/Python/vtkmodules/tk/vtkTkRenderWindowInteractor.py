@@ -11,14 +11,10 @@ Created by Prabhu Ramachandran, April 2002
 
 from __future__ import absolute_import
 import math, os, sys
-from vtkmodules.vtkRenderingCore import vtkGenericRenderWindowInteractor, vtkRenderWindow
+from vtkmodules.vtkRenderingCore import vtkRenderWindow
+from vtkmodules.vtkRenderingUI import vtkGenericRenderWindowInteractor
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-else:
-    # for Python3
-    import tkinter
+import tkinter
 
 from .vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 
@@ -312,7 +308,7 @@ class vtkTkRenderWindowInteractor(tkinter.Widget):
 
     def KeyPressEvent(self, event, ctrl, shift):
         key = chr(0)
-        if event.keysym_num < 256:
+        if event.keysym_num < 128:
             key = chr(event.keysym_num)
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, key, 0, event.keysym)
@@ -321,15 +317,21 @@ class vtkTkRenderWindowInteractor(tkinter.Widget):
 
     def KeyReleaseEvent(self, event, ctrl, shift):
         key = chr(0)
-        if event.keysym_num < 256:
+        if event.keysym_num < 128:
             key = chr(event.keysym_num)
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, key, 0, event.keysym)
         self._Iren.KeyReleaseEvent()
 
     def ConfigureEvent(self, event):
+        oldwidth, oldheight = self._Iren.GetSize()
         self._Iren.SetSize(event.width, event.height)
         self._Iren.ConfigureEvent()
+        # check whether if the window has expanded vs shrunk
+        if event.width <= oldwidth and event.height <= oldheight:
+            # there will be no ExposeEvent if the window didn't grow,
+            # so post a render to occur after any event processing
+            self.after(0, self.Render)
 
     def EnterEvent(self, event, ctrl, shift):
         if self._FocusOnEnter:
@@ -368,6 +370,9 @@ def vtkRenderWindowInteractorConeExample():
 
     from vtkmodules.vtkFiltersSources import vtkConeSource
     from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+    # load implementations for rendering and interaction factory classes
+    import vtkmodules.vtkRenderingOpenGL2
+    import vtkmodules.vtkInteractionStyle
 
     # create root window
     root = tkinter.Tk()

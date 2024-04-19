@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageItem.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkImageItem
@@ -20,55 +8,56 @@
  *
  *
  * This vtkContextItem draws the supplied image in the scene.
-*/
+ */
 
 #ifndef vtkImageItem_h
 #define vtkImageItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkSmartPointer.h" // For SP ivars.
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkSmartPointer.h"             // For SP ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkImageItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkImageItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkImageItem *New();
+  static vtkImageItem* New();
 
   /**
    * Paint event for the item.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Set the image of the item.
    */
-  void SetImage(vtkImageData *image);
+  void SetImage(vtkImageData* image);
 
-  //@{
+  ///@{
   /**
    * Get the image of the item.
    */
   vtkGetObjectMacro(Image, vtkImageData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the position of the bottom corner of the image.
    */
   vtkSetVector2Macro(Position, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the position of the bottom corner of the image.
    */
   vtkGetVector2Macro(Position, float);
-  //@}
+  ///@}
 
 protected:
   vtkImageItem();
@@ -76,12 +65,12 @@ protected:
 
   float Position[2];
 
-  vtkImageData *Image;
+  vtkImageData* Image;
 
 private:
-  vtkImageItem(const vtkImageItem &) = delete;
-  void operator=(const vtkImageItem &) = delete;
-
+  vtkImageItem(const vtkImageItem&) = delete;
+  void operator=(const vtkImageItem&) = delete;
 };
 
-#endif //vtkImageItem_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkImageItem_h

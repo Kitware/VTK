@@ -1,28 +1,16 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestTIFFReaderMultiple.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-#include <vtkTIFFReader.h>
-#include <vtkSmartPointer.h>
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTestErrorObserver.h"
+#include <vtkSmartPointer.h>
+#include <vtkTIFFReader.h>
 
 #ifndef _WIN32
 #include <fcntl.h>
 #endif
 
-int TestTIFFReaderMultiple(int argc, char *argv[])
+int TestTIFFReaderMultiple(int argc, char* argv[])
 {
-  if ( argc <= 1 )
+  if (argc <= 1)
   {
     std::cout << "Usage: " << argv[0] << " <meta image file>" << endl;
     return EXIT_FAILURE;
@@ -37,7 +25,7 @@ int TestTIFFReaderMultiple(int argc, char *argv[])
     {
       break;
     }
-      ++fdUsedBefore;
+    ++fdUsedBefore;
   }
 #endif
 
@@ -48,9 +36,8 @@ int TestTIFFReaderMultiple(int argc, char *argv[])
   // file descriptor leaks
   for (int i = 0; i < 9; i++)
   {
-    vtkSmartPointer<vtkTIFFReader> TIFFReader =
-      vtkSmartPointer<vtkTIFFReader>::New();
-    TIFFReader->AddObserver(vtkCommand::ErrorEvent,errorObserver);
+    vtkSmartPointer<vtkTIFFReader> TIFFReader = vtkSmartPointer<vtkTIFFReader>::New();
+    TIFFReader->AddObserver(vtkCommand::ErrorEvent, errorObserver);
     TIFFReader->SetFileName(argv[1]);
     TIFFReader->Update();
     std::cout << i << std::endl;
@@ -71,15 +58,13 @@ int TestTIFFReaderMultiple(int argc, char *argv[])
     {
       break;
     }
-      ++fdUsedAfter;
+    ++fdUsedAfter;
   }
   if (fdUsedBefore != fdUsedAfter)
   {
-    std::cout << "ERROR: the number of file descriptors used after the I/O ("
-              << fdUsedAfter
-              << ") does not equal the number used before the I/O ("
-              << fdUsedBefore
-              << ")" << std::endl;
+    std::cout << "ERROR: the number of file descriptors used after the I/O (" << fdUsedAfter
+              << ") does not equal the number used before the I/O (" << fdUsedBefore << ")"
+              << std::endl;
     return EXIT_FAILURE;
   }
 #endif

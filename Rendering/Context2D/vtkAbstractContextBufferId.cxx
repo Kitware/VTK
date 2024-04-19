@@ -1,40 +1,28 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAbstractContextBufferId.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAbstractContextBufferId.h"
 #include "vtkObjectFactory.h"
 
-vtkAbstractObjectFactoryNewMacro(vtkAbstractContextBufferId)
+VTK_ABI_NAMESPACE_BEGIN
+vtkAbstractObjectFactoryNewMacro(vtkAbstractContextBufferId);
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractContextBufferId::vtkAbstractContextBufferId()
 {
-  this->Width=0;
-  this->Height=0;
+  this->Width = 0;
+  this->Height = 0;
 }
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkAbstractContextBufferId::~vtkAbstractContextBufferId() = default;
 
-// ----------------------------------------------------------------------------
-void vtkAbstractContextBufferId::ReleaseGraphicsResources()
-{
-}
+//------------------------------------------------------------------------------
+void vtkAbstractContextBufferId::ReleaseGraphicsResources() {}
 
-//-----------------------------------------------------------------------------
-void vtkAbstractContextBufferId::PrintSelf(ostream &os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkAbstractContextBufferId::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

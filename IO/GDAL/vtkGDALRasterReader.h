@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGDALRasterReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGDALRasterReader
  * @brief   Read raster file formats using GDAL.
@@ -29,18 +17,19 @@
  *
  * @sa
  * vtkUniformGrid, vtkImageData
-*/
+ */
 
 #ifndef vtkGDALRasterReader_h
 #define vtkGDALRasterReader_h
 
-#include <vtkImageReader2.h>
 #include <vtkIOGDALModule.h> // For export macro
+#include <vtkImageReader2.h>
 
 // C++ includes
 #include <string> // string is required
 #include <vector> // vector is required
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOGDAL_EXPORT vtkGDALRasterReader : public vtkImageReader2
 {
 public:
@@ -54,20 +43,17 @@ public:
   /**
    * Is this file supported
    */
-  int CanReadFile(const char* fname) override;
+  int CanReadFile(VTK_FILEPATH const char* fname) override;
 
   /**
    * Return proj4 spatial reference
    */
-  const char*  GetProjectionString() const;
+  const char* GetProjectionString() const;
 
   /**
    * Returns WKT spatial reference.
    */
-  const char* GetProjectionWKT () const
-  {
-    return this->ProjectionWKT.c_str();
-  }
+  const char* GetProjectionWKT() const { return this->ProjectionWKT.c_str(); }
 
   /**
    * Return geo-referenced corner points (Upper left,
@@ -84,20 +70,20 @@ public:
   vtkGetMacro(CollateBands, bool);
   vtkBooleanMacro(CollateBands, bool);
 
-  //@{
+  ///@{
   /**
    * Set desired width and height of the image
    */
   vtkSetVector2Macro(TargetDimensions, int);
   vtkGetVector2Macro(TargetDimensions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get raster width and height in number of pixels (cells)
    */
   int* GetRasterDimensions();
-  //@}
+  ///@}
 
   /**
    * Return metadata as reported by GDAL
@@ -117,20 +103,20 @@ public:
    */
   std::vector<std::string> GetDomainMetaData(const std::string& domain);
 
-  //@{
+  ///@{
   /**
    * Return driver name which was used to read the current data
    */
   const std::string& GetDriverShortName();
   const std::string& GetDriverLongName();
-  //@}
+  ///@}
 
   /**
    * Return the number of cells that are not set to GDAL NODATA
    */
   vtkIdType GetNumberOfCells();
 
-  //@{
+  ///@{
   /**
    * The following methods allow selective reading of bands.
    * By default, ALL bands are read.
@@ -141,23 +127,17 @@ public:
   void SetCellArrayStatus(const char* name, int status);
   void DisableAllCellArrays();
   void EnableAllCellArrays();
-  //@}
-
-
-protected:
-
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
-
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
-
-  int FillOutputPortInformation(int port,
-                                vtkInformation* info) override;
+  ///@}
 
 protected:
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+
   int TargetDimensions[2];
   std::string Projection;
   std::string ProjectionWKT;
@@ -176,4 +156,5 @@ private:
   void operator=(const vtkGDALRasterReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGDALRasterReader_h

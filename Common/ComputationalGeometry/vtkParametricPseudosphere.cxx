@@ -1,21 +1,10 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkParametricPseudosphere.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkParametricPseudosphere.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricPseudosphere);
 //----------------------------------------------------------------------------//
 vtkParametricPseudosphere::vtkParametricPseudosphere()
@@ -38,8 +27,7 @@ vtkParametricPseudosphere::vtkParametricPseudosphere()
 vtkParametricPseudosphere::~vtkParametricPseudosphere() = default;
 
 //----------------------------------------------------------------------------//
-void vtkParametricPseudosphere::Evaluate(double uvw[3], double Pt[3],
-    double Duvw[9])
+void vtkParametricPseudosphere::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
@@ -47,15 +35,15 @@ void vtkParametricPseudosphere::Evaluate(double uvw[3], double Pt[3],
 
   // We're only going to need the u and v partial derivatives.
   // The w partial derivatives are not needed.
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   // Instead of a bunch of calls to the trig library,
   // just call it once and store the results.
-  double cosv   = cos(v);
-  double sinv   = sin(v);
-  double sechu  = 1. / cosh(u);
-  double tanhu  = tanh(u);
+  double cosv = cos(v);
+  double sinv = sin(v);
+  double sechu = 1. / cosh(u);
+  double tanhu = tanh(u);
 
   // Location of the point. This parametrization was taken from:
   // http://mathworld.wolfram.com/Pseudosphere.html
@@ -75,8 +63,7 @@ void vtkParametricPseudosphere::Evaluate(double uvw[3], double Pt[3],
 }
 
 //----------------------------------------------------------------------------//
-double vtkParametricPseudosphere::EvaluateScalar(double *, double *,
-    double *)
+double vtkParametricPseudosphere::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
@@ -86,3 +73,4 @@ void vtkParametricPseudosphere::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

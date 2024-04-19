@@ -1,21 +1,38 @@
 #!/usr/bin/env python
 
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonMath import vtkRungeKutta4
+from vtkmodules.vtkFiltersCore import (
+    vtkStructuredGridOutlineFilter,
+    vtkTubeFilter,
+)
+from vtkmodules.vtkFiltersFlowPaths import vtkStreamTracer
+from vtkmodules.vtkFiltersSources import vtkLineSource
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 
 # create planes
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create pipeline
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
+pl3d = vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName( vtkGetDataRoot() + '/Data/combxyz.bin' )
 pl3d.SetQFileName( vtkGetDataRoot() + '/Data/combq.bin' )
 pl3d.SetScalarFunctionNumber( 100 )
@@ -23,23 +40,23 @@ pl3d.SetVectorFunctionNumber( 202 )
 pl3d.Update()
 pl3d_output = pl3d.GetOutput().GetBlock(0)
 
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 outline.SetInputData(pl3d_output)
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
-seeds = vtk.vtkLineSource()
+seeds = vtkLineSource()
 seeds.SetPoint1(15, -5, 32)
 seeds.SetPoint2(15, 5, 32)
 seeds.SetResolution(10)
 
-integ = vtk.vtkRungeKutta4()
+integ = vtkRungeKutta4()
 
-sl = vtk.vtkStreamTracer()
+sl = vtkStreamTracer()
 sl.SetIntegrator(integ)
 sl.SetInputData(pl3d_output)
 sl.SetSourceConnection(seeds.GetOutputPort())
@@ -47,19 +64,19 @@ sl.SetMaximumPropagation(100)
 sl.SetInitialIntegrationStep(0.1)
 sl.SetIntegrationDirectionToBackward()
 
-tube = vtk.vtkTubeFilter()
+tube = vtkTubeFilter()
 tube.SetInputConnection(sl.GetOutputPort())
 tube.SetRadius(0.1)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(tube.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-mmapper = vtk.vtkPolyDataMapper()
+mmapper = vtkPolyDataMapper()
 mmapper.SetInputConnection(seeds.GetOutputPort())
-mactor = vtk.vtkActor()
+mactor = vtkActor()
 mactor.SetMapper(mmapper)
 ren.AddActor(mactor)
 

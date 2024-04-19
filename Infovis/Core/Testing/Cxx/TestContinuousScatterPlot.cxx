@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataAlgorithm.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // PURPOSE: test new vtkContinuousScatterplot filter
 #include <cstring>
@@ -41,8 +29,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
   std::string outputString;
   bool pass = true;
 
-  char* inputFile =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cube.vtu");
+  char* inputFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cube.vtu");
 
   int ResX[5] = { 10, 20, 30, 40, 50 };
   int ResY[5] = { 10, 20, 30, 40, 50 };
@@ -53,6 +40,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
   int cmpIndex = 0;
 
   /********************* Desired output arrays *********************/
+  // NOLINTNEXTLINE(bugprone-suspicious-missing-comma)
   std::string dataToCompare[5] = { "2,1,0,0,0,0,0,0,0,0,2,17,9,0,0,0,0,0,0,0,0,12,44,28,0,0,0,0,0,"
                                    "0,0,0,40,81,64,0,0,0,0,0,0,0,0,42,137,112,0,0,0,0,0,0,0,0,48,"
                                    "181,159,0,0,0,0,0,0,0,0,46,255,215,0,0,0,0,0,0,0,0,34,208,152,"
@@ -236,7 +224,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
     } // end of console output
 
     /*********** comparing the strings ************/
-    if (strcmp(outputString.c_str(), dataToCompare[cmpIndex].c_str()) != 0)
+    if (outputString != dataToCompare[cmpIndex])
     {
       pass = false;
       { // writing to file
@@ -255,7 +243,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
 
   } // end for
 
-  delete [] inputFile;
+  delete[] inputFile;
 
   if (pass)
   {

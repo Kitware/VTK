@@ -1,19 +1,25 @@
 set(classes
-  vtkXMLPDataSetWriter
+  vtkXMLCompositeDataSetWriterHelper
+  vtkXMLDataWriterHelper
+  vtkXMLPartitionedDataSetCollectionWriter
+  vtkXMLPartitionedDataSetWriter
+  vtkXMLWriter2
   vtkXMLPDataObjectWriter
+  vtkXMLPDataSetWriter
   vtkXMLPDataWriter
+  vtkXMLPHierarchicalBoxDataWriter
+  vtkXMLPHyperTreeGridWriter
   vtkXMLPImageDataWriter
+  vtkXMLPMultiBlockDataWriter
   vtkXMLPPolyDataWriter
   vtkXMLPRectilinearGridWriter
   vtkXMLPStructuredDataWriter
   vtkXMLPStructuredGridWriter
   vtkXMLPTableWriter
-  vtkXMLPUnstructuredDataWriter
-  vtkXMLPUnstructuredGridWriter
-  vtkXMLPHierarchicalBoxDataWriter
-  vtkXMLPMultiBlockDataWriter
   vtkXMLPUniformGridAMRWriter
-  vtkXMLPHyperTreeGridWriter)
+  vtkXMLPUnstructuredDataWriter
+  vtkXMLPUnstructuredGridWriter)
 
 vtk_module_add_module(VTK::IOParallelXML
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::IOParallelXML)

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPlotBar.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkPlotBar
@@ -20,7 +8,7 @@
  *
  *
  *
-*/
+ */
 
 #ifndef vtkPlotBar_h
 #define vtkPlotBar_h
@@ -29,6 +17,7 @@
 #include "vtkPlot.h"
 #include "vtkSmartPointer.h" // Needed to hold ColorSeries
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkTable;
 class vtkPoints2D;
@@ -43,12 +32,13 @@ class VTKCHARTSCORE_EXPORT vtkPlotBar : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotBar, vtkPlot);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Enum of bar chart oritentation types
    */
-  enum {
+  enum
+  {
     VERTICAL = 0,
     HORIZONTAL
   };
@@ -56,17 +46,12 @@ public:
   /**
    * Creates a 2D Chart object.
    */
-  static vtkPlotBar *New();
-
-  /**
-   * Perform any updates to the item that may be necessary before rendering.
-   */
-  void Update() override;
+  static vtkPlotBar* New();
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Paint legend event for the XY plot, called whenever the legend needs the
@@ -74,20 +59,35 @@ public:
    * corner of the rect (elements 0 and 1) and with width x height (elements 2
    * and 3). The plot can choose how to fill the space supplied.
    */
-  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex) override;
+  bool PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int legendIndex) override;
 
-  //@{
   /**
-   * Set the plot color
+   * Set the plot color with integer values (comprised between 0 and 255)
    */
-  void SetColor(unsigned char r, unsigned char g, unsigned char b,
-                        unsigned char a) override;
-  void SetColor(double r,  double g, double b) override;
-  void GetColor(double rgb[3]) override;
-  //@}
+  void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a) override;
 
-  //@{
+  ///@{
+  /**
+   * Set the plot color with floating values (comprised between 0.0 and 1.0)
+   */
+  void SetColorF(double r, double g, double b, double a) override;
+  void SetColorF(double r, double g, double b) override;
+
+  VTK_DEPRECATED_IN_9_3_0("Please use unambiguous SetColorF method instead.")
+  void SetColor(double r, double g, double b) override { this->SetColorF(r, g, b); }
+  ///@}
+
+  ///@{
+  /**
+   * Get the plot color as floating rgb values (comprised between 0.0 and 1.0)
+   */
+  void GetColorF(double rgb[3]) override;
+
+  VTK_DEPRECATED_IN_9_3_0("Please use unambiguous GetColorF method instead.")
+  void GetColor(double rgb[3]) override { this->GetColorF(rgb); }
+  ///@}
+
+  ///@{
   /**
    * Set the width of the line.
    */
@@ -100,20 +100,21 @@ public:
       this->Modified();
     }
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the width of the line.
    */
   float GetWidth() override
   {
-    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Width of " << this->Width );
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Width of "
+                  << this->Width);
     return this->Width;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the horizontal offset of the bars.
    * Positive values move the bars leftward.
@@ -122,16 +123,16 @@ public:
    */
   vtkSetMacro(Offset, float);
   vtkGetMacro(Offset, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the orientation of the bars.
    * Valid orientations are VERTICAL (default) and HORIZONTAL.
    */
   virtual void SetOrientation(int orientation);
   vtkGetMacro(Orientation, int);
-  //@}
+  ///@}
 
   /**
    * A helper used by both GetUnscaledBounds and GetBounds(double[4]).
@@ -151,25 +152,25 @@ public:
   /**
    * When used to set additional arrays, stacked bars are created.
    */
-  void SetInputArray(int index, const vtkStdString &name) override;
+  void SetInputArray(int index, const vtkStdString& name) override;
 
   /**
    * Set the color series to use if this becomes a stacked bar plot.
    */
-  void SetColorSeries(vtkColorSeries *colorSeries);
+  void SetColorSeries(vtkColorSeries* colorSeries);
 
   /**
    * Get the color series used if when this is a stacked bar plot.
    */
-  vtkColorSeries *GetColorSeries();
+  vtkColorSeries* GetColorSeries();
 
-  //@{
+  ///@{
   /**
    * Specify a lookup table for the mapper to use.
    */
-  virtual void SetLookupTable(vtkScalarsToColors *lut);
-  virtual vtkScalarsToColors *GetLookupTable();
-  //@}
+  virtual void SetLookupTable(vtkScalarsToColors* lut);
+  virtual vtkScalarsToColors* GetLookupTable();
+  ///@}
 
   /**
    * Create default lookup table. Generally used to create one when none
@@ -177,25 +178,25 @@ public:
    */
   virtual void CreateDefaultLookupTable();
 
-  //@{
+  ///@{
   /**
    * Turn on/off flag to control whether scalar data is used to color objects.
    */
   vtkSetMacro(ScalarVisibility, bool);
   vtkGetMacro(ScalarVisibility, bool);
   vtkBooleanMacro(ScalarVisibility, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable mapping of the opacity values. Default is set to true.
    */
-  vtkSetMacro(EnableOpacityMapping, bool)
-  vtkGetMacro(EnableOpacityMapping, bool)
-  vtkBooleanMacro(EnableOpacityMapping, bool)
-  //@}
+  vtkSetMacro(EnableOpacityMapping, bool);
+  vtkGetMacro(EnableOpacityMapping, bool);
+  vtkBooleanMacro(EnableOpacityMapping, bool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When ScalarMode is set to UsePointFieldData or UseCellFieldData,
    * you can specify which array to use for coloring using these methods.
@@ -203,7 +204,7 @@ public:
    */
   void SelectColorArray(vtkIdType arrayNum);
   void SelectColorArray(const vtkStdString& arrayName);
-  //@}
+  ///@}
 
   /**
    * Get the array name to color by.
@@ -213,7 +214,7 @@ public:
   /**
    * Get the plot labels.
    */
-  vtkStringArray *GetLabels() override;
+  vtkStringArray* GetLabels() override;
 
   /**
    * Set the group name of the bar chart - can be displayed on the X axis.
@@ -229,9 +230,8 @@ public:
    * Generate and return the tooltip label string for this plot
    * The segmentIndex is implemented here.
    */
-  vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
-                                       vtkIdType seriesIndex,
-                                       vtkIdType segmentIndex) override;
+  vtkStdString GetTooltipLabel(
+    const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex) override;
 
   /**
    * Select all points in the specified rectangle.
@@ -245,18 +245,9 @@ public:
    * If a vtkIdType* is passed, its referent will be set to index of the bar
    * segment with which a point is associated, or -1.
    */
-  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
-                                    const vtkVector2f&,
-                                    vtkVector2f* location,
-#ifndef VTK_LEGACY_REMOVE
-                                    vtkIdType* segmentId) override;
-#else
-                                    vtkIdType* segmentId = nullptr) override;
-#endif // VTK_LEGACY_REMOVE
-
-#ifndef VTK_LEGACY_REMOVE
+  vtkIdType GetNearestPoint(const vtkVector2f& point, const vtkVector2f&, vtkVector2f* location,
+    vtkIdType* segmentIndex) override;
   using vtkPlot::GetNearestPoint;
-#endif // VTK_LEGACY_REMOVE
 
   /**
    * Get amount of plotted bars.
@@ -268,19 +259,27 @@ public:
    */
   void GetDataBounds(double bounds[2]);
 
+  /**
+   * Update the internal cache. Returns true if cache was successfully updated. Default does
+   * nothing.
+   * This method is called by Update() when either the plot's data has changed or
+   * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
+   */
+  bool UpdateCache() override;
+
 protected:
   vtkPlotBar();
   ~vtkPlotBar() override;
 
   /**
-   * Update the table cache.
+   * Test if the internal cache requires an update.
    */
-  bool UpdateTableCache(vtkTable *table);
+  bool CacheRequiresUpdate() override;
 
   /**
    * Store a well packed set of XY coordinates for this data series.
    */
-  vtkPoints2D *Points;
+  vtkPoints2D* Points;
 
   float Width;
   float Offset;
@@ -288,16 +287,11 @@ protected:
   int Orientation;
 
   /**
-   * The point cache is marked dirty until it has been initialized.
-   */
-  vtkTimeStamp BuildTime;
-
-  /**
    * The color series to use if this becomes a stacked bar
    */
   vtkSmartPointer<vtkColorSeries> ColorSeries;
 
-  //@{
+  ///@{
   /**
    * Lookup Table for coloring bars by scalar value
    */
@@ -306,17 +300,17 @@ protected:
   bool ScalarVisibility;
   bool EnableOpacityMapping;
   vtkStdString ColorArrayName;
-  //@}
+  ///@}
 
   bool LogX;
   bool LogY;
 
 private:
-  vtkPlotBar(const vtkPlotBar &) = delete;
-  void operator=(const vtkPlotBar &) = delete;
+  vtkPlotBar(const vtkPlotBar&) = delete;
+  void operator=(const vtkPlotBar&) = delete;
 
-  vtkPlotBarPrivate *Private;
-
+  vtkPlotBarPrivate* Private;
 };
 
-#endif //vtkPlotBar_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkPlotBar_h

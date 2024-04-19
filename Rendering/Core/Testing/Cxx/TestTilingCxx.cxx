@@ -1,26 +1,14 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestTilingCxx.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 #include "vtksys/SystemTools.hxx"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkActor2D.h"
 #include "vtkCellData.h"
@@ -36,26 +24,23 @@
 #include "vtkSphereSource.h"
 #include "vtkWindowToImageFilter.h"
 
-
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, var) \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-void colorCells(void *arg)
+void colorCells(void* arg)
 {
   VTK_CREATE(vtkMath, randomColorGenerator);
-  vtkProgrammableAttributeDataFilter * randomColors =
-    static_cast<vtkProgrammableAttributeDataFilter *>(arg);
-  vtkPolyData * input =
-    vtkPolyData::SafeDownCast(randomColors->GetInput());
-  vtkPolyData * output = randomColors->GetPolyDataOutput();
+  vtkProgrammableAttributeDataFilter* randomColors =
+    static_cast<vtkProgrammableAttributeDataFilter*>(arg);
+  vtkPolyData* input = vtkPolyData::SafeDownCast(randomColors->GetInput());
+  vtkPolyData* output = randomColors->GetPolyDataOutput();
   int numCells = input->GetNumberOfCells();
   VTK_CREATE(vtkFloatArray, colors);
   colors->SetNumberOfTuples(numCells);
 
-  for(int i = 0; i < numCells; i++)
+  for (int i = 0; i < numCells; i++)
   {
-    colors->SetValue(i, randomColorGenerator->Random(0 ,1));
+    colors->SetValue(i, randomColorGenerator->Random(0, 1));
   }
 
   output->GetCellData()->CopyScalarsOff();
@@ -127,7 +112,7 @@ int TestTilingCxx(int argc, char* argv[])
   w2i->Update();
 
   // copy the output
-  vtkImageData * outputData = w2i->GetOutput()->NewInstance();
+  vtkImageData* outputData = w2i->GetOutput()->NewInstance();
   outputData->DeepCopy(w2i->GetOutput());
 
   VTK_CREATE(vtkImageMapper, ia);
@@ -154,8 +139,8 @@ int TestTilingCxx(int argc, char* argv[])
 
   vtksys::SystemTools::Delay(1000);
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

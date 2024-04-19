@@ -1,43 +1,32 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVolumeOutlineSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkVolumeOutlineSource.h"
 
-#include "vtkDataSet.h"
-#include "vtkDemandDrivenPipeline.h"
-#include "vtkIdList.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkImageData.h"
-#include "vtkNew.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
+#include "vtkDataSet.h"
+#include "vtkDemandDrivenPipeline.h"
+#include "vtkIdList.h"
+#include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVolumeMapper.h"
-#include "vtkMath.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolumeOutlineSource);
 
-vtkCxxSetObjectMacro(vtkVolumeOutlineSource,VolumeMapper,vtkVolumeMapper);
+vtkCxxSetObjectMacro(vtkVolumeOutlineSource, VolumeMapper, vtkVolumeMapper);
 
-//----------------------------------------------------------------------------
-vtkVolumeOutlineSource::vtkVolumeOutlineSource ()
+//------------------------------------------------------------------------------
+vtkVolumeOutlineSource::vtkVolumeOutlineSource()
 {
   this->VolumeMapper = nullptr;
   this->GenerateScalars = 0;
@@ -56,8 +45,8 @@ vtkVolumeOutlineSource::vtkVolumeOutlineSource ()
   this->SetNumberOfInputPorts(0);
 }
 
-//----------------------------------------------------------------------------
-vtkVolumeOutlineSource::~vtkVolumeOutlineSource ()
+//------------------------------------------------------------------------------
+vtkVolumeOutlineSource::~vtkVolumeOutlineSource()
 {
   if (this->VolumeMapper)
   {
@@ -66,10 +55,10 @@ vtkVolumeOutlineSource::~vtkVolumeOutlineSource ()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "VolumeMapper: ";
   if (this->VolumeMapper)
@@ -81,17 +70,14 @@ void vtkVolumeOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 
-  os << indent << "GenerateFaces: "
-     << (this->GenerateFaces ? "On\n" : "Off\n" );
+  os << indent << "GenerateFaces: " << (this->GenerateFaces ? "On\n" : "Off\n");
 
-  os << indent << "GenerateOutline: "
-     << (this->GenerateOutline ? "On\n" : "Off\n" );
+  os << indent << "GenerateOutline: " << (this->GenerateOutline ? "On\n" : "Off\n");
 
-  os << indent << "GenerateScalars: "
-     << (this->GenerateScalars ? "On\n" : "Off\n" );
+  os << indent << "GenerateScalars: " << (this->GenerateScalars ? "On\n" : "Off\n");
 
-  os << indent << "Color: " << this->Color[0] << ", "
-     << this->Color[1] << ", " << this->Color[2] << "\n";
+  os << indent << "Color: " << this->Color[0] << ", " << this->Color[1] << ", " << this->Color[2]
+     << "\n";
 
   os << indent << "ActivePlaneId: " << this->ActivePlaneId << "\n";
 
@@ -99,7 +85,7 @@ void vtkVolumeOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->ActivePlaneColor[1] << ", " << this->ActivePlaneColor[2] << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkVolumeOutlineSource::ComputeCubePlanes(
   double planes[3][4], double croppingPlanes[6], double bounds[6])
 {
@@ -111,8 +97,8 @@ int vtkVolumeOutlineSource::ComputeCubePlanes(
 
   for (int i = 0; i < 3; i++)
   {
-    int j0 = 2*i;
-    int j1 = 2*i + 1;
+    int j0 = 2 * i;
+    int j1 = 2 * i + 1;
 
     double a = bounds[j0];
     double b = croppingPlanes[j0];
@@ -126,10 +112,22 @@ int vtkVolumeOutlineSource::ComputeCubePlanes(
     }
 
     // Clamp cropping planes to bounds
-    if (b < a) { b = a; };
-    if (b > d) { b = d; };
-    if (c < a) { c = a; };
-    if (c > d) { c = d; };
+    if (b < a)
+    {
+      b = a;
+    }
+    if (b > d)
+    {
+      b = d;
+    }
+    if (c < a)
+    {
+      c = a;
+    }
+    if (c > d)
+    {
+      c = d;
+    }
 
     planes[i][0] = a;
     planes[i][1] = b;
@@ -140,13 +138,10 @@ int vtkVolumeOutlineSource::ComputeCubePlanes(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkVolumeOutlineSource::ComputePipelineMTime(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* vtkNotUsed(outputVector),
-  int vtkNotUsed(requestFromOutputPort),
-  vtkMTimeType* mtime)
+//------------------------------------------------------------------------------
+int vtkVolumeOutlineSource::ComputePipelineMTime(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
+  int vtkNotUsed(requestFromOutputPort), vtkMTimeType* mtime)
 {
   vtkMTimeType mTime = this->GetMTime();
   if (this->VolumeMapper)
@@ -156,9 +151,8 @@ int vtkVolumeOutlineSource::ComputePipelineMTime(
     {
       mTime = mapperMTime;
     }
-    vtkDemandDrivenPipeline *input =
-      vtkDemandDrivenPipeline::SafeDownCast(
-        this->VolumeMapper->GetInputExecutive());
+    vtkDemandDrivenPipeline* input =
+      vtkDemandDrivenPipeline::SafeDownCast(this->VolumeMapper->GetInputExecutive());
     if (input)
     {
       // Need to do this because we are not formally connected
@@ -177,11 +171,9 @@ int vtkVolumeOutlineSource::ComputePipelineMTime(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkVolumeOutlineSource::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* vtkNotUsed(outputVector))
+//------------------------------------------------------------------------------
+int vtkVolumeOutlineSource::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   // Get the mapper's input, since this is the most convenient
   // place to do so.
@@ -192,7 +184,7 @@ int vtkVolumeOutlineSource::RequestInformation(
     return 1;
   }
 
-  vtkInformation *mapInfo = this->VolumeMapper->GetInputInformation();
+  vtkInformation* mapInfo = this->VolumeMapper->GetInputInformation();
 
   if (!mapInfo)
   {
@@ -213,13 +205,12 @@ int vtkVolumeOutlineSource::RequestInformation(
 
   mapInfo->Get(vtkDataObject::SPACING(), spacing);
   mapInfo->Get(vtkDataObject::ORIGIN(), origin);
-  mapInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               extent);
+  mapInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
   for (int i = 0; i < 3; i++)
   {
-    int j0 = 2*i;
-    int j1 = j0+1;
+    int j0 = 2 * i;
+    int j1 = j0 + 1;
 
     if (extent[j0] > extent[j1])
     {
@@ -229,13 +220,13 @@ int vtkVolumeOutlineSource::RequestInformation(
 
     if (spacing[i] > 0)
     {
-      this->Bounds[j0] = origin[i] + spacing[i]*extent[j0];
-      this->Bounds[j1] = origin[i] + spacing[i]*extent[j1];
+      this->Bounds[j0] = origin[i] + spacing[i] * extent[j0];
+      this->Bounds[j1] = origin[i] + spacing[i] * extent[j1];
     }
     else
     {
-      this->Bounds[j0] = origin[i] + spacing[i]*extent[j1];
-      this->Bounds[j1] = origin[i] + spacing[i]*extent[j0];
+      this->Bounds[j0] = origin[i] + spacing[i] * extent[j1];
+      this->Bounds[j1] = origin[i] + spacing[i] * extent[j0];
     }
 
     this->CroppingRegionPlanes[j0] = this->Bounds[j0];
@@ -254,18 +245,15 @@ int vtkVolumeOutlineSource::RequestInformation(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkVolumeOutlineSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+//------------------------------------------------------------------------------
+int vtkVolumeOutlineSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<< "Creating cropping region outline");
 
@@ -274,7 +262,7 @@ int vtkVolumeOutlineSource::RequestData(
   double planes[3][4];
 
   if (!this->VolumeMapper || !this->VolumeMapper->GetInput() ||
-      !this->ComputeCubePlanes(planes,this->CroppingRegionPlanes,this->Bounds))
+    !this->ComputeCubePlanes(planes, this->CroppingRegionPlanes, this->Bounds))
   {
     // If the bounds or the cropping planes are invalid, clear the data
     output->SetPoints(nullptr);
@@ -289,28 +277,31 @@ int vtkVolumeOutlineSource::RequestData(
   for (int planeDim = 0; planeDim < 3; planeDim++)
   {
     double d = planes[planeDim][3] - planes[planeDim][0];
-    tol += d*d;
+    tol += d * d;
   }
-  tol = sqrt(tol)*1e-5;
+  tol = sqrt(tol) * 1e-5;
 
   // Create an array to nudge crop planes over to the bounds if they are
   // within tolerance of the bounds
   int tolPtId[3][4];
-  this->NudgeCropPlanesToBounds(tolPtId, planes, tol);
+  vtkVolumeOutlineSource::NudgeCropPlanesToBounds(tolPtId, planes, tol);
 
   // The all-important cropping flags
   int flags = this->CroppingRegionFlags;
 
   // The active plane, which gets a special color for its scalars
   int activePlane = this->ActivePlaneId;
-  if (activePlane > 5) { activePlane = -1; };
+  if (activePlane > 5)
+  {
+    activePlane = -1;
+  }
 
   // Convert the colors to unsigned char for scalars
   unsigned char colors[2][3];
-  this->CreateColorValues(colors, this->Color, this->ActivePlaneColor);
+  vtkVolumeOutlineSource::CreateColorValues(colors, this->Color, this->ActivePlaneColor);
 
   // Create the scalars used to color the lines
-  vtkUnsignedCharArray *scalars = nullptr;
+  vtkUnsignedCharArray* scalars = nullptr;
 
   if (this->GenerateScalars)
   {
@@ -319,26 +310,26 @@ int vtkVolumeOutlineSource::RequestData(
   }
 
   // Generate all the lines for the outline.
-  vtkCellArray *lines = nullptr;
+  vtkCellArray* lines = nullptr;
 
   if (this->GenerateOutline)
   {
     lines = vtkCellArray::New();
-    this->GenerateLines(lines, scalars, colors, activePlane, flags, tolPtId);
+    vtkVolumeOutlineSource::GenerateLines(lines, scalars, colors, activePlane, flags, tolPtId);
   }
 
   // Generate the polys for the outline
-  vtkCellArray *polys =  nullptr;
+  vtkCellArray* polys = nullptr;
 
   if (this->GenerateFaces)
   {
     polys = vtkCellArray::New();
-    this->GeneratePolys(polys, scalars, colors, activePlane, flags, tolPtId);
+    vtkVolumeOutlineSource::GeneratePolys(polys, scalars, colors, activePlane, flags, tolPtId);
   }
 
   // Generate the points that are used by the lines.
-  vtkPoints *points = vtkPoints::New();
-  this->GeneratePoints(points, lines, polys, planes, tol);
+  vtkPoints* points = vtkPoints::New();
+  vtkVolumeOutlineSource::GeneratePoints(points, lines, polys, planes, tol);
 
   output->SetPoints(points);
   points->Delete();
@@ -364,21 +355,16 @@ int vtkVolumeOutlineSource::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkVolumeOutlineSource::GeneratePolys(
-  vtkCellArray *polys,
-  vtkUnsignedCharArray *scalars,
-  unsigned char colors[2][3],
-  int activePlane,
-  int flags,
-  int tolPtId[3][4])
+//------------------------------------------------------------------------------
+void vtkVolumeOutlineSource::GeneratePolys(vtkCellArray* polys, vtkUnsignedCharArray* scalars,
+  unsigned char colors[2][3], int activePlane, int flags, int tolPtId[3][4])
 {
   // Loop over the three dimensions and create the face rectangles
   for (int dim0 = 0; dim0 < 3; dim0++)
   {
     // Compute the other two dimension indices
-    int dim1 = (dim0+1)%3;
-    int dim2 = (dim0+2)%3;
+    int dim1 = (dim0 + 1) % 3;
+    int dim2 = (dim0 + 2) % 3;
 
     // Indices into the cubes
     int idx[3];
@@ -394,8 +380,7 @@ void vtkVolumeOutlineSource::GeneratePolys(
         idx[dim1] = j;
 
         // Make sure that the rect dim is not less than tolerance
-        if ((j == 0 && tolPtId[dim1][1] == 0) ||
-            (j == 2 && tolPtId[dim1][2] == 3))
+        if ((j == 0 && tolPtId[dim1][1] == 0) || (j == 2 && tolPtId[dim1][2] == 3))
         {
           continue;
         }
@@ -406,8 +391,7 @@ void vtkVolumeOutlineSource::GeneratePolys(
           idx[dim0] = k;
 
           // Make sure that the rect dim is not less than tolerance
-          if ((k == 0 && tolPtId[dim0][1] == 0) ||
-              (k == 2 && tolPtId[dim0][2] == 3))
+          if ((k == 0 && tolPtId[dim0][1] == 0) || (k == 2 && tolPtId[dim0][2] == 3))
           {
             continue;
           }
@@ -416,21 +400,13 @@ void vtkVolumeOutlineSource::GeneratePolys(
           // volume bounds if the cropping planes are within tolerance
           // of the volume bounds.
           int pointId[4];
-          pointId[0] = (tolPtId[2][idx[2]]*16 +
-                        tolPtId[1][idx[1]]*4 +
-                        tolPtId[0][idx[0]]);
+          pointId[0] = (tolPtId[2][idx[2]] * 16 + tolPtId[1][idx[1]] * 4 + tolPtId[0][idx[0]]);
           idx[dim0] = k + 1;
-          pointId[1] = (tolPtId[2][idx[2]]*16 +
-                        tolPtId[1][idx[1]]*4 +
-                        tolPtId[0][idx[0]]);
+          pointId[1] = (tolPtId[2][idx[2]] * 16 + tolPtId[1][idx[1]] * 4 + tolPtId[0][idx[0]]);
           idx[dim1] = j + 1;
-          pointId[2] = (tolPtId[2][idx[2]]*16 +
-                        tolPtId[1][idx[1]]*4 +
-                        tolPtId[0][idx[0]]);
+          pointId[2] = (tolPtId[2][idx[2]] * 16 + tolPtId[1][idx[1]] * 4 + tolPtId[0][idx[0]]);
           idx[dim0] = k;
-          pointId[3] = (tolPtId[2][idx[2]]*16 +
-                        tolPtId[1][idx[1]]*4 +
-                        tolPtId[0][idx[0]]);
+          pointId[3] = (tolPtId[2][idx[2]] * 16 + tolPtId[1][idx[1]] * 4 + tolPtId[0][idx[0]]);
           idx[dim1] = j;
 
           // Loop through the two cubes adjacent to the rectangle,
@@ -448,7 +424,7 @@ void vtkVolumeOutlineSource::GeneratePolys(
             int flagval = 0;
             if (cidx[dim2] >= 0 && cidx[dim2] < 3)
             {
-              int flagbit = cidx[2]*9 + cidx[1]*3 + cidx[0];
+              int flagbit = cidx[2] * 9 + cidx[1] * 3 + cidx[0];
               flagval = ((flags >> flagbit) & 1);
             }
             bitCheck <<= 1;
@@ -465,7 +441,7 @@ void vtkVolumeOutlineSource::GeneratePolys(
             int active = 0;
             if (activePlane >= 0)
             {
-              int planeDim = (activePlane >> 1); // same as "/ 2"
+              int planeDim = (activePlane >> 1);    // same as "/ 2"
               int planeIdx = 1 + (activePlane & 1); // same as "% 2"
               if (planeDim == dim2 && i == planeIdx)
               {
@@ -498,26 +474,21 @@ void vtkVolumeOutlineSource::GeneratePolys(
           }
 
         } // loop over k
-      } // loop over j
-    } // loop over i
-  } // loop over dim0
+      }   // loop over j
+    }     // loop over i
+  }       // loop over dim0
 }
 
-//----------------------------------------------------------------------------
-void vtkVolumeOutlineSource::GenerateLines(
-  vtkCellArray *lines,
-  vtkUnsignedCharArray *scalars,
-  unsigned char colors[2][3],
-  int activePlane,
-  int flags,
-  int tolPtId[3][4])
+//------------------------------------------------------------------------------
+void vtkVolumeOutlineSource::GenerateLines(vtkCellArray* lines, vtkUnsignedCharArray* scalars,
+  unsigned char colors[2][3], int activePlane, int flags, int tolPtId[3][4])
 {
   // Loop over the three dimensions and create the lines
   for (int dim0 = 0; dim0 < 3; dim0++)
   {
     // Compute the other two dimension indices
-    int dim1 = (dim0+1)%3;
-    int dim2 = (dim0+2)%3;
+    int dim1 = (dim0 + 1) % 3;
+    int dim2 = (dim0 + 2) % 3;
 
     // Indices into the cubes
     int idx[3];
@@ -538,8 +509,7 @@ void vtkVolumeOutlineSource::GenerateLines(
           idx[dim0] = k;
 
           // Make sure that the segment length is not less than tolerance
-          if ((k == 0 && tolPtId[dim0][1] == 0) ||
-              (k == 2 && tolPtId[dim0][2] == 3))
+          if ((k == 0 && tolPtId[dim0][1] == 0) || (k == 2 && tolPtId[dim0][2] == 3))
           {
             continue;
           }
@@ -547,13 +517,9 @@ void vtkVolumeOutlineSource::GenerateLines(
           // The endpoints of the segment, which are nudged over to the
           // volume bounds if the cropping planes are within tolerance
           // of the volume bounds.
-          int pointId0 = (tolPtId[2][idx[2]]*16 +
-                          tolPtId[1][idx[1]]*4 +
-                          tolPtId[0][idx[0]]);
+          int pointId0 = (tolPtId[2][idx[2]] * 16 + tolPtId[1][idx[1]] * 4 + tolPtId[0][idx[0]]);
           idx[dim0] = k + 1;
-          int pointId1 = (tolPtId[2][idx[2]]*16 +
-                          tolPtId[1][idx[1]]*4 +
-                          tolPtId[0][idx[0]]);
+          int pointId1 = (tolPtId[2][idx[2]] * 16 + tolPtId[1][idx[1]] * 4 + tolPtId[0][idx[0]]);
           idx[dim0] = k;
 
           // Loop through the four cubes adjacent to the line segment,
@@ -571,12 +537,11 @@ void vtkVolumeOutlineSource::GenerateLines(
             {
               // First get idx[dim2]-1, then idx[dim2], but reverse
               // the order when ii loop is on its second iteration
-              cidx[dim2] = idx[dim2] + (ii^jj) - 1;
+              cidx[dim2] = idx[dim2] + (ii ^ jj) - 1;
               int flagval = 0;
-              if (cidx[dim1] >= 0 && cidx[dim1] < 3 &&
-                  cidx[dim2] >= 0 && cidx[dim2] < 3)
+              if (cidx[dim1] >= 0 && cidx[dim1] < 3 && cidx[dim2] >= 0 && cidx[dim2] < 3)
               {
-                int flagbit = cidx[2]*9 + cidx[1]*3 + cidx[0];
+                int flagbit = cidx[2] * 9 + cidx[1] * 3 + cidx[0];
                 flagval = ((flags >> flagbit) & 1);
               }
               bitCheck <<= 1;
@@ -588,8 +553,8 @@ void vtkVolumeOutlineSource::GenerateLines(
           // Values 0000, 0011, 0110, 1100, 1001, 1111 don't need lines.
           // Build a bitfield to check our bitfield values against, each
           // set bit in this new bitfield corresponds to a non-edge case.
-          const int noLineValues = ((1 << 0x0) | (1 << 0x3) | (1 << 0x6) |
-                                    (1 << 0x9) | (1 << 0xc) | (1 << 0xf));
+          const int noLineValues =
+            ((1 << 0x0) | (1 << 0x3) | (1 << 0x6) | (1 << 0x9) | (1 << 0xc) | (1 << 0xf));
 
           // If our line segment is an edge, there is lots of work to do.
           if (((noLineValues >> bitCheck) & 1) == 0)
@@ -598,10 +563,9 @@ void vtkVolumeOutlineSource::GenerateLines(
             int active = 0;
             if (activePlane >= 0)
             {
-              int planeDim = (activePlane >> 1); // same as "/ 2"
+              int planeDim = (activePlane >> 1);    // same as "/ 2"
               int planeIdx = 1 + (activePlane & 1); // same as "% 2"
-              if ((planeDim == dim2 && i == planeIdx) ||
-                  (planeDim == dim1 && j == planeIdx))
+              if ((planeDim == dim2 && i == planeIdx) || (planeDim == dim1 && j == planeIdx))
               {
                 active = 1;
               }
@@ -611,7 +575,7 @@ void vtkVolumeOutlineSource::GenerateLines(
             int foundDuplicate = 0;
             lines->InitTraversal();
             vtkIdType npts;
-            const vtkIdType *pts;
+            const vtkIdType* pts;
             for (int cellId = 0; lines->GetNextCell(npts, pts); cellId++)
             {
               if (pts[0] == pointId0 && pts[1] == pointId1)
@@ -642,15 +606,14 @@ void vtkVolumeOutlineSource::GenerateLines(
           }
 
         } // loop over k
-      } // loop over j
-    } // loop over i
-  } // loop over dim0
+      }   // loop over j
+    }     // loop over i
+  }       // loop over dim0
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeOutlineSource::GeneratePoints(
-  vtkPoints *points, vtkCellArray *lines, vtkCellArray *polys,
-  double planes[3][4], double tol)
+  vtkPoints* points, vtkCellArray* lines, vtkCellArray* polys, double planes[3][4], double tol)
 {
   // Use a bitfield to store which of the 64 points we need.
   // Two 32-bit ints are a convenient, portable way to do this.
@@ -658,8 +621,8 @@ void vtkVolumeOutlineSource::GeneratePoints(
   unsigned int pointBits2 = 0;
 
   vtkIdType npts;
-  const vtkIdType *pts;
-  vtkCellArray *cellArrays[2];
+  const vtkIdType* pts;
+  vtkCellArray* cellArrays[2];
   cellArrays[0] = lines;
   cellArrays[1] = polys;
 
@@ -673,8 +636,14 @@ void vtkVolumeOutlineSource::GeneratePoints(
         for (int ii = 0; ii < npts; ii++)
         {
           int pointId = pts[ii];
-          if (pointId < 32) { pointBits1 |= (1 << pointId); }
-          else { pointBits2 |= (1 << (pointId - 32)); }
+          if (pointId < 32)
+          {
+            pointBits1 |= (1 << pointId);
+          }
+          else
+          {
+            pointBits2 |= (1 << (pointId - 32));
+          }
         }
       }
     }
@@ -691,31 +660,33 @@ void vtkVolumeOutlineSource::GeneratePoints(
   for (int i = 0; i < 4; i++)
   {
     // If we're halfway done, switch over to the next 32 bits
-    if (i == 2) { pointBits = pointBits2; }
+    if (i == 2)
+    {
+      pointBits = pointBits2;
+    }
 
     for (int j = 0; j < 4; j++)
     {
       for (int k = 0; k < 4; k++)
       {
         // Check to see if this point was actually used
-        if ( (pointBits & 1) )
+        if ((pointBits & 1))
         {
           // Add or subtract tolerance as an offset to help depth check
-          double x = planes[0][k] + tol*(1 - 2*(k < 2));
-          double y = planes[1][j] + tol*(1 - 2*(j < 2));
-          double z = planes[2][i] + tol*(1 - 2*(i < 2));
+          double x = planes[0][k] + tol * (1 - 2 * (k < 2));
+          double y = planes[1][j] + tol * (1 - 2 * (j < 2));
+          double z = planes[2][i] + tol * (1 - 2 * (i < 2));
 
           points->InsertNextPoint(x, y, z);
 
           for (int arrayId = 0; arrayId < 2; arrayId++)
           {
             // Go through the cells, substitute old Id for new Id
-            vtkCellArray *cells = cellArrays[arrayId];
+            vtkCellArray* cells = cellArrays[arrayId];
             if (cells)
             {
               auto cellIter = vtk::TakeSmartPointer(cells->NewIterator());
-              for (cellIter->GoToFirstCell();
-                   !cellIter->IsDoneWithTraversal();
+              for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal();
                    cellIter->GoToNextCell())
               {
                 cellIter->GetCurrentCell(repCell);
@@ -739,25 +710,33 @@ void vtkVolumeOutlineSource::GeneratePoints(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeOutlineSource::NudgeCropPlanesToBounds(
   int tolPtId[3][4], double planes[3][4], double tol)
 {
   for (int dim = 0; dim < 3; dim++)
   {
-    tolPtId[dim][0] = 0; tolPtId[dim][1] = 1;
-    tolPtId[dim][2] = 2; tolPtId[dim][3] = 3;
-    if (planes[dim][1] - planes[dim][0] < tol) { tolPtId[dim][1] = 0; }
-    if (planes[dim][3] - planes[dim][2] < tol) { tolPtId[dim][2] = 3; }
+    tolPtId[dim][0] = 0;
+    tolPtId[dim][1] = 1;
+    tolPtId[dim][2] = 2;
+    tolPtId[dim][3] = 3;
+    if (planes[dim][1] - planes[dim][0] < tol)
+    {
+      tolPtId[dim][1] = 0;
+    }
+    if (planes[dim][3] - planes[dim][2] < tol)
+    {
+      tolPtId[dim][2] = 3;
+    }
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkVolumeOutlineSource::CreateColorValues(
   unsigned char colors[2][3], double color1[3], double color2[3])
 {
   // Convert the two colors to unsigned char
-  double *dcolors[2];
+  double* dcolors[2];
   dcolors[0] = color1;
   dcolors[1] = color2;
 
@@ -766,11 +745,16 @@ void vtkVolumeOutlineSource::CreateColorValues(
     for (int j = 0; j < 3; j++)
     {
       double val = dcolors[i][j];
-      if (val < 0) { val = 0; }
-      if (val > 1) { val = 1; }
-      colors[i][j] = static_cast<unsigned char>(val*255);
+      if (val < 0)
+      {
+        val = 0;
+      }
+      if (val > 1)
+      {
+        val = 1;
+      }
+      colors[i][j] = static_cast<unsigned char>(val * 255);
     }
   }
 }
-
-
+VTK_ABI_NAMESPACE_END

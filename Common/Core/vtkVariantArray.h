@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVariantArray.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkVariantArray
  * @brief   An array holding vtkVariants.
@@ -26,19 +10,26 @@
  * @par Thanks:
  * Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
  * Sandia National Laboratories for their help in developing this class.
-*/
+ */
 
 #ifndef vtkVariantArray_h
 #define vtkVariantArray_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"
-#include "vtkVariant.h" // For variant type
-
-class vtkVariantArrayLookup;
+#include "vtkCommonCoreModule.h" // For export macro
+#include "vtkVariant.h"          // For variant type
 
 /// Forward declaration required for Boost serialization
-namespace boost { namespace serialization { class access; } }
+namespace boost
+{
+namespace serialization
+{
+class access;
+}
+}
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkVariantArrayLookup;
 
 class VTKCOMMONCORE_EXPORT vtkVariantArray : public vtkAbstractArray
 {
@@ -49,14 +40,15 @@ class VTKCOMMONCORE_EXPORT vtkVariantArray : public vtkAbstractArray
 public:
   enum DeleteMethod
   {
-    VTK_DATA_ARRAY_FREE=vtkAbstractArray::VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE=vtkAbstractArray::VTK_DATA_ARRAY_DELETE,
-    VTK_DATA_ARRAY_ALIGNED_FREE=vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
-    VTK_DATA_ARRAY_USER_DEFINED=vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
+    VTK_DATA_ARRAY_FREE = vtkAbstractArray::VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE = vtkAbstractArray::VTK_DATA_ARRAY_DELETE,
+    VTK_DATA_ARRAY_ALIGNED_FREE = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
+    VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
 
   static vtkVariantArray* New();
-  vtkTypeMacro(vtkVariantArray,vtkAbstractArray);
+  static vtkVariantArray* ExtendedNew();
+  vtkTypeMacro(vtkVariantArray, vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //
@@ -67,7 +59,7 @@ public:
    * Allocate memory for this array. Delete old storage only if necessary.
    * Note that ext is no longer used.
    */
-  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000) override;
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000) override;
 
   /**
    * Release storage and reset array to initial state.
@@ -78,14 +70,14 @@ public:
    * Return the underlying data type. An integer indicating data type is
    * returned as specified in vtkSetGet.h.
    */
-  int GetDataType() override;
+  int GetDataType() const override;
 
   /**
    * Return the size of the underlying data type.  For a bit, 1 is
    * returned.  For string 0 is returned. Arrays with variable length
    * components return 0.
    */
-  int GetDataTypeSize() override;
+  int GetDataTypeSize() const override;
 
   /**
    * Return the size, in bytes, of the lowest-level element of an
@@ -94,7 +86,7 @@ public:
    * sizeof(vtkStdString::value_type), which winds up being
    * sizeof(char).
    */
-  int GetElementComponentSize() override;
+  int GetElementComponentSize() const override;
 
   /**
    * Set the number of tuples (a component group) in the array. Note that
@@ -108,31 +100,31 @@ public:
    * and structure. Note that range checking and memory allocation is not
    * performed; use in conjunction with SetNumberOfTuples() to allocate space.
    */
-  void SetTuple(vtkIdType i, vtkIdType j,
-                vtkAbstractArray* source) override;
+  void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
 
   /**
    * Insert the jth tuple in the source array, at ith location in this array.
    * Note that memory allocation is performed as necessary to hold the data.
    */
-  void InsertTuple(vtkIdType i, vtkIdType j,
-                   vtkAbstractArray* source) override;
+  void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
 
   /**
    * Copy the tuples indexed in srcIds from the source array to the tuple
    * locations indexed by dstIds in this array.
    * Note that memory allocation is performed as necessary to hold the data.
    */
-  void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                    vtkAbstractArray *source) override;
+  void InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source) override;
+
+  void InsertTuplesStartingAt(
+    vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override;
 
   /**
    * Copy n consecutive tuples starting at srcStart from the source array to
    * this array, starting at the dstStart location.
    * Note that memory allocation is performed as necessary to hold the data.
    */
-  void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                    vtkAbstractArray* source) override;
+  void InsertTuples(
+    vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source) override;
 
   /**
    * Insert the jth tuple in the source array, at the end in this array.
@@ -145,14 +137,14 @@ public:
    * Return a void pointer. For image pipeline interface and other
    * special pointer manipulation.
    */
-  void *GetVoidPointer(vtkIdType id) override;
+  void* GetVoidPointer(vtkIdType id) override;
 
   /**
    * Deep copy of data. Implementation left to subclasses, which
    * should support as many type conversions as possible given the
    * data type.
    */
-  void DeepCopy(vtkAbstractArray *da) override;
+  void DeepCopy(vtkAbstractArray* da) override;
 
   /**
    * Set the ith tuple in this array as the interpolated tuple value,
@@ -161,8 +153,8 @@ public:
    * This method assumes that the two arrays are of the same type
    * and structure.
    */
-  void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-    vtkAbstractArray* source,  double* weights) override;
+  void InterpolateTuple(
+    vtkIdType i, vtkIdList* ptIndices, vtkAbstractArray* source, double* weights) override;
 
   /**
    * Insert the ith tuple in this array as interpolated from the two values,
@@ -172,9 +164,8 @@ public:
    * the same type. p1 is value at index id1 in source1, while, p2 is
    * value at index id2 in source2.
    */
-  void InterpolateTuple(vtkIdType i,
-    vtkIdType id1, vtkAbstractArray* source1,
-    vtkIdType id2, vtkAbstractArray* source2, double t) override;
+  void InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractArray* source1, vtkIdType id2,
+    vtkAbstractArray* source2, double t) override;
 
   /**
    * Free any unnecessary memory.
@@ -189,7 +180,7 @@ public:
    */
   vtkTypeBool Resize(vtkIdType numTuples) override;
 
-  //@{
+  ///@{
   /**
    * This method lets the user specify data to be held by the array.  The
    * array argument is a pointer to the data.  size is the size of
@@ -198,10 +189,9 @@ public:
    * The class uses the actual array provided; it does not copy the data
    * from the supplied array.
    */
-  void SetVoidArray(void *arr, vtkIdType size, int save) override;
-  void SetVoidArray(void *arr, vtkIdType size, int save,
-                    int deleteM) override;
-  //@}
+  void SetVoidArray(void* arr, vtkIdType size, int save) override;
+  void SetVoidArray(void* arr, vtkIdType size, int save, int deleteM) override;
+  ///@}
 
   /**
    * Return the memory in kibibytes (1024 bytes) consumed by this data array. Used to
@@ -211,12 +201,12 @@ public:
    * information returned is valid only after the pipeline has
    * been updated.
    */
-  unsigned long GetActualMemorySize() override;
+  unsigned long GetActualMemorySize() const override;
 
   /**
    * Since each item can be of a different type, we say that a variant array is not numeric.
    */
-  int IsNumeric() override;
+  int IsNumeric() const override;
 
   /**
    * Subclasses must override this method and provide the right
@@ -231,7 +221,7 @@ public:
   /**
    * Get the data at a particular index.
    */
-  vtkVariant & GetValue(vtkIdType id) const;
+  vtkVariant& GetValue(vtkIdType id) const;
 
   /**
    * Set the data at a particular index. Does not do range checking. Make sure
@@ -245,8 +235,7 @@ public:
    * If id >= GetNumberOfValues(), expand the array size to id+1
    * and set the final value to the specified value.
    */
-  void InsertValue(vtkIdType id, vtkVariant value)
-    VTK_EXPECTS(0 <= id);
+  void InsertValue(vtkIdType id, vtkVariant value) VTK_EXPECTS(0 <= id);
 
   /**
    * Insert a value into the array from a variant.
@@ -272,28 +261,29 @@ public:
   /**
    * Set the internal array used by this object.
    */
-  void SetArray(vtkVariant* arr, vtkIdType size, int save, int deleteMethod=VTK_DATA_ARRAY_DELETE);
+  void SetArray(
+    vtkVariant* arr, vtkIdType size, int save, int deleteMethod = VTK_DATA_ARRAY_DELETE);
 
   /**
-    * This method allows the user to specify a custom free function to be
-    * called when the array is deallocated. Calling this method will implicitly
-    * mean that the given free function will be called when the class
-    * cleans up or reallocates memory.
-  **/
-  void SetArrayFreeFunction(void (*callback)(void *)) override;
+   * This method allows the user to specify a custom free function to be
+   * called when the array is deallocated. Calling this method will implicitly
+   * mean that the given free function will be called when the class
+   * cleans up or reallocates memory.
+   **/
+  void SetArrayFreeFunction(void (*callback)(void*)) override;
 
   /**
    * Return the number of values in the array.
    */
-  vtkIdType GetNumberOfValues() { return this->MaxId + 1; }
+  vtkIdType GetNumberOfValues() const { return (this->MaxId + 1); }
 
-  //@{
+  ///@{
   /**
    * Return the indices where a specific value appears.
    */
   vtkIdType LookupValue(vtkVariant value) override;
   void LookupValue(vtkVariant value, vtkIdList* ids) override;
-  //@}
+  ///@}
 
   /**
    * Tell the array explicitly that the data has changed.
@@ -346,4 +336,5 @@ private:
   void UpdateLookup();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

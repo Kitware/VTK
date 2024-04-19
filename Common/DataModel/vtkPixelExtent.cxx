@@ -1,37 +1,22 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPixelExtenth.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPixelExtent.h"
 
 using std::deque;
 using std::ostream;
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkPixelExtent vtkPixelExtent::Grow(
-      const vtkPixelExtent &inputExt,
-      const vtkPixelExtent &problemDomain,
-      int n)
+  const vtkPixelExtent& inputExt, const vtkPixelExtent& problemDomain, int n)
 {
   vtkPixelExtent outputExt = vtkPixelExtent::Grow(inputExt, n);
   outputExt &= problemDomain;
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
-vtkPixelExtent vtkPixelExtent::Grow(
-      const vtkPixelExtent &inputExt,
-      int n)
+//------------------------------------------------------------------------------
+vtkPixelExtent vtkPixelExtent::Grow(const vtkPixelExtent& inputExt, int n)
 {
   vtkPixelExtent outputExt(inputExt);
   outputExt.Grow(0, n);
@@ -39,41 +24,31 @@ vtkPixelExtent vtkPixelExtent::Grow(
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
-vtkPixelExtent vtkPixelExtent::GrowLow(
-      const vtkPixelExtent &inputExt,
-      int q,
-      int n)
+//------------------------------------------------------------------------------
+vtkPixelExtent vtkPixelExtent::GrowLow(const vtkPixelExtent& inputExt, int q, int n)
 {
   vtkPixelExtent outputExt(inputExt);
-  outputExt[2*q] -= n;
+  outputExt[2 * q] -= n;
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
-vtkPixelExtent vtkPixelExtent::GrowHigh(
-      const vtkPixelExtent &inputExt,
-      int q,
-      int n)
+//------------------------------------------------------------------------------
+vtkPixelExtent vtkPixelExtent::GrowHigh(const vtkPixelExtent& inputExt, int q, int n)
 {
   vtkPixelExtent outputExt(inputExt);
-  outputExt[2*q+1] += n;
+  outputExt[2 * q + 1] += n;
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
-vtkPixelExtent vtkPixelExtent::Shrink(
-      const vtkPixelExtent &inputExt,
-      int n)
+//------------------------------------------------------------------------------
+vtkPixelExtent vtkPixelExtent::Shrink(const vtkPixelExtent& inputExt, int n)
 {
   return vtkPixelExtent::Grow(inputExt, -n);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPixelExtent vtkPixelExtent::Shrink(
-      const vtkPixelExtent &inputExt,
-      const vtkPixelExtent &problemDomain,
-      int n)
+  const vtkPixelExtent& inputExt, const vtkPixelExtent& problemDomain, int n)
 {
   vtkPixelExtent outputExt(inputExt);
 
@@ -82,7 +57,7 @@ vtkPixelExtent vtkPixelExtent::Shrink(
 
   // don't shrink at the problem domain
   // because you don't grow outside the problem domain.
-  for (int i=0; i<4; ++i)
+  for (int i = 0; i < 4; ++i)
   {
     if (inputExt[i] == problemDomain[i])
     {
@@ -93,9 +68,8 @@ vtkPixelExtent vtkPixelExtent::Shrink(
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
-vtkPixelExtent vtkPixelExtent::CellToNode(
-      const vtkPixelExtent &inputExt)
+//------------------------------------------------------------------------------
+vtkPixelExtent vtkPixelExtent::CellToNode(const vtkPixelExtent& inputExt)
 {
   vtkPixelExtent outputExt(inputExt);
   ++outputExt[1];
@@ -103,8 +77,8 @@ vtkPixelExtent vtkPixelExtent::CellToNode(
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
-vtkPixelExtent vtkPixelExtent::NodeToCell(const vtkPixelExtent &inputExt)
+//------------------------------------------------------------------------------
+vtkPixelExtent vtkPixelExtent::NodeToCell(const vtkPixelExtent& inputExt)
 {
   vtkPixelExtent outputExt(inputExt);
   --outputExt[1];
@@ -112,30 +86,23 @@ vtkPixelExtent vtkPixelExtent::NodeToCell(const vtkPixelExtent &inputExt)
   return outputExt;
 }
 
-//-----------------------------------------------------------------------------
-void vtkPixelExtent::Shift(
-      int *ij,
-      int n)
+//------------------------------------------------------------------------------
+void vtkPixelExtent::Shift(int* ij, int n)
 {
   ij[0] += n;
   ij[1] += n;
 }
 
-//-----------------------------------------------------------------------------
-void vtkPixelExtent::Shift(
-      int *ij,
-      int *n)
+//------------------------------------------------------------------------------
+void vtkPixelExtent::Shift(int* ij, int* n)
 {
   ij[0] += n[0];
   ij[1] += n[1];
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPixelExtent::Split(
-      int i1,
-      int j1,
-      const vtkPixelExtent &ext,
-      deque<vtkPixelExtent> &newExts)
+  int i1, int j1, const vtkPixelExtent& ext, deque<vtkPixelExtent>& newExts)
 {
   // cell is inside, split results in as many as
   // 4 new extents. check for each one.
@@ -147,25 +114,25 @@ void vtkPixelExtent::Split(
   // lower left
   if (ext.Contains(i0, j0))
   {
-    newExts.push_back(vtkPixelExtent(ext[0], i0, ext[2], j0));
+    newExts.emplace_back(ext[0], i0, ext[2], j0);
     outside = 0;
   }
   // lower right
   if (ext.Contains(i1, j0))
   {
-    newExts.push_back(vtkPixelExtent(i1, ext[1], ext[2], j0));
+    newExts.emplace_back(i1, ext[1], ext[2], j0);
     outside = 0;
   }
   // upper left
   if (ext.Contains(i0, j1))
   {
-    newExts.push_back(vtkPixelExtent(ext[0], i0, j1, ext[3]));
+    newExts.emplace_back(ext[0], i0, j1, ext[3]);
     outside = 0;
   }
   // upper right
   if (ext.Contains(i1, j1))
   {
-    newExts.push_back(vtkPixelExtent(i1, ext[1], j1, ext[3]));
+    newExts.emplace_back(i1, ext[1], j1, ext[3]);
     outside = 0;
   }
 
@@ -177,11 +144,9 @@ void vtkPixelExtent::Split(
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPixelExtent::Subtract(
-      const vtkPixelExtent &A,
-      const vtkPixelExtent& B,
-      deque<vtkPixelExtent> &C)
+  const vtkPixelExtent& A, const vtkPixelExtent& B, deque<vtkPixelExtent>& C)
 {
   // split method requires split point inside the extent
   vtkPixelExtent I(A);
@@ -204,27 +169,27 @@ void vtkPixelExtent::Subtract(
 
   deque<vtkPixelExtent> tmpA0;
   tmpA0.push_back(A);
-  for (int q=0; q<4; ++q)
+  for (int q = 0; q < 4; ++q)
   {
-    const int ids[8] = {0,2, 1,2, 1,3, 0,3};
-    int qq = 2*q;
+    const int ids[8] = { 0, 2, 1, 2, 1, 3, 0, 3 };
+    int qq = 2 * q;
     int i = I[ids[qq]];
-    int j = I[ids[qq+1]];
+    int j = I[ids[qq + 1]];
     deque<vtkPixelExtent> tmpA1;
-    while ( !tmpA0.empty() )
+    while (!tmpA0.empty())
     {
       vtkPixelExtent ext = tmpA0.back();
       tmpA0.pop_back();
-      vtkPixelExtent::Split(i,j, ext, tmpA1);
+      vtkPixelExtent::Split(i, j, ext, tmpA1);
     }
     tmpA0 = tmpA1;
   }
 
   // remove anything covered by B
   size_t n = tmpA0.size();
-  for (size_t q=0; q<n; ++q)
+  for (size_t q = 0; q < n; ++q)
   {
-    const vtkPixelExtent &ext = tmpA0[q];
+    const vtkPixelExtent& ext = tmpA0[q];
     if (!B.Contains(ext))
     {
       C.push_back(ext);
@@ -232,15 +197,15 @@ void vtkPixelExtent::Subtract(
   }
 }
 
-// ----------------------------------------------------------------------------
-void vtkPixelExtent::Merge(deque<vtkPixelExtent> &exts)
+//------------------------------------------------------------------------------
+void vtkPixelExtent::Merge(deque<vtkPixelExtent>& exts)
 {
   size_t ne = exts.size();
 
   // working in point space simplifies things because
   // points overlap in adjacent extents while cells do not
   deque<vtkPixelExtent> tmpExts(ne);
-  for (size_t t=0; t<ne; ++t)
+  for (size_t t = 0; t < ne; ++t)
   {
     vtkPixelExtent ext(exts[t]);
     ext.CellToNode();
@@ -248,11 +213,11 @@ void vtkPixelExtent::Merge(deque<vtkPixelExtent> &exts)
   }
 
   // one pass for each direction
-  for (int q=0; q<2; ++q)
+  for (int q = 0; q < 2; ++q)
   {
-    int qq = 2*q;
+    int qq = 2 * q;
     // consider each extent as a target to be merged
-    for (size_t t=0; t<ne; ++t)
+    for (size_t t = 0; t < ne; ++t)
     {
       // if a merger occurs the merged extent is added
       // as a new target with the constituents marked empty
@@ -260,14 +225,14 @@ void vtkPixelExtent::Merge(deque<vtkPixelExtent> &exts)
       bool nextPass = false;
 
       // current target
-      vtkPixelExtent &ext0 = tmpExts[t];
+      vtkPixelExtent& ext0 = tmpExts[t];
       if (ext0.Empty())
       {
         // was merged in preceding pass
         continue;
       }
 
-      for (size_t c=0; c<ne; ++c)
+      for (size_t c = 0; c < ne; ++c)
       {
         if (c == t)
         {
@@ -276,7 +241,7 @@ void vtkPixelExtent::Merge(deque<vtkPixelExtent> &exts)
         }
 
         // candidate
-        vtkPixelExtent &ext1 = tmpExts[c];
+        vtkPixelExtent& ext1 = tmpExts[c];
         if (ext1.Empty())
         {
           // was merged in preceding pass
@@ -284,7 +249,7 @@ void vtkPixelExtent::Merge(deque<vtkPixelExtent> &exts)
         }
 
         // must be same size and coordinate in merge dir
-        if ( (ext0[qq] == ext1[qq]) && (ext0[qq+1] == ext1[qq+1]) )
+        if ((ext0[qq] == ext1[qq]) && (ext0[qq + 1] == ext1[qq + 1]))
         {
           // must overlap overlap
           vtkPixelExtent ext2(ext0);
@@ -315,9 +280,9 @@ void vtkPixelExtent::Merge(deque<vtkPixelExtent> &exts)
   }
   // discard merged targets copy to output
   exts.clear();
-  for (size_t t=0; t<ne; ++t)
+  for (size_t t = 0; t < ne; ++t)
   {
-    vtkPixelExtent &ext = tmpExts[t];
+    vtkPixelExtent& ext = tmpExts[t];
     if (!ext.Empty())
     {
       ext.NodeToCell();
@@ -327,7 +292,7 @@ void vtkPixelExtent::Merge(deque<vtkPixelExtent> &exts)
 }
 
 //*****************************************************************************
-ostream &operator<<(ostream &os, const vtkPixelExtent &ext)
+ostream& operator<<(ostream& os, const vtkPixelExtent& ext)
 {
   if (ext.Empty())
   {
@@ -335,12 +300,8 @@ ostream &operator<<(ostream &os, const vtkPixelExtent &ext)
   }
   else
   {
-    os
-      << "("
-      << ext[0] << ", "
-      << ext[1] << ", "
-      << ext[2] << ", "
-      << ext[3] << ")";
+    os << "(" << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ")";
   }
   return os;
 }
+VTK_ABI_NAMESPACE_END

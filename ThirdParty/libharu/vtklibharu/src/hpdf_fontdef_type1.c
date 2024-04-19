@@ -139,7 +139,7 @@ LoadAfm (HPDF_FontDef  fontdef,
 
     len = HPDF_TMP_BUF_SIZ;
 
-    /* chaeck AFM header */
+    /* check AFM header */
     if ((ret = HPDF_Stream_ReadLn (stream, buf, &len)) != HPDF_OK)
          return ret;
 
@@ -251,7 +251,7 @@ LoadAfm (HPDF_FontDef  fontdef,
         /* C default character code. */
         s = GetKeyword (buf, buf2, HPDF_LIMIT_MAX_NAME_LEN + 1);
         if (HPDF_StrCmp (buf2, "CX") == 0) {
-            /* not suppoted yet. */
+            /* not supported yet. */
             return HPDF_SetError (fontdef->error,
                     HPDF_INVALID_CHAR_MATRICS_DATA, 0);
         } else
@@ -401,7 +401,7 @@ HPDF_Type1FontDef_Load  (HPDF_MMgr         mmgr,
         return NULL;
     }
 
-    /* if font-data is specified, the font data is embeded */
+    /* if font-data is specified, the font data is embedded */
     if (font_data) {
         ret = LoadFontData (fontdef, font_data);
         if (ret != HPDF_OK) {

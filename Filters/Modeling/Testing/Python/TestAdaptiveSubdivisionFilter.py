@@ -1,42 +1,55 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkIdFilter
+from vtkmodules.vtkFiltersModeling import vtkAdaptiveSubdivisionFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkProperty,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create a pipeline: some skinny-ass triangles
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetThetaResolution(6)
 sphere.SetPhiResolution(24)
 
-ids = vtk.vtkIdFilter()
+ids = vtkIdFilter()
 ids.SetInputConnection(sphere.GetOutputPort())
 
-adapt = vtk.vtkAdaptiveSubdivisionFilter()
+adapt = vtkAdaptiveSubdivisionFilter()
 adapt.SetInputConnection(ids.GetOutputPort())
 adapt.SetMaximumEdgeLength(0.1)
 #adapt.SetMaximumTriangleArea(0.01)
 #adapt.SetMaximumNumberOfPasses(1)
 adapt.Update()
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(adapt.GetOutputPort())
 mapper.SetScalarModeToUseCellFieldData()
 mapper.SelectColorArray("vtkIdFilter_Ids")
 mapper.SetScalarRange(adapt.GetOutput().GetCellData().GetScalars().GetRange())
 
-edgeProp = vtk.vtkProperty()
+edgeProp = vtkProperty()
 edgeProp.EdgeVisibilityOn()
 edgeProp.SetEdgeColor(0,0,0)
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.SetProperty(edgeProp)
 
 # Graphics stuff
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

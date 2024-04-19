@@ -1,47 +1,38 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkEmbeddedFonts.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkEmbeddedFonts_h
 #define vtkEmbeddedFonts_h
+
+#include "vtkABINamespace.h"
 
 #include <stddef.h>
 
 // -----------------------------------------------------------------------
 // VTK: Arial Normal
-// Gothic L Book (uagk8a.pfb)
+// Gothic L Book
 // Contributed by URW
 
+VTK_ABI_NAMESPACE_BEGIN
 extern size_t face_arial_buffer_length;
 extern unsigned char face_arial_buffer[];
 
 // VTK: Arial Bold
-// Gothic L Demi (uagd8a.pfb)
+// Gothic L Demi
 // Contributed by URW
 
 extern size_t face_arial_bold_buffer_length;
 extern unsigned char face_arial_bold_buffer[];
 
 // VTK: Arial Bold Italic
-// Gothic L Demi Oblique (uagdo8a.pfb)
+// Gothic L Demi Oblique
 // Contributed by URW
 
 extern size_t face_arial_bold_italic_buffer_length;
 extern unsigned char face_arial_bold_italic_buffer[];
 
 // VTK: Arial Italic
-// Gothic L Book Oblique (uagko8a.pfb)
+// Gothic L Book Oblique
 // Contributed by URW
 
 extern size_t face_arial_italic_buffer_length;
@@ -105,4 +96,5 @@ extern unsigned char face_times_bold_italic_buffer[];
 extern size_t face_times_italic_buffer_length;
 extern unsigned char face_times_italic_buffer[];
 
+VTK_ABI_NAMESPACE_END
 #endif

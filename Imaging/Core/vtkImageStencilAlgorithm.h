@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageStencilAlgorithm.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageStencilAlgorithm
  * @brief   producer of vtkImageStencilData
@@ -22,51 +10,47 @@
  * several imaging filters.
  * @sa
  * vtkImageStencilData vtkImageStencilSource
-*/
+ */
 
 #ifndef vtkImageStencilAlgorithm_h
 #define vtkImageStencilAlgorithm_h
 
-
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageStencilData;
 
 class VTKIMAGINGCORE_EXPORT vtkImageStencilAlgorithm : public vtkAlgorithm
 {
 public:
-  static vtkImageStencilAlgorithm *New();
+  static vtkImageStencilAlgorithm* New();
   vtkTypeMacro(vtkImageStencilAlgorithm, vtkAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get or set the output for this source.
    */
-  void SetOutput(vtkImageStencilData *output);
-  vtkImageStencilData *GetOutput();
-  //@}
+  void SetOutput(vtkImageStencilData* output);
+  vtkImageStencilData* GetOutput();
+  ///@}
 
   /**
    * see vtkAlgorithm for details
    */
-  vtkTypeBool ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkImageStencilAlgorithm();
   ~vtkImageStencilAlgorithm() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-  vtkImageStencilData *AllocateOutputData(vtkDataObject *out, int* updateExt);
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  virtual int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  vtkImageStencilData* AllocateOutputData(vtkDataObject* out, int* updateExt);
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 
@@ -75,4 +59,5 @@ private:
   void operator=(const vtkImageStencilAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

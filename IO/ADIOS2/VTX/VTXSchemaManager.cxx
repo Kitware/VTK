@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    VTXSchemaManager.cxx
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * VTXSchemaManager.cxx
@@ -25,6 +13,7 @@
 #include "schema/vtk/VTXvtkVTI.h"
 #include "schema/vtk/VTXvtkVTU.h"
 
+#include <vtkLogger.h>
 #include <vtk_pugixml.h>
 #include <vtksys/SystemTools.hxx>
 
@@ -32,15 +21,20 @@
 
 namespace vtx
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // PUBLIC
 void VTXSchemaManager::Update(
-  const std::string& streamName, const size_t /*step*/, const std::string& schemaName)
+  const std::string& streamName, size_t /*step*/, const std::string& schemaName)
 {
   // can't do it in the constructor as it need MPI initialized
   if (!this->ADIOS)
   {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
     this->ADIOS.reset(new adios2::ADIOS(helper::MPIGetComm()));
+#else
+    this->ADIOS.reset(new adios2::ADIOS());
+#endif
   }
 
   if (!this->IO && !this->Engine)
@@ -50,8 +44,13 @@ void VTXSchemaManager::Update(
 
     const std::string fileName = helper::GetFileName(this->StreamName);
     this->IO = this->ADIOS->DeclareIO(fileName);
-    this->IO.SetEngine(helper::GetEngineType(fileName));
+    this->IO.SetEngine("BPFile");
+#if IOADIOS2_BP5_RANDOM_ACCESS
+    // ReadRandomAccess necessary for BP5 format, optional for BP3/4
+    this->Engine = this->IO.Open(fileName, adios2::Mode::ReadRandomAccess);
+#else
     this->Engine = this->IO.Open(fileName, adios2::Mode::Read);
+#endif
     InitReader();
   }
   else
@@ -60,7 +59,7 @@ void VTXSchemaManager::Update(
   }
 }
 
-void VTXSchemaManager::Fill(vtkMultiBlockDataSet* multiBlock, const size_t step)
+void VTXSchemaManager::Fill(vtkMultiBlockDataSet* multiBlock, size_t step)
 {
   this->Reader->Fill(multiBlock, step);
 }
@@ -140,10 +139,10 @@ bool VTXSchemaManager::InitReaderXMLVTK()
 
   const std::string type = std::string(typeXML.value());
 
-  if (this->SupportedTypes.count(type) == 0)
+  if (VTXSchemaManager::SupportedTypes.count(type) == 0)
   {
     throw std::runtime_error("ERROR: ADIOS2Reader only supports types= " +
-      helper::SetToCSV(this->SupportedTypes) + " when reading type xml attribute in " +
+      helper::SetToCSV(VTXSchemaManager::SupportedTypes) + " when reading type xml attribute in " +
       this->SchemaName + " from " + this->Engine.Name() + "\n");
   }
 
@@ -156,8 +155,9 @@ bool VTXSchemaManager::InitReaderXMLVTK()
     this->Reader.reset(new schema::VTXvtkVTU(xmlContents, this->IO, this->Engine));
   }
 
-  const bool success = this->Reader ? true : false;
+  const bool success = static_cast<bool>(this->Reader);
   return success;
 }
 
-} // end var namespace
+VTK_ABI_NAMESPACE_END
+} // end vtx namespace

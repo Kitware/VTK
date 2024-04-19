@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkEdgeListIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkEdgeListIterator
  * @brief   Iterates through all edges in a graph.
@@ -33,7 +17,7 @@
  *
  * @sa
  * vtkGraph
-*/
+ */
 
 #ifndef vtkEdgeListIterator_h
 #define vtkEdgeListIterator_h
@@ -41,6 +25,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 class vtkGraphEdge;
 
@@ -50,12 +35,12 @@ struct vtkOutEdgeType;
 class VTKCOMMONDATAMODEL_EXPORT vtkEdgeListIterator : public vtkObject
 {
 public:
-  static vtkEdgeListIterator *New();
+  static vtkEdgeListIterator* New();
   vtkTypeMacro(vtkEdgeListIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetObjectMacro(Graph, vtkGraph);
-  virtual void SetGraph(vtkGraph *graph);
+  virtual void SetGraph(vtkGraph* graph);
 
   /**
    * Returns the next edge in the graph.
@@ -69,7 +54,7 @@ public:
    * The graph edge is owned by this iterator, and changes
    * after each call to NextGraphEdge().
    */
-  vtkGraphEdge *NextGraphEdge();
+  vtkGraphEdge* NextGraphEdge();
 
   /**
    * Whether this iterator has more edges.
@@ -82,16 +67,17 @@ protected:
 
   void Increment();
 
-  vtkGraph *Graph;
-  const vtkOutEdgeType *Current;
-  const vtkOutEdgeType *End;
-  vtkIdType             Vertex;
-  bool                  Directed;
-  vtkGraphEdge        *GraphEdge;
+  vtkGraph* Graph;
+  const vtkOutEdgeType* Current;
+  const vtkOutEdgeType* End;
+  vtkIdType Vertex;
+  bool Directed;
+  vtkGraphEdge* GraphEdge;
 
 private:
   vtkEdgeListIterator(const vtkEdgeListIterator&) = delete;
   void operator=(const vtkEdgeListIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

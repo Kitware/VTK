@@ -1,19 +1,7 @@
 //VTK::System::Dec
 
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPolyDataVS.glsl
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 in vec4 vertexMC;
 
@@ -49,8 +37,21 @@ in vec4 vertexMC;
 // picking support
 //VTK::Picking::Dec
 
+// Surface with edges on GLES 3.0
+//VTK::EdgesGLES30::Dec
+
+// PointSize on GLES 3.0
+//VTK::PointSizeGLES30::Dec
+
+// LineWidth on GLES 3.0
+//VTK::LineWidthGLES30::Dec
+
 void main()
 {
+  //VTK::CustomBegin::Impl
+
+  //VTK::PointSizeGLES30::Impl
+
   //VTK::Color::Impl
 
   //VTK::Normal::Impl
@@ -63,9 +64,15 @@ void main()
 
   //VTK::PositionVC::Impl
 
+  //VTK::LineWidthGLES30::Impl
+
   //VTK::ValuePass::Impl
 
   //VTK::Light::Impl
 
   //VTK::Picking::Impl
+
+  //VTK::CustomEnd::Impl
+
+  //VTK::EdgesGLES30::Impl
 }

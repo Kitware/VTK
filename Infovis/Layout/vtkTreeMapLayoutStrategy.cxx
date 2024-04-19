@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeMapLayoutStrategy.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkTreeMapLayoutStrategy.h"
 
@@ -24,17 +8,17 @@
 #include "vtkFloatArray.h"
 #include "vtkTree.h"
 
-
+VTK_ABI_NAMESPACE_BEGIN
 vtkTreeMapLayoutStrategy::vtkTreeMapLayoutStrategy() = default;
 
 vtkTreeMapLayoutStrategy::~vtkTreeMapLayoutStrategy() = default;
 
 void vtkTreeMapLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
-void vtkTreeMapLayoutStrategy::AddBorder(float *boxInfo)
+void vtkTreeMapLayoutStrategy::AddBorder(float* boxInfo)
 {
   float dx, dy;
   dx = 0.5 * (boxInfo[1] - boxInfo[0]) * this->ShrinkPercentage;
@@ -45,18 +29,17 @@ void vtkTreeMapLayoutStrategy::AddBorder(float *boxInfo)
   boxInfo[3] -= dy;
 }
 
-vtkIdType vtkTreeMapLayoutStrategy::FindVertex(
-    vtkTree* otree, vtkDataArray* array, float pnt[2])
+vtkIdType vtkTreeMapLayoutStrategy::FindVertex(vtkTree* otree, vtkDataArray* array, float pnt[2])
 {
   // Check to see that we are in the dataset at all
   float blimits[4];
 
   vtkIdType vertex = otree->GetRoot();
-  vtkFloatArray *boxInfo = vtkArrayDownCast<vtkFloatArray>(array);
+  vtkFloatArray* boxInfo = vtkArrayDownCast<vtkFloatArray>(array);
   // Now try to find the vertex that contains the point
   boxInfo->GetTypedTuple(vertex, blimits); // Get the extents of the root
-  if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) ||
-      (pnt[1] < blimits[2]) || (pnt[1] > blimits[3]))
+  if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) || (pnt[1] < blimits[2]) ||
+    (pnt[1] > blimits[3]))
   {
     // Point is not in the tree at all
     return -1;
@@ -75,14 +58,14 @@ vtkIdType vtkTreeMapLayoutStrategy::FindVertex(
   }
 #endif
 
-  vtkAdjacentVertexIterator *it = vtkAdjacentVertexIterator::New();
+  vtkAdjacentVertexIterator* it = vtkAdjacentVertexIterator::New();
   otree->GetAdjacentVertices(vertex, it);
   while (it->HasNext())
   {
     child = it->Next();
     boxInfo->GetTypedTuple(child, blimits); // Get the extents of the child
-    if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) ||
-            (pnt[1] < blimits[2]) || (pnt[1] > blimits[3]))
+    if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) || (pnt[1] < blimits[2]) ||
+      (pnt[1] > blimits[3]))
     {
       continue;
     }
@@ -95,4 +78,4 @@ vtkIdType vtkTreeMapLayoutStrategy::FindVertex(
 
   return vertex;
 }
-
+VTK_ABI_NAMESPACE_END

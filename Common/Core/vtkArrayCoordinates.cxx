@@ -1,43 +1,27 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkArrayCoordinates.cxx
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkArrayCoordinates.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkArrayCoordinates::vtkArrayCoordinates() = default;
 
-vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i) :
-  Storage(1)
+vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i)
+  : Storage(1)
 {
   this->Storage[0] = i;
 }
 
-vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j) :
-  Storage(2)
+vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j)
+  : Storage(2)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
 }
 
-vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j, CoordinateT k) :
-  Storage(3)
+vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j, CoordinateT k)
+  : Storage(3)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
@@ -86,13 +70,13 @@ bool vtkArrayCoordinates::operator!=(const vtkArrayCoordinates& rhs) const
 
 ostream& operator<<(ostream& stream, const vtkArrayCoordinates& rhs)
 {
-  for(vtkArrayCoordinates::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
+  for (vtkArrayCoordinates::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
   {
-    if(i)
+    if (i)
       stream << ",";
     stream << rhs[i];
   }
 
   return stream;
 }
-
+VTK_ABI_NAMESPACE_END

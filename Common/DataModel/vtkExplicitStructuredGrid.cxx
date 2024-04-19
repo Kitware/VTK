@@ -1,17 +1,6 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    vtkExplicitStructuredGrid.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
 #include "vtkExplicitStructuredGrid.h"
 
 #include "vtkCell.h"
@@ -20,6 +9,7 @@
 #include "vtkCellLinks.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEmptyCell.h"
+#include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
 #include "vtkInformation.h"
@@ -33,40 +23,37 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 static const unsigned char MASKED_CELL_VALUE =
   vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
 
-static int HEXAHEDRON_POINT_MAP[] = { 0, 1, 3, 2, 4, 5, 7, 6,
-                                      1, 0, 2, 3, 5, 4, 6, 7,
-                                      0, 3, 1, 2, 4, 7, 5, 6,
-                                      3, 0, 2, 1, 7, 4, 6, 5,
-                                      0, 4, 1, 5, 2, 6, 3, 7,
-                                      4, 0, 5, 1, 6, 2, 7, 3 };
+static int HEXAHEDRON_POINT_MAP[] = {
+  0, 1, 3, 2, 4, 5, 7, 6, //
+  1, 0, 2, 3, 5, 4, 6, 7, //
+  0, 3, 1, 2, 4, 7, 5, 6, //
+  3, 0, 2, 1, 7, 4, 6, 5, //
+  0, 4, 1, 5, 2, 6, 3, 7, //
+  4, 0, 5, 1, 6, 2, 7, 3  //
+};
 
-static int SWAP_HEXAHEDRON_POINT_MAP[] = { 0, 1, 5, 4, 3, 2, 6, 7,
-                                           0, 4, 7, 3, 1, 5, 6, 2,
-                                           0, 3, 2, 1, 4, 7, 6, 5 };
+static int SWAP_HEXAHEDRON_POINT_MAP[] = {
+  0, 1, 5, 4, 3, 2, 6, 7, //
+  0, 4, 7, 3, 1, 5, 6, 2, //
+  0, 3, 2, 1, 4, 7, 6, 5  //
+};
 
-static int MIRROR_HEXAHEDRON_POINT_MAP[] = { 1, 0, 3, 2, 5, 4, 7, 6,
-                                             3, 2, 1, 0, 7, 6, 5, 4,
-                                             4, 5, 6, 7, 0, 1, 2, 3 };
+static int MIRROR_HEXAHEDRON_POINT_MAP[] = {
+  1, 0, 3, 2, 5, 4, 7, 6, //
+  3, 2, 1, 0, 7, 6, 5, 4, //
+  4, 5, 6, 7, 0, 1, 2, 3  //
+};
 
 vtkStandardNewMacro(vtkExplicitStructuredGrid);
-vtkSetObjectImplementationMacro(vtkExplicitStructuredGrid, Cells, vtkCellArray);
 
-#define vtkAdjustBoundsMacro(A, B)                                                                 \
-  A[0] = (B[0] < A[0] ? B[0] : A[0]);                                                              \
-  A[1] = (B[0] > A[1] ? B[0] : A[1]);                                                              \
-  A[2] = (B[1] < A[2] ? B[1] : A[2]);                                                              \
-  A[3] = (B[1] > A[3] ? B[1] : A[3]);                                                              \
-  A[4] = (B[2] < A[4] ? B[2] : A[4]);                                                              \
-  A[5] = (B[2] > A[5] ? B[2] : A[5])
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExplicitStructuredGrid::vtkExplicitStructuredGrid()
 {
-  this->Cells = nullptr;
-  this->Links = nullptr;
+  this->Cells = vtkSmartPointer<vtkCellArray>::New();
 
   this->FacesConnectivityFlagsArrayName = nullptr;
 
@@ -77,19 +64,14 @@ vtkExplicitStructuredGrid::vtkExplicitStructuredGrid()
   this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExplicitStructuredGrid::~vtkExplicitStructuredGrid()
 {
   this->SetFacesConnectivityFlagsArrayName(nullptr);
   this->SetCells(nullptr);
-  if (this->Links)
-  {
-    this->Links->Delete();
-    this->Links = nullptr;
-  }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::Initialize()
 {
   this->Superclass::Initialize();
@@ -102,36 +84,36 @@ void vtkExplicitStructuredGrid::Initialize()
   this->SetCells(nullptr);
   if (this->Links)
   {
-    this->Links->Delete();
-    this->Links = nullptr;
+    this->Links->Initialize();
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGrid::GetCellType(vtkIdType cellId)
 {
   return this->IsCellVisible(cellId) ? VTK_HEXAHEDRON : VTK_EMPTY_CELL;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+vtkIdType vtkExplicitStructuredGrid::GetCellSize(vtkIdType cellId)
+{
+  return this->IsCellVisible(cellId) ? 8 : 0;
+}
+
+//------------------------------------------------------------------------------
 vtkIdType vtkExplicitStructuredGrid::GetNumberOfCells()
 {
   return vtkStructuredData::GetNumberOfCells(this->Extent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkCell* vtkExplicitStructuredGrid::GetCell(vtkIdType cellId)
 {
-  // see whether the cell is blanked
-  if (!this->IsCellVisible(cellId))
-  {
-    return this->EmptyCell;
-  }
-  this->GetCell(cellId, this->Hexahedron);
-  return this->Hexahedron;
+  this->GetCell(cellId, this->GenericCell);
+  return this->GenericCell->GetRepresentativeCell();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 {
   if (!this->IsCellVisible(cellId))
@@ -140,39 +122,29 @@ void vtkExplicitStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
     return;
   }
   cell->SetCellTypeToHexahedron();
-  this->GetCell(cellId, static_cast<vtkCell*>(cell));
+  this->Cells->GetCellAtId(cellId, cell->PointIds);
+  this->Points->GetPoints(cell->PointIds, cell->Points);
 }
 
-//----------------------------------------------------------------------------
-void vtkExplicitStructuredGrid::GetCell(vtkIdType cellId, vtkCell* cell)
+//------------------------------------------------------------------------------
+// Support GetCellBounds()
+namespace
+{ // anonymous
+struct ComputeCellBoundsVisitor
 {
-  // Make sure data is defined
-  if (!this->Points || !this->Cells)
+  // vtkCellArray::Visit entry point:
+  template <typename CellStateT>
+  void operator()(CellStateT& state, vtkPoints* points, vtkIdType cellId, double bounds[6]) const
   {
-    vtkErrorMacro(<< "No geometry or topology found!");
-    return;
-  }
+    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
 
-  // See whether the cell is blanked
-  if (!this->IsCellVisible(cellId))
-  {
-    return;
+    const auto pointIds = state.GetConnectivity()->GetPointer(beginOffset);
+    vtkBoundingBox::ComputeBounds(points, pointIds, 8, bounds);
   }
+};
+} // anonymous
 
-  // Extract point coordinates and point ids. NOTE: the ordering of the
-  // vtkHexahedron cells are tricky.
-  vtkIdType* indices = this->GetCellPoints(cellId);
-  for (int i = 0; i < 8; i++)
-  {
-    vtkIdType idx = indices[i];
-    double x[3];
-    this->Points->GetPoint(idx, x);
-    cell->Points->SetPoint(i, x);
-    cell->PointIds->SetId(i, idx);
-  }
-}
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().
 // Bounds are calculated without constructing a cell.
 void vtkExplicitStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
@@ -182,38 +154,10 @@ void vtkExplicitStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6]
     vtkErrorMacro(<< "No data");
     return;
   }
-
-  vtkIdType* indices = this->GetCellPoints(cellId);
-  double x[3];
-
-  this->Points->GetPoint(indices[0], x);
-  bounds[0] = bounds[1] = x[0];
-  bounds[2] = bounds[3] = x[1];
-  bounds[4] = bounds[5] = x[2];
-
-  this->Points->GetPoint(indices[1], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[2], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[3], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[4], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[5], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[6], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[7], x);
-  vtkAdjustBoundsMacro(bounds, x);
+  this->Cells->Visit(ComputeCellBoundsVisitor{}, this->Points, cellId, bounds);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
 {
   if (!this->Links)
@@ -228,13 +172,13 @@ void vtkExplicitStructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList* cellIds
   vtkIdType numCells, *cells;
   if (!this->Editable)
   {
-    vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links);
+    vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
     numCells = links->GetNcells(ptId);
     cells = links->GetCells(ptId);
   }
   else
   {
-    vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links);
+    vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
     numCells = links->GetNcells(ptId);
     cells = links->GetCells(ptId);
   }
@@ -246,16 +190,16 @@ void vtkExplicitStructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList* cellIds
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType* vtkExplicitStructuredGrid::GetCellPoints(vtkIdType cellId)
 {
   vtkIdType unused;
-  const vtkIdType *result;
+  const vtkIdType* result;
   this->Cells->GetCellAtId(cellId, unused, result);
   return const_cast<vtkIdType*>(result);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Get the points defining a cell. (See vtkDataSet for more info.)
 void vtkExplicitStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 {
@@ -268,7 +212,7 @@ void vtkExplicitStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return a pointer to a list of point ids defining cell.
 // More efficient than alternative method.
 void vtkExplicitStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType*& pts)
@@ -277,7 +221,14 @@ void vtkExplicitStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdType& npts,
   pts = this->GetCellPoints(cellId);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkExplicitStructuredGrid::GetCellPoints(
+  vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
+{
+  this->Cells->GetCellAtId(cellId, npts, pts, ptIds);
+}
+
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::GetCellNeighbors(
   vtkIdType cellId, vtkIdType neighbors[6], int* wholeExtent)
 {
@@ -309,7 +260,7 @@ void vtkExplicitStructuredGrid::GetCellNeighbors(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Determine neighbors as follows. Find the (shortest) list of cells that
 // uses one of the points in ptIds. For each cell, in the list, see whether
 // it contains the other points in the ptIds list. If so, it's a neighbor.
@@ -383,7 +334,7 @@ void vtkExplicitStructuredGrid::GetCellNeighbors(
   }   // for all candidate cells attached to point
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::InternalCopy(vtkExplicitStructuredGrid* src)
 {
   // Internal method used for copying specific members
@@ -391,89 +342,97 @@ void vtkExplicitStructuredGrid::InternalCopy(vtkExplicitStructuredGrid* src)
   this->SetFacesConnectivityFlagsArrayName(src->GetFacesConnectivityFlagsArrayName());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Copy the topological structure of an input structured grid.
 void vtkExplicitStructuredGrid::CopyStructure(vtkDataSet* ds)
 {
-  this->Superclass::CopyStructure(ds);
-
   vtkExplicitStructuredGrid* grid = vtkExplicitStructuredGrid::SafeDownCast(ds);
+  if (!grid)
+  {
+    vtkErrorMacro("Input dataset is not a " << this->GetClassName());
+    return;
+  }
+  this->Superclass::CopyStructure(ds);
+  this->InternalCopy(grid);
+  this->SetCells(grid->GetCells());
+}
+
+//------------------------------------------------------------------------------
+void vtkExplicitStructuredGrid::ShallowCopy(vtkDataObject* dataObject)
+{
+  vtkExplicitStructuredGrid* grid = vtkExplicitStructuredGrid::SafeDownCast(dataObject);
+  if (this == grid)
+  {
+    return;
+  }
+
+  this->Superclass::ShallowCopy(dataObject);
   if (grid)
   {
     this->InternalCopy(grid);
+
     this->SetCells(grid->GetCells());
-    if (this->Links)
+
+    if (grid->Links)
     {
-      this->Links->Delete();
+      this->Links = vtkSmartPointer<vtkAbstractCellLinks>::Take(grid->Links->NewInstance());
+      this->Links->SetDataSet(this);
+      this->Links->ShallowCopy(grid->Links);
+    }
+    else
+    {
       this->Links = nullptr;
     }
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkExplicitStructuredGrid::ShallowCopy(vtkDataObject* dataObject)
-{
-  this->Superclass::ShallowCopy(dataObject);
-
-  if (this->Links)
-  {
-    this->Links->Delete();
-    this->Links = nullptr;
-  }
-
-  vtkExplicitStructuredGrid* grid = vtkExplicitStructuredGrid::SafeDownCast(dataObject);
-  if (grid)
-  {
-    this->InternalCopy(grid);
-
-    this->SetCells(grid->GetCells());
-
-    if (grid->Links)
-    {
-      this->BuildLinks();
-    }
-  }
-}
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::DeepCopy(vtkDataObject* dataObject)
 {
-  this->Superclass::DeepCopy(dataObject);
-
-  if (this->Links)
-  {
-    this->Links->Delete();
-    this->Links = nullptr;
-  }
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
 
   vtkExplicitStructuredGrid* grid = vtkExplicitStructuredGrid::SafeDownCast(dataObject);
+  this->Superclass::DeepCopy(dataObject);
+
   if (grid)
   {
     this->InternalCopy(grid);
 
-    vtkNew<vtkCellArray> cells;
-    cells->DeepCopy(grid->GetCells());
-    this->SetCells(cells.Get());
+    if (grid->Cells)
+    {
+      this->Cells = vtkSmartPointer<vtkCellArray>::New();
+      this->Cells->DeepCopy(grid->Cells);
+    }
+    else
+    {
+      this->Cells = nullptr;
+    }
     if (grid->Links)
     {
-      this->BuildLinks();
+      this->Links = vtkSmartPointer<vtkAbstractCellLinks>::Take(grid->Links->NewInstance());
+      this->Links->SetDataSet(this);
+      this->Links->DeepCopy(grid->Links);
+    }
+    else
+    {
+      this->Links = nullptr;
     }
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::SetDimensions(int i, int j, int k)
 {
   this->SetExtent(0, i - 1, 0, j - 1, 0, k - 1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::SetDimensions(int dim[3])
 {
   this->SetDimensions(dim[0], dim[1], dim[2]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::SetExtent(int x0, int x1, int y0, int y1, int z0, int z1)
 {
   this->Extent[0] = x0;
@@ -485,8 +444,7 @@ void vtkExplicitStructuredGrid::SetExtent(int x0, int x1, int y0, int y1, int z0
 
   if (this->Links)
   {
-    this->Links->Delete();
-    this->Links = nullptr;
+    this->Links->Initialize();
   }
 
   vtkIdType expectedCells = (this->Extent[1] - this->Extent[0]) *
@@ -507,36 +465,44 @@ void vtkExplicitStructuredGrid::SetExtent(int x0, int x1, int y0, int y1, int z0
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::SetExtent(int extent[6])
 {
   this->SetExtent(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::BuildLinks()
 {
   // Remove the old links if they are already built
-  if (this->Links)
+  if (!this->Points)
   {
-    this->Links->Delete();
+    return;
   }
 
   // Different types of links depending on whether the data can be edited after
   // initial creation.
-  if (this->Editable)
+  if (!this->Links)
   {
-    this->Links = vtkCellLinks::New();
-    static_cast<vtkCellLinks*>(this->Links)->Allocate(this->GetNumberOfPoints());
+    if (!this->Editable)
+    {
+      this->Links = vtkSmartPointer<vtkStaticCellLinks>::New();
+    }
+    else
+    {
+      this->Links = vtkSmartPointer<vtkCellLinks>::New();
+      static_cast<vtkCellLinks*>(this->Links.Get())->Allocate(this->GetNumberOfPoints());
+    }
+    this->Links->SetDataSet(this);
   }
-  else
+  else if (this->Points->GetMTime() > this->Links->GetMTime())
   {
-    this->Links = vtkStaticCellLinks::New();
+    this->Links->SetDataSet(this);
   }
-  this->Links->BuildLinks(this);
+  this->Links->BuildLinks();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::GenerateGhostArray(int zeroExt[6], bool vtkNotUsed(cellOnly))
 {
   int extent[6];
@@ -637,7 +603,7 @@ void vtkExplicitStructuredGrid::GenerateGhostArray(int zeroExt[6], bool vtkNotUs
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::ComputeFacesConnectivityFlagsArray()
 {
   vtkIdType nbCells = this->GetNumberOfCells();
@@ -678,13 +644,13 @@ void vtkExplicitStructuredGrid::ComputeFacesConnectivityFlagsArray()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExplicitStructuredGrid::HasAnyBlankCells()
 {
-  return this->IsAnyBitSet(this->GetCellGhostArray(), vtkDataSetAttributes::HIDDENCELL);
+  return this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENCELL);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Turn off a particular data cell.
 void vtkExplicitStructuredGrid::BlankCell(vtkIdType cellId)
 {
@@ -697,7 +663,7 @@ void vtkExplicitStructuredGrid::BlankCell(vtkIdType cellId)
   assert(!this->IsCellVisible(cellId));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Turn on a particular data cell.
 void vtkExplicitStructuredGrid::UnBlankCell(vtkIdType cellId)
 {
@@ -708,7 +674,7 @@ void vtkExplicitStructuredGrid::UnBlankCell(vtkIdType cellId)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return non-zero if the specified cell is visible (i.e., not blanked)
 unsigned char vtkExplicitStructuredGrid::IsCellVisible(vtkIdType cellId)
 {
@@ -716,7 +682,7 @@ unsigned char vtkExplicitStructuredGrid::IsCellVisible(vtkIdType cellId)
   return (ghosts && (ghosts->GetValue(cellId) & MASKED_CELL_VALUE)) ? 0 : 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Return non-zero if the specified cell is a ghost cell
 unsigned char vtkExplicitStructuredGrid::IsCellGhost(vtkIdType cellId)
 {
@@ -724,19 +690,19 @@ unsigned char vtkExplicitStructuredGrid::IsCellGhost(vtkIdType cellId)
   return (ghosts && (ghosts->GetValue(cellId) & vtkDataSetAttributes::DUPLICATECELL)) ? 1 : 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkExplicitStructuredGrid::HasAnyGhostCells()
 {
-  return this->IsAnyBitSet(this->GetCellGhostArray(), vtkDataSetAttributes::DUPLICATECELL);
+  return this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::DUPLICATECELL);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::Crop(const int* updateExtent)
 {
   this->Crop(this, updateExtent, false);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::Crop(
   vtkExplicitStructuredGrid* input, const int* updateExtent, bool generateOriginalCellIds)
 {
@@ -882,7 +848,14 @@ void vtkExplicitStructuredGrid::Crop(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkExplicitStructuredGrid::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->Links, "Links");
+}
+
+//------------------------------------------------------------------------------
 unsigned long vtkExplicitStructuredGrid::GetActualMemorySize()
 {
   unsigned long size = this->Superclass::GetActualMemorySize();
@@ -900,7 +873,7 @@ unsigned long vtkExplicitStructuredGrid::GetActualMemorySize()
   return size;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -914,7 +887,7 @@ void vtkExplicitStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
      << this->Extent[5] << ")\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Override this method because of blanking
 void vtkExplicitStructuredGrid::ComputeScalarRange()
 {
@@ -970,19 +943,19 @@ void vtkExplicitStructuredGrid::ComputeScalarRange()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExplicitStructuredGrid* vtkExplicitStructuredGrid::GetData(vtkInformation* info)
 {
   return info ? vtkExplicitStructuredGrid::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkExplicitStructuredGrid* vtkExplicitStructuredGrid::GetData(vtkInformationVector* v, int i)
 {
   return vtkExplicitStructuredGrid::GetData(v->GetInformationObject(i));
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::CheckAndReorderFaces()
 {
   // Check faces are on the correct axis
@@ -992,7 +965,7 @@ void vtkExplicitStructuredGrid::CheckAndReorderFaces()
   this->InternalCheckAndReorderFaces(false);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::InternalCheckAndReorderFaces(bool swapFlag)
 {
   // Find connected faces
@@ -1017,7 +990,7 @@ void vtkExplicitStructuredGrid::InternalCheckAndReorderFaces(bool swapFlag)
   this->ReorderCellsPoints(ptsMap, transformFlag);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGrid::FindConnectedFaces(int foundFaces[3])
 {
   int extent[6];
@@ -1088,71 +1061,71 @@ int vtkExplicitStructuredGrid::FindConnectedFaces(int foundFaces[3])
   return nFoundFaces;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::CheckConnectedFaces(int& nFoundFaces, int foundFaces[3])
 {
   // Check foundFaces coherence and extrapolate to find a missing faces if any
   switch (nFoundFaces)
   {
-  case 1:
-    // Only one face have been found, we will probably draw incorrect interior faces
-    for (int axis = 0; axis < 3; axis++)
-    {
-      int foundFace = foundFaces[axis];
-      // Check if the foundFace point to antoher axis
-      if (foundFace != -1 && !(foundFace == 2 * axis) && !(foundFace == 2 * axis + 1))
-      {
-        // A single foundFace which changes face on multiple axis is incoherent and can't be
-        // extrapolated from so we remove it. This means that incorrect interior faces will be
-        // drawn.
-        foundFaces[axis] = -1;
-        nFoundFaces--;
-      }
-    }
-    break;
-  case 2:
-  {
-    // Two faces have been found, we can try to extapolate the last one
-    int missingFaceAxis = -1;
-    for (int axis = 0; axis < 3; axis++)
-    {
-      if (foundFaces[axis] == -1)
-      {
-        // Identify the axis missing a face
-        missingFaceAxis = axis;
-        break;
-      }
-    }
-    int foundFaceAxisSum = 0;
-    int faceSwitch = 1;
-    for (int axis = 0; axis < 3; axis++)
-    {
-      if (axis != missingFaceAxis)
+    case 1:
+      // Only one face have been found, we will probably draw incorrect interior faces
+      for (int axis = 0; axis < 3; axis++)
       {
         int foundFace = foundFaces[axis];
-        int foundFaceAxis = static_cast<int>(std::floor((static_cast<double>(foundFace)) / 2.0));
-
-        // The sum of the found face axis will always be 3, so compute the sum
-        foundFaceAxisSum += foundFaceAxis;
-        if (!(foundFace == 2 * axis) && !(foundFace == 2 * axis + 1))
+        // Check if the foundFace point to another axis
+        if (foundFace != -1 && !(foundFace == 2 * axis) && !(foundFace == 2 * axis + 1))
         {
-          // when switching axis, we still need to know if there is some mirroring
-          // this identify mirroring
-          faceSwitch = foundFace - foundFaceAxis * 2;
+          // A single foundFace which changes face on multiple axis is incoherent and can't be
+          // extrapolated from so we remove it. This means that incorrect interior faces will be
+          // drawn.
+          foundFaces[axis] = -1;
+          nFoundFaces--;
         }
       }
+      break;
+    case 2:
+    {
+      // Two faces have been found, we can try to extapolate the last one
+      int missingFaceAxis = -1;
+      for (int axis = 0; axis < 3; axis++)
+      {
+        if (foundFaces[axis] == -1)
+        {
+          // Identify the axis missing a face
+          missingFaceAxis = axis;
+          break;
+        }
+      }
+      int foundFaceAxisSum = 0;
+      int faceSwitch = 1;
+      for (int axis = 0; axis < 3; axis++)
+      {
+        if (axis != missingFaceAxis)
+        {
+          int foundFace = foundFaces[axis];
+          int foundFaceAxis = static_cast<int>(std::floor((static_cast<double>(foundFace)) / 2.0));
+
+          // The sum of the found face axis will always be 3, so compute the sum
+          foundFaceAxisSum += foundFaceAxis;
+          if (!(foundFace == 2 * axis) && !(foundFace == 2 * axis + 1))
+          {
+            // when switching axis, we still need to know if there is some mirroring
+            // this identify mirroring
+            faceSwitch = foundFace - foundFaceAxis * 2;
+          }
+        }
+      }
+      // Compute the actual missing face
+      foundFaces[missingFaceAxis] = (3 - foundFaceAxisSum) * 2 + faceSwitch;
+      nFoundFaces++;
     }
-    // Compute the actual missing face
-    foundFaces[missingFaceAxis] = (3 - foundFaceAxisSum) * 2 + faceSwitch;
-    nFoundFaces++;
-  }
-  break;
-  default:
     break;
+    default:
+      break;
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::ComputeSwapFlag(int foundFaces[3], int swap[3])
 {
   int permuWise = 1;
@@ -1181,7 +1154,7 @@ void vtkExplicitStructuredGrid::ComputeSwapFlag(int foundFaces[3], int swap[3])
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::ComputeMirrorFlag(int foundFaces[3], int mirror[3])
 {
   for (int axis = 0; axis < 3; axis++)
@@ -1197,7 +1170,7 @@ void vtkExplicitStructuredGrid::ComputeMirrorFlag(int foundFaces[3], int mirror[
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::ReorderCellsPoints(const int* ptsMap, const int transformFlag[3])
 {
   // Reorder all cells if necessary
@@ -1232,3 +1205,4 @@ void vtkExplicitStructuredGrid::ReorderCellsPoints(const int* ptsMap, const int 
     }
   }
 }
+VTK_ABI_NAMESPACE_END

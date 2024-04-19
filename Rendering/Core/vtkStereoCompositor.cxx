@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStereoCompositor.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkStereoCompositor.h"
 
 #include "vtkObjectFactory.h"
@@ -21,14 +9,15 @@
 #include <algorithm>
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStereoCompositor);
-//----------------------------------------------------------------------------
-vtkStereoCompositor::vtkStereoCompositor() {}
+//------------------------------------------------------------------------------
+vtkStereoCompositor::vtkStereoCompositor() = default;
 
-//----------------------------------------------------------------------------
-vtkStereoCompositor::~vtkStereoCompositor() {}
+//------------------------------------------------------------------------------
+vtkStereoCompositor::~vtkStereoCompositor() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::Validate(vtkUnsignedCharArray* rgbLeftNResult,
   vtkUnsignedCharArray* rgbRight, const int* size /*=nullptr*/)
 {
@@ -55,7 +44,7 @@ bool vtkStereoCompositor::Validate(vtkUnsignedCharArray* rgbLeftNResult,
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::RedBlue(
   vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight)
 {
@@ -82,7 +71,7 @@ bool vtkStereoCompositor::RedBlue(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::Anaglyph(vtkUnsignedCharArray* rgbLeftNResult,
   vtkUnsignedCharArray* rgbRight, float colorSaturation, const int colorMask[2])
 {
@@ -148,7 +137,7 @@ bool vtkStereoCompositor::Anaglyph(vtkUnsignedCharArray* rgbLeftNResult,
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::Interlaced(
   vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight, const int size[2])
 {
@@ -177,7 +166,7 @@ bool vtkStereoCompositor::Interlaced(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::Dresden(
   vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight, const int size[2])
 {
@@ -210,7 +199,7 @@ bool vtkStereoCompositor::Dresden(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::Checkerboard(
   vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight, const int size[2])
 {
@@ -244,7 +233,7 @@ bool vtkStereoCompositor::Checkerboard(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool vtkStereoCompositor::SplitViewportHorizontal(
   vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight, const int size[2])
 {
@@ -295,8 +284,9 @@ bool vtkStereoCompositor::SplitViewportHorizontal(
   return true;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStereoCompositor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

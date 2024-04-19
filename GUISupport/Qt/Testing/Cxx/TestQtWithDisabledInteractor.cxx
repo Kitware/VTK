@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestQVTKOpenGLNativeWidgetWithDisabledInteractor.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // Tests QVTKOpenGLNativeWidget with a vtkRenderWindowInteractor that has its
 // EnableRender flag disabled.
 #include "TestQtCommon.h"
@@ -88,11 +76,11 @@ int TestQtWithDisabledInteractor(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  int retVal = vtktesting->RegressionTest(fileName, 0);
+  int retVal = vtktesting->RegressionTest(fileName, 0.05);
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:
-      return app.exec();
+      return QApplication::exec();
     case vtkTesting::FAILED:
     case vtkTesting::NOT_RUN:
       return EXIT_FAILURE;

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOBJWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOBJWriter
  * @brief   write wavefront obj file
@@ -20,8 +8,11 @@
  * OBJ files contain the geometry including lines, triangles and polygons.
  * Normals and texture coordinates on points are also written if they exist.
  * One can specify a texture passing a vtkImageData on port 1.
- * If a texture is set, additionals .mtl and .png files are generated. Those files have the same
+ * If a texture is set, additional .mtl and .png files are generated. Those files have the same
  * name without obj extension.
+ * Alternatively, one can specify a TextureFileName pointing to an existing texture.
+ * In this case a .mtl file is generated pointing to the specified file.
+ *
  */
 
 #ifndef vtkOBJWriter_h
@@ -30,6 +21,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkImageData;
 class vtkPolyData;
@@ -41,22 +33,32 @@ public:
   vtkTypeMacro(vtkOBJWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the inputs to this writer.
    */
   vtkPolyData* GetInputGeometry();
   vtkImageData* GetInputTexture();
   vtkDataSet* GetInput(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
+  /**
+   * Get/Set the path to an existing texture file for the OBJ.
+   * If this is set, the writer will generate mtllib, usemtl lines
+   * and a .mtl file that points to the existing texture file.
+   */
+  vtkSetFilePathMacro(TextureFileName);
+  vtkGetFilePathMacro(TextureFileName);
+  ///@}
+
+  ///@{
   /**
    * Get/Set the file name of the OBJ file.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
 protected:
   vtkOBJWriter();
@@ -66,10 +68,12 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   char* FileName;
+  char* TextureFileName;
 
 private:
   vtkOBJWriter(const vtkOBJWriter&) = delete;
   void operator=(const vtkOBJWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

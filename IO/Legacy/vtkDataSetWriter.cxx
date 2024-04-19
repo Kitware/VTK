@@ -1,19 +1,8 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkDataSetWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDataSetWriter.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
@@ -28,50 +17,50 @@
 #include "vtkStructuredPointsWriter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
-#include "vtkAlgorithmOutput.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetWriter);
 
 void vtkDataSetWriter::WriteData()
 {
   int type;
-  vtkDataWriter *writer;
-  vtkAlgorithmOutput *input = this->GetInputConnection(0, 0);
+  vtkDataWriter* writer;
+  vtkAlgorithmOutput* input = this->GetInputConnection(0, 0);
 
-  vtkDebugMacro(<<"Writing vtk dataset...");
+  vtkDebugMacro(<< "Writing vtk dataset...");
 
   type = this->GetInput()->GetDataObjectType();
-  if ( type == VTK_POLY_DATA )
+  if (type == VTK_POLY_DATA)
   {
-    vtkPolyDataWriter *pwriter = vtkPolyDataWriter::New();
+    vtkPolyDataWriter* pwriter = vtkPolyDataWriter::New();
     pwriter->SetInputConnection(input);
     writer = pwriter;
   }
 
-  else if ( type == VTK_STRUCTURED_POINTS || type == VTK_IMAGE_DATA || type == VTK_UNIFORM_GRID)
+  else if (type == VTK_STRUCTURED_POINTS || type == VTK_IMAGE_DATA || type == VTK_UNIFORM_GRID)
   {
-    vtkStructuredPointsWriter *spwriter = vtkStructuredPointsWriter::New();
+    vtkStructuredPointsWriter* spwriter = vtkStructuredPointsWriter::New();
     spwriter->SetInputConnection(input);
     writer = spwriter;
   }
 
-  else if ( type == VTK_STRUCTURED_GRID )
+  else if (type == VTK_STRUCTURED_GRID)
   {
-    vtkStructuredGridWriter *sgwriter = vtkStructuredGridWriter::New();
+    vtkStructuredGridWriter* sgwriter = vtkStructuredGridWriter::New();
     sgwriter->SetInputConnection(input);
     writer = sgwriter;
   }
 
-  else if ( type == VTK_UNSTRUCTURED_GRID )
+  else if (type == VTK_UNSTRUCTURED_GRID)
   {
-    vtkUnstructuredGridWriter *ugwriter = vtkUnstructuredGridWriter::New();
+    vtkUnstructuredGridWriter* ugwriter = vtkUnstructuredGridWriter::New();
     ugwriter->SetInputConnection(input);
     writer = ugwriter;
   }
 
-  else if ( type == VTK_RECTILINEAR_GRID )
+  else if (type == VTK_RECTILINEAR_GRID)
   {
-    vtkRectilinearGridWriter *rgwriter = vtkRectilinearGridWriter::New();
+    vtkRectilinearGridWriter* rgwriter = vtkRectilinearGridWriter::New();
     rgwriter->SetInputConnection(input);
     writer = rgwriter;
   }
@@ -94,6 +83,7 @@ void vtkDataSetWriter::WriteData()
   writer->SetFileType(this->FileType);
   writer->SetDebug(this->Debug);
   writer->SetWriteToOutputString(this->WriteToOutputString);
+  writer->SetFileVersion(this->FileVersion);
   writer->Write();
   if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
   {
@@ -101,14 +91,14 @@ void vtkDataSetWriter::WriteData()
   }
   if (this->WriteToOutputString)
   {
-    delete [] this->OutputString;
+    delete[] this->OutputString;
     this->OutputStringLength = writer->GetOutputStringLength();
     this->OutputString = writer->RegisterAndGetOutputString();
   }
   writer->Delete();
 }
 
-int vtkDataSetWriter::FillInputPortInformation(int, vtkInformation *info)
+int vtkDataSetWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
@@ -126,5 +116,6 @@ vtkDataSet* vtkDataSetWriter::GetInput(int port)
 
 void vtkDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*==============================================================================
-
-  Program:   Visualization Toolkit
-  Module:    ExampleDataArrayRangeDispatch.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-==============================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 // This file provides some examples of how to use the ArrayDispatch system
 // with the DataArrayRange utilities to create high performance algorithms that
@@ -60,7 +48,7 @@ namespace
 struct FillImpl
 {
   template <typename ArrayType>
-  void operator()(ArrayType *array) const
+  void operator()(ArrayType* array) const
   {
     // We know this is a single component array, so providing a template
     // parameter of `1` enables additional optimizations. The template
@@ -75,16 +63,16 @@ struct FillImpl
 // Adds all values in Range into Sum.
 struct SumImpl
 {
-  double Sum{0};
+  double Sum{ 0.0 };
 
   template <typename ArrayType>
-  void operator()(ArrayType *array)
+  void operator()(ArrayType* array)
   {
     const auto range = vtk::DataArrayValueRange<1>(array);
 
     // The cbegin/cend methods return constant iterators that prevent the data
     // they point at from being modified.
-    this->Sum = std::accumulate(range.cbegin(), range.cend(), 0);
+    this->Sum = std::accumulate(range.cbegin(), range.cend(), 0.0);
   }
 };
 
@@ -92,7 +80,7 @@ struct SumImpl
 struct CopyImpl
 {
   template <typename SrcArray, typename DstArray>
-  void operator()(SrcArray *src, DstArray *dst) const
+  void operator()(SrcArray* src, DstArray* dst) const
   {
     // The vtk::GetAPIType<ArrayType> helper provides the API type of the
     // data array (e.g. `float` for vtkFloatArray, `double` for the virtual
@@ -133,10 +121,7 @@ vtkDataArray* CreateArray()
 // around floating point issues.
 struct CloseEnough
 {
-  bool operator()(double a, double b)
-  {
-    return std::fabs(a - b) < 1e-5;
-  }
+  bool operator()(double a, double b) { return std::fabs(a - b) < 1e-5; }
 };
 
 } // end anon namespace
@@ -168,8 +153,8 @@ int ExampleDataArrayRangeDispatch(int, char*[])
   double expected = (1024. * 1023.) / 2.;
   if (std::fabs(sumFunctor.Sum - expected) > 1e-5)
   {
-    std::cerr << "Sum was not as expected: "
-              << sumFunctor.Sum << " (expected: " << expected << ")\n";
+    std::cerr << "Sum was not as expected: " << sumFunctor.Sum << " (expected: " << expected
+              << ")\n";
     return EXIT_FAILURE;
   }
 
@@ -193,8 +178,7 @@ int ExampleDataArrayRangeDispatch(int, char*[])
     // range iterators and std::equal:
     const auto srcRange = vtk::DataArrayValueRange<1>(array);
     const auto dstRange = vtk::DataArrayValueRange<1>(intArray);
-    if (!std::equal(srcRange.cbegin(), srcRange.cend(), dstRange.cbegin(),
-                    CloseEnough{}))
+    if (!std::equal(srcRange.cbegin(), srcRange.cend(), dstRange.cbegin(), CloseEnough{}))
     {
       std::cerr << "Copied values do not match!\n";
       return EXIT_FAILURE;

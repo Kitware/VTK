@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTreeReader
  * @brief   read vtkTree data file
@@ -26,46 +14,48 @@
  * Binary files written on one system may not be readable on other systems.
  * @sa
  * vtkTree vtkDataReader vtkTreeWriter
-*/
+ */
 
 #ifndef vtkTreeReader_h
 #define vtkTreeReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 
 class VTKIOLEGACY_EXPORT vtkTreeReader : public vtkDataReader
 {
 public:
-  static vtkTreeReader *New();
-  vtkTypeMacro(vtkTreeReader,vtkDataReader);
+  static vtkTreeReader* New();
+  vtkTypeMacro(vtkTreeReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output of this reader.
    */
-  vtkTree *GetOutput();
-  vtkTree *GetOutput(int idx);
-  void SetOutput(vtkTree *output);
-  //@}
+  vtkTree* GetOutput();
+  vtkTree* GetOutput(int idx);
+  void SetOutput(vtkTree* output);
+  ///@}
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
+  int ReadMeshSimple(VTK_FILEPATH const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkTreeReader();
   ~vtkTreeReader() override;
 
   int FillOutputPortInformation(int, vtkInformation*) override;
+
 private:
   vtkTreeReader(const vtkTreeReader&) = delete;
   void operator=(const vtkTreeReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -382,6 +382,32 @@ def mag (a) :
     "Returns the magnigude of an array of scalars/vectors."
     return numpy.sqrt(dot(a, a))
 
+def matmul (a, b) :
+    "Return the product of the inputs. Inputs can be vectors/tensors."
+    ashape = a.shape
+    if (len(ashape) == 3 and (ashape[1] != 3 or ashape[2] not in [1, 3])) \
+       or (len(ashape) == 2 and ashape[1] != 3) \
+       or (len(ashape) != 2 and len(ashape) != 3):
+        return dsa.NoneArray
+
+    bshape = b.shape
+    if (len(bshape) == 3 and (bshape[1] != 3 or bshape[2] not in [1, 3])) \
+       or (len(bshape) == 2 and bshape[1] != 3) \
+       or (len(bshape) != 2 and len(bshape) != 3):
+        return dsa.NoneArray
+
+    aindices = "...j"
+    if len(ashape) == 3:
+        aindices = "...ij"
+
+    bindices = "...j"
+    if len(bshape) == 3:
+        bindices = "...jk"
+
+    indices = aindices + ',' + bindices
+    ans = numpy.einsum(indices, a, b)
+    return ans
+
 def mean (narray, axis=None) :
     "Returns the mean value of an array of scalars/vectors/tensors."
     if narray is dsa.NoneArray:

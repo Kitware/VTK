@@ -1,0 +1,20 @@
+{
+    "Substitutions": [
+        {
+            "Target": "//VTK::Light::Impl",
+            "ShaderType": "Fragment",
+            "FileName": "normal-debug.glsl",
+            "ReplaceAllOccurrences": false,
+            "FileNameIsAbsolute": false,
+            "Enabled": false
+        },
+        {
+            "Target": "//VTK::Light::Impl",
+            "ShaderType": "Fragment",
+            "FileName": "parametric-debug.glsl",
+            "ReplaceAllOccurrences": false,
+            "FileNameIsAbsolute": false,
+            "Enabled": false
+        }
+    ]
+}

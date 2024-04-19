@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMutableGraphHelper.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkMutableGraphHelper.h"
 
@@ -24,9 +9,10 @@
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkMutableGraphHelper, InternalGraph, vtkGraph);
 vtkStandardNewMacro(vtkMutableGraphHelper);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMutableGraphHelper::vtkMutableGraphHelper()
 {
   this->InternalGraph = nullptr;
@@ -38,7 +24,7 @@ vtkMutableGraphHelper::vtkMutableGraphHelper()
   this->GraphEdge->SetTarget(-1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkMutableGraphHelper::~vtkMutableGraphHelper()
 {
   if (this->InternalGraph)
@@ -48,7 +34,7 @@ vtkMutableGraphHelper::~vtkMutableGraphHelper()
   this->GraphEdge->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::SetGraph(vtkGraph* g)
 {
   this->SetInternalGraph(g);
@@ -60,13 +46,13 @@ void vtkMutableGraphHelper::SetGraph(vtkGraph* g)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraph* vtkMutableGraphHelper::GetGraph()
 {
   return this->GetInternalGraph();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkIdType vtkMutableGraphHelper::AddVertex()
 {
   if (!this->InternalGraph)
@@ -83,7 +69,7 @@ vtkIdType vtkMutableGraphHelper::AddVertex()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkEdgeType vtkMutableGraphHelper::AddEdge(vtkIdType u, vtkIdType v)
 {
   if (!this->InternalGraph)
@@ -100,7 +86,7 @@ vtkEdgeType vtkMutableGraphHelper::AddEdge(vtkIdType u, vtkIdType v)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkGraphEdge* vtkMutableGraphHelper::AddGraphEdge(vtkIdType u, vtkIdType v)
 {
   if (!this->InternalGraph)
@@ -117,7 +103,7 @@ vtkGraphEdge* vtkMutableGraphHelper::AddGraphEdge(vtkIdType u, vtkIdType v)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::RemoveVertex(vtkIdType v)
 {
   if (!this->InternalGraph)
@@ -134,7 +120,7 @@ void vtkMutableGraphHelper::RemoveVertex(vtkIdType v)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::RemoveVertices(vtkIdTypeArray* verts)
 {
   if (!this->InternalGraph)
@@ -151,7 +137,7 @@ void vtkMutableGraphHelper::RemoveVertices(vtkIdTypeArray* verts)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::RemoveEdge(vtkIdType e)
 {
   if (!this->InternalGraph)
@@ -168,7 +154,7 @@ void vtkMutableGraphHelper::RemoveEdge(vtkIdType e)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::RemoveEdges(vtkIdTypeArray* edges)
 {
   if (!this->InternalGraph)
@@ -185,13 +171,14 @@ void vtkMutableGraphHelper::RemoveEdges(vtkIdTypeArray* edges)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkMutableGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "InternalGraph: " << (this->InternalGraph ? "" : "(null)") << endl;
   if (this->InternalGraph)
   {
     this->InternalGraph->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

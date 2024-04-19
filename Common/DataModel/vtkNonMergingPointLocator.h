@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkNonMergingPointLocator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkNonMergingPointLocator
  * @brief   direct / check-free point insertion.
@@ -29,7 +17,7 @@
  *
  * @sa
  *  vtkIncrementalPointLocator vtkPointLocator vtkMergePoints
-*/
+ */
 
 #ifndef vtkNonMergingPointLocator_h
 #define vtkNonMergingPointLocator_h
@@ -37,25 +25,24 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkNonMergingPointLocator : public vtkPointLocator
 {
 public:
-  static vtkNonMergingPointLocator * New();
+  static vtkNonMergingPointLocator* New();
 
-  vtkTypeMacro( vtkNonMergingPointLocator, vtkPointLocator );
-  void PrintSelf( ostream & os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkNonMergingPointLocator, vtkPointLocator);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Determine whether a given point x has been inserted into the points list.
    * Return the id of the already inserted point if it is true, or -1 else.
    * Note this function always returns -1 since any point is always inserted.
    */
-  vtkIdType IsInsertedPoint( const double [3] ) override
-    { return -1; }
-  vtkIdType IsInsertedPoint( double, double, double ) override
-    { return -1; }
+  vtkIdType IsInsertedPoint(const double[3]) override { return -1; }
+  vtkIdType IsInsertedPoint(double, double, double) override { return -1; }
 
   /**
    * Determine whether a given point x has been inserted into the points list.
@@ -63,17 +50,16 @@ public:
    * this function always returns 1 since any point is always inserted. The
    * index of the point is returned via ptId.
    */
-  int InsertUniquePoint( const double x[3], vtkIdType & ptId ) override;
+  int InsertUniquePoint(const double x[3], vtkIdType& ptId) override;
 
 protected:
-  vtkNonMergingPointLocator() { };
-  ~vtkNonMergingPointLocator() override { };
+  vtkNonMergingPointLocator() = default;
+  ~vtkNonMergingPointLocator() override = default;
 
 private:
-  vtkNonMergingPointLocator( const vtkNonMergingPointLocator & ) = delete;
-  void operator = ( const vtkNonMergingPointLocator & ) = delete;
+  vtkNonMergingPointLocator(const vtkNonMergingPointLocator&) = delete;
+  void operator=(const vtkNonMergingPointLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

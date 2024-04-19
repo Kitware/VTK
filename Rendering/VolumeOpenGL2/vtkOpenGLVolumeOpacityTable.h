@@ -1,31 +1,21 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLVolumeOpacityTable.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkOpenGLVolumeOpacityTable_h
 #define vtkOpenGLVolumeOpacityTable_h
-#ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
-#include "vtkVolumeMapper.h"
+#include "vtkVolumeMapper.h" // for vtkVolumeMapper
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
 //----------------------------------------------------------------------------
-class vtkOpenGLVolumeOpacityTable : public vtkOpenGLVolumeLookupTable
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLVolumeOpacityTable
+  : public vtkOpenGLVolumeLookupTable
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeOpacityTable, vtkOpenGLVolumeLookupTable);
@@ -39,29 +29,22 @@ protected:
   /**
    * Update the internal texture object using the opacity transfer function
    */
-  void InternalUpdate(vtkObject* func,
-                      int blendMode,
-                      double sampleDistance,
-                      double unitDistance,
-                      int filterValue) override;
+  void InternalUpdate(vtkObject* func, int blendMode, double sampleDistance, double unitDistance,
+    int filterValue) override;
 
   /**
    * Test whether the internal function needs to be updated.
    */
-  bool NeedsUpdate(vtkObject* func,
-                   double scalarRange[2],
-                   int blendMode,
-                   double sampleDistance) override;
+  bool NeedsUpdate(
+    vtkObject* func, double scalarRange[2], int blendMode, double sampleDistance) override;
 
   int LastBlendMode = vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND;
   double LastSampleDistance = 1.0;
 
 private:
   vtkOpenGLVolumeOpacityTable(const vtkOpenGLVolumeOpacityTable&) = delete;
-  vtkOpenGLVolumeOpacityTable& operator=(const vtkOpenGLVolumeOpacityTable&) =
-    delete;
+  void operator=(const vtkOpenGLVolumeOpacityTable&) = delete;
 };
 
-#endif // __VTK_WRAP__
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLVolumeOpacityTable_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeOpacityTable.h

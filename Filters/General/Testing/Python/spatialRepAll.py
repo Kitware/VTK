@@ -1,42 +1,46 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================
-'''
-
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellLocator,
+    vtkPointLocator,
+)
+from vtkmodules.vtkFiltersGeneral import (
+    vtkOBBTree,
+    vtkSpatialRepresentationFilter,
+)
+from vtkmodules.vtkIOGeometry import vtkSTLReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class spatialRepAll(vtk.test.Testing.vtkTest):
+class spatialRepAll(vtkmodules.test.Testing.vtkTest):
 
     def testspatialRepAll(self):
 
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.SetMultiSamples(0)
         renWin.AddRenderer(ren)
 
-        asource = vtk.vtkSTLReader()
+        asource = vtkSTLReader()
         asource.SetFileName(VTK_DATA_ROOT + "/Data/42400-IDGH.stl")
-        dataMapper = vtk.vtkPolyDataMapper()
+        dataMapper = vtkPolyDataMapper()
         dataMapper.SetInputConnection(asource.GetOutputPort())
-        model = vtk.vtkActor()
+        model = vtkActor()
         model.SetMapper(dataMapper)
         model.GetProperty().SetColor(1, 0, 0)
         model.VisibilityOn()
@@ -49,11 +53,11 @@ class spatialRepAll(vtk.test.Testing.vtkTest):
         boxActor = list()
 
         for idx, vtkLocatorType in enumerate(locators):
-            eval('locator.append(vtk.' + vtkLocatorType + '())')
+            eval('locator.append(' + vtkLocatorType + '())')
             locator[idx].AutomaticOff()
             locator[idx].SetMaxLevel(3)
 
-            boxes.append(vtk.vtkSpatialRepresentationFilter())
+            boxes.append(vtkSpatialRepresentationFilter())
             boxes[idx].SetInputConnection(asource.GetOutputPort())
             boxes[idx].SetSpatialRepresentation(locator[idx])
             boxes[idx].SetGenerateLeaves(1)
@@ -61,10 +65,10 @@ class spatialRepAll(vtk.test.Testing.vtkTest):
 
             output = boxes[idx].GetOutput().GetBlock(boxes[idx].GetMaximumLevel() + 1)
 
-            boxMapper.append(vtk.vtkPolyDataMapper())
+            boxMapper.append(vtkPolyDataMapper())
             boxMapper[idx].SetInputData(output)
 
-            boxActor.append(vtk.vtkActor())
+            boxActor.append(vtkActor())
             boxActor[idx].SetMapper(boxMapper[idx])
             boxActor[idx].AddPosition((idx + 1) * 15, 0, 0)
 
@@ -76,7 +80,7 @@ class spatialRepAll(vtk.test.Testing.vtkTest):
         renWin.SetSize(400, 160)
 
         # render the image
-        camera = vtk.vtkCamera()
+        camera = vtkCamera()
         camera.SetPosition(148.579, 136.352, 214.961)
         camera.SetFocalPoint(151.889, 86.3178, 223.333)
         camera.SetViewAngle(30)
@@ -86,13 +90,13 @@ class spatialRepAll(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "spatialRepAll.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(spatialRepAll, 'test')])
+     vtkmodules.test.Testing.main([(spatialRepAll, 'test')])

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXYPlotWidget.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXYPlotWidget
  * @brief   2D widget for manipulating a XY plot
@@ -28,29 +16,30 @@
  *
  * @sa
  * vtkInteractorObserver
-*/
+ */
 
 #ifndef vtkXYPlotWidget_h
 #define vtkXYPlotWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXYPlotActor;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkXYPlotWidget : public vtkInteractorObserver
 {
 public:
-  static vtkXYPlotWidget *New();
-  vtkTypeMacro(vtkXYPlotWidget,vtkInteractorObserver);
+  static vtkXYPlotWidget* New();
+  vtkTypeMacro(vtkXYPlotWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the XY plot used by this Widget. One is created automatically.
    */
-  virtual void SetXYPlotActor(vtkXYPlotActor *);
-  vtkGetObjectMacro(XYPlotActor,vtkXYPlotActor);
-  //@}
+  virtual void SetXYPlotActor(vtkXYPlotActor*);
+  vtkGetObjectMacro(XYPlotActor, vtkXYPlotActor);
+  ///@}
 
   /**
    * Methods for turning the interactor observer on and off.
@@ -62,13 +51,11 @@ protected:
   ~vtkXYPlotWidget() override;
 
   // the actor that is used
-  vtkXYPlotActor *XYPlotActor;
+  vtkXYPlotActor* XYPlotActor;
 
-  //handles the events
-  static void ProcessEvents(vtkObject* object,
-                            unsigned long event,
-                            void* clientdata,
-                            void* calldata);
+  // handles the events
+  static void ProcessEvents(
+    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   // ProcessEvents() dispatches to these methods.
   void OnLeftButtonDown();
@@ -82,7 +69,7 @@ protected:
   int State;
   enum WidgetState
   {
-    Moving=0,
+    Moving = 0,
     AdjustingP1,
     AdjustingP2,
     AdjustingP3,
@@ -97,7 +84,7 @@ protected:
 
   // use to determine what state the mouse is over, edge1 p1, etc.
   // returns a state from the WidgetState enum above
-  int ComputeStateBasedOnPosition(int X, int Y, int *pos1, int *pos2);
+  int ComputeStateBasedOnPosition(int X, int Y, int* pos1, int* pos2);
 
   // set the cursor to the correct shape based on State argument
   void SetCursor(int State);
@@ -107,4 +94,5 @@ private:
   void operator=(const vtkXYPlotWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,75 +1,88 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkTubeFilter
+from vtkmodules.vtkIOLegacy import vtkPolyDataReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingAnnotation import vtkArcPlotter
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create arc plots
 # get the interactor ui
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 # read the bore
-bore = vtk.vtkPolyDataReader()
-bore.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/bore.vtk")
-tuber = vtk.vtkTubeFilter()
+bore = vtkPolyDataReader()
+bore.SetFileName(VTK_DATA_ROOT + "/Data/bore.vtk")
+tuber = vtkTubeFilter()
 tuber.SetInputConnection(bore.GetOutputPort())
 tuber.SetNumberOfSides(6)
 tuber.SetRadius(15)
-mapBore = vtk.vtkPolyDataMapper()
+mapBore = vtkPolyDataMapper()
 mapBore.SetInputConnection(tuber.GetOutputPort())
 mapBore.ScalarVisibilityOff()
-boreActor = vtk.vtkActor()
+boreActor = vtkActor()
 boreActor.SetMapper(mapBore)
 boreActor.GetProperty().SetColor(0,0,0)
 # create the arc plots
 #
-track1 = vtk.vtkPolyDataReader()
-track1.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/track1.binary.vtk")
-ap = vtk.vtkArcPlotter()
+track1 = vtkPolyDataReader()
+track1.SetFileName(VTK_DATA_ROOT + "/Data/track1.binary.vtk")
+ap = vtkArcPlotter()
 ap.SetInputConnection(track1.GetOutputPort())
 ap.SetCamera(camera)
 ap.SetRadius(250.0)
 ap.SetHeight(200.0)
 ap.UseDefaultNormalOn()
 ap.SetDefaultNormal(1,1,0)
-mapArc = vtk.vtkPolyDataMapper()
+mapArc = vtkPolyDataMapper()
 mapArc.SetInputConnection(ap.GetOutputPort())
-arcActor = vtk.vtkActor()
+arcActor = vtkActor()
 arcActor.SetMapper(mapArc)
 arcActor.GetProperty().SetColor(0,1,0)
-track2 = vtk.vtkPolyDataReader()
-track2.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/track2.binary.vtk")
-ap2 = vtk.vtkArcPlotter()
+track2 = vtkPolyDataReader()
+track2.SetFileName(VTK_DATA_ROOT + "/Data/track2.binary.vtk")
+ap2 = vtkArcPlotter()
 ap2.SetInputConnection(track2.GetOutputPort())
 ap2.SetCamera(camera)
 ap2.SetRadius(450.0)
 ap2.SetHeight(200.0)
 ap2.UseDefaultNormalOn()
 ap2.SetDefaultNormal(1,1,0)
-mapArc2 = vtk.vtkPolyDataMapper()
+mapArc2 = vtkPolyDataMapper()
 mapArc2.SetInputConnection(ap2.GetOutputPort())
-arcActor2 = vtk.vtkActor()
+arcActor2 = vtkActor()
 arcActor2.SetMapper(mapArc2)
 arcActor2.GetProperty().SetColor(0,0,1)
-track3 = vtk.vtkPolyDataReader()
-track3.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/track3.binary.vtk")
-ap3 = vtk.vtkArcPlotter()
+track3 = vtkPolyDataReader()
+track3.SetFileName(VTK_DATA_ROOT + "/Data/track3.binary.vtk")
+ap3 = vtkArcPlotter()
 ap3.SetInputConnection(track3.GetOutputPort())
 ap3.SetCamera(camera)
 ap3.SetRadius(250.0)
 ap3.SetHeight(50.0)
 ap3.SetDefaultNormal(1,1,0)
-mapArc3 = vtk.vtkPolyDataMapper()
+mapArc3 = vtkPolyDataMapper()
 mapArc3.SetInputConnection(ap3.GetOutputPort())
-arcActor3 = vtk.vtkActor()
+arcActor3 = vtkActor()
 arcActor3.SetMapper(mapArc3)
 arcActor3.GetProperty().SetColor(1,0,1)
 # Create graphics objects
 # Create the rendering window renderer and interactive renderer
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetActiveCamera(camera)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.SetMultiSamples(0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer set the background and size
 ren1.AddActor(boreActor)

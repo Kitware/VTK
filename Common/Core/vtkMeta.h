@@ -1,39 +1,35 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMeta.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef vtkMeta_h
 #define vtkMeta_h
+
+#include "vtkABINamespace.h"
 
 #include <type_traits>
 #include <utility>
 
 /**
- * @file vtkMeta
+ * @file vtkMeta.h
  * This file contains a variety of metaprogramming constructs for working
  * with vtk types.
  */
 
 // Forward decs for StripPointers:
-template <typename ArrayType> class vtkNew;
-template <typename ArrayType> class vtkSmartPointer;
-template <typename ArrayType> class vtkWeakPointer;
+VTK_ABI_NAMESPACE_BEGIN
+template <typename ArrayType>
+class vtkNew;
+template <typename ArrayType>
+class vtkSmartPointer;
+template <typename ArrayType>
+class vtkWeakPointer;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // Strip vtkNew, vtkSmartPointer, etc from a type.
@@ -83,6 +79,7 @@ public:
   static constexpr bool value = bool_constant::value;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 } // end namespace vtk::detail
 

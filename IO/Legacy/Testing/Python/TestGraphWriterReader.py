@@ -3,8 +3,8 @@ from vtkmodules import vtkCommonDataModel as dm
 from vtkmodules import vtkCommonExecutionModel as em
 from vtkmodules import vtkIOLegacy as il
 
-from vtk.test import Testing
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetTempDir
 
 import os
 

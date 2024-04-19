@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestIOADIOS2VTX_VTI3DRendering.cxx
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /*
  * TestIOADIOS2VTX_VTI3DRendering.cxx : simple rendering test
@@ -26,6 +9,7 @@
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
+#include "ADIOSTestUtilities.h"
 #include "vtkADIOS2VTXReader.h"
 
 #include <numeric>
@@ -38,9 +22,11 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
+#endif
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkMultiProcessController.h"
@@ -55,6 +41,7 @@
 
 namespace
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
 MPI_Comm MPIGetComm()
 {
   MPI_Comm comm = MPI_COMM_NULL;
@@ -86,6 +73,7 @@ int MPIGetSize()
   MPI_Comm_size(comm, &size);
   return size;
 }
+#endif
 
 std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
 {
@@ -100,12 +88,14 @@ void WriteBPFile3DVars(const std::string& fileName, const adios2::Dims& shape,
   const std::string extent = "0 " + std::to_string(shape[0]) + " " + "0 " +
     std::to_string(shape[1]) + " " + "0 " + std::to_string(shape[2]);
 
-    const std::string imageSchema = R"( <?xml version="1.0"?>
+  const std::string imageSchema = R"( <?xml version="1.0"?>
       <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
-        <ImageData WholeExtent=")" + extent +
-                                    R"(" Origin="0 0 0" Spacing="1 1 1">
-          <Piece Extent=")" + extent +
-                                    R"(">
+        <ImageData WholeExtent=")" +
+    extent +
+    R"(" Origin="0 0 0" Spacing="1 1 1">
+          <Piece Extent=")" +
+    extent +
+    R"(">
             <CellData>
               <DataArray Name="T" />
               <DataArray Name="TIME">
@@ -116,27 +106,34 @@ void WriteBPFile3DVars(const std::string& fileName, const adios2::Dims& shape,
         </ImageData>
       </VTKFile>)";
 
-    // using adios2 C++ high-level API
-    std::vector<double> T(totalElements);
-    std::iota(T.begin(), T.end(), static_cast<double>(rank * totalElements));
+  // using adios2 C++ high-level API
+  std::vector<double> T(totalElements);
+  std::iota(T.begin(), T.end(), static_cast<double>(rank * totalElements));
 
-    adios2::fstream fw(fileName, adios2::fstream::out, MPIGetComm());
-    fw.write_attribute("vtk.xml", imageSchema);
-    fw.write("time", 0);
-    fw.write("T", T.data(), shape, start, count);
-    fw.close();
+  ADIOS_OPEN(fw, fileName);
+  fw.write_attribute("vtk.xml", imageSchema);
+  fw.write("time", 0);
+  fw.write("T", T.data(), shape, start, count);
+  fw.close();
 }
 
 } // end empty namespace
 
 int TestIOADIOS2VTX_VTI3DRendering(int argc, char* argv[])
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> mpiController;
   mpiController->Initialize(&argc, &argv, 0);
   vtkMultiProcessController::SetGlobalController(mpiController);
 
   const int rank = MPIGetRank();
   const int size = MPIGetSize();
+#else
+  (void)argc;
+  (void)argv;
+  const int rank = 0;
+  const int size = 1;
+#endif
 
   vtkNew<vtkTesting> testing;
   const std::string rootDirectory(testing->GetTempDirectory());
@@ -156,19 +153,6 @@ int TestIOADIOS2VTX_VTI3DRendering(int argc, char* argv[])
   vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::SafeDownCast(multiBlock->GetBlock(0));
   vtkImageData* imageData = vtkImageData::SafeDownCast(mp->GetPiece(rank));
 
-  if (false)
-  {
-    double* data =
-      reinterpret_cast<double*>(imageData->GetCellData()->GetArray("T")->GetVoidPointer(0));
-
-    for (size_t i = 0; i < 128; ++i)
-    {
-      if (data[i] != static_cast<double>(i))
-      {
-        throw std::invalid_argument("ERROR: invalid source data for rendering\n");
-      }
-    }
-  }
   // set color table
   vtkSmartPointer<vtkLookupTable> lookupTable = vtkSmartPointer<vtkLookupTable>::New();
   lookupTable->SetNumberOfTableValues(10);
@@ -200,7 +184,9 @@ int TestIOADIOS2VTX_VTI3DRendering(int argc, char* argv[])
   renderWindow->Render();
   // renderWindowInteractor->Start();
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   mpiController->Finalize();
+#endif
 
   return EXIT_SUCCESS;
 }

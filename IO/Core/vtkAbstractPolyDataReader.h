@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAbstractPolyDataReader.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAbstractPolyDataReader
  * @brief   Superclass for algorithms that read
@@ -25,7 +13,7 @@
  *
  * @sa
  * vtkOBJReader vtkPLYReader vtkSTLReader
-*/
+ */
 
 #ifndef vtkAbstractPolyDataReader_h
 #define vtkAbstractPolyDataReader_h
@@ -33,28 +21,31 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkAbstractPolyDataReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkAbstractPolyDataReader, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of AbstractPolyData file (obj / ply / stl).
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
 
 protected:
   vtkAbstractPolyDataReader();
   ~vtkAbstractPolyDataReader() override;
 
-  char *FileName;
+  char* FileName;
+
 private:
   vtkAbstractPolyDataReader(const vtkAbstractPolyDataReader&) = delete;
   void operator=(const vtkAbstractPolyDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -85,10 +85,9 @@ execute_process(
   RESULT_VARIABLE EXITCODE
   OUTPUT_VARIABLE ERRORSTR)
 
-  if(NOT ${EXITCODE} EQUAL 0)
-    message(FATAL_ERROR "SVG->PNG conversion exited with status ${EXITCODE}:\n"
-                        "${ERRORSTR}")
-  endif()
+if(NOT ${EXITCODE} EQUAL 0)
+  message(FATAL_ERROR "SVG->PNG conversion exited with status ${EXITCODE}:\n"
+                      "${ERRORSTR}")
 endif()
 
 if(REMOVESVG)

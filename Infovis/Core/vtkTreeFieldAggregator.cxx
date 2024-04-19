@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeFieldAggregator.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkTreeFieldAggregator.h"
 
@@ -39,6 +23,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeFieldAggregator);
 
 vtkTreeFieldAggregator::vtkTreeFieldAggregator()
@@ -54,20 +39,16 @@ vtkTreeFieldAggregator::~vtkTreeFieldAggregator()
   this->SetField(nullptr);
 }
 
-int vtkTreeFieldAggregator::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTreeFieldAggregator::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkTree *input = vtkTree::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTree *output = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* input = vtkTree::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* output = vtkTree::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Shallow copy the input
   output->ShallowCopy(input);
@@ -127,14 +108,12 @@ int vtkTreeFieldAggregator::RequestData(
 
   // Set up DFS iterator that traverses
   // children before the parent (i.e. bottom-up).
-  vtkSmartPointer<vtkTreeDFSIterator> dfs =
-    vtkSmartPointer<vtkTreeDFSIterator>::New();
+  vtkSmartPointer<vtkTreeDFSIterator> dfs = vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(output);
   dfs->SetMode(vtkTreeDFSIterator::FINISH);
 
   // Create a iterator for getting children.
-  vtkSmartPointer<vtkAdjacentVertexIterator> it =
-    vtkSmartPointer<vtkAdjacentVertexIterator>::New();
+  vtkSmartPointer<vtkAdjacentVertexIterator> it = vtkSmartPointer<vtkAdjacentVertexIterator>::New();
 
   // Iterator through the tree, aggregating child values into parent.
   while (dfs->HasNext())
@@ -169,11 +148,11 @@ int vtkTreeFieldAggregator::RequestData(
 
 void vtkTreeFieldAggregator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Field: " << (this->Field ? this->Field : "(none)") << endl;
   os << indent << "LeafVertexUnitSize: " << (this->LeafVertexUnitSize ? "On" : "Off") << endl;
   os << indent << "MinValue: " << this->MinValue << endl;
-  os << indent << "LogScale: " << (this->LogScale? "On" : "Off") << endl;
+  os << indent << "LogScale: " << (this->LogScale ? "On" : "Off") << endl;
 }
 
 double vtkTreeFieldAggregator::GetDoubleValue(vtkAbstractArray* arr, vtkIdType id)
@@ -239,3 +218,4 @@ void vtkTreeFieldAggregator::SetDoubleValue(vtkAbstractArray* arr, vtkIdType id,
     vtkArrayDownCast<vtkStringArray>(arr)->SetValue(id, vtkVariant(value).ToString());
   }
 }
+VTK_ABI_NAMESPACE_END

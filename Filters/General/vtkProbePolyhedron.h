@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProbePolyhedron.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkProbePolyhedron
  * @brief   probe/interpolate data values in the interior,
@@ -47,15 +35,16 @@
  *
  * @sa
  * vtkProbeFilter vtkMeanValueCoordinatesInterpolator vtkPolyhedron
-*/
+ */
 
 #ifndef vtkProbePolyhedron_h
 #define vtkProbePolyhedron_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDataSetAttributes.h" // needed for vtkDataSetAttributes::FieldList
+#include "vtkDataSetAttributes.h"    // needed for vtkDataSetAttributes::FieldList
+#include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkCharArray;
 class vtkMaskPoints;
@@ -63,23 +52,23 @@ class vtkMaskPoints;
 class VTKFILTERSGENERAL_EXPORT vtkProbePolyhedron : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiable (i.e., concrete) class.
    */
-  static vtkProbePolyhedron *New();
-  vtkTypeMacro(vtkProbePolyhedron,vtkDataSetAlgorithm);
+  static vtkProbePolyhedron* New();
+  vtkTypeMacro(vtkProbePolyhedron, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the point locations used to probe input. Any geometry
    * can be used.
    */
-  void SetSourceData(vtkPolyData *source);
-  vtkPolyData *GetSource();
-  //@}
+  void SetSourceData(vtkPolyData* source);
+  vtkPolyData* GetSource();
+  ///@}
 
   /**
    * Specify the point locations used to probe input. Any geometry
@@ -87,7 +76,7 @@ public:
    */
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-  //@{
+  ///@{
   /**
    * Specify whether to probe (and hence produce) point data. The
    * interpolated point data of the source will produce the output
@@ -96,9 +85,9 @@ public:
   vtkSetMacro(ProbePointData, vtkTypeBool);
   vtkGetMacro(ProbePointData, vtkTypeBool);
   vtkBooleanMacro(ProbePointData, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to probe (and hence produce) cell data. The
    * interpolated point data of the source will produce the output
@@ -109,7 +98,7 @@ public:
   vtkSetMacro(ProbeCellData, vtkTypeBool);
   vtkGetMacro(ProbeCellData, vtkTypeBool);
   vtkBooleanMacro(ProbeCellData, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkProbePolyhedron();
@@ -118,17 +107,14 @@ protected:
   vtkTypeBool ProbePointData;
   vtkTypeBool ProbeCellData;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkProbePolyhedron(const vtkProbePolyhedron&) = delete;
   void operator=(const vtkProbePolyhedron&) = delete;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

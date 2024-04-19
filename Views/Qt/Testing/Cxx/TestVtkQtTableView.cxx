@@ -1,36 +1,19 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestVtkQtTableView.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkQtTableView.h"
 
-#include "vtkSphereSource.h"
-#include "vtkDataObjectToTable.h"
-#include "vtkTable.h"
+#include "vtkAttributeDataToTableFilter.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkTable.h"
 
-#include <QWidget>
 #include <QApplication>
 #include <QTimer>
+#include <QWidget>
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestVtkQtTableView(int argc, char* argv[])
 {
@@ -38,9 +21,9 @@ int TestVtkQtTableView(int argc, char* argv[])
 
   // Create a sphere and create a vtkTable from its point data (normal vectors)
   VTK_CREATE(vtkSphereSource, sphereSource);
-  VTK_CREATE(vtkDataObjectToTable, tableConverter);
+  VTK_CREATE(vtkAttributeDataToTableFilter, tableConverter);
   tableConverter->SetInputConnection(sphereSource->GetOutputPort());
-  tableConverter->SetFieldType(vtkDataObjectToTable::POINT_DATA);
+  tableConverter->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_POINTS);
   tableConverter->Update();
   vtkTable* pointTable = tableConverter->GetOutput();
 
@@ -53,6 +36,5 @@ int TestVtkQtTableView(int argc, char* argv[])
 
   // Start the Qt event loop to run the application
   QTimer::singleShot(500, &app, SLOT(quit()));
-  return app.exec();
+  return QApplication::exec();
 }
-

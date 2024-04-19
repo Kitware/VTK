@@ -1,39 +1,28 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    vtkLookupTableItem.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
+#include "vtkLookupTableItem.h"
 #include "vtkCallbackCommand.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
-#include "vtkLookupTableItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 
 #include <cassert>
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLookupTableItem);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLookupTableItem::vtkLookupTableItem()
 {
   this->Interpolate = false;
   this->LookupTable = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkLookupTableItem::~vtkLookupTableItem()
 {
   if (this->LookupTable)
@@ -43,8 +32,8 @@ vtkLookupTableItem::~vtkLookupTableItem()
   }
 }
 
-//-----------------------------------------------------------------------------
-void vtkLookupTableItem::PrintSelf(ostream &os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkLookupTableItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LookupTable: ";
@@ -59,7 +48,7 @@ void vtkLookupTableItem::PrintSelf(ostream &os, vtkIndent indent)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLookupTableItem::ComputeBounds(double* bounds)
 {
   this->Superclass::ComputeBounds(bounds);
@@ -71,7 +60,7 @@ void vtkLookupTableItem::ComputeBounds(double* bounds)
   }
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLookupTableItem::SetLookupTable(vtkLookupTable* t)
 {
   if (t == this->LookupTable)
@@ -90,13 +79,12 @@ void vtkLookupTableItem::SetLookupTable(vtkLookupTable* t)
   this->ScalarsToColorsModified(this->LookupTable, vtkCommand::ModifiedEvent, nullptr);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkLookupTableItem::ComputeTexture()
 {
   double bounds[4];
   this->GetBounds(bounds);
-  if (bounds[0] == bounds[1]
-      || !this->LookupTable)
+  if (bounds[0] == bounds[1] || !this->LookupTable)
   {
     return;
   }
@@ -108,25 +96,22 @@ void vtkLookupTableItem::ComputeTexture()
   const int dimension = 256;
   double values[256];
   // Texture 1D
-  this->Texture->SetExtent(0, dimension - 1,
-                           0,0,
-                           0,0);
+  this->Texture->SetExtent(0, dimension - 1, 0, 0, 0, 0);
   this->Texture->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
   // TODO: Support log scale ?
   for (int i = 0; i < dimension; ++i)
   {
     values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
   }
-  unsigned char* ptr =
-    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
-  this->LookupTable->MapScalarsThroughTable2(
-    values, ptr, VTK_DOUBLE, dimension, 1, 4);
+  unsigned char* ptr = reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0, 0, 0));
+  this->LookupTable->MapScalarsThroughTable2(values, ptr, VTK_DOUBLE, dimension, 1, 4);
   if (this->Opacity != 1.)
   {
     for (int i = 0; i < dimension; ++i)
     {
       ptr[3] = static_cast<unsigned char>(this->Opacity * ptr[3]);
-      ptr+=4;
+      ptr += 4;
     }
   }
 }
+VTK_ABI_NAMESPACE_END

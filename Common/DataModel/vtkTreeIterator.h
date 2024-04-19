@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTreeIterator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkTreeIterator
@@ -26,7 +14,7 @@
  *
  * @sa
  * vtkTreeBFSIterator vtkTreeDFSIterator
-*/
+ */
 
 #ifndef vtkTreeIterator_h
 #define vtkTreeIterator_h
@@ -34,6 +22,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkTreeIterator : public vtkObject
@@ -42,15 +31,15 @@ public:
   vtkTypeMacro(vtkTreeIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the graph to iterate over.
    */
-  void SetTree(vtkTree* graph);
-  vtkGetMacro(Tree, vtkTree*);
-  //@}
+  void SetTree(vtkTree* tree);
+  vtkGetObjectMacro(Tree, vtkTree);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The start vertex of the traversal.
    * The tree iterator will only iterate over the subtree rooted at vertex.
@@ -58,7 +47,7 @@ public:
    */
   void SetStartVertex(vtkIdType vertex);
   vtkGetMacro(StartVertex, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * The next vertex visited in the graph.
@@ -87,8 +76,9 @@ protected:
   vtkIdType NextId;
 
 private:
-  vtkTreeIterator(const vtkTreeIterator &) = delete;
-  void operator=(const vtkTreeIterator &) = delete;
+  vtkTreeIterator(const vtkTreeIterator&) = delete;
+  void operator=(const vtkTreeIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

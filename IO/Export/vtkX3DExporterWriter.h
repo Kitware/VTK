@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkX3DExporterWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkX3DExporterWriter
  * @brief   X3D Exporter Writer
@@ -19,7 +7,7 @@
  * vtkX3DExporterWriter is the definition for
  * classes that implement a encoding for the
  * X3D exporter
-*/
+ */
 
 #ifndef vtkX3DExporterWriter_h
 #define vtkX3DExporterWriter_h
@@ -28,6 +16,7 @@
 #include "vtkObject.h"
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkCellArray;
@@ -49,16 +38,16 @@ public:
    */
   virtual int OpenStream() = 0;
 
-  //@{
+  ///@{
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString,vtkTypeBool);
-  vtkGetMacro(WriteToOutputString,vtkTypeBool);
-  vtkBooleanMacro(WriteToOutputString,vtkTypeBool);
-  //@}
+  vtkSetMacro(WriteToOutputString, vtkTypeBool);
+  vtkGetMacro(WriteToOutputString, vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString, vtkTypeBool);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When WriteToOutputString in on, then a string is allocated, written to,
    * and can be retrieved with these methods.  The string is deleted during
@@ -66,18 +55,18 @@ public:
    */
   vtkGetMacro(OutputStringLength, vtkIdType);
   vtkGetStringMacro(OutputString);
-  unsigned char *GetBinaryOutputString()
+  unsigned char* GetBinaryOutputString()
   {
-      return reinterpret_cast<unsigned char *>(this->OutputString);
+    return reinterpret_cast<unsigned char*>(this->OutputString);
   }
-  //@}
+  ///@}
 
   /**
    * This convenience method returns the string, sets the IVAR to nullptr,
    * so that the user is responsible for deleting the string.
    * I am not sure what the name should be, so it may change in the future.
    */
-  char *RegisterAndGetOutputString();
+  char* RegisterAndGetOutputString();
 
   // Closes the file if open
   virtual void CloseFile() = 0;
@@ -98,7 +87,7 @@ public:
    */
   virtual void EndDocument() = 0;
 
-  //@{
+  ///@{
   /**
    * Starts/ends a new X3D node specified via nodeID. The list of
    * nodeIds can be found in vtkX3DExportWriterSymbols.h. The EndNode
@@ -107,7 +96,7 @@ public:
    */
   virtual void StartNode(int nodeID) = 0;
   virtual void EndNode() = 0;
-  //@}
+  ///@}
 
   /**
    * Sets the field specified with attributeID
@@ -191,7 +180,7 @@ protected:
   vtkX3DExporterWriter();
   ~vtkX3DExporterWriter() override;
 
-  char *OutputString;
+  char* OutputString;
   vtkIdType OutputStringLength;
   vtkTypeBool WriteToOutputString;
 
@@ -199,5 +188,5 @@ private:
   vtkX3DExporterWriter(const vtkX3DExporterWriter&) = delete;
   void operator=(const vtkX3DExporterWriter&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif
-

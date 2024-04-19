@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkArrayData.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkArrayData
@@ -35,15 +18,15 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkArrayData_h
 #define vtkArrayData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkArray.h"
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkArrayData : public vtkDataObject
@@ -51,7 +34,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkArrayData : public vtkDataObject
 public:
   static vtkArrayData* New();
   vtkTypeMacro(vtkArrayData, vtkDataObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkArrayData* GetData(vtkInformation* info);
   static vtkArrayData* GetData(vtkInformationVector* v, int i = 0);
@@ -79,12 +62,12 @@ public:
   /**
    * Returns the array having called name from the collection
    */
-  vtkArray* GetArrayByName(const char *name);
+  vtkArray* GetArrayByName(const char* name);
 
   /**
    * Return class name of data type (VTK_ARRAY_DATA).
    */
-  int GetDataObjectType() override {return VTK_ARRAY_DATA;}
+  int GetDataObjectType() override { return VTK_ARRAY_DATA; }
 
   void ShallowCopy(vtkDataObject* other) override;
   void DeepCopy(vtkDataObject* other) override;
@@ -99,9 +82,7 @@ private:
 
   class implementation;
   implementation* const Implementation;
-
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-// VTK-HeaderTest-Exclude: vtkArrayData.h

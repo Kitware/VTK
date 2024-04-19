@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPythonItem.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPythonItem.h"
 #include "vtkObjectFactory.h"
 
@@ -21,12 +9,13 @@
 #include "vtkPythonUtil.h"
 #include "vtkSmartPyObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPythonItem);
 
 //------------------------------------------------------------------------------
 void vtkPythonItem::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject str;
@@ -39,16 +28,12 @@ void vtkPythonItem::PrintSelf(ostream& os, vtkIndent indent)
   if (str)
   {
     os << indent << "Object (string): ";
-#ifndef VTK_PY3K
-    os << PyString_AsString(str);
-#else
-    PyObject *bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
+    PyObject* bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
     if (bytes)
     {
       os << PyBytes_AsString(bytes);
       Py_DECREF(bytes);
     }
-#endif
     os << std::endl;
   }
 }
@@ -87,19 +72,19 @@ vtkPythonItem::~vtkPythonItem()
 //    failValue - the value to return if the lookup fails and the
 //          function using the macro should return.  Pass in a
 //          block comment /**/ for void functions using this macro
-#define VTK_GET_METHOD(var, obj, method, failValue)          \
-  if (!(obj))                                                \
-  {                                                          \
-    return failValue;                                        \
-  }                                                          \
-  vtkSmartPyObject var(PyObject_GetAttrString(obj, method)); \
-  if (!(var))                                                \
-  {                                                          \
-    return failValue;                                        \
-  }                                                          \
-  if (!PyCallable_Check(var))                                \
-  {                                                          \
-    return failValue;                                        \
+#define VTK_GET_METHOD(var, obj, method, failValue)                                                \
+  if (!(obj))                                                                                      \
+  {                                                                                                \
+    return failValue;                                                                              \
+  }                                                                                                \
+  vtkSmartPyObject var(PyObject_GetAttrString(obj, method));                                       \
+  if (!(var))                                                                                      \
+  {                                                                                                \
+    return failValue;                                                                              \
+  }                                                                                                \
+  if (!PyCallable_Check(var))                                                                      \
+  {                                                                                                \
+    return failValue;                                                                              \
   }
 
 //------------------------------------------------------------------------------
@@ -110,7 +95,7 @@ static PyObject* VTKToPython(vtkObjectBase* obj)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPythonItem::CheckResult(const char* method, const vtkSmartPyObject &res)
+bool vtkPythonItem::CheckResult(const char* method, const vtkSmartPyObject& res)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
   if (!res)
@@ -125,16 +110,11 @@ bool vtkPythonItem::CheckResult(const char* method, const vtkSmartPyObject &res)
   }
   if (!PyBool_Check(res))
   {
-    vtkWarningMacro("The method \"" << method << "\" should have returned boolean but did not")
+    vtkWarningMacro("The method \"" << method << "\" should have returned boolean but did not");
     return false;
   }
 
-  if (res == Py_False)
-  {
-    return false;
-  }
-
-  return true;
+  return res != Py_False;
 }
 
 //------------------------------------------------------------------------------
@@ -152,13 +132,12 @@ void vtkPythonItem::SetPythonObject(PyObject* obj)
   this->Object = obj;
   Py_INCREF(this->Object);
 
-  char mname[] = "Initialize";
+  const char* mname = "Initialize";
   VTK_GET_METHOD(method, this->Object, mname, /* no return */)
 
-  vtkSmartPyObject args(PyTuple_New(1));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
+  vtkSmartPyObject args(PyTuple_Pack(1, vtkself));
+  Py_DECREF(vtkself);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 
@@ -166,21 +145,20 @@ void vtkPythonItem::SetPythonObject(PyObject* obj)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPythonItem::Paint(vtkContext2D *painter)
+bool vtkPythonItem::Paint(vtkContext2D* painter)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "Paint";
+  const char* mname = "Paint";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
-  vtkSmartPyObject args(PyTuple_New(2));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
-
   PyObject* pypainter = VTKToPython(painter);
-  PyTuple_SET_ITEM(args.GetPointer(), 1, pypainter);
+  vtkSmartPyObject args(PyTuple_Pack(2, vtkself, pypainter));
+  Py_DECREF(vtkself);
+  Py_DECREF(pypainter);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 
   return CheckResult(mname, result);
 }
+VTK_ABI_NAMESPACE_END

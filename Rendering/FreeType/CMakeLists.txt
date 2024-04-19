@@ -38,3 +38,4 @@ vtk_module_add_module(VTK::RenderingFreeType
   CLASSES         ${classes}
   SOURCES         ${sources}
   PRIVATE_HEADERS ${private_headers})
+vtk_add_test_mangling(VTK::RenderingFreeType)

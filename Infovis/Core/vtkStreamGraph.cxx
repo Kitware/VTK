@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkStreamGraph.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkStreamGraph.h"
 
@@ -27,16 +11,17 @@
 #include "vtkInformationVector.h"
 #include "vtkMergeGraphs.h"
 #include "vtkMutableDirectedGraph.h"
-#include "vtkMutableUndirectedGraph.h"
 #include "vtkMutableGraphHelper.h"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStreamGraph);
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStreamGraph::vtkStreamGraph()
 {
   this->CurrentGraph = vtkMutableGraphHelper::New();
@@ -47,7 +32,7 @@ vtkStreamGraph::vtkStreamGraph()
   this->EdgeWindow = 10000.0;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStreamGraph::~vtkStreamGraph()
 {
   if (this->CurrentGraph)
@@ -61,20 +46,16 @@ vtkStreamGraph::~vtkStreamGraph()
   this->SetEdgeWindowArrayName(nullptr);
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkStreamGraph::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* input_info = inputVector[0]->GetInformationObject(0);
-  vtkGraph* input = vtkGraph::SafeDownCast(
-    input_info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(input_info->Get(vtkDataObject::DATA_OBJECT()));
 
   // Copy structure into output graph.
   vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-  vtkGraph* output = vtkGraph::SafeDownCast(
-    outputInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* output = vtkGraph::SafeDownCast(outputInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   double progress = 0.1;
   this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
@@ -89,7 +70,8 @@ int vtkStreamGraph::RequestData(
     }
     else
     {
-      vtkSmartPointer<vtkMutableUndirectedGraph> g = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+      vtkSmartPointer<vtkMutableUndirectedGraph> g =
+        vtkSmartPointer<vtkMutableUndirectedGraph>::New();
       this->CurrentGraph->SetGraph(g);
     }
     this->CurrentGraph->GetGraph()->DeepCopy(input);
@@ -121,7 +103,7 @@ int vtkStreamGraph::RequestData(
   return 1;
 }
 
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkStreamGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -130,3 +112,4 @@ void vtkStreamGraph::PrintSelf(ostream& os, vtkIndent indent)
      << (this->EdgeWindowArrayName ? this->EdgeWindowArrayName : "(none)") << endl;
   os << indent << "EdgeWindow: " << this->EdgeWindow << endl;
 }
+VTK_ABI_NAMESPACE_END

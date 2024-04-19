@@ -1,0 +1,29 @@
+set( CTEST_CUSTOM_MAXIMUM_NUMBER_OF_ERRORS 1000 )
+set( CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 1000 )
+
+##------------------------------------------------------------------------------
+## Ignore warnings in generated code during the build process
+list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+  # Ignore warnings from CMake autogen code
+  "autogen"
+
+  # Warnings from sccache that we don't care about.
+  "sccache: warning: The server looks like it shut down unexpectedly, compiling locally instead"
+)
+
+##------------------------------------------------------------------------------
+## Regular expression for error exceptions during build process
+#set (CTEST_CUSTOM_ERROR_EXCEPTION
+#  ${CTEST_CUSTOM_ERROR_EXCEPTION}
+#)
+
+cmake_policy(SET CMP0012 NEW)
+
+if(@token_COVERAGE_ENABLED@)
+  set(COVERAGE_EXTRA_FLAGS "-l -p")
+  set(CTEST_CUSTOM_COVERAGE_EXCLUDE
+    "testing"
+    "autogen"
+    "CMakeFiles"
+    )
+endif()

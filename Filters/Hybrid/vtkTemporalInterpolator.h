@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTemporalInterpolator.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkTemporalInterpolator
  * @brief   interpolate datasets between time steps to produce a new dataset
@@ -38,7 +26,7 @@
  * will produce an irregular sequence of regular steps between
  * each of the original irregular steps (clear enough, yes?).
  *
- * @TODO
+ * @todo
  * Higher order interpolation schemes will require changes to the API
  * as most calls assume only two timesteps are used.
  *
@@ -50,7 +38,7 @@
  * John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
  * "Time Dependent Processing in a Parallel Pipeline Architecture",
  * IEEE Visualization 2007.
-*/
+ */
 
 #ifndef vtkTemporalInterpolator_h
 #define vtkTemporalInterpolator_h
@@ -58,15 +46,16 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiTimeStepAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class VTKFILTERSHYBRID_EXPORT vtkTemporalInterpolator : public vtkMultiTimeStepAlgorithm
 {
 public:
-  static vtkTemporalInterpolator *New();
+  static vtkTemporalInterpolator* New();
   vtkTypeMacro(vtkTemporalInterpolator, vtkMultiTimeStepAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If you require a discrete number of outputs steps, to be
    * generated from an input source - for example, you required
@@ -78,9 +67,9 @@ public:
    */
   vtkSetMacro(DiscreteTimeStepInterval, double);
   vtkGetMacro(DiscreteTimeStepInterval, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When ResampleFactor is a non zero positive integer, each pair
    * of input time steps will be interpolated between with the number
@@ -92,74 +81,65 @@ public:
    */
   vtkSetMacro(ResampleFactor, int);
   vtkGetMacro(ResampleFactor, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls whether input data is cached to avoid updating input
    * when multiple interpolations are asked between 2 time steps.
    */
   vtkSetMacro(CacheData, bool);
   vtkGetMacro(CacheData, bool);
-  //@}
+  ///@}
 
 protected:
   vtkTemporalInterpolator();
   ~vtkTemporalInterpolator() override;
 
-
   double DiscreteTimeStepInterval;
-  int    ResampleFactor;
+  int ResampleFactor;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
 
-
-  int RequestDataObject(vtkInformation *,
-                                vtkInformationVector **,
-                                vtkInformationVector *) override;
-
-  int RequestUpdateExtent(vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *,
-                                 vtkInformationVector **,
-                                 vtkInformationVector *) override;
-
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int Execute(vtkInformation* request, const std::vector<vtkSmartPointer<vtkDataObject>>& inputs,
+    vtkInformationVector* outputVector) override;
 
   /**
    * General interpolation routine for any type on input data. This is
    * called recursively when hierarchical/multiblock data is encountered
    */
-  vtkDataObject *InterpolateDataObject(vtkDataObject *in1,
-                                       vtkDataObject *in2,
-                                       double ratio);
+  vtkDataObject* InterpolateDataObject(vtkDataObject* in1, vtkDataObject* in2, double ratio);
 
   /**
    * Root level interpolation for a concrete dataset object.
    * Point/Cell data and points are interpolated.
    * Needs improving if connectivity is to be handled
    */
-  virtual vtkDataSet *InterpolateDataSet(vtkDataSet *in1,
-                                         vtkDataSet *in2,
-                                         double ratio);
+  virtual vtkDataSet* InterpolateDataSet(vtkDataSet* in1, vtkDataSet* in2, double ratio);
 
   /**
    * Interpolate a single vtkDataArray. Called from the Interpolation routine
    * on the points and pointdata/celldata
    */
-  virtual vtkDataArray *InterpolateDataArray(double ratio,
-                                             vtkDataArray **arrays,
-                                             vtkIdType N);
+  virtual vtkDataArray* InterpolateDataArray(double ratio, vtkDataArray** arrays, vtkIdType N);
+
+  /// Return values for VerifyArrays().
+  enum ArrayMatch
+  {
+    MATCHED = 0,           //!< Arrays match in number of components and tuples.
+    MISMATCHED_TUPLES = 1, //!< Arrays match number of components but not tuples.
+    MISMATCHED_COMPS = 2   //!< Arrays do not have the same number of components.
+  };
 
   /**
    * Called just before interpolation of each dataset to ensure
    * each data array has the same number of tuples/components etc
    */
-  virtual bool VerifyArrays(vtkDataArray **arrays, int N);
+  virtual ArrayMatch VerifyArrays(vtkDataArray** arrays, int N);
 
   // internally used : Ratio is {0,1} between two time steps
   // DeltaT is time between current 2 steps.
@@ -174,9 +154,5 @@ private:
   void operator=(const vtkTemporalInterpolator&) = delete;
 };
 
-
-
+VTK_ABI_NAMESPACE_END
 #endif
-
-
-

@@ -8,15 +8,17 @@ readonly name="ogg"
 readonly ownership="ogg Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/ogg.git"
-readonly tag="for/vtk-20181015-1.3.3"
+readonly tag="for/vtk-20231030-1.3.5"
 readonly paths="
 .gitattributes
 COPYING
 CMakeLists.txt
 README.kitware.md
 README.md
+cmake/CheckSizes.cmake
 
 src/bitwise.c
+src/crctable.h
 src/framing.c
 
 include/ogg/config_types.h.in

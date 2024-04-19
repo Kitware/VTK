@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef TestAxisActorInternal_h
 #define TestAxisActorInternal_h
 
@@ -65,7 +67,7 @@ inline int TestAxisActorInternal(int use2dMode, int use3dProp)
   axisXActor->SetExponentVisibility(true);
   axisXActor->SetTitleScale(0.8);
   axisXActor->SetLabelScale(0.5);
-  axisXActor->SetTitleOffset(3);
+  axisXActor->SetTitleOffset(0, 3);
   axisXActor->SetExponentOffset(3);
   axisXActor->SetLabelOffset(5);
   axisXActor->SetTitleTextProperty(textProp1);
@@ -96,7 +98,7 @@ inline int TestAxisActorInternal(int use2dMode, int use3dProp)
   axisYActor->SetExponentLocation(vtkAxisActor::VTK_ALIGN_TOP);
   axisYActor->SetTitleScale(0.8);
   axisYActor->SetLabelScale(0.5);
-  axisYActor->SetTitleOffset(3);
+  axisYActor->SetTitleOffset(0, 3);
   axisYActor->SetExponentOffset(5);
   axisYActor->SetLabelOffset(5);
   axisYActor->SetTitleTextProperty(textProp2);
@@ -122,7 +124,7 @@ inline int TestAxisActorInternal(int use2dMode, int use3dProp)
   axisZActor->SetExponentLocation(vtkAxisActor::VTK_ALIGN_POINT1);
   axisZActor->SetTitleScale(0.8);
   axisZActor->SetLabelScale(0.5);
-  axisZActor->SetTitleOffset(3);
+  axisZActor->SetTitleOffset(0, 3);
   axisZActor->SetExponentOffset(3);
   axisZActor->SetLabelOffset(5);
   axisZActor->SetTitleTextProperty(textProp3);

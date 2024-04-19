@@ -1,23 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkTypedArray.h
-
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 /**
  * @class   vtkTypedArray
@@ -42,38 +25,43 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkTypedArray_h
 #define vtkTypedArray_h
 
 #include "vtkArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayCoordinates;
 
-template<typename T>
+template <typename T>
 class vtkTypedArray : public vtkArray
 {
 public:
-  vtkTemplateTypeMacro(vtkTypedArray<T>, vtkArray)
+  vtkTemplateTypeMacro(vtkTypedArray<T>, vtkArray);
   typedef typename vtkArray::CoordinateT CoordinateT;
   typedef typename vtkArray::SizeT SizeT;
 
   using vtkArray::GetVariantValue;
   using vtkArray::SetVariantValue;
 
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  inline void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // vtkArray API
-  vtkVariant GetVariantValue(const vtkArrayCoordinates& coordinates) override;
-  vtkVariant GetVariantValueN(const SizeT n) override;
-  void SetVariantValue(const vtkArrayCoordinates& coordinates, const vtkVariant& value) override;
-  void SetVariantValueN(const SizeT n, const vtkVariant& value) override;
-  void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates) override;
-  void CopyValue(vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates) override;
-  void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index) override;
+  inline vtkVariant GetVariantValue(const vtkArrayCoordinates& coordinates) override;
+  inline vtkVariant GetVariantValueN(SizeT n) override;
+  inline void SetVariantValue(
+    const vtkArrayCoordinates& coordinates, const vtkVariant& value) override;
+  inline void SetVariantValueN(SizeT n, const vtkVariant& value) override;
+  inline void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates,
+    const vtkArrayCoordinates& target_coordinates) override;
+  inline void CopyValue(
+    vtkArray* source, SizeT source_index, const vtkArrayCoordinates& target_coordinates) override;
+  inline void CopyValue(
+    vtkArray* source, const vtkArrayCoordinates& source_coordinates, SizeT target_index) override;
 
-  //@{
+  ///@{
   /**
    * Returns the value stored in the array at the given coordinates.
    * Note that the number of dimensions in the supplied coordinates must
@@ -83,7 +71,7 @@ public:
   virtual const T& GetValue(CoordinateT i, CoordinateT j) = 0;
   virtual const T& GetValue(CoordinateT i, CoordinateT j, CoordinateT k) = 0;
   virtual const T& GetValue(const vtkArrayCoordinates& coordinates) = 0;
-  //@}
+  ///@}
 
   /**
    * Returns the n-th value stored in the array, where n is in the
@@ -92,9 +80,9 @@ public:
    * values are visited is undefined, but is guaranteed to match the
    * order used by vtkArray::GetCoordinatesN().
    */
-  virtual const T& GetValueN(const SizeT n) = 0;
+  virtual const T& GetValueN(SizeT n) = 0;
 
-  //@{
+  ///@{
   /**
    * Overwrites the value stored in the array at the given coordinates.
    * Note that the number of dimensions in the supplied coordinates must
@@ -104,7 +92,7 @@ public:
   virtual void SetValue(CoordinateT i, CoordinateT j, const T& value) = 0;
   virtual void SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value) = 0;
   virtual void SetValue(const vtkArrayCoordinates& coordinates, const T& value) = 0;
-  //@}
+  ///@}
 
   /**
    * Overwrites the n-th value stored in the array, where n is in the
@@ -113,17 +101,18 @@ public:
    * values are visited is undefined, but is guaranteed to match the
    * order used by vtkArray::GetCoordinatesN().
    */
-  virtual void SetValueN(const SizeT n, const T& value) = 0;
+  virtual void SetValueN(SizeT n, const T& value) = 0;
 
 protected:
-  vtkTypedArray() {}
-  ~vtkTypedArray() override {}
+  vtkTypedArray() = default;
+  ~vtkTypedArray() override = default;
 
 private:
   vtkTypedArray(const vtkTypedArray&) = delete;
   void operator=(const vtkTypedArray&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkTypedArray.txx"
 
 #endif

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageDataStreamer.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageDataStreamer.h"
 
 #include "vtkCommand.h"
@@ -22,10 +10,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDataStreamer);
-vtkCxxSetObjectMacro(vtkImageDataStreamer,ExtentTranslator,vtkExtentTranslator);
+vtkCxxSetObjectMacro(vtkImageDataStreamer, ExtentTranslator, vtkExtentTranslator);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDataStreamer::vtkImageDataStreamer()
 {
   // default to 10 divisions
@@ -47,16 +36,16 @@ vtkImageDataStreamer::~vtkImageDataStreamer()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfStreamDivisions: " << this->NumberOfStreamDivisions << endl;
-  if ( this->ExtentTranslator )
+  if (this->ExtentTranslator)
   {
     os << indent << "ExtentTranslator:\n";
-    this->ExtentTranslator->PrintSelf(os,indent.GetNextIndent());
+    this->ExtentTranslator->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -64,12 +53,11 @@ void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-//----------------------------------------------------------------------------
-vtkTypeBool vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
-                                         vtkInformationVector** inputVector,
-                                         vtkInformationVector* outputVector)
+//------------------------------------------------------------------------------
+vtkTypeBool vtkImageDataStreamer::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     // we must set the extent on the input
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -79,8 +67,8 @@ vtkTypeBool vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
 
     // setup the inputs update extent
-    int inExt[6] = {0, -1, 0, -1, 0, -1};
-    vtkExtentTranslator *translator = this->GetExtentTranslator();
+    int inExt[6] = { 0, -1, 0, -1, 0, -1 };
+    vtkExtentTranslator* translator = this->GetExtentTranslator();
 
     translator->SetWholeExtent(outExt);
     translator->SetNumberOfPieces(this->NumberOfStreamDivisions);
@@ -90,20 +78,18 @@ vtkTypeBool vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
       translator->GetExtent(inExt);
     }
 
-    inputVector[0]->GetInformationObject(0)
-      ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
+    inputVector[0]->GetInformationObject(0)->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 
     return 1;
   }
 
   // generate the data
-  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  else if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     // get the output data object
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    vtkImageData *output =
-      vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
+    vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     // is this the first request
     if (!this->CurrentDivision)
@@ -115,8 +101,7 @@ vtkTypeBool vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
 
     // actually copy the data
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-    vtkImageData *input =
-      vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkImageData* input = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     int inExt[6];
     inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
@@ -124,9 +109,8 @@ vtkTypeBool vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
     output->CopyAndCastFrom(input, inExt);
 
     // update the progress
-    this->UpdateProgress(
-      static_cast<float>(this->CurrentDivision+1.0)
-      /static_cast<float>(this->NumberOfStreamDivisions));
+    this->UpdateProgress(static_cast<float>(this->CurrentDivision + 1.0) /
+      static_cast<float>(this->NumberOfStreamDivisions));
 
     this->CurrentDivision++;
     if (this->CurrentDivision == this->NumberOfStreamDivisions)
@@ -140,3 +124,4 @@ vtkTypeBool vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
   }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
+VTK_ABI_NAMESPACE_END

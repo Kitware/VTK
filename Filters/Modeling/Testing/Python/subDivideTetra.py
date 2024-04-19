@@ -1,37 +1,53 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkTetra,
+    vtkUnstructuredGrid,
+)
+from vtkmodules.vtkFiltersGeneral import vtkShrinkFilter
+from vtkmodules.vtkFiltersModeling import vtkSubdivideTetra
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-tetraPoints = vtk.vtkPoints()
+tetraPoints = vtkPoints()
 tetraPoints.SetNumberOfPoints(4)
 tetraPoints.InsertPoint(0,0,0,0)
 tetraPoints.InsertPoint(1,1,0,0)
 tetraPoints.InsertPoint(2,.5,1,0)
 tetraPoints.InsertPoint(3,.5,.5,1)
-aTetra = vtk.vtkTetra()
+aTetra = vtkTetra()
 aTetra.GetPointIds().SetId(0,0)
 aTetra.GetPointIds().SetId(1,1)
 aTetra.GetPointIds().SetId(2,2)
 aTetra.GetPointIds().SetId(3,3)
-aTetraGrid = vtk.vtkUnstructuredGrid()
+aTetraGrid = vtkUnstructuredGrid()
 aTetraGrid.Allocate(1,1)
 aTetraGrid.InsertNextCell(aTetra.GetCellType(),aTetra.GetPointIds())
 aTetraGrid.SetPoints(tetraPoints)
-sub = vtk.vtkSubdivideTetra()
+sub = vtkSubdivideTetra()
 sub.SetInputData(aTetraGrid)
-shrinker = vtk.vtkShrinkFilter()
+shrinker = vtkShrinkFilter()
 shrinker.SetInputConnection(sub.GetOutputPort())
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(shrinker.GetOutputPort())
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetColor(0.7400,0.9900,0.7900)
 # define graphics stuff
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 ren1.AddActor(actor)
 ren1.SetBackground(0.1,0.2,0.4)

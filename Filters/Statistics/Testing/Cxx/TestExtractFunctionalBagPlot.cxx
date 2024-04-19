@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestExtractFunctionalBagPlot.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkDoubleArray.h"
 #include "vtkExtractFunctionalBagPlot.h"
@@ -22,8 +10,8 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-#include "vtkTestErrorObserver.h"
 #include "vtkExecutive.h"
+#include "vtkTestErrorObserver.h"
 
 #include <algorithm>
 #include <sstream>
@@ -31,7 +19,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const double densities[] = {
   0.00013383,
   0.000611902,
@@ -52,11 +40,11 @@ const double densities[] = {
   0.02239451,
   0.007915451,
   0.002384091,
-  0.0006119021
+  0.0006119021,
 };
 
-//----------------------------------------------------------------------------
-int TestExtractFunctionalBagPlot(int , char * [])
+//------------------------------------------------------------------------------
+int TestExtractFunctionalBagPlot(int, char*[])
 {
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
@@ -103,8 +91,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
   vtkNew<vtkTable> inTableDensity;
   inTableDensity->AddColumn(density);
   inTableDensity->AddColumn(varName);
-  std::vector<double> sortedDensities(
-    densities, densities + sizeof(densities) / sizeof(double));
+  std::vector<double> sortedDensities(densities, densities + sizeof(densities) / sizeof(double));
   double totalSumOfDensities = 0.;
   for (std::size_t i = 0; i < sortedDensities.size(); i++)
   {
@@ -114,7 +101,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
   std::sort(sortedDensities.begin(), sortedDensities.end());
   double sumOfDensities = 0.;
   double sumForP50 = totalSumOfDensities * 0.5;
-  double sumForP95 = totalSumOfDensities * ((100. - 95.)  / 100.);
+  double sumForP95 = totalSumOfDensities * ((100. - 95.) / 100.);
   double p50 = 0.;
   double p95 = 0.;
   for (std::size_t i = 0; i < sortedDensities.size(); i++)
@@ -136,17 +123,16 @@ int TestExtractFunctionalBagPlot(int , char * [])
   ebp->SetPUser(95);
 
   vtkNew<vtkTest::ErrorObserver> errorObserver1;
-   // First verify that absence of input does not cause trouble
-  ebp->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver1);
+  // First verify that absence of input does not cause trouble
+  ebp->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver1);
   ebp->Update();
-  int status = errorObserver1->CheckErrorMessage("Input port 0 of algorithm vtkExtractFunctionalBagPlot");
+  int status =
+    errorObserver1->CheckErrorMessage("Input port 0 of algorithm vtkExtractFunctionalBagPlot");
 
   ebp->SetInputData(0, table);
   ebp->SetInputData(1, inTableDensity);
-  ebp->SetInputArrayToProcess(0, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_ROWS, "Density");
-  ebp->SetInputArrayToProcess(1, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_ROWS, "ColName");
+  ebp->SetInputArrayToProcess(0, 1, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "Density");
+  ebp->SetInputArrayToProcess(1, 1, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "ColName");
   ebp->Update();
 
   vtkTable* outBPTable = ebp->GetOutput();
@@ -156,8 +142,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
     const char* colName = outBPTable->GetColumnName(i);
     if (vtksys::SystemTools::StringStartsWith(colName, "Q3Points"))
     {
-      q3Points =
-        vtkArrayDownCast<vtkDoubleArray>(outBPTable->GetColumn(i));
+      q3Points = vtkArrayDownCast<vtkDoubleArray>(outBPTable->GetColumn(i));
       break;
     }
   }
@@ -171,16 +156,14 @@ int TestExtractFunctionalBagPlot(int , char * [])
     return EXIT_FAILURE;
   }
 
-  if (q3Points->GetNumberOfTuples() != numPoints ||
-    q2Points->GetNumberOfTuples() != numPoints)
+  if (q3Points->GetNumberOfTuples() != numPoints || q2Points->GetNumberOfTuples() != numPoints)
   {
     outBPTable->Dump();
     cout << "## Failure: Bad number of tuples in Q3Points or QMedPoints columns!" << endl;
     return EXIT_FAILURE;
   }
 
-  if (q3Points->GetNumberOfComponents() != 2 ||
-    q2Points->GetNumberOfComponents() != 2)
+  if (q3Points->GetNumberOfComponents() != 2 || q2Points->GetNumberOfComponents() != 2)
   {
     outBPTable->Dump();
     cout << "## Failure: Q3Points or QMedPoints does not have 2 components!" << endl;

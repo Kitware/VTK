@@ -8,6 +8,18 @@ KIT
   VTK::Filters
 GROUPS
   StandAlone
+SPDX_LICENSE_IDENTIFIER
+  LicenseRef-BSD-3-Clause-Sandia-NVIDIA-USGov
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright Sandia Corporation
+  Copyright 1993-2007 NVIDIA Corporation.
+SPDX_CUSTOM_LICENSE_FILE
+  LICENSE
+SPDX_CUSTOM_LICENSE_NAME
+  BSD-3-Clause-Sandia-MIT-NVIDIA-USGov
+LICENSE_FILES
+  LICENSE
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
@@ -19,20 +31,30 @@ PRIVATE_DEPENDS
   VTK::CommonMath
   VTK::CommonSystem
   VTK::CommonTransforms
+  VTK::FiltersGeometry
+  VTK::FiltersVerdict
+  VTK::fmt
 TEST_DEPENDS
+  VTK::CommonColor
   VTK::FiltersExtraction
   VTK::FiltersFlowPaths
   VTK::FiltersGeometry
+  VTK::FiltersHybrid
   VTK::FiltersModeling
   VTK::FiltersSources
+  VTK::IOExodus
   VTK::IOGeometry
   VTK::IOImage
   VTK::IOLegacy
   VTK::IOXML
   VTK::ImagingCore
+  VTK::ImagingGeneral
   VTK::ImagingMath
   VTK::InteractionStyle
   VTK::RenderingAnnotation
   VTK::RenderingLabel
   VTK::RenderingOpenGL2
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::AcceleratorsVTKmFilters
+  VTK::IOIOSS

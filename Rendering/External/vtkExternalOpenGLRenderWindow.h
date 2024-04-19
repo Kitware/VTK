@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkExternalOpenGLRenderWindow.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkExternalOpenGLRenderWindow
  * @brief   OpenGL render window that allows using
@@ -36,26 +24,27 @@
  * one must register an observer for WindowMakeCurrentEvent,
  * WindowIsCurrentEvent and WindowFrameEvent.
  * \sa vtkGenericOpenGLRenderWindow
-*/
+ */
 
 #ifndef vtkExternalOpenGLRenderWindow_h
 #define vtkExternalOpenGLRenderWindow_h
 
-#include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkRenderingExternalModule.h" // For export macro
 
-class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderWindow :
-  public vtkGenericOpenGLRenderWindow
+VTK_ABI_NAMESPACE_BEGIN
+class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderWindow
+  : public vtkGenericOpenGLRenderWindow
 {
 public:
-  static vtkExternalOpenGLRenderWindow *New();
+  static vtkExternalOpenGLRenderWindow* New();
   vtkTypeMacro(vtkExternalOpenGLRenderWindow, vtkGenericOpenGLRenderWindow);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Begin the rendering process using the existing context.
    */
-  void Start(void) override;
+  void Start() override;
 
   /**
    * Tells if this window is the current graphics context for the calling
@@ -63,7 +52,7 @@ public:
    */
   bool IsCurrent() override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off a flag which enables/disables automatic positioning and
    * resizing of the render window. By default, vtkExternalOpenGLRenderWindow
@@ -75,19 +64,32 @@ public:
    * (Turn AutomaticWindowPositionAndResize off if you do not want the viewport
    * to be queried from the OpenGL state.)
    */
-  vtkGetMacro(AutomaticWindowPositionAndResize,int);
-  vtkSetMacro(AutomaticWindowPositionAndResize,int);
-  vtkBooleanMacro(AutomaticWindowPositionAndResize,int);
-  //@}
+  vtkGetMacro(AutomaticWindowPositionAndResize, int);
+  vtkSetMacro(AutomaticWindowPositionAndResize, int);
+  vtkBooleanMacro(AutomaticWindowPositionAndResize, int);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off a flag which enables/disables using the content from an
+   * outside application.  When on the active read buffer is first blitted
+   * into VTK and becomes the starting point for VTK's rendering.
+   */
+  vtkGetMacro(UseExternalContent, bool);
+  vtkSetMacro(UseExternalContent, bool);
+  vtkBooleanMacro(UseExternalContent, bool);
+  ///@}
 
 protected:
   vtkExternalOpenGLRenderWindow();
   ~vtkExternalOpenGLRenderWindow() override;
 
   int AutomaticWindowPositionAndResize;
+  bool UseExternalContent;
 
 private:
   vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&) = delete;
   void operator=(const vtkExternalOpenGLRenderWindow&) = delete;
 };
-#endif //vtkExternalOpenGLRenderWindow_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkExternalOpenGLRenderWindow_h

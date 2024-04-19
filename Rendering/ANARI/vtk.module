@@ -1,0 +1,34 @@
+NAME
+  VTK::RenderingAnari
+LIBRARY_NAME
+  vtkRenderingAnari
+CONDITION
+  CMAKE_VERSION VERSION_GREATER 3.18
+IMPLEMENTS
+  VTK::RenderingVolume
+DEPENDS
+  VTK::RenderingOpenGL2
+  VTK::RenderingCore
+  VTK::RenderingSceneGraph
+  VTK::CommonDataModel
+  VTK::RenderingVolume
+  VTK::RenderingVolumeOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonSystem
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::InteractionStyle
+  VTK::IOLegacy
+  VTK::IOGeometry
+  VTK::IOPLY
+  VTK::IOXML
+  VTK::TestingCore
+  VTK::TestingRendering
+  VTK::FiltersTexture
+  VTK::FiltersModeling
+  VTK::FiltersSources
+  VTK::RenderingAnnotation
+  VTK::RenderingVolume
+  VTK::RenderingVolumeOpenGL2
+  VTK::RenderingFreeType
+  VTK::ImagingHybrid

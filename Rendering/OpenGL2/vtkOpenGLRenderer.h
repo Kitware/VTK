@@ -1,34 +1,28 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLRenderer.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOpenGLRenderer
  * @brief   OpenGL renderer
  *
  * vtkOpenGLRenderer is a concrete implementation of the abstract class
  * vtkRenderer. vtkOpenGLRenderer interfaces to the OpenGL graphics library.
-*/
+ */
 
 #ifndef vtkOpenGLRenderer_h
 #define vtkOpenGLRenderer_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
-#include <vector>  // STL Header
-#include <string> // Ivars
 
+#include "vtkOpenGLQuadHelper.h"       // for ivar
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkSmartPointer.h"           // For vtkSmartPointer
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include <memory>                      // for unique_ptr
+#include <string>                      // Ivars
+#include <vector>                      // STL Header
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkFloatArray;
 class vtkOpenGLFXAAFilter;
 class vtkRenderPass;
 class vtkOpenGLState;
@@ -41,18 +35,22 @@ class vtkPBRLUTTexture;
 class vtkPBRPrefilterTexture;
 class vtkShaderProgram;
 class vtkShadowMapPass;
+class vtkSSAOPass;
+class vtkPolyData;
+class vtkTexturedActor2D;
+class vtkPolyDataMapper2D;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderer : public vtkRenderer
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLRenderer : public vtkRenderer
 {
 public:
-  static vtkOpenGLRenderer *New();
+  static vtkOpenGLRenderer* New();
   vtkTypeMacro(vtkOpenGLRenderer, vtkRenderer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Concrete open gl render method.
    */
-  void DeviceRender(void) override;
+  void DeviceRender() override;
 
   /**
    * Overridden to support hidden line removal.
@@ -67,12 +65,12 @@ public:
    */
   void DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
-  void Clear(void) override;
+  void Clear() override;
 
   /**
    * Ask lights to load themselves into graphics pipeline.
    */
-  int UpdateLights(void) override;
+  int UpdateLights() override;
 
   /**
    * Is rendering at translucent geometry stage using depth peeling and
@@ -81,14 +79,6 @@ public:
    * (Used by vtkOpenGLProperty or vtkOpenGLTexture)
    */
   int GetDepthPeelingHigherLayer();
-
-  /**
-   * Indicate if this system is subject to the Apple/AMD bug
-   * of not having a working glPrimitiveId <rdar://20747550>.
-   * The bug is fixed on macOS 10.11 and later, and this method
-   * will return false when the OS is new enough.
-   */
-  bool HaveApplePrimitiveIdBug();
 
   /**
    * Indicate if this system is subject to the apple/NVIDIA bug that causes
@@ -105,22 +95,23 @@ public:
 
   // Get the state object used to keep track of
   // OpenGL state
-  vtkOpenGLState *GetState();
+  vtkOpenGLState* GetState();
 
   // get the standard lighting uniform declarations
   // for the current set of lights
-  const char *GetLightingUniforms();
+  const char* GetLightingUniforms();
 
   // update the lighting uniforms for this shader if they
   // are out of date
-  void UpdateLightingUniforms(vtkShaderProgram *prog);
+  void UpdateLightingUniforms(vtkShaderProgram* prog);
 
   // get the complexity of the current lights as a int
   // 0 = no lighting
   // 1 = headlight
   // 2 = directional lights
   // 3 = positional lights
-  enum LightingComplexityEnum {
+  enum LightingComplexityEnum
+  {
     NoLighting = 0,
     Headlight = 1,
     Directional = 2,
@@ -131,28 +122,56 @@ public:
   // get the number of lights turned on
   vtkGetMacro(LightingCount, int);
 
+  ///@{
   /**
    * Set the user light transform applied after the camera transform.
    * Can be null to disable it.
    */
   void SetUserLightTransform(vtkTransform* transform);
+  vtkTransform* GetUserLightTransform();
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get environment textures used for image based lighting.
    */
   vtkPBRLUTTexture* GetEnvMapLookupTable();
   vtkPBRIrradianceTexture* GetEnvMapIrradiance();
   vtkPBRPrefilterTexture* GetEnvMapPrefiltered();
-  //@}
+  ///@}
 
   /**
-   * Overriden in order to connect the cubemap to the environment map textures.
+   * Get spherical harmonics coefficients used for irradiance
    */
-  void SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB = false) override;
+  vtkFloatArray* GetSphericalHarmonics();
+
+  ///@{
+  /**
+   * Use spherical harmonics instead of irradiance texture
+   */
+  vtkSetMacro(UseSphericalHarmonics, bool);
+  vtkGetMacro(UseSphericalHarmonics, bool);
+  vtkBooleanMacro(UseSphericalHarmonics, bool);
+  ///@}
+
+  /**
+   * Set/Get the environment texture used for image based lighting.
+   * This texture is supposed to represent the scene background.
+   * If it is not a cubemap, the texture is supposed to represent an equirectangular projection.
+   * If used with raytracing backends, the texture must be an equirectangular projection and must be
+   * constructed with a valid vtkImageData.
+   * Warning, this texture must be expressed in linear color space.
+   * If the texture is in sRGB color space, set the color flag on the texture or
+   * set the argument isSRGB to true.
+   * Note that this texture can be omitted if LUT, SpecularColorMap and SphericalHarmonics
+   * are used and provided
+   *
+   * @sa vtkTexture::UseSRGBColorSpaceOn
+   */
+  void SetEnvironmentTexture(vtkTexture* texture, bool isSRGB = false) override;
 
   // Method to release graphics resources
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
 protected:
   vtkOpenGLRenderer();
@@ -185,22 +204,27 @@ protected:
   /**
    * FXAA is delegated to an instance of vtkOpenGLFXAAFilter
    */
-  vtkOpenGLFXAAFilter *FXAAFilter;
+  vtkOpenGLFXAAFilter* FXAAFilter;
 
   /**
    * Depth peeling is delegated to an instance of vtkDepthPeelingPass
    */
-  vtkDepthPeelingPass *DepthPeelingPass;
+  vtkDepthPeelingPass* DepthPeelingPass;
 
   /**
    * Fallback for transparency
    */
-  vtkOrderIndependentTranslucentPass *TranslucentPass;
+  vtkOrderIndependentTranslucentPass* TranslucentPass;
 
   /**
    * Shadows are delegated to an instance of vtkShadowMapPass
    */
-  vtkShadowMapPass *ShadowMapPass;
+  vtkShadowMapPass* ShadowMapPass;
+
+  /**
+   * SSAO is delegated to an instance of vtkSSAOPass
+   */
+  vtkSSAOPass* SSAOPass;
 
   // Is rendering at translucent geometry stage using depth peeling and
   // rendering a layer other than the first one? (Boolean value)
@@ -220,13 +244,21 @@ protected:
    */
   vtkSmartPointer<vtkTransform> UserLightTransform;
 
-  vtkPBRLUTTexture* EnvMapLookupTable;
-  vtkPBRIrradianceTexture* EnvMapIrradiance;
-  vtkPBRPrefilterTexture* EnvMapPrefiltered;
+  vtkSmartPointer<vtkPBRLUTTexture> EnvMapLookupTable;
+  vtkSmartPointer<vtkPBRIrradianceTexture> EnvMapIrradiance;
+  vtkSmartPointer<vtkPBRPrefilterTexture> EnvMapPrefiltered;
+  vtkSmartPointer<vtkFloatArray> SphericalHarmonics;
+  bool UseSphericalHarmonics;
+
+  vtkSmartPointer<vtkTexturedActor2D> BackgroundTextureActor;
+  vtkSmartPointer<vtkTexturedActor2D> BackgroundGradientActor;
+  vtkSmartPointer<vtkPolyDataMapper2D> BackgroundMapper;
+  vtkSmartPointer<vtkPolyData> BackgroundQuad;
 
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&) = delete;
   void operator=(const vtkOpenGLRenderer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

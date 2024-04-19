@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestGPURayCastLabelMap.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * Labeled data volume rendering
  *
@@ -76,17 +64,15 @@ void CreateMaskForImage(vtkImageData* input, vtkImageData* mask)
     {
       for (int i = 0; i < dims[0]; ++i)
       {
-        unsigned char* ptr =
-          static_cast<unsigned char*>(mask->GetScalarPointer(i, j, k));
+        unsigned char* ptr = static_cast<unsigned char*>(mask->GetScalarPointer(i, j, k));
         if (sphere->FunctionValue(i, j, k) < 0)
         {
           // point inside sphere
           // assign mask label 1
           *ptr = 1;
         }
-        else if ((*(static_cast<unsigned short*>(
-                    input->GetScalarPointer(i, j, k))) < 375) &&
-                 k < dims[2] / 2)
+        else if ((*(static_cast<unsigned short*>(input->GetScalarPointer(i, j, k))) < 375) &&
+          k < dims[2] / 2)
         {
           *ptr = 2;
         }
@@ -105,8 +91,7 @@ int TestGPURayCastLabelMap(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tooth.nhdr");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tooth.nhdr");
   vtkNew<vtkNrrdReader> reader;
   reader->SetFileName(fname);
   reader->Update();
@@ -206,6 +191,5 @@ int TestGPURayCastLabelMap(int argc, char* argv[])
     iren->Start();
   }
 
-  return !((retVal == vtkTesting::PASSED) ||
-           (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

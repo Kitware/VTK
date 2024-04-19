@@ -1,33 +1,28 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageSliceCollection.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkImageSliceCollection.h"
-#include "vtkObjectFactory.h"
-#include "vtkImageSlice.h"
 #include "vtkImageProperty.h"
+#include "vtkImageSlice.h"
+#include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSliceCollection);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void vtkImageSliceCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 // protected function to delete an element. Internal use only.
-void vtkImageSliceCollection::DeleteElement(vtkCollectionElement *e)
+void vtkImageSliceCollection::DeleteElement(vtkCollectionElement* e)
 {
   vtkCollection::DeleteElement(e);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Destructor for the vtkImageSliceCollection class. This removes all
 // objects from the collection.
 vtkImageSliceCollection::~vtkImageSliceCollection()
@@ -35,19 +30,18 @@ vtkImageSliceCollection::~vtkImageSliceCollection()
   this->RemoveAllItems();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Add an image to the list.  The new image is inserted in the
 // list according to it's layer number.
-void vtkImageSliceCollection::AddItem(vtkImageSlice *a)
+void vtkImageSliceCollection::AddItem(vtkImageSlice* a)
 {
   vtkCollectionElement* elem = new vtkCollectionElement;
   elem->Item = a;
 
   // Find insertion location according to the layer number
-  vtkCollectionElement *prevElem = nullptr;
+  vtkCollectionElement* prevElem = nullptr;
   int layerNumber = a->GetProperty()->GetLayerNumber();
-  for (vtkCollectionElement *indexElem = this->Top;
-       indexElem != nullptr;
+  for (vtkCollectionElement* indexElem = this->Top; indexElem != nullptr;
        indexElem = indexElem->Next)
   {
     vtkImageSlice* tempImage = static_cast<vtkImageSlice*>(indexElem->Item);
@@ -80,16 +74,16 @@ void vtkImageSliceCollection::AddItem(vtkImageSlice *a)
   a->Register(this);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // small helper struct
 class vtkImageSliceLayerPair
 {
 public:
-  vtkImageSlice *image;
+  vtkImageSlice* image;
   int layer;
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Sorts the vtkImageSliceCollection by layer number.  Smaller layer
 // numbers are first.  Layer numbers can be any integer value.
 void vtkImageSliceCollection::Sort()
@@ -97,10 +91,10 @@ void vtkImageSliceCollection::Sort()
   // Create a temporary array of pointers to images
   int numElems = this->GetNumberOfItems();
   vtkImageSliceLayerPair defaultLayerArray[8];
-  vtkImageSliceLayerPair *layerArray = defaultLayerArray;
+  vtkImageSliceLayerPair* layerArray = defaultLayerArray;
   if (numElems > 8)
   {
-    layerArray = new vtkImageSliceLayerPair [numElems];
+    layerArray = new vtkImageSliceLayerPair[numElems];
   }
 
   // Start at the beginning of the collection
@@ -110,7 +104,7 @@ void vtkImageSliceCollection::Sort()
   // Fill the image array with the items in the collection
   for (int ii = 0; ii < numElems; ii++)
   {
-    vtkImageSlice *image = this->GetNextImage(ait);
+    vtkImageSlice* image = this->GetNextImage(ait);
     layerArray[ii].image = image;
     layerArray[ii].layer = image->GetProperty()->GetLayerNumber();
   }
@@ -132,8 +126,7 @@ void vtkImageSliceCollection::Sort()
         imin = j;
         lmin = l;
       }
-    }
-    while (++j < numElems);
+    } while (++j < numElems);
 
     vtkImageSliceLayerPair t = layerArray[imin];
     layerArray[imin] = layerArray[i];
@@ -151,6 +144,7 @@ void vtkImageSliceCollection::Sort()
 
   if (layerArray != defaultLayerArray)
   {
-    delete [] layerArray;
+    delete[] layerArray;
   }
 }
+VTK_ABI_NAMESPACE_END

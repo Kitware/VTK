@@ -1,40 +1,24 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkViewUpdater.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkViewUpdater.h"
 
 #include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkView.h"
 #include "vtkRenderView.h"
+#include "vtkView.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkViewUpdater);
 
 class vtkViewUpdater::vtkViewUpdaterInternals : public vtkCommand
 {
 public:
-
   void Execute(vtkObject*, unsigned long, void*) override
   {
     for (unsigned int i = 0; i < this->Views.size(); ++i)
@@ -67,13 +51,13 @@ vtkViewUpdater::~vtkViewUpdater()
 void vtkViewUpdater::AddView(vtkView* view)
 {
   this->Internals->Views.push_back(view);
-  //view->AddObserver(vtkCommand::SelectionChangedEvent, this->Internals);
+  // view->AddObserver(vtkCommand::SelectionChangedEvent, this->Internals);
 }
 void vtkViewUpdater::RemoveView(vtkView* view)
 {
   std::vector<vtkView*>::iterator p;
   p = std::find(this->Internals->Views.begin(), this->Internals->Views.end(), view);
-  if(p == this->Internals->Views.end())
+  if (p == this->Internals->Views.end())
     return;
   this->Internals->Views.erase(p);
 }
@@ -87,3 +71,4 @@ void vtkViewUpdater::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

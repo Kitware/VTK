@@ -53,6 +53,15 @@ extern "C" {
     NC4_HDF5_set_var_chunk_cache(int ncid, int varid, size_t size, size_t nelems,
                                  float preemption);
 
+    EXTERNL int
+    HDF5_def_dim(int ncid, const char *name, size_t len, int *idp);
+
+    EXTERNL int
+    HDF5_inq_dim(int ncid, int dimid, char *name, size_t *lenp);
+
+    EXTERNL int
+    HDF5_rename_dim(int ncid, int dimid, const char *name);
+
 #if defined(__cplusplus)
 }
 #endif

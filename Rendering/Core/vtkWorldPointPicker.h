@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkWorldPointPicker.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWorldPointPicker
  * @brief   find world x,y,z corresponding to display x,y,z
@@ -27,40 +15,41 @@
  *
  * @sa
  * vtkPropPicker vtkPicker vtkCellPicker vtkPointPicker
-*/
+ */
 
 #ifndef vtkWorldPointPicker_h
 #define vtkWorldPointPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkWorldPointPicker : public vtkAbstractPicker
 {
 public:
-  static vtkWorldPointPicker *New();
-  vtkTypeMacro(vtkWorldPointPicker,vtkAbstractPicker);
+  static vtkWorldPointPicker* New();
+  vtkTypeMacro(vtkWorldPointPicker, vtkAbstractPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Perform the pick. (This method overload's the superclass.)
    */
-  int Pick(double selectionX, double selectionY, double selectionZ,
-           vtkRenderer *renderer) override;
-  int Pick(double selectionPt[3], vtkRenderer *renderer)
-    { return this->vtkAbstractPicker::Pick( selectionPt, renderer); };
-  //@}
+  int Pick(double selectionX, double selectionY, double selectionZ, vtkRenderer* renderer) override;
+  int Pick(double selectionPt[3], vtkRenderer* renderer)
+  {
+    return this->vtkAbstractPicker::Pick(selectionPt, renderer);
+  }
+  ///@}
 
 protected:
-  vtkWorldPointPicker ();
-  ~vtkWorldPointPicker() override {}
+  vtkWorldPointPicker();
+  ~vtkWorldPointPicker() override = default;
 
 private:
   vtkWorldPointPicker(const vtkWorldPointPicker&) = delete;
   void operator=(const vtkWorldPointPicker&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
-
-

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPen.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkPen
@@ -24,34 +12,37 @@
  * opacity defaults to 255, but can be modified separately to the other
  * components. Ideally we would use a lightweight color class to store and pass
  * around colors.
-*/
+ */
 
 #ifndef vtkPen_h
 #define vtkPen_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
-#include "vtkObject.h"
 #include "vtkColor.h" // Needed for vtkColor4ub
+#include "vtkObject.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCONTEXT2D_EXPORT vtkPen : public vtkObject
 {
 public:
   vtkTypeMacro(vtkPen, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPen *New();
+  static vtkPen* New();
 
   /**
    * Enum of the available line types.
    */
-  enum {
+  enum
+  {
     NO_PEN,
     SOLID_LINE,
     DASH_LINE,
     DOT_LINE,
     DASH_DOT_LINE,
     DASH_DOT_DOT_LINE,
-    DENSE_DOT_LINE};
+    DENSE_DOT_LINE
+  };
 
   /**
    * Set the type of line that the pen should draw. The default is solid (1).
@@ -99,15 +90,14 @@ public:
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b);
 
-  //@{
+  ///@{
   /**
    * Set the color of the brush with four component unsigned chars (RGBA),
    * ranging from 0 to 255.
    */
-  void SetColor(unsigned char r, unsigned char g, unsigned char b,
-                unsigned char a);
-  void SetColor(const vtkColor4ub &color);
-  //@}
+  void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+  void SetColor(const vtkColor4ub& color);
+  ///@}
 
   /**
    * Set the opacity with an unsigned char, ranging from 0 (transparent) to 255
@@ -139,32 +129,32 @@ public:
   /**
    * Get the color of the brush - gives a pointer to the underlying data.
    */
-  unsigned char * GetColor() { return this->Color; }
+  unsigned char* GetColor() { return this->Color; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the width of the pen.
    */
   vtkSetMacro(Width, float);
   vtkGetMacro(Width, float);
-  //@}
+  ///@}
 
   /**
    * Make a deep copy of the supplied pen.
    */
-  void DeepCopy(vtkPen *pen);
+  void DeepCopy(vtkPen* pen);
 
 protected:
   vtkPen();
   ~vtkPen() override;
 
-  //@{
+  ///@{
   /**
    * Storage of the color in RGBA format (0-255 per channel).
    */
   unsigned char* Color;
   vtkColor4ub PenColor;
-  //@}
+  ///@}
 
   /**
    * Store the width of the pen in pixels.
@@ -177,9 +167,9 @@ protected:
   int LineType;
 
 private:
-  vtkPen(const vtkPen &) = delete;
-  void operator=(const vtkPen &) = delete;
-
+  vtkPen(const vtkPen&) = delete;
+  void operator=(const vtkPen&) = delete;
 };
 
-#endif //vtkPen_h
+VTK_ABI_NAMESPACE_END
+#endif // vtkPen_h

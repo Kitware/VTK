@@ -1,33 +1,20 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestMathTextFreeTypeTextRenderer.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkTextRenderer.h"
 
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkStdString.h"
+#include "vtkRenderer.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 
 #include <iostream>
 #include <string>
 
-//----------------------------------------------------------------------------
-int TestMathTextFreeTypeTextRenderer(int argc, char *argv[])
+//------------------------------------------------------------------------------
+int TestMathTextFreeTypeTextRenderer(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -47,11 +34,12 @@ int TestMathTextFreeTypeTextRenderer(int argc, char *argv[])
   if (strcmp(tren->GetClassName(), "vtkMathTextFreeTypeTextRenderer") != 0)
   {
     std::cerr << "Object factory returning unrecognized vtkTextRenderer "
-                 "override: " << tren->GetClassName() << std::endl;
+                 "override: "
+              << tren->GetClassName() << std::endl;
     return EXIT_FAILURE;
   }
 
-  vtkStdString str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
+  std::string str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
 
   vtkNew<vtkTextActor> actor1;
   actor1->GetTextProperty()->SetFontSize(20);

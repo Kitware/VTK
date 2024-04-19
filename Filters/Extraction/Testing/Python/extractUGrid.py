@@ -1,60 +1,80 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkCommonExecutionModel import vtkCastToConcrete
+from vtkmodules.vtkFiltersCore import (
+    vtkConnectivityFilter,
+    vtkPolyDataNormals,
+)
+from vtkmodules.vtkFiltersExtraction import vtkExtractUnstructuredGrid
+from vtkmodules.vtkFiltersGeneral import vtkWarpVector
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOLegacy import vtkDataSetReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create reader and warp data with vectors
-reader = vtk.vtkDataSetReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/blow.vtk")
+reader = vtkDataSetReader()
+reader.SetFileName(VTK_DATA_ROOT + "/Data/blow.vtk")
 reader.SetScalarsName("thickness9")
 reader.SetVectorsName("displacement9")
-castToUnstructuredGrid = vtk.vtkCastToConcrete()
+castToUnstructuredGrid = vtkCastToConcrete()
 castToUnstructuredGrid.SetInputConnection(reader.GetOutputPort())
 castToUnstructuredGrid.Update()
-warp = vtk.vtkWarpVector()
+warp = vtkWarpVector()
 warp.SetInputData(castToUnstructuredGrid.GetUnstructuredGridOutput())
 # extract mold from mesh using connectivity
-connect = vtk.vtkConnectivityFilter()
+connect = vtkConnectivityFilter()
 connect.SetInputConnection(warp.GetOutputPort())
 connect.SetExtractionModeToSpecifiedRegions()
 connect.AddSpecifiedRegion(0)
 connect.AddSpecifiedRegion(1)
-moldMapper = vtk.vtkDataSetMapper()
+moldMapper = vtkDataSetMapper()
 moldMapper.SetInputConnection(reader.GetOutputPort())
 moldMapper.ScalarVisibilityOff()
-moldActor = vtk.vtkActor()
+moldActor = vtkActor()
 moldActor.SetMapper(moldMapper)
 moldActor.GetProperty().SetColor(.2,.2,.2)
 moldActor.GetProperty().SetRepresentationToWireframe()
 # extract parison from mesh using connectivity
-connect2 = vtk.vtkConnectivityFilter()
+connect2 = vtkConnectivityFilter()
 connect2.SetInputConnection(warp.GetOutputPort())
 connect2.SetExtractionModeToSpecifiedRegions()
 connect2.AddSpecifiedRegion(2)
-extractGrid = vtk.vtkExtractUnstructuredGrid()
+extractGrid = vtkExtractUnstructuredGrid()
 extractGrid.SetInputConnection(connect2.GetOutputPort())
 extractGrid.CellClippingOn()
 extractGrid.SetCellMinimum(0)
 extractGrid.SetCellMaximum(23)
-parison = vtk.vtkGeometryFilter()
+parison = vtkGeometryFilter()
 parison.SetInputConnection(extractGrid.GetOutputPort())
-normals2 = vtk.vtkPolyDataNormals()
+normals2 = vtkPolyDataNormals()
 normals2.SetInputConnection(parison.GetOutputPort())
 normals2.SetFeatureAngle(60)
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.0,0.66667)
-parisonMapper = vtk.vtkPolyDataMapper()
+parisonMapper = vtkPolyDataMapper()
 parisonMapper.SetInputConnection(normals2.GetOutputPort())
 parisonMapper.SetLookupTable(lut)
 parisonMapper.SetScalarRange(0.12,1.0)
-parisonActor = vtk.vtkActor()
+parisonActor = vtkActor()
 parisonActor.SetMapper(parisonMapper)
 # graphics stuff
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

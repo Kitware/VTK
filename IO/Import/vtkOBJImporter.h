@@ -1,14 +1,5 @@
-/*=========================================================================
-  Program:   Visualization Toolkit
-  Module:    vtkOBJImporter.h
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOBJImporter
  * @brief   import from .obj wavefront files
@@ -18,16 +9,17 @@
  *                   Allen Tannenbaum (SUNY Stonybrook), Patricio Vela (Georgia Tech)
  * @sa
  *  vtkImporter
-*/
+ */
 
 #ifndef vtkOBJImporter_h
 #define vtkOBJImporter_h
 
 #include "vtkIOImportModule.h" // For export macro
-#include <string> // for string
-#include "vtkSmartPointer.h" // for ivars
 #include "vtkImporter.h"
+#include "vtkSmartPointer.h" // for ivars
+#include <string>            // for string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkRenderer;
 class vtkPolydata;
@@ -59,22 +51,27 @@ class vtkOBJPolyDataProcessor;
 class VTKIOIMPORT_EXPORT vtkOBJImporter : public vtkImporter
 {
 public:
-  static vtkOBJImporter *New();
+  static vtkOBJImporter* New();
 
-  vtkTypeMacro(vtkOBJImporter,vtkImporter);
+  vtkTypeMacro(vtkOBJImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the file to read.
    */
-  void SetFileName(const char* arg);
-  void SetFileNameMTL(const char* arg);
-  void SetTexturePath(const char* path);
-  const char* GetFileName() const;
-  const char* GetFileNameMTL() const;
-  const char* GetTexturePath() const;
-  //@}
+  void SetFileName(VTK_FILEPATH const char* arg);
+  void SetFileNameMTL(VTK_FILEPATH const char* arg);
+  void SetTexturePath(VTK_FILEPATH const char* path);
+  VTK_FILEPATH const char* GetFileName() const;
+  VTK_FILEPATH const char* GetFileNameMTL() const;
+  VTK_FILEPATH const char* GetTexturePath() const;
+  ///@}
+
+  /**
+   * Get a printable string describing all outputs
+   */
+  std::string GetOutputsDescription() override;
 
   /**
    * Get a string describing an output
@@ -85,18 +82,16 @@ protected:
   vtkOBJImporter();
   ~vtkOBJImporter() override;
 
-  int  ImportBegin() override /*override*/;
-  void ImportEnd () override /*override*/;
+  int ImportBegin() override /*override*/;
+  void ImportEnd() override /*override*/;
   void ReadData() override /* override */;
 
-  vtkSmartPointer<vtkOBJPolyDataProcessor>   Impl;
+  vtkSmartPointer<vtkOBJPolyDataProcessor> Impl;
 
 private:
   vtkOBJImporter(const vtkOBJImporter&) = delete;
   void operator=(const vtkOBJImporter&) = delete;
 };
 
-
-
+VTK_ABI_NAMESPACE_END
 #endif
-// VTK-HeaderTest-Exclude: vtkOBJImporter.h

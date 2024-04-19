@@ -1,22 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleRubberBand3D.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
+// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkInteractorStyleRubberBand3D
  * @brief   A rubber band interactor for a 3D view
@@ -33,20 +17,23 @@
  * Shift + right mouse - Zoom.
  * Middle mouse - Pan.
  * Scroll wheel - Zoom.
-*/
+ */
 
 #ifndef vtkInteractorStyleRubberBand3D_h
 #define vtkInteractorStyleRubberBand3D_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBand3D : public vtkInteractorStyleTrackballCamera
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleRubberBand3D
+  : public vtkInteractorStyleTrackballCamera
 {
 public:
-  static vtkInteractorStyleRubberBand3D *New();
+  static vtkInteractorStyleRubberBand3D* New();
   vtkTypeMacro(vtkInteractorStyleRubberBand3D, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -60,14 +47,14 @@ public:
   void OnMouseWheelForward() override;
   void OnMouseWheelBackward() override;
 
-  //@{
+  ///@{
   /**
    * Whether to invoke a render when the mouse moves.
    */
   vtkSetMacro(RenderOnMouseMove, bool);
   vtkGetMacro(RenderOnMouseMove, bool);
   vtkBooleanMacro(RenderOnMouseMove, bool);
-  //@}
+  ///@}
 
   /**
    * Selection types
@@ -78,12 +65,12 @@ public:
     SELECT_UNION = 1
   };
 
-  //@{
+  ///@{
   /**
    * Current interaction state
    */
   vtkGetMacro(Interaction, int);
-  //@}
+  ///@}
 
   enum
   {
@@ -94,15 +81,15 @@ public:
     SELECTING
   };
 
-  //@{
+  ///@{
   /**
    * Access to the start and end positions (display coordinates) of the rubber
    * band pick area. This is a convenience method for the wrapped languages
    * since the event callData is lost when using those wrappings.
    */
-  vtkGetVector2Macro(StartPosition,int);
-  vtkGetVector2Macro(EndPosition,int);
-  //@}
+  vtkGetVector2Macro(StartPosition, int);
+  vtkGetVector2Macro(EndPosition, int);
+  ///@}
 
 protected:
   vtkInteractorStyleRubberBand3D();
@@ -131,4 +118,5 @@ private:
   void operator=(const vtkInteractorStyleRubberBand3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

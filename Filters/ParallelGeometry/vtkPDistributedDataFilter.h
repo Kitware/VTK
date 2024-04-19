@@ -1,21 +1,6 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPDistributedDataFilter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 
 /**
  * @class   vtkPDistributedDataFilter
@@ -84,14 +69,15 @@
  *
  * @sa
  * vtkKdTree vtkPKdTree vtkBSPCuts
-*/
+ */
 
 #ifndef vtkPDistributedDataFilter_h
 #define vtkPDistributedDataFilter_h
 
-#include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkDistributedDataFilter.h"
+#include "vtkFiltersParallelGeometryModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBSPCuts;
 class vtkDataArray;
 class vtkFloatArray;
@@ -103,13 +89,13 @@ class vtkPDistributedDataFilterSTLCloak;
 class vtkPKdTree;
 class vtkUnstructuredGrid;
 
-class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPDistributedDataFilter: public vtkDistributedDataFilter
+class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPDistributedDataFilter : public vtkDistributedDataFilter
 {
 public:
   vtkTypeMacro(vtkPDistributedDataFilter, vtkDistributedDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPDistributedDataFilter *New();
+  static vtkPDistributedDataFilter* New();
 
 protected:
   vtkPDistributedDataFilter();
@@ -121,9 +107,8 @@ protected:
    * by all processes, or it will hang.
    */
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  void SingleProcessExecute(vtkDataSet *input, vtkUnstructuredGrid *output);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void SingleProcessExecute(vtkDataSet* input, vtkUnstructuredGrid* output);
 
   /**
    * Implementation for request data.
@@ -131,45 +116,49 @@ protected:
   int RequestDataInternal(vtkDataSet* input, vtkUnstructuredGrid* output);
 
 private:
-
-  enum{
-      DeleteNo = 0,
-      DeleteYes = 1
+  enum
+  {
+    DeleteNo = 0,
+    DeleteYes = 1
   };
 
-  enum{
-      DuplicateCellsNo = 0,
-      DuplicateCellsYes = 1
+  enum
+  {
+    DuplicateCellsNo = 0,
+    DuplicateCellsYes = 1
   };
 
-  enum{
-      GhostCellsNo = 0,
-      GhostCellsYes = 1
+  enum
+  {
+    GhostCellsNo = 0,
+    GhostCellsYes = 1
   };
 
-  enum{
-      UnsetGhostLevel = 99
+  enum
+  {
+    UnsetGhostLevel = 99
   };
 
   /**
    * ?
    */
-  int PartitionDataAndAssignToProcesses(vtkDataSet *set);
+  int PartitionDataAndAssignToProcesses(vtkDataSet* set);
 
   /**
    * ?
    */
-  vtkUnstructuredGrid *RedistributeDataSet(vtkDataSet *set, vtkDataSet *input, int filterOutDuplicateCells);
+  vtkUnstructuredGrid* RedistributeDataSet(
+    vtkDataSet* set, vtkDataSet* input, int filterOutDuplicateCells);
 
   /**
    * ?
    */
-  int ClipGridCells(vtkUnstructuredGrid *grid);
+  int ClipGridCells(vtkUnstructuredGrid* grid);
 
   /**
    * ?
    */
-  vtkUnstructuredGrid * AcquireGhostCells(vtkUnstructuredGrid *grid);
+  vtkUnstructuredGrid* AcquireGhostCells(vtkUnstructuredGrid* grid);
 
   /**
    * ?
@@ -179,24 +168,25 @@ private:
   /**
    * ?
    */
-  int CheckFieldArrayTypes(vtkDataSet *set);
+  int CheckFieldArrayTypes(vtkDataSet* set);
 
   /**
    * If any processes have 0 cell input data sets, then
    * spread the input data sets around (quickly) before formal
    * redistribution.
    */
-  vtkDataSet *TestFixTooFewInputFiles(vtkDataSet *input, int& duplicateCells);
+  vtkDataSet* TestFixTooFewInputFiles(vtkDataSet* input, int& duplicateCells);
 
   /**
    * ?
    */
-  vtkUnstructuredGrid *MPIRedistribute(vtkDataSet *in, vtkDataSet *input, int filterOutDuplicateCells);
+  vtkUnstructuredGrid* MPIRedistribute(
+    vtkDataSet* in, vtkDataSet* input, int filterOutDuplicateCells);
 
   /**
    * ?
    */
-  vtkIdList **GetCellIdsForProcess(int proc, int *nlists);
+  vtkIdList** GetCellIdsForProcess(int proc, int* nlists);
 
   /**
    * Fills in the Source and Target arrays which contain a schedule to allow
@@ -204,125 +194,110 @@ private:
    */
   void SetUpPairWiseExchange();
 
-  //@{
+  ///@{
   /**
    * ?
    */
-  void FreeIntArrays(vtkIdTypeArray **ar);
-  static void FreeIdLists(vtkIdList**lists, int nlists);
-  static vtkIdType GetIdListSize(vtkIdList**lists, int nlists);
-  //@}
+  void FreeIntArrays(vtkIdTypeArray** ar);
+  static void FreeIdLists(vtkIdList** lists, int nlists);
+  static vtkIdType GetIdListSize(vtkIdList** lists, int nlists);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This transfers counts (array sizes) between processes.
    */
-  vtkIdTypeArray *ExchangeCounts(vtkIdType myCount, int tag);
-  vtkIdTypeArray *ExchangeCountsLean(vtkIdType myCount, int tag);
-  vtkIdTypeArray *ExchangeCountsFast(vtkIdType myCount, int tag);
-  //@}
+  vtkIdTypeArray* ExchangeCounts(vtkIdType myCount, int tag);
+  vtkIdTypeArray* ExchangeCountsLean(vtkIdType myCount, int tag);
+  vtkIdTypeArray* ExchangeCountsFast(vtkIdType myCount, int tag);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This transfers id valued data arrays between processes.
    */
-  vtkIdTypeArray **ExchangeIdArrays(vtkIdTypeArray **arIn,
-                                    int deleteSendArrays, int tag);
-  vtkIdTypeArray **ExchangeIdArraysLean(vtkIdTypeArray **arIn,
-                                        int deleteSendArrays, int tag);
-  vtkIdTypeArray **ExchangeIdArraysFast(vtkIdTypeArray **arIn,
-                                        int deleteSendArrays, int tag);
-  //@}
+  vtkIdTypeArray** ExchangeIdArrays(vtkIdTypeArray** arIn, int deleteSendArrays, int tag);
+  vtkIdTypeArray** ExchangeIdArraysLean(vtkIdTypeArray** arIn, int deleteSendArrays, int tag);
+  vtkIdTypeArray** ExchangeIdArraysFast(vtkIdTypeArray** arIn, int deleteSendArrays, int tag);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This transfers float valued data arrays between processes.
    */
-  vtkFloatArray **ExchangeFloatArrays(vtkFloatArray **myArray,
-                                      int deleteSendArrays, int tag);
-  vtkFloatArray **ExchangeFloatArraysLean(vtkFloatArray **myArray,
-                                      int deleteSendArrays, int tag);
-  vtkFloatArray **ExchangeFloatArraysFast(vtkFloatArray **myArray,
-                                      int deleteSendArrays, int tag);
-  //@}
+  vtkFloatArray** ExchangeFloatArrays(vtkFloatArray** myArray, int deleteSendArrays, int tag);
+  vtkFloatArray** ExchangeFloatArraysLean(vtkFloatArray** myArray, int deleteSendArrays, int tag);
+  vtkFloatArray** ExchangeFloatArraysFast(vtkFloatArray** myArray, int deleteSendArrays, int tag);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * ?
    */
-  vtkUnstructuredGrid *ExchangeMergeSubGrids(vtkIdList **cellIds, int deleteCellIds,
-                         vtkDataSet *myGrid, int deleteMyGrid,
-                         int filterOutDuplicateCells, int ghostCellFlag, int tag);
-  vtkUnstructuredGrid *ExchangeMergeSubGrids(vtkIdList ***cellIds, int *numLists,
-                   int deleteCellIds,
-                   vtkDataSet *myGrid, int deleteMyGrid,
-                   int filterOutDuplicateCells, int ghostCellFlag, int tag);
-  vtkUnstructuredGrid *ExchangeMergeSubGridsLean(
-                   vtkIdList ***cellIds, int *numLists,
-                   int deleteCellIds,
-                   vtkDataSet *myGrid, int deleteMyGrid,
-                   int filterOutDuplicateCells, int ghostCellFlag, int tag);
-  vtkUnstructuredGrid *ExchangeMergeSubGridsFast(
-                   vtkIdList ***cellIds, int *numLists,
-                   int deleteCellIds,
-                   vtkDataSet *myGrid, int deleteMyGrid,
-                   int filterOutDuplicateCells, int ghostCellFlag, int tag);
-  //@}
+  vtkUnstructuredGrid* ExchangeMergeSubGrids(vtkIdList** cellIds, int deleteCellIds,
+    vtkDataSet* myGrid, int deleteMyGrid, int filterOutDuplicateCells, int ghostCellFlag, int tag);
+  vtkUnstructuredGrid* ExchangeMergeSubGrids(vtkIdList*** cellIds, int* numLists, int deleteCellIds,
+    vtkDataSet* myGrid, int deleteMyGrid, int filterOutDuplicateCells, int ghostCellFlag, int tag);
+  vtkUnstructuredGrid* ExchangeMergeSubGridsLean(vtkIdList*** cellIds, int* numLists,
+    int deleteCellIds, vtkDataSet* myGrid, int deleteMyGrid, int filterOutDuplicateCells,
+    int ghostCellFlag, int tag);
+  vtkUnstructuredGrid* ExchangeMergeSubGridsFast(vtkIdList*** cellIds, int* numLists,
+    int deleteCellIds, vtkDataSet* myGrid, int deleteMyGrid, int filterOutDuplicateCells,
+    int ghostCellFlag, int tag);
+  ///@}
 
-
-  //@{
+  ///@{
   /**
    * ?
    */
   char* MarshallDataSet(vtkUnstructuredGrid* extractedGrid, vtkIdType& size);
   vtkUnstructuredGrid* UnMarshallDataSet(char* buf, vtkIdType size);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * ?
    */
-  void ClipCellsToSpatialRegion(vtkUnstructuredGrid *grid);
+  void ClipCellsToSpatialRegion(vtkUnstructuredGrid* grid);
 #if 0
   void ClipWithVtkClipDataSet(vtkUnstructuredGrid *grid, double *bounds,
            vtkUnstructuredGrid **outside, vtkUnstructuredGrid **inside);
 #endif
-  //@}
+  ///@}
 
-  void ClipWithBoxClipDataSet(vtkUnstructuredGrid *grid, double *bounds,
-           vtkUnstructuredGrid **outside, vtkUnstructuredGrid **inside);
+  void ClipWithBoxClipDataSet(vtkUnstructuredGrid* grid, double* bounds,
+    vtkUnstructuredGrid** outside, vtkUnstructuredGrid** inside);
 
-  //@{
+  ///@{
   /**
    * Accessors to the "GLOBALID" point and cell arrays of the dataset.
    * Global ids are used by D3 to uniquely name all points and cells
    * so that after shuffling data between processors, redundant information
    * can be quickly eliminated.
    */
-  vtkIdTypeArray *GetGlobalNodeIdArray(vtkDataSet *set);
-  vtkIdType *GetGlobalNodeIds(vtkDataSet *set);
-  vtkIdTypeArray *GetGlobalElementIdArray(vtkDataSet *set);
-  vtkIdType *GetGlobalElementIds(vtkDataSet *set);
-  int AssignGlobalNodeIds(vtkUnstructuredGrid *grid);
-  int AssignGlobalElementIds(vtkDataSet *in);
-  vtkIdTypeArray **FindGlobalPointIds(vtkFloatArray **ptarray,
-    vtkIdTypeArray *ids, vtkUnstructuredGrid *grid, vtkIdType &numUniqueMissingPoints);
-  //@}
+  vtkIdTypeArray* GetGlobalNodeIdArray(vtkDataSet* set);
+  vtkIdType* GetGlobalNodeIds(vtkDataSet* set);
+  vtkIdTypeArray* GetGlobalElementIdArray(vtkDataSet* set);
+  vtkIdType* GetGlobalElementIds(vtkDataSet* set);
+  int AssignGlobalNodeIds(vtkUnstructuredGrid* grid);
+  int AssignGlobalElementIds(vtkDataSet* in);
+  vtkIdTypeArray** FindGlobalPointIds(vtkFloatArray** ptarray, vtkIdTypeArray* ids,
+    vtkUnstructuredGrid* grid, vtkIdType& numUniqueMissingPoints);
+  ///@}
 
   /**
    * ?
    */
-  vtkIdTypeArray **MakeProcessLists(vtkIdTypeArray **pointIds,
-                                 vtkPDistributedDataFilterSTLCloak *procs);
+  vtkIdTypeArray** MakeProcessLists(
+    vtkIdTypeArray** pointIds, vtkPDistributedDataFilterSTLCloak* procs);
 
   /**
    * ?
    */
-  vtkIdList **BuildRequestedGrids( vtkIdTypeArray **globalPtIds,
-                        vtkUnstructuredGrid *grid,
-                        vtkPDistributedDataFilterSTLCloak *ptIdMap);
+  vtkIdList** BuildRequestedGrids(vtkIdTypeArray** globalPtIds, vtkUnstructuredGrid* grid,
+    vtkPDistributedDataFilterSTLCloak* ptIdMap);
 
-  //@{
+  ///@{
   /**
    * ?
    */
@@ -330,84 +305,73 @@ private:
   int InMySpatialRegion(double x, double y, double z);
   int StrictlyInsideMyBounds(float x, float y, float z);
   int StrictlyInsideMyBounds(double x, double y, double z);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * ?
    */
-  vtkIdTypeArray **GetGhostPointIds(int ghostLevel, vtkUnstructuredGrid *grid,
-                                    int AddCellsIAlreadyHave);
-  vtkUnstructuredGrid *AddGhostCellsUniqueCellAssignment(
-                           vtkUnstructuredGrid *myGrid,
-                           vtkPDistributedDataFilterSTLCloak *globalToLocalMap);
-  vtkUnstructuredGrid *AddGhostCellsDuplicateCellAssignment(
-                           vtkUnstructuredGrid *myGrid,
-                           vtkPDistributedDataFilterSTLCloak *globalToLocalMap);
-  vtkUnstructuredGrid *SetMergeGhostGrid(
-                       vtkUnstructuredGrid *ghostCellGrid,
-                       vtkUnstructuredGrid *incomingGhostCells,
-                       int ghostLevel, vtkPDistributedDataFilterSTLCloak *idMap);
-  //@}
+  vtkIdTypeArray** GetGhostPointIds(
+    int ghostLevel, vtkUnstructuredGrid* grid, int AddCellsIAlreadyHave);
+  vtkUnstructuredGrid* AddGhostCellsUniqueCellAssignment(
+    vtkUnstructuredGrid* myGrid, vtkPDistributedDataFilterSTLCloak* globalToLocalMap);
+  vtkUnstructuredGrid* AddGhostCellsDuplicateCellAssignment(
+    vtkUnstructuredGrid* myGrid, vtkPDistributedDataFilterSTLCloak* globalToLocalMap);
+  vtkUnstructuredGrid* SetMergeGhostGrid(vtkUnstructuredGrid* ghostCellGrid,
+    vtkUnstructuredGrid* incomingGhostCells, int ghostLevel,
+    vtkPDistributedDataFilterSTLCloak* idMap);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * ?
    */
-  vtkUnstructuredGrid *ExtractCells(vtkIdList *list,
-                  int deleteCellLists, vtkDataSet *in);
-  vtkUnstructuredGrid *ExtractCells(vtkIdList **lists, int nlists,
-                  int deleteCellLists, vtkDataSet *in);
-  vtkUnstructuredGrid *ExtractZeroCellGrid(vtkDataSet *in);
-  //@}
+  vtkUnstructuredGrid* ExtractCells(vtkIdList* list, int deleteCellLists, vtkDataSet* in);
+  vtkUnstructuredGrid* ExtractCells(
+    vtkIdList** lists, int nlists, int deleteCellLists, vtkDataSet* in);
+  vtkUnstructuredGrid* ExtractZeroCellGrid(vtkDataSet* in);
+  ///@}
 
-  //@{
+  ///@{
   /**
    * ?
    */
-  static int GlobalPointIdIsUsed(vtkUnstructuredGrid *grid,
-               int ptId, vtkPDistributedDataFilterSTLCloak *globalToLocal);
-  static int LocalPointIdIsUsed(vtkUnstructuredGrid *grid, int ptId);
-  static vtkIdType FindId(vtkIdTypeArray *ids, vtkIdType gid, vtkIdType startLoc);
-  //@}
+  static int GlobalPointIdIsUsed(
+    vtkUnstructuredGrid* grid, int ptId, vtkPDistributedDataFilterSTLCloak* globalToLocal);
+  static int LocalPointIdIsUsed(vtkUnstructuredGrid* grid, int ptId);
+  static vtkIdType FindId(vtkIdTypeArray* ids, vtkIdType gid, vtkIdType startLoc);
+  ///@}
 
   /**
    * ?
    */
-  static vtkIdTypeArray *AddPointAndCells(vtkIdType gid,
-                                       vtkIdType localId,
-                                       vtkUnstructuredGrid *grid,
-                                       vtkIdType *gidCells,
-                                       vtkIdTypeArray *ids);
+  static vtkIdTypeArray* AddPointAndCells(vtkIdType gid, vtkIdType localId,
+    vtkUnstructuredGrid* grid, vtkIdType* gidCells, vtkIdTypeArray* ids);
 
-  //@{
+  ///@{
   /**
    * ?
    */
-  static void AddConstantUnsignedCharPointArray(vtkUnstructuredGrid *grid,
-                                 const char *arrayName, unsigned char val);
-  static void AddConstantUnsignedCharCellArray(vtkUnstructuredGrid *grid,
-                                 const char *arrayName, unsigned char val);
-  //@}
-
-  /**
-   * ?
-   */
-  static void RemoveRemoteCellsFromList(vtkIdList *cellList,
-                                        vtkIdType *gidCells,
-                                        vtkIdType *remoteCells,
-                                        vtkIdType nRemoteCells);
+  static void AddConstantUnsignedCharPointArray(
+    vtkUnstructuredGrid* grid, const char* arrayName, unsigned char val);
+  static void AddConstantUnsignedCharCellArray(
+    vtkUnstructuredGrid* grid, const char* arrayName, unsigned char val);
+  ///@}
 
   /**
    * ?
    */
-  static vtkUnstructuredGrid *MergeGrids(vtkDataSet **sets, int nsets,
-                                         int deleteDataSets,
-                                         int useGlobalNodeIds, float pointMergeTolerance,
-                                         int useGlobalCellIds);
+  static void RemoveRemoteCellsFromList(
+    vtkIdList* cellList, vtkIdType* gidCells, vtkIdType* remoteCells, vtkIdType nRemoteCells);
 
-private:
+  /**
+   * ?
+   */
+  static vtkUnstructuredGrid* MergeGrids(vtkDataSet** sets, int nsets, int deleteDataSets,
+    int useGlobalNodeIds, float pointMergeTolerance, int useGlobalCellIds);
+
   vtkPDistributedDataFilter(const vtkPDistributedDataFilter&) = delete;
   void operator=(const vtkPDistributedDataFilter&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

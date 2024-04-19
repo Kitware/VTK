@@ -4,8 +4,14 @@ LIBRARY_NAME
   vtkRenderingContextOpenGL2
 KIT
   VTK::OpenGL
+GROUPS
+  Rendering
 IMPLEMENTS
   VTK::RenderingContext2D
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel

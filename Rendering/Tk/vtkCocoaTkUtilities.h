@@ -1,17 +1,5 @@
-/*=========================================================================
-
-Program:   Visualization Toolkit
-Module:    vtkCocoaTkUtilities.h
-
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkCocoaTkUtilities
  * @brief   Internal Tk Routines for Cocoa
@@ -29,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
  * This header must be in C++ only because it is included by .cxx files.
  * That means no Objective-C may be used. That's why some instance variables
  * are void* instead of what they really should be.
-*/
+ */
 
 #ifndef vtkCocoaTkUtilities_h
 #define vtkCocoaTkUtilities_h
@@ -41,15 +29,15 @@ struct Tk_Window_;
 class vtkCocoaTkUtilities : public vtkObject
 {
 public:
-  static vtkCocoaTkUtilities *New();
-  vtkTypeMacro(vtkCocoaTkUtilities,vtkObject);
+  static vtkCocoaTkUtilities* New();
+  vtkTypeMacro(vtkCocoaTkUtilities, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the NSView for a Tk_Window.  It is returned as a void pointer
    * so that users of this function don't need to compile as Objective C.
    */
-  static void* GetDrawableView(Tk_Window_ *window);
+  static void* GetDrawableView(Tk_Window_* window);
 
 protected:
   vtkCocoaTkUtilities() {}

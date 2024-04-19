@@ -8,3 +8,4 @@ vtk_module_find_package(PACKAGE OpenSlide)
 vtk_module_link(VTK::DomainsMicroscopy
   PUBLIC
     OpenSlide::OpenSlide)
+vtk_add_test_mangling(VTK::DomainsMicroscopy)

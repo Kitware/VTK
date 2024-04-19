@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestToneMappingPass.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This test covers the tone mapping post-processing render pass.
 // It renders an opaque actor with a lot of lights.
 
@@ -36,7 +24,7 @@
 int TestToneMappingPass(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;
-  renWin->SetSize(400, 400);
+  renWin->SetSize(400, 800);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
@@ -45,7 +33,8 @@ int TestToneMappingPass(int argc, char* argv[])
   sphere->SetThetaResolution(20);
   sphere->SetPhiResolution(20);
 
-  for (int i = 0; i < 4; i++)
+  double y = 0.0;
+  for (int i = 0; i < 8; i++)
   {
     vtkNew<vtkRenderer> renderer;
 
@@ -78,14 +67,35 @@ int TestToneMappingPass(int argc, char* argv[])
         toneMappingP->SetToneMappingType(vtkToneMappingPass::Exponential);
         toneMappingP->SetExposure(2.0);
         break;
+      case 4:
+        toneMappingP->SetToneMappingType(vtkToneMappingPass::GenericFilmic);
+        toneMappingP->SetGenericFilmicUncharted2Presets();
+        break;
+      case 5:
+        toneMappingP->SetToneMappingType(vtkToneMappingPass::GenericFilmic);
+        toneMappingP->SetGenericFilmicDefaultPresets();
+        break;
+      case 6:
+        toneMappingP->SetToneMappingType(vtkToneMappingPass::GenericFilmic);
+        toneMappingP->SetUseACES(false);
+        break;
+      case 7:
+        toneMappingP->SetToneMappingType(vtkToneMappingPass::GenericFilmic);
+        toneMappingP->SetGenericFilmicUncharted2Presets();
+        toneMappingP->SetUseACES(false);
+        break;
     }
     toneMappingP->SetDelegatePass(cameraP);
 
     vtkOpenGLRenderer::SafeDownCast(renderer)->SetPass(toneMappingP);
 
     double x = 0.5 * (i & 1);
-    double y = 0.5 * ((i >> 1) & 1);
-    renderer->SetViewport(x, y, x + 0.5, y + 0.5);
+    if (i)
+    {
+      y += 1 / 4.f * !(i & 1);
+    }
+
+    renderer->SetViewport(x, y, x + 0.5, y + 1 / 4.f);
     renderer->SetBackground(0.5, 0.5, 0.5);
     renWin->AddRenderer(renderer);
 

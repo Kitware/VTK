@@ -1,22 +1,41 @@
 #!/usr/bin/env python
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkSPHInterpolator,
+    vtkSPHQuinticKernel,
+)
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkIOXML import vtkXMLUnstructuredGridReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Parameters for testing
 res = 250
 
 # Graphics stuff
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create pipeline
 #
-reader = vtk.vtkXMLUnstructuredGridReader()
+reader = vtkXMLUnstructuredGridReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/SPH_Points.vtu")
 reader.Update()
 output = reader.GetOutput()
@@ -27,7 +46,7 @@ center = output.GetCenter()
 bounds = output.GetBounds()
 length = output.GetLength()
 
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetResolution(res,res)
 plane.SetOrigin(bounds[0],bounds[2],bounds[4])
 plane.SetPoint1(bounds[1],bounds[2],bounds[4])
@@ -39,20 +58,20 @@ plane.Update()
 
 # SPH kernel------------------------------------------------
 # Start with something weird: process an empty input
-emptyPts = vtk.vtkPoints()
-emptyData = vtk.vtkPolyData()
+emptyPts = vtkPoints()
+emptyData = vtkPolyData()
 emptyData.SetPoints(emptyPts)
 
-sphKernel = vtk.vtkSPHQuinticKernel()
+sphKernel = vtkSPHQuinticKernel()
 sphKernel.SetSpatialStep(0.1)
 
-interpolator = vtk.vtkSPHInterpolator()
+interpolator = vtkSPHInterpolator()
 interpolator.SetInputConnection(plane.GetOutputPort())
 interpolator.SetSourceData(emptyData)
 interpolator.SetKernel(sphKernel)
 interpolator.Update()
 
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 
 # SPH kernel------------------------------------------------
 interpolator.SetInputConnection(plane.GetOutputPort())
@@ -65,23 +84,23 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Interpolate Points (SPH): {0}".format(time))
 
-intMapper = vtk.vtkPolyDataMapper()
+intMapper = vtkPolyDataMapper()
 intMapper.SetInputConnection(interpolator.GetOutputPort())
 intMapper.SetScalarModeToUsePointFieldData()
 intMapper.SelectColorArray("Rho")
 intMapper.SetScalarRange(0,720)
 
-intActor = vtk.vtkActor()
+intActor = vtkActor()
 intActor.SetMapper(intMapper)
 
 # Create an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputData(output)
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 ren0.AddActor(intActor)

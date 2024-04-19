@@ -1,17 +1,5 @@
-/*=========================================================================
-
- Program:   Visualization Toolkit
- Module:    VTXSchema.cxx
-
- Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- All rights reserved.
- See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the above copyright notice for more information.
-
- =========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  * VTXSchema.cxx
@@ -27,6 +15,7 @@
 
 namespace vtx
 {
+VTK_ABI_NAMESPACE_BEGIN
 // PUBLIC
 VTXSchema::VTXSchema(
   const std::string& type, const std::string& schema, adios2::IO& io, adios2::Engine& engine)
@@ -37,9 +26,9 @@ VTXSchema::VTXSchema(
 {
 }
 
-VTXSchema::~VTXSchema() {}
+VTXSchema::~VTXSchema() = default;
 
-void VTXSchema::Fill(vtkMultiBlockDataSet* multiBlock, const size_t step)
+void VTXSchema::Fill(vtkMultiBlockDataSet* multiBlock, size_t step)
 {
   DoFill(multiBlock, step);
 }
@@ -74,7 +63,7 @@ void VTXSchema::GetTimes(const std::string& variableName)
 }
 
 void VTXSchema::GetDataArray(
-  const std::string& variableName, types::DataArray& dataArray, const size_t step)
+  const std::string& variableName, types::DataArray& dataArray, size_t step)
 {
   const std::string type = this->IO.VariableType(variableName);
 
@@ -92,14 +81,14 @@ void VTXSchema::GetDataArray(
 }
 
 #define declare_type(T)                                                                            \
-  void VTXSchema::SetDimensions(adios2::Variable<T> /*variable*/,                                  \
-    const types::DataArray& /*dataArray*/, const size_t /*step*/)                                  \
+  void VTXSchema::SetDimensions(                                                                   \
+    adios2::Variable<T> /*variable*/, const types::DataArray& /*dataArray*/, size_t /*step*/)      \
   {                                                                                                \
     throw std::invalid_argument("ERROR: global array not supported for this schema\n");            \
   }                                                                                                \
                                                                                                    \
   void VTXSchema::SetBlocks(                                                                       \
-    adios2::Variable<T> /*variable*/, types::DataArray& /*dataArray*/, const size_t /*step*/)      \
+    adios2::Variable<T> /*variable*/, types::DataArray& /*dataArray*/, size_t /*step*/)            \
   {                                                                                                \
     throw std::invalid_argument("ERROR: local array not supported for this schema\n");             \
   }
@@ -107,4 +96,5 @@ void VTXSchema::GetDataArray(
 VTK_IO_ADIOS2_VTX_ARRAY_TYPE(declare_type)
 #undef declare_type
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtx

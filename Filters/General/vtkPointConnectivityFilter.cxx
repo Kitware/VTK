@@ -1,97 +1,96 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkPointConnectivityFilter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPointConnectivityFilter.h"
 
-#include "vtkIdList.h"
-#include "vtkUnsignedIntArray.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
 #include "vtkDataSet.h"
-#include "vtkObjectFactory.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkSMPTools.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkUnsignedIntArray.h"
 
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointConnectivityFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointConnectivityFilter::vtkPointConnectivityFilter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPointConnectivityFilter::~vtkPointConnectivityFilter() = default;
 
-//----------------------------------------------------------------------------
-namespace {
+//------------------------------------------------------------------------------
+namespace
+{
 
 // This class is general purpose for all dataset types.
 struct UpdateConnectivityCount
 {
-  vtkDataSet *Input;
-  unsigned int *ConnCount;
+  vtkDataSet* Input;
+  unsigned int* ConnCount;
   vtkSMPThreadLocalObject<vtkIdList> CellIds;
+  vtkPointConnectivityFilter* Filter;
 
-  UpdateConnectivityCount(vtkDataSet *input, unsigned int *connPtr) :
-    Input(input), ConnCount(connPtr)
+  UpdateConnectivityCount(
+    vtkDataSet* input, unsigned int* connPtr, vtkPointConnectivityFilter* filter)
+    : Input(input)
+    , ConnCount(connPtr)
+    , Filter(filter)
   {
   }
 
   void Initialize()
   {
     vtkIdList*& cellIds = this->CellIds.Local();
-    cellIds->Allocate(128); //allocate some memory
+    cellIds->Allocate(128); // allocate some memory
   }
 
-  void operator() (vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-      vtkIdList*& cellIds = this->CellIds.Local();
-      for ( ; ptId < endPtId; ++ptId )
+    vtkIdList*& cellIds = this->CellIds.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    for (; ptId < endPtId; ++ptId)
+    {
+      if (isFirst)
       {
-        this->Input->GetPointCells(ptId, cellIds);
-        this->ConnCount[ptId] = cellIds->GetNumberOfIds();
+        this->Filter->CheckAbort();
       }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+      this->Input->GetPointCells(ptId, cellIds);
+      this->ConnCount[ptId] = cellIds->GetNumberOfIds();
+    }
   }
 
-  void Reduce()
-  {
-  }
+  void Reduce() {}
 };
 
 } // end anon namespace
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // This is the generic non-optimized method
-int vtkPointConnectivityFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkPointConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkSmartPointer<vtkDataSet> input = vtkDataSet::GetData(inputVector[0]);
-  vtkDataSet *output = vtkDataSet::GetData(outputVector);
+  vtkDataSet* output = vtkDataSet::GetData(outputVector);
 
   // First, copy the input to the output as a starting point
-  output->CopyStructure( input );
+  output->CopyStructure(input);
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
 
   // Check input
   vtkIdType numPts;
-  if ( input == nullptr || (numPts=input->GetNumberOfPoints()) < 1 )
+  if (input == nullptr || (numPts = input->GetNumberOfPoints()) < 1)
   {
     return 1;
   }
@@ -100,14 +99,14 @@ int vtkPointConnectivityFilter::RequestData(
   vtkNew<vtkUnsignedIntArray> connCount;
   connCount->SetNumberOfTuples(numPts);
   connCount->SetName("Point Connectivity Count");
-  unsigned int *connPtr = static_cast<unsigned int*>(connCount->GetVoidPointer(0));
+  unsigned int* connPtr = connCount->GetPointer(0);
 
   // Loop over all points, retrieving connectivity count
   // The first GetPointCells() primes the pump (builds internal structures, etc.)
   vtkNew<vtkIdList> cellIds;
   input->GetPointCells(0, cellIds);
-  UpdateConnectivityCount updateCount(input,connPtr);
-  vtkSMPTools::For(0,numPts, updateCount);
+  UpdateConnectivityCount updateCount(input, connPtr, this);
+  vtkSMPTools::For(0, numPts, updateCount);
 
   // Pass array to the output
   output->GetPointData()->AddArray(connCount);
@@ -115,8 +114,9 @@ int vtkPointConnectivityFilter::RequestData(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPointConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

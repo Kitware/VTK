@@ -8,8 +8,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Provide a Java thread safe implementation of vtkJavaMemoryManager. This does
- * not make VTK thread safe. This only insure that the change of reference count
- * will never happen in two concurrent thread in the Java world.
+ * not make VTK thread safe. This only ensures that the change of reference count
+ * will never happen in two concurrent threads in the Java world.
  *
  * @see vtkJavaMemoryManager
  * @author sebastien jourdain - sebastien.jourdain@kitware.com

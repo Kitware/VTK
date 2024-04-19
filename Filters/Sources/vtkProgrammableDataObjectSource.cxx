@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkProgrammableDataObjectSource.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkProgrammableDataObjectSource.h"
 
 #include "vtkDataObject.h"
@@ -19,6 +7,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProgrammableDataObjectSource);
 
 // Construct programmable filter with empty execute method.
@@ -28,7 +17,7 @@ vtkProgrammableDataObjectSource::vtkProgrammableDataObjectSource()
   this->ExecuteMethodArg = nullptr;
   this->ExecuteMethodArgDelete = nullptr;
 
-  vtkDataObject *output = vtkDataObject::New();
+  vtkDataObject* output = vtkDataObject::New();
   this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty.
@@ -41,7 +30,7 @@ vtkProgrammableDataObjectSource::vtkProgrammableDataObjectSource()
 vtkProgrammableDataObjectSource::~vtkProgrammableDataObjectSource()
 {
   // delete the current arg if there is one and a delete meth
-  if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
+  if ((this->ExecuteMethodArg) && (this->ExecuteMethodArgDelete))
   {
     (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
   }
@@ -49,13 +38,12 @@ vtkProgrammableDataObjectSource::~vtkProgrammableDataObjectSource()
 
 // Specify the function to use to generate the source data. Note
 // that the function takes a single (void *) argument.
-void vtkProgrammableDataObjectSource::SetExecuteMethod(
-  void (*f)(void *), void *arg)
+void vtkProgrammableDataObjectSource::SetExecuteMethod(void (*f)(void*), void* arg)
 {
-  if ( f != this->ExecuteMethod || arg != this->ExecuteMethodArg )
+  if (f != this->ExecuteMethod || arg != this->ExecuteMethodArg)
   {
     // delete the current arg if there is one and a delete meth
-    if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
+    if ((this->ExecuteMethodArg) && (this->ExecuteMethodArgDelete))
     {
       (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
     }
@@ -66,10 +54,9 @@ void vtkProgrammableDataObjectSource::SetExecuteMethod(
 }
 
 // Set the arg delete method. This is used to free user memory.
-void vtkProgrammableDataObjectSource::SetExecuteMethodArgDelete(
-  void (*f)(void *))
+void vtkProgrammableDataObjectSource::SetExecuteMethodArgDelete(void (*f)(void*))
 {
-  if ( f != this->ExecuteMethodArgDelete)
+  if (f != this->ExecuteMethodArgDelete)
   {
     this->ExecuteMethodArgDelete = f;
     this->Modified();
@@ -77,14 +64,12 @@ void vtkProgrammableDataObjectSource::SetExecuteMethodArgDelete(
 }
 
 int vtkProgrammableDataObjectSource::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
-  vtkDebugMacro(<<"Executing programmable data object filter");
+  vtkDebugMacro(<< "Executing programmable data object filter");
 
   // Now invoke the procedure, if specified.
-  if ( this->ExecuteMethod != nullptr )
+  if (this->ExecuteMethod != nullptr)
   {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
   }
@@ -94,9 +79,9 @@ int vtkProgrammableDataObjectSource::RequestData(
 
 void vtkProgrammableDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->ExecuteMethod )
+  if (this->ExecuteMethod)
   {
     os << indent << "An ExecuteMethod has been defined\n";
   }
@@ -105,3 +90,4 @@ void vtkProgrammableDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "An ExecuteMethod has NOT been defined\n";
   }
 }
+VTK_ABI_NAMESPACE_END

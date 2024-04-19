@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPDataObjectWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLPDataObjectWriter.h"
 
 #include "vtkCallbackCommand.h"
@@ -25,8 +13,9 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkXMLPDataObjectWriter, Controller, vtkMultiProcessController);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPDataObjectWriter::vtkXMLPDataObjectWriter()
 {
   this->StartPiece = 0;
@@ -55,7 +44,7 @@ vtkXMLPDataObjectWriter::vtkXMLPDataObjectWriter()
   this->PieceWrittenFlags = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLPDataObjectWriter::~vtkXMLPDataObjectWriter()
 {
   delete[] this->PathName;
@@ -67,7 +56,7 @@ vtkXMLPDataObjectWriter::~vtkXMLPDataObjectWriter()
   this->InternalProgressObserver->Delete();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -79,7 +68,7 @@ void vtkXMLPDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WriteSummaryFile: " << this->WriteSummaryFile << "\n";
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkTypeBool vtkXMLPDataObjectWriter::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -104,7 +93,7 @@ vtkTypeBool vtkXMLPDataObjectWriter::ProcessRequest(
   return retVal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectWriter::SetWriteSummaryFile(int flag)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting WriteSummaryFile to "
@@ -116,7 +105,7 @@ void vtkXMLPDataObjectWriter::SetWriteSummaryFile(int flag)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPDataObjectWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -140,10 +129,10 @@ int vtkXMLPDataObjectWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPDataObjectWriter::WriteInternal()
 {
-  bool beginning = this->ContinuingExecution == false;
+  bool beginning = !this->ContinuingExecution;
   bool end = true;
 
   this->ContinuingExecution = false;
@@ -200,7 +189,7 @@ int vtkXMLPDataObjectWriter::WriteInternal()
     }
   }
 
-  if (end == false)
+  if (!end)
   {
     this->CurrentPiece++;
     assert(this->CurrentPiece <= this->EndPiece);
@@ -209,7 +198,7 @@ int vtkXMLPDataObjectWriter::WriteInternal()
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectWriter::PrepareSummaryFile()
 {
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
@@ -228,7 +217,7 @@ void vtkXMLPDataObjectWriter::PrepareSummaryFile()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkXMLPDataObjectWriter::WriteData()
 {
   // Write the summary file.
@@ -280,7 +269,7 @@ int vtkXMLPDataObjectWriter::WriteData()
   return (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError) ? 0 : 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectWriter::WritePPieceAttributes(int index)
 {
   char* fileName = this->CreatePieceFileName(index);
@@ -288,7 +277,7 @@ void vtkXMLPDataObjectWriter::WritePPieceAttributes(int index)
   delete[] fileName;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 char* vtkXMLPDataObjectWriter::CreatePieceFileName(int index, const char* path)
 {
   std::ostringstream s;
@@ -315,13 +304,13 @@ char* vtkXMLPDataObjectWriter::CreatePieceFileName(int index, const char* path)
   return buffer;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectWriter::SplitFileName()
 {
   // Split the FileName into its PathName, FileNameBase, and
   // FileNameExtension components.
 
-  std::string pathname = vtksys::SystemTools::GetProgramPath(this->FileName);
+  std::string pathname = vtksys::SystemTools::GetFilenamePath(this->FileName);
   // Pathname may be empty if FileName is simply a filename without any leading
   // "/".
   if (!pathname.empty())
@@ -340,7 +329,7 @@ void vtkXMLPDataObjectWriter::SplitFileName()
   this->FileNameExtension = vtksys::SystemTools::DuplicateString(ext.c_str());
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectWriter::ProgressCallbackFunction(
   vtkObject* caller, unsigned long, void* clientdata, void*)
 {
@@ -351,7 +340,7 @@ void vtkXMLPDataObjectWriter::ProgressCallbackFunction(
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectWriter::ProgressCallback(vtkAlgorithm* w)
 {
   float width = this->ProgressRange[1] - this->ProgressRange[0];
@@ -364,7 +353,7 @@ void vtkXMLPDataObjectWriter::ProgressCallback(vtkAlgorithm* w)
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectWriter::DeleteFiles()
 {
   for (int i = this->StartPiece; i < this->EndPiece; ++i)
@@ -375,8 +364,9 @@ void vtkXMLPDataObjectWriter::DeleteFiles()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLPDataObjectWriter::SetupPieceFileNameExtension()
 {
   delete[] this->PieceFileNameExtension;
 }
+VTK_ABI_NAMESPACE_END

@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLMultiBlockDataWriter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLMultiBlockDataWriter.h"
 
 #include "vtkDataObjectTreeIterator.h"
@@ -20,47 +8,48 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
-#include "vtkInformation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLMultiBlockDataWriter);
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLMultiBlockDataWriter::vtkXMLMultiBlockDataWriter() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkXMLMultiBlockDataWriter::~vtkXMLMultiBlockDataWriter() = default;
 
-//----------------------------------------------------------------------------
-int vtkXMLMultiBlockDataWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+//------------------------------------------------------------------------------
+int vtkXMLMultiBlockDataWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeData,
-    vtkXMLDataElement* parent, int &writerIdx)
+//------------------------------------------------------------------------------
+int vtkXMLMultiBlockDataWriter::WriteComposite(
+  vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& writerIdx)
 {
-  if (! (compositeData->IsA("vtkMultiBlockDataSet")
-        ||compositeData->IsA("vtkMultiPieceDataSet")) )
+  if (!(compositeData->IsA("vtkMultiBlockDataSet") || compositeData->IsA("vtkMultiPieceDataSet")))
   {
-    vtkErrorMacro("Unsupported composite dataset type: "
-                  << compositeData->GetClassName() << ".");
+    vtkErrorMacro("Unsupported composite dataset type: " << compositeData->GetClassName() << ".");
     return 0;
   }
 
   // Write each input.
   vtkSmartPointer<vtkDataObjectTreeIterator> iter;
-  iter.TakeReference(
-    vtkDataObjectTree::SafeDownCast(compositeData)->NewTreeIterator());
+  iter.TakeReference(vtkDataObjectTree::SafeDownCast(compositeData)->NewTreeIterator());
   iter->VisitOnlyLeavesOff();
   iter->TraverseSubTreeOff();
   iter->SkipEmptyNodesOff();
   int toBeWritten = 0;
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-    iter->GoToNextItem())
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     toBeWritten++;
+  }
+
+  if (toBeWritten == 0)
+  {
+    // No leaf, nothing to write but this is not an issue.
+    return 1;
   }
 
   float progressRange[2] = { 0.f, 0.f };
@@ -68,11 +57,10 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
 
   int index = 0;
   int RetVal = 0;
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-    iter->GoToNextItem(), index++)
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), index++)
   {
     vtkDataObject* curDO = iter->GetCurrentDataObject();
-    const char *name = nullptr;
+    const char* name = nullptr;
     if (iter->HasCurrentMetaData())
     {
       name = iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
@@ -98,8 +86,7 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
         tag->SetName("Block");
         tag->SetIntAttribute("index", index);
       }
-      vtkCompositeDataSet* curCD
-        = vtkCompositeDataSet::SafeDownCast(curDO);
+      vtkCompositeDataSet* curCD = vtkCompositeDataSet::SafeDownCast(curDO);
       if (!this->WriteComposite(curCD, tag, writerIdx))
       {
         tag->Delete();
@@ -119,11 +106,10 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
       {
         datasetXML->SetAttribute("name", name);
       }
-      vtkStdString fileName = this->CreatePieceFileName(writerIdx);
+      std::string fileName = this->CreatePieceFileName(writerIdx);
 
       this->SetProgressRange(progressRange, writerIdx, toBeWritten);
-      if (this->WriteNonCompositeData( curDO, datasetXML, writerIdx,
-                                       fileName.c_str()))
+      if (this->WriteNonCompositeData(curDO, datasetXML, writerIdx, fileName.c_str()))
       {
         parent->AddNestedElement(datasetXML);
         RetVal = 1;
@@ -134,10 +120,9 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
   return RetVal;
 }
 
-
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkXMLMultiBlockDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-
+VTK_ABI_NAMESPACE_END

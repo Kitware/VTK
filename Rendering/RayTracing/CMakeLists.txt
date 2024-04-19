@@ -2,25 +2,31 @@ set(classes
   vtkOSPRayActorNode
   vtkOSPRayAMRVolumeMapperNode
   vtkOSPRayCameraNode
+  vtkOSPRayCompositePolyDataMapperNode
   vtkOSPRayCompositePolyDataMapper2Node
   vtkOSPRayLightNode
   vtkOSPRayMaterialHelpers
   vtkOSPRayMaterialLibrary
+  vtkOSPRayMoleculeMapperNode
   vtkOSPRayPass
   vtkOSPRayPolyDataMapperNode
+  vtkOSPRayPointGaussianMapperNode
   vtkOSPRayRendererNode
-  vtkOSPRayTetrahedraMapperNode
+  vtkOSPRayUnstructuredVolumeMapperNode
   vtkOSPRayViewNodeFactory
   vtkOSPRayVolumeMapper
   vtkOSPRayVolumeMapperNode
   vtkOSPRayVolumeNode
   vtkOSPRayWindowNode)
 
-set(sources
-    RTWrapper/RTWrapper.cxx)
+set(nowrap_classes
+  RTWrapper/RTWrapper)
 
-set(headers
-    RTWrapper/RTWrapper.h)
+set(nowrap_headers
+  RTWrapper/RTWrapper.h
+  RTWrapper/Types.h
+  RTWrapper/Backend.h
+  vtkOSPRayCache.h)
 
 vtk_object_factory_declare(
   BASE vtkOSPRayVolumeInterface
@@ -42,33 +48,33 @@ if (VTK_ENABLE_VISRTX)
 endif ()
 
 vtk_module_add_module(VTK::RenderingRayTracing
+  HEADER_DIRECTORIES
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source} ${sources}
-  PRIVATE_HEADERS ${vtk_object_factory_header} ${headers})
-
-vtk_module_install_headers(
-  FILES
-    RTWrapper/RTWrapper.h
-    RTWrapper/Types.h
-    RTWrapper/Backend.h
-  SUBDIR "RTWrapper")
+  NOWRAP_CLASSES  ${nowrap_classes}
+  NOWRAP_HEADERS  ${nowrap_headers}
+  PRIVATE_HEADERS ${vtk_object_factory_header})
 
 if (VTK_ENABLE_OSPRAY)
-  vtk_module_find_package(
+  vtk_module_find_package(PRIVATE_IF_SHARED
     PACKAGE ospray
-    VERSION 1.8)
-
+    )
+  if (${ospray_VERSION} VERSION_LESS 2.7)
+    message(WARNING "Unsupported OSPRay version.")
+  endif()
   vtk_module_link(VTK::RenderingRayTracing
-    PUBLIC
+    NO_KIT_EXPORT_IF_SHARED
+    PRIVATE
       ospray::ospray)
   if (VTKOSPRAY_ENABLE_DENOISER)
-    vtk_module_find_package(
+    vtk_module_find_package(PRIVATE_IF_SHARED
       PACKAGE OpenImageDenoise
       FORWARD_VERSION_REQ MINOR)
     vtk_module_definitions(VTK::RenderingRayTracing
       PRIVATE
         VTKOSPRAY_ENABLE_DENOISER)
     vtk_module_link(VTK::RenderingRayTracing
+      NO_KIT_EXPORT_IF_SHARED
       PRIVATE
         OpenImageDenoise)
   endif ()
@@ -82,7 +88,8 @@ if (VTK_ENABLE_OSPRAY)
   endif ()
   vtk_module_definitions(VTK::RenderingRayTracing
     PRIVATE
-      VTK_ENABLE_OSPRAY)
+      VTK_ENABLE_OSPRAY
+      OSPRAY_VERSION_MAJOR=${ospray_VERSION_MAJOR})
 endif ()
 
 # VisRTX
@@ -90,6 +97,12 @@ if (VTK_ENABLE_VISRTX)
   vtk_module_find_package(
     PACKAGE VisRTX
     CONFIG_MODE)
+  if (DEFINED VisRTX_VERSION AND
+      VisRTX_VERSION VERSION_GREATER_EQUAL "0.2.0")
+    message(FATAL_ERROR
+      "VisRTX 0.2.0 and above are intended to be used via the ANARI interface. "
+      "See https://gitlab.kitware.com/vtk/vtk/-/merge_requests/10324 for progress.")
+  endif ()
   vtk_module_link(VTK::RenderingRayTracing
     PUBLIC
       VisRTX_DynLoad)
@@ -97,3 +110,4 @@ if (VTK_ENABLE_VISRTX)
     PRIVATE
       VTK_ENABLE_VISRTX)
 endif ()
+vtk_add_test_mangling(VTK::RenderingRayTracing)

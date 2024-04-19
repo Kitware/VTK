@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkAvatar.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkAvatar
  * @brief Renders head and hands for a user in VR
@@ -23,15 +11,16 @@
 #ifndef vtkAvatar_h
 #define vtkAvatar_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
-class VTKRENDERINGCORE_EXPORT vtkAvatar: public vtkActor
+VTK_ABI_NAMESPACE_BEGIN
+class VTKRENDERINGCORE_EXPORT vtkAvatar : public vtkActor
 {
 public:
   static vtkAvatar* New();
-  vtkTypeMacro(vtkAvatar, vtkActor)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkAvatar, vtkActor);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set/Get the head and hand transforms.
@@ -57,7 +46,7 @@ public:
   vtkGetVector3Macro(UpVector, double);
   vtkSetVector3Macro(UpVector, double);
 
-  //@{
+  ///@{
   /**
    * Normally, hand position/orientation is set explicitly.
    * If set to false, hand and arm will follow the torso
@@ -69,16 +58,16 @@ public:
   vtkSetMacro(UseRightHand, bool);
   vtkGetMacro(UseRightHand, bool);
   vtkBooleanMacro(UseRightHand, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Show just the hands. Default false.
    */
   vtkSetMacro(ShowHandsOnly, bool);
   vtkGetMacro(ShowHandsOnly, bool);
   vtkBooleanMacro(ShowHandsOnly, bool);
-  //@}
+  ///@}
 
 protected:
   vtkAvatar();
@@ -90,7 +79,8 @@ protected:
   double LeftHandOrientation[3];
   double RightHandPosition[3];
   double RightHandOrientation[3];
-  enum {
+  enum
+  {
     TORSO,
     LEFT_FORE,
     RIGHT_FORE,
@@ -112,4 +102,5 @@ private:
   void operator=(const vtkAvatar&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkAvatar_h

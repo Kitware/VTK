@@ -1,18 +1,39 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkLookupTable,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersTexture import vtkTextureMapToSphere
+from vtkmodules.vtkIOImage import vtkPNMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create a soccer ball
 #
-points = vtk.vtkPoints()
+points = vtkPoints()
 # first point repeated because polygons were 1-offset
 points.InsertNextPoint(0.348012,0,0.93749)
 points.InsertNextPoint(0.348012,0,0.93749)
@@ -75,7 +96,7 @@ points.InsertNextPoint(-0.107542,-0.330979,-0.93749)
 points.InsertNextPoint(-0.348012,0,-0.93749)
 points.InsertNextPoint(-0.107542,0.330979,-0.93749)
 points.InsertNextPoint(0.281548,0.204556,-0.93749)
-faces = vtk.vtkCellArray()
+faces = vtkCellArray()
 faces.InsertNextCell(5)
 faces.InsertCellPoint(5)
 faces.InsertCellPoint(4)
@@ -288,7 +309,7 @@ faces.InsertCellPoint(56)
 faces.InsertCellPoint(57)
 faces.InsertCellPoint(48)
 faces.InsertCellPoint(49)
-faceColors = vtk.vtkFloatArray()
+faceColors = vtkFloatArray()
 faceColors.InsertNextValue(1)
 faceColors.InsertNextValue(1)
 faceColors.InsertNextValue(1)
@@ -321,7 +342,7 @@ faceColors.InsertNextValue(2)
 faceColors.InsertNextValue(2)
 faceColors.InsertNextValue(2)
 faceColors.InsertNextValue(2)
-vertexColors = vtk.vtkFloatArray()
+vertexColors = vtkFloatArray()
 vertexColors.InsertNextValue(2)
 vertexColors.InsertNextValue(2)
 vertexColors.InsertNextValue(2)
@@ -384,29 +405,29 @@ vertexColors.InsertNextValue(2)
 vertexColors.InsertNextValue(2)
 vertexColors.InsertNextValue(2)
 vertexColors.InsertNextValue(2)
-model = vtk.vtkPolyData()
+model = vtkPolyData()
 model.SetPolys(faces)
 model.SetPoints(points)
 model.GetCellData().SetScalars(faceColors)
 model.GetPointData().SetScalars(vertexColors)
-ballTC = vtk.vtkTextureMapToSphere()
+ballTC = vtkTextureMapToSphere()
 ballTC.SetInputData(model)
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetNumberOfColors(3)
 lut.Build()
 lut.SetTableValue(0,0,0,0,1)
 lut.SetTableValue(1,1,.3,.3,1)
 lut.SetTableValue(2,.8,.8,.9,1)
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(ballTC.GetOutputPort())
 mapper.SetScalarModeToUseCellData()
 mapper.SetLookupTable(lut)
 mapper.SetScalarRange(0,2)
-earth = vtk.vtkPNMReader()
-earth.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/earth.ppm")
-texture = vtk.vtkTexture()
+earth = vtkPNMReader()
+earth.SetFileName(VTK_DATA_ROOT + "/Data/earth.ppm")
+texture = vtkTexture()
 texture.SetInputConnection(earth.GetOutputPort())
-soccerBall = vtk.vtkActor()
+soccerBall = vtkActor()
 soccerBall.SetMapper(mapper)
 soccerBall.SetTexture(texture)
 # Add the actors to the renderer, set the background and size

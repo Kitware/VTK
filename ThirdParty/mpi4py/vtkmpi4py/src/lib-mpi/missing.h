@@ -918,17 +918,17 @@ typedef int (MPIAPI PyMPI_MPI_Type_delete_attr_function)(MPI_Datatype,int,void*,
 
 #ifndef PyMPI_HAVE_MPI_TYPE_NULL_COPY_FN
 #undef  MPI_TYPE_NULL_COPY_FN
-#define MPI_TYPE_NULL_COPY_FN (0)
+#define MPI_TYPE_NULL_COPY_FN ((MPI_Type_copy_attr_function*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_TYPE_DUP_FN
 #undef  MPI_TYPE_DUP_FN
-#define MPI_TYPE_DUP_FN (0)
+#define MPI_TYPE_DUP_FN ((MPI_Type_copy_attr_function*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_TYPE_NULL_DELETE_FN
 #undef  MPI_TYPE_NULL_DELETE_FN
-#define MPI_TYPE_NULL_DELETE_FN (0)
+#define MPI_TYPE_NULL_DELETE_FN ((MPI_Type_delete_attr_function*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_Type_create_keyval
@@ -943,12 +943,12 @@ typedef int (MPIAPI PyMPI_MPI_Type_delete_attr_function)(MPI_Datatype,int,void*,
 
 #ifndef PyMPI_HAVE_MPI_STATUS_IGNORE
 #undef  MPI_STATUS_IGNORE
-#define MPI_STATUS_IGNORE (0)
+#define MPI_STATUS_IGNORE ((MPI_Status*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_STATUSES_IGNORE
 #undef  MPI_STATUSES_IGNORE
-#define MPI_STATUSES_IGNORE (0)
+#define MPI_STATUSES_IGNORE ((MPI_Status*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_Get_count
@@ -2055,17 +2055,17 @@ typedef int (MPIAPI PyMPI_MPI_Delete_function)(MPI_Comm,int,void*,void*);
 
 #ifndef PyMPI_HAVE_MPI_DUP_FN
 #undef  MPI_DUP_FN
-#define MPI_DUP_FN (0)
+#define MPI_DUP_FN ((MPI_Copy_function*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_NULL_COPY_FN
 #undef  MPI_NULL_COPY_FN
-#define MPI_NULL_COPY_FN (0)
+#define MPI_NULL_COPY_FN ((MPI_Copy_function*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_NULL_DELETE_FN
 #undef  MPI_NULL_DELETE_FN
-#define MPI_NULL_DELETE_FN (0)
+#define MPI_NULL_DELETE_FN ((MPI_Delete_function*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_Keyval_create
@@ -2180,17 +2180,17 @@ typedef int (MPIAPI PyMPI_MPI_Delete_function)(MPI_Comm,int,void*,void*);
 
 #ifndef PyMPI_HAVE_MPI_COMM_DUP_FN
 #undef  MPI_COMM_DUP_FN
-#define MPI_COMM_DUP_FN (MPI_DUP_FN)
+#define MPI_COMM_DUP_FN ((MPI_Comm_copy_attr_function*)MPI_DUP_FN)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_COMM_NULL_COPY_FN
 #undef  MPI_COMM_NULL_COPY_FN
-#define MPI_COMM_NULL_COPY_FN (MPI_NULL_COPY_FN)
+#define MPI_COMM_NULL_COPY_FN ((MPI_Comm_copy_attr_function*)MPI_NULL_COPY_FN)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_COMM_NULL_DELETE_FN
 #undef  MPI_COMM_NULL_DELETE_FN
-#define MPI_COMM_NULL_DELETE_FN (MPI_NULL_DELETE_FN)
+#define MPI_COMM_NULL_DELETE_FN ((MPI_Comm_delete_attr_function*)MPI_NULL_DELETE_FN)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_Comm_create_keyval
@@ -2548,17 +2548,17 @@ typedef int (MPIAPI PyMPI_MPI_Win_delete_attr_function)(MPI_Win,int,void*,void*)
 
 #ifndef PyMPI_HAVE_MPI_WIN_DUP_FN
 #undef  MPI_WIN_DUP_FN
-#define MPI_WIN_DUP_FN (0)
+#define MPI_WIN_DUP_FN ((MPI_Win_copy_attr_function*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_WIN_NULL_COPY_FN
 #undef  MPI_WIN_NULL_COPY_FN
-#define MPI_WIN_NULL_COPY_FN (0)
+#define MPI_WIN_NULL_COPY_FN ((MPI_Win_copy_attr_function*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_WIN_NULL_DELETE_FN
 #undef  MPI_WIN_NULL_DELETE_FN
-#define MPI_WIN_NULL_DELETE_FN (0)
+#define MPI_WIN_NULL_DELETE_FN ((MPI_Win_delete_attr_function*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_Win_create_keyval
@@ -2961,7 +2961,7 @@ typedef int (MPIAPI PyMPI_MPI_Datarep_extent_function)(MPI_Datatype,MPI_Aint*,vo
 
 #ifndef PyMPI_HAVE_MPI_CONVERSION_FN_NULL
 #undef  MPI_CONVERSION_FN_NULL
-#define MPI_CONVERSION_FN_NULL (0)
+#define MPI_CONVERSION_FN_NULL ((MPI_Datarep_conversion_function*)0)
 #endif
 
 #ifndef PyMPI_HAVE_MPI_MAX_DATAREP_STRING

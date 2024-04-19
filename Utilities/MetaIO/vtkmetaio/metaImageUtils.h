@@ -12,22 +12,36 @@
 #include "metaTypes.h"
 
 #ifndef ITKMetaIO_METAIMAGEUTILS_H
-#define ITKMetaIO_METAIMAGEUTILS_H
+#  define ITKMetaIO_METAIMAGEUTILS_H
 
-#include "metaImageTypes.h"
+#  include "metaImageTypes.h"
 
-#if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
-#endif
+#  include <memory>
 
-METAIO_EXPORT bool MET_StringToImageModality(const char * _str,
-                                      MET_ImageModalityEnumType * _type);
+#  if (METAIO_USE_NAMESPACE)
+namespace METAIO_NAMESPACE
+{
+#  endif
 
-METAIO_EXPORT bool MET_ImageModalityToString(MET_ImageModalityEnumType _type,
-                                      char * _str);
+METAIO_EXPORT bool
+MET_StringToImageModality(const std::string& _str, MET_ImageModalityEnumType * _type);
 
-#if (METAIO_USE_NAMESPACE)
+METAIO_EXPORT bool
+MET_ImageModalityToString(MET_ImageModalityEnumType _type, std::string & _str);
+
+// C++11 friendly wrapper of snprintf
+template <typename... Args>
+std::string
+string_format(const std::string & format, Args... args)
+{
+  auto                  size = static_cast<size_t>(snprintf(nullptr, 0, format.c_str(), args...) + 1); // Extra space for '\0'
+  std::unique_ptr<char[]> buf(new char[size]);
+  snprintf(buf.get(), size, format.c_str(), args...);
+  return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
+}
+
+#  if (METAIO_USE_NAMESPACE)
 };
-#endif
+#  endif
 
 #endif

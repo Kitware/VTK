@@ -1,33 +1,21 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    TestLegendBoxActor2.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 // This tests the terrain annotation capabilities in VTK.
 #include "vtkCamera.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLegendBoxActor.h"
-#include "vtkSphereSource.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 
-//----------------------------------------------------------------------------
-int TestLegendBoxActor2( int argc, char * argv [] )
+//------------------------------------------------------------------------------
+int TestLegendBoxActor2(int argc, char* argv[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
@@ -40,24 +28,18 @@ int TestLegendBoxActor2( int argc, char * argv [] )
 
   vtkSmartPointer<vtkInteractorStyleTrackballCamera> style =
     vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
 
   // Colors.
-  double textColor[5][3]     = {{1.0, 0.0, 0.0},
-                                {0.0, 1.0, 0.0},
-                                {0.0, 0.0, 1.0},
-                                {1.0, 0.5, 0.5},
-                                {0.5, 1.0, 0.5}};
+  double textColor[5][3] = { { 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 },
+    { 1.0, 0.5, 0.5 }, { 0.5, 1.0, 0.5 } };
 
-  double backgroundColor[3]  = {0.8, 0.5, 0.0};
+  double backgroundColor[3] = { 0.8, 0.5, 0.0 };
 
-  const char *text[5] = {"Text1",
-                         "Text2",
-                         "Text3",
-                         "Text4",
-                         "Text5"};
+  const char* text[5] = { "Text1", "Text2", "Text3", "Text4", "Text5" };
 
   // Create the actor
   vtkSmartPointer<vtkLegendBoxActor> actor = vtkSmartPointer<vtkLegendBoxActor>::New();
@@ -74,11 +56,10 @@ int TestLegendBoxActor2( int argc, char * argv [] )
 
   // Create a test pipeline
   //
-  for(int i=0; i < 5; ++i)
+  for (int i = 0; i < 5; ++i)
   {
-    vtkSmartPointer<vtkSphereSource> sphere =
-      vtkSmartPointer<vtkSphereSource>::New();
-    sphere->SetRadius(static_cast<double> (10 * (i + 1)));
+    vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
+    sphere->SetRadius(static_cast<double>(10 * (i + 1)));
     sphere->Update();
     actor->SetEntry(i, sphere->GetOutput(), text[i], textColor[i]);
   }
@@ -93,8 +74,8 @@ int TestLegendBoxActor2( int argc, char * argv [] )
   iren->Initialize();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

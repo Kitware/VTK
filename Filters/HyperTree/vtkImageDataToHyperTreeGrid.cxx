@@ -1,23 +1,10 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkImageDataToHyperTreeGrid.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageDataToHyperTreeGrid.h"
 
 #include <vtkBitArray.h>
 #include <vtkCellData.h>
 #include <vtkDataSetAttributes.h>
-#include <vtkDoubleArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkHyperTree.h>
 #include <vtkHyperTreeGrid.h>
@@ -28,28 +15,26 @@
 #include <vtkIntArray.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
-#include <vtkPointData.h>
 #include <vtkUnsignedCharArray.h>
 
 #include <cmath>
 
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDataToHyperTreeGrid);
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkImageDataToHyperTreeGrid::vtkImageDataToHyperTreeGrid()
 {
   this->NbColors = 256;
   this->DepthMax = 0;
 }
 
-//-----------------------------------------------------------------------------
-vtkImageDataToHyperTreeGrid::~vtkImageDataToHyperTreeGrid()
-{
-}
+//------------------------------------------------------------------------------
+vtkImageDataToHyperTreeGrid::~vtkImageDataToHyperTreeGrid() = default;
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkImageDataToHyperTreeGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -94,7 +79,7 @@ int vtkImageDataToHyperTreeGrid::RequestData(vtkInformation* vtkNotUsed(request)
 
   size[0] += 1;
   size[1] += 1;
-  output->SetDimensions(size); // JB ce n'est pas la GridCell
+  output->SetDimensions(size);
   size[0] -= 1;
   size[1] -= 1;
 
@@ -122,8 +107,8 @@ int vtkImageDataToHyperTreeGrid::RequestData(vtkInformation* vtkNotUsed(request)
   coordZ->SetValue(1, 0);
   output->SetZCoordinates(coordZ);
 
-  this->InData = input->GetPointData();
-  this->OutData = output->GetPointData();
+  this->InData = input->GetCellData();
+  this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 
   this->Color = vtkUnsignedCharArray::New();
@@ -148,6 +133,10 @@ int vtkImageDataToHyperTreeGrid::RequestData(vtkInformation* vtkNotUsed(request)
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
   for (vtkIdType itree = 0; itree < nbTrees; ++itree)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkIdType index = itree;
 
     unsigned int i, j, k;
@@ -248,8 +237,6 @@ void vtkImageDataToHyperTreeGrid::ProcessPixels(
       }
     }
   }
-
-  return;
 }
 
 int vtkImageDataToHyperTreeGrid::ProcessTrees(
@@ -258,7 +245,7 @@ int vtkImageDataToHyperTreeGrid::ProcessTrees(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToHyperTreeGrid::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -266,10 +253,11 @@ int vtkImageDataToHyperTreeGrid::FillOutputPortInformation(
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkImageDataToHyperTreeGrid::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

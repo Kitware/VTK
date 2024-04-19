@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkXMLImageDataWriter.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLImageDataWriter
  * @brief   Write VTK XML ImageData files.
@@ -24,7 +12,7 @@
  *
  * @sa
  * vtkXMLPImageDataWriter
-*/
+ */
 
 #ifndef vtkXMLImageDataWriter_h
 #define vtkXMLImageDataWriter_h
@@ -32,13 +20,14 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOXML_EXPORT vtkXMLImageDataWriter : public vtkXMLStructuredDataWriter
 {
 public:
   static vtkXMLImageDataWriter* New();
-  vtkTypeMacro(vtkXMLImageDataWriter,vtkXMLStructuredDataWriter);
+  vtkTypeMacro(vtkXMLImageDataWriter, vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -58,7 +47,7 @@ protected:
   // see algorithm for more info
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) override;
+  void WritePrimaryElementAttributes(ostream& os, vtkIndent indent) override;
   void GetInputExtent(int* extent) override;
   const char* GetDataSetName() override;
 
@@ -67,4 +56,5 @@ private:
   void operator=(const vtkXMLImageDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

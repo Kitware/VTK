@@ -1,34 +1,22 @@
-/*=========================================================================
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 
-  Program:   Visualization Toolkit
-  Module:    TestGL2PSExporterMultipleRenderers.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkGL2PSExporter.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextActor.h"
 #include "vtkTextMapper.h"
 
 #include <string>
 
-int TestGL2PSExporterMultipleRenderers( int, char *[] )
+int TestGL2PSExporterMultipleRenderers(int, char*[])
 {
   vtkNew<vtkTextActor> text1;
   text1->SetPosition(25, 25);
@@ -72,8 +60,8 @@ int TestGL2PSExporterMultipleRenderers( int, char *[] )
   exp->SetSortToSimple();
   exp->DrawBackgroundOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSExporterMultipleRenderers");
+  std::string fileprefix =
+    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSExporterMultipleRenderers");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
