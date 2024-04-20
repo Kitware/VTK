@@ -391,6 +391,7 @@ int TestFinitePlaneWidget(int, char*[])
   fpr2->SetTubing(false);
   fpr2->SetDrawPlane(false);
   fpr2->SetHandles(false);
+  fpr2->SetRectangularShape(false);
 
   double bounds2[6] = { 1.2, 2.2, 0, 1, 0, 1 };
   fpr2->PlaceWidget(bounds2);
