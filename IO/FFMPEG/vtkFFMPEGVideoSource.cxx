@@ -209,9 +209,9 @@ void vtkFFMPEGVideoSource::Initialize()
   // examine the video stream side data for additional information
   this->Stereo3D = false;
 #if defined(LIBAVCODEC_VERSION_MAJOR) &&                                                           \
-  (LIBAVCODEC_VERSION_MAJOR > 57 ||                                                                \
-    (LIBAVCODEC_VERSION_MAJOR == 57 && defined(LIBAVCODEC_VERSION_MINOR) &&                        \
-      LIBAVCODEC_VERSION_MINOR >= 12))
+  (LIBAVCODEC_VERSION_MAJOR > 60 ||                                                                \
+    (LIBAVCODEC_VERSION_MAJOR == 60 && defined(LIBAVCODEC_VERSION_MINOR) &&                        \
+      LIBAVCODEC_VERSION_MINOR >= 31))
 #define vtkFFMPEG_nb_side_data(stream) (stream)->codecpar->nb_coded_side_data
 #define vtkFFMPEG_side_data(stream) (stream)->codecpar->coded_side_data
 #else
