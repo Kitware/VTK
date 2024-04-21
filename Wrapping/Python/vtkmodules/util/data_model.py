@@ -152,9 +152,30 @@ class PointData(DataSetAttributesBase, vtkPointData):
 class CellData(DataSetAttributesBase, vtkCellData):
     pass
 
+class CompositeDataSetAttributesIterator(object):
+    def __init__(self, cdsa):
+        self._cdsa = cdsa
+        if cdsa:
+            self._itr = iter(cdsa.keys())
+        else:
+            self._itr = None
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self._cdsa:
+            raise StopIteration
+
+        name = next(self._itr)
+        return self._cdsa[name]
+
+    def next(self):
+        return self.__next__()
+
 class CompositeDataSetAttributes(object):
     """This is a python friendly wrapper for vtkDataSetAttributes for composite
-    datsets. Since composite datasets themselves don't have attribute data, but
+    datasets. Since composite datasets themselves don't have attribute data, but
     the attribute data is associated with the leaf nodes in the composite
     dataset, this class simulates a DataSetAttributes interface by taking a
     union of DataSetAttributes associated with all leaf nodes."""
@@ -181,6 +202,11 @@ class CompositeDataSetAttributes(object):
                     array_list.append(array_name)
         self.ArrayNames = array_list
 
+    def modified(self):
+        """Rescans the contained dataset to update the
+        internal list of arrays."""
+        self.__determine_arraynames()
+
     def keys(self):
         """Returns the names of the arrays as a list."""
         return self.ArrayNames
@@ -202,7 +228,7 @@ class CompositeDataSetAttributes(object):
         added = False
         if not isinstance(narray, dsa.VTKCompositeDataArray): # Scalar input
             for ds in self.DataSet:
-                ds.GetAttributes(self.Association).append(narray, name)
+                ds.GetAttributes(self.Association).set_array(name, narray)
                 added = True
             if added:
                 self.ArrayNames.append(name)
@@ -229,6 +255,10 @@ class CompositeDataSetAttributes(object):
         else:
             array = self.Arrays[arrayname]()
         return array
+
+    def __iter__(self):
+        "Creates an iterator for the contained arrays."
+        return CompositeDataSetAttributesIterator(self)
 
 #class DataSet(DataObjectBase):
 class DataSet(object):
@@ -348,11 +378,12 @@ class CompositeDataSetBase(object):
     to access Point/Cell/Field data as VTKCompositeDataArrays. It also
     provides a Python type iterator."""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._PointData = None
         self._CellData = None
         self._FieldData = None
         self._Points = None
+        super().__init__(**kwargs)
 
     def __iter__(self):
         "Creates an iterator for the contained datasets."
@@ -410,6 +441,6 @@ class CompositeDataSetBase(object):
         return self._Points()
 
 @vtkPartitionedDataSet.override
-class vtkPartitionedDataSet(vtkPartitionedDataSet, CompositeDataSetBase):
+class vtkPartitionedDataSet(CompositeDataSetBase, vtkPartitionedDataSet):
     def append(self, dataset):
         self.SetPartition(self.GetNumberOfPartitions(), dataset)
