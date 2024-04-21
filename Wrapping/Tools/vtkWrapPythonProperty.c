@@ -152,7 +152,7 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
         /* Encountering this property for the first time. */
         if (getSetsInfo[j] == NULL)
         {
-          getSetsInfo[j] = calloc(1, sizeof(GetSetDefInfo));
+          getSetsInfo[j] = (GetSetDefInfo*)calloc(1, sizeof(GetSetDefInfo));
         }
         /* Update the methods, method types for this property. */
         getSetInfo = getSetsInfo[j];
