@@ -19,6 +19,8 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace vtkHDFUtilities
 {
+const std::string VTKHDF_ROOT_PATH = "/VTKHDF";
+
 /*
  * The number of PolyData topologies saved in vtkHDF format
  */

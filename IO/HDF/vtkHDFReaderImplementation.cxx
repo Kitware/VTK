@@ -170,7 +170,7 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
       return false;
     }
 
-    return this->RetrieveHDFInformation("/VTKHDF");
+    return this->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
   }
 
   return !error;
@@ -1119,7 +1119,7 @@ bool vtkHDFReader::Implementation::FillAssembly(vtkDataAssembly* assembly)
     return false;
   }
 
-  std::string assemblyPath = "/VTKHDF/Assembly";
+  std::string assemblyPath = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/Assembly";
   vtkHDF::ScopedH5GHandle assemblyID = H5Gopen(this->VTKGroup, assemblyPath.c_str(), H5P_DEFAULT);
   if (assemblyID <= H5I_INVALID_HID)
   {

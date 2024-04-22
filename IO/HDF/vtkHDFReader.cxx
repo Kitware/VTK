@@ -50,8 +50,6 @@ vtkStandardNewMacro(vtkHDFReader);
 
 namespace
 {
-const std::string VTKHDF_ROOT_PATH = "/VTKHDF";
-
 //----------------------------------------------------------------------------
 int GetNDims(int* extent)
 {
@@ -659,7 +657,7 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
       this->GenerateAssembly();
     }
     this->RetrieveDataArraysFromAssembly();
-    this->Impl->RetrieveHDFInformation(::VTKHDF_ROOT_PATH);
+    this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
     if (!this->RetrieveStepsFromAssembly())
     {
       return 0;
@@ -1312,7 +1310,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
   vtkIdType pdcSteps = this->NumberOfSteps;
 
   const std::vector<std::string> datasets =
-    this->Impl->GetOrderedChildrenOfGroup(::VTKHDF_ROOT_PATH);
+    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
 
   pdc->SetNumberOfPartitionedDataSets(
     static_cast<unsigned int>(datasets.size() - 1)); // One child is the assembly
@@ -1323,7 +1321,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
     {
       continue;
     }
-    std::string hdfPathName = ::VTKHDF_ROOT_PATH + "/" + datasetName;
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
     this->Impl->RetrieveHDFInformation(hdfPathName);
     this->Impl->OpenGroupAsVTKGroup(hdfPathName); // Change root
 
@@ -1391,7 +1389,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
 
   // Implementation can point to a subset due to the previous method instead of the root, reset it
   // to avoid any conflict for temporal dataset.
-  this->Impl->RetrieveHDFInformation(::VTKHDF_ROOT_PATH);
+  this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
   this->SetHasTemporalData(isPDCTemporal);
   this->NumberOfSteps = pdcSteps;
 
@@ -1405,9 +1403,9 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkMultiBlockDataSet* mb)
   bool isPDCTemporal = this->GetHasTemporalData();
   vtkIdType pdcSteps = this->NumberOfSteps;
 
-  int result = this->ReadRecursively(outInfo, mb, ::VTKHDF_ROOT_PATH + "/Assembly");
+  int result = this->ReadRecursively(outInfo, mb, vtkHDFUtilities::VTKHDF_ROOT_PATH + "/Assembly");
 
-  this->Impl->RetrieveHDFInformation(::VTKHDF_ROOT_PATH);
+  this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
   this->SetHasTemporalData(isPDCTemporal);
   this->NumberOfSteps = pdcSteps;
 
@@ -1425,14 +1423,14 @@ void vtkHDFReader::GenerateAssembly()
 bool vtkHDFReader::RetrieveStepsFromAssembly()
 {
   const std::vector<std::string> datasets =
-    this->Impl->GetOrderedChildrenOfGroup(::VTKHDF_ROOT_PATH);
+    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
   for (const auto& datasetName : datasets)
   {
     if (datasetName == "Assembly")
     {
       continue;
     }
-    std::string hdfPathName = ::VTKHDF_ROOT_PATH + "/" + datasetName;
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
     this->Impl->OpenGroupAsVTKGroup(hdfPathName);
     std::size_t nStep = this->Impl->GetNumberOfSteps();
 
@@ -1456,14 +1454,14 @@ bool vtkHDFReader::RetrieveStepsFromAssembly()
 void vtkHDFReader::RetrieveDataArraysFromAssembly()
 {
   const std::vector<std::string> datasets =
-    this->Impl->GetOrderedChildrenOfGroup(::VTKHDF_ROOT_PATH);
+    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
   for (const auto& datasetName : datasets)
   {
     if (datasetName == "Assembly")
     {
       continue;
     }
-    std::string hdfPathName = ::VTKHDF_ROOT_PATH + "/" + datasetName;
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
 
     // Fill DataArray
     this->Impl->RetrieveHDFInformation(hdfPathName);
