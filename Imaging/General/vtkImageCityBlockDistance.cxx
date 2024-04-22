@@ -93,8 +93,17 @@ int vtkImageCityBlockDistance::IterativeRequestData(vtkInformation* vtkNotUsed(r
   // Reorder axes (the in and out extents are assumed to be the same)
   // (see intercept cache update)
   this->PermuteExtent(outExt, min0, max0, min1, max1, min2, max2);
-  this->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
-  this->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
+
+  // Compute the increments into a local array as `GetIncrements()` introduces
+  // a data race on `vtkImageData::Increments`.
+  vtkIdType inIncrements[3];
+  vtkIdType outIncrements[3];
+  inData->GetIncrements(inIncrements);
+  outData->GetIncrements(outIncrements);
+
+  this->PermuteIncrements(inIncrements, inInc0, inInc1, inInc2);
+  this->PermuteIncrements(outIncrements, outInc0, outInc1, outInc2);
+
   numberOfComponents = inData->GetNumberOfScalarComponents();
 
   target = static_cast<unsigned long>((max2 - min2 + 1) * (max1 - min1 + 1) / 50.0);

@@ -62,8 +62,16 @@ void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance* self, vtkImage
 
   // Reorder axes
   self->PermuteExtent(outExt, outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
-  self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
-  self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
+
+  // Compute the increments into a local array as `GetIncrements()` introduces
+  // a data race on `vtkImageData::Increments`.
+  vtkIdType inIncrements[3];
+  vtkIdType outIncrements[3];
+  inData->GetIncrements(inIncrements);
+  outData->GetIncrements(outIncrements);
+
+  self->PermuteIncrements(inIncrements, inInc0, inInc1, inInc2);
+  self->PermuteIncrements(outIncrements, outInc0, outInc1, outInc2);
 
   inPtr2 = inPtr;
   outPtr2 = outPtr;
@@ -109,8 +117,16 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance* self, vtkIma
 
   // Reorder axes
   self->PermuteExtent(outExt, outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
-  self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
-  self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
+
+  // Compute the increments into a local array as `GetIncrements()` introduces
+  // a data race on `vtkImageData::Increments`.
+  vtkIdType inIncrements[3];
+  vtkIdType outIncrements[3];
+  inData->GetIncrements(inIncrements);
+  outData->GetIncrements(outIncrements);
+
+  self->PermuteIncrements(inIncrements, inInc0, inInc1, inInc2);
+  self->PermuteIncrements(outIncrements, outInc0, outInc1, outInc2);
 
   if (self->GetInitialize() == 1)
   // Initialization required. Input image is only used as binary mask,
