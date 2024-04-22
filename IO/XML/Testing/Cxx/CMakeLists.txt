@@ -69,9 +69,9 @@ set_property(
   APPEND
   PROPERTY SKIP_REGULAR_EXPRESSION "IdType tag has been ignored")
 
-# Writing a large file during this test takes extra time.
+# Writing a large file during this test takes extra time, especially when other tests are running simultaneously.
 if(NOT VTK_TEST_TIMEOUT_TestXMLLargeUnstructuredGrid)
-  set(VTK_TEST_TIMEOUT_TestXMLLargeUnstructuredGrid 300)
+  set(VTK_TEST_TIMEOUT_TestXMLLargeUnstructuredGrid 1000)
 endif()
 set_tests_properties(VTK::IOXMLCxx-TestXMLLargeUnstructuredGrid
   PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestXMLLargeUnstructuredGrid})
