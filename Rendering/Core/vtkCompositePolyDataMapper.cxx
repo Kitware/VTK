@@ -394,7 +394,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
       this->InterpolateScalarsBeforeMapping);
     internals.BlockState.ColorMode.push(this->ColorMode);
     internals.BlockState.ScalarRange.emplace(this->ScalarRange[0], this->ScalarRange[1]);
-    internals.BlockState.LookupTable.push(this->GetLookupTable());
+    internals.BlockState.LookupTable.emplace(this->GetLookupTable());
 
     {
       unsigned int flatIndex = 0;

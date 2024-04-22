@@ -1129,8 +1129,12 @@ std::string PIO_DATA_PIO::get_username()
 {
   PIO_FIELD* Pio_field = VarMMap.equal_range("hist_usernm").first->second;
 
-  const char* cdata;
+  const char* cdata = nullptr;
   GetPIOData("hist_usernm", cdata);
+  if (!cdata)
+  {
+    return {};
+  }
 
   // get the last entry of username
   // each string in hist_usernm is 8 chars, 9 includes terminating null
@@ -1144,8 +1148,12 @@ std::string PIO_DATA_PIO::get_problemname()
 {
   PIO_FIELD* Pio_field = VarMMap.equal_range("hist_prbnm").first->second;
 
-  const char* cdata;
+  const char* cdata = nullptr;
   GetPIOData("hist_prbnm", cdata);
+  if (!cdata)
+  {
+    return {};
+  }
 
   // get the last entry of problemname
   // each string in hist_prbnm is 16 chars, 17 includes terminating null

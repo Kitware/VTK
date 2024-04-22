@@ -204,6 +204,9 @@ protected:
   // How much of the string "<AppendedData" has been matched in input.
   int AppendedDataMatched;
 
+  // Whether AppendedData has been dealt with or not.
+  bool AppendedDataFound;
+
   // The byte order of the binary input.
   int ByteOrder;
 

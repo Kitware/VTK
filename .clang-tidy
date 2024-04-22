@@ -6,6 +6,7 @@ bugprone-*,\
 -bugprone-assignment-in-if-condition,\
 -bugprone-branch-clone,\
 -bugprone-easily-swappable-parameters,\
+-bugprone-empty-catch,\
 -bugprone-fold-init-type,\
 -bugprone-implicit-widening-of-multiplication-result,\
 -bugprone-incorrect-roundings,\
@@ -17,8 +18,11 @@ bugprone-*,\
 -bugprone-not-null-terminated-result,\
 -bugprone-reserved-identifier,\
 -bugprone-signed-char-misuse,\
+-bugprone-sizeof-expression,\
 -bugprone-suspicious-realloc-usage,\
+-bugprone-switch-missing-default-case,\
 -bugprone-unhandled-self-assignment,\
+-bugprone-unsafe-functions,\
 clang-analyzer-*,\
 -clang-analyzer-core.CallAndMessage,\
 -clang-analyzer-core.DivideZero,\
@@ -49,6 +53,8 @@ clang-analyzer-*,\
 misc-*,\
 -misc-const-correctness,\
 -misc-confusable-identifiers,\
+-misc-header-include-cycle,\
+-misc-include-cleaner,\
 -misc-no-recursion,\
 -misc-non-private-member-variables-in-classes,\
 -misc-redundant-expression,\
@@ -68,6 +74,7 @@ modernize-*,\
 -modernize-raw-string-literal,\
 -modernize-replace-random-shuffle,\
 -modernize-return-braced-init-list,\
+-modernize-type-traits,\
 -modernize-use-auto,\
 -modernize-use-default-member-init,\
 -modernize-use-equals-delete,\
@@ -77,12 +84,14 @@ modernize-*,\
 mpi-*,\
 openmp-*,\
 performance-*,\
+-performance-avoid-endl,\
 -performance-inefficient-string-concatenation,\
 -performance-no-int-to-ptr,\
 -performance-type-promotion-in-math-fn,\
 -performance-unnecessary-value-param,\
 portability-*,\
 readability-*,\
+-readability-avoid-unconditional-preprocessor-if,\
 -readability-braces-around-statements,\
 -readability-convert-member-functions-to-static,\
 -readability-else-after-return,\

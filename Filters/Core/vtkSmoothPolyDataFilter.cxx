@@ -350,7 +350,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Analyzing topology...");
 
   // Smart pointer to storage; use a raw pointer for operator[] array access.
-  std::unique_ptr<vtkMeshVertex> uVerts = std::unique_ptr<vtkMeshVertex>(new vtkMeshVertex[numPts]);
+  std::unique_ptr<vtkMeshVertex[]> uVerts(new vtkMeshVertex[numPts]);
   vtkMeshVertex* Verts = uVerts.get();
 
   inPts = input->GetPoints();

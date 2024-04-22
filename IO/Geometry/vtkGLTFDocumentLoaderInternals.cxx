@@ -115,6 +115,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(nlohmann::json& gltfRoot)
     // Determine the format
     std::string magic;
     magic.resize(4);
+    // NOLINTNEXTLINE(readability-container-data-pointer)
     stream->Read(&magic[0], magic.size());
 
     if (magic == "glTF")

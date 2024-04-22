@@ -1,14 +1,15 @@
 #!/bin/sh
 
 readonly catalyst_repo="https://gitlab.kitware.com/paraview/catalyst"
-# Use the latest release candidate.
-readonly catalyst_commit="v2.0.0-rc3"
+# Use 2.0.0 release
+readonly catalyst_commit="v2.0.0"
 
 readonly catalyst_root="$HOME/catalyst"
 readonly catalyst_src="$catalyst_root/src"
 readonly catalyst_build_root="$catalyst_root/build"
 
-git clone -b "$catalyst_commit" "$catalyst_repo" "$catalyst_src"
+git clone "$catalyst_repo" "$catalyst_src"
+git -C "$catalyst_src" checkout "$catalyst_commit"
 
 catalyst_build () {
     local subdir="$1"

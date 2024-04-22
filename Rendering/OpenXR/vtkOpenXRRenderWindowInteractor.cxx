@@ -646,6 +646,9 @@ bool vtkOpenXRRenderWindowInteractor::LoadActions(const std::string& actionFilen
                   << ", localizedName=" << localizedName);
 
     XrActionType xrActionType = this->GetActionTypeFromString(type);
+    // `GetActionTypeFromString` casts `0` when it fails, so the variant in
+    // this case is not "valid", but `clang-tidy` doesn't know that.
+    // NOLINTNEXTLINE(bugprone-non-zero-enum-to-bool-conversion)
     if (!xrActionType)
     {
       return false;

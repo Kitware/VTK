@@ -609,14 +609,14 @@ void vtkStaticCleanUnstructuredGrid::AveragePoints(vtkPoints* inPts, vtkPointDat
 
   // Create an array of atomics with initial count=0. This will keep
   // track of point merges. Count them in parallel.
-  std::unique_ptr<std::atomic<vtkIdType>> uCounts(new std::atomic<vtkIdType>[numOutPts]());
+  std::unique_ptr<std::atomic<vtkIdType>[]> uCounts(new std::atomic<vtkIdType>[numOutPts]());
   std::atomic<vtkIdType>* counts = uCounts.get();
   CountUses count(ptMap, counts);
   vtkSMPTools::For(0, numInPts, count);
 
   // Perform a prefix sum to determine the offsets.
   vtkIdType ptId, npts;
-  std::unique_ptr<vtkIdType> uOffsets(new vtkIdType[numOutPts + 1]); // extra +1 for convenience
+  std::unique_ptr<vtkIdType[]> uOffsets(new vtkIdType[numOutPts + 1]); // extra +1 for convenience
   vtkIdType* offsets = uOffsets.get();
   offsets[0] = 0;
   for (ptId = 1; ptId <= numOutPts; ++ptId)
@@ -628,7 +628,7 @@ void vtkStaticCleanUnstructuredGrid::AveragePoints(vtkPoints* inPts, vtkPointDat
   // Configure the "links" which are, for each output point, lists
   // the input points merged to that output point. The offsets point into
   // the links.
-  std::unique_ptr<vtkIdType> uLinks(new vtkIdType[offsets[numOutPts]]);
+  std::unique_ptr<vtkIdType[]> uLinks(new vtkIdType[offsets[numOutPts]]);
   vtkIdType* links = uLinks.get();
 
   // Now insert cell ids into cell links.

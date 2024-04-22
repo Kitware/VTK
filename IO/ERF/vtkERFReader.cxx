@@ -231,7 +231,7 @@ void vtkERFReader::AddTemporalInformation(vtkInformation* info)
   info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   info->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
 
-  info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &(this->TimeValues[0]),
+  info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeValues.data(),
     static_cast<int>(this->TimeValues.size()));
 
   this->TimeRanges[0] = this->TimeValues[0];
@@ -925,6 +925,7 @@ std::string vtkERFReader::GetAttributeValueAsStr(
   hsize_t stringLength = H5Aget_storage_size(attributeHandler);
   std::string value;
   value.resize(stringLength + 1);
+  // NOLINTNEXTLINE(readability-container-data-pointer)
   if (H5Aread(attributeHandler, dataType, &value[0]) >= 0)
   {
     value.erase(std::remove_if(value.begin(), value.end(),

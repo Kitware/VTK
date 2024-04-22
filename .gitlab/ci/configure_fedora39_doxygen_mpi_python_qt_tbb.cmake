@@ -7,4 +7,4 @@ set(VTK_VERSIONED_INSTALL OFF CACHE BOOL "")
 # Disable testing since Doxygen doesn't actually test.
 set(VTK_BUILD_TESTING OFF CACHE STRING "")
 
-include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora34.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora39.cmake")
