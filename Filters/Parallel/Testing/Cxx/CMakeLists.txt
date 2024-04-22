@@ -33,6 +33,7 @@ if (TARGET VTK::ParallelMPI)
   set(vtkFiltersParallelCxxTests-MPI_NUMPROCS 4)
   vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI no_data_tests_4_procs
     AggregateDataSet.cxx
+    TestGenerateGlobalIdsHTG.cxx,NO_VALID
     TestHyperTreeGridGhostCellsGenerator.cxx,NO_VALID
   )
 
