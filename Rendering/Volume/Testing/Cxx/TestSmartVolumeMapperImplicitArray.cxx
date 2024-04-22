@@ -31,7 +31,8 @@ struct TorusLevelSetBackend
   }
   double operator()(int idx) const
   {
-    double* pt = this->Grid->GetPoint(idx);
+    double pt[3];
+    this->Grid->GetPoint(idx, pt);
     return std::pow(std::sqrt(std::pow(pt[0], 2) + std::pow(pt[1], 2)) - this->MajRadius, 2) +
       std::pow(pt[2], 2) - std::pow(this->MinRadius, 2);
   }

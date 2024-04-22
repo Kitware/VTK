@@ -28,7 +28,8 @@ struct SphereLevelSetBackend
   }
   double operator()(int idx) const
   {
-    double* pt = this->Grid->GetPoint(idx);
+    double pt[3];
+    this->Grid->GetPoint(idx, pt);
     return vtkMath::Norm(pt) - this->Radius;
   }
   vtkDataSet* Grid = nullptr;

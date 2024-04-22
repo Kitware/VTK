@@ -2480,7 +2480,8 @@ void vtkXMLWriter::WritePointDataAppendedData(
     if (d)
     {
       // ranges are only written in case of Data Arrays.
-      double* range = d->GetRange(-1);
+      double range[2];
+      d->GetRange(range, -1);
       this->ForwardAppendedDataDouble(
         pdManager->GetElement(i).GetRangeMinPosition(timestep), range[0], "RangeMin");
       this->ForwardAppendedDataDouble(
@@ -2568,7 +2569,8 @@ void vtkXMLWriter::WriteCellDataAppendedData(
     vtkDataArray* d = vtkArrayDownCast<vtkDataArray>(a);
     if (d)
     {
-      double* range = d->GetRange(-1);
+      double range[2];
+      d->GetRange(range, -1);
       this->ForwardAppendedDataDouble(
         cdManager->GetElement(i).GetRangeMinPosition(timestep), range[0], "RangeMin");
       this->ForwardAppendedDataDouble(
