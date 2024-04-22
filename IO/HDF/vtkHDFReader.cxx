@@ -1381,6 +1381,12 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
     {
       return result;
     }
+
+    vtkPartitionedDataSet* pData = pdc->GetPartitionedDataSet(dsIndex);
+    for (unsigned int idx = 0; idx < pData->GetNumberOfPartitions(); ++idx)
+    {
+      this->AddFieldArrays(pData->GetPartitionAsDataObject(idx));
+    }
   }
 
   // Implementation can point to a subset due to the previous method instead of the root, reset it
@@ -1525,6 +1531,7 @@ int vtkHDFReader::ReadRecursively(
         this->Read(out, data);
         dataMB->SetBlock(i, data);
       }
+      this->AddFieldArrays(dataMB->GetBlock(i));
     }
     else
     {
