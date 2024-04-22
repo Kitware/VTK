@@ -46,6 +46,8 @@ std::map<int, std::vector<double>> EXPECTED_POINTS_AT_TIMESTEP = {
       16.5446 } }
 };
 
+constexpr int EXPECTED_SHAPE_AT_TIMESTEP[3][2] = { { 3, 1 }, { 1, 2 }, { 2, 2 } };
+
 // analytical functions
 template <typename Vec>
 double Sin11T(double t, const Vec& point);
@@ -63,6 +65,7 @@ int TestUGTransientWithCachePartitioned(const std::string& dataRoot);
 int TestUGTransientPartitionedNoCache(const std::string& dataRoot);
 int TestImageDataTransientWithCache(const std::string& dataRoot);
 int TestPolyDataTransientWithCache(const std::string& dataRoot);
+int TestPolyDataTransientFieldData(const std::string& dataRoot);
 int TestOverlappingAMRTransient(const std::string& dataRoot);
 }
 
@@ -80,6 +83,7 @@ int TestHDFReaderTransient(int argc, char* argv[])
   res |= ::TestUGTransientWithCachePartitioned(dataRoot);
   res |= ::TestImageDataTransientWithCache(dataRoot);
   res |= ::TestPolyDataTransientWithCache(dataRoot);
+  res |= ::TestPolyDataTransientFieldData(dataRoot);
   res |= ::TestOverlappingAMRTransient(dataRoot);
 
   return res;
@@ -998,6 +1002,69 @@ int TestPolyDataTransientWithOffset(const std::string& dataRoot)
     {
       std::cerr << "Expected range for the offset array to be between 0 and 10080 but got ["
                 << range[0] << "," << range[1] << "]" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestPolyDataTransientFieldData(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data_field_data.vtkhdf");
+
+  // Generic Time data checks
+  if (opener.GetReader()->GetNumberOfSteps() != 10)
+  {
+    std::cerr << "Number of time steps is not correct: " << opener.GetReader()->GetNumberOfSteps()
+              << " != " << 10 << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  auto tRange = opener.GetReader()->GetTimeRange();
+  if (!vtkMathUtilities::FuzzyCompare(tRange[0], 0.0, CHECK_TOLERANCE) ||
+    !vtkMathUtilities::FuzzyCompare(tRange[1], 0.9, CHECK_TOLERANCE))
+  {
+    std::cerr << "Time range is incorrect: (0.0, 0.9) != (" << tRange[0] << ", " << tRange[1] << ")"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  for (int iStep = 0; iStep < 10; iStep++)
+  {
+    // Open data at right time
+    vtkSmartPointer<vtkDataSet> dSet = vtkDataSet::SafeDownCast(opener(iStep));
+
+    auto* polyData = vtkPolyData::SafeDownCast(dSet);
+    if (!polyData)
+    {
+      std::cerr << "The data isn't a polydata." << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    vtkFieldData* fdData = polyData->GetFieldData();
+    if (!fdData)
+    {
+      std::cerr << "The data should contains field data." << std::endl;
+      return EXIT_FAILURE;
+    }
+    vtkAbstractArray* testArray = fdData->GetAbstractArray("Test");
+    if (!testArray)
+    {
+      std::cerr << "The data should contains field data a field data array \"Test\"." << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    int expectedNbComponents = EXPECTED_SHAPE_AT_TIMESTEP[iStep % 3][0];
+    int expectedNbTuples = EXPECTED_SHAPE_AT_TIMESTEP[iStep % 3][1];
+    if (testArray->GetNumberOfComponents() != expectedNbComponents ||
+      testArray->GetNumberOfTuples() != expectedNbTuples)
+    {
+      std::cerr << "The field data's shape doesn't match the expected (" << expectedNbComponents
+                << ", " << expectedNbTuples << ") for step " << iStep << ", instead got ("
+                << testArray->GetNumberOfComponents() << ", " << testArray->GetNumberOfTuples()
+                << ")" << std::endl;
       return EXIT_FAILURE;
     }
   }
