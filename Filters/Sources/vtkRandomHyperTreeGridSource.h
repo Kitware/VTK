@@ -143,8 +143,13 @@ private:
   /**
    * Verify and returns if a node should be masked.
    * It is decided by looking at the number of siblings of the node that are currently masked.
-   * If the fraction of sibling is higher than the expected masked fraction it will return false.
-   * Otherwise it may return true depending on a RNG.
+
+   * @param siblingsMasked - the fraction of siblings currently masked at this level
+   * @param level - the current depth level of the node to be masked
+   * @param errorMargin - the error margin which should be the minimum space to be masked at the
+   current level.
+   * @returns If the fraction of sibling is higher than the expected masked fraction minus the error
+   margin it will return false. Otherwise it will return true.
    */
   bool ShouldMask(double siblingsMasked = 0.0, int level = 0, double errorMargin = 0.0);
 
@@ -152,7 +157,8 @@ private:
    * Generate the mask for the HTG.
    */
   double GenerateMask(vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType treeId,
-    double unmaskedFraction = 1.0, bool isParentMasked = false, double siblingsMasked = 0.0);
+    double unmaskedFraction = 1.0, bool isParentMasked = false, double siblingsMasked = 0.0,
+    double errorMargin = 0.0);
 
   /**
    * Fill the MaskingNodeCostPerLevel vector with the masking cost of each level up to the MaxDepth.
@@ -168,11 +174,6 @@ private:
    * the fraction of space a node occupies in the Hyper Tree.
    */
   double GetMaskingNodeCost(int level);
-
-  /**
-   * Shuffles the content of the array given in parameter.
-   */
-  void ShuffleArray(std::vector<int>& array, int size, vtkMinimalStandardRandomSequence* rng);
 };
 
 VTK_ABI_NAMESPACE_END
