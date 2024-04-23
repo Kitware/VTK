@@ -12,7 +12,7 @@
  * and vtkAbstractPolyDataReader object.
  *
  * @sa
- * vtkOBJReader vtkPLYReader vtkSTLReader
+ * vtkOBJReader vtkOFFReader vtkPLYReader vtkSTLReader
  */
 
 #ifndef vtkAbstractPolyDataReader_h
@@ -30,7 +30,7 @@ public:
 
   ///@{
   /**
-   * Specify file name of AbstractPolyData file (obj / ply / stl).
+   * Specify file name of AbstractPolyData file (obj / off / ply / stl).
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
