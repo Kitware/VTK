@@ -878,6 +878,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
       this->SetWindowId(glView);
       this->ViewCreated = 1;
       [glView setVTKRenderWindow:this];
+      [window makeFirstResponder:glView];
 
 #if !VTK_OBJC_IS_ARC
       [glView release];
