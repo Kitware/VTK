@@ -2072,7 +2072,7 @@ void vtkAnariPolyDataMapperNode::Synchronize(bool prepass)
     return;
   }
 
-  vtkPolyData* poly = nullptr;
+  vtkSmartPointer<vtkPolyData> poly;
   vtkPolyDataMapper* polyDataMapper = vtkPolyDataMapper::SafeDownCast(actor->GetMapper());
 
   if (polyDataMapper && polyDataMapper->GetNumberOfInputPorts() > 0)
