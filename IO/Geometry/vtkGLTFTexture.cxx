@@ -64,11 +64,15 @@ vtkSmartPointer<vtkTexture> vtkGLTFTexture::GetVTKTexture()
 //------------------------------------------------------------------------------
 void vtkGLTFTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
+  // XXX(c++23) AppleClang 11 and older complain `error: use of overloaded operator '<<' is
+  // ambiguous` And so these enums are cast to their raw integer equivalents.
+  using FilterType = typename std::underlying_type<GLTFSampler::FilterType>::type;
+  using WrapType = typename std::underlying_type<GLTFSampler::WrapType>::type;
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "MagFilter: " << this->Sampler.MagFilter << "\n"
-     << indent << "MinFilter: " << this->Sampler.MinFilter << "\n"
-     << indent << "WrapS: " << this->Sampler.WrapS << "\n"
-     << indent << "WrapT: " << this->Sampler.WrapT << "\n"
+  os << indent << "MagFilter: " << static_cast<FilterType>(this->Sampler.MagFilter) << "\n"
+     << indent << "MinFilter: " << static_cast<FilterType>(this->Sampler.MinFilter) << "\n"
+     << indent << "WrapS: " << static_cast<WrapType>(this->Sampler.WrapS) << "\n"
+     << indent << "WrapT: " << static_cast<WrapType>(this->Sampler.WrapT) << "\n"
      << indent << "Image: " << this->Image << "\n";
 }
 
