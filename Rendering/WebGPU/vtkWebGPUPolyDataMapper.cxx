@@ -363,26 +363,249 @@ void vtkWebGPUPolyDataMapper::SetupBindGroups(const wgpu::Device& device, vtkRen
 }
 
 //------------------------------------------------------------------------------
+unsigned long vtkWebGPUPolyDataMapper::GetPointAttributeByteSize(
+  vtkWebGPUPolyDataMapper::PointDataAttributes attribute)
+{
+  switch (attribute)
+  {
+    case PointDataAttributes::POINT_POSITIONS:
+      return this->CurrentInput->GetNumberOfPoints() * 3 * sizeof(vtkTypeFloat32);
+
+    case PointDataAttributes::POINT_COLORS:
+      return this->HasPointColors ? this->Colors->GetDataSize() * sizeof(vtkTypeFloat32) : 0;
+
+    case PointDataAttributes::POINT_NORMALS:
+      if (this->HasPointNormals)
+      {
+        return this->CurrentInput->GetPointData()->GetNormals()->GetNumberOfValues() *
+          sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    case PointDataAttributes::POINT_TANGENTS:
+      if (this->HasPointTangents)
+      {
+        return this->CurrentInput->GetPointData()->GetTangents()->GetNumberOfValues() *
+          sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    case PointDataAttributes::POINT_UVS:
+      if (this->HasPointUVs)
+      {
+        return this->CurrentInput->GetPointData()->GetTCoords()->GetNumberOfValues() *
+          sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    default:
+      break;
+  }
+
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+unsigned long vtkWebGPUPolyDataMapper::GetCellAttributeByteSize(
+  vtkWebGPUPolyDataMapper::CellDataAttributes attribute)
+{
+  switch (attribute)
+  {
+    case CellDataAttributes::CELL_COLORS:
+      if (this->HasCellColors)
+      {
+        return this->Colors->GetDataSize() * sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    case CellDataAttributes::CELL_NORMALS:
+      if (this->HasCellNormals)
+      {
+        return this->CurrentInput->GetCellData()->GetNormals()->GetDataSize() *
+          sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    case CellDataAttributes::CELL_EDGES:
+    {
+      unsigned long size = 0;
+      this->EdgeArrayCount = 0;
+
+      auto polysIter = vtk::TakeSmartPointer(this->CurrentInput->GetPolys()->NewIterator());
+      for (polysIter->GoToFirstCell(); !polysIter->IsDoneWithTraversal(); polysIter->GoToNextCell())
+      {
+        const vtkIdType* pts = nullptr;
+        vtkIdType npts = 0;
+        polysIter->GetCurrentCell(npts, pts);
+        size += (npts - 2) * sizeof(vtkTypeFloat32);
+        this->EdgeArrayCount += (npts - 2);
+      }
+
+      if (this->CurrentInput->GetPolys()->GetNumberOfCells() == 0)
+      {
+        size += sizeof(vtkTypeFloat32);
+      }
+
+      return size;
+    }
+
+    default:
+      break;
+  }
+
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+unsigned long vtkWebGPUPolyDataMapper::GetPointAttributeElementSize(
+  vtkWebGPUPolyDataMapper::PointDataAttributes attribute)
+{
+  switch (attribute)
+  {
+    case PointDataAttributes::POINT_POSITIONS:
+      return 3 * sizeof(vtkTypeFloat32);
+
+    case PointDataAttributes::POINT_COLORS:
+      if (this->HasPointColors)
+      {
+        return vtkDataArray::SafeDownCast(this->Colors)->GetNumberOfComponents() *
+          sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    case PointDataAttributes::POINT_NORMALS:
+      if (this->HasPointNormals)
+      {
+        return this->CurrentInput->GetPointData()->GetNormals()->GetNumberOfComponents() *
+          sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    case PointDataAttributes::POINT_TANGENTS:
+      if (this->HasPointTangents)
+      {
+        return this->CurrentInput->GetPointData()->GetTangents()->GetNumberOfComponents() *
+          sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    case PointDataAttributes::POINT_UVS:
+      if (this->HasPointUVs)
+      {
+        return this->CurrentInput->GetPointData()->GetTCoords()->GetNumberOfComponents() *
+          sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    default:
+      break;
+  }
+
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+unsigned long vtkWebGPUPolyDataMapper::GetCellAttributeElementSize(
+  vtkWebGPUPolyDataMapper::CellDataAttributes attribute)
+{
+  switch (attribute)
+  {
+    case CellDataAttributes::CELL_COLORS:
+      if (this->HasCellColors)
+      {
+        return vtkDataArray::SafeDownCast(this->Colors)->GetNumberOfComponents() *
+          sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    case CellDataAttributes::CELL_NORMALS:
+      if (this->HasCellNormals)
+      {
+        return this->CurrentInput->GetCellData()->GetNormals()->GetNumberOfComponents() *
+          sizeof(vtkTypeFloat32);
+      }
+
+      break;
+
+    case CellDataAttributes::CELL_EDGES:
+      return sizeof(float);
+
+    default:
+      break;
+  }
+
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkWebGPUPolyDataMapper::GetPointAttributeByteOffset(
+  vtkWebGPUPolyDataMapper::PointDataAttributes attribute)
+{
+  vtkIdType accumulatedOffset = 0;
+
+  for (int attributeIndex = 0; attributeIndex <= PointDataAttributes::POINT_NB_ATTRIBUTES;
+       attributeIndex++)
+  {
+    PointDataAttributes attributeInOrder = this->PointDataAttributesOrder[attributeIndex];
+    if (attributeInOrder != attribute)
+    {
+      accumulatedOffset +=
+        this->GetPointAttributeByteSize(static_cast<PointDataAttributes>(attributeInOrder));
+    }
+    else
+    {
+      break;
+    }
+  }
+
+  return accumulatedOffset;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkWebGPUPolyDataMapper::GetCellAttributeByteOffset(
+  vtkWebGPUPolyDataMapper::CellDataAttributes attribute)
+{
+  vtkIdType accumulatedOffset = 0;
+
+  for (int attributeIndex = 0; attributeIndex <= CellDataAttributes::CELL_NB_ATTRIBUTES;
+       attributeIndex++)
+  {
+    CellDataAttributes attributeInOrder = this->CellDataAttributesOrder[attributeIndex];
+    if (attributeInOrder != attribute)
+    {
+      accumulatedOffset +=
+        this->GetCellAttributeByteSize(static_cast<CellDataAttributes>(attributeInOrder));
+    }
+    else
+    {
+      break;
+    }
+  }
+
+  return accumulatedOffset;
+}
+
+//------------------------------------------------------------------------------
 unsigned long vtkWebGPUPolyDataMapper::GetExactPointBufferSize()
 {
   unsigned long result = 0;
-  // positions
-  result += this->CurrentInput->GetNumberOfPoints() * 3 * sizeof(vtkTypeFloat32);
-  // point colors
-  result += this->HasPointColors ? this->Colors->GetDataSize() * sizeof(vtkTypeFloat32) : 0;
-  // point normals
-  result += this->HasPointNormals
-    ? this->CurrentInput->GetPointData()->GetNormals()->GetNumberOfValues() * sizeof(vtkTypeFloat32)
-    : 0;
-  // point tangents
-  result += this->HasPointTangents
-    ? this->CurrentInput->GetPointData()->GetTangents()->GetNumberOfValues() *
-      sizeof(vtkTypeFloat32)
-    : 0;
-  // uvs
-  result += this->HasPointUVs
-    ? this->CurrentInput->GetPointData()->GetTCoords()->GetNumberOfValues() * sizeof(vtkTypeFloat32)
-    : 0;
+
+  result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_POSITIONS);
+  result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_COLORS);
+  result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_NORMALS);
+  result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_TANGENTS);
+  result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_UVS);
+
   result = vtkWGPUContext::Align(result, 32);
   vtkDebugMacro(<< __func__ << "=" << result);
   return result;
@@ -392,28 +615,11 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactPointBufferSize()
 unsigned long vtkWebGPUPolyDataMapper::GetExactCellBufferSize()
 {
   unsigned long result = 0;
-  this->EdgeArrayCount = 0;
 
-  // cell colors
-  result += this->HasCellColors ? this->Colors->GetDataSize() * sizeof(vtkTypeFloat32) : 0;
-  // cell normals
-  result += this->HasCellNormals
-    ? this->CurrentInput->GetCellData()->GetNormals()->GetDataSize() * sizeof(vtkTypeFloat32)
-    : 0;
-  // edge array
-  auto polysIter = vtk::TakeSmartPointer(this->CurrentInput->GetPolys()->NewIterator());
-  for (polysIter->GoToFirstCell(); !polysIter->IsDoneWithTraversal(); polysIter->GoToNextCell())
-  {
-    const vtkIdType* pts = nullptr;
-    vtkIdType npts = 0;
-    polysIter->GetCurrentCell(npts, pts);
-    result += (npts - 2) * sizeof(vtkTypeFloat32);
-    this->EdgeArrayCount += (npts - 2);
-  }
-  if (this->CurrentInput->GetPolys()->GetNumberOfCells() == 0)
-  {
-    result += sizeof(vtkTypeFloat32);
-  }
+  result += this->GetCellAttributeByteSize(CellDataAttributes::CELL_COLORS);
+  result += this->GetCellAttributeByteSize(CellDataAttributes::CELL_NORMALS);
+  result += this->GetCellAttributeByteSize(CellDataAttributes::CELL_EDGES);
+
   result = vtkWGPUContext::Align(result, 32);
   vtkDebugMacro(<< __func__ << "=" << result);
   return result;
@@ -655,65 +861,85 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
 
   pointDataWriter.Denominator = 1.0;
   pointDataWriter.Offset = 0;
-
-  // positions
-  meshAttrDescriptor.Positions.Start = 0;
-  if (!DispatchT::Execute(pointPositions, pointDataWriter))
+  for (int attributeIndex = 0; attributeIndex < PointDataAttributes::POINT_NB_ATTRIBUTES;
+       attributeIndex++)
   {
-    pointDataWriter(pointPositions);
-  }
-  meshAttrDescriptor.Positions.NumComponents = pointPositions->GetNumberOfComponents();
-  meshAttrDescriptor.Positions.NumTuples = pointPositions->GetNumberOfTuples();
-  vtkDebugMacro(<< "[Positions] "
-                << "-- " << pointDataWriter.Offset << " bytes ");
+    switch (PointDataAttributesOrder[attributeIndex])
+    {
+      case PointDataAttributes::POINT_POSITIONS:
+        meshAttrDescriptor.Positions.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
 
-  // point colors
-  pointDataWriter.Denominator = 255.0f;
-  meshAttrDescriptor.Colors.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
-  if (!DispatchT::Execute(pointColors, pointDataWriter))
-  {
-    pointDataWriter(pointColors);
-  }
-  pointDataWriter.Denominator = 1.0f;
-  meshAttrDescriptor.Colors.NumComponents = pointColors ? pointColors->GetNumberOfComponents() : 0;
-  meshAttrDescriptor.Colors.NumTuples = pointColors ? pointColors->GetNumberOfTuples() : 0;
-  vtkDebugMacro(<< "[Colors] "
-                << "-- " << pointDataWriter.Offset << " bytes ");
+        if (!DispatchT::Execute(pointPositions, pointDataWriter))
+        {
+          pointDataWriter(pointPositions);
+        }
+        meshAttrDescriptor.Positions.NumComponents = pointPositions->GetNumberOfComponents();
+        meshAttrDescriptor.Positions.NumTuples = pointPositions->GetNumberOfTuples();
+        vtkDebugMacro(<< "[Positions] "
+                      << "-- " << pointDataWriter.Offset << " bytes ");
 
-  // point normals
-  meshAttrDescriptor.Normals.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
-  if (!DispatchT::Execute(pointNormals, pointDataWriter))
-  {
-    pointDataWriter(pointNormals);
-  }
-  meshAttrDescriptor.Normals.NumComponents =
-    pointNormals ? pointNormals->GetNumberOfComponents() : 0;
-  meshAttrDescriptor.Normals.NumTuples = pointNormals ? pointNormals->GetNumberOfTuples() : 0;
-  vtkDebugMacro(<< "[Normals] "
-                << "-- " << pointDataWriter.Offset << " bytes ");
+        break;
 
-  // point tangents
-  meshAttrDescriptor.Tangents.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
-  if (!DispatchT::Execute(pointTangents, pointDataWriter))
-  {
-    pointDataWriter(pointTangents);
-  }
-  meshAttrDescriptor.Tangents.NumComponents =
-    pointTangents ? pointTangents->GetNumberOfComponents() : 0;
-  meshAttrDescriptor.Tangents.NumTuples = pointTangents ? pointTangents->GetNumberOfTuples() : 0;
-  vtkDebugMacro(<< "[Tangents] "
-                << "-- " << pointDataWriter.Offset << " bytes ");
+      case PointDataAttributes::POINT_COLORS:
+        pointDataWriter.Denominator = 255.0f;
+        meshAttrDescriptor.Colors.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
 
-  // point uvs
-  meshAttrDescriptor.UVs.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
-  if (!DispatchT::Execute(pointUvs, pointDataWriter))
-  {
-    pointDataWriter(pointUvs);
+        if (!DispatchT::Execute(pointColors, pointDataWriter))
+        {
+          pointDataWriter(pointColors);
+        }
+        pointDataWriter.Denominator = 1.0f;
+        meshAttrDescriptor.Colors.NumComponents =
+          pointColors ? pointColors->GetNumberOfComponents() : 0;
+        meshAttrDescriptor.Colors.NumTuples = pointColors ? pointColors->GetNumberOfTuples() : 0;
+        vtkDebugMacro(<< "[Colors] "
+                      << "-- " << pointDataWriter.Offset << " bytes ");
+
+        break;
+
+      case PointDataAttributes::POINT_NORMALS:
+        meshAttrDescriptor.Normals.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
+        if (!DispatchT::Execute(pointNormals, pointDataWriter))
+        {
+          pointDataWriter(pointNormals);
+        }
+        meshAttrDescriptor.Normals.NumComponents =
+          pointNormals ? pointNormals->GetNumberOfComponents() : 0;
+        meshAttrDescriptor.Normals.NumTuples = pointNormals ? pointNormals->GetNumberOfTuples() : 0;
+        vtkDebugMacro(<< "[Normals] "
+                      << "-- " << pointDataWriter.Offset << " bytes ");
+        break;
+
+      case PointDataAttributes::POINT_TANGENTS:
+        meshAttrDescriptor.Tangents.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
+        if (!DispatchT::Execute(pointTangents, pointDataWriter))
+        {
+          pointDataWriter(pointTangents);
+        }
+        meshAttrDescriptor.Tangents.NumComponents =
+          pointTangents ? pointTangents->GetNumberOfComponents() : 0;
+        meshAttrDescriptor.Tangents.NumTuples =
+          pointTangents ? pointTangents->GetNumberOfTuples() : 0;
+        vtkDebugMacro(<< "[Tangents] "
+                      << "-- " << pointDataWriter.Offset << " bytes ");
+        break;
+
+      case PointDataAttributes::POINT_UVS:
+        meshAttrDescriptor.UVs.Start = pointDataWriter.Offset / sizeof(vtkTypeFloat32);
+        if (!DispatchT::Execute(pointUvs, pointDataWriter))
+        {
+          pointDataWriter(pointUvs);
+        }
+        meshAttrDescriptor.UVs.NumComponents = pointUvs ? pointUvs->GetNumberOfComponents() : 0;
+        meshAttrDescriptor.UVs.NumTuples = pointUvs ? pointUvs->GetNumberOfTuples() : 0;
+        vtkDebugMacro(<< "[UVs] "
+                      << "-- " << pointDataWriter.Offset << " bytes ");
+        break;
+
+      default:
+        break;
+    }
   }
-  meshAttrDescriptor.UVs.NumComponents = pointUvs ? pointUvs->GetNumberOfComponents() : 0;
-  meshAttrDescriptor.UVs.NumTuples = pointUvs ? pointUvs->GetNumberOfTuples() : 0;
-  vtkDebugMacro(<< "[UVs] "
-                << "-- " << pointDataWriter.Offset << " bytes ");
 
   if (this->MeshSSBO.Cell.Buffer.Get() != nullptr)
   {
@@ -733,60 +959,88 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
     this->HasCellColors ? vtkDataArray::SafeDownCast(this->Colors) : nullptr;
   vtkDataArray* cellNormals = this->HasCellNormals ? cellData->GetNormals() : nullptr;
 
+  for (int attribute_index = 0; attribute_index < CellDataAttributes::CELL_NB_ATTRIBUTES;
+       attribute_index++)
   {
-    // edge array
-    auto edgeArray = vtk::TakeSmartPointer(this->ComputeEdgeArray(this->CurrentInput->GetPolys()));
-    meshAttrDescriptor.CellEdgeArray.Start = cellBufWriter.Offset / sizeof(vtkTypeFloat32);
-    if (!DispatchT::Execute(edgeArray, cellBufWriter))
+    switch (CellDataAttributesOrder[attribute_index])
     {
-      cellBufWriter(edgeArray.Get());
+      case CellDataAttributes::CELL_EDGES:
+      {
+        auto edgeArray =
+          vtk::TakeSmartPointer(this->ComputeEdgeArray(this->CurrentInput->GetPolys()));
+        meshAttrDescriptor.CellEdgeArray.Start = cellBufWriter.Offset / sizeof(vtkTypeFloat32);
+        if (!DispatchT::Execute(edgeArray, cellBufWriter))
+        {
+          cellBufWriter(edgeArray.Get());
+        }
+        meshAttrDescriptor.CellEdgeArray.NumComponents = 1;
+        meshAttrDescriptor.CellEdgeArray.NumTuples = this->EdgeArrayCount;
+        vtkDebugMacro(<< "[Cell edge array] "
+                      << "-- " << cellBufWriter.Offset << " bytes ");
+        break;
+      }
+
+      case CellDataAttributes::CELL_COLORS:
+      {
+        meshAttrDescriptor.CellColors.Start = cellBufWriter.Offset / sizeof(vtkTypeFloat32);
+        cellBufWriter.Denominator = 255.0f;
+        if (!DispatchT::Execute(cellColors, cellBufWriter))
+        {
+          cellBufWriter(cellColors);
+        }
+        cellBufWriter.Denominator = 1.0f;
+        meshAttrDescriptor.CellColors.NumComponents =
+          cellColors ? cellColors->GetNumberOfComponents() : 0;
+        meshAttrDescriptor.CellColors.NumTuples = cellColors ? cellColors->GetNumberOfTuples() : 0;
+        vtkDebugMacro(<< "[Cell colors] "
+                      << "-- " << cellBufWriter.Offset << " bytes ");
+
+        break;
+      }
+
+      case CellDataAttributes::CELL_NORMALS:
+      {
+        meshAttrDescriptor.CellNormals.Start = cellBufWriter.Offset / sizeof(vtkTypeFloat32);
+        if (!DispatchT::Execute(cellNormals, cellBufWriter))
+        {
+          cellBufWriter(cellNormals);
+        }
+        meshAttrDescriptor.CellNormals.NumComponents =
+          cellNormals ? cellNormals->GetNumberOfComponents() : 0;
+        meshAttrDescriptor.CellNormals.NumTuples =
+          cellNormals ? cellNormals->GetNumberOfTuples() : 0;
+        vtkDebugMacro(<< "[Cell normals] "
+                      << "-- " << cellBufWriter.Offset << " bytes ");
+
+        break;
+      }
+
+      default:
+        break;
     }
-    meshAttrDescriptor.CellEdgeArray.NumComponents = 1;
-    meshAttrDescriptor.CellEdgeArray.NumTuples = this->EdgeArrayCount;
-    vtkDebugMacro(<< "[Cell edge array] "
-                  << "-- " << cellBufWriter.Offset << " bytes ");
   }
 
-  meshAttrDescriptor.CellColors.Start = cellBufWriter.Offset / sizeof(vtkTypeFloat32);
-  cellBufWriter.Denominator = 255.0f;
-  if (!DispatchT::Execute(cellColors, cellBufWriter))
   {
-    cellBufWriter(cellColors);
-  }
-  cellBufWriter.Denominator = 1.0f;
-  meshAttrDescriptor.CellColors.NumComponents =
-    cellColors ? cellColors->GetNumberOfComponents() : 0;
-  meshAttrDescriptor.CellColors.NumTuples = cellColors ? cellColors->GetNumberOfTuples() : 0;
-  vtkDebugMacro(<< "[Cell colors] "
-                << "-- " << cellBufWriter.Offset << " bytes ");
-  meshAttrDescriptor.CellNormals.Start = cellBufWriter.Offset / sizeof(vtkTypeFloat32);
-  if (!DispatchT::Execute(cellNormals, cellBufWriter))
-  {
-    cellBufWriter(cellNormals);
-  }
-  meshAttrDescriptor.CellNormals.NumComponents =
-    cellNormals ? cellNormals->GetNumberOfComponents() : 0;
-  meshAttrDescriptor.CellNormals.NumTuples = cellNormals ? cellNormals->GetNumberOfTuples() : 0;
-  vtkDebugMacro(<< "[Cell normals] "
-                << "-- " << cellBufWriter.Offset << " bytes ");
 
-  this->AttributeDescriptorBuffer = vtkWebGPUInternalsBuffer::Upload(device, 0, &meshAttrDescriptor,
-    sizeof(meshAttrDescriptor), wgpu::BufferUsage::Uniform, "Mesh attribute descriptor");
+    this->AttributeDescriptorBuffer =
+      vtkWebGPUInternalsBuffer::Upload(device, 0, &meshAttrDescriptor, sizeof(meshAttrDescriptor),
+        wgpu::BufferUsage::Uniform, "Mesh attribute descriptor");
 
-  using DMEnum = vtkWebGPUActor::DirectionalMaskEnum;
-  vtkTypeUInt32 dirMask = DMEnum::NoNormals;
-  dirMask = this->HasPointNormals ? DMEnum::PointNormals : 0;
-  dirMask |= this->HasPointTangents ? DMEnum::PointTangents : dirMask;
-  dirMask |= this->HasCellNormals ? DMEnum::CellNormals : dirMask;
-  if (dirMask == 0)
-  {
-    dirMask = DMEnum::NoNormals;
+    using DMEnum = vtkWebGPUActor::DirectionalMaskEnum;
+    vtkTypeUInt32 dirMask = DMEnum::NoNormals;
+    dirMask = this->HasPointNormals ? DMEnum::PointNormals : 0;
+    dirMask |= this->HasPointTangents ? DMEnum::PointTangents : dirMask;
+    dirMask |= this->HasCellNormals ? DMEnum::CellNormals : dirMask;
+    if (dirMask == 0)
+    {
+      dirMask = DMEnum::NoNormals;
+    }
+    wgpuActor->SetDirectionalMaskType(dirMask);
+
+    this->PointCellAttributesBuildTimestamp.Modified();
+    vtkDebugMacro(<< __func__ << " bufferModifiedTime=" << this->PointCellAttributesBuildTimestamp);
+    return true;
   }
-  wgpuActor->SetDirectionalMaskType(dirMask);
-
-  this->PointCellAttributesBuildTimestamp.Modified();
-  vtkDebugMacro(<< __func__ << " bufferModifiedTime=" << this->PointCellAttributesBuildTimestamp);
-  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -1005,6 +1259,58 @@ void vtkWebGPUPolyDataMapper::RemoveAllVertexAttributeMappings() {}
 void vtkWebGPUPolyDataMapper::ProcessSelectorPixelBuffers(
   vtkHardwareSelector*, std::vector<unsigned int>&, vtkProp*)
 {
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkWebGPUComputeRenderBuffer>
+vtkWebGPUPolyDataMapper::AcquirePointAttributeComputeRenderBuffer(PointDataAttributes attribute,
+  int bufferGroup, int bufferBinding, int uniformsGroup, int uniformsBinding)
+{
+  vtkSmartPointer<vtkWebGPUComputeRenderBuffer> renderBuffer =
+    vtkSmartPointer<vtkWebGPUComputeRenderBuffer>::New();
+
+  std::stringstream label;
+  label << "Compute render buffer with point attribute " << static_cast<int>(attribute)
+        << " and group/binding/uniformGroup/uniformBinding: " << bufferGroup << "/" << bufferBinding
+        << "/" << uniformsGroup << "/" << uniformsBinding;
+
+  renderBuffer->SetPointBufferAttribute(attribute);
+  renderBuffer->SetCellBufferAttribute(CellDataAttributes::CELL_UNDEFINED);
+  renderBuffer->SetGroup(bufferGroup);
+  renderBuffer->SetBinding(bufferBinding);
+  renderBuffer->SetRenderUniformsGroup(uniformsGroup);
+  renderBuffer->SetRenderUniformsBinding(uniformsBinding);
+  renderBuffer->SetLabel(label.str());
+
+  this->NotSetupComputeRenderBuffers.insert(renderBuffer);
+
+  return renderBuffer;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkWebGPUComputeRenderBuffer>
+vtkWebGPUPolyDataMapper::AcquireCellAttributeComputeRenderBuffer(CellDataAttributes attribute,
+  int bufferGroup, int bufferBinding, int uniformsGroup, int uniformsBinding)
+{
+  vtkSmartPointer<vtkWebGPUComputeRenderBuffer> renderBuffer =
+    vtkSmartPointer<vtkWebGPUComputeRenderBuffer>::New();
+
+  std::stringstream label;
+  label << "Compute render buffer with cell attribute " << static_cast<int>(attribute)
+        << " and group/binding/uniformGroup/uniformBinding: " << bufferGroup << "/" << bufferBinding
+        << "/" << uniformsGroup << "/" << uniformsBinding;
+
+  renderBuffer->SetPointBufferAttribute(PointDataAttributes::POINT_UNDEFINED);
+  renderBuffer->SetCellBufferAttribute(attribute);
+  renderBuffer->SetGroup(bufferGroup);
+  renderBuffer->SetBinding(bufferBinding);
+  renderBuffer->SetRenderUniformsGroup(uniformsGroup);
+  renderBuffer->SetRenderUniformsBinding(uniformsBinding);
+  renderBuffer->SetLabel(label.str());
+
+  this->NotSetupComputeRenderBuffers.insert(renderBuffer);
+
+  return renderBuffer;
 }
 
 //------------------------------------------------------------------------------

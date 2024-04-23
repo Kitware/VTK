@@ -8,6 +8,7 @@
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtkSmartPointer.h"          // for ivar
 #include "vtkTypeUInt32Array.h"       // for ivar
+#include "vtkWebGPUComputePipeline.h" // for the compute pipelines used by this renderer
 #include "vtk_wgpu.h"                 // for webgpu
 
 #include <string>        // for ivar
@@ -58,6 +59,21 @@ public:
   int UpdateGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
   /**
+   * Set up the buffers of a given vtkWebGPUComputePipeline.
+   * Loops through all the actors of this renderer. If an access to the data attributes buffer of
+   * the actor was requested by the user through
+   * vtkWebGPUPolyDataMapper::AcquirePointAttributeComputeRenderBuffer(), we'll have to set up the
+   * WebGPU buffer to access the point data attributes (if it belongs to the right pipeline).
+   */
+  void UpdateComputeBuffers(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
+
+  /**
+   * Sets the adapter and the device of the render window of this renderer to the compute pipelines
+   * of this renderer
+   */
+  void UpdateComputePipelines();
+
+  /**
    * Request props to encode render commands.
    */
   int RenderGeometry();
@@ -80,6 +96,12 @@ public:
 
   wgpu::ShaderModule HasShaderCache(const std::string& source);
   void InsertShader(const std::string& source, wgpu::ShaderModule shader);
+
+  /**
+   * Add a compute pipeline to the renderer that will be executed each frame before the rendering
+   * pass.
+   */
+  void AddComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
 
   ///@{
   /**
@@ -120,13 +142,13 @@ protected:
 
   // Setup scene and actor bindgroups. Actor has dynamic offsets.
   void SetupBindGroupLayouts();
-  // Creates buffers for the bind groups.
+  // Create buffers for the bind groups.
   void CreateBuffers();
-  // Updates the bound buffers with data.
+  // Update the bound buffers with data.
   std::size_t UpdateBufferData();
-  // Creates scene bind group.
+  // Create scene bind group.
   void SetupSceneBindGroup();
-  // Creates actor bind group.
+  // Create actor bind group.
   void SetupActorBindGroup();
 
   // Start, finish recording commands with render pass encoder
@@ -187,6 +209,23 @@ protected:
 private:
   vtkWebGPURenderer(const vtkWebGPURenderer&) = delete;
   void operator=(const vtkWebGPURenderer&) = delete;
+
+  /**
+   * Dispatch the compute pipelines attached to this renderer in the order they were added by
+   * AddComputePipeline()
+   */
+  void ComputePass();
+
+  /**
+   * Compute pipelines that have been setup and that will be dispatched by the renderer before the
+   * rendering passes
+   */
+  std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> SetupComputePipelines;
+
+  /**
+   * Compute pipelines that have yet to be setup
+   */
+  std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> NotSetupComputePipelines;
 };
 
 VTK_ABI_NAMESPACE_END

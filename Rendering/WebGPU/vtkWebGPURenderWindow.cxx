@@ -5,16 +5,19 @@
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
 #include "vtkRect.h"
+#include "vtkRendererCollection.h"
 #include "vtkTypeUInt8Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkWGPUContext.h"
 #include "vtkWebGPUClearPass.h"
 #include "vtkWebGPUInternalsBindGroup.h"
 #include "vtkWebGPUInternalsBindGroupLayout.h"
+#include "vtkWebGPUInternalsCallbacks.h"
 #include "vtkWebGPUInternalsPipelineLayout.h"
 #include "vtkWebGPUInternalsRenderPassCreateInfo.h"
 #include "vtkWebGPUInternalsRenderPipelineDescriptor.h"
 #include "vtkWebGPUInternalsShaderModule.h"
+#include "vtkWebGPURenderer.h"
 
 #include <exception>
 #include <sstream>
@@ -27,49 +30,6 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
-void print_wgpu_error(WGPUErrorType error_type, const char* message, void* self)
-{
-  const char* error_type_lbl = "";
-  switch (error_type)
-  {
-    case WGPUErrorType_Validation:
-      error_type_lbl = "Validation";
-      break;
-    case WGPUErrorType_OutOfMemory:
-      error_type_lbl = "Out of memory";
-      break;
-    case WGPUErrorType_Unknown:
-      error_type_lbl = "Unknown";
-      break;
-    case WGPUErrorType_DeviceLost:
-      error_type_lbl = "Device lost";
-      break;
-    default:
-      error_type_lbl = "Unknown";
-  }
-  vtkErrorWithObjectMacro(
-    reinterpret_cast<vtkObject*>(self), << error_type_lbl << "Error: " << message);
-}
-
-void device_lost_callback(WGPUDeviceLostReason reason, char const* message, void* self)
-{
-  const char* reason_type_lbl = "";
-  switch (reason)
-  {
-    case WGPUDeviceLostReason_Destroyed:
-      reason_type_lbl = "Destroyed";
-      break;
-    case WGPUDeviceLostReason_Undefined:
-      reason_type_lbl = "Undefined";
-      break;
-    default:
-      reason_type_lbl = "Unknown";
-  }
-  auto renWin = vtkRenderWindow::SafeDownCast(reinterpret_cast<vtkObject*>(self));
-  vtkWarningWithObjectMacro(
-    renWin, << "Device lost! Reason : " << message << " Reason Type: " << reason_type_lbl);
-}
-
 struct PixelReadDescriptor
 {
   vtkRecti Rect;
@@ -221,9 +181,10 @@ bool vtkWebGPURenderWindow::WGPUInit()
   options.backendType = this->RenderingBackendType;
   options.powerPreference = this->PowerPreference;
   this->Adapter = vtkWGPUContext::RequestAdapter(options);
+
   wgpu::DeviceDescriptor deviceDescriptor = {};
   deviceDescriptor.label = "vtkWebGPURenderWindow::WGPUInit";
-  deviceDescriptor.deviceLostCallback = &device_lost_callback;
+  deviceDescriptor.deviceLostCallback = &vtkWebGPUInternalsCallbacks::DeviceLostCallback;
   deviceDescriptor.deviceLostUserdata = this;
   ///@{ TODO: Populate feature requests
   // ...
@@ -238,7 +199,7 @@ bool vtkWebGPURenderWindow::WGPUInit()
     return false;
   }
   // install error handler
-  this->Device.SetUncapturedErrorCallback(&::print_wgpu_error, this);
+  this->Device.SetUncapturedErrorCallback(vtkWebGPUInternalsCallbacks::PrintWGPUError, this);
   ///@}
   // change the window name if it's the default "Visualization Toolkit"
   // to "Visualization Toolkit " + " Backend name"
@@ -263,6 +224,7 @@ void vtkWebGPURenderWindow::WGPUFinalize()
 void vtkWebGPURenderWindow::Render()
 {
   vtkDebugMacro(<< __func__);
+
   this->Superclass::Render();
 }
 

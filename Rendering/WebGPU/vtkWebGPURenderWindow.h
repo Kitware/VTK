@@ -22,7 +22,7 @@ public:
    * Set preference for a high-performance or low-power device.
    * The default preference is a high-performance device.
    * NOTE: Make sure to call this before the first call to Render if you wish to change the
-   * preference. WARNING: Changing the power preference after the render window is initialized has
+   * preference. @warning: Changing the power preference after the render window is initialized has
    * no effect.
    */
   void PreferHighPerformanceAdapter();
@@ -37,7 +37,7 @@ public:
    * Vulkan on Linux and Android
    * Metal on macOS/iOS.
    * NOTE: Make sure to call this before the first call to Render if you wish to change the backend.
-   * WARNING: Changing the backend after the render window is initialized has no effect.
+   * @warning: Changing the backend after the render window is initialized has no effect.
    */
   void SetBackendTypeToD3D11();
   void SetBackendTypeToD3D12();
@@ -187,6 +187,7 @@ public:
   inline wgpu::TextureFormat GetDepthStencilFormat() { return this->DepthStencil.Format; }
   inline bool HasStencil() { return this->DepthStencil.HasStencil; }
   inline wgpu::Device GetDevice() { return this->Device; }
+  inline wgpu::Adapter GetAdapter() { return this->Adapter; }
 
   wgpu::TextureFormat GetPreferredSwapChainTextureFormat();
 

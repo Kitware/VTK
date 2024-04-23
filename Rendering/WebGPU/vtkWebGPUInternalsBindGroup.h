@@ -45,9 +45,18 @@ public:
     uint64_t size = 0;
   };
 
+  /**
+   * Creates a bind group given the bind group layout and a list of BindGroupEntry
+   */
   static wgpu::BindGroup MakeBindGroup(const wgpu::Device& device,
     const wgpu::BindGroupLayout& layout,
     std::initializer_list<BindingInitializationHelper> entriesInitializer);
+
+  /**
+   * Creates a bind group given the bind group layout and a list of BindGroupEntry
+   */
+  static wgpu::BindGroup MakeBindGroup(const wgpu::Device& device,
+    const wgpu::BindGroupLayout& layout, const std::vector<wgpu::BindGroupEntry>& entries);
 };
 VTK_ABI_NAMESPACE_END
 

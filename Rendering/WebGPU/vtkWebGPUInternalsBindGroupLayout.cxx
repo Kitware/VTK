@@ -61,6 +61,16 @@ vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper::LayoutEntryI
 
 //------------------------------------------------------------------------------
 wgpu::BindGroupLayout vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(
+  const wgpu::Device& device, const std::vector<wgpu::BindGroupLayoutEntry>& entries)
+{
+  wgpu::BindGroupLayoutDescriptor descriptor;
+  descriptor.entryCount = static_cast<uint32_t>(entries.size());
+  descriptor.entries = entries.data();
+  return device.CreateBindGroupLayout(&descriptor);
+}
+
+//------------------------------------------------------------------------------
+wgpu::BindGroupLayout vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(
   const wgpu::Device& device,
   std::initializer_list<vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper>
     entriesInitializer)
@@ -72,9 +82,6 @@ wgpu::BindGroupLayout vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(
     entries.push_back(entry);
   }
 
-  wgpu::BindGroupLayoutDescriptor descriptor;
-  descriptor.entryCount = static_cast<uint32_t>(entries.size());
-  descriptor.entries = entries.data();
-  return device.CreateBindGroupLayout(&descriptor);
+  return MakeBindGroupLayout(device, entries);
 }
 VTK_ABI_NAMESPACE_END
