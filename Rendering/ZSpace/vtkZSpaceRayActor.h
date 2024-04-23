@@ -60,7 +60,7 @@ public:
   ///@{
   /**
    * Get/Set the thickness of the line.
-   * Default is 1.0.
+   * Default is 3.0.
    */
   vtkGetMacro(LineWidth, double);
   vtkSetMacro(LineWidth, double);
@@ -83,7 +83,7 @@ protected:
 
   double NoPickColor[3] = { 0.9, 0.3, 0.3 };
   double PickColor[3] = { 0.0, 1.0, 0.0 };
-  double LineWidth = 1.5;
+  double LineWidth = 3.0;
   double Length = 10.0;
 
 private:

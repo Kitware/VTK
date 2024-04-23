@@ -83,6 +83,10 @@ void vtkZSpaceGenericRenderWindow::Frame()
 {
   this->MakeCurrent();
 
+  // Front face orientation is not saved with the state and should be manually
+  // retaured after `SubmitFrame` call (which modifies it)
+  GLint frontFace = GL_CCW;
+  glGetIntegerv(GL_FRONT_FACE, &frontFace);
   auto ostate = this->GetState();
   ostate->Push();
 
@@ -93,7 +97,9 @@ void vtkZSpaceGenericRenderWindow::Frame()
 
   // Send textures
   vtkZSpaceSDKManager* sdkManager = vtkZSpaceSDKManager::GetInstance();
-  if (sdkManager)
+  // Ensure at this point that stereo is enabled. If not, textures aren't
+  // configured properly and the zSpace SubmitFrame method cannot handle it.
+  if (sdkManager && this->GetStereoRender())
   {
     vtkTextureObject* leftTex = this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0);
     auto leftId = leftTex->GetHandle();
@@ -112,6 +118,7 @@ void vtkZSpaceGenericRenderWindow::Frame()
   }
 
   ostate->Pop();
+  glFrontFace(frontFace);
 
   // Indicate listener (managing OpenGL context)
   // that buffers can be swapped

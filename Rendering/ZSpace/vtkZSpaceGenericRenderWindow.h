@@ -5,8 +5,10 @@
  * @brief Generic render window for stereo rendering on ZSpace Inspire
  *
  * `vtkZSpaceGenericRenderWindow` is a subclass of `vtkGenericOpenGLRenderWindow` designed to
- * handle stereo rendering on zSpace Inspire.  This class should not be used with pre-Inspire
+ * handle stereo rendering on zSpace Inspire. This class should not be used with pre-Inspire
  * hardware relying on quad-buffering. In such cases, please use a `vtkRenderWindow` instead.
+ *
+ * `StereoRender` should be enabled on this window in order to make it to work as expected.
  *
  * This class interacts with the zSpace Core Compatibility API under the hood, that takes care
  * of left and right images composition and final rendering into the mono backbuffer.
