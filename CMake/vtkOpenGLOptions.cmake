@@ -27,6 +27,7 @@ set(default_use_sdl2 OFF)
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(default_use_sdl2 ON)
 endif()
+# VTK_DEPRECATED_IN_9_4_0() Remove option when vtkSDL2OpenGLRenderWindow and vtkSDL2WebGPURenderWindow are removed.
 option(VTK_USE_SDL2 "Add SDL2 classes to VTK" "${default_use_sdl2}")
 mark_as_advanced(VTK_USE_SDL2)
 
@@ -101,6 +102,11 @@ endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(vtk_can_do_headless FALSE)
+  # VTK_DEPRECATED_IN_9_4_0() Unconditionally set both variables to TRUE after VTK_USE_SDL2 is removed.
+  if (NOT VTK_USE_SDL2)
+    set(vtk_can_do_onscreen TRUE)
+    set(vtk_can_do_offscreen TRUE)
+  endif ()
 endif ()
 
 if (NOT vtk_can_do_onscreen AND NOT vtk_can_do_offscreen)

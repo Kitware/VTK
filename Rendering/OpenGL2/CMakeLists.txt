@@ -338,11 +338,20 @@ elseif (ANDROID)
     OVERRIDE vtkEGLRenderWindow)
   set(has_vtkRenderWindow_override 1)
   include_directories("${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")
-elseif (EMSCRIPTEN)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   # Add some custom overrides
-  vtk_object_factory_declare(
-    BASE vtkRenderWindow
-    OVERRIDE vtkSDL2OpenGLRenderWindow)
+  # VTK_DEPRECATED_IN_9_4_0() Remove when vtkSDL2OpenGLRenderWindow is removed.
+  if (VTK_USE_SDL2)
+    vtk_object_factory_declare(
+      BASE vtkRenderWindow
+      OVERRIDE vtkSDL2OpenGLRenderWindow)
+    list(APPEND classes vtkSDL2OpenGLRenderWindow)
+  else ()
+    vtk_object_factory_declare(
+      BASE vtkRenderWindow
+      OVERRIDE vtkWebAssemblyOpenGLRenderWindow)
+    list(APPEND classes vtkWebAssemblyOpenGLRenderWindow)
+  endif ()
   set(has_vtkRenderWindow_override 1)
 elseif (APPLE_IOS)
   # Add some custom overrides
@@ -403,10 +412,6 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGLConfigure.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
 
-if (VTK_USE_SDL2)
-  list(APPEND classes vtkSDL2OpenGLRenderWindow)
-endif ()
-
 vtk_module_add_module(VTK::RenderingOpenGL2
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes}
@@ -415,8 +420,9 @@ vtk_module_add_module(VTK::RenderingOpenGL2
   NOWRAP_HEADERS ${nowrap_headers}
   PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
 
-if (VTK_USE_SDL2)
-  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  # VTK_DEPRECATED_IN_9_4_0() Remove when vtkSDL2OpenGLRenderWindow is removed.
+  if (VTK_USE_SDL2)
     # The -sUSE_SDL=2 flag will inform emcc driver to add include paths.
     # PUBLIC because vtkSDL2OpenGLRenderWindow.h includes SDL2.h
     vtk_module_compile_options(VTK::RenderingUI
@@ -425,13 +431,15 @@ if (VTK_USE_SDL2)
     vtk_module_link_options(VTK::RenderingUI
       PUBLIC
         "-sUSE_SDL=2")
-  else()
-    vtk_module_find_package(PACKAGE SDL2)
-    # PUBLIC because vtkSDL2OpenGLRenderWindow.h includes SDL2.h
-    vtk_module_link(VTK::RenderingUI
-      PUBLIC
-        SDL2::SDL2)
   endif ()
+elseif (VTK_USE_SDL2)
+  # VTK_DEPRECATED_IN_9_4_0() Remove when vtkSDL2OpenGLRenderWindow is removed.
+  list(APPEND classes vtkSDL2OpenGLRenderWindow)
+  vtk_module_find_package(PACKAGE SDL2)
+  # PUBLIC because vtkSDL2OpenGLRenderWindow.h includes SDL2.h
+  vtk_module_link(VTK::RenderingUI
+    PUBLIC
+      SDL2::SDL2)
 endif ()
 
 if (VTK_USE_X)
