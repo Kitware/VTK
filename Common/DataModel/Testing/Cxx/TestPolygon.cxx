@@ -6,16 +6,11 @@
 // this program tests the Polygon
 
 #include "vtkIdTypeArray.h"
+#include "vtkMathUtilities.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
 #include <limits>
-
-template <class A>
-bool fuzzyCompare(A a, A b)
-{
-  return fabs(a - b) < std::numeric_limits<A>::epsilon();
-}
 
 int TestPolygon(int, char*[])
 {
@@ -35,7 +30,7 @@ int TestPolygon(int, char*[])
 
   double area = polygon->ComputeArea();
 
-  if (!fuzzyCompare(area, 4.0))
+  if (!vtkMathUtilities::NearlyEqual<double>(area, 4.0))
   {
     cerr << "ERROR:  polygon area is " << area << ", should be 4.0" << endl;
     return EXIT_FAILURE;
@@ -157,8 +152,9 @@ int TestPolygon(int, char*[])
 
   vtkPolygon::ComputeNormal(polygon->GetNumberOfPoints(), points, normal);
 
-  if (!fuzzyCompare(normal[0], 0.0) || !fuzzyCompare(normal[1], 0.0) ||
-    !fuzzyCompare(normal[2], 1.0))
+  if (!vtkMathUtilities::NearlyEqual<double>(normal[0], 0.0) ||
+    !vtkMathUtilities::NearlyEqual<double>(normal[1], 0.0) ||
+    !vtkMathUtilities::NearlyEqual<double>(normal[2], 1.0))
   {
     cerr << "ERROR: The normal (" << normal[0] << ", " << normal[1] << ", " << normal[2]
          << " is incorrect (should be (0,0,1))" << endl;
@@ -172,8 +168,9 @@ int TestPolygon(int, char*[])
     idArray->InsertNextValue(i);
   }
   vtkPolygon::ComputeNormal(idArray, polygon->GetPoints(), normal);
-  if (!fuzzyCompare(normal[0], 0.0) || !fuzzyCompare(normal[1], 0.0) ||
-    !fuzzyCompare(normal[2], 1.0))
+  if (!vtkMathUtilities::NearlyEqual<double>(normal[0], 0.0) ||
+    !vtkMathUtilities::NearlyEqual<double>(normal[1], 0.0) ||
+    !vtkMathUtilities::NearlyEqual<double>(normal[2], 1.0))
   {
     cerr << "ERROR: The normal (" << normal[0] << ", " << normal[1] << ", " << normal[2]
          << " is incorrect (should be (0,0,1))" << endl;

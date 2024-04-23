@@ -5,17 +5,12 @@
 // .SECTION Description
 // this program tests the Triangle
 
+#include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
 #include <limits>
-
-template <class A>
-bool fuzzyCompare(A a, A b)
-{
-  return fabs(a - b) < std::numeric_limits<A>::epsilon();
-}
 
 int TestTriangle(int, char*[])
 {
@@ -103,7 +98,7 @@ int TestTriangle(int, char*[])
   triangle->GetPoints()->SetPoint(2, 0.0, 1.0, 0.0);
 
   double area = triangle->ComputeArea();
-  if (!fuzzyCompare(area, 0.5))
+  if (!vtkMathUtilities::NearlyEqual<double>(area, 0.5))
   {
     cerr << "ERROR:  triangle area is " << area << ", should be 0.5" << endl;
     return EXIT_FAILURE;
@@ -125,9 +120,14 @@ int TestTriangle(int, char*[])
   double pcoords[3];
   int subId;
   double dEpsilon = std::numeric_limits<double>::epsilon();
-  if (triangleDeg->IntersectWithLine(p1, p2, dEpsilon, t, x, pcoords, subId) != 1 || x[0] != 0 ||
-    x[1] != 0 || x[2] != 1 || t != 0.5 || pcoords[0] != 1.1 || pcoords[1] != 0.55 ||
-    pcoords[2] != 0)
+  if (triangleDeg->IntersectWithLine(p1, p2, dEpsilon, t, x, pcoords, subId) != 1 ||
+    !vtkMathUtilities::NearlyEqual<double>(x[0], 0.0) ||
+    !vtkMathUtilities::NearlyEqual<double>(x[1], 0.0) ||
+    !vtkMathUtilities::NearlyEqual<double>(x[2], 1.0) ||
+    !vtkMathUtilities::NearlyEqual<double>(t, 0.5) ||
+    !vtkMathUtilities::NearlyEqual<double>(pcoords[0], 1.1) ||
+    !vtkMathUtilities::NearlyEqual<double>(pcoords[1], 0.55) ||
+    !vtkMathUtilities::NearlyEqual<double>(pcoords[2], 0.0))
   {
     cerr << "Error while intersecting degenerated triangle" << endl;
     return EXIT_FAILURE;

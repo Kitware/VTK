@@ -28,6 +28,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * Perform a fuzzy compare of floats/doubles, specify the allowed tolerance
+ * NB: this uses an absolute tolerance.
  */
 template <class A>
 bool FuzzyCompare(A a, A b, A epsilon = std::numeric_limits<A>::epsilon())
@@ -61,6 +62,7 @@ A SafeDivision(A a, A b)
 /**
  * A slightly different fuzzy comparator that checks if two values are
  * "nearly" equal based on Knuth, "The Art of Computer Programming (vol II)"
+ * NB: this uses a relative tolerance.
  */
 template <class A>
 bool NearlyEqual(A a, A b, A tol = std::numeric_limits<A>::epsilon())
