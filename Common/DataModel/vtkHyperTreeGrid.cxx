@@ -1460,7 +1460,8 @@ vtkIdType vtkHyperTreeGrid::GetShiftedLevelZeroIndex(
     case 1:
     {
       // The axis used for 1D
-      assert(di >= 0 || ("there is no neighbor axis 0" && local_ijk[this->GetAxes()[0]] >= -di));
+      assert(di >= 0 ||
+        ("there is no neighbor axis 0" && local_ijk[this->GetAxes()[0]] >= static_cast<int>(-di)));
       local_ijk[this->GetAxes()[0]] += di;
       // No expected values
       assert(dj == 0);
@@ -1470,9 +1471,11 @@ vtkIdType vtkHyperTreeGrid::GetShiftedLevelZeroIndex(
     case 2:
     {
       // Axes used for 2D
-      assert(di >= 0 || ("there is no neighbor axis 0" && local_ijk[this->GetAxes()[0]] >= -di));
+      assert(di >= 0 ||
+        ("there is no neighbor axis 0" && local_ijk[this->GetAxes()[0]] >= static_cast<int>(-di)));
       local_ijk[this->GetAxes()[0]] += di;
-      assert(dj >= 0 || ("there is no neighbor axis 1" && local_ijk[this->GetAxes()[1]] >= -dj));
+      assert(dj >= 0 ||
+        ("there is no neighbor axis 1" && local_ijk[this->GetAxes()[1]] >= static_cast<int>(-dj)));
       local_ijk[this->GetAxes()[1]] += dj;
       // No expected values
       assert(dk == 0);
@@ -1480,11 +1483,14 @@ vtkIdType vtkHyperTreeGrid::GetShiftedLevelZeroIndex(
     }
     case 3:
     {
-      assert(di >= 0 || ("there is no neighbor before axis i" && local_ijk[0] >= -di));
+      assert(
+        di >= 0 || ("there is no neighbor before axis i" && local_ijk[0] >= static_cast<int>(-di)));
       local_ijk[0] += di;
-      assert(dj >= 0 || ("there is no neighbor before axis j" && local_ijk[1] >= -dj));
+      assert(
+        dj >= 0 || ("there is no neighbor before axis j" && local_ijk[1] >= static_cast<int>(-dj)));
       local_ijk[1] += dj;
-      assert(dk >= 0 || ("there is no neighbor before axis k" && local_ijk[2] >= -dk));
+      assert(
+        dk >= 0 || ("there is no neighbor before axis k" && local_ijk[2] >= static_cast<int>(-dk)));
       local_ijk[2] += dk;
       break;
     }
