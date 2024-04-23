@@ -55,8 +55,7 @@ exist to make sure a broken build is not being made. Essentially:
     render windows.
   * `VTK_USE_X` (default `ON` for Unix-like platforms except macOS,
     iOS, and Emscripten, `OFF` otherwise): Use X for render windows.
-  * `VTK_USE_SDL2` (default `ON` for Emscripten, `OFF` otherwise): Use
-    SDL2 for render windows.
+  * `VTK_USE_SDL2` (default `OFF`): Use SDL2 for render windows.
   * `VTK_OPENGL_HAS_OSMESA` (default `OFF`): Use to indicate that the
     OpenGL library being used supports offscreen Mesa rendering
     (OSMesa).
