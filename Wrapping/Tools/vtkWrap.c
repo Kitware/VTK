@@ -313,7 +313,7 @@ int vtkWrap_IsNewInstance(const ValueInfo* val)
 /* -------------------------------------------------------------------- */
 /* Constructor/Destructor checks */
 
-int vtkWrap_IsConstructor(ClassInfo* c, const FunctionInfo* f)
+int vtkWrap_IsConstructor(const ClassInfo* c, const FunctionInfo* f)
 
 {
   size_t i, m;

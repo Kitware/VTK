@@ -32,7 +32,7 @@ static void vtkWrapPython_SaveArgs(FILE* fp, FunctionInfo* currentFunction);
 
 /* generate the code that calls the C++ method */
 static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunction,
-  ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject);
+  const ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject);
 
 /* Write back to all the reference arguments and array arguments */
 static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInfo* currentFunction);
@@ -799,7 +799,7 @@ void vtkWrapPython_SaveArgs(FILE* fp, FunctionInfo* currentFunction)
 /* -------------------------------------------------------------------- */
 /* generate the code that calls the C++ method */
 static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunction,
-  ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject)
+  const ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject)
 {
   char methodname[256];
   const ValueInfo* arg;

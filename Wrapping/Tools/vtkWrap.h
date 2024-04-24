@@ -208,7 +208,7 @@ extern "C"
   /**
    * True if the method a constructor of the class.
    */
-  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsConstructor(ClassInfo* c, const FunctionInfo* f);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsConstructor(const ClassInfo* c, const FunctionInfo* f);
 
   /**
    * True if the method a destructor of the class.
