@@ -67,33 +67,29 @@ $ embuilder build sdl2
 1. Configure the project with CMake. `emcmake` tells CMake to use the `emscripten` toolchain for cross compilation.
 
 ```bash
+cd /work/src/build
 $ emcmake cmake \
--S /work/src \
--B /work/build-vtk-wasm \
--GNinja \
--DBUILD_SHARED_LIBS:BOOL=OFF \
--DCMAKE_BUILD_TYPE:STRING=Release \
--DVTK_ENABLE_LOGGING:BOOL=OFF \
--DVTK_ENABLE_WRAPPING:BOOL=OFF \
--DVTK_MODULE_ENABLE_VTK_hdf5:STRING=NO \
--DVTK_MODULE_ENABLE_VTK_RenderingContextOpenGL2:STRING=DONT_WANT \
--DVTK_MODULE_ENABLE_VTK_RenderingLICOpenGL2:STRING=DONT_WANT \
--DVTK_MODULE_ENABLE_VTK_RenderingCellGrid:STRING=NO \
--DVTK_MODULE_ENABLE_VTK_sqlite:STRING=NO \
--DCMAKE_INSTALL_PREFIX=/install
+  -S .. \
+  -B . \
+  -G "Ninja" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS:BOOL=OFF \
+  -DVTK_ENABLE_LOGGING:BOOL=OFF \
+  -DVTK_ENABLE_WRAPPING:BOOL=OFF \
+  -DVTK_MODULE_ENABLE_VTK_RenderingLICOpenGL2:STRING=DONT_WANT
 ```
 
 2. Compile.
 
 ```
-$ cd /work/build-vtk-wasm
+$ cd /work/src/build
 $ ninja
 ```
 
 3. Install the project.
 
 ```
-$ cd /work/build-vtk-wasm
+$ cd /work/src/build
 $ ninja install
 ```
 
