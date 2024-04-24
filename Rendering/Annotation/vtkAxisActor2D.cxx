@@ -642,7 +642,8 @@ void vtkAxisActor2D::UpdateTicksValueAndPosition(vtkViewport* viewport)
   const double minValue = std::min(this->Range[0], this->Range[1]);
   const double maxValue = std::max(this->Range[0], this->Range[1]);
 
-  for (int major = 0; major < this->AdjustedNumberOfLabels; major++)
+  int startingTick = this->SkipFirstTick ? 1 : 0;
+  for (int major = startingTick; major < this->AdjustedNumberOfLabels; major++)
   {
     double value = this->AdjustedRange[0] + major * majorDelta;
     double position = (value - this->Range[0]) * scale;

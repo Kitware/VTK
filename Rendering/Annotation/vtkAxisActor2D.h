@@ -235,6 +235,17 @@ public:
 
   ///@{
   /**
+   * Set/Get if the first tick should be drawn.
+   * This is useful when it collapses with other elements at its origin (like another axis)
+   * Default is off.
+   */
+  vtkSetMacro(SkipFirstTick, bool);
+  vtkGetMacro(SkipFirstTick, bool);
+  vtkBooleanMacro(SkipFirstTick, bool);
+  ///@}
+
+  ///@{
+  /**
    * Get the axis range adjusted for nice tick values.
    * If AdjustLabels is OFF and SnapLabelsToGrid is off, this is equivalent to Range.
    */
@@ -599,6 +610,8 @@ private:
   std::vector<double> TickValues;
 
   bool SnapLabelsToGrid = false;
+
+  bool SkipFirstTick = false;
 };
 
 VTK_ABI_NAMESPACE_END
