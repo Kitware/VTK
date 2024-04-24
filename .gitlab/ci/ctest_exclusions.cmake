@@ -119,10 +119,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     )
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_ospray_python_qt_tbb")
+if ("$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_ospray_python_qt_tbb"
+    OR "$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_python_qt_tbb"
+    OR "$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_offscreen_osmesa_python")
   list(APPEND test_exclusions
     # MPI initialization failures from inside of IOSS. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19314
+    "^VTK::DomainsParallelChemistryCxx-MPI-TestPSimpleBondPerceiver$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
     "^VTK::FiltersCoreCxx-TestAppendSelection$"
     "^VTK::FiltersCoreCxx-TestFeatureEdges$"
@@ -136,10 +139,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_ospray_python_qt_tbb")
     "^VTK::FiltersHybridCxx-TestTemporalInterpolator$"
     "^VTK::FiltersHybridCxx-TestTemporalInterpolatorFactorMode$"
     "^VTK::FiltersParallelCxx-MPI-AggregateDataSet$"
+    "^VTK::FiltersParallelCxx-MPI-DistributedDataRenderPass$"
     "^VTK::FiltersParallelCxx-MPI-ParallelResampling$"
     "^VTK::FiltersParallelCxx-MPI-PTextureMapToSphere$"
     "^VTK::FiltersParallelCxx-MPI-TestGenerateProcessIds$"
     "^VTK::FiltersParallelCxx-MPI-TestHyperTreeGridGhostCellsGenerator$"
+    "^VTK::FiltersParallelCxx-MPI-TestPHyperTreeGridProbeFilter$"
     "^VTK::FiltersParallelCxx-MPI-TestPartitionBalancer$"
     "^VTK::FiltersParallelCxx-MPI-TransmitImageData$"
     "^VTK::FiltersParallelCxx-MPI-TransmitImageDataRenderPass$"
@@ -180,7 +185,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_ospray_python_qt_tbb")
     "^VTK::FiltersParallelGeometryCxx-MPI-TestPolyhedralMeshDistributedDataFilter$"
     "^VTK::FiltersParallelGeometryCxx-MPI-TestPStructuredGridConnectivity$"
     "^VTK::FiltersParallelMPICxx-MPI-TestDistributedPointCloudFilter1$"
+    "^VTK::FiltersParallelMPICxx-MPI-TestDistributedPointCloudFilter2$"
     "^VTK::FiltersParallelMPICxx-MPI-TestDistributedPointCloudFilter5$"
+    "^VTK::FiltersParallelMPICxx-MPI-TestImplicitConnectivity$"
     "^VTK::FiltersParallelStatisticsCxx-MPI-TestPCorrelativeStatistics$"
     "^VTK::FiltersParallelVerdictCxx-MPI-PCellSizeFilter$"
     "^VTK::FiltersSourcesCxx-MPI-TestRandomHyperTreeGridSourceMPI3$"
@@ -197,9 +204,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_ospray_python_qt_tbb")
     "^VTK::IOIossCxx-TestIossTri6$"
     "^VTK::IOIossCxx-TestIossUnsupported$"
     "^VTK::IOIOSSCxx-TestIOSSWedge21$"
+    "^VTK::ParallelMPICxx-MPI-PDirectory$"
+    "^VTK::ParallelMPICxx-MPI-PSystemTools$"
     "^VTK::ParallelDIYCxx-MPI-TestDIYDataExchanger$"
     "^VTK::ParallelDIYCxx-MPI-TestDIYUtilities$"
+    "^VTK::ParallelMPICxx-MPI-TestNonBlockingCommunication$"
     "^VTK::ParallelMPICxx-MPI-TestPProbe$"
+    "^VTK::ParallelMPICxx-MPI-TestProcess$"
     )
 endif ()
 
