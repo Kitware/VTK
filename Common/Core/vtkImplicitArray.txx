@@ -7,6 +7,7 @@
 #include "vtkImplicitArray.h"
 
 #include "vtkAOSDataArrayTemplate.h"
+#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
@@ -63,7 +64,7 @@ void* vtkImplicitArray<BackendT>::GetVoidPointer(vtkIdType idx)
 {
   if (!this->Internals->Cache)
   {
-    vtkWarningMacro(
+    vtkLog(TRACE,
       << "Calling GetVoidPointer on a vtkImplicitArray allocates memory for an explicit copy.");
     this->Internals->Cache = vtkSmartPointer<vtkAOSDataArrayTemplate<ValueType>>::New();
     this->Internals->Cache->DeepCopy(this);
