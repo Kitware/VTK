@@ -36,6 +36,7 @@ vtkXMLDataParser::vtkXMLDataParser()
   this->RootElement = nullptr;
   this->AppendedDataPosition = 0;
   this->AppendedDataMatched = 0;
+  this->AppendedDataFound = false;
   this->DataStream = nullptr;
   this->InlineDataStream = vtkBase64InputStream::New();
   this->AppendedDataStream = vtkBase64InputStream::New();
@@ -88,6 +89,7 @@ void vtkXMLDataParser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "AppendedDataPosition: " << this->AppendedDataPosition << "\n";
+  os << indent << "AppendedDataFound: " << this->AppendedDataFound << "\n";
   if (this->RootElement)
   {
     this->RootElement->PrintXML(os, indent);
@@ -214,7 +216,7 @@ int vtkXMLDataParser::ParsingComplete()
   // If we have reached the appended data section, we stop parsing.
   // This prevents the XML parser from having to walk over the entire
   // appended data section.
-  if (this->AppendedDataPosition)
+  if (this->AppendedDataPosition || this->AppendedDataFound)
   {
     return 1;
   }
@@ -433,6 +435,8 @@ int vtkXMLDataParser::ParseBuffer(const char* buffer, unsigned int count)
     {
       return 0;
     }
+
+    this->AppendedDataFound = true;
   }
 
   return 1;
