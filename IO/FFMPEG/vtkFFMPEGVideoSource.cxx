@@ -208,11 +208,21 @@ void vtkFFMPEGVideoSource::Initialize()
 
   // examine the video stream side data for additional information
   this->Stereo3D = false;
-  if (this->Internal->VideoStream->nb_side_data > 0)
+#if defined(LIBAVCODEC_VERSION_MAJOR) &&                                                           \
+  (LIBAVCODEC_VERSION_MAJOR > 60 ||                                                                \
+    (LIBAVCODEC_VERSION_MAJOR == 60 && defined(LIBAVCODEC_VERSION_MINOR) &&                        \
+      LIBAVCODEC_VERSION_MINOR >= 31))
+#define vtkFFMPEG_nb_side_data(stream) (stream)->codecpar->nb_coded_side_data
+#define vtkFFMPEG_side_data(stream) (stream)->codecpar->coded_side_data
+#else
+#define vtkFFMPEG_nb_side_data(stream) (stream)->nb_side_data
+#define vtkFFMPEG_side_data(stream) (stream)->side_data
+#endif
+  if (vtkFFMPEG_nb_side_data(this->Internal->VideoStream) > 0)
   {
-    for (int i = 0; i < this->Internal->VideoStream->nb_side_data; ++i)
+    for (int i = 0; i < vtkFFMPEG_nb_side_data(this->Internal->VideoStream); ++i)
     {
-      AVPacketSideData sd = this->Internal->VideoStream->side_data[i];
+      AVPacketSideData sd = vtkFFMPEG_side_data(this->Internal->VideoStream)[i];
       if (sd.type == AV_PKT_DATA_STEREO3D)
       {
         AVStereo3D* stereo = reinterpret_cast<AVStereo3D*>(sd.data);

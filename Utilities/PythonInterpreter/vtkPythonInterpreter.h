@@ -172,6 +172,16 @@ public:
 
   static bool InitializeWithArgs(int initsigs, int argc, char* argv[]);
 
+  /**
+   * Register a callback to be called when Python exits.
+   *
+   * This may be used to register callbacks before Python is initialized.
+   *
+   * Returns `0` if registration is successful, `-1` on failure, and `1` if
+   * registration is deferred (Python is not yet initialized).
+   */
+  static int AddAtExitCallback(void (*func)());
+
 protected:
   vtkPythonInterpreter();
   ~vtkPythonInterpreter() override;
@@ -213,6 +223,11 @@ private:
    * Verbosity level to use when logging info.
    */
   static int LogVerbosity;
+
+  /**
+   * Container of callbacks to register.
+   */
+  static std::vector<void (*)()> AtExitCallbacks;
 };
 
 // For tracking global interpreters
