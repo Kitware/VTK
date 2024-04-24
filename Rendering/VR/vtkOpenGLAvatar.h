@@ -48,6 +48,7 @@ public:
   void SetRayLength(double length);
 
   void SetLabel(const char* label);
+  char* GetLabel();
   vtkTextProperty* GetLabelTextProperty();
 
 protected:
