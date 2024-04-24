@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// clang-format off
 /**
  * @class   vtkPConnectivityFilter
  * @brief   Parallel version of vtkConnectivityFilter
@@ -15,11 +17,9 @@
  * Figure 2 shows, distributed pieces of each connected component may end up
  * with different labels.
  *
- * ![Figure 1: Pieces in a distributed data set colored by processor
- * rank.](vtkPConnectivityFilterFigure1.png)
+ * ![Figure 1: Pieces in a distributed data set colored by processor rank.](vtkPConnectivityFilterFigure1.png)
  *
- * ![Figure 2: Left). Incorrect parallel labeling. Right). Correct
- * labeling.](vtkPConnectivityFilterFigure2.png)
+ * ![Figure 2: Left). Incorrect parallel labeling. Right). Correct labeling.](vtkPConnectivityFilterFigure2.png)
  *
  * The part missing from a fully parallel connectivity filter implementation is
  * the identification of which pieces on different ranks are actually connected.
@@ -56,8 +56,7 @@
  * + Check for errors in superclass GenerateData() on any rank and exit the
  * algorithm if any encountered an error-indicating return code.
  *
- * ![Figure 3: Results after vtkConnectivityFilter superclass is called on each
- * piece.](vtkPConnectivityFilterFigure3.png)
+ * ![Figure 3: Results after vtkConnectivityFilter superclass is called on each piece.](vtkPConnectivityFilterFigure3.png)
  *
  * + AllGatherv the number of connected RegionIds from each rank and AllGatherv
  * the RegionIds themselves.
@@ -87,8 +86,7 @@
  * the graph could be made distributed. This is just more complicated to
  * program, however).
  *
- * ![Figure 5: Connected region graph depicted by black line
- * segments.](vtkPConnectivityFilterFigure5.png)
+ * ![Figure 5: Connected region graph depicted by black line segments.](vtkPConnectivityFilterFigure5.png)
  *
  * + Run a connected components algorithm that relabels the RegionIds, yielding
  * the full connectivity graph across ranks. Figure 6 shows an example result.
@@ -96,14 +94,12 @@
  * + Relabel the remaining RegionIds by a contiguous set of RegionIds (e.g., go
  * from [0, 5, 8, 9] to [0, 1, 2, 3]).
  *
- * ![Figure 6: Connected components of graph linking RegionIds across
- * ranks.](vtkPConnectivityFilterFigure6.png)
+ * ![Figure 6: Connected components of graph linking RegionIds across ranks.](vtkPConnectivityFilterFigure6.png)
  *
  * + From the RegionId graph, relabel points and cells in the output. The result
  * is shown in Figure 7.
  *
- * ![Figure 7: Dataset relabeled with global connected
- * RegionIds.](vtkPConnectivityFilterFigure7.png)
+ * ![Figure 7: Dataset relabeled with global connected RegionIds.](vtkPConnectivityFilterFigure7.png)
  *
  * + Handle ScalarConnectivy option and ExtractionMode after full region
  * connectivity is determined by identifying the correct RegionId and extracting
@@ -120,6 +116,8 @@
  *   - VTK_EXTRACT_CELL_SEEDED_REGIONS extraction mode
  *   - VTK_EXTRACT_SPECIFIED_REGIONS extraction mode
  */
+
+// clang-format on
 
 #ifndef vtkPConnectivityFilter_h
 #define vtkPConnectivityFilter_h
