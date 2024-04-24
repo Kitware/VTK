@@ -22,8 +22,8 @@
 #include "vtkXMLOffsetsManager.h"
 #undef vtkXMLOffsetsManager_DoNotInclude
 
-#include << limits>
 #include <cassert>
+#include <limits>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
