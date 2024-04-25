@@ -353,6 +353,12 @@ void EnSightFile::ResetFile()
 }
 
 //------------------------------------------------------------------------------
+bool EnSightFile::OpenFile(bool isCaseFile /* = false*/)
+{
+  return this->OpenFile(this->FileNamePattern, isCaseFile);
+}
+
+//------------------------------------------------------------------------------
 // assumes that if you're trying to open the file, but it's already open, that you
 // also want to reset the read position
 // in the case of binary files, check to see if it starts with 'C/Fortran binary'

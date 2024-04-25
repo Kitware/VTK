@@ -21,6 +21,7 @@ struct vtkEnSightGoldCombinedReader::ReaderImpl
   vtkNew<vtkDataArraySelection> PartSelection;
   vtkNew<vtkDataArraySelection> PointArraySelection;
   vtkNew<vtkDataArraySelection> CellArraySelection;
+  vtkNew<vtkDataArraySelection> FieldArraySelection;
   std::vector<double> TimeSteps;
 };
 
@@ -115,8 +116,8 @@ int vtkEnSightGoldCombinedReader::RequestInformation(
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
 
-  this->Impl->Reader.GetPartInfo(
-    this->Impl->PartSelection, this->Impl->PointArraySelection, this->Impl->CellArraySelection);
+  this->Impl->Reader.GetPartInfo(this->Impl->PartSelection, this->Impl->PointArraySelection,
+    this->Impl->CellArraySelection, this->Impl->FieldArraySelection);
 
   return 1;
 }
@@ -167,7 +168,8 @@ int vtkEnSightGoldCombinedReader::RequestData(
   }
 
   if (!this->Impl->Reader.ReadVariables(output, this->Impl->PartSelection,
-        this->Impl->PointArraySelection, this->Impl->CellArraySelection))
+        this->Impl->PointArraySelection, this->Impl->CellArraySelection,
+        this->Impl->FieldArraySelection))
   {
     vtkErrorMacro("Variable file(s) could not be read");
     return 0;
@@ -195,11 +197,18 @@ vtkDataArraySelection* vtkEnSightGoldCombinedReader::GetCellArraySelection()
 }
 
 //------------------------------------------------------------------------------
+vtkDataArraySelection* vtkEnSightGoldCombinedReader::GetFieldArraySelection()
+{
+  return this->Impl->FieldArraySelection;
+}
+
+//------------------------------------------------------------------------------
 vtkMTimeType vtkEnSightGoldCombinedReader::GetMTime()
 {
   auto maxVal = std::max(this->Superclass::GetMTime(), this->Impl->PartSelection->GetMTime());
   maxVal = std::max(maxVal, this->Impl->PointArraySelection->GetMTime());
-  return std::max(maxVal, this->Impl->CellArraySelection->GetMTime());
+  maxVal = std::max(maxVal, this->Impl->CellArraySelection->GetMTime());
+  return std::max(maxVal, this->Impl->FieldArraySelection->GetMTime());
 }
 
 //------------------------------------------------------------------------------

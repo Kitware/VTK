@@ -3,6 +3,7 @@
 
 #include "EnSightDataSet.h"
 
+#include "core/EnSightFile.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataArraySelection.h"
@@ -237,8 +238,11 @@ int getNumComponents(VariableType type)
 
 VariableType getVariableTypeFromString(const std::string& str)
 {
-  static std::unordered_map<std::string, VariableType> typeMap = { { "scalar per node:",
-                                                                     VariableType::ScalarPerNode },
+  static std::unordered_map<std::string, VariableType> typeMap = {
+    { "constant per case:", VariableType::ConstantPerCase },
+    { "constant per case file:", VariableType::ConstantPerCaseFile },
+    { "constant per part:", VariableType::ConstantPerPart },
+    { "scalar per node:", VariableType::ScalarPerNode },
     { "scalar per measured node:", VariableType::ScalarPerMeasuredNode },
     { "vector per node:", VariableType::VectorPerNode },
     { "vector per measured node:", VariableType::VectorPerMeasuredNode },
@@ -251,7 +255,8 @@ VariableType getVariableTypeFromString(const std::string& str)
     { "tensor symm per element:", VariableType::TensorSymmPerElement },
     { "tensor asym per element:", VariableType::TensorAsymPerElement },
     { "complex scalar per element:", VariableType::ComplexScalarPerElement },
-    { "complex vector per element:", VariableType::ComplexVectorPerElement } };
+    { "complex vector per element:", VariableType::ComplexVectorPerElement }
+  };
   auto it = typeMap.find(str);
   if (it == typeMap.end())
   {
@@ -390,6 +395,21 @@ void readCaseFileValues(EnSightFile& file, std::string& line, std::vector<T>& va
 }
 
 template <typename T>
+void readFileValues(EnSightFile& file, std::vector<T>& values)
+{
+  auto result = file.ReadNextLine(MAX_CASE_LINE_LENGTH);
+  while (result.first)
+  {
+    T val;
+    while (extractLinePart(numRegEx, result.second, val))
+    {
+      values.push_back(val);
+    }
+    result = file.ReadNextLine(MAX_CASE_LINE_LENGTH);
+  }
+}
+
+template <typename T>
 void readFileValues(const std::string& filename, std::vector<T>& values)
 {
   EnSightFile file;
@@ -400,16 +420,7 @@ void readFileValues(const std::string& filename, std::vector<T>& values)
     return;
   }
 
-  auto result = file.ReadNextLine();
-  while (result.first)
-  {
-    T val;
-    while (extractLinePart(numRegEx, result.second, val))
-    {
-      values.push_back(val);
-    }
-    result = file.ReadNextLine();
-  }
+  readFileValues(file, values);
 }
 
 } // end anon namespace
@@ -721,30 +732,52 @@ void EnSightDataSet::ParseVariableSection()
     }
 
     extractLinePart(intRegEx, line, opts.File.TimeSet);
-    if (opts.File.TimeSet == -1)
+    if (opts.Type == VariableType::ConstantPerCase)
     {
-      // old reader seems to just automatically have a time set id 1 even if it's not specified
-      // I have run into some customer data that used wildcards in filenames, but did not
-      // specify the time set
-      opts.File.TimeSet = 1;
+      extractLinePart(fileNameRegEx, line, opts.Name);
+      readCaseFileValues(this->CaseFile, line, opts.Constants);
     }
-    extractLinePart(intRegEx, line, opts.File.FileSet);
-    extractLinePart(fileNameRegEx, line, opts.Name);
-
-    if (!extractFileName(line, fileName))
+    else if (opts.Type == VariableType::ConstantPerCaseFile)
     {
-      vtkGenericWarningMacro("could not extract file name from " << result.second);
+      extractLinePart(fileNameRegEx, line, opts.Name);
+      if (!extractFileName(line, fileName))
+      {
+        vtkGenericWarningMacro("could not extract file name from " << result.second);
+      }
+      opts.File.SetFileNamePattern(this->GetFullPath(fileName));
     }
-    opts.File.SetFileNamePattern(this->GetFullPath(fileName));
-
-    if (varType.find("complex") != std::string::npos)
+    else if (opts.Type == VariableType::ConstantPerPart)
     {
-      // need to grab remaining info for complex var types
-      extractLinePart(fileNameRegEx, line, fileName);
-      opts.ImaginaryFile.SetFileNamePattern(this->GetFullPath(fileName));
-      opts.ImaginaryFile.TimeSet = opts.File.TimeSet;
-      opts.ImaginaryFile.FileSet = opts.File.FileSet;
-      extractLinePart(numRegEx, line, opts.Frequency);
+      vtkGenericWarningMacro("Constant per part not yet supported");
+    }
+    else
+    {
+      if (opts.File.TimeSet == -1)
+      {
+        // old reader seems to just automatically have a time set id 1 even if it's not specified
+        // I have run into some customer data that used wildcards in filenames, but did not
+        // specify the time set
+        opts.File.TimeSet = 1;
+      }
+
+      extractLinePart(intRegEx, line, opts.File.FileSet);
+      extractLinePart(fileNameRegEx, line, opts.Name);
+
+      if (!extractFileName(line, fileName))
+      {
+        vtkGenericWarningMacro("could not extract file name from " << result.second);
+      }
+      opts.File.SetFileNamePattern(this->GetFullPath(fileName));
+
+      if (varType.find("complex") != std::string::npos)
+      {
+        // need to grab remaining info for complex var types
+        extractLinePart(fileNameRegEx, line, fileName);
+        opts.ImaginaryFile.SetFileNamePattern(this->GetFullPath(fileName));
+        opts.ImaginaryFile.TimeSet = opts.File.TimeSet;
+        opts.ImaginaryFile.FileSet = opts.File.FileSet;
+        extractLinePart(numRegEx, line, opts.Frequency);
+      }
     }
 
     this->Variables.emplace_back(opts);
@@ -1217,7 +1250,8 @@ bool EnSightDataSet::ReadMeasuredGeometry(
 
 //------------------------------------------------------------------------------
 bool EnSightDataSet::GetPartInfo(vtkDataArraySelection* partSelection,
-  vtkDataArraySelection* pointArraySelection, vtkDataArraySelection* cellArraySelection)
+  vtkDataArraySelection* pointArraySelection, vtkDataArraySelection* cellArraySelection,
+  vtkDataArraySelection* fieldArraySelection)
 {
   // Since we just want to get info on all the parts, we'll just look at the first time step
   if (!this->GeometryFile.SetTimeStepToRead(0.0))
@@ -1334,6 +1368,11 @@ bool EnSightDataSet::GetPartInfo(vtkDataArraySelection* partSelection,
       case VariableType::ComplexVectorPerElement:
         cellArraySelection->AddArray(var.Name.c_str());
         break;
+      case VariableType::ConstantPerCase:
+      case VariableType::ConstantPerCaseFile:
+      case VariableType::ConstantPerPart:
+        fieldArraySelection->AddArray(var.Name.c_str());
+        break;
       default:
         vtkGenericWarningMacro("invalid variable type found: " << static_cast<int>(var.Type));
         break;
@@ -1346,7 +1385,7 @@ bool EnSightDataSet::GetPartInfo(vtkDataArraySelection* partSelection,
 //------------------------------------------------------------------------------
 bool EnSightDataSet::ReadVariables(vtkPartitionedDataSetCollection* output,
   vtkDataArraySelection* partSelection, vtkDataArraySelection* pointArraySelection,
-  vtkDataArraySelection* cellArraySelection)
+  vtkDataArraySelection* cellArraySelection, vtkDataArraySelection* fieldArraySelection)
 {
   for (auto& var : this->Variables)
   {
@@ -1421,6 +1460,19 @@ bool EnSightDataSet::ReadVariables(vtkPartitionedDataSetCollection* output,
           this->ReadVariableElements(
             var.ImaginaryFile, var.Name + "_i", getNumComponents(var.Type), output, partSelection);
         }
+        break;
+
+      case VariableType::ConstantPerCase:
+      case VariableType::ConstantPerCaseFile:
+        if (fieldArraySelection->ArrayIsEnabled(var.Name.c_str()))
+        {
+          this->ReadVariableConstantCase(var, output);
+        }
+        break;
+
+      case VariableType::ConstantPerPart:
+        // TODO:
+        vtkGenericWarningMacro("constant per part not yet supported.");
         break;
 
       default:
@@ -1903,6 +1955,49 @@ void EnSightDataSet::ReadVariableElements(EnSightFile& file, const std::string& 
       }
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void EnSightDataSet::ReadVariableConstantCase(
+  VariableOptions& var, vtkPartitionedDataSetCollection* output)
+{
+  // in this case we may have already read the values, since they're in the case file
+  // but they may also be in a separate file, in which case we'll read them in here
+  // this is one value for the dataset per time step
+  if (var.Type == VariableType::ConstantPerCaseFile && var.Constants.empty())
+  {
+    // we'll read these in the first time we call this, and just keep it cached
+    var.File.OpenFile(true);
+    readFileValues(var.File, var.Constants);
+  }
+
+  if (var.Constants.empty())
+  {
+    vtkGenericWarningMacro(
+      "Variable " << var.Name << "  is a constant per case, but no values were found");
+    return;
+  }
+
+  int idx = 0;
+  if (var.File.TimeSet != -1)
+  {
+    auto info = var.File.GetTimeSetInfo();
+    double timeVal = info->TimeValues[0];
+    for (size_t i = 1; i < info->TimeValues.size(); ++i)
+    {
+      double newTime = info->TimeValues[i];
+      if (newTime <= this->ActualTimeValue && newTime > timeVal)
+      {
+        timeVal = newTime;
+        idx++;
+      }
+    }
+  }
+  vtkNew<vtkFloatArray> array;
+  array->SetName(var.Name.c_str());
+  array->SetNumberOfTuples(1);
+  array->SetValue(0, var.Constants[idx]);
+  output->GetFieldData()->AddArray(array);
 }
 
 //------------------------------------------------------------------------------

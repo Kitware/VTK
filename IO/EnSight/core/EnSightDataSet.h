@@ -102,6 +102,9 @@ using PartInfoMapType = std::map<int, PartInfo>;
 enum class VariableType
 {
   Unknown,
+  ConstantPerCase,
+  ConstantPerCaseFile,
+  ConstantPerPart,
   ScalarPerNode,
   ScalarPerMeasuredNode,
   VectorPerNode,
@@ -125,6 +128,7 @@ struct VariableOptions
   int Frequency; // only for complex variables
   EnSightFile File;
   EnSightFile ImaginaryFile; // only for complex variables
+  std::vector<float> Constants;
 };
 
 /**
@@ -174,13 +178,14 @@ public:
    * in a vtkDataArraySelection to enable user to choose which parts to load
    */
   bool GetPartInfo(vtkDataArraySelection* partSelection, vtkDataArraySelection* pointArraySelection,
-    vtkDataArraySelection* cellArraySelection);
+    vtkDataArraySelection* cellArraySelection, vtkDataArraySelection* fieldArraySelection);
 
   /**
    * Reads Variable file(s)
    */
   bool ReadVariables(vtkPartitionedDataSetCollection* output, vtkDataArraySelection* partSelection,
-    vtkDataArraySelection* pointArraySelection, vtkDataArraySelection* cellArraySelection);
+    vtkDataArraySelection* pointArraySelection, vtkDataArraySelection* cellArraySelection,
+    vtkDataArraySelection* fieldArraySelection);
 
   /**
    * Returns true if a rigid body file is specified in the case file
@@ -244,6 +249,7 @@ private:
     bool isComplex = false, bool isReal = true);
   vtkSmartPointer<vtkFloatArray> ReadVariableArray(
     EnSightFile& file, const std::string& sectionHeader, vtkIdType numElements, int numComponents);
+  void ReadVariableConstantCase(VariableOptions& var, vtkPartitionedDataSetCollection* output);
 
   void ProcessNodeIds(int numPts, vtkDataSet* output);
   void ProcessElementIds(int numCells, vtkDataSet* output);

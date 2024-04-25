@@ -85,6 +85,7 @@ struct EnSightFile
    * Set the time set info
    */
   void SetTimeSetInfo(std::shared_ptr<TimeSetInfo> info);
+  std::shared_ptr<TimeSetInfo> GetTimeSetInfo() { return this->TimeInfo; }
 
   /**
    * Set the file set info
@@ -187,6 +188,13 @@ struct EnSightFile
    */
   int GetCurrentOpenTimeStep();
 
+  /**
+   * Opens the file and performs some processing to determine the format of the file.
+   * Appropriately resets the position of the file stream depending on the type of file.
+   */
+  bool OpenFile(const std::string& filename, bool isCaseFile = false);
+  bool OpenFile(bool isCaseFile = false);
+
 private:
   std::string FileNamePattern;
   std::string CurrentOpenFileName;
@@ -204,12 +212,6 @@ private:
   vtksys::ifstream* Stream;
   bool HasBinaryHeader = false;
   int FortranSkipBytes = 0;
-
-  /**
-   * Opens the file and performs some processing to determine the format of the file.
-   * Appropriately resets the position of the file stream depending on the type of file.
-   */
-  bool OpenFile(const std::string& filename, bool isCaseFile = false);
 
   /**
    * Resets the read position of the file.

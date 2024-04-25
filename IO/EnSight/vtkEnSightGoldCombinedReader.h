@@ -85,6 +85,12 @@ public:
   vtkDataArraySelection* GetCellArraySelection();
 
   /**
+   * Field data array selection, to determine which arrays
+   * are loaded.
+   */
+  vtkDataArraySelection* GetFieldArraySelection();
+
+  /**
    * Overridden to take into account mtimes for vtkDataArraySelection instances.
    */
   vtkMTimeType GetMTime() override;
