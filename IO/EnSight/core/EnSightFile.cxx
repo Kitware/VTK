@@ -485,6 +485,17 @@ std::pair<bool, std::string> EnSightFile::ReadNextLine(int size /* = MAX_LINE_LE
       }
     }
   }
+
+  if (lineRead)
+  { // remove any trailing comments from the line
+    char comment = '#';
+    size_t found = result.second.find(comment);
+    if (found != std::string::npos)
+    {
+      result.second.erase(found);
+    }
+  }
+
   return result;
 }
 

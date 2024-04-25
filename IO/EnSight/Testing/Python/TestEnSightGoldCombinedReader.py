@@ -2,6 +2,7 @@
 
 import math
 from vtkmodules.vtkCommonDataModel import vtkDataSetAttributes
+from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
 from vtkmodules.vtkFiltersCore import vtkAssignAttribute
 from vtkmodules.vtkFiltersCore import vtkContourFilter
 from vtkmodules.vtkFiltersFlowPaths import vtkStreamTracer
@@ -306,6 +307,21 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
 
   def testVigaBinary(self):
     self.basicPipeline("viga.case", "TestEnSightGoldCombinedReader_17.png")
+
+
+  def testRigidBody(self):
+    reader = self.setupReader("veh.case")
+    reader.UpdateInformation()
+    outInfo = reader.GetOutputInformation(0)
+    numSteps = outInfo.Length(vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+    self.assertEqual(numSteps, 21)
+
+    outInfo.Set(vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), 36.0)
+    reader.Update()
+
+    geom = self.geomPipeline(reader)
+    mapper = self.setupMapper(geom, "evect")
+    self.renderAndCompare(mapper, "TestEnSightGoldCombinedReader_16.png", [26.4, 2.7, 1.4])
 
 
 if __name__ == "__main__":

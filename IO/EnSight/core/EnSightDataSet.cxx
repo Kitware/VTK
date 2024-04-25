@@ -24,6 +24,7 @@
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTransformFilter.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
@@ -33,6 +34,7 @@
 #include <numeric>
 #include <regex>
 #include <sstream>
+#include <stdexcept>
 #include <unordered_set>
 #include <vtksys/SystemTools.hxx>
 
@@ -48,7 +50,7 @@ std::regex lineTypeRegEx(R"((?:^|\s)([[:alpha:]_\s]+:)(?=$|\s))");
 // integers
 std::regex intRegEx(R"(^(?:\s+)(\d+)(?=$|\s))");
 // floating point
-std::regex numRegEx(R"((?:^|\s)(\d*\.?\d*e?[+-]?\d*[^\s])(?=$|\s))");
+std::regex numRegEx(R"((?:^|\s)([-]?\d*\.?\d*e?[+-]?\d*[^\s])(?=$|\s))");
 // filenames or other cases where it's not determining the type  (e.g., change_coords_only)
 std::regex fileNameRegEx(R"((?:^|\s)([[:alnum:]/_.*-]+)(?=$|\s))");
 
@@ -91,6 +93,29 @@ bool extractFileName(std::string& line, std::string& filename)
   line = line.substr(quoteEnd + 1);
 
   return true;
+}
+
+void sanitize(std::string& str)
+{
+  char quotes = '\"';
+  size_t found = str.find(quotes);
+  if (found != std::string::npos)
+  {
+    str.erase(std::remove(str.begin(), str.end(), quotes), str.end());
+  }
+
+  // remove whitespace at the end of the string and before the string
+  std::string whitespaces(" \t\n\r");
+  found = str.find_last_not_of(whitespaces);
+  if (found != std::string::npos)
+  {
+    str.erase(found + 1);
+  }
+  found = str.find_first_not_of(whitespaces);
+  if (found != std::string::npos)
+  {
+    str.erase(0, found);
+  }
 }
 
 // copied from the old reader to make sure tensor components are correct
@@ -399,6 +424,9 @@ EnSightDataSet::EnSightDataSet()
   , MeasuredPartitionId(-1)
   , NodeIdsListed(false)
   , ElementIdsListed(false)
+  , ActualTimeValue(0.0)
+  , UsePartNamesRB(true)
+  , UseEulerTimeSteps(false)
 {
 }
 
@@ -651,8 +679,7 @@ void EnSightDataSet::ParseGeometrySection()
     }
     else if (lineType == "rigid_body:")
     {
-      // TODO: pull rigid body support from the other reader
-      vtkGenericWarningMacro("rigid body files not supported yet.");
+      this->RigidBodyFileName = this->GetFullPath(fileName);
     }
     else if (lineType == "Vector_glyphs:")
     {
@@ -917,7 +944,7 @@ bool EnSightDataSet::IsSectionHeader(std::string line)
 
 //------------------------------------------------------------------------------
 bool EnSightDataSet::ReadGeometry(
-  vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection, double actualTimeValue)
+  vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection)
 {
   if (this->CacheGeometry && this->GeometryCached)
   {
@@ -936,7 +963,7 @@ bool EnSightDataSet::ReadGeometry(
     }
   }
 
-  if (!this->GeometryFile.SetTimeStepToRead(actualTimeValue))
+  if (!this->GeometryFile.SetTimeStepToRead(this->ActualTimeValue))
   {
     vtkGenericWarningMacro("couldn't correctly set time step to read. Aborting");
     return false;
@@ -1018,6 +1045,10 @@ bool EnSightDataSet::ReadGeometry(
           vtkGenericWarningMacro("Grid type not correctly specified");
           return false;
       }
+      if (grid)
+      {
+        this->ApplyRigidBodyTransforms(partId, partName, grid);
+      }
       if (grid && addToPDC)
       {
         vtkNew<vtkPartitionedDataSet> pds;
@@ -1075,7 +1106,7 @@ bool EnSightDataSet::ReadGeometry(
 
 //------------------------------------------------------------------------------
 bool EnSightDataSet::ReadMeasuredGeometry(
-  vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection, double actualTimeValue)
+  vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection)
 {
   if (this->MeasuredFileName.empty())
   {
@@ -1086,7 +1117,7 @@ bool EnSightDataSet::ReadMeasuredGeometry(
   {
     return true;
   }
-  if (!this->MeasuredFile.SetTimeStepToRead(actualTimeValue))
+  if (!this->MeasuredFile.SetTimeStepToRead(this->ActualTimeValue))
   {
     vtkGenericWarningMacro("couldn't correctly set time step to read. Aborting");
     return false;
@@ -1315,7 +1346,7 @@ bool EnSightDataSet::GetPartInfo(vtkDataArraySelection* partSelection,
 //------------------------------------------------------------------------------
 bool EnSightDataSet::ReadVariables(vtkPartitionedDataSetCollection* output,
   vtkDataArraySelection* partSelection, vtkDataArraySelection* pointArraySelection,
-  vtkDataArraySelection* cellArraySelection, double actualTimeValue)
+  vtkDataArraySelection* cellArraySelection)
 {
   for (auto& var : this->Variables)
   {
@@ -1328,7 +1359,7 @@ bool EnSightDataSet::ReadVariables(vtkPartitionedDataSetCollection* output,
         if (pointArraySelection->ArrayIsEnabled(var.Name.c_str()))
         {
           this->ReadVariableNodes(
-            var.File, var.Name, getNumComponents(var.Type), actualTimeValue, output, partSelection);
+            var.File, var.Name, getNumComponents(var.Type), output, partSelection);
         }
         break;
 
@@ -1337,27 +1368,27 @@ bool EnSightDataSet::ReadVariables(vtkPartitionedDataSetCollection* output,
         if (pointArraySelection->ArrayIsEnabled(var.Name.c_str()))
         {
           this->ReadVariableMeasuredNodes(
-            var.File, var.Name, getNumComponents(var.Type), actualTimeValue, output, partSelection);
+            var.File, var.Name, getNumComponents(var.Type), output, partSelection);
         }
         break;
 
       case VariableType::ComplexScalarPerNode:
         if (pointArraySelection->ArrayIsEnabled(var.Name.c_str()))
         {
-          this->ReadVariableNodes(var.File, var.Name, getNumComponents(var.Type), actualTimeValue,
-            output, partSelection, true, true);
-          this->ReadVariableNodes(var.ImaginaryFile, var.Name, getNumComponents(var.Type),
-            actualTimeValue, output, partSelection, true, false);
+          this->ReadVariableNodes(
+            var.File, var.Name, getNumComponents(var.Type), output, partSelection, true, true);
+          this->ReadVariableNodes(var.ImaginaryFile, var.Name, getNumComponents(var.Type), output,
+            partSelection, true, false);
         }
         break;
 
       case VariableType::ComplexVectorPerNode:
         if (pointArraySelection->ArrayIsEnabled(var.Name.c_str()))
         {
-          this->ReadVariableNodes(var.File, var.Name + "_r", getNumComponents(var.Type),
-            actualTimeValue, output, partSelection);
-          this->ReadVariableNodes(var.ImaginaryFile, var.Name + "_i", getNumComponents(var.Type),
-            actualTimeValue, output, partSelection);
+          this->ReadVariableNodes(
+            var.File, var.Name + "_r", getNumComponents(var.Type), output, partSelection);
+          this->ReadVariableNodes(
+            var.ImaginaryFile, var.Name + "_i", getNumComponents(var.Type), output, partSelection);
         }
         break;
 
@@ -1368,27 +1399,27 @@ bool EnSightDataSet::ReadVariables(vtkPartitionedDataSetCollection* output,
         if (cellArraySelection->ArrayIsEnabled(var.Name.c_str()))
         {
           this->ReadVariableElements(
-            var.File, var.Name, getNumComponents(var.Type), actualTimeValue, output, partSelection);
+            var.File, var.Name, getNumComponents(var.Type), output, partSelection);
         }
         break;
 
       case VariableType::ComplexScalarPerElement:
         if (cellArraySelection->ArrayIsEnabled(var.Name.c_str()))
         {
-          this->ReadVariableElements(var.File, var.Name, getNumComponents(var.Type),
-            actualTimeValue, output, partSelection, true, true);
+          this->ReadVariableElements(
+            var.File, var.Name, getNumComponents(var.Type), output, partSelection, true, true);
           this->ReadVariableElements(var.ImaginaryFile, var.Name, getNumComponents(var.Type),
-            actualTimeValue, output, partSelection, true, false);
+            output, partSelection, true, false);
         }
         break;
 
       case VariableType::ComplexVectorPerElement:
         if (cellArraySelection->ArrayIsEnabled(var.Name.c_str()))
         {
-          this->ReadVariableElements(var.File, var.Name + "_r", getNumComponents(var.Type),
-            actualTimeValue, output, partSelection);
-          this->ReadVariableElements(var.ImaginaryFile, var.Name + "_i", getNumComponents(var.Type),
-            actualTimeValue, output, partSelection);
+          this->ReadVariableElements(
+            var.File, var.Name + "_r", getNumComponents(var.Type), output, partSelection);
+          this->ReadVariableElements(
+            var.ImaginaryFile, var.Name + "_i", getNumComponents(var.Type), output, partSelection);
         }
         break;
 
@@ -1402,10 +1433,10 @@ bool EnSightDataSet::ReadVariables(vtkPartitionedDataSetCollection* output,
 
 //------------------------------------------------------------------------------
 void EnSightDataSet::ReadVariableNodes(EnSightFile& file, const std::string& arrayName,
-  int numComponents, double actualTimeValue, vtkPartitionedDataSetCollection* output,
-  vtkDataArraySelection* selection, bool isComplex /*=false*/, bool isReal /*=true*/)
+  int numComponents, vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection,
+  bool isComplex /*=false*/, bool isReal /*=true*/)
 {
-  if (!file.SetTimeStepToRead(actualTimeValue))
+  if (!file.SetTimeStepToRead(this->ActualTimeValue))
   {
     vtkGenericWarningMacro("couldn't correctly set time step to read. Aborting");
     return;
@@ -1506,14 +1537,13 @@ void EnSightDataSet::ReadVariableNodes(EnSightFile& file, const std::string& arr
 
 //------------------------------------------------------------------------------
 void EnSightDataSet::ReadVariableMeasuredNodes(EnSightFile& file, const std::string& arrayName,
-  int numComponents, double actualTimeValue, vtkPartitionedDataSetCollection* output,
-  vtkDataArraySelection* selection)
+  int numComponents, vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection)
 {
   if (!selection->ArrayIsEnabled("particles"))
   {
     return;
   }
-  if (!file.SetTimeStepToRead(actualTimeValue))
+  if (!file.SetTimeStepToRead(this->ActualTimeValue))
   {
     vtkGenericWarningMacro("couldn't correctly set time step to read. Aborting");
     return;
@@ -1662,10 +1692,10 @@ vtkSmartPointer<vtkFloatArray> EnSightDataSet::ReadVariableArray(
 
 //------------------------------------------------------------------------------
 void EnSightDataSet::ReadVariableElements(EnSightFile& file, const std::string& arrayName,
-  int numComponents, double actualTimeValue, vtkPartitionedDataSetCollection* output,
-  vtkDataArraySelection* selection, bool isComplex /*=false*/, bool isReal /*=true*/)
+  int numComponents, vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection,
+  bool isComplex /*=false*/, bool isReal /*=true*/)
 {
-  if (!file.SetTimeStepToRead(actualTimeValue))
+  if (!file.SetTimeStepToRead(this->ActualTimeValue))
   {
     vtkGenericWarningMacro("couldn't correctly set time step to read. Aborting");
     return;
@@ -2597,6 +2627,593 @@ void EnSightDataSet::ProcessGhostCells(int numCells, vtkDataSet* output)
     cellGhostArray->SetValue(i, ghostFlags[i] ? vtkDataSetAttributes::DUPLICATECELL : 0);
   }
   output->GetCellData()->AddArray(cellGhostArray);
+}
+
+//------------------------------------------------------------------------------
+bool EnSightDataSet::ReadRigidBodyGeometryFile()
+{
+  if (!this->RigidBodyFile.SetFileNamePattern(this->RigidBodyFileName, true))
+  {
+    vtkGenericWarningMacro("Rigid body file " << this->RigidBodyFileName << " could not be opened");
+    return false;
+  }
+
+  this->RigidBodyTransforms.clear();
+  this->EulerTransformsMap.clear();
+  this->UseEulerTimeSteps = false;
+  this->EulerTimeSteps.clear();
+
+  auto result = this->RigidBodyFile.ReadNextLine();
+  if (!result.first || result.second.find("EnSight Rigid Body") == std::string::npos)
+  {
+    vtkGenericWarningMacro("The first line " << result.second << " is not 'EnSight Rigid Body'.");
+    return false;
+  }
+
+  // read the version now
+  result = this->RigidBodyFile.ReadNextLine();
+  if (!result.first || result.second.find("version") == std::string::npos)
+  {
+    vtkGenericWarningMacro("The first line " << result.second << " is not 'EnSight Rigid Body'.");
+    return false;
+  }
+
+  float version;
+  extractLinePart(numRegEx, result.second, version);
+  if (version != 2.0)
+  {
+    vtkGenericWarningMacro("currently only version 2.0 of the rigid body format is supported.");
+    return false;
+  }
+
+  // read "names" or "numbers"
+  result = this->RigidBodyFile.ReadNextLine();
+  if (!result.first)
+  {
+    vtkGenericWarningMacro("There was an issue reading the names/numbers line");
+    return false;
+  }
+  this->UsePartNamesRB = result.second.find("names") != std::string::npos;
+
+  int numParts;
+  this->RigidBodyFile.ReadNumber(&numParts);
+
+  // read the number of following part names / part numbers
+  result = this->RigidBodyFile.ReadNextLine(); // either a part name or number
+  int idx = 0;
+  while (result.first && idx < numParts)
+  {
+    // handle line which is either a part name or number
+    int partId;
+    std::string partName = result.second;
+    sanitize(partName);
+    if (!this->UsePartNamesRB)
+    {
+      // Need to make sure that we remove any quotes from the partId
+      partId = std::stoi(partName) - 1; // EnSight starts #ing at 1.
+      partName = std::to_string(partId);
+    }
+
+    // num of transformations
+    int numTransformations;
+    this->RigidBodyFile.ReadNumber(&numTransformations);
+    vtkLog(TRACE,
+      "reading transforms for part " << partName << ", which has " << numTransformations
+                                     << " transformations");
+
+    if (this->RigidBodyTransforms.count(partName))
+    {
+      vtkGenericWarningMacro("Parts should only be listed once in the rigid body file, but part "
+        << partName << " has already been read.");
+      return false;
+    }
+    this->RigidBodyTransforms.insert(std::make_pair(partName, PartTransforms()));
+    auto& currentPartTransform = this->RigidBodyTransforms[partName];
+
+    // now loop through transformations
+    int transIdx = 0;
+    bool pretransform = true;
+    std::regex regEx("^[^ ]+ ([^ ]+)");
+    result = this->RigidBodyFile.ReadNextLine();
+    while (result.first && transIdx < numTransformations)
+    {
+      auto lineParts = vtksys::SystemTools::SplitString(result.second, ':');
+      if (lineParts.size() != 2)
+      {
+        vtkGenericWarningMacro("line " << result.second << " could not be read properly");
+        return false;
+      }
+      std::string line = lineParts[1];
+      std::string lineType = lineParts[0];
+      sanitize(lineType);
+      if (lineType == "Eul")
+      {
+        // we'll handle reading this file when we finish reading this
+        std::string fileName;
+        if (!extractFileName(line, fileName))
+        {
+          vtkGenericWarningMacro("could not extract file name from " << line);
+        }
+        sanitize(line);
+        currentPartTransform.EETFilename = fileName;
+        sanitize(currentPartTransform.EETFilename);
+        currentPartTransform.EETTransTitle = line;
+        pretransform = false;
+        transIdx++;
+        result = this->RigidBodyFile.ReadNextLine();
+        continue;
+      }
+
+      vtkTransform* transform;
+      if (pretransform)
+      {
+        currentPartTransform.PreTransforms.emplace_back(vtkSmartPointer<vtkTransform>::New());
+        transform = currentPartTransform.PreTransforms.back();
+      }
+      else
+      {
+        currentPartTransform.PostTransforms.emplace_back(vtkSmartPointer<vtkTransform>::New());
+        transform = currentPartTransform.PostTransforms.back();
+      }
+      transform->PostMultiply();
+      bool applyToVectors = false;
+
+      if (lineType == "M" || lineType == "Mv")
+      {
+        // M matrices applied only to geometry
+        // Mv matrices applied to geometry and vectors
+        if (!this->ReadRigidBodyMatrixLines(line, lineType, transform, applyToVectors))
+        {
+          // some error happened reading the matrix lines
+          return false;
+        }
+      }
+      else
+      {
+        // other possibilities are all single values
+        // rotations and scaling should be applied to geometry and vectors
+        // translations are only applied to geometry
+        sanitize(line);
+        double value;
+        try
+        {
+          value = std::stod(line);
+        }
+        catch (std::invalid_argument&)
+        {
+          vtkGenericWarningMacro("Couldn't convert line " << line << " to a double");
+          return false;
+        }
+        vtkLog(TRACE, "Found transformation " << lineType << ", with value of " << value);
+        if (lineType == "Tx")
+        {
+          transform->Translate(value, 0, 0);
+          applyToVectors = false;
+        }
+        else if (lineType == "Ty")
+        {
+          transform->Translate(0, value, 0);
+          applyToVectors = false;
+        }
+        else if (lineType == "Tz")
+        {
+          transform->Translate(0, 0, value);
+          applyToVectors = false;
+        }
+        else if (lineType == "Sx")
+        {
+          transform->Scale(value, 1, 1);
+          applyToVectors = true;
+        }
+        else if (lineType == "Sy")
+        {
+          transform->Scale(1, value, 1);
+          applyToVectors = true;
+        }
+        else if (lineType == "Sz")
+        {
+          transform->Scale(1, 1, value);
+          applyToVectors = true;
+        }
+        else
+        {
+          // everything else should be rotation
+          // lineType should be one of 'Rx', 'Ry', or 'Rz' if the value is in degrees
+          // or 'Rxr', 'Ryr', or 'Rzr' if the value is in radians
+          if (lineType[0] != 'R')
+          {
+            vtkGenericWarningMacro("the transform string " << lineType << " is not valid.");
+            return false;
+          }
+          applyToVectors = true;
+
+          if (lineType.size() == 3 && lineType[2] == 'r')
+          {
+            // convert radians to degrees
+            value = vtkMath::DegreesFromRadians(value);
+          }
+
+          switch (lineType[1])
+          {
+            case 'x':
+              transform->RotateX(value);
+              break;
+            case 'y':
+              transform->RotateY(value);
+              break;
+            case 'z':
+              transform->RotateZ(value);
+              break;
+            default:
+              vtkGenericWarningMacro("couldn't determine rotation type");
+          }
+        }
+      }
+
+      if (pretransform)
+      {
+        currentPartTransform.PreTransformsApplyToVectors.push_back(applyToVectors);
+      }
+      else
+      {
+        currentPartTransform.PostTransformsApplyToVectors.push_back(applyToVectors);
+      }
+
+      transIdx++;
+      result = this->RigidBodyFile.ReadNextLine();
+    }
+
+    if (currentPartTransform.EETFilename.empty() || currentPartTransform.EETTransTitle.empty())
+    {
+      vtkGenericWarningMacro("Every part in a rigid body file must have an 'Eul:' line");
+      return false;
+    }
+
+    idx++;
+    if (!result.first)
+    {
+      // last read was EOF
+      break;
+    }
+  }
+
+  // It's possible that these files could be stored in a different directory from the
+  // case file. the erb file will have a path relative to the case file, while the
+  // eet file has a path relative to the erb. for example with the following directory:
+  // - output.case
+  // - data/output.erb
+  // - data/output.eet
+  // So in the case file, the path to the erb file will say 'data/output.erb'
+  // while in the erb file, the eet file will just say 'output.eet'.
+  std::vector<std::string> filenameComponents;
+  vtksys::SystemTools::SplitPath(this->RigidBodyFileName, filenameComponents);
+  auto path =
+    vtksys::SystemTools::JoinPath(filenameComponents.begin(), filenameComponents.end() - 1);
+  return this->ReadRigidBodyEulerParameterFile(path);
+}
+
+//------------------------------------------------------------------------------
+bool EnSightDataSet::ReadRigidBodyMatrixLines(
+  std::string& line, const std::string& transType, vtkTransform* transform, bool& applyToVectors)
+{
+  // reads all 4 matrix lines into a vtkMatrix4x4 and concatenates it into transform
+  if (transType[0] != 'M')
+  {
+    vtkGenericWarningMacro("The transform type " << transType << " should be a matrix");
+    return false;
+  }
+
+  applyToVectors = vtksys::SystemTools::StringStartsWith(transType, "Mv");
+
+  vtkNew<vtkMatrix4x4> matrix;
+  std::stringstream ss(line);
+  for (int row = 0; row < 4; ++row)
+  {
+    if (row != 0)
+    {
+      auto result = this->RigidBodyFile.ReadNextLine();
+      ss.str(result.second);
+    }
+
+    for (int col = 0; col < 4; ++col)
+    {
+      double value;
+      ss >> value;
+      // based on the example in the EnSight user manual, it seems we need to do the
+      // transform of the matrix as its given in the erb file
+      matrix->SetElement(col, row, value);
+    }
+  }
+  transform->Concatenate(matrix);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool EnSightDataSet::ReadRigidBodyEulerParameterFile(const std::string& path)
+{
+  // according to EnSight User manual, although the format technically allows for different
+  // .eet files for different parts, EnSight can only handle one per model, so we'll just grab
+  // the file name info from the first part in this->RigidBodyTransforms.
+  // If this changes in a future version, we can update this to read multiple eet files.
+  auto filename = this->RigidBodyTransforms.begin()->second.EETFilename;
+
+  if (filename.empty())
+  {
+    vtkGenericWarningMacro("An euler parameter file must be specified in the rigid body file.");
+    return false;
+  }
+
+  auto fullFileName = path + "/" + filename;
+  if (!this->EETFile.SetFileNamePattern(fullFileName, true))
+  {
+    vtkGenericWarningMacro("the file " << fullFileName << " could not be opened");
+    return false;
+  }
+
+  // first line should be "Ens_Euler"
+  auto result = this->EETFile.ReadNextLine();
+  if (!result.first || result.second.find("Ens_Euler") == std::string::npos)
+  {
+    vtkGenericWarningMacro("The first line " << result.second << " is not 'Ens_Euler'.");
+    return false;
+  }
+
+  result = this->EETFile.ReadNextLine();
+  if (!result.first || result.second.find("NumTimes:") == std::string::npos)
+  {
+    vtkGenericWarningMacro("The second line " << result.second << " is not 'NumTimes:'.");
+    return false;
+  }
+
+  // line should contain the number of time steps in the file
+  int numTimes;
+  if (!this->EETFile.ReadNumber(&numTimes))
+  {
+    vtkGenericWarningMacro("Unable to read number of time steps in eet file");
+    return false;
+  }
+  vtkLog(TRACE, "number of timesteps: " << numTimes);
+
+  // if we don't have any time info from regular time sets, then we'll create time steps
+  // using the euler tranformations
+  this->UseEulerTimeSteps = this->TimeSetInfoMap.empty();
+  if (this->UseEulerTimeSteps)
+  {
+    this->EulerTimeSteps.resize(numTimes);
+  }
+
+  result = this->EETFile.ReadNextLine();
+  if (!result.first || result.second.find("NumTrans:") == std::string::npos)
+  {
+    vtkGenericWarningMacro("The line " << result.second << " should be 'NumTrans:'.");
+    return false;
+  }
+
+  int numTrans;
+  if (!this->EETFile.ReadNumber(&numTrans))
+  {
+    vtkGenericWarningMacro("Unable to read number of time steps in eet file");
+    return false;
+  }
+  vtkLog(TRACE, "number of transformations: " << numTrans);
+
+  result = this->EETFile.ReadNextLine();
+  if (!result.first || result.second.find("Titles:") == std::string::npos)
+  {
+    vtkGenericWarningMacro("The line " << result.second << " should be 'Titles:'.");
+    return false;
+  }
+
+  std::vector<std::string> titles;
+  for (int i = 0; i < numTrans; ++i)
+  {
+    result = this->EETFile.ReadNextLine();
+    if (!result.first)
+    {
+      vtkGenericWarningMacro("Unable to read correct number of titles");
+      return false;
+    }
+    // sanitize the title name just in case of any trailing whitespace or quotes
+    sanitize(result.second);
+    titles.emplace_back(result.second);
+    this->EulerTransformsMap[result.second] = TimeToEulerTransMapType();
+  }
+
+  // rest of file is Time Step sections
+  result = this->EETFile.ReadNextLine();
+  int timeIdx = 0;
+  while (result.first && timeIdx < numTimes)
+  {
+    if (result.second.find("Time Step:") == std::string::npos)
+    {
+      vtkGenericWarningMacro("The line " << result.second << " should be 'Time Step:'");
+      return false;
+    }
+
+    double time;
+    this->EETFile.ReadNumber(&time);
+    if (this->UseEulerTimeSteps)
+    {
+      this->EulerTimeSteps[timeIdx] = time;
+    }
+
+    for (int transIdx = 0; transIdx < numTrans; ++transIdx)
+    {
+      const auto& title = titles[transIdx];
+      if (this->EulerTransformsMap.count(title) == 0)
+      {
+        vtkGenericWarningMacro(
+          "The EulerTransformsMap for title " << title << " could not be found");
+        return false;
+      }
+      auto& titleMap = this->EulerTransformsMap[title];
+
+      float values[7];
+      if (!this->EETFile.ReadArray(values, 7, true))
+      {
+        vtkGenericWarningMacro("Unable to read line containing euler parameters");
+        return false;
+      }
+
+      // each line should have 7 floats:
+      // 3 translations in x, y, z and 4 euler parameters
+      double tx = values[0];
+      double ty = values[1];
+      double tz = values[2];
+      double e0 = values[3];
+      double e1 = values[4];
+      double e2 = values[5];
+      double e3 = values[6];
+
+      vtkNew<vtkTransform> transform;
+      transform->PostMultiply();
+      vtkNew<vtkMatrix4x4> eulerRotation;
+      eulerRotation->Identity();
+      // see https://mathworld.wolfram.com/EulerParameters.html
+      // for details. the elements in the matrix are eqns 18-26
+      eulerRotation->SetElement(0, 0, e0 * e0 + e1 * e1 - e2 * e2 - e3 * e3);
+      eulerRotation->SetElement(0, 1, 2 * (e1 * e2 + e0 * e3));
+      eulerRotation->SetElement(0, 2, 2 * (e1 * e3 - e0 * e2));
+      eulerRotation->SetElement(1, 0, 2 * (e1 * e2 - e0 * e3));
+      eulerRotation->SetElement(1, 1, e0 * e0 - e1 * e1 + e2 * e2 - e3 * e3);
+      eulerRotation->SetElement(1, 2, 2 * (e2 * e3 + e0 * e1));
+      eulerRotation->SetElement(2, 0, 2 * (e1 * e3 + e0 * e2));
+      eulerRotation->SetElement(2, 1, 2 * (e2 * e3 - e0 * e1));
+      eulerRotation->SetElement(2, 2, e0 * e0 - e1 * e1 - e2 * e2 + e3 * e3);
+      transform->Concatenate(eulerRotation);
+      // translations should be done after the euler rotation
+      transform->Translate(tx, ty, tz);
+
+      titleMap[time] = transform;
+    }
+
+    result = this->EETFile.ReadNextLine();
+    timeIdx++;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool EnSightDataSet::ApplyRigidBodyTransforms(int partId, std::string partName, vtkDataSet* output)
+{
+  if (!this->UsePartNamesRB)
+  {
+    // need to first convert part id to a string and use that as the partName
+    partName = std::to_string(partId);
+  }
+  if (this->RigidBodyTransforms.find(partName) == this->RigidBodyTransforms.end())
+  {
+    // this isn't an error, we just don't have a transform to apply to this part
+    return true;
+  }
+
+  // first we need to concatenate pretransforms, euler transforms, and post transforms
+  // We have to apply some transforms with TransformAllInputVectors on and some with it off.
+  const auto& partTransforms = this->RigidBodyTransforms[partName];
+
+  std::vector<vtkSmartPointer<vtkTransformFilter>> transformPipeline;
+  // first check to see if we have any pretransforms
+  for (unsigned int i = 0; i < partTransforms.PreTransforms.size(); i++)
+  {
+    transformPipeline.push_back(vtkSmartPointer<vtkTransformFilter>::New());
+    vtkTransformFilter* filter = transformPipeline.back();
+
+    if (i == 0)
+    {
+      filter->SetInputData(output);
+    }
+    else
+    {
+      filter->SetInputConnection(transformPipeline[i - 1]->GetOutputPort(0));
+    }
+
+    filter->SetTransform(partTransforms.PreTransforms[i]);
+
+    if (partTransforms.PreTransformsApplyToVectors[i])
+    {
+      filter->TransformAllInputVectorsOn();
+    }
+  }
+
+  // now find the correct euler transform
+  auto eulerTitle = partTransforms.EETTransTitle;
+  // need to make sure we don't have quotes or trailing whitespace even though it's not a filename
+  sanitize(eulerTitle);
+  if (this->EulerTransformsMap.find(eulerTitle) == this->EulerTransformsMap.end())
+  {
+    vtkGenericWarningMacro("could not find '" << eulerTitle << "' in the EulerTransformsMap.");
+    return false;
+  }
+
+  auto& titleMap = this->EulerTransformsMap[eulerTitle];
+  if (titleMap.find(this->ActualTimeValue) == titleMap.end())
+  {
+    vtkGenericWarningMacro("could not find time step " << this->ActualTimeValue
+                                                       << " in the euler transformations map"
+                                                          " for part '"
+                                                       << partName << "' with title '" << eulerTitle
+                                                       << "'");
+    return false;
+  }
+
+  auto eulerTransform = this->EulerTransformsMap[eulerTitle][this->ActualTimeValue];
+  transformPipeline.push_back(vtkSmartPointer<vtkTransformFilter>::New());
+  vtkTransformFilter* filter = transformPipeline.back();
+  if (transformPipeline.size() > 1)
+  {
+    filter->SetInputConnection(transformPipeline[transformPipeline.size() - 2]->GetOutputPort(0));
+  }
+  else
+  {
+    filter->SetInputData(output);
+  }
+  filter->SetTransform(eulerTransform);
+
+  // now handle any post transforms
+  for (unsigned int i = 0; i < partTransforms.PostTransforms.size(); i++)
+  {
+    // there's always at least 1 transform in the pipeline at this point
+    auto prevTransFilter = transformPipeline.back();
+
+    transformPipeline.push_back(vtkSmartPointer<vtkTransformFilter>::New());
+    vtkTransformFilter* curFilter = transformPipeline.back();
+
+    curFilter->SetInputConnection(prevTransFilter->GetOutputPort(0));
+    curFilter->SetTransform(partTransforms.PostTransforms[i]);
+
+    if (partTransforms.PostTransformsApplyToVectors[i])
+    {
+      curFilter->TransformAllInputVectorsOn();
+    }
+  }
+
+  transformPipeline.back()->Update();
+  output->ShallowCopy(transformPipeline.back()->GetOutput());
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool EnSightDataSet::HasRigidBodyFile()
+{
+  return !this->RigidBodyFileName.empty();
+}
+
+//------------------------------------------------------------------------------
+bool EnSightDataSet::UseRigidBodyTimeSteps()
+{
+  return this->UseEulerTimeSteps;
+}
+
+//------------------------------------------------------------------------------
+std::vector<double> EnSightDataSet::GetEulerTimeSteps()
+{
+  return this->EulerTimeSteps;
+}
+
+//------------------------------------------------------------------------------
+void EnSightDataSet::SetActualTimeValue(double time)
+{
+  this->ActualTimeValue = time;
 }
 
 VTK_ABI_NAMESPACE_END

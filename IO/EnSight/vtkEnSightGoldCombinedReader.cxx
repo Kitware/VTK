@@ -73,7 +73,30 @@ int vtkEnSightGoldCombinedReader::RequestInformation(
     return 0;
   }
 
+  // the rigid body files need to be read here because it's possible that there's no time step
+  // information in the rest of the files, so we'll need to use the info in the eet file to get
+  // time values.
+  if (this->Impl->Reader.HasRigidBodyFile())
+  {
+    if (!this->Impl->Reader.ReadRigidBodyGeometryFile())
+    {
+      vtkErrorMacro("Error reading rigid body file. Will attempt to continue reading EnSight "
+                    "files, without applying rigid body transformations.");
+    }
+  }
+
   this->Impl->TimeSteps = this->Impl->Reader.GetTimeSteps();
+  if (this->Impl->TimeSteps.empty() && this->Impl->Reader.UseRigidBodyTimeSteps())
+  {
+    // we'll fall back on using time step info from rigid body files
+    this->Impl->TimeSteps = this->Impl->Reader.GetEulerTimeSteps();
+    if (this->Impl->TimeSteps.empty())
+    {
+      vtkErrorMacro("UseEulerTimeSteps is true, but there are no time steps saved.");
+      return 0;
+    }
+  }
+
   if (!this->Impl->TimeSteps.empty())
   {
     if (!this->AllTimeSteps)
@@ -129,21 +152,22 @@ int vtkEnSightGoldCombinedReader::RequestData(
     actualTimeValue = steps[cnt];
   }
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), actualTimeValue);
+  this->Impl->Reader.SetActualTimeValue(actualTimeValue);
 
-  if (!this->Impl->Reader.ReadGeometry(output, this->Impl->PartSelection, actualTimeValue))
+  if (!this->Impl->Reader.ReadGeometry(output, this->Impl->PartSelection))
   {
     vtkErrorMacro("Geometry file could not be read");
     return 0;
   }
 
-  if (!this->Impl->Reader.ReadMeasuredGeometry(output, this->Impl->PartSelection, actualTimeValue))
+  if (!this->Impl->Reader.ReadMeasuredGeometry(output, this->Impl->PartSelection))
   {
     vtkErrorMacro("Measured geometry file could not be read");
     return 0;
   }
 
   if (!this->Impl->Reader.ReadVariables(output, this->Impl->PartSelection,
-        this->Impl->PointArraySelection, this->Impl->CellArraySelection, actualTimeValue))
+        this->Impl->PointArraySelection, this->Impl->CellArraySelection))
   {
     vtkErrorMacro("Variable file(s) could not be read");
     return 0;

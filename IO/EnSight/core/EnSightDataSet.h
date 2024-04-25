@@ -7,6 +7,7 @@
 #include "EnSightFile.h"
 
 #include "vtkSmartPointer.h"
+#include "vtkTransform.h"
 
 #include <string>
 #include <vector>
@@ -155,14 +156,18 @@ public:
   /**
    * Reads Geometry file, caching the data if not transient
    */
-  bool ReadGeometry(vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection,
-    double actualTimeValue);
+  bool ReadGeometry(vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection);
 
   /**
    * Reads Measured Geometry file
    */
-  bool ReadMeasuredGeometry(vtkPartitionedDataSetCollection* output,
-    vtkDataArraySelection* selection, double actualTimeValue);
+  bool ReadMeasuredGeometry(
+    vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection);
+
+  /**
+   * Read the rigid body file.
+   */
+  bool ReadRigidBodyGeometryFile();
 
   /**
    * Only grabs Part (block) information from the Geometry file to be used
@@ -175,8 +180,24 @@ public:
    * Reads Variable file(s)
    */
   bool ReadVariables(vtkPartitionedDataSetCollection* output, vtkDataArraySelection* partSelection,
-    vtkDataArraySelection* pointArraySelection, vtkDataArraySelection* cellArraySelection,
-    double actualTimeValue);
+    vtkDataArraySelection* pointArraySelection, vtkDataArraySelection* cellArraySelection);
+
+  /**
+   * Returns true if a rigid body file is specified in the case file
+   */
+  bool HasRigidBodyFile();
+
+  /**
+   * Returns true if the time steps specified in the rigid body files should be used
+   */
+  bool UseRigidBodyTimeSteps();
+
+  /**
+   * Get the array of time steps from the rigid body files
+   */
+  std::vector<double> GetEulerTimeSteps();
+
+  void SetActualTimeValue(double time);
 
 private:
   bool ParseFormatSection();
@@ -214,14 +235,13 @@ private:
   void ReadNFacedSection(int& numElements, vtkUnstructuredGrid* output);
 
   void ReadVariableNodes(EnSightFile& file, const std::string& arrayName, int numComponents,
-    double actualTimeValue, vtkPartitionedDataSetCollection* output,
-    vtkDataArraySelection* selection, bool isComplex = false, bool isReal = true);
+    vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection,
+    bool isComplex = false, bool isReal = true);
   void ReadVariableMeasuredNodes(EnSightFile& file, const std::string& arrayName, int numComponents,
-    double actualTimeValue, vtkPartitionedDataSetCollection* output,
-    vtkDataArraySelection* selection);
+    vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection);
   void ReadVariableElements(EnSightFile& file, const std::string& arrayName, int numComponents,
-    double actualTimeValue, vtkPartitionedDataSetCollection* output,
-    vtkDataArraySelection* selection, bool isComplex = false, bool isReal = true);
+    vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection,
+    bool isComplex = false, bool isReal = true);
   vtkSmartPointer<vtkFloatArray> ReadVariableArray(
     EnSightFile& file, const std::string& sectionHeader, vtkIdType numElements, int numComponents);
 
@@ -232,32 +252,51 @@ private:
 
   bool CurrentGeometryFileContainsConnectivity();
 
+  /**
+   * Read the euler parameter file for rigid body transformations.
+   * If an error occurred, 0 is returned; otherwise 1.
+   *
+   * Note: only supported for EnSight Gold files
+   */
+  bool ReadRigidBodyEulerParameterFile(const std::string& path);
+
+  /**
+   * Helper method for reading matrices specified in rigid body files
+   */
+  bool ReadRigidBodyMatrixLines(
+    std::string& line, const std::string& transType, vtkTransform* transform, bool& applyToVectors);
+
+  /**
+   * Apply rigid body transforms to the specified part, if there are any.
+   */
+  bool ApplyRigidBodyTransforms(int partId, std::string partName, vtkDataSet* output);
+
   EnSightFile CaseFile;
 
   std::string GeometryFileName;
   EnSightFile GeometryFile;
   // set true when at least some part of the geometry needs to be cached
   // use in conjunction with GeometryChangeCoordsOnly
-  bool CacheGeometry = false;
-  bool GeometryCached = false;
+  bool CacheGeometry;
+  bool GeometryCached;
 
   // indicates that changing geometry is only coordinates, not connectivity
-  bool GeometryChangeCoordsOnly = false;
+  bool GeometryChangeCoordsOnly;
 
   // zero based time step that contains the connectivity.
   // only used when GeometryChangeCoordsOnly == true
-  int GeometryCStep = -1;
+  int GeometryCStep;
 
   vtkSmartPointer<vtkPartitionedDataSetCollection> Cache;
 
   std::string MeasuredFileName;
   EnSightFile MeasuredFile;
-  int MeasuredPartitionId = -1;
+  int MeasuredPartitionId;
 
   std::vector<std::string> FilePath;
 
-  bool NodeIdsListed = false;
-  bool ElementIdsListed = false;
+  bool NodeIdsListed;
+  bool ElementIdsListed;
 
   PartInfoMapType PartInfoMap;
   TimeSetInfoMapType TimeSetInfoMap;
@@ -265,6 +304,58 @@ private:
   std::vector<double> AllTimeSteps;
 
   std::vector<VariableOptions> Variables;
+  double ActualTimeValue;
+
+  std::string RigidBodyFileName;
+  EnSightFile RigidBodyFile;
+  EnSightFile EETFile;
+  // We support only version 2 of rigid body transform files for only ensight gold files.
+  // For rigid body transforms, we need to track per part:
+  // 1. transforms to be applied before the Euler transformation
+  // 2. Information about which data to use in the Euler Transform file (eet file)
+  // 3. transforms to be applied after the Euler transformation
+  struct PartTransforms
+  {
+    // Pre and post transforms do not change over time
+    // We have to track each transform separately, because some transforms need to be
+    // applied to geometry and vectors, while others should only be applied to the geometry
+    std::vector<vtkSmartPointer<vtkTransform>> PreTransforms;
+    std::vector<bool> PreTransformsApplyToVectors;
+    std::vector<vtkSmartPointer<vtkTransform>> PostTransforms;
+    std::vector<bool> PostTransformsApplyToVectors;
+
+    // EnSight format requires specifying the eet file per part, but according to the user manual
+    // use of different eet files for the same dataset is not actually allowed
+    std::string EETFilename;
+
+    // title is related to, but not necessarily a part name. for instance, if you have 4 wheel parts
+    // there may only be a single "wheel" title that all wheel parts use, applying the same Euler
+    // rotation to all wheels
+    std::string EETTransTitle;
+  };
+
+  // rigid body files allows for using either part names or part Ids to specify
+  // transforms for parts;
+  bool UsePartNamesRB;
+
+  // keeps track of all transforms for each part
+  // if UsePartNamesRB == true, the key is the part name
+  // otherwise, the key name is the partId converted to a string
+  std::map<std::string, PartTransforms> RigidBodyTransforms;
+
+  // map time step to the Euler transform for a part
+  using TimeToEulerTransMapType = std::map<double, vtkSmartPointer<vtkTransform>>;
+
+  // map a title to all of its Euler transforms
+  using TitleToTimeStepMapType = std::map<std::string, TimeToEulerTransMapType>;
+
+  TitleToTimeStepMapType EulerTransformsMap;
+
+  // It's possible for an EnSight dataset to not contain transient data, except for the
+  // Euler transforms. In this case, we will populate EulerTimeSteps so we can use it for
+  // time information, instead of the usual time set
+  bool UseEulerTimeSteps;
+  std::vector<double> EulerTimeSteps;
 };
 
 VTK_ABI_NAMESPACE_END
