@@ -121,6 +121,16 @@ public:
   void SetAdapterId(LUID uid);
   ///@}
 
+  /**
+   * Specify the DXGI format of the D3D color texture shared with this render window.
+   *
+   * @param format must be a valid DXGI_FORMAT.
+   *
+   * Note: We don't forward declare the DXGI_FORMAT enum as it is ill-formed and would
+   * always trigger a warning (see https://github.com/ocornut/imgui/issues/3706).
+   */
+  void SetColorTextureFormat(UINT format);
+
 protected:
   vtkWin32OpenGLDXRenderWindow();
   ~vtkWin32OpenGLDXRenderWindow() override;
