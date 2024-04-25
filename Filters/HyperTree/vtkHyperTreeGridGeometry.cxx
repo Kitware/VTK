@@ -56,6 +56,7 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   // Initialize output cell data
   this->InData = input->GetCellData();
   this->OutData = output->GetCellData();
+  this->OutData->CopyAllOn(); // Should be set before CopyAllocate to be taken into account
   this->OutData->CopyAllocate(this->InData);
 
   vtkNew<vtkPoints> outPoints;
