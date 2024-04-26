@@ -583,7 +583,8 @@ void vtkWrapPython_GenerateObjectType(
       "single data object as input.\");\n"
       "          return nullptr;\n"
       "        }\n"
-      "\n"
+      "\n");
+    fprintf(fp,
       "        int nConns = op->GetNumberOfInputConnections(0);\n"
       "        for(int i=0; i<nConns; i++)\n"
       "        {\n"
