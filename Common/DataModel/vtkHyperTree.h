@@ -124,9 +124,11 @@
 #define vtkHyperTree_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // Include the macros.
 #include "vtkObject.h"
 
 #include <cassert> // Used internally
+#include <limits>  // Used infinity
 #include <memory>  // std::shared_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -266,6 +268,18 @@ public:
   virtual void ComputeBreadthFirstOrderDescriptor(const unsigned int depthLimiter,
     vtkBitArray* inputMask, vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
     vtkIdList* breadthFirstIdMap) = 0;
+
+  VTK_DEPRECATED_IN_9_5_0(
+    "You must use depthLimiter parameter for transmit the eponymous member of vtkHyperTreeGrid")
+  void ComputeBreadthFirstOrderDescriptor(vtkBitArray* inputMask,
+    vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
+    vtkIdList* breadthFirstIdMap)
+  {
+    ComputeBreadthFirstOrderDescriptor(std::numeric_limits<unsigned int>::infinity(), inputMask,
+      numberOfVerticesPerDepth, descriptor, breadthFirstIdMap);
+  }
+
+#include "vtkDeprecation.h" // Include the macros.
 
   /**
    * Copy the structure by sharing the decomposition description
