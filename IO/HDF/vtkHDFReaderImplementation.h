@@ -89,7 +89,8 @@ public:
   vtkDataArray* NewArray(
     int attributeType, const char* name, const std::vector<hsize_t>& fileExtent);
   vtkDataArray* NewArray(int attributeType, const char* name, hsize_t offset, hsize_t size);
-  vtkAbstractArray* NewFieldArray(const char* name, vtkIdType offset = -1, vtkIdType size = -1);
+  vtkAbstractArray* NewFieldArray(
+    const char* name, vtkIdType offset = -1, vtkIdType size = -1, vtkIdType dimMaxSize = -1);
   ///@}
 
   ///@{
@@ -141,6 +142,13 @@ public:
    * Methods to query for array offsets when steps are present
    */
   vtkIdType GetArrayOffset(vtkIdType step, int attributeType, std::string name);
+
+  /**
+   * Return the field array size (components, tuples) for the current step.
+   * By default it returns {-1,1} which means to have as many components as necessary
+   * and one tuple per step.
+   */
+  std::array<vtkIdType, 2> GetFieldArraySize(vtkIdType step, std::string name);
 
   /**
    * Open a sub group of the current file and consider it as the new root file.

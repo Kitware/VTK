@@ -170,7 +170,7 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
       return false;
     }
 
-    return this->RetrieveHDFInformation("/VTKHDF");
+    return this->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
   }
 
   return !error;
@@ -857,9 +857,9 @@ vtkStringArray* vtkHDFReader::Implementation::NewStringArray(hid_t dataset, hsiz
 
 //------------------------------------------------------------------------------
 vtkAbstractArray* vtkHDFReader::Implementation::NewFieldArray(
-  const char* name, vtkIdType offset, vtkIdType size)
+  const char* name, vtkIdType offset, vtkIdType size, vtkIdType dimMaxSize)
 {
-  hid_t tempNativeType = -1;
+  hid_t tempNativeType = H5I_INVALID_HID;
   std::vector<hsize_t> dims;
   vtkHDF::ScopedH5DHandle dataset =
     this->OpenDataSet(this->AttributeDataGroup[vtkDataObject::FIELD], name, &tempNativeType, dims);
@@ -898,7 +898,11 @@ vtkAbstractArray* vtkHDFReader::Implementation::NewFieldArray(
       fileExtent.push_back(offset);
       fileExtent.push_back(offset + size);
     }
-    return NewArrayForGroup(this->AttributeDataGroup[vtkDataObject::FIELD], name, fileExtent);
+    if (dims.size() >= 2 && dimMaxSize > 0 && static_cast<int>(dims[1]) > dimMaxSize)
+    {
+      dims[1] = dimMaxSize;
+    }
+    return this->NewArrayForGroup(dataset, nativeType, dims, fileExtent);
   }
 }
 
@@ -1115,7 +1119,7 @@ bool vtkHDFReader::Implementation::FillAssembly(vtkDataAssembly* assembly)
     return false;
   }
 
-  std::string assemblyPath = "/VTKHDF/Assembly";
+  std::string assemblyPath = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/Assembly";
   vtkHDF::ScopedH5GHandle assemblyID = H5Gopen(this->VTKGroup, assemblyPath.c_str(), H5P_DEFAULT);
   if (assemblyID <= H5I_INVALID_HID)
   {
@@ -1829,6 +1833,40 @@ vtkIdType vtkHDFReader::Implementation::GetArrayOffset(
     return -1;
   }
   return buffer[0];
+}
+
+//------------------------------------------------------------------------------
+std::array<vtkIdType, 2> vtkHDFReader::Implementation::GetFieldArraySize(
+  vtkIdType step, std::string name)
+{
+  std::array<vtkIdType, 2> size = { -1, 1 };
+  if (this->VTKGroup < 0)
+  {
+    return size;
+  }
+  std::string path = "Steps";
+  if (H5Lexists(this->VTKGroup, path.c_str(), H5P_DEFAULT) <= 0)
+  {
+    return size;
+  }
+  path += "/FieldDataSizes";
+  if (H5Lexists(this->VTKGroup, path.c_str(), H5P_DEFAULT) <= 0)
+  {
+    return size;
+  }
+  path += "/" + name;
+  if (H5Lexists(this->VTKGroup, path.c_str(), H5P_DEFAULT) <= 0)
+  {
+    return size;
+  }
+  std::vector<vtkIdType> buffer = this->GetMetadata(path.c_str(), 1, step);
+  if (buffer.empty() || buffer.size() != 2)
+  {
+    return size;
+  }
+  size[0] = buffer[0];
+  size[1] = buffer[1];
+  return size;
 }
 
 //------------------------------------------------------------------------------

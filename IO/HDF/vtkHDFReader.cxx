@@ -50,8 +50,6 @@ vtkStandardNewMacro(vtkHDFReader);
 
 namespace
 {
-const std::string VTKHDF_ROOT_PATH = "/VTKHDF";
-
 //----------------------------------------------------------------------------
 int GetNDims(int* extent)
 {
@@ -659,7 +657,7 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
       this->GenerateAssembly();
     }
     this->RetrieveDataArraysFromAssembly();
-    this->Impl->RetrieveHDFInformation(::VTKHDF_ROOT_PATH);
+    this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
     if (!this->RetrieveStepsFromAssembly())
     {
       return 0;
@@ -818,16 +816,18 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
   {
     vtkSmartPointer<vtkAbstractArray> array;
     vtkIdType offset = -1;
-    vtkIdType size = -1;
+    std::array<vtkIdType, 2> size = { -1, -1 };
     if (this->Impl->GetDataSetType() != VTK_OVERLAPPING_AMR && this->GetHasTemporalData())
     {
-      // If the field data is temporal we expect it to have NumberSteps number of tuples
-      // and as many components as necessary
-      size = 1;
+      size = this->Impl->GetFieldArraySize(this->Step, name);
       offset = this->Impl->GetArrayOffset(this->Step, vtkDataObject::FIELD, name);
+      if (size[0] == 0 && size[1] == 0)
+      {
+        continue;
+      }
     }
     if (this->UseCache &&
-      this->Cache->CheckExistsAndEqual(vtkDataObject::FIELD, name, offset, size))
+      this->Cache->CheckExistsAndEqual(vtkDataObject::FIELD, name, offset, size[1]))
     {
       array = this->Cache->Get(vtkDataObject::FIELD, name);
       if (!array)
@@ -838,24 +838,18 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
     }
     else
     {
-      if ((array = vtk::TakeSmartPointer(this->Impl->NewFieldArray(name.c_str(), offset, size))) ==
-        nullptr)
+      if ((array = vtk::TakeSmartPointer(
+             this->Impl->NewFieldArray(name.c_str(), offset, size[1], size[0]))) == nullptr)
       {
         vtkErrorMacro("Error reading array " << name);
         return 0;
       }
       array->SetName(name.c_str());
     }
-    if (this->GetHasTemporalData())
-    {
-      vtkIdType len = array->GetNumberOfComponents();
-      array->SetNumberOfComponents(1);
-      array->SetNumberOfTuples(len);
-    }
     data->GetAttributesAsFieldData(vtkDataObject::FIELD)->AddArray(array);
     if (this->UseCache)
     {
-      this->Cache->Set(vtkDataObject::FIELD, name, offset, size, array);
+      this->Cache->Set(vtkDataObject::FIELD, name, offset, size[1], array);
     }
   }
   if (this->GetHasTemporalData())
@@ -1316,7 +1310,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
   vtkIdType pdcSteps = this->NumberOfSteps;
 
   const std::vector<std::string> datasets =
-    this->Impl->GetOrderedChildrenOfGroup(::VTKHDF_ROOT_PATH);
+    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
 
   pdc->SetNumberOfPartitionedDataSets(
     static_cast<unsigned int>(datasets.size() - 1)); // One child is the assembly
@@ -1327,7 +1321,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
     {
       continue;
     }
-    std::string hdfPathName = ::VTKHDF_ROOT_PATH + "/" + datasetName;
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
     this->Impl->RetrieveHDFInformation(hdfPathName);
     this->Impl->OpenGroupAsVTKGroup(hdfPathName); // Change root
 
@@ -1385,11 +1379,17 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
     {
       return result;
     }
+
+    vtkPartitionedDataSet* pData = pdc->GetPartitionedDataSet(dsIndex);
+    for (unsigned int idx = 0; idx < pData->GetNumberOfPartitions(); ++idx)
+    {
+      this->AddFieldArrays(pData->GetPartitionAsDataObject(idx));
+    }
   }
 
   // Implementation can point to a subset due to the previous method instead of the root, reset it
   // to avoid any conflict for temporal dataset.
-  this->Impl->RetrieveHDFInformation(::VTKHDF_ROOT_PATH);
+  this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
   this->SetHasTemporalData(isPDCTemporal);
   this->NumberOfSteps = pdcSteps;
 
@@ -1403,9 +1403,9 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkMultiBlockDataSet* mb)
   bool isPDCTemporal = this->GetHasTemporalData();
   vtkIdType pdcSteps = this->NumberOfSteps;
 
-  int result = this->ReadRecursively(outInfo, mb, ::VTKHDF_ROOT_PATH + "/Assembly");
+  int result = this->ReadRecursively(outInfo, mb, vtkHDFUtilities::VTKHDF_ROOT_PATH + "/Assembly");
 
-  this->Impl->RetrieveHDFInformation(::VTKHDF_ROOT_PATH);
+  this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
   this->SetHasTemporalData(isPDCTemporal);
   this->NumberOfSteps = pdcSteps;
 
@@ -1423,14 +1423,14 @@ void vtkHDFReader::GenerateAssembly()
 bool vtkHDFReader::RetrieveStepsFromAssembly()
 {
   const std::vector<std::string> datasets =
-    this->Impl->GetOrderedChildrenOfGroup(::VTKHDF_ROOT_PATH);
+    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
   for (const auto& datasetName : datasets)
   {
     if (datasetName == "Assembly")
     {
       continue;
     }
-    std::string hdfPathName = ::VTKHDF_ROOT_PATH + "/" + datasetName;
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
     this->Impl->OpenGroupAsVTKGroup(hdfPathName);
     std::size_t nStep = this->Impl->GetNumberOfSteps();
 
@@ -1454,14 +1454,14 @@ bool vtkHDFReader::RetrieveStepsFromAssembly()
 void vtkHDFReader::RetrieveDataArraysFromAssembly()
 {
   const std::vector<std::string> datasets =
-    this->Impl->GetOrderedChildrenOfGroup(::VTKHDF_ROOT_PATH);
+    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
   for (const auto& datasetName : datasets)
   {
     if (datasetName == "Assembly")
     {
       continue;
     }
-    std::string hdfPathName = ::VTKHDF_ROOT_PATH + "/" + datasetName;
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
 
     // Fill DataArray
     this->Impl->RetrieveHDFInformation(hdfPathName);
@@ -1529,6 +1529,7 @@ int vtkHDFReader::ReadRecursively(
         this->Read(out, data);
         dataMB->SetBlock(i, data);
       }
+      this->AddFieldArrays(dataMB->GetBlock(i));
     }
     else
     {

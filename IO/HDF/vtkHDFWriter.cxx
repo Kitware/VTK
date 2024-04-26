@@ -10,6 +10,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
+#include "vtkHDFUtilities.h"
 #include "vtkHDFWriterImplementation.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -958,8 +959,9 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetColl
     for (auto& datasetId : assembly->GetDataSetIndices(nodeIndex, false))
     {
       const std::string datasetName = ::getBlockName(pdc, datasetId);
-      const std::string linkTarget = "/VTKHDF/" + datasetName;
-      const std::string linkSource = "/VTKHDF/Assembly/" + nodePath + "/" + datasetName;
+      const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
+      const std::string linkSource =
+        vtkHDFUtilities::VTKHDF_ROOT_PATH + "/Assembly/" + nodePath + "/" + datasetName;
       this->Impl->CreateSoftLink(this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str());
     }
   }
@@ -1004,7 +1006,7 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
         this->Impl->CreateHdfGroupWithLinkOrder(this->Impl->GetRoot(), subTreeName.c_str());
       this->DispatchDataObject(datasetGroup, treeIter->GetCurrentDataObject());
 
-      const std::string linkTarget = "/VTKHDF/" + subTreeName;
+      const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + subTreeName;
       const std::string linkSource = this->Impl->GetGroupName(assemblyGroup) + "/" + subTreeName;
 
       this->Impl->CreateSoftLink(this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str());
