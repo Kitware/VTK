@@ -424,6 +424,31 @@ static int isValidSuffix(const char* methName, const char* propertyName, const c
   return 0;
 }
 
+static int isIntegral(const ValueInfo* val)
+{
+  unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
+
+  if (t != VTK_PARSE_UNSIGNED_CHAR)
+  {
+    t = (t & ~VTK_PARSE_UNSIGNED);
+  }
+  switch (t)
+  {
+    case VTK_PARSE_SHORT:
+    case VTK_PARSE_INT:
+    case VTK_PARSE_LONG:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE_UNSIGNED_CHAR:
+    case VTK_PARSE_SIGNED_CHAR:
+    case VTK_PARSE_SSIZE_T:
+      return 1;
+    default:
+      break;
+  }
+
+  return 0;
+}
+
 /*-------------------------------------------------------------------
  * Convert the FunctionInfo into a MethodAttributes, which will make
  * it easier to find matched Set/Get methods.  A return value of zero
@@ -470,10 +495,7 @@ static int getMethodAttributes(FunctionInfo* func, MethodAttributes* attrs)
   }
 
   /* check for indexed methods: the first argument will be an integer */
-  if (func->NumberOfParameters > 0 &&
-    ((func->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_INT ||
-      (func->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_SIZE_T ||
-      (func->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_ID_TYPE))
+  if (func->NumberOfParameters > 0 && isIntegral(func->Parameters[0]))
   {
     /* methods of the form "void SetValue(int i, type value)" */
     if ((!func->ReturnValue ||

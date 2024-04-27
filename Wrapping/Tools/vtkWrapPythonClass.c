@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWrapPythonClass.h"
+#include "vtkParseProperties.h"
 #include "vtkWrapPythonConstant.h"
 #include "vtkWrapPythonEnum.h"
 #include "vtkWrapPythonMethod.h"
 #include "vtkWrapPythonMethodDef.h"
+#include "vtkWrapPythonNumberProtocol.h"
+#include "vtkWrapPythonProperty.h"
 #include "vtkWrapPythonTemplate.h"
 #include "vtkWrapPythonType.h"
 
@@ -270,6 +273,26 @@ void vtkWrapPython_ClassDoc(
       fprintf(
         fp, "  \"%s%s", vtkWrapText_QuoteString(temp, 500), ccp[i] == '\0' ? "\\n\"" : "\"\n");
     }
+    if (data->Name && strcmp(data->Name, "vtkAlgorithm") == 0)
+    {
+      fprintf(fp, "\n  \"vtkAlgorithm defines two additional methods in Python: \\n\\n\"\n");
+      fprintf(
+        fp, "  \"update(): This method updates the pipeline connected to this algorithm\\n\"\n");
+      fprintf(fp, "  \"and returns an Output object with an output property. This property\\n\"\n");
+      fprintf(
+        fp, "  \"provides either a single data object (for algorithms with single output\\n\"\n");
+      fprintf(fp, "  \"or a tuple (for algorithms with multiple outputs).\\n\\n\"\n");
+      fprintf(
+        fp, "  \"__call__() (or just ()): This method takes a data object as input (or\\n\"\n");
+      fprintf(fp, "  \"a tuple for repeatable inputs for algorithms such as append)\\n\"\n");
+      fprintf(fp, "  \"and returns the output the same way as update()\\n\\n\"\n");
+      fprintf(fp, "  \"vtkAlgorithm also implements the >> operator which can be used to\\n\"\n");
+      fprintf(
+        fp, "  \"connect algorithms to form pipelines. The >> operator returns a Pipeline\\n\"\n");
+      fprintf(
+        fp, "  \"object which can be used to execute the pipeline with the update() and\\n\"\n");
+      fprintf(fp, "  \"__call__() methods.\\n\"");
+    }
   }
 }
 
@@ -432,14 +455,17 @@ static void vtkWrapPython_GenerateObjectNew(
   }
 
   fprintf(fp,
+    "  PyVTKClass_AddCombinedGetSetDefinitions(pytype, Py%s_GetSets);\n"
     "  PyType_Ready(pytype);\n"
     "  return (PyObject *)pytype;\n"
-    "}\n\n");
+    "}\n\n",
+    classname);
 }
 
 /* -------------------------------------------------------------------- */
 /* write out the type object */
-void vtkWrapPython_GenerateObjectType(FILE* fp, const char* module, const char* classname)
+void vtkWrapPython_GenerateObjectType(
+  FILE* fp, const char* module, const char* classname, const int hasNumberProtocol)
 {
   /* Generate the TypeObject */
   fprintf(fp,
@@ -464,13 +490,167 @@ void vtkWrapPython_GenerateObjectType(FILE* fp, const char* module, const char* 
     "  PyVTKObject_Repr, // tp_repr\n",
     classname, module, classname);
 
+  if (hasNumberProtocol)
+  {
+    fprintf(fp, "  Py%s_NumberMethods, // tp_as_number\n", classname);
+  }
+  else
+  {
+    fprintf(fp, "  nullptr, // tp_as_number\n");
+  }
   fprintf(fp,
-    "  nullptr, // tp_as_number\n"
     "  nullptr, // tp_as_sequence\n"
     "  nullptr, // tp_as_mapping\n"
-    "  nullptr, // tp_hash\n"
-    "  nullptr, // tp_call\n"
-    "  PyVTKObject_String, // tp_str\n");
+    "  nullptr, // tp_hash\n");
+  if (strcmp(classname, "vtkAlgorithm") == 0)
+  {
+    fprintf(fp,
+      "  [](PyObject* self, PyObject* args, PyObject* /*kwargs*/) -> PyObject*\n"
+      "  {\n"
+      "    int nargs = vtkPythonArgs::GetArgCount(self, args);\n"
+      "    if(nargs>1)\n"
+      "    {\n"
+      "      // Could call vtkPythonArgs::ArgCountError here, but MSVC confuses the "
+      "intended static overload with a non-static overload and raises C4753.\n"
+      "      char text[256];\n"
+      "      snprintf(text, sizeof(text), \"no overloads of __call__() take %%d argument%%s\", "
+      "nargs, (nargs == 1 ? \"\" "
+      ": \"s\"));\n"
+      "      PyErr_SetString(PyExc_TypeError, text);\n"
+      "      return nullptr;\n"
+      "    }\n"
+      "    vtkPythonArgs ap(self, args, \"__call__\");\n"
+      "    vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
+      "    vtkAlgorithm *op = vtkAlgorithm::SafeDownCast(vp);\n"
+      "    if (op == nullptr)\n"
+      "    {\n"
+      "      PyErr_SetString(PyExc_TypeError, \"The call operator must be invoked on a "
+      "vtkAlgorithm\");\n"
+      "      return nullptr;\n"
+      "    }\n"
+      "    vtkDataObject *input = nullptr;\n"
+      "    PyObject* output = nullptr;\n"
+      "    if(op)\n"
+      "    {\n"
+      "      if(nargs == 0)\n"
+      "      {\n"
+      "        if(op->GetNumberOfInputPorts())\n"
+      "        {\n"
+      "          PyErr_SetString(PyExc_ValueError, \"No input was provided when one is "
+      "required.\");\n"
+      "          return nullptr;\n"
+      "        }\n"
+      "      }\n"
+      "      int numOutputPorts = op->GetNumberOfOutputPorts();\n"
+      "      std::vector<vtkAlgorithmOutput*> inpConns;\n"
+      "      std::vector<vtkDataObject*> inputs;\n"
+      "      if(nargs == 1 && op->GetNumberOfInputPorts() < 1)\n"
+      "      {\n"
+      "        PyErr_SetString(PyExc_ValueError, \"Trying to set input on an algorithm with 0 "
+      "input ports\");\n"
+      "        return nullptr;\n"
+      "      }\n"
+      "      if(nargs == 1)\n"
+      "      {\n"
+      "        PyObject* obj = PyTuple_GetItem(args, 0);\n"
+      "        if(PySequence_Check(obj))\n"
+      "        {\n"
+      "           Py_ssize_t nInps = PySequence_Size(obj);\n"
+      "           for(Py_ssize_t i=0; i<nInps; i++)\n"
+      "           {\n"
+      "             PyObject* s = PySequence_GetItem(obj, i);\n"
+      "             vtkDataObject* dobj = vtkDataObject::SafeDownCast(\n"
+      "                 vtkPythonUtil::GetPointerFromObject(s, \"vtkDataObject\"));\n"
+      "             if (dobj)\n"
+      "             {\n"
+      "               inputs.push_back(dobj);\n"
+      "             }\n"
+      "             else\n"
+      "             {\n"
+      "               PyErr_SetString(PyExc_ValueError, \"Expecting a sequence of data objects or "
+      "a single data object as input.\");\n"
+      "               return nullptr;\n"
+      "             }\n"
+      "           }\n"
+      "        }\n"
+      "        else if(ap.GetVTKObject(input, \"vtkDataObject\"))\n"
+      "        {\n"
+      "          inputs.push_back(input);\n"
+      "        }\n"
+      "        else\n"
+      "        {\n"
+      "          PyErr_SetString(PyExc_ValueError, \"Expecting a sequence of data objects or a "
+      "single data object as input.\");\n"
+      "          return nullptr;\n"
+      "        }\n"
+      "\n");
+    fprintf(fp,
+      "        int nConns = op->GetNumberOfInputConnections(0);\n"
+      "        for(int i=0; i<nConns; i++)\n"
+      "        {\n"
+      "          auto conn = op->GetInputConnection(0, i);\n"
+      "          inpConns.push_back(conn);\n"
+      "          if(conn && conn->GetProducer())\n"
+      "          {\n"
+      "            conn->GetProducer()->Register(nullptr);\n"
+      "          }\n"
+      "        }\n"
+      "        op->RemoveAllInputConnections(0);\n"
+      "        for(vtkDataObject* inputDobj : inputs)\n"
+      "        {\n"
+      "          vtkTrivialProducer* tp = vtkTrivialProducer::New();\n"
+      "          tp->SetOutput(inputDobj);\n"
+      "          op->AddInputConnection(0, tp->GetOutputPort());\n"
+      "          tp->Delete();\n"
+      "        }\n"
+      "      }\n"
+      "      op->Update();\n"
+      "      if(numOutputPorts > 1)\n"
+      "      {\n"
+      "        output = PyTuple_New(numOutputPorts);\n"
+      "        for(int i=0; i<numOutputPorts; i++)\n"
+      "        {\n"
+      "          auto dobj = op->GetOutputDataObject(i);\n"
+      "          auto copy = dobj->NewInstance();\n"
+      "          copy->ShallowCopy(dobj);\n"
+      "          auto anOutput = ap.BuildVTKObject(copy);\n"
+      "          PyTuple_SetItem(output, i, anOutput);\n"
+      "          copy->UnRegister(nullptr);\n"
+      "        }\n"
+      "      }\n"
+      "      else if(op->GetNumberOfOutputPorts() == 1)\n"
+      "      {\n"
+      "        auto dobj = op->GetOutputDataObject(0);\n"
+      "        auto copy = dobj->NewInstance();\n"
+      "        copy->ShallowCopy(dobj);\n"
+      "        output = ap.BuildVTKObject(copy);\n"
+      "        copy->UnRegister(nullptr);\n"
+      "      }\n"
+      "      else\n"
+      "      {\n"
+      "        output = ap.BuildNone();\n"
+      "      }\n"
+      "      if(op->GetNumberOfInputPorts())\n"
+      "      {\n"
+      "        op->RemoveAllInputConnections(0);\n"
+      "        for(auto conn : inpConns)\n"
+      "        {\n"
+      "          op->AddInputConnection(0, conn);\n"
+      "          if(conn && conn->GetProducer())\n"
+      "          {\n"
+      "            conn->GetProducer()->UnRegister(nullptr);\n"
+      "          }\n"
+      "        }\n"
+      "      }\n"
+      "    }\n"
+      "    return output;\n"
+      "  }, //tp_call\n");
+  }
+  else
+  {
+    fprintf(fp, "  nullptr, // tp_call\n");
+  }
+  fprintf(fp, "  PyVTKObject_String, // tp_str\n");
 
   fprintf(fp,
     "  PyObject_GenericGetAttr, // tp_getattro\n"
@@ -515,7 +695,7 @@ void vtkWrapPython_GenerateObjectType(FILE* fp, const char* module, const char* 
     "  nullptr, // tp_descr_get\n"
     "  nullptr, // tp_descr_set\n"
     "  offsetof(PyVTKObject, vtk_dict), // tp_dictoffset\n"
-    "  nullptr, // tp_init\n"
+    "  PyVTKObject_Init, // tp_init\n"
     "  nullptr, // tp_alloc\n"
     "  PyVTKObject_New, // tp_new\n"
     "  PyObject_GC_Del, // tp_free\n"
@@ -584,8 +764,21 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
     }
   }
 
+  /* The call to generate methods below erases some occurrences, so parse all properties before
+   * methods are generated */
+  ClassProperties* properties = vtkParseProperties_Create(data, hinfo);
+
   /* now output all the methods are wrappable */
   vtkWrapPython_GenerateMethods(fp, classname, data, file_info, hinfo, is_vtkobject, 0);
+
+  /* now output number protocol definitions where acceptable */
+  int hasNumberProtocol = vtkWrapPython_GenerateNumberProtocolDefintions(fp, data);
+
+  /* now output all the property getters and setters */
+  vtkWrapPython_GenerateProperties(fp, classname, data, hinfo, properties, is_vtkobject);
+
+  /* Free properties */
+  vtkParseProperties_Free(properties);
 
   /* output the class initialization function for VTK objects */
   if (is_vtkobject)
@@ -595,7 +788,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
     vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
     fprintf(fp, ";\n\n");
 
-    vtkWrapPython_GenerateObjectType(fp, module, classname);
+    vtkWrapPython_GenerateObjectType(fp, module, classname, hasNumberProtocol);
     vtkWrapPython_GenerateObjectNew(fp, classname, data, hinfo, class_has_new);
   }
 

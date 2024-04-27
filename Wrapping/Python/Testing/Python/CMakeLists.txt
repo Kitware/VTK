@@ -8,9 +8,13 @@ foreach (_vtk_python_module IN LISTS vtk_python_wrapped_modules)
 endforeach ()
 
 set(python_tests
+  TestAlgorithmNumberProtocol.py
+  TestConstructorKwargs.py
   TestChar.py
   TestErrorObserver.py
   TestPickleSupport.py
+  TestProperty.py
+  TestUpdateAndCall.py
 )
 
 if (TARGET vtkpythonmodules_pyi)

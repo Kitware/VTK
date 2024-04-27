@@ -232,6 +232,13 @@ static void vtkWrapPython_GenerateSpecialHeaders(
       "#include \"vtkScaledSOADataArrayTemplate.h\"\n"
       "#endif\n");
   }
+  /* special case for the way vtkGenericDataArray template is used */
+  if (data && strcmp(data->Name, "vtkAlgorithm") == 0)
+  {
+    fprintf(fp, "#include \"vtkAlgorithmOutput.h\"\n");
+    fprintf(fp, "#include \"vtkTrivialProducer.h\"\n");
+    fprintf(fp, "#include \"vtkDataObject.h\"\n");
+  }
 
   free((char**)types);
 }

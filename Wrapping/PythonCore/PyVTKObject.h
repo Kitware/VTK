@@ -70,6 +70,9 @@ extern "C"
     PyTypeObject* pytype, PyMethodDef* methods, const char* classname, vtknewfunc constructor);
 
   VTKWRAPPINGPYTHONCORE_EXPORT
+  void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* getsets);
+
+  VTKWRAPPINGPYTHONCORE_EXPORT
   int PyVTKObject_Check(PyObject* obj);
 
   VTKWRAPPINGPYTHONCORE_EXPORT
@@ -98,6 +101,9 @@ extern "C"
 
   VTKWRAPPINGPYTHONCORE_EXPORT
   PyObject* PyVTKObject_New(PyTypeObject*, PyObject* args, PyObject* kwds);
+
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  int PyVTKObject_Init(PyObject* obj, PyObject* args, PyObject* kwds);
 
   VTKWRAPPINGPYTHONCORE_EXPORT
   void PyVTKObject_Delete(PyObject* op);

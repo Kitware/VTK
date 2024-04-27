@@ -25,6 +25,7 @@
 #include "vtkPythonUtil.h"
 
 #include <cstddef>
+#include <dictobject.h>
 #include <sstream>
 
 // This will be set to the python type struct for vtkObjectBase
@@ -172,8 +173,44 @@ PyTypeObject* PyVTKClass_Add(
     PyDict_SetItemString(pytype->tp_dict, PyVTKClass_override_def.ml_name, func);
     Py_DECREF(func);
   }
-
   return pytype;
+}
+
+void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* getsets)
+{
+  // Add all of the getsets
+  for (PyGetSetDef* getset = getsets; getset && getset->name; getset++)
+  {
+    if (getset->get == nullptr)
+    {
+      // find a getter in superclass
+      if (pytype->tp_base != nullptr)
+      {
+        auto key = PyUnicode_FromString(getset->name);
+        if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key))
+        {
+          getset->get = superGetSet->get;
+        }
+        Py_DECREF(key);
+      }
+    }
+    else if (getset->set == nullptr)
+    {
+      // find a setter in superclass
+      if (pytype->tp_base != nullptr)
+      {
+        auto key = PyUnicode_FromString(getset->name);
+        if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key))
+        {
+          getset->set = superGetSet->set;
+        }
+        Py_DECREF(key);
+      }
+    }
+    PyObject* descr = PyDescr_NewGetSet(pytype, getset);
+    PyDict_SetItemString(pytype->tp_dict, getset->name, descr);
+    Py_DECREF(descr);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -241,20 +278,14 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
 }
 
 //------------------------------------------------------------------------------
-PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
+PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* /*kwds*/)
 {
   // XXX(python3-abi3): all types will be heap types in abi3
   // If type was subclassed within python, then skip arg checks and
   // simply create a new object.
+  PyObject* o = nullptr;
   if ((PyType_GetFlags(tp) & Py_TPFLAGS_HEAPTYPE) == 0)
   {
-    if (kwds != nullptr && PyDict_Size(kwds))
-    {
-      PyErr_SetString(PyExc_TypeError, "this function takes no keyword arguments");
-      return nullptr;
-    }
-
-    PyObject* o = nullptr;
     if (!PyArg_UnpackTuple(args, vtkPythonUtil::GetTypeName(tp), 0, 1, &o))
     {
       return nullptr;
@@ -268,7 +299,51 @@ PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
   }
 
   // if PyVTKObject_FromPointer gets nullptr, it creates a new object.
-  return PyVTKObject_FromPointer(tp, nullptr, nullptr);
+  o = PyVTKObject_FromPointer(tp, nullptr, nullptr);
+
+  return o;
+}
+
+//------------------------------------------------------------------------------
+int PyVTKObject_Init(PyObject* obj, PyObject* /*args*/, PyObject* kwds)
+{
+  bool success = true;
+  if (kwds != nullptr && PyDict_Size(kwds))
+  {
+    PyObject *key, *value;
+    Py_ssize_t ppos = 0;
+    // Walks through every keyword argument and sets the property on the object.
+    // Loosely equivalent to this python code with error handling omitted.
+    // for key, value in kwargs.items():
+    //     setattr(obj, key, value)
+    PyTypeObject* tp = Py_TYPE(obj);
+    while (PyDict_Next(kwds, &ppos, &key, &value) && success)
+    {
+      // Check if the key is an existing property.
+      if (vtkPythonUtil::FindGetSetDescriptor(tp, key) != nullptr)
+      {
+        // If the setter failed, break.
+        if (PyObject_SetAttr(obj, key, value) == -1)
+        {
+          // Don't try to raise an exception here because it's already raised by PyObject_SetAttr.
+          success = false;
+        }
+      }
+      else
+      {
+        PyObject* utf8StringObj = PyUnicode_AsUTF8String(key);
+        std::string keyName = utf8StringObj ? PyBytes_AsString(utf8StringObj) : "(null)";
+        Py_XDECREF(utf8StringObj);
+        // Raise TypeError for unexpected keyword argument.
+        PyErr_SetString(PyExc_TypeError,
+          ("Unexpected keyword argument \'" + keyName + "\' for \'" +
+            vtkPythonUtil::GetTypeName(tp) + "\' constructor")
+            .c_str());
+        success = false;
+      }
+    }
+  }
+  return success ? 0 : -1;
 }
 
 //------------------------------------------------------------------------------

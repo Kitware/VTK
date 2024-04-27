@@ -21,40 +21,29 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # pipeline stuff
 #
-pl3d = vtkMultiBlockPLOT3DReader()
-pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
-pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
-pl3d.SetScalarFunctionNumber(100)
-pl3d.SetVectorFunctionNumber(202)
-pl3d.Update()
-pl3d_output = pl3d.GetOutput().GetBlock(0)
-gf = vtkGeometryFilter()
-gf.SetInputData(pl3d_output)
+pl3d = vtkMultiBlockPLOT3DReader(file_name=VTK_DATA_ROOT + "/Data/combxyz.bin",
+                                 q_file_name=VTK_DATA_ROOT + "/Data/combq.bin",
+                                 scalar_function_number=100,
+                                 vector_function_number=202)
+#pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+#pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
+pl3d_output = pl3d.update().output.GetBlock(0)
+gf = vtkGeometryFilter(input_data=pl3d_output)
 tf = vtkTriangleFilter()
-tf.SetInputConnection(gf.GetOutputPort())
 gMapper = vtkPolyDataMapper()
-gMapper.SetInputConnection(gf.GetOutputPort())
-gMapper.SetScalarRange(pl3d_output.GetScalarRange())
-gActor = vtkActor()
-gActor.SetMapper(gMapper)
+gf >> tf >> gMapper
+gMapper.scalar_range = pl3d_output.GetScalarRange()
+gActor = vtkActor(mapper=gMapper)
 # Don't look at attributes
-mesh = vtkQuadricDecimation()
-mesh.SetInputConnection(tf.GetOutputPort())
-mesh.SetTargetReduction(.90)
-mesh.AttributeErrorMetricOn()
+mesh = vtkQuadricDecimation(target_reduction=0.90, attribute_error_metric=True)
 mapper = vtkPolyDataMapper()
-mapper.SetInputConnection(mesh.GetOutputPort())
-actor = vtkActor()
-actor.SetMapper(mapper)
+tf >> mesh >> mapper
+actor = vtkActor(mapper=mapper)
 # This time worry about attributes
-mesh2 = vtkQuadricDecimation()
-mesh2.SetInputConnection(tf.GetOutputPort())
-mesh2.SetTargetReduction(.90)
-mesh2.AttributeErrorMetricOff()
+mesh2 = vtkQuadricDecimation(target_reduction=.9, attribute_error_metric=False)
 mapper2 = vtkPolyDataMapper()
-mapper2.SetInputConnection(mesh2.GetOutputPort())
-actor2 = vtkActor()
-actor2.SetMapper(mapper2)
+tf >> mesh2 >> mapper2
+actor2 = vtkActor(mapper=mapper2)
 actor2.AddPosition(0,12,0)
 # Create rendering instances
 #

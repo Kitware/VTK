@@ -141,6 +141,8 @@ set(python_files
   vtkmodules/tk/vtkTkRenderWindowInteractor.py
   vtkmodules/util/__init__.py
   vtkmodules/util/colors.py
+  vtkmodules/util/data_model.py
+  vtkmodules/util/execution_model.py
   vtkmodules/util/keys.py
   vtkmodules/util/misc.py
   vtkmodules/util/numpy_support.py

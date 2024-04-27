@@ -267,6 +267,11 @@ public:
   static void UnRegisterPythonCommand(vtkPythonCommand*);
   ///@}
 
+  /**
+   * Function to check if the attribute has a getset descriptor
+   */
+  static PyGetSetDef* FindGetSetDescriptor(PyTypeObject* pytype, PyObject* key);
+
 private:
   vtkPythonUtil();
   ~vtkPythonUtil();
