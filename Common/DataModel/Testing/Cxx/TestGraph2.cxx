@@ -13,12 +13,6 @@
 #include <cmath>
 #include <vector>
 
-template <class A>
-bool fuzzyCompare(A a, A b)
-{
-  return fabs(a - b) < std::numeric_limits<A>::epsilon();
-}
-
 int TestGetEdgeId();
 int TestToDirectedGraph();
 int TestToUndirectedGraph();

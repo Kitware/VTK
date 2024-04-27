@@ -7,6 +7,7 @@
 // Test added for Robust PCA by Tristan Coulange, Kitware SAS 2013
 
 #include "vtkDoubleArray.h"
+#include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkOrderStatistics.h"
@@ -17,14 +18,6 @@
 #include "vtkTestUtilities.h"
 
 #include "vtksys/SystemTools.hxx"
-
-// Perform a fuzzy compare of floats/doubles
-template <class A>
-bool fuzzyCompare(A a, A b)
-{
-  //  return fabs(a - b) < std::numeric_limits<A>::epsilon();
-  return fabs(a - b) < .0001;
-}
 
 int TestPCA(int argc, char* argv[]);
 int TestPCARobust(int argc, char* argv[]);
@@ -409,14 +402,16 @@ int TestEigen()
   for (vtkIdType i = 0; i < eigenvaluesCount; i++)
   {
     std::cout << "Eigenvalue " << i << " = " << eigenvalues->GetValue(i) << std::endl;
-    if (!fuzzyCompare(eigenvalues->GetValue(i), eigenvaluesGroundTruth[i]))
+    if (!vtkMathUtilities::FuzzyCompare<double>(
+          eigenvalues->GetValue(i), eigenvaluesGroundTruth[i], 0.0001))
     {
       std::cerr << "Eigenvalues (GetEigenvalues) are not correct! (" << eigenvalues->GetValue(i)
                 << " vs " << eigenvaluesGroundTruth[i] << ")" << std::endl;
       return EXIT_FAILURE;
     }
 
-    if (!fuzzyCompare(pcaStatistics->GetEigenvalue(i), eigenvaluesGroundTruth[i]))
+    if (!vtkMathUtilities::FuzzyCompare<double>(
+          pcaStatistics->GetEigenvalue(i), eigenvaluesGroundTruth[i], 0.0001))
     {
       std::cerr << "Eigenvalues (GetEigenvalue) are not correct! ("
                 << pcaStatistics->GetEigenvalue(i) << " vs " << eigenvaluesGroundTruth[i] << ")"
@@ -467,8 +462,10 @@ int TestEigen()
       std::cout << evec[j] << " ";
       vtkSmartPointer<vtkDoubleArray> eigenvectorSingle = vtkSmartPointer<vtkDoubleArray>::New();
       pcaStatistics->GetEigenvector(i, eigenvectorSingle);
-      if (!fuzzyCompare(factor * eigenvectorsGroundTruth[i][j], evec[j]) ||
-        !fuzzyCompare(factor * eigenvectorsGroundTruth[i][j], eigenvectorSingle->GetValue(j)))
+      if (!vtkMathUtilities::FuzzyCompare<double>(
+            factor * eigenvectorsGroundTruth[i][j], evec[j], 0.0001) ||
+        !vtkMathUtilities::FuzzyCompare<double>(
+          factor * eigenvectorsGroundTruth[i][j], eigenvectorSingle->GetValue(j), 0.0001))
       {
         std::cerr << "Eigenvectors do not match!" << std::endl;
         return EXIT_FAILURE;
