@@ -111,8 +111,6 @@ void vtkRadialGridActor2D::UpdateAxisTitle(vtkAxisActor2D* axis, double angle)
   std::string title = formattedString + " deg";
 
   axis->SetTitle(title.c_str());
-  vtkTextProperty* titleProp = axis->GetTitleTextProperty();
-  titleProp->SetOrientation(angle);
 }
 
 //------------------------------------------------------------------------------
@@ -128,6 +126,7 @@ void vtkRadialGridActor2D::SetupAxes(vtkViewport* viewport)
     axis->SnapLabelsToGridOn();
     axis->SetNumberOfLabels(this->NumberOfTicks);
     axis->SetLabelVisibility(index == 0);
+    axis->SkipFirstTickOn();
 
     axis->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
     axis->GetPositionCoordinate()->SetValue(this->Origin[0], this->Origin[1]);
@@ -149,6 +148,7 @@ void vtkRadialGridActor2D::SetupAxes(vtkViewport* viewport)
     axis->SetUseFontSizeFromProperty(true);
     axis->SetProperty(this->GetProperty());
     axis->SetLabelTextProperty(this->GetTextProperty());
+    axis->SetTitleTextProperty(this->GetTextProperty());
   }
 }
 
