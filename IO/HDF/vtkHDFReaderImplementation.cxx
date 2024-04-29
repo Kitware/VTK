@@ -305,14 +305,37 @@ bool vtkHDFReader::Implementation::ReadDataSetType()
         "Wrong length of Type attribute (expected between 1 and 32): " << stringLength);
       return false;
     }
-    std::array<char, 32> stringArray;
-    if (H5Aread(typeAttributeHID, hdfType, stringArray.data()) < 0)
+
+    std::string typeName;
+    if (H5Tis_variable_str(hdfType) > 0)
+    {
+      char* buffer = nullptr;
+      if (H5Aread(typeAttributeHID, hdfType, &buffer) < 0)
+      {
+        vtkErrorWithObjectMacro(
+          this->Reader, "H5Aread failed while reading Type attribute (variable-length)");
+        return false;
+      }
+      typeName = std::string(buffer, stringLength);
+      H5free_memory(buffer);
+    }
+    else if (H5Tis_variable_str(hdfType) == 0)
+    {
+      std::array<char, 32> buffer;
+      if (H5Aread(typeAttributeHID, hdfType, buffer.data()) < 0)
+      {
+        vtkErrorWithObjectMacro(
+          this->Reader, "H5Aread failed while reading Type attribute (fixed-length)");
+        return false;
+      }
+      typeName = std::string(buffer.data(), stringLength);
+    }
+    else
     {
       vtkErrorWithObjectMacro(
-        this->Reader, "Not an ASCII string character type: " << characterType);
+        this->Reader, "H5Tis_variable_str failed while reading Type attribute");
       return false;
     }
-    std::string typeName(stringArray.data(), stringLength);
 
     if (typeName == "OverlappingAMR")
     {

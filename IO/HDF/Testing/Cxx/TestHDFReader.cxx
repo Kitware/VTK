@@ -119,6 +119,7 @@ int TestUnstructuredGrid(const std::string& dataRoot, bool parallel)
   }
   else
   {
+    // This file intentionally has Type attribute in variable-length string
     fileName = dataRoot + "/Data/can-vtu.hdf";
     expectedName = dataRoot + "/Data/can.vtu";
     oreader = expectedReader;
