@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-License-Identifier: BSD-3-CLAUSE
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkStaticFaceHashLinksTemplate
  * @brief   templated hashLinks for extracting faces from a vtkUnstructuredGrid
