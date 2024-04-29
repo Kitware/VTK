@@ -174,3 +174,11 @@ endif()
 set_tests_properties(VTK::InteractionWidgetsCxx-TestSphereHandleWidget
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestSphereHandleWidget}
                RUN_SERIAL ON)
+
+# TestOrthoPlanes can take a long time
+if(NOT VTK_TEST_TIMEOUT_TestOrthoPlanes)
+  set(VTK_TEST_TIMEOUT_TestOrthoPlanes 300)
+endif()
+set_tests_properties(VTK::InteractionWidgetsCxx-TestOrthoPlanes
+    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestOrthoPlanes}
+               RUN_SERIAL ON)
