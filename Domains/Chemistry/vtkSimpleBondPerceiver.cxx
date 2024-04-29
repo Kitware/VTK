@@ -50,14 +50,14 @@ int vtkSimpleBondPerceiver::RequestData(
   vtkMolecule* input = vtkMolecule::SafeDownCast(vtkDataObject::GetData(inputVector[0]));
   if (!input)
   {
-    vtkErrorMacro(<< "Input vtkMolecule does not exists.");
+    vtkErrorMacro(<< "Input vtkMolecule does not exist.");
     return 0;
   }
 
   vtkMolecule* output = vtkMolecule::SafeDownCast(vtkDataObject::GetData(outputVector));
   if (!output)
   {
-    vtkErrorMacro(<< "Output vtkMolecule does not exists.");
+    vtkErrorMacro(<< "Output vtkMolecule does not exist.");
     return 0;
   }
 
