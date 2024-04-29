@@ -62,8 +62,8 @@ int TestGhostCellFields(vtkMPIController* controller)
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
-  const int expectedNbOfCells[4] = { 352, 408, 344, 464 };
-  const double expectedScalarRange[2] = { 0, 30257 };
+  const int expectedNbOfCells[4] = { 336, 288, 408, 240 };
+  const double expectedScalarRange[2] = { 0, 30001 };
 
   // Setup pipeline
   vtkNew<vtkRandomHyperTreeGridSource> htgSource;
@@ -151,8 +151,8 @@ int TestGhostMasking(vtkMPIController* controller)
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
-  const int expectedNbOfCells[4] = { 120, 120, 152, 80 };
-  const int expectedGhostTypeCutoff[4] = { 65, 81, 113, 1 };
+  const int expectedNbOfCells[4] = { 208, 256, 192, 248 };
+  const int expectedGhostTypeCutoff[4] = { 97, 145, 137, 89 };
 
   // Setup pipeline
   vtkNew<vtkRandomHyperTreeGridSource> htgSource;
