@@ -6,6 +6,7 @@ set(classes
   vtkEnSightGoldReader
   vtkEnSightMasterServerReader
   vtkEnSightReader
+  vtkEnSightSOSGoldReader
   vtkGenericEnSightReader)
 
 set(private_headers

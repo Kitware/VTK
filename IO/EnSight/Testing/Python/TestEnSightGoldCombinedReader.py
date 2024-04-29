@@ -8,6 +8,7 @@ from vtkmodules.vtkFiltersCore import vtkContourFilter
 from vtkmodules.vtkFiltersFlowPaths import vtkStreamTracer
 from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
 from vtkmodules.vtkIOEnSight import vtkEnSightGoldCombinedReader
+from vtkmodules.vtkIOEnSight import vtkEnSightSOSGoldReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
     vtkCompositePolyDataMapper,
@@ -23,7 +24,10 @@ from vtk.test import Testing
 
 class TestEnSightGoldCombinedReader(Testing.vtkTest):
   def setupReader(self, casefile):
-    reader = vtkEnSightGoldCombinedReader()
+    if casefile.endswith(".sos"):
+      reader = vtkEnSightSOSGoldReader()
+    else:
+      reader = vtkEnSightGoldCombinedReader()
     reader.SetCaseFileName(str(VTK_DATA_ROOT) + "/Data/EnSight/" + casefile)
     return reader
 
@@ -322,6 +326,9 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     geom = self.geomPipeline(reader)
     mapper = self.setupMapper(geom, "evect")
     self.renderAndCompare(mapper, "TestEnSightGoldCombinedReader_16.png", [26.4, 2.7, 1.4])
+
+  def testSOSReader(self):
+    self.basicPipeline("mandelbrot.sos", "TestEnSightGoldCombinedReader_18.png", var="Iterations", arrRange=[1.9,100])
 
 
 if __name__ == "__main__":
