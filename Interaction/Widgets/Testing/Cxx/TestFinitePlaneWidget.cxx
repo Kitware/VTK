@@ -14,7 +14,8 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 
-const char eventLog[] = "EnterEvent 273 40 0 0 0 0 0\n"
+const char eventLog[] = "# StreamVersion 1\n"
+                        "EnterEvent 273 40 0 0 0 0 0\n"
                         "MouseMoveEvent 273 40 0 0 0 0 0\n"
                         "RenderEvent 273 40 0 0 0 0 0\n"
                         "RenderEvent 273 40 0 0 0 0 0\n"
