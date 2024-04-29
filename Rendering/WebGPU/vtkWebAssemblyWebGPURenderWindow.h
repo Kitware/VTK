@@ -1,35 +1,31 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkSDL2WebGPURenderWindow
+ * @class   vtkWebAssemblyWebGPURenderWindow
  * @brief   OpenGL rendering window
  *
- * vtkSDL2WebGPURenderWindow is a concrete implementation of the abstract
+ * vtkWebAssemblyWebGPURenderWindow is a concrete implementation of the abstract
  * class vtkRenderWindow. vtkSDL2OpenGL2Renderer interfaces to the standard
  * OpenGL graphics library using SDL2
  */
 
-#ifndef vtkSDL2WebGPURenderWindow_h
-#define vtkSDL2WebGPURenderWindow_h
+#ifndef vtkWebAssemblyWebGPURenderWindow_h
+#define vtkWebAssemblyWebGPURenderWindow_h
 
 #if !defined(__EMSCRIPTEN__)
-#error "vtkSDL2WebGPURenderWindow cannot be built without emscripten!"
+#error "vtkWebAssemblyWebGPURenderWindow cannot be built without emscripten!"
 #endif
 
 #include "vtkWebGPURenderWindow.h"
 
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkRenderingWebGPUModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTK_DEPRECATED_IN_9_4_0(
-  "Please use one of the dedicated platform render window or "
-  "vtkWebAssemblyWebGPURenderWindow if your application targets WebAssembly.")
-  VTKRENDERINGWEBGPU_EXPORT vtkSDL2WebGPURenderWindow : public vtkWebGPURenderWindow
+class VTKRENDERINGWEBGPU_EXPORT vtkWebAssemblyWebGPURenderWindow : public vtkWebGPURenderWindow
 {
 public:
-  static vtkSDL2WebGPURenderWindow* New();
-  vtkTypeMacro(vtkSDL2WebGPURenderWindow, vtkWebGPURenderWindow);
+  static vtkWebAssemblyWebGPURenderWindow* New();
+  vtkTypeMacro(vtkWebAssemblyWebGPURenderWindow, vtkWebGPURenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -63,19 +59,6 @@ public:
    */
   void SetSize(int, int) override;
   void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
-  ///@}
-
-  /**
-   * Get the current size of the window in pixels.
-   */
-  int* GetSize() VTK_SIZEHINT(2) override;
-
-  ///@{
-  /**
-   * Set the position of the window.
-   */
-  void SetPosition(int, int) override;
-  void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   ///@}
 
   /**
@@ -132,11 +115,18 @@ public:
   void ShowCursor() override;
   ///@}
 
+  /**
+   * Specify the selector of the canvas element in the DOM.
+   */
+  vtkGetStringMacro(CanvasId);
+  vtkSetStringMacro(CanvasId);
+
 protected:
   vtkWebAssemblyWebGPURenderWindow();
   ~vtkWebAssemblyWebGPURenderWindow() override;
 
   void* WindowId = nullptr;
+  char* CanvasId;
 
   std::string MakeDefaultWindowNameWithBackend() override;
   void CleanUpRenderers();
