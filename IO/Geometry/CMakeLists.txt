@@ -18,6 +18,7 @@ set(classes
   vtkMFIXReader
   vtkOBJReader
   vtkOBJWriter
+  vtkOFFReader
   vtkOpenFOAMReader
   vtkParticleReader
   vtkProStarReader
