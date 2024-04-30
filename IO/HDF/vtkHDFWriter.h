@@ -133,7 +133,7 @@ private:
    * Dispatch the input vtkDataObject to the right writing function, depending on its dynamic type.
    * Data will be written in the specified group, which must already exist.
    */
-  void DispatchDataObject(hid_t group, vtkDataObject* input);
+  void DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId = 0);
 
   ///@{
   /**
@@ -141,7 +141,7 @@ private:
    * returns true if the writing operation completes successfully.
    */
   bool WriteDatasetToFile(hid_t group, vtkPolyData* input);
-  bool WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input);
+  bool WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input);
   bool WriteDatasetToFile(hid_t group, vtkDataObjectTree* input);
   ///@}
@@ -162,6 +162,9 @@ private:
   bool InitializeTemporalData(vtkUnstructuredGrid* input);
   bool InitializeTemporalData(vtkPolyData* input);
   ///@}
+
+  bool InitializePartitionedData(vtkUnstructuredGrid* input);
+  bool InitializePartitionedData(vtkPolyData* input);
 
   /**
    * Add the number of points to the file
@@ -215,7 +218,7 @@ private:
    * Add the data arrays of the object to the file
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendDataArrays(hid_t group, vtkDataObject* input);
+  bool AppendDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
 
   ///@{
   /**
@@ -282,6 +285,7 @@ private:
   // Temporal-related private variables
   double* timeSteps = nullptr;
   bool IsTemporal = false;
+  bool IsPartitioned = false;
   int CurrentTimeIndex = 0;
   int NumberOfTimeSteps = 0;
   vtkMTimeType PreviousStepMeshMTime = 0;

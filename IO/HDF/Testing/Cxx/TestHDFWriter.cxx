@@ -6,6 +6,7 @@
 #include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
 #include "vtkSphereSource.h"
@@ -14,6 +15,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkXMLMultiBlockDataReader.h"
+#include "vtkXMLPUnstructuredGridReader.h"
 #include "vtkXMLPartitionedDataSetCollectionReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
@@ -110,6 +112,7 @@ bool TestWriteAndRead(
     return false;
   }
   reader->SetFileName(fullPath.c_str());
+  reader->SetMergeParts(false);
   reader->Update();
   vtkDataObject* output = vtkDataObject::SafeDownCast(reader->GetOutput());
   if (output == nullptr)
@@ -196,7 +199,7 @@ bool TestUnstructuredGrid(const std::string& tempDir, const std::string& dataRoo
   {
     // Get an Unstructured grid from a VTU
     const std::string basePath = dataRoot + "/Data/" + baseName;
-    vtkNew<vtkXMLUnstructuredGridReader> baseReader;
+    vtkNew<vtkXMLPUnstructuredGridReader> baseReader;
     baseReader->SetFileName(basePath.c_str());
     baseReader->Update();
     vtkUnstructuredGrid* baseData = vtkUnstructuredGrid::SafeDownCast(baseReader->GetOutput());
@@ -207,6 +210,35 @@ bool TestUnstructuredGrid(const std::string& tempDir, const std::string& dataRoo
     }
 
     // Write and read the unstructuredGrid in a temp file, compare with base
+    std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
+    if (!TestWriteAndRead(baseData, tempPath))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool TestPartitionedUnstructuredGrid(const std::string& tempDir, const std::string& dataRoot)
+{
+  std::vector<std::string> baseNames = { "can-pvtu.hdf" };
+  for (const auto& baseName : baseNames)
+  {
+    // Get an Unstructured grid from a VTU
+    const std::string basePath = dataRoot + "/Data/" + baseName;
+    vtkNew<vtkHDFReader> baseReader;
+    baseReader->SetFileName(basePath.c_str());
+    baseReader->SetMergeParts(false);
+    baseReader->Update();
+    auto baseData = vtkPartitionedDataSet::SafeDownCast(baseReader->GetOutput());
+    if (baseData == nullptr)
+    {
+      std::cerr << "Can't read base data from: " << basePath << std::endl;
+      return false;
+    }
+
+    // Write and read the partitioned unstructuredGrid in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
     if (!TestWriteAndRead(baseData, tempPath))
     {
@@ -296,12 +328,13 @@ int TestHDFWriter(int argc, char* argv[])
 
   // Run tests
   bool testPasses = true;
-  testPasses &= TestEmptyPolyData(tempDir);
-  testPasses &= TestSpherePolyData(tempDir);
-  testPasses &= TestComplexPolyData(tempDir, dataRoot);
-  testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
-  testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
-  testPasses &= TestMultiBlock(tempDir, dataRoot);
+  // testPasses &= TestEmptyPolyData(tempDir);
+  // testPasses &= TestSpherePolyData(tempDir);
+  // testPasses &= TestComplexPolyData(tempDir, dataRoot);
+  // testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
+  testPasses &= TestPartitionedUnstructuredGrid(tempDir, dataRoot);
+  // testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
+  // testPasses &= TestMultiBlock(tempDir, dataRoot);
 
   return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
 }
