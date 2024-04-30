@@ -349,13 +349,27 @@ void vtkWin32OpenGLDXRenderWindow::BlitToTexture(ID3D11Texture2D* color, ID3D11T
   {
     return;
   }
+  D3D11_TEXTURE2D_DESC desc;
+  color->GetDesc(&desc);
 
-  this->Impl->D3DDeviceContext->CopySubresourceRegion(color, // destination
-    0,                                                       // destination subresource id
-    0, 0, 0,                                                 // destination origin x,y,z
-    this->Impl->D3DSharedColorTexture.Get(),                 // source
-    0,                                                       // source subresource id
-    nullptr); // source clip box (nullptr == full extent)
+  // Resolve texture if needed
+  if (this->MultiSamples > 1 && desc.SampleDesc.Count <= 1)
+  {
+    this->Impl->D3DDeviceContext->ResolveSubresource(color, // destination
+      0,                                                    // destination subresource id
+      this->Impl->D3DSharedColorTexture.Get(),              // source
+      0,                                                    // source subresource id
+      static_cast<DXGI_FORMAT>(this->Impl->ColorTextureFormat));
+  }
+  else
+  {
+    this->Impl->D3DDeviceContext->CopySubresourceRegion(color, // destination
+      0,                                                       // destination subresource id
+      0, 0, 0,                                                 // destination origin x,y,z
+      this->Impl->D3DSharedColorTexture.Get(),                 // source
+      0,                                                       // source subresource id
+      nullptr); // source clip box (nullptr == full extent)
+  }
 
   if (depth)
   {
