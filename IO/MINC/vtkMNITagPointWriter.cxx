@@ -386,7 +386,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet* inputs[2])
           }
           else
           {
-            snprintf(text, sizeof(text), "x%2.2x", (static_cast<int>(*si) & 0x00ff));
+            snprintf(text, sizeof(text), "x%2.2x", (static_cast<unsigned int>(*si) & 0x00ff));
             outfile << text;
           }
         }
