@@ -286,6 +286,7 @@ int doTestSMP()
     }
   }
 
+  /* This Test is faulty, see: https://gitlab.kitware.com/vtk/vtk/-/issues/19338
   // Test GetSingleThread
   if (std::string(vtkSMPTools::GetBackend()) != "Sequential")
   {
@@ -309,7 +310,7 @@ int doTestSMP()
            << endl;
       return EXIT_FAILURE;
     }
-  }
+  }*/
 
   // Test LocalScope
   const int targetThreadNb = 2;
