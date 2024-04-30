@@ -34,6 +34,9 @@ vtk_add_flag(-wd4251 CXX)
 vtk_add_flag(-EHsc CXX)
 
 if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
+  set(langs C)
+  vtk_add_flag(-Wno-pre-c11-compat ${langs})
+
   set(langs C CXX)
   vtk_add_flag(-Weverything ${langs})
 
