@@ -267,6 +267,13 @@ herr_t vtkHDFWriter::Implementation::CreateSoftLink(
 }
 
 //------------------------------------------------------------------------------
+herr_t vtkHDFWriter::Implementation::CreateExternalLink(
+  hid_t group, const char* filename, const char* source, const char* targetLink)
+{
+  return H5Lcreate_external(filename, source, group, targetLink, H5P_DEFAULT, H5P_DEFAULT);
+}
+
+//------------------------------------------------------------------------------
 vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateHdfDataset(
   hid_t group, const char* name, hid_t type, hid_t dataspace)
 {

@@ -1305,6 +1305,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
 //------------------------------------------------------------------------------
 int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSetCollection* pdc)
 {
+  this->Impl->OpenGroupAsVTKGroup("VTKHDF/");
   // Save temporal information, that can be overridden when changing root dataset
   bool isPDCTemporal = this->GetHasTemporalData();
   vtkIdType pdcSteps = this->NumberOfSteps;

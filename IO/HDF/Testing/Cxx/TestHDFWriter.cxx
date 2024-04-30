@@ -23,6 +23,14 @@
 
 #include <string>
 
+namespace
+{
+struct WriterConfigOptions
+{
+  bool UseExternalComposite;
+  std::string FileNameSuffix;
+};
+}
 //----------------------------------------------------------------------------
 bool WriteMiscData(const std::string& filename)
 {
@@ -70,24 +78,38 @@ bool TestEmptyPolyData(const std::string& tempDir)
 }
 
 //----------------------------------------------------------------------------
-bool TestWriteAndRead(vtkDataObject* data, const std::string& tempPath)
+bool TestWriteAndRead(
+  vtkDataObject* data, const std::string& tempPath, WriterConfigOptions* options = nullptr)
 {
+  std::string fullPath = tempPath;
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputData(data);
-  writer->SetFileName(tempPath.c_str());
+  if (options)
+  {
+    fullPath = tempPath + options->FileNameSuffix;
+    writer->SetFileName(fullPath.c_str());
+    writer->SetUseExternalComposite(options->UseExternalComposite);
+  }
+  else
+  {
+    writer->SetFileName(fullPath.c_str());
+  }
+
   writer->Write();
-  if (!WriteMiscData(tempPath))
+
+  // Append data that should be ignored by the reader
+  if (!WriteMiscData(fullPath))
   {
     return false;
   }
 
   vtkNew<vtkHDFReader> reader;
-  if (!reader->CanReadFile(tempPath.c_str()))
+  if (!reader->CanReadFile(fullPath.c_str()))
   {
-    std::cerr << "vtkHDFReader can not read file: " << tempPath << std::endl;
+    std::cerr << "vtkHDFReader can not read file: " << fullPath << std::endl;
     return false;
   }
-  reader->SetFileName(tempPath.c_str());
+  reader->SetFileName(fullPath.c_str());
   reader->Update();
   vtkDataObject* output = vtkDataObject::SafeDownCast(reader->GetOutput());
   if (output == nullptr)
@@ -101,6 +123,23 @@ bool TestWriteAndRead(vtkDataObject* data, const std::string& tempPath)
   {
     std::cerr << "vtkDataObject does not match: " << tempPath << std::endl;
     return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool TestWriteAndReadConfigurations(vtkDataObject* data, const std::string& path)
+{
+  std::vector<WriterConfigOptions> options{ { true, "_ExternalComposite" },
+    { false, "_NoExternalComposite" } };
+
+  for (auto& optionSet : options)
+  {
+    if (!TestWriteAndRead(data, path, &optionSet))
+    {
+      return false;
+    }
   }
 
   return true;
@@ -197,7 +236,7 @@ bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
 
     // Write and read the vtkMultiBlockDataSet in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndRead(baseData, tempPath))
+    if (!TestWriteAndReadConfigurations(baseData, tempPath))
     {
       return false;
     }
@@ -227,7 +266,7 @@ bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::str
 
     // Write and read the vtkPartitionedDataSetCollection in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndRead(baseData, tempPath))
+    if (!TestWriteAndReadConfigurations(baseData, tempPath))
     {
       return false;
     }

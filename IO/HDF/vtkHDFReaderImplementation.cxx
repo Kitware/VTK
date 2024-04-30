@@ -1120,7 +1120,7 @@ bool vtkHDFReader::Implementation::NewArray(
 bool vtkHDFReader::Implementation::IsPathSoftLink(const std::string& path)
 {
   H5L_info_t object;
-  auto err = H5Lget_info(this->VTKGroup, path.c_str(), &object, H5P_DEFAULT);
+  auto err = H5Lget_info(this->File, path.c_str(), &object, H5P_DEFAULT);
   if (err < 0)
   {
     vtkWarningWithObjectMacro(this->Reader, "Can't open '" << path << "' link.");

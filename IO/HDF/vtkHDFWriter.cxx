@@ -53,6 +53,25 @@ std::string getBlockName(vtkPartitionedDataSetCollection* pdc, int datasetId)
   }
   return name;
 }
+
+/**
+ * Return the filename for an external file containing <blockname>, made from
+ * the original <filename>.
+ */
+std::string getExternalBlockFileName(std::string&& filename, std::string& blockname)
+{
+  size_t lastDotPos = filename.find_last_of('.');
+  std::string subfileName;
+  if (lastDotPos != std::string::npos)
+  {
+    // <FileName_without_extension>_<BlockName>.<extension>
+    const std::string rawName = filename.substr(0, lastDotPos);
+    const std::string extension = filename.substr(lastDotPos);
+    return rawName + "_" + blockname + extension;
+  }
+  // <FileName>_<BlockName>.vtkhdf
+  return filename + "_" + blockname + ".vtkhdf";
+}
 }
 
 //------------------------------------------------------------------------------
@@ -163,6 +182,7 @@ int vtkHDFWriter::FillInputPortInformation(int port, vtkInformation* info)
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
     return 1;
   }
@@ -929,10 +949,50 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
   for (int datasetId = 0; datasetId < static_cast<int>(pdc->GetNumberOfPartitionedDataSets());
        datasetId++)
   {
-    vtkHDF::ScopedH5GHandle datasetGroup =
-      this->Impl->CreateHdfGroup(group, ::getBlockName(pdc, datasetId).c_str());
-    this->DispatchDataObject(datasetGroup, pdc->GetPartitionedDataSet(datasetId));
+    vtkHDF::ScopedH5GHandle datasetGroup;
+    vtkPartitionedDataSet* currentBlock = pdc->GetPartitionedDataSet(datasetId);
+    std::string currentName = ::getBlockName(pdc, datasetId);
+
+    if (this->UseExternalComposite)
+    {
+      if (!this->AppendExternalBlock(currentBlock, currentName))
+      {
+        return false;
+      }
+      datasetGroup = this->Impl->OpenExistingGroup(group, currentName.c_str());
+    }
+    else
+    {
+      datasetGroup = this->Impl->CreateHdfGroup(group, currentName.c_str());
+      this->DispatchDataObject(datasetGroup, currentBlock);
+    }
+
     this->Impl->CreateScalarAttribute(datasetGroup, "Index", datasetId);
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendExternalBlock(vtkDataObject* block, std::string& blockName)
+{
+  // Write the block data in an external file
+  std::string subfileName = ::getExternalBlockFileName(std::string(this->FileName), blockName);
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetInputData(block);
+  writer->SetFileName(subfileName.c_str());
+  if (!writer->Write())
+  {
+    vtkErrorMacro(<< "Could not write block file " << subfileName);
+    return false;
+  }
+
+  // Create external link
+  if (this->Impl->CreateExternalLink(
+        this->Impl->GetRoot(), subfileName.c_str(), "VTKHDF", blockName.c_str()))
+  {
+    vtkErrorMacro(<< "Could not create external link to file " << subfileName);
+    return false;
   }
 
   return true;
@@ -1001,10 +1061,21 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
     }
     else
     {
-      // Create a subgroup to root, write the data into it and softlink it to the assembly
-      vtkHDF::ScopedH5GHandle datasetGroup =
-        this->Impl->CreateHdfGroupWithLinkOrder(this->Impl->GetRoot(), subTreeName.c_str());
-      this->DispatchDataObject(datasetGroup, treeIter->GetCurrentDataObject());
+      if (this->UseExternalComposite)
+      {
+        // Create the block in a separate file and link it externally
+        if (!this->AppendExternalBlock(treeIter->GetCurrentDataObject(), subTreeName))
+        {
+          return false;
+        }
+      }
+      else
+      {
+        // Create a subgroup to root, write the data into it and softlink it to the assembly
+        vtkHDF::ScopedH5GHandle datasetGroup =
+          this->Impl->CreateHdfGroupWithLinkOrder(this->Impl->GetRoot(), subTreeName.c_str());
+        this->DispatchDataObject(datasetGroup, treeIter->GetCurrentDataObject());
+      }
 
       const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + subTreeName;
       const std::string linkSource = this->Impl->GetGroupName(assemblyGroup) + "/" + subTreeName;
