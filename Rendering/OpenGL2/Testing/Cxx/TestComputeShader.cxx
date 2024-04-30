@@ -93,6 +93,8 @@ void main() {
       return EXIT_FAILURE;
     }
   }
+#else
+  (void)TotalSize;
 #endif
 
   return EXIT_SUCCESS;
