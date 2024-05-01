@@ -29,7 +29,7 @@ if (TARGET VTK::FiltersParallel AND TARGET VTK::RenderingParallel AND TARGET VTK
   set (vtkIOIOSSCxxTests_NUMPROCS 4)
   vtk_add_test_mpi(vtkIOIOSSCxxTests tests
     TestIOSSExodusParallelWriter.cxx,TESTING_DATA
-    TestIOSSExodusParitionedFiles.cxx,TESTING_DATA
+    TestIOSSExodusPartitionedFiles.cxx,TESTING_DATA
     TestIOSSExodusRestarts.cxx,NO_VALID,TESTING_DATA)
 endif()
 

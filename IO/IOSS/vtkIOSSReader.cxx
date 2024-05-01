@@ -6,35 +6,22 @@
 #include "vtkIOSSReaderInternal.h"
 #include "vtkIOSSUtilities.h"
 
-#include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
-#include "vtkDataSet.h"
-#include "vtkExtractGrid.h"
-#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
-#include "vtkMultiProcessStreamSerialization.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
-#include "vtkRemoveUnusedPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkStructuredGrid.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkVector.h"
-#include "vtkVectorOperators.h"
-#include "vtksys/RegularExpression.hxx"
-#include "vtksys/SystemTools.hxx"
 
 // clang-format off
 #include VTK_IOSS(Ionit_Initializer.h)
@@ -63,7 +50,7 @@
 #include <memory>
 #include <set>
 #include <string>
-#include <utility>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -85,7 +72,7 @@ vtkIOSSReader::vtkIOSSReader()
   , ReadIds(true)
   , RemoveUnusedPoints(true)
   , ApplyDisplacements(true)
-  , ReadAllFilesToDetermineStructure(true)
+  , ReadAllFilesToDetermineStructure(false)
   , ReadGlobalFields(true)
   , ReadQAAndInformationRecords(true)
   , DatabaseTypeOverride(nullptr)
@@ -322,6 +309,13 @@ int vtkIOSSReader::ReadMetaData(vtkInformation* metadata)
   }
 
   metadata->Set(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST(), 1);
+  if (internals.HaveRestartFiles())
+  {
+    // All meta-data have been read successfully, so we can release all the regions.
+    // Subsequent ReadMesh calls create only the requested regions (if needed) and release previous
+    // regions (if no longer needed).
+    internals.ReleaseRegions();
+  }
   return 1;
 }
 
@@ -332,6 +326,10 @@ int vtkIOSSReader::ReadMesh(
   auto& internals = (*this->Internals);
   vtkIOSSUtilities::CaptureNonErrorMessages captureMessagesRAII;
 
+  auto controller = this->GetController();
+  const auto rank = controller ? controller->GetLocalProcessId() : 0;
+  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
+
   if (!internals.UpdateDatabaseNames(this))
   {
     // this should not be necessary. ReadMetaData returns false when
@@ -340,6 +338,39 @@ int vtkIOSSReader::ReadMesh(
     // does, for some reason. Hence, adding this check here.
     // ref: paraview/paraview#19951.
     return 0;
+  }
+
+  // dbaseHandles are handles for individual files this instance will read to
+  // satisfy the request. Can be >= 0.
+  const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
+  // if we have restart files, and the previously read regions are no longer needed.
+  if (internals.HaveRestartFiles() && !internals.HaveCreatedRegions(dbaseHandles))
+  {
+    // then we need to release them and, if requested, clear their cached information
+    internals.ReleaseRegions();
+    if (!this->GetCaching())
+    {
+      internals.ClearCache();
+    }
+  }
+
+  if (!this->GetReadAllFilesToDetermineStructure())
+  {
+    // check if the structure is the same across all ranks and compared to the previous timestep.
+    int needToUpdate = internals.NeedToUpdateEntityAndFieldSelections(this, dbaseHandles);
+    if (controller && numRanks > 1)
+    {
+      int globalNeedToUpdate = needToUpdate;
+      controller->Reduce(&needToUpdate, &globalNeedToUpdate, 1, vtkCommunicator::MAX_OP, 0);
+      needToUpdate = globalNeedToUpdate;
+    }
+    if (needToUpdate && rank == 0)
+    {
+      vtkWarningMacro(
+        "Dataset's Structure is not consistent from rank to rank or timestep to timestep."
+        "Please enable 'ReadAllFilesToDetermineStructure' to read all files to determine "
+        "the structure.");
+    }
   }
 
   // This is the first method that gets called when generating data.
@@ -367,16 +398,9 @@ int vtkIOSSReader::ReadMesh(
     selectedAssemblyIndices.insert(dsindices.begin(), dsindices.end());
   }
 
-  // dbaseHandles are handles for individual files this instance will to read to
-  // satisfy the request. Can be >= 0.
-  const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
-
   // Read global data. Since this should be same on all ranks, we only read on
   // root node and broadcast it to all. This helps us easily handle the case
   // where the number of reading-ranks is more than writing-ranks.
-  auto controller = this->GetController();
-  const auto rank = controller ? controller->GetLocalProcessId() : 0;
-  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
   if (!dbaseHandles.empty() && rank == 0)
   {
     // Read global data. Since global data is expected to be identical on all
@@ -510,9 +534,7 @@ int vtkIOSSReader::ReadMesh(
       collection->GetDataAssembly()->InitializeFromXML(xml.c_str());
     }
   }
-
-  if (!this->GetCaching() ||
-    internals.GetFormat() == vtkIOSSUtilities::DatabaseFormatType::CATALYST)
+  if (internals.GetFormat() == vtkIOSSUtilities::DatabaseFormatType::CATALYST)
   {
     // We don't want to hold on to the cache for longer than the RequestData pass.
     // For we clear it entirely here.
@@ -520,9 +542,9 @@ int vtkIOSSReader::ReadMesh(
   }
   else
   {
+    // removed unused cache entries.
     internals.ClearCacheUnused();
   }
-  internals.ReleaseRegions();
   return 1;
 }
 

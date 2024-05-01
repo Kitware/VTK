@@ -360,12 +360,14 @@ public:
 
   ///@{
   /**
-   * When set to true (default), the reader will read all files to determine structure of the
-   * dataset because some files might have certain blocks that other files don't have.
-   * Set to false if you are sure that all files have the same structure, i.e. same blocks and sets.
+   * When set to false (default), the reader will read only the first file to determine the
+   * structure, and assume all files have the same structure, i.e. same blocks and sets.
+   * This is on be default because it is faster than reading all files.
    *
-   * @note When set to false, the reader will only read the first file to determine the structure.
-   * which is faster than reading all files.
+   * When set to true the reader will read all files to determine structure of the
+   * dataset because some files might have certain blocks that other files don't have..
+   *
+   * @note vtkIOSSReader will let the user know if there is a need for reading all files.
    */
   void SetReadAllFilesToDetermineStructure(bool);
   vtkGetMacro(ReadAllFilesToDetermineStructure, bool);

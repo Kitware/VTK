@@ -97,6 +97,7 @@ int TestIOSSExodusParallelWriter(int argc, char* argv[])
   writer->Write();
 
   vtkNew<vtkIOSSReader> reader;
+  reader->ReadAllFilesToDetermineStructureOn();
   if (contr->GetNumberOfProcesses() == 1)
   {
     reader->SetFileName(ofname.c_str());

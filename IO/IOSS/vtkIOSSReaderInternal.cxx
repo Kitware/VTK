@@ -9,21 +9,15 @@
 #include "vtkIOSSReaderCommunication.h"
 #include "vtkIOSSUtilities.h"
 
-#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataSet.h"
 #include "vtkExtractGrid.h"
-#include "vtkHexahedron.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
-#include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkLagrangeHexahedron.h"
-#include "vtkLagrangeInterpolation.h"
-#include "vtkLagrangeQuadrilateral.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
@@ -32,19 +26,19 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
-#include "vtkQuad.h"
 #include "vtkRemoveUnusedPoints.h"
 #include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
-#include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
+
 #include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
+
+#include <algorithm>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -119,7 +113,7 @@ bool vtkIOSSReaderInternal::UpdateDatabaseNames(vtkIOSSReader* self)
   this->Cache.Clear();
 
   // Clear old Ioss::Region's since they may not be correct anymore.
-  this->RegionMap.clear();
+  this->ReleaseRegions();
 
   auto filenames = this->FileNames;
   auto controller = self->GetController();
@@ -354,6 +348,102 @@ bool vtkIOSSReaderInternal::UpdateTimeInformation(vtkIOSSReader* self)
   std::copy(times_set.begin(), times_set.end(), this->TimestepValues.begin());
   this->TimestepValuesMTime.Modified();
   return (success == 1);
+}
+
+bool vtkIOSSReaderInternal::NeedToUpdateEntityAndFieldSelections(
+  vtkIOSSReader* self, const std::vector<DatabaseHandle>& dbaseHandles)
+{
+  std::set<std::string> databaseNames;
+  for (const auto& handle : dbaseHandles)
+  {
+    databaseNames.insert(handle.first);
+  }
+
+  auto controller = self->GetController();
+  const auto rank = controller ? controller->GetLocalProcessId() : 0;
+  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
+
+  // This has to be done all all ranks since not all files in a database have
+  // all the blocks consequently need not have all the fields.
+  std::array<std::set<vtkIOSSUtilities::EntityNameType>, vtkIOSSReader::NUMBER_OF_ENTITY_TYPES>
+    entity_names;
+  std::array<std::set<std::string>, vtkIOSSReader::NUMBER_OF_ENTITY_TYPES> field_names;
+  std::set<vtkIOSSUtilities::EntityNameType> bc_names;
+
+  // format should have been set (and synced) across all ranks by now.
+  assert(this->Format != vtkIOSSUtilities::UNKNOWN);
+
+  for (const auto& databaseName : databaseNames)
+  {
+    auto fileids = this->GetFileIds(databaseName, rank, numRanks);
+
+    for (const auto& fileid : fileids)
+    {
+      if (auto region = this->GetRegion(databaseName, fileid))
+      {
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_node_blocks(),
+          entity_names[vtkIOSSReader::NODEBLOCK], field_names[vtkIOSSReader::NODEBLOCK]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_edge_blocks(),
+          entity_names[vtkIOSSReader::EDGEBLOCK], field_names[vtkIOSSReader::EDGEBLOCK]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_face_blocks(),
+          entity_names[vtkIOSSReader::FACEBLOCK], field_names[vtkIOSSReader::FACEBLOCK]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_element_blocks(),
+          entity_names[vtkIOSSReader::ELEMENTBLOCK], field_names[vtkIOSSReader::ELEMENTBLOCK]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_structured_blocks(),
+          entity_names[vtkIOSSReader::STRUCTUREDBLOCK],
+          field_names[vtkIOSSReader::STRUCTUREDBLOCK]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_nodesets(),
+          entity_names[vtkIOSSReader::NODESET], field_names[vtkIOSSReader::NODESET]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_edgesets(),
+          entity_names[vtkIOSSReader::EDGESET], field_names[vtkIOSSReader::EDGESET]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_facesets(),
+          entity_names[vtkIOSSReader::FACESET], field_names[vtkIOSSReader::FACESET]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_elementsets(),
+          entity_names[vtkIOSSReader::ELEMENTSET], field_names[vtkIOSSReader::ELEMENTSET]);
+
+        // note: for CGNS, the sidesets contain family names for BC. They need to
+        // be handled differently from exodus side sets.
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_sidesets(),
+          entity_names[vtkIOSSReader::SIDESET], field_names[vtkIOSSReader::SIDESET]);
+
+        // note: for CGNS, the structuredblock elements have nested BC patches. These patches
+        // are named as well. Let's collect those names too.
+        for (const auto& sb : region->get_structured_blocks())
+        {
+          const int64_t id = sb->property_exists("id") ? sb->get_property("id").get_int() : 0;
+          for (auto& bc : sb->m_boundaryConditions)
+          {
+            if (!bc.m_bcName.empty())
+            {
+              bc_names.emplace(static_cast<vtkTypeUInt64>(id), bc.m_bcName);
+            }
+          }
+        }
+
+        // another CGNS idiosyncrasy, we need to read node fields from
+        // node_blocks nested under the structured_blocks.
+        for (auto& sb : region->get_structured_blocks())
+        {
+          std::set<vtkIOSSUtilities::EntityNameType> unused;
+          vtkIOSSUtilities::GetEntityAndFieldNames(region,
+            Ioss::NodeBlockContainer({ &sb->get_node_block() }), unused,
+            field_names[vtkIOSSReader::NODEBLOCK]);
+        }
+      }
+      // necessary to avoid errors from IO libraries, e.g. CGNS, about
+      // too many files open.
+      this->ReleaseHandles();
+    }
+  }
+
+  bool subsetOrEqual = true;
+  for (int i = 0; i < vtkIOSSReader::NUMBER_OF_ENTITY_TYPES; ++i)
+  {
+    subsetOrEqual &= std::includes(this->EntityNames[i].begin(), this->EntityNames[i].end(),
+      entity_names[i].begin(), entity_names[i].end());
+  }
+
+  return !subsetOrEqual;
 }
 
 bool vtkIOSSReaderInternal::UpdateEntityAndFieldSelections(vtkIOSSReader* self)
@@ -633,6 +723,11 @@ bool vtkIOSSReaderInternal::UpdateAssembly(vtkIOSSReader* self, int* tag)
   }
 
   return true;
+}
+
+vtkDataAssembly* vtkIOSSReaderInternal::GetAssembly() const
+{
+  return this->Assembly;
 }
 
 bool vtkIOSSReaderInternal::GenerateOutput(

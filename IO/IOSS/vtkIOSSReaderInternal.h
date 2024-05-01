@@ -27,6 +27,7 @@
 #include VTK_IOSS(Ioss_StructuredBlock.h)
 // clang-format on
 
+#include <algorithm>
 #include <array>
 #include <map>
 #include <set>
@@ -72,6 +73,7 @@ using DatabaseHandle = std::pair<std::string, int>;
  */
 class vtkIOSSReaderInternal
 {
+private:
   // It's okay to instantiate this multiple times.
   Ioss::Init::Initializer io;
 
@@ -130,20 +132,7 @@ public:
    */
   void ClearCache() { this->Cache.Clear(); }
   void ResetCacheAccessCounts() { this->Cache.ResetAccessCounts(); }
-  void ClearCacheUnused()
-  {
-    switch (this->Format)
-    {
-      case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
-        // For Catalyst, we don't want to hold on to the cache for longer than
-        // the RequestData pass. For we clear it entirely here.
-        this->Cache.Clear();
-        break;
-      default:
-        this->Cache.ClearUnused();
-        break;
-    }
-  }
+  void ClearCacheUnused() { this->Cache.ClearUnused(); }
   ///@}
 
   /**
@@ -181,6 +170,12 @@ public:
   bool UpdateTimeInformation(vtkIOSSReader* self);
 
   /**
+   * Checks if the entity and field selections have changed.
+   */
+  bool NeedToUpdateEntityAndFieldSelections(
+    vtkIOSSReader* self, const std::vector<DatabaseHandle>& dbaseHandles);
+
+  /**
    * Populates various `vtkDataArraySelection` objects on the vtkIOSSReader with
    * names for entity-blocks, -sets, and fields defined on them.
    */
@@ -191,7 +186,7 @@ public:
    */
   bool UpdateAssembly(vtkIOSSReader* self, int* tag);
 
-  vtkDataAssembly* GetAssembly() const { return this->Assembly; }
+  vtkDataAssembly* GetAssembly() const;
 
   /**
    * Fills up the output data-structure based on the entity blocks/sets chosen
@@ -230,6 +225,11 @@ public:
    * Read global fields.
    */
   bool GetGlobalFields(vtkFieldData* fd, const DatabaseHandle& handle, int timestep);
+
+  /**
+   * Get if there are restart files available.
+   */
+  bool HaveRestartFiles() const { return this->DatabaseTimes.size() > 1; }
 
   /**
    * Returns the list of fileids, if any to be read for a given "piece" for the
@@ -280,6 +280,22 @@ public:
 
     // this is not a spatially partitioned file; just return 0.
     return 0;
+  }
+
+  /**
+   * Returns if the given database handles have regions already created.
+   */
+  bool HaveCreatedRegions(const std::vector<DatabaseHandle>& dbaseHandles)
+  {
+    if (this->RegionMap.empty())
+    {
+      return false;
+    }
+    const bool allHandlesAreNew =
+      std::all_of(dbaseHandles.begin(), dbaseHandles.end(), [&](const DatabaseHandle& handle) {
+        return this->RegionMap.find(handle) == this->RegionMap.end();
+      });
+    return !allHandlesAreNew;
   }
 
   /**
