@@ -140,7 +140,7 @@ private:
    * Write the given dataset to the current FileName in vtkHDF format.
    * returns true if the writing operation completes successfully.
    */
-  bool WriteDatasetToFile(hid_t group, vtkPolyData* input);
+  bool WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input);
   bool WriteDatasetToFile(hid_t group, vtkDataObjectTree* input);
@@ -163,8 +163,14 @@ private:
   bool InitializeTemporalData(vtkPolyData* input);
   ///@}
 
-  bool InitializePartitionedData(vtkUnstructuredGrid* input);
-  bool InitializePartitionedData(vtkPolyData* input);
+  ///@{
+  /**
+   * Initialize empty dymanic datasets in use for partitioned data types.
+   * These datasets will be extended when a new partition is written.
+   */
+  bool InitializePartitionedData(hid_t group, vtkUnstructuredGrid* input);
+  bool InitializePartitionedData(hid_t group, vtkPolyData* input);
+  ///@}
 
   /**
    * Add the number of points to the file
