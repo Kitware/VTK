@@ -1122,7 +1122,8 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
     bool elevationFlag = false;
 
     // Check to see if there is a scalar associated with the image
-    if (!input->GetPointData()->GetScalars())
+    auto scalars = input->GetPointData()->GetScalars();
+    if (!scalars || scalars->GetNumberOfComponents() != 1)
     {
       // Add an elevation scalar
       vtkNew<vtkElevationFilter> elevation;
@@ -1150,14 +1151,17 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       // Remove elevation data
       slice->GetPointData()->RemoveArray("Elevation");
       tmpInput->Delete();
+      if (scalars && scalars->GetNumberOfComponents() != 1)
+      {
+        slice->GetPointData()->SetActiveScalars(scalars->GetName());
+      }
     }
     else if (!this->InterpolateAttributes)
     {
       // Remove unwanted point data
       // In this case, Flying edges outputs only a single array in point data
       // scalars cannot be null
-      vtkDataArray* scalars = slice->GetPointData()->GetScalars();
-      slice->GetPointData()->RemoveArray(scalars->GetName());
+      slice->GetPointData()->RemoveArray(slice->GetPointData()->GetScalars()->GetName());
     }
     output->ShallowCopy(slice);
     return 1;
