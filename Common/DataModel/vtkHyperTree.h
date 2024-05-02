@@ -269,7 +269,7 @@ public:
     vtkBitArray* inputMask, vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
     vtkIdList* breadthFirstIdMap) = 0;
 
-  VTK_DEPRECATED_IN_9_5_0(
+  VTK_DEPRECATED_IN_9_4_0(
     "You must use depthLimiter parameter for transmit the eponymous member of vtkHyperTreeGrid")
   void ComputeBreadthFirstOrderDescriptor(vtkBitArray* inputMask,
     vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
