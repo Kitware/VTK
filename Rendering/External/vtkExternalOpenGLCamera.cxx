@@ -36,6 +36,32 @@ void vtkExternalOpenGLCamera::SetViewTransformMatrix(const double elements[16])
   this->ViewTransform->SetMatrix(matrix);
   this->ModelViewTransform->SetMatrix(matrix);
   this->UserProvidedViewTransform = true;
+
+  // Synchronize camera viewUp
+  matrix->Invert();
+  double viewUp[4] = { 0.0, 1.0, 0.0, 0.0 }, newViewUp[4];
+  matrix->MultiplyPoint(viewUp, newViewUp);
+  vtkMath::Normalize(newViewUp);
+  this->SetViewUp(newViewUp);
+
+  // Synchronize camera position
+  double position[4] = { 0.0, 0.0, 0.0, 1.0 }, newPosition[4];
+  matrix->MultiplyPoint(position, newPosition);
+
+  if (newPosition[3] != 0.0)
+  {
+    newPosition[0] /= newPosition[3];
+    newPosition[1] /= newPosition[3];
+    newPosition[2] /= newPosition[3];
+    newPosition[3] = 1.0;
+  }
+  this->SetPosition(newPosition);
+
+  // Synchronize focal point
+  double focalPoint[4] = { 0.0, 0.0, -1.0, 1.0 }, newFocalPoint[4];
+  matrix->MultiplyPoint(focalPoint, newFocalPoint);
+  this->SetFocalPoint(newFocalPoint);
+
   matrix->Delete();
 }
 
