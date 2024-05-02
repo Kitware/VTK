@@ -57,7 +57,7 @@
  * @code
  * struct Const42
  * {
- *   int operator()(int idx) const { return 42; }
+ *   int operator()(vtkIdType idx) const { return 42; }
  * };
  * vtkNew<vtkImplicitArray<Const42>> arr42;
  * @endcode
@@ -120,7 +120,7 @@
  * @code
  * struct Const42
  * {
- *   int operator()(int idx) const { return 42; }
+ *   int operator()(vtkIdType idx) const { return 42; }
  * };
  * vtkNew<vtkImplicitArray<Const42>> arr42;
  * arr42->SetNumberOfTuples(11);

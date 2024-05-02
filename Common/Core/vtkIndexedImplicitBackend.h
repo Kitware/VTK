@@ -44,6 +44,8 @@
 
 #include "vtkCommonCoreModule.h"
 
+#include "vtkType.h"
+
 #include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -68,7 +70,7 @@ public:
    * Indexing operation for the indexed array respecting the backend expectations of
    * `vtkImplicitArray`
    */
-  ValueType operator()(int idx) const;
+  ValueType operator()(vtkIdType idx) const;
 
   /**
    * Returns the smallest integer memory size in KiB needed to store the array.

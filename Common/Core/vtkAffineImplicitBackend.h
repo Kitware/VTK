@@ -6,6 +6,8 @@
 
 #include "vtkCommonCoreModule.h"
 
+#include "vtkType.h"
+
 /**
  * \struct vtkAffineImplicitBackend
  * \brief A utility structure serving as a backend for affine (as a function of the index) implicit
@@ -48,7 +50,7 @@ struct VTKCOMMONCORE_EXPORT vtkAffineImplicitBackend final
    * \param index the index at which one wished to evaluate the backend
    * \return the affinely computed value
    */
-  ValueType operator()(int index) const;
+  ValueType operator()(vtkIdType index) const;
 
   /**
    * The slope of the affine function on the indices

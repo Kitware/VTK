@@ -17,7 +17,7 @@ VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
 struct TypedArrayCache
 {
-  virtual ValueType GetValue(int idx) const = 0;
+  virtual ValueType GetValue(vtkIdType idx) const = 0;
   virtual unsigned long getMemorySize() const = 0;
   virtual ~TypedArrayCache() = default;
 };
@@ -31,7 +31,7 @@ public:
   {
   }
 
-  ValueType GetValue(int idx) const override
+  ValueType GetValue(vtkIdType idx) const override
   {
     return static_cast<ValueType>(this->Array->GetValue(idx));
   }
@@ -51,10 +51,10 @@ public:
   {
   }
 
-  ValueType GetValue(int idx) const override
+  ValueType GetValue(vtkIdType idx) const override
   {
     const int nComps = this->Array->GetNumberOfComponents();
-    const int iTup = idx / nComps;
+    const vtkIdType iTup = idx / nComps;
     const int iComp = idx - iTup * nComps;
     return static_cast<ValueType>(this->Array->GetComponent(iTup, iComp));
   }
@@ -89,7 +89,7 @@ struct TypedCacheWrapper
     }
   }
 
-  ValueType operator()(int idx) const { return this->Cache->GetValue(idx); }
+  ValueType operator()(vtkIdType idx) const { return this->Cache->GetValue(idx); }
 
   unsigned long getMemorySize() const { return this->Cache->getMemorySize(); }
 
@@ -106,7 +106,7 @@ struct IdListWrapper
   {
   }
 
-  vtkIdType operator()(int idx) const { return this->Handles->GetId(idx); }
+  vtkIdType operator()(vtkIdType idx) const { return this->Handles->GetId(idx); }
 
   unsigned long getMemorySize() const
   {
@@ -207,7 +207,7 @@ vtkIndexedImplicitBackend<ValueType>::~vtkIndexedImplicitBackend() = default;
 
 //-----------------------------------------------------------------------
 template <typename ValueType>
-ValueType vtkIndexedImplicitBackend<ValueType>::operator()(int idx) const
+ValueType vtkIndexedImplicitBackend<ValueType>::operator()(vtkIdType idx) const
 {
   return this->Internal->Array->GetValue(this->Internal->Handles->GetValue(idx));
 }
