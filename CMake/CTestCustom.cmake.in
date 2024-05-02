@@ -258,6 +258,19 @@ if (NOT "$ENV{CI}" STREQUAL "")
       )
     endif ()
   endif ()
+
+  # For some reason, warning flags aren't working here.
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "_ext_vtk")
+    list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+      "Wstringop-overflow="
+      "note: destination object allocated here"
+      "note: destination object '.*' of size .*"
+
+      "Wstringop-overread"
+      "note: source object '.*' of size .*"
+      "note: at offset .* into source object '.*' of size .*"
+      )
+  endif ()
 endif ()
 
 list(APPEND CTEST_CUSTOM_COVERAGE_EXCLUDE
