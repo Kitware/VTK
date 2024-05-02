@@ -279,8 +279,6 @@ public:
       numberOfVerticesPerDepth, descriptor, breadthFirstIdMap);
   }
 
-#include "vtkDeprecation.h" // Include the macros.
-
   /**
    * Copy the structure by sharing the decomposition description
    * of the tree.
