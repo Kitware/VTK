@@ -24,6 +24,7 @@ if (TARGET VTK::ParallelMPI)
     ParallelResampling.cxx
     UnitTestPMaskPoints.cxx
     TestGenerateProcessIds.cxx,NO_VALID
+    TestGenerateProcessIdsHTG.cxx,NO_VALID
     TestPOutlineFilter.cxx,NO_VALID
     )
 
@@ -32,6 +33,7 @@ if (TARGET VTK::ParallelMPI)
   set(vtkFiltersParallelCxxTests-MPI_NUMPROCS 4)
   vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI no_data_tests_4_procs
     AggregateDataSet.cxx
+    TestGenerateGlobalIdsHTG.cxx,NO_VALID
     TestHyperTreeGridGhostCellsGenerator.cxx,NO_VALID
   )
 

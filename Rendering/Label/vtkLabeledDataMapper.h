@@ -25,12 +25,12 @@
  * Use this filter in combination with vtkSelectVisiblePoints if you want
  * to label only points that are visible. If you want to label cells rather
  * than points, use the filter vtkCellCenters to generate points at the
- * center of the cells. Also, you can use the class vtkIdFilter to
+ * center of the cells. Also, you can use the class vtkGenerateIds to
  * generate ids as scalars or field data, which can then be labeled.
  *
  * @sa
  * vtkMapper2D vtkActor2D vtkTextMapper vtkTextProperty vtkSelectVisiblePoints
- * vtkIdFilter vtkCellCenters
+ * vtkGenerateIds vtkCellCenters
  */
 
 #ifndef vtkLabeledDataMapper_h

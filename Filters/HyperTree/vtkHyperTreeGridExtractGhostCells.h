@@ -8,6 +8,8 @@
  * Coarse cells are shown if any of their leaves is ghost.
  *
  * The input ghost cell array is renamed and no longer considered as a ghost type array.
+ *
+ * @sa vtkHyperTreeGridRemoveGhostCells
  */
 
 #ifndef vtkHyperTreeGridExtractGhostCells_h

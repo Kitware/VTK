@@ -4,17 +4,16 @@
 // Tests vtkGenerateProcessIds and the new ProcessIds dataset attribute.
 
 #include "vtkCellData.h"
-#include "vtkDataSet.h"
-#include "vtkGenerateProcessIds.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGenerateProcessIds.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMPIController.h"
 #include "vtkNew.h"
-#include "vtkPointData.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRandomHyperTreeGridSource.h"
 
-static int TestGenerator(vtkDataSetAttributes* dataSetAttributes, int rank);
+static int TestGenerator(vtkCellData* dataSetAttributes, int rank);
 
-int TestGenerateProcessIds(int argc, char* argv[])
+int TestGenerateProcessIdsHTG(int argc, char* argv[])
 {
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
@@ -23,24 +22,26 @@ int TestGenerateProcessIds(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(controller);
 
   // Create and execute pipeline
-  vtkNew<vtkRTAnalyticSource> wavelet;
-  vtkNew<vtkGenerateProcessIds> pidGenerator;
-  pidGenerator->SetInputConnection(wavelet->GetOutputPort());
-  pidGenerator->GenerateCellDataOn();
+  vtkNew<vtkRandomHyperTreeGridSource> htgSource;
+  htgSource->SetSeed(42);
+  htgSource->SetMaxDepth(3);
+  htgSource->SetDimensions(3, 3, 3);
+  htgSource->SetSplitFraction(0.5);
+
+  vtkNew<vtkHyperTreeGridGenerateProcessIds> pidGenerator;
+  pidGenerator->SetInputConnection(htgSource->GetOutputPort());
   pidGenerator->Update();
 
-  vtkDataSet* pidOutput = vtkDataSet::SafeDownCast(pidGenerator->GetOutput());
+  vtkHyperTreeGrid* pidOutput = vtkHyperTreeGrid::SafeDownCast(pidGenerator->GetOutput());
   int myRank = controller->GetLocalProcessId();
 
-  int retVal = TestGenerator(pidOutput->GetPointData(), myRank);
-  retVal =
-    (TestGenerator(pidOutput->GetCellData(), myRank) == EXIT_FAILURE) ? EXIT_FAILURE : retVal;
+  int retVal = TestGenerator(pidOutput->GetCellData(), myRank);
 
   controller->Finalize();
   return retVal;
 }
 
-int TestGenerator(vtkDataSetAttributes* dataSetAttributes, int rank)
+int TestGenerator(vtkCellData* dataSetAttributes, int rank)
 {
   vtkDataArray* pidDataArray = dataSetAttributes->GetProcessIds();
   vtkIdType nbTuples = dataSetAttributes->GetNumberOfTuples();

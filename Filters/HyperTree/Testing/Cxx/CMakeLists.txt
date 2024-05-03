@@ -54,6 +54,7 @@ set(test_sources
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
   TestHyperTreeGridExtractGhostCells.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridGeometryPassCellIds.cxx
+  TestHyperTreeGridRemoveGhostCells.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridTernary2D.cxx
   TestHyperTreeGridTernary2DBiMaterial.cxx
   TestHyperTreeGridTernary2DFullMaterialBits.cxx

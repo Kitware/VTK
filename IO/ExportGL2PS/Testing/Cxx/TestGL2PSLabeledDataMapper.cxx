@@ -10,7 +10,7 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellCenters.h"
-#include "vtkIdFilter.h"
+#include "vtkGenerateIds.h"
 #include "vtkLabeledDataMapper.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
@@ -66,7 +66,7 @@ int TestGL2PSLabeledDataMapper(int, char*[])
   sphereActor->SetMapper(sphereMapper);
 
   // Generate ids for labeling
-  vtkNew<vtkIdFilter> ids;
+  vtkNew<vtkGenerateIds> ids;
   ids->SetInputConnection(sphere->GetOutputPort());
   ids->PointIdsOn();
   ids->CellIdsOn();

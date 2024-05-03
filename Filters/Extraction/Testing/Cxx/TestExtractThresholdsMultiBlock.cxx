@@ -5,7 +5,7 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelection.h"
-#include "vtkIdFilter.h"
+#include "vtkGenerateIds.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMultiBlockDataGroupFilter.h"
 #include "vtkMultiBlockDataSet.h"
@@ -23,13 +23,13 @@ int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   sphere->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
   // Block 1: has PointId point data array
-  vtkNew<vtkIdFilter> spherePointIDSource;
+  vtkNew<vtkGenerateIds> spherePointIDSource;
   spherePointIDSource->SetPointIdsArrayName("PointId");
   spherePointIDSource->PointIdsOn();
   spherePointIDSource->SetInputConnection(sphere->GetOutputPort());
 
   // Block 2: has CellId cell data array
-  vtkNew<vtkIdFilter> sphereCellIDSource;
+  vtkNew<vtkGenerateIds> sphereCellIDSource;
   sphereCellIDSource->SetCellIdsArrayName("CellId");
   sphereCellIDSource->CellIdsOn();
   sphereCellIDSource->SetInputConnection(sphere->GetOutputPort());

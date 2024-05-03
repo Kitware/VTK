@@ -10,7 +10,7 @@ from vtkmodules.vtkCommonDataModel import (
 from vtkmodules.vtkFiltersCore import (
     vtkFlyingEdges2D,
     vtkGlyph3D,
-    vtkIdFilter,
+    vtkGenerateIds,
     vtkTriangleFilter,
 )
 from vtkmodules.vtkFiltersModeling import (
@@ -131,7 +131,7 @@ glyph.SetInputConnection(plane.GetOutputPort())
 glyph.SetSourceData(glyphData)
 glyph.SetScaleFactor( 100 )
 
-ids = vtkIdFilter()
+ids = vtkGenerateIds()
 ids.SetInputConnection(glyph.GetOutputPort())
 ids.Update()
 

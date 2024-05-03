@@ -4,8 +4,8 @@
 
 #include "vtkAMRCutPlane.h"
 #include "vtkAMRGaussianPulseSource.h"
+#include "vtkGenerateIds.h"
 #include "vtkGradientFilter.h"
-#include "vtkIdFilter.h"
 #include "vtkImageToAMR.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
@@ -70,7 +70,7 @@ void ImageToAMRTest()
   vtkNew<vtkRTAnalyticSource> imageSource;
   imageSource->SetWholeExtent(0, 0, -128, 128, -128, 128);
 
-  vtkNew<vtkIdFilter> idFilter;
+  vtkNew<vtkGenerateIds> idFilter;
   idFilter->SetInputConnection(imageSource->GetOutputPort());
 
   vtkNew<vtkImageToAMR> amrConverter;

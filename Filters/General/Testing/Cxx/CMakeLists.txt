@@ -47,6 +47,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestPassArrays.cxx,NO_VALID
   TestPassSelectedArrays.cxx,NO_VALID
   TestPassThrough.cxx,NO_VALID
+  TestRandomAttributeGeneratorHTG.cxx,NO_VALID,NO_OUTPUT
   TestRectilinearGridToPointSet.cxx,NO_VALID
   TestReflectionFilter.cxx,NO_VALID
   TestSpatioTemporalHarmonicsAttribute.cxx

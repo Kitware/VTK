@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
-from vtkmodules.vtkFiltersCore import vtkIdFilter
+from vtkmodules.vtkFiltersCore import vtkGenerateIds
 from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkInteractionStyle import vtkInteractorStyleRubberBandZoom
 from vtkmodules.vtkRenderingCore import (
@@ -35,7 +35,7 @@ class TestStyleRubberBandZoomPerspective(vtkmodules.test.Testing.vtkTest):
         self.pipelineInitialized = True
 
         self.sphere = vtkSphereSource()
-        self.idFilter = vtkIdFilter()
+        self.idFilter = vtkGenerateIds()
         self.mapper = vtkPolyDataMapper()
         self.actor = vtkActor()
 
@@ -46,7 +46,7 @@ class TestStyleRubberBandZoomPerspective(vtkmodules.test.Testing.vtkTest):
         self.mapper.SetInputConnection(self.idFilter.GetOutputPort())
         self.mapper.SetColorModeToMapScalars()
         self.mapper.SetScalarModeToUseCellFieldData()
-        self.mapper.SelectColorArray("vtkIdFilter_Ids")
+        self.mapper.SelectColorArray("vtkCellIds")
         self.mapper.UseLookupTableScalarRangeOff()
         self.mapper.SetScalarRange(0, 95)
         self.actor.SetMapper(self.mapper)

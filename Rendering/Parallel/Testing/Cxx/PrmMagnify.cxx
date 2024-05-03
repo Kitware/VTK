@@ -5,7 +5,7 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDummyController.h"
-#include "vtkIdFilter.h"
+#include "vtkGenerateIds.h"
 #include "vtkObjectFactory.h"
 #include "vtkParallelRenderManager.h"
 #include "vtkPolyDataMapper.h"
@@ -194,7 +194,7 @@ int PrmMagnify(int argc, char* argv[])
   //   sphere->SetEndPhi(90.0);
   //   sphere->SetPhiResolution(4);
 
-  //   VTK_CREATE(vtkIdFilter, colors);
+  //   VTK_CREATE(vtkGenerateIds, colors);
   //   colors->SetInputConnection(sphere->GetOutputPort());
   //   colors->PointIdsOff();
   //   colors->CellIdsOn();

@@ -6,7 +6,7 @@ from vtkmodules.vtkCommonDataModel import (
 )
 from vtkmodules.vtkFiltersCore import (
     vtkCellCenters,
-    vtkIdFilter,
+    vtkGenerateIds,
 )
 from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkRenderingCore import (
@@ -78,7 +78,7 @@ sphereActor = vtkActor()
 sphereActor.SetMapper(sphereMapper)
 
 # Generate ids for labeling
-ids = vtkIdFilter()
+ids = vtkGenerateIds()
 ids.SetInputConnection(sphere.GetOutputPort())
 ids.PointIdsOn()
 ids.CellIdsOn()
@@ -98,6 +98,7 @@ ldm.SetInputConnection(visPts.GetOutputPort())
 #    ldm.SetLabelModeToLabelNormals()
 ldm.SetLabelModeToLabelFieldData()
 #    ldm.SetLabeledComponent(0)
+ldm.SetFieldDataName("vtkPointIds");
 
 pointLabels = vtkActor2D()
 pointLabels.SetMapper(ldm)
@@ -118,6 +119,7 @@ cellMapper.SetInputConnection(visCells.GetOutputPort())
 #    cellMapper.SetLabelModeToLabelScalars()
 #    cellMapper.SetLabelModeToLabelNormals()
 cellMapper.SetLabelModeToLabelFieldData()
+cellMapper.SetFieldDataName("vtkCellIds");
 cellMapper.GetLabelTextProperty().SetColor(0, 1, 0)
 
 cellLabels = vtkActor2D()

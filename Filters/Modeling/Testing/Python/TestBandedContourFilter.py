@@ -7,7 +7,7 @@ from vtkmodules.vtkCommonDataModel import (
     vtkCellArray,
     vtkPolyData,
 )
-from vtkmodules.vtkFiltersCore import vtkIdFilter
+from vtkmodules.vtkFiltersCore import vtkGenerateIds
 from vtkmodules.vtkFiltersModeling import vtkBandedPolyDataContourFilter
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -136,7 +136,7 @@ mapper.SetScalarModeToUseCellData()
 mapper.SetScalarRange(0,4)
 actor = vtkActor()
 actor.SetMapper(mapper)
-ids = vtkIdFilter()
+ids = vtkGenerateIds()
 ids.SetInputConnection(bf.GetOutputPort())
 ids.PointIdsOn()
 ids.CellIdsOn()
