@@ -254,6 +254,10 @@ void vtkImageAlgorithm::CopyAttributeData(
       if (inArray)
       {
         outArray->SetName(inArray->GetName());
+        for (int i = 0; i < inArray->GetNumberOfComponents(); ++i)
+        {
+          outArray->SetComponentName(i, inArray->GetComponentName(i));
+        }
       }
       // Cache the scalars otherwise it may get overwritten
       // during CopyAttributes()
@@ -280,6 +284,10 @@ void vtkImageAlgorithm::CopyAttributeData(
         if (inArray)
         {
           tmp->SetName(inArray->GetName());
+          for (int i = 0; i < inArray->GetNumberOfComponents(); ++i)
+          {
+            tmp->SetComponentName(i, inArray->GetComponentName(i));
+          }
         }
         tmp->Register(this);
         output->GetPointData()->SetScalars(nullptr);
@@ -302,6 +310,10 @@ void vtkImageAlgorithm::CopyAttributeData(
         {
           vtkDataArray* tmp = output->GetPointData()->GetScalars();
           tmp->SetName(inArray->GetName());
+          for (int i = 0; i < inArray->GetNumberOfComponents(); ++i)
+          {
+            tmp->SetComponentName(i, inArray->GetComponentName(i));
+          }
         }
       }
 
