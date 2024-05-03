@@ -15,6 +15,7 @@
 #include "vtkMathTextUtilities.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
@@ -31,7 +32,6 @@
 #include "vtkWindow.h"
 
 #include <map>
-#include <set>
 #include <vector>
 
 #include <cstdio> // for snprintf
@@ -42,6 +42,7 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor, LookupTable, vtkScalarsToColors);
+vtkCxxSetObjectMacro(vtkScalarBarActor, OpacityFunction, vtkPiecewiseFunction);
 vtkCxxSetObjectMacro(vtkScalarBarActor, AnnotationTextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkScalarBarActor, LabelTextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkScalarBarActor, TitleTextProperty, vtkTextProperty);
@@ -57,6 +58,7 @@ vtkScalarBarActor::vtkScalarBarActor()
 {
   this->P = new vtkScalarBarActorInternal;
   this->LookupTable = nullptr;
+  this->OpacityFunction = nullptr;
   this->Position2Coordinate->SetValue(0.17, 0.8);
 
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
@@ -344,6 +346,7 @@ vtkScalarBarActor::~vtkScalarBarActor()
   this->ComponentTitle = nullptr;
 
   this->SetLookupTable(nullptr);
+  this->SetOpacityFunction(nullptr);
   this->SetAnnotationTextProperty(nullptr);
   if (this->CustomLabels != nullptr)
   {
@@ -1637,7 +1640,14 @@ void vtkScalarBarActor::ConfigureScalarBar()
       rgbval = range[0] + (range[1] - range[0]) * (i / static_cast<double>(this->P->NumColors));
     }
     lut->GetColor(rgbval, rgba);
-    rgba[3] = lut->GetOpacity(rgbval);
+    if (this->OpacityFunction)
+    {
+      rgba[3] = this->OpacityFunction->GetValue(rgbval);
+    }
+    else
+    {
+      rgba[3] = lut->GetOpacity(rgbval);
+    }
     // write into array directly
     rgb = this->P->SwatchColors->GetPointer(nComponents * i);
     rgb[0] = static_cast<unsigned char>(rgba[0] * 255.);

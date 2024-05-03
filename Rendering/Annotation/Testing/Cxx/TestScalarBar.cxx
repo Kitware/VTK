@@ -10,6 +10,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkNew.h"
+#include "vtkPiecewiseFunction.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty2D.h"
 #include "vtkRegressionTestImage.h"
@@ -18,7 +19,6 @@
 #include "vtkRenderer.h"
 #include "vtkScalarBarActor.h"
 #include "vtkScalarsToColors.h"
-#include "vtkStructuredGrid.h"
 #include "vtkStructuredGridGeometryFilter.h"
 #include "vtkTextProperty.h"
 
@@ -151,6 +151,26 @@ int TestScalarBar(int argc, char* argv[])
   scalarBar5->SetCustomLabels(customLabels);
   scalarBar5->SetUseCustomLabels(true);
 
+  vtkNew<vtkPiecewiseFunction> opacityFunc;
+  opacityFunc->AddPoint(0.0, 1.0);
+  opacityFunc->AddPoint(1.0, 0.1);
+
+  vtkNew<vtkScalarBarActor> scalarBar6;
+  scalarBar6->SetTitle("DensityWithOpacity");
+  scalarBar6->SetLookupTable(lut);
+  scalarBar6->SetOpacityFunction(opacityFunc);
+  scalarBar6->SetUseOpacity(true);
+  scalarBar6->DrawAnnotationsOff();
+  scalarBar6->SetOrientationToHorizontal();
+  scalarBar6->SetWidth(0.5);
+  scalarBar6->SetHeight(0.15);
+  scalarBar6->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+  scalarBar6->GetPositionCoordinate()->SetValue(.05, .4);
+  scalarBar6->GetTitleTextProperty()->SetColor(0.5, 0., 1.);
+  scalarBar6->GetLabelTextProperty()->SetColor(0.5, 0., 1.);
+  scalarBar6->SetDrawFrame(1);
+  scalarBar6->SetTextureGridWidth(20);
+
   vtkNew<vtkCamera> camera;
   camera->SetFocalPoint(8, 0, 30);
   camera->SetPosition(6, 0, 50);
@@ -162,6 +182,7 @@ int TestScalarBar(int argc, char* argv[])
   ren1->AddActor(scalarBar3);
   ren1->AddActor(scalarBar4);
   ren1->AddActor(scalarBar5);
+  ren1->AddActor(scalarBar6);
   ren1->GradientBackgroundOn();
   ren1->SetBackground(.5, .5, .5);
   ren1->SetBackground2(.0, .0, .0);
