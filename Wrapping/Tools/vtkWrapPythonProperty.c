@@ -73,8 +73,7 @@ static int vtkWrapPython_IsGetter(const unsigned int methodType)
 /* Returns true if the method can be used inside the set member of PyGetSetDef */
 static int vtkWrapPython_IsSetter(const unsigned int methodType)
 {
-  return methodType == VTK_METHOD_SET || methodType == VTK_METHOD_SET_IDX ||
-    methodType == VTK_METHOD_SET_MULTI;
+  return methodType == VTK_METHOD_SET || methodType == VTK_METHOD_SET_MULTI;
 }
 
 /* Calls vtkWrapPython_MethodCheck to figure out the wrappability of the method. */

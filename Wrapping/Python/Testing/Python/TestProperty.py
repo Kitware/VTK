@@ -35,14 +35,6 @@ class TestProperty(vtkTesting.vtkTest):
         self.assertTupleEqual(b.max_point, (10.0, 10.0, 10.0))
         self.assertTupleEqual(b.min_point, (-10.0, -10.0, 0.0))
 
-    def testSetterMultiValue(self):
-        w = vtkRTAnalyticSource()
-        cf = vtkContourFilter()
-        cf.input_connection = (0, w.output_port)
-        cf.value = (0, 40)
-        cf.Update()
-        self.assertEqual(cf.output.number_of_points, 6)
-
 
 if __name__ == '__main__':
     vtkTesting.main([(TestProperty, 'test')])
