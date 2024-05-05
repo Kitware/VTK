@@ -8,6 +8,7 @@
 
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 //-------------------------------------------------------------------------------
@@ -47,6 +48,18 @@ bool vtkWasmSceneManager::Render(vtkTypeUInt32 identifier)
   if (auto renderWindow = vtkRenderWindow::SafeDownCast(object))
   {
     renderWindow->Render();
+    return true;
+  }
+  return false;
+}
+
+//-------------------------------------------------------------------------------
+bool vtkWasmSceneManager::ResetCamera(vtkTypeUInt32 identifier)
+{
+  auto object = this->GetObjectAtId(identifier);
+  if (auto renderer = vtkRenderer::SafeDownCast(object))
+  {
+    renderer->ResetCamera();
     return true;
   }
   return false;

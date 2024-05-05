@@ -33,7 +33,7 @@ public:
    * Set the size of the `vtkRenderWindow` object at `identifier` to
    * the supplied dimesions.
    *
-   * Returns `true` if the obejct at `identifier` is a `vtkRenderWindow`
+   * Returns `true` if the object at `identifier` is a `vtkRenderWindow`
    * with a `vtkRenderWindowInteractor` attached to it,
    * `false` otherwise.
    */
@@ -42,15 +42,23 @@ public:
   /**
    * Render the `vtkRenderWindow` object at `identifier`.
    *
-   * Returns `true` if the obejct at `identifier` is a `vtkRenderWindow`
+   * Returns `true` if the object at `identifier` is a `vtkRenderWindow`
    * `false` otherwise.
    */
   bool Render(vtkTypeUInt32 identifier);
 
   /**
+   * Reset the active camera of the `vtkRenderer` object at `identifier`.
+   *
+   * Returns `true` if the object at `identifier` is a `vtkRenderer`
+   * `false` otherwise.
+   */
+  bool ResetCamera(vtkTypeUInt32 identifier);
+
+  /**
    * Start event loop of the `vtkRenderWindowInteractor` object at `identifier`.
    *
-   * Returns `true` if the obejct at `identifier` is a `vtkRenderWindowInteractor`
+   * Returns `true` if the object at `identifier` is a `vtkRenderWindowInteractor`
    * `false` otherwise.
    */
   bool StartEventLoop(vtkTypeUInt32 identifier);
@@ -58,7 +66,7 @@ public:
   /**
    * Stop event loop of the `vtkRenderWindowInteractor` object at `identifier`.
    *
-   * Returns `true` if the obejct at `identifier` is a `vtkRenderWindowInteractor`
+   * Returns `true` if the object at `identifier` is a `vtkRenderWindowInteractor`
    * `false` otherwise.
    */
   bool StopEventLoop(vtkTypeUInt32 identifier);

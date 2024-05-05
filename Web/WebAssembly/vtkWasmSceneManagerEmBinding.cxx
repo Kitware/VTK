@@ -178,6 +178,13 @@ bool render(vtkTypeUInt32 identifier)
 }
 
 //-------------------------------------------------------------------------------
+bool resetCamera(vtkTypeUInt32 identifier)
+{
+  CHECK_INIT;
+  return Manager->ResetCamera(identifier);
+}
+
+//-------------------------------------------------------------------------------
 bool startEventLoop(vtkTypeUInt32 identifier)
 {
   CHECK_INIT;
@@ -249,6 +256,7 @@ EMSCRIPTEN_BINDINGS(vtkWasmSceneManager)
 
   function("setSize", ::setSize);
   function("render", ::render);
+  function("resetCamera", ::resetCamera);
 
   function("startEventLoop", ::startEventLoop);
   function("stopEventLoop", ::stopEventLoop);
