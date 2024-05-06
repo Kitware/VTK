@@ -331,6 +331,28 @@ vtkStdString vtkXMLPMultiBlockDataWriter::CreatePieceFileName(
 }
 
 //------------------------------------------------------------------------------
+void vtkXMLPMultiBlockDataWriter::MakeDirectory(const char* name)
+{
+  // Avoid every rank trying to create a directory, which can happen in parallel
+  // runs when vtkXMLCompositeDataWriter::RequestData() is called.
+  // See https://gitlab.kitware.com/paraview/paraview/-/issues/22579
+  if (this->Controller == nullptr || this->Controller->GetLocalProcessId() == 0)
+  {
+    if (!vtksys::SystemTools::MakeDirectory(name))
+    {
+      vtkErrorMacro(<< "Sorry unable to create directory: " << name << endl
+                    << "Last system error was: " << vtksys::SystemTools::GetLastSystemError());
+    }
+  }
+
+  if (this->Controller)
+  {
+    // Add barrier to ensure directory is created before other ranks try to start writing into it.
+    this->Controller->Barrier();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkXMLPMultiBlockDataWriter::RemoveWrittenFiles(const char* SubDirectory)
 {
   if (this->Controller->GetLocalProcessId() == 0)
