@@ -42,7 +42,7 @@ public:
   /**
    *  Check existence of group defined by groupName relative to fileId.
    */
-  static bool GroupExists(int64_t fileId, const char* groupName);
+  static bool GroupExists(hid_t fileId, const char* groupName);
 
   /**
    *  Get length of array defined by arrayId.
