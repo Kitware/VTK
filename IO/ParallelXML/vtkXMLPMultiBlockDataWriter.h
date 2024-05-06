@@ -116,6 +116,12 @@ protected:
    */
   virtual vtkStdString CreatePieceFileName(int currentFileIndex, int procId, int dataSetType);
 
+  /** Make a directory.
+   *
+   * Overridden to create the directory only on rank 0.
+   */
+  void MakeDirectory(const char* name) override;
+
   /**
    * Utility function to remove any already written files
    * in case writer failed.

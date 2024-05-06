@@ -131,7 +131,7 @@ protected:
   int WriteMetaFileIfRequested();
 
   // Make a directory.
-  void MakeDirectory(const char* name);
+  virtual void MakeDirectory(const char* name);
 
   // Remove a directory.
   void RemoveADirectory(const char* name);
