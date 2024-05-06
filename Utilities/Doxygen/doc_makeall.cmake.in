@@ -253,6 +253,7 @@ foreach(var
   IO
   Parallel
   Rendering
+  Serialization
   Views
   Web
 )
