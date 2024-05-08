@@ -134,6 +134,13 @@ void vtkPointLocator::FreeSearchStructure()
     delete[] this->HashTable;
     this->HashTable = nullptr;
   }
+
+  // The hash table has been invalidated.
+  // Reset the variables calculated from the dataset to their original values defined in the
+  // constructor.
+  vtkMath::UninitializeBounds(this->Bounds);
+  this->H[0] = this->H[1] = this->H[2] = 0.0;
+  this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
 }
 
 //------------------------------------------------------------------------------
@@ -852,14 +859,15 @@ void vtkPointLocator::BuildLocatorInternal()
   vtkDebugMacro(<< "Hashing points...");
   this->Level = 1; // only single lowest level
 
+  // Delete the current hash table values and reset dataset metrics to their original values.
+  this->FreeSearchStructure();
+
   if (!this->DataSet || (numPts = this->DataSet->GetNumberOfPoints()) < 1)
   {
-    vtkErrorMacro(<< "No points to subdivide");
+    // Missing datasets and datasets with no points are valid inputs and should not log an error.
+    // Searching for the closest point id is always -1 for this data.
     return;
   }
-
-  //  Make sure the appropriate data is available
-  this->FreeSearchStructure();
 
   //  Size the root bucket.  Initialize bucket data structure, compute
   //  level and divisions.
