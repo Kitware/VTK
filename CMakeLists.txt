@@ -17,6 +17,10 @@ if (APPLE)
   include(vtkApple)
 endif ()
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  include(vtkEmscripten)
+endif ()
+
 # must be before the following iOS / Android
 find_package(Git QUIET)
 include(VTKDetermineVersion)

@@ -77,6 +77,17 @@ if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
   vtk_add_flag(-Wno-vla-extension ${langs})
   vtk_add_flag(-Wno-unsafe-buffer-usage ${langs})
 
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    if (VTK_WEBASSEMBLY_THREADS)
+      # Remove after https://github.com/WebAssembly/design/issues/1271 is closed
+      vtk_add_flag(-Wno-pthreads-mem-growth ${langs})
+    endif ()
+    if (VTK_WEBASSEMBLY_64_BIT)
+      # Remove after wasm64 is no longer experimental in clang.
+      vtk_add_flag(-Wno-experimental ${langs})
+    endif ()
+  endif ()
+
   set(langs CXX)
   vtk_add_flag(-Wno-c++98-compat-pedantic ${langs})
   vtk_add_flag(-Wno-inconsistent-missing-override ${langs})

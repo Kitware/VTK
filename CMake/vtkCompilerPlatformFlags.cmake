@@ -17,6 +17,27 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*")
   endif()
 endif()
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  if (VTK_WEBASSEMBLY_THREADS)
+    # Remove after https://github.com/WebAssembly/design/issues/1271 is closed
+    # Set Wno flag globally because even though the flag is added in vtkCopmilerWarningFlags.cmake,
+    # wrapping tools do not link with `vtkbuild`
+    set(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -pthread -Wno-pthreads-mem-growth")
+    set(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -pthread -Wno-pthreads-mem-growth")
+    set(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -pthread")
+    set(VTK_REQUIRED_SHARED_LINKER_FLAGS "${VTK_REQUIRED_SHARED_LINKER_FLAGS} -pthread")
+    set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -pthread")
+  endif ()
+  if (VTK_WEBASSEMBLY_64_BIT)
+    # Remove after wasm64 is no longer experimental in clang.
+    set(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -sMEMORY64=1 -Wno-experimental")
+    set(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -sMEMORY64=1 -Wno-experimental")
+    set(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -sMEMORY64=1")
+    set(VTK_REQUIRED_SHARED_LINKER_FLAGS "${VTK_REQUIRED_SHARED_LINKER_FLAGS} -sMEMORY64=1")
+    set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -sMEMORY64=1")
+  endif ()
+endif ()
+
 # A GCC compiler.
 if(CMAKE_COMPILER_IS_GNUCXX)
   if(VTK_USE_X)
