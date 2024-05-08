@@ -686,40 +686,75 @@ void vtkRenderWindowInteractor::RecognizeGesture(vtkCommand::EventIds event)
 
     // do we know what gesture we are doing yet? If not
     // see if we can figure it out
-    if (this->GetCurrentGesture() == vtkCommand::StartEvent)
+    // pinch is a move to/from the center point
+    // rotate is a move along the circumference
+    // pan is a move of the center point
+    // compute the distance along each of these axes in pixels
+    // the first to break thresh wins
+    vtkCommand::EventIds gest = vtkCommand::NoEvent;
+    double thresh = 0.01 *
+      sqrt(static_cast<double>(this->Size[0] * this->Size[0] + this->Size[1] * this->Size[1]));
+    if (thresh < 15.0)
     {
-      // pinch is a move to/from the center point
-      // rotate is a move along the circumference
-      // pan is a move of the center point
-      // compute the distance along each of these axes in pixels
-      // the first to break thresh wins
-      double thresh = 0.01 *
-        sqrt(static_cast<double>(this->Size[0] * this->Size[0] + this->Size[1] * this->Size[1]));
-      if (thresh < 15.0)
+      thresh = 15.0;
+    }
+    double pinchDistance = fabs(newDistance - originalDistance);
+    double rotateDistance = newDistance * vtkMath::Pi() * fabs(angleDeviation) / 360.0;
+    double panDistance = sqrt(trans[0] * trans[0] + trans[1] * trans[1]);
+    if (pinchDistance > thresh && pinchDistance > rotateDistance && pinchDistance > panDistance)
+    {
+      gest = vtkCommand::PinchEvent;
+    }
+    else if (rotateDistance > thresh && rotateDistance > panDistance)
+    {
+      gest = vtkCommand::RotateEvent;
+    }
+    else if (panDistance > thresh)
+    {
+      gest = vtkCommand::PanEvent;
+    }
+    if (this->GetCurrentGesture() != gest)
+    {
+      // If there was some other gesture being processed, end it
+      switch (this->GetCurrentGesture())
       {
-        thresh = 15.0;
+        case vtkCommand::PinchEvent:
+          this->EndPinchEvent();
+          break;
+        case vtkCommand::RotateEvent:
+          this->EndRotateEvent();
+          break;
+        case vtkCommand::PanEvent:
+          this->EndPanEvent();
+          break;
+        default:
+          break;
       }
-      double pinchDistance = fabs(newDistance - originalDistance);
-      double rotateDistance = newDistance * vtkMath::Pi() * fabs(angleDeviation) / 360.0;
-      double panDistance = sqrt(trans[0] * trans[0] + trans[1] * trans[1]);
-      if (pinchDistance > thresh && pinchDistance > rotateDistance && pinchDistance > panDistance)
+
+      this->SetCurrentGesture(gest);
+
+      // If this is the start of a gesture, invoke the start specific event
+      switch (this->GetCurrentGesture())
       {
-        this->SetCurrentGesture(vtkCommand::PinchEvent);
-        this->Scale = 1.0;
-        this->StartPinchEvent();
-      }
-      else if (rotateDistance > thresh && rotateDistance > panDistance)
-      {
-        this->SetCurrentGesture(vtkCommand::RotateEvent);
-        this->Rotation = 0.0;
-        this->StartRotateEvent();
-      }
-      else if (panDistance > thresh)
-      {
-        this->SetCurrentGesture(vtkCommand::PanEvent);
-        this->Translation[0] = 0.0;
-        this->Translation[1] = 0.0;
-        this->StartPanEvent();
+        case vtkCommand::PinchEvent:
+          this->SetCurrentGesture(vtkCommand::PinchEvent);
+          this->Scale = 1.0;
+          this->StartPinchEvent();
+          break;
+        case vtkCommand::RotateEvent:
+          this->SetCurrentGesture(vtkCommand::RotateEvent);
+          this->Rotation = 0.0;
+          this->StartRotateEvent();
+          break;
+        case vtkCommand::PanEvent:
+          this->SetCurrentGesture(vtkCommand::PanEvent);
+          this->Translation[0] = 0.0;
+          this->Translation[1] = 0.0;
+          this->StartPanEvent();
+          break;
+        default:
+          // Nothing special here
+          break;
       }
     }
 
