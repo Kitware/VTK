@@ -5,6 +5,13 @@ set(cmake_args
   "-DCMAKE_BUILD_TYPE:STRING=${CTEST_BUILD_CONFIGURATION}"
   -C "${CMAKE_CURRENT_LIST_DIR}/configure_$ENV{CMAKE_CONFIGURATION}.cmake")
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wasm")
+  # Use Emscripten toolchain
+  get_filename_component(emsdk_dir "${CMAKE_CURRENT_LIST_DIR}/../emsdk" ABSOLUTE)
+  file(TO_CMAKE_PATH "${emsdk_dir}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" toolchain_file)
+  set(cmake_args "${cmake_args}"
+    "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${toolchain_file}")
+endif ()
 list(INSERT _ctest_configure_command 1 ${cmake_args})
 string(REPLACE ";" " " CTEST_CONFIGURE_COMMAND "${_ctest_configure_command}")
 

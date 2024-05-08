@@ -195,10 +195,13 @@ class vtkWebAssemblyTestRunner:
         # Run the browser after http server is ready to accept connections.
         self._httpd_thread.start()
         self._wait_for_server_start()
+        subprocess_args = [self.engine] + shlex.split(self.engine_args) + [self._url]
+        logger.info(f"Running subprocess '{' '.join(subprocess_args)}'")
         try:
-            subprocess.run([self.engine] + shlex.split(self.engine_args) +
-                           [self._url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except:
+            subprocess.run(subprocess_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception as e:
+            logger.error("An error occurred while launching engine subprocess!")
+            logger.error(e)
             self._server_is_shutdown = True
             self.exit_code = 1
         # If a test did not send an exit code, this `join` will block. It can happen when a test is stuck.

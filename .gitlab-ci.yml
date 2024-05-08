@@ -375,51 +375,140 @@ fedora39-mpi-python-vtkmoverride:test:
     needs:
         - fedora39-mpi-python-vtkmoverride:build
 
-## Webassembly build
-webassembly:build:
+## Cross compile for the 'wasm32-emscripten' architecture on a linux host
+wasm32-emscripten-linux-chrome:build:
     extends:
-        - .webassembly
-        - .cmake_build_webassembly_linux
+        - .wasm32_emscripten_linux_chrome
+        - .cmake_build_wasm_emscripten_linux
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     dependencies: []
     needs: []
 
-## Webassembly test
-webassembly:test:
+wasm32-emscripten-linux-chrome:test:
     extends:
-        - .webassembly
-        - .cmake_test_webassembly_linux
+        - .wasm32_emscripten_linux_chrome
+        - .cmake_test_wasm_emscripten_linux
         - .linux_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - webassembly:build
+        - wasm32-emscripten-linux-chrome:build
     needs:
-        - webassembly:build
+        - wasm32-emscripten-linux-chrome:build
 
-## Webassembly package
-webassembly:package:
+wasm32-emscripten:package:
     extends:
-        - .webassembly
-        - .cmake_package_webassembly_linux
+        - .wasm32_emscripten_linux_chrome
+        - .cmake_package_wasm32_emscripten_linux
         - .linux_packager_tags
         - .cmake_webassembly_artifacts
         - .run_automatically
     dependencies:
-        - webassembly:build
+        - wasm32-emscripten-linux-chrome:build
     needs:
-        - webassembly:build
+        - wasm32-emscripten-linux-chrome:build
 
-webassembly:vtk:upload:
+wasm32-emscripten:vtk:upload:
     extends:
-        - .generic_webassembly_vtk_upload
+        - .generic_vtk_wasm32_emscripten_linux_upload
         - .weekly_upload_only
     dependencies:
-        - webassembly:package
+        - wasm32-emscripten:package
     needs:
-        - webassembly:package
+        - wasm32-emscripten:package
+
+## Cross compile for the 'wasm64-emscripten' architecture on a linux host
+wasm64-emscripten-linux-chrome:build:
+    extends:
+        - .wasm64_emscripten_linux_chrome
+        - .cmake_build_wasm_emscripten_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    dependencies: []
+    needs: []
+
+wasm64-emscripten-linux-chrome:test:
+    extends:
+        - .wasm64_emscripten_linux_chrome
+        - .cmake_test_wasm_emscripten_linux
+        - .linux_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - wasm64-emscripten-linux-chrome:build
+    needs:
+        - wasm64-emscripten-linux-chrome:build
+
+wasm64-emscripten:package:
+    extends:
+        - .wasm64_emscripten_linux_chrome
+        - .cmake_package_wasm64_emscripten_linux
+        - .linux_packager_tags
+        - .cmake_webassembly_artifacts
+        - .run_automatically
+    dependencies:
+        - wasm64-emscripten-linux-chrome:build
+    needs:
+        - wasm64-emscripten-linux-chrome:build
+
+wasm64-emscripten:vtk:upload:
+    extends:
+        - .generic_vtk_wasm64_emscripten_linux_upload
+        - .weekly_upload_only
+    dependencies:
+        - wasm64-emscripten:package
+    needs:
+        - wasm64-emscripten:package
+
+## Cross compile for the 'wasm32-emscripten' architecture on a windows host
+wasm32-emscripten-windows-chrome:build:
+    extends:
+        - .wasm32_emscripten_windows_chrome
+        - .cmake_build_wasm_emscripten_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    dependencies: []
+    needs: []
+    stage: quick
+
+wasm32-emscripten-windows-chrome:test:
+    extends:
+        - .wasm32_emscripten_windows_chrome
+        - .cmake_test_wasm_emscripten_windows
+        - .windows_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - wasm32-emscripten-windows-chrome:build
+    needs:
+        - wasm32-emscripten-windows-chrome:build
+
+## Cross compile for the 'wasm64-emscripten' architecture on a windows host
+wasm64-emscripten-windows-chrome:build:
+    extends:
+        - .wasm64_emscripten_windows_chrome
+        - .cmake_build_wasm_emscripten_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    dependencies: []
+    needs: []
+
+wasm64-emscripten-windows-chrome:test:
+    extends:
+        - .wasm64_emscripten_windows_chrome
+        - .cmake_test_wasm_emscripten_windows
+        - .windows_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - wasm64-emscripten-windows-chrome:build
+    needs:
+        - wasm64-emscripten-windows-chrome:build
 
 ## Python wheel builds
 

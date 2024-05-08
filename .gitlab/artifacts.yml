@@ -154,7 +154,7 @@
         when: always
         paths:
             - build/bin/vtkWasmSceneManager.*
-            - build/bin/vtk-wasm*.tar.gz
+            - build/bin/vtk-*-wasm*.tar.gz
 
 .cmake_release_artifacts:
     artifacts:
