@@ -271,6 +271,15 @@ if (NOT "$ENV{CI}" STREQUAL "")
       "note: at offset .* into source object '.*' of size .*"
       )
   endif ()
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wasm")
+    list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+      # Emscripten tends to use bleeding edge versions of clang.
+      # Suppress warnings from clang's c++ headers about deprecated features.
+      "note: '[a-z]?strstream' has been explicitly marked deprecated here"
+      "note: 'char_traits<vtkfmt::detail::char8_type>' has been explicitly marked deprecated here"
+      "warning: 'char_traits<vtkfmt::detail::char8_type>' is deprecated"
+    )
+  endif ()
 endif ()
 
 list(APPEND CTEST_CUSTOM_COVERAGE_EXCLUDE

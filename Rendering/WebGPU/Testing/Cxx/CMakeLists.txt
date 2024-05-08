@@ -1,3 +1,5 @@
+# (vtk/vtk#19322): Run these tests in CI for wasm with _vtk_test_cxx_wasm_enabled_in_browser=1
+# (vtk/vtk#19322): Add baselines for these unit tests
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestCellScalarMappedColors.cxx,NO_DATA,NO_VALID
   TestCompositePolyDataMapper.cxx,NO_DATA,NO_VALID
@@ -13,8 +15,6 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestTheTrianglePointRepresentation.cxx,NO_DATA,NO_VALID
   TestTheTriangleWireframeRepresentation.cxx,NO_DATA,NO_VALID
   TestVertexRendering.cxx,NO_DATA,NO_VALID
-  TestWireframe.cxx,NO_DATA,NO_VALID
-  )
+  TestWireframe.cxx,NO_DATA,NO_VALID)
 
-vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests
-  )
+vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)

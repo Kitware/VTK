@@ -210,7 +210,9 @@ public:
     }
 
     vtkOpenGLCheckErrors("Before glPatchParameteri");
+#ifdef GL_PATCH_VERTICES
     glPatchParameteri(GL_PATCH_VERTICES, 3);
+#endif
 
     this->Program->SetUniform3f("AmbientMaterial", ambient);
     this->Program->SetUniform3f("DiffuseMaterial", diffuse);
@@ -219,7 +221,9 @@ public:
     renderer->ResetCameraClippingRange(-1, 1, -1, 1, -1, 1);
     this->CameraMod->SetShaderParameters(renderer, this->Program, nullptr, this->PlaceholderActor);
     vtkOpenGLCheckErrors("Before draw");
+#ifdef GL_PATCHES
     glDrawArrays(GL_PATCHES, 0, 6);
+#endif
     vtkOpenGLCheckErrors("After draw");
   }
 

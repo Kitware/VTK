@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style>
+    .vtk_test_suite {
+      padding-right: 0;
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+    }
+    body {
+      background-color: black;
+    }
+    /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+    canvas.vtk_test_suite {
+      border: 0px none;
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+  <canvas class="vtk_test_suite" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+  <script>
+    var wasmStdOutErr = Array();
+    var exitCodeSent = false;
+    function closeWindow() {
+      try {
+        window.close();
+      }
+      catch (err) {
+        console.error(`Failed to close window ${err}`);
+      }
+    }
+    function postExitCode(code) {
+      return new Promise((resolve) => {
+        try {
+          const req = new XMLHttpRequest;
+          req.open("POST", "exit");
+          req.send(code);
+          req.onload = (e) => {
+            if (req.readyState === req.DONE && req.status === 200) {
+              if (req.responseText !== 'undefined') {
+                resolve(req.responseText);
+              }
+            }
+          };
+        } catch (err) {
+          reject(err);
+        }
+      })
+    };
+    function flushConsoleMessages() {
+      return new Promise((resolve, reject) => {
+        try {
+          if (!wasmStdOutErr.length) {
+            // Nothing was printed by C++ test, this is fine.
+            resolve();
+          } else {
+            const req = new XMLHttpRequest;
+            const encoder = new TextEncoder();
+            let view = encoder.encode(wasmStdOutErr.join("\n"));
+            wasmStdOutErr.length = 0;
+            req.open("POST", "console_output");
+            req.send(view);
+            req.onload = (e) => {
+              if (req.readyState === req.DONE && req.status === 200) {
+                resolve();
+              }
+            };
+          }
+        }
+        catch (err) {
+          reject(err)
+        }
+      });
+    };
+    function finalize(code) {
+      if (exitCodeSent) {
+        return;
+      }
+      exitCodeSent = true;
+      flushConsoleMessages()
+        .then(() => {
+          postExitCode(code)
+            .then((responseText) => {
+              if (responseText.includes("close-window")) {
+                closeWindow();
+              } else {
+                console.log("Leaving window open.");
+              }
+            }).catch((err) => {
+              console.error(`postExitCode failed. ${err}`);
+              closeWindow();
+            })
+        })
+        .catch((err) => {
+          console.error(`flushConsoleMessages failed. ${err}`);
+          closeWindow();
+        });
+    };
+    /**
+     * Lock canvas size for VTK rendering unit tests. These settings make the canvas ignore
+     * resize events from the parent HTML element.
+     */
+    function lockCanvasSize(wasmRuntime) {
+      try {
+        if (typeof wasmRuntime._setDefaultExpandVTKCanvasToContainer !== 'undefined') {
+          wasmRuntime._setDefaultExpandVTKCanvasToContainer(false);
+        }
+        if (typeof wasmRuntime._setDefaultInstallHTMLResizeObserver !== 'undefined') {
+          wasmRuntime._setDefaultInstallHTMLResizeObserver(false);
+        }
+      } catch (_e) { }
+    }
+    window.onunhandledrejection = (event) => {
+      let message = `Uncaught rejection from ${event.promise}: ${event.reason}`;
+      console.error(message);
+      wasmStdOutErr.push(message);
+      finalize(1);
+      return true;
+    };
+    window.onerror = (message, source, lineno, colno, error) => {
+      if (error !== null) {
+        console.error(error);
+        wasmStdOutErr.push(`${error.message} at ${source}:${lineno}#${colno}`)
+      }
+      else {
+        console.error(`${message} at ${source}:${lineno}#${colno}`);
+        wasmStdOutErr.push(`${message} at ${source}:${lineno}#${colno}`)
+      }
+      finalize(1);
+      return true;
+    };
+    var vtkWasmRuntime = null;
+    var Module = {
+      arguments: [],
+      print: (() => {
+        return (...args) => {
+          const text = args.join(" ");
+          if (text.length > 0) {
+            wasmStdOutErr.push(text);
+            console.log(text);
+          }
+        };
+      })(),
+      printErr: (() => {
+        return (...args) => {
+          const text = args.join(" ");
+          if (text.length > 0) {
+            wasmStdOutErr.push(text);
+            console.error(text);
+            // Some VTK tests write to stderr when they should infact write to stdout.
+            // This block only posts exit code when the message has the word "Error" in all it's case avatars.
+            if (text.includes('ERROR') || text.includes("Error") || text.includes("error")) {
+              // catch some more of those "ERROR" messages to give some context before finalizing.
+              setTimeout(finalize, 2000, 1);
+            }
+          }
+        };
+      })(),
+      canvas: (() => {
+        let canvasElement = document.getElementById("canvas");
+        canvasElement.addEventListener("click", _e => canvasElement.focus());
+        canvasElement.addEventListener("webglcontextlost", (e) => { alert("WebGL context lost. You will need to reload the page."); e.preventDefault(); }, false);
+        return canvasElement;
+      })(),
+      preRun: (runtime) => {
+        // cache the VTK wasm runtime instance.
+        vtkWasmRuntime = runtime;
+      },
+      onRuntimeInitialized: () => {
+        if (vtkWasmRuntime !== null) {
+          lockCanvasSize(vtkWasmRuntime);
+        }
+      },
+      onExit: finalize,
+      arguments: [{{ test_args }}]
+    };
+  </script>
+  {% if js_type == "module" %}
+  <script type="module">
+    import initModule from "./{{ js_filename }}";
+    initModule(Module);
+  </script>
+  {% else %}
+  <script async src="{{ js_filename }}"></script>
+  {% endif %}
+</body>
+</html>

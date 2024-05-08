@@ -42,6 +42,9 @@
 #include <array>
 #include <numeric>
 
+#ifdef __EMSCRIPTEN__
+#include "vtkTestUtilities.h"
+#endif
 #include "vtkXMLImageDataWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -247,7 +250,8 @@ const char* vtkTesting::GetValidImageFileName()
     {
       const char* ch = this->Args[i + 1].c_str();
       if (ch[0] == '/'
-#ifdef _WIN32
+#if defined(_WIN32) ||                                                                             \
+  defined(__EMSCRIPTEN__) // Emscripten too, because the file could be on a windows server.
         || (ch[0] >= 'a' && ch[0] <= 'z' && ch[1] == ':') ||
         (ch[0] >= 'A' && ch[0] <= 'Z' && ch[1] == ':')
 #endif
@@ -489,7 +493,13 @@ int vtkTesting::RegressionTest(const string& pngFileName, double thresh)
 int vtkTesting::RegressionTest(const string& pngFileName, double thresh, ostream& os)
 {
   vtkNew<vtkPNGReader> inputReader;
+
+#ifdef __EMSCRIPTEN__
+  std::string sandboxName = vtkEmscriptenTestUtilities::PreloadDataFile(pngFileName.c_str());
+  inputReader->SetFileName(sandboxName.c_str());
+#else
   inputReader->SetFileName(pngFileName.c_str());
+#endif
   inputReader->Update();
 
   vtkAlgorithm* src = inputReader;
@@ -632,7 +642,12 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   string bestImageFileName = this->ValidImageFileName;
 
   // check the valid image
+#ifdef __EMSCRIPTEN__
+  vtkEmscriptenTestUtilities::PreloadDataFile(this->ValidImageFileName, validName);
+  FILE* rtFin = vtksys::SystemTools::Fopen(validName, "r");
+#else
   FILE* rtFin = vtksys::SystemTools::Fopen(this->ValidImageFileName, "r");
+#endif
   if (rtFin)
   {
     fclose(rtFin);
@@ -640,6 +655,21 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   else // there was no valid image, so write one to the temp dir
   {
     string vImage = tmpDir + "/" + validName;
+#ifdef __EMSCRIPTEN__
+    vtkNew<vtkPNGWriter> rtPngw;
+    rtPngw->SetWriteToMemory(true);
+    rtPngw->SetInputConnection(imageSource->GetOutputPort());
+    rtPngw->Write();
+    auto* result = rtPngw->GetResult();
+    vtkEmscriptenTestUtilities::DumpFile(
+      vImage, result->GetPointer(0), result->GetDataTypeSize() * result->GetDataSize());
+    os << "<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">"
+       << this->ValidImageFileName << "</DartMeasurement>" << endl;
+    // Write out the image upload tag for the test image.
+    os << "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
+    os << vImage;
+    os << "</DartMeasurementFile>";
+#else
     rtFin = vtksys::SystemTools::Fopen(vImage, "wb");
     if (rtFin)
     {
@@ -659,13 +689,18 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     {
       vtkErrorMacro("Could not open file '" << vImage << "' for writing.");
     }
+#endif
     return FAILED;
   }
 
   imageSource->Update();
 
   vtkNew<vtkPNGReader> rtPng;
+#ifdef __EMSCRIPTEN__
+  rtPng->SetFileName(validName.c_str());
+#else
   rtPng->SetFileName(this->ValidImageFileName);
+#endif
   rtPng->Update();
 
   vtkNew<vtkImageExtractComponents> rtExtract;
@@ -866,6 +901,15 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   while (!passed)
   {
     newFileName = IncrementFileName(this->ValidImageFileName, count);
+#ifdef __EMSCRIPTEN__
+    std::string hostFileName = std::string(newFileName);
+    // sandboxes the host file using the stem
+    std::string sandboxedFileName = vtksys::SystemTools::GetFilenameName(hostFileName);
+    vtkEmscriptenTestUtilities::PreloadDataFile(hostFileName.c_str(), sandboxedFileName);
+    // so that subsequent code uses the sandboxed file name instead of host file name.
+    delete[] newFileName;
+    newFileName = strdup(sandboxedFileName.c_str());
+#endif
     if (!LookForFile(newFileName))
     {
       delete[] newFileName;
@@ -947,6 +991,21 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 
   // write out the image that was generated
   string testImageFileName = tmpDir + "/" + validName;
+#ifdef __EMSCRIPTEN__
+  {
+    vtkNew<vtkPNGWriter> rtPngw;
+    rtPngw->SetWriteToMemory(true);
+    rtPngw->SetInputConnection(imageSource->GetOutputPort());
+    rtPngw->Write();
+    auto* result = rtPngw->GetResult();
+    vtkEmscriptenTestUtilities::DumpFile(
+      testImageFileName, result->GetPointer(0), result->GetDataTypeSize() * result->GetDataSize());
+    // Write out the image upload tag for the test image.
+    os << "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
+    os << testImageFileName;
+    os << "</DartMeasurementFile>\n";
+  }
+#else
   FILE* testImageFile = vtksys::SystemTools::Fopen(testImageFileName, "wb");
   if (testImageFile)
   {
@@ -967,17 +1026,27 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
                                           << "' for "
                                              "writing.");
   }
+#endif
 
   os << "Failed Image Test ( " << validName << " ) : " << minError << endl;
   if (errIndex >= 0)
   {
     newFileName = IncrementFileName(this->ValidImageFileName, errIndex);
+#ifdef __EMSCRIPTEN__
+    std::string sandboxedFileName = vtkEmscriptenTestUtilities::PreloadDataFile(newFileName);
+    delete[] newFileName;
+    newFileName = strdup(sandboxedFileName.c_str());
+#endif
     rtPng->SetFileName(newFileName);
     delete[] newFileName;
   }
   else
   {
+#ifdef __EMSCRIPTEN__
+    rtPng->SetFileName(validName.c_str());
+#else
     rtPng->SetFileName(this->ValidImageFileName);
+#endif
   }
 
   rtPng->Update();
@@ -1032,25 +1101,51 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 
       std::string vtiName = diffFilename + ".vti";
 
+#ifdef __EMSCRIPTEN__
+      {
+        vtkNew<vtkXMLImageDataWriter> vtiWriter;
+        vtiWriter->WriteToOutputStringOn();
+        vtiWriter->SetInputData(ssim);
+        vtiWriter->Write();
+        const auto result = vtiWriter->GetOutputString();
+        vtkEmscriptenTestUtilities::DumpFile(vtiName, result.data(), result.size());
+      }
+#else
       vtkNew<vtkXMLImageDataWriter> vtiWriter;
       vtiWriter->SetFileName(vtiName.c_str());
       vtiWriter->SetInputData(ssim);
       vtiWriter->Write();
+#endif
     }
 
     diffFilename += ".diff.png";
+
+    // write out the difference image gamma adjusted for the dashboard
+    vtkNew<vtkImageShiftScale> rtGamma;
+    rtGamma->SetInputConnection(rtId->GetOutputPort());
+    rtGamma->SetShift(0);
+    rtGamma->SetScale(imageCompareMethod == LEGACY ? 10 : 255);
+    rtGamma->SetOutputScalarTypeToUnsignedChar();
+    rtGamma->ClampOverflowOn();
+
+#ifdef __EMSCRIPTEN__
+    {
+      vtkNew<vtkPNGWriter> rtPngw;
+      rtPngw->SetWriteToMemory(true);
+      rtPngw->SetInputConnection(rtGamma->GetOutputPort());
+      rtPngw->Write();
+      const auto result = rtPngw->GetResult();
+      vtkEmscriptenTestUtilities::DumpFile(
+        diffFilename, result->GetPointer(0), result->GetDataTypeSize() * result->GetDataSize());
+      os << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">";
+      os << diffFilename;
+      os << "</DartMeasurementFile>";
+    }
+#else
     FILE* rtDout = vtksys::SystemTools::Fopen(diffFilename, "wb");
     if (rtDout)
     {
       fclose(rtDout);
-
-      // write out the difference image gamma adjusted for the dashboard
-      vtkNew<vtkImageShiftScale> rtGamma;
-      rtGamma->SetInputConnection(rtId->GetOutputPort());
-      rtGamma->SetShift(0);
-      rtGamma->SetScale(imageCompareMethod == LEGACY ? 10 : 255);
-      rtGamma->SetOutputScalarTypeToUnsignedChar();
-      rtGamma->ClampOverflowOn();
 
       vtkNew<vtkPNGWriter> rtPngw;
       rtPngw->SetFileName(diffFilename.c_str());
@@ -1065,6 +1160,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     {
       vtkErrorMacro("Could not open file '" << diffFilename << "' for writing.");
     }
+#endif
   }
 
   os << "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">";
