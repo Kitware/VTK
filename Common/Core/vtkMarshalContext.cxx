@@ -138,7 +138,17 @@ bool vtkMarshalContext::RegisterState(nlohmann::json state)
   if ((idIter != state.end()) && idIter->is_number_unsigned())
   {
     const auto identifier = idIter->get<vtkTypeUInt32>();
-    return internals.States.emplace(std::to_string(identifier), std::move(state)).second;
+    const auto key = std::to_string(identifier);
+    auto stateIter = internals.States.find(key);
+    if (stateIter == internals.States.end())
+    {
+      return internals.States.emplace(std::to_string(identifier), std::move(state)).second;
+    }
+    else
+    {
+      stateIter->swap(state);
+      return true;
+    }
   }
   return false;
 }
