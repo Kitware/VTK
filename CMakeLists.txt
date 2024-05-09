@@ -551,9 +551,22 @@ if (VTK_CUSTOM_LIBRARY_SUFFIX STREQUAL "<DEFAULT>")
   endif ()
 endif ()
 
+
+set(VTK_CUSTOM_LIBRARY_VERSION "<DEFAULT>"
+  CACHE STRING "Custom library version (defaults to the version number)")
+if (VTK_CUSTOM_LIBRARY_VERSION STREQUAL "<DEFAULT>")
+  if (VTK_VERSIONED_INSTALL)
+    set(VTK_CUSTOM_LIBRARY_VERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+  else ()
+    set(VTK_CUSTOM_LIBRARY_VERSION "")
+  endif ()
+endif ()
+
+set(VTK_CUSTOM_LIBRARY_SOVERSION "1" CACHE STRING "Custom library soversion (defaults to 1)")
+
 set(vtk_library_version_info
-  VERSION             "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
-  SOVERSION           "1")
+  VERSION             "${VTK_CUSTOM_LIBRARY_VERSION}"
+  SOVERSION           "${VTK_CUSTOM_LIBRARY_SOVERSION}")
 if (VTK_WHEEL_BUILD)
   set(vtk_library_version_info)
 endif ()

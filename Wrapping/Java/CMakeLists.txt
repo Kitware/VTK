@@ -1,8 +1,10 @@
-set(VTK_INSTALL_JAVA_DIR "${CMAKE_INSTALL_LIBDIR}/java" CACHE PATH "")
-mark_as_advanced(VTK_INSTALL_JAVA_DIR)
-set(CMAKE_INSTALL_JNILIBDIR "${VTK_INSTALL_JAVA_DIR}/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}"
-  CACHE PATH "JNI libraries (LIBDIR/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+set(CMAKE_INSTALL_JNILIBDIR ""
+  CACHE STRING "JNI libraries (LIBDIR/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 mark_as_advanced(CMAKE_INSTALL_JNILIBDIR)
+if (NOT CMAKE_INSTALL_JNILIBDIR)
+  set(CMAKE_INSTALL_JNILIBDIR
+    "${CMAKE_INSTALL_LIBDIR}/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+endif ()
 if (IS_ABSOLUTE "${CMAKE_INSTALL_JNILIBDIR}")
   message(FATAL_ERROR
     "The `CMAKE_INSTALL_JNILIBDIR` must not be an absolute path.")
@@ -286,7 +288,6 @@ if (NOT VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>" AND NOT DEFINED ENV{CI})
   message(WARNING "Wrappings::Java ABI does not not support the VTK_ABI_NAMESPACE_NAME "
                   "and the symbols will not be mangled.")
 endif ()
-return ()
 
 # Add the option to package VTK for custom Java packaging
 option(VTK_JAVA_INSTALL "Use the Java rules to build the native libraries." OFF)
@@ -298,13 +299,12 @@ if (VTK_JAVA_INSTALL)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "bin")
     include(InstallRequiredSystemLibraries)
   endif ()
-
   if (APPLE)
-    set(CMAKE_INSTALL_NAME_DIR @loader_path CACHE STRING "" FORCE)
-    mark_as_advanced(CMAKE_INSTALL_NAME_DIR)
+    set(CMAKE_INSTALL_NAME_DIR @loader_path)
   endif ()
   if (NOT MAVEN_LOCAL_NATIVE_NAME)
-    set(MAVEN_LOCAL_NATIVE_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}" CACHE STRING "")
+    # We ignore CMAKE_SYSTEM_PROCESSOR since classifier field in maven only accept charaters strings (no numbers)
+    set(MAVEN_LOCAL_NATIVE_NAME "${CMAKE_SYSTEM_NAME}" CACHE STRING "")
   endif ()
   if (NOT MAVEN_NATIVE_ARTIFACTS)
     set(MAVEN_NATIVE_ARTIFACTS "${MAVEN_LOCAL_NATIVE_NAME}" CACHE STRING "")
@@ -315,17 +315,30 @@ if (VTK_JAVA_INSTALL)
   if (NOT MAVEN_VTK_GROUP_ID)
     set(MAVEN_VTK_GROUP_ID "org.vtk" CACHE STRING "")
   endif ()
+  if (NOT MAVEN_VTK_ARTIFACT_SUFFIX)
+    set(MAVEN_VTK_ARTIFACT_SUFFIX "" CACHE STRING "")
+  endif ()
+  if (NOT MAVEN_VTK_SNAPSHOT)
+    set(MAVEN_VTK_SNAPSHOT "" CACHE STRING "")
+  endif ()
+
   mark_as_advanced(
     VTK_JAVA_INSTALL
     MAVEN_LOCAL_REPOSITORY
     MAVEN_NATIVE_ARTIFACTS
     MAVEN_LOCAL_NATIVE_NAME
+    MAVEN_VTK_ARTIFACT_SUFFIX
+    MAVEN_VTK_SNAPSHOT
     MAVEN_VTK_GROUP_ID)
   set(MAVEN_DEPENDENCY_XML)
 endif ()
 
 if (VTK_JAVA_JOGL_COMPONENT OR VTK_JAVA_SWT_COMPONENT)
-  set(MAVEN_REPO "$ENV{HOME}/.m2/repository")
+  if (WIN32)
+    set(MAVEN_REPO "$ENV{HOMEPATH}/.m2/repository")
+  else ()
+    set(MAVEN_REPO "$ENV{HOME}/.m2/repository")
+  endif ()
   find_file(JOGL_LIB jogl-all-${JOGL_VERSION}.jar PATHS ${MAVEN_REPO}/org/jogamp/jogl/jogl-all/${JOGL_VERSION} )
   find_file(JOGL_GLUE gluegen-rt-${JOGL_VERSION}.jar PATHS ${MAVEN_REPO}/org/jogamp/gluegen/gluegen-rt/${JOGL_VERSION})
   mark_as_advanced(JOGL_LIB JOGL_GLUE)
@@ -386,16 +399,16 @@ endif()
 if(VTK_JAVA_INSTALL)
   set(MAVEN_NATIVE_ARTIFACT_XML)
   foreach(native_name ${MAVEN_NATIVE_ARTIFACTS})
-    set(MAVEN_NATIVE_ARTIFACT_XML "${MAVEN_NATIVE_ARTIFACT_XML}\n                                <artifact><file>vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}-java${VTK_JAVA_TARGET_VERSION}-natives-${native_name}.jar</file><classifier>java${VTK_JAVA_TARGET_VERSION}-natives-${native_name}</classifier><type>jar</type></artifact>")
+    string(APPEND MAVEN_NATIVE_ARTIFACT_XML "${MAVEN_NATIVE_ARTIFACT_XML}\n                                <artifact><file>vtk${MAVEN_VTK_ARTIFACT_SUFFIX}-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}-natives-${native_name}.jar</file><classifier>natives-${native_name}</classifier><type>jar</type></artifact>")
   endforeach()
   if(VTK_JAVA_JOGL_COMPONENT)
-    set(MAVEN_DEPENDENCY_XML "${MAVEN_DEPENDENCY_XML}\n      <dependency><groupId>org.jogamp.jogl</groupId><artifactId>jogl-all-main</artifactId><version>${JOGL_VERSION}</version></dependency>\n      <dependency><groupId>org.jogamp.gluegen</groupId><artifactId>gluegen-rt-main</artifactId><version>${JOGL_VERSION}</version></dependency>")
+    string(APPEND MAVEN_DEPENDENCY_XML "${MAVEN_DEPENDENCY_XML}\n      <dependency><groupId>org.jogamp.jogl</groupId><artifactId>jogl-all-main</artifactId><version>${JOGL_VERSION}</version></dependency>\n      <dependency><groupId>org.jogamp.gluegen</groupId><artifactId>gluegen-rt-main</artifactId><version>${JOGL_VERSION}</version></dependency>")
   endif()
   configure_file(JavaInstall.cmake.in
-               ${VTK_BINARY_DIR}/JavaInstall.cmake @ONLY)
+                 ${CMAKE_CURRENT_BINARY_DIR}/JavaInstall.cmake @ONLY)
   configure_file(Maven/pom.xml.in
-               ${VTK_BINARY_DIR}/pom.xml @ONLY)
+                 ${CMAKE_CURRENT_BINARY_DIR}/pom.xml @ONLY)
   configure_file(Maven/README.txt.in
-               ${VTK_BINARY_DIR}/MAVEN-README.txt @ONLY)
-  install(SCRIPT ${VTK_BINARY_DIR}/JavaInstall.cmake)
+                 ${CMAKE_CURRENT_BINARY_DIR}/MAVEN-README.txt @ONLY)
+  install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/JavaInstall.cmake)
 endif()

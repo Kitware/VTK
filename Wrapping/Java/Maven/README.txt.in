@@ -25,7 +25,7 @@ file.
 In order to generate a custom pom.xml the user can configure those properties
 within CMake otherwise decent automatically value will be set.
 
-     MAVEN_VTK_GROUP_ID:STRING=kitware.community
+     MAVEN_VTK_GROUP_ID:STRING=vtk.org
 
      MAVEN_LOCAL_NATIVE_NAME:STRING=Win32
 

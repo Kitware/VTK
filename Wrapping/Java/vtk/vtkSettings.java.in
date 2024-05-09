@@ -6,7 +6,7 @@ import java.util.StringTokenizer;
 public class vtkSettings
 {
   private static String GetVTKBuildLibDir() { return "@CMAKE_LIBRARY_OUTPUT_DIRECTORY@"; }
-  private static String GetVTKInstallLibDir() { return "@CMAKE_INSTALL_PREFIX@/@VTK_INSTALL_LIB_DIR@"; }
+  private static String GetVTKInstallLibDir() { return "@CMAKE_INSTALL_PREFIX@/@VTK_INSTALL_LIBDIR@"; }
 
   private static String[] Split(String str, String sep)
     {

@@ -275,7 +275,32 @@ function (_vtk_module_wrap_java_library name)
     _vtk_module_get_module_property("${_vtk_java_module}"
       PROPERTY  "depends"
       VARIABLE  _vtk_java_module_depends)
+    _vtk_module_get_module_property("${_vtk_java_module}"
+      PROPERTY  "private_depends"
+      VARIABLE  _vtk_java_module_private_depends)
+    _vtk_module_get_module_property("${_vtk_java_module}"
+      PROPERTY  "optional_depends"
+      VARIABLE  _vtk_java_module_optional_depends)
+    _vtk_module_get_module_property("${_vtk_java_module}"
+      PROPERTY  "implements"
+      VARIABLE  _vtk_java_module_implements)
+
+    list(APPEND _vtk_java_module_depends
+      ${_vtk_java_module_private_depends}
+      ${_vtk_java_module_implements})
+
+    foreach (_vtk_java_optional_depend IN LISTS _vtk_java_module_optional_depends)
+      if (TARGET "${_vtk_java_optional_depend}")
+        list(APPEND _vtk_java_module_depends "${_vtk_java_optional_depend}")
+      endif ()
+    endforeach ()
+
     foreach (_vtk_java_module_depend IN LISTS _vtk_java_module_depends)
+      # Remove self dependency, this is needed for self-implementing modules
+      if (_vtk_java_module_depend STREQUAL _vtk_java_module)
+        continue()
+      endif()
+
       _vtk_module_get_module_property("${_vtk_java_module_depend}"
         PROPERTY  "exclude_wrap"
         VARIABLE  _vtk_java_module_depend_exclude_wrap)
@@ -330,11 +355,6 @@ function (_vtk_module_wrap_java_library name)
     set_property(TARGET "${_vtk_java_target}"
       PROPERTY
         PREFIX "")
-  endif ()
-  if (APPLE)
-    set_property(TARGET "${_vtk_java_target}"
-      PROPERTY
-        SUFFIX ".jnilib")
   endif ()
   set_property(TARGET "${_vtk_java_target}"
     PROPERTY

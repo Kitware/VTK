@@ -1402,6 +1402,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     /* Block inclusion of full streams.  */
     fprintf(fp, "#define VTK_STREAMS_FWD_ONLY\n");
   }
+  fprintf(fp, "#include \"vtkABI.h\"\n");
   fprintf(fp, "#include \"vtkSystemIncludes.h\"\n");
   fprintf(fp, "#include \"%s.h\"\n", data->Name);
   fprintf(fp, "#include \"vtkJavaUtil.h\"\n\n");
@@ -1410,6 +1411,11 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
 
   for (i = 0; i < data->NumberOfSuperClasses; i++)
   {
+    if (!isClassWrapped(data->SuperClasses[i]))
+    {
+      continue;
+    }
+
     char* safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
     const char* safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
 
@@ -1434,6 +1440,10 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   /* check our superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
   {
+    if (!isClassWrapped(data->SuperClasses[i]))
+    {
+      continue;
+    }
     char* safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
     const char* safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
 

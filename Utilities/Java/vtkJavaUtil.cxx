@@ -163,7 +163,8 @@ JNIEXPORT jbyteArray vtkJavaStringToUTF8(JNIEnv* env, const std::string& text)
 
 JNIEXPORT jbyteArray vtkJavaCharsToUTF8(JNIEnv* env, const char* chars, size_t length)
 {
-  return vtkJavaMakeJArrayOfByte(env, reinterpret_cast<const jbyte*>(chars), length);
+  return vtkJavaMakeJArrayOfByte(
+    env, reinterpret_cast<const jbyte*>(chars), static_cast<int>(length));
 }
 
 //**jcp this is the callback interface stub for Java. no user parms are passed

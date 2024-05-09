@@ -133,6 +133,10 @@ More advanced options:
     The custom suffix for libraries built by VTK. Defaults to either an empty
     string or `X.Y` where `X` and `Y` are VTK's major and minor version
     components, respectively.
+  * `VTK_CUSTOM_LIBRARY_VERSION` (default depends on `VTK_VERSIONED_INSTALL`):
+    The custom version for libraries built by VTK. Defaults to either an empty
+    string  or `X.Y` where `X` and `Y` are VTK's major and minor version if
+    VTK_VERSIONED_INSTALL is ON.
   * `VTK_INSTALL_SDK` (default `ON`): If set, VTK will install its headers,
     CMake API, etc. into its install tree for use.
   * `VTK_FORBID_DOWNLOADS` (default `OFF`): If set, VTK will error on any
