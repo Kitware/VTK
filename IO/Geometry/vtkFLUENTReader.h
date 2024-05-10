@@ -4,7 +4,8 @@
  * @class   vtkFLUENTReader
  * @brief   reads a dataset in Fluent file format
  *
- * vtkFLUENTReader creates an unstructured grid dataset.
+ * vtkFLUENTReader creates an unstructured grid multiblock dataset.
+ * When multiple zones are defined in the file they are provided in separate blocks.
  * It reads .cas (with associated .dat) and .msh files stored in FLUENT native format.
  *
  * @par Thanks:
@@ -113,6 +114,7 @@ public:
   //
   struct Cell;
   struct Face;
+  struct Zone;
   struct ScalarDataChunk;
   struct VectorDataChunk;
   struct stdString;
@@ -146,7 +148,6 @@ protected:
   virtual bool OpenCaseFile(const char* filename);
   virtual bool OpenDataFile(const char* filename);
   virtual int GetCaseChunk();
-  virtual void GetNumberOfCellZones();
   virtual int GetCaseIndex();
   virtual void LoadVariableNames();
   virtual int GetDataIndex();
@@ -161,6 +162,7 @@ protected:
   virtual void GetNodesDoublePrecision();
   virtual void GetCellsAscii();
   virtual void GetCellsBinary();
+  virtual void ReadZone();
   virtual bool GetFacesAscii();
   virtual void GetFacesBinary();
   virtual void GetPeriodicShadowFacesAscii();
@@ -217,8 +219,8 @@ protected:
 
   cellVector* Cells;
   faceVector* Faces;
+  std::vector<Zone> Zones;
   stdMap* VariableNames;
-  intVector* CellZones;
   scalarDataVector* ScalarDataChunks;
   vectorDataVector* VectorDataChunks;
 

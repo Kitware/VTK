@@ -12,6 +12,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkConvexPointSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
@@ -20,16 +21,19 @@
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkHexahedron.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPyramid.h"
 #include "vtkQuad.h"
+#include "vtkSetGet.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
@@ -37,16 +41,15 @@
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
 
-#include "fstream"
 #include <algorithm>
+#include <cctype>
+#include <fstream>
 #include <map>
 #include <set>
 #include <sstream>
 #include <string>
-#include <vector>
-
-#include <cctype>
 #include <sys/stat.h>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFLUENTReader);
@@ -68,7 +71,7 @@ struct vtkFLUENTReader::Cell
 struct vtkFLUENTReader::Face
 {
   int type;
-  unsigned int zone;
+  unsigned int zoneId;
   std::vector<int> nodes;
   int c0;
   int c1;
@@ -79,6 +82,14 @@ struct vtkFLUENTReader::Face
   int interfaceFaceChild;
   int ncgParent;
   int ncgChild;
+};
+
+struct vtkFLUENTReader::Zone
+{
+  unsigned int id;
+  std::string type;
+  std::string name;
+  unsigned int domainId;
 };
 
 struct vtkFLUENTReader::ScalarDataChunk
@@ -163,7 +174,6 @@ vtkFLUENTReader::vtkFLUENTReader()
   this->Cells = new cellVector;
   this->Faces = new faceVector;
   this->VariableNames = new stdMap;
-  this->CellZones = new intVector;
   this->ScalarDataChunks = new scalarDataVector;
   this->VectorDataChunks = new vectorDataVector;
 
@@ -203,7 +213,6 @@ vtkFLUENTReader::~vtkFLUENTReader()
   delete this->Cells;
   delete this->Faces;
   delete this->VariableNames;
-  delete this->CellZones;
   delete this->ScalarDataChunks;
   delete this->VectorDataChunks;
   delete this->SubSectionZones;
@@ -239,89 +248,121 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   // When reading a FLUENT Mesh file, we may encounter mesh that only contains faces.
   // In this case, we generate a single block multiblock using the faces informations so we can
   // still display the surface of this mesh.
-  if (this->CellZones->value.empty() && !this->Faces->value.empty() &&
+  if (this->Cells->value.empty() && !this->Faces->value.empty() &&
     this->Points->GetNumberOfPoints() > 0)
   {
     this->FillMultiBlockFromFaces(output);
     return 1;
   }
 
-  output->SetNumberOfBlocks(static_cast<unsigned int>(this->CellZones->value.size()));
-  // vtkUnstructuredGrid *Grid[CellZones.size()];
+  // Generate zone ids -> array idx lookup map
+  std::vector<unsigned int> zoneIDToIdx(this->Zones.size());
+  for (int zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
+  {
+    const auto& zone = this->Zones[zoneIdx];
+    if (zone.id >= zoneIDToIdx.size())
+    {
+      zoneIDToIdx.resize(zone.id + 1);
+    }
+    zoneIDToIdx[zone.id] = zoneIdx;
+  }
 
   std::vector<vtkUnstructuredGrid*> grid;
-  grid.resize(this->CellZones->value.size());
-
-  for (size_t test = 0; test < this->CellZones->value.size(); test++)
+  grid.resize(this->Zones.size());
+  for (size_t zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
   {
-    grid[test] = vtkUnstructuredGrid::New();
+    grid[zoneIdx] = vtkUnstructuredGrid::New();
   }
 
   for (size_t i = 0; i < this->Cells->value.size(); i++)
   {
-    size_t location = std::find(this->CellZones->value.begin(), this->CellZones->value.end(),
-                        this->Cells->value[i].zone) -
-      this->CellZones->value.begin();
-    if (this->Cells->value[i].type == 1)
+    vtkIdList* newCellPointIDs = nullptr;
+    int newCellType = -1;
+    switch (this->Cells->value[i].type)
     {
-      for (int j = 0; j < 3; j++)
-      {
-        this->Triangle->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
-      }
-      grid[location]->InsertNextCell(this->Triangle->GetCellType(), this->Triangle->GetPointIds());
+      case 1:
+        for (int j = 0; j < 3; j++)
+        {
+          this->Triangle->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
+        }
+        newCellPointIDs = this->Triangle->GetPointIds();
+        newCellType = this->Triangle->GetCellType();
+        break;
+
+      case 2:
+        for (int j = 0; j < 4; j++)
+        {
+          this->Tetra->GetPointIds()->SetId(j, Cells->value[i].nodes[j]);
+        }
+
+        newCellPointIDs = this->Tetra->GetPointIds();
+        newCellType = this->Tetra->GetCellType();
+        break;
+
+      case 3:
+
+        for (int j = 0; j < 4; j++)
+        {
+          this->Quad->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
+        }
+        newCellPointIDs = this->Quad->GetPointIds();
+        newCellType = this->Quad->GetCellType();
+        break;
+
+      case 4:
+        for (int j = 0; j < 8; j++)
+        {
+          this->Hexahedron->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
+        }
+        newCellPointIDs = this->Hexahedron->GetPointIds();
+        newCellType = this->Hexahedron->GetCellType();
+        break;
+
+      case 5:
+        for (int j = 0; j < 5; j++)
+        {
+          this->Pyramid->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
+        }
+        newCellPointIDs = this->Pyramid->GetPointIds();
+        newCellType = this->Pyramid->GetCellType();
+        break;
+
+      case 6:
+        for (int j = 0; j < 6; j++)
+        {
+          this->Wedge->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
+        }
+        newCellPointIDs = this->Wedge->GetPointIds();
+        newCellType = this->Wedge->GetCellType();
+        break;
+
+      case 7:
+        this->ConvexPointSet->GetPointIds()->SetNumberOfIds(
+          static_cast<vtkIdType>(this->Cells->value[i].nodes.size()));
+        for (size_t j = 0; j < this->Cells->value[i].nodes.size(); j++)
+        {
+          this->ConvexPointSet->GetPointIds()->SetId(
+            static_cast<vtkIdType>(j), this->Cells->value[i].nodes[j]);
+        }
+        newCellPointIDs = this->ConvexPointSet->GetPointIds();
+        newCellType = this->ConvexPointSet->GetCellType();
+        break;
+
+      default:
+        vtkErrorMacro("Error parsing file");
+        break;
     }
-    else if (this->Cells->value[i].type == 2)
+
+    // Insert main cell
+    unsigned int zoneIdx = zoneIDToIdx[Cells->value[i].zone];
+    grid[zoneIdx]->InsertNextCell(newCellType, newCellPointIDs);
+
+    // Insert faces cells
+    for (int faceIdx : this->Cells->value[i].faces)
     {
-      for (int j = 0; j < 4; j++)
-      {
-        this->Tetra->GetPointIds()->SetId(j, Cells->value[i].nodes[j]);
-      }
-      grid[location]->InsertNextCell(this->Tetra->GetCellType(), this->Tetra->GetPointIds());
-    }
-    else if (this->Cells->value[i].type == 3)
-    {
-      for (int j = 0; j < 4; j++)
-      {
-        this->Quad->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
-      }
-      grid[location]->InsertNextCell(this->Quad->GetCellType(), this->Quad->GetPointIds());
-    }
-    else if (this->Cells->value[i].type == 4)
-    {
-      for (int j = 0; j < 8; j++)
-      {
-        this->Hexahedron->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
-      }
-      grid[location]->InsertNextCell(
-        this->Hexahedron->GetCellType(), this->Hexahedron->GetPointIds());
-    }
-    else if (this->Cells->value[i].type == 5)
-    {
-      for (int j = 0; j < 5; j++)
-      {
-        this->Pyramid->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
-      }
-      grid[location]->InsertNextCell(this->Pyramid->GetCellType(), this->Pyramid->GetPointIds());
-    }
-    else if (this->Cells->value[i].type == 6)
-    {
-      for (int j = 0; j < 6; j++)
-      {
-        this->Wedge->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
-      }
-      grid[location]->InsertNextCell(this->Wedge->GetCellType(), this->Wedge->GetPointIds());
-    }
-    else if (this->Cells->value[i].type == 7)
-    {
-      this->ConvexPointSet->GetPointIds()->SetNumberOfIds(
-        static_cast<vtkIdType>(this->Cells->value[i].nodes.size()));
-      for (size_t j = 0; j < this->Cells->value[i].nodes.size(); j++)
-      {
-        this->ConvexPointSet->GetPointIds()->SetId(
-          static_cast<vtkIdType>(j), this->Cells->value[i].nodes[j]);
-      }
-      grid[location]->InsertNextCell(
-        this->ConvexPointSet->GetCellType(), this->ConvexPointSet->GetPointIds());
+      const Face& face = this->Faces->value[faceIdx];
+      zoneIdx = zoneIDToIdx[face.zoneId];
+      grid[zoneIdx]->InsertNextCell(newCellType, newCellPointIDs);
     }
   }
   //  this->Cells->value.clear();
@@ -329,10 +370,6 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Scalar Data
   for (size_t l = 0; l < this->ScalarDataChunks->value.size(); l++)
   {
-    size_t location = std::find(this->CellZones->value.begin(), this->CellZones->value.end(),
-                        this->ScalarDataChunks->value[l].zoneId) -
-      this->CellZones->value.begin();
-
     vtkDoubleArray* v = vtkDoubleArray::New();
     for (size_t m = 0; m < this->ScalarDataChunks->value[l].scalarData.size(); m++)
     {
@@ -341,7 +378,8 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
     // v->SetName(this->ScalarVariableNames->
     //           value[l/this->CellZones->value.size()].c_str());
     v->SetName(this->VariableNames->value[this->ScalarDataChunks->value[l].subsectionId].c_str());
-    grid[location]->GetCellData()->AddArray(v);
+    unsigned int zoneIdx = zoneIDToIdx[this->ScalarDataChunks->value[l].zoneId];
+    grid[zoneIdx]->GetCellData()->AddArray(v);
     v->Delete();
   }
   this->ScalarDataChunks->value.clear();
@@ -349,9 +387,6 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Vector Data
   for (size_t l = 0; l < this->VectorDataChunks->value.size(); l++)
   {
-    size_t location = std::find(this->CellZones->value.begin(), this->CellZones->value.end(),
-                        this->VectorDataChunks->value[l].zoneId) -
-      this->CellZones->value.begin();
     vtkDoubleArray* v = vtkDoubleArray::New();
     v->SetNumberOfComponents(3);
     for (size_t m = 0; m < this->VectorDataChunks->value[l].iComponentData.size(); m++)
@@ -366,17 +401,25 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
     // v->SetName(this->VectorVariableNames->
     //           value[l/this->CellZones->value.size()].c_str());
     v->SetName(this->VariableNames->value[this->VectorDataChunks->value[l].subsectionId].c_str());
-    grid[location]->GetCellData()->AddArray(v);
+    unsigned int zoneIdx = zoneIDToIdx[this->VectorDataChunks->value[l].zoneId];
+    grid[zoneIdx]->GetCellData()->AddArray(v);
     v->Delete();
   }
   this->VectorDataChunks->value.clear();
 
-  for (size_t addTo = 0; addTo < this->CellZones->value.size(); addTo++)
+  output->SetNumberOfBlocks(this->Zones.size());
+  for (unsigned int zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
   {
-    grid[addTo]->SetPoints(Points);
-    output->SetBlock(static_cast<unsigned int>(addTo), grid[addTo]);
-    grid[addTo]->Delete();
+    const auto& zone = this->Zones[zoneIdx];
+    std::string blockName = zone.type + ":" + zone.name;
+
+    output->SetBlock(zoneIdx, grid[zoneIdx]);
+    output->GetMetaData(zoneIdx)->Set(vtkCompositeDataSet::NAME(), blockName);
+
+    grid[zoneIdx]->SetPoints(Points);
+    grid[zoneIdx]->Delete();
   }
+
   return 1;
 }
 
@@ -417,7 +460,6 @@ int vtkFLUENTReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   this->CleanCells(); //  Removes unnecessary faces from the cells.
   this->PopulateCellNodes();
-  this->GetNumberOfCellZones();
   this->NumberOfScalars = 0;
   this->NumberOfVectors = 0;
 
@@ -627,35 +669,6 @@ int vtkFLUENTReader::GetCaseIndex()
     sindex += this->CaseBuffer->value.at(i++);
   }
   return atoi(sindex.c_str());
-}
-
-//------------------------------------------------------------------------------
-void vtkFLUENTReader::GetNumberOfCellZones()
-{
-  int match;
-
-  for (size_t i = 0; i < this->Cells->value.size(); i++)
-  {
-    if (this->CellZones->value.empty())
-    {
-      this->CellZones->value.push_back(this->Cells->value[i].zone);
-    }
-    else
-    {
-      match = 0;
-      for (size_t j = 0; j < this->CellZones->value.size(); j++)
-      {
-        if (this->CellZones->value[j] == this->Cells->value[i].zone)
-        {
-          match = 1;
-        }
-      }
-      if (match == 0)
-      {
-        this->CellZones->value.push_back(this->Cells->value[i].zone);
-      }
-    }
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -2368,7 +2381,6 @@ bool vtkFLUENTReader::ParseCaseFile()
   // XXX: Each of these parsing method should be improved for error reporting and robustness
   while (this->GetCaseChunk())
   {
-
     int index = this->GetCaseIndex();
     switch (index)
     {
@@ -2400,12 +2412,14 @@ bool vtkFLUENTReader::ParseCaseFile()
       case 38:
         break;
       case 39:
+        this->ReadZone();
         break;
       case 40:
         break;
       case 41:
         break;
       case 45:
+        this->ReadZone();
         break;
       case 58:
         this->GetCellTreeAscii();
@@ -2433,8 +2447,7 @@ bool vtkFLUENTReader::ParseCaseFile()
         this->GetCellsBinary();
         break;
       case 3012:
-        this->GetCellsBinary(); // Should be the same as single precision..
-                                // only grabbing ints.
+        this->GetCellsBinary(); // Should be the same as single precision.. only grabbing ints.
         break;
       case 2013:
         this->GetFacesBinary();
@@ -2485,7 +2498,8 @@ bool vtkFLUENTReader::ParseCaseFile()
       case 3063:
         break;
       default:
-        // cout << "Undefined Section = " << index << endl;
+        vtkWarningMacro(
+          "Error parsing .case file: Unsupported/Unrecognized index: " + std::to_string(index));
         break;
     }
   }
@@ -2773,11 +2787,13 @@ bool vtkFLUENTReader::GetFacesAscii()
       {
         numberOfNodesInFace = faceType;
       }
+
       if (this->Faces->value.size() < i)
       {
         vtkErrorMacro("Could not parse faces");
         return false;
       }
+
       this->Faces->value[i - 1].nodes.resize(numberOfNodesInFace);
       for (int j = 0; j < numberOfNodesInFace; j++)
       {
@@ -2789,7 +2805,7 @@ bool vtkFLUENTReader::GetFacesAscii()
       this->Faces->value[i - 1].c0--;
       this->Faces->value[i - 1].c1--;
       this->Faces->value[i - 1].type = numberOfNodesInFace;
-      this->Faces->value[i - 1].zone = zoneId;
+      this->Faces->value[i - 1].zoneId = zoneId;
       this->Faces->value[i - 1].periodicShadow = 0;
       this->Faces->value[i - 1].parent = 0;
       this->Faces->value[i - 1].child = 0;
@@ -2807,6 +2823,7 @@ bool vtkFLUENTReader::GetFacesAscii()
 
         this->Cells->value[this->Faces->value[i - 1].c0].faces.push_back(i - 1);
       }
+
       if (this->Faces->value[i - 1].c1 >= 0)
       {
         if (this->Cells->value.size() <= static_cast<std::size_t>(this->Faces->value[i - 1].c1))
@@ -2860,7 +2877,7 @@ void vtkFLUENTReader::GetFacesBinary()
     this->Faces->value[i - 1].c0--;
     this->Faces->value[i - 1].c1--;
     this->Faces->value[i - 1].type = numberOfNodesInFace;
-    this->Faces->value[i - 1].zone = zoneId;
+    this->Faces->value[i - 1].zoneId = zoneId;
     this->Faces->value[i - 1].periodicShadow = 0;
     this->Faces->value[i - 1].parent = 0;
     this->Faces->value[i - 1].child = 0;
@@ -2878,6 +2895,7 @@ void vtkFLUENTReader::GetFacesBinary()
 
       this->Cells->value[this->Faces->value[i - 1].c0].faces.push_back(i - 1);
     }
+
     if (this->Faces->value[i - 1].c1 >= 0)
     {
       if (this->Cells->value.size() <= static_cast<std::size_t>(this->Faces->value[i - 1].c1))
@@ -2888,6 +2906,30 @@ void vtkFLUENTReader::GetFacesBinary()
       this->Cells->value[this->Faces->value[i - 1].c1].faces.push_back(i - 1);
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkFLUENTReader::ReadZone()
+{
+  // zones format: (45 (zone-id zone-type zone-name domain-id)())
+  size_t start = this->CaseBuffer->value.find('(', 1);
+  size_t end = this->CaseBuffer->value.find(')', 1);
+  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+
+  std::string zoneIdString, zoneType, zoneName, domainIdString;
+  std::stringstream infoStream(info);
+  std::getline(infoStream, zoneIdString, ' ');
+  std::getline(infoStream, zoneType, ' ');
+  std::getline(infoStream, zoneName, ' ');
+  std::getline(infoStream, domainIdString, ' ');
+
+  Zone zone;
+  zone.id = std::atoi(zoneIdString.c_str());
+  zone.name = zoneName;
+  zone.type = zoneType;
+  zone.domainId = std::atoi(domainIdString.c_str());
+
+  this->Zones.push_back(zone);
 }
 
 //------------------------------------------------------------------------------
@@ -4007,16 +4049,20 @@ void vtkFLUENTReader::GetData(int dataType)
   infostream >> subSectionId >> zoneId >> size >> nTimeLevels >> nPhases >> firstId >> lastId;
 
   // Is this a cell zone?
-  int zmatch = 0;
-  for (size_t i = 0; i < this->CellZones->value.size(); i++)
+  // TODO: This might no longer be necessary.
+  // Are there cases where zones are not properly described in the file, but are still assigned to
+  // cells ?
+  bool zoneExists = false;
+  for (const Zone& zone : this->Zones)
   {
-    if (this->CellZones->value[i] == zoneId)
+    if (zoneId == zone.id)
     {
-      zmatch = 1;
+      zoneExists = true;
+      break;
     }
   }
 
-  if (zmatch)
+  if (zoneExists)
   {
 
     // Set up stream or pointer to data
