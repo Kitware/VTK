@@ -2393,4 +2393,88 @@ void vtkImageData::ComputeIndexToPhysicalMatrix(
   result[14] = 0;
   result[15] = 1;
 }
+
+//------------------------------------------------------------------------------
+void vtkImageData::ApplyIndexToPhysicalMatrix(vtkMatrix4x4* sourceIndexToPhysicalMatrix)
+{
+  if (sourceIndexToPhysicalMatrix == nullptr)
+  {
+    vtkErrorMacro("Source IndexToPhysicalMatrix matrix is null");
+    return;
+  }
+
+  // Get origin, spacing, and direction from the source matrix
+  double origin[3] = { sourceIndexToPhysicalMatrix->GetElement(0, 3),
+    sourceIndexToPhysicalMatrix->GetElement(1, 3), sourceIndexToPhysicalMatrix->GetElement(2, 3) };
+  double directionMatrixElements[9];
+  double spacing[3];
+  for (int i = 0; i < 3; i++)
+  {
+    double direction[3] = { sourceIndexToPhysicalMatrix->GetElement(0, i),
+      sourceIndexToPhysicalMatrix->GetElement(1, i),
+      sourceIndexToPhysicalMatrix->GetElement(2, i) };
+    spacing[i] = vtkMath::Normalize(direction);
+    directionMatrixElements[i] = direction[0];
+    directionMatrixElements[3 + i] = direction[1];
+    directionMatrixElements[6 + i] = direction[2];
+  }
+
+  bool modified = false;
+
+  if ((this->Origin[0] != origin[0]) || (this->Origin[1] != origin[1]) ||
+    (this->Origin[2] != origin[2]))
+  {
+    this->Origin[0] = origin[0];
+    this->Origin[1] = origin[1];
+    this->Origin[2] = origin[2];
+    modified = true;
+  }
+
+  if ((this->Spacing[0] != spacing[0]) || (this->Spacing[1] != spacing[1]) ||
+    (this->Spacing[2] != spacing[2]))
+  {
+    this->Spacing[0] = spacing[0];
+    this->Spacing[1] = spacing[1];
+    this->Spacing[2] = spacing[2];
+    modified = true;
+  }
+
+  bool directionMatrixModified = false;
+  double* currentDirectionMatrixElements = this->DirectionMatrix->GetData();
+  for (int i = 0; i < 9; i++)
+  {
+    if (currentDirectionMatrixElements[i] != directionMatrixElements[i])
+    {
+      currentDirectionMatrixElements[i] = directionMatrixElements[i];
+      directionMatrixModified = true;
+    }
+  }
+  if (directionMatrixModified)
+  {
+    this->DirectionMatrix->Modified();
+    modified = true;
+  }
+
+  // Update everything with a single Modified() event
+  if (modified)
+  {
+    this->ComputeTransforms();
+    this->BuildPoints();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::ApplyPhysicalToIndexMatrix(vtkMatrix4x4* sourcePhysicalToIndexMatrix)
+{
+  if (sourcePhysicalToIndexMatrix == nullptr)
+  {
+    vtkErrorMacro("Source PhysicalToIndexMatrix matrix is null");
+    return;
+  }
+  vtkNew<vtkMatrix4x4> indexToPhysicalMatrix;
+  vtkMatrix4x4::Invert(sourcePhysicalToIndexMatrix, indexToPhysicalMatrix);
+  this->ApplyIndexToPhysicalMatrix(indexToPhysicalMatrix);
+}
+
 VTK_ABI_NAMESPACE_END

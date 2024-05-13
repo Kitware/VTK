@@ -10,6 +10,7 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
@@ -86,6 +87,100 @@ inline int DoOrientationTest(
   {
     vtkGenericWarningMacro("Applying the PhysicalToIndex matrix does not return expected indices.");
     return EXIT_FAILURE;
+  }
+
+  // Store index to physical matrix
+  vtkNew<vtkMatrix4x4> indexToPhysical;
+  indexToPhysical->DeepCopy(image->GetIndexToPhysicalMatrix());
+
+  // Check with setting with 4x4 matrix
+  for (int testedMatrixIndex = 0; testedMatrixIndex < 2; testedMatrixIndex++)
+  {
+    // Check setting to identity matrix
+
+    vtkNew<vtkMatrix4x4> identity;
+    std::string testedMatrixName;
+    if (testedMatrixIndex == 0)
+    {
+      testedMatrixName = "IndexToPhysical";
+      image->ApplyIndexToPhysicalMatrix(identity);
+    }
+    else
+    {
+      testedMatrixName = "PhysicalToIndex";
+      image->ApplyPhysicalToIndexMatrix(identity);
+    }
+
+    vtkMatrix3x3* directionMatrix = image->GetDirectionMatrix();
+    for (int axis = 0; axis < 3; ++axis)
+    {
+      if (image->GetOrigin()[axis] != 0.0 || image->GetSpacing()[axis] != 1.0 ||
+        directionMatrix->GetElement(0, axis) != (axis == 0 ? 1.0 : 0.0) ||
+        directionMatrix->GetElement(1, axis) != (axis == 1 ? 1.0 : 0.0) ||
+        directionMatrix->GetElement(2, axis) != (axis == 2 ? 1.0 : 0.0))
+      {
+        vtkGenericWarningMacro(
+          "Applying identity " << testedMatrixName << " matrix does not set expected geometry.");
+        return EXIT_FAILURE;
+      }
+    }
+
+    // Check setting image geometry using 4x4 matrix
+
+    std::string testedMatrix;
+    if (testedMatrixIndex == 0)
+    {
+      image->ApplyIndexToPhysicalMatrix(indexToPhysical);
+    }
+    else
+    {
+      vtkNew<vtkMatrix4x4> physicalToIndex;
+      vtkMatrix4x4::Invert(indexToPhysical, physicalToIndex);
+      image->ApplyPhysicalToIndexMatrix(physicalToIndex);
+    }
+
+    directionMatrix = image->GetDirectionMatrix();
+    vtkNew<vtkMatrix3x3> expectedDirectionMatrix;
+    expectedDirectionMatrix->DeepCopy(direction);
+    bool failed = false;
+    for (int axis = 0; axis < 3; ++axis)
+    {
+      if (!vtkMathUtilities::FuzzyCompare(image->GetOrigin()[axis], origin[axis], tol))
+      {
+        vtkGenericWarningMacro(
+          "Applying the " << testedMatrixName << " matrix does not set expected origin.");
+        failed = true;
+      }
+      // When spacing is set from 4x4 matrix, the spacing is always positive.
+      // However, the input spacing can be negative, apply that sign when comparing.
+      double inputSpacingSign = spacing[axis] < 0 ? -1 : 1;
+      if (!vtkMathUtilities::FuzzyCompare(
+            image->GetSpacing()[axis] * inputSpacingSign, spacing[axis], tol))
+      {
+        vtkGenericWarningMacro(
+          "Applying the " << testedMatrixName << " matrix does not set expected spacing.");
+        failed = true;
+      }
+      for (int row = 0; row < 3; ++row)
+      {
+        if (!vtkMathUtilities::FuzzyCompare(
+              directionMatrix->GetElement(row, axis) * inputSpacingSign,
+              expectedDirectionMatrix->GetElement(row, axis), tol))
+        {
+          vtkGenericWarningMacro(
+            "Applying the " << testedMatrixName << " matrix does not set expected direction.");
+          failed = true;
+        }
+      }
+    }
+    if (failed)
+    {
+      std::cerr << "Expected IndexToPhysical matrix: " << std::endl;
+      indexToPhysical->PrintSelf(std::cerr, vtkIndent());
+      std::cerr << "Actual IndexToPhysical matrix: " << std::endl;
+      image->GetIndexToPhysicalMatrix()->PrintSelf(std::cerr, vtkIndent());
+      return EXIT_FAILURE;
+    }
   }
 
   return EXIT_SUCCESS;
