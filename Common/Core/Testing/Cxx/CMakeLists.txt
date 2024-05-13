@@ -180,6 +180,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestCompositeImplicitBackend.cxx
   TestConstantArray.cxx
   TestImplicitArraysBase.cxx
+  TestImplicitTypedArray.cxx
   TestImplicitArrayTraits.cxx
   TestIndexedArray.cxx
   TestIndexedImplicitBackend.cxx

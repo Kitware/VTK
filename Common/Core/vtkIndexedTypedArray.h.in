@@ -25,7 +25,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkIndexed@VTK_TYPE_NAME@Array : public vtkDataArray
 {
 public:
-  vtkTypeMacro(vtkIndexed@VTK_TYPE_NAME@Array, vtkDataArray);
+  vtkImplicitArrayTypeMacro(vtkIndexed@VTK_TYPE_NAME@Array, vtkDataArray);
 #ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
@@ -73,3 +73,4 @@ vtkArrayDownCast_FastCastMacro(vtkIndexed@VTK_TYPE_NAME@Array);
 
 VTK_ABI_NAMESPACE_END
 #endif
+// VTK-HeaderTest-Exclude: TYPEMACRO
