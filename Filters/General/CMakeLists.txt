@@ -24,6 +24,7 @@ set(classes
   vtkContourTriangulator
   vtkCountFaces
   vtkCountVertices
+  vtkCriticalTime
   vtkCursor2D
   vtkCursor3D
   vtkCurvatures
