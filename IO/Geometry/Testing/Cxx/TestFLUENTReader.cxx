@@ -1,5 +1,4 @@
 #include "vtkFLUENTReader.h"
-#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkUnstructuredGrid.h"

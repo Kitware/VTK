@@ -9,47 +9,29 @@
 // & Doug McCorkle (mccdo@iastate.edu)
 
 #include "vtkFLUENTReader.h"
-#include "vtkByteSwap.h"
-#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkConvexPointSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
-#include "vtkEndian.h"
-#include "vtkErrorCode.h"
 #include "vtkFieldData.h"
-#include "vtkFloatArray.h"
 #include "vtkHexahedron.h"
 #include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPyramid.h"
 #include "vtkQuad.h"
-#include "vtkSetGet.h"
+#include "vtkSmartPointer.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
-#include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
 
-#include <algorithm>
-#include <cctype>
-#include <fstream>
-#include <map>
-#include <set>
 #include <sstream>
-#include <string>
-#include <sys/stat.h>
-#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFLUENTReader);
@@ -61,18 +43,18 @@ vtkStandardNewMacro(vtkFLUENTReader);
 struct vtkFLUENTReader::Cell
 {
   int type;
-  int zone;
-  std::vector<int> faces;
+  int zoneId;
+  std::vector<int> faceIndices;
   int parent;
   int child;
-  std::vector<int> nodes;
+  std::vector<int> nodeIndices;
 };
 
 struct vtkFLUENTReader::Face
 {
   int type;
   unsigned int zoneId;
-  std::vector<int> nodes;
+  std::vector<int> nodeIndices;
   int c0;
   int c1;
   int periodicShadow;
@@ -95,103 +77,29 @@ struct vtkFLUENTReader::Zone
 struct vtkFLUENTReader::ScalarDataChunk
 {
   int subsectionId;
-  vtkIdType zoneId;
+  unsigned int zoneId;
   std::vector<double> scalarData;
 };
 
 struct vtkFLUENTReader::VectorDataChunk
 {
   int subsectionId;
-  vtkIdType zoneId;
+  unsigned int zoneId;
   std::vector<double> iComponentData;
   std::vector<double> jComponentData;
   std::vector<double> kComponentData;
 };
 
-struct vtkFLUENTReader::stdString
+struct vtkFLUENTReader::SubSection
 {
-  std::string value;
-};
-struct vtkFLUENTReader::intVector
-{
-  std::vector<int> value;
-};
-struct vtkFLUENTReader::doubleVector
-{
-  std::vector<double> value;
-};
-struct vtkFLUENTReader::stringVector
-{
-  std::vector<std::string> value;
-};
-struct vtkFLUENTReader::cellVector
-{
-  std::vector<Cell> value;
-};
-struct vtkFLUENTReader::faceVector
-{
-  std::vector<Face> value;
-};
-struct vtkFLUENTReader::stdMap
-{
-  std::map<size_t, std::string> value;
-};
-struct vtkFLUENTReader::scalarDataVector
-{
-  std::vector<ScalarDataChunk> value;
-};
-struct vtkFLUENTReader::vectorDataVector
-{
-  std::vector<VectorDataChunk> value;
-};
-struct vtkFLUENTReader::intVectorVector
-{
-  std::vector<std::vector<int>> value;
+  int id;
+  int size;
+  std::vector<int> zoneIds;
 };
 
 //------------------------------------------------------------------------------
 vtkFLUENTReader::vtkFLUENTReader()
 {
-  this->CellDataArraySelection = vtkDataArraySelection::New();
-  this->FileName = nullptr;
-  this->NumberOfCells = 0;
-  this->NumberOfCellArrays = 0;
-
-  this->FluentCaseFile = nullptr;
-  this->FluentDataFile = nullptr;
-  this->CaseBuffer = new stdString;
-  this->DataBuffer = new stdString;
-
-  this->Points = vtkPoints::New();
-  this->Triangle = vtkTriangle::New();
-  this->Tetra = vtkTetra::New();
-  this->Quad = vtkQuad::New();
-  this->Hexahedron = vtkHexahedron::New();
-  this->Pyramid = vtkPyramid::New();
-  this->Wedge = vtkWedge::New();
-  this->ConvexPointSet = vtkConvexPointSet::New();
-
-  this->Cells = new cellVector;
-  this->Faces = new faceVector;
-  this->VariableNames = new stdMap;
-  this->ScalarDataChunks = new scalarDataVector;
-  this->VectorDataChunks = new vectorDataVector;
-
-  this->SubSectionZones = new intVectorVector;
-  this->SubSectionIds = new intVector;
-  this->SubSectionSize = new intVector;
-
-  this->ScalarVariableNames = new stringVector;
-  this->ScalarSubSectionIds = new intVector;
-  this->VectorVariableNames = new stringVector;
-  this->VectorSubSectionIds = new intVector;
-
-  this->SwapBytes = 0;
-  this->GridDimension = 0;
-  this->DataPass = 0;
-  this->NumberOfScalars = 0;
-  this->NumberOfVectors = 0;
-
   this->SetNumberOfInputPorts(0);
   this->SetDataByteOrderToLittleEndian();
 }
@@ -199,34 +107,8 @@ vtkFLUENTReader::vtkFLUENTReader()
 //------------------------------------------------------------------------------
 vtkFLUENTReader::~vtkFLUENTReader()
 {
-  this->Points->Delete();
-  this->Triangle->Delete();
-  this->Tetra->Delete();
-  this->Quad->Delete();
-  this->Hexahedron->Delete();
-  this->Pyramid->Delete();
-  this->Wedge->Delete();
-  this->ConvexPointSet->Delete();
-
-  delete this->CaseBuffer;
-  delete this->DataBuffer;
-  delete this->Cells;
-  delete this->Faces;
-  delete this->VariableNames;
-  delete this->ScalarDataChunks;
-  delete this->VectorDataChunks;
-  delete this->SubSectionZones;
-  delete this->SubSectionIds;
-  delete this->SubSectionSize;
-  delete this->ScalarVariableNames;
-  delete this->ScalarSubSectionIds;
-  delete this->VectorVariableNames;
-  delete this->VectorSubSectionIds;
   delete this->FluentCaseFile;
   delete this->FluentDataFile;
-
-  this->CellDataArraySelection->Delete();
-
   delete[] this->FileName;
 }
 
@@ -248,16 +130,15 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   // When reading a FLUENT Mesh file, we may encounter mesh that only contains faces.
   // In this case, we generate a single block multiblock using the faces informations so we can
   // still display the surface of this mesh.
-  if (this->Cells->value.empty() && !this->Faces->value.empty() &&
-    this->Points->GetNumberOfPoints() > 0)
+  if (this->Cells.empty() && !this->Faces.empty() && this->Points->GetNumberOfPoints() > 0)
   {
     this->FillMultiBlockFromFaces(output);
     return 1;
   }
 
   // Generate zone ids -> array idx lookup map
-  std::vector<unsigned int> zoneIDToIdx(this->Zones.size());
-  for (int zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
+  std::vector<size_t> zoneIDToIdx(this->Zones.size());
+  for (size_t zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
   {
     const auto& zone = this->Zones[zoneIdx];
     if (zone.id >= zoneIDToIdx.size())
@@ -267,85 +148,93 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
     zoneIDToIdx[zone.id] = zoneIdx;
   }
 
-  std::vector<vtkUnstructuredGrid*> grid;
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> grid;
   grid.resize(this->Zones.size());
   for (size_t zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
   {
     grid[zoneIdx] = vtkUnstructuredGrid::New();
   }
 
-  for (size_t i = 0; i < this->Cells->value.size(); i++)
+  vtkNew<vtkTriangle> triangleBuffer;
+  vtkNew<vtkTetra> tetraBuffer;
+  vtkNew<vtkQuad> quadBuffer;
+  vtkNew<vtkHexahedron> hexahedronBuffer;
+  vtkNew<vtkPyramid> pyramidBuffer;
+  vtkNew<vtkWedge> wedgeBuffer;
+  vtkNew<vtkConvexPointSet> convexPointSetBuffer;
+
+  for (const Cell& cell : this->Cells)
   {
     vtkIdList* newCellPointIDs = nullptr;
     int newCellType = -1;
-    switch (this->Cells->value[i].type)
+
+    switch (cell.type)
     {
       case 1:
         for (int j = 0; j < 3; j++)
         {
-          this->Triangle->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
+          triangleBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
         }
-        newCellPointIDs = this->Triangle->GetPointIds();
-        newCellType = this->Triangle->GetCellType();
+        newCellPointIDs = triangleBuffer->GetPointIds();
+        newCellType = triangleBuffer->GetCellType();
         break;
 
       case 2:
         for (int j = 0; j < 4; j++)
         {
-          this->Tetra->GetPointIds()->SetId(j, Cells->value[i].nodes[j]);
+          tetraBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
         }
 
-        newCellPointIDs = this->Tetra->GetPointIds();
-        newCellType = this->Tetra->GetCellType();
+        newCellPointIDs = tetraBuffer->GetPointIds();
+        newCellType = tetraBuffer->GetCellType();
         break;
 
       case 3:
-
         for (int j = 0; j < 4; j++)
         {
-          this->Quad->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
+          quadBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
         }
-        newCellPointIDs = this->Quad->GetPointIds();
-        newCellType = this->Quad->GetCellType();
+        newCellPointIDs = quadBuffer->GetPointIds();
+        newCellType = quadBuffer->GetCellType();
         break;
 
       case 4:
         for (int j = 0; j < 8; j++)
         {
-          this->Hexahedron->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
+          hexahedronBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
         }
-        newCellPointIDs = this->Hexahedron->GetPointIds();
-        newCellType = this->Hexahedron->GetCellType();
+        newCellPointIDs = hexahedronBuffer->GetPointIds();
+        newCellType = hexahedronBuffer->GetCellType();
         break;
 
       case 5:
         for (int j = 0; j < 5; j++)
         {
-          this->Pyramid->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
+          pyramidBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
         }
-        newCellPointIDs = this->Pyramid->GetPointIds();
-        newCellType = this->Pyramid->GetCellType();
+        newCellPointIDs = pyramidBuffer->GetPointIds();
+        newCellType = pyramidBuffer->GetCellType();
         break;
 
       case 6:
         for (int j = 0; j < 6; j++)
         {
-          this->Wedge->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
+          wedgeBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
         }
-        newCellPointIDs = this->Wedge->GetPointIds();
-        newCellType = this->Wedge->GetCellType();
+        newCellPointIDs = wedgeBuffer->GetPointIds();
+        newCellType = wedgeBuffer->GetCellType();
         break;
 
       case 7:
-        this->ConvexPointSet->GetPointIds()->SetNumberOfIds(
-          static_cast<vtkIdType>(this->Cells->value[i].nodes.size()));
-        for (size_t j = 0; j < this->Cells->value[i].nodes.size(); j++)
+        convexPointSetBuffer->GetPointIds()->SetNumberOfIds(
+          static_cast<vtkIdType>(cell.nodeIndices.size()));
+        for (size_t j = 0; j < cell.nodeIndices.size(); j++)
         {
-          this->ConvexPointSet->GetPointIds()->SetId(
-            static_cast<vtkIdType>(j), this->Cells->value[i].nodes[j]);
+          convexPointSetBuffer->GetPointIds()->SetId(
+            static_cast<vtkIdType>(j), cell.nodeIndices[j]);
         }
-        newCellPointIDs = this->ConvexPointSet->GetPointIds();
-        newCellType = this->ConvexPointSet->GetCellType();
+        newCellPointIDs = convexPointSetBuffer->GetPointIds();
+        newCellType = convexPointSetBuffer->GetCellType();
         break;
 
       default:
@@ -354,60 +243,52 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     // Insert main cell
-    unsigned int zoneIdx = zoneIDToIdx[Cells->value[i].zone];
+    size_t zoneIdx = zoneIDToIdx[cell.zoneId];
     grid[zoneIdx]->InsertNextCell(newCellType, newCellPointIDs);
 
     // Insert faces cells
-    for (int faceIdx : this->Cells->value[i].faces)
+    for (int faceIdx : cell.faceIndices)
     {
-      const Face& face = this->Faces->value[faceIdx];
+      const Face& face = this->Faces[faceIdx];
       zoneIdx = zoneIDToIdx[face.zoneId];
       grid[zoneIdx]->InsertNextCell(newCellType, newCellPointIDs);
     }
   }
-  //  this->Cells->value.clear();
 
   // Scalar Data
-  for (size_t l = 0; l < this->ScalarDataChunks->value.size(); l++)
+  for (const ScalarDataChunk& dataChunk : this->ScalarDataChunks)
   {
-    vtkDoubleArray* v = vtkDoubleArray::New();
-    for (size_t m = 0; m < this->ScalarDataChunks->value[l].scalarData.size(); m++)
+    vtkDoubleArray* array = vtkDoubleArray::New();
+    for (size_t m = 0; m < dataChunk.scalarData.size(); m++)
     {
-      v->InsertValue(static_cast<vtkIdType>(m), this->ScalarDataChunks->value[l].scalarData[m]);
+      array->InsertValue(static_cast<vtkIdType>(m), dataChunk.scalarData[m]);
     }
-    // v->SetName(this->ScalarVariableNames->
-    //           value[l/this->CellZones->value.size()].c_str());
-    v->SetName(this->VariableNames->value[this->ScalarDataChunks->value[l].subsectionId].c_str());
-    unsigned int zoneIdx = zoneIDToIdx[this->ScalarDataChunks->value[l].zoneId];
-    grid[zoneIdx]->GetCellData()->AddArray(v);
-    v->Delete();
+
+    array->SetName(this->VariableNames[dataChunk.subsectionId].c_str());
+    size_t zoneIdx = zoneIDToIdx[dataChunk.zoneId];
+    grid[zoneIdx]->GetCellData()->AddArray(array);
+    array->Delete();
   }
-  this->ScalarDataChunks->value.clear();
 
   // Vector Data
-  for (size_t l = 0; l < this->VectorDataChunks->value.size(); l++)
+  for (const VectorDataChunk& dataChunk : this->VectorDataChunks)
   {
-    vtkDoubleArray* v = vtkDoubleArray::New();
-    v->SetNumberOfComponents(3);
-    for (size_t m = 0; m < this->VectorDataChunks->value[l].iComponentData.size(); m++)
+    vtkDoubleArray* array = vtkDoubleArray::New();
+    array->SetNumberOfComponents(3);
+    for (size_t m = 0; m < dataChunk.iComponentData.size(); m++)
     {
-      v->InsertComponent(
-        static_cast<vtkIdType>(m), 0, this->VectorDataChunks->value[l].iComponentData[m]);
-      v->InsertComponent(
-        static_cast<vtkIdType>(m), 1, this->VectorDataChunks->value[l].jComponentData[m]);
-      v->InsertComponent(
-        static_cast<vtkIdType>(m), 2, this->VectorDataChunks->value[l].kComponentData[m]);
+      array->InsertComponent(static_cast<vtkIdType>(m), 0, dataChunk.iComponentData[m]);
+      array->InsertComponent(static_cast<vtkIdType>(m), 1, dataChunk.jComponentData[m]);
+      array->InsertComponent(static_cast<vtkIdType>(m), 2, dataChunk.kComponentData[m]);
     }
-    // v->SetName(this->VectorVariableNames->
-    //           value[l/this->CellZones->value.size()].c_str());
-    v->SetName(this->VariableNames->value[this->VectorDataChunks->value[l].subsectionId].c_str());
-    unsigned int zoneIdx = zoneIDToIdx[this->VectorDataChunks->value[l].zoneId];
-    grid[zoneIdx]->GetCellData()->AddArray(v);
-    v->Delete();
-  }
-  this->VectorDataChunks->value.clear();
 
-  output->SetNumberOfBlocks(this->Zones.size());
+    array->SetName(this->VariableNames[dataChunk.subsectionId].c_str());
+    size_t zoneIdx = zoneIDToIdx[dataChunk.zoneId];
+    grid[zoneIdx]->GetCellData()->AddArray(array);
+    array->Delete();
+  }
+
+  output->SetNumberOfBlocks(static_cast<int>(this->Zones.size()));
   for (unsigned int zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
   {
     const auto& zone = this->Zones[zoneIdx];
@@ -419,6 +300,13 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
     grid[zoneIdx]->SetPoints(Points);
     grid[zoneIdx]->Delete();
   }
+
+  // We need to keep the file data in memory for now to avoid re-parsing on each RequestData call
+  // this->Cells.clear();
+  // this->Faces.clear();
+  // this->Zones.clear();
+  // this->ScalarDataChunks.clear();
+  // this->VectorDataChunks.clear();
 
   return 1;
 }
@@ -460,35 +348,31 @@ int vtkFLUENTReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   this->CleanCells(); //  Removes unnecessary faces from the cells.
   this->PopulateCellNodes();
-  this->NumberOfScalars = 0;
-  this->NumberOfVectors = 0;
 
   if (this->OpenDataFile(this->FileName))
   {
     this->ParseDataFile();
   }
 
-  for (size_t i = 0; i < this->SubSectionIds->value.size(); i++)
+  for (const SubSection& subSection : this->SubSections)
   {
-    if (this->SubSectionSize->value[i] == 1)
+    if (subSection.size == 1)
     {
-      this->CellDataArraySelection->AddArray(
-        this->VariableNames->value[this->SubSectionIds->value[i]].c_str());
-      this->ScalarVariableNames->value.push_back(
-        this->VariableNames->value[this->SubSectionIds->value[i]]);
-      this->ScalarSubSectionIds->value.push_back(this->SubSectionIds->value[i]);
+      this->CellDataArraySelection->AddArray(this->VariableNames[subSection.id].c_str());
+      this->ScalarVariableNames.push_back(this->VariableNames[subSection.id]);
+      this->ScalarSubSectionIds.push_back(subSection.id);
     }
-    else if (this->SubSectionSize->value[i] == 3)
+    else if (subSection.size == 3)
     {
-      this->CellDataArraySelection->AddArray(
-        this->VariableNames->value[this->SubSectionIds->value[i]].c_str());
-      this->VectorVariableNames->value.push_back(
-        this->VariableNames->value[this->SubSectionIds->value[i]]);
-      this->VectorSubSectionIds->value.push_back(this->SubSectionIds->value[i]);
+      this->CellDataArraySelection->AddArray(this->VariableNames[subSection.id].c_str());
+      this->VectorVariableNames.push_back(this->VariableNames[subSection.id]);
+      this->VectorSubSectionIds.push_back(subSection.id);
     }
   }
-  this->NumberOfCells = static_cast<vtkIdType>(this->Cells->value.size());
+
+  this->NumberOfCells = static_cast<vtkIdType>(this->Cells.size());
   this->Parsed = true;
+
   return 1;
 }
 
@@ -566,7 +450,7 @@ bool vtkFLUENTReader::OpenDataFile(const char* filename)
 //------------------------------------------------------------------------------
 int vtkFLUENTReader::GetCaseChunk()
 {
-  this->CaseBuffer->value = ""; // Clear buffer
+  this->CaseBuffer = ""; // Clear buffer
 
   //
   // Look for beginning of chunk
@@ -593,8 +477,7 @@ int vtkFLUENTReader::GetCaseChunk()
     }
 
     index += static_cast<char>(this->FluentCaseFile->peek());
-    // this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
-    this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
+    this->CaseBuffer += static_cast<char>(this->FluentCaseFile->get());
     if (this->FluentCaseFile->eof())
     {
       return 0;
@@ -616,19 +499,14 @@ int vtkFLUENTReader::GetCaseChunk()
     size_t len = strlen(end);
 
     // Load the case buffer enough to start comparing to the end std::string.
-    while (this->CaseBuffer->value.size() < len)
+    while (this->CaseBuffer.size() < len)
     {
-      // this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
-      this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
+      this->CaseBuffer += static_cast<char>(this->FluentCaseFile->get());
     }
 
-    // while (CaseBuffer.compare(CaseBuffer.size()-strlen(end),
-    // strlen(end), end))
-    while (
-      strcmp(this->CaseBuffer->value.c_str() + (this->CaseBuffer->value.size() - len), end) != 0)
+    while (strcmp(this->CaseBuffer.c_str() + (this->CaseBuffer.size() - len), end) != 0)
     {
-      // this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
-      this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
+      this->CaseBuffer += static_cast<char>(this->FluentCaseFile->get());
     }
   }
   else
@@ -636,13 +514,12 @@ int vtkFLUENTReader::GetCaseChunk()
     int level = 0;
     while ((this->FluentCaseFile->peek() != ')') || (level != 0))
     {
-      // this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
-      this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
-      if (this->CaseBuffer->value.at(this->CaseBuffer->value.length() - 1) == '(')
+      this->CaseBuffer += static_cast<char>(this->FluentCaseFile->get());
+      if (this->CaseBuffer.at(this->CaseBuffer.length() - 1) == '(')
       {
         level++;
       }
-      if (this->CaseBuffer->value.at(this->CaseBuffer->value.length() - 1) == ')')
+      if (this->CaseBuffer.at(this->CaseBuffer.length() - 1) == ')')
       {
         level--;
       }
@@ -651,8 +528,7 @@ int vtkFLUENTReader::GetCaseChunk()
         return 0;
       }
     }
-    // this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
-    this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
+    this->CaseBuffer += static_cast<char>(this->FluentCaseFile->get());
   }
   return 1;
 }
@@ -663,10 +539,9 @@ int vtkFLUENTReader::GetCaseIndex()
   std::string sindex;
 
   int i = 1;
-  while (this->CaseBuffer->value.at(i) != ' ')
+  while (this->CaseBuffer.at(i) != ' ')
   {
-    // sindex.push_back(this->CaseBuffer->value.at(i++));
-    sindex += this->CaseBuffer->value.at(i++);
+    sindex += this->CaseBuffer.at(i++);
   }
   return atoi(sindex.c_str());
 }
@@ -677,10 +552,9 @@ int vtkFLUENTReader::GetDataIndex()
   std::string sindex;
 
   int i = 1;
-  while (this->DataBuffer->value.at(i) != ' ')
+  while (this->DataBuffer.at(i) != ' ')
   {
-    // sindex.push_back(this->DataBuffer->value.at(i++));
-    sindex += this->DataBuffer->value.at(i++);
+    sindex += this->DataBuffer.at(i++);
   }
   return atoi(sindex.c_str());
 }
@@ -688,7 +562,7 @@ int vtkFLUENTReader::GetDataIndex()
 //------------------------------------------------------------------------------
 int vtkFLUENTReader::GetDataChunk()
 {
-  this->DataBuffer->value = ""; // Clear buffer
+  this->DataBuffer = ""; // Clear buffer
   //
   // Look for beginning of chunk
   //
@@ -714,7 +588,7 @@ int vtkFLUENTReader::GetDataChunk()
     }
 
     index += static_cast<char>(this->FluentDataFile->peek());
-    this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());
+    this->DataBuffer += static_cast<char>(this->FluentDataFile->get());
     if (this->FluentDataFile->eof())
     {
       return 0;
@@ -737,24 +611,17 @@ int vtkFLUENTReader::GetDataChunk()
     // file pointer to the "))" entry.
     char end[120];
     strcpy(end, "End of Binary Section   ");
-    // strcat(end, index.c_str());
-    // strcat(end, ")");
     size_t len = strlen(end);
 
     // Load the data buffer enough to start comparing to the end std::string.
-    while (this->DataBuffer->value.size() < len)
+    while (this->DataBuffer.size() < len)
     {
-      // this->DataBuffer->value.push_back(this->FluentDataFile->get());
-      this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());
+      this->DataBuffer += static_cast<char>(this->FluentDataFile->get());
     }
 
-    // while (DataBuffer.compare(DataBuffer.size()-strlen(end),
-    // strlen(end), end))
-    while (
-      strcmp(this->DataBuffer->value.c_str() + (this->DataBuffer->value.size() - len), end) != 0)
+    while (strcmp(this->DataBuffer.c_str() + (this->DataBuffer.size() - len), end) != 0)
     {
-      // this->DataBuffer->value.push_back(this->FluentDataFile->get());
-      this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());
+      this->DataBuffer += static_cast<char>(this->FluentDataFile->get());
     }
   }
   else
@@ -762,13 +629,12 @@ int vtkFLUENTReader::GetDataChunk()
     int level = 0;
     while ((this->FluentDataFile->peek() != ')') || (level != 0))
     {
-      // this->DataBuffer->value.push_back(this->FluentDataFile->get());
-      this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());
-      if (this->DataBuffer->value.at(this->DataBuffer->value.length() - 1) == '(')
+      this->DataBuffer += static_cast<char>(this->FluentDataFile->get());
+      if (this->DataBuffer.at(this->DataBuffer.length() - 1) == '(')
       {
         level++;
       }
-      if (this->DataBuffer->value.at(this->DataBuffer->value.length() - 1) == ')')
+      if (this->DataBuffer.at(this->DataBuffer.length() - 1) == ')')
       {
         level--;
       }
@@ -777,8 +643,7 @@ int vtkFLUENTReader::GetDataChunk()
         return 0;
       }
     }
-    // this->DataBuffer->value.push_back(this->FluentDataFile->get());
-    this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());
+    this->DataBuffer += static_cast<char>(this->FluentDataFile->get());
   }
 
   return 1;
@@ -2367,7 +2232,7 @@ void vtkFLUENTReader::LoadVariableNames()
 {
   for (auto const& variable : variable_info)
   {
-    this->VariableNames->value[variable.index] = variable.name;
+    this->VariableNames[variable.index] = variable.name;
   }
 }
 
@@ -2378,6 +2243,7 @@ bool vtkFLUENTReader::ParseCaseFile()
   this->FluentCaseFile->seekg(0, ios::beg);
 
   bool ret = true;
+  bool unrecognizeIndexEncountered = false;
   // XXX: Each of these parsing method should be improved for error reporting and robustness
   while (this->GetCaseChunk())
   {
@@ -2498,9 +2364,14 @@ bool vtkFLUENTReader::ParseCaseFile()
       case 3063:
         break;
       default:
-        vtkWarningMacro(
-          "Error parsing .case file: Unsupported/Unrecognized index: " + std::to_string(index));
+        unrecognizeIndexEncountered = true;
         break;
+    }
+
+    if (unrecognizeIndexEncountered)
+    {
+      vtkWarningMacro(
+        "Error parsing .case file: Unsupported/Unrecognized index: " + std::to_string(index));
     }
   }
   return ret;
@@ -2509,17 +2380,17 @@ bool vtkFLUENTReader::ParseCaseFile()
 //------------------------------------------------------------------------------
 int vtkFLUENTReader::GetDimension()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 4, 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  std::string info = this->CaseBuffer.substr(start + 4, 1);
   return atoi(info.c_str());
 }
 
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetLittleEndianFlag()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   int flag;
   sscanf(info.c_str(), "%d", &flag);
 
@@ -2536,22 +2407,22 @@ void vtkFLUENTReader::GetLittleEndianFlag()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNodesAscii()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int zoneId, firstIndex, lastIndex;
   int type, nd;
   sscanf(info.c_str(), "%x %x %x %d %d", &zoneId, &firstIndex, &lastIndex, &type, &nd);
 
-  if (this->CaseBuffer->value.at(5) == '0')
+  if (this->CaseBuffer.at(5) == '0')
   {
     this->Points->Allocate(lastIndex);
   }
   else
   {
-    size_t dstart = this->CaseBuffer->value.find('(', 5);
-    size_t dend = this->CaseBuffer->value.find(')', dstart + 1);
-    std::string pdata = this->CaseBuffer->value.substr(dstart + 1, dend - start - 1);
+    size_t dstart = this->CaseBuffer.find('(', 5);
+    size_t dend = this->CaseBuffer.find(')', dstart + 1);
+    std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
     std::stringstream pdatastream(pdata);
 
     double x, y, z;
@@ -2580,14 +2451,14 @@ void vtkFLUENTReader::GetNodesAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNodesSinglePrecision()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int zoneId, firstIndex, lastIndex;
   int type;
   sscanf(info.c_str(), "%x %x %x %d", &zoneId, &firstIndex, &lastIndex, &type);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', 7);
   size_t ptr = dstart + 1;
 
   double x, y, z;
@@ -2626,14 +2497,14 @@ void vtkFLUENTReader::GetNodesSinglePrecision()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNodesDoublePrecision()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int zoneId, firstIndex, lastIndex;
   int type;
   sscanf(info.c_str(), "%x %x %x %d", &zoneId, &firstIndex, &lastIndex, &type);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', 7);
   size_t ptr = dstart + 1;
 
   if (this->GridDimension == 3)
@@ -2669,47 +2540,51 @@ void vtkFLUENTReader::GetNodesDoublePrecision()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellsAscii()
 {
-  if (this->CaseBuffer->value.at(5) == '0')
+  if (this->CaseBuffer.at(5) == '0')
   { // Cell Info
-    size_t start = this->CaseBuffer->value.find('(', 1);
-    size_t end = this->CaseBuffer->value.find(')', 1);
-    std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+    size_t start = this->CaseBuffer.find('(', 1);
+    size_t end = this->CaseBuffer.find(')', 1);
+    std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
     unsigned int zoneId, firstIndex, lastIndex;
     int type;
     sscanf(info.c_str(), "%x %x %x %d", &zoneId, &firstIndex, &lastIndex, &type);
-    this->Cells->value.resize(lastIndex);
+    this->Cells.resize(lastIndex);
   }
   else
   { // Cell Definitions
-    size_t start = this->CaseBuffer->value.find('(', 1);
-    size_t end = this->CaseBuffer->value.find(')', 1);
-    std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+    size_t start = this->CaseBuffer.find('(', 1);
+    size_t end = this->CaseBuffer.find(')', 1);
+    std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
     unsigned int zoneId, firstIndex, lastIndex;
     int type, elementType;
     sscanf(info.c_str(), "%x %x %x %d %d", &zoneId, &firstIndex, &lastIndex, &type, &elementType);
 
     if (elementType == 0)
     {
-      size_t dstart = this->CaseBuffer->value.find('(', 5);
-      size_t dend = this->CaseBuffer->value.find(')', dstart + 1);
-      std::string pdata = this->CaseBuffer->value.substr(dstart + 1, dend - start - 1);
+      size_t dstart = this->CaseBuffer.find('(', 5);
+      size_t dend = this->CaseBuffer.find(')', dstart + 1);
+      std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
       std::stringstream pdatastream(pdata);
       for (unsigned int i = firstIndex; i <= lastIndex; i++)
       {
-        pdatastream >> this->Cells->value[i - 1].type;
-        this->Cells->value[i - 1].zone = zoneId;
-        this->Cells->value[i - 1].parent = 0;
-        this->Cells->value[i - 1].child = 0;
+        Cell& cell = this->Cells[i - 1];
+
+        pdatastream >> cell.type;
+        cell.zoneId = zoneId;
+        cell.parent = 0;
+        cell.child = 0;
       }
     }
     else
     {
       for (unsigned int i = firstIndex; i <= lastIndex; i++)
       {
-        this->Cells->value[i - 1].type = elementType;
-        this->Cells->value[i - 1].zone = zoneId;
-        this->Cells->value[i - 1].parent = 0;
-        this->Cells->value[i - 1].child = 0;
+        Cell& cell = this->Cells[i - 1];
+
+        cell.type = elementType;
+        cell.zoneId = zoneId;
+        cell.parent = 0;
+        cell.child = 0;
       }
     }
   }
@@ -2718,33 +2593,38 @@ void vtkFLUENTReader::GetCellsAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellsBinary()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int zoneId, firstIndex, lastIndex, type, elementType;
   sscanf(info.c_str(), "%x %x %x %x %x", &zoneId, &firstIndex, &lastIndex, &type, &elementType);
 
   if (elementType == 0)
   {
-    size_t dstart = this->CaseBuffer->value.find('(', 7);
+    size_t dstart = this->CaseBuffer.find('(', 7);
     size_t ptr = dstart + 1;
     for (unsigned int i = firstIndex; i <= lastIndex; i++)
     {
-      this->Cells->value[i - 1].type = this->GetCaseBufferInt(static_cast<int>(ptr));
+      Cell& cell = this->Cells[i - 1];
+
+      cell.type = this->GetCaseBufferInt(static_cast<int>(ptr));
+      cell.zoneId = zoneId;
+      cell.parent = 0;
+      cell.child = 0;
+
       ptr = ptr + 4;
-      this->Cells->value[i - 1].zone = zoneId;
-      this->Cells->value[i - 1].parent = 0;
-      this->Cells->value[i - 1].child = 0;
     }
   }
   else
   {
     for (unsigned int i = firstIndex; i <= lastIndex; i++)
     {
-      this->Cells->value[i - 1].type = elementType;
-      this->Cells->value[i - 1].zone = zoneId;
-      this->Cells->value[i - 1].parent = 0;
-      this->Cells->value[i - 1].child = 0;
+      Cell& cell = this->Cells[i - 1];
+
+      cell.type = elementType;
+      cell.zoneId = zoneId;
+      cell.parent = 0;
+      cell.child = 0;
     }
   }
 }
@@ -2753,27 +2633,27 @@ void vtkFLUENTReader::GetCellsBinary()
 bool vtkFLUENTReader::GetFacesAscii()
 {
 
-  if (this->CaseBuffer->value.at(5) == '0')
+  if (this->CaseBuffer.at(5) == '0')
   { // Face Info
-    size_t start = this->CaseBuffer->value.find('(', 1);
-    size_t end = this->CaseBuffer->value.find(')', 1);
-    std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+    size_t start = this->CaseBuffer.find('(', 1);
+    size_t end = this->CaseBuffer.find(')', 1);
+    std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
     unsigned int zoneId, firstIndex, lastIndex, bcType;
     sscanf(info.c_str(), "%x %x %x %x", &zoneId, &firstIndex, &lastIndex, &bcType);
 
-    this->Faces->value.resize(lastIndex);
+    this->Faces.resize(lastIndex);
   }
   else
   { // Face Definitions
-    size_t start = this->CaseBuffer->value.find('(', 1);
-    size_t end = this->CaseBuffer->value.find(')', 1);
-    std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+    size_t start = this->CaseBuffer.find('(', 1);
+    size_t end = this->CaseBuffer.find(')', 1);
+    std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
     unsigned int zoneId, firstIndex, lastIndex, bcType, faceType;
     sscanf(info.c_str(), "%x %x %x %x %x", &zoneId, &firstIndex, &lastIndex, &bcType, &faceType);
 
-    size_t dstart = this->CaseBuffer->value.find('(', 7);
-    size_t dend = this->CaseBuffer->value.find(')', dstart + 1);
-    std::string pdata = this->CaseBuffer->value.substr(dstart + 1, dend - start - 1);
+    size_t dstart = this->CaseBuffer.find('(', 7);
+    size_t dend = this->CaseBuffer.find(')', dstart + 1);
+    std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
     std::stringstream pdatastream(pdata);
 
     int numberOfNodesInFace = 0;
@@ -2788,50 +2668,51 @@ bool vtkFLUENTReader::GetFacesAscii()
         numberOfNodesInFace = faceType;
       }
 
-      if (this->Faces->value.size() < i)
+      if (this->Faces.size() < i)
       {
         vtkErrorMacro("Could not parse faces");
         return false;
       }
 
-      this->Faces->value[i - 1].nodes.resize(numberOfNodesInFace);
+      Face& face = this->Faces[i - 1];
+      face.nodeIndices.resize(numberOfNodesInFace);
       for (int j = 0; j < numberOfNodesInFace; j++)
       {
-        pdatastream >> hex >> this->Faces->value[i - 1].nodes[j];
-        this->Faces->value[i - 1].nodes[j]--;
+        pdatastream >> hex >> face.nodeIndices[j];
+        face.nodeIndices[j]--;
       }
-      pdatastream >> hex >> this->Faces->value[i - 1].c0;
-      pdatastream >> hex >> this->Faces->value[i - 1].c1;
-      this->Faces->value[i - 1].c0--;
-      this->Faces->value[i - 1].c1--;
-      this->Faces->value[i - 1].type = numberOfNodesInFace;
-      this->Faces->value[i - 1].zoneId = zoneId;
-      this->Faces->value[i - 1].periodicShadow = 0;
-      this->Faces->value[i - 1].parent = 0;
-      this->Faces->value[i - 1].child = 0;
-      this->Faces->value[i - 1].interfaceFaceParent = 0;
-      this->Faces->value[i - 1].ncgParent = 0;
-      this->Faces->value[i - 1].ncgChild = 0;
-      this->Faces->value[i - 1].interfaceFaceChild = 0;
+      pdatastream >> hex >> face.c0;
+      pdatastream >> hex >> face.c1;
+      face.c0--;
+      face.c1--;
+      face.type = numberOfNodesInFace;
+      face.zoneId = zoneId;
+      face.periodicShadow = 0;
+      face.parent = 0;
+      face.child = 0;
+      face.interfaceFaceParent = 0;
+      face.ncgParent = 0;
+      face.ncgChild = 0;
+      face.interfaceFaceChild = 0;
 
-      if (this->Faces->value[i - 1].c0 >= 0)
+      if (face.c0 >= 0)
       {
-        if (this->Cells->value.size() <= static_cast<std::size_t>(this->Faces->value[i - 1].c0))
+        if (this->Cells.size() <= static_cast<std::size_t>(face.c0))
         {
-          this->Cells->value.resize(this->Faces->value[i - 1].c0 + 1);
+          this->Cells.resize(face.c0 + 1);
         }
 
-        this->Cells->value[this->Faces->value[i - 1].c0].faces.push_back(i - 1);
+        this->Cells[face.c0].faceIndices.push_back(i - 1);
       }
 
-      if (this->Faces->value[i - 1].c1 >= 0)
+      if (face.c1 >= 0)
       {
-        if (this->Cells->value.size() <= static_cast<std::size_t>(this->Faces->value[i - 1].c1))
+        if (this->Cells.size() <= static_cast<std::size_t>(face.c1))
         {
-          this->Cells->value.resize(this->Faces->value[i - 1].c1 + 1);
+          this->Cells.resize(face.c1 + 1);
         }
 
-        this->Cells->value[this->Faces->value[i - 1].c1].faces.push_back(i - 1);
+        this->Cells[face.c1].faceIndices.push_back(i - 1);
       }
     }
   }
@@ -2841,12 +2722,12 @@ bool vtkFLUENTReader::GetFacesAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetFacesBinary()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int zoneId, firstIndex, lastIndex, bcType, faceType;
   sscanf(info.c_str(), "%x %x %x %x %x", &zoneId, &firstIndex, &lastIndex, &bcType, &faceType);
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', 7);
   int numberOfNodesInFace = 0;
   size_t ptr = dstart + 1;
   for (unsigned int i = firstIndex; i <= lastIndex; i++)
@@ -2861,49 +2742,51 @@ void vtkFLUENTReader::GetFacesBinary()
       numberOfNodesInFace = faceType;
     }
 
-    this->Faces->value[i - 1].nodes.resize(numberOfNodesInFace);
+    Face& face = this->Faces[i - 1];
+
+    face.nodeIndices.resize(numberOfNodesInFace);
 
     for (int k = 0; k < numberOfNodesInFace; k++)
     {
-      this->Faces->value[i - 1].nodes[k] = this->GetCaseBufferInt(static_cast<int>(ptr));
-      this->Faces->value[i - 1].nodes[k]--;
+      face.nodeIndices[k] = this->GetCaseBufferInt(static_cast<int>(ptr));
+      face.nodeIndices[k]--;
       ptr = ptr + 4;
     }
 
-    this->Faces->value[i - 1].c0 = this->GetCaseBufferInt(static_cast<int>(ptr));
+    face.c0 = this->GetCaseBufferInt(static_cast<int>(ptr));
     ptr = ptr + 4;
-    this->Faces->value[i - 1].c1 = this->GetCaseBufferInt(static_cast<int>(ptr));
+    face.c1 = this->GetCaseBufferInt(static_cast<int>(ptr));
     ptr = ptr + 4;
-    this->Faces->value[i - 1].c0--;
-    this->Faces->value[i - 1].c1--;
-    this->Faces->value[i - 1].type = numberOfNodesInFace;
-    this->Faces->value[i - 1].zoneId = zoneId;
-    this->Faces->value[i - 1].periodicShadow = 0;
-    this->Faces->value[i - 1].parent = 0;
-    this->Faces->value[i - 1].child = 0;
-    this->Faces->value[i - 1].interfaceFaceParent = 0;
-    this->Faces->value[i - 1].ncgParent = 0;
-    this->Faces->value[i - 1].ncgChild = 0;
-    this->Faces->value[i - 1].interfaceFaceChild = 0;
+    face.c0--;
+    face.c1--;
+    face.type = numberOfNodesInFace;
+    face.zoneId = zoneId;
+    face.periodicShadow = 0;
+    face.parent = 0;
+    face.child = 0;
+    face.interfaceFaceParent = 0;
+    face.ncgParent = 0;
+    face.ncgChild = 0;
+    face.interfaceFaceChild = 0;
 
-    if (this->Faces->value[i - 1].c0 >= 0)
+    if (face.c0 >= 0)
     {
-      if (this->Cells->value.size() <= static_cast<std::size_t>(this->Faces->value[i - 1].c0))
+      if (this->Cells.size() <= static_cast<std::size_t>(face.c0))
       {
-        this->Cells->value.resize(this->Faces->value[i - 1].c0 + 1);
+        this->Cells.resize(face.c0 + 1);
       }
 
-      this->Cells->value[this->Faces->value[i - 1].c0].faces.push_back(i - 1);
+      this->Cells[face.c0].faceIndices.push_back(i - 1);
     }
 
-    if (this->Faces->value[i - 1].c1 >= 0)
+    if (face.c1 >= 0)
     {
-      if (this->Cells->value.size() <= static_cast<std::size_t>(this->Faces->value[i - 1].c1))
+      if (this->Cells.size() <= static_cast<std::size_t>(face.c1))
       {
-        this->Cells->value.resize(this->Faces->value[i - 1].c1 + 1);
+        this->Cells.resize(face.c1 + 1);
       }
 
-      this->Cells->value[this->Faces->value[i - 1].c1].faces.push_back(i - 1);
+      this->Cells[face.c1].faceIndices.push_back(i - 1);
     }
   }
 }
@@ -2912,9 +2795,9 @@ void vtkFLUENTReader::GetFacesBinary()
 void vtkFLUENTReader::ReadZone()
 {
   // zones format: (45 (zone-id zone-type zone-name domain-id)())
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
 
   std::string zoneIdString, zoneType, zoneName, domainIdString;
   std::stringstream infoStream(info);
@@ -2935,15 +2818,15 @@ void vtkFLUENTReader::ReadZone()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int firstIndex, lastIndex, periodicZone, shadowZone;
   sscanf(info.c_str(), "%x %x %x %x", &firstIndex, &lastIndex, &periodicZone, &shadowZone);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
-  size_t dend = this->CaseBuffer->value.find(')', dstart + 1);
-  std::string pdata = this->CaseBuffer->value.substr(dstart + 1, dend - start - 1);
+  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dend = this->CaseBuffer.find(')', dstart + 1);
+  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
   std::stringstream pdatastream(pdata);
 
   int faceIndex1, faceIndex2;
@@ -2951,20 +2834,20 @@ void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
   {
     pdatastream >> hex >> faceIndex1;
     pdatastream >> hex >> faceIndex2;
-    this->Faces->value[faceIndex1].periodicShadow = 1;
+    this->Faces[faceIndex1].periodicShadow = 1;
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetPeriodicShadowFacesBinary()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int firstIndex, lastIndex, periodicZone, shadowZone;
   sscanf(info.c_str(), "%x %x %x %x", &firstIndex, &lastIndex, &periodicZone, &shadowZone);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', 7);
   size_t ptr = dstart + 1;
 
   // int faceIndex1, faceIndex2;
@@ -2982,26 +2865,26 @@ void vtkFLUENTReader::GetPeriodicShadowFacesBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellTreeAscii()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int cellId0, cellId1, parentZoneId, childZoneId;
   sscanf(info.c_str(), "%x %x %x %x", &cellId0, &cellId1, &parentZoneId, &childZoneId);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
-  size_t dend = this->CaseBuffer->value.find(')', dstart + 1);
-  std::string pdata = this->CaseBuffer->value.substr(dstart + 1, dend - start - 1);
+  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dend = this->CaseBuffer.find(')', dstart + 1);
+  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
   std::stringstream pdatastream(pdata);
 
   int numberOfKids, kid;
   for (unsigned int i = cellId0; i <= cellId1; i++)
   {
-    this->Cells->value[i - 1].parent = 1;
+    this->Cells[i - 1].parent = 1;
     pdatastream >> hex >> numberOfKids;
     for (int j = 0; j < numberOfKids; j++)
     {
       pdatastream >> hex >> kid;
-      this->Cells->value[kid - 1].child = 1;
+      this->Cells[kid - 1].child = 1;
     }
   }
 }
@@ -3010,26 +2893,26 @@ void vtkFLUENTReader::GetCellTreeAscii()
 void vtkFLUENTReader::GetCellTreeBinary()
 {
 
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int cellId0, cellId1, parentZoneId, childZoneId;
   sscanf(info.c_str(), "%x %x %x %x", &cellId0, &cellId1, &parentZoneId, &childZoneId);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', 7);
   size_t ptr = dstart + 1;
 
   int numberOfKids, kid;
   for (unsigned int i = cellId0; i <= cellId1; i++)
   {
-    this->Cells->value[i - 1].parent = 1;
+    this->Cells[i - 1].parent = 1;
     numberOfKids = this->GetCaseBufferInt(static_cast<int>(ptr));
     ptr = ptr + 4;
     for (int j = 0; j < numberOfKids; j++)
     {
       kid = this->GetCaseBufferInt(static_cast<int>(ptr));
       ptr = ptr + 4;
-      this->Cells->value[kid - 1].child = 1;
+      this->Cells[kid - 1].child = 1;
     }
   }
 }
@@ -3037,26 +2920,26 @@ void vtkFLUENTReader::GetCellTreeBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetFaceTreeAscii()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int faceId0, faceId1, parentZoneId, childZoneId;
   sscanf(info.c_str(), "%x %x %x %x", &faceId0, &faceId1, &parentZoneId, &childZoneId);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
-  size_t dend = this->CaseBuffer->value.find(')', dstart + 1);
-  std::string pdata = this->CaseBuffer->value.substr(dstart + 1, dend - start - 1);
+  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dend = this->CaseBuffer.find(')', dstart + 1);
+  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
   std::stringstream pdatastream(pdata);
 
   int numberOfKids, kid;
   for (unsigned int i = faceId0; i <= faceId1; i++)
   {
-    this->Faces->value[i - 1].parent = 1;
+    this->Faces[i - 1].parent = 1;
     pdatastream >> hex >> numberOfKids;
     for (int j = 0; j < numberOfKids; j++)
     {
       pdatastream >> hex >> kid;
-      this->Faces->value[kid - 1].child = 1;
+      this->Faces[kid - 1].child = 1;
     }
   }
 }
@@ -3064,26 +2947,26 @@ void vtkFLUENTReader::GetFaceTreeAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetFaceTreeBinary()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int faceId0, faceId1, parentZoneId, childZoneId;
   sscanf(info.c_str(), "%x %x %x %x", &faceId0, &faceId1, &parentZoneId, &childZoneId);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', 7);
   size_t ptr = dstart + 1;
 
   int numberOfKids, kid;
   for (unsigned int i = faceId0; i <= faceId1; i++)
   {
-    this->Faces->value[i - 1].parent = 1;
+    this->Faces[i - 1].parent = 1;
     numberOfKids = this->GetCaseBufferInt(static_cast<int>(ptr));
     ptr = ptr + 4;
     for (int j = 0; j < numberOfKids; j++)
     {
       kid = this->GetCaseBufferInt(static_cast<int>(ptr));
       ptr = ptr + 4;
-      this->Faces->value[kid - 1].child = 1;
+      this->Faces[kid - 1].child = 1;
     }
   }
 }
@@ -3091,15 +2974,15 @@ void vtkFLUENTReader::GetFaceTreeBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int faceId0, faceId1;
   sscanf(info.c_str(), "%x %x", &faceId0, &faceId1);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
-  size_t dend = this->CaseBuffer->value.find(')', dstart + 1);
-  std::string pdata = this->CaseBuffer->value.substr(dstart + 1, dend - start - 1);
+  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dend = this->CaseBuffer.find(')', dstart + 1);
+  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
   std::stringstream pdatastream(pdata);
 
   int parentId0, parentId1;
@@ -3107,22 +2990,22 @@ void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
   {
     pdatastream >> hex >> parentId0;
     pdatastream >> hex >> parentId1;
-    this->Faces->value[parentId0 - 1].interfaceFaceParent = 1;
-    this->Faces->value[parentId1 - 1].interfaceFaceParent = 1;
-    this->Faces->value[i - 1].interfaceFaceChild = 1;
+    this->Faces[parentId0 - 1].interfaceFaceParent = 1;
+    this->Faces[parentId1 - 1].interfaceFaceParent = 1;
+    this->Faces[i - 1].interfaceFaceChild = 1;
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetInterfaceFaceParentsBinary()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   unsigned int faceId0, faceId1;
   sscanf(info.c_str(), "%x %x", &faceId0, &faceId1);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', 7);
   size_t ptr = dstart + 1;
 
   int parentId0, parentId1;
@@ -3132,24 +3015,24 @@ void vtkFLUENTReader::GetInterfaceFaceParentsBinary()
     ptr = ptr + 4;
     parentId1 = this->GetCaseBufferInt(static_cast<int>(ptr));
     ptr = ptr + 4;
-    this->Faces->value[parentId0 - 1].interfaceFaceParent = 1;
-    this->Faces->value[parentId1 - 1].interfaceFaceParent = 1;
-    this->Faces->value[i - 1].interfaceFaceChild = 1;
+    this->Faces[parentId0 - 1].interfaceFaceParent = 1;
+    this->Faces[parentId1 - 1].interfaceFaceParent = 1;
+    this->Faces[i - 1].interfaceFaceChild = 1;
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
   int kidId, parentId, numberOfFaces;
   sscanf(info.c_str(), "%d %d %d", &kidId, &parentId, &numberOfFaces);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
-  size_t dend = this->CaseBuffer->value.find(')', dstart + 1);
-  std::string pdata = this->CaseBuffer->value.substr(dstart + 1, dend - start - 1);
+  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dend = this->CaseBuffer.find(')', dstart + 1);
+  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
   std::stringstream pdatastream(pdata);
 
   int child, parent;
@@ -3157,21 +3040,21 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
   {
     pdatastream >> hex >> child;
     pdatastream >> hex >> parent;
-    this->Faces->value[child - 1].ncgChild = 1;
-    this->Faces->value[parent - 1].ncgParent = 1;
+    this->Faces[child - 1].ncgChild = 1;
+    this->Faces[parent - 1].ncgParent = 1;
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationBinary()
 {
-  size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = CaseBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->CaseBuffer.find('(', 1);
+  size_t end = this->CaseBuffer.find(')', 1);
+  std::string info = CaseBuffer.substr(start + 1, end - start - 1);
   int kidId, parentId, numberOfFaces;
   sscanf(info.c_str(), "%d %d %d", &kidId, &parentId, &numberOfFaces);
 
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', 7);
   size_t ptr = dstart + 1;
 
   int child, parent;
@@ -3181,8 +3064,8 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationBinary()
     ptr = ptr + 4;
     parent = this->GetCaseBufferInt(static_cast<int>(ptr));
     ptr = ptr + 4;
-    this->Faces->value[child - 1].ncgChild = 1;
-    this->Faces->value[parent - 1].ncgParent = 1;
+    this->Faces[child - 1].ncgChild = 1;
+    this->Faces[parent - 1].ncgParent = 1;
   }
 }
 
@@ -3191,34 +3074,33 @@ void vtkFLUENTReader::CleanCells()
 {
 
   std::vector<int> t;
-  for (size_t i = 0; i < Cells->value.size(); i++)
+  for (Cell& cell : this->Cells)
   {
-
-    if (((this->Cells->value[i].type == 1) && (this->Cells->value[i].faces.size() != 3)) ||
-      ((this->Cells->value[i].type == 2) && (this->Cells->value[i].faces.size() != 4)) ||
-      ((this->Cells->value[i].type == 3) && (this->Cells->value[i].faces.size() != 4)) ||
-      ((this->Cells->value[i].type == 4) && (this->Cells->value[i].faces.size() != 6)) ||
-      ((this->Cells->value[i].type == 5) && (this->Cells->value[i].faces.size() != 5)) ||
-      ((this->Cells->value[i].type == 6) && (this->Cells->value[i].faces.size() != 5)))
+    if (((cell.type == 1) && (cell.faceIndices.size() != 3)) ||
+      ((cell.type == 2) && (cell.faceIndices.size() != 4)) ||
+      ((cell.type == 3) && (cell.faceIndices.size() != 4)) ||
+      ((cell.type == 4) && (cell.faceIndices.size() != 6)) ||
+      ((cell.type == 5) && (cell.faceIndices.size() != 5)) ||
+      ((cell.type == 6) && (cell.faceIndices.size() != 5)))
     {
 
       // Copy faces
       t.clear();
-      for (size_t j = 0; j < this->Cells->value[i].faces.size(); j++)
+      for (size_t j = 0; j < cell.faceIndices.size(); j++)
       {
-        t.push_back(this->Cells->value[i].faces[j]);
+        t.push_back(cell.faceIndices[j]);
       }
 
       // Clear Faces
-      this->Cells->value[i].faces.clear();
+      cell.faceIndices.clear();
 
       // Copy the faces that are not flagged back into the cell
       for (size_t j = 0; j < t.size(); j++)
       {
-        if ((this->Faces->value[t[j]].child == 0) && (this->Faces->value[t[j]].ncgChild == 0) &&
-          (this->Faces->value[t[j]].interfaceFaceChild == 0))
+        if ((this->Faces[t[j]].child == 0) && (this->Faces[t[j]].ncgChild == 0) &&
+          (this->Faces[t[j]].interfaceFaceChild == 0))
         {
-          this->Cells->value[i].faces.push_back(t[j]);
+          cell.faceIndices.push_back(t[j]);
         }
       }
     }
@@ -3228,37 +3110,37 @@ void vtkFLUENTReader::CleanCells()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::PopulateCellNodes()
 {
-  for (size_t i = 0; i < this->Cells->value.size(); i++)
+  for (size_t cellIdx = 0; cellIdx < this->Cells.size(); cellIdx++)
   {
-    const vtkIdType id = static_cast<vtkIdType>(i);
-    switch (this->Cells->value[i].type)
+    const Cell& cell = this->Cells[cellIdx];
+    switch (cell.type)
     {
       case 1: // Triangle
-        this->PopulateTriangleCell(id);
+        this->PopulateTriangleCell(cellIdx);
         break;
 
       case 2: // Tetrahedron
-        this->PopulateTetraCell(id);
+        this->PopulateTetraCell(cellIdx);
         break;
 
       case 3: // Quadrilateral
-        this->PopulateQuadCell(id);
+        this->PopulateQuadCell(cellIdx);
         break;
 
       case 4: // Hexahedral
-        this->PopulateHexahedronCell(id);
+        this->PopulateHexahedronCell(cellIdx);
         break;
 
       case 5: // Pyramid
-        this->PopulatePyramidCell(id);
+        this->PopulatePyramidCell(cellIdx);
         break;
 
       case 6: // Wedge
-        this->PopulateWedgeCell(id);
+        this->PopulateWedgeCell(cellIdx);
         break;
 
       case 7: // Polyhedron
-        this->PopulatePolyhedronCell(id);
+        this->PopulatePolyhedronCell(cellIdx);
         break;
     }
   }
@@ -3276,11 +3158,11 @@ int vtkFLUENTReader::GetCaseBufferInt(int ptr)
   {
     if (this->GetSwapBytes())
     {
-      mi.c[3 - j] = this->CaseBuffer->value.at(ptr + j);
+      mi.c[3 - j] = this->CaseBuffer.at(ptr + j);
     }
     else
     {
-      mi.c[j] = this->CaseBuffer->value.at(ptr + j);
+      mi.c[j] = this->CaseBuffer.at(ptr + j);
     }
   }
   return mi.i;
@@ -3298,11 +3180,11 @@ float vtkFLUENTReader::GetCaseBufferFloat(int ptr)
   {
     if (this->GetSwapBytes())
     {
-      mf.c[3 - j] = this->CaseBuffer->value.at(ptr + j);
+      mf.c[3 - j] = this->CaseBuffer.at(ptr + j);
     }
     else
     {
-      mf.c[j] = this->CaseBuffer->value.at(ptr + j);
+      mf.c[j] = this->CaseBuffer.at(ptr + j);
     }
   }
   return mf.f;
@@ -3320,170 +3202,164 @@ double vtkFLUENTReader::GetCaseBufferDouble(int ptr)
   {
     if (this->GetSwapBytes())
     {
-      md.c[7 - j] = this->CaseBuffer->value.at(ptr + j);
+      md.c[7 - j] = this->CaseBuffer.at(ptr + j);
     }
     else
     {
-      md.c[j] = this->CaseBuffer->value.at(ptr + j);
+      md.c[j] = this->CaseBuffer.at(ptr + j);
     }
   }
   return md.d;
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::PopulateTriangleCell(int i)
+void vtkFLUENTReader::PopulateTriangleCell(size_t cellIdx)
 {
-  this->Cells->value[i].nodes.resize(3);
-  if (this->Faces->value[this->Cells->value[i].faces[0]].c0 == i)
+  Cell& cell = this->Cells[cellIdx];
+
+  cell.nodeIndices.resize(3);
+  if (this->Faces[cell.faceIndices[0]].c0 == static_cast<int>(cellIdx))
   {
-    this->Cells->value[i].nodes[0] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
-    this->Cells->value[i].nodes[1] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
+    cell.nodeIndices[0] = this->Faces[cell.faceIndices[0]].nodeIndices[0];
+    cell.nodeIndices[1] = this->Faces[cell.faceIndices[0]].nodeIndices[1];
   }
   else
   {
-    this->Cells->value[i].nodes[1] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
-    this->Cells->value[i].nodes[0] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
+    cell.nodeIndices[1] = this->Faces[cell.faceIndices[0]].nodeIndices[0];
+    cell.nodeIndices[0] = this->Faces[cell.faceIndices[0]].nodeIndices[1];
   }
 
-  if (this->Faces->value[this->Cells->value[i].faces[1]].nodes[0] !=
-      this->Cells->value[i].nodes[0] &&
-    this->Faces->value[this->Cells->value[i].faces[1]].nodes[0] != this->Cells->value[i].nodes[1])
+  if (this->Faces[cell.faceIndices[1]].nodeIndices[0] != cell.nodeIndices[0] &&
+    this->Faces[cell.faceIndices[1]].nodeIndices[0] != cell.nodeIndices[1])
   {
-    this->Cells->value[i].nodes[2] = this->Faces->value[this->Cells->value[i].faces[1]].nodes[0];
+    cell.nodeIndices[2] = this->Faces[cell.faceIndices[1]].nodeIndices[0];
   }
   else
   {
-    this->Cells->value[i].nodes[2] = this->Faces->value[this->Cells->value[i].faces[1]].nodes[1];
+    cell.nodeIndices[2] = this->Faces[cell.faceIndices[1]].nodeIndices[1];
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::PopulateTetraCell(int i)
+void vtkFLUENTReader::PopulateTetraCell(size_t cellIdx)
 {
-  this->Cells->value[i].nodes.resize(4);
+  Cell& cell = this->Cells[cellIdx];
+  cell.nodeIndices.resize(4);
 
-  if (this->Faces->value[this->Cells->value[i].faces[0]].c0 == i)
+  if (this->Faces[cell.faceIndices[0]].c0 == static_cast<int>(cellIdx))
   {
-    this->Cells->value[i].nodes[0] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
-    this->Cells->value[i].nodes[1] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
-    this->Cells->value[i].nodes[2] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[2];
+    cell.nodeIndices[0] = this->Faces[cell.faceIndices[0]].nodeIndices[0];
+    cell.nodeIndices[1] = this->Faces[cell.faceIndices[0]].nodeIndices[1];
+    cell.nodeIndices[2] = this->Faces[cell.faceIndices[0]].nodeIndices[2];
   }
   else
   {
-    this->Cells->value[i].nodes[2] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
-    this->Cells->value[i].nodes[1] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
-    this->Cells->value[i].nodes[0] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[2];
+    cell.nodeIndices[2] = this->Faces[cell.faceIndices[0]].nodeIndices[0];
+    cell.nodeIndices[1] = this->Faces[cell.faceIndices[0]].nodeIndices[1];
+    cell.nodeIndices[0] = this->Faces[cell.faceIndices[0]].nodeIndices[2];
   }
 
-  if (this->Faces->value[this->Cells->value[i].faces[1]].nodes[0] !=
-      this->Cells->value[i].nodes[0] &&
-    this->Faces->value[this->Cells->value[i].faces[1]].nodes[0] != this->Cells->value[i].nodes[1] &&
-    this->Faces->value[this->Cells->value[i].faces[1]].nodes[0] != this->Cells->value[i].nodes[2])
+  if (this->Faces[cell.faceIndices[1]].nodeIndices[0] != cell.nodeIndices[0] &&
+    this->Faces[cell.faceIndices[1]].nodeIndices[0] != cell.nodeIndices[1] &&
+    this->Faces[cell.faceIndices[1]].nodeIndices[0] != cell.nodeIndices[2])
   {
-    this->Cells->value[i].nodes[3] = this->Faces->value[this->Cells->value[i].faces[1]].nodes[0];
+    cell.nodeIndices[3] = this->Faces[cell.faceIndices[1]].nodeIndices[0];
   }
-  else if (this->Faces->value[this->Cells->value[i].faces[1]].nodes[1] !=
-      this->Cells->value[i].nodes[0] &&
-    this->Faces->value[this->Cells->value[i].faces[1]].nodes[1] != this->Cells->value[i].nodes[1] &&
-    this->Faces->value[this->Cells->value[i].faces[1]].nodes[1] != this->Cells->value[i].nodes[2])
+  else if (this->Faces[cell.faceIndices[1]].nodeIndices[1] != cell.nodeIndices[0] &&
+    this->Faces[cell.faceIndices[1]].nodeIndices[1] != cell.nodeIndices[1] &&
+    this->Faces[cell.faceIndices[1]].nodeIndices[1] != cell.nodeIndices[2])
   {
-    this->Cells->value[i].nodes[3] = this->Faces->value[this->Cells->value[i].faces[1]].nodes[1];
+    cell.nodeIndices[3] = this->Faces[cell.faceIndices[1]].nodeIndices[1];
   }
   else
   {
-    this->Cells->value[i].nodes[3] = this->Faces->value[this->Cells->value[i].faces[1]].nodes[2];
+    cell.nodeIndices[3] = this->Faces[cell.faceIndices[1]].nodeIndices[2];
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::PopulateQuadCell(int i)
+void vtkFLUENTReader::PopulateQuadCell(size_t cellIdx)
 {
-  this->Cells->value[i].nodes.resize(4);
+  Cell& cell = this->Cells[cellIdx];
 
-  if (this->Faces->value[this->Cells->value[i].faces[0]].c0 == i)
+  cell.nodeIndices.resize(4);
+
+  if (this->Faces[cell.faceIndices[0]].c0 == static_cast<int>(cellIdx))
   {
-    this->Cells->value[i].nodes[0] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
-    this->Cells->value[i].nodes[1] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
+    cell.nodeIndices[0] = this->Faces[cell.faceIndices[0]].nodeIndices[0];
+    cell.nodeIndices[1] = this->Faces[cell.faceIndices[0]].nodeIndices[1];
   }
   else
   {
-    this->Cells->value[i].nodes[1] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
-    this->Cells->value[i].nodes[0] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
+    cell.nodeIndices[1] = this->Faces[cell.faceIndices[0]].nodeIndices[0];
+    cell.nodeIndices[0] = this->Faces[cell.faceIndices[0]].nodeIndices[1];
   }
 
-  if ((this->Faces->value[this->Cells->value[i].faces[1]].nodes[0] !=
-          this->Cells->value[i].nodes[0] &&
-        this->Faces->value[this->Cells->value[i].faces[1]].nodes[0] !=
-          this->Cells->value[i].nodes[1]) &&
-    (this->Faces->value[this->Cells->value[i].faces[1]].nodes[1] !=
-        this->Cells->value[i].nodes[0] &&
-      this->Faces->value[this->Cells->value[i].faces[1]].nodes[1] !=
-        this->Cells->value[i].nodes[1]))
+  if ((this->Faces[cell.faceIndices[1]].nodeIndices[0] != cell.nodeIndices[0] &&
+        this->Faces[cell.faceIndices[1]].nodeIndices[0] != cell.nodeIndices[1]) &&
+    (this->Faces[cell.faceIndices[1]].nodeIndices[1] != cell.nodeIndices[0] &&
+      this->Faces[cell.faceIndices[1]].nodeIndices[1] != cell.nodeIndices[1]))
   {
-    if (this->Faces->value[this->Cells->value[i].faces[1]].c0 == i)
+    if (this->Faces[cell.faceIndices[1]].c0 == static_cast<int>(cellIdx))
     {
-      this->Cells->value[i].nodes[2] = this->Faces->value[this->Cells->value[i].faces[1]].nodes[0];
-      this->Cells->value[i].nodes[3] = this->Faces->value[this->Cells->value[i].faces[1]].nodes[1];
+      cell.nodeIndices[2] = this->Faces[cell.faceIndices[1]].nodeIndices[0];
+      cell.nodeIndices[3] = this->Faces[cell.faceIndices[1]].nodeIndices[1];
     }
     else
     {
-      this->Cells->value[i].nodes[3] = this->Faces->value[this->Cells->value[i].faces[1]].nodes[0];
-      this->Cells->value[i].nodes[2] = this->Faces->value[this->Cells->value[i].faces[1]].nodes[1];
+      cell.nodeIndices[3] = this->Faces[cell.faceIndices[1]].nodeIndices[0];
+      cell.nodeIndices[2] = this->Faces[cell.faceIndices[1]].nodeIndices[1];
     }
   }
-  else if ((this->Faces->value[this->Cells->value[i].faces[2]].nodes[0] !=
-               this->Cells->value[i].nodes[0] &&
-             this->Faces->value[this->Cells->value[i].faces[2]].nodes[0] !=
-               this->Cells->value[i].nodes[1]) &&
-    (this->Faces->value[this->Cells->value[i].faces[2]].nodes[1] !=
-        this->Cells->value[i].nodes[0] &&
-      this->Faces->value[this->Cells->value[i].faces[2]].nodes[1] !=
-        this->Cells->value[i].nodes[1]))
+  else if ((this->Faces[cell.faceIndices[2]].nodeIndices[0] != cell.nodeIndices[0] &&
+             this->Faces[cell.faceIndices[2]].nodeIndices[0] != cell.nodeIndices[1]) &&
+    (this->Faces[cell.faceIndices[2]].nodeIndices[1] != cell.nodeIndices[0] &&
+      this->Faces[cell.faceIndices[2]].nodeIndices[1] != cell.nodeIndices[1]))
   {
-    if (this->Faces->value[this->Cells->value[i].faces[2]].c0 == i)
+    if (this->Faces[cell.faceIndices[2]].c0 == static_cast<int>(cellIdx))
     {
-      this->Cells->value[i].nodes[2] = this->Faces->value[this->Cells->value[i].faces[2]].nodes[0];
-      this->Cells->value[i].nodes[3] = this->Faces->value[this->Cells->value[i].faces[2]].nodes[1];
+      cell.nodeIndices[2] = this->Faces[cell.faceIndices[2]].nodeIndices[0];
+      cell.nodeIndices[3] = this->Faces[cell.faceIndices[2]].nodeIndices[1];
     }
     else
     {
-      this->Cells->value[i].nodes[3] = this->Faces->value[this->Cells->value[i].faces[2]].nodes[0];
-      this->Cells->value[i].nodes[2] = this->Faces->value[this->Cells->value[i].faces[2]].nodes[1];
+      cell.nodeIndices[3] = this->Faces[cell.faceIndices[2]].nodeIndices[0];
+      cell.nodeIndices[2] = this->Faces[cell.faceIndices[2]].nodeIndices[1];
     }
   }
   else
   {
-    if (this->Faces->value[this->Cells->value[i].faces[3]].c0 == i)
+    if (this->Faces[cell.faceIndices[3]].c0 == static_cast<int>(cellIdx))
     {
-      this->Cells->value[i].nodes[2] = this->Faces->value[this->Cells->value[i].faces[3]].nodes[0];
-      this->Cells->value[i].nodes[3] = this->Faces->value[this->Cells->value[i].faces[3]].nodes[1];
+      cell.nodeIndices[2] = this->Faces[cell.faceIndices[3]].nodeIndices[0];
+      cell.nodeIndices[3] = this->Faces[cell.faceIndices[3]].nodeIndices[1];
     }
     else
     {
-      this->Cells->value[i].nodes[3] = this->Faces->value[this->Cells->value[i].faces[3]].nodes[0];
-      this->Cells->value[i].nodes[2] = this->Faces->value[this->Cells->value[i].faces[3]].nodes[1];
+      cell.nodeIndices[3] = this->Faces[cell.faceIndices[3]].nodeIndices[0];
+      cell.nodeIndices[2] = this->Faces[cell.faceIndices[3]].nodeIndices[1];
     }
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::PopulateHexahedronCell(int i)
+void vtkFLUENTReader::PopulateHexahedronCell(size_t cellIdx)
 {
-  this->Cells->value[i].nodes.resize(8);
+  Cell& cell = this->Cells[cellIdx];
+  cell.nodeIndices.resize(8);
 
-  if (this->Faces->value[this->Cells->value[i].faces[0]].c0 == i)
+  if (this->Faces[cell.faceIndices[0]].c0 == static_cast<int>(cellIdx))
   {
     for (int j = 0; j < 4; j++)
     {
-      this->Cells->value[i].nodes[j] = this->Faces->value[this->Cells->value[i].faces[0]].nodes[j];
+      cell.nodeIndices[j] = this->Faces[cell.faceIndices[0]].nodeIndices[j];
     }
   }
   else
   {
     for (int j = 3; j >= 0; j--)
     {
-      this->Cells->value[i].nodes[3 - j] =
-        this->Faces->value[this->Cells->value[i].faces[0]].nodes[j];
+      cell.nodeIndices[3 - j] = this->Faces[cell.faceIndices[0]].nodeIndices[j];
     }
   }
 
@@ -3493,34 +3369,28 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
     int flag = 0;
     for (int k = 0; k < 4; k++)
     {
-      if ((this->Cells->value[i].nodes[0] ==
-            this->Faces->value[this->Cells->value[i].faces[j]].nodes[k]) ||
-        (this->Cells->value[i].nodes[1] ==
-          this->Faces->value[this->Cells->value[i].faces[j]].nodes[k]) ||
-        (this->Cells->value[i].nodes[2] ==
-          this->Faces->value[this->Cells->value[i].faces[j]].nodes[k]) ||
-        (this->Cells->value[i].nodes[3] ==
-          this->Faces->value[this->Cells->value[i].faces[j]].nodes[k]))
+      if ((cell.nodeIndices[0] == this->Faces[cell.faceIndices[j]].nodeIndices[k]) ||
+        (cell.nodeIndices[1] == this->Faces[cell.faceIndices[j]].nodeIndices[k]) ||
+        (cell.nodeIndices[2] == this->Faces[cell.faceIndices[j]].nodeIndices[k]) ||
+        (cell.nodeIndices[3] == this->Faces[cell.faceIndices[j]].nodeIndices[k]))
       {
         flag = 1;
       }
     }
     if (flag == 0)
     {
-      if (this->Faces->value[this->Cells->value[i].faces[j]].c1 == i)
+      if (this->Faces[cell.faceIndices[j]].c1 == static_cast<int>(cellIdx))
       {
         for (int k = 4; k < 8; k++)
         {
-          this->Cells->value[i].nodes[k] =
-            this->Faces->value[this->Cells->value[i].faces[j]].nodes[k - 4];
+          cell.nodeIndices[k] = this->Faces[cell.faceIndices[j]].nodeIndices[k - 4];
         }
       }
       else
       {
         for (int k = 7; k >= 4; k--)
         {
-          this->Cells->value[i].nodes[k] =
-            this->Faces->value[this->Cells->value[i].faces[j]].nodes[7 - k];
+          cell.nodeIndices[k] = this->Faces[cell.faceIndices[j]].nodeIndices[7 - k];
         }
       }
     }
@@ -3534,51 +3404,49 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
     int flag1 = 0;
     for (int k = 0; k < 4; k++)
     {
-      if (this->Cells->value[i].nodes[0] ==
-        this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
+      if (cell.nodeIndices[0] == this->Faces[cell.faceIndices[j]].nodeIndices[k])
       {
         flag0 = 1;
       }
-      if (this->Cells->value[i].nodes[1] ==
-        this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
+      if (cell.nodeIndices[1] == this->Faces[cell.faceIndices[j]].nodeIndices[k])
       {
         flag1 = 1;
       }
     }
     if ((flag0 == 1) && (flag1 == 1))
     {
-      if (this->Faces->value[this->Cells->value[i].faces[j]].c0 == i)
+      if (this->Faces[cell.faceIndices[j]].c0 == static_cast<int>(cellIdx))
       {
         for (int k = 0; k < 4; k++)
         {
-          f01[k] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
+          f01[k] = this->Faces[cell.faceIndices[j]].nodeIndices[k];
         }
       }
       else
       {
         for (int k = 3; k >= 0; k--)
         {
-          f01[k] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
+          f01[k] = this->Faces[cell.faceIndices[j]].nodeIndices[k];
         }
       }
     }
   }
 
-  //  Find the face with points 0 and 3 in them.
+  //  Find faces with points 0 and 3 in them.
   int f03[4] = { -1, -1, -1, -1 };
-  for (int j = 1; j < 6; j++)
+  for (int faceIdx = 1; faceIdx < 6; ++faceIdx)
   {
+    const Face& candidateFace = this->Faces[cell.faceIndices[faceIdx]];
+
     int flag0 = 0;
     int flag1 = 0;
     for (int k = 0; k < 4; k++)
     {
-      if (this->Cells->value[i].nodes[0] ==
-        this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
+      if (cell.nodeIndices[0] == candidateFace.nodeIndices[k])
       {
         flag0 = 1;
       }
-      if (this->Cells->value[i].nodes[3] ==
-        this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
+      if (cell.nodeIndices[3] == candidateFace.nodeIndices[k])
       {
         flag1 = 1;
       }
@@ -3586,18 +3454,18 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
 
     if ((flag0 == 1) && (flag1 == 1))
     {
-      if (this->Faces->value[this->Cells->value[i].faces[j]].c0 == i)
+      if (candidateFace.c0 == static_cast<int>(cellIdx))
       {
         for (int k = 0; k < 4; k++)
         {
-          f03[k] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
+          f03[k] = candidateFace.nodeIndices[k];
         }
       }
       else
       {
         for (int k = 3; k >= 0; k--)
         {
-          f03[k] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
+          f03[k] = candidateFace.nodeIndices[k];
         }
       }
     }
@@ -3607,7 +3475,7 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
   int p4 = 0;
   for (int k = 0; k < 4; k++)
   {
-    if (f01[k] != this->Cells->value[i].nodes[0])
+    if (f01[k] != cell.nodeIndices[0])
     {
       for (int n = 0; n < 4; n++)
       {
@@ -3622,80 +3490,78 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
   // Since we know point 4 now we check to see if points
   //  4, 5, 6, and 7 are in the correct positions.
   int t[8];
-  t[4] = this->Cells->value[i].nodes[4];
-  t[5] = this->Cells->value[i].nodes[5];
-  t[6] = this->Cells->value[i].nodes[6];
-  t[7] = this->Cells->value[i].nodes[7];
-  if (p4 == this->Cells->value[i].nodes[5])
+  t[4] = cell.nodeIndices[4];
+  t[5] = cell.nodeIndices[5];
+  t[6] = cell.nodeIndices[6];
+  t[7] = cell.nodeIndices[7];
+  if (p4 == cell.nodeIndices[5])
   {
-    this->Cells->value[i].nodes[5] = t[6];
-    this->Cells->value[i].nodes[6] = t[7];
-    this->Cells->value[i].nodes[7] = t[4];
-    this->Cells->value[i].nodes[4] = t[5];
+    cell.nodeIndices[5] = t[6];
+    cell.nodeIndices[6] = t[7];
+    cell.nodeIndices[7] = t[4];
+    cell.nodeIndices[4] = t[5];
   }
-  else if (p4 == Cells->value[i].nodes[6])
+  else if (p4 == Cells[cellIdx].nodeIndices[6])
   {
-    this->Cells->value[i].nodes[5] = t[7];
-    this->Cells->value[i].nodes[6] = t[4];
-    this->Cells->value[i].nodes[7] = t[5];
-    this->Cells->value[i].nodes[4] = t[6];
+    cell.nodeIndices[5] = t[7];
+    cell.nodeIndices[6] = t[4];
+    cell.nodeIndices[7] = t[5];
+    cell.nodeIndices[4] = t[6];
   }
-  else if (p4 == Cells->value[i].nodes[7])
+  else if (p4 == Cells[cellIdx].nodeIndices[7])
   {
-    this->Cells->value[i].nodes[5] = t[4];
-    this->Cells->value[i].nodes[6] = t[5];
-    this->Cells->value[i].nodes[7] = t[6];
-    this->Cells->value[i].nodes[4] = t[7];
+    cell.nodeIndices[5] = t[4];
+    cell.nodeIndices[6] = t[5];
+    cell.nodeIndices[7] = t[6];
+    cell.nodeIndices[4] = t[7];
   }
   // else point 4 was lined up so everything was correct.
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::PopulatePyramidCell(int i)
+void vtkFLUENTReader::PopulatePyramidCell(size_t cellIdx)
 {
-  this->Cells->value[i].nodes.resize(5);
+  Cell& cell = this->Cells[cellIdx];
+
+  cell.nodeIndices.resize(5);
   //  The quad face will be the base of the pyramid
-  for (size_t j = 0; j < this->Cells->value[i].faces.size(); j++)
+  for (int cellFaceIdx : cell.faceIndices)
   {
-    if (this->Faces->value[this->Cells->value[i].faces[j]].nodes.size() == 4)
+    Face& face = this->Faces[cellFaceIdx];
+
+    if (face.nodeIndices.size() == 4)
     {
-      if (this->Faces->value[this->Cells->value[i].faces[j]].c0 == i)
+      if (face.c0 == static_cast<int>(cellIdx))
       {
         for (int k = 0; k < 4; k++)
         {
-          this->Cells->value[i].nodes[k] =
-            this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
+          cell.nodeIndices[k] = face.nodeIndices[k];
         }
       }
       else
       {
         for (int k = 0; k < 4; k++)
         {
-          this->Cells->value[i].nodes[3 - k] =
-            this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
+          cell.nodeIndices[3 - k] = face.nodeIndices[k];
         }
       }
     }
   }
 
   // Just need to find point 4
-  for (size_t j = 0; j < this->Cells->value[i].faces.size(); j++)
+  for (int cellFaceIdx : cell.faceIndices)
   {
-    if (this->Faces->value[this->Cells->value[i].faces[j]].nodes.size() == 3)
+    Face& face = this->Faces[cellFaceIdx];
+    if (face.nodeIndices.size() == 3)
     {
       for (int k = 0; k < 3; k++)
       {
-        if ((this->Faces->value[this->Cells->value[i].faces[j]].nodes[k] !=
-              this->Cells->value[i].nodes[0]) &&
-          (this->Faces->value[this->Cells->value[i].faces[j]].nodes[k] !=
-            this->Cells->value[i].nodes[1]) &&
-          (this->Faces->value[this->Cells->value[i].faces[j]].nodes[k] !=
-            this->Cells->value[i].nodes[2]) &&
-          (this->Faces->value[this->Cells->value[i].faces[j]].nodes[k] !=
-            this->Cells->value[i].nodes[3]))
+        if ((face.nodeIndices[k] != cell.nodeIndices[0]) &&
+          (face.nodeIndices[k] != cell.nodeIndices[1]) &&
+          (face.nodeIndices[k] != cell.nodeIndices[2]) &&
+          (face.nodeIndices[k] != cell.nodeIndices[3]))
         {
-          this->Cells->value[i].nodes[4] =
-            this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
+          cell.nodeIndices[4] = face.nodeIndices[k];
         }
       }
     }
@@ -3703,83 +3569,79 @@ void vtkFLUENTReader::PopulatePyramidCell(int i)
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::PopulateWedgeCell(int i)
+void vtkFLUENTReader::PopulateWedgeCell(size_t cellIdx)
 {
-  this->Cells->value[i].nodes.resize(6);
+  Cell& cell = this->Cells[cellIdx];
+  cell.nodeIndices.resize(6);
 
   //  Find the first triangle face and make it the base.
   int base = 0;
-  int first = 0;
-  for (size_t j = 0; j < this->Cells->value[i].faces.size(); j++)
+  for (int faceIdx : cell.faceIndices)
   {
-    if ((this->Faces->value[this->Cells->value[i].faces[j]].type == 3) && (first == 0))
+    if (this->Faces[faceIdx].type == 3)
     {
-      base = this->Cells->value[i].faces[j];
-      first = 1;
+      base = faceIdx;
+      break;
     }
   }
 
   //  Find the second triangle face and make it the top.
   int top = 0;
-  int second = 0;
-  for (size_t j = 0; j < this->Cells->value[i].faces.size(); j++)
+  for (int faceIdx : cell.faceIndices)
   {
-    if ((this->Faces->value[this->Cells->value[i].faces[j]].type == 3) && (second == 0) &&
-      (this->Cells->value[i].faces[j] != base))
+    if ((this->Faces[faceIdx].type == 3) && (faceIdx != base))
     {
-      top = this->Cells->value[i].faces[j];
-      second = 1;
+      top = faceIdx;
+      break;
     }
   }
 
   // Load Base nodes into the nodes std::vector
-  if (this->Faces->value[base].c0 == i)
+  if (this->Faces[base].c0 == static_cast<int>(cellIdx))
   {
     for (int j = 0; j < 3; j++)
     {
-      this->Cells->value[i].nodes[j] = this->Faces->value[base].nodes[j];
+      cell.nodeIndices[j] = this->Faces[base].nodeIndices[j];
     }
   }
   else
   {
     for (int j = 2; j >= 0; j--)
     {
-      this->Cells->value[i].nodes[2 - j] = this->Faces->value[base].nodes[j];
+      cell.nodeIndices[2 - j] = this->Faces[base].nodeIndices[j];
     }
   }
   // Load Top nodes into the nodes std::vector
-  if (this->Faces->value[top].c1 == i)
+  if (this->Faces[top].c1 == static_cast<int>(cellIdx))
   {
     for (int j = 3; j < 6; j++)
     {
-      this->Cells->value[i].nodes[j] = this->Faces->value[top].nodes[j - 3];
+      cell.nodeIndices[j] = this->Faces[top].nodeIndices[j - 3];
     }
   }
   else
   {
     for (int j = 3; j < 6; j++)
     {
-      this->Cells->value[i].nodes[j] = this->Faces->value[top].nodes[5 - j];
+      cell.nodeIndices[j] = this->Faces[top].nodeIndices[5 - j];
     }
   }
 
   //  Find the quad face with points 0 and 1 in them.
   int w01[4] = { -1, -1, -1, -1 };
-  for (size_t j = 0; j < this->Cells->value[i].faces.size(); j++)
+  for (int faceIdx : cell.faceIndices)
   {
-    if (this->Cells->value[i].faces[j] != base && this->Cells->value[i].faces[j] != top)
+    if (faceIdx != base && faceIdx != top)
     {
       int wf0 = 0;
       int wf1 = 0;
       for (int k = 0; k < 4; k++)
       {
-        if (this->Cells->value[i].nodes[0] ==
-          this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
+        if (cell.nodeIndices[0] == this->Faces[faceIdx].nodeIndices[k])
         {
           wf0 = 1;
         }
-        if (this->Cells->value[i].nodes[1] ==
-          this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
+        if (cell.nodeIndices[1] == this->Faces[faceIdx].nodeIndices[k])
         {
           wf1 = 1;
         }
@@ -3787,7 +3649,7 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
         {
           for (int n = 0; n < 4; n++)
           {
-            w01[n] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[n];
+            w01[n] = this->Faces[faceIdx].nodeIndices[n];
           }
         }
       }
@@ -3796,21 +3658,20 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
 
   //  Find the quad face with points 0 and 2 in them.
   int w02[4] = { -1, -1, -1, -1 };
-  for (size_t j = 0; j < this->Cells->value[i].faces.size(); j++)
+  for (int faceIdx : cell.faceIndices)
   {
-    if (this->Cells->value[i].faces[j] != base && this->Cells->value[i].faces[j] != top)
+    if (faceIdx != base && faceIdx != top)
     {
+      const Face& face = this->Faces[faceIdx];
       int wf0 = 0;
       int wf2 = 0;
       for (int k = 0; k < 4; k++)
       {
-        if (this->Cells->value[i].nodes[0] ==
-          this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
+        if (cell.nodeIndices[0] == face.nodeIndices[k])
         {
           wf0 = 1;
         }
-        if (this->Cells->value[i].nodes[2] ==
-          this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
+        if (cell.nodeIndices[2] == face.nodeIndices[k])
         {
           wf2 = 1;
         }
@@ -3818,7 +3679,7 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
         {
           for (int n = 0; n < 4; n++)
           {
-            w02[n] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[n];
+            w02[n] = face.nodeIndices[n];
           }
         }
       }
@@ -3831,7 +3692,7 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
   int p3 = 0;
   for (int k = 0; k < 4; k++)
   {
-    if (w01[k] != this->Cells->value[i].nodes[0])
+    if (w01[k] != cell.nodeIndices[0])
     {
       for (int n = 0; n < 4; n++)
       {
@@ -3846,26 +3707,26 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
   // Since we know point 3 now we check to see if points
   //  3, 4, and 5 are in the correct positions.
   int t[6];
-  t[3] = this->Cells->value[i].nodes[3];
-  t[4] = this->Cells->value[i].nodes[4];
-  t[5] = this->Cells->value[i].nodes[5];
-  if (p3 == this->Cells->value[i].nodes[4])
+  t[3] = cell.nodeIndices[3];
+  t[4] = cell.nodeIndices[4];
+  t[5] = cell.nodeIndices[5];
+  if (p3 == cell.nodeIndices[4])
   {
-    this->Cells->value[i].nodes[3] = t[4];
-    this->Cells->value[i].nodes[4] = t[5];
-    this->Cells->value[i].nodes[5] = t[3];
+    cell.nodeIndices[3] = t[4];
+    cell.nodeIndices[4] = t[5];
+    cell.nodeIndices[5] = t[3];
   }
-  else if (p3 == this->Cells->value[i].nodes[5])
+  else if (p3 == cell.nodeIndices[5])
   {
-    this->Cells->value[i].nodes[3] = t[5];
-    this->Cells->value[i].nodes[4] = t[3];
-    this->Cells->value[i].nodes[5] = t[4];
+    cell.nodeIndices[3] = t[5];
+    cell.nodeIndices[4] = t[3];
+    cell.nodeIndices[5] = t[4];
   }
   // else point 3 was lined up so everything was correct.
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::PopulatePolyhedronCell(int i)
+void vtkFLUENTReader::PopulatePolyhedronCell(size_t cellIdx)
 {
   //  We can't set the size on the nodes std::vector because we
   //  are not sure how many we are going to have.
@@ -3873,30 +3734,26 @@ void vtkFLUENTReader::PopulatePolyhedronCell(int i)
   //  nodes std::vector within the cell.  All we have to check for is
   //  duplicate nodes.
   //
-  // cout << "number of faces in cell = " << Cells[i].faces.size() << endl;
-
-  for (size_t j = 0; j < this->Cells->value[i].faces.size(); j++)
+  Cell& cell = this->Cells[cellIdx];
+  for (int faceIdx : cell.faceIndices)
   {
-    // cout << "number of nodes in face = " <<
-    // Faces[Cells[i].faces[j]].nodes.size() << endl;
-    for (size_t k = 0; k < this->Faces->value[this->Cells->value[i].faces[j]].nodes.size(); k++)
+    const Face& face = this->Faces[faceIdx];
+    for (int faceNodeIdx : face.nodeIndices)
     {
-      int flag;
-      flag = 0;
+      bool nodeAlreadyInCell = false;
       // Is the node already in the cell?
-      for (size_t n = 0; n < Cells->value[i].nodes.size(); n++)
+      for (int cellNodeIdx : Cells[cellIdx].nodeIndices)
       {
-        if (this->Cells->value[i].nodes[n] ==
-          this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
+        if (cellNodeIdx == faceNodeIdx)
         {
-          flag = 1;
+          nodeAlreadyInCell = true;
+          break;
         }
       }
-      if (flag == 0)
+      if (!nodeAlreadyInCell)
       {
         // No match - insert node into cell.
-        this->Cells->value[i].nodes.push_back(
-          this->Faces->value[this->Cells->value[i].faces[j]].nodes[k]);
+        cell.nodeIndices.push_back(faceNodeIdx);
       }
     }
   }
@@ -3984,11 +3841,11 @@ int vtkFLUENTReader::GetDataBufferInt(int ptr)
   {
     if (this->GetSwapBytes())
     {
-      mi.c[3 - j] = this->DataBuffer->value.at(ptr + j);
+      mi.c[3 - j] = this->DataBuffer.at(ptr + j);
     }
     else
     {
-      mi.c[j] = this->DataBuffer->value.at(ptr + j);
+      mi.c[j] = this->DataBuffer.at(ptr + j);
     }
   }
   return mi.i;
@@ -4006,11 +3863,11 @@ float vtkFLUENTReader::GetDataBufferFloat(int ptr)
   {
     if (this->GetSwapBytes())
     {
-      mf.c[3 - j] = this->DataBuffer->value.at(ptr + j);
+      mf.c[3 - j] = this->DataBuffer.at(ptr + j);
     }
     else
     {
-      mf.c[j] = this->DataBuffer->value.at(ptr + j);
+      mf.c[j] = this->DataBuffer.at(ptr + j);
     }
   }
   return mf.f;
@@ -4028,11 +3885,11 @@ double vtkFLUENTReader::GetDataBufferDouble(int ptr)
   {
     if (this->GetSwapBytes())
     {
-      md.c[7 - j] = this->DataBuffer->value.at(ptr + j);
+      md.c[7 - j] = this->DataBuffer.at(ptr + j);
     }
     else
     {
-      md.c[j] = this->DataBuffer->value.at(ptr + j);
+      md.c[j] = this->DataBuffer.at(ptr + j);
     }
   }
   return md.d;
@@ -4041,132 +3898,108 @@ double vtkFLUENTReader::GetDataBufferDouble(int ptr)
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetData(int dataType)
 {
-  size_t start = this->DataBuffer->value.find('(', 1);
-  size_t end = this->DataBuffer->value.find(')', 1);
-  std::string info = this->DataBuffer->value.substr(start + 1, end - start - 1);
+  size_t start = this->DataBuffer.find('(', 1);
+  size_t end = this->DataBuffer.find(')', 1);
+  std::string info = this->DataBuffer.substr(start + 1, end - start - 1);
   std::stringstream infostream(info);
   int subSectionId, zoneId, size, nTimeLevels, nPhases, firstId, lastId;
   infostream >> subSectionId >> zoneId >> size >> nTimeLevels >> nPhases >> firstId >> lastId;
 
-  // Is this a cell zone?
-  // TODO: This might no longer be necessary.
-  // Are there cases where zones are not properly described in the file, but are still assigned to
-  // cells ?
-  bool zoneExists = false;
-  for (const Zone& zone : this->Zones)
+  // Set up stream or pointer to data
+  size_t dstart = this->DataBuffer.find('(', 7);
+  size_t dend = this->DataBuffer.find(')', dstart + 1);
+  std::string pdata = this->DataBuffer.substr(dstart + 1, dend - dstart - 2);
+  std::stringstream pdatastream(pdata);
+  size_t ptr = dstart + 1;
+
+  // Is this a new variable?
+  bool subSectionAlreadyExists = false;
+  for (const SubSection& subSection : this->SubSections)
   {
-    if (zoneId == zone.id)
+    if (subSectionId == subSection.id)
     {
-      zoneExists = true;
+      subSectionAlreadyExists = true;
       break;
     }
   }
 
-  if (zoneExists)
+  if (!subSectionAlreadyExists && (size < 4))
   {
+    SubSection newSubSection;
+    newSubSection.size = size;
+    newSubSection.id = subSectionId;
+    newSubSection.zoneIds.push_back(zoneId);
 
-    // Set up stream or pointer to data
-    size_t dstart = this->DataBuffer->value.find('(', 7);
-    size_t dend = this->DataBuffer->value.find(')', dstart + 1);
-    std::string pdata = this->DataBuffer->value.substr(dstart + 1, dend - dstart - 2);
-    std::stringstream pdatastream(pdata);
-    size_t ptr = dstart + 1;
+    this->SubSections.push_back(newSubSection);
+  }
 
-    // Is this a new variable?
-    int match = 0;
-    for (size_t i = 0; i < this->SubSectionIds->value.size(); i++)
+  if (size == 1)
+  {
+    this->NumberOfScalars++;
+    this->ScalarDataChunks.resize(this->ScalarDataChunks.size() + 1);
+    this->ScalarDataChunks[this->ScalarDataChunks.size() - 1].subsectionId = subSectionId;
+    this->ScalarDataChunks[this->ScalarDataChunks.size() - 1].zoneId = zoneId;
+    for (int i = firstId; i <= lastId; i++)
     {
-      if (subSectionId == this->SubSectionIds->value[i])
+      double temp;
+      if (dataType == 1)
       {
-        match = 1;
+        pdatastream >> temp;
       }
-    }
-
-    if ((match == 0) && (size < 4))
-    { // new variable
-      this->SubSectionIds->value.push_back(subSectionId);
-      this->SubSectionSize->value.push_back(size);
-      this->SubSectionZones->value.resize(this->SubSectionZones->value.size() + 1);
-      this->SubSectionZones->value[this->SubSectionZones->value.size() - 1].push_back(zoneId);
-    }
-
-    if (size == 1)
-    {
-      this->NumberOfScalars++;
-      this->ScalarDataChunks->value.resize(this->ScalarDataChunks->value.size() + 1);
-      this->ScalarDataChunks->value[this->ScalarDataChunks->value.size() - 1].subsectionId =
-        subSectionId;
-      this->ScalarDataChunks->value[this->ScalarDataChunks->value.size() - 1].zoneId = zoneId;
-      for (int i = firstId; i <= lastId; i++)
+      else if (dataType == 2)
       {
-        double temp;
-        if (dataType == 1)
-        {
-          pdatastream >> temp;
-        }
-        else if (dataType == 2)
-        {
-          temp = this->GetDataBufferFloat(static_cast<int>(ptr));
-          ptr = ptr + 4;
-        }
-        else
-        {
-          temp = this->GetDataBufferDouble(static_cast<int>(ptr));
-          ptr = ptr + 8;
-        }
-        this->ScalarDataChunks->value[this->ScalarDataChunks->value.size() - 1]
-          .scalarData.push_back(temp);
+        temp = this->GetDataBufferFloat(static_cast<int>(ptr));
+        ptr = ptr + 4;
       }
-    }
-    else if (size == 3)
-    {
-      this->NumberOfVectors++;
-      this->VectorDataChunks->value.resize(this->VectorDataChunks->value.size() + 1);
-      this->VectorDataChunks->value[this->VectorDataChunks->value.size() - 1].subsectionId =
-        subSectionId;
-      this->VectorDataChunks->value[this->VectorDataChunks->value.size() - 1].zoneId = zoneId;
-      for (int i = firstId; i <= lastId; i++)
+      else
       {
-        double tempx, tempy, tempz;
-
-        if (dataType == 1)
-        {
-          pdatastream >> tempx;
-          pdatastream >> tempy;
-          pdatastream >> tempz;
-        }
-        else if (dataType == 2)
-        {
-          tempx = this->GetDataBufferFloat(static_cast<int>(ptr));
-          ptr = ptr + 4;
-          tempy = this->GetDataBufferFloat(static_cast<int>(ptr));
-          ptr = ptr + 4;
-          tempz = this->GetDataBufferFloat(static_cast<int>(ptr));
-          ptr = ptr + 4;
-        }
-        else
-        {
-          tempx = this->GetDataBufferDouble(static_cast<int>(ptr));
-          ptr = ptr + 8;
-          tempy = this->GetDataBufferDouble(static_cast<int>(ptr));
-          ptr = ptr + 8;
-          tempz = this->GetDataBufferDouble(static_cast<int>(ptr));
-          ptr = ptr + 8;
-        }
-        this->VectorDataChunks->value[this->VectorDataChunks->value.size() - 1]
-          .iComponentData.push_back(tempx);
-        this->VectorDataChunks->value[this->VectorDataChunks->value.size() - 1]
-          .jComponentData.push_back(tempy);
-        this->VectorDataChunks->value[this->VectorDataChunks->value.size() - 1]
-          .kComponentData.push_back(tempz);
+        temp = this->GetDataBufferDouble(static_cast<int>(ptr));
+        ptr = ptr + 8;
       }
+      this->ScalarDataChunks[this->ScalarDataChunks.size() - 1].scalarData.push_back(temp);
     }
-    else
+  }
+  else if (size == 3)
+  {
+    this->NumberOfVectors++;
+    this->VectorDataChunks.resize(this->VectorDataChunks.size() + 1);
+    this->VectorDataChunks[this->VectorDataChunks.size() - 1].subsectionId = subSectionId;
+    this->VectorDataChunks[this->VectorDataChunks.size() - 1].zoneId = zoneId;
+    for (int i = firstId; i <= lastId; i++)
     {
-      // cout << "Weird Variable Size = " << size << endl;
+      double tempx, tempy, tempz;
+
+      if (dataType == 1)
+      {
+        pdatastream >> tempx;
+        pdatastream >> tempy;
+        pdatastream >> tempz;
+      }
+      else if (dataType == 2)
+      {
+        tempx = this->GetDataBufferFloat(static_cast<int>(ptr));
+        ptr = ptr + 4;
+        tempy = this->GetDataBufferFloat(static_cast<int>(ptr));
+        ptr = ptr + 4;
+        tempz = this->GetDataBufferFloat(static_cast<int>(ptr));
+        ptr = ptr + 4;
+      }
+      else
+      {
+        tempx = this->GetDataBufferDouble(static_cast<int>(ptr));
+        ptr = ptr + 8;
+        tempy = this->GetDataBufferDouble(static_cast<int>(ptr));
+        ptr = ptr + 8;
+        tempz = this->GetDataBufferDouble(static_cast<int>(ptr));
+        ptr = ptr + 8;
+      }
+      this->VectorDataChunks[this->VectorDataChunks.size() - 1].iComponentData.push_back(tempx);
+      this->VectorDataChunks[this->VectorDataChunks.size() - 1].jComponentData.push_back(tempy);
+      this->VectorDataChunks[this->VectorDataChunks.size() - 1].kComponentData.push_back(tempz);
     }
   }
 }
+
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::SetDataByteOrderToBigEndian()
 {
@@ -4247,7 +4080,7 @@ const char* vtkFLUENTReader::GetDataByteOrderAsString()
 void vtkFLUENTReader::GetSpeciesVariableNames()
 {
   // Locate the "(species (names" entry
-  std::string variables = this->CaseBuffer->value;
+  std::string variables = this->CaseBuffer;
   size_t startPos = variables.find("(species (names (") + 17;
   if (startPos != std::string::npos)
   {
@@ -4265,14 +4098,14 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
       std::string temp;
       tokenizer >> temp;
 
-      this->VariableNames->value[200 + iterator] = temp;
-      this->VariableNames->value[250 + iterator] = "M1_" + temp;
-      this->VariableNames->value[300 + iterator] = "M2_" + temp;
-      this->VariableNames->value[450 + iterator] = "DPMS_" + temp;
-      this->VariableNames->value[850 + iterator] = "DPMS_DS_" + temp;
-      this->VariableNames->value[1000 + iterator] = "MEAN_" + temp;
-      this->VariableNames->value[1050 + iterator] = "RMS_" + temp;
-      this->VariableNames->value[1250 + iterator] = "CREV_" + temp;
+      this->VariableNames[200 + iterator] = temp;
+      this->VariableNames[250 + iterator] = "M1_" + temp;
+      this->VariableNames[300 + iterator] = "M2_" + temp;
+      this->VariableNames[450 + iterator] = "DPMS_" + temp;
+      this->VariableNames[850 + iterator] = "DPMS_DS_" + temp;
+      this->VariableNames[1000 + iterator] = "MEAN_" + temp;
+      this->VariableNames[1050 + iterator] = "RMS_" + temp;
+      this->VariableNames[1250 + iterator] = "CREV_" + temp;
 
       iterator++;
     }
@@ -4283,29 +4116,32 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
 void vtkFLUENTReader::FillMultiBlockFromFaces(vtkMultiBlockDataSet* output)
 {
   vtkNew<vtkUnstructuredGrid> block;
-  block->SetPoints(Points);
+  block->SetPoints(this->Points);
 
-  for (size_t i = 0; i < this->Faces->value.size(); ++i)
+  vtkNew<vtkTriangle> triangleBuffer;
+  vtkNew<vtkTetra> tetraBuffer;
+  for (size_t i = 0; i < this->Faces.size(); ++i)
   {
-    auto& face = this->Faces->value[i];
+    auto& face = this->Faces[i];
 
     if (face.type == 3)
     {
       for (int j = 0; j < 3; j++)
       {
-        this->Triangle->GetPointIds()->SetId(j, face.nodes[j]);
+        triangleBuffer->GetPointIds()->SetId(j, face.nodeIndices[j]);
       }
 
-      block->InsertNextCell(this->Triangle->GetCellType(), this->Triangle->GetPointIds());
+      block->InsertNextCell(triangleBuffer->GetCellType(), triangleBuffer->GetPointIds());
     }
+
     else if (face.type == 4)
     {
       for (int j = 0; j < 4; j++)
       {
-        this->Tetra->GetPointIds()->SetId(j, face.nodes[j]);
+        tetraBuffer->GetPointIds()->SetId(j, face.nodeIndices[j]);
       }
 
-      block->InsertNextCell(this->Tetra->GetCellType(), this->Tetra->GetPointIds());
+      block->InsertNextCell(tetraBuffer->GetCellType(), tetraBuffer->GetPointIds());
     }
   }
 
