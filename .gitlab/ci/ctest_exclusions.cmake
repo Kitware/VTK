@@ -119,9 +119,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     )
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_ospray_python_qt_tbb"
-    OR "$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_python_qt_tbb"
-    OR "$ENV{CMAKE_CONFIGURATION}" STREQUAL "fedora39_mpi_offscreen_osmesa_python")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_mpi")
   list(APPEND test_exclusions
     # MPI initialization failures from inside of IOSS. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19314
