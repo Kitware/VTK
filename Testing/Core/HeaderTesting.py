@@ -571,7 +571,7 @@ if not args.root:
 
 # Make sure the root exists
 if not os.path.exists(args.root):
-    print("Root path does not exists: %s" % (args.root))
+    print("Root path does not exist: %s" % (args.root))
     sys.exit(1)
 
 test = TestVTKFiles()

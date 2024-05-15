@@ -334,7 +334,7 @@ void vtkPickingManager::AddPicker(vtkAbstractPicker* picker, vtkObject* object)
     return;
   }
 
-  // The picker does not exists in the manager yet.
+  // The picker does not exist in the manager yet.
   // Create the list of associated objects
   this->Internal->CreateDefaultCollection(picker, object);
 }
