@@ -780,11 +780,20 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(vtkDataObjec
     outHTG->ShallowCopy(htg);
     outHTG->SetMask(mask);
     // sanitize the mask
-    for (vtkIdType iTree = 0; iTree < outHTG->GetMaxNumberOfTrees(); ++iTree)
     {
+      vtkIdType index = 0;
+      vtkHyperTreeGrid::vtkHyperTreeGridIterator iterator;
+      outHTG->InitializeTreeIterator(iterator);
       vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
-      cursor->Initialize(outHTG, iTree);
-      ::SanitizeHTGMask(cursor);
+      while (iterator.GetNextTree(index))
+      {
+        if (this->CheckAbort())
+        {
+          break;
+        }
+        cursor->Initialize(outHTG, index);
+        ::SanitizeHTGMask(cursor);
+      }
     }
     if (this->HyperTreeGridToUnstructuredGrid)
     {
