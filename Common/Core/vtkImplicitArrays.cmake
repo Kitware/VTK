@@ -10,36 +10,34 @@ macro(_generate_implicit_array_specialization backend vtk_type concrete_type)
   set(VTK_TYPE_NAME "${vtk_type}")
   set(CONCRETE_TYPE "${concrete_type}")
 
-  set(className "vtk${backend}${VTK_TYPE_NAME}Array")
+  set(_className "vtk${backend}${VTK_TYPE_NAME}Array")
 
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/vtk${backend}TypedArray.h.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/${className}.h"
+    "${CMAKE_CURRENT_BINARY_DIR}/${_className}.h"
     @ONLY)
 
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/vtk${backend}TypedArray.cxx.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/${className}.cxx"
+    "${CMAKE_CURRENT_BINARY_DIR}/${_className}.cxx"
     @ONLY)
 
   # append generated files to current module headers and sources
   list(APPEND headers
-    "${CMAKE_CURRENT_BINARY_DIR}/${className}.h")
+    "${CMAKE_CURRENT_BINARY_DIR}/${_className}.h")
   list(APPEND sources
-    "${CMAKE_CURRENT_BINARY_DIR}/${className}.cxx")
+    "${CMAKE_CURRENT_BINARY_DIR}/${_className}.cxx")
+
+  unset(VTK_TYPE_NAME)
+  unset(CONCRETE_TYPE)
+  unset(_className)
 endmacro()
 
+include(vtkTypeLists)
+
 foreach(backend IN ITEMS Constant Affine Indexed Composite)
-  _generate_implicit_array_specialization("${backend}" Char char)
-  _generate_implicit_array_specialization("${backend}" Double double)
-  _generate_implicit_array_specialization("${backend}" Float float)
-  _generate_implicit_array_specialization("${backend}" IdType vtkIdType)
-  _generate_implicit_array_specialization("${backend}" Int int)
-  _generate_implicit_array_specialization("${backend}" Long long)
-  _generate_implicit_array_specialization("${backend}" Short short)
-  _generate_implicit_array_specialization("${backend}" SignedChar "signed char")
-  _generate_implicit_array_specialization("${backend}" UnsignedChar "unsigned char")
-  _generate_implicit_array_specialization("${backend}" UnsignedInt "unsigned int")
-  _generate_implicit_array_specialization("${backend}" UnsignedLong "unsigned long")
-  _generate_implicit_array_specialization("${backend}" UnsignedShort "unsigned short")
+  foreach (type IN LISTS vtk_numeric_types)
+    vtk_type_to_camel_case("${type}" cased_type)
+    _generate_implicit_array_specialization("${backend}" "${cased_type}" "${type}")
+  endforeach()
 endforeach()
