@@ -27,7 +27,7 @@ class vtkDataArrayCollection;
 class VTKCOMMONCORE_EXPORT vtkComposite@VTK_TYPE_NAME@Array : public vtkDataArray
 {
 public:
-  vtkTypeMacro(vtkComposite@VTK_TYPE_NAME@Array, vtkDataArray);
+  vtkImplicitArrayTypeMacro(vtkComposite@VTK_TYPE_NAME@Array, vtkDataArray);
 #ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
@@ -72,3 +72,4 @@ vtkArrayDownCast_FastCastMacro(vtkComposite@VTK_TYPE_NAME@Array);
 
 VTK_ABI_NAMESPACE_END
 #endif
+// VTK-HeaderTest-Exclude: TYPEMACRO
