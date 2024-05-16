@@ -23,6 +23,7 @@ if sys.version_info < (3, 6):
 
 DATA_FILE = "marshal_modules.json"
 MARSHAL_HINT_REGEX = r"VTK_MARSHAL(AUTO|MANUAL)"
+MARSHAL_HINT_REGEXES = [r"VTK_MARSHALAUTO", r"VTK_MARSHALMANUAL"]
 MODULE_HEADER_REGEX = r'^#include "vtk.*Module\.h"'
 MODULE_EXPORT_REGEX = r"^class VTK.*_EXPORT"
 WRAPHINT_HEADER_REGEX = r'^#include "vtkWrappingHints\.h"'
@@ -84,7 +85,7 @@ def get_status():
     success = True
 
     # fail if any of the headers in `VTK_MARSHAL(AUTO|MANUAL).txt` don't have marshal macro
-    for marshal_file in [MARSHALAUTO_TXT, MARSHALMANUAL_TXT]:
+    for marshal_file, macro_regex in zip([MARSHALAUTO_TXT, MARSHALMANUAL_TXT], MARSHAL_HINT_REGEXES):
         with open(marshal_file, 'r', encoding='utf8') as f:
             lines = f.read().splitlines()
             for line_num, line in enumerate(lines, start=1):
@@ -96,7 +97,7 @@ def get_status():
                     header = module_dir.joinpath(parts[-1])
                     headers[marshal_file].add(header)
                     existing_macro_line_match = find_matching_line(
-                        header, MARSHAL_HINT_REGEX)
+                        header, macro_regex)
                     if existing_macro_line_match is None:
                         print(
                             f"ERROR: {header} is missing {marshal_file.stem} macro")
@@ -142,7 +143,7 @@ Also adds a line that includes `vtkWrappingHints.h` if not already included.
 
 
 def update():
-    for marshal_file in [MARSHALAUTO_TXT, MARSHALMANUAL_TXT]:
+    for marshal_file, macro_regex in zip([MARSHALAUTO_TXT, MARSHALMANUAL_TXT], MARSHAL_HINT_REGEXES):
         with open(marshal_file, 'r', encoding='utf8') as f:
             lines = f.read().splitlines()
             for line_num, line in enumerate(lines, start=1):
@@ -156,7 +157,7 @@ def update():
 
                 # Skip files that already have the marshal hint macro
                 existing_macro_line_match = find_matching_line(
-                    header, MARSHAL_HINT_REGEX)
+                    header, macro_regex)
                 module_export_line_match = find_matching_line(
                     header, MODULE_EXPORT_REGEX)
                 has_exported_class = module_export_line_match is not None
@@ -173,6 +174,9 @@ def update():
                             # Replaces "class VTK*_EXPORT ..." with "class VTK*_EXPORT VTK_MARSHAL(AUTO|MANUAL) ..."
                             export_line_num, export_text_match = module_export_line_match
                             export_line_text = new_lines[export_line_num - 1]
+                            # Remove existing macro
+                            export_line_text = export_line_text.replace(
+                                MARSHAL_HINT_REGEXES[0] + " ", "").replace(MARSHAL_HINT_REGEXES[1] + " ", "")
                             target = export_text_match.group()
                             replacement = f"{target} {marshal_file.stem}"
                             new_lines[export_line_num - 1] = export_line_text.replace(
@@ -180,7 +184,11 @@ def update():
                             # Includes vtkWrappingHints.h below the include of the vtk*Module.h
                             wrap_hint_header_line_match = find_matching_line(
                                 header, WRAPHINT_HEADER_REGEX)
-                            if wrap_hint_header_line_match is None:
+                            # Remove existing line
+                            if wrap_hint_header_line_match is not None:
+                                dst_line = wrap_hint_header_line_match[0] - 1
+                                new_lines[dst_line] = f'#include "vtkWrappingHints.h" // For {marshal_file.stem}\n'
+                            else:
                                 new_lines.insert(
                                     module_header_line_match[0], f'#include "vtkWrappingHints.h" // For {marshal_file.stem}\n')
                         # Writes the final result to the file
