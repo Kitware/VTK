@@ -18,11 +18,12 @@
 #include "vtkAbstractArray.h"
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkStdString.h"        // needed for vtkStdString definition
+#include "vtkWrappingHints.h"    // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArrayLookup;
 
-class VTKCOMMONCORE_EXPORT vtkStringArray : public vtkAbstractArray
+class VTKCOMMONCORE_EXPORT VTK_MARSHALMANUAL vtkStringArray : public vtkAbstractArray
 {
 public:
   enum DeleteMethod

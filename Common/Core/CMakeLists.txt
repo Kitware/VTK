@@ -367,7 +367,8 @@ set(nowrap_template_classes
 set(serialization_helper_sources)
 if (VTK_WRAP_SERIALIZATION)
   list(APPEND serialization_helper_sources
-    vtkDataArraySerDesHelper.cxx)
+    vtkDataArraySerDesHelper.cxx
+    vtkStringArraySerDesHelper.cxx)
 endif ()
 
 set(sources
