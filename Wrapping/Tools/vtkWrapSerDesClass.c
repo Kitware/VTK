@@ -151,7 +151,17 @@ static void vtkWrapSerDes_BeginDeserializer(FILE* fp, const ClassInfo* classInfo
       "  auto object = %s::SafeDownCast(objectBase);\n"
       "  if (auto f = deserializer->GetHandler(typeid(%s::Superclass)))\n"
       "  {\n"
-      "    f(state, object, deserializer);\n"
+      "    try\n"
+      "    {\n"
+      "      f(state, object, deserializer);\n"
+      "    }\n"
+      "    catch(std::exception& e)"
+      "    {\n"
+      "       vtkErrorWithObjectMacro(deserializer, << \"In \" << __func__ << \", failed to "
+      "deserialize state=\" << "
+      "state.dump()\n"
+      "                << \". message=\" << e.what());\n"
+      "    }\n"
       "  }\n",
       classInfo->Name, classInfo->Name);
   }

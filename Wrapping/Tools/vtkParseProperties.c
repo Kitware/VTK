@@ -31,6 +31,7 @@ typedef struct MethodAttributes_
   int IsEnumerated;      /* method is e.g. SetValueToSomething() */
   int IsBoolean;         /* method is ValueOn() or ValueOff() */
   int IsRHS;             /* method is GetValue(val), not val = GetValue() */
+  int IsNoDiscard;       /* method is int AddValue() or bool RemoveValue() */
 } MethodAttributes;
 
 typedef struct ClassPropertyMethods_
@@ -324,6 +325,10 @@ static unsigned int methodCategory(MethodAttributes* meth, int shortForm)
     {
       return VTK_METHOD_REMOVE_IDX;
     }
+    else if (meth->IsNoDiscard)
+    {
+      return VTK_METHOD_REMOVE_NODISCARD;
+    }
     else
     {
       return VTK_METHOD_REMOVE;
@@ -338,6 +343,10 @@ static unsigned int methodCategory(MethodAttributes* meth, int shortForm)
     else if (meth->IsMultiValue)
     {
       return VTK_METHOD_ADD_MULTI;
+    }
+    else if (meth->IsNoDiscard)
+    {
+      return VTK_METHOD_ADD_NODISCARD;
     }
     else
     {
@@ -479,6 +488,7 @@ static int getMethodAttributes(FunctionInfo* func, MethodAttributes* attrs)
   attrs->IsEnumerated = 0;
   attrs->IsBoolean = 0;
   attrs->IsRHS = 0;
+  attrs->IsNoDiscard = 0;
 
   /* check for major issues with the function */
   if (!func->Name || func->IsOperator || (func->ReturnValue && func->ReturnValue->Function) ||
@@ -587,6 +597,26 @@ static int getMethodAttributes(FunctionInfo* func, MethodAttributes* attrs)
     {
       attrs->HasProperty = 1;
       attrs->IsRHS = 1;
+      attrs->Type = func->Parameters[indexed]->Type;
+      attrs->Count = func->Parameters[indexed]->Count;
+      attrs->ClassName = func->Parameters[indexed]->Class;
+
+      return 1;
+    }
+  }
+
+  /* if return type is void and 1 arg or 1 index and 1 arg */
+  if ((!func->ReturnValue ||
+        (func->ReturnValue->Type & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_VOID) &&
+    func->NumberOfParameters == (1 + indexed))
+  {
+    /* "int AddValue(vtkObject *)" or "bool RemoveValue(vtkObject *)" */
+    if ((isAddMethod(func->Name) || isRemoveMethod(func->Name)) &&
+      (func->Parameters[indexed]->Type & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_OBJECT_PTR)
+    {
+      attrs->HasProperty = 1;
+      attrs->IsRHS = 1;
+      attrs->IsNoDiscard = 1;
       attrs->Type = func->Parameters[indexed]->Type;
       attrs->Count = func->Parameters[indexed]->Count;
       attrs->ClassName = func->Parameters[indexed]->Class;
@@ -793,7 +823,7 @@ static int methodMatchesProperty(
   /* check for RemoveAll method matching an Add method*/
   if (isRemoveAllMethod(meth->Name) && methType == VTK_PARSE_VOID &&
     (methType & VTK_PARSE_INDIRECT) == 0 &&
-    ((methodBitfield & (VTK_METHOD_ADD | VTK_METHOD_ADD_MULTI)) != 0))
+    ((methodBitfield & (VTK_METHOD_ADD | VTK_METHOD_ADD_MULTI | VTK_METHOD_ADD_NODISCARD)) != 0))
   {
     return 1;
   }
@@ -1398,6 +1428,10 @@ const char* vtkParseProperties_MethodTypeAsString(unsigned int methodType)
       return "REMOVE_IDX";
     case VTK_METHOD_REMOVE_ALL:
       return "REMOVE_ALL";
+    case VTK_METHOD_ADD_NODISCARD:
+      return "ADD_NODISCARD";
+    case VTK_METHOD_REMOVE_NODISCARD:
+      return "REMOVE_NODISCARD";
     default:
       return "UNKNOWN";
   }

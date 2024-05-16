@@ -19,6 +19,195 @@
 #include <windows.h>
 #endif
 
+/* -------------------------------------------------------------------- */
+/* Get the header file for the specified class */
+static const char* vtkWrapSerDes_ClassHeader(const HierarchyInfo* hinfo, const char* classname)
+{
+  HierarchyEntry* entry;
+
+  /* if "hinfo" is present, use it to find the file */
+  if (hinfo)
+  {
+    entry = vtkParseHierarchy_FindEntry(hinfo, classname);
+    if (entry)
+    {
+      return entry->HeaderFile;
+    }
+  }
+
+  return 0;
+}
+
+/* -------------------------------------------------------------------- */
+/* generate includes for any special types that are used */
+static void vtkWrapSerDes_GenerateSpecialHeaders(
+  FILE* fp, FileInfo* file_info, const HierarchyInfo* hinfo)
+{
+  const char** types;
+  int numTypes = 0;
+  FunctionInfo* currentFunction;
+  int i, j, k, n, m, ii, nn;
+  const char* classname;
+  const char* ownincfile = "";
+  ClassInfo* data;
+  const ValueInfo* val;
+  const char** includedHeaders = NULL;
+  int hasDeprecatedEntries = 0;
+  size_t nIncludedHeaders = 0;
+
+  types = (const char**)malloc(1000 * sizeof(const char*));
+
+  /* always include vtkVariant, it is often used as a template arg
+     for templated array types, and the file_info doesn't tell us
+     what types each templated class is instantiated for (that info
+     might be in the .cxx files, which we cannot access here) */
+  types[numTypes++] = "vtkVariant";
+
+  nn = file_info->Contents->NumberOfClasses;
+  for (ii = 0; ii < nn; ii++)
+  {
+    data = file_info->Contents->Classes[ii];
+    n = data->NumberOfFunctions;
+    hasDeprecatedEntries |= (data->IsDeprecated);
+    for (i = 0; i < n; i++)
+    {
+      currentFunction = data->Functions[i];
+      hasDeprecatedEntries |= (currentFunction->IsDeprecated);
+      if (currentFunction->Access == VTK_ACCESS_PUBLIC && !currentFunction->IsExcluded &&
+        strcmp(currentFunction->Class, data->Name) == 0)
+      {
+        m = vtkWrap_CountWrappedParameters(currentFunction);
+
+        for (j = -1; j < m; j++)
+        {
+          if (j >= 0)
+          {
+            val = currentFunction->Parameters[j];
+          }
+          else
+          {
+            val = currentFunction->ReturnValue;
+          }
+          if (vtkWrap_IsVoid(val))
+          {
+            continue;
+          }
+
+          classname = 0;
+          if (vtkWrap_IsString(val))
+          {
+            classname = val->Class;
+          }
+          else if (vtkWrap_IsObject(val) && !vtkWrap_IsRef(val))
+          {
+            classname = val->Class;
+          }
+          /* we already include our own header */
+          if (classname && strcmp(classname, data->Name) != 0)
+          {
+            for (k = 0; k < numTypes; k++)
+            {
+              /* make a unique list of all classes found */
+              if (strcmp(classname, types[k]) == 0)
+              {
+                break;
+              }
+            }
+
+            if (k == numTypes)
+            {
+              if (numTypes > 0 && (numTypes % 1000) == 0)
+              {
+                types =
+                  (const char**)realloc((char**)types, (numTypes + 1000) * sizeof(const char*));
+              }
+              types[numTypes++] = classname;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (hasDeprecatedEntries)
+  {
+    fprintf(fp, "#define VTK_DEPRECATION_LEVEL 0\n");
+  }
+
+  /* get our own include file (returns NULL if hinfo is NULL) */
+  data = file_info->MainClass;
+  if (!data && file_info->Contents->NumberOfClasses > 0)
+  {
+    data = file_info->Contents->Classes[0];
+  }
+
+  if (data)
+  {
+    ownincfile = vtkWrapSerDes_ClassHeader(hinfo, data->Name);
+  }
+
+  includedHeaders = (const char**)malloc(numTypes * sizeof(const char*));
+
+  /* for each unique type found in the file */
+  for (i = 0; i < numTypes; i++)
+  {
+    const char* incfile;
+    incfile = vtkWrapSerDes_ClassHeader(hinfo, types[i]);
+
+    if (incfile)
+    {
+      /* make sure it hasn't been included before. */
+      size_t nHeader;
+      int uniqueInclude = 1;
+      for (nHeader = 0; nHeader < nIncludedHeaders; ++nHeader)
+      {
+        if (!strcmp(incfile, includedHeaders[nHeader]))
+        {
+          uniqueInclude = 0;
+        }
+      }
+
+      /* ignore duplicate includes. */
+      if (!uniqueInclude)
+      {
+        continue;
+      }
+
+      includedHeaders[nIncludedHeaders] = incfile;
+      ++nIncludedHeaders;
+
+      /* make sure it doesn't share our header file */
+      if (ownincfile == 0 || strcmp(incfile, ownincfile) != 0)
+      {
+        fprintf(fp, "#include \"%s\"\n", incfile);
+      }
+    }
+  }
+
+  free((char**)includedHeaders);
+  includedHeaders = NULL;
+
+  /* special case for the way vtkGenericDataArray template is used */
+  if (data && strcmp(data->Name, "vtkGenericDataArray") == 0)
+  {
+    fprintf(fp,
+      "#include \"vtkSOADataArrayTemplate.h\"\n"
+      "#include \"vtkAOSDataArrayTemplate.h\"\n"
+      "#ifdef VTK_USE_SCALED_SOA_ARRAYS\n"
+      "#include \"vtkScaledSOADataArrayTemplate.h\"\n"
+      "#endif\n");
+  }
+  /* special case for the way vtkGenericDataArray template is used */
+  if (data && strcmp(data->Name, "vtkAlgorithm") == 0)
+  {
+    fprintf(fp, "#include \"vtkAlgorithmOutput.h\"\n");
+    fprintf(fp, "#include \"vtkTrivialProducer.h\"\n");
+    fprintf(fp, "#include \"vtkDataObject.h\"\n");
+  }
+
+  free((char**)types);
+}
+
 /**
  * This is the main entry point for generating object coders.
  * When called, it will print the vtkXXXSerialization.cxx file contents to "fp".
@@ -144,7 +333,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
       {
         continue;
       }
-      else if (classInfo->MarshalType == VTK_MARSHAL_MANUAL_MODE)
+      if (classInfo->MarshalType == VTK_MARSHAL_MANUAL_MODE)
       {
         vtkWrapSerDes_ExportClassRegistrars(fp, name);
         fprintf(fp,
@@ -161,15 +350,15 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
       }
       else if (!registrarsExist)
       {
+        vtkWrapSerDes_GenerateSpecialHeaders(fp, file_info, hinfo);
         /* the header file for the marshalled class */
-        fprintf(fp, "#define VTK_DEPRECATION_LEVEL 0\n");
         fprintf(fp, "#include \"vtkDeserializer.h\"\n");
         fprintf(fp, "#include \"vtkSerializer.h\"\n");
-        fprintf(fp, "#include \"vtkSmartPointer.h\"\n");
-        fprintf(fp, "#include \"vtkStdString.h\"\n");
+        fprintf(fp, "#include \"%s.h\"\n", name);
+        fprintf(fp, "//clang-format off\n");
         fprintf(fp, "#include \"vtk_nlohmannjson.h\"\n");
         fprintf(fp, "#include VTK_NLOHMANN_JSON(json.hpp)\n");
-        fprintf(fp, "#include \"%s.h\"\n\n", name);
+        fprintf(fp, "//clang-format on\n");
         registrarsExist = 1;
       }
       if (classInfo->MarshalType == VTK_MARSHAL_AUTO_MODE)
