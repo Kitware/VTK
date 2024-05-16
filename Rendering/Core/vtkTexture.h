@@ -37,6 +37,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"      // For VTK_COLOR_MODE_*
+#include "vtkWrappingHints.h"       // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
@@ -51,7 +52,7 @@ class vtkTransform;
 #define VTK_TEXTURE_QUALITY_16BIT 16
 #define VTK_TEXTURE_QUALITY_32BIT 32
 
-class VTKRENDERINGCORE_EXPORT vtkTexture : public vtkImageAlgorithm
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALMANUAL vtkTexture : public vtkImageAlgorithm
 {
 public:
   static vtkTexture* New();

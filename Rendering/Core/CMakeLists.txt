@@ -193,7 +193,8 @@ if (VTK_WRAP_SERIALIZATION)
   list(APPEND serialization_helper_sources
     vtkAbstractMapperSerDesHelper.cxx
     vtkColorTransferFunctionSerDesHelper.cxx
-    vtkDataSetMapperSerDesHelper.cxx)
+    vtkDataSetMapperSerDesHelper.cxx
+    vtkTextureSerDesHelper.cxx)
 endif ()    
 
 vtk_module_add_module(VTK::RenderingCore
