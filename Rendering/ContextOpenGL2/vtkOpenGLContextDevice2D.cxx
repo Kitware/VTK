@@ -73,6 +73,7 @@ void copyColors(std::vector<unsigned char>& newColors, unsigned char* colors, in
 const char* myVertShader = "in vec2 vertexMC;\n"
                            "uniform mat4 WCDCMatrix;\n"
                            "uniform mat4 MCWCMatrix;\n"
+                           "uniform float pointSize;\n"
                            "#ifdef haveColors\n"
                            "in vec4 vertexScalar;\n"
                            "out vec4 vertexColor;\n"
@@ -96,6 +97,7 @@ const char* myVertShader = "in vec2 vertexMC;\n"
                            "ldistance = tcoordMC.x;\n"
                            "#endif\n"
                            "vec4 vertex = vec4(vertexMC.xy, 0.0, 1.0);\n"
+                           "gl_PointSize = pointSize;\n"
                            "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n";
 
 const char* myFragShader = "//VTK::Output::Dec\n"
@@ -623,8 +625,10 @@ void vtkOpenGLContextDevice2D::ReadySBOProgram()
       "in vec2 vertexMC;\n"
       "uniform mat4 WCDCMatrix;\n"
       "uniform mat4 MCWCMatrix;\n"
+      "uniform float pointSize;\n"
       "void main() {\n"
       "vec4 vertex = vec4(vertexMC.xy, 0.0, 1.0);\n"
+      "gl_PointSize = pointSize;\n"
       "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
       // fragment shader
       "//VTK::System::Dec\n"
@@ -652,10 +656,12 @@ void vtkOpenGLContextDevice2D::ReadySCBOProgram()
       "in vec4 vertexScalar;\n"
       "uniform mat4 WCDCMatrix;\n"
       "uniform mat4 MCWCMatrix;\n"
+      "uniform float pointSize;\n"
       "out vec4 vertexColor;\n"
       "void main() {\n"
       "vec4 vertex = vec4(vertexMC.xy, 0.0, 1.0);\n"
       "vertexColor = vertexScalar;\n"
+      "gl_PointSize = pointSize;\n"
       "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
       // fragment shader
       "//VTK::System::Dec\n"
@@ -1040,6 +1046,9 @@ void vtkOpenGLContextDevice2D::DrawPoints(
   }
 
   this->SetPointSize(this->Pen->GetWidth());
+#ifdef GL_ES_VERSION_3_0
+  cbo->Program->SetUniformf("pointSize", this->Pen->GetWidth());
+#endif
 
   this->Storage->BufferObjectBuilder.BuildVBO(
     cbo, positions, colors, nullptr, cacheIdentifier, this->RenderWindow);
@@ -1114,6 +1123,9 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData* sprite, vtkDataArr
       }
       cbo->Program->SetUniform4uc("vertexColor", this->Pen->GetColor());
     }
+#ifdef GL_ES_VERSION_3_0
+    cbo->Program->SetUniformf("pointSize", this->Pen->GetWidth());
+#endif
 
     this->Storage->BufferObjectBuilder.BuildVBO(
       cbo, positions, colors, nullptr, cacheIdentifier, this->RenderWindow);
