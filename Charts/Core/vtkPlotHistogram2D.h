@@ -15,7 +15,8 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h"              // For vtkNew
 #include "vtkPlot.h"
-#include "vtkRect.h" // Needed for vtkRectf
+#include "vtkRect.h"          // Needed for vtkRectf
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <string> // Needed for std::string
 
@@ -25,7 +26,7 @@ class vtkDoubleArray;
 class vtkImageData;
 class vtkScalarsToColors;
 
-class VTKCHARTSCORE_EXPORT vtkPlotHistogram2D : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotHistogram2D : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotHistogram2D, vtkPlot);

@@ -14,6 +14,9 @@
 #include "vtkRenderer.h"
 
 #include "vtkOpenGLQuadHelper.h"       // for ivar
+#include "vtkPBRIrradianceTexture.h"   // for ivar
+#include "vtkPBRLUTTexture.h"          // for ivar
+#include "vtkPBRPrefilterTexture.h"    // for ivar
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
 #include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
@@ -30,9 +33,6 @@ class vtkOpenGLTexture;
 class vtkOrderIndependentTranslucentPass;
 class vtkTextureObject;
 class vtkDepthPeelingPass;
-class vtkPBRIrradianceTexture;
-class vtkPBRLUTTexture;
-class vtkPBRPrefilterTexture;
 class vtkShaderProgram;
 class vtkShadowMapPass;
 class vtkSSAOPass;
@@ -135,8 +135,11 @@ public:
   /**
    * Get environment textures used for image based lighting.
    */
+  vtkSetSmartPointerMacro(EnvMapLookupTable, vtkPBRLUTTexture);
   vtkPBRLUTTexture* GetEnvMapLookupTable();
+  vtkSetSmartPointerMacro(EnvMapIrradiance, vtkPBRIrradianceTexture);
   vtkPBRIrradianceTexture* GetEnvMapIrradiance();
+  vtkSetSmartPointerMacro(EnvMapPrefiltered, vtkPBRPrefilterTexture);
   vtkPBRPrefilterTexture* GetEnvMapPrefiltered();
   ///@}
 

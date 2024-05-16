@@ -17,12 +17,13 @@
 #include "vtkNew.h"                  // For ivars
 #include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkWeakPointer.h"          // For ivars
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContextMouseEvent;
 class vtkContextScene;
 
-class VTKVIEWSCONTEXT2D_EXPORT vtkContextInteractorStyle : public vtkInteractorStyle
+class VTKVIEWSCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkContextInteractorStyle : public vtkInteractorStyle
 {
 public:
   static vtkContextInteractorStyle* New();

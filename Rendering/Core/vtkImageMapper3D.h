@@ -20,6 +20,7 @@
 #include "vtkAbstractMapper3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkThreads.h"             // for VTK_MAX_THREADS
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
@@ -34,7 +35,7 @@ class vtkImageData;
 class vtkMultiThreader;
 class vtkImageToImageMapper3DFriendship;
 
-class VTKRENDERINGCORE_EXPORT vtkImageMapper3D : public vtkAbstractMapper3D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkImageMapper3D : public vtkAbstractMapper3D
 {
 public:
   vtkTypeMacro(vtkImageMapper3D, vtkAbstractMapper3D);

@@ -15,6 +15,7 @@
 #include "vtkChart.h"
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h"              // For vtkNew
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
@@ -22,7 +23,7 @@ class vtkStdString;
 class vtkStringArray;
 class vtkPlotParallelCoordinates;
 
-class VTKCHARTSCORE_EXPORT vtkChartParallelCoordinates : public vtkChart
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChartParallelCoordinates : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartParallelCoordinates, vtkChart);

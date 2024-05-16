@@ -27,11 +27,13 @@
 
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkViewsCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"   // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAnnotation;
 
-class VTKVIEWSCORE_EXPORT vtkConvertSelectionDomain : public vtkPassInputTypeAlgorithm
+class VTKVIEWSCORE_EXPORT VTK_MARSHALAUTO vtkConvertSelectionDomain
+  : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkConvertSelectionDomain* New();

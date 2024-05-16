@@ -9,6 +9,7 @@ SPDX_COPYRIGHT_TEXT
 DEPENDS
   VTK::CommonCore
 OPTIONAL_DEPENDS
+  VTK::ChartsCore
   VTK::CommonColor
   VTK::CommonDataModel
   VTK::CommonExecutionModel
@@ -18,7 +19,12 @@ OPTIONAL_DEPENDS
   VTK::InteractionWidgets
   VTK::RenderingAnnotation
   VTK::RenderingCore
+  VTK::RenderingContext2D
+  VTK::RenderingContextOpenGL2
+  VTK::RenderingLabel
   VTK::RenderingOpenGL2
   VTK::RenderingUI
   VTK::RenderingVolume
   VTK::RenderingVolumeOpenGL2
+  VTK::ViewsCore
+  VTK::ViewsContext2D

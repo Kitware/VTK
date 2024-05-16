@@ -6,6 +6,7 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
@@ -13,7 +14,7 @@ class vtkLookupTable;
 // Description:
 // vtkPlot::Color, vtkPlot::Brush, vtkScalarsToColors::DrawPolyLine,
 // vtkScalarsToColors::MaskAboveCurve have no effect here.
-class VTKCHARTSCORE_EXPORT vtkLookupTableItem : public vtkScalarsToColorsItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkLookupTableItem : public vtkScalarsToColorsItem
 {
 public:
   static vtkLookupTableItem* New();

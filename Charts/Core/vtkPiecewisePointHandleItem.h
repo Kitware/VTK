@@ -17,7 +17,8 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkWeakPointer.h" // Needed for weak pointer to the PiecewiseFunction.
+#include "vtkWeakPointer.h"   // Needed for weak pointer to the PiecewiseFunction.
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
@@ -25,7 +26,7 @@ class vtkPiecewiseFunction;
 class vtkCallbackCommand;
 class vtkAbstractContextItem;
 
-class VTKCHARTSCORE_EXPORT vtkPiecewisePointHandleItem : public vtkContextItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPiecewisePointHandleItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPiecewisePointHandleItem, vtkContextItem);

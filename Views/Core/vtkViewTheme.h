@@ -19,12 +19,13 @@
 
 #include "vtkObject.h"
 #include "vtkViewsCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"   // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors;
 class vtkTextProperty;
 
-class VTKVIEWSCORE_EXPORT vtkViewTheme : public vtkObject
+class VTKVIEWSCORE_EXPORT VTK_MARSHALAUTO vtkViewTheme : public vtkObject
 {
 public:
   static vtkViewTheme* New();

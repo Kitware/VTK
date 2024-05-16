@@ -17,6 +17,7 @@
 #include "vtkPlot.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For vtkStdString ivars
+#include "vtkWrappingHints.h"   // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkChartParallelCoordinates;
@@ -24,7 +25,7 @@ class vtkScalarsToColors;
 class vtkTable;
 class vtkUnsignedCharArray;
 
-class VTKCHARTSCORE_EXPORT vtkPlotParallelCoordinates : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotParallelCoordinates : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotParallelCoordinates, vtkPlot);

@@ -33,6 +33,7 @@
 #include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           //for ivar
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
@@ -47,7 +48,7 @@ class vtkRenderer;
 class vtkRenderWindow;
 class vtkShaderProgram;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkValuePass : public vtkOpenGLRenderPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkValuePass : public vtkOpenGLRenderPass
 {
 public:
   enum Mode

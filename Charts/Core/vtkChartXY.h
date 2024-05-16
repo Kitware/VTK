@@ -20,6 +20,7 @@
 #include "vtkContextPolygon.h"   // For vtkContextPolygon
 #include "vtkSmartPointer.h"     // For SP ivars
 #include "vtkVector.h"           // For vtkVector2f in struct
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 
 #include <vector> // for std::vector
 
@@ -38,7 +39,7 @@ VTK_ABI_NAMESPACE_END
 #include <map> // for std::map
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCHARTSCORE_EXPORT vtkChartXY : public vtkChart
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChartXY : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartXY, vtkChart);

@@ -21,13 +21,14 @@
 #include "vtkNew.h"              // For vtkNew ivars
 #include "vtkStdString.h"        // For vtkStdString ivars
 #include "vtkVector.h"           // For vtkRectf
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors;
 class vtkTextProperty;
 class vtkVariantArray;
 
-class VTKCHARTSCORE_EXPORT vtkCategoryLegend : public vtkChartLegend
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkCategoryLegend : public vtkChartLegend
 {
 public:
   vtkTypeMacro(vtkCategoryLegend, vtkChartLegend);

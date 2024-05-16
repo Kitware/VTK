@@ -31,6 +31,7 @@
 
 #include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 #include <string>                      // For member variables.
 #include <vector>                      // STL Header
 
@@ -46,7 +47,7 @@ class vtkShadowMapBakerPass;
 class vtkInformationObjectBaseKey;
 class vtkShaderProgram;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapPass : public vtkOpenGLRenderPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkShadowMapPass : public vtkOpenGLRenderPass
 {
 public:
   static vtkShadowMapPass* New();

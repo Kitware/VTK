@@ -30,11 +30,12 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkCommand.h"          // For vtkCommand enum
 #include "vtkPlot.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBrush;
 
-class VTKCHARTSCORE_EXPORT vtkPlotRangeHandlesItem : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotRangeHandlesItem : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotRangeHandlesItem, vtkPlot);

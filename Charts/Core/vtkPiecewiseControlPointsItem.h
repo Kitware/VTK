@@ -18,11 +18,13 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkControlPointsItem.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 
-class VTKCHARTSCORE_EXPORT vtkPiecewiseControlPointsItem : public vtkControlPointsItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPiecewiseControlPointsItem
+  : public vtkControlPointsItem
 {
 public:
   vtkTypeMacro(vtkPiecewiseControlPointsItem, vtkControlPointsItem);

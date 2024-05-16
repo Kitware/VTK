@@ -47,6 +47,7 @@
 
 #include "vtkPointSet.h"
 #include "vtkRenderingLabelModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
@@ -61,7 +62,7 @@ class vtkPolyData;
 class vtkRenderer;
 class vtkTextProperty;
 
-class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchy : public vtkPointSet
+class VTKRENDERINGLABEL_EXPORT VTK_MARSHALAUTO vtkLabelHierarchy : public vtkPointSet
 {
 public:
   static vtkLabelHierarchy* New();

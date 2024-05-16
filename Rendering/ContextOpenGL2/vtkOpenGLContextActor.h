@@ -14,9 +14,11 @@
 
 #include "vtkContextActor.h"
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"                 // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextActor : public vtkContextActor
+class VTKRENDERINGCONTEXTOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLContextActor
+  : public vtkContextActor
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;

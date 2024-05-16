@@ -5,14 +5,15 @@
 #define vtkContextPolygon_h
 
 #include "vtkChartsCoreModule.h"
-#include "vtkType.h"   // For vtkIdType
-#include "vtkVector.h" // For vtkVector2f
+#include "vtkType.h"          // For vtkIdType
+#include "vtkVector.h"        // For vtkVector2f
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform2D;
 class vtkContextPolygonPrivate;
 
-class VTKCHARTSCORE_EXPORT vtkContextPolygon
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkContextPolygon
 {
 public:
   // Description:

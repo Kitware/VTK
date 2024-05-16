@@ -14,13 +14,15 @@
 
 #include "vtkLabelRenderStrategy.h"
 #include "vtkRenderingLabelModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkTextRenderer;
 class vtkTextMapper;
 
-class VTKRENDERINGLABEL_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRenderStrategy
+class VTKRENDERINGLABEL_EXPORT VTK_MARSHALAUTO vtkFreeTypeLabelRenderStrategy
+  : public vtkLabelRenderStrategy
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;

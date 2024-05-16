@@ -39,9 +39,10 @@
 
 #include "vtkLabeledDataMapper.h"
 #include "vtkRenderingLabelModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGLABEL_EXPORT vtkDynamic2DLabelMapper : public vtkLabeledDataMapper
+class VTKRENDERINGLABEL_EXPORT VTK_MARSHALAUTO vtkDynamic2DLabelMapper : public vtkLabeledDataMapper
 {
 public:
   ///@{

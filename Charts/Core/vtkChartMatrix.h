@@ -18,6 +18,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkRect.h"             // for ivars
 #include "vtkVector.h"           // For ivars
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 
 #include <map>     // For specific gutter
 #include <utility> // For specific gutter
@@ -25,7 +26,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkChart;
 
-class VTKCHARTSCORE_EXPORT vtkChartMatrix : public vtkAbstractContextItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChartMatrix : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkChartMatrix, vtkAbstractContextItem);

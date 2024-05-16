@@ -27,6 +27,7 @@
 
 #include "vtkObject.h"
 #include "vtkViewsCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"   // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
@@ -36,7 +37,7 @@ class vtkDataRepresentation;
 class vtkSelection;
 class vtkViewTheme;
 
-class VTKVIEWSCORE_EXPORT vtkView : public vtkObject
+class VTKVIEWSCORE_EXPORT VTK_MARSHALAUTO vtkView : public vtkObject
 {
 public:
   static vtkView* New();

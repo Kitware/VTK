@@ -18,6 +18,7 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkVector.h"                   // For vtkVector return type.
 #include "vtkWeakPointer.h"              // Needed for weak pointer to the window.
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
@@ -33,7 +34,7 @@ class vtkAnnotationLink;
 class vtkRenderer;
 class vtkAbstractContextBufferId;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkContextScene : public vtkObject
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkContextScene : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextScene, vtkObject);
@@ -84,6 +85,7 @@ public:
    * Remove all child items from this item.
    */
   void ClearItems();
+  void RemoveAllItems() { this->ClearItems(); }
 
   /**
    * Set the vtkAnnotationLink for the chart.

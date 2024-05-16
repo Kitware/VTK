@@ -19,13 +19,14 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkStdString.h"                // For vtkStdString ivars
 #include "vtkVector.h"                   // Needed for vtkVector2f
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPen;
 class vtkBrush;
 class vtkTextProperty;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkTooltipItem : public vtkContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkTooltipItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkTooltipItem, vtkContextItem);

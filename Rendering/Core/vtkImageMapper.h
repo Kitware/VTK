@@ -20,6 +20,7 @@
 
 #include "vtkMapper2D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
@@ -27,7 +28,7 @@ class vtkViewport;
 class vtkActor2D;
 class vtkImageData;
 
-class VTKRENDERINGCORE_EXPORT vtkImageMapper : public vtkMapper2D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkImageMapper : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkImageMapper, vtkMapper2D);

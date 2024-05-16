@@ -15,7 +15,8 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
-#include "vtkSmartPointer.h" // Needed to hold ColorSeries
+#include "vtkSmartPointer.h"  // Needed to hold ColorSeries
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
@@ -28,7 +29,7 @@ class vtkScalarsToColors;
 
 class vtkPlotBarPrivate;
 
-class VTKCHARTSCORE_EXPORT vtkPlotBar : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotBar : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotBar, vtkPlot);

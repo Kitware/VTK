@@ -16,13 +16,14 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h"              //  For vtkNew ivar
 #include "vtkPlot3D.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkLookupTable;
 class vtkTable;
 
-class VTKCHARTSCORE_EXPORT vtkPlotSurface : public vtkPlot3D
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotSurface : public vtkPlot3D
 {
 public:
   vtkTypeMacro(vtkPlotSurface, vtkPlot3D);

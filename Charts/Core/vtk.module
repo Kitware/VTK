@@ -34,3 +34,4 @@ TEST_DEPENDS
   VTK::TestingCore
   VTK::TestingRendering
   VTK::ViewsContext2D
+INCLUDE_MARSHAL

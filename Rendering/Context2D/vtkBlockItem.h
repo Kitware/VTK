@@ -21,6 +21,7 @@
 #include "vtkNew.h"                      // For vtkNew
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkStdString.h"                // For vtkStdString ivars
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
@@ -28,7 +29,7 @@ class vtkTextProperty;
 class vtkBrush;
 class vtkPen;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkBlockItem : public vtkContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkBlockItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkBlockItem, vtkContextItem);

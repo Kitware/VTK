@@ -19,12 +19,13 @@
 #include "vtkRenderViewBase.h"
 #include "vtkSmartPointer.h"         // Needed for SP ivars
 #include "vtkViewsContext2DModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkContextScene;
 
-class VTKVIEWSCONTEXT2D_EXPORT vtkContextView : public vtkRenderViewBase
+class VTKVIEWSCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkContextView : public vtkRenderViewBase
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -35,11 +36,13 @@ public:
   /**
    * Set the vtkContext2D for the view.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual void SetContext(vtkContext2D* context);
 
   /**
    * Get the vtkContext2D for the view.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual vtkContext2D* GetContext();
 
   /**

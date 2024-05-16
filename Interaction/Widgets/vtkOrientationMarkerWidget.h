@@ -59,6 +59,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
@@ -67,7 +68,8 @@ class vtkProp;
 class vtkOrientationMarkerWidgetObserver;
 class vtkRenderer;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkOrientationMarkerWidget : public vtkInteractorObserver
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkOrientationMarkerWidget
+  : public vtkInteractorObserver
 {
 public:
   static vtkOrientationMarkerWidget* New();

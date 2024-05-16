@@ -21,6 +21,7 @@
 #include "vtkSmartPointer.h"     // For ivars
 #include "vtkStdString.h"        // For ivars
 #include "vtkWeakPointer.h"      // For currentPainter
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
@@ -31,7 +32,7 @@ class vtkTextProperty;
 class vtkTooltipItem;
 class vtkRenderWindowInteractor;
 
-class VTKCHARTSCORE_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkScatterPlotMatrix : public vtkChartMatrix
 {
 public:
   enum

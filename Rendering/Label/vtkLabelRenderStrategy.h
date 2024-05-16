@@ -13,6 +13,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingLabelModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 #include "vtkStdString.h" // For string support
 
@@ -21,7 +22,7 @@ class vtkRenderer;
 class vtkWindow;
 class vtkTextProperty;
 
-class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
+class VTKRENDERINGLABEL_EXPORT VTK_MARSHALAUTO vtkLabelRenderStrategy : public vtkObject
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;

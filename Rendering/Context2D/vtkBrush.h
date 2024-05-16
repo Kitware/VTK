@@ -19,11 +19,12 @@
 #include "vtkColor.h" // Needed for vtkColor4ub
 #include "vtkObject.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkBrush : public vtkObject
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkBrush : public vtkObject
 {
 public:
   vtkTypeMacro(vtkBrush, vtkObject);
@@ -35,29 +36,34 @@ public:
    * Set the color of the brush with three component doubles (RGB), ranging from
    * 0.0 to 1.0.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetColorF(double color[3]);
 
   /**
    * Set the color of the brush with three component doubles (RGB), ranging from
    * 0.0 to 1.0.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetColorF(double r, double g, double b);
 
   /**
    * Set the color of the brush with four component doubles (RGBA), ranging from
    * 0.0 to 1.0.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetColorF(double r, double g, double b, double a);
 
   /**
    * Set the opacity with a double, ranging from 0.0 (transparent) to 1.0
    * (opaque).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetOpacityF(double a);
 
   /**
    * Get the opacity ranging from 0.0 (transparent) to 1.0(opaque).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   double GetOpacityF();
 
   /**
@@ -77,6 +83,7 @@ public:
    * Set the color of the brush with four component unsigned chars (RGBA),
    * ranging from 0 to 255.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
   void SetColor(const vtkColor4ub& color);
   ///@}
@@ -95,6 +102,7 @@ public:
   /**
    * Get the color of the brush - expects a double of length 4 to copy into.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetColorF(double color[4]);
 
   /**
@@ -105,6 +113,7 @@ public:
   /**
    * Get the color of the brush - gives a pointer to the underlying data.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   unsigned char* GetColor() { return &this->Color[0]; }
 
   /**

@@ -14,6 +14,7 @@
 
 #include "vtkChart.h"
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
@@ -22,7 +23,7 @@ class vtkStdString;
 class vtkStringArray;
 class vtkTooltipItem;
 
-class VTKCHARTSCORE_EXPORT vtkChartBox : public vtkChart
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChartBox : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartBox, vtkChart);

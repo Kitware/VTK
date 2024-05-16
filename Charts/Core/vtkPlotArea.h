@@ -16,8 +16,11 @@
 
 #include "vtkPlot.h"
 
+#include "vtkChartsCoreModule.h" // for export macro
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
+
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCHARTSCORE_EXPORT vtkPlotArea : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotArea : public vtkPlot
 {
 public:
   static vtkPlotArea* New();

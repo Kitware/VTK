@@ -35,6 +35,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFrameBufferObjectBase;
@@ -42,7 +43,7 @@ class vtkRenderState;
 class vtkWindow;
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderPass : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRenderPass, vtkObject);

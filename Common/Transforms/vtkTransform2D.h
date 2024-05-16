@@ -25,13 +25,14 @@
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkMatrix3x3.h" // Needed for inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints2D;
 
-class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
+class VTKCOMMONTRANSFORMS_EXPORT VTK_MARSHALAUTO vtkTransform2D : public vtkObject
 {
 public:
   static vtkTransform2D* New();

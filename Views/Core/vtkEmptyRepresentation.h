@@ -13,11 +13,12 @@
 #include "vtkDataRepresentation.h"
 #include "vtkSmartPointer.h"    // For SP ivars
 #include "vtkViewsCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"   // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkConvertSelectionDomain;
 
-class VTKVIEWSCORE_EXPORT vtkEmptyRepresentation : public vtkDataRepresentation
+class VTKVIEWSCORE_EXPORT VTK_MARSHALAUTO vtkEmptyRepresentation : public vtkDataRepresentation
 {
 public:
   static vtkEmptyRepresentation* New();

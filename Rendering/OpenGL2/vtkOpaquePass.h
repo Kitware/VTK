@@ -21,9 +21,10 @@
 
 #include "vtkDefaultPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGOPENGL2_EXPORT vtkOpaquePass : public vtkDefaultPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpaquePass : public vtkDefaultPass
 {
 public:
   static vtkOpaquePass* New();

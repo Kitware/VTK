@@ -16,8 +16,9 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkNew.h"  // For vtkNew
-#include "vtkRect.h" // For vtkRectf return value
+#include "vtkNew.h"           // For vtkNew
+#include "vtkRect.h"          // For vtkRectf return value
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkChart;
@@ -25,7 +26,7 @@ class vtkPen;
 class vtkBrush;
 class vtkTextProperty;
 
-class VTKCHARTSCORE_EXPORT vtkChartLegend : public vtkContextItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChartLegend : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChartLegend, vtkContextItem);
