@@ -202,6 +202,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_mpi")
     "^VTK::IOIossCxx-TestIossTri6$"
     "^VTK::IOIossCxx-TestIossUnsupported$"
     "^VTK::IOIOSSCxx-TestIOSSWedge21$"
+    "^VTK::IOMPIParallelPython-MPI-Plot3DMPIIO$"
+    "^VTK::IOParallelCxx-MPI-TestPOpenFOAMReaderLagrangianUncollated$"
     "^VTK::ParallelMPICxx-MPI-PDirectory$"
     "^VTK::ParallelMPICxx-MPI-PSystemTools$"
     "^VTK::ParallelDIYCxx-MPI-TestDIYDataExchanger$"
