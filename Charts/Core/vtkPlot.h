@@ -144,10 +144,13 @@ public:
   virtual void SetColor(double r, double g, double b) { this->SetColorF(r, g, b); }
   ///@}
 
+  ///@{
   /**
    * Get the plot color as integer rgb values (comprised between 0 and 255)
    */
   void GetColor(unsigned char rgb[3]);
+  void GetColorRGBA(unsigned char rgba[4]);
+  ///@}
 
   ///@{
   /**
@@ -303,6 +306,17 @@ public:
    * column in the vtkTable.
    */
   virtual void SetInputArray(int index, const vtkStdString& name);
+
+  ///@{
+  /**
+   * Convenient function to directly set/get the names of columns
+   * used for X and Y axis respectively.
+   */
+  void SetXAxisInputArrayToProcess(const std::string& name);
+  std::string GetXAxisInputArrayToProcess();
+  void SetYAxisInputArrayToProcess(const std::string& name);
+  std::string GetYAxisInputArrayToProcess();
+  ///@}
 
   ///@{
   /**

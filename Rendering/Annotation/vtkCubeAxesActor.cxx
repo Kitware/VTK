@@ -2070,9 +2070,81 @@ vtkTextProperty* vtkCubeAxesActor::GetTitleTextProperty(int axis)
 }
 
 //------------------------------------------------------------------------------
+void vtkCubeAxesActor::SetXAxesTitleProperty(vtkTextProperty* property)
+{
+  this->TitleTextProperty[0]->ShallowCopy(property);
+}
+
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkCubeAxesActor::GetXAxesTitleProperty()
+{
+  return this->TitleTextProperty[0];
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor::SetYAxesTitleProperty(vtkTextProperty* property)
+{
+  this->TitleTextProperty[1]->ShallowCopy(property);
+}
+
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkCubeAxesActor::GetYAxesTitleProperty()
+{
+  return this->TitleTextProperty[1];
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor::SetZAxesTitleProperty(vtkTextProperty* property)
+{
+  this->TitleTextProperty[2]->ShallowCopy(property);
+}
+
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkCubeAxesActor::GetZAxesTitleProperty()
+{
+  return this->TitleTextProperty[2];
+}
+
+//------------------------------------------------------------------------------
 vtkTextProperty* vtkCubeAxesActor::GetLabelTextProperty(int axis)
 {
   return (axis >= 0 && axis < 3) ? this->LabelTextProperty[axis].Get() : nullptr;
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor::SetXAxesLabelProperty(vtkTextProperty* property)
+{
+  this->LabelTextProperty[0]->ShallowCopy(property);
+}
+
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkCubeAxesActor::GetXAxesLabelProperty()
+{
+  return this->LabelTextProperty[0];
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor::SetYAxesLabelProperty(vtkTextProperty* property)
+{
+  this->LabelTextProperty[1]->ShallowCopy(property);
+}
+
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkCubeAxesActor::GetYAxesLabelProperty()
+{
+  return this->LabelTextProperty[1];
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor::SetZAxesLabelProperty(vtkTextProperty* property)
+{
+  this->LabelTextProperty[2]->ShallowCopy(property);
+}
+
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkCubeAxesActor::GetZAxesLabelProperty()
+{
+  return this->LabelTextProperty[2];
 }
 
 //------------------------------------------------------------------------------
