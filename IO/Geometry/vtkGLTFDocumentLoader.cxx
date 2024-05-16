@@ -820,6 +820,15 @@ bool vtkGLTFDocumentLoader::LoadImageData()
     {
       reader = vtkSmartPointer<vtkPNGReader>::New();
     }
+    else
+    {
+      // Extensions allow other image types.
+      // It is perfectly valid to declare other extension-supported image types
+      // so long as they are never required by the scene. Therefore, the possible
+      // error is deferred until later.
+      image.ImageData = nullptr;
+      continue;
+    }
 
     // If image is defined via bufferview index
     if (image.BufferView >= 0 &&

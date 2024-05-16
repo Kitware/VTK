@@ -620,13 +620,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadImage(
   {
     image.MimeType.clear();
   }
-  else if (image.MimeType != "image/jpeg" && image.MimeType != "image/png")
-  {
-    vtkErrorWithObjectMacro(this->Self,
-      "Invalid image.mimeType value. Must be either image/jpeg or image/png for image "
-        << image.Name);
-    return false;
-  }
+
   // Read the bufferView index value, if it exists.
   image.BufferView = -1;
   if (vtkGLTFUtils::GetIntValue(root, "bufferView", image.BufferView))
