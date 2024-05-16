@@ -59,6 +59,18 @@ public:
 
   ///@{
   /**
+   * Set/Get the [u,v] texture coordinate scaling for the floor projection.
+   * Defaults to [1, 1] i.e. no scaling, which means the floor texture coordinates are computed
+   * based on the view coordinates of the plane points.
+   *
+   * \sa SetProjectionToFloor()
+   */
+  vtkGetVector2Macro(FloorTexCoordScale, float);
+  vtkSetVector2Macro(FloorTexCoordScale, float);
+  ///@}
+
+  ///@{
+  /**
    * Define if the colors should be gamma corrected.
    * This is generally required if the input texture is in linear color space.
    * Default is off.
@@ -75,6 +87,7 @@ protected:
   int Projection;
   float FloorPlane[4];
   float FloorRight[3];
+  float FloorTexCoordScale[2];
 
   bool GammaCorrect = false;
 

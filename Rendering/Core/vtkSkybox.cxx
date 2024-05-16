@@ -33,6 +33,8 @@ vtkSkybox::vtkSkybox()
   this->FloorRight[0] = 1.0;
   this->FloorRight[1] = 0.0;
   this->FloorRight[2] = 0.0;
+  this->FloorTexCoordScale[0] = 1.0;
+  this->FloorTexCoordScale[1] = 1.0;
 }
 
 //------------------------------------------------------------------------------

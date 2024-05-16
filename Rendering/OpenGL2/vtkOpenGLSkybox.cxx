@@ -92,6 +92,7 @@ void vtkOpenGLSkybox::UpdateUniforms(vtkObject*, unsigned long, void* calldata)
   plane[3] = this->FloorPlane[3] / norm;
   program->SetUniform4f("floorPlane", plane);
   program->SetUniform3f("floorRight", this->FloorRight);
+  program->SetUniform2f("floorTCoordScale", this->FloorTexCoordScale);
   float front[3];
   vtkMath::Cross(plane, this->FloorRight, front);
   program->SetUniform3f("floorFront", front);
@@ -177,9 +178,10 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
     if (this->Projection == vtkSkybox::Floor)
     {
       vtkShaderProgram::Substitute(str, "//VTK::Projection::Dec",
-        "uniform vec4 floorPlane;\n" // floor plane eqn
-        "uniform vec3 floorRight;\n" // floor plane right
-        "uniform vec3 floorFront;\n" // floor plane front
+        "uniform vec4 floorPlane;\n"       // floor plane eqn
+        "uniform vec3 floorRight;\n"       // floor plane right
+        "uniform vec3 floorFront;\n"       // floor plane front
+        "uniform vec2 floorTCoordScale;\n" // floor texture scale
         "uniform mat4 MCDCMatrix;\n"
         "uniform sampler2D actortexture;\n");
 
@@ -193,7 +195,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
         "    if (t >= 0.0) {\n"
         "      vec3 pos = dirv*t - p0l0;\n"
         "      vec4 color = texture(actortexture, "
-        "vec2(dot(floorRight,pos), dot(floorFront, pos)));\n"
+        "vec2(dot(floorRight,pos)/floorTCoordScale.x, dot(floorFront, pos)/floorTCoordScale.y));\n"
         "      //VTK::Gamma::Impl\n"
         // The discards cause a discontinuity with mipmapping
         // on the horizon of the floor. So we fade out the floor
