@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAlgorithm.h"
-#include "vtkAlgorithmOutput.h"
+#include "vtkDataObject.h"
 #include "vtkDeserializer.h"
-#include "vtkExecutive.h"
 #include "vtkSerializer.h"
 
 // clang-format off
@@ -26,7 +25,6 @@ static nlohmann::json Serialize_vtkAlgorithm(vtkObjectBase* object, vtkSerialize
     {
       state = superSerializer(object, serializer);
     }
-    // Push super info
     state["SuperClassNames"].push_back("vtkObject");
     if (algorithm->GetNumberOfOutputPorts() > 0)
     {
@@ -37,16 +35,20 @@ static nlohmann::json Serialize_vtkAlgorithm(vtkObjectBase* object, vtkSerialize
       }
     }
     state["AbortExecute"] = algorithm->GetAbortExecute();
-    auto& stateOfPorts = state["InputPorts"] = json::array();
+    // the pipeline is servered here by capturing only the input data objects
+    // in the state.
+    auto& statesOfInputDataObjects = state["InputDataObjects"] = json::array();
     for (int port = 0; port < algorithm->GetNumberOfInputPorts(); ++port)
     {
-      auto stateOfConnections = json::array();
+      auto stateOfInputDataObjects = json::array();
       for (int index = 0; index < algorithm->GetNumberOfInputConnections(port); ++index)
       {
-        auto* inputConnection = algorithm->GetInputConnection(port, index);
-        stateOfConnections.push_back(serializer->SerializeJSON(inputConnection));
+        auto* inputAlgorithm = algorithm->GetInputAlgorithm(port, index);
+        inputAlgorithm->Update();
+        auto* inputDataObject = algorithm->GetInputDataObject(port, index);
+        stateOfInputDataObjects.push_back(serializer->SerializeJSON(inputDataObject));
       }
-      stateOfPorts.push_back(stateOfConnections);
+      statesOfInputDataObjects.push_back(stateOfInputDataObjects);
     }
     return state;
   }
@@ -68,31 +70,39 @@ static void Deserialize_vtkAlgorithm(
   const auto* context = deserializer->GetContext();
   VTK_DESERIALIZE_VALUE_FROM_STATE(AbortExecute, int, state, algorithm);
   {
-    const auto iter = state.find("InputPorts");
+    const auto iter = state.find("InputDataObjects");
     if ((iter != state.end()) && !iter->is_null())
     {
-      auto stateOfPorts = iter->get<json::array_t>();
-      if (algorithm->GetNumberOfInputPorts() != static_cast<int>(stateOfPorts.size()))
+      auto statesOfInputDataObjects = iter->get<json::array_t>();
+      if (algorithm->GetNumberOfInputPorts() != static_cast<int>(statesOfInputDataObjects.size()))
       {
-        vtkWarningWithObjectMacro(
-          context, << deserializer->GetObjectDescription()
-                   << " failed because number of input ports does not match for algorithm="
-                   << algorithm->GetObjectDescription());
+        vtkWarningWithObjectMacro(context,
+          << deserializer->GetObjectDescription()
+          << " failed because number of input ports in state (" << statesOfInputDataObjects.size()
+          << ") does not match for algorithm=" << algorithm->GetObjectDescription() << " ("
+          << algorithm->GetNumberOfInputPorts() << ")");
         return;
       }
-      // Deserialize output ports and add them as input connections
+      const bool hasMultipleInPorts = algorithm->GetNumberOfInputPorts() > 1;
       for (int port = 0; port < algorithm->GetNumberOfInputPorts(); ++port)
       {
         algorithm->RemoveAllInputConnections(port);
-        auto stateOfConnections = stateOfPorts[port].get<json::array_t>();
-        for (std::size_t index = 0; index < stateOfConnections.size(); ++index)
+        auto stateOfInputDataObjects = statesOfInputDataObjects[port].get<json::array_t>();
+        for (std::size_t index = 0; index < stateOfInputDataObjects.size(); ++index)
         {
-          const auto identifier = stateOfConnections[index]["Id"].get<vtkTypeUInt32>();
+          const auto identifier = stateOfInputDataObjects[index]["Id"].get<vtkTypeUInt32>();
           auto subObject = context->GetObjectAtId(identifier);
           deserializer->DeserializeJSON(identifier, subObject);
-          if (auto* outputPort = vtkAlgorithmOutput::SafeDownCast(subObject))
+          if (auto* dataObject = vtkDataObject::SafeDownCast(subObject))
           {
-            algorithm->AddInputConnection(port, outputPort);
+            if (hasMultipleInPorts)
+            {
+              algorithm->AddInputDataObject(port, dataObject);
+            }
+            else
+            {
+              algorithm->SetInputDataObject(port, dataObject);
+            }
           }
         }
       }
