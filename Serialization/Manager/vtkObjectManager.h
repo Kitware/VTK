@@ -42,7 +42,7 @@ public:
   /**
    * Loads the default (de)serialization handlers and constructors for VTK classes
    */
-  bool Initialize();
+  virtual bool Initialize();
   bool InitializeDefaultHandlers();
   ///@}
 

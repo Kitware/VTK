@@ -10,3 +10,8 @@ DEPENDS
   VTK::SerializationManager
 PRIVATE_DEPENDS
   VTK::RenderingCore
+OPTIONAL_DEPENDS
+  VTK::RenderingContextOpenGL2
+  VTK::RenderingOpenGL2
+  VTK::RenderingUI
+  VTK::RenderingVolumeOpenGL2
