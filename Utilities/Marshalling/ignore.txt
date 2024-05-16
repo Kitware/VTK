@@ -439,7 +439,6 @@ Common/DataModel/vtkStructuredGrid.h
 Common/DataModel/vtkStructuredPoints.h
 Common/DataModel/vtkStructuredPointsCollection.h
 Common/DataModel/vtkSuperquadric.h
-Common/DataModel/vtkTable.h
 Common/DataModel/vtkTetra.h
 Common/DataModel/vtkTree.h
 Common/DataModel/vtkTreeBFSIterator.h

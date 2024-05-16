@@ -314,6 +314,7 @@ if (VTK_WRAP_SERIALIZATION)
     vtkCellArraySerDesHelper.cxx
     vtkDataSetAttributesSerDesHelper.cxx
     vtkPiecewiseFunctionSerDesHelper.cxx
+    vtkTableSerDesHelper.cxx
     vtkUnstructuredGridSerDesHelper.cxx)
 endif ()    
 
