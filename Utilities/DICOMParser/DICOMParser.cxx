@@ -234,7 +234,6 @@ bool DICOMParser::IsValidRepresentation(doublebyte rep, quadbyte& len, VRTypes& 
     case DICOMParser::VR_PN:
     case DICOMParser::VR_ST:
     case DICOMParser::VR_TM:
-    case DICOMParser::VR_UT: // new
     case DICOMParser::VR_SH:
     case DICOMParser::VR_FL:
     case DICOMParser::VR_SL:
@@ -250,6 +249,7 @@ bool DICOMParser::IsValidRepresentation(doublebyte rep, quadbyte& len, VRTypes& 
     case DICOMParser::VR_OB: // OB - LE
     case DICOMParser::VR_OW:
     case DICOMParser::VR_UN:
+    case DICOMParser::VR_UT:
     case DICOMParser::VR_SQ:
       DataFile->ReadDoubleByte();
       len = DataFile->ReadQuadByte();
