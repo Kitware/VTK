@@ -366,7 +366,30 @@ void vtkObjectManager::PruneUnusedStates()
 //------------------------------------------------------------------------------
 void vtkObjectManager::PruneUnusedObjects()
 {
-  // Clear out states that correspond to stale objects
+  // Find strong objects not referenced by states
+  vtkMarshalContext::StrongObjectStore staleStrongObjects;
+  for (const auto& iter : this->Context->StrongObjects())
+  {
+    for (const auto& object : iter.second)
+    {
+      auto identifier = this->Context->GetId(object);
+      auto key = std::to_string(identifier);
+      if (!this->Context->States().contains(key))
+      {
+        staleStrongObjects[iter.first].insert(object);
+      }
+    }
+  }
+  for (auto& iter : staleStrongObjects)
+  {
+    for (const auto& object : iter.second)
+    {
+      vtkDebugMacro(<< "Remove stale strong object: " << iter.first << ":" << object);
+      this->Context->Retire(iter.first, object);
+    }
+  }
+  staleStrongObjects.clear();
+  // Clear out stale weak references to objects
   std::vector<vtkTypeUInt32> staleIds;
   staleIds.reserve(this->Context->WeakObjects().size());
   for (const auto& iter : this->Context->WeakObjects())

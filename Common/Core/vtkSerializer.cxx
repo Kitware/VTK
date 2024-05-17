@@ -61,7 +61,6 @@ nlohmann::json vtkSerializer::SerializeJSON(vtkObjectBase* objectBase)
   {
     vtkErrorMacro(<< "Failed to add object " << objectBase->GetObjectDescription());
     return nlohmann::json::object();
-    ;
   }
   nlohmann::json state = nlohmann::json::object();
   if (const auto& f = this->GetHandler(typeid(*objectBase)))
@@ -69,7 +68,8 @@ nlohmann::json vtkSerializer::SerializeJSON(vtkObjectBase* objectBase)
     try
     {
       vtkMarshalContext::ScopedParentTracker parentTracker(this->Context, identifier);
-      vtkLogScopeF(TRACE, "Serialize objectBase=%s", objectBase->GetObjectDescription().c_str());
+      vtkLogScopeF(TRACE, "Serialize objectBase=%s at id=%u",
+        objectBase->GetObjectDescription().c_str(), identifier);
       state = f(objectBase, this);
       state["Id"] = identifier;
       this->Context->UnRegisterState(identifier);
