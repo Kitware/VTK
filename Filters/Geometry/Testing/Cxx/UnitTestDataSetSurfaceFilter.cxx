@@ -3,6 +3,7 @@
 
 #include "vtkAppendFilter.h"
 #include "vtkCellData.h"
+#include "vtkCellTypeSource.h"
 #include "vtkCommand.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkDoubleArray.h"
@@ -490,6 +491,34 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
     else
     {
       std::cout << " PASSED." << std::endl;
+    }
+  }
+  {
+    std::cout << "Testing number of points for nonlinear 1d celltypes.";
+    vtkNew<vtkCellTypeSource> source;
+    source->SetBlocksDimensions(3, 1, 1);
+    source->SetCellOrder(2);
+    for (const auto celltype : { VTK_QUADRATIC_EDGE, VTK_LAGRANGE_CURVE, VTK_BEZIER_CURVE })
+    {
+      source->SetCellType(celltype);
+      source->Update();
+      vtkSmartPointer<vtkDataSetSurfaceFilter> filter =
+        vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
+      filter->SetInputData(source->GetOutput());
+      filter->Update();
+      int expected = 7;
+      int got = filter->GetOutput()->GetNumberOfPoints();
+      if (got != expected)
+      {
+        std::cout << " got " << got << " points but expected " << expected;
+        std::cout << " FAILED." << std::endl;
+        status++;
+      }
+      else
+      {
+        std::cout << " # of points: " << got;
+        std::cout << " PASSED." << std::endl;
+      }
     }
   }
   return status;
