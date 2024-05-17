@@ -43,6 +43,16 @@ public:
    */
   ~vtkContextScenePrivate() { this->Clear(); }
 
+  void PrintSelf(ostream& os, vtkIndent indent)
+  {
+    os << indent << "Number of children: " << this->size() << '\n';
+    os << indent << "Scene: " << this->Scene << '\n';
+    for (const_iterator it = this->begin(); it != this->end(); ++it)
+    {
+      (*it)->PrintSelf(os, indent.GetNextIndent());
+    }
+  }
+
   ///@{
   /**
    * A few standard defines
