@@ -303,7 +303,10 @@ void vtkContextScene::SetTransform(vtkTransform2D* transform)
   {
     return;
   }
-  this->Transform->Delete();
+  if (this->Transform != nullptr)
+  {
+    this->Transform->Delete();
+  }
   this->Transform = transform;
   this->Transform->Register(this);
 }
