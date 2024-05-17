@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDataSetAttributesFieldList.h"
 #include "vtkDeserializer.h"
 #include "vtkObjectBase.h"
 #include "vtkSerializer.h"
@@ -16,22 +16,6 @@ extern "C"
   int RegisterHandlers_vtkDataSetAttributesSerDesHelper(void* ser, void* deser);
 }
 
-#define SERIALIZE_DATA_ATTRIBUTE(AttributeType)                                                    \
-  if (auto* array = dsa->Get##AttributeType())                                                     \
-  {                                                                                                \
-    state[#AttributeType] = serializer->SerializeJSON(array);                                      \
-  }
-
-#define DESERIALIZE_DATA_ATTRIBUTE(AttributeType)                                                  \
-  if (state.contains(#AttributeType))                                                              \
-  {                                                                                                \
-    const auto identifier = state[#AttributeType]["Id"].get<vtkTypeUInt32>();                      \
-    if (auto* array = vtkDataArray::SafeDownCast(context->GetObjectAtId(identifier)))              \
-    {                                                                                              \
-      dsa->Set##AttributeType(array);                                                              \
-    }                                                                                              \
-  }
-
 static nlohmann::json Serialize_vtkDataSetAttributes(
   vtkObjectBase* object, vtkSerializer* serializer)
 {
@@ -44,20 +28,15 @@ static nlohmann::json Serialize_vtkDataSetAttributes(
       state = superSerializer(object, serializer);
     }
     state["NumberOfArrays"] = dsa->GetNumberOfArrays();
-    SERIALIZE_DATA_ATTRIBUTE(Scalars)
-    SERIALIZE_DATA_ATTRIBUTE(Vectors)
-    SERIALIZE_DATA_ATTRIBUTE(Normals)
-    SERIALIZE_DATA_ATTRIBUTE(Tangents)
-    SERIALIZE_DATA_ATTRIBUTE(TCoords)
-    SERIALIZE_DATA_ATTRIBUTE(GlobalIds)
-    SERIALIZE_DATA_ATTRIBUTE(PedigreeIds)
-    SERIALIZE_DATA_ATTRIBUTE(RationalWeights)
-    SERIALIZE_DATA_ATTRIBUTE(HigherOrderDegrees)
-    SERIALIZE_DATA_ATTRIBUTE(ProcessIds)
     auto& dst = state["Arrays"] = json::array();
     for (int i = 0; i < dsa->GetNumberOfArrays(); ++i)
     {
-      dst.push_back(serializer->SerializeJSON(dsa->GetArray(i)));
+      dst.push_back(serializer->SerializeJSON(dsa->GetAbstractArray(i)));
+    }
+    {
+      std::vector<int> attrIndices(vtkDataSetAttributes::NUM_ATTRIBUTES, -1);
+      dsa->GetAttributeIndices(attrIndices.data());
+      state["AttributeIndices"] = attrIndices;
     }
     return state;
   }
@@ -78,11 +57,11 @@ static void Deserialize_vtkDataSetAttributes(
       superDeserializer(state, object, deserializer);
     }
     auto* context = deserializer->GetContext();
-    for (int i = 0; i < dsa->GetNumberOfArrays(); ++i)
+    while (dsa->GetNumberOfArrays() > 0)
     {
-      auto* array = dsa->GetArray(i);
+      auto* array = dsa->GetAbstractArray(0);
       context->UnRegisterObject(context->GetId(array));
-      dsa->RemoveArray(i);
+      dsa->RemoveArray(0);
     }
     const auto& stateOfArrays = state["Arrays"];
     for (auto& stateOfarray : stateOfArrays)
@@ -90,21 +69,26 @@ static void Deserialize_vtkDataSetAttributes(
       const auto identifier = stateOfarray["Id"].get<vtkTypeUInt32>();
       auto subObject = context->GetObjectAtId(identifier);
       deserializer->DeserializeJSON(identifier, subObject);
-      if (auto* array = vtkDataArray::SafeDownCast(subObject))
+      if (auto* array = vtkAbstractArray::SafeDownCast(subObject))
       {
         dsa->AddArray(array);
       }
     }
-    DESERIALIZE_DATA_ATTRIBUTE(Scalars)
-    DESERIALIZE_DATA_ATTRIBUTE(Vectors)
-    DESERIALIZE_DATA_ATTRIBUTE(Normals)
-    DESERIALIZE_DATA_ATTRIBUTE(Tangents)
-    DESERIALIZE_DATA_ATTRIBUTE(TCoords)
-    DESERIALIZE_DATA_ATTRIBUTE(GlobalIds)
-    DESERIALIZE_DATA_ATTRIBUTE(PedigreeIds)
-    DESERIALIZE_DATA_ATTRIBUTE(RationalWeights)
-    DESERIALIZE_DATA_ATTRIBUTE(HigherOrderDegrees)
-    DESERIALIZE_DATA_ATTRIBUTE(ProcessIds)
+    const auto& attributeIndices = state["AttributeIndices"];
+    if (attributeIndices.size() != vtkDataSetAttributes::NUM_ATTRIBUTES)
+    {
+      vtkWarningWithObjectMacro(deserializer,
+        << "Failed to deserialize active attribute types in the dataset attributes object. "
+           "The number of attribute indices in state is not "
+           "equal to vtkDataSetAttributes::NUM_ATTRIBUTES("
+        << vtkDataSetAttributes::NUM_ATTRIBUTES << ")!");
+      return;
+    }
+    for (int attributeType = 0; attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES;
+         ++attributeType)
+    {
+      dsa->SetActiveAttribute(attributeIndices[attributeType], attributeType);
+    }
   }
 }
 
