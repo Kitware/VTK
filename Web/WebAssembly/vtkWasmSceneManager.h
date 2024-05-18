@@ -29,6 +29,8 @@ public:
   vtkTypeMacro(vtkWasmSceneManager, vtkObjectManager);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  bool Initialize() override;
+
   /**
    * Set the size of the `vtkRenderWindow` object at `identifier` to
    * the supplied dimesions.

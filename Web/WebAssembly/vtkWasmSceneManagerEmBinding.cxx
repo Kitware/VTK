@@ -4,7 +4,6 @@
 #include <emscripten/bind.h>
 
 #include "vtkDataArrayRange.h"
-#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkTypeUInt8Array.h"
 #include "vtkVersion.h"
 #include "vtkWasmSceneManager.h"
@@ -33,12 +32,7 @@ thread_local const val JSON = val::global("JSON");
 bool initialize()
 {
   Manager = vtkWasmSceneManager::New();
-  bool result = Manager->Initialize();
-  // Remove the default vtkOpenGLPolyDataMapper as it is not used with wasm build.
-  Manager->GetSerializer()->UnRegisterHandler(typeid(vtkOpenGLPolyDataMapper));
-  Manager->GetDeserializer()->UnRegisterHandler(typeid(vtkOpenGLPolyDataMapper));
-  Manager->GetDeserializer()->UnRegisterConstructor("vtkOpenGLPolyDataMapper");
-  return result;
+  return Manager->Initialize();
 }
 
 //-------------------------------------------------------------------------------
