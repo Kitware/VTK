@@ -132,6 +132,8 @@ public:
   const char* GetText(int i);
   void ClearAllTexts();
   void CopyAllTextsFrom(vtkCornerAnnotation* ca);
+  std::vector<std::string> GetAllTexts() const;
+  void SetAllTexts(const std::vector<std::string>& values);
   ///@}
 
   ///@{

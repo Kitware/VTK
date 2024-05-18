@@ -709,6 +709,28 @@ void vtkCornerAnnotation::CopyAllTextsFrom(vtkCornerAnnotation* ca)
 }
 
 //------------------------------------------------------------------------------
+std::vector<std::string> vtkCornerAnnotation::GetAllTexts() const
+{
+  std::vector<std::string> result;
+  result.reserve(NumTextPositions);
+  for (int i = 0; i < NumTextPositions; i++)
+  {
+    const char* text = this->CornerText[i] ? this->CornerText[i] : "";
+    result.emplace_back(text);
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
+void vtkCornerAnnotation::SetAllTexts(const std::vector<std::string>& values)
+{
+  for (int i = 0; i < NumTextPositions; ++i)
+  {
+    this->SetText(i, values[i].c_str());
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkCornerAnnotation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
