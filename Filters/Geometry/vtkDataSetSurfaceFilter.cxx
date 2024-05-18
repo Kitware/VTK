@@ -1651,22 +1651,50 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
         }
         else
         {
+          int numDeltaPtsAfterSubdivision = std::pow(2, this->NonlinearSubdivisionLevel - 1);
+          int numCellPtsAfterSubdivision = numDeltaPtsAfterSubdivision * (numCellPts - 1) + 1;
+          newLines->InsertNextCell(numCellPtsAfterSubdivision);
           input->GetCell(cellId, cell);
           input->SetCellOrderAndRationalWeights(cellId, cell);
           weights.resize(cell->GetNumberOfPoints());
-          int numCellPtsAfterSubdivision =
-            std::pow(2, this->NonlinearSubdivisionLevel - 1) * (numCellPts - 1) + 1;
-          newLines->InsertNextCell(numCellPtsAfterSubdivision);
-          double paramCoordDelta = 1. / (numCellPtsAfterSubdivision - 1);
-          double inParamCoords[3];
-          inParamCoords[1] = inParamCoords[2] = 0.;
-          for (i = 0; i < numCellPtsAfterSubdivision; i++)
+          double* pc = cell->GetParametricCoords();
+          outPtId = this->GetOutputPointIdAndInterpolate(
+            0, input, cell, pc, weights.data(), newPts, outputPD);
+          newLines->InsertCellPoint(outPtId);
+          if (this->NonlinearSubdivisionLevel == 1)
           {
-            inParamCoords[0] = paramCoordDelta * i;
-            outPtId =
-              GetInterpolatedPointId(input, cell, inParamCoords, weights.data(), newPts, outputPD);
-            newLines->InsertCellPoint(outPtId);
+            for (i = 2; i < numCellPts; i++)
+            {
+              outPtId = this->GetOutputPointIdAndInterpolate(
+                i, input, cell, pc, weights.data(), newPts, outputPD);
+              newLines->InsertCellPoint(outPtId);
+            }
           }
+          else
+          {
+            double paramCoordDelta = 1. / (numCellPtsAfterSubdivision - 1);
+            double inParamCoords[3];
+            inParamCoords[1] = inParamCoords[2] = 0.;
+            for (i = 0; i < (numCellPts - 1); i++)
+            {
+              for (j = 0; j < numDeltaPtsAfterSubdivision - 1; j++)
+              {
+                inParamCoords[0] = paramCoordDelta * (numDeltaPtsAfterSubdivision * i + j + 1);
+                outPtId = GetInterpolatedPointId(
+                  input, cell, inParamCoords, weights.data(), newPts, outputPD);
+                newLines->InsertCellPoint(outPtId);
+              }
+              if (i < numCellPts - 2)
+              {
+                outPtId = this->GetOutputPointIdAndInterpolate(
+                  i + 2, input, cell, pc, weights.data(), newPts, outputPD);
+                newLines->InsertCellPoint(outPtId);
+              }
+            }
+          }
+          outPtId = this->GetOutputPointIdAndInterpolate(
+            1, input, cell, pc, weights.data(), newPts, outputPD);
+          newLines->InsertCellPoint(outPtId);
         }
         this->RecordOrigCellId(this->NumberOfNewCells, cellId);
         outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
