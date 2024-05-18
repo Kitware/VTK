@@ -249,5 +249,10 @@ void vtkContextActor::PrintSelf(ostream& os, vtkIndent indent)
   {
     this->Context->PrintSelf(os, indent.GetNextIndent());
   }
+  os << indent << "Scene: " << this->Scene << "\n";
+  if (this->Scene)
+  {
+    this->Scene->PrintSelf(os, indent.GetNextIndent());
+  }
 }
 VTK_ABI_NAMESPACE_END

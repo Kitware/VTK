@@ -336,5 +336,14 @@ vtkVector2f vtkAbstractContextItem::MapFromScene(const vtkVector2f& point)
 void vtkAbstractContextItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Visible: " << this->Visible << '\n';
+  os << indent << "Interactive: " << this->Interactive << '\n';
+  os << indent << "Scene: " << this->Scene << '\n';
+  os << indent << "Parent: " << this->Parent << '\n';
+  os << indent << "Children: " << this->Children << '\n';
+  if (this->Children)
+  {
+    this->Children->PrintSelf(os, indent.GetNextIndent());
+  }
 }
 VTK_ABI_NAMESPACE_END
