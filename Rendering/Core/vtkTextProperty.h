@@ -70,13 +70,17 @@ public:
   /**
    * Convenience method to set the background color and the opacity at once
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetBackgroundRGBA(double rgba[4]);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetBackgroundRGBA(double r, double g, double b, double a);
 
   /**
    * Convenience method to get the background color and the opacity at once
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetBackgroundRGBA(double rgba[4]);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetBackgroundRGBA(double& r, double& g, double& b, double& a);
   ///@}
 

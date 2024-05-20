@@ -51,6 +51,7 @@
 #define VTK_MARSHALSETTER(property)
 #endif
 
+#define VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT "is redundant"
 #define VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL "is internal"
 #define VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED                                                   \
   "(de)serialization is not supported for this type of property"
