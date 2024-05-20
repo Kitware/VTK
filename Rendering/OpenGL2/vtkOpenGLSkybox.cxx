@@ -203,7 +203,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
         // dot product equals .02 which is at 88.85 degrees and
         // going to zero at 90 degrees.
         "      gl_FragData[0].a *= (50.0*min(0.02, abs(den)));\n"
-        "      vec4 tpos = MCDCMatrix*vec4(pos.xyz,1.0);\n"
+        "      vec4 tpos = MCDCMatrix*vec4(pos.xyz + 0.01 * p0l0,1.0);\n"
         "      gl_FragDepth = clamp(0.5 + 0.5*tpos.z/tpos.w,0.0,1.0);\n"
         "    } else { discard; }\n"
         "  }\n");
