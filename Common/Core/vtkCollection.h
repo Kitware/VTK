@@ -21,7 +21,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCollectionElement //;prevents pick-up by man page generator
@@ -39,7 +39,7 @@ typedef void* vtkCollectionSimpleIterator;
 
 class vtkCollectionIterator;
 
-class VTKCOMMONCORE_EXPORT VTK_MARSHALMANUAL vtkCollection : public vtkObject
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkCollection : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCollection, vtkObject);

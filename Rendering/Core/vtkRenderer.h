@@ -69,25 +69,32 @@ public:
    * These methods are all synonyms to AddViewProp and RemoveViewProp.
    * They are here for convenience and backwards compatibility.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void AddActor(vtkProp* p);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void AddVolume(vtkProp* p);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveActor(vtkProp* p);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveVolume(vtkProp* p);
   ///@}
 
   /**
    * Add a light to the list of lights.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void AddLight(vtkLight*);
 
   /**
    * Remove a light from the list of lights.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveLight(vtkLight*);
 
   /**
    * Remove all lights from the list of lights.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveAllLights();
 
   /**
@@ -237,11 +244,13 @@ public:
   /**
    * Add an culler to the list of cullers.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void AddCuller(vtkCuller*);
 
   /**
    * Remove an actor from the list of cullers.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveCuller(vtkCuller*);
 
   /**
@@ -866,7 +875,10 @@ public:
    * This texture is supposed to represent the scene background.
    * @sa vtkTexture::UseSRGBColorSpaceOn
    */
+  VTK_MARSHALGETTER(EnvironmentTextureProperty)
   vtkGetObjectMacro(EnvironmentTexture, vtkTexture);
+  VTK_MARSHALSETTER(EnvironmentTextureProperty)
+  void SetEnvironmentTextureProperty(vtkTexture* texture) { this->SetEnvironmentTexture(texture); }
   virtual void SetEnvironmentTexture(vtkTexture* texture, bool isSRGB = false);
   ///@}
 

@@ -1,4 +1,3 @@
-Common/Core/vtkCollection.h
 Common/Core/vtkDataArray.h
 Common/DataModel/vtkCellArray.h
 Common/DataModel/vtkDataSetAttributes.h
