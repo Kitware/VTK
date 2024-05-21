@@ -275,6 +275,7 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
   const int isArray = vtkWrap_IsArray(propertyValueInfo);
   const int isStdVector = vtkWrap_IsStdVector(propertyValueInfo);
   const int isEnumMember = vtkWrap_IsEnumMember(classInfo, propertyValueInfo);
+  const int isEnum = functionInfo->ReturnValue->IsEnum;
   const int isConst = vtkWrap_IsConst(propertyValueInfo);
   free(propertyValueInfo);
   propertyValueInfo = NULL;
@@ -407,6 +408,30 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
       propertyInfo->ClassName, getterName);
     return 1;
   }
+  else if (isEnum)
+  {
+    fprintf(fp, "  state[\"%s\"] = ", keyName);
+    const char* cp = functionInfo->ReturnValue->Class;
+    size_t l;
+    /* search for scope operator */
+    for (l = 0; cp[l] != '\0'; l++)
+    {
+      if (cp[l] == ':')
+      {
+        break;
+      }
+    }
+    if (cp[l] == ':' && cp[l + 1] == ':')
+    {
+      fprintf(fp, "static_cast<std::underlying_type<%*.*s::%s>::type>(object->%s());\n", (int)l,
+        (int)l, cp, &cp[l + 2], getterName);
+    }
+    else
+    {
+      fprintf(fp, "static_cast<std::underlying_type<%s>::type>(object->%s());\n", cp, getterName);
+    }
+    return 1;
+  }
   else if (strncmp(propertyInfo->ClassName, "vtkVector", 9) == 0 ||
     strncmp(propertyInfo->ClassName, "vtkTuple", 8) == 0 ||
     strncmp(propertyInfo->ClassName, "vtkColor", 8) == 0 ||
@@ -531,6 +556,12 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
   const int isEnumMember = vtkWrap_IsEnumMember(classInfo, val);
   const int isArray = vtkWrap_IsArray(val);
   const int isStdVector = vtkWrap_IsStdVector(val);
+
+  int isEnum = 0;
+  if (functionInfo->NumberOfParameters > 0)
+  {
+    isEnum = functionInfo->Parameters[0]->IsEnum;
+  }
 
   if (vtkWrapSerDes_IsCollectionLike(propertyInfo->PublicMethods) ||
     vtkWrapSerDes_IsCollectionLikeNoDiscard(propertyInfo->PublicMethods))
@@ -673,6 +704,43 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       "      auto value = "
       "static_cast<%s::%s>(iter->get<std::underlying_type<%s::%s>::type>());\n",
       classInfo->Name, val->Class, classInfo->Name, val->Class);
+    callSetterBeginMacro(fp, "      ");
+    callSetterParameterMacro(fp, "value");
+    callSetterEndMacro(fp);
+    fprintf(fp, "    }\n");
+    fprintf(fp, "  }\n");
+    return 1;
+  }
+  else if (isEnum)
+  {
+    fprintf(fp, "  {\n");
+    fprintf(fp, "    const auto iter = state.find(\"%s\");\n", keyName);
+    fprintf(fp, "    if ((iter != state.end()) && !iter->is_null())\n");
+    fprintf(fp, "    {\n");
+    const char* cp = functionInfo->Parameters[0]->Class;
+    size_t l;
+    /* search for scope operator */
+    for (l = 0; cp[l] != '\0'; l++)
+    {
+      if (cp[l] == ':')
+      {
+        break;
+      }
+    }
+    if (cp[l] == ':' && cp[l + 1] == ':')
+    {
+      fprintf(fp,
+        "      auto value = "
+        "static_cast<%*.*s::%s>(iter->get<std::underlying_type<%*.*s::%s>::type>());\n",
+        (int)l, (int)l, cp, &cp[l + 2], (int)l, (int)l, cp, &cp[l + 2]);
+    }
+    else
+    {
+      fprintf(fp,
+        "      auto value = "
+        "static_cast<%s>(iter->get<std::underlying_type<%s>::type>());\n",
+        cp, cp);
+    }
     callSetterBeginMacro(fp, "      ");
     callSetterParameterMacro(fp, "value");
     callSetterEndMacro(fp);

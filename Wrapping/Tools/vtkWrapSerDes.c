@@ -208,6 +208,66 @@ static void vtkWrapSerDes_GenerateSpecialHeaders(
   free((char**)types);
 }
 
+/* -------------------------------------------------------------------- */
+/* check whether an enum type will be wrapped */
+int vtkWrapSerDes_IsEnumWrapped(const HierarchyInfo* hinfo, const char* enumname)
+{
+  int rval = 0;
+  const HierarchyEntry* entry;
+
+  if (hinfo && enumname)
+  {
+    entry = vtkParseHierarchy_FindEntry(hinfo, enumname);
+    if (entry && entry->IsEnum && !vtkParseHierarchy_GetProperty(entry, "WRAPEXCLUDE"))
+    {
+      rval = 1;
+    }
+  }
+
+  return rval;
+}
+
+/* -------------------------------------------------------------------- */
+/* find and mark all enum parameters by setting IsEnum=1 */
+static void vtkWrapSerDes_MarkAllEnums(NamespaceInfo* contents, const HierarchyInfo* hinfo)
+{
+  FunctionInfo* currentFunction;
+  int i, j, n, m, ii, nn;
+  ClassInfo* data;
+  ValueInfo* val;
+
+  nn = contents->NumberOfClasses;
+  for (ii = 0; ii < nn; ii++)
+  {
+    data = contents->Classes[ii];
+    n = data->NumberOfFunctions;
+    for (i = 0; i < n; i++)
+    {
+      currentFunction = data->Functions[i];
+      if (!currentFunction->IsExcluded && currentFunction->Access == VTK_ACCESS_PUBLIC)
+      {
+        /* we start with the return value */
+        val = currentFunction->ReturnValue;
+        m = vtkWrap_CountWrappedParameters(currentFunction);
+
+        /* the -1 is for the return value */
+        for (j = (val ? -1 : 0); j < m; j++)
+        {
+          if (j >= 0)
+          {
+            val = currentFunction->Parameters[j];
+          }
+
+          if (vtkWrap_IsEnumMember(data, val) || vtkWrapSerDes_IsEnumWrapped(hinfo, val->Class))
+          {
+            val->IsEnum = 1;
+          }
+        }
+      }
+    }
+  }
+}
+
 /**
  * This is the main entry point for generating object coders.
  * When called, it will print the vtkXXXSerialization.cxx file contents to "fp".
@@ -293,6 +353,9 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
 
   /* get the global namespace */
   contents = file_info->Contents;
+
+  /* Identify all enum types that are used by methods */
+  vtkWrapSerDes_MarkAllEnums(contents, hinfo);
 
   /* SPDX */
   fprintf(fp,
