@@ -4,7 +4,8 @@
  * @class   vtkFLUENTReader
  * @brief   reads a dataset in Fluent file format
  *
- * vtkFLUENTReader creates an unstructured grid dataset.
+ * vtkFLUENTReader creates an unstructured grid multiblock dataset.
+ * When multiple zones are defined in the file they are provided in separate blocks.
  * It reads .cas (with associated .dat) and .msh files stored in FLUENT native format.
  *
  * @par Thanks:
@@ -25,6 +26,7 @@
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkNew.h" // For vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
@@ -113,18 +115,10 @@ public:
   //
   struct Cell;
   struct Face;
+  struct Zone;
   struct ScalarDataChunk;
   struct VectorDataChunk;
-  struct stdString;
-  struct intVector;
-  struct doubleVector;
-  struct stringVector;
-  struct cellVector;
-  struct faceVector;
-  struct stdMap;
-  struct scalarDataVector;
-  struct vectorDataVector;
-  struct intVectorVector;
+  struct SubSection;
   ///@}
 
 protected:
@@ -146,7 +140,6 @@ protected:
   virtual bool OpenCaseFile(const char* filename);
   virtual bool OpenDataFile(const char* filename);
   virtual int GetCaseChunk();
-  virtual void GetNumberOfCellZones();
   virtual int GetCaseIndex();
   virtual void LoadVariableNames();
   virtual int GetDataIndex();
@@ -161,6 +154,7 @@ protected:
   virtual void GetNodesDoublePrecision();
   virtual void GetCellsAscii();
   virtual void GetCellsBinary();
+  virtual void ReadZone();
   virtual bool GetFacesAscii();
   virtual void GetFacesBinary();
   virtual void GetPeriodicShadowFacesAscii();
@@ -179,63 +173,19 @@ protected:
   virtual int GetCaseBufferInt(int ptr);
   virtual float GetCaseBufferFloat(int ptr);
   virtual double GetCaseBufferDouble(int ptr);
-  virtual void PopulateTriangleCell(int i);
-  virtual void PopulateTetraCell(int i);
-  virtual void PopulateQuadCell(int i);
-  virtual void PopulateHexahedronCell(int i);
-  virtual void PopulatePyramidCell(int i);
-  virtual void PopulateWedgeCell(int i);
-  virtual void PopulatePolyhedronCell(int i);
+  virtual void PopulateTriangleCell(size_t cellIdx);
+  virtual void PopulateTetraCell(size_t cellIdx);
+  virtual void PopulateQuadCell(size_t cellIdx);
+  virtual void PopulateHexahedronCell(size_t cellIdx);
+  virtual void PopulatePyramidCell(size_t cellIdx);
+  virtual void PopulateWedgeCell(size_t cellIdx);
+  virtual void PopulatePolyhedronCell(size_t cellIdx);
   virtual void ParseDataFile();
   virtual int GetDataBufferInt(int ptr);
   virtual float GetDataBufferFloat(int ptr);
   virtual double GetDataBufferDouble(int ptr);
   virtual void GetData(int dataType);
   virtual bool ParallelCheckCell(int vtkNotUsed(i)) { return true; }
-
-  //
-  //  Variables
-  //
-  vtkDataArraySelection* CellDataArraySelection;
-  char* FileName;
-  vtkIdType NumberOfCells;
-  int NumberOfCellArrays;
-
-  istream* FluentCaseFile;
-  istream* FluentDataFile;
-  stdString* CaseBuffer;
-  stdString* DataBuffer;
-
-  vtkPoints* Points;
-  vtkTriangle* Triangle;
-  vtkTetra* Tetra;
-  vtkQuad* Quad;
-  vtkHexahedron* Hexahedron;
-  vtkPyramid* Pyramid;
-  vtkWedge* Wedge;
-  vtkConvexPointSet* ConvexPointSet;
-
-  cellVector* Cells;
-  faceVector* Faces;
-  stdMap* VariableNames;
-  intVector* CellZones;
-  scalarDataVector* ScalarDataChunks;
-  vectorDataVector* VectorDataChunks;
-
-  intVectorVector* SubSectionZones;
-  intVector* SubSectionIds;
-  intVector* SubSectionSize;
-
-  stringVector* ScalarVariableNames;
-  intVector* ScalarSubSectionIds;
-  stringVector* VectorVariableNames;
-  intVector* VectorSubSectionIds;
-
-  vtkTypeBool SwapBytes;
-  int GridDimension;
-  int DataPass;
-  int NumberOfScalars;
-  int NumberOfVectors;
 
 private:
   /**
@@ -252,7 +202,39 @@ private:
   vtkFLUENTReader(const vtkFLUENTReader&) = delete;
   void operator=(const vtkFLUENTReader&) = delete;
 
+  //
+  //  Variables
+  //
+  vtkNew<vtkDataArraySelection> CellDataArraySelection;
+  char* FileName = nullptr;
+  vtkIdType NumberOfCells = 0;
+
+  istream* FluentCaseFile = nullptr;
+  istream* FluentDataFile = nullptr;
+  std::string CaseBuffer;
+  std::string DataBuffer;
+
+  // File data cache
+  vtkNew<vtkPoints> Points;
+  std::vector<Cell> Cells;
+  std::vector<Face> Faces;
+  std::vector<Zone> Zones;
+  std::map<size_t, std::string> VariableNames;
+  std::vector<ScalarDataChunk> ScalarDataChunks;
+  std::vector<VectorDataChunk> VectorDataChunks;
+  std::vector<SubSection> SubSections;
+
+  std::vector<std::string> ScalarVariableNames;
+  std::vector<int> ScalarSubSectionIds;
+  std::vector<std::string> VectorVariableNames;
+  std::vector<int> VectorSubSectionIds;
+
+  vtkTypeBool SwapBytes;
+  int GridDimension = 0;
+  int NumberOfScalars = 0;
+  int NumberOfVectors = 0;
   bool Parsed = false;
 };
+
 VTK_ABI_NAMESPACE_END
 #endif

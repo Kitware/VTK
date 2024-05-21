@@ -27,11 +27,14 @@ bool TestFLUENTReaderMSH(const std::string& filename)
   reader->Update();
 
   vtkMultiBlockDataSet* set = reader->GetOutput();
-  Check(set->GetNumberOfBlocks() == 1, "Wrong number of blocks");
-  auto* grid = vtkUnstructuredGrid::SafeDownCast(set->GetBlock(0));
-  Check(grid, "Wrong block");
-  Check(grid->GetNumberOfPoints() == 1962, "Wrong number of points");
-  Check(grid->GetNumberOfCells() == 6850, "Wrong number of cells");
+  Check(set->GetNumberOfBlocks() == 6, "Wrong number of blocks");
+  Check(set->GetNumberOfCells() == 34250, "Wrong number of cells in dataset");
+  Check(set->GetNumberOfPoints() == 11772, "Wrong number of points in dataset");
+
+  vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(set->GetBlock(1));
+  Check(grid, "Failed to retrieve zone block");
+  Check(grid->GetNumberOfPoints() == 1962, "Wrong number of points in zone block");
+  Check(grid->GetNumberOfCells() == 6850, "Wrong number of cells in zone block");
 
   return true;
 }
