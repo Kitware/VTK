@@ -468,8 +468,8 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
         GENERATED 1)
 
     set(_vtk_python_header_set_install_args)
-    # XXX(cmake-3.23): filesets
-    if (CMAKE_VERSION VERSION_LESS "3.23")
+    add_library("${name}" STATIC)
+    if (NOT _vtk_build_USE_FILE_SETS)
       if (_vtk_python_INSTALL_HEADERS)
         install(
           FILES       "${_vtk_python_module_header_file}"
@@ -481,9 +481,11 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
         FILE_SET vtk_module_python_header_files
         DESTINATION "${_vtk_python_HEADERS_DESTINATION}"
         COMPONENT   "${_vtk_python_headers_component}")
+      _vtk_module_add_file_set("${name}"
+        NAME vtk_module_python_header_files
+        FILES "${_vtk_python_module_header_file}")
     endif ()
 
-    add_library("${name}" STATIC)
     target_sources("${name}"
       PRIVATE
         ${_vtk_python_library_sources})
