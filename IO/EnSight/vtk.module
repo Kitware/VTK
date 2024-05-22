@@ -18,6 +18,9 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::FiltersTemporal
   VTK::fmt
+  VTK::ParallelCore
+OPTIONAL_DEPENDS
+  VTK::ParallelMPI
 TEST_DEPENDS
   VTK::RenderingOpenGL2
   VTK::TestingRendering

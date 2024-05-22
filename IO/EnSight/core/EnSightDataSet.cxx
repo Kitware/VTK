@@ -12,9 +12,11 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
+#include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
@@ -25,6 +27,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTransformFilter.h"
 #include "vtkTypeInt32Array.h"
@@ -32,13 +35,16 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <vtksys/SystemTools.hxx>
+
 #include <cstdlib>
 #include <numeric>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include <unordered_set>
-#include <vtksys/SystemTools.hxx>
+#include <vector>
 
 namespace ensight_gold
 {
@@ -450,6 +456,9 @@ bool EnSightDataSet::CheckVersion(const char* casefilename)
 //------------------------------------------------------------------------------
 bool EnSightDataSet::ParseCaseFile(const char* casefilename)
 {
+  // need to reset since this means that RequestInformation has been called
+  this->MeasuredPartitionId = -1;
+
   // has 5 sections: FORMAT, GEOMETRY, VARIABLE, TIME, FILE
   if (!this->CaseFile.SetFileNamePattern(casefilename, true))
   {
@@ -971,9 +980,10 @@ bool EnSightDataSet::IsSectionHeader(std::string line)
 }
 
 //------------------------------------------------------------------------------
-bool EnSightDataSet::ReadGeometry(
-  vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection)
+bool EnSightDataSet::ReadGeometry(vtkPartitionedDataSetCollection* output,
+  vtkDataArraySelection* selection, bool outputStructureOnly)
 {
+  vtkLogScopeFunction(TRACE);
   if ((this->IsStaticGeometry || this->GeometryChangeCoordsOnly) && !this->MeshCache)
   {
     vtkGenericWarningMacro("Cache is null when it should not be");
@@ -1029,52 +1039,70 @@ bool EnSightDataSet::ReadGeometry(
     int partId = this->ReadPartId(this->GeometryFile);
     partId--; // EnSight starts counts at 1
 
+    auto it = this->PartInfoMap.find(partId);
+    if (it == this->PartInfoMap.end())
+    {
+      vtkGenericWarningMacro("Part Id " << partId << " could not be found in PartInfoMap");
+      return false;
+    }
+    auto& partInfo = it->second;
+
     result = this->GeometryFile.ReadNextLine(); // part description line
     auto partName = result.second;
+
     bool readPart = false;
+    bool addToPDC = false;
     if (selection->ArrayIsEnabled(partName.c_str()))
     {
       readPart = true;
+      addToPDC = true;
+    }
+    if (outputStructureOnly)
+    {
+      // in this case, this rank is not responsible for reading this part, but it still needs to
+      // provide a PDS for it in the output, so the structure of the PDC matches across ranks.
+      // So we only change readPart to false, so we can skip to the correct part of the file
+      readPart = false;
+    }
+
+    vtkSmartPointer<vtkDataSet> grid = nullptr;
+    if (static_cast<unsigned int>(partInfo.PDCIndex) < output->GetNumberOfPartitionedDataSets())
+    {
+      grid = output->GetPartitionedDataSet(partInfo.PDCIndex)->GetPartition(0);
+      addToPDC = false;
     }
 
     result = this->GeometryFile.ReadNextLine();
     auto opts = getGridOptions(result.second);
     if (readPart)
     {
-      bool addToPDC = true;
-      vtkDataSet* grid = nullptr;
-      if (static_cast<unsigned int>(partId) < output->GetNumberOfPartitionedDataSets())
-      {
-        grid = output->GetPartitionedDataSet(partId)->GetPartition(0);
-        addToPDC = false;
-      }
       switch (opts.Type)
       {
         case GridType::Uniform:
           if (!grid)
           {
-            grid = vtkUniformGrid::New();
+            grid = vtkSmartPointer<vtkUniformGrid>::New();
           }
           this->CreateUniformGridOutput(opts, vtkUniformGrid::SafeDownCast(grid));
           break;
         case GridType::Rectilinear:
           if (!grid)
           {
-            grid = vtkRectilinearGrid::New();
+            grid = vtkSmartPointer<vtkRectilinearGrid>::New();
           }
           this->CreateRectilinearGridOutput(opts, vtkRectilinearGrid::SafeDownCast(grid));
           break;
         case GridType::Curvilinear:
           if (!grid)
           {
-            grid = vtkStructuredGrid::New();
+            grid = vtkSmartPointer<vtkStructuredGrid>::New();
           }
           this->CreateStructuredGridOutput(opts, vtkStructuredGrid::SafeDownCast(grid));
           break;
         case GridType::Unstructured:
           if (!grid)
           {
-            grid = vtkUnstructuredGrid::New();
+            grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
           }
           this->CreateUnstructuredGridOutput(opts, vtkUnstructuredGrid::SafeDownCast(grid));
           break;
@@ -1085,19 +1113,6 @@ bool EnSightDataSet::ReadGeometry(
       if (grid)
       {
         this->ApplyRigidBodyTransforms(partId, partName, grid);
-      }
-      if (grid && addToPDC)
-      {
-        vtkNew<vtkPartitionedDataSet> pds;
-        pds->SetPartition(0, grid);
-        grid->Delete();
-        output->SetPartitionedDataSet(partId, pds);
-        output->GetMetaData(partId)->Set(vtkCompositeDataSet::NAME(), partName);
-
-        auto assembly = output->GetDataAssembly();
-        auto validName = vtkDataAssembly::MakeValidNodeName(partName.c_str());
-        auto node = assembly->AddNode(validName.c_str());
-        assembly->AddDataSetIndex(node, partId);
       }
     }
     else
@@ -1121,6 +1136,36 @@ bool EnSightDataSet::ReadGeometry(
           return false;
       }
     }
+
+    if (addToPDC)
+    {
+      if (!this->PartOfSOSFile)
+      {
+        // In this case, we don't need to worry about the coordination of PDCIndex info
+        // across casefiles, so we can just assign this part the next id in the  PDC
+        partInfo.PDCIndex = output->GetNumberOfPartitionedDataSets();
+      }
+      vtkLog(TRACE,
+        "part id " << partId << " " << partName << " will be added as PDS # " << partInfo.PDCIndex);
+      vtkNew<vtkPartitionedDataSet> pds;
+      if (grid)
+      {
+        pds->SetNumberOfPartitions(1);
+        pds->SetPartition(0, grid);
+      }
+      else
+      {
+        pds->SetNumberOfPartitions(0);
+      }
+      output->SetPartitionedDataSet(partInfo.PDCIndex, pds);
+      output->GetMetaData(partInfo.PDCIndex)->Set(vtkCompositeDataSet::NAME(), partName);
+
+      auto assembly = output->GetDataAssembly();
+      auto validName = vtkDataAssembly::MakeValidNodeName(partName.c_str());
+      auto node = assembly->AddNode(validName.c_str());
+      assembly->AddDataSetIndex(node, partInfo.PDCIndex);
+    }
+
     if (this->GeometryFile.CheckForEndTimeStepLine())
     {
       break;
@@ -1128,17 +1173,30 @@ bool EnSightDataSet::ReadGeometry(
     result = this->GeometryFile.ReadNextLine();
   }
 
-  // We may have a case where a part was not processed,
-  // so it has a nullptr at its index in the PDC, but this seems to sometimes cause weird problems
-  // in ParaView and sometimes causes some error output.
-  // So here we'll check for null PartitionedDataSets and create an empty one for it.
-  for (unsigned int i = 0; i < output->GetNumberOfPartitionedDataSets(); i++)
+  // We only create vtkPartitionedDataSets for parts that are being read. If we're only reading a
+  // single casefile, there should be nothing else to do here. If this is being read as part of an
+  // SOS file, then we need to make sure the number of vtkPartitionedDataSets is correct in the
+  // output, and that we set the metadata and assembly info for empty vtkPartitionedDataSets.
+  auto assembly = output->GetDataAssembly();
+  if (this->PartOfSOSFile)
   {
-    vtkSmartPointer<vtkPartitionedDataSet> pds = output->GetPartitionedDataSet(i);
-    if (!pds)
+    output->SetNumberOfPartitionedDataSets(this->NumberOfLoadedParts);
+    for (unsigned int i = 0; i < output->GetNumberOfPartitionedDataSets(); i++)
     {
-      pds = vtkSmartPointer<vtkPartitionedDataSet>::New();
-      output->SetPartitionedDataSet(i, pds);
+      vtkSmartPointer<vtkPartitionedDataSet> pds = output->GetPartitionedDataSet(i);
+      if (!pds)
+      {
+        pds = vtkSmartPointer<vtkPartitionedDataSet>::New();
+        output->SetPartitionedDataSet(i, pds);
+      }
+      if (!output->GetMetaData(i)->Has(vtkCompositeDataSet::NAME()))
+      {
+        auto name = this->LoadedPartNames->GetValue(i);
+        output->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), name.c_str());
+        auto validName = vtkDataAssembly::MakeValidNodeName(name.c_str());
+        auto node = assembly->AddNode(validName.c_str());
+        assembly->AddDataSetIndex(node, i);
+      }
     }
   }
 
@@ -1151,18 +1209,39 @@ bool EnSightDataSet::ReadGeometry(
 }
 
 //------------------------------------------------------------------------------
-bool EnSightDataSet::ReadMeasuredGeometry(
-  vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection)
+bool EnSightDataSet::ReadMeasuredGeometry(vtkPartitionedDataSetCollection* output,
+  vtkDataArraySelection* selection, bool outputStructureOnly)
 {
-  if (this->MeasuredFileName.empty())
+  vtkLogScopeFunction(TRACE);
+  bool addToPDC = selection->ArrayIsEnabled(this->MeasuredPartName.c_str());
+  if (addToPDC && (outputStructureOnly || this->MeasuredFileName.empty()))
   {
-    // not required, so we'll assume if we don't have a filename, that it's not an error
+    // we don't need to read anything in this case, just need to make sure we have a PDS for this
+    // so all ranks will match
+    vtkNew<vtkPartitionedDataSet> pds;
+    pds->SetNumberOfPartitions(0);
+    if (this->MeasuredPartitionId == -1)
+    {
+      this->MeasuredPartitionId = output->GetNumberOfPartitionedDataSets();
+    }
+    vtkLog(TRACE, "Adding an empty PDS for measured data at index " << this->MeasuredPartitionId);
+    output->SetPartitionedDataSet(this->MeasuredPartitionId, pds);
+    output->GetMetaData(this->MeasuredPartitionId)
+      ->Set(vtkCompositeDataSet::NAME(), this->MeasuredPartName);
+
+    auto assembly = output->GetDataAssembly();
+    auto validName = vtkDataAssembly::MakeValidNodeName(this->MeasuredPartName.c_str());
+    auto node = assembly->AddNode(validName.c_str());
+    assembly->AddDataSetIndex(node, this->MeasuredPartitionId);
     return true;
   }
-  if (!selection->ArrayIsEnabled(this->MeasuredPartName.c_str()))
+
+  if (outputStructureOnly || !addToPDC)
   {
+    vtkLog(TRACE, "Not reading measured data and NOT adding an empty PDS");
     return true;
   }
+
   if (!this->MeasuredFile.SetTimeStepToRead(this->ActualTimeValue))
   {
     vtkGenericWarningMacro("couldn't correctly set time step to read. Aborting");
@@ -1249,8 +1328,13 @@ bool EnSightDataSet::ReadMeasuredGeometry(
   this->MeasuredFile.CheckForEndTimeStepLine();
 
   vtkNew<vtkPartitionedDataSet> pds;
+  pds->SetNumberOfPartitions(1);
   pds->SetPartition(0, polydata);
-  this->MeasuredPartitionId = output->GetNumberOfPartitionedDataSets();
+  if (this->MeasuredPartitionId == -1)
+  {
+    this->MeasuredPartitionId = output->GetNumberOfPartitionedDataSets();
+  }
+  vtkLog(TRACE, "Adding PDS for measured data at index " << this->MeasuredPartitionId);
   output->SetPartitionedDataSet(this->MeasuredPartitionId, pds);
   output->GetMetaData(this->MeasuredPartitionId)
     ->Set(vtkCompositeDataSet::NAME(), this->MeasuredPartName);
@@ -1265,7 +1349,7 @@ bool EnSightDataSet::ReadMeasuredGeometry(
 //------------------------------------------------------------------------------
 bool EnSightDataSet::GetPartInfo(vtkDataArraySelection* partSelection,
   vtkDataArraySelection* pointArraySelection, vtkDataArraySelection* cellArraySelection,
-  vtkDataArraySelection* fieldArraySelection)
+  vtkDataArraySelection* fieldArraySelection, vtkStringArray* partNames)
 {
   // Since we just want to get info on all the parts, we'll just look at the first time step
   if (!this->GeometryFile.SetTimeStepToRead(0.0))
@@ -1273,6 +1357,9 @@ bool EnSightDataSet::GetPartInfo(vtkDataArraySelection* partSelection,
     vtkGenericWarningMacro("couldn't correctly set time step to read. Aborting");
     return false;
   }
+
+  partNames->Initialize();
+
   // now that geometry file has been opened and file type detected, set format for all variables
   this->SetVariableFileFormat();
 
@@ -1326,6 +1413,7 @@ bool EnSightDataSet::GetPartInfo(vtkDataArraySelection* partSelection,
     result = this->GeometryFile.ReadNextLine(); // part description line
     partInfo.Name = result.second;
     partSelection->AddArray(partInfo.Name.c_str());
+    partNames->InsertValue(partId, partInfo.Name);
 
     result = this->GeometryFile.ReadNextLine();
     auto opts = getGridOptions(result.second);
@@ -1357,6 +1445,7 @@ bool EnSightDataSet::GetPartInfo(vtkDataArraySelection* partSelection,
   if (!this->MeasuredFileName.empty())
   {
     partSelection->AddArray(this->MeasuredPartName.c_str());
+    partNames->InsertNextValue(this->MeasuredPartName.c_str());
   }
 
   for (auto& var : this->Variables)
@@ -1544,7 +1633,7 @@ void EnSightDataSet::ReadVariableNodes(EnSightFile& file, const std::string& arr
 
     if (readPart)
     {
-      vtkPartitionedDataSet* pds = output->GetPartitionedDataSet(partId);
+      vtkPartitionedDataSet* pds = output->GetPartitionedDataSet(partInfo.PDCIndex);
       vtkDataSet* ds = pds->GetPartition(0);
       auto numPts = ds->GetNumberOfPoints();
       if (numPts > 0)
@@ -1799,7 +1888,7 @@ void EnSightDataSet::ReadVariableElements(EnSightFile& file, const std::string& 
       {
         if (readPart)
         {
-          vtkPartitionedDataSet* pds = output->GetPartitionedDataSet(partId);
+          vtkPartitionedDataSet* pds = output->GetPartitionedDataSet(partInfo.PDCIndex);
           vtkDataSet* ds = pds->GetPartition(0);
           auto numCells = ds->GetNumberOfCells();
           // Because the old reader puts the real and imaginary components into a single array
@@ -1859,7 +1948,7 @@ void EnSightDataSet::ReadVariableElements(EnSightFile& file, const std::string& 
         {
           // so we need to know how many cells of each element type exist
           // the variable file doesn't specify, but the geometry file does
-          vtkPartitionedDataSet* pds = output->GetPartitionedDataSet(partId);
+          vtkPartitionedDataSet* pds = output->GetPartitionedDataSet(partInfo.PDCIndex);
           vtkDataSet* ds = pds->GetPartition(0);
           auto numCells = ds->GetNumberOfCells();
           // This could be much simpler, but is made more complex by trying to match functionality
@@ -3346,6 +3435,46 @@ bool EnSightDataSet::UseStaticMeshCache() const
 vtkDataObjectMeshCache* EnSightDataSet::GetMeshCache()
 {
   return this->MeshCache;
+}
+
+//------------------------------------------------------------------------------
+void EnSightDataSet::SetPartOfSOSFile(bool partOfSOS)
+{
+  this->PartOfSOSFile = partOfSOS;
+}
+
+//------------------------------------------------------------------------------
+void EnSightDataSet::SetPDCInfoForLoadedParts(
+  vtkSmartPointer<vtkIdTypeArray> indices, vtkSmartPointer<vtkStringArray> names)
+{
+  for (int i = 0; i < indices->GetNumberOfValues(); i++)
+  {
+    auto index = indices->GetValue(i);
+    if (index != -1)
+    {
+      this->NumberOfLoadedParts++;
+      if (this->PartInfoMap.count(i))
+      {
+        auto& partInfo = this->PartInfoMap[i];
+        partInfo.PDCIndex = index;
+      }
+      else
+      {
+        // in this case, this casefile didn't find any info on this part during GetPartInfo()
+        // so we'll just update PartInfoMap with it.
+        auto retval = this->PartInfoMap.insert(std::make_pair(i, PartInfo()));
+        auto& partInfo = retval.first->second;
+        partInfo.PDCIndex = index;
+        partInfo.Name = names->GetValue(partInfo.PDCIndex);
+      }
+      if (names->GetValue(index) == this->MeasuredPartName)
+      {
+        this->MeasuredPartitionId = index;
+        vtkLog(TRACE, "Setting measured partition id to " << this->MeasuredPartitionId);
+      }
+    }
+  }
+  this->LoadedPartNames = names;
 }
 
 VTK_ABI_NAMESPACE_END

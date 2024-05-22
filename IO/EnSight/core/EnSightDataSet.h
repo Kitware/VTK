@@ -17,8 +17,10 @@ class vtkDataArraySelection;
 class vtkDataObjectMeshCache;
 class vtkDataSet;
 class vtkFloatArray;
+class vtkIdTypeArray;
 class vtkPartitionedDataSetCollection;
 class vtkRectilinearGrid;
+class vtkStringArray;
 class vtkStructuredGrid;
 class vtkUniformGrid;
 class vtkUnstructuredGrid;
@@ -92,6 +94,9 @@ struct PartInfo
   int NumElements = 0;
   std::vector<int> NumElementsPerType;
 
+  // index into the partitioned dataset collection
+  int PDCIndex = -1;
+
   PartInfo()
     : NumElementsPerType(static_cast<int>(ElementType::GNFaced) + 1, 0)
   {
@@ -158,13 +163,14 @@ public:
   /**
    * Reads Geometry file, caching the data if not transient
    */
-  bool ReadGeometry(vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection);
+  bool ReadGeometry(vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection,
+    bool outputStructureOnly);
 
   /**
    * Reads Measured Geometry file
    */
-  bool ReadMeasuredGeometry(
-    vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection);
+  bool ReadMeasuredGeometry(vtkPartitionedDataSetCollection* output,
+    vtkDataArraySelection* selection, bool outputStructureOnly);
 
   /**
    * Read the rigid body file.
@@ -173,10 +179,12 @@ public:
 
   /**
    * Only grabs Part (block) information from the Geometry file to be used
-   * in a vtkDataArraySelection to enable user to choose which parts to load
+   * in a vtkDataArraySelection to enable user to choose which parts to load. Outputs all part names
+   * found in this casefile in partNames array.
    */
   bool GetPartInfo(vtkDataArraySelection* partSelection, vtkDataArraySelection* pointArraySelection,
-    vtkDataArraySelection* cellArraySelection, vtkDataArraySelection* fieldArraySelection);
+    vtkDataArraySelection* cellArraySelection, vtkDataArraySelection* fieldArraySelection,
+    vtkStringArray* partNames);
 
   /**
    * Reads Variable file(s)
@@ -200,6 +208,9 @@ public:
    */
   std::vector<double> GetEulerTimeSteps();
 
+  /**
+   * Set the time value to be used in the next read
+   */
   void SetActualTimeValue(double time);
 
   /**
@@ -208,6 +219,31 @@ public:
   bool UseStaticMeshCache() const;
 
   vtkDataObjectMeshCache* GetMeshCache();
+
+  /*
+   * Set if this casefile is being read as part of an SOS file. If so, it is expected
+   * that some coordination is handled by the vtkEnSightSOSGoldReader
+   */
+  void SetPartOfSOSFile(bool partOfSOS);
+
+  /**
+   * Sets information about parts to be loaded.
+   *
+   * This must be called when loading data through a SOS file. It's possible that some casefiles may
+   * not include info on all parts (even as an empty part). The vtkEnSightSOSGoldReader looks at
+   * which parts are to be loaded, assigns them ids in the output vtkPartitionedDataSetCollection,
+   * and provides the part names, since they may not be available in the current casefile. This
+   * ensures that all ranks will have the same structure for the output PDC and matching name
+   * metadata.
+   *
+   * @param indices Provides the index into the output vtkPartitionedDataSetCollection for all
+   * parts. It should be the same size as the total number of parts across all casefiles being
+   * loaded by an SOS file. If a part is not to be loaded, its value should be -1.
+   * @param names This should be only for the parts being loaded. This is indexed by its index in
+   * the output PDC.
+   */
+  void SetPDCInfoForLoadedParts(
+    vtkSmartPointer<vtkIdTypeArray> indices, vtkSmartPointer<vtkStringArray> names);
 
 private:
   bool ParseFormatSection();
@@ -365,6 +401,10 @@ private:
   // time information, instead of the usual time set
   bool UseEulerTimeSteps = false;
   std::vector<double> EulerTimeSteps;
+
+  int NumberOfLoadedParts = 0;
+  vtkSmartPointer<vtkStringArray> LoadedPartNames;
+  bool PartOfSOSFile = true;
 };
 
 VTK_ABI_NAMESPACE_END
