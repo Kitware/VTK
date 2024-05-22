@@ -6,6 +6,10 @@ CONDITION
   CMAKE_VERSION VERSION_GREATER 3.18
 IMPLEMENTS
   VTK::RenderingVolume
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::RenderingOpenGL2
   VTK::RenderingCore

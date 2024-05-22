@@ -31,12 +31,12 @@ class VTKRENDERINGANARI_EXPORT vtkAnariCompositePolyDataMapperNode
 public:
   static vtkAnariCompositePolyDataMapperNode* New();
   vtkTypeMacro(vtkAnariCompositePolyDataMapperNode, vtkAnariPolyDataMapperNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Make ANARI calls for rendering.
+   * Sync VTK and ANARI objects.
    */
-  virtual void Render(bool prepass) override;
+  virtual void Synchronize(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.
@@ -47,7 +47,7 @@ protected:
   vtkAnariCompositePolyDataMapperNode() = default;
   ~vtkAnariCompositePolyDataMapperNode() = default;
 
-  void RenderBlock(vtkCompositePolyDataMapper*, vtkActor*, vtkDataObject*, unsigned int&);
+  void SynchronizeBlock(vtkCompositePolyDataMapper*, vtkActor*, vtkDataObject*, unsigned int&);
 
   class RenderBlockState
   {

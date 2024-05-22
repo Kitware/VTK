@@ -5,6 +5,9 @@
 #define _USE_MATH_DEFINES
 #endif
 
+#define ANARI_EXTENSION_UTILITY_IMPL
+#include <anari/frontend/anari_extension_utility.h>
+
 #include "vtkAnariRendererNode.h"
 
 #include "vtkAbstractVolumeMapper.h"
@@ -30,13 +33,13 @@
 #include "vtkTexture.h"
 
 #include <cmath>
-#include <memory>
 
 #include <anari/anari_cpp/ext/std.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 
 using uvec2 = anari::std_types::uvec2;
+using ivec2 = anari::std_types::ivec2;
 using vec4 = anari::std_types::vec4;
 
 vtkInformationKeyMacro(vtkAnariRendererNode, SAMPLES_PER_PIXEL, Integer);
@@ -67,119 +70,23 @@ vtkInformationKeyMacro(vtkAnariRendererNode, USD_OUTPUT_MDLCOLORS, Integer);
 vtkInformationKeyMacro(vtkAnariRendererNode, USD_OUTPUT_DISPLAYCOLORS, Integer);
 vtkInformationKeyMacro(vtkAnariRendererNode, AMBIENT_COLOR, DoubleVector);
 
-namespace anari_vtk
+struct RendererChangeCallback : vtkCommand
 {
-struct RendererParameters
-{
-  RendererParameters()
-    : Denoise(false)
-    , SamplesPerPixel(-1)
-    , AmbientSamples(-1)
-    , LightFalloff(-1.f)
-    , AmbientIntensity(-1.f)
-    , MaxDepth(0)
-  {
-  }
+  vtkTypeMacro(RendererChangeCallback, vtkCommand);
 
-  std::string Subtype;
-  bool Denoise;
-  int SamplesPerPixel;
-  int AmbientSamples;
-  float LightFalloff;
-  float AmbientIntensity;
-  int MaxDepth;
-  std::string DebugMethod;
+  static RendererChangeCallback* New() { return new RendererChangeCallback; }
+
+  void Execute(
+    vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData))
+  {
+    vtkAnariRendererNode::InvalidateRendererParameters();
+  }
 };
 
-struct SurfaceState
+struct vtkAnariRendererNodeInternals
 {
-  SurfaceState()
-    : changed(false)
-    , used(false)
-  {
-  }
-
-  bool changed;
-  bool used;
-  std::vector<anari::Surface> Surfaces;
-};
-
-struct VolumeState
-{
-  VolumeState()
-    : changed(false)
-    , used(false)
-  {
-  }
-
-  bool changed;
-  bool used;
-  std::vector<anari::Volume> Volumes;
-};
-
-struct LightState
-{
-  LightState()
-    : changed(false)
-    , used(false)
-  {
-  }
-
-  bool changed;
-  bool used;
-  std::vector<anari::Light> Lights;
-};
-
-struct CameraState
-{
-  CameraState()
-    : changed(false)
-    , Camera(nullptr)
-  {
-  }
-
-  bool changed;
-  anari::Camera Camera;
-};
-}
-
-class vtkAnariRendererNodeInternals
-{
-public:
   vtkAnariRendererNodeInternals(vtkAnariRendererNode*);
   ~vtkAnariRendererNodeInternals();
-
-  //@{
-  void AddCamera(anari::Camera, const bool);
-  anari_vtk::CameraState GetCameraState();
-  //@}
-
-  //@{
-  /**
-   * Methods to add, get, and clear ANARI lights.
-   */
-  void AddLight(anari::Light, const bool);
-  anari_vtk::LightState GetLightState();
-  void ClearLights();
-  //@}
-
-  //@{
-  /**
-   * Methods to add, get, and clear ANARI surfaces.
-   */
-  void AddSurfaces(const std::vector<anari::Surface>&, const bool);
-  anari_vtk::SurfaceState GetSurfaceState();
-  void ClearSurfaces();
-  //@}
-
-  //@{
-  /**
-   * Methods to add, get, and clear ANARI volumes.
-   */
-  void AddVolume(anari::Volume, const bool);
-  anari_vtk::VolumeState GetVolumeState();
-  void ClearVolumes();
-  //@}
 
   /**
    * @brief Populate the current ANARI back-end device features.
@@ -211,68 +118,43 @@ public:
     anari::DataType sourceType, anari::StatusSeverity severity, anari::StatusCode code,
     const char* details);
 
-  vtkAnariRendererNode* Owner;
+  vtkAnariRendererNode* Owner{ nullptr };
 
-  int ColorBufferTex;
-  int DepthBufferTex;
+  int ColorBufferTex{ 0 };
+  int DepthBufferTex{ 0 };
 
-  std::unique_ptr<u_char[]> ColorBuffer;
-  std::unique_ptr<float[]> DepthBuffer;
+  std::vector<u_char> ColorBuffer;
+  std::vector<float> DepthBuffer;
 
   int ImageX;
   int ImageY;
 
   std::string LibraryName;
   std::string LibrarySubtype;
-  bool CompositeOnGL;
-  bool IsUSD;
-  bool InitFlag;
+  bool CompositeOnGL{ false };
+  bool IsUSD{ false };
+  bool InitFlag{ false };
 
-  anari_vtk::RendererParameters RendererParams;
+  std::string RendererSubtype;
 
-  anari::Library AnariLibrary;
-  anari::Library DebugAnariLibrary;
-  anari::Device AnariDevice;
-  anari::Extensions AnariExtensions;
-  anari::Renderer AnariRenderer;
-  anari::World AnariWorld;
-  anari::Instance AnariInstance;
-  anari::Group AnariGroup;
-  anari::Frame AnariFrame;
+  anari::Library AnariLibrary{ nullptr };
+  anari::Library DebugAnariLibrary{ nullptr };
+  anari::Device AnariDevice{ nullptr };
+  anari::Renderer AnariRenderer{ nullptr };
+  anari::World AnariWorld{ nullptr };
+  anari::Instance AnariInstance{ nullptr };
+  anari::Group AnariGroup{ nullptr };
+  anari::Frame AnariFrame{ nullptr };
 
-  anari_vtk::CameraState AnariCameraState;
-  anari_vtk::SurfaceState AnariSurfaceState;
-  anari_vtk::VolumeState AnariVolumeState;
-  anari_vtk::LightState AnariLightState;
+  anari::Extensions AnariExtensions{};
+
+  std::vector<anari::Surface> AnariSurfaces;
+  std::vector<anari::Volume> AnariVolumes;
+  std::vector<anari::Light> AnariLights;
 };
 
 vtkAnariRendererNodeInternals::vtkAnariRendererNodeInternals(vtkAnariRendererNode* owner)
   : Owner(owner)
-  , ColorBufferTex(0)
-  , DepthBufferTex(0)
-  , ColorBuffer(nullptr)
-  , DepthBuffer(nullptr)
-  , ImageX(0)
-  , ImageY(0)
-  , LibraryName()
-  , LibrarySubtype()
-  , CompositeOnGL(false)
-  , IsUSD(false)
-  , InitFlag(false)
-  , RendererParams()
-  , AnariLibrary(nullptr)
-  , DebugAnariLibrary(nullptr)
-  , AnariDevice(nullptr)
-  , AnariExtensions()
-  , AnariRenderer(nullptr)
-  , AnariWorld(nullptr)
-  , AnariInstance(nullptr)
-  , AnariGroup(nullptr)
-  , AnariFrame(nullptr)
-  , AnariCameraState()
-  , AnariSurfaceState()
-  , AnariVolumeState()
-  , AnariLightState()
 {
 }
 
@@ -280,46 +162,11 @@ vtkAnariRendererNodeInternals::~vtkAnariRendererNodeInternals()
 {
   if (this->AnariDevice != nullptr)
   {
-    for (auto surface : this->AnariSurfaceState.Surfaces)
-    {
-      anari::release(this->AnariDevice, surface);
-    }
-
-    for (auto volume : this->AnariVolumeState.Volumes)
-    {
-      anari::release(this->AnariDevice, volume);
-    }
-
-    for (auto light : this->AnariLightState.Lights)
-    {
-      anari::release(this->AnariDevice, light);
-    }
-
-    if (this->AnariGroup != nullptr)
-    {
-      anari::release(this->AnariDevice, this->AnariGroup);
-    }
-
-    if (this->AnariInstance != nullptr)
-    {
-      anari::release(this->AnariDevice, this->AnariInstance);
-    }
-
-    if (this->AnariWorld != nullptr)
-    {
-      anari::release(this->AnariDevice, this->AnariWorld);
-    }
-
-    if (this->AnariRenderer != nullptr)
-    {
-      anari::release(this->AnariDevice, this->AnariRenderer);
-    }
-
-    if (this->AnariFrame != nullptr)
-    {
-      anari::release(this->AnariDevice, this->AnariFrame);
-    }
-
+    anari::release(this->AnariDevice, this->AnariGroup);
+    anari::release(this->AnariDevice, this->AnariInstance);
+    anari::release(this->AnariDevice, this->AnariWorld);
+    anari::release(this->AnariDevice, this->AnariRenderer);
+    anari::release(this->AnariDevice, this->AnariFrame);
     anari::release(this->AnariDevice, this->AnariDevice);
   }
 
@@ -456,131 +303,6 @@ bool vtkAnariRendererNodeInternals::InitAnari()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddCamera(anari::Camera camera, const bool changed)
-{
-  this->AnariCameraState.Camera = camera;
-  this->AnariCameraState.changed = changed;
-}
-
-//----------------------------------------------------------------------------
-anari_vtk::CameraState vtkAnariRendererNodeInternals::GetCameraState()
-{
-  return this->AnariCameraState;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddLight(anari::Light light, const bool changed)
-{
-  if (light != nullptr)
-  {
-    if (this->AnariLightState.used)
-    {
-      this->ClearLights();
-      this->AnariLightState.used = false;
-    }
-
-    this->AnariLightState.Lights.emplace_back(light);
-  }
-
-  if (changed)
-  {
-    this->AnariLightState.changed = true;
-  }
-}
-
-//----------------------------------------------------------------------------
-anari_vtk::LightState vtkAnariRendererNodeInternals::GetLightState()
-{
-  return this->AnariLightState;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::ClearLights()
-{
-  if (!this->AnariLightState.Lights.empty())
-  {
-    this->AnariLightState.Lights.clear();
-    std::vector<anari::Light>().swap(this->AnariLightState.Lights);
-    this->AnariLightState.changed = true;
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddSurfaces(
-  const std::vector<anari::Surface>& surfaces, const bool changed)
-{
-  if (this->AnariSurfaceState.used)
-  {
-    this->ClearSurfaces();
-    this->AnariSurfaceState.used = false;
-  }
-
-  for (auto surface : surfaces)
-  {
-    this->AnariSurfaceState.Surfaces.emplace_back(surface);
-  }
-
-  if (changed)
-  {
-    this->AnariSurfaceState.changed = true;
-  }
-}
-
-//----------------------------------------------------------------------------
-anari_vtk::SurfaceState vtkAnariRendererNodeInternals::GetSurfaceState()
-{
-  return this->AnariSurfaceState;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::ClearSurfaces()
-{
-  if (!this->AnariSurfaceState.Surfaces.empty())
-  {
-    this->AnariSurfaceState.Surfaces.clear();
-    std::vector<anari::Surface>().swap(this->AnariSurfaceState.Surfaces);
-    this->AnariSurfaceState.changed = true;
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::AddVolume(anari::Volume volume, const bool changed)
-{
-  if (this->AnariVolumeState.used)
-  {
-    this->ClearVolumes();
-    this->AnariVolumeState.used = false;
-  }
-
-  if (volume != nullptr)
-  {
-    this->AnariVolumeState.Volumes.emplace_back(volume);
-  }
-
-  if (changed)
-  {
-    this->AnariVolumeState.changed = true;
-  }
-}
-
-//----------------------------------------------------------------------------
-anari_vtk::VolumeState vtkAnariRendererNodeInternals::GetVolumeState()
-{
-  return this->AnariVolumeState;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::ClearVolumes()
-{
-  if (!this->AnariVolumeState.Volumes.empty())
-  {
-    this->AnariVolumeState.Volumes.clear();
-    std::vector<anari::Volume>().swap(this->AnariVolumeState.Volumes);
-    this->AnariVolumeState.changed = true;
-  }
-}
-
-//----------------------------------------------------------------------------
 void vtkAnariRendererNodeInternals::StatusCallback(const void* userData, anari::Device device,
   anari::Object source, anari::DataType sourceType, anari::StatusSeverity severity,
   anari::StatusCode code, const char* message)
@@ -613,6 +335,11 @@ void vtkAnariRendererNodeInternals::StatusCallback(const void* userData, anari::
   {
     vtkLogF(INFO, "[ANARI::STATUS] %s\n", message);
   }
+
+  (void)userData;
+  (void)device;
+  (void)source;
+  (void)code;
 }
 
 //----------------------------------------------------------------------------
@@ -654,10 +381,7 @@ bool vtkAnariRendererNodeInternals::SetAnariDeviceFeatures(
   anari::Library library, const char* deviceName, const char* deviceSubtype)
 {
   bool useableDevice = false;
-  const char* const* list = (const char* const*)anariGetObjectInfo(
-    this->AnariDevice, ANARI_DEVICE, deviceSubtype, "extension", ANARI_STRING_LIST);
-  // const char* const* list = (const char* const*)anariGetDeviceFeatures(library, deviceSubtype);
-
+  const char* const* list = (const char* const*)anariGetDeviceExtensions(library, deviceSubtype);
   if (list)
   {
     memset(&this->AnariExtensions, 0, sizeof(anari::Extensions));
@@ -667,194 +391,10 @@ bool vtkAnariRendererNodeInternals::SetAnariDeviceFeatures(
       std::string feature = *i;
       vtkDebugWithObjectMacro(
         this->Owner, << "[" << deviceName << ":" << deviceSubtype << "] Feature => " << feature);
-
-      if (feature == "ANARI_KHR_INSTANCE_TRANSFORM")
-      {
-        this->AnariExtensions.ANARI_KHR_INSTANCE_TRANSFORM = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_OMNIDIRECTIONAL")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_OMNIDIRECTIONAL = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_ORTHOGRAPHIC")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_ORTHOGRAPHIC = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_PERSPECTIVE")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_PERSPECTIVE = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_STEREO")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_STEREO = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_CONE")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_CONE = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_CURVE")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_CURVE = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_CYLINDER")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_CYLINDER = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_QUAD")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_QUAD = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_QUAD_MOTION_DEFORMATION")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_QUAD_MOTION_DEFORMATION = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_SPHERE")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_SPHERE = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_TRIANGLE")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_TRIANGLE = 1;
-      }
-      else if (feature == "ANARI_KHR_GEOMETRY_TRIANGLE_MOTION_DEFORMATION")
-      {
-        this->AnariExtensions.ANARI_KHR_GEOMETRY_TRIANGLE_MOTION_DEFORMATION = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_DIRECTIONAL")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_DIRECTIONAL = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_POINT")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_POINT = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_SPOT")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_SPOT = 1;
-      }
-      else if (feature == "ANARI_KHR_MATERIAL_MATTE")
-      {
-        this->AnariExtensions.ANARI_KHR_MATERIAL_MATTE = 1;
-      }
-      else if (feature == "ANARI_KHR_MATERIAL_PHYSICALLY_BASED")
-      {
-        this->AnariExtensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED = 1;
-      }
-      else if (feature == "ANARI_KHR_SAMPLER_IMAGE1D")
-      {
-        this->AnariExtensions.ANARI_KHR_SAMPLER_IMAGE1D = 1;
-      }
-      else if (feature == "ANARI_KHR_SAMPLER_IMAGE2D")
-      {
-        this->AnariExtensions.ANARI_KHR_SAMPLER_IMAGE2D = 1;
-      }
-      else if (feature == "ANARI_KHR_SAMPLER_IMAGE3D")
-      {
-        this->AnariExtensions.ANARI_KHR_SAMPLER_IMAGE3D = 1;
-      }
-      else if (feature == "ANARI_KHR_SAMPLER_PRIMITIVE")
-      {
-        this->AnariExtensions.ANARI_KHR_SAMPLER_PRIMITIVE = 1;
-      }
-      else if (feature == "ANARI_KHR_SAMPLER_TRANSFORM")
-      {
-        this->AnariExtensions.ANARI_KHR_SAMPLER_TRANSFORM = 1;
-      }
-      else if (feature == "ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR")
-      {
-        this->AnariExtensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR = 1;
-      }
-      else if (feature == "ANARI_KHR_VOLUME_TRANSFER_FUNCTION1D" ||
-        feature == "ANARI_KHR_VOLUME_SCIVIS")
-      {
-        this->AnariExtensions.ANARI_KHR_VOLUME_TRANSFER_FUNCTION1D = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_RING")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_RING = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_QUAD")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_QUAD = 1;
-      }
-      else if (feature == "ANARI_KHR_LIGHT_HDRI")
-      {
-        this->AnariExtensions.ANARI_KHR_LIGHT_HDRI = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_SHUTTER")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_SHUTTER = 1;
-      }
-      else if (feature == "ANARI_KHR_INSTANCE_MOTION_SCALE_ROTATION_TRANSLATION")
-      {
-        this->AnariExtensions.ANARI_KHR_INSTANCE_MOTION_SCALE_ROTATION_TRANSLATION = 1;
-      }
-      else if (feature == "ANARI_KHR_AREA_LIGHTS")
-      {
-        this->AnariExtensions.ANARI_KHR_AREA_LIGHTS = 1;
-      }
-      else if (feature == "ANARI_KHR_INSTANCE_MOTION_TRANSFORM")
-      {
-        this->AnariExtensions.ANARI_KHR_INSTANCE_MOTION_TRANSFORM = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_DEPTH_OF_FIELD")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_DEPTH_OF_FIELD = 1;
-      }
-      else if (feature == "ANARI_KHR_ARRAY1D_REGION")
-      {
-        this->AnariExtensions.ANARI_KHR_ARRAY1D_REGION = 1;
-      }
-      else if (feature == "ANARI_KHR_RENDERER_AMBIENT_LIGHT")
-      {
-        this->AnariExtensions.ANARI_KHR_RENDERER_AMBIENT_LIGHT = 1;
-      }
-      else if (feature == "ANARI_KHR_RENDERER_BACKGROUND_COLOR")
-      {
-        this->AnariExtensions.ANARI_KHR_RENDERER_BACKGROUND_COLOR = 1;
-      }
-      else if (feature == "ANARI_KHR_RENDERER_BACKGROUND_IMAGE")
-      {
-        this->AnariExtensions.ANARI_KHR_RENDERER_BACKGROUND_IMAGE = 1;
-      }
-      else if (feature == "ANARI_EXP_VOLUME_SAMPLE_RATE")
-      {
-        this->AnariExtensions.ANARI_EXP_VOLUME_SAMPLE_RATE = 1;
-      }
-      else if (feature == "ANARI_KHR_CAMERA_MOTION_TRANSFORMATION")
-      {
-        this->AnariExtensions.ANARI_KHR_CAMERA_MOTION_TRANSFORMATION = 1;
-      }
-      else if (feature == "ANARI_KHR_DEVICE_SYNCHRONIZATION")
-      {
-        this->AnariExtensions.ANARI_KHR_DEVICE_SYNCHRONIZATION = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_CHANNEL_ALBEDO")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_CHANNEL_ALBEDO = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_CHANNEL_INSTANCE_ID")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_CHANNEL_INSTANCE_ID = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_CHANNEL_NORMAL")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_CHANNEL_NORMAL = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_CHANNEL_OBJECT_ID")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_CHANNEL_OBJECT_ID = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_CHANNEL_PRIMITIVE_ID")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_CHANNEL_PRIMITIVE_ID = 1;
-      }
-      else if (feature == "ANARI_KHR_FRAME_COMPLETION_CALLBACK")
-      {
-        this->AnariExtensions.ANARI_KHR_FRAME_COMPLETION_CALLBACK = 1;
-      }
     }
   }
+
+  anariGetDeviceExtensionStruct(&this->AnariExtensions, library, deviceName);
 
   if (this->IsUSD)
   {
@@ -882,14 +422,13 @@ bool vtkAnariRendererNodeInternals::SetAnariDeviceFeatures(
 
 vtkStandardNewMacro(vtkAnariRendererNode);
 
+vtkTimeStamp vtkAnariRendererNode::AnariRendererModifiedTime;
+
 //----------------------------------------------------------------------------
 vtkAnariRendererNode::vtkAnariRendererNode()
-  : SphereCount(0)
-  , CylinderCount(0)
-  , CurveCount(0)
-  , TriangleCount(0)
 {
   this->Internal = new vtkAnariRendererNodeInternals(this);
+  InvalidateSceneStructure();
 }
 
 //----------------------------------------------------------------------------
@@ -899,393 +438,347 @@ vtkAnariRendererNode::~vtkAnariRendererNode()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUseDenoiser(int value, vtkRenderer* renderer)
+void vtkAnariRendererNode::InitAnariFrame(vtkRenderer* ren)
 {
-  if (!renderer)
+  if (this->Internal->AnariFrame != nullptr)
   {
     return;
   }
 
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::USE_DENOISER(), value);
+  auto anariDevice = this->GetAnariDevice();
+  this->Internal->AnariFrame = anari::newObject<anari::Frame>(anariDevice);
+  anari::setParameter(anariDevice, this->Internal->AnariFrame, "channel.color", ANARI_UFIXED8_VEC4);
+  anari::setParameter(anariDevice, this->Internal->AnariFrame, "channel.depth", ANARI_FLOAT32);
+  anari::commitParameters(anariDevice, this->Internal->AnariFrame);
+
+  if (!ren->HasObserver(vtkCommand::ModifiedEvent))
+  {
+    vtkNew<RendererChangeCallback> cc;
+    ren->AddObserver(vtkCommand::ModifiedEvent, cc);
+    cc->Execute(nullptr, vtkCommand::ModifiedEvent, nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetUseDenoiser(vtkRenderer* renderer)
+void vtkAnariRendererNode::InitAnariRenderer(vtkRenderer* ren)
 {
-  if (!renderer)
+  auto anariDevice = this->GetAnariDevice();
+  auto anariFrame = this->Internal->AnariFrame;
+
+  auto currentRendererSubtype = this->Internal->RendererSubtype;
+  this->Internal->CompositeOnGL = (this->GetCompositeOnGL(ren) != 0);
+  const char* rendererSubtype = vtkAnariRendererNode::GetRendererSubtype(this->GetRenderer());
+
+  if (currentRendererSubtype != rendererSubtype)
   {
-    return 0;
+    this->Internal->RendererSubtype = rendererSubtype;
+
+    anari::release(anariDevice, this->Internal->AnariRenderer);
+
+    this->Internal->AnariRenderer = anari::newObject<anari::Renderer>(anariDevice, rendererSubtype);
+
+    anari::setParameter(anariDevice, anariFrame, "renderer", this->Internal->AnariRenderer);
+    anari::commitParameters(anariDevice, anariFrame);
+
+    this->AnariRendererModifiedTime.Modified();
   }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::USE_DENOISER()))
-  {
-    return (info->Get(vtkAnariRendererNode::USE_DENOISER()));
-  }
-
-  return 0;
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetSamplesPerPixel(int value, vtkRenderer* renderer)
+void vtkAnariRendererNode::SetupAnariRendererParameters(vtkRenderer* ren)
 {
-  if (!renderer)
+  if (this->AnariRendererModifiedTime <= this->AnariRendererUpdatedTime)
   {
     return;
   }
 
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::SAMPLES_PER_PIXEL(), value);
+  auto anariDevice = this->GetAnariDevice();
+  auto anariRenderer = this->Internal->AnariRenderer;
+
+  anari::setParameter(anariDevice, anariRenderer, "denoise", bool(this->GetUseDenoiser(ren)));
+  anari::setParameter<int>(
+    anariDevice, anariRenderer, "pixelSamples", this->GetSamplesPerPixel(ren));
+  anari::setParameter<int>(
+    anariDevice, anariRenderer, "ambientSamples", this->GetAmbientSamples(ren));
+  anari::setParameter<float>(
+    anariDevice, anariRenderer, "lightFalloff", this->GetLightFalloff(ren));
+  anari::setParameter<float>(
+    anariDevice, anariRenderer, "ambientRadiance", this->GetAmbientIntensity(ren));
+  anari::setParameter<int>(anariDevice, anariRenderer, "maxDepth", this->GetMaxDepth(ren));
+  double* ambientColor = this->GetAmbientColor(ren);
+  if (ambientColor)
+  {
+    float ambientColorf[3] = { static_cast<float>(ambientColor[0]),
+      static_cast<float>(ambientColor[1]), static_cast<float>(ambientColor[2]) };
+    anari::setParameter(anariDevice, anariRenderer, "ambientColor", ambientColorf);
+  }
+
+  // Debug method
+  anari::setParameter(anariDevice, anariRenderer, "method", this->GetDebugMethod(ren));
+
+  double* bg = ren->GetBackground();
+  double bgAlpha = ren->GetBackgroundAlpha();
+
+  if (!ren->GetGradientBackground())
+  {
+    float bgColor[4] = { static_cast<float>(bg[0]), static_cast<float>(bg[1]),
+      static_cast<float>(bg[2]), static_cast<float>(bgAlpha) };
+
+    anari::setParameter(anariDevice, anariRenderer, "background", bgColor);
+  }
+  else
+  {
+    double* topbg = ren->GetBackground2();
+    constexpr int IMAGE_SIZE = 128;
+
+    vtkNew<vtkColorTransferFunction> colorTF;
+    colorTF->AddRGBPoint(0, bg[0], bg[1], bg[2]);
+    colorTF->AddRGBPoint(IMAGE_SIZE, topbg[0], topbg[1], topbg[2]);
+
+    auto gradientArray = anari::newArray2D(anariDevice, ANARI_FLOAT32_VEC4, 1, IMAGE_SIZE + 1);
+    auto* gradientColors = anari::map<vec4>(anariDevice, gradientArray);
+
+    for (int i = 0; i <= IMAGE_SIZE; i++)
+    {
+      double* color = colorTF->GetColor(i);
+
+      gradientColors[i] = vec4{ static_cast<float>(color[0]), static_cast<float>(color[1]),
+        static_cast<float>(color[2]), static_cast<float>(bgAlpha) };
+    }
+
+    anari::unmap(anariDevice, gradientArray);
+    anari::setAndReleaseParameter(anariDevice, anariRenderer, "background", gradientArray);
+    anari::commitParameters(anariDevice, anariRenderer);
+  }
+
+  anari::commitParameters(anariDevice, anariRenderer);
+
+  this->AnariRendererUpdatedTime = this->AnariRendererModifiedTime;
 }
 
 //----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetSamplesPerPixel(vtkRenderer* renderer)
+void vtkAnariRendererNode::InitAnariWorld()
 {
-  if (!renderer)
-  {
-    return 1;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::SAMPLES_PER_PIXEL()))
-  {
-    return (info->Get(vtkAnariRendererNode::SAMPLES_PER_PIXEL()));
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetLibraryName(const char* name, vtkRenderer* renderer)
-{
-  if (!renderer)
+  if (this->Internal->AnariWorld != nullptr)
   {
     return;
   }
 
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::LIBRARY_NAME(), name);
+  auto anariDevice = this->GetAnariDevice();
+
+  auto anariGroup = anari::newObject<anari::Group>(anariDevice);
+  this->Internal->AnariGroup = anariGroup;
+  anari::setParameter(anariDevice, anariGroup, "name", ANARI_STRING, "vtk_group");
+  anari::commitParameters(anariDevice, anariGroup);
+
+  auto anariInstance = anari::newObject<anari::Instance>(anariDevice, "transform");
+  this->Internal->AnariInstance = anariInstance;
+  anari::setParameter(anariDevice, anariInstance, "name", ANARI_STRING, "vtk_instance");
+  anari::setParameter(anariDevice, anariInstance, "group", anariGroup);
+  anari::commitParameters(anariDevice, anariInstance);
+
+  auto anariWorld = anari::newObject<anari::World>(anariDevice);
+  this->Internal->AnariWorld = anariWorld;
+  anari::setParameter(anariDevice, anariWorld, "name", "vtk_world");
+  anari::setParameterArray1D(anariDevice, anariWorld, "instance", &anariInstance, 1);
+  anari::commitParameters(anariDevice, anariWorld);
+
+  auto anariFrame = this->Internal->AnariFrame;
+  anari::setParameter(anariDevice, anariFrame, "world", this->Internal->AnariWorld);
+  anari::commitParameters(anariDevice, anariFrame);
 }
 
 //----------------------------------------------------------------------------
-const char* vtkAnariRendererNode::GetLibraryName(vtkRenderer* renderer)
+void vtkAnariRendererNode::UpdateAnariFrameSize()
 {
-  if (!renderer)
-  {
-    return nullptr;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::LIBRARY_NAME()))
-  {
-    return info->Get(vtkAnariRendererNode::LIBRARY_NAME());
-  }
-
-  return nullptr;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetDeviceSubtype(const char* name, vtkRenderer* renderer)
-{
-  if (!renderer)
+  const uvec2 frameSize = { static_cast<uint>(this->Size[0]), static_cast<uint>(this->Size[1]) };
+  if (this->Internal->ImageX == frameSize[0] && this->Internal->ImageY == frameSize[1])
   {
     return;
   }
 
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::DEVICE_SUBTYPE(), name);
+  this->Internal->ImageX = frameSize[0];
+  this->Internal->ImageY = frameSize[1];
+
+  const size_t totalSize = this->Size[0] * this->Size[1];
+  this->Internal->ColorBuffer.resize(totalSize * sizeof(float));
+  this->Internal->DepthBuffer.resize(totalSize);
+
+  auto anariDevice = this->GetAnariDevice();
+  auto anariFrame = this->Internal->AnariFrame;
+  anari::setParameter(anariDevice, anariFrame, "size", frameSize);
+  anari::commitParameters(anariDevice, anariFrame);
 }
 
 //----------------------------------------------------------------------------
-const char* vtkAnariRendererNode::GetDeviceSubtype(vtkRenderer* renderer)
+void vtkAnariRendererNode::UpdateAnariLights()
 {
-  if (!renderer)
+  auto anariDevice = this->GetAnariDevice();
+  auto anariWorld = this->Internal->AnariWorld;
+  const auto& lightState = this->Internal->AnariLights;
+
+  if (!lightState.empty())
   {
-    return "default";
+    for (size_t i = 0; i < lightState.size(); i++)
+    {
+      std::string lightName = "vtk_light_" + std::to_string(i);
+      anari::setParameter(anariDevice, lightState[i], "name", lightName.c_str());
+      anari::commitParameters(anariDevice, lightState[i]);
+    }
+
+    anari::setParameterArray1D(
+      anariDevice, anariWorld, "light", lightState.data(), lightState.size());
+  }
+  else
+  {
+    vtkWarningMacro(<< "No lights set on world.");
+    anari::unsetParameter(anariDevice, anariWorld, "light");
   }
 
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::DEVICE_SUBTYPE()))
-  {
-    return info->Get(vtkAnariRendererNode::DEVICE_SUBTYPE());
-  }
-
-  return "default";
+  anari::commitParameters(anariDevice, anariWorld);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetDebugLibraryName(const char* name, vtkRenderer* renderer)
+void vtkAnariRendererNode::UpdateAnariSurfaces()
 {
-  if (!renderer)
+  auto anariDevice = this->GetAnariDevice();
+  auto anariGroup = this->Internal->AnariGroup;
+  const auto& surfaceState = this->Internal->AnariSurfaces;
+
+  if (!surfaceState.empty())
   {
+    for (size_t i = 0; i < surfaceState.size(); i++)
+    {
+      std::string surfaceName = "vtk_surface_" + std::to_string(i);
+      anari::setParameter(anariDevice, surfaceState[i], "name", surfaceName.c_str());
+      anari::commitParameters(anariDevice, surfaceState[i]);
+    }
+
+    anari::setParameterArray1D(
+      anariDevice, anariGroup, "surface", surfaceState.data(), surfaceState.size());
+  }
+  else
+  {
+    anari::unsetParameter(anariDevice, anariGroup, "surface");
+  }
+
+  anari::commitParameters(anariDevice, anariGroup);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::UpdateAnariVolumes()
+{
+  auto anariDevice = this->GetAnariDevice();
+  auto anariGroup = this->Internal->AnariGroup;
+  const auto& volumeState = this->Internal->AnariVolumes;
+
+  if (!volumeState.empty())
+  {
+    for (size_t i = 0; i < volumeState.size(); i++)
+    {
+      std::string volumeName = "vtk_volume_" + std::to_string(i);
+      anari::setParameter(anariDevice, volumeState[i], "name", volumeName.c_str());
+      anari::commitParameters(anariDevice, volumeState[i]);
+    }
+
+    anari::setParameterArray1D(
+      anariDevice, anariGroup, "volume", volumeState.data(), volumeState.size());
+  }
+  else
+  {
+    anari::unsetParameter(anariDevice, anariGroup, "volume");
+  }
+
+  anari::commitParameters(anariDevice, anariGroup);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::DebugOutputWorldBounds()
+{
+  auto anariDevice = this->GetAnariDevice();
+  auto anariWorld = this->Internal->AnariWorld;
+
+  // Get world bounds
+  float worldBounds[6];
+  if (anariGetProperty(anariDevice, anariWorld, "bounds", ANARI_FLOAT32_BOX3, worldBounds,
+        sizeof(worldBounds), ANARI_WAIT))
+  {
+    vtkDebugMacro(<< "[ANARI::" << this->Internal->LibraryName << "] World Bounds: "
+                  << "{" << worldBounds[0] << ", " << worldBounds[1] << ", " << worldBounds[2]
+                  << "}, "
+                  << "{" << worldBounds[3] << ", " << worldBounds[4] << ", " << worldBounds[5]
+                  << "}");
+  }
+  else
+  {
+    vtkWarningMacro(<< "[ANARI::" << this->Internal->LibraryName << "] World bounds not returned");
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::CopyAnariFrameBufferData()
+{
+  int totalSize = this->Size[0] * this->Size[1];
+  if (this->Internal->IsUSD)
+  {
+    memset(this->Internal->ColorBuffer.data(), 255, totalSize * 4);
+    memset(this->Internal->DepthBuffer.data(), 1, totalSize * sizeof(float));
     return;
   }
 
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::DEBUG_LIBRARY_NAME(), name);
-}
+  auto anariDevice = this->GetAnariDevice();
+  auto anariFrame = this->Internal->AnariFrame;
 
-//----------------------------------------------------------------------------
-const char* vtkAnariRendererNode::GetDebugLibraryName(vtkRenderer* renderer)
-{
-  if (!renderer)
+  float duration = 0.0f;
+  anari::getProperty(anariDevice, anariFrame, "duration", duration, ANARI_NO_WAIT);
+
+  vtkDebugMacro(<< "Rendered frame in " << duration * 1000.0f << " ms");
+
+  // Color buffer
+  auto renderedFrame = anari::map<uint32_t>(anariDevice, anariFrame, "channel.color");
+
+  if (renderedFrame.data != nullptr)
   {
-    return "debug";
+    int retTotalSize = renderedFrame.width * renderedFrame.height;
+    int totalSize = this->Size[0] * this->Size[1];
+    totalSize = std::min(retTotalSize, totalSize);
+    memcpy(this->Internal->ColorBuffer.data(), renderedFrame.data, totalSize * 4);
+  }
+  else
+  {
+    vtkWarningMacro(<< "Color buffer is null");
+    memset(this->Internal->ColorBuffer.data(), 255, totalSize * 4);
   }
 
-  vtkInformation* info = renderer->GetInformation();
+  anari::unmap(anariDevice, anariFrame, "channel.color");
 
-  if (info && info->Has(vtkAnariRendererNode::DEBUG_LIBRARY_NAME()))
+  // Depth Buffer
+  auto mappedDepthBuffer = anari::map<float>(anariDevice, anariFrame, "channel.depth");
+
+  if (mappedDepthBuffer.data != nullptr)
   {
-    return info->Get(vtkAnariRendererNode::DEBUG_LIBRARY_NAME());
+    vtkCamera* cam = vtkRenderer::SafeDownCast(this->Renderable)->GetActiveCamera();
+    double* clipValues = cam->GetClippingRange();
+    double clipMin = clipValues[0];
+    double clipMax = clipValues[1];
+    double clipDiv = 1.0 / (clipMax - clipMin);
+
+    const float* depthBuffer = mappedDepthBuffer.data;   // s
+    float* zBuffer = this->Internal->DepthBuffer.data(); // d
+
+    for (int i = 0; i < totalSize; i++)
+    {
+      // *d = (*s < clipMin ? 1.0 : (*s - clipMin) * clipDiv);
+      zBuffer[i] = (depthBuffer[i] < clipMin ? 1.0f : (depthBuffer[i] - clipMin) * clipDiv);
+    }
+  }
+  else
+  {
+    vtkWarningMacro(<< "Depth buffer is null");
+    memset(this->Internal->DepthBuffer.data(), 0, totalSize * sizeof(float));
   }
 
-  return "debug";
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetDebugDeviceSubtype(const char* name, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::DEBUG_DEVICE_SUBTYPE(), name);
-}
-
-//----------------------------------------------------------------------------
-const char* vtkAnariRendererNode::GetDebugDeviceSubtype(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return "debug";
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::DEBUG_DEVICE_SUBTYPE()))
-  {
-    return info->Get(vtkAnariRendererNode::DEBUG_DEVICE_SUBTYPE());
-  }
-
-  return "debug";
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetDebugDeviceDirectory(const char* name, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::DEBUG_DEVICE_DIRECTORY(), name);
-}
-
-//----------------------------------------------------------------------------
-const char* vtkAnariRendererNode::GetDebugDeviceDirectory(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return nullptr;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::DEBUG_DEVICE_DIRECTORY()))
-  {
-    return info->Get(vtkAnariRendererNode::DEBUG_DEVICE_DIRECTORY());
-  }
-
-  return nullptr;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetDebugDeviceTraceMode(const char* name, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::DEBUG_DEVICE_TRACE_MODE(), name);
-}
-
-//----------------------------------------------------------------------------
-const char* vtkAnariRendererNode::GetDebugDeviceTraceMode(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return "code";
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::DEBUG_DEVICE_TRACE_MODE()))
-  {
-    return info->Get(vtkAnariRendererNode::DEBUG_DEVICE_TRACE_MODE());
-  }
-
-  return "code";
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUseDebugDevice(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::USE_DEBUG_DEVICE(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetUseDebugDevice(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 0;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::USE_DEBUG_DEVICE()))
-  {
-    return (info->Get(vtkAnariRendererNode::USE_DEBUG_DEVICE()));
-  }
-
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetRendererSubtype(const char* name, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::RENDERER_SUBTYPE(), name);
-}
-
-//----------------------------------------------------------------------------
-const char* vtkAnariRendererNode::GetRendererSubtype(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return "default";
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::RENDERER_SUBTYPE()))
-  {
-    return (info->Get(vtkAnariRendererNode::RENDERER_SUBTYPE()));
-  }
-
-  return "default";
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAccumulationCount(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::ACCUMULATION_COUNT(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetAccumulationCount(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 1;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::ACCUMULATION_COUNT()))
-  {
-    return (info->Get(vtkAnariRendererNode::ACCUMULATION_COUNT()));
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAmbientSamples(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::AMBIENT_SAMPLES(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetAmbientSamples(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 0;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::AMBIENT_SAMPLES()))
-  {
-    return (info->Get(vtkAnariRendererNode::AMBIENT_SAMPLES()));
-  }
-
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetLightFalloff(double value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::LIGHT_FALLOFF(), value);
-}
-
-//----------------------------------------------------------------------------
-double vtkAnariRendererNode::GetLightFalloff(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 1;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::LIGHT_FALLOFF()))
-  {
-    return info->Get(vtkAnariRendererNode::LIGHT_FALLOFF());
-  }
-
-  return 1;
+  anari::unmap(anariDevice, anariFrame, "channel.depth");
 }
 
 //----------------------------------------------------------------------------
@@ -1298,6 +791,7 @@ void vtkAnariRendererNode::SetAmbientColor(double* value, vtkRenderer* renderer)
 
   vtkInformation* info = renderer->GetInformation();
   info->Set(vtkAnariRendererNode::AMBIENT_COLOR(), value, 3);
+  vtkAnariRendererNode::AnariRendererModifiedTime.Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -1319,414 +813,131 @@ double* vtkAnariRendererNode::GetAmbientColor(vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAmbientIntensity(double value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
+#define RENDERER_NODE_PARAM_SET_DEFINITION(FCN, PARAM, TYPE)                                       \
+  void vtkAnariRendererNode::Set##FCN(TYPE v, vtkRenderer* r)                                      \
+  {                                                                                                \
+    if (!r)                                                                                        \
+    {                                                                                              \
+      return;                                                                                      \
+    }                                                                                              \
+                                                                                                   \
+    vtkInformation* info = r->GetInformation();                                                    \
+    info->Set(vtkAnariRendererNode::PARAM(), v);                                                   \
+    vtkAnariRendererNode::AnariRendererModifiedTime.Modified();                                    \
   }
 
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::AMBIENT_INTENSITY(), value);
+RENDERER_NODE_PARAM_SET_DEFINITION(UseDenoiser, USE_DENOISER, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(SamplesPerPixel, SAMPLES_PER_PIXEL, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(LibraryName, LIBRARY_NAME, const char*)
+RENDERER_NODE_PARAM_SET_DEFINITION(DeviceSubtype, DEVICE_SUBTYPE, const char*)
+RENDERER_NODE_PARAM_SET_DEFINITION(DebugLibraryName, DEBUG_LIBRARY_NAME, const char*)
+RENDERER_NODE_PARAM_SET_DEFINITION(DebugDeviceSubtype, DEBUG_DEVICE_SUBTYPE, const char*)
+RENDERER_NODE_PARAM_SET_DEFINITION(DebugDeviceDirectory, DEBUG_DEVICE_DIRECTORY, const char*)
+RENDERER_NODE_PARAM_SET_DEFINITION(DebugDeviceTraceMode, DEBUG_DEVICE_TRACE_MODE, const char*)
+RENDERER_NODE_PARAM_SET_DEFINITION(UseDebugDevice, USE_DEBUG_DEVICE, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(RendererSubtype, RENDERER_SUBTYPE, const char*)
+RENDERER_NODE_PARAM_SET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(AmbientSamples, AMBIENT_SAMPLES, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(LightFalloff, LIGHT_FALLOFF, double)
+RENDERER_NODE_PARAM_SET_DEFINITION(AmbientIntensity, AMBIENT_INTENSITY, double)
+RENDERER_NODE_PARAM_SET_DEFINITION(MaxDepth, MAX_DEPTH, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(ROptionValue, R_VALUE, double)
+RENDERER_NODE_PARAM_SET_DEFINITION(DebugMethod, DEBUG_METHOD, const char*)
+RENDERER_NODE_PARAM_SET_DEFINITION(UsdDirectory, USD_DIRECTORY, const char*)
+RENDERER_NODE_PARAM_SET_DEFINITION(UsdAtCommit, USD_COMMIT, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputBinary, USD_OUTPUT_BINARY, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputMaterial, USD_OUTPUT_MATERIAL, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputPreviewSurface, USD_OUTPUT_PREVIEW, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputMDL, USD_OUTPUT_MDL, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputMDLColors, USD_OUTPUT_MDLCOLORS, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputDisplayColors, USD_OUTPUT_DISPLAYCOLORS, int)
+RENDERER_NODE_PARAM_SET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int)
+
+//----------------------------------------------------------------------------
+#define RENDERER_NODE_PARAM_GET_DEFINITION(FCN, PARAM, TYPE, DEFAULT_VALUE)                        \
+  TYPE vtkAnariRendererNode::Get##FCN(vtkRenderer* r)                                              \
+  {                                                                                                \
+    if (!r)                                                                                        \
+    {                                                                                              \
+      return DEFAULT_VALUE;                                                                        \
+    }                                                                                              \
+                                                                                                   \
+    vtkInformation* info = r->GetInformation();                                                    \
+                                                                                                   \
+    if (info && info->Has(vtkAnariRendererNode::PARAM()))                                          \
+    {                                                                                              \
+      return info->Get(vtkAnariRendererNode::PARAM());                                             \
+    }                                                                                              \
+                                                                                                   \
+    return DEFAULT_VALUE;                                                                          \
+  }
+
+RENDERER_NODE_PARAM_GET_DEFINITION(UseDenoiser, USE_DENOISER, int, 0)
+RENDERER_NODE_PARAM_GET_DEFINITION(SamplesPerPixel, SAMPLES_PER_PIXEL, int, 1)
+RENDERER_NODE_PARAM_GET_DEFINITION(LibraryName, LIBRARY_NAME, const char*, nullptr)
+RENDERER_NODE_PARAM_GET_DEFINITION(DeviceSubtype, DEVICE_SUBTYPE, const char*, "default")
+RENDERER_NODE_PARAM_GET_DEFINITION(DebugLibraryName, DEBUG_LIBRARY_NAME, const char*, "debug")
+RENDERER_NODE_PARAM_GET_DEFINITION(DebugDeviceSubtype, DEBUG_DEVICE_SUBTYPE, const char*, "debug")
+RENDERER_NODE_PARAM_GET_DEFINITION(
+  DebugDeviceDirectory, DEBUG_DEVICE_DIRECTORY, const char*, nullptr)
+RENDERER_NODE_PARAM_GET_DEFINITION(
+  DebugDeviceTraceMode, DEBUG_DEVICE_TRACE_MODE, const char*, "code")
+RENDERER_NODE_PARAM_GET_DEFINITION(UseDebugDevice, USE_DEBUG_DEVICE, int, 0)
+RENDERER_NODE_PARAM_GET_DEFINITION(RendererSubtype, RENDERER_SUBTYPE, const char*, "default")
+RENDERER_NODE_PARAM_GET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int, 1)
+RENDERER_NODE_PARAM_GET_DEFINITION(AmbientSamples, AMBIENT_SAMPLES, int, 0)
+RENDERER_NODE_PARAM_GET_DEFINITION(LightFalloff, LIGHT_FALLOFF, double, 1.0)
+RENDERER_NODE_PARAM_GET_DEFINITION(AmbientIntensity, AMBIENT_INTENSITY, double, 1.0)
+RENDERER_NODE_PARAM_GET_DEFINITION(MaxDepth, MAX_DEPTH, int, 0)
+RENDERER_NODE_PARAM_GET_DEFINITION(ROptionValue, R_VALUE, double, 1.0)
+RENDERER_NODE_PARAM_GET_DEFINITION(DebugMethod, DEBUG_METHOD, const char*, nullptr)
+RENDERER_NODE_PARAM_GET_DEFINITION(UsdDirectory, USD_DIRECTORY, const char*, nullptr)
+RENDERER_NODE_PARAM_GET_DEFINITION(UsdAtCommit, USD_COMMIT, int, 0)
+RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputBinary, USD_OUTPUT_BINARY, int, 1)
+RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputMaterial, USD_OUTPUT_MATERIAL, int, 1)
+RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputPreviewSurface, USD_OUTPUT_PREVIEW, int, 1)
+RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputMDL, USD_OUTPUT_MDL, int, 1)
+RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputMDLColors, USD_OUTPUT_MDLCOLORS, int, 1)
+RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputDisplayColors, USD_OUTPUT_DISPLAYCOLORS, int, 1)
+RENDERER_NODE_PARAM_GET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int, 0)
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetCamera(anari::Camera camera)
+{
+  auto d = this->Internal->AnariDevice;
+  auto f = this->Internal->AnariFrame;
+  if (d && f)
+  {
+    anari::setParameter(d, f, "camera", camera);
+    anari::commitParameters(d, f);
+  }
 }
 
 //----------------------------------------------------------------------------
-double vtkAnariRendererNode::GetAmbientIntensity(vtkRenderer* renderer)
+void vtkAnariRendererNode::AddLight(anari::Light light)
 {
-  if (!renderer)
+  if (light != nullptr)
   {
-    return 1;
+    this->Internal->AnariLights.emplace_back(light);
   }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::AMBIENT_INTENSITY()))
-  {
-    return info->Get(vtkAnariRendererNode::AMBIENT_INTENSITY());
-  }
-
-  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetMaxDepth(int value, vtkRenderer* renderer)
+void vtkAnariRendererNode::AddSurface(anari::Surface surface)
 {
-  if (!renderer)
+  if (surface != nullptr)
   {
-    return;
+    this->Internal->AnariSurfaces.push_back(surface);
   }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::MAX_DEPTH(), value);
 }
 
 //----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetMaxDepth(vtkRenderer* renderer)
+void vtkAnariRendererNode::AddVolume(anari::Volume volume)
 {
-  if (!renderer)
+  if (volume != nullptr)
   {
-    return 0;
+    this->Internal->AnariVolumes.emplace_back(volume);
   }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::MAX_DEPTH()))
-  {
-    return info->Get(vtkAnariRendererNode::MAX_DEPTH());
-  }
-
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetROptionValue(double value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::R_VALUE(), value);
-}
-
-//----------------------------------------------------------------------------
-double vtkAnariRendererNode::GetROptionValue(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 1;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::R_VALUE()))
-  {
-    return info->Get(vtkAnariRendererNode::R_VALUE());
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetDebugMethod(const char* name, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::DEBUG_METHOD(), name);
-}
-
-//----------------------------------------------------------------------------
-const char* vtkAnariRendererNode::GetDebugMethod(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return nullptr;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::DEBUG_METHOD()))
-  {
-    return info->Get(vtkAnariRendererNode::DEBUG_METHOD());
-  }
-
-  return nullptr;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUsdDirectory(const char* name, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::USD_DIRECTORY(), name);
-}
-
-//----------------------------------------------------------------------------
-const char* vtkAnariRendererNode::GetUsdDirectory(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return nullptr;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::USD_DIRECTORY()))
-  {
-    return (info->Get(vtkAnariRendererNode::USD_DIRECTORY()));
-  }
-
-  return nullptr;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUsdAtCommit(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::USD_COMMIT(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetUsdAtCommit(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 0;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::USD_COMMIT()))
-  {
-    return (info->Get(vtkAnariRendererNode::USD_COMMIT()));
-  }
-
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUsdOutputBinary(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::USD_OUTPUT_BINARY(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetUsdOutputBinary(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 1;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::USD_OUTPUT_BINARY()))
-  {
-    return (info->Get(vtkAnariRendererNode::USD_OUTPUT_BINARY()));
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUsdOutputMaterial(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::USD_OUTPUT_MATERIAL(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetUsdOutputMaterial(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 1;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::USD_OUTPUT_MATERIAL()))
-  {
-    return (info->Get(vtkAnariRendererNode::USD_OUTPUT_MATERIAL()));
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUsdOutputPreviewSurface(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::USD_OUTPUT_PREVIEW(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetUsdOutputPreviewSurface(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 1;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::USD_OUTPUT_PREVIEW()))
-  {
-    return (info->Get(vtkAnariRendererNode::USD_OUTPUT_PREVIEW()));
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUsdOutputMDL(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::USD_OUTPUT_MDL(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetUsdOutputMDL(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 1;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::USD_OUTPUT_MDL()))
-  {
-    return (info->Get(vtkAnariRendererNode::USD_OUTPUT_MDL()));
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUsdOutputMDLColors(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::USD_OUTPUT_MDLCOLORS(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetUsdOutputMDLColors(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 1;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::USD_OUTPUT_MDLCOLORS()))
-  {
-    return (info->Get(vtkAnariRendererNode::USD_OUTPUT_MDLCOLORS()));
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUsdOutputDisplayColors(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::USD_OUTPUT_DISPLAYCOLORS(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetUsdOutputDisplayColors(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 1;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::USD_OUTPUT_DISPLAYCOLORS()))
-  {
-    return (info->Get(vtkAnariRendererNode::USD_OUTPUT_DISPLAYCOLORS()));
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetCompositeOnGL(int value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::COMPOSITE_ON_GL(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariRendererNode::GetCompositeOnGL(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 0;
-  }
-  vtkInformation* info = renderer->GetInformation();
-  if (info && info->Has(vtkAnariRendererNode::COMPOSITE_ON_GL()))
-  {
-    return (info->Get(vtkAnariRendererNode::COMPOSITE_ON_GL()));
-  }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddCamera(anari::Camera camera, const bool changed)
-{
-  this->Internal->AddCamera(camera, changed);
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddLight(anari::Light light, const bool changed)
-{
-  this->Internal->AddLight(light, changed);
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddSurfaces(
-  const std::vector<anari::Surface>& surfaces, const bool changed)
-{
-  this->Internal->AddSurfaces(surfaces, changed);
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddVolume(anari::Volume volume, const bool changed)
-{
-  this->Internal->AddVolume(volume, changed);
 }
 
 //----------------------------------------------------------------------------
@@ -1766,73 +977,46 @@ void vtkAnariRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkAnariRendererNode::Traverse(int operation)
 {
-
   vtkRenderer* renderer = vtkRenderer::SafeDownCast(this->GetRenderable());
   if (!renderer)
   {
     return;
   }
 
-  // do not override other passes
-  if (operation != vtkViewNode::operation_type::render)
-  {
-    this->Superclass::Traverse(operation);
-    return;
-  }
-
   if (!this->Internal->InitFlag)
   {
     this->Internal->InitFlag = this->Internal->InitAnari();
+    if (!this->Internal->InitFlag)
+    {
+      return;
+    }
+
+    this->InitAnariFrame(renderer);
+    this->InitAnariWorld();
   }
 
-  if (this->Internal->InitFlag)
+  if (operation == operation_type::render)
   {
     this->Apply(operation, true);
-
-    auto const& nodes = this->GetChildren();
-
-    // ANARI camera
-    for (auto node : nodes)
+    if (this->AnariSceneConstructedMTime < this->AnariSceneStructureModifiedMTime)
     {
-      vtkAnariCameraNode* child = vtkAnariCameraNode::SafeDownCast(node);
-      if (child)
+      this->Internal->AnariLights.clear();
+      this->Internal->AnariVolumes.clear();
+      this->Internal->AnariSurfaces.clear();
+      for (auto val : this->Children)
       {
-        child->Traverse(operation);
-        break;
+        val->Traverse(operation);
       }
+      this->UpdateAnariLights();
+      this->UpdateAnariSurfaces();
+      this->UpdateAnariVolumes();
+      this->AnariSceneConstructedMTime = this->AnariSceneStructureModifiedMTime;
     }
-
-    // Lights
-    for (auto node : nodes)
-    {
-      vtkAnariLightNode* child = vtkAnariLightNode::SafeDownCast(node);
-      if (child)
-      {
-        child->Traverse(operation);
-      }
-    }
-
-    // Surfaces
-    for (auto node : nodes)
-    {
-      vtkAnariActorNode* child = vtkAnariActorNode::SafeDownCast(node);
-      if (child)
-      {
-        child->Traverse(operation);
-      }
-    }
-
-    // Volumes
-    for (auto node : nodes)
-    {
-      vtkAnariVolumeNode* child = vtkAnariVolumeNode::SafeDownCast(node);
-      if (child)
-      {
-        child->Traverse(operation);
-      }
-    }
-
     this->Apply(operation, false);
+  }
+  else
+  {
+    this->Superclass::Traverse(operation);
   }
 }
 
@@ -1870,468 +1054,30 @@ void vtkAnariRendererNode::Render(bool prepass)
   vtkAnariProfiling startProfiling("vtkAnariRendererNode::Render", vtkAnariProfiling::BLUE);
 
   vtkRenderer* ren = this->GetRenderer();
-  auto anariDeviceExtensions = this->GetAnariDeviceExtensions();
-
-  if (!ren)
+  if (prepass || !ren)
   {
     return;
   }
 
-  if (prepass)
+  this->InitAnariRenderer(ren);
+  this->SetupAnariRendererParameters(ren);
+  this->UpdateAnariFrameSize();
+#if 0
+    this->DebugOutputWorldBounds();
+#endif
+
+  // Render frame
+  auto anariDevice = this->GetAnariDevice();
+  auto anariFrame = this->Internal->AnariFrame;
+  int accumulationCount = this->GetAccumulationCount(ren);
+  for (int i = 0; i < accumulationCount; i++)
   {
-    auto anariDevice = this->GetAnariDevice();
-
-    if (anariDevice == nullptr)
-    {
-      return;
-    }
-
-    // Frame
-    // The frame contains all the objects necessary to render and holds the
-    // resulting rendered 2D image.
-    //----------------------------------------------------------------------------
-    if (this->Internal->AnariFrame == nullptr)
-    {
-      this->Internal->AnariFrame = anari::newObject<anari::Frame>(anariDevice);
-
-      ANARIDataType format = ANARI_UFIXED8_VEC4;
-      anari::setParameter(
-        anariDevice, this->Internal->AnariFrame, "channel.color", ANARI_DATA_TYPE, &format);
-      ANARIDataType depthFormat = ANARI_FLOAT32;
-      anari::setParameter(
-        anariDevice, this->Internal->AnariFrame, "channel.depth", ANARI_DATA_TYPE, &depthFormat);
-
-      anari::commitParameters(anariDevice, this->Internal->AnariFrame);
-    }
-
-    auto anariFrame = this->Internal->AnariFrame;
-
-    // Renderer
-    //----------------------------------------------------------------------------
-    auto currentRendererSubtype = this->Internal->RendererParams.Subtype;
-    this->Internal->CompositeOnGL = (this->GetCompositeOnGL(ren) != 0);
-    const char* rendererSubtype = vtkAnariRendererNode::GetRendererSubtype(this->GetRenderer());
-    bool isNewRenderer = false;
-
-    if (currentRendererSubtype != rendererSubtype)
-    {
-      isNewRenderer = true;
-      this->Internal->RendererParams.Subtype = rendererSubtype;
-
-      if (this->Internal->AnariRenderer != nullptr)
-      {
-        anari::release(anariDevice, this->Internal->AnariRenderer);
-      }
-
-      this->Internal->AnariRenderer =
-        anari::newObject<anari::Renderer>(anariDevice, rendererSubtype);
-
-      anari::setParameter(anariDevice, anariFrame, "renderer", this->Internal->AnariRenderer);
-      anari::commitParameters(anariDevice, anariFrame);
-    }
-
-    auto anariRenderer = this->Internal->AnariRenderer;
-
-    // TODO: have this as a renderer parameter
-    // bool useAccumulation = this->GetUseAccumulation(ren) > 0 ? true : false;
-    // if(anariDeviceExtensions.ANARI_KHR_FRAME_ACCUMULATION &&
-    //    this->Internal->RendererParams.Accumulation != useAccumulation)
-    // {
-    //   this->Internal->RendererParams.Accumulation = useAccumulation;
-    //   anari::setParameter(anariDevice, this->Internal->AnariFrame, "accumulation",
-    //   useAccumulation); anari::commitParameters(anariDevice, anariRenderer);
-    // }
-
-    bool useDenoiser = this->GetUseDenoiser(ren) > 0 ? true : false;
-    if (isNewRenderer || this->Internal->RendererParams.Denoise != useDenoiser)
-    {
-      anari::setParameter(anariDevice, anariRenderer, "denoise", useDenoiser);
-      this->Internal->RendererParams.Denoise = useDenoiser;
-      anari::commitParameters(anariDevice, anariRenderer);
-    }
-
-    auto spp = this->GetSamplesPerPixel(ren);
-    if (isNewRenderer || this->Internal->RendererParams.SamplesPerPixel != spp)
-    {
-      anari::setParameter(anariDevice, anariRenderer, "pixelSamples", spp);
-      this->Internal->RendererParams.SamplesPerPixel = spp;
-      anari::commitParameters(anariDevice, anariRenderer);
-    }
-
-    auto aoSamples = this->GetAmbientSamples(ren);
-    if (isNewRenderer || this->Internal->RendererParams.AmbientSamples != aoSamples)
-    {
-      anari::setParameter(anariDevice, anariRenderer, "ambientSamples", aoSamples);
-      this->Internal->RendererParams.AmbientSamples = aoSamples;
-      anari::commitParameters(anariDevice, anariRenderer);
-    }
-
-    float lightFalloff = static_cast<float>(this->GetLightFalloff(ren));
-    if (isNewRenderer ||
-      std::abs(this->Internal->RendererParams.LightFalloff - lightFalloff) > 0.0001f)
-    {
-      anari::setParameter(anariDevice, anariRenderer, "lightFalloff", lightFalloff);
-      this->Internal->RendererParams.LightFalloff = lightFalloff;
-      anari::commitParameters(anariDevice, anariRenderer);
-    }
-
-    float ambientIntensity = static_cast<float>(this->GetAmbientIntensity(ren));
-    if (isNewRenderer ||
-      std::abs(this->Internal->RendererParams.AmbientIntensity - ambientIntensity) > 0.0001f)
-    {
-      anari::setParameter(anariDevice, anariRenderer, "ambientRadiance", ambientIntensity);
-      this->Internal->RendererParams.AmbientIntensity = ambientIntensity;
-      anari::commitParameters(anariDevice, anariRenderer);
-    }
-
-    auto maxDepth = this->GetMaxDepth(ren);
-    if (isNewRenderer || this->Internal->RendererParams.MaxDepth != maxDepth)
-    {
-      anari::setParameter(anariDevice, anariRenderer, "maxDepth", maxDepth);
-      this->Internal->RendererParams.MaxDepth = maxDepth;
-      anari::commitParameters(anariDevice, anariRenderer);
-    }
-
-    // Debug
-    auto debugMethod = this->GetDebugMethod(ren);
-    if (debugMethod != nullptr)
-    {
-      if (this->Internal->RendererParams.DebugMethod != debugMethod)
-      {
-        this->Internal->RendererParams.DebugMethod = debugMethod;
-        anari::setParameter(anariDevice, anariRenderer, "method", debugMethod);
-        anari::commitParameters(anariDevice, anariRenderer);
-      }
-    }
-
-    double* ambientColor = this->GetAmbientColor(ren);
-    if (ambientColor != nullptr)
-    {
-      float ambientColorf[3] = { static_cast<float>(ambientColor[0]),
-        static_cast<float>(ambientColor[1]), static_cast<float>(ambientColor[2]) };
-      anari::setParameter(anariDevice, anariRenderer, "ambientColor", ambientColorf);
-      anari::commitParameters(anariDevice, anariRenderer);
-    }
-
-    double* bg = ren->GetBackground();
-    double bgAlpha = ren->GetBackgroundAlpha();
-
-    if (!ren->GetGradientBackground())
-    {
-      float bgColor[4] = { static_cast<float>(bg[0]), static_cast<float>(bg[1]),
-        static_cast<float>(bg[2]), static_cast<float>(bgAlpha) };
-
-      anari::setParameter(anariDevice, anariRenderer, "background", bgColor);
-      anari::commitParameters(anariDevice, anariRenderer);
-    }
-    else
-    {
-      double* topbg = ren->GetBackground2();
-      constexpr int IMAGE_SIZE = 128;
-
-      vtkNew<vtkColorTransferFunction> colorTF;
-      colorTF->AddRGBPoint(0, bg[0], bg[1], bg[2]);
-      colorTF->AddRGBPoint(IMAGE_SIZE, topbg[0], topbg[1], topbg[2]);
-
-      auto gradientArray = anari::newArray2D(anariDevice, ANARI_FLOAT32_VEC4, 1, IMAGE_SIZE + 1);
-      auto* gradientColors = anari::map<vec4>(anariDevice, gradientArray);
-
-      for (int i = 0; i <= IMAGE_SIZE; i++)
-      {
-        double* color = colorTF->GetColor(i);
-
-        gradientColors[i] = vec4{ static_cast<float>(color[0]), static_cast<float>(color[1]),
-          static_cast<float>(color[2]), static_cast<float>(bgAlpha) };
-      }
-
-      anari::unmap(anariDevice, gradientArray);
-      anari::setAndReleaseParameter(anariDevice, anariRenderer, "background", gradientArray);
-      anari::commitParameters(anariDevice, anariRenderer);
-    }
+    anari::render(anariDevice, anariFrame);
   }
-  else
-  {
-    auto anariDevice = this->GetAnariDevice();
-    auto anariFrame = this->Internal->AnariFrame;
 
-    if (anariDevice == nullptr || anariFrame == nullptr)
-    {
-      return;
-    }
+  anari::wait(anariDevice, anariFrame);
 
-    // World
-    // The world to be populated with renderable objects
-    //----------------------------------------------------------------------------
-    bool isNewWorld = false;
-
-    if (this->Internal->AnariWorld == nullptr)
-    {
-      this->Internal->AnariWorld = anari::newObject<anari::World>(anariDevice);
-      anari::setParameter(
-        anariDevice, this->Internal->AnariWorld, "name", ANARI_STRING, "vtk_world");
-      isNewWorld = true;
-      anari::commitParameters(anariDevice, this->Internal->AnariWorld);
-
-      anari::setParameter(anariDevice, anariFrame, "world", this->Internal->AnariWorld);
-      anari::commitParameters(anariDevice, anariFrame);
-    }
-
-    auto anariWorld = this->Internal->AnariWorld;
-
-    uvec2 frameSize = { static_cast<uint>(this->Size[0]), static_cast<uint>(this->Size[1]) };
-    int totalSize = this->Size[0] * this->Size[1];
-
-    if (this->Internal->ImageX != frameSize[0] || this->Internal->ImageY != frameSize[1])
-    {
-      this->Internal->ImageX = frameSize[0];
-      this->Internal->ImageY = frameSize[1];
-
-      this->Internal->ColorBuffer.reset(new u_char[totalSize * 4]);
-      this->Internal->DepthBuffer.reset(new float[totalSize]);
-
-      anari::setParameter(anariDevice, anariFrame, "size", frameSize);
-      anari::commitParameters(anariDevice, anariFrame);
-    }
-
-    // Geometry
-    //----------------------------------------------------------------------------
-    auto surfaceState = this->Internal->GetSurfaceState();
-    auto volumeState = this->Internal->GetVolumeState();
-
-    if (surfaceState.changed || volumeState.changed)
-    {
-      if (this->Internal->AnariInstance == nullptr)
-      {
-        this->Internal->AnariInstance = anari::newObject<anari::Instance>(anariDevice, "transform");
-        anari::setParameter(
-          anariDevice, this->Internal->AnariInstance, "name", ANARI_STRING, "vtk_instance");
-        anari::commitParameters(anariDevice, this->Internal->AnariInstance);
-
-        auto instanceArray1D = anari::newArray1D(anariDevice, &this->Internal->AnariInstance, 1);
-        anari::setAndReleaseParameter(anariDevice, anariWorld, "instance", instanceArray1D);
-        anari::commitParameters(anariDevice, anariWorld);
-      }
-
-      auto anariInstance = this->Internal->AnariInstance;
-
-      if (this->Internal->AnariGroup == nullptr)
-      {
-        this->Internal->AnariGroup = anari::newObject<anari::Group>(anariDevice);
-        anari::setParameter(
-          anariDevice, this->Internal->AnariGroup, "name", ANARI_STRING, "vtk_group");
-        anari::commitParameters(anariDevice, this->Internal->AnariGroup);
-
-        anari::setParameter(anariDevice, anariInstance, "group", this->Internal->AnariGroup);
-        anari::commitParameters(anariDevice, anariInstance);
-      }
-
-      auto anariGroup = this->Internal->AnariGroup;
-
-      if (surfaceState.changed)
-      {
-        this->Internal->AnariSurfaceState.changed = false;
-
-        if (!surfaceState.Surfaces.empty())
-        {
-          for (size_t i = 0; i < surfaceState.Surfaces.size(); i++)
-          {
-            std::string surfaceName("vtk_surface_");
-            surfaceName.append(std::to_string(i));
-
-            anari::setParameter(
-              anariDevice, surfaceState.Surfaces[i], "name", ANARI_STRING, surfaceName.c_str());
-            anari::commitParameters(anariDevice, surfaceState.Surfaces[i]);
-          }
-
-          auto surfaceArray1D = anari::newArray1D(
-            anariDevice, surfaceState.Surfaces.data(), surfaceState.Surfaces.size());
-          anari::setAndReleaseParameter(anariDevice, anariGroup, "surface", surfaceArray1D);
-          anari::commitParameters(anariDevice, anariGroup);
-        }
-        else
-        {
-          anari::unsetParameter(anariDevice, anariGroup, "surface");
-          anari::commitParameters(anariDevice, anariGroup);
-        }
-      }
-
-      if (volumeState.changed)
-      {
-        this->Internal->AnariVolumeState.changed = false;
-
-        if (!volumeState.Volumes.empty())
-        {
-          for (size_t i = 0; i < volumeState.Volumes.size(); i++)
-          {
-            std::string volumeName("vtk_volume_");
-            volumeName.append(std::to_string(i));
-
-            anari::setParameter(
-              anariDevice, volumeState.Volumes[i], "name", ANARI_STRING, volumeName.c_str());
-            anari::commitParameters(anariDevice, volumeState.Volumes[i]);
-          }
-
-          auto volumeArray1D =
-            anari::newArray1D(anariDevice, volumeState.Volumes.data(), volumeState.Volumes.size());
-          anari::setAndReleaseParameter(anariDevice, anariGroup, "volume", volumeArray1D);
-          anari::commitParameters(anariDevice, anariGroup);
-        }
-        else
-        {
-          anari::unsetParameter(anariDevice, anariGroup, "volume");
-          anari::commitParameters(anariDevice, anariGroup);
-        }
-      }
-    }
-    else if (isNewWorld) // TODO: Should just be able to render background color??
-    {
-      memset(this->Internal->ColorBuffer.get(), 255, totalSize * 4);
-      memset(this->Internal->DepthBuffer.get(), 1, totalSize * sizeof(float));
-      return;
-    }
-
-    this->Internal->AnariSurfaceState.used = true;
-    this->Internal->AnariVolumeState.used = true;
-
-    // Lights
-    //----------------------------------------------------------------------------
-    auto lightState = this->Internal->GetLightState();
-
-    if (lightState.changed)
-    {
-      this->Internal->AnariLightState.changed = false;
-
-      if (!lightState.Lights.empty())
-      {
-        for (size_t i = 0; i < lightState.Lights.size(); i++)
-        {
-          std::string lightName("vtk_light_");
-          lightName.append(std::to_string(i));
-
-          anari::setParameter(
-            anariDevice, lightState.Lights[i], "name", ANARI_STRING, lightName.c_str());
-          anari::commitParameters(anariDevice, lightState.Lights[i]);
-        }
-
-        auto lightArray1D =
-          anari::newArray1D(anariDevice, lightState.Lights.data(), lightState.Lights.size());
-        anari::setAndReleaseParameter(anariDevice, anariWorld, "light", lightArray1D);
-        anari::commitParameters(anariDevice, anariWorld);
-      }
-      else
-      {
-        vtkWarningMacro(<< "No lights set on world.");
-        anari::unsetParameter(anariDevice, anariWorld, "light");
-        anari::commitParameters(anariDevice, anariWorld);
-      }
-    }
-
-    this->Internal->AnariLightState.used = true;
-
-    // Camera
-    //----------------------------------------------------------------------------
-    auto cameraState = this->Internal->GetCameraState();
-
-    if (cameraState.changed)
-    {
-      this->Internal->AnariCameraState.changed = false;
-
-      if (cameraState.Camera != nullptr)
-      {
-        anari::setAndReleaseParameter(anariDevice, anariFrame, "camera", cameraState.Camera);
-        anari::commitParameters(anariDevice, anariFrame);
-      }
-      else
-      {
-        anari::unsetParameter(anariDevice, anariFrame, "camera");
-        anari::commitParameters(anariDevice, anariFrame);
-      }
-    }
-
-    // Get world bounds
-    float worldBounds[6];
-    if (anariGetProperty(anariDevice, anariWorld, "bounds", ANARI_FLOAT32_BOX3, worldBounds,
-          sizeof(worldBounds), ANARI_WAIT))
-    {
-      vtkDebugMacro(<< "[ANARI::" << this->Internal->LibraryName << "] World Bounds: "
-                    << "{" << worldBounds[0] << ", " << worldBounds[1] << ", " << worldBounds[2]
-                    << "}, "
-                    << "{" << worldBounds[3] << ", " << worldBounds[4] << ", " << worldBounds[5]
-                    << "}");
-    }
-    else
-    {
-      vtkWarningMacro(<< "[ANARI::" << this->Internal->LibraryName
-                      << "] World bounds not returned");
-    }
-
-    // Render frame
-    int accumulationCount = this->GetAccumulationCount(ren);
-    for (int i = 0; i < accumulationCount; i++)
-    {
-      anari::render(anariDevice, anariFrame);
-      anari::wait(anariDevice, anariFrame);
-    }
-
-    if (!this->Internal->IsUSD)
-    {
-      float duration = 0.0f;
-      anari::getProperty(anariDevice, anariFrame, "duration", duration, ANARI_NO_WAIT);
-
-      float durationInMS = duration * 1000.0f;
-      vtkDebugMacro(<< "Rendered frame in " << durationInMS << " ms");
-
-      // Color buffer
-      auto renderedFrame = anari::map<uint32_t>(anariDevice, anariFrame, "channel.color");
-
-      if (renderedFrame.data != nullptr)
-      {
-        int retTotalSize = renderedFrame.width * renderedFrame.height;
-        totalSize = (retTotalSize < totalSize) ? retTotalSize : totalSize;
-        memcpy(this->Internal->ColorBuffer.get(), renderedFrame.data, totalSize * 4);
-      }
-      else
-      {
-        vtkWarningMacro(<< "Color buffer is null");
-        memset(this->Internal->ColorBuffer.get(), 255, totalSize * 4);
-      }
-
-      anari::unmap(anariDevice, anariFrame, "channel.color");
-
-      // Depth Buffer
-      auto mappedDepthBuffer = anari::map<float>(anariDevice, anariFrame, "channel.depth");
-
-      if (mappedDepthBuffer.data != nullptr)
-      {
-        vtkCamera* cam = vtkRenderer::SafeDownCast(this->Renderable)->GetActiveCamera();
-        double* clipValues = cam->GetClippingRange();
-        double clipMin = clipValues[0];
-        double clipMax = clipValues[1];
-        double clipDiv = 1.0 / (clipMax - clipMin);
-
-        const float* depthBuffer = mappedDepthBuffer.data;  // s
-        float* zBuffer = this->Internal->DepthBuffer.get(); // d
-
-        for (int i = 0; i < totalSize; i++)
-        {
-          // *d = (*s < clipMin ? 1.0 : (*s - clipMin) * clipDiv);
-          zBuffer[i] = (depthBuffer[i] < clipMin ? 1.0f : (depthBuffer[i] - clipMin) * clipDiv);
-        }
-      }
-      else
-      {
-        vtkWarningMacro(<< "Depth buffer is null");
-        memset(this->Internal->DepthBuffer.get(), 0, totalSize * sizeof(float));
-      }
-
-      anari::unmap(anariDevice, anariFrame, "channel.depth");
-    }
-    else
-    {
-      memset(this->Internal->ColorBuffer.get(), 255, totalSize * 4);
-      memset(this->Internal->DepthBuffer.get(), 1, totalSize * sizeof(float));
-    }
-  }
+  CopyAnariFrameBufferData();
 }
 
 //----------------------------------------------------------------------------
@@ -2339,8 +1085,8 @@ void vtkAnariRendererNode::WriteLayer(
   unsigned char* buffer, float* Z, int buffx, int buffy, int layer)
 {
   vtkAnariProfiling startProfiling("vtkAnariRendererNode::WriteLayer", vtkAnariProfiling::BLUE);
-  unsigned char* colorBuffer = this->Internal->ColorBuffer.get();
-  float* zBuffer = this->Internal->DepthBuffer.get();
+  unsigned char* colorBuffer = this->Internal->ColorBuffer.data();
+  float* zBuffer = this->Internal->DepthBuffer.data();
 
   if (layer == 0)
   {
@@ -2417,15 +1163,6 @@ void vtkAnariRendererNode::WriteLayer(
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariRendererNode::ResetCounts()
-{
-  this->SphereCount = 0;
-  this->CylinderCount = 0;
-  this->CurveCount = 0;
-  this->TriangleCount = 0;
-}
-
-//------------------------------------------------------------------------------
 vtkRenderer* vtkAnariRendererNode::GetRenderer()
 {
   return vtkRenderer::SafeDownCast(this->GetRenderable());
@@ -2458,13 +1195,13 @@ anari::Extensions vtkAnariRendererNode::GetAnariDeviceExtensions()
 //------------------------------------------------------------------------------
 const unsigned char* vtkAnariRendererNode::GetBuffer()
 {
-  return this->Internal->ColorBuffer.get();
+  return this->Internal->ColorBuffer.data();
 }
 
 //------------------------------------------------------------------------------
 const float* vtkAnariRendererNode::GetZBuffer()
 {
-  return this->Internal->DepthBuffer.get();
+  return this->Internal->DepthBuffer.data();
 }
 
 //------------------------------------------------------------------------------
@@ -2477,6 +1214,18 @@ int vtkAnariRendererNode::GetColorBufferTextureGL()
 int vtkAnariRendererNode::GetDepthBufferTextureGL()
 {
   return this->Internal->DepthBufferTex;
+}
+
+//------------------------------------------------------------------------------
+void vtkAnariRendererNode::InvalidateSceneStructure()
+{
+  this->AnariSceneStructureModifiedMTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkAnariRendererNode::InvalidateRendererParameters()
+{
+  vtkAnariRendererNode::AnariRendererModifiedTime.Modified();
 }
 
 VTK_ABI_NAMESPACE_END

@@ -20,6 +20,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariVolumeMapperNodeInternals;
+class vtkVolume;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariVolumeMapperNode : public vtkVolumeMapperNode
 {
@@ -45,19 +46,25 @@ public:
   //@}
 
   /**
-   * Make ANARI calls to render me.
+   * Synchronize VTK and ANARI Objects
    */
-  virtual void Render(bool prepass) override;
+  void Synchronize(bool prepass) override;
+  /**
+   * Add volume to ANARI world.
+   */
+  void Render(bool prepass) override;
 
-protected:
+private:
   vtkAnariVolumeMapperNode();
   ~vtkAnariVolumeMapperNode();
 
-  int ColorSize;
-  int OpacitySize;
-  vtkAnariVolumeMapperNodeInternals* Internal;
+  vtkVolume* GetVtkVolume() const;
+  bool VolumeWasModified() const;
 
-private:
+  int ColorSize{ 128 };
+  int OpacitySize{ 128 };
+  vtkAnariVolumeMapperNodeInternals* Internal{ nullptr };
+
   vtkAnariVolumeMapperNode(const vtkAnariVolumeMapperNode&) = delete;
   void operator=(const vtkAnariVolumeMapperNode&) = delete;
 };

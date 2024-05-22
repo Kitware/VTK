@@ -88,55 +88,59 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkAnariVolumeMapperNodeInternals
+struct vtkAnariVolumeMapperNodeInternals
 {
 public:
   vtkAnariVolumeMapperNodeInternals(vtkAnariVolumeMapperNode*);
-  ~vtkAnariVolumeMapperNodeInternals() = default;
+  ~vtkAnariVolumeMapperNodeInternals();
 
   void UpdateTransferFunction(vtkVolume*, double, double);
   vtkDataArray* ConvertScalarData(vtkDataArray*, int, int);
 
-  void StageVolume(bool);
+  void StageVolume();
 
   vtkTimeStamp BuildTime;
   vtkTimeStamp PropertyTime;
 
   std::string LastArrayName;
-  int LastArrayComponent;
+  int LastArrayComponent{ -2 };
 
-  vtkAnariVolumeMapperNode* Owner;
-  vtkAnariRendererNode* AnariRendererNode;
-  anari::Volume AnariVolume;
+  vtkAnariVolumeMapperNode* Owner{ nullptr };
+  vtkAnariRendererNode* AnariRendererNode{ nullptr };
+  anari::Device AnariDevice{ nullptr };
+  anari::Volume AnariVolume{ nullptr };
   std::unique_ptr<anari_structured::TransferFunction> TransferFunction;
 };
 
 //----------------------------------------------------------------------------
 vtkAnariVolumeMapperNodeInternals::vtkAnariVolumeMapperNodeInternals(
   vtkAnariVolumeMapperNode* owner)
-  : LastArrayComponent(-2)
-  , Owner(owner)
-  , AnariRendererNode(nullptr)
-  , AnariVolume(nullptr)
-  , TransferFunction(nullptr)
+  : Owner(owner)
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariVolumeMapperNodeInternals::StageVolume(const bool changed)
+vtkAnariVolumeMapperNodeInternals::~vtkAnariVolumeMapperNodeInternals()
+{
+  anari::retain(this->AnariDevice, this->AnariVolume);
+  anari::retain(this->AnariDevice, this->AnariDevice);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariVolumeMapperNodeInternals::StageVolume()
 {
   vtkAnariProfiling startProfiling(
     "vtkAnariVolumeMapperNode::RenderVolumes", vtkAnariProfiling::GREEN);
 
   if (this->AnariRendererNode != nullptr)
   {
-    this->AnariRendererNode->AddVolume(this->AnariVolume, changed);
+    this->AnariRendererNode->AddVolume(this->AnariVolume);
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkAnariVolumeMapperNodeInternals::UpdateTransferFunction(
-  vtkVolume* const vtkVol, const double low, const double high)
+  vtkVolume* vtkVol, double low, double high)
 {
   this->TransferFunction.reset(new anari_structured::TransferFunction());
   vtkVolumeProperty* volProperty = vtkVol->GetProperty();
@@ -195,7 +199,7 @@ void vtkAnariVolumeMapperNodeInternals::UpdateTransferFunction(
 
 //------------------------------------------------------------------------------
 vtkDataArray* vtkAnariVolumeMapperNodeInternals::ConvertScalarData(
-  vtkDataArray* const scalarData, const int vectorComponent, const int vectorMode)
+  vtkDataArray* scalarData, int vectorComponent, int vectorMode)
 {
   int numComponents = scalarData->GetNumberOfComponents();
   const vtkIdType numTuples = scalarData->GetNumberOfTuples();
@@ -228,8 +232,6 @@ vtkStandardNewMacro(vtkAnariVolumeMapperNode);
 
 //----------------------------------------------------------------------------
 vtkAnariVolumeMapperNode::vtkAnariVolumeMapperNode()
-  : ColorSize(128)
-  , OpacitySize(128)
 {
   this->Internal = new vtkAnariVolumeMapperNodeInternals(this);
 }
@@ -247,222 +249,246 @@ void vtkAnariVolumeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
+{
+  vtkAnariProfiling startProfiling(
+    "vtkAnariVolumeMapperNode::Synchronize", vtkAnariProfiling::GREEN);
+
+  if (!prepass)
+  {
+    return;
+  }
+
+  vtkVolumeNode* volNode = vtkVolumeNode::SafeDownCast(this->Parent);
+  vtkVolume* vol = vtkVolume::SafeDownCast(volNode->GetRenderable());
+
+  if (vol->GetVisibility() != false)
+  {
+    vtkVolumeProperty* const volumeProperty = vol->GetProperty();
+
+    if (!volumeProperty)
+    {
+      // this is OK, happens in paraview client side for instance
+      vtkDebugMacro(<< "Volume doesn't have property set");
+      return;
+    }
+
+    vtkAbstractVolumeMapper* mapper = vtkAbstractVolumeMapper::SafeDownCast(this->GetRenderable());
+
+    // make sure that we have scalar input and update the scalar input
+    if (mapper->GetDataSetInput() == nullptr)
+    {
+      // OK - PV cli/srv for instance vtkErrorMacro("VolumeMapper had no input!");
+      vtkDebugMacro(<< "No scalar input for the Volume");
+      return;
+    }
+
+    mapper->GetInputAlgorithm()->UpdateInformation();
+    mapper->GetInputAlgorithm()->Update();
+    vtkDataSet* dataSet = mapper->GetDataSetInput();
+    vtkImageData* data = vtkImageData::SafeDownCast(dataSet);
+
+    if (!data)
+    {
+      vtkDebugMacro("VolumeMapper's Input has no data!");
+      return;
+    }
+
+    int fieldAssociation;
+    vtkDataArray* sa = vtkDataArray::SafeDownCast(this->GetArrayToProcess(data, fieldAssociation));
+
+    if (!sa)
+    {
+      vtkErrorMacro("VolumeMapper's Input has no scalar array!");
+      return;
+    }
+
+    const int vectorComponent = volumeProperty->GetRGBTransferFunction()->GetVectorComponent();
+    const int vectorMode = volumeProperty->GetRGBTransferFunction()->GetVectorMode();
+
+    vtkDataArray* sca = this->Internal->ConvertScalarData(sa, vectorComponent, vectorMode);
+
+    if (sca != nullptr)
+    {
+      sa = sca;
+    }
+
+    this->Internal->AnariRendererNode =
+      static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
+    auto anariDevice = this->Internal->AnariRendererNode->GetAnariDevice();
+
+    if (!this->Internal->AnariDevice)
+    {
+      this->Internal->AnariDevice = anariDevice;
+      anari::retain(anariDevice, anariDevice);
+    }
+
+    //
+    // Create ANARI Volume
+    //
+
+    if (this->Internal->AnariVolume == nullptr)
+    {
+      this->Internal->AnariVolume =
+        anari::newObject<anari::Volume>(anariDevice, "transferFunction1D");
+    }
+
+    auto anariVolume = this->Internal->AnariVolume;
+
+    if (mapper->GetDataSetInput()->GetMTime() > this->Internal->BuildTime ||
+      this->Internal->LastArrayName != mapper->GetArrayName() ||
+      this->Internal->LastArrayComponent != vectorComponent)
+    {
+      this->Internal->LastArrayName = mapper->GetArrayName();
+      this->Internal->LastArrayComponent = vectorComponent;
+
+      // Spatial Field
+      auto anariSpatialField =
+        anari::newObject<anari::SpatialField>(anariDevice, "structuredRegular");
+
+      double origin[3];
+      const double* bds = vol->GetBounds();
+      origin[0] = bds[0];
+      origin[1] = bds[2];
+      origin[2] = bds[4];
+      vec3 gridOrigin = { static_cast<float>(origin[0]), static_cast<float>(origin[1]),
+        static_cast<float>(origin[2]) };
+      anari::setParameter(anariDevice, anariSpatialField, "origin", gridOrigin);
+
+      double spacing[3];
+      data->GetSpacing(spacing);
+      vec3 gridSpacing = { static_cast<float>(spacing[0]), static_cast<float>(spacing[1]),
+        static_cast<float>(spacing[2]) };
+
+      anari::setParameter(anariDevice, anariSpatialField, "spacing", gridSpacing);
+
+      // Filter
+      const int filterType = vol->GetProperty()->GetInterpolationType();
+
+      if (filterType == VTK_LINEAR_INTERPOLATION)
+      {
+        anari::setParameter(anariDevice, anariSpatialField, "filter", "linear");
+      }
+      else if (filterType == VTK_NEAREST_INTERPOLATION)
+      {
+        anari::setParameter(anariDevice, anariSpatialField, "filter", "nearest");
+      }
+      else if (filterType == VTK_CUBIC_INTERPOLATION)
+      {
+        vtkWarningMacro(
+          << "ANARI currently doesn't support cubic interpolation, using default value.");
+      }
+      else
+      {
+        vtkWarningMacro(<< "ANARI currently only supports linear and nearest interpolation, using "
+                           "default value.");
+      }
+
+      int dim[3];
+      data->GetDimensions(dim);
+
+      if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_CELLS)
+      {
+        dim[0] -= 1;
+        dim[1] -= 1;
+        dim[2] -= 1;
+      }
+
+      vtkDebugMacro(<< "Volume Dimensions: " << dim[0] << "x" << dim[1] << "x" << dim[2]);
+
+      // Create the actual field values for the 3D grid; the scalars are assumed to be
+      // vertex centered.
+      anari_structured::StructuredRegularSpatialFieldDataWorker worker;
+      worker.AnariDevice = anariDevice;
+      worker.AnariSpatialField = anariSpatialField;
+      worker.Dim = dim;
+
+      using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<double, float,
+        int, unsigned int, char, unsigned char, unsigned short, short>>;
+
+      if (!Dispatcher::Execute(sa, worker))
+      {
+        worker(sa);
+      }
+
+      anari::commitParameters(anariDevice, anariSpatialField);
+      anari::setAndReleaseParameter(anariDevice, anariVolume, "value", anariSpatialField);
+      anari::commitParameters(anariDevice, anariVolume);
+    }
+
+    if (volumeProperty->GetMTime() > this->Internal->PropertyTime ||
+      mapper->GetDataSetInput()->GetMTime() > this->Internal->BuildTime)
+    {
+      // Transfer Function
+      double scalarRange[2];
+      sa->GetRange(scalarRange);
+
+      this->Internal->UpdateTransferFunction(vol, scalarRange[0], scalarRange[1]);
+      anari_structured::TransferFunction* transferFunction = this->Internal->TransferFunction.get();
+
+      anari::setParameter(
+        anariDevice, anariVolume, "valueRange", ANARI_FLOAT32_BOX1, &transferFunction->valueRange);
+
+      auto array1DColor = anari::newArray1D(
+        anariDevice, transferFunction->color.data(), transferFunction->color.size());
+      anari::setAndReleaseParameter(anariDevice, anariVolume, "color", array1DColor);
+
+      auto array1DOpacity = anari::newArray1D(
+        anariDevice, transferFunction->opacity.data(), transferFunction->opacity.size());
+      anari::setAndReleaseParameter(anariDevice, anariVolume, "opacity", array1DOpacity);
+
+      anari::commitParameters(anariDevice, anariVolume);
+      this->Internal->PropertyTime.Modified();
+    }
+
+    if (sca)
+    {
+      sca->Delete();
+    }
+  }
+  else
+  {
+    vtkDebugMacro(<< "Volume visibility off");
+
+    if (this->Internal->AnariVolume != nullptr)
+    {
+      this->Internal->AnariRendererNode =
+        static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
+      auto anariDevice = this->Internal->AnariRendererNode->GetAnariDevice();
+      anari::release(anariDevice, this->Internal->AnariVolume);
+      this->Internal->AnariVolume = nullptr;
+    }
+    else
+    {
+      return;
+    }
+  }
+
+  this->RenderTime = volNode->GetMTime();
+  this->Internal->BuildTime.Modified();
+}
+
+//----------------------------------------------------------------------------
 void vtkAnariVolumeMapperNode::Render(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariVolumeMapperNode::Render", vtkAnariProfiling::GREEN);
 
-  if (prepass)
+  if (!prepass)
   {
-    vtkVolumeNode* volNode = vtkVolumeNode::SafeDownCast(this->Parent);
-    vtkVolume* vol = vtkVolume::SafeDownCast(volNode->GetRenderable());
-    bool isNewVolume = false;
-
-    if (vol->GetVisibility() != false)
-    {
-      vtkVolumeProperty* const volumeProperty = vol->GetProperty();
-
-      if (!volumeProperty)
-      {
-        // this is OK, happens in paraview client side for instance
-        vtkDebugMacro(<< "Volume doesn't have property set");
-        return;
-      }
-
-      vtkAbstractVolumeMapper* mapper =
-        vtkAbstractVolumeMapper::SafeDownCast(this->GetRenderable());
-
-      // make sure that we have scalar input and update the scalar input
-      if (mapper->GetDataSetInput() == nullptr)
-      {
-        // OK - PV cli/srv for instance vtkErrorMacro("VolumeMapper had no input!");
-        vtkDebugMacro(<< "No scalar input for the Volume");
-        return;
-      }
-
-      mapper->GetInputAlgorithm()->UpdateInformation();
-      mapper->GetInputAlgorithm()->Update();
-      vtkDataSet* dataSet = mapper->GetDataSetInput();
-      vtkImageData* data = vtkImageData::SafeDownCast(dataSet);
-
-      if (!data)
-      {
-        vtkDebugMacro("VolumeMapper's Input has no data!");
-        return;
-      }
-
-      int fieldAssociation;
-      vtkDataArray* sa =
-        vtkDataArray::SafeDownCast(this->GetArrayToProcess(data, fieldAssociation));
-
-      if (!sa)
-      {
-        vtkErrorMacro("VolumeMapper's Input has no scalar array!");
-        return;
-      }
-
-      const int vectorComponent = volumeProperty->GetRGBTransferFunction()->GetVectorComponent();
-      const int vectorMode = volumeProperty->GetRGBTransferFunction()->GetVectorMode();
-
-      vtkDataArray* sca = this->Internal->ConvertScalarData(sa, vectorComponent, vectorMode);
-
-      if (sca != nullptr)
-      {
-        sa = sca;
-      }
-
-      this->Internal->AnariRendererNode =
-        static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
-      auto anariDevice = this->Internal->AnariRendererNode->GetAnariDevice();
-
-      //
-      // Create ANARI Volume
-      //
-
-      if (this->Internal->AnariVolume == nullptr)
-      {
-        isNewVolume = true;
-        this->Internal->AnariVolume =
-          anari::newObject<anari::Volume>(anariDevice, "transferFunction1D");
-      }
-
-      auto anariVolume = this->Internal->AnariVolume;
-
-      if (mapper->GetDataSetInput()->GetMTime() > this->Internal->BuildTime ||
-        this->Internal->LastArrayName != mapper->GetArrayName() ||
-        this->Internal->LastArrayComponent != vectorComponent)
-      {
-        this->Internal->LastArrayName = mapper->GetArrayName();
-        this->Internal->LastArrayComponent = vectorComponent;
-
-        // Spatial Field
-        auto anariSpatialField =
-          anari::newObject<anari::SpatialField>(anariDevice, "structuredRegular");
-
-        double origin[3];
-        const double* bds = vol->GetBounds();
-        origin[0] = bds[0];
-        origin[1] = bds[2];
-        origin[2] = bds[4];
-        vec3 gridOrigin = { static_cast<float>(origin[0]), static_cast<float>(origin[1]),
-          static_cast<float>(origin[2]) };
-        anari::setParameter(anariDevice, anariSpatialField, "origin", gridOrigin);
-
-        double spacing[3];
-        data->GetSpacing(spacing);
-        vec3 gridSpacing = { static_cast<float>(spacing[0]), static_cast<float>(spacing[1]),
-          static_cast<float>(spacing[2]) };
-
-        anari::setParameter(anariDevice, anariSpatialField, "spacing", gridSpacing);
-
-        // Filter
-        const int filterType = vol->GetProperty()->GetInterpolationType();
-
-        if (filterType == VTK_LINEAR_INTERPOLATION)
-        {
-          anari::setParameter(anariDevice, anariSpatialField, "filter", "linear");
-        }
-        else if (filterType == VTK_NEAREST_INTERPOLATION)
-        {
-          anari::setParameter(anariDevice, anariSpatialField, "filter", "nearest");
-        }
-        else if (filterType == VTK_CUBIC_INTERPOLATION)
-        {
-          vtkWarningMacro(
-            << "ANARI currently doesn't support cubic interpolation, using default value.");
-        }
-        else
-        {
-          vtkWarningMacro(
-            << "ANARI currently only supports linear and nearest interpolation, using "
-               "default value.");
-        }
-
-        int dim[3];
-        data->GetDimensions(dim);
-
-        if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_CELLS)
-        {
-          dim[0] -= 1;
-          dim[1] -= 1;
-          dim[2] -= 1;
-        }
-
-        vtkDebugMacro(<< "Volume Dimensions: " << dim[0] << "x" << dim[1] << "x" << dim[2]);
-
-        // Create the actual field values for the 3D grid; the scalars are assumed to be
-        // vertex centered.
-        anari_structured::StructuredRegularSpatialFieldDataWorker worker;
-        worker.AnariDevice = anariDevice;
-        worker.AnariSpatialField = anariSpatialField;
-        worker.Dim = dim;
-
-        using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<double, float,
-          int, unsigned int, char, unsigned char, unsigned short, short>>;
-
-        if (!Dispatcher::Execute(sa, worker))
-        {
-          worker(sa);
-        }
-
-        anari::commitParameters(anariDevice, anariSpatialField);
-        anari::setAndReleaseParameter(anariDevice, anariVolume, "field", anariSpatialField);
-        anari::commitParameters(anariDevice, anariVolume);
-      }
-
-      if (isNewVolume || volumeProperty->GetMTime() > this->Internal->PropertyTime ||
-        mapper->GetDataSetInput()->GetMTime() > this->Internal->BuildTime)
-      {
-        // Transfer Function
-        double scalarRange[2];
-        sa->GetRange(scalarRange);
-
-        this->Internal->UpdateTransferFunction(vol, scalarRange[0], scalarRange[1]);
-        anari_structured::TransferFunction* transferFunction =
-          this->Internal->TransferFunction.get();
-
-        anariSetParameter(
-          anariDevice, anariVolume, "valueRange", ANARI_FLOAT32_BOX1, transferFunction->valueRange);
-
-        auto array1DColor = anari::newArray1D(
-          anariDevice, transferFunction->color.data(), transferFunction->color.size());
-        anari::setAndReleaseParameter(anariDevice, anariVolume, "color", array1DColor);
-
-        auto array1DOpacity = anari::newArray1D(
-          anariDevice, transferFunction->opacity.data(), transferFunction->opacity.size());
-        anari::setAndReleaseParameter(anariDevice, anariVolume, "opacity", array1DOpacity);
-
-        anari::commitParameters(anariDevice, anariVolume);
-        this->Internal->PropertyTime.Modified();
-      }
-
-      if (sca)
-      {
-        sca->Delete();
-      }
-    }
-    else
-    {
-      vtkDebugMacro(<< "Volume visibility off");
-
-      if (this->Internal->AnariVolume != nullptr)
-      {
-        isNewVolume = true;
-        this->Internal->AnariRendererNode =
-          static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
-        auto anariDevice = this->Internal->AnariRendererNode->GetAnariDevice();
-        anari::release(anariDevice, this->Internal->AnariVolume);
-        this->Internal->AnariVolume = nullptr;
-      }
-      else
-      {
-        return;
-      }
-    }
-
-    this->Internal->StageVolume(isNewVolume);
-    this->RenderTime = volNode->GetMTime();
-    this->Internal->BuildTime.Modified();
+    return;
   }
+
+  this->Internal->StageVolume();
+}
+
+vtkVolume* vtkAnariVolumeMapperNode::GetVtkVolume() const
+{
+  return static_cast<vtkVolume*>(this->Renderable);
+}
+
+bool vtkAnariVolumeMapperNode::VolumeWasModified() const
+{
+  return this->RenderTime < GetVtkVolume()->GetMTime();
 }
 
 VTK_ABI_NAMESPACE_END

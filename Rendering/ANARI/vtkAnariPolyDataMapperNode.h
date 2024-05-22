@@ -19,6 +19,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkActor;
 class vtkAnariPolyDataMapperNodeInternals;
 class vtkAnariActorNode;
 class vtkPolyData;
@@ -33,27 +34,37 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Ensure this node has been intialized.
+   */
+  void Build(bool prepass) override;
+  /**
+   * Sync ANARIGeometry + ANARIMaterial parameters with vtkPolyData.
+   */
+  void Synchronize(bool prepass) override;
+  /**
    * Make ANARI calls to render me.
    */
-  virtual void Render(bool prepass) override;
-
+  void Render(bool prepass) override;
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) override;
+  void Invalidate(bool prepass) override;
 
 protected:
   vtkAnariPolyDataMapperNode();
   ~vtkAnariPolyDataMapperNode();
 
-  void RenderSurfaceModels(const bool);
+  vtkActor* GetVtkActor() const;
+  vtkAnariActorNode* GetAnariActorNode() const;
+  bool ActorWasModified() const;
+  void RenderSurfaceModels();
   void ClearSurfaces();
 
   void AnariRenderPoly(vtkAnariActorNode* const anariActorNode, vtkPolyData* const poly,
-    double* const diffuse, const double opacity, const std::string materialName);
-  void SetAnariConfig(vtkAnariRendererNode* const);
+    double* const diffuse, const double opacity, const std::string& materialName);
 
-  vtkAnariPolyDataMapperNodeInternals* Internal;
+  vtkAnariPolyDataMapperNodeInternals* Internal{ nullptr };
+  vtkAnariRendererNode* RendererNode{ nullptr };
 
 private:
   vtkAnariPolyDataMapperNode(const vtkAnariPolyDataMapperNode&) = delete;

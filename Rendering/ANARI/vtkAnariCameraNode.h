@@ -19,6 +19,10 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkAnariCameraNodeInternals;
+class vtkAnariRendererNode;
+class vtkCamera;
+
 class VTKRENDERINGANARI_EXPORT vtkAnariCameraNode : public vtkCameraNode
 {
 public:
@@ -27,22 +31,33 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Make ANARI calls to render me.
+   * Ensure the right type of ANARICamera object is being held.
    */
-  virtual void Render(bool prepass) override;
-
+  void Build(bool prepass) override;
+  /**
+   * Sync ANARICamera parameters with vtkCamera.
+   */
+  void Synchronize(bool prepass) override;
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) override;
+  void Invalidate(bool prepass) override;
 
 protected:
-  vtkAnariCameraNode() = default;
-  ~vtkAnariCameraNode() = default;
+  vtkAnariCameraNode();
+  ~vtkAnariCameraNode();
 
 private:
   vtkAnariCameraNode(const vtkAnariCameraNode&) = delete;
   void operator=(const vtkAnariCameraNode&) = delete;
+
+  vtkCamera* GetVtkCamera() const;
+  bool CameraWasModified() const;
+
+  void UpdateAnariObjectHandles();
+  void UpdateAnariCameraParameters();
+
+  vtkAnariCameraNodeInternals* Internals{ nullptr };
 };
 
 VTK_ABI_NAMESPACE_END

@@ -36,38 +36,6 @@ public:
   vtkTypeMacro(vtkAnariRendererNode, vtkRendererNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
-  /**
-   * Convenience method to set/get sphere count.
-   */
-  vtkSetMacro(SphereCount, int);
-  vtkGetMacro(SphereCount, int);
-  //@}
-
-  //@{
-  /**
-   * Convenience method to set/get cylinder count.
-   */
-  vtkSetMacro(CylinderCount, int);
-  vtkGetMacro(CylinderCount, int);
-  //@}
-
-  //@{
-  /**
-   * Convenience method to set/get curve count.
-   */
-  vtkSetMacro(CurveCount, int);
-  vtkGetMacro(CurveCount, int);
-  //@}
-
-  //@{
-  /**
-   * Convenience method to set/get triangle count.
-   */
-  vtkSetMacro(TriangleCount, int);
-  vtkGetMacro(TriangleCount, int);
-  //@}
-
   /**
    * Builds objects for this renderer.
    */
@@ -447,11 +415,6 @@ public:
   static int GetCompositeOnGL(vtkRenderer* renderer);
   //@}
 
-  /**
-   * Convenience method to reset the surface geometry prim counts to zero.
-   */
-  void ResetCounts();
-
   //@{
   /**
    * Methods for other nodes to access
@@ -462,27 +425,27 @@ public:
    * Lights in ANARI are virtual objects that emit light into the world and
    * thus illuminate objects.
    */
-  void AddLight(anari::Light, const bool);
+  void AddLight(anari::Light);
 
   /**
-   * Accessed by the AnariPolyDataMapperNode to add Surfaces to the world.
+   * Accessed by the AnariPolyDataMapperNode to an ANARISurface to the world.
    * Geometries are matched with appearance information through Surfaces.
    * These take a geometry, which defines the spatial representation, and
    * applies either full-object or per-primitive color and material information.
    */
-  void AddSurfaces(const std::vector<anari::Surface>&, const bool);
+  void AddSurface(anari::Surface);
 
   /**
    * Accessed by the AnariVolumeMapperNode to add Volumes to the world.
    * Volumes in ANARI represent volumetric objects (complementing surfaces),
    * enscapsulating spatial data as well as appearance information.
    */
-  void AddVolume(anari::Volume, const bool);
+  void AddVolume(anari::Volume);
 
   /**
-   * Accessed by the AnariCameraNode to add an ANARICamera to the world.
+   * Accessed by the AnariCameraNode to set the ANARICamera on the ANARIFrame.
    */
-  void AddCamera(anari::Camera, const bool);
+  void SetCamera(anari::Camera);
 
   /**
    * Get the ANARI back-end device. A device is an object which provides the
@@ -542,15 +505,37 @@ public:
    */
   virtual int GetDepthBufferTextureGL();
 
+  /**
+   * Indicate that a new RenderTraversal of children needs to occur next frame
+   */
+  void InvalidateSceneStructure();
+
+  /**
+   * Indicate that the parameters to the underlying ANARIRenderer need to be set.
+   */
+  static void InvalidateRendererParameters();
+
 protected:
   vtkAnariRendererNode();
   ~vtkAnariRendererNode();
 
-  int SphereCount;
-  int CylinderCount;
-  int CurveCount;
-  int TriangleCount;
-  vtkAnariRendererNodeInternals* Internal;
+  void InitAnariFrame(vtkRenderer* ren);
+  void InitAnariRenderer(vtkRenderer* ren);
+  void SetupAnariRendererParameters(vtkRenderer* ren);
+  void InitAnariWorld();
+  void UpdateAnariFrameSize();
+  void UpdateAnariLights();
+  void UpdateAnariSurfaces();
+  void UpdateAnariVolumes();
+  void CopyAnariFrameBufferData();
+  void DebugOutputWorldBounds();
+
+  vtkAnariRendererNodeInternals* Internal{ nullptr };
+
+  vtkTimeStamp AnariSceneStructureModifiedMTime;
+  vtkMTimeType AnariSceneConstructedMTime{ 0 };
+  static vtkTimeStamp AnariRendererModifiedTime;
+  vtkMTimeType AnariRendererUpdatedTime{ 0 };
 
 private:
   vtkAnariRendererNode(const vtkAnariRendererNode&) = delete;

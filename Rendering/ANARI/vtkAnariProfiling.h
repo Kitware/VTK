@@ -26,7 +26,7 @@ class VTKRENDERINGANARI_EXPORT vtkAnariProfiling
 {
 public:
   vtkAnariProfiling();
-  vtkAnariProfiling(const char* label, const uint32_t color);
+  vtkAnariProfiling(const char* label, uint32_t color);
   ~vtkAnariProfiling();
 
   /**
@@ -48,7 +48,7 @@ private:
    * @param label the name given to the profiling range
    * @param colorName the color, by name, to use for this profiling range
    */
-  void StartProfiling(const char* label, const uint32_t color);
+  void StartProfiling(const char* label, uint32_t color);
 
   /**
    * Marks the end of the profiling range.
