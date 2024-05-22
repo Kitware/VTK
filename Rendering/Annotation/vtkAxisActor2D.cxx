@@ -15,6 +15,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 
@@ -1079,6 +1080,8 @@ void vtkAxisActor2D::UpdateAdjustedRange()
       << this->AdjustedNumberOfLabels);
     this->AdjustedNumberOfLabels = 1;
   }
+
+  this->AdjustedNumberOfLabels = std::min<int>(this->AdjustedNumberOfLabels, VTK_MAX_LABELS);
 
   this->AdjustedRangeBuildTime.Modified();
 }
