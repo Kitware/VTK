@@ -42,8 +42,10 @@
  * REMOVE     is "void RemoveValue(type)"
  * REMOVE_IDX is "void RemoveValue(int, type)"
  * REMOVE_ALL is "void RemoveAllValues()"
+ * ADD_NODISCARD is "int AddValue(type)"
+ * REMOVE_NODISCARD is "bool RemoveValue(type)"
  *
- * Items marked with two asterisks are not yet implemented.
+ * Note: If more method types are introduced, do not forget to change VTK_METHOD_MAX_MSB_POSITION
  *
  */
 #define VTK_METHOD_GET 0x00000001
@@ -71,10 +73,15 @@
 #define VTK_METHOD_REMOVE 0x01000000
 #define VTK_METHOD_REMOVE_IDX 0x04000000
 #define VTK_METHOD_REMOVE_ALL 0x08000000
+#define VTK_METHOD_ADD_NODISCARD 0x10000000
+#define VTK_METHOD_REMOVE_NODISCARD 0x20000000
 
 #define VTK_METHOD_SET_CLAMP (VTK_METHOD_GET_MIN_VALUE | VTK_METHOD_GET_MAX_VALUE)
 
 #define VTK_METHOD_SET_BOOL (VTK_METHOD_BOOL_ON | VTK_METHOD_BOOL_OFF)
+
+// Maximum position of the MSB among all method types.
+#define VTK_METHOD_MAX_MSB_POSITION 29
 
 /**
  * A struct that contains all the property information that

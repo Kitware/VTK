@@ -74,10 +74,13 @@ public:
    * different than that of the associated renderer, it is possible to create
    * special effects and/or remove props from what is shown in the magnifier.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void AddViewProp(vtkProp*);
   vtkPropCollection* GetViewProps() { return this->Props; }
   int HasViewProp(vtkProp*);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveViewProp(vtkProp*);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveAllViewProps();
   ///@{
 

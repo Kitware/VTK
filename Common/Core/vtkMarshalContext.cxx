@@ -64,11 +64,11 @@ void vtkMarshalContext::PrintSelf(ostream& os, vtkIndent indent)
 
   os << "No. of states: " << this->States().size() << '\n';
   os << "States: \n";
-  os << indent << this->States().dump();
+  os << indent << this->States().dump() << '\n';
 
   os << "No. of blobs: " << this->Blobs().size() << '\n';
   os << "Blobs: \n";
-  os << indent << this->Blobs().dump();
+  os << indent << this->Blobs().dump() << '\n';
 
   os << "No. of weak objects: " << this->WeakObjects().size() << '\n';
   os << "WeakObjects: \n";
@@ -82,14 +82,16 @@ void vtkMarshalContext::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
 
-  os << "No. of strong objects: " << this->StrongObjects().size() << '\n';
+  os << "No. of strong object records: " << this->StrongObjects().size() << '\n';
   os << "StrongObjects: \n";
   for (const auto& objectSet : this->StrongObjects())
   {
     os << "Owner: " << objectSet.first << '\n';
     for (const auto& object : objectSet.second)
     {
+      object->PrintHeader(os, indent.GetNextIndent());
       object->PrintSelf(os, indent.GetNextIndent());
+      object->PrintTrailer(os, indent.GetNextIndent());
     }
   }
 }

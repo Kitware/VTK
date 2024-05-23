@@ -15,6 +15,7 @@ set(sources
   vtkParseMain.c
   vtkParseMangle.c
   vtkParseMerge.c
+  vtkParseMethodType.c
   vtkParsePreprocess.c
   vtkParseProperties.c
   vtkParseString.c
@@ -32,6 +33,7 @@ set(headers
   vtkParseMain.h
   vtkParseMangle.h
   vtkParseMerge.h
+  vtkParseMethodType.h
   vtkParsePreprocess.h
   vtkParseProperties.h
   vtkParseString.h

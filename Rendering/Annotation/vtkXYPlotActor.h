@@ -143,6 +143,7 @@ public:
    * a pipeline connection whereas AddInputConnection() does.
    */
   void AddDataSetInput(vtkDataSet* ds, const char* arrayName, int component);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void AddDataSetInput(vtkDataSet* ds) { this->AddDataSetInput(ds, nullptr, 0); }
   void AddDataSetInputConnection(vtkAlgorithmOutput* in, const char* arrayName, int component);
   void AddDataSetInputConnection(vtkAlgorithmOutput* in)
@@ -156,6 +157,7 @@ public:
    * Remove a dataset from the list of data to append.
    */
   void RemoveDataSetInput(vtkDataSet* ds, const char* arrayName, int component);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveDataSetInput(vtkDataSet* ds) { this->RemoveDataSetInput(ds, nullptr, 0); }
   void RemoveDataSetInputConnection(vtkAlgorithmOutput* in, const char* arrayName, int component);
   void RemoveDataSetInputConnection(vtkAlgorithmOutput* in)
@@ -169,6 +171,16 @@ public:
    * but does not change the data object inputs.
    */
   void RemoveAllDataSetInputConnections();
+
+  /**
+   * Get the idx'th dataset input connection.
+   */
+  vtkAlgorithmOutput* GetDataSetInputConnection(unsigned int idx);
+
+  /**
+   * Get the total number of dataset input connections.
+   */
+  unsigned int GetNumberOfDataSetInputConnections();
 
   ///@{
   /**
@@ -209,17 +221,34 @@ public:
   /**
    * Add a data object to the list of data to display.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void AddDataObjectInput(vtkDataObject* in);
   void AddDataObjectInputConnection(vtkAlgorithmOutput* alg);
   ///@}
 
   ///@{
   /**
-   * Remove a dataset from the list of data to display.
+   * Remove a data object from the list of data to display.
    */
   void RemoveDataObjectInputConnection(vtkAlgorithmOutput* aout);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveDataObjectInput(vtkDataObject* in);
   ///@}
+
+  /**
+   * This removes all of the data object inputs.
+   */
+  void RemoveAllDataObjectInputConnections();
+
+  /**
+   * Get the idx'th data object input connection.
+   */
+  vtkAlgorithmOutput* GetDataObjectInputConnection(unsigned int idx);
+
+  /**
+   * Get the total number of data object input connections.
+   */
+  unsigned int GetNumberOfDataObjectInputConnections();
 
   ///@{
   /**

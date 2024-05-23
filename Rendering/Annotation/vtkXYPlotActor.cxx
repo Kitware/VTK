@@ -539,6 +539,25 @@ void vtkXYPlotActor::RemoveDataSetInputConnection(
 }
 
 //------------------------------------------------------------------------------
+vtkAlgorithmOutput* vtkXYPlotActor::GetDataSetInputConnection(unsigned int idx)
+{
+  if (static_cast<int>(idx) <= this->InputConnectionHolder->GetNumberOfInputConnections(0))
+  {
+    return this->InputConnectionHolder->GetInputConnection(0, idx);
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkXYPlotActor::GetNumberOfDataSetInputConnections()
+{
+  return this->InputConnectionHolder->GetNumberOfInputConnections(0);
+}
+
+//------------------------------------------------------------------------------
 void vtkXYPlotActor::AddDataObjectInputConnection(vtkAlgorithmOutput* aout)
 {
   // Return if the connection already exists
@@ -597,6 +616,42 @@ void vtkXYPlotActor::RemoveDataObjectInput(vtkDataObject* in)
       break;
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkXYPlotActor::RemoveAllDataObjectInputConnections()
+{
+  int idx, num;
+
+  num = this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  this->DataObjectInputConnectionHolder->RemoveAllInputs();
+
+  for (idx = 0; idx < num; ++idx)
+  {
+    delete[] this->SelectedInputScalars[idx];
+    this->SelectedInputScalars[idx] = nullptr;
+  }
+  this->SelectedInputScalarsComponent->Reset();
+}
+
+//------------------------------------------------------------------------------
+vtkAlgorithmOutput* vtkXYPlotActor::GetDataObjectInputConnection(unsigned int idx)
+{
+  if (static_cast<int>(idx) <=
+    this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0))
+  {
+    return this->DataObjectInputConnectionHolder->GetInputConnection(0, idx);
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkXYPlotActor::GetNumberOfDataObjectInputConnections()
+{
+  return this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
 }
 
 //------------------------------------------------------------------------------

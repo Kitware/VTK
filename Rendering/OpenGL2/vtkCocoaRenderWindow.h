@@ -289,7 +289,9 @@ public:
   /**
    * Accessors for the OpenGL context (Really an NSOpenGLContext*).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void SetContextId(void*);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void* GetContextId();
   void* GetGenericContext() override { return this->GetContextId(); }
   ///@}
@@ -304,11 +306,13 @@ public:
    * and SetWindowId(), respectively, early on (before WindowInitialize()
    * is executed). In the case of Java, you should call only SetWindowId().
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetRootWindow(void*);
 
   /**
    * Returns the NSWindow* associated with this vtkRenderWindow.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void* GetRootWindow();
 
   /**
@@ -321,11 +325,13 @@ public:
    * and SetWindowId(), respectively, early on (before WindowInitialize()
    * is executed). In the case of Java, you should call only SetWindowId().
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void SetWindowId(void*) override;
 
   /**
    * Returns the NSView* associated with this vtkRenderWindow.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void* GetWindowId();
   void* GetGenericWindowId() override { return this->GetWindowId(); }
 
@@ -335,6 +341,7 @@ public:
    * NSView that the vtkRenderWindow will create within this parent.
    * If you set the WindowId, then this ParentId will be ignored.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void SetParentId(void* nsview) override;
 
   /**
@@ -342,6 +349,7 @@ public:
    * return "NULL" if the parent was not set with SetParentId() or
    * SetParentInfo().
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void* GetParentId();
   void* GetGenericParentId() override { return this->GetParentId(); }
 
@@ -371,7 +379,9 @@ public:
   /**
    * Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void SetPixelFormat(void* pixelFormat);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void* GetPixelFormat();
   ///@}
 

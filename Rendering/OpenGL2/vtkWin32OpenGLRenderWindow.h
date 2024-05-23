@@ -152,13 +152,16 @@ public:
   /**
    * Get the window id.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   HWND GetWindowId();
 
   ///@{
   /**
    * Set the window id to a pre-existing window.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void SetWindowId(HWND);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void SetWindowId(void* foo) override { this->SetWindowId((HWND)foo); }
   ///@}
 
