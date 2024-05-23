@@ -477,7 +477,7 @@ private:
    * This atomic boolean is false until destruction. It is then used by the workers
    * so they know that they need to terminate when the queue is empty.
    */
-  bool Destroying = false;
+  std::atomic_bool Destroying{ false };
 
   /**
    * Number of allocated threads. Allocated threads are not necessarily running.

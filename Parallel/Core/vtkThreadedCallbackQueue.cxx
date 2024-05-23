@@ -79,8 +79,8 @@ private:
    */
   bool OnHold() const
   {
-    return *this->ThreadIndex < this->Queue->NumberOfThreads && !this->Queue->Destroying &&
-      this->Queue->InvokerQueue.empty();
+    return *this->ThreadIndex < this->Queue->NumberOfThreads &&
+      !this->Queue->Destroying.load(std::memory_order_acquire) && this->Queue->InvokerQueue.empty();
   }
 
   /**
