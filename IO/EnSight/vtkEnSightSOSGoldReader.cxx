@@ -3,12 +3,15 @@
 #include "vtkEnSightSOSGoldReader.h"
 
 #include "core/EnSightFile.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
+#include "vtkDataSet.h"
 #include "vtkEnSightGoldCombinedReader.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
@@ -297,6 +300,11 @@ int vtkEnSightSOSGoldReader::RequestInformation(vtkInformation* vtkNotUsed(reque
 int vtkEnSightSOSGoldReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
+  if (this->Impl->Readers.empty())
+  {
+    // we don't have anything to read
+    return 1;
+  }
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkPartitionedDataSetCollection* output =
     vtkPartitionedDataSetCollection::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -326,11 +334,19 @@ int vtkEnSightSOSGoldReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   this->Impl->UpdateSelections();
 
-  // since vtkPartitionedDataSetCollection can't hold other vtkPartitionedDataSetCollections
-  // we have to create a new PDSC that holds all of the partitioned data sets, then
-  // we'll create a new assembly that will provide the hierarchy similar to the old reader's
-  // mutliblock output
-  int outputIdx = 0;
+  // With SOS files, each casefile must contain all parts of the dataset, however the part in a
+  // given casefile does not have to be the full data, and can even be empty. Thus each portion of a
+  // part in a casefile is merely a partition of the full part. The structure of the
+  // vtkMultiBlockDataSet in the old readers misunderstands this. It creates a block for each
+  // casefile, and then creates blocks under it for each part. Thus it looks like the partitions of
+  // each part are actually separate parts that just happen to have the same name. In addition, the
+  // old readers then create their own decomposition of the data and split all partitions of parts
+  // among all available ranks, which results in a pretty inefficient distribution of data across
+  // ranks. I think it's safe to assume that a lot of users will already have a good partitioning in
+  // their ensight files that is output from their solvers and we should respect that when running
+  // in parallel. In vtkPartitionedDataSetCollection terms, each part in a dataset is a
+  // vtkPartitionedDataSet and each portion of a part in a casefile will be a partiion of its
+  // respective vtkPartitionedDataSet.
   vtkNew<vtkDataAssembly> fullAssembly;
   fullAssembly->SetRootNodeName("vtkPartitionedDataSetCollection");
   for (size_t block = 0; block < this->Impl->Readers.size(); block++)
@@ -338,25 +354,60 @@ int vtkEnSightSOSGoldReader::RequestData(vtkInformation* vtkNotUsed(request),
     this->Impl->Readers[block]->SetTimeValue(timeValue);
     this->Impl->Readers[block]->UpdateInformation();
     this->Impl->Readers[block]->Update();
-    vtkPartitionedDataSetCollection* pdsc = this->Impl->Readers[block]->GetOutput();
 
-    std::string blockName = "PartitionedDataSet" + std::to_string(block);
-    auto validName = vtkDataAssembly::MakeValidNodeName(blockName.c_str());
-    auto blockNode = fullAssembly->AddNode(validName.c_str());
-    auto oldAssembly = pdsc->GetDataAssembly();
-    for (unsigned int pidx = 0; pidx < pdsc->GetNumberOfPartitionedDataSets(); pidx++)
+    vtkPartitionedDataSetCollection* readerPDSC = this->Impl->Readers[block]->GetOutput();
+    auto readerAssembly = readerPDSC->GetDataAssembly();
+
+    for (unsigned int pdsIdx = 0; pdsIdx < readerPDSC->GetNumberOfPartitionedDataSets(); pdsIdx++)
     {
-      auto partName = pdsc->GetMetaData(pidx)->Get(vtkCompositeDataSet::NAME());
-      auto pds = pdsc->GetPartitionedDataSet(pidx);
-      if (pds && partName)
+      auto readerPDS = readerPDSC->GetPartitionedDataSet(pdsIdx);
+      if (!readerPDS)
       {
-        auto validPartName = vtkDataAssembly::MakeValidNodeName(partName);
-        auto oldNodes = oldAssembly->FindNodesWithName(validPartName.c_str());
-        auto oldNode = oldNodes[0];
-        output->SetPartitionedDataSet(outputIdx, pds);
-        auto childNode = fullAssembly->AddNode(oldAssembly->GetNodeName(oldNode), blockNode);
-        fullAssembly->AddDataSetIndex(childNode, outputIdx);
-        outputIdx++;
+        // this should be an error, since EnSightDataSet makes sure there's at least an empty PDC
+        vtkErrorMacro("the partitioned dataset should not be null");
+        return 0;
+      }
+
+      // now check to see if we already have a PDS at this index in the output
+      vtkSmartPointer<vtkPartitionedDataSet> sosPDS = output->GetPartitionedDataSet(pdsIdx);
+      if (!sosPDS)
+      {
+        sosPDS = vtkSmartPointer<vtkPartitionedDataSet>::New();
+        sosPDS->CompositeShallowCopy(readerPDS);
+        output->SetPartitionedDataSet(pdsIdx, sosPDS);
+      }
+      else
+      {
+        unsigned int currentCount = sosPDS->GetNumberOfPartitions();
+        // add the partitions from this reader's PDS to the new PDS
+        for (unsigned int partition = 0; partition < readerPDS->GetNumberOfPartitions();
+             partition++)
+        {
+          sosPDS->SetPartition(currentCount + partition, readerPDS->GetPartition(partition));
+        }
+      }
+
+      std::string partName;
+      // part name may not be set for empty partitioned datasets
+      if (readerPDSC->GetMetaData(pdsIdx)->Has(vtkCompositeDataSet::NAME()))
+      {
+        partName = readerPDSC->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME());
+      }
+
+      std::string sosPartName;
+      if (output->GetMetaData(pdsIdx)->Has(vtkCompositeDataSet::NAME()))
+      {
+        sosPartName = output->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME());
+      }
+
+      if (!partName.empty() && sosPartName.empty())
+      {
+        // need to update the metadata and the assembly
+        output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), partName);
+        auto validPartName = vtkDataAssembly::MakeValidNodeName(partName.c_str());
+        auto readerNodes = readerAssembly->FindNodesWithName(validPartName.c_str());
+        auto sosNode = fullAssembly->AddNode(readerAssembly->GetNodeName(readerNodes[0]));
+        fullAssembly->AddDataSetIndex(sosNode, pdsIdx);
       }
     }
   }

@@ -1124,6 +1124,20 @@ bool EnSightDataSet::ReadGeometry(
     result = this->GeometryFile.ReadNextLine();
   }
 
+  // We may have a case where a part was not processed,
+  // so it has a nullptr at its index in the PDC, but this seems to sometimes cause weird problems
+  // in ParaView and sometimes causes some error output.
+  // So here we'll check for null PartitionedDataSets and create an empty one for it.
+  for (unsigned int i = 0; i < output->GetNumberOfPartitionedDataSets(); i++)
+  {
+    vtkSmartPointer<vtkPartitionedDataSet> pds = output->GetPartitionedDataSet(i);
+    if (!pds)
+    {
+      pds = vtkSmartPointer<vtkPartitionedDataSet>::New();
+      output->SetPartitionedDataSet(i, pds);
+    }
+  }
+
   if (this->CacheGeometry)
   {
     if (!this->Cache)
