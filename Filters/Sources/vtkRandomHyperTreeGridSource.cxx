@@ -185,6 +185,11 @@ int vtkRandomHyperTreeGridSource::RequestData(
   vtkIdType treeOffset = 0;
   int numberOfTrees = (updateExtent[1] - updateExtent[0]) * (updateExtent[3] - updateExtent[2]) *
     (updateExtent[5] - updateExtent[4]);
+  if (numberOfTrees <= 0)
+  {
+    // Nothing to generate
+    return 1;
+  }
 
   // Gather all tree ids in a vector
   std::vector<int> hyperTrees;
