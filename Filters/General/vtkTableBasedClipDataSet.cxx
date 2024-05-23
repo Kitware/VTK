@@ -1431,37 +1431,40 @@ template <class TGrid>
 void vtkTableBasedClipDataSet::ClipTDataSet(TGrid* inputGrid, vtkImplicitFunction* implicitFunction,
   vtkDoubleArray* scalars, double isoValue, vtkUnstructuredGrid* outputUG)
 {
-  vtkSmartPointer<vtkUnstructuredGrid> clippedOutput;
-#ifdef VTK_USE_64BIT_IDS
+  vtkSmartPointer<vtkUnstructuredGrid> clippedOutput = vtkSmartPointer<vtkUnstructuredGrid>::New();
   const vtkIdType numberOfPoints = inputGrid->GetNumberOfPoints();
-  const bool use64BitsIds = (numberOfPoints > VTK_TYPE_INT32_MAX);
-  if (use64BitsIds)
+  if (numberOfPoints > 0)
   {
-    using TInputIdType = vtkTypeInt64;
-    if (this->InsideOut)
+#ifdef VTK_USE_64BIT_IDS
+    const bool use64BitsIds = (numberOfPoints > VTK_TYPE_INT32_MAX);
+    if (use64BitsIds)
     {
-      clippedOutput = this->ClipTDataSet<TGrid, TInputIdType, true>(
-        inputGrid, implicitFunction, scalars, isoValue);
+      using TInputIdType = vtkTypeInt64;
+      if (this->InsideOut)
+      {
+        clippedOutput = this->ClipTDataSet<TGrid, TInputIdType, true>(
+          inputGrid, implicitFunction, scalars, isoValue);
+      }
+      else
+      {
+        clippedOutput = this->ClipTDataSet<TGrid, TInputIdType, false>(
+          inputGrid, implicitFunction, scalars, isoValue);
+      }
     }
     else
-    {
-      clippedOutput = this->ClipTDataSet<TGrid, TInputIdType, false>(
-        inputGrid, implicitFunction, scalars, isoValue);
-    }
-  }
-  else
 #endif
-  {
-    using TInputIdType = vtkTypeInt32;
-    if (this->InsideOut)
     {
-      clippedOutput = this->ClipTDataSet<TGrid, TInputIdType, true>(
-        inputGrid, implicitFunction, scalars, isoValue);
-    }
-    else
-    {
-      clippedOutput = this->ClipTDataSet<TGrid, TInputIdType, false>(
-        inputGrid, implicitFunction, scalars, isoValue);
+      using TInputIdType = vtkTypeInt32;
+      if (this->InsideOut)
+      {
+        clippedOutput = this->ClipTDataSet<TGrid, TInputIdType, true>(
+          inputGrid, implicitFunction, scalars, isoValue);
+      }
+      else
+      {
+        clippedOutput = this->ClipTDataSet<TGrid, TInputIdType, false>(
+          inputGrid, implicitFunction, scalars, isoValue);
+      }
     }
   }
   outputUG->ShallowCopy(clippedOutput);
