@@ -93,7 +93,7 @@ int vtkQuadraticTriangle::EvaluatePosition(const double* x, double closestPoint[
     this->Face->Points->SetPoint(2, pts + 3 * LinearTris[i][2]);
 
     status = this->Face->EvaluatePosition(x, closest, ignoreId, pc, dist2, tempWeights);
-    if (status != -1 && dist2 < minDist2)
+    if (status != -1 && ((dist2 < minDist2) || ((dist2 == minDist2) && (returnStatus == 0))))
     {
       returnStatus = status;
       minDist2 = dist2;

@@ -84,7 +84,7 @@ int vtkCubicLine::EvaluatePosition(const double x[3], double closestPoint[3], in
     }
 
     status = this->Line->EvaluatePosition(x, closest, ignoreId, pc, dist2, lineWeights);
-    if (status != -1 && dist2 < minDist2)
+    if (status != -1 && ((dist2 < minDist2) || ((dist2 == minDist2) && (returnStatus == 0))))
     {
       returnStatus = status;
       minDist2 = dist2;
