@@ -1,5 +1,3 @@
-// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTemporalSmoothing.h"
 
@@ -37,7 +35,8 @@ namespace
 inline int FindTimeIndex(double target, const std::vector<double>& timeSteps)
 {
   // dichotomy search
-  int left = 0, right = static_cast<int>(timeSteps.size()) - 1;
+  int left = 0;
+  int right = static_cast<int>(timeSteps.size()) - 1;
   while (left < right)
   {
     int idx = left + (right - left) / 2;
@@ -118,8 +117,6 @@ struct vtkTemporalSmoothingInternals
 vtkTemporalSmoothing::vtkTemporalSmoothing()
 {
   this->Internals = std::make_shared<vtkTemporalSmoothingInternals>();
-  this->SetNumberOfInputPorts(1);
-  this->SetNumberOfOutputPorts(1);
 }
 
 //------------------------------------------------------------------------------
@@ -170,12 +167,24 @@ int vtkTemporalSmoothing::RequestInformation(vtkInformation* vtkNotUsed(request)
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   this->Internals->TemporalWindowWidth = 2 * this->TemporalWindowHalfWidth + 1;
-  int inNumAvailableTimeSteps = inInfo->Length(vtkSDDP::TIME_STEPS());
 
+  int inNumAvailableTimeSteps = inInfo->Length(vtkSDDP::TIME_STEPS());
   this->Internals->InputTimeSteps.resize(inNumAvailableTimeSteps);
   inInfo->Get(vtkSDDP::TIME_STEPS(), this->Internals->InputTimeSteps.data());
 
-  // We can't request  the window half width from each extremity
+  if (this->Internals->InputTimeSteps.empty())
+  {
+    vtkErrorMacro("Filter input is not temporal.");
+    return 0;
+  }
+  if (this->Internals->InputTimeSteps.size() < this->Internals->TemporalWindowWidth)
+  {
+    vtkErrorMacro("Requested time window is larger than available time steps");
+    return 0;
+  }
+
+  // Available time steps are clipped on each side
+  // to only allow requests on time steps where the full time window fits.
   auto firstAvailableTime = this->Internals->InputTimeSteps.begin() + this->TemporalWindowHalfWidth;
   auto lastAvailableTime = this->Internals->InputTimeSteps.end() - this->TemporalWindowHalfWidth;
   this->Internals->AvailableTimeRange[0] = *firstAvailableTime;
@@ -190,18 +199,28 @@ int vtkTemporalSmoothing::RequestInformation(vtkInformation* vtkNotUsed(request)
 
 //------------------------------------------------------------------------------
 int vtkTemporalSmoothing::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   using vtkSDDP = vtkStreamingDemandDrivenPipeline;
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   double nextTimeStep = -1;
 
   // Initialize
   if (!this->Internals->Executing)
   {
-    double requestedTimeStep = inInfo->Get(vtkSDDP::UPDATE_TIME_STEP());
+    double requestedTimeStep = -1.;
+    if (outInfo->Has(vtkSDDP::UPDATE_TIME_STEP()))
+    {
+      requestedTimeStep = outInfo->Get(vtkSDDP::UPDATE_TIME_STEP());
+    }
+    else
+    {
+      vtkWarningMacro("No update time step requested, defaulting to first available time step.");
+      requestedTimeStep = this->Internals->AvailableTimeRange[0];
+    }
 
     // Clamp requested time step to available values
     if (requestedTimeStep < this->Internals->AvailableTimeRange[0])
@@ -271,7 +290,7 @@ int vtkTemporalSmoothing::RequestData(
   {
     // Initialize cache
     this->Internals->Cache->Initialize();
-    this->InitializeStatistics(inputData, outputData, this->Internals->Cache);
+    this->Initialize(inputData, outputData, this->Internals->Cache);
 
     // Start processing temporal window
     this->Internals->FirstStep = false;
@@ -280,7 +299,7 @@ int vtkTemporalSmoothing::RequestData(
   else
   {
     // Accumulate values
-    this->AccumulateStatistics(inputData, this->Internals->Cache);
+    this->AccumulateSum(inputData, this->Internals->Cache);
     this->Internals->CurrentTimeIndex++;
   }
 
@@ -305,26 +324,26 @@ int vtkTemporalSmoothing::RequestData(
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalSmoothing::InitializeStatistics(
+void vtkTemporalSmoothing::Initialize(
   vtkDataObject* input, vtkDataObject* output, vtkDataObject* cache)
 {
   if (input->IsA("vtkDataSet"))
   {
-    this->InitializeStatistics(vtkDataSet::SafeDownCast(input), vtkDataSet::SafeDownCast(output),
+    this->Initialize(vtkDataSet::SafeDownCast(input), vtkDataSet::SafeDownCast(output),
       vtkDataSet::SafeDownCast(cache));
     return;
   }
 
   if (input->IsA("vtkGraph"))
   {
-    this->InitializeStatistics(
+    this->Initialize(
       vtkGraph::SafeDownCast(input), vtkGraph::SafeDownCast(output), vtkGraph::SafeDownCast(cache));
     return;
   }
 
   if (input->IsA("vtkCompositeDataSet"))
   {
-    this->InitializeStatistics(vtkCompositeDataSet::SafeDownCast(input),
+    this->Initialize(vtkCompositeDataSet::SafeDownCast(input),
       vtkCompositeDataSet::SafeDownCast(output), vtkCompositeDataSet::SafeDownCast(cache));
     return;
   }
@@ -333,8 +352,7 @@ void vtkTemporalSmoothing::InitializeStatistics(
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalSmoothing::InitializeStatistics(
-  vtkDataSet* input, vtkDataSet* output, vtkDataSet* cache)
+void vtkTemporalSmoothing::Initialize(vtkDataSet* input, vtkDataSet* output, vtkDataSet* cache)
 {
   output->CopyStructure(input);
   cache->CopyStructure(input);
@@ -344,7 +362,7 @@ void vtkTemporalSmoothing::InitializeStatistics(
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalSmoothing::InitializeStatistics(vtkGraph* input, vtkGraph* output, vtkGraph* cache)
+void vtkTemporalSmoothing::Initialize(vtkGraph* input, vtkGraph* output, vtkGraph* cache)
 {
   output->CopyStructure(input);
   cache->CopyStructure(input);
@@ -354,7 +372,7 @@ void vtkTemporalSmoothing::InitializeStatistics(vtkGraph* input, vtkGraph* outpu
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalSmoothing::InitializeStatistics(
+void vtkTemporalSmoothing::Initialize(
   vtkCompositeDataSet* input, vtkCompositeDataSet* output, vtkCompositeDataSet* cache)
 {
   output->CopyStructure(input);
@@ -372,7 +390,7 @@ void vtkTemporalSmoothing::InitializeStatistics(
     vtkSmartPointer<vtkDataObject> cacheObj;
     cacheObj.TakeReference(inputObj->NewInstance());
 
-    this->InitializeStatistics(inputObj, outputObj, cacheObj);
+    this->Initialize(inputObj, outputObj, cacheObj);
     output->SetDataSet(inputItr, outputObj);
     cache->SetDataSet(inputItr, cacheObj);
   }
@@ -445,29 +463,29 @@ void vtkTemporalSmoothing::InitializeArray(vtkDataArray* array, vtkFieldData* ou
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalSmoothing::AccumulateStatistics(vtkDataObject* input, vtkDataObject* output)
+void vtkTemporalSmoothing::AccumulateSum(vtkDataObject* input, vtkDataObject* output)
 {
   if (input->IsA("vtkDataSet"))
   {
-    this->AccumulateStatistics(vtkDataSet::SafeDownCast(input), vtkDataSet::SafeDownCast(output));
+    this->AccumulateSum(vtkDataSet::SafeDownCast(input), vtkDataSet::SafeDownCast(output));
     return;
   }
 
   if (input->IsA("vtkGraph"))
   {
-    this->AccumulateStatistics(vtkGraph::SafeDownCast(input), vtkGraph::SafeDownCast(output));
+    this->AccumulateSum(vtkGraph::SafeDownCast(input), vtkGraph::SafeDownCast(output));
     return;
   }
 
   if (input->IsA("vtkCompositeDataSet"))
   {
-    this->AccumulateStatistics(
+    this->AccumulateSum(
       vtkCompositeDataSet::SafeDownCast(input), vtkCompositeDataSet::SafeDownCast(output));
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalSmoothing::AccumulateStatistics(vtkDataSet* input, vtkDataSet* output)
+void vtkTemporalSmoothing::AccumulateSum(vtkDataSet* input, vtkDataSet* output)
 {
   this->AccumulateArrays(input->GetFieldData(), output->GetFieldData());
   this->AccumulateArrays(input->GetPointData(), output->GetPointData());
@@ -475,7 +493,7 @@ void vtkTemporalSmoothing::AccumulateStatistics(vtkDataSet* input, vtkDataSet* o
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalSmoothing::AccumulateStatistics(vtkGraph* input, vtkGraph* output)
+void vtkTemporalSmoothing::AccumulateSum(vtkGraph* input, vtkGraph* output)
 {
   this->AccumulateArrays(input->GetFieldData(), output->GetFieldData());
   this->AccumulateArrays(input->GetVertexData(), output->GetVertexData());
@@ -483,8 +501,7 @@ void vtkTemporalSmoothing::AccumulateStatistics(vtkGraph* input, vtkGraph* outpu
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalSmoothing::AccumulateStatistics(
-  vtkCompositeDataSet* input, vtkCompositeDataSet* output)
+void vtkTemporalSmoothing::AccumulateSum(vtkCompositeDataSet* input, vtkCompositeDataSet* output)
 {
   vtkSmartPointer<vtkCompositeDataIterator> inputItr;
   inputItr.TakeReference(input->NewIterator());
@@ -494,7 +511,7 @@ void vtkTemporalSmoothing::AccumulateStatistics(
     vtkDataObject* inputObj = inputItr->GetCurrentDataObject();
     vtkDataObject* outputObj = output->GetDataSet(inputItr);
 
-    this->AccumulateStatistics(inputObj, outputObj);
+    this->AccumulateSum(inputObj, outputObj);
   }
 }
 

@@ -175,11 +175,13 @@ int TestTemporalSmoothingFilter(int, char*[])
     return EXIT_FAILURE;
   }
 
-  //   if (TestWindowWiderThanAvailableTimeSteps())
-  //   {
-  //     vtkErrorWithObjectMacro(nullptr, "Test failed: \n" << "Expected failure when requested time
-  //     window is wider than input."); return EXIT_FAILURE;
-  //   }
+  if (TestWindowWiderThanAvailableTimeSteps())
+  {
+    vtkErrorWithObjectMacro(nullptr,
+      "Test failed: \n"
+        << "Expected failure when requested time window is wider than input.");
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }
