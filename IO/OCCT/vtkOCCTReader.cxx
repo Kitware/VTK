@@ -345,11 +345,19 @@ public:
   }
 
   //----------------------------------------------------------------------------
+#if VTK_OCCT_VERSION(7, 8, 0) <= OCC_VERSION_HEX
+  size_t GetHash(const TDF_Label& label)
+  {
+    TopoDS_Shape aShape;
+    return this->ShapeTool->GetShape(label, aShape) ? std::hash<TopoDS_Shape>{}(aShape) : 0;
+  }
+#else
   int GetHash(const TDF_Label& label)
   {
     TopoDS_Shape aShape;
     return this->ShapeTool->GetShape(label, aShape) ? aShape.HashCode(INT_MAX) : 0;
   }
+#endif
 
   //----------------------------------------------------------------------------
   static void GetMatrix(const TopLoc_Location& loc, vtkMatrix4x4* mat)
@@ -381,8 +389,11 @@ public:
       GetMatrix(hLoc->Get(), location);
     }
   }
-
+#if VTK_OCCT_VERSION(7, 8, 0) <= OCC_VERSION_HEX
+  std::unordered_map<size_t, vtkSmartPointer<vtkPolyData>> ShapeMap;
+#else
   std::unordered_map<int, vtkSmartPointer<vtkPolyData>> ShapeMap;
+#endif
   Handle(XCAFDoc_ShapeTool) ShapeTool;
   Handle(XCAFDoc_ColorTool) ColorTool;
 
