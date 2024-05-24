@@ -203,8 +203,6 @@ protected:
   vtkSmartPointer<vtkFloatArray> TrailId;
   vtkSmartPointer<vtkTemporalPathLineFilterInternals> Internals;
 
-  int CurrentTimeIndex = 0;
-
   //
 private:
   void AccumulateTrails(vtkDataSet* input, vtkDataSet* selection);

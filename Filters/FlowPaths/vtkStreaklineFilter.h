@@ -16,44 +16,26 @@
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkParticleTracerBase.h"
-#include "vtkSmartPointer.h" // For protected ivars.
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSFLOWPATHS_EXPORT StreaklineFilterInternal
-{
-public:
-  StreaklineFilterInternal()
-    : Filter(nullptr)
-  {
-  }
-  void Initialize(vtkParticleTracerBase* filter);
-  virtual ~StreaklineFilterInternal() = default;
-  virtual int OutputParticles(vtkPolyData* particles);
-  void Finalize();
-  void Reset();
-
-private:
-  vtkParticleTracerBase* Filter;
-};
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkStreaklineFilter : public vtkParticleTracerBase
 {
 public:
   vtkTypeMacro(vtkStreaklineFilter, vtkParticleTracerBase);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkStreaklineFilter* New();
 
 protected:
-  vtkStreaklineFilter();
+  vtkStreaklineFilter() = default;
   ~vtkStreaklineFilter() override = default;
   vtkStreaklineFilter(const vtkStreaklineFilter&) = delete;
   void operator=(const vtkStreaklineFilter&) = delete;
-  int OutputParticles(vtkPolyData* particles) override;
-  void Finalize() override;
 
-  StreaklineFilterInternal It;
+  int Initialize(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int Finalize(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 };
 
 VTK_ABI_NAMESPACE_END
+
 #endif

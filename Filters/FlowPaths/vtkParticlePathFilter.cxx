@@ -2,246 +2,303 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkParticlePathFilter.h"
 
-#include "vtkCell.h"
 #include "vtkCellArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkSetGet.h"
-#include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-
-#include <vector>
+#include "vtkPolyData.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkParticlePathFilter);
 
-void ParticlePathFilterInternal::Initialize(vtkParticleTracerBase* filter)
+namespace
 {
-  this->Filter = filter;
-  this->Filter->SetForceReinjectionEveryNSteps(0);
-  this->Filter->SetIgnorePipelineTime(1);
-  this->ClearCache = false;
-}
+constexpr int TAG = 45902;
 
-void ParticlePathFilterInternal::Reset()
+//------------------------------------------------------------------------------
+void FillCellArrays(vtkCellArray* verts, vtkCellArray* lines,
+  const std::map<vtkIdType, std::vector<vtkIdType>>& paths)
 {
-  this->Filter->vtkParticleTracerBase::ResetCache();
-  this->Paths.clear();
-}
+  using ArrayType64 = vtkCellArray::ArrayType64;
+  vtkNew<ArrayType64> vertsConnectivity, vertsOffsets, linesConnectivity, linesOffsets;
+  vertsOffsets->InsertNextValue(0);
+  linesOffsets->InsertNextValue(0);
+  vtkIdType nverts = 0, nlines = 0;
 
-int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
-{
-  if (!this->Filter->Output || this->ClearCache)
+  for (const auto& pair : paths)
   {
-    this->Filter->Output = vtkSmartPointer<vtkPolyData>::New();
-    this->Filter->Output->SetPoints(vtkSmartPointer<vtkPoints>::New());
-    this->Filter->Output->GetPointData()->CopyAllocate(particles->GetPointData());
-  }
-  if (this->ClearCache)
-  { // clear cache no matter what
-    this->Paths.clear();
-  }
+    const auto& path = pair.second;
+    auto insertNextCell = [&path](ArrayType64* connectivity, ArrayType64* offsets, vtkIdType& n) {
+      for (vtkIdType id = n; id < n + static_cast<vtkIdType>(path.size()); ++id)
+      {
+        connectivity->InsertNextValue(id);
+      }
+      n += path.size();
+      offsets->InsertNextValue(n);
+    };
 
-  vtkPoints* pts = particles->GetPoints();
-  if (!pts || pts->GetNumberOfPoints() == 0)
-  {
-    return 0;
-  }
-
-  vtkPointData* outPd = this->Filter->Output->GetPointData();
-  vtkPoints* outPoints = this->Filter->Output->GetPoints();
-
-  // Get the input arrays
-  vtkPointData* pd = particles->GetPointData();
-  vtkIntArray* particleIds = vtkArrayDownCast<vtkIntArray>(pd->GetArray("ParticleId"));
-
-  // Append the input arrays to the output arrays
-  int begin = outPoints->GetNumberOfPoints();
-  for (int i = 0; i < pts->GetNumberOfPoints(); i++)
-  {
-    outPoints->InsertNextPoint(pts->GetPoint(i));
-  }
-  vtkDataSetAttributes::FieldList ptList(1);
-  ptList.InitializeFieldList(pd);
-  for (int i = 0, j = begin; i < pts->GetNumberOfPoints(); i++, j++)
-  {
-    outPd->CopyData(ptList, pd, 0, i, j);
-  }
-
-  // Augment the paths
-  for (vtkIdType i = 0; i < pts->GetNumberOfPoints(); i++)
-  {
-    int outId = i + begin;
-
-    int pid = particleIds->GetValue(i);
-    for (int j = static_cast<int>(this->Paths.size()); j <= pid; j++)
+    if (path.size() == 1)
     {
-      this->Paths.push_back(vtkSmartPointer<vtkIdList>::New());
+      insertNextCell(vertsConnectivity, vertsOffsets, nverts);
     }
-
-    vtkIdList* path = this->Paths[pid];
-
-#ifdef DEBUG
-    if (path->GetNumberOfIds() > 0)
+    else
     {
-      vtkFloatArray* outParticleAge =
-        vtkArrayDownCast<vtkFloatArray>(outPd->GetArray("ParticleAge"));
-      if (outParticleAge->GetValue(outId) <
-        outParticleAge->GetValue(path->GetId(path->GetNumberOfIds() - 1)))
-      {
-        vtkOStrStreamWrapper vtkmsg;
-        vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
-               << "): "
-               << " new particles have wrong ages"
-               << "\n\n";
-      }
-    }
-#endif
-    path->InsertNextId(outId);
-  }
-
-  return 1;
-}
-void ParticlePathFilterInternal::Finalize()
-{
-  this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
-  vtkCellArray* outLines = this->Filter->Output->GetLines();
-  if (!outLines)
-  {
-    vtkOStrStreamWrapper vtkmsg;
-    vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
-           << "): "
-           << " no lines in the output"
-           << "\n\n";
-    return;
-  }
-  // if we have a path that leaves a process and than comes back we need
-  // to add that as separate cells. we use the simulation time step to check
-  // on that assuming that the particle path filter is updated every time step.
-  vtkIntArray* sourceSimulationTimeStepArray = vtkArrayDownCast<vtkIntArray>(
-    this->Filter->Output->GetPointData()->GetArray("SimulationTimeStep"));
-  vtkNew<vtkIdList> tmpIds;
-  for (size_t i = 0; i < this->Paths.size(); i++)
-  {
-    if (this->Paths[i]->GetNumberOfIds() > 1)
-    {
-      vtkIdList* ids = this->Paths[i];
-      int previousTimeStep = sourceSimulationTimeStepArray->GetTypedComponent(ids->GetId(0), 0);
-      tmpIds->Reset();
-      tmpIds->InsertNextId(ids->GetId(0));
-      for (vtkIdType j = 1; j < ids->GetNumberOfIds(); j++)
-      {
-        int currentTimeStep = sourceSimulationTimeStepArray->GetTypedComponent(ids->GetId(j), 0);
-        if (currentTimeStep != (previousTimeStep + 1))
-        {
-          if (tmpIds->GetNumberOfIds() > 1)
-          {
-            outLines->InsertNextCell(tmpIds);
-          }
-          tmpIds->Reset();
-        }
-        tmpIds->InsertNextId(ids->GetId(j));
-        previousTimeStep = currentTimeStep;
-      }
-      if (tmpIds->GetNumberOfIds() > 1)
-      {
-        outLines->InsertNextCell(tmpIds);
-      }
+      insertNextCell(linesConnectivity, linesOffsets, nlines);
     }
   }
+
+  verts->SetData(vertsOffsets, vertsConnectivity);
+  lines->SetData(linesOffsets, linesConnectivity);
 }
+} // anonymous namespace
 
-vtkParticlePathFilter::vtkParticlePathFilter()
-{
-  this->It.Initialize(this);
-  this->SimulationTime = nullptr;
-  this->SimulationTimeStep = nullptr;
-}
-
-vtkParticlePathFilter::~vtkParticlePathFilter()
-{
-  if (this->SimulationTime)
-  {
-    this->SimulationTime->Delete();
-    this->SimulationTime = nullptr;
-  }
-  if (this->SimulationTimeStep)
-  {
-    this->SimulationTimeStep->Delete();
-    this->SimulationTimeStep = nullptr;
-  }
-}
-
-void vtkParticlePathFilter::ResetCache()
-{
-  Superclass::ResetCache();
-  this->It.Reset();
-}
-
-void vtkParticlePathFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  Superclass::PrintSelf(os, indent);
-}
-
-int vtkParticlePathFilter::OutputParticles(vtkPolyData* particles)
-{
-  return this->It.OutputParticles(particles);
-}
-
-void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)
-{
-  if (this->SimulationTime == nullptr)
-  {
-    this->SimulationTime = vtkDoubleArray::New();
-    this->SimulationTime->SetName("SimulationTime");
-  }
-  if (outputPD->GetArray("SimulationTime"))
-  {
-    outputPD->RemoveArray("SimulationTime");
-  }
-  this->SimulationTime->SetNumberOfTuples(0);
-  outputPD->AddArray(this->SimulationTime);
-
-  if (this->SimulationTimeStep == nullptr)
-  {
-    this->SimulationTimeStep = vtkIntArray::New();
-    this->SimulationTimeStep->SetName("SimulationTimeStep");
-  }
-  if (outputPD->GetArray("SimulationTimeStep"))
-  {
-    outputPD->RemoveArray("SimulationTimeStep");
-  }
-  this->SimulationTimeStep->SetNumberOfTuples(0);
-  outputPD->AddArray(this->SimulationTimeStep);
-}
-
-void vtkParticlePathFilter::SetToExtraPointDataArrays(
-  vtkIdType particleId, vtkParticleTracerBaseNamespace::ParticleInformation& info)
-{
-  this->SimulationTime->SetValue(particleId, info.SimulationTime);
-  this->SimulationTimeStep->SetValue(particleId, info.InjectedStepId + info.TimeStepAge);
-}
-
-void vtkParticlePathFilter::Finalize()
-{
-  this->It.Finalize();
-}
-
-int vtkParticlePathFilter::RequestInformation(
+//------------------------------------------------------------------------------
+int vtkParticlePathFilter::Initialize(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  int retVal = this->Superclass::Initialize(request, inputVector, outputVector);
 
-  // The output data of this filter has no time associated with it.  It is the
-  // result of computations that happen over all time.
-  outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+  this->Paths.clear();
 
-  return this->Superclass::RequestInformation(request, inputVector, outputVector);
+  this->Points = vtkSmartPointer<vtkPointSet>::New();
+  vtkNew<vtkPoints> points;
+  this->Points->SetPoints(points);
+  this->Points->GetPointData()->CopyAllocate(this->OutputPointData);
+
+  return retVal;
 }
+
+//------------------------------------------------------------------------------
+int vtkParticlePathFilter::Execute(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  int retVal = this->Superclass::Execute(request, inputVector, outputVector);
+
+  // First, for every particle that we receive, we need to ask the original rank for its Path data
+  // so we can reconstruct the paths.
+  if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
+  {
+    int myRank = this->Controller ? this->Controller->GetLocalProcessId() : 0;
+
+    vtkIdType startId = this->Points->GetNumberOfPoints();
+    vtkIdType endId = startId;
+
+    // We map points using InjectedPointId
+    vtkIdType nParticlesSentLocal = static_cast<vtkIdType>(this->MPIRecvList.size());
+    std::vector<vtkIdType> particleRequests(nParticlesSentLocal);
+    vtkIdType counter = 0;
+    for (const auto& pair : this->MPIRecvList)
+    {
+      const auto& info = pair.second;
+      particleRequests[counter++] = info.InjectedPointId;
+    }
+
+    std::vector<vtkIdType> allNumParticles(this->Controller->GetNumberOfProcesses());
+
+    this->Controller->AllGather(&nParticlesSentLocal, allNumParticles.data(), 1);
+
+    vtkIdType nParticlesSent = 0;
+    std::vector<vtkIdType> offsets(this->Controller->GetNumberOfProcesses() + 1);
+    offsets.front() = 0;
+
+    for (std::size_t i = 0; i < allNumParticles.size(); ++i)
+    {
+      offsets[i + 1] = offsets[i] + allNumParticles[i];
+      nParticlesSent += allNumParticles[i];
+    }
+
+    std::vector<vtkIdType> allParticleRequests(nParticlesSent);
+
+    // We share with everyone the particles that we require. The processes owning the relevant Paths
+    // data will know what we want and we can exchange data.
+    this->Controller->AllGatherV(particleRequests.data(), allParticleRequests.data(),
+      nParticlesSentLocal, allNumParticles.data(), offsets.data());
+
+    std::vector<vtkNew<vtkIdList>> sendLists(this->Controller->GetNumberOfProcesses());
+    counter = 0;
+    int rank = 0;
+
+    while (rank < this->Controller->GetNumberOfProcesses())
+    {
+      if (allParticleRequests.empty())
+      {
+        break;
+      }
+      if (rank == myRank)
+      {
+        // skipping ourselves
+        counter = offsets[++rank];
+        continue;
+      }
+      if (counter == offsets[rank + 1])
+      {
+        // we finished current rank, moving on
+        ++rank;
+        continue;
+      }
+
+      vtkIdType injectedPointId = allParticleRequests[counter];
+      auto it = this->Paths.find(injectedPointId);
+      auto& sendList = sendLists[rank];
+      if (it != this->Paths.end())
+      {
+        for (vtkIdType pointId : it->second)
+        {
+          sendList->InsertNextId(pointId);
+          this->UnusedIndices.push(pointId);
+        }
+        // don't forget to erase the path, we do not own it anymore.
+        this->Paths.erase(it);
+      }
+
+      if (++counter == offsets[rank + 1])
+      {
+        // seems redundant, but we need to account for the case where
+        // ranks have no data to share earlier. Here we actually move the counter forward.
+        ++rank;
+      }
+    }
+
+    for (rank = 0; rank < this->Controller->GetNumberOfProcesses(); ++rank)
+    {
+      // Let's construct a poly data to send with all the data needed to reconstruct the requested
+      // paths.
+      const auto& sendList = sendLists[rank];
+
+      vtkNew<vtkPolyData> ps;
+      vtkNew<vtkPoints> points;
+      vtkPointData* pd = ps->GetPointData();
+
+      points->SetNumberOfPoints(sendList->GetNumberOfIds());
+      points->GetData()->InsertTuplesStartingAt(0, sendList, this->Points->GetPoints()->GetData());
+      pd->CopyAllocate(this->Points->GetPointData(), sendList->GetNumberOfIds());
+      pd->CopyData(this->Points->GetPointData(), sendList);
+      ps->SetPoints(points);
+
+      this->Controller->Send(ps, rank, TAG);
+    }
+
+    // We send points to other processe and receive new ones. We could replace the data from the
+    // sent points by data from received points or / and current particles. We would need to keep
+    // track of available slots in a container and prioritize flushing it.
+    for (rank = 0; rank < this->Controller->GetNumberOfProcesses(); ++rank)
+    {
+      // Receiving the polydata containing the paths we requested.
+      vtkNew<vtkPolyData> ps;
+      this->Controller->Receive(ps, rank, TAG);
+
+      if (!ps->GetNumberOfPoints())
+      {
+        continue;
+      }
+
+      auto injectedPointIdArray =
+        vtkArrayDownCast<vtkIdTypeArray>(ps->GetPointData()->GetAbstractArray("InjectedPointId"));
+
+      // We use injectedPointIdArray to map the received paths to the paths we hold locally.
+      for (vtkIdType pointId = 0; pointId < ps->GetNumberOfPoints(); ++pointId)
+      {
+        vtkIdType id = [this, &endId] {
+          if (this->UnusedIndices.empty())
+          {
+            return endId++;
+          }
+          vtkIdType result = this->UnusedIndices.top();
+          this->UnusedIndices.pop();
+          return result;
+        }();
+        vtkIdType injectedPointId = injectedPointIdArray->GetValue(pointId);
+        this->Paths[injectedPointId].push_back(id);
+      }
+
+      vtkIdType recvNPoints = ps->GetNumberOfPoints();
+      if (!recvNPoints)
+      {
+        continue;
+      }
+      if (!this->Points->GetPointData()->GetNumberOfTuples())
+      {
+        this->Points->GetPointData()->CopyAllocate(ps->GetPointData(), recvNPoints);
+      }
+      this->Points->GetPointData()->CopyData(ps->GetPointData(), startId, recvNPoints, 0);
+      this->Points->GetPoints()->InsertPoints(startId, recvNPoints, 0, ps->GetPoints());
+
+      startId = this->Points->GetNumberOfPoints();
+    }
+  }
+
+  // From there on, we have all the past data for the paths for which we hold a currently living
+  // particle. We just need to add the particles to the relevant path.
+  vtkIdType startId = this->Points->GetNumberOfPoints();
+  vtkIdType n = this->OutputCoordinates->GetNumberOfPoints();
+  vtkIdType endId = startId;
+
+  this->Points->GetPoints()->InsertPoints(startId, n, 0, this->OutputCoordinates);
+
+  for (auto& particle : this->ParticleHistories)
+  {
+    this->Paths[particle.InjectedPointId].push_back(endId++);
+  }
+
+  this->Points->GetPointData()->CopyData(this->OutputPointData, startId, n, 0);
+
+  return retVal;
+}
+
+//------------------------------------------------------------------------------
+int vtkParticlePathFilter::Finalize(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  int retVal = this->Superclass::Finalize(request, inputVector, outputVector);
+
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  auto output = vtkPolyData::SafeDownCast(vtkDataObject::GetData(outInfo));
+  output->Initialize();
+
+  if (!this->Points->GetNumberOfPoints())
+  {
+    // Nothing to do in this process
+    return retVal;
+  }
+
+  std::size_t nPoints = 0;
+  for (auto& pair : this->Paths)
+  {
+    nPoints += pair.second.size();
+  }
+
+  vtkNew<vtkPoints> points;
+  points->SetNumberOfPoints(nPoints);
+
+  vtkNew<vtkIdList> mapping;
+  mapping->SetNumberOfIds(points->GetNumberOfPoints());
+  vtkIdType i = -1;
+
+  // We create a mapping from the indexing in Points to the polydata we actually want to output.
+  for (auto& pair : this->Paths)
+  {
+    const auto& path = pair.second;
+    for (vtkIdType pointId : path)
+    {
+      mapping->SetId(++i, pointId);
+    }
+  }
+
+  output->GetPointData()->CopyAllocate(this->Points->GetPointData(), mapping->GetNumberOfIds());
+  output->GetPointData()->CopyData(this->Points->GetPointData(), mapping);
+  points->GetData()->InsertTuplesStartingAt(0, mapping, this->Points->GetPoints()->GetData());
+  output->SetPoints(points);
+
+  vtkNew<vtkCellArray> verts, lines;
+
+  FillCellArrays(verts, lines, this->Paths);
+
+  output->SetVerts(verts);
+  output->SetLines(lines);
+
+  return retVal;
+}
+
 VTK_ABI_NAMESPACE_END

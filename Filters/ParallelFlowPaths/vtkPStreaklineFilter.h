@@ -15,28 +15,23 @@
 #define vtkPStreaklineFilter_h
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
-#include "vtkPParticleTracerBase.h"
-#include "vtkSmartPointer.h"     // For protected ivars.
-#include "vtkStreaklineFilter.h" //for utility
+#include "vtkStreaklineFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreaklineFilter : public vtkPParticleTracerBase
+VTK_DEPRECATED_IN_9_4_0("Use vtkStreaklineFilter instead")
+class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreaklineFilter : public vtkStreaklineFilter
 {
 public:
-  vtkTypeMacro(vtkPStreaklineFilter, vtkPParticleTracerBase);
+  vtkTypeMacro(vtkPStreaklineFilter, vtkStreaklineFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPStreaklineFilter* New();
 
 protected:
-  vtkPStreaklineFilter();
+  vtkPStreaklineFilter() = default;
   ~vtkPStreaklineFilter() override = default;
   vtkPStreaklineFilter(const vtkPStreaklineFilter&) = delete;
   void operator=(const vtkPStreaklineFilter&) = delete;
-  int OutputParticles(vtkPolyData* poly) override;
-  void Finalize() override;
-
-  StreaklineFilterInternal It;
 };
 
 VTK_ABI_NAMESPACE_END
