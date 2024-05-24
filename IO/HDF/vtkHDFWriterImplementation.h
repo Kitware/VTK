@@ -114,6 +114,12 @@ public:
   herr_t CreateSoftLink(hid_t group, const char* groupName, const char* targetLink);
 
   /**
+   * Create an external link to the real group containing the block datatset.
+   */
+  herr_t CreateExternalLink(
+    hid_t group, const char* filename, const char* source, const char* targetLink);
+
+  /**
    * Open and return an existing group thanks to id and a relative or absolute path to this group.
    */
   vtkHDF::ScopedH5GHandle OpenExistingGroup(hid_t group, const char* name);

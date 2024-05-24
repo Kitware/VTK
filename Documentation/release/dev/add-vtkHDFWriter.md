@@ -6,6 +6,10 @@ So far, the writer is capable of writing static and time-dependent data for:
 - PolyData
 - UnstructuredGrid
 PartitionedDataSetCollection and MultiBlockDataSet are also supported, without transient support.
+These composite types have the option to be written either in a single standalone file,
+or as a collection of files: one describing the composite assembly structure, and
+every other containing the data relative to a non-composite leaf.
+Both are considered equivalent by the reader.
 
 For now, distributed writing and multi-partition datasets not supported.
 For PDC, only the first partition of each PartitionedDataset is written.

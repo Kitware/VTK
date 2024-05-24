@@ -86,6 +86,19 @@ public:
   vtkGetMacro(ChunkSize, int);
   ///@}
 
+  ///@{
+  /**
+   * When set, write composite leaf blocks in different files,
+   * named FileName_without_extension_BlockName.extension.
+   * If FileName does not have an extension, blocks are named
+   * FileName_BlockName.vtkhdf
+   * These files are referenced by the main file using external links.
+   * Default is false.
+   */
+  vtkSetMacro(UseExternalComposite, bool);
+  vtkGetMacro(UseExternalComposite, bool);
+  ///@}
+
 protected:
   /**
    * Override vtkWriter's ProcessRequest method, in order to dispatch the request
@@ -212,6 +225,15 @@ private:
   bool AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pdc);
   ///@}
 
+  ///@{
+  /**
+   * Write block in a separate file whose name is derived to the block name,
+   * and create an external link from VTKHDF/blockName to this file's content.
+   * The block should be of non-composite type.
+   */
+  bool AppendExternalBlock(vtkDataObject* block, std::string& blockName);
+  ///@}
+
   /**
    * Add the assembly associated to the given PDC to the specified group
    * Individual blocks need to be added to the file beforehand.
@@ -254,6 +276,7 @@ private:
   char* FileName = nullptr;
   bool Overwrite = true;
   bool WriteAllTimeSteps = true;
+  bool UseExternalComposite = false;
   int ChunkSize = 100;
 
   // Temporal-related private variables
