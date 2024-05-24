@@ -11,7 +11,7 @@
 #ifndef vtkTemporalSmoothing_h
 #define vtkTemporalSmoothing_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersTemporalModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
 #include <memory> // For smart pointers
@@ -25,7 +25,7 @@ class vtkInformationVector;
 class vtkInformation;
 class vtkGraph;
 
-class VTKFILTERSGENERAL_EXPORT vtkTemporalSmoothing : public vtkPassInputTypeAlgorithm
+class VTKFILTERSTEMPORAL_EXPORT vtkTemporalSmoothing : public vtkPassInputTypeAlgorithm
 {
 public:
   ///@{

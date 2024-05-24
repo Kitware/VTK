@@ -118,7 +118,6 @@ set(classes
   vtkTableToStructuredGrid
   vtkTemporalPathLineFilter
   vtkTemporalStatistics
-  vtkTemporalSmoothing
   vtkTessellatorFilter
   vtkTimeSourceExample
   vtkTransformFilter
