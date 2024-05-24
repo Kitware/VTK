@@ -99,15 +99,20 @@ set(sources
 # FIXME: I've only brought the X render window from https://gitlab.kitware.com/vtk/vtk/-/merge_requests/10239/commits.
 # Bring in cocoa and win32 overrides as well.
 # NOTE:  Supports only one override in a build. Multiple render window overrides are confusing.
-if (VTK_USE_SDL2 AND (VTK_USE_X OR VTK_USE_COCOA OR VTK_USE_WIN32_OPENGL))
-  message(FATAL_ERROR "The webgpu backend supports only one render window override in a build. Turn off VTK_USE_SDL2 if you do not need it.")
+if ((CMAKE_SYSTEM_NAME STREQUAL "Emscripten") AND (VTK_USE_X OR VTK_USE_COCOA OR VTK_USE_WIN32_OPENGL))
+  message(FATAL_ERROR "VTK_USE_{X,COCOA,WIN32_OPENGL} is not supported with emscripten.")
 endif ()
 set(has_vtkRenderWindow_override 0)
 set(vtk_webgpu_factory_override_classname "")
-if (VTK_USE_SDL2)
-  # By default Emscripten system enables VTK_USE_SDL2. See vtkOpenGLOptions.cmake
-  set(vtk_webgpu_factory_override_classname "vtkSDL2WebGPURenderWindow")
-  set(has_vtkRenderWindow_override 1)
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  # VTK_DEPRECATED_IN_9_4_0() Remove when vtkSDL2WebGPURenderWindow is removed.
+  if (VTK_USE_SDL2)
+    set(vtk_webgpu_factory_override_classname "vtkSDL2WebGPURenderWindow")
+    set(has_vtkRenderWindow_override 1)
+  else ()
+    set(vtk_webgpu_factory_override_classname "vtkWebAssemblyWebGPURenderWindow")
+    set(has_vtkRenderWindow_override 1)
+  endif ()
 elseif (VTK_USE_X)
   # Add some custom overrides
   if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
@@ -155,16 +160,18 @@ vtk_module_compile_features(VTK::RenderingWebGPU
     cxx_std_14)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  vtk_module_include(VTK::RenderingWebGPU
-    PUBLIC
-      "${EMSCRIPTEN_ROOT_PATH}/cache/sysroot/include/webgpu")
-  vtk_module_compile_options(VTK::RenderingWebGPU
-    PUBLIC
-      "-sUSE_SDL=2")
   vtk_module_link_options(VTK::RenderingWebGPU
     PUBLIC
-      "-sUSE_WEBGPU=1"
-      "-sUSE_SDL=2")
+      "-sUSE_WEBGPU=1")
+  # VTK_DEPRECATED_IN_9_4_0() Remove when vtkSDL2WebGPURenderWindow is removed.
+  if (VTK_USE_SDL2)
+    vtk_module_compile_options(VTK::RenderingWebGPU
+      PUBLIC
+        "-sUSE_SDL=2")
+    vtk_module_link_options(VTK::RenderingWebGPU
+      PUBLIC
+        "-sUSE_SDL=2")
+  endif ()
 else ()
   if (VTK_USE_X)
     vtk_module_find_package(PACKAGE X11)

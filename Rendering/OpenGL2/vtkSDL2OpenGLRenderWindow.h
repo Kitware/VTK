@@ -13,6 +13,8 @@
 #define vtkSDL2OpenGLRenderWindow_h
 
 #include "vtkOpenGLRenderWindow.h"
+
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 // Ignore reserved-identifier warnings from
@@ -34,7 +36,10 @@
 #include <stack> // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkSDL2OpenGLRenderWindow
+class VTK_DEPRECATED_IN_9_4_0(
+  "Please use one of the dedicated platform render window or "
+  "vtkWebAssemblyOpenGLRenderWindow if your application targets WebAssembly.")
+  VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkSDL2OpenGLRenderWindow
   : public vtkOpenGLRenderWindow
 {
 public:

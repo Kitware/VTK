@@ -72,7 +72,7 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten") 
   set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES PASS_REGULAR_EXPRESSION "Unexpected point indice value")
   set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES FAIL_REGULAR_EXPRESSION "")
-endif ()  
+endif ()
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestVRMLImporter.cxx,NO_VALID

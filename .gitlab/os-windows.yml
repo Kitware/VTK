@@ -145,6 +145,18 @@
     variables:
         CMAKE_CONFIGURATION: windows_vs2022_mpi_python_qt_static
 
+.wasm32_emscripten_windows_chrome:
+    extends: .windows
+
+    variables:
+        CMAKE_CONFIGURATION: wasm32_emscripten_windows_chrome
+
+.wasm64_emscripten_windows_chrome:
+    extends: .windows
+
+    variables:
+        CMAKE_CONFIGURATION: wasm64_emscripten_windows_chrome
+
 ## Tags
 
 .windows_builder_tags:
@@ -329,4 +341,66 @@
         - if ( "$env:VTK_DISABLE_PYI_TESTING" -ne "1" ) { python -m vtkmodules.generate_pyi --test -p vtkmodules } else { echo "pyi test is disabled." }
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
         - .gitlab\ci\check_warnings.ps1 -BuildPath ./Testing/ExternalWheel # This will call exit in case of warnings
+    interruptible: true
+
+
+.before_script_windows_emscripten: &before_script_windows_emscripten
+    - *before_script_windows
+    - cmake -P .gitlab/ci/download_python.cmake
+    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\python;$env:PATH"
+    - Set-Item -Force -Path "env:PYTHONHOME" -Value "$pwdpath\.gitlab\python"
+    # Build and activate the venv
+    - python -m venv $pwdpath\build\ci-venv
+    # This may be necessary when running manually.
+    # Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+    - . .\build\ci-venv\Scripts\Activate.ps1
+    - pip install -qq -r $pwdpath\.gitlab\ci\requirements.txt
+    - .gitlab\ci\node.ps1
+    - Set-Item -Force -Path "env:NODE_DIR" -Value "$pwdpath\.gitlab\node"
+    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\node;$env:PATH"
+    - node --version
+    - .gitlab\ci\emsdk.ps1
+    - .gitlab\emsdk\emsdk.ps1 install latest
+    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\emsdk\upstream\bin;$env:PATH"
+    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\emsdk\upstream\emscripten;$env:PATH"
+    - clang --version
+    - wasm-as --version
+    - wasm-ld --version
+    - wasm-opt --version
+    - emcc --version
+
+.cmake_build_wasm_emscripten_windows:
+    stage: build
+    extends: .warning_policy
+
+    script:
+        - *before_script_windows_emscripten
+        - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
+        - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
+        - buildcache --show-stats
+        - ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        - ctest -VV -S .gitlab/ci/ctest_build.cmake | Out-File -FilePath compile_output.log
+        - buildcache --show-stats
+        - .gitlab\ci\check_warnings.ps1 -BuildPath . # This will call exit in case of warnings
+
+    interruptible: true
+
+.cmake_test_wasm_emscripten_windows:
+    stage: test
+    extends: .warning_policy
+
+    script:
+        - *before_script_windows_emscripten
+        # Fetch chrome-for-testing
+        - cmake -P .gitlab/ci/download_chrome.cmake
+        # Launch one instance of the browser which will be used by all tests, each test is run inside an isolated process anyway
+        - .gitlab\chrome\chrome.exe --disable-restore-session-state --no-default-browser-check --no-first-run --incognito --disable-application-cache
+        # Reuse the venv from the build step (avoids version changes between
+        # build and testing). This is set up manually because Activate.ps1
+        # doesn't seem to work for our extracted Python tarball.
+        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\build\ci-venv\Scripts;$env:PATH"
+        - Set-Item -Force -Path "env:PYTHONPATH" -Value "$pwdpath\build\ci-venv\Lib\site-packages"
+        - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
+        - powershell -File ".gitlab/ci/terminate_chrome_processes.ps1"
+
     interruptible: true

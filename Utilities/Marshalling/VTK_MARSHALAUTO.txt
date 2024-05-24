@@ -208,6 +208,7 @@ Rendering/OpenGL2/vtkOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkOpenGLShaderProperty.h
 Rendering/OpenGL2/vtkOSOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkSDL2OpenGLRenderWindow.h
+Rendering/OpenGL2/vtkWebAssemblyOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkWin32OpenGLRenderWindow.h
 Rendering/OpenGL2/vtkXOpenGLRenderWindow.h
 Rendering/UI/vtkCocoaRenderWindowInteractor.h

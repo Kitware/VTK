@@ -18,10 +18,14 @@
 
 #include "vtkWebGPURenderWindow.h"
 
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkRenderingWebGPUModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_EXPORT vtkSDL2WebGPURenderWindow : public vtkWebGPURenderWindow
+class VTK_DEPRECATED_IN_9_4_0(
+  "Please use one of the dedicated platform render window or "
+  "vtkWebAssemblyWebGPURenderWindow if your application targets WebAssembly.")
+  VTKRENDERINGWEBGPU_EXPORT vtkSDL2WebGPURenderWindow : public vtkWebGPURenderWindow
 {
 public:
   static vtkSDL2WebGPURenderWindow* New();
@@ -129,8 +133,8 @@ public:
   ///@}
 
 protected:
-  vtkSDL2WebGPURenderWindow();
-  ~vtkSDL2WebGPURenderWindow() override;
+  vtkWebAssemblyWebGPURenderWindow();
+  ~vtkWebAssemblyWebGPURenderWindow() override;
 
   void* WindowId = nullptr;
 
@@ -140,8 +144,8 @@ protected:
   void DestroyWindow() override;
 
 private:
-  vtkSDL2WebGPURenderWindow(const vtkSDL2WebGPURenderWindow&) = delete;
-  void operator=(const vtkSDL2WebGPURenderWindow&) = delete;
+  vtkWebAssemblyWebGPURenderWindow(const vtkWebAssemblyWebGPURenderWindow&) = delete;
+  void operator=(const vtkWebAssemblyWebGPURenderWindow&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

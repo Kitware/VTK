@@ -24,11 +24,12 @@ cmake_dependent_option(VTK_USE_WIN32_OPENGL "Use Win32 APIs for VTK render windo
 mark_as_advanced(VTK_USE_WIN32_OPENGL)
 
 set(default_use_sdl2 OFF)
-if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  set(default_use_sdl2 ON)
-endif()
-option(VTK_USE_SDL2 "Add SDL2 classes to VTK" "${default_use_sdl2}")
+# VTK_DEPRECATED_IN_9_4_0() Remove option when vtkSDL2OpenGLRenderWindow and vtkSDL2WebGPURenderWindow are removed.
+option(VTK_USE_SDL2 "Add SDL2 classes to VTK. This option will soon be removed" "${default_use_sdl2}")
 mark_as_advanced(VTK_USE_SDL2)
+if (VTK_USE_SDL2)
+  message(WARNING "You are using a soon to be deprecated flag. The VTK_USE_SDL2 option is marked for deprecation in VTK 9.4!")
+endif ()
 
 # For optional APIs that could be available for the OpenGL implementation
 # being used, we define VTK_OPENGL_HAS_<feature> options. These are not to be
@@ -101,6 +102,11 @@ endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(vtk_can_do_headless FALSE)
+  # VTK_DEPRECATED_IN_9_4_0() Unconditionally set both variables to TRUE after VTK_USE_SDL2 is removed.
+  if (NOT VTK_USE_SDL2)
+    set(vtk_can_do_onscreen TRUE)
+    set(vtk_can_do_offscreen TRUE)
+  endif ()
 endif ()
 
 if (NOT vtk_can_do_onscreen AND NOT vtk_can_do_offscreen)

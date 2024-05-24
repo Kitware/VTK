@@ -117,17 +117,12 @@ function (vtk_module_test_executable name)
     PRIVATE
       ${optional_depends_flags})
 
-  # (vtk/vtk#19097) Although vtk_add_test_cxx skips C++ tests for wasm,
-  # some modules bypass `vtk_add_test_cxx` by directly invoking `ExternalData_add_test`
-  # for special tests, ex: ImagingCore module does it.
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-    # allows the test executable to access host file system for test data.
-    # permit memory growth so that test doesn't run out of memory.
-    target_link_options("${name}"
-      PRIVATE
-        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
-        "SHELL:-s MAXIMUM_MEMORY=4GB"
-        "SHELL:-s NODERAWFS=1")
+    if (_vtk_test_emscripten_extra_linker_args)
+      target_link_options("${name}"
+        PRIVATE
+          ${_vtk_test_emscripten_extra_linker_args})
+    endif ()
   endif ()
   vtk_module_autoinit(
     TARGETS "${name}"
@@ -406,24 +401,36 @@ function (vtk_add_test_cxx exename _tests)
         ${MPIEXEC_PREFLAGS})
     endif()
 
-    # (vtk/vtk#19097) Disable C++ testing for wasm architecture until
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19097 is resolved.
     if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-      ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
-        NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
-        COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
-                "--eval"
-                "process.exit(125);") # all tests are skipped.
-    else ()
-      ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
-        NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
-        COMMAND "${_vtk_test_cxx_pre_args}" "$<TARGET_FILE:${exename}>"
-                "${test_arg}"
-                "${args}"
-                ${${_vtk_build_test}_ARGS}
-                ${${test_name}_ARGS}
-                ${_D} ${_T} ${_V})
+      if (_vtk_test_cxx_wasm_enabled_in_browser)
+        set(_vtk_test_cxx_pre_args
+            "$<TARGET_FILE:Python3::Interpreter>"
+            "${CMAKE_SOURCE_DIR}/Testing/WebAssembly/runner.py"
+            "--engine=${VTK_TESTING_WASM_ENGINE}"
+            "--engine-args=${VTK_TESTING_WASM_ENGINE_ARGUMENTS}"
+            "--exit")
+      else ()
+        ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
+          NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
+          COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
+                  "--eval"
+                  "process.exit(125);") # all tests are skipped.
+        set_tests_properties("${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
+          PROPERTIES
+            LABELS "${_vtk_build_test_labels}"
+            SKIP_RETURN_CODE 125 # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h
+          )
+        continue ()
+      endif ()
     endif ()
+    ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
+      NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
+      COMMAND "${_vtk_test_cxx_pre_args}" "$<TARGET_FILE:${exename}>"
+              "${test_arg}"
+              "${args}"
+              ${${_vtk_build_test}_ARGS}
+              ${${test_name}_ARGS}
+              ${_D} ${_T} ${_V})
     set_tests_properties("${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
       PROPERTIES
         LABELS "${_vtk_build_test_labels}"
@@ -438,12 +445,6 @@ function (vtk_add_test_cxx exename _tests)
       set_property(TEST "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}" APPEND
         PROPERTY
           ENVIRONMENT "LD_PRELOAD=${_vtk_testing_ld_preload}")
-    endif ()
-
-    # (vtk/vtk#19097) Disable C++ testing for wasm architecture until
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19097 is resolved.
-    if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-      continue ()
     endif ()
     list(APPEND ${_tests} "${test_file}")
   endforeach ()

@@ -20,13 +20,15 @@
 #error "vtkWebAssemblyRenderWindowInteractor requires the Emscripten SDK"
 #endif
 
-#include "vtkDeprecation.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
+#include <deque>                  // for ivar
 #include <map>                    // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkEmscriptenEventHandler;
+
 class VTKRENDERINGUI_EXPORT VTK_MARSHALAUTO vtkWebAssemblyRenderWindowInteractor
   : public vtkRenderWindowInteractor
 {
@@ -65,12 +67,9 @@ public:
 
   /**
    * Specify the selector of the canvas element in the DOM.
-   * Note that the current implementation of canvas in SDL2
-   * is hardcoded to a DOM element with id="canvas".
-   * Any other values are NOT supported.
    */
-  vtkGetStringMacro(CanvasSelector);
-  vtkSetStringMacro(CanvasSelector);
+  vtkGetStringMacro(CanvasId);
+  vtkSetStringMacro(CanvasId);
 
   /**
    * When true (default), the style of the parent element of canvas will be adjusted
@@ -80,11 +79,37 @@ public:
   vtkSetMacro(ExpandCanvasToContainer, bool);
   vtkBooleanMacro(ExpandCanvasToContainer, bool);
 
+  struct TimerBridgeData
+  {
+    std::shared_ptr<vtkEmscriptenEventHandler> Handler;
+    int TimerId;
+  };
+
+  /**
+   * When true (default), a JavaScript `ResizeObserver` is installed on the parent element of
+   * the canvas. The observer shall adjust the `width` and `height` of the canvas element
+   * according the dimensions of the parent element.
+   */
+  vtkGetMacro(InstallHTMLResizeObserver, bool);
+  vtkSetMacro(InstallHTMLResizeObserver, bool);
+  vtkBooleanMacro(InstallHTMLResizeObserver, bool);
+
 protected:
   vtkWebAssemblyRenderWindowInteractor();
   ~vtkWebAssemblyRenderWindowInteractor() override;
 
-  bool ProcessEvent(void* event);
+  using EventType = int;
+  using EventData = const void*;
+  struct Event
+  {
+    EventType Type;
+    EventData Data;
+  };
+  std::deque<Event> Events;
+
+  std::map<int, TimerBridgeData> Timers;
+
+  bool ProcessEvent(Event* event);
 
   ///@{
   /**
@@ -97,15 +122,6 @@ protected:
   int InternalDestroyTimer(int platformTimerId) override;
   ///@}
 
-  /**
-   * Sets up resize observer on the parent element of canvas.
-   * The resize observer will update the interactor's window size
-   * with the canvas dimensions.
-   * When ExpandCanvasToContainer is true, the canvas style and parent style
-   * are also initialized correctly.
-   */
-  void InitializeCanvasElement();
-
   std::map<int, int> VTKToPlatformTimerMap;
 
   /**
@@ -113,8 +129,9 @@ protected:
    */
   void StartEventLoop() override;
 
-  char* CanvasSelector = nullptr;
-  bool ExpandCanvasToContainer = true;
+  char* CanvasId = nullptr;
+  bool ExpandCanvasToContainer;
+  bool InstallHTMLResizeObserver;
 
 private:
   vtkWebAssemblyRenderWindowInteractor(const vtkWebAssemblyRenderWindowInteractor&) = delete;
@@ -122,7 +139,22 @@ private:
 
   bool StartedMessageLoop = false;
   bool ResizeObserverInstalled = false;
+
+  friend class vtkEmscriptenEventHandler;
+  std::shared_ptr<vtkEmscriptenEventHandler> Handler;
+
+  int RepeatCounter = 0;
 };
+
+extern "C"
+{
+  typedef void (*vtkTimerCallbackFunc)(void*);
+  int vtkCreateTimer(
+    unsigned long duration, bool isOneShot, vtkTimerCallbackFunc callback, void* userData);
+  void vtkDestroyTimer(int timerId, bool isOneShot);
+  int* vtkGetParentElementBoundingRectSize(const char* selector);
+  void vtkInitializeCanvasElement(const char* selector, bool applyStyle);
+}
 
 VTK_ABI_NAMESPACE_END
 #endif

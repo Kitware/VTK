@@ -767,13 +767,13 @@ bool vtkDGRenderResponder::DrawShapes(
     // specify the range of tessellation levels
     auto* tessControlUniforms = actor->GetShaderProperty()->GetTessControlCustomUniforms();
     int maxTessGenLevel = 64; // this is the minimum required of a GPU acc. to OpenGL spec.
-    // In case the GPU supports more number of levels, let's use it.
+                              // In case the GPU supports more number of levels, let's use it.
+#ifdef GL_ARB_tessellation_shader
     if (auto oglRenWin = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow()))
     {
-#ifdef GL_ARB_tessellation_shader
       oglRenWin->GetState()->vtkglGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessGenLevel);
-#endif
     }
+#endif
     const std::array<int, 2> tessLevelRange = { 1, maxTessGenLevel };
     tessControlUniforms->SetUniform2i("tessellation_levels_range", tessLevelRange.data());
 

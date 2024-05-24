@@ -637,7 +637,10 @@ Interaction/Widgets/vtkWidgetEventTranslator.h
 Interaction/Widgets/vtkWidgetSet.h
 Interaction/Widgets/vtkXYPlotRepresentation.h
 Interaction/Widgets/vtkXYPlotWidget.h
+Rendering/Annotation/vtkArcGridActorPrivate.h
 Rendering/Annotation/vtkAxisGridActorPrivate.h
+Rendering/Annotation/vtkPolarAxesActor2D.h
+Rendering/Annotation/vtkRadialGridActor2D.h
 Rendering/Annotation/vtkScalarBarActorInternal.h
 Rendering/Core/vtkAbstractHyperTreeGridMapper.h
 Rendering/Core/vtkAbstractInteractionDevice.h

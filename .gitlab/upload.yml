@@ -71,7 +71,7 @@
         - dnf install -y --setopt=install_weak_deps=False twine
         - twine upload -u gitlab-ci-token -p $CI_JOB_TOKEN --repository-url https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi dist/*
 
-.generic_webassembly_vtk_upload:
+.generic_vtk_wasm32_emscripten_linux_upload:
     image: "fedora:34"
     stage: upload
     tags:
@@ -86,4 +86,25 @@
         - .gitlab/ci/node.sh
         - export PATH=$PWD/.gitlab/node/bin:$PATH
         - node --version
-        - .gitlab/ci/upload_webassembly_archive.sh
+        - .gitlab/ci/upload_webassembly_archive.sh 32
+
+    interruptible: true
+
+.generic_vtk_wasm64_emscripten_linux_upload:
+    image: "fedora:34"
+    stage: upload
+    tags:
+        - docker
+        - linux-x86_64
+        - build
+
+    script:
+        - .gitlab/ci/cmake.sh latest
+        - export PATH=$PWD/.gitlab/cmake/bin:$PATH
+        - cmake --version
+        - .gitlab/ci/node.sh
+        - export PATH=$PWD/.gitlab/node/bin:$PATH
+        - node --version
+        - .gitlab/ci/upload_webassembly_archive.sh 64
+
+    interruptible: true

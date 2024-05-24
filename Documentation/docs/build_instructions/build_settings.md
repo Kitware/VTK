@@ -39,6 +39,15 @@ Less common, but variables which may be of interest to some:
     backend has his option `VTK_SMP_ENABLE_<backend_name>` set to `ON`.
   * `VTK_ENABLE_CATALYST` (default `OFF`): Enable catalyst-dependent modules
     including the VTK catalyst implementation. Depends on an external Catalyst.
+  * `VTK_WEBASSEMBLY_64_BIT` (default `OFF`):
+    This option is applicable only when building with Emscripten toolchain.
+    Adds -sMEMORY64 compiler and linker flags.
+  * `VTK_WEBASSEMBLY_THREADS` (default `OFF`):
+    This option is applicable only when building with Emscripten toolchain.
+    Adds -pthread compiler and linker flags. When `VTK_BUILD_TESTING` is `ON`,
+    this also runs unit tests in web workers, which is the only way for the tests
+    to reliably load data files without having to embed entire datasets inside
+    the test binaries.
 
 OpenGL-related options:
 
@@ -55,8 +64,7 @@ exist to make sure a broken build is not being made. Essentially:
     render windows.
   * `VTK_USE_X` (default `ON` for Unix-like platforms except macOS,
     iOS, and Emscripten, `OFF` otherwise): Use X for render windows.
-  * `VTK_USE_SDL2` (default `ON` for Emscripten, `OFF` otherwise): Use
-    SDL2 for render windows.
+  * `VTK_USE_SDL2` (default `OFF`): Use SDL2 for render windows.
   * `VTK_OPENGL_HAS_OSMESA` (default `OFF`): Use to indicate that the
     OpenGL library being used supports offscreen Mesa rendering
     (OSMesa).

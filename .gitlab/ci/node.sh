@@ -2,7 +2,7 @@
 
 set -e
 
-readonly version="20.11.1"
+readonly version="22.0.0"
 readonly prefix="node"
 
 # node is only used on linux-x86_64 runners.
@@ -13,7 +13,7 @@ case "$( uname -s )" in
         case "$( uname -m )" in
             x86_64)
                 architecture="x64"
-                sha256sum="bf3a779bef19452da90fb88358ec2c57e0d2f882839b20dc6afc297b6aafc0d7"
+                sha256sum="74bb0f3a80307c529421c3ed84517b8f543867709f41e53cd73df99e6442af4d"
                 ;;
             *)
                 echo "Unrecognized architecture $( uname -m )"

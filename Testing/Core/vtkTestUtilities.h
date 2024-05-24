@@ -29,6 +29,10 @@
 #include "vtkSystemIncludes.h"
 #include "vtkTestingCoreModule.h" // for export macro
 
+#ifdef __EMSCRIPTEN__
+#include "vtkEmscriptenTestUtilities.h"
+#endif
+
 #if defined(_MSC_VER)           /* Visual C++ (and Intel C++) */
 #pragma warning(disable : 4996) // 'function': was declared deprecated
 #endif
@@ -155,6 +159,10 @@ struct VTKTESTINGCORE_EXPORT vtkTestUtilities
   static bool CompareAbstractArray(vtkAbstractArray* array1, vtkAbstractArray* array2,
     double toleranceFactor = 1.0, vtkUnsignedCharArray* ghosts = nullptr,
     unsigned char ghostsToSkip = 0);
+
+#ifdef __EMSCRIPTEN__
+  static void PreloadDataFile(const char* fileName, const char* sandboxName);
+#endif
 };
 
 inline char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
@@ -166,8 +174,21 @@ inline char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
 inline char* vtkTestUtilities::ExpandDataFileName(
   int argc, char* argv[], const char* fname, int slash)
 {
+#ifdef __EMSCRIPTEN__
+  // determine where the file is located on the host file system using args/env.
+  char* hostPath = vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(
+    "-D", argc, argv, "VTK_DATA_ROOT", "../../../../VTKData", fname, slash);
+  // preload file from host into the sandbox
+  const size_t n = strlen(fname) + 1;
+  char* sandboxPath = new char[n];
+  strncpy(sandboxPath, fname, n);
+  vtkEmscriptenTestUtilities::PreloadDataFile(hostPath, sandboxPath);
+  delete[] hostPath;
+  return sandboxPath;
+#else
   return vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(
     "-D", argc, argv, "VTK_DATA_ROOT", "../../../../VTKData", fname, slash);
+#endif
 }
 
 inline char* vtkTestUtilities::GetArgOrEnvOrDefault(

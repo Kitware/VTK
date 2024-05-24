@@ -14,7 +14,7 @@ Here is a list of currently implemented features:
 5. Lighting based on VTK headlights and point/cell normals.
 6. Point size adjustments.
 7. Line width adjustments for wireframe and surface with edges.
-8. `vtkSDL2WebGPURenderWindow` is a reference implementation of `vtkWebGPURenderWindow` that works on WebAssembly and desktop.
+8. `vtkWebAssemblyWebGPURenderWindow` is a reference implementation of `vtkWebGPURenderWindow` that works on WebAssembly and desktop.
 9. `vtkXWebGPURenderWindow` is an implementation of `vtkWebGPURenderWindow` that uses X11 for Linux desktop rendering.
 10. Depth testing.
 

@@ -394,11 +394,19 @@
         - linux-x86_64-v3
         - vtk
 
-.webassembly:
-    image: "dockcross/web-wasm:20230831-0ac0f7a"
+.wasm32_emscripten_linux_chrome:
+    extends:
+        - .fedora39
 
     variables:
-        CMAKE_CONFIGURATION: webassembly
+        CMAKE_CONFIGURATION: wasm32_emscripten_linux_chrome
+
+.wasm64_emscripten_linux_chrome:
+    extends:
+        - .fedora39
+
+    variables:
+        CMAKE_CONFIGURATION: wasm64_emscripten_linux_chrome
 
 .linux_builder_tags:
     tags:
@@ -643,22 +651,38 @@
       - make html |& tee $GIT_CLONE_PATH/sphinx_output.log
 
 
-.before_script_linux_node: &before_script_linux_node
+.before_script_linux_emscripten: &before_script_linux_emscripten
+    - *before_script_linux
+    # Fetch node
     - .gitlab/ci/node.sh
+    - export NODE_DIR=$PWD/.gitlab/node
     - export PATH=$PWD/.gitlab/node/bin:$PATH
     - node --version
+    - $PWD/.gitlab/ci/emsdk.sh
+    # Fetches clang, wasm link tools and emscripten
+    # need `xz` to extract `wasm_binaries.tar.xz` downloaded by `emsdk install`
+    - dnf install -y --setopt=install_weak_deps=False xz
+    - $PWD/.gitlab/emsdk/emsdk install latest
+    - export PATH=$PWD/.gitlab/emsdk/upstream/bin:$PWD/.gitlab/emsdk/upstream/emscripten:$PATH
+    - clang --version
+    - wasm-as --version
+    - wasm-ld --version
+    - wasm-opt --version
+    - emcc --version
 
-.cmake_build_webassembly_linux:
+.cmake_build_wasm_emscripten_linux:
     stage: build
     extends: .warning_policy
 
     script:
-        - *before_script_linux
-        - *before_script_linux_node
+        - *before_script_linux_emscripten
         - .gitlab/ci/clang-tidy-cache.sh
         - .gitlab/ci/sccache.sh
         - sccache --start-server
         - sccache --show-stats
+        - python3 -m venv build/ci-venv && source build/ci-venv/bin/activate
+        - python3 -m pip install --upgrade --no-cache-dir pip
+        - python3 -m pip install --exists-action=w --no-cache-dir "Jinja2==3.1.3"
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
@@ -666,21 +690,43 @@
 
     interruptible: true
 
-.cmake_package_webassembly_linux:
+.cmake_package_wasm32_emscripten_linux:
     stage: package
 
     script:
-        - .gitlab/ci/create_webassembly_archive.sh
+        - .gitlab/ci/cmake.sh latest
+        - export PATH=$PWD/.gitlab/cmake/bin:$PATH
+        - cmake --version
+        - .gitlab/ci/node.sh
+        - export PATH=$PWD/.gitlab/node/bin:$PATH
+        - node --version
+        - .gitlab/ci/create_webassembly_archive.sh 32
 
     interruptible: true
 
-.cmake_test_webassembly_linux:
+.cmake_package_wasm64_emscripten_linux:
+    stage: package
+
+    script:
+        - .gitlab/ci/cmake.sh latest
+        - export PATH=$PWD/.gitlab/cmake/bin:$PATH
+        - cmake --version
+        - .gitlab/ci/node.sh
+        - export PATH=$PWD/.gitlab/node/bin:$PATH
+        - node --version
+        - .gitlab/ci/create_webassembly_archive.sh 64
+
+    interruptible: true
+
+.cmake_test_wasm_emscripten_linux:
     stage: test
     extends: .warning_policy
 
     script:
-        - *before_script_linux
-        - *before_script_linux_node
+        - *before_script_linux_emscripten
+        # Fetch chrome-for-testing
+        - cmake -P .gitlab/ci/download_chrome.cmake
+        - source build/ci-venv/bin/activate
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
 
     interruptible: true

@@ -8,6 +8,7 @@ find_program (NodeJS_INTERPRETER
   NAMES node nodejs
   HINTS
     "$ENV{NODE_DIR}/bin"
+    "$ENV{NODE_DIR}/" # On windows, node release binaries do not have bin.
   DOC
     "Node.js interpreter")
 

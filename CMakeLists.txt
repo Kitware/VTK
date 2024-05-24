@@ -17,6 +17,14 @@ if (APPLE)
   include(vtkApple)
 endif ()
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  include(vtkEmscripten)
+  if (CMAKE_GENERATOR STREQUAL "Ninja" AND CMAKE_HOST_WIN32)
+    # emcc.bat receives too many characters, so use response files instead.
+    set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "")
+  endif ()
+endif ()
+
 # must be before the following iOS / Android
 find_package(Git QUIET)
 include(VTKDetermineVersion)
@@ -48,9 +56,8 @@ if (VTK_WHEEL_BUILD)
 endif ()
 
 include(CMakeDependentOption)
-cmake_dependent_option(VTK_ENABLE_WEBGPU "Enable the WebGPU experimental rendering backend." OFF
-  "NOT CMAKE_SYSTEM_NAME STREQUAL \"Emscripten\"" ON)
-mark_as_advanced(VTK_ENABLE_WEBGPU)
+# (vtk/vtk#19315) Enable by default after WebGPU support is completed.
+option(VTK_ENABLE_WEBGPU "Enable the WebGPU experimental rendering backend." OFF)
 
 include(GNUInstallDirs)
 
@@ -91,6 +98,7 @@ include(vtkMobileDevices)
 include(vtkWrapSettings)
 include(vtkCrossCompiling)
 include(vtkObjectFactory)
+include(vtkOpenGLOptions)
 
 option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
 mark_as_advanced(VTK_RELOCATABLE_INSTALL)
@@ -692,6 +700,11 @@ if (VTK_BUILD_TESTING)
         "VTK_BUILD_TESTING is ON) may not be available without manually "
         "building the 'VTKData' target.")
     endif ()
+  endif ()
+
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # EMSDK makes python available after the environment is initialized with emsdk_env.{sh, csh, bat, ps1}
+    find_package(Python3 COMPONENTS Interpreter)
   endif ()
 endif ()
 

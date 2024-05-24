@@ -100,3 +100,39 @@ The binaries are now installed and you may use `-DVTK_DIR=/work/install/lib/cmak
 If everything went well then it should now be possible to compile and run the one of the C++ examples.
 Head over to [Examples/Emscripten/Cxx/Cone/README.md](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Examples/Emscripten/Cxx/Cone/README.md)
 and test the simple Cone example.
+
+## Multithreading
+
+Multithreading can be enabled in VTK wasm by turning on the CMake setting `VTK_WEBASSEMBLY_THREADS`.
+This option simply adds the compile and link flags necessary for emscripten to use WebWorker for a `pthread` and by extension,
+`std::thread`. Please refer to [Emscripten/Pthreads](https://emscripten.org/docs/porting/pthreads.html) for details.
+
+You generally want to run your C++ `int main(int, char**)` function in a WebWorker. Doing so keeps the
+browser responsive and gives your users a chance to at the very least refresh/close the tab when a long
+running VTK algorithm is processing data. You can set this up with the `-sPROXY_TO_PTHREAD=1` linker flag.
+
+If rendering is also part of your main program, please pass `-sPROXY_TO_PTHREAD=1`, `-sOFFSCREENCANVAS_SUPPORT=1`.
+These flags will proxy rendering calls to the main browser thread. Since DOM events like mouse, keyboard inputs are
+received on the main browser thread, emscripten takes care of queuing the execution of the event callback in the WebWorker
+running the VTK application.
+You can learn more at [settings_reference/proxy-to-pthread](https://emscripten.org/docs/tools_reference/settings_reference.html#proxy-to-pthread)
+and [settings_reference/offscreencanvas-support](https://emscripten.org/docs/tools_reference/settings_reference.html#offscreencanvas-support)
+
+**Tip:**
+
+  If you plan to use a custom DOM `id` for the canvases, please also make sure to pass those as a comma separated list.
+  Ex: `-sOFFSCREENCANVASES_TO_PTHREAD=#canvas1,#canvas2`
+
+## 64-bit
+
+*This feature is experimental.*
+
+VTK, by default compiles for the `wasm32-emscripten` architecture. When a 32-bit VTK wasm application
+loads and renders very large datasets, it can report out-of-memory errors because the maximum
+addressable memory is 4GB. You can overcome this problem by turning on the CMake setting `VTK_WEBASSEMBLY_64_BIT`.
+This option compiles VTK for the `wasm64-emscripten` architecture and the maximum addressable memory is 16GB.
+
+In order to execute VTK wasm64 applications, additional flags are required for:
+1. chrome/edge: `--js-flags=--experimental-wasm-memory64`.
+2. firefox: no flag, use nightly/beta.
+3. nodejs: `--experimental-wasm-memory64`.

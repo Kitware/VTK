@@ -42,11 +42,13 @@ list(APPEND emscripten_link_options
   # "-sGL_DEBUG=1"
   # "-sGL_ASSERTIONS=1"
   # "-sTRACE_WEBGL_CALLS=1"
-  "-sMAXIMUM_MEMORY=4GB")
+  )
 if (CMAKE_SIZEOF_VOID_P EQUAL "8")
   list(APPEND emscripten_link_options
-  "-sMAXIMUM_MEMORY=16GB"
-  "-sWASM_BIGINT=1")
+    "-sMAXIMUM_MEMORY=16GB")
+else ()
+  list(APPEND emscripten_link_options
+    "-sMAXIMUM_MEMORY=4GB")
 endif ()
 # -----------------------------------------------------------------------------
 # Optimizations
