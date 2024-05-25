@@ -483,6 +483,19 @@ public:
 
   ///@{
   /**
+   * Set the transformation matrix from the index space to the physical space
+   * coordinate system of the dataset. The transform is a 4 by 4 matrix.
+   * The supplied matrix pointer is not stored in the the image object but the matrix
+   * values are used for updating the Origin, Spacing, and DirectionMatrix.
+   * \sa SetOrigin
+   * \sa SetSpacing
+   * \sa SetDirectionMatrix
+   */
+  void ApplyIndexToPhysicalMatrix(vtkMatrix4x4* source);
+  ///@}
+
+  ///@{
+  /**
    * Convert coordinates from index space (ijk) to physical space (xyz).
    */
   virtual void TransformContinuousIndexToPhysicalPoint(double i, double j, double k, double xyz[3]);
@@ -499,6 +512,19 @@ public:
    * coordinate system of the dataset. The transform is a 4 by 4 matrix.
    */
   vtkGetObjectMacro(PhysicalToIndexMatrix, vtkMatrix4x4);
+  ///@}
+
+  ///@{
+  /**
+   * Get the transformation matrix from the physical space to the index space
+   * coordinate system of the dataset. The transform is a 4 by 4 matrix.
+   * The supplied matrix pointer is not stored in the the image object but the matrix
+   * values are used for updating the Origin, Spacing, and DirectionMatrix.
+   * \sa SetOrigin
+   * \sa SetSpacing
+   * \sa SetDirectionMatrix
+   */
+  void ApplyPhysicalToIndexMatrix(vtkMatrix4x4* source);
   ///@}
 
   ///@{
