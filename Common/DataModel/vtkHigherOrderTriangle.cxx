@@ -315,7 +315,7 @@ int vtkHigherOrderTriangle::EvaluatePosition(const double x[3], double closestPo
 
     status = this->Face->EvaluatePosition(x, closest, ignoreId, pc, dist2, tempWeights);
 
-    if (status != -1 && dist2 < minDist2)
+    if (status != -1 && ((dist2 < minDist2) || ((dist2 == minDist2) && (returnStatus == 0))))
     {
       returnStatus = status;
       minDist2 = dist2;

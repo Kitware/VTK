@@ -123,7 +123,7 @@ int vtkQuadraticLinearQuad::EvaluatePosition(const double x[3], double* closestP
     this->Quad->Points->SetPoint(3, pts + 3 * LinearQuads[i][3]);
 
     status = this->Quad->EvaluatePosition(x, closest, ignoreId, pc, dist2, tempWeights);
-    if (status != -1 && dist2 < minDist2)
+    if (status != -1 && ((dist2 < minDist2) || ((dist2 == minDist2) && (returnStatus == 0))))
     {
       returnStatus = status;
       minDist2 = dist2;

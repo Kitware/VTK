@@ -32,7 +32,7 @@ int vtkTriangleStrip::EvaluatePosition(const double x[3], double closestPoint[3]
   double pcoords[3], double& minDist2, double weights[])
 {
   double pc[3], dist2;
-  int ignoreId, i, return_status, status;
+  int ignoreId, i, returnStatus, status;
   double tempWeights[3], activeWeights[3];
   double closest[3];
 
@@ -42,7 +42,7 @@ int vtkTriangleStrip::EvaluatePosition(const double x[3], double closestPoint[3]
   activeWeights[1] = 0.0;
   activeWeights[2] = 0.0;
 
-  return_status = 0;
+  returnStatus = 0;
   for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < this->Points->GetNumberOfPoints() - 2; i++)
   {
     weights[i] = 0.0;
@@ -50,9 +50,9 @@ int vtkTriangleStrip::EvaluatePosition(const double x[3], double closestPoint[3]
     this->Triangle->Points->SetPoint(1, this->Points->GetPoint(i + 1));
     this->Triangle->Points->SetPoint(2, this->Points->GetPoint(i + 2));
     status = this->Triangle->EvaluatePosition(x, closest, ignoreId, pc, dist2, tempWeights);
-    if (status != -1 && dist2 < minDist2)
+    if (status != -1 && ((dist2 < minDist2) || ((dist2 == minDist2) && (returnStatus == 0))))
     {
-      return_status = status;
+      returnStatus = status;
       if (closestPoint)
       {
         closestPoint[0] = closest[0];
@@ -76,7 +76,7 @@ int vtkTriangleStrip::EvaluatePosition(const double x[3], double closestPoint[3]
   weights[subId + 1] = activeWeights[1];
   weights[subId + 2] = activeWeights[2];
 
-  return return_status;
+  return returnStatus;
 }
 
 //------------------------------------------------------------------------------
