@@ -3,8 +3,10 @@
 
 #include "vtkAbstractArray.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
@@ -45,6 +47,11 @@
 #include <cmath>
 #include <iterator>
 #include <set>
+
+// clang-format off
+#include "vtk_nlohmannjson.h"
+#include VTK_NLOHMANN_JSON(json.hpp)
+// clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkAbstractArray, GUI_HIDE, Integer);
@@ -785,6 +792,29 @@ void SampleProminentValues(std::vector<std::vector<vtkVariant>>& uniques, vtkIdT
     std::copy(si->begin(), si->end(), bi);
   }
 }
+
+struct WriteDataArrayWorker
+{
+  WriteDataArrayWorker(nlohmann::json& result)
+    : m_result(result)
+  {
+  }
+
+  template <typename InArrayT>
+  void operator()(InArrayT* inArray)
+  {
+    using T = vtk::GetAPIType<InArrayT>;
+    const auto inRange = vtk::DataArrayValueRange(inArray);
+    T val;
+    for (const auto& value : inRange)
+    {
+      val = value;
+      m_result.push_back(val);
+    }
+  }
+
+  nlohmann::json& m_result;
+};
 } // End anonymous namespace.
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -895,5 +925,35 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   params[0] = uncertainty;
   params[1] = minimumProminence;
   this->GetInformation()->Set(DISCRETE_VALUE_SAMPLE_PARAMETERS(), params, 2);
+}
+
+//------------------------------------------------------------------------------
+nlohmann::json vtkAbstractArray::SerializeValues()
+{
+  auto result = nlohmann::json::array();
+
+  if (auto* darr = vtkDataArray::SafeDownCast(this))
+  {
+    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+    WriteDataArrayWorker worker(result);
+    if (!Dispatcher::Execute(darr, worker))
+    {
+      worker(darr);
+    }
+  }
+  else
+  {
+    for (vtkIdType ii = 0; ii < this->GetNumberOfValues(); ++ii)
+    {
+      result.push_back(this->GetVariantValue(ii).ToString());
+    }
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
+void vtkAbstractArray::PrintValues(ostream& os)
+{
+  os << this->SerializeValues().dump() << '\n';
 }
 VTK_ABI_NAMESPACE_END
