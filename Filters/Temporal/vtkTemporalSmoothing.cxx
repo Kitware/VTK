@@ -174,14 +174,18 @@ int vtkTemporalSmoothing::RequestInformation(vtkInformation* vtkNotUsed(request)
 
   if (this->Internals->InputTimeSteps.empty())
   {
-    vtkErrorMacro("Filter input is not temporal.");
-    return 0;
+    vtkWarningMacro("Filter input is not temporal.");
+    outInfo->Remove(vtkSDDP::TIME_STEPS());
+    outInfo->Remove(vtkSDDP::TIME_RANGE());
+    return 1;
   }
 
   if (this->Internals->InputTimeSteps.size() < this->Internals->TemporalWindowWidth)
   {
-    vtkErrorMacro("Requested time window is larger than available time steps");
-    return 0;
+    vtkWarningMacro("Requested time window is larger than available time steps");
+    outInfo->Remove(vtkSDDP::TIME_STEPS());
+    outInfo->Remove(vtkSDDP::TIME_RANGE());
+    return 1;
   }
 
   // Available time steps are clipped on each side
