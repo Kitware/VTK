@@ -45,6 +45,19 @@ public:
   bool OpenFile(bool overwrite = true);
 
   /**
+   * Open subfile where data has already been written, and needs to be referenced by the main file
+   * using virtual datasets.
+   * Return file if the subfile cannot be opened
+   */
+  bool OpenSubfile(const std::string& filename);
+
+  /**
+   * Inform the implementation that this is the last time step processed, which means
+   * HDF5 datasets
+   */
+  void SetIsLastTimeStep(bool status) { this->IsLastTimeStep = status; }
+
+  /**
    * Create the steps group in the root group. Set a member variable to store the group, so it can
    * be retrieved later using `GetStepsGroup` function.
    */
@@ -125,6 +138,11 @@ public:
   vtkHDF::ScopedH5GHandle OpenExistingGroup(hid_t group, const char* name);
 
   /**
+   * Open and return an existing dataset using its group id and dataset name.
+   */
+  vtkHDF::ScopedH5DHandle OpenDataset(hid_t group, const char* name);
+
+  /**
    * Return the name of a group given its id
    */
   std::string GetGroupName(hid_t group);
@@ -143,6 +161,12 @@ public:
    */
   vtkHDF::ScopedH5DHandle CreateHdfDataset(
     hid_t group, const char* name, hid_t type, int rank, const hsize_t dimensions[]);
+
+  /**
+   *
+   */
+  vtkHDF::ScopedH5DHandle CreateVirtualDataset(
+    hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray);
 
   /**
    * Create a chunked dataset in the given group from a dataspace.
@@ -173,10 +197,11 @@ public:
 
   /**
    * Create a chunked dataset with an empty extendable dataspace using chunking and set the desired
-   * level of compression. Returned scoped handle may be invalid
+   * level of compression.
+   * Return true if the operation was successful.
    */
-  vtkHDF::ScopedH5DHandle InitDynamicDataset(hid_t group, const char* name, hid_t type,
-    hsize_t cols, hsize_t chunkSize[], int compressionLevel = 0);
+  bool InitDynamicDataset(hid_t group, const char* name, hid_t type, hsize_t cols,
+    hsize_t chunkSize[], int compressionLevel = 0);
 
   /**
    * Add a single value of integer type to an existing dataspace.
@@ -222,6 +247,9 @@ private:
   vtkHDF::ScopedH5FHandle File;
   vtkHDF::ScopedH5GHandle Root;
   vtkHDF::ScopedH5GHandle StepsGroup;
+  std::vector<vtkHDF::ScopedH5FHandle> Subfiles; // TODO: create a map instead
+  std::vector<std::string> SubfileNames;
+  bool IsLastTimeStep = false;
 };
 
 VTK_ABI_NAMESPACE_END

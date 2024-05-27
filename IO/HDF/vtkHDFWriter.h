@@ -113,13 +113,29 @@ public:
   /**
    * When set, write composite leaf blocks in different files,
    * named FileName_without_extension_BlockName.extension.
-   * If FileName does not have an extension, blocks are named
-   * FileName_BlockName.vtkhdf
+   * If FileName does not have an extension, blocks are named FileName_BlockName.vtkhdf
    * These files are referenced by the main file using external links.
    * Default is false.
    */
   vtkSetMacro(UseExternalComposite, bool);
   vtkGetMacro(UseExternalComposite, bool);
+
+  ///@{
+  /**
+   * When set, write each time step in different files,
+   * named FileName_without_extension_X.extension, where X is the time step index.
+   * If FileName does not have an extension, files are named FileName_X.vtkhdf
+   * These individual time files are referenced by the main file using the HDF5 virtual dataset
+   * feature. This way, individual time step files can be opened by the reader as a non
+   * time-dependent dataset, and the main file referencing those as a time-dependent file
+   * seamlessly.
+   *
+   * Note: this option does not support static meshes. Points and cells with be copied
+   * across time step files.
+   * Default is false.
+   */
+  vtkSetMacro(UseExternalTimeSteps, bool);
+  vtkGetMacro(UseExternalTimeSteps, bool);
   ///@}
 
 protected:
@@ -311,6 +327,7 @@ private:
   bool Overwrite = true;
   bool WriteAllTimeSteps = true;
   bool UseExternalComposite = false;
+  bool UseExternalTimeSteps = false;
   int ChunkSize = 25000;
   int CompressionLevel = 0;
 

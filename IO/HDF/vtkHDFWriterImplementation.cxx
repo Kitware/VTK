@@ -9,6 +9,17 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+namespace
+{
+// List of datasets outside of the steps group
+// That should not be referenced by the main file using external datasets
+const std::vector<std::string> NOT_EXTERNAL{
+  "NumberOfPoints",
+  "NumberOfCells",
+  "NumberOfConnectivityIds",
+};
+}
+
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::WriteHeader(hid_t group, const char* hdfType)
 {
@@ -99,10 +110,33 @@ bool vtkHDFWriter::Implementation::OpenFile(bool overwrite)
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::OpenSubfile(const std::string& filename)
+{
+  // Create file
+  vtkHDF::ScopedH5FHandle file{ H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT) };
+  if (file == H5I_INVALID_HID)
+  {
+    this->LastError = "Can not open sub-file";
+    return false;
+  }
+
+  this->Subfiles.emplace_back(std::move(file));
+  this->SubfileNames.emplace_back(filename);
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::OpenExistingGroup(
   hid_t group, const char* name)
 {
   return H5Gopen(group, name, H5P_DEFAULT);
+}
+
+//------------------------------------------------------------------------------
+vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::OpenDataset(hid_t group, const char* name)
+{
+  return H5Dopen(group, name, H5P_DEFAULT);
 }
 
 //------------------------------------------------------------------------------
@@ -429,7 +463,10 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
   // Resize dataset
   if (!trim)
   {
-    H5Dset_extent(dataset, newdims);
+    if (H5Dset_extent(dataset, newdims) < 0)
+    {
+      return false;
+    }
     currentDataspace = H5Dget_space(dataset);
     if (currentDataspace == H5I_INVALID_HID)
     {
@@ -542,7 +579,7 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
   if (numDim == 2)
   {
     start.emplace_back(0);
-    count.emplace_back(addedDims.at(1));
+    count.emplace_back(addedDims[1]);
   }
   H5Sselect_hyperslab(
     currentDataspace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
@@ -560,6 +597,15 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
 bool vtkHDFWriter::Implementation::AddOrCreateDataset(
   hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray)
 {
+  if (this->Writer->GetUseExternalTimeSteps() && group != this->StepsGroup)
+  {
+    if (this->IsLastTimeStep)
+    {
+      return this->CreateVirtualDataset(group, name, type, dataArray) != H5I_INVALID_HID;
+    }
+    return true;
+  }
+
   if (!H5Lexists(group, name, H5P_DEFAULT))
   {
     // Dataset needs to be created
@@ -574,17 +620,96 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(
 }
 
 //------------------------------------------------------------------------------
-vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group,
-  const char* name, hid_t type, hsize_t cols, hsize_t chunkSize[], int compressionLevel)
+vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
+  hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray)
 {
+  const std::string datasetPath = this->GetGroupName(group) + "/" + name;
+  const int numComp = dataArray->GetNumberOfComponents();
+  const int numDim = numComp == 1 ? 1 : 2;
+
+  // Initialize VDS property
+  vtkHDF::ScopedH5PHandle virtualSourceP = H5Pcreate(H5P_DATASET_CREATE);
+
+  // Collect total dataset size
+  hsize_t totalSize = 0;
+  for (auto& fileRoot : this->Subfiles)
+  {
+    vtkHDF::ScopedH5DHandle sourceDataset = H5Dopen(fileRoot, datasetPath.c_str(), H5P_DEFAULT);
+    vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
+    std::vector<hsize_t> sourceDims(3);
+    H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr);
+    totalSize += sourceDims[0];
+  }
+
+  // Create destination dataspace with the final size
+  std::vector<hsize_t> dspaceDims{ totalSize };
+  if (numDim == 2)
+  {
+    dspaceDims.emplace_back(numComp);
+  }
+  vtkHDF::ScopedH5SHandle destSpace = H5Screate_simple(numDim, dspaceDims.data(), nullptr);
+
+  // Add virtual mapping for each timestep file
+  hsize_t offset = 0;
+  for (int i = 0; i < this->Subfiles.size(); i++)
+  {
+    // Open source dataset/dataspace
+    vtkHDF::ScopedH5DHandle sourceDataset =
+      H5Dopen(this->Subfiles[i], datasetPath.c_str(), H5P_DEFAULT);
+    vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
+    std::vector<hsize_t> sourceDims(3), sourceMaxDims(3); // TODO: unused
+    H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), sourceMaxDims.data());
+
+    // Select hyperslab in destination space
+    std::vector<hsize_t> start{ offset };
+    std::vector<hsize_t> count{ sourceDims[0] };
+    if (numDim == 2)
+    {
+      start.emplace_back(0);
+      count.emplace_back(sourceDims[1]);
+    }
+    H5Sselect_hyperslab(destSpace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
+
+    // Create source H5S
+    vtkHDF::ScopedH5SHandle src_space = H5Screate_simple(numDim, sourceDims.data(), NULL);
+
+    // Build the mapping
+    H5Pset_virtual(
+      virtualSourceP, destSpace, this->SubfileNames[i].c_str(), datasetPath.c_str(), src_space);
+
+    offset += sourceDims[0];
+  }
+
+  // Create the virtual dataset
+  vtkHDF::ScopedH5DHandle vdset =
+    H5Dcreate(group, name, type, destSpace, H5P_DEFAULT, virtualSourceP, H5P_DEFAULT);
+  return vdset;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group, const char* name, hid_t type,
+  hsize_t cols, hsize_t chunkSize[], int compressionLevel)
+{
+  // When writing timesteps externally, don't create a dynamic dataset,
+  // But create a virtual one on the last step.
+  if (this->Writer->GetUseExternalTimeSteps() && group != this->StepsGroup)
+  {
+    if (std::find(NOT_EXTERNAL.begin(), NOT_EXTERNAL.end(), std::string(name)) ==
+      NOT_EXTERNAL.end())
+    {
+      // Dataset is not in the exclusion list
+      return true;
+    }
+  }
+
   vtkHDF::ScopedH5SHandle emptyDataspace = this->CreateUnlimitedSimpleDataspace(cols);
   if (emptyDataspace == H5I_INVALID_HID)
   {
-    return H5I_INVALID_HID;
+    return false;
   }
   vtkHDF::ScopedH5DHandle dataset = this->CreateChunkedHdfDataset(
     group, name, type, emptyDataspace, cols, chunkSize, compressionLevel);
-  return dataset;
+  return dataset != H5I_INVALID_HID;
 }
 
 //------------------------------------------------------------------------------

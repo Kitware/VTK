@@ -57,34 +57,34 @@ struct OpenerWorklet;
 struct CheckerWorklet;
 
 // assemblies
-int TestUGTransient(const std::string& dataRoot);
-int TestImageDataTransient(const std::string& dataRoot);
-int TestPolyDataTransient(const std::string& dataRoot);
-int TestPolyDataTransientWithOffset(const std::string& dataRoot);
-int TestUGTransientWithCachePartitioned(const std::string& dataRoot);
-int TestUGTransientPartitionedNoCache(const std::string& dataRoot);
-int TestImageDataTransientWithCache(const std::string& dataRoot);
-int TestPolyDataTransientWithCache(const std::string& dataRoot);
-int TestPolyDataTransientFieldData(const std::string& dataRoot);
-int TestOverlappingAMRTransient(const std::string& dataRoot);
+int TestUGTemporal(const std::string& dataRoot);
+int TestImageDataTemporal(const std::string& dataRoot);
+int TestPolyDataTemporal(const std::string& dataRoot);
+int TestPolyDataTemporalWithOffset(const std::string& dataRoot);
+int TestUGTemporalWithCachePartitioned(const std::string& dataRoot);
+int TestUGTemporalPartitionedNoCache(const std::string& dataRoot);
+int TestImageDataTemporalWithCache(const std::string& dataRoot);
+int TestPolyDataTemporalWithCache(const std::string& dataRoot);
+int TestPolyDataTemporalFieldData(const std::string& dataRoot);
+int TestOverlappingAMRTemporal(const std::string& dataRoot);
 }
 
 //------------------------------------------------------------------------------
-int TestHDFReaderTransient(int argc, char* argv[])
+int TestHDFReaderTemporal(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
   std::string dataRoot = testUtils->GetDataRoot();
-  int res = ::TestUGTransient(dataRoot);
-  res |= ::TestImageDataTransient(dataRoot);
-  res |= ::TestPolyDataTransient(dataRoot);
-  res |= ::TestPolyDataTransientWithOffset(dataRoot);
-  res |= ::TestUGTransientPartitionedNoCache(dataRoot);
-  res |= ::TestUGTransientWithCachePartitioned(dataRoot);
-  res |= ::TestImageDataTransientWithCache(dataRoot);
-  res |= ::TestPolyDataTransientWithCache(dataRoot);
-  res |= ::TestPolyDataTransientFieldData(dataRoot);
-  res |= ::TestOverlappingAMRTransient(dataRoot);
+  int res = ::TestUGTemporal(dataRoot);
+  res |= ::TestImageDataTemporal(dataRoot);
+  res |= ::TestPolyDataTemporal(dataRoot);
+  res |= ::TestPolyDataTemporalWithOffset(dataRoot);
+  res |= ::TestUGTemporalPartitionedNoCache(dataRoot);
+  res |= ::TestUGTemporalWithCachePartitioned(dataRoot);
+  res |= ::TestImageDataTemporalWithCache(dataRoot);
+  res |= ::TestPolyDataTemporalWithCache(dataRoot);
+  res |= ::TestPolyDataTemporalFieldData(dataRoot);
+  res |= ::TestOverlappingAMRTemporal(dataRoot);
 
   return res;
 }
@@ -297,7 +297,7 @@ bool GeometryCheckerWorklet::operator()(vtkPolyData* lhs, vtkPolyData* rhs)
 }
 
 //------------------------------------------------------------------------------
-int TestUGTransientBase(OpenerWorklet& opener, bool testMeshMTime = false)
+int TestUGTemporalBase(OpenerWorklet& opener, bool testMeshMTime = false)
 {
   // Generic Time data checks
   if (opener.GetReader()->GetNumberOfSteps() != 10)
@@ -405,7 +405,7 @@ int TestUGTransientBase(OpenerWorklet& opener, bool testMeshMTime = false)
 }
 
 //------------------------------------------------------------------------------
-int TestUGTransientPartitioned(
+int TestUGTemporalPartitioned(
   OpenerWorklet& opener, const std::string& dataRoot, bool testMeshMTime = false)
 {
   // Generic Time data checks
@@ -532,31 +532,31 @@ int TestUGTransientPartitioned(
 }
 
 //------------------------------------------------------------------------------
-int TestUGTransientPartitionedNoCache(const std::string& dataRoot)
+int TestUGTemporalPartitionedNoCache(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
   opener.GetReader()->SetMergeParts(false);
-  return TestUGTransientPartitioned(opener, dataRoot, false);
+  return TestUGTemporalPartitioned(opener, dataRoot, false);
 }
 
 //------------------------------------------------------------------------------
-int TestUGTransient(const std::string& dataRoot)
+int TestUGTemporal(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
-  return TestUGTransientBase(opener);
+  return TestUGTemporalBase(opener);
 }
 
 //------------------------------------------------------------------------------
-int TestUGTransientWithCachePartitioned(const std::string& dataRoot)
+int TestUGTemporalWithCachePartitioned(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
   opener.GetReader()->UseCacheOn();
   opener.GetReader()->SetMergeParts(false);
-  return TestUGTransientPartitioned(opener, dataRoot, true);
+  return TestUGTemporalPartitioned(opener, dataRoot, true);
 }
 
 //------------------------------------------------------------------------------
-int TestImageDataTransientBase(OpenerWorklet& opener)
+int TestImageDataTemporalBase(OpenerWorklet& opener)
 {
   // Generic Time data checks
   if (opener.GetReader()->GetNumberOfSteps() != 10)
@@ -650,22 +650,22 @@ int TestImageDataTransientBase(OpenerWorklet& opener)
 }
 
 //------------------------------------------------------------------------------
-int TestImageDataTransient(const std::string& dataRoot)
+int TestImageDataTemporal(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
-  return TestImageDataTransientBase(opener);
+  return TestImageDataTemporalBase(opener);
 }
 
 //------------------------------------------------------------------------------
-int TestImageDataTransientWithCache(const std::string& dataRoot)
+int TestImageDataTemporalWithCache(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
   opener.GetReader()->UseCacheOn();
   opener.GetReader()->SetMergeParts(false);
-  return TestImageDataTransientBase(opener);
+  return TestImageDataTemporalBase(opener);
 }
 
-int TestPolyDataTransientBase(
+int TestPolyDataTemporalBase(
   OpenerWorklet& opener, const std::string& dataRoot, bool testMeshMTime = false)
 {
   // Generic Time data checks
@@ -775,7 +775,7 @@ int TestPolyDataTransientBase(
 }
 
 //------------------------------------------------------------------------------
-int TestPolyDataTransientPartitionedWithCache(
+int TestPolyDataTemporalPartitionedWithCache(
   OpenerWorklet& opener, const std::string& dataRoot, bool testMeshMTime = false)
 {
   // Generic Time data checks
@@ -918,14 +918,14 @@ int TestPolyDataTransientPartitionedWithCache(
 }
 
 //------------------------------------------------------------------------------
-int TestPolyDataTransient(const std::string& dataRoot)
+int TestPolyDataTemporal(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
-  return TestPolyDataTransientBase(opener, dataRoot);
+  return TestPolyDataTemporalBase(opener, dataRoot);
 }
 
 //------------------------------------------------------------------------------
-int TestPolyDataTransientWithCache(const std::string& dataRoot)
+int TestPolyDataTemporalWithCache(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
   opener.GetReader()->UseCacheOn();
@@ -933,11 +933,11 @@ int TestPolyDataTransientWithCache(const std::string& dataRoot)
 
   // We should be able to activate the MeshMTime testing once the cache can store
   // the intermediate vtkPoints and vtkCellArrays
-  return TestPolyDataTransientPartitionedWithCache(opener, dataRoot, true /*testMeshMTime*/);
+  return TestPolyDataTemporalPartitionedWithCache(opener, dataRoot, true /*testMeshMTime*/);
 }
 
 //------------------------------------------------------------------------------
-int TestPolyDataTransientWithOffset(const std::string& dataRoot)
+int TestPolyDataTemporalWithOffset(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data_offset.vtkhdf");
 
@@ -1010,7 +1010,7 @@ int TestPolyDataTransientWithOffset(const std::string& dataRoot)
 }
 
 //------------------------------------------------------------------------------
-int TestPolyDataTransientFieldData(const std::string& dataRoot)
+int TestPolyDataTemporalFieldData(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data_field_data.vtkhdf");
 
@@ -1073,7 +1073,7 @@ int TestPolyDataTransientFieldData(const std::string& dataRoot)
 }
 
 //------------------------------------------------------------------------------
-int TestOverlappingAMRTransient(const std::string& dataRoot)
+int TestOverlappingAMRTemporal(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/vtkHDF/test_transient_overlapping_amr.vtkhdf");
 

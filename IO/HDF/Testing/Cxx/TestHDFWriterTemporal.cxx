@@ -24,93 +24,97 @@ enum supportedDataSetTypes
   vtkUnstructuredGridType,
   vtkPolyDataType
 };
+
+struct WriterConfigOptions
+{
+  bool UseExternalTimeSteps;
+  std::string FileNameSuffix;
+};
 }
 
 //----------------------------------------------------------------------------
-bool TestTransientData(const std::string& tempDir, const std::string& dataRoot,
-  const std::vector<std::string>& baseNames)
+bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
+  const std::string& baseName, const WriterConfigOptions& config)
 {
-  for (const auto& baseName : baseNames)
+  std::cout << "Writing " << baseName << std::endl;
+  // Open original temporal HDF data
+  const std::string basePath = dataRoot + "/Data/" + baseName;
+  vtkNew<vtkHDFReader> baseHDFReader;
+  baseHDFReader->SetFileName(basePath.c_str());
+
+  // Write the data to a file using the vtkHDFWriter
+  vtkNew<vtkHDFWriter> HDFWriter;
+  HDFWriter->SetInputConnection(baseHDFReader->GetOutputPort());
+  std::string tempPath = tempDir + "/HDFWriter_";
+  tempPath += baseName + ".vtkhdf" + config.FileNameSuffix;
+  HDFWriter->SetFileName(tempPath.c_str());
+  HDFWriter->SetUseExternalTimeSteps(config.UseExternalTimeSteps);
+  HDFWriter->SetWriteAllTimeSteps(true);
+  HDFWriter->SetChunkSize(100);
+  HDFWriter->SetCompressionLevel(4);
+  HDFWriter->Write();
+
+  // Read the data just written
+  vtkNew<vtkHDFReader> HDFReader;
+  if (!HDFReader->CanReadFile(tempPath.c_str()))
   {
-    std::cout << "Writing " << baseName << std::endl;
-    // Open original transient HDF data
-    const std::string basePath = dataRoot + "/Data/" + baseName;
-    vtkNew<vtkHDFReader> baseHDFReader;
-    baseHDFReader->SetFileName(basePath.c_str());
+    std::cerr << "vtkHDFReader can not read file: " << tempPath << std::endl;
+    return false;
+  }
+  HDFReader->SetFileName(tempPath.c_str());
+  HDFReader->Update();
+  // Read the original data from the beginning
+  vtkNew<vtkHDFReader> HDFReaderBaseline;
+  HDFReaderBaseline->SetFileName(basePath.c_str());
+  HDFReaderBaseline->Update();
+  // Make sure both have the same number of timesteps
+  int totalTimeStepsXML = HDFReaderBaseline->GetNumberOfSteps();
+  int totalTimeStepsHDF = HDFReader->GetNumberOfSteps();
+  if (totalTimeStepsXML != totalTimeStepsHDF)
+  {
+    std::cerr << "total time steps in both HDF files do not match: " << totalTimeStepsHDF
+              << " instead of " << totalTimeStepsXML << std::endl;
+    return false;
+  }
 
-    // Write the data to a file using the vtkHDFWriter
-    vtkNew<vtkHDFWriter> HDFWriter;
-    HDFWriter->SetInputConnection(baseHDFReader->GetOutputPort());
-    std::string tempPath = tempDir + "/HDFWriter_";
-    tempPath += baseName + ".vtkhdf";
-    HDFWriter->SetFileName(tempPath.c_str());
-    HDFWriter->SetWriteAllTimeSteps(true);
-    HDFWriter->SetChunkSize(100);
-    HDFWriter->SetCompressionLevel(4);
-    HDFWriter->Write();
-
-    // Read the data just written
-    vtkNew<vtkHDFReader> HDFReader;
-    if (!HDFReader->CanReadFile(tempPath.c_str()))
-    {
-      std::cerr << "vtkHDFReader can not read file: " << tempPath << std::endl;
-      return false;
-    }
-    HDFReader->SetFileName(tempPath.c_str());
-    HDFReader->Update();
-    // Read the original data from the beginning
-    vtkNew<vtkHDFReader> HDFReaderBaseline;
-    HDFReaderBaseline->SetFileName(basePath.c_str());
+  // Compare the data at each timestep from both readers
+  for (int i = 0; i < totalTimeStepsXML; i++)
+  {
+    std::cout << "Comparing timestep " << i << std::endl;
+    HDFReaderBaseline->SetStep(i);
     HDFReaderBaseline->Update();
-    // Make sure both have the same number of timesteps
-    int totalTimeStepsXML = HDFReaderBaseline->GetNumberOfSteps();
-    int totalTimeStepsHDF = HDFReader->GetNumberOfSteps();
-    if (totalTimeStepsXML != totalTimeStepsHDF)
+
+    HDFReader->SetStep(i);
+    HDFReader->Update();
+
+    // Time values must be the same
+    if (HDFReader->GetTimeValue() != HDFReaderBaseline->GetTimeValue())
     {
-      std::cerr << "total time steps in both HDF files do not match: " << totalTimeStepsHDF
-                << " instead of " << totalTimeStepsXML << std::endl;
+      std::cerr << "timestep value does not match : " << HDFReader->GetTimeValue() << " instead of "
+                << HDFReaderBaseline->GetTimeValue() << std::endl;
       return false;
     }
 
-    // Compare the data at each timestep from both readers
-    for (int i = 0; i < totalTimeStepsXML; i++)
+    // Data is either PolyData or UG
+    vtkPolyData* basepolyData = vtkPolyData::SafeDownCast(HDFReaderBaseline->GetOutput());
+    vtkPolyData* hdfpolyData = vtkPolyData::SafeDownCast(HDFReader->GetOutput());
+    if (basepolyData && hdfpolyData)
     {
-      std::cout << "Comparing timestep " << i << std::endl;
-      HDFReaderBaseline->SetStep(i);
-      HDFReaderBaseline->Update();
-
-      HDFReader->SetStep(i);
-      HDFReader->Update();
-
-      // Time values must be the same
-      if (HDFReader->GetTimeValue() != HDFReaderBaseline->GetTimeValue())
+      if (!vtkTestUtilities::CompareDataObjects(hdfpolyData, basepolyData))
       {
-        std::cerr << "timestep value does not match : " << HDFReader->GetTimeValue()
-                  << " instead of " << HDFReaderBaseline->GetTimeValue() << std::endl;
+        std::cerr << "vtkDataset do not match" << std::endl;
         return false;
       }
-
-      // Data is either PolyData or UG
-      vtkPolyData* basepolyData = vtkPolyData::SafeDownCast(HDFReaderBaseline->GetOutput());
-      vtkPolyData* hdfpolyData = vtkPolyData::SafeDownCast(HDFReader->GetOutput());
-      if (basepolyData && hdfpolyData)
+    }
+    else
+    {
+      vtkUnstructuredGrid* baseData =
+        vtkUnstructuredGrid::SafeDownCast(HDFReaderBaseline->GetOutput());
+      vtkUnstructuredGrid* hdfData = vtkUnstructuredGrid::SafeDownCast(HDFReader->GetOutput());
+      if (!vtkTestUtilities::CompareDataObjects(hdfData, baseData))
       {
-        if (!vtkTestUtilities::CompareDataObjects(hdfpolyData, basepolyData))
-        {
-          std::cerr << "vtkDataset do not match" << std::endl;
-          return false;
-        }
-      }
-      else
-      {
-        vtkUnstructuredGrid* baseData =
-          vtkUnstructuredGrid::SafeDownCast(HDFReaderBaseline->GetOutput());
-        vtkUnstructuredGrid* hdfData = vtkUnstructuredGrid::SafeDownCast(HDFReader->GetOutput());
-        if (!vtkTestUtilities::CompareDataObjects(hdfData, baseData))
-        {
-          std::cerr << "vtkDataset do not match" << std::endl;
-          return false;
-        }
+        std::cerr << "vtkDataset do not match" << std::endl;
+        return false;
       }
     }
   }
@@ -118,7 +122,7 @@ bool TestTransientData(const std::string& tempDir, const std::string& dataRoot,
 }
 
 //----------------------------------------------------------------------------
-bool TestTransientStaticMesh(
+bool TestTemporalStaticMesh(
   const std::string& tempDir, const std::string& baseName, int dataSetType)
 {
   /*
@@ -178,7 +182,7 @@ bool TestTransientStaticMesh(
 }
 
 //----------------------------------------------------------------------------
-int TestHDFWriterTransient(int argc, char* argv[])
+int TestHDFWriterTemporal(int argc, char* argv[])
 {
   // Get temporary testing directory
   char* tempDirCStr =
@@ -196,14 +200,23 @@ int TestHDFWriterTransient(int argc, char* argv[])
   }
   std::string dataRoot = testHelper->GetDataRoot();
   bool result = true;
+
   // Run tests : read data, write it, read the written data and compare to the original
   std::vector<std::string> baseNames = { "transient_sphere.hdf", "transient_cube.hdf",
     "transient_harmonics.hdf" };
-  result &= TestTransientData(tempDir, dataRoot, baseNames);
+  std::vector<WriterConfigOptions> configs{ { false, "_NoExternalTime" },
+    { true, "_ExternalTime" } };
+  for (const auto config : configs)
+  {
+    for (const auto fileName : baseNames)
+    {
+      result &= TestTemporalData(tempDir, dataRoot, fileName, config);
+    }
+  }
 
-  result &= TestTransientStaticMesh(
+  result &= TestTemporalStaticMesh(
     tempDir, "transient_static_sphere_ug_source", ::supportedDataSetTypes::vtkUnstructuredGridType);
-  result &= TestTransientStaticMesh(
+  result &= TestTemporalStaticMesh(
     tempDir, "transient_static_sphere_polydata_source", ::supportedDataSetTypes::vtkPolyDataType);
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
