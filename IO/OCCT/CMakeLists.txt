@@ -4,12 +4,25 @@ vtk_module_find_package(PRIVATE_IF_SHARED
   VERSION_VAR "@OpenCASCADE_MAJOR_VERSION@.@OpenCASCADE_MINOR_VERSION@.@OpenCASCADE_MAINTENANCE_VERSION@"
 )
 
-set(opencascade_req_targets
-  TKSTEP
-  TKIGES
-  TKMesh
-  TKXDESTEP
-  TKXDEIGES)
+if (OpenCASCADE_VERSION VERSION_GREATER_EQUAL "7.8.0")
+  set(opencascade_req_targets
+    TKDESTEP
+    TKDEIGES
+    TKernel
+    TKMath
+    TKMesh
+    TKBRep
+    TKXSBase
+    TKLCAF
+    TKXCAF)
+else()
+  set(opencascade_req_targets
+    TKSTEP
+    TKIGES
+    TKMesh
+    TKXDESTEP
+    TKXDEIGES)
+endif()
 set(opencascade_missing_targets)
 foreach (opencascade_req_target IN LISTS opencascade_req_targets)
   if (NOT TARGET "${opencascade_req_target}")
@@ -35,8 +48,7 @@ vtk_module_link(VTK::IOOCCT
     ${opencascade_req_targets})
 
 # OpenCASCADE started putting include directory usage requirements in 7.7.0.
-set(OpenCASCADE_VERSION
-  "${OpenCASCADE_MAJOR_VERSION}.${OpenCASCADE_MINOR_VERSION}.${OpenCASCADE_MAINTENANCE_VERSION}")
+
 if (OpenCASCADE_VERSION VERSION_LESS "7.7.0")
   vtk_module_include(VTK::IOOCCT PRIVATE "${OpenCASCADE_INCLUDE_DIR}")
 endif ()
