@@ -242,9 +242,9 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         }
         else
         {
-          // Otherwise remove leading whitespaces
+          // Otherwise remove leading blankspaces
           result = parser->DiscardUntil(
-            [](char c) { return !std::isspace(static_cast<unsigned char>(c)); });
+            [](char c) { return !std::isblank(static_cast<unsigned char>(c)); });
           if (result != vtkParseResult::Ok)
           {
             continue;
