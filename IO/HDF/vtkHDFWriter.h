@@ -19,6 +19,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataObjectTree;
 class vtkDataSet;
+class vtkPoints;
 class vtkPointSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
@@ -159,17 +160,19 @@ private:
    * Initialize the `Steps` group for transient data, and extendable datasets where needed.
    * This way, the other functions will append to existing datasets every step.
    */
-  bool InitializeTemporalData(vtkUnstructuredGrid* input);
-  bool InitializeTemporalData(vtkPolyData* input);
+  bool InitializeTemporalPolyData();
+  bool InitializeTemporalUnstructuredGrid();
   ///@}
 
   ///@{
   /**
-   * Initialize empty dymanic datasets in use for partitioned data types.
+   * Initialize empty dynamic chunked datasets where data will be appended.
    * These datasets will be extended when a new partition is written.
    */
-  bool InitializePartitionedData(hid_t group, vtkUnstructuredGrid* input);
-  bool InitializePartitionedData(hid_t group, vtkPolyData* input);
+  bool InitializeChunkedDatasets(hid_t group, vtkUnstructuredGrid* input);
+  bool InitializeChunkedDatasets(hid_t group, vtkPolyData* input);
+  bool InitializePointDatasets(hid_t group, vtkPoints* input);
+  bool InitializePrimitiveDataset(hid_t group);
   ///@}
 
   /**
@@ -259,8 +262,8 @@ private:
   /**
    * Append the offset data in the steps group for the current array for transient data
    */
-  bool AppendTemporalDataArray(hid_t arrayGroup, vtkAbstractArray* array, const char* arrayName,
-    const char* offsetsGroupName, hid_t dataType);
+  bool AppendDataArrayOffset(
+    vtkAbstractArray* array, const char* arrayName, const char* offsetsGroupName);
 
   /**
    * Write the NSteps attribute and the Value dataset to group for transient writing.
@@ -291,7 +294,6 @@ private:
   // Temporal-related private variables
   double* timeSteps = nullptr;
   bool IsTemporal = false;
-  bool IsPartitioned = false;
   int CurrentTimeIndex = 0;
   int NumberOfTimeSteps = 0;
   vtkMTimeType PreviousStepMeshMTime = 0;
