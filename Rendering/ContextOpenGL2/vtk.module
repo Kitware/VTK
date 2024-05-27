@@ -25,3 +25,4 @@ PRIVATE_DEPENDS
   VTK::ImagingCore
   VTK::glew
   VTK::opengl
+INCLUDE_MARSHAL

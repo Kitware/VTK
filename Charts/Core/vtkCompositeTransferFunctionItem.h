@@ -6,13 +6,15 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkColorTransferFunctionItem.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 
 // Description:
 // vtkPlot::Color and vtkPlot::Brush have no effect here.
-class VTKCHARTSCORE_EXPORT vtkCompositeTransferFunctionItem : public vtkColorTransferFunctionItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkCompositeTransferFunctionItem
+  : public vtkColorTransferFunctionItem
 {
 public:
   static vtkCompositeTransferFunctionItem* New();

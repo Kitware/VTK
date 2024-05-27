@@ -6,13 +6,14 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 class vtkImageData;
 
 /// vtkPiecewiseFunctionItem internal uses vtkPlot::Color, white by default
-class VTKCHARTSCORE_EXPORT vtkPiecewiseFunctionItem : public vtkScalarsToColorsItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPiecewiseFunctionItem : public vtkScalarsToColorsItem
 {
 public:
   static vtkPiecewiseFunctionItem* New();

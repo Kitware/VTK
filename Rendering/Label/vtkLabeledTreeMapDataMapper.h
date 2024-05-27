@@ -30,6 +30,7 @@
 
 #include "vtkLabeledDataMapper.h"
 #include "vtkRenderingLabelModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
@@ -39,7 +40,8 @@ class vtkFloatArray;
 class vtkStringArray;
 class vtkIdList;
 
-class VTKRENDERINGLABEL_EXPORT vtkLabeledTreeMapDataMapper : public vtkLabeledDataMapper
+class VTKRENDERINGLABEL_EXPORT VTK_MARSHALAUTO vtkLabeledTreeMapDataMapper
+  : public vtkLabeledDataMapper
 {
 public:
   static vtkLabeledTreeMapDataMapper* New();

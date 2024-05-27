@@ -50,6 +50,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
 
@@ -62,7 +63,7 @@ class vtkViewport;
 #define VTK_WORLD 6
 #define VTK_USERDEFINED 7
 
-class VTKRENDERINGCORE_EXPORT vtkCoordinate : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCoordinate : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCoordinate, vtkObject);

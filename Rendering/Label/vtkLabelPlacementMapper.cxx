@@ -582,7 +582,6 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
   // Compute frustum for excluding labels that are outside the visible region.
   double frustumPlanes[24];
   vtkLabelHierarchy::GetAnchorFrustumPlanes(frustumPlanes, ren, this->AnchorTransform);
-
   unsigned long allowableLabelArea = static_cast<unsigned long>(
     ((kdbounds[1] - kdbounds[0]) * (kdbounds[3] - kdbounds[2])) * this->MaximumLabelFraction);
   (void)allowableLabelArea;

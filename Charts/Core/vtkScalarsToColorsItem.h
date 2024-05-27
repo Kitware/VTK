@@ -21,6 +21,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h"              // For vtkNew
 #include "vtkPlot.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
@@ -28,7 +29,7 @@ class vtkImageData;
 class vtkPlotBar;
 class vtkPoints2D;
 
-class VTKCHARTSCORE_EXPORT vtkScalarsToColorsItem : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkScalarsToColorsItem : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkScalarsToColorsItem, vtkPlot);

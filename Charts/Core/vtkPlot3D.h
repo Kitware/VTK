@@ -17,10 +17,11 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkNew.h"          // Needed to hold vtkNew ivars
-#include "vtkSmartPointer.h" // Needed to hold SP ivars
-#include "vtkVector.h"       // For Points ivar
-#include <vector>            // For ivars
+#include "vtkNew.h"           // Needed to hold vtkNew ivars
+#include "vtkSmartPointer.h"  // Needed to hold SP ivars
+#include "vtkVector.h"        // For Points ivar
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <vector>             // For ivars
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkChartXYZ;
@@ -31,7 +32,7 @@ class vtkTable;
 class vtkUnsignedCharArray;
 class vtkPen;
 
-class VTKCHARTSCORE_EXPORT vtkPlot3D : public vtkContextItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlot3D : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPlot3D, vtkContextItem);

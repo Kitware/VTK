@@ -15,11 +15,12 @@
 
 #include "vtkRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkClearZPass : public vtkRenderPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkClearZPass : public vtkRenderPass
 {
 public:
   static vtkClearZPass* New();

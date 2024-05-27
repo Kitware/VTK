@@ -14,6 +14,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
@@ -21,7 +22,7 @@ class vtkOpenGLRenderWindow;
 class vtkOpenGLTexture;
 class vtkRenderWindow;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkPBRLUTTexture : public vtkOpenGLTexture
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkPBRLUTTexture : public vtkOpenGLTexture
 {
 public:
   static vtkPBRLUTTexture* New();

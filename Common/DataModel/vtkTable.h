@@ -42,6 +42,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
@@ -49,7 +50,7 @@ class vtkDataSetAttributes;
 class vtkVariant;
 class vtkVariantArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkTable : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkTable : public vtkDataObject
 {
 public:
   static vtkTable* New();

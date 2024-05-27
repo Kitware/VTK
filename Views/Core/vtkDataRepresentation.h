@@ -36,6 +36,7 @@
 
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkViewsCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"   // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
@@ -48,7 +49,7 @@ class vtkTrivialProducer;
 class vtkView;
 class vtkViewTheme;
 
-class VTKVIEWSCORE_EXPORT vtkDataRepresentation : public vtkPassInputTypeAlgorithm
+class VTKVIEWSCORE_EXPORT VTK_MARSHALAUTO vtkDataRepresentation : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkDataRepresentation* New();

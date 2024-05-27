@@ -22,6 +22,7 @@
 #include "vtkRect.h"           // For vtkRectd ivar
 #include "vtkSmartPointer.h"   // Needed to hold SP ivars
 #include "vtkStdString.h"      // Needed to hold TooltipLabelFormat ivar
+#include "vtkWrappingHints.h"  // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkVariant;
@@ -34,7 +35,7 @@ class vtkAxis;
 class vtkStringArray;
 class vtkAlgorithmOutput;
 
-class VTKCHARTSCORE_EXPORT vtkPlot : public vtkContextItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlot : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPlot, vtkContextItem);
@@ -128,18 +129,22 @@ public:
   /**
    * Set the plot color with integer values (comprised between 0 and 255)
    */
+  VTK_MARSHALSETTER(ColorRGBA)
   virtual void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
   ///@{
   /**
    * Set the plot color with floating values (comprised between 0.0 and 1.0)
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetColorF(double r, double g, double b, double a);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetColorF(double r, double g, double b);
 
   // If removed, please remplace it with the following function:
   // SetColor(unsigned char r, unsigned char g, unsigned char b)
   // here and in the inheriting classes overriding it
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   VTK_DEPRECATED_IN_9_3_0("Please use unambiguous SetColorF method instead.")
   virtual void SetColor(double r, double g, double b) { this->SetColorF(r, g, b); }
   ///@}
@@ -149,6 +154,7 @@ public:
    * Get the plot color as integer rgb values (comprised between 0 and 255)
    */
   void GetColor(unsigned char rgb[3]);
+  VTK_MARSHALGETTER(ColorRGBA)
   void GetColorRGBA(unsigned char rgba[4]);
   ///@}
 
@@ -156,9 +162,11 @@ public:
   /**
    * Get the plot color as floating rgb values (comprised between 0.0 and 1.0)
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void GetColorF(double rgb[3]);
 
   // If removed, please make GetColor(unsigned char rgb[3]) virtual
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   VTK_DEPRECATED_IN_9_3_0("Please use unambiguous GetColorF method instead.")
   virtual void GetColor(double rgb[3]) { this->GetColorF(rgb); }
   ///@
@@ -277,6 +285,7 @@ public:
    * This is a convenience function to set the input table and the x, y column
    * for the plot.
    */
+  VTK_MARSHALSETTER(Input)
   virtual void SetInputData(vtkTable* table);
   virtual void SetInputData(
     vtkTable* table, const vtkStdString& xColumn, const vtkStdString& yColumn);
@@ -287,17 +296,20 @@ public:
   /**
    * This is a convenience function to set the input connection for the plot.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL);
   virtual void SetInputConnection(vtkAlgorithmOutput* input);
   ///@}
 
   /**
    * Get the input table used by the plot.
    */
+  VTK_MARSHALGETTER(Input)
   virtual vtkTable* GetInput();
 
   /**
    * Get the input connection used by the plot.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL);
   vtkAlgorithmOutput* GetInputConnection();
 
   /**

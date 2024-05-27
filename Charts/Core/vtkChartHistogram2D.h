@@ -15,6 +15,7 @@
 #include "vtkChartXY.h"
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"     // For SP ivars
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkColorLegend;
@@ -22,7 +23,7 @@ class vtkPlotHistogram2D;
 class vtkImageData;
 class vtkScalarsToColors;
 
-class VTKCHARTSCORE_EXPORT vtkChartHistogram2D : public vtkChartXY
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChartHistogram2D : public vtkChartXY
 {
 public:
   vtkTypeMacro(vtkChartHistogram2D, vtkChartXY);

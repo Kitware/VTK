@@ -22,6 +22,7 @@
 #include "vtkCommand.h"          // For vtkCommand enum
 #include "vtkSmartPointer.h"     // For SmartPointer
 #include "vtkVector.h"           // For vtkVector2f
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 #include <string>                // Used by GetControlPointLabel
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -32,7 +33,7 @@ class vtkPiecewisePointHandleItem;
 class vtkPoints2D;
 class vtkTransform2D;
 
-class VTKCHARTSCORE_EXPORT vtkControlPointsItem : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkControlPointsItem : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkControlPointsItem, vtkPlot);

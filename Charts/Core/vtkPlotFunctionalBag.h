@@ -23,6 +23,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h"              // Needed to hold SP ivars
 #include "vtkPlot.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
@@ -31,7 +32,7 @@ class vtkPlotLine;
 class vtkPoints2D;
 class vtkScalarsToColors;
 
-class VTKCHARTSCORE_EXPORT vtkPlotFunctionalBag : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotFunctionalBag : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotFunctionalBag, vtkPlot);

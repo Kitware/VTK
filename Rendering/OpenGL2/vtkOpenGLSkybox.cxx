@@ -18,8 +18,6 @@
 #include "vtkShaderProgram.h"
 #include "vtkTexture.h"
 
-#include <cmath>
-
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLSkybox);
 
@@ -64,9 +62,6 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
     false // only do it once
   );
 
-  this->CubeMapper->AddObserver(
-    vtkCommand::UpdateShaderEvent, this, &vtkOpenGLSkybox::UpdateUniforms);
-
   this->LastProjection = -1;
   this->LastGammaCorrect = false;
 
@@ -79,10 +74,15 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
 
 vtkOpenGLSkybox::~vtkOpenGLSkybox() = default;
 
+void vtkOpenGLSkybox::SetMapper(vtkMapper* mapper)
+{
+  this->Superclass::SetMapper(mapper);
+  mapper->AddObserver(vtkCommand::UpdateShaderEvent, this, &vtkOpenGLSkybox::UpdateUniforms);
+}
+
 void vtkOpenGLSkybox::UpdateUniforms(vtkObject*, unsigned long, void* calldata)
 {
   vtkShaderProgram* program = reinterpret_cast<vtkShaderProgram*>(calldata);
-
   program->SetUniform3f("cameraPos", this->LastCameraPosition);
   float plane[4];
   double norm = vtkMath::Norm(this->FloorPlane, 3);
@@ -222,6 +222,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
     sp->SetFragmentShaderCode(str.c_str());
 
     this->CubeMapper->Modified();
+    mapper->Modified();
     this->LastProjection = this->Projection;
     this->LastGammaCorrect = this->GammaCorrect;
   }

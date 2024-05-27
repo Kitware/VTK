@@ -32,6 +32,7 @@
 #include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // for ivars
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 #include <vector>                      // STL Header
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -42,7 +43,7 @@ class vtkLight;
 class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapBakerPass : public vtkOpenGLRenderPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkShadowMapBakerPass : public vtkOpenGLRenderPass
 {
 public:
   static vtkShadowMapBakerPass* New();

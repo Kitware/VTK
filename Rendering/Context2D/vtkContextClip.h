@@ -17,9 +17,10 @@
 #include "vtkAbstractContextItem.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkSmartPointer.h"             // Needed for SP ivars.
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCONTEXT2D_EXPORT vtkContextClip : public vtkAbstractContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkContextClip : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkContextClip, vtkAbstractContextItem);

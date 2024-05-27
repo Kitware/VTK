@@ -13,13 +13,14 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkTexture.h"
-#include "vtkWeakPointer.h" // needed for vtkWeakPointer.
+#include "vtkWeakPointer.h"   // needed for vtkWeakPointer.
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkTextureObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTexture : public vtkTexture
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLTexture : public vtkTexture
 {
 public:
   static vtkOpenGLTexture* New();
@@ -71,7 +72,9 @@ public:
   vtkSetMacro(TextureType, int);
   ///@}
 
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkGetObjectMacro(TextureObject, vtkTextureObject);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetTextureObject(vtkTextureObject*);
 
   /**

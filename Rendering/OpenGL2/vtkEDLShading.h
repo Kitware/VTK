@@ -34,14 +34,14 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkDepthImageProcessingPass.h"
 #include "vtkOpenGLHelper.h"           // used for ivars
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkSmartPointer.h"           // needed for vtkSmartPointer
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkEDLShading : public vtkDepthImageProcessingPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkEDLShading : public vtkDepthImageProcessingPass
 {
 public:
   static vtkEDLShading* New();

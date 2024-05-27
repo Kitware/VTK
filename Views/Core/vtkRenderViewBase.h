@@ -20,6 +20,7 @@
 #include "vtkSmartPointer.h" // For SP ivars
 #include "vtkView.h"
 #include "vtkViewsCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"   // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInteractorObserver;
@@ -27,7 +28,7 @@ class vtkRenderer;
 class vtkRenderWindow;
 class vtkRenderWindowInteractor;
 
-class VTKVIEWSCORE_EXPORT vtkRenderViewBase : public vtkView
+class VTKVIEWSCORE_EXPORT VTK_MARSHALAUTO vtkRenderViewBase : public vtkView
 {
 public:
   static vtkRenderViewBase* New();

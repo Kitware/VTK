@@ -20,12 +20,13 @@
 
 #include "vtkImageMapper3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkPoints;
 
-class VTKRENDERINGCORE_EXPORT vtkImageSliceMapper : public vtkImageMapper3D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkImageSliceMapper : public vtkImageMapper3D
 {
 public:
   static vtkImageSliceMapper* New();

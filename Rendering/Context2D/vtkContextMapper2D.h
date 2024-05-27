@@ -16,6 +16,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
@@ -23,7 +24,7 @@ class vtkTable;
 class vtkDataArray;
 class vtkAbstractArray;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkContextMapper2D : public vtkAlgorithm
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkContextMapper2D : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkContextMapper2D, vtkAlgorithm);

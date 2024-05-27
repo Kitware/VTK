@@ -16,13 +16,15 @@
 
 #include "vtkImageSliceMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkOpenGLRenderWindow;
 class vtkActor;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLImageSliceMapper : public vtkImageSliceMapper
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLImageSliceMapper
+  : public vtkImageSliceMapper
 {
 public:
   static vtkOpenGLImageSliceMapper* New();

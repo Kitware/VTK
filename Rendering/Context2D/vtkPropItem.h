@@ -16,11 +16,12 @@
 
 #include "vtkAbstractContextItem.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkPropItem : public vtkAbstractContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkPropItem : public vtkAbstractContextItem
 {
 public:
   static vtkPropItem* New();

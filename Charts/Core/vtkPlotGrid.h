@@ -17,13 +17,14 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkPoints2D;
 class vtkAxis;
 
-class VTKCHARTSCORE_EXPORT vtkPlotGrid : public vtkContextItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotGrid : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPlotGrid, vtkContextItem);

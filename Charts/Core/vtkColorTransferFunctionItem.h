@@ -6,6 +6,7 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkColorTransferFunction;
@@ -14,7 +15,8 @@ class vtkImageData;
 // Description:
 // vtkPlot::Color, vtkPlot::Brush, vtkScalarsToColors::DrawPolyLine,
 // vtkScalarsToColors::MaskAboveCurve have no effect here.
-class VTKCHARTSCORE_EXPORT vtkColorTransferFunctionItem : public vtkScalarsToColorsItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkColorTransferFunctionItem
+  : public vtkScalarsToColorsItem
 {
 public:
   static vtkColorTransferFunctionItem* New();

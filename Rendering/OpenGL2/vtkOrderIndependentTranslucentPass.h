@@ -16,6 +16,7 @@
 
 #include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
@@ -24,7 +25,8 @@ class vtkOpenGLRenderWindow;
 class vtkOpenGLState;
 class vtkOpenGLQuadHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOrderIndependentTranslucentPass : public vtkOpenGLRenderPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOrderIndependentTranslucentPass
+  : public vtkOpenGLRenderPass
 {
 public:
   static vtkOrderIndependentTranslucentPass* New();

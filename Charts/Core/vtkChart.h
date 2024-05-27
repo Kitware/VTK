@@ -14,10 +14,11 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkContextScene.h" // For SelectionModifier
-#include "vtkRect.h"         // For vtkRectf
-#include "vtkSmartPointer.h" // For SP ivars
-#include "vtkStdString.h"    // For vtkStdString ivars
+#include "vtkContextScene.h"  // For SelectionModifier
+#include "vtkRect.h"          // For vtkRectf
+#include "vtkSmartPointer.h"  // For SP ivars
+#include "vtkStdString.h"     // For vtkStdString ivars
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform2D;
@@ -31,7 +32,7 @@ class vtkChartLegend;
 class vtkInteractorStyle;
 class vtkAnnotationLink;
 
-class VTKCHARTSCORE_EXPORT vtkChart : public vtkContextItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChart : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChart, vtkContextItem);
@@ -113,11 +114,13 @@ public:
    * this method performs a linear search to locate the plot.
    */
   virtual bool RemovePlotInstance(vtkPlot* plot);
+  bool RemovePlot(vtkPlot* plot) { return this->RemovePlotInstance(plot); }
 
   /**
    * Remove all plots from the chart.
    */
   virtual void ClearPlots();
+  void RemoveAllPlots() { this->ClearPlots(); }
 
   /**
    * Get the plot at the specified index, returns null if the index is invalid.

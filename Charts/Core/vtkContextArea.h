@@ -34,13 +34,14 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h"              // For vtkNew
 #include "vtkRect.h"             // For vtkRect/vtkVector/vtkTuple
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContextClip;
 class vtkContextTransform;
 class vtkPlotGrid;
 
-class VTKCHARTSCORE_EXPORT vtkContextArea : public vtkAbstractContextItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkContextArea : public vtkAbstractContextItem
 {
 public:
   typedef vtkTuple<int, 4> Margins;

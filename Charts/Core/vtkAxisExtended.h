@@ -19,10 +19,11 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkVector.h" // Needed for vtkVector
+#include "vtkVector.h"        // Needed for vtkVector
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCHARTSCORE_EXPORT vtkAxisExtended : public vtkObject
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkAxisExtended : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAxisExtended, vtkObject);

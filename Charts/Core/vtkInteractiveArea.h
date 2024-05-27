@@ -13,13 +13,14 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextArea.h"
-#include "vtkNew.h" // For vtkNew
+#include "vtkNew.h"           // For vtkNew
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContextTransform;
 class vtkRectd;
 
-class VTKCHARTSCORE_EXPORT vtkInteractiveArea : public vtkContextArea
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkInteractiveArea : public vtkContextArea
 {
 public:
   vtkTypeMacro(vtkInteractiveArea, vtkContextArea);

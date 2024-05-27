@@ -16,6 +16,7 @@
 #include "vtkProp.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkSmartPointer.h"             // For ivars
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
@@ -23,7 +24,7 @@ class vtkContext3D;
 class vtkContextDevice2D;
 class vtkContextScene;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkContextActor : public vtkProp
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkContextActor : public vtkProp
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;

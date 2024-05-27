@@ -21,13 +21,14 @@
 
 #include "vtkMapper2D.h"
 #include "vtkRenderingLabelModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCoordinate;
 class vtkLabelRenderStrategy;
 class vtkSelectVisiblePoints;
 
-class VTKRENDERINGLABEL_EXPORT vtkLabelPlacementMapper : public vtkMapper2D
+class VTKRENDERINGLABEL_EXPORT VTK_MARSHALAUTO vtkLabelPlacementMapper : public vtkMapper2D
 {
 public:
   static vtkLabelPlacementMapper* New();

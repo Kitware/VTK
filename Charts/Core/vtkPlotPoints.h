@@ -24,6 +24,7 @@
 #include "vtkRenderingCoreEnums.h" // For marker enum
 #include "vtkScalarsToColors.h"    // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"          // For color array name
+#include "vtkWrappingHints.h"      // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCharArray;
@@ -35,7 +36,7 @@ class vtkImageData;
 class vtkScalarsToColors;
 class vtkUnsignedCharArray;
 
-class VTKCHARTSCORE_EXPORT vtkPlotPoints : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotPoints : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotPoints, vtkPlot);

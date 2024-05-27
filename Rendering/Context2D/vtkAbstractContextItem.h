@@ -17,6 +17,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
@@ -26,7 +27,7 @@ class vtkContextScene;
 class vtkContextScenePrivate;
 class vtkVector2f;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkAbstractContextItem : public vtkObject
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkAbstractContextItem : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractContextItem, vtkObject);
@@ -60,6 +61,7 @@ public:
    * Add child items to this item. Increments reference count of item.
    * \return the index of the child item.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkIdType AddItem(vtkAbstractContextItem* item);
 
   /**
@@ -67,6 +69,7 @@ public:
    * \param item the item to be removed.
    * \return true on success, false otherwise.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   bool RemoveItem(vtkAbstractContextItem* item);
 
   /**
@@ -80,6 +83,7 @@ public:
    * Get the item at the specified index.
    * \return the item at the specified index (null if index is invalid).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkAbstractContextItem* GetItem(vtkIdType index);
 
   /**

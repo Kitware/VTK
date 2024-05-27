@@ -13,7 +13,8 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
-#include "vtkSmartPointer.h" // To hold ColorSeries etc.
+#include "vtkSmartPointer.h"  // To hold ColorSeries etc.
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
@@ -22,7 +23,7 @@ class vtkPoints2D;
 
 class vtkPlotPiePrivate;
 
-class VTKCHARTSCORE_EXPORT vtkPlotPie : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotPie : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotPie, vtkPlot);

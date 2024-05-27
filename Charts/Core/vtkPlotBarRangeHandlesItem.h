@@ -21,10 +21,12 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlotBar.h"          // User defined plotbar
 #include "vtkPlotRangeHandlesItem.h"
-#include "vtkSmartPointer.h" // Needed for vtkSmartPointer attribute
+#include "vtkSmartPointer.h"  // Needed for vtkSmartPointer attribute
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCHARTSCORE_EXPORT vtkPlotBarRangeHandlesItem : public vtkPlotRangeHandlesItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotBarRangeHandlesItem
+  : public vtkPlotRangeHandlesItem
 {
 public:
   vtkTypeMacro(vtkPlotBarRangeHandlesItem, vtkPlotRangeHandlesItem);

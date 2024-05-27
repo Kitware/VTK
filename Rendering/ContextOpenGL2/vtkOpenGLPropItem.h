@@ -18,11 +18,12 @@
 #include "vtkNew.h" // for vtkNew
 #include "vtkPropItem.h"
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"                 // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 
-class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLPropItem : public vtkPropItem
+class VTKRENDERINGCONTEXTOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLPropItem : public vtkPropItem
 {
 public:
   static vtkOpenGLPropItem* New();

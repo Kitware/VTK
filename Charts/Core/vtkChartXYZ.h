@@ -14,12 +14,13 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkColor.h"            // For vtkColor4ub
 #include "vtkContextItem.h"
-#include "vtkNew.h"          // For ivars
-#include "vtkRect.h"         // For vtkRectf ivars
-#include "vtkSmartPointer.h" // For ivars
-#include "vtkStdString.h"    // For vtkStdString
-#include "vtkTextProperty.h" // For axes text properties
-#include <vector>            // For ivars
+#include "vtkNew.h"           // For ivars
+#include "vtkRect.h"          // For vtkRectf ivars
+#include "vtkSmartPointer.h"  // For ivars
+#include "vtkStdString.h"     // For vtkStdString
+#include "vtkTextProperty.h"  // For axes text properties
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <vector>             // For ivars
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAnnotationLink;
@@ -33,7 +34,7 @@ class vtkTable;
 class vtkTransform;
 class vtkUnsignedCharArray;
 
-class VTKCHARTSCORE_EXPORT vtkChartXYZ : public vtkContextItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChartXYZ : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChartXYZ, vtkContextItem);

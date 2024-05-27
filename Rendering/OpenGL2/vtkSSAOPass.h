@@ -19,6 +19,7 @@
 
 #include "vtkImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 #include "vtkTextureObject.h" // For texture format enum
 
@@ -29,7 +30,7 @@ class vtkMatrix4x4;
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLQuadHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkSSAOPass : public vtkImageProcessingPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkSSAOPass : public vtkImageProcessingPass
 {
 public:
   static vtkSSAOPass* New();

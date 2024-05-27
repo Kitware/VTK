@@ -14,12 +14,13 @@
 #include "vtkNew.h"                    // for ivars
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSkybox.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLSkybox : public vtkSkybox
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLSkybox : public vtkSkybox
 {
 public:
   static vtkOpenGLSkybox* New();
@@ -30,6 +31,12 @@ public:
    * Actual Skybox render method.
    */
   void Render(vtkRenderer* ren, vtkMapper* mapper) override;
+
+  /**
+   * Installs an observer on the mapper UpdateShaderEvent
+   * that updates uniform values.
+   */
+  void SetMapper(vtkMapper* mapper) override;
 
 protected:
   vtkOpenGLSkybox();

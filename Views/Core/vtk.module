@@ -26,3 +26,4 @@ PRIVATE_DEPENDS
   VTK::FiltersGeneral
   VTK::RenderingCore
   VTK::RenderingUI
+INCLUDE_MARSHAL

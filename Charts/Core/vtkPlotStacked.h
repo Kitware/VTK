@@ -15,6 +15,7 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkChartXY;
@@ -27,7 +28,7 @@ class vtkColorSeries;
 
 class vtkPlotStackedPrivate;
 
-class VTKCHARTSCORE_EXPORT vtkPlotStacked : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotStacked : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotStacked, vtkPlot);

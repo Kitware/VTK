@@ -14,6 +14,7 @@
 
 #include "vtkRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 #include <string> // For std::string
 
@@ -24,7 +25,7 @@ class vtkProp;
 class vtkShaderProgram;
 class vtkOpenGLVertexArrayObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderPass : public vtkRenderPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLRenderPass : public vtkRenderPass
 {
 public:
   vtkTypeMacro(vtkOpenGLRenderPass, vtkRenderPass);

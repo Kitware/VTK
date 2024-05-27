@@ -14,11 +14,16 @@
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkImageProcessingPass developers.
-//#define VTK_IMAGE_PROCESSING_PASS_DEBUG
+// #define VTK_IMAGE_PROCESSING_PASS_DEBUG
+
+#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
+#include "vtkImageImport.h"
+#include "vtkPNGWriter.h"
+#include "vtkPixelBufferObject.h"
+#endif
 
 #include "vtkCamera.h"
 #include "vtkMath.h"
-#include "vtkPixelBufferObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkImageProcessingPass, DelegatePass, vtkRenderPass);

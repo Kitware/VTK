@@ -21,6 +21,7 @@
 
 #include "vtkImageSlice.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
@@ -28,7 +29,7 @@ class vtkPropCollection;
 class vtkRenderer;
 class vtkImageData;
 
-class VTKRENDERINGCORE_EXPORT vtkImageActor : public vtkImageSlice
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkImageActor : public vtkImageSlice
 {
 public:
   vtkTypeMacro(vtkImageActor, vtkImageSlice);

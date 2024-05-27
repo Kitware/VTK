@@ -27,6 +27,7 @@
 
 #include "vtkDepthImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDepthPeelingPassLayerList; // Pimpl
@@ -35,7 +36,8 @@ class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkDepthOfFieldPass : public vtkDepthImageProcessingPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkDepthOfFieldPass
+  : public vtkDepthImageProcessingPass
 {
 public:
   static vtkDepthOfFieldPass* New();

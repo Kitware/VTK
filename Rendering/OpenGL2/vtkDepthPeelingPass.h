@@ -40,6 +40,7 @@
 
 #include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 #include <vector>                      // STL Header
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -49,7 +50,7 @@ class vtkOpenGLRenderWindow;
 class vtkOpenGLState;
 class vtkOpenGLQuadHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkDepthPeelingPass : public vtkOpenGLRenderPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkDepthPeelingPass : public vtkOpenGLRenderPass
 {
 public:
   static vtkDepthPeelingPass* New();

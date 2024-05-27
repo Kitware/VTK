@@ -15,6 +15,7 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBrush;
@@ -23,7 +24,7 @@ class vtkTable;
 class vtkStdString;
 class vtkScalarsToColors;
 
-class VTKCHARTSCORE_EXPORT vtkPlotBox : public vtkPlot
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotBox : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotBox, vtkPlot);

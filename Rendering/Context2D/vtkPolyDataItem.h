@@ -14,12 +14,13 @@
 
 #include "vtkContextItem.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkUnsignedCharArray;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkPolyDataItem : public vtkContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkPolyDataItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPolyDataItem, vtkContextItem);

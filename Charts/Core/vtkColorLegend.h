@@ -16,6 +16,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"     // For SP ivars
 #include "vtkVector.h"           // For vtkRectf
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAxis;
@@ -24,7 +25,7 @@ class vtkImageData;
 class vtkScalarsToColors;
 class vtkCallbackCommand;
 
-class VTKCHARTSCORE_EXPORT vtkColorLegend : public vtkChartLegend
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkColorLegend : public vtkChartLegend
 {
 public:
   vtkTypeMacro(vtkColorLegend, vtkChartLegend);

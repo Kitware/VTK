@@ -19,6 +19,7 @@
 
 #include "vtkDepthImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
@@ -26,7 +27,8 @@ class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkSimpleMotionBlurPass : public vtkDepthImageProcessingPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkSimpleMotionBlurPass
+  : public vtkDepthImageProcessingPass
 {
 public:
   static vtkSimpleMotionBlurPass* New();

@@ -38,6 +38,7 @@
 
 #include "vtkMapper2D.h"
 #include "vtkRenderingLabelModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 #include <cassert> // For assert macro
 
@@ -56,7 +57,7 @@ class vtkTransform;
 #define VTK_LABEL_TENSORS 5
 #define VTK_LABEL_FIELD_DATA 6
 
-class VTKRENDERINGLABEL_EXPORT vtkLabeledDataMapper : public vtkMapper2D
+class VTKRENDERINGLABEL_EXPORT VTK_MARSHALAUTO vtkLabeledDataMapper : public vtkMapper2D
 {
 public:
   /**

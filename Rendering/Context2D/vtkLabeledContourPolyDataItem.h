@@ -16,6 +16,7 @@
 #include "vtkRect.h"                     // For vtkRect/vtkVector/vtkTuple
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkSmartPointer.h"             // For vtkSmartPointer
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -27,7 +28,8 @@ class vtkTextProperty;
 class vtkTextPropertyCollection;
 struct PDILabelHelper;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkLabeledContourPolyDataItem : public vtkPolyDataItem
+class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkLabeledContourPolyDataItem
+  : public vtkPolyDataItem
 {
 public:
   vtkTypeMacro(vtkLabeledContourPolyDataItem, vtkPolyDataItem);

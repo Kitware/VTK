@@ -25,11 +25,12 @@
 #include "vtkNew.h"                    // For vtkNew
 #include "vtkOpenGLFXAAFilter.h"       // For vtkOpenGLFXAAFilter
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFXAAOptions;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFXAAPass : public vtkImageProcessingPass
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLFXAAPass : public vtkImageProcessingPass
 {
 public:
   static vtkOpenGLFXAAPass* New();

@@ -26,11 +26,12 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlotRangeHandlesItem.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkColorTransferFunction;
 
-class VTKCHARTSCORE_EXPORT vtkRangeHandlesItem : public vtkPlotRangeHandlesItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkRangeHandlesItem : public vtkPlotRangeHandlesItem
 {
 public:
   vtkTypeMacro(vtkRangeHandlesItem, vtkPlotRangeHandlesItem);

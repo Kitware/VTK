@@ -20,12 +20,14 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkColorTransferControlPointsItem.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 class vtkPiecewisePointHandleItem;
 
-class VTKCHARTSCORE_EXPORT vtkCompositeControlPointsItem : public vtkColorTransferControlPointsItem
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkCompositeControlPointsItem
+  : public vtkColorTransferControlPointsItem
 {
 public:
   vtkTypeMacro(vtkCompositeControlPointsItem, vtkColorTransferControlPointsItem);

@@ -21,9 +21,10 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlotPoints3D.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCHARTSCORE_EXPORT vtkPlotLine3D : public vtkPlotPoints3D
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotLine3D : public vtkPlotPoints3D
 {
 public:
   vtkTypeMacro(vtkPlotLine3D, vtkPlotPoints3D);

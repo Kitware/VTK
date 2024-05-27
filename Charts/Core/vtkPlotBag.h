@@ -23,11 +23,12 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlotPoints.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPen;
 
-class VTKCHARTSCORE_EXPORT vtkPlotBag : public vtkPlotPoints
+class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotBag : public vtkPlotPoints
 {
 public:
   vtkTypeMacro(vtkPlotBag, vtkPlotPoints);
