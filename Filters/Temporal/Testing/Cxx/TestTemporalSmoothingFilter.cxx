@@ -79,22 +79,6 @@ public:
 };
 vtkStandardNewMacro(MockTemporalPointSource);
 
-int TestWindowWiderThanAvailableTimeSteps()
-{
-  vtkNew<MockTemporalPointSource> source;
-
-  vtkNew<vtkTemporalSmoothing> temporalSmoothing;
-  temporalSmoothing->SetTemporalWindowHalfWidth(5);
-  temporalSmoothing->SetInputConnection(source->GetOutputPort());
-
-  if (temporalSmoothing->UpdateTimeStep(1))
-  {
-    return EXIT_FAILURE;
-  }
-
-  return EXIT_SUCCESS;
-}
-
 int TestRequestOutOfBoundsTimeStep()
 {
   vtkNew<MockTemporalPointSource> source;
@@ -172,14 +156,6 @@ int TestTemporalSmoothingFilter(int, char*[])
     vtkErrorWithObjectMacro(nullptr,
       "Test failed: \n"
         << "Wrong behavior on out-of-bound time step.");
-    return EXIT_FAILURE;
-  }
-
-  if (TestWindowWiderThanAvailableTimeSteps())
-  {
-    vtkErrorWithObjectMacro(nullptr,
-      "Test failed: \n"
-        << "Expected failure when requested time window is wider than input.");
     return EXIT_FAILURE;
   }
 

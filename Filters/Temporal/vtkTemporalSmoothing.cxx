@@ -177,6 +177,7 @@ int vtkTemporalSmoothing::RequestInformation(vtkInformation* vtkNotUsed(request)
     vtkErrorMacro("Filter input is not temporal.");
     return 0;
   }
+
   if (this->Internals->InputTimeSteps.size() < this->Internals->TemporalWindowWidth)
   {
     vtkErrorMacro("Requested time window is larger than available time steps");
