@@ -33,9 +33,9 @@ void CopyInputTreeToOutput(vtkHyperTreeGridNonOrientedCursor* inCursor,
   {
     outMask->InsertTuple1(outIdx, inMask->GetValue(inIdx));
   }
+  outCellData->InsertTuple(outIdx, inIdx, inCellData);
   if (!inCursor->IsMasked())
   {
-    outCellData->InsertTuple(outIdx, inIdx, inCellData);
     if (!inCursor->IsLeaf())
     {
       outCursor->SubdivideLeaf();
