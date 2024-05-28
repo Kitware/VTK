@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSetGet.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
@@ -95,7 +96,7 @@ struct vtkTemporalSmoothingInternals
 {
   std::vector<double> InputTimeSteps;
   unsigned int TemporalWindowWidth = 0;
-  vtkDataObject* Cache = nullptr;
+  vtkSmartPointer<vtkDataObject> Cache;
   unsigned int RequestedTimeIndex;
   unsigned int StartTimeIndex;
   unsigned int EndTimeIndex;
@@ -103,15 +104,6 @@ struct vtkTemporalSmoothingInternals
   double AvailableTimeRange[2];
   bool Executing = false;
   bool FirstStep = false;
-
-  vtkTemporalSmoothingInternals() = default;
-  ~vtkTemporalSmoothingInternals()
-  {
-    if (this->Cache != nullptr)
-    {
-      this->Cache->Delete();
-    }
-  }
 };
 
 //------------------------------------------------------------------------------
@@ -147,7 +139,7 @@ int vtkTemporalSmoothing::RequestDataObject(vtkInformation* vtkNotUsed(request),
   if (!output || !output->IsA(input->GetClassName()))
   {
     newOutput.TakeReference(input->NewInstance());
-    this->Internals->Cache = input->NewInstance();
+    this->Internals->Cache.TakeReference(input->NewInstance());
   }
 
   if (newOutput)

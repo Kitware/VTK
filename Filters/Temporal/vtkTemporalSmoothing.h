@@ -41,7 +41,7 @@ public:
   /**
    * Set/Get the size of the sliding temporal window. The average will
    * be computed using this value on each side of a considered time step.
-   * Defaults to 20.
+   * Defaults to 10.
    */
   vtkGetMacro(TemporalWindowHalfWidth, int);
   vtkSetMacro(TemporalWindowHalfWidth, int);
