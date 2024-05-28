@@ -37,9 +37,8 @@
 
 #include "vtkDecimatePolylineDistanceStrategy.h" // Default decimation strategy
 #include "vtkFiltersCoreModule.h"                // For export macro
-#include "vtkSmartPointer.h"                     // Needed for SP ivars
-
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkSmartPointer.h" // Needed for SP ivars
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPriorityQueue;
@@ -52,19 +51,16 @@ public:
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkDecimatePolylineFilter, vtkPolyDataAlgorithm);
+  static vtkDecimatePolylineFilter* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
-
-  /**
-   * Instantiate this object with a target reduction of 0.90.
-   */
-  static vtkDecimatePolylineFilter* New();
 
   ///@{
   /**
    * Specify the desired reduction in the total number of polygons (e.g., if
    * TargetReduction is set to 0.9, this filter will try to reduce the data set
    * to 10% of its original size).
+   * Defaults to 0.9
    */
   vtkSetClampMacro(TargetReduction, double, 0.0, 1.0);
   vtkGetMacro(TargetReduction, double);
@@ -86,6 +82,7 @@ public:
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
+   * Defaults to DEFAULT_PRECISION
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
@@ -95,6 +92,7 @@ public:
   /**
    * Set/get the decimation strategy. See the class that inherits `vtkDecimatePolylineStrategy`
    * to look at the implemented strategies.
+   * Defaults to vtkDecimatePolylineDistanceStrategy
    */
   vtkSetMacro(DecimationStrategy, vtkDecimatePolylineStrategy*);
   vtkGetObjectMacro(DecimationStrategy, vtkDecimatePolylineStrategy);
@@ -108,8 +106,8 @@ public:
   vtkMTimeType GetMTime() override;
 
 protected:
-  vtkDecimatePolylineFilter();
-  ~vtkDecimatePolylineFilter() override;
+  vtkDecimatePolylineFilter() = default;
+  ~vtkDecimatePolylineFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
@@ -118,10 +116,10 @@ protected:
   class Polyline;
   double ComputeError(vtkPolyData* input, Polyline* polyline, vtkIdType id);
 
-  vtkSmartPointer<vtkPriorityQueue> PriorityQueue;
-  double TargetReduction;
-  double MaximumError;
-  int OutputPointsPrecision;
+  vtkNew<vtkPriorityQueue> PriorityQueue;
+  double TargetReduction = 0.90;
+  double MaximumError = VTK_DOUBLE_MAX;
+  int OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 
 private:
   vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&) = delete;

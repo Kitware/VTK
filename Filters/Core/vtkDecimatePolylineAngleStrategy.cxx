@@ -3,7 +3,6 @@
 
 #include "vtkDecimatePolylineAngleStrategy.h"
 #include "vtkMath.h"
-#include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 
 //------------------------------------------------------------------------------
@@ -31,11 +30,5 @@ double vtkDecimatePolylineAngleStrategy::ComputeError(
   }
   return computedError;
 }
-
-//------------------------------------------------------------------------------
-vtkDecimatePolylineAngleStrategy::vtkDecimatePolylineAngleStrategy() = default;
-
-//------------------------------------------------------------------------------
-vtkDecimatePolylineAngleStrategy::~vtkDecimatePolylineAngleStrategy() = default;
 
 VTK_ABI_NAMESPACE_END

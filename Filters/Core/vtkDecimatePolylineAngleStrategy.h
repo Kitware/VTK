@@ -45,8 +45,8 @@ public:
     vtkPointSet* dataset, vtkIdType originId, vtkIdType p1Id, vtkIdType p2Id) override;
 
 protected:
-  vtkDecimatePolylineAngleStrategy();
-  ~vtkDecimatePolylineAngleStrategy() override;
+  vtkDecimatePolylineAngleStrategy() = default;
+  ~vtkDecimatePolylineAngleStrategy() override = default;
 
 private:
   vtkDecimatePolylineAngleStrategy(const vtkDecimatePolylineAngleStrategy&) = delete;

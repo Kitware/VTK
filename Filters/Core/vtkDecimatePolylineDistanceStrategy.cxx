@@ -4,7 +4,6 @@
 #include "vtkDecimatePolylineDistanceStrategy.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
-#include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 
 //------------------------------------------------------------------------------
@@ -30,11 +29,5 @@ double vtkDecimatePolylineDistanceStrategy::ComputeError(
     return vtkLine::DistanceToLine(origin, p1, p2);
   }
 }
-
-//------------------------------------------------------------------------------
-vtkDecimatePolylineDistanceStrategy::vtkDecimatePolylineDistanceStrategy() = default;
-
-//------------------------------------------------------------------------------
-vtkDecimatePolylineDistanceStrategy::~vtkDecimatePolylineDistanceStrategy() = default;
 
 VTK_ABI_NAMESPACE_END

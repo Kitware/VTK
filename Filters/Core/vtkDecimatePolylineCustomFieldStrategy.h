@@ -30,7 +30,6 @@ class VTKFILTERSCORE_EXPORT vtkDecimatePolylineCustomFieldStrategy
 {
 public:
   static vtkDecimatePolylineCustomFieldStrategy* New();
-
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkDecimatePolylineCustomFieldStrategy, vtkDecimatePolylineStrategy);
 
@@ -59,14 +58,14 @@ public:
   vtkGetMacro(FieldName, std::string);
   /// @}
 protected:
-  vtkDecimatePolylineCustomFieldStrategy();
-  ~vtkDecimatePolylineCustomFieldStrategy() override;
+  vtkDecimatePolylineCustomFieldStrategy() = default;
+  ~vtkDecimatePolylineCustomFieldStrategy() override = default;
 
 private:
-  std::string FieldName;
-
   vtkDecimatePolylineCustomFieldStrategy(const vtkDecimatePolylineCustomFieldStrategy&) = delete;
   void operator=(const vtkDecimatePolylineCustomFieldStrategy&) = delete;
+
+  std::string FieldName;
 };
 
 VTK_ABI_NAMESPACE_END

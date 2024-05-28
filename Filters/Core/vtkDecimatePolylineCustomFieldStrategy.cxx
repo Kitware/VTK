@@ -3,7 +3,6 @@
 
 #include "vtkDecimatePolylineCustomFieldStrategy.h"
 #include "vtkMath.h"
-#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
@@ -57,11 +56,5 @@ double vtkDecimatePolylineCustomFieldStrategy::ComputeError(
   }
   return maxError;
 }
-
-//------------------------------------------------------------------------------
-vtkDecimatePolylineCustomFieldStrategy::vtkDecimatePolylineCustomFieldStrategy() = default;
-
-//------------------------------------------------------------------------------
-vtkDecimatePolylineCustomFieldStrategy::~vtkDecimatePolylineCustomFieldStrategy() = default;
 
 VTK_ABI_NAMESPACE_END
