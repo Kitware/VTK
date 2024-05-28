@@ -25,6 +25,11 @@
 #include "vtkCompiler.h"     // for VTK_COMPILER_GCC
 #include "vtkSmartPointer.h" // for ivar
 
+//clang-format off
+#include <vtk_nlohmannjson.h>
+#include VTK_NLOHMANN_JSON(json.hpp)
+//clang-format on
+
 #include <cstdint>       // for `std::uint*_t`
 #include <unordered_set> // for membership API
 
@@ -122,6 +127,44 @@ public:
 protected:
   Hash Id;
 };
+
+/// Convert a JSON value into a string token.
+///
+/// The value \a jj must be an integer or string.
+/// If it is a string, it will be hashed into a token.
+/// If it is an integer, it will be treated as a hash.
+inline void VTKCOMMONCORE_EXPORT from_json(const nlohmann::json& jj, vtkStringToken& tt)
+{
+  if (jj.is_number_integer())
+  {
+    tt = vtkStringToken(jj.get<vtkStringToken::Hash>());
+  }
+  else if (jj.is_string())
+  {
+    tt = jj.get<std::string>();
+  }
+  else
+  {
+    throw std::runtime_error("String tokens must be JSON integers or strings.");
+  }
+}
+
+/// Convert a string token into a JSON value.
+///
+/// If \a tt has a valid string, \a jj will be set to the string.
+/// Otherwise, \a jj will be set to the integer hash held by \a tt.
+inline void VTKCOMMONCORE_EXPORT to_json(nlohmann::json& jj, const vtkStringToken& tt)
+{
+  if (tt.HasData())
+  {
+    jj = tt.Data();
+  }
+  else
+  {
+    jj = tt.GetId();
+  }
+}
+
 VTK_ABI_NAMESPACE_END
 
 namespace vtk
