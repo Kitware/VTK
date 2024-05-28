@@ -16,7 +16,7 @@
 
 namespace
 {
-constexpr int MAX_DEPTH = 5;
+constexpr int MAX_DEPTH = 7;
 constexpr int CHILD_FACTOR = 8;
 
 bool IsInRange(double sum, int level)
@@ -58,11 +58,11 @@ bool CheckTree(
 int TestHyperTreeGridEvaluateCoarse(int, char*[])
 {
   vtkNew<vtkRandomHyperTreeGridSource> source;
-  source->SetDimensions(5, 5, 5);
+  source->SetDimensions(3, 3, 3);
   source->SetMaxDepth(MAX_DEPTH);
-  // source->SetMaskedFraction(0.2);
+  source->SetMaskedFraction(0.2);
   source->SetSeed(3);
-  source->SetSplitFraction(1.0);
+  source->SetSplitFraction(0.8);
 
   vtkNew<vtkHyperTreeGridEvaluateCoarse> evaluate;
   evaluate->SetInputConnection(source->GetOutputPort());
