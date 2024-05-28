@@ -893,22 +893,12 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
 }
 
 //------------------------------------------------------------------------------
-void vtkAxisActor2D::BuildTitle(vtkViewport* viewport)
+void vtkAxisActor2D::SetTitleFontSize(vtkViewport* viewport, int stringSize[2])
 {
-  this->TitleMapper->SetInput(this->Title);
-
-  if (this->TitleTextProperty->GetMTime() > this->BuildTime)
-  {
-    // Shallow copy here so that the size of the title prop is not
-    // affected by the automatic adjustment of its text mapper's
-    // size (i.e. its mapper's text property is identical except for
-    // the font size which will be modified later). This allows text
-    // actors to share the same text property, and in that case
-    // specifically allows the title and label text prop to be the same.
-    this->TitleMapper->GetTextProperty()->ShallowCopy(this->TitleTextProperty);
-  }
-
-  int stringSize[2];
+  // the mapper returns the global bounding box. Artificially set orientation to 0
+  // in this scope to get the local bounding box.
+  double originalAngle = this->TitleMapper->GetTextProperty()->GetOrientation();
+  this->TitleMapper->GetTextProperty()->SetOrientation(0);
 
   if (this->PositionsChangedOrViewportResized(viewport) ||
     this->TitleTextProperty->GetMTime() > this->BuildTime)
@@ -948,14 +938,39 @@ void vtkAxisActor2D::BuildTitle(vtkViewport* viewport)
     this->TitleMapper->GetSize(viewport, stringSize);
   }
 
+  // Restore the orientation.
+  this->TitleMapper->GetTextProperty()->SetOrientation(originalAngle);
+}
+
+//------------------------------------------------------------------------------
+void vtkAxisActor2D::BuildTitle(vtkViewport* viewport)
+{
+  this->TitleMapper->SetInput(this->Title);
+
+  if (this->TitleTextProperty->GetMTime() > this->BuildTime)
+  {
+    // Shallow copy here so that the size of the title prop is not
+    // affected by the automatic adjustment of its text mapper's
+    // size (i.e. its mapper's text property is identical except for
+    // the font size which will be modified later). This allows text
+    // actors to share the same text property, and in that case
+    // specifically allows the title and label text prop to be the same.
+    this->TitleMapper->GetTextProperty()->ShallowCopy(this->TitleTextProperty);
+  }
+
+  int stringSize[2];
+  this->SetTitleFontSize(viewport, stringSize);
+
   int* x1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
   int* x2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
-  double xTick[3];
-  xTick[0] = x1[0] + (x2[0] - x1[0]) * this->TitlePosition;
-  xTick[1] = x1[1] + (x2[1] - x1[1]) * this->TitlePosition;
+  double tickPosition[3];
+  tickPosition[0] = x1[0] + (x2[0] - x1[0]) * this->TitlePosition;
+  tickPosition[1] = x1[1] + (x2[1] - x1[1]) * this->TitlePosition;
+
+  double textPosition[2];
   double theta = this->GetAxisAngle(viewport);
-  xTick[0] = xTick[0] + (this->TickLength + this->TickOffset) * std::sin(theta);
-  xTick[1] = xTick[1] - (this->TickLength + this->TickOffset) * std::cos(theta);
+  textPosition[0] = tickPosition[0] + (this->TickLength + this->TickOffset) * std::sin(theta);
+  textPosition[1] = tickPosition[1] - (this->TickLength + this->TickOffset) * std::cos(theta);
 
   double offset = 0.0;
   if (this->LabelVisibility)
@@ -965,7 +980,7 @@ void vtkAxisActor2D::BuildTitle(vtkViewport* viewport)
   }
 
   vtkAxisActor2D::SetOffsetPosition(
-    xTick, theta, stringSize[0], stringSize[1], static_cast<int>(offset), this->TitleActor);
+    textPosition, theta, stringSize[0], stringSize[1], static_cast<int>(offset), this->TitleActor);
 }
 
 //------------------------------------------------------------------------------

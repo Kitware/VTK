@@ -605,6 +605,12 @@ private:
    */
   double GetViewportAxisLength(vtkViewport* viewport);
 
+  /**
+   * Set the title font size.
+   * Return the width and heigth of the title as box, in its local coordinates
+   */
+  void SetTitleFontSize(vtkViewport* viewport, int box[2]);
+
   // tick position in axis, normalized on axis length.
   std::vector<double> NormalizedTickPositions;
   std::vector<double> TickValues;
