@@ -399,7 +399,7 @@ void vtkXMLUnstructuredDataReader::SetupOutputData()
       this->DataError = 1;
     }
   }
-  else
+  else if (this->NumberOfPoints[0] > 0)
   {
     vtkWarningMacro(
       "No Points element available in first piece found in file. Reading file may fail.");

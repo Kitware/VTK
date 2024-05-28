@@ -155,7 +155,7 @@ int vtkXMLUnstructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
     }
   }
 
-  if (!this->CellElements[this->Piece])
+  if (!this->CellElements[this->Piece] && this->NumberOfCells[this->Piece] > 0)
   {
     vtkErrorMacro("A piece is missing its Cells element.");
     return 0;
@@ -225,8 +225,15 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
   vtkXMLDataElement* eCells = this->CellElements[this->Piece];
   if (!eCells)
   {
-    vtkErrorMacro("Cannot find cell arrays in piece " << this->Piece);
-    return 0;
+    if (this->NumberOfCells[this->Piece] > 0)
+    {
+      vtkErrorMacro("Cannot find cell arrays in piece " << this->Piece);
+      return 0;
+    }
+
+    // An empty grid with no cells is allowed to have the DataArray child elements missing
+    this->UpdateProgressDiscrete(progressRange[1]);
+    return 1;
   }
 
   //  int needToRead = this->CellsNeedToReadTimeStep(eNested,

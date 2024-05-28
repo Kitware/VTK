@@ -497,7 +497,6 @@ struct BaseCellSelect
 
   void Initialize()
   {
-    this->NumberOfCellsSelected = 0;
     vtkIdType& numSelected = this->NumberSelected.Local();
     numSelected = 0;
   }
