@@ -58,6 +58,21 @@ static const char* testXML2 = R"==(<?xml version="1.0"?>
 </VTKFile>
 )==";
 
+static const char* emptyGridXML = R"==(<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid"  version="0.1" >
+  <UnstructuredGrid>
+    <Piece  NumberOfPoints="0" NumberOfCells="0">
+      <Points>
+      </Points>
+      <Cells>
+      </Cells>
+      <PointData>
+      </PointData>
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>
+)==";
+
 namespace
 {
 bool TestTimeSeries(int argc, char* argv[])
@@ -124,6 +139,24 @@ int TestXMLUnstructuredGridReader(int argc, char* argv[])
       std::cerr << "Expected 1 cell, got " << reader0->GetNumberOfCells() << std::endl;
       tsResult = 1;
     }
+  }
+
+  // Create a reader reading a with a dataset that was saved with NULL points and cells
+  vtkNew<vtkXMLUnstructuredGridReader> readerEmpty;
+  readerEmpty->ReadFromInputStringOn();
+  readerEmpty->SetInputString(emptyGridXML);
+  readerEmpty->Update();
+
+  if (readerEmpty->GetNumberOfPoints() != 0)
+  {
+    std::cerr << "Expected 0 points, got " << readerEmpty->GetNumberOfPoints() << std::endl;
+    tsResult = 1;
+  }
+
+  if (readerEmpty->GetNumberOfCells() != 0)
+  {
+    std::cerr << "Expected 0 cell, got " << readerEmpty->GetNumberOfCells() << std::endl;
+    tsResult = 1;
   }
 
   // Test that the right number of time steps can be read from a .vtu file.

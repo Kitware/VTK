@@ -220,7 +220,7 @@ int vtkConvexPointSet::EvaluatePosition(const double x[3], double vtkNotUsed(clo
     }
 
     status = this->Tetra->EvaluatePosition(x, closest, ignoreId, pc, dist2, tempWeights);
-    if (status != -1 && dist2 < minDist2)
+    if (status != -1 && ((dist2 < minDist2) || ((dist2 == minDist2) && (returnStatus == 0))))
     {
       // init (clear) all the weights since only the vertices of the closest
       // tetrahedron are assigned with valid weights while the rest vertices
