@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTemporalSmoothing.h"
 
@@ -196,7 +197,7 @@ int vtkTemporalSmoothing::RequestInformation(vtkInformation* vtkNotUsed(request)
   this->Internals->AvailableTimeRange[1] = *lastAvailableTime;
 
   int outNumAvailableTimeSteps = inNumAvailableTimeSteps - (2 * this->TemporalWindowHalfWidth);
-  outInfo->Set(vtkSDDP::TIME_STEPS(), firstAvailableTime.base(), outNumAvailableTimeSteps);
+  outInfo->Set(vtkSDDP::TIME_STEPS(), &*firstAvailableTime, outNumAvailableTimeSteps);
   outInfo->Set(vtkSDDP::TIME_RANGE(), this->Internals->AvailableTimeRange, 2);
 
   return 1;
