@@ -68,7 +68,7 @@ public:
    * Conceptually, the composite array uses a binary search algorithm through the use of
    * `std::upper_bounds` to offer a compute complexity of O(log_2(n_arrays))
    */
-  ValueType operator()(int idx) const;
+  ValueType operator()(vtkIdType idx) const;
 
   /**
    * Returns the smallest integer memory size in KiB needed to store the array.

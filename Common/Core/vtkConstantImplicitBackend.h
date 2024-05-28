@@ -49,7 +49,7 @@ struct VTKCOMMONCORE_EXPORT vtkConstantImplicitBackend final
    *
    * \return the constant value
    */
-  ValueType operator()(int vtkNotUsed(index)) const { return this->Value; }
+  ValueType operator()(vtkIdType vtkNotUsed(index)) const { return this->Value; }
 
   /**
    * The constant value stored in the backend

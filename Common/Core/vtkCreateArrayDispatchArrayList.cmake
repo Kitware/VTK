@@ -133,27 +133,12 @@
 # #endif // vtkArrayDispatchArrayList_h
 #
 
+# get vtk_numeric_types
+include(vtkTypeLists)
+
 # Populate the environment so that vtk_array_dispatch_generate_array_header will
 # create the array TypeList with all known array types.
 macro(vtkArrayDispatch_default_array_setup)
-
-# The default set of scalar types:
-set(vtkArrayDispatch_all_types
-  "char"
-  "double"
-  "float"
-  "int"
-  "long"
-  "long long"
-  "short"
-  "signed char"
-  "unsigned char"
-  "unsigned int"
-  "unsigned long"
-  "unsigned long long"
-  "unsigned short"
-  "vtkIdType"
-)
 
 macro(_vtkCreateArrayDispatch var class types)
   if (${var})
@@ -164,10 +149,10 @@ macro(_vtkCreateArrayDispatch var class types)
 endmacro()
 
 _vtkCreateArrayDispatch(VTK_DISPATCH_AOS_ARRAYS "vtkAOSDataArrayTemplate"
-  "${vtkArrayDispatch_all_types}")
+  "${vtk_numeric_types}")
 
 _vtkCreateArrayDispatch(VTK_DISPATCH_SOA_ARRAYS "vtkSOADataArrayTemplate"
-  "${vtkArrayDispatch_all_types}")
+  "${vtk_numeric_types}")
 
 if (VTK_DISPATCH_SOA_ARRAYS AND VTK_BUILD_SCALED_SOA_ARRAYS)
   set(_dispatch_scaled_soa_arrays "ON")
@@ -175,10 +160,10 @@ else ()
   set(_dispatch_scaled_soa_arrays "OFF")
 endif ()
 _vtkCreateArrayDispatch(_dispatch_scaled_soa_arrays "vtkScaledSOADataArrayTemplate"
-  "${vtkArrayDispatch_all_types}")
+  "${vtk_numeric_types}")
 
 _vtkCreateArrayDispatch(VTK_DISPATCH_TYPED_ARRAYS "vtkTypedDataArray"
-  "${vtkArrayDispatch_all_types}")
+  "${vtk_numeric_types}")
 
 macro(_vtkCreateArrayDispatchImplicit var class types)
   if (${var})
@@ -189,13 +174,13 @@ macro(_vtkCreateArrayDispatchImplicit var class types)
 endmacro()
 
 _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_AFFINE_ARRAYS "vtkAffineArray"
-  "${vtkArrayDispatch_all_types}")
+  "${vtk_numeric_types}")
 
 _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_CONSTANT_ARRAYS "vtkConstantArray"
-  "${vtkArrayDispatch_all_types}")
+  "${vtk_numeric_types}")
 
 _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_STD_FUNCTION_ARRAYS "vtkStdFunctionArray"
-  "${vtkArrayDispatch_all_types}")
+  "${vtk_numeric_types}")
 
 # we only need to dispatch on double for implicit point arrays
 set(vtkArrayDispatchImplicit_structured_point_types "double")

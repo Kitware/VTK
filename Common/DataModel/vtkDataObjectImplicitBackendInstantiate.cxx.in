@@ -1,0 +1,7 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#define VTK_DATAOBJECT_BACKEND_INSTANTIATING
+#include "vtkDataObjectImplicitBackendInterface.h"
+#include "vtkDataObjectImplicitBackendInterface.txx"
+
+VTK_INSTANTIATE_DATAOBJECT_BACKEND(@INSTANTIATION_VALUE_TYPE@)

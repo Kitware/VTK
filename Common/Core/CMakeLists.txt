@@ -178,8 +178,9 @@ configure_file(
 # create a list of source files for explicit array type instantiations
 set(instantiation_sources)
 
-# steal the list of array types from vtkCreateArrayDispatchArrayList.cmake
-foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatch_all_types)
+include(vtkTypeLists)
+
+foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtk_numeric_types)
   # only instantiate fundamental types, not typedefs
   if (INSTANTIATION_VALUE_TYPE STREQUAL "vtkIdType")
     continue()

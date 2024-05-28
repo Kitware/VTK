@@ -5,6 +5,7 @@
 
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
+#include "vtkDataObjectImplicitBackendInterface.h"
 #include "vtkDataSet.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImplicitArray.h"
@@ -23,23 +24,27 @@ namespace
  * input dataset. This allows to create a number of faces array without taking up any additional
  * memory.
  */
-template <typename ValueType>
-struct vtkNumberOfFacesBackend final
+struct vtkNumberOfFacesBackend : public vtkDataObjectImplicitBackendInterface<vtkIdType>
 {
-  vtkNumberOfFacesBackend(vtkDataSet* input)
-    : Input(input)
+  vtkNumberOfFacesBackend(vtkDataSet* input, const std::string& name, int type)
+    : vtkDataObjectImplicitBackendInterface(input, name, type)
+    , DataSet(input)
   {
   }
+
+  ~vtkNumberOfFacesBackend() override = default;
 
   /**
    * Retrieve the number of faces of the cell at `index`
    */
-  ValueType operator()(const int index) const
+  vtkIdType GetValueFromDataObject(const vtkIdType index) const override
   {
-    return static_cast<ValueType>(this->Input->GetCell(index)->GetNumberOfFaces());
+    // DeleteEvent is handled by the superclass so no risk of nullptr here.
+    return this->DataSet->GetCell(index)->GetNumberOfFaces();
   }
 
-  vtkDataSet* Input;
+  // Useful to avoid cast. Superclass handles its DeleteEvent
+  vtkWeakPointer<vtkDataSet> DataSet;
 };
 }
 
@@ -86,10 +91,10 @@ int vtkCountFaces::RequestData(
   {
     // Create an implicit array with the back-end defined above that dynamically retrieves the
     // number of faces in a cell.
-    vtkNew<vtkImplicitArray<vtkNumberOfFacesBackend<vtkIdType>>> implicitFacesArray;
-    implicitFacesArray->ConstructBackend(input);
+    vtkNew<vtkImplicitArray<vtkNumberOfFacesBackend>> implicitFacesArray;
+    implicitFacesArray->ConstructBackend(output, this->OutputArrayName, vtkDataObject::CELL);
     implicitFacesArray->SetNumberOfComponents(1);
-    implicitFacesArray->SetNumberOfTuples(input->GetNumberOfCells());
+    implicitFacesArray->SetNumberOfTuples(output->GetNumberOfCells());
     implicitFacesArray->SetName(this->OutputArrayName);
     output->GetCellData()->AddArray(implicitFacesArray);
   }

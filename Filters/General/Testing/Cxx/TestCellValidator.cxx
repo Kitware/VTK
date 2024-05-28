@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// This tests vtkCellValidator
+// This tests vtkCellValidator specialized `Check` methods.
 
 #include <vtkCellValidator.h>
 
@@ -60,7 +60,6 @@
 
 #include "vtkCellArray.h"
 #include "vtkMath.h"
-#include "vtkMathUtilities.h"
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -69,11 +68,6 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-
-#include <map>
-#include <sstream>
-#include <string>
-#include <vector>
 
 static vtkSmartPointer<vtkEmptyCell> MakeEmptyCell();
 static vtkSmartPointer<vtkVertex> MakeVertex();
