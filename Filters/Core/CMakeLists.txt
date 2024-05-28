@@ -40,7 +40,6 @@ set(classes
   vtkDecimatePolylineCustomFieldStrategy
   vtkDecimatePolylineDistanceStrategy
   vtkDecimatePolylineFilter
-  vtkDecimatePolylineStrategy
   vtkDecimatePro
   vtkDelaunay2D
   vtkDelaunay3D
@@ -139,7 +138,12 @@ set(classes
 set(private_headers
   vtk3DLinearGridInternal.h)
 
+set(headers
+  vtkDecimatePolylineStrategy.h)
+
 vtk_module_add_module(VTK::FiltersCore
   CLASSES ${classes}
-  PRIVATE_HEADERS ${private_headers})
+  PRIVATE_HEADERS ${private_headers}
+  HEADERS ${headers})
+
 vtk_add_test_mangling(VTK::FiltersCore)
