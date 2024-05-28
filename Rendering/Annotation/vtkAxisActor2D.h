@@ -530,8 +530,23 @@ protected:
 
   virtual void BuildAxis(vtkViewport* viewport);
   static double ComputeStringOffset(double width, double height, double theta);
+
+  /**
+   * Set the actor position according to the given parameters.
+   */
   static void SetOffsetPosition(double xTick[3], double theta, int stringWidth, int stringHeight,
-    int offset, vtkActor2D* actor);
+    int offset, vtkActor2D* textActor);
+
+  /**
+   * Get the shifted position.
+   *
+   * Move the text in its local coordinates: center horizontally, move to bottom.
+   * Move the text by `offset` in the axis-normal direction. Useful to avoid
+   * superposition with the ticks.
+   */
+  void ShiftPosition(double start[3], double textAngle, int stringWidth, int stringHeight,
+    int offset, int finalPos[2]);
+
   virtual void UpdateAdjustedRange();
 
   vtkTextMapper* TitleMapper;

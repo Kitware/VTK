@@ -887,6 +887,9 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
     vtkIdType endPointId = startPointId + 1;
     pts->GetPoint(endPointId, xTick);
     double theta = this->GetAxisAngle(viewport);
+    double textAngle = this->LabelTextProperty->GetOrientation();
+    textAngle = vtkMath::RadiansFromDegrees(textAngle);
+
     vtkAxisActor2D::SetOffsetPosition(xTick, theta, this->LastMaxLabelSize[0],
       this->LastMaxLabelSize[1], this->TickOffset, this->LabelActors[i]);
   }
@@ -896,7 +899,7 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
 void vtkAxisActor2D::SetTitleFontSize(vtkViewport* viewport, int stringSize[2])
 {
   // the mapper returns the global bounding box. Artificially set orientation to 0
-  // in this scope to get the local bounding box.
+  // in this scope to get the local bounding box in `stringSize`
   double originalAngle = this->TitleMapper->GetTextProperty()->GetOrientation();
   this->TitleMapper->GetTextProperty()->SetOrientation(0);
 
@@ -967,20 +970,21 @@ void vtkAxisActor2D::BuildTitle(vtkViewport* viewport)
   tickPosition[0] = x1[0] + (x2[0] - x1[0]) * this->TitlePosition;
   tickPosition[1] = x1[1] + (x2[1] - x1[1]) * this->TitlePosition;
 
-  double textPosition[2];
-  double theta = this->GetAxisAngle(viewport);
-  textPosition[0] = tickPosition[0] + (this->TickLength + this->TickOffset) * std::sin(theta);
-  textPosition[1] = tickPosition[1] - (this->TickLength + this->TickOffset) * std::cos(theta);
+  double textOrientation = this->TitleTextProperty->GetOrientation();
+  double theta = vtkMath::RadiansFromDegrees(textOrientation);
 
-  double offset = 0.0;
+  double offset = this->TickLength + this->TickOffset;
   if (this->LabelVisibility)
   {
-    offset = vtkAxisActor2D::ComputeStringOffset(
+    offset += vtkAxisActor2D::ComputeStringOffset(
       this->LastMaxLabelSize[0], this->LastMaxLabelSize[1], theta);
   }
 
-  vtkAxisActor2D::SetOffsetPosition(
-    textPosition, theta, stringSize[0], stringSize[1], static_cast<int>(offset), this->TitleActor);
+  int textPos[2];
+  this->ShiftPosition(
+    tickPosition, theta, stringSize[0], stringSize[1], static_cast<int>(offset), textPos);
+
+  this->TitleActor->SetPosition(textPos[0], textPos[1]);
 }
 
 //------------------------------------------------------------------------------
@@ -1128,6 +1132,23 @@ void vtkAxisActor2D::SetOffsetPosition(
   pos[1] = static_cast<int>(center[1] - stringHeight / 2.0);
 
   actor->SetPosition(pos[0], pos[1]);
+}
+
+//------------------------------------------------------------------------------
+void vtkAxisActor2D::ShiftPosition(
+  double xTick[3], double textAngle, int stringWidth, int stringHeight, int offset, int finalPos[2])
+{
+  // Text Horizontal: center text
+  finalPos[0] = xTick[0] - stringWidth / 2 * std::cos(textAngle);
+  finalPos[1] = xTick[1] - stringWidth / 2 * std::sin(textAngle);
+
+  // Text Vertical: put text "under" axes
+  finalPos[0] += stringHeight * std::sin(textAngle);
+  finalPos[1] -= stringHeight * std::cos(textAngle);
+
+  // Axis Vertical: add extra offset
+  finalPos[0] += offset * std::sin(textAngle);
+  finalPos[1] -= offset * std::cos(textAngle);
 }
 
 //------------------------------------------------------------------------------
