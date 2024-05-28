@@ -24,13 +24,13 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkSmartPointer.h>
+
 namespace
 {
+
 bool CheckDecimationValidatity(vtkDecimatePolylineFilter* decimatePolylineFilter)
 {
-
-  vtkSmartPointer<vtkDoubleArray> decimatedCellDoubles = vtkDoubleArray::SafeDownCast(
+  vtkDoubleArray* decimatedCellDoubles = vtkDoubleArray::SafeDownCast(
     decimatePolylineFilter->GetOutput()->GetCellData()->GetArray("cellDoubles"));
 
   if (!decimatedCellDoubles ||
@@ -83,14 +83,11 @@ bool ConstructSceneWithGhostCell(
 
   // We will create two polylines: one complete circle, and one circular arc
   // subtending 3/4 of a circle.
-  vtkNew<vtkIdList> lineIds1;
-  lineIds1->SetNumberOfIds(numberOfPointsInCircle + 1);
-  vtkNew<vtkIdList> lineIds2;
-  lineIds2->SetNumberOfIds((numberOfPointsInCircle * 3) / 4);
-  vtkIdType lineIdCounter1 = 0;
-  vtkIdType lineIdCounter2 = 0;
 
   // First circle:
+  vtkNew<vtkIdList> lineIds1;
+  lineIds1->SetNumberOfIds(numberOfPointsInCircle + 1);
+  vtkIdType lineIdCounter1 = 0;
   for (vtkIdType i = 0; i < numberOfPointsInCircle; ++i)
   {
     const double angle =
@@ -99,30 +96,35 @@ bool ConstructSceneWithGhostCell(
     double sinAngle = std::sin(angle);
     points1->InsertPoint(i, cosAngle, sinAngle, 0.0);
     fieldArray1->InsertTuple2(i, cosAngle, sinAngle);
-    lineIds1->SetId(i, lineIdCounter1++);
+    lineIds1->SetId(i, lineIdCounter1);
+
+    lineIdCounter1++;
   }
   lineIds1->SetId(numberOfPointsInCircle, 0);
 
   // Second circular arc:
-  for (vtkIdType i = 0; i < (numberOfPointsInCircle * 3) / 4; ++i)
+  vtkNew<vtkIdList> lineIds2;
+  lineIds2->SetNumberOfIds(0.75 * numberOfPointsInCircle);
+  vtkIdType lineIdCounter2 = 0;
+  for (vtkIdType i = 0; i < (0.75 * numberOfPointsInCircle); ++i)
   {
-    const double angle = 3.0 / 2.0 * vtkMath::Pi() * static_cast<double>(i) /
-      static_cast<double>((numberOfPointsInCircle * 3) / 4);
+    const double angle = 1.5 * vtkMath::Pi() * static_cast<double>(i) /
+      static_cast<double>(0.75 * numberOfPointsInCircle);
     double cosAngle = std::cos(angle);
     double sinAngle = std::sin(angle);
     points2->InsertPoint(i, cosAngle, sinAngle, 1.0);
     fieldArray2->InsertTuple2(i, cosAngle, sinAngle);
-    lineIds2->SetId(i, lineIdCounter2++);
+    lineIds2->SetId(i, lineIdCounter2);
+
+    lineIdCounter2++;
   }
 
-  // Construct associated cell array, containing both polylines.
+  // Construct associated cell arrays, containing both polylines.
   vtkNew<vtkCellArray> lines1;
-  vtkNew<vtkCellArray> lines2;
-
-  // 1st:
   lines1->SetNumberOfCells(1);
   lines1->InsertNextCell(numberOfPointsInCircle + 1, lineIds1->GetPointer(0));
-  // 2nd:
+
+  vtkNew<vtkCellArray> lines2;
   lines2->SetNumberOfCells(1);
   lines2->InsertNextCell((numberOfPointsInCircle * 3) / 4, lineIds2->GetPointer(0));
 
@@ -180,22 +182,23 @@ bool ConstructSceneWithGhostCell(
     vtkPartitionedDataSet::SafeDownCast(ghostGenerator->GetOutputDataObject(0))->GetPartition(1));
   decimatePolylineFilter2->SetTargetReduction(0.9);
   decimatePolylineFilter2->Update();
+
   if (!::CheckDecimationValidatity(decimatePolylineFilter1) ||
     !::CheckDecimationValidatity(decimatePolylineFilter2))
   {
     std::cerr << "Error when checking the validity of the decimated polyline output." << std::endl;
     return false;
   }
+
   vtkNew<vtkPartitionedDataSet> outputPDS;
   outputPDS->SetNumberOfPartitions(2);
   outputPDS->SetPartition(0, decimatePolylineFilter1->GetOutputDataObject(0));
   outputPDS->SetPartition(1, decimatePolylineFilter2->GetOutputDataObject(0));
 
-  vtkSmartPointer<vtkCompositePolyDataMapper> decimatedMapper =
-    vtkSmartPointer<vtkCompositePolyDataMapper>::New();
+  vtkNew<vtkCompositePolyDataMapper> decimatedMapper;
   decimatedMapper->SetInputDataObject(outputPDS);
 
-  vtkSmartPointer<vtkActor> decimatedActor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> decimatedActor;
   decimatedActor->SetMapper(decimatedMapper);
   decimatedActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
 
@@ -207,7 +210,7 @@ bool ConstructScene(vtkRenderer* renderer, vtkDecimatePolylineStrategy* strategy
 {
   const unsigned int numberOfPointsInCircle = 100;
 
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> points;
   vtkNew<vtkDoubleArray> fieldArray;
   fieldArray->SetName("__custom__field__");
   fieldArray->SetNumberOfComponents(2);
@@ -217,10 +220,10 @@ bool ConstructScene(vtkRenderer* renderer, vtkDecimatePolylineStrategy* strategy
   // We will create two polylines: one complete circle, and one circular arc
   // subtending 3/4 of a circle.
   vtkNew<vtkIdList> lineIds;
-  lineIds->SetNumberOfIds((numberOfPointsInCircle * 7) / 4 + 1);
-  vtkIdType lineIdCounter = 0;
+  lineIds->SetNumberOfIds((1.75 * numberOfPointsInCircle) + 1);
 
   // First circle:
+  vtkIdType lineIdCounter = 0;
   for (unsigned int i = 0; i < numberOfPointsInCircle; ++i)
   {
     const double angle =
@@ -228,31 +231,34 @@ bool ConstructScene(vtkRenderer* renderer, vtkDecimatePolylineStrategy* strategy
     double cosAngle = std::cos(angle);
     double sinAngle = std::sin(angle);
     points->InsertPoint(static_cast<vtkIdType>(i), cosAngle, sinAngle, 0.0);
-    lineIds->SetId(i, lineIdCounter++);
+    lineIds->SetId(i, lineIdCounter);
     fieldArray->InsertTuple2(i, cosAngle, sinAngle);
+
+    lineIdCounter++;
   }
   lineIds->SetId(numberOfPointsInCircle, 0);
 
   // Second circular arc:
-  for (unsigned int i = 0; i < (numberOfPointsInCircle * 3) / 4; ++i)
+  for (unsigned int i = 0; i < (0.75 * numberOfPointsInCircle); ++i)
   {
-    const double angle = 3.0 / 2.0 * vtkMath::Pi() * static_cast<double>(i) /
-      static_cast<double>((numberOfPointsInCircle * 3) / 4);
+    const vtkIdType pointIdx = static_cast<vtkIdType>(i) + numberOfPointsInCircle;
+
+    const double angle = 1.5 * vtkMath::Pi() * static_cast<double>(i) /
+      static_cast<double>(0.75 * numberOfPointsInCircle);
     double cosAngle = std::cos(angle);
     double sinAngle = std::sin(angle);
-    points->InsertPoint(
-      static_cast<vtkIdType>(i + numberOfPointsInCircle), cosAngle, sinAngle, 1.0);
-    lineIds->SetId(numberOfPointsInCircle + 1 + i, lineIdCounter++);
-    fieldArray->InsertTuple2(i + numberOfPointsInCircle, cosAngle, sinAngle);
+    points->InsertPoint(pointIdx, cosAngle, sinAngle, 1.0);
+    lineIds->SetId(pointIdx + 1, lineIdCounter);
+    fieldArray->InsertTuple2(pointIdx, cosAngle, sinAngle);
+
+    lineIdCounter++;
   }
 
   // Construct associated cell array, containing both polylines.
-  vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
-  // 1st:
+  vtkNew<vtkCellArray> lines;
   lines->InsertNextCell(numberOfPointsInCircle + 1, lineIds->GetPointer(0));
-  // 2nd:
   lines->InsertNextCell(
-    (numberOfPointsInCircle * 3) / 4, lineIds->GetPointer(numberOfPointsInCircle + 1));
+    0.75 * numberOfPointsInCircle, lineIds->GetPointer(numberOfPointsInCircle + 1));
 
   // Create cell data for each line.
   vtkNew<vtkDoubleArray> cellDoubles;
@@ -288,10 +294,10 @@ bool ConstructScene(vtkRenderer* renderer, vtkDecimatePolylineStrategy* strategy
     return false;
   }
 
-  vtkSmartPointer<vtkPolyDataMapper> decimatedMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> decimatedMapper;
   decimatedMapper->SetInputConnection(decimatePolylineFilter->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> decimatedActor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> decimatedActor;
   decimatedActor->SetMapper(decimatedMapper);
   decimatedActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
 
@@ -299,20 +305,20 @@ bool ConstructScene(vtkRenderer* renderer, vtkDecimatePolylineStrategy* strategy
 
   renderer->AddActor(circleActor);
   renderer->AddActor(decimatedActor);
+
   return true;
 }
 }
 
 int TestDecimatePolylineFilter(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
-
-  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  renderWindowInteractor->SetRenderWindow(renderWindow);
-
+  vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetMultiSamples(0);
   renderWindow->SetSize(500, 500);
+
+  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
+  renderWindowInteractor->SetRenderWindow(renderWindow);
+
   // Test Default strategy (distance)
   {
     vtkNew<vtkRenderer> renderer;
@@ -323,10 +329,12 @@ int TestDecimatePolylineFilter(int argc, char* argv[])
     }
     renderWindow->AddRenderer(renderer.Get());
   }
+
   // Test Angle strategy
   {
     vtkNew<vtkRenderer> renderer;
     renderer->SetViewport(0.5, 0.5, 1.0, 1.0);
+
     vtkNew<vtkDecimatePolylineAngleStrategy> strategy;
     if (!::ConstructScene(renderer, strategy))
     {
@@ -334,10 +342,12 @@ int TestDecimatePolylineFilter(int argc, char* argv[])
     }
     renderWindow->AddRenderer(renderer);
   }
+
   // Test Custom field strategy
   {
     vtkNew<vtkRenderer> renderer;
     renderer->SetViewport(0, 0, 0.5, 0.5);
+
     vtkNew<vtkDecimatePolylineCustomFieldStrategy> strategy;
     strategy->SetFieldName("__custom__field__");
     if (!::ConstructScene(renderer, strategy))
@@ -346,10 +356,12 @@ int TestDecimatePolylineFilter(int argc, char* argv[])
     }
     renderWindow->AddRenderer(renderer);
   }
+
   // Test with ghost cell
   {
     vtkNew<vtkRenderer> renderer;
     renderer->SetViewport(0.5, 0, 1.0, 0.5);
+
     vtkNew<vtkDecimatePolylineCustomFieldStrategy> strategy;
     strategy->SetFieldName("__custom__field__");
     if (!::ConstructSceneWithGhostCell(renderer, strategy))
@@ -358,6 +370,7 @@ int TestDecimatePolylineFilter(int argc, char* argv[])
     }
     renderWindow->AddRenderer(renderer);
   }
+
   renderWindow->Render();
   int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
