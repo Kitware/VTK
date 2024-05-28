@@ -53,6 +53,7 @@ public:
   /**
    * The name of the field containing the decimation informations to
    * evaluate.
+   * Defaults to an empty string.
    */
   vtkSetMacro(FieldName, std::string);
   vtkGetMacro(FieldName, std::string);

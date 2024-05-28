@@ -60,7 +60,7 @@ public:
    * Specify the desired reduction in the total number of polygons (e.g., if
    * TargetReduction is set to 0.9, this filter will try to reduce the data set
    * to 10% of its original size).
-   * Defaults to 0.9
+   * Defaults to 0.9 .
    */
   vtkSetClampMacro(TargetReduction, double, 0.0, 1.0);
   vtkGetMacro(TargetReduction, double);
@@ -72,6 +72,7 @@ public:
    * process. This may limit the maximum reduction that may be achieved. The
    * maximum error is dependent on the decimation strategy used, by default it is
    * specified as a fraction of the maximum length of the input data bounding box.
+   * Defaults to VTK_DOUBLE_MAX.
    */
   vtkSetClampMacro(MaximumError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(MaximumError, double);
@@ -82,7 +83,7 @@ public:
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
-   * Defaults to DEFAULT_PRECISION
+   * Defaults to DEFAULT_PRECISION.
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
@@ -92,7 +93,7 @@ public:
   /**
    * Set/get the decimation strategy. See the class that inherits `vtkDecimatePolylineStrategy`
    * to look at the implemented strategies.
-   * Defaults to vtkDecimatePolylineDistanceStrategy
+   * Defaults to vtkDecimatePolylineDistanceStrategy.
    */
   vtkSetMacro(DecimationStrategy, vtkDecimatePolylineStrategy*);
   vtkGetObjectMacro(DecimationStrategy, vtkDecimatePolylineStrategy);

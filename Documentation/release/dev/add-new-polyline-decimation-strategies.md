@@ -1,5 +1,6 @@
 ## Add new polyline decimation strategies
-The `vtkDecimatePolylineFilter` recently got refactored to use the strategy pattern.
+
+The `vtkDecimatePolylineFilter` has been refactored to use a strategy pattern.
 It used a default strategy based on eulerian distances.
 This change brings 2 new available strategies :
 - `vtkDecimatePolylineAngleStrategy` which uses the angle between 3 consecutive points to perform the decimation.
