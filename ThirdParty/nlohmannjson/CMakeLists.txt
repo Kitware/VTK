@@ -8,9 +8,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2013-2021 Niels Lohmann"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/nlohmann_json.git@for/vtk-20211106-3.10.4"
+      "git+https://gitlab.kitware.com/third-party/nlohmann_json.git@for/vtk-20240529-3.11.3"
     VERSION
-      "3.10.4"
+      "3.11.3"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE nlohmann_json
