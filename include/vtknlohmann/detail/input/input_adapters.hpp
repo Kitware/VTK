@@ -1,3 +1,11 @@
+//     __ _____ _____ _____
+//  __|  |   __|     |   | |  JSON for Modern C++
+// |  |  |__   |  |  | | | |  version 3.11.3
+// |_____|_____|_____|_|___|  https://github.com/nlohmann/json
+//
+// SPDX-FileCopyrightText: 2013-2023 Niels Lohmann <https://nlohmann.me>
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <array> // array
@@ -17,13 +25,14 @@
 
 #include VTK_NLOHMANN_JSON(detail/iterators/iterator_traits.hpp)
 #include VTK_NLOHMANN_JSON(detail/macro_scope.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/type_traits.hpp)
 
-namespace nlohmann
-{
+NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
+
 /// the supported input formats
-enum class input_format_t { json, cbor, msgpack, ubjson, bson };
+enum class input_format_t { json, cbor, msgpack, ubjson, bson, bjdata };
 
 ////////////////////
 // input adapters //
@@ -42,7 +51,9 @@ class file_input_adapter
     JSON_HEDLEY_NON_NULL(2)
     explicit file_input_adapter(std::FILE* f) noexcept
         : m_file(f)
-    {}
+    {
+        JSON_ASSERT(m_file != nullptr);
+    }
 
     // make class move-only
     file_input_adapter(const file_input_adapter&) = delete;
@@ -60,7 +71,6 @@ class file_input_adapter
     /// the file pointer to read from
     std::FILE* m_file;
 };
-
 
 /*!
 Input adapter for a (caching) istream. Ignores a UFT Byte Order Mark at
@@ -104,7 +114,7 @@ class input_stream_adapter
 
     // std::istream/std::streambuf use std::char_traits<char>::to_int_type, to
     // ensure that std::char_traits<char>::eof() and the character 0xFF do not
-    // end up as the same value, eg. 0xFFFFFFFF.
+    // end up as the same value, e.g. 0xFFFFFFFF.
     std::char_traits<char>::int_type get_character()
     {
         auto res = sb->sbumpc();
@@ -135,16 +145,16 @@ class iterator_input_adapter
         : current(std::move(first)), end(std::move(last))
     {}
 
-    typename std::char_traits<char_type>::int_type get_character()
+    typename char_traits<char_type>::int_type get_character()
     {
         if (JSON_HEDLEY_LIKELY(current != end))
         {
-            auto result = std::char_traits<char_type>::to_int_type(*current);
+            auto result = char_traits<char_type>::to_int_type(*current);
             std::advance(current, 1);
             return result;
         }
 
-        return std::char_traits<char_type>::eof();
+        return char_traits<char_type>::eof();
     }
 
   private:
@@ -159,7 +169,6 @@ class iterator_input_adapter
         return current == end;
     }
 };
-
 
 template<typename BaseInputAdapter, size_t T>
 struct wide_string_input_helper;
@@ -284,7 +293,7 @@ struct wide_string_input_helper<BaseInputAdapter, 2>
     }
 };
 
-// Wraps another input apdater to convert wide character types into individual bytes.
+// Wraps another input adapter to convert wide character types into individual bytes.
 template<typename BaseInputAdapter, typename WideCharType>
 class wide_string_input_adapter
 {
@@ -328,7 +337,6 @@ class wide_string_input_adapter
     /// number of valid bytes in the utf8_codes array
     std::size_t utf8_bytes_filled = 0;
 };
-
 
 template<typename IteratorType, typename Enable = void>
 struct iterator_input_adapter_factory
@@ -400,7 +408,7 @@ struct container_input_adapter_factory< ContainerType,
 }
        };
 
-} // namespace container_input_adapter_factory_impl
+}  // namespace container_input_adapter_factory_impl
 
 template<typename ContainerType>
 typename container_input_adapter_factory_impl::container_input_adapter_factory<ContainerType>::adapter_type input_adapter(const ContainerType& container)
@@ -450,7 +458,7 @@ auto input_adapter(T (&array)[N]) -> decltype(input_adapter(array, array + N)) /
 }
 
 // This class only handles inputs of input_buffer_adapter type.
-// It's required so that expressions like {ptr, len} can be implicitely casted
+// It's required so that expressions like {ptr, len} can be implicitly cast
 // to the correct adapter.
 class span_input_adapter
 {
@@ -479,5 +487,6 @@ class span_input_adapter
   private:
     contiguous_bytes_input_adapter ia;
 };
+
 }  // namespace detail
-}  // namespace nlohmann
+NLOHMANN_JSON_NAMESPACE_END
