@@ -12,7 +12,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkWebGPURenderer;
-class vtkWebGPUPolyDataMapper;
+class vtkWebGPUComputePipeline;
 
 /**
  * Render buffers are returned by calls to

@@ -9,7 +9,6 @@
 #include "vtkObject.h"
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkSetGet.h"                // for get/set macro
-#include "vtkWebGPUPolyDataMapper.h"  // for vtkWebGPUPolyDataMapper
 #include "vtk_wgpu.h"                 // for dawn classes
 
 #include <functional>
