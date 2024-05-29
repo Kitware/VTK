@@ -253,7 +253,12 @@ int vtkRandomHyperTreeGridSource::RequestData(
     auto cursor = vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor>::Take(
       htg->NewNonOrientedCursor(treeId, true));
     double unmaskedFraction = 1.0;
-    if (this->MaskedFraction > 0)
+    if (this->MaskedFraction == 1.0)
+    {
+      cursor->SetMask(true);
+      unmaskedFraction = 0.0;
+    }
+    else if (this->MaskedFraction > 0)
     {
       unmaskedFraction =
         this->GenerateMask(cursor, treeId, 1.0, false, treeSiblingsFractionMasked, errorMargin);
