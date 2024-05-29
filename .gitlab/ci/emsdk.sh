@@ -3,10 +3,10 @@
 set -e
 
 readonly prefix="emsdk"
-readonly version="3.1.58"
+readonly version="3.1.60"
 
 shatool="sha256sum"
-sha256sum="b612123122a2747682f6e80091e973956e38c34cea35c867caa1bb740ec910b4"
+sha256sum="a2c8ba8bf54bbd19d6b32f137f06566caa98356c319e60b4f11d97a079b2ecf2"
 readonly shatool
 readonly sha256sum
 
