@@ -118,24 +118,51 @@ int TestRequestOutOfBoundsTimeStep()
 
 int TestUniformSmoothing()
 {
-  vtkNew<MockTemporalPointSource> source;
-
-  vtkNew<vtkTemporalSmoothing> temporalSmoothing;
-  temporalSmoothing->SetTemporalWindowHalfWidth(1);
-  temporalSmoothing->SetInputConnection(source->GetOutputPort());
-
-  temporalSmoothing->UpdateTimeStep(1);
-
-  vtkPolyData* result = vtkPolyData::SafeDownCast(temporalSmoothing->GetOutput());
-  vtkFloatArray* array = vtkFloatArray::SafeDownCast(result->GetPointData()->GetArray(0));
-
-  float v0 = array->GetValue(0);
-  float v1 = array->GetValue(1);
-  float v2 = array->GetValue(2);
-
-  if (v0 != 1 || v1 != 2 || v2 != 3)
+  // Half-width = 1
   {
-    return EXIT_FAILURE;
+    vtkNew<MockTemporalPointSource> source;
+
+    vtkNew<vtkTemporalSmoothing> temporalSmoothing;
+    temporalSmoothing->SetTemporalWindowHalfWidth(1);
+    temporalSmoothing->SetInputConnection(source->GetOutputPort());
+
+    temporalSmoothing->UpdateTimeStep(1);
+
+    vtkPolyData* result = vtkPolyData::SafeDownCast(temporalSmoothing->GetOutput());
+    vtkFloatArray* array = vtkFloatArray::SafeDownCast(result->GetPointData()->GetArray(0));
+
+    float v0 = array->GetValue(0);
+    float v1 = array->GetValue(1);
+    float v2 = array->GetValue(2);
+
+    if (v0 != 1 || v1 != 2 || v2 != 3)
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  // Half-width = 5
+  {
+    vtkNew<MockTemporalPointSource> source;
+    source->SetNumTimeSteps(30);
+
+    vtkNew<vtkTemporalSmoothing> temporalSmoothing;
+    temporalSmoothing->SetTemporalWindowHalfWidth(5);
+    temporalSmoothing->SetInputConnection(source->GetOutputPort());
+
+    temporalSmoothing->UpdateTimeStep(15.);
+
+    vtkPolyData* result = vtkPolyData::SafeDownCast(temporalSmoothing->GetOutput());
+    vtkFloatArray* array = vtkFloatArray::SafeDownCast(result->GetPointData()->GetArray(0));
+
+    float v0 = array->GetValue(0);
+    float v1 = array->GetValue(1);
+    float v2 = array->GetValue(2);
+
+    if (v0 != 15 || v1 != 16 || v2 != 17)
+    {
+      return EXIT_FAILURE;
+    }
   }
 
   return EXIT_SUCCESS;
@@ -145,17 +172,13 @@ int TestTemporalSmoothingFilter(int, char*[])
 {
   if (TestUniformSmoothing())
   {
-    vtkErrorWithObjectMacro(nullptr,
-      "Test failed: \n"
-        << "Wrong smoothing filter output.");
+    vtkErrorWithObjectMacro(nullptr, "Test failed: \n Wrong smoothing filter output.");
     return EXIT_FAILURE;
   }
 
   if (TestRequestOutOfBoundsTimeStep())
   {
-    vtkErrorWithObjectMacro(nullptr,
-      "Test failed: \n"
-        << "Wrong behavior on out-of-bound time step.");
+    vtkErrorWithObjectMacro(nullptr, "Test failed: \n Wrong behavior on out-of-bound time step.");
     return EXIT_FAILURE;
   }
 
