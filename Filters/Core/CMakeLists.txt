@@ -135,15 +135,15 @@ set(classes
   vtkVoronoi2D
   vtkWindowedSincPolyDataFilter)
 
-set(private_headers
-  vtk3DLinearGridInternal.h)
-
 set(headers
   vtkDecimatePolylineStrategy.h)
 
+set(private_headers
+  vtk3DLinearGridInternal.h)
+
 vtk_module_add_module(VTK::FiltersCore
   CLASSES ${classes}
-  PRIVATE_HEADERS ${private_headers}
-  HEADERS ${headers})
+  HEADERS ${headers}
+  PRIVATE_HEADERS ${private_headers})
 
 vtk_add_test_mangling(VTK::FiltersCore)
