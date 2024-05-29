@@ -33,7 +33,7 @@ public:
   /**
    * Method for computing the decimation error. This implementation uses the
    * distance between the origin and the line formed by the other 2 points points as metric of
-   * error. The caller should ensure that the Ids provided oprrespond to existing and allocated
+   * error. The caller should ensure that the Ids provided correspond to existing and allocated
    * points in the dataset.
    * @param dataset the dataset containing the points to evaluate.
    * @param originId the Id of the origin point.

@@ -7,7 +7,7 @@
  *
  * This class inherits from `vtkDecimatePolylineStrategy` and its decimation strategy uses the
  * values stored in a defined point data array as a metric of error. This array is retrieved using
- * the the class porperty FieldName.
+ * the the class property FieldName.
  *
  * @warning
  * The ComputeError method doesn't check the validity of its parameters for performance purposes.
