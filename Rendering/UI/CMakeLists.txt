@@ -114,7 +114,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   else ()
     vtk_module_link_options(VTK::RenderingUI
       INTERFACE
-        "--js-library=${CMAKE_CURRENT_SOURCE_DIR}/vtkWebAssemblyRenderWindowInteractor.js")
+        "$<BUILD_INTERFACE:--js-library=${CMAKE_CURRENT_SOURCE_DIR}/vtkWebAssemblyRenderWindowInteractor.js>"
+        "$<INSTALL_INTERFACE:--js-library=$<INSTALL_PREFIX>/lib/vtkWebAssemblyRenderWindowInteractor.js>")
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtkWebAssemblyRenderWindowInteractor.js"
+      DESTINATION ${CMAKE_INSTALL_LIBDIR})
   endif ()
 endif ()
 
