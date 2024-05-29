@@ -58,6 +58,7 @@ public:
   vtkSetMacro(FieldName, std::string);
   vtkGetMacro(FieldName, std::string);
   /// @}
+
 protected:
   vtkDecimatePolylineCustomFieldStrategy() = default;
   ~vtkDecimatePolylineCustomFieldStrategy() override = default;

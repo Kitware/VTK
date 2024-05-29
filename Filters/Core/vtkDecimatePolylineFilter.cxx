@@ -93,10 +93,8 @@ int vtkDecimatePolylineFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(re
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  int numPieces, ghostLevel;
-
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   if (numPieces > 1)
   {
@@ -126,6 +124,7 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     return 1;
   }
+
   vtkIdType numLines = inputLines->GetNumberOfCells();
   vtkIdType numPts = inputPoints->GetNumberOfPoints();
   if (numLines < 1 || numPts < 1)
@@ -135,8 +134,7 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (this->DecimationStrategy == nullptr)
   {
-    vtkWarningMacro(
-      << "No decimation strategy has been defined. The decimation cannot be performed.");
+    vtkWarningMacro("No decimation strategy has been defined. The decimation cannot be performed.");
     return 1;
   }
 
