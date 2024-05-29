@@ -454,8 +454,7 @@ void vtkTemporalSmoothing::InitializeArrays(vtkFieldData* inFd, vtkFieldData* ou
 void vtkTemporalSmoothing::InitializeArray(vtkDataArray* array, vtkFieldData* outFd)
 {
   vtkSmartPointer<vtkDataArray> newArray;
-  newArray.TakeReference(
-    vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(array->GetDataType())));
+  newArray.TakeReference(array->NewInstance());
   newArray->DeepCopy(array);
   outFd->AddArray(newArray);
 }
