@@ -97,6 +97,7 @@ set(test_sources
   TestHyperTreeGridTernaryHyperbola.cxx
   TestHyperTreeGridTernarySphereMaterial.cxx
   TestHyperTreeGridTernarySphereMaterialReflections.cxx
+  TestHyperTreeGridThresholdMethods.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridToDualGrid.cxx
   TestHyperTreeGridVisibleLeavesSize.cxx,NO_VALID,NO_OUPUT
   )
