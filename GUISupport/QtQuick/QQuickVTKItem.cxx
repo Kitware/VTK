@@ -291,6 +291,7 @@ QSGNode* QQuickVTKItem::updatePaintNode(QSGNode* node, UpdatePaintNodeData*)
   // Watch for size changes
   auto size = QSizeF(width(), height());
   n->m_devicePixelRatio = window()->devicePixelRatio();
+  d->qt2vtkInteractorAdapter.SetDevicePixelRatio(n->m_devicePixelRatio);
   auto sz = size * n->m_devicePixelRatio;
   bool dirtySize = sz != n->m_size;
   if (dirtySize)
