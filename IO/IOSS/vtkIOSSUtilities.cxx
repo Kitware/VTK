@@ -274,8 +274,20 @@ vtkSmartPointer<vtkDataArray> GetData(const Ioss::GroupingEntity* entity,
   // vtkLogF(TRACE, "%s: size: %d * %d", fieldname.c_str(), (int)field.raw_count(),
   //  (int)field.raw_storage()->component_count());
   auto array = vtkIOSSUtilities::CreateArray(field);
-  auto count = entity->get_field_data(
-    fieldname, array->GetVoidPointer(0), array->GetDataSize() * array->GetDataTypeSize());
+  auto count = -1;
+  if (field.zero_copy_enabled())
+  {
+    void* data;
+    size_t data_size;
+    count = entity->get_field_data(fieldname, &data, &data_size);
+    array->SetVoidArray(data, static_cast<vtkIdType>(data_size), 1);
+  }
+  else
+  {
+    count = entity->get_field_data(
+      fieldname, array->GetVoidPointer(0), array->GetDataSize() * array->GetDataTypeSize());
+  }
+
   if (static_cast<vtkIdType>(count) != array->GetNumberOfTuples())
   {
     throw std::runtime_error("Failed to read field " + fieldname);
