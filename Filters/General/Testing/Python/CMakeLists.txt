@@ -5,7 +5,6 @@ vtk_add_test_python(
   TestCellLocators.py,NO_OUTPUT,NO_VALID
   TestClipClosedSurface.py
   TestClipOutline.py
-  TestCriticalTime.py,NO_OUTPUT,NO_VALID
   TestCurvatures.py
   TestDeformPointSet.py
   TestDiscreteFlyingEdges2D.py

@@ -1,4 +1,5 @@
 set(classes
+  vtkCriticalTime
   vtkForceStaticMesh
   vtkDataObjectMeshCache
   vtkTemporalSmoothing)

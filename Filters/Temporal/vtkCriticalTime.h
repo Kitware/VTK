@@ -28,7 +28,9 @@
  * points/cells. The name of this array is the same of the selected array with `_critical_time`
  * appended at the end.
  *
- * Note: if the key `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()` is set,
+ * @note This filters expects that the input topology do not change over time.
+ *
+ * @note If the key `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS()` is set,
  * typically when running this filter in situ, then the filter runs the time steps one at a time.
  * It requires causing the execution of the filter multiple times externally, by calling
  * `UpdateTimeStep()` in a loop or using another filter that iterates over time downstream,
@@ -43,11 +45,12 @@
 #ifndef vtkCriticalTime_h
 #define vtkCriticalTime_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersTemporalModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkTemporalAlgorithm.h" // For temporal algorithm
 
 #include <limits> // For std::numeric_limits<>::infinity()
+#include <memory> // For unique_pointer
 
 #ifndef __VTK_WRAP__
 #define vtkPassInputTypeAlgorithm vtkTemporalAlgorithm<vtkPassInputTypeAlgorithm>
@@ -57,9 +60,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkDataSet;
 class vtkFieldData;
-struct vtkCriticalTimeInternal;
 
-class VTKFILTERSGENERAL_EXPORT vtkCriticalTime : public vtkPassInputTypeAlgorithm
+class VTKFILTERSTEMPORAL_EXPORT vtkCriticalTime : public vtkPassInputTypeAlgorithm
 {
 public:
   ///@{
@@ -90,6 +92,7 @@ public:
   /**
    * Set/get the upper threshold. The default value is set to infinity.
    */
+
   vtkGetMacro(UpperThreshold, double);
   vtkSetMacro(UpperThreshold, double);
   ///@}
@@ -114,10 +117,17 @@ public:
    *
    * Note: values are clamped between THRESHOLD_BETWEEN and THRESHOLD_UPPER.
    */
-  void SetThresholdFunction(int function);
-  int GetThresholdFunction() const;
-  std::string GetThresholdFunctionAsString() const;
+  vtkSetClampMacro(ThresholdCriterion, int, THRESHOLD_BETWEEN, THRESHOLD_UPPER);
+  vtkGetMacro(ThresholdCriterion, int);
+  void SetThresholdCriterionToBetween() { this->SetComponentMode(THRESHOLD_BETWEEN); }
+  void SetThresholdCriterionToLower() { this->SetComponentMode(THRESHOLD_LOWER); }
+  void SetThresholdCriterionToUpper() { this->SetComponentMode(THRESHOLD_UPPER); }
   ///@}
+
+  /**
+   * Return a string representation of the threshold criterion
+   */
+  std::string GetThresholdFunctionAsString() const;
 
   enum ComponentModeType
   {
@@ -135,13 +145,18 @@ public:
    * the rule (UseAll) or if any satisfy is (UseAny). The default value is
    * UseSelected.
    */
+
   vtkSetClampMacro(ComponentMode, int, COMPONENT_MODE_USE_SELECTED, COMPONENT_MODE_USE_ANY);
   vtkGetMacro(ComponentMode, int);
   void SetComponentModeToUseSelected() { this->SetComponentMode(COMPONENT_MODE_USE_SELECTED); }
   void SetComponentModeToUseAll() { this->SetComponentMode(COMPONENT_MODE_USE_ALL); }
   void SetComponentModeToUseAny() { this->SetComponentMode(COMPONENT_MODE_USE_ANY); }
-  std::string GetComponentModeAsString() const;
   ///@}
+
+  /**
+   * Return a string representation of the component mode
+   */
+  std::string GetComponentModeAsString() const;
 
   ///@{
   /**
@@ -174,71 +189,14 @@ private:
   vtkCriticalTime(const vtkCriticalTime&) = delete;
   void operator=(const vtkCriticalTime&) = delete;
 
-  ///@{
-  /**
-   * Helper methods called during Initialize().
-   * Fill the output critical time array with NaN values.
-   */
-  int InitializeCriticalTimeArray(
-    vtkDataObject* input, vtkDataObject* output, vtkDataObject* cache);
-  int InitializeCriticalTimeArray(vtkDataSet* input, vtkDataSet* output, vtkDataSet* cache);
-  int InitializeCriticalTimeArray(
-    vtkCompositeDataSet* input, vtkCompositeDataSet* output, vtkCompositeDataSet* cache);
-  int InitializeCriticalTimeArray(vtkDataArray* array, vtkFieldData* outFd);
-  ///@}
-
-  ///@{
-  /**
-   * Helper methods called during Exectute().
-   * Update the output critical time array by checking, for each point / cell, if the criterion
-   * has been met.
-   */
-  int UpdateCriticalTimeArray(vtkDataObject* input, vtkDataObject* output);
-  int UpdateCriticalTimeArray(vtkDataSet* input, vtkDataSet* output);
-  int UpdateCriticalTimeArray(vtkCompositeDataSet* input, vtkCompositeDataSet* output);
-  int UpdateCriticalTimeArray(vtkDataArray* array, vtkFieldData* outFd);
-  ///@}
-
-  // Helper method to retrieve the output critical time array.
-  vtkDoubleArray* GetCriticalTimeArray(
-    vtkFieldData* fieldData, vtkDataArray* inArray, const std::string& nameSuffix);
-
-  ///@{
-  /**
-   * Methods used for thresholding. vtkCriticalTime::Lower returns true if s is lower than the lower
-   * threshold, vtkCriticalTime::Upper returns true if s is larger than the upper threshold, and
-   * vtkCriticalTime::Between returns true if s is between the lower and upper thresholds.
-   */
-  bool Between(double s) const;
-  bool Lower(double s) const;
-  bool Upper(double s) const;
-  ///@}
-
-  bool (vtkCriticalTime::*ThresholdFunction)(double s) const = &vtkCriticalTime::Upper;
-
   double LowerThreshold = -std::numeric_limits<double>::infinity();
   double UpperThreshold = std::numeric_limits<double>::infinity();
+  int ThresholdCriterion = THRESHOLD_BETWEEN;
   int ComponentMode = COMPONENT_MODE_USE_SELECTED;
   int SelectedComponent = 0;
 
-  /**
-   * Workers used to fill the critical time array
-   */
-  struct CheckCriticalTimeComp;
-  struct CheckCriticalTimeAny;
-  struct CheckCriticalTimeAll;
-
-  /**
-   * Output result, that can be returned at each Finalize() call
-   */
-  vtkSmartPointer<vtkDataObject> OutputCache;
-
-  /**
-   * Used to avoid multiple warnings for the same filter when
-   * the number of points or cells in the data set is changing
-   * between time steps.
-   */
-  bool GeneratedChangingTopologyWarning = false;
+  struct vtkCriticalTimeInternals;
+  std::unique_ptr<vtkCriticalTimeInternals> Internals;
 };
 
 VTK_ABI_NAMESPACE_END

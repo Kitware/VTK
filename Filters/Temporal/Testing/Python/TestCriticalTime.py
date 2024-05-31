@@ -65,18 +65,18 @@ class PointSource(VTKPythonAlgorithmBase):
 # Test vtkCriticalTime filter with single-component array
 def test_ctt_filter_scalar(criticalTT):
     criticalTT.SetInputArrayToProcess(0, 0, 0, 0, "scalars")
-    criticalTT.SetThresholdFunction(UPPER)
+    criticalTT.SetThresholdCriterion(UPPER)
     criticalTT.SetUpperThreshold(5.0)
     criticalTT.Update()
     assert(criticalTT.GetOutput().GetPointData().GetArray("scalars_critical_time").GetValue(0) == 5.0)
 
     criticalTT.SetInputArrayToProcess(0, 0, 0, 0, "inv_scalars")
-    criticalTT.SetThresholdFunction(LOWER)
+    criticalTT.SetThresholdCriterion(LOWER)
     criticalTT.SetLowerThreshold(-4.0)
     criticalTT.Update()
     assert(criticalTT.GetOutput().GetPointData().GetArray("inv_scalars_critical_time").GetValue(0) == 4.0)
 
-    criticalTT.SetThresholdFunction(BETWEEN)
+    criticalTT.SetThresholdCriterion(BETWEEN)
     criticalTT.SetUpperThreshold(-1.0)
     criticalTT.SetLowerThreshold(-3.0)
     criticalTT.Update()
@@ -93,19 +93,19 @@ def test_ctt_filter_vector_comp(criticalTT):
     criticalTT.SetInputArrayToProcess(0, 0, 0, 0, "vectors")
     criticalTT.SetComponentModeToUseSelected()
     criticalTT.SetSelectedComponent(0) # X
-    criticalTT.SetThresholdFunction(UPPER)
+    criticalTT.SetThresholdCriterion(UPPER)
     criticalTT.SetUpperThreshold(5.0)
     criticalTT.Update()
     assert(criticalTT.GetOutput().GetPointData().GetArray("vectors_critical_time").GetValue(0) == 5.0)
 
     criticalTT.SetSelectedComponent(1) # Y
-    criticalTT.SetThresholdFunction(LOWER)
+    criticalTT.SetThresholdCriterion(LOWER)
     criticalTT.SetLowerThreshold(-4.0)
     criticalTT.Update()
     assert(criticalTT.GetOutput().GetPointData().GetArray("vectors_critical_time").GetValue(0) == 4.0)
 
     criticalTT.SetSelectedComponent(2) # Z
-    criticalTT.SetThresholdFunction(BETWEEN)
+    criticalTT.SetThresholdCriterion(BETWEEN)
     criticalTT.SetLowerThreshold(6)
     criticalTT.SetUpperThreshold(7)
     criticalTT.Update()
@@ -117,17 +117,17 @@ def test_ctt_filter_vector_mag(criticalTT):
     criticalTT.SetInputArrayToProcess(0, 0, 0, 0, "vectors")
     criticalTT.SetComponentModeToUseSelected()
     criticalTT.SetSelectedComponent(3) # Mag
-    criticalTT.SetThresholdFunction(UPPER)
+    criticalTT.SetThresholdCriterion(UPPER)
     criticalTT.SetUpperThreshold(math.sqrt(2*2 + 2*2 + 4*4)) # timestep = 2
     criticalTT.Update()
     assert(criticalTT.GetOutput().GetPointData().GetArray("vectors_critical_time").GetValue(0) == 2.0)
 
-    criticalTT.SetThresholdFunction(LOWER)
+    criticalTT.SetThresholdCriterion(LOWER)
     criticalTT.SetLowerThreshold(-1.0) # Never reached
     criticalTT.Update()
     assert(math.isnan(criticalTT.GetOutput().GetPointData().GetArray("vectors_critical_time").GetValue(0)))
 
-    criticalTT.SetThresholdFunction(BETWEEN)
+    criticalTT.SetThresholdCriterion(BETWEEN)
     criticalTT.SetLowerThreshold(2.5)
     criticalTT.SetUpperThreshold(3.5) # Never comprised between these 2 values
     criticalTT.Update()
@@ -138,17 +138,17 @@ def test_ctt_filter_vector_mag(criticalTT):
 def test_ctt_filter_vector_all(criticalTT):
     criticalTT.SetInputArrayToProcess(0, 0, 0, 0, "vectors")
     criticalTT.SetComponentModeToUseAll()
-    criticalTT.SetThresholdFunction(UPPER)
+    criticalTT.SetThresholdCriterion(UPPER)
     criticalTT.SetUpperThreshold(1.0) # Never reached by all at the same time
     criticalTT.Update()
     assert(math.isnan(criticalTT.GetOutput().GetPointData().GetArray("vectors_critical_time").GetValue(0)))
 
-    criticalTT.SetThresholdFunction(LOWER)
+    criticalTT.SetThresholdCriterion(LOWER)
     criticalTT.SetLowerThreshold(4.0)
     criticalTT.Update()
     assert(criticalTT.GetOutput().GetPointData().GetArray("vectors_critical_time").GetValue(0) == 0.0)
 
-    criticalTT.SetThresholdFunction(BETWEEN)
+    criticalTT.SetThresholdCriterion(BETWEEN)
     criticalTT.SetLowerThreshold(1.0)
     criticalTT.SetUpperThreshold(5.0) # Never reached by all at the same time
     criticalTT.Update()
@@ -159,17 +159,17 @@ def test_ctt_filter_vector_all(criticalTT):
 def test_ctt_filter_vector_any(criticalTT):
     criticalTT.SetInputArrayToProcess(0, 0, 0, 0, "vectors")
     criticalTT.SetComponentModeToUseAny()
-    criticalTT.SetThresholdFunction(UPPER)
+    criticalTT.SetThresholdCriterion(UPPER)
     criticalTT.SetUpperThreshold(16.0)
     criticalTT.Update()
     assert(criticalTT.GetOutput().GetPointData().GetArray("vectors_critical_time").GetValue(0) == 8.0)
 
-    criticalTT.SetThresholdFunction(LOWER)
+    criticalTT.SetThresholdCriterion(LOWER)
     criticalTT.SetLowerThreshold(-16.0) # Never reached
     criticalTT.Update()
     assert(math.isnan(criticalTT.GetOutput().GetPointData().GetArray("vectors_critical_time").GetValue(0)))
 
-    criticalTT.SetThresholdFunction(BETWEEN)
+    criticalTT.SetThresholdCriterion(BETWEEN)
     criticalTT.SetUpperThreshold(-5.0)
     criticalTT.SetLowerThreshold(-7.0)
     criticalTT.Update()
@@ -188,12 +188,12 @@ def test_ctt_filter_vector(criticalTT):
 # timesteps has been processed in this mode
 def test_in_situ(criticalTT, criticalTTIS):
     criticalTT.SetInputArrayToProcess(0, 0, 0, 0, "scalars")
-    criticalTT.SetThresholdFunction(UPPER)
+    criticalTT.SetThresholdCriterion(UPPER)
     criticalTT.SetUpperThreshold(5.0)
     criticalTT.Update()
 
     criticalTTIS.SetInputArrayToProcess(0, 0, 0, 0, "scalars")
-    criticalTTIS.SetThresholdFunction(UPPER)
+    criticalTTIS.SetThresholdCriterion(UPPER)
     criticalTTIS.SetUpperThreshold(5.0)
 
     idx = 0
