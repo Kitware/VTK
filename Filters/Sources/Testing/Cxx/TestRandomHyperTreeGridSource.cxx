@@ -670,6 +670,18 @@ void TestHyperTreeGridGetShiftedLevelZeroIndex_2D_YZ()
   TestHyperTreeGridGetShiftedLevelZeroIndex_2D(0, nbTrees, originHTG, htGrid);
 }
 
+void TestEmptyHyperTreeGrid()
+{
+  std::cout << "TestEmptyHyperTreeGrid" << std::endl;
+
+  vtkNew<vtkRandomHyperTreeGridSource> source;
+  source->SetDimensions(1, 1, 1); // HTG dimension is 0, should not output any tree
+  source->Update();
+
+  assert(vtkHyperTreeGrid::SafeDownCast(source->GetOutputDataObject(0))->GetDimension() == 0 ||
+    GuruMeditation("Empty HTG Has dimension != 0"));
+}
+
 } // end anon namespace
 
 int TestRandomHyperTreeGridSource(int, char*[])
@@ -714,6 +726,7 @@ int TestRandomHyperTreeGridSource(int, char*[])
   TestHyperTreeGridGetShiftedLevelZeroIndex_2D_XY();
   TestHyperTreeGridGetShiftedLevelZeroIndex_2D_XZ();
   TestHyperTreeGridGetShiftedLevelZeroIndex_2D_YZ();
+  TestEmptyHyperTreeGrid();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }

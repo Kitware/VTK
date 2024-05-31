@@ -155,6 +155,11 @@ int vtkRandomHyperTreeGridSource::RequestData(
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::GetData(outInfo);
   htg->Initialize();
   htg->SetDimensions(this->Dimensions);
+  if (htg->GetDimension() == 0)
+  {
+    // No HyperTrees, we don't need to create anything
+    return 1;
+  }
   htg->SetBranchFactor(::BRANCHING_FACTOR);
   {
     vtkNew<vtkDoubleArray> coords;
