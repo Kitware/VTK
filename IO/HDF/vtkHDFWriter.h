@@ -19,6 +19,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataObjectTree;
 class vtkDataSet;
+class vtkPoints;
 class vtkPointSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
@@ -133,15 +134,15 @@ private:
    * Dispatch the input vtkDataObject to the right writing function, depending on its dynamic type.
    * Data will be written in the specified group, which must already exist.
    */
-  void DispatchDataObject(hid_t group, vtkDataObject* input);
+  void DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId = 0);
 
   ///@{
   /**
    * Write the given dataset to the current FileName in vtkHDF format.
    * returns true if the writing operation completes successfully.
    */
-  bool WriteDatasetToFile(hid_t group, vtkPolyData* input);
-  bool WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input);
+  bool WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned int partId = 0);
+  bool WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input);
   bool WriteDatasetToFile(hid_t group, vtkDataObjectTree* input);
   ///@}
@@ -159,8 +160,19 @@ private:
    * Initialize the `Steps` group for transient data, and extendable datasets where needed.
    * This way, the other functions will append to existing datasets every step.
    */
-  bool InitializeTemporalData(vtkUnstructuredGrid* input);
-  bool InitializeTemporalData(vtkPolyData* input);
+  bool InitializeTemporalPolyData();
+  bool InitializeTemporalUnstructuredGrid();
+  ///@}
+
+  ///@{
+  /**
+   * Initialize empty dynamic chunked datasets where data will be appended.
+   * These datasets will be extended when a new partition is written.
+   */
+  bool InitializeChunkedDatasets(hid_t group, vtkUnstructuredGrid* input);
+  bool InitializeChunkedDatasets(hid_t group, vtkPolyData* input);
+  bool InitializePointDatasets(hid_t group, vtkPoints* input);
+  bool InitializePrimitiveDataset(hid_t group);
   ///@}
 
   /**
@@ -215,7 +227,7 @@ private:
    * Add the data arrays of the object to the file
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendDataArrays(hid_t group, vtkDataObject* input);
+  bool AppendDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
 
   ///@{
   /**
@@ -250,8 +262,8 @@ private:
   /**
    * Append the offset data in the steps group for the current array for transient data
    */
-  bool AppendTemporalDataArray(hid_t arrayGroup, vtkAbstractArray* array, const char* arrayName,
-    const char* offsetsGroupName, hid_t dataType);
+  bool AppendDataArrayOffset(
+    vtkAbstractArray* array, const char* arrayName, const char* offsetsGroupName);
 
   /**
    * Write the NSteps attribute and the Value dataset to group for transient writing.
