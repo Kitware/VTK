@@ -14,6 +14,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellCenters.h"
 #include "vtkCellData.h"
+#include "vtkCellTypeSource.h"
 #include "vtkCommunicator.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
@@ -3340,6 +3341,44 @@ bool TestPointPrecision(vtkMultiProcessController* controller, int myrank)
 
   return retVal;
 }
+
+int TestNonlinearCells(vtkMultiProcessController* controller)
+{
+  const std::set<int> SupportedCellTypes = {
+    VTK_TRIQUADRATIC_HEXAHEDRON,
+    VTK_LAGRANGE_HEXAHEDRON,
+    VTK_BEZIER_HEXAHEDRON,
+  };
+  bool retVal = true;
+
+  for (const auto cellType : SupportedCellTypes)
+  {
+
+    vtkNew<vtkCellTypeSource> cellTypeSource;
+    cellTypeSource->SetBlocksDimensions(2, 1, 1);
+    cellTypeSource->SetCellOrder(2);
+    cellTypeSource->SetCellType(cellType);
+    cellTypeSource->Update();
+
+    vtkNew<vtkGhostCellsGenerator> generator;
+    generator->SetInputData(cellTypeSource->GetOutput());
+    generator->GenerateGlobalIdsOn();
+    generator->GenerateProcessIdsOn();
+    generator->SetNumberOfGhostLayers(1);
+    generator->SetController(controller);
+    generator->BuildIfRequiredOff();
+    generator->Update();
+
+    auto output = vtkUnstructuredGrid::SafeDownCast(generator->GetOutputDataObject(0));
+    if (output->GetNumberOfPoints() != 48)
+    {
+      vtkLog(
+        ERROR, "The number of point is supposed to be 48 but is " << output->GetNumberOfPoints());
+      retVal = false;
+    }
+  }
+  return retVal;
+}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -3383,6 +3422,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
   }
 
   if (!TestGhostDataSynchronization(contr, myrank))
+  {
+    retVal = EXIT_FAILURE;
+  }
+
+  if (!TestNonlinearCells(contr))
   {
     retVal = EXIT_FAILURE;
   }

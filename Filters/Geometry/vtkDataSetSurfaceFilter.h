@@ -199,6 +199,15 @@ public:
 
   ///@{
   /**
+   * Disable the interpolation for nonlinear cells when not needed.
+   */
+  vtkSetMacro(AllowInterpolation, vtkTypeBool);
+  vtkGetMacro(AllowInterpolation, vtkTypeBool);
+  vtkBooleanMacro(AllowInterpolation, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * Disable delegation to an internal vtkGeometryFilter. The geometry filter runs
    * much faster (especially for unstructured grids); however the two filters
    * produce slightly different output. Hence by default delegation is disabled.
@@ -357,6 +366,7 @@ protected:
 
   int NonlinearSubdivisionLevel;
   int MatchBoundariesIgnoringCellOrder;
+  vtkTypeBool AllowInterpolation;
   vtkTypeBool Delegation;
   bool FastMode;
 
