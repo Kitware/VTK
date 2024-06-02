@@ -11,7 +11,6 @@
 #include "vtkDGAttributeInformation.h"
 #include "vtkDGBoundsResponder.h"
 #include "vtkDGCopyResponder.h"
-#include "vtkDGCrinkleResponder.h"
 #include "vtkDGEdge.h"
 #include "vtkDGElevationResponder.h"
 #include "vtkDGEvaluator.h"
@@ -118,7 +117,6 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     vtkNew<vtkDGSidesResponder> dgSds;
     vtkNew<vtkDGTranscribeUnstructuredCells> dgTrs;
     vtkNew<vtkDGCopyResponder> dgCpy;
-    vtkNew<vtkDGCrinkleResponder> dgCrk;
 
     // Attribute calculators
     vtkNew<vtkDGInterpolateCalculator> dgInterp;
@@ -133,7 +131,6 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridRangeQuery>(dgRng.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridSidesQuery>(dgSds.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridTranscribeQuery>(dgTrs.GetPointer());
-    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCrinkleQuery>(dgCrk.GetPointer());
 
     // Register calculators
     // # Register vtkInterpolateCalculator responders.

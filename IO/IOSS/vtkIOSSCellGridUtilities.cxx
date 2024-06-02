@@ -191,6 +191,68 @@ bool ConnectivityNeedsPermutation(vtkDGCell* meta, int ioss_cell_points,
 {
   permutation.clear();
   vtkStringToken cellType = meta->GetClassName();
+  // XXX(c++14)
+#if __cplusplus < 201400L
+  if (cellType == "vtkDGTet"_token)
+  {
+    if (ioss_cell_points == 15)
+    {
+      permutation = { // Corner vertices
+        0, 1, 2, 3,
+        // Edges
+        4, 5, 6, 7, 8, 9,
+        // Faces
+        11, 14, 12, 13,
+        // Body-centered
+        10
+      };
+    }
+  }
+  else if (cellType == "vtkDGWdg"_token)
+  {
+    if (ioss_cell_points == 21)
+    {
+      permutation = { /* 2 triangles */
+        3, 4, 5, 0, 1, 2,
+
+        /* edge centers */
+        12, 13, 14, 6, 7, 8, 9, 10, 11,
+
+        /* triangle centers */
+        17, 16,
+
+        /* quad-centers */
+        20, 18, 19,
+
+        /* body center */
+        15
+      };
+    }
+  }
+  else if (cellType == "vtkDGPyr"_token)
+  {
+    switch (ioss_cell_points)
+    {
+      case 18:
+      case 19:
+        permutation = { /* corners */
+          2, 3, 0, 1, 4,
+          /* mid-edge points */
+          7, 8, 5, 6, 11, 12, 9, 10,
+          /* mid-face points */
+          17, 15, 16, 13, 14
+        };
+        if (ioss_cell_points == 18)
+        {
+          break;
+        }
+        permutation.push_back(18);
+        break;
+      default:
+        break;
+    }
+  }
+#else
   switch (cellType.GetId())
   {
     case "vtkDGTet"_hash:
@@ -252,6 +314,7 @@ bool ConnectivityNeedsPermutation(vtkDGCell* meta, int ioss_cell_points,
     default:
       break;
   }
+#endif
   return !permutation.empty();
 }
 

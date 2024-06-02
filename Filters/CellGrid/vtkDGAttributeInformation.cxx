@@ -90,6 +90,134 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
   int numberOfBasisFunctions;
   int numberOfSides;
   int degreeOfFreedomSize = -1;
+  // XXX(c++14)
+#if __cplusplus < 201400L
+  if (functionSpace == "HDIV"_token || functionSpace == "hdiv"_token)
+  {
+    sideDim = cellType->GetDimension() - 1;
+    numberOfSides = cellType->GetNumberOfSidesOfDimension(sideDim);
+    basisValueSize = 3;
+    basisName << "HDiv";
+    integrationScheme = 'i';
+    // NB: For now, we only support order 0 and 1
+    numberOfBasisFunctions = order == 0 ? 1 : numberOfSides;
+  }
+  else if (functionSpace == "HCURL"_token || functionSpace == "hcurl"_token)
+  {
+    sideDim = 1;
+    numberOfSides = cellType->GetNumberOfSidesOfDimension(sideDim);
+    basisValueSize = 3;
+    basisName << "HCurl";
+    integrationScheme = 'i';
+    // NB: For now, we only support order 0 and 1
+    numberOfBasisFunctions = order == 0 ? 1 : numberOfSides;
+  }
+  else if (functionSpace == "HGRAD"_token || functionSpace == "hgrad"_token)
+  {
+    sideDim = 0;
+    basisValueSize = 1;
+    numberOfSides = cellType->GetNumberOfSidesOfDimension(sideDim);
+    basisName << "HGrad";
+    switch (cellType->GetShape())
+    {
+      default:
+      case vtkDGCell::Shape::None:
+        numberOfBasisFunctions = 0;
+        break;
+      case vtkDGCell::Shape::Hexahedron:
+        if (cellTypeInfo.Basis == "I"_token)
+        {
+          // A basis function for each of 8 corners and (order - 1) mid-edge points.
+          // No mid-face or mid-body points.
+          numberOfBasisFunctions = 8 + (order - 1) * 12;
+          integrationScheme = 'i';
+        }
+        else
+        {
+          // "C"omplete basis
+          numberOfBasisFunctions = op1 * op1 * op1;
+          integrationScheme = 'c';
+        }
+        break;
+      case vtkDGCell::Shape::Tetrahedron:
+        if (cellTypeInfo.Basis == "F"_token)
+        {
+          numberOfBasisFunctions = 15;
+          integrationScheme = 'f';
+        }
+        else
+        {
+          // "C"omplete basis
+          numberOfBasisFunctions = op1 * op2 * op3 / 6;
+          integrationScheme = 'c';
+        }
+        break;
+      case vtkDGCell::Shape::Pyramid:
+        // We only handle order 0, 1, or 2 for Complete and Full bases:
+        if (cellTypeInfo.Basis == "F"_token)
+        {
+          numberOfBasisFunctions = (order == 2 ? 19 : (order == 1 ? 5 : 1));
+          integrationScheme = 'f';
+        }
+        else
+        {
+          // "C"omplete basis
+          numberOfBasisFunctions = (order == 2 ? 18 : (order == 1 ? 5 : 1));
+          integrationScheme = 'c';
+        }
+        break;
+      case vtkDGCell::Shape::Wedge:
+        if (cellTypeInfo.Basis == "F"_token)
+        {
+          numberOfBasisFunctions = 21; // Only support wedge-21 for now.
+          integrationScheme = 'f';
+        }
+        else
+        {
+          // "C"omplete basis
+          numberOfBasisFunctions = op1 * op1 * op2 / 2;
+          integrationScheme = 'c';
+        }
+        break;
+      case vtkDGCell::Shape::Quadrilateral:
+        numberOfBasisFunctions = op1 * op1;
+        integrationScheme = 'c';
+        break;
+      case vtkDGCell::Shape::Triangle:
+        numberOfBasisFunctions = (order + 1) * (order + 2) / 2;
+        integrationScheme = 'c';
+        break;
+      case vtkDGCell::Shape::Edge:
+        numberOfBasisFunctions = order + 1;
+        integrationScheme = 'c';
+        break;
+      case vtkDGCell::Shape::Vertex:
+        numberOfBasisFunctions = 1;
+        integrationScheme = 'c';
+        break;
+    }
+  }
+  else if (functionSpace == "constant"_token)
+  {
+    // A single constant value over the entire cell.
+    // There is one basis function and its value is 1.0.
+    sideDim = 0;
+    basisValueSize = 1;
+    numberOfSides = 1;
+    // We can use an order 0 "HGrad" interpolant for constant values
+    // even though we do not have a basis function per cell corner.
+    basisName << "HGrad";
+    numberOfBasisFunctions = 1;
+  }
+  else
+  {
+    basisValueSize = 1;
+    numberOfSides = 0;
+    numberOfBasisFunctions = 0;
+    sideDim = 0;
+    basisName << "None";
+  }
+#else
   switch (functionSpace.GetId())
   {
     case "hdiv"_hash:
@@ -226,6 +354,7 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
       basisName << "None";
       break;
   }
+#endif
 
   basisName << vtkDGAttributeInformation::BasisShapeName(cellType)
             << static_cast<char>(std::toupper(integrationScheme)) << order;

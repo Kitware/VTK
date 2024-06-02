@@ -250,6 +250,102 @@ vtkCellAttribute::CellTypeInfo vtkIOSSCellGridReaderInternal::GetCellGridInfoFor
     return cellTypeInfo;
   }
   int op1 = shape_order + 1;
+  // XXX(c++14)
+#if __cplusplus < 201400L
+  if (cellTypeName == "vtkDGVert"_token)
+  {
+    if (shape_order > 0)
+    {
+      throw std::runtime_error("Vertices may only have constant values.");
+    }
+    cellTypeInfo.Basis = "C"_token;
+  }
+  else if (cellTypeName == "vtkDGEdge"_token)
+  {
+    cellTypeInfo.Basis = "C"_token;
+  }
+  else if (cellTypeName == "vtkDGQuad"_token)
+  {
+    cellTypeInfo.Basis = (op1 * op1 == shape_conn_size ? "C"_token : "I"_token);
+  }
+  else if (cellTypeName == "vtkDGTri"_token)
+  {
+    cellTypeInfo.Basis = "C"_token;
+  }
+  else if (cellTypeName == "vtkDGPyr"_token)
+  {
+    switch (shape_conn_size)
+    {
+      case 13:
+        cellTypeInfo.Basis = "I"_token;
+        break;
+      case 5:
+      case 18:
+        cellTypeInfo.Basis = "C"_token;
+        break;
+      case 19:
+        cellTypeInfo.Basis = "F"_token;
+        break;
+      default:
+        throw std::runtime_error("Unhandled pyramid connectivity size.");
+    }
+  }
+  else if (cellTypeName == "vtkDGWdg"_token)
+  {
+    switch (shape_conn_size)
+    {
+      case 15:
+        cellTypeInfo.Basis = "I"_token;
+        break;
+      case 6:
+      case 18:
+        cellTypeInfo.Basis = "C"_token;
+        break;
+      case 21:
+        cellTypeInfo.Basis = "F"_token;
+        break;
+      default:
+        throw std::runtime_error("Unhandled wedge connectivity size.");
+    }
+  }
+  else if (cellTypeName == "vtkDGHex"_token)
+  {
+    switch (shape_conn_size)
+    {
+      case 20:
+        cellTypeInfo.Basis = "I"_token;
+        break;
+      case 8:
+      case 27:
+        cellTypeInfo.Basis = "C"_token;
+        break;
+      default:
+        throw std::runtime_error("Unhandled hex connectivity size.");
+    }
+  }
+  else if (cellTypeName == "vtkDGTet"_token)
+  {
+    switch (shape_conn_size)
+    {
+      case 4:
+      case 10:
+        cellTypeInfo.Basis = "C"_token;
+        break;
+      case 15:
+        cellTypeInfo.Basis = "F"_token;
+        break;
+      default:
+        throw std::runtime_error("Unhandled tetrahedron connectivity size.");
+    }
+  }
+  else
+  {
+    std::string errMsg = "Unhandled cell shape ";
+    errMsg += dg->GetClassName();
+    errMsg += ".";
+    throw std::runtime_error(errMsg);
+  }
+#else
   switch (cellTypeName.GetId())
   {
     case "vtkDGVert"_hash:
@@ -338,6 +434,7 @@ vtkCellAttribute::CellTypeInfo vtkIOSSCellGridReaderInternal::GetCellGridInfoFor
       throw std::runtime_error(errMsg);
     }
   }
+#endif
   return cellTypeInfo;
 }
 

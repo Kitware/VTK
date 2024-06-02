@@ -10,12 +10,10 @@ set(classes
 
   # Queries
   vtkCellGridElevationQuery
-  vtkCellGridCrinkleQuery
 
   # Responders
   vtkDGBoundsResponder
   vtkDGCopyResponder
-  vtkDGCrinkleResponder
   vtkDGElevationResponder
   vtkDGEvaluator
   vtkDGRangeResponder

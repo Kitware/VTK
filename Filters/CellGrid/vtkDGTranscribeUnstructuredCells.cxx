@@ -167,6 +167,36 @@ std::size_t numberOfIntegrationPoints(vtkDGCell* dgCell,
   const vtkUnstructuredGridToCellGrid::TranscribeQuery::BlockAttributesValue& annotation)
 {
   std::size_t nn = 0;
+  // XXX(c++14)
+#if __cplusplus < 201400L
+  if (annotation.BasisSource == "Intrepid2"_token)
+  {
+    std::size_t order = annotation.QuadratureScheme.Data().substr(1, 1)[0] - '0';
+    if (annotation.FunctionSpace == "HDIV"_token)
+    { // case "HDIV":
+      nn = order * dgCell->GetNumberOfSidesOfDimension(1);
+    }
+    else if (annotation.FunctionSpace == "HCURL"_token)
+    { // case "HCURL":
+      nn = order * dgCell->GetNumberOfSidesOfDimension(dgCell->GetDimension() - 1);
+    }
+    else if (annotation.FunctionSpace == "HGRAD"_token)
+    { // case "HGRAD":
+      // TODO: Handle higher orders; this only works for order = 1:
+      nn = order * dgCell->GetNumberOfCorners();
+    }
+    else
+    {
+      vtkWarningWithObjectMacro(dgCell,
+        "Unsupported Intrepid function space \"" << annotation.FunctionSpace.Data() << "\".");
+    }
+  }
+  else
+  {
+    vtkWarningWithObjectMacro(
+      dgCell, "Unsupported basis source \"" << annotation.BasisSource.Data() << "\".");
+  }
+#else
   switch (annotation.BasisSource.GetId())
   {
     case "Intrepid2"_hash:
@@ -199,6 +229,7 @@ std::size_t numberOfIntegrationPoints(vtkDGCell* dgCell,
     }
     break;
   }
+#endif
   return nn;
 }
 
