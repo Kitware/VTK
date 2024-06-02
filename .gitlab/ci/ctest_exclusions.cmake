@@ -5,7 +5,8 @@ set(test_exclusions
 if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
     # Flaky; timesout sometimes on macOS and Linux
-    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$")
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$"
+  )
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
@@ -256,8 +257,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     # Fail to present D3D resources (see #18657)
     "^VTK::RenderingOpenGL2Cxx-TestWin32OpenGLDXRenderWindow$"
 
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19183 
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19183
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
+    # Thread-local objects are not destroyed at program exit.
+    # https://stackoverflow.com/questions/50897768/in-visual-studio-thread-local-variables-destructor-not-called-when-used-with
+    "^VTK::FiltersCellGridPython-TestCellGridRange$"
+    "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
   )
 endif ()
 
