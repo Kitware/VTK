@@ -128,11 +128,12 @@ using namespace vtk::literals; // for ""_token
 vtkStandardNewMacro(vtkUnstructuredGridToCellGrid);
 vtkStandardNewMacro(vtkUnstructuredGridToCellGrid::TranscribeQuery);
 
-void vtkUnstructuredGridToCellGrid::TranscribeQuery::Initialize()
+bool vtkUnstructuredGridToCellGrid::TranscribeQuery::Initialize()
 {
+  bool ok = this->Superclass::Initialize();
   if (!this->Input)
   {
-    return;
+    return false;
   }
   switch (this->Phase)
   {
@@ -157,9 +158,10 @@ void vtkUnstructuredGridToCellGrid::TranscribeQuery::Initialize()
     case VTK_TRANSCRIBE_CELLGRID_PHASE_CONVERT:
       break;
   }
+  return ok;
 }
 
-void vtkUnstructuredGridToCellGrid::TranscribeQuery::Finalize()
+bool vtkUnstructuredGridToCellGrid::TranscribeQuery::Finalize()
 {
   switch (this->Phase)
   {
@@ -190,6 +192,7 @@ void vtkUnstructuredGridToCellGrid::TranscribeQuery::Finalize()
       this->Output = nullptr;
       break;
   }
+  return true;
 }
 
 bool vtkUnstructuredGridToCellGrid::TranscribeQuery::SumOutputCounts()

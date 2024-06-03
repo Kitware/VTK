@@ -39,10 +39,11 @@ void vtkCellGridSidesQuery::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
 }
 
-void vtkCellGridSidesQuery::Initialize()
+bool vtkCellGridSidesQuery::Initialize()
 {
-  this->Superclass::Initialize(); // Reset Pass number.
+  bool ok = this->Superclass::Initialize(); // Reset Pass number.
   this->Hashes.clear();
+  return ok;
 }
 
 void vtkCellGridSidesQuery::StartPass()
@@ -66,10 +67,11 @@ bool vtkCellGridSidesQuery::IsAnotherPassRequired()
   return this->Pass < PassWork::GenerateSideSets;
 }
 
-void vtkCellGridSidesQuery::Finalize()
+bool vtkCellGridSidesQuery::Finalize()
 {
   this->Sides.clear();
   this->Hashes.clear();
+  return true;
 }
 
 #if 0

@@ -72,8 +72,8 @@ public:
     vtkTypeMacro(vtkUnstructuredGridToCellGrid::TranscribeQuery, vtkCellGridQuery);
     static TranscribeQuery* New();
 
-    void Initialize() override;
-    void Finalize() override;
+    bool Initialize() override;
+    bool Finalize() override;
 
     /// Sum counts of all input cell types that generate the same output cell type.
     ///

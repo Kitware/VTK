@@ -61,10 +61,10 @@ public:
   vtkGetObjectMacro(CellAttribute, vtkCellAttribute);
 
   /// Invoked during evaluation before any cell-grid responders are run.
-  void Initialize() override;
+  bool Initialize() override;
 
   /// Invoked during evaluation after all cell-grid responders are run.
-  void Finalize() override;
+  bool Finalize() override;
 
   /// Return the computed range (after the query is evaluated).
   void GetRange(int component, double* range) VTK_SIZEHINT(2);

@@ -206,10 +206,10 @@ public:
   vtkSetEnumMacro(SelectionType, SelectionMode);
   vtkGetEnumMacro(SelectionType, SelectionMode);
 
-  void Initialize() override;
+  bool Initialize() override;
   void StartPass() override;
   bool IsAnotherPassRequired() override;
-  void Finalize() override;
+  bool Finalize() override;
 
   /// Return the map of hashed side information.
   ///

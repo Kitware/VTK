@@ -186,13 +186,13 @@ public:
   vtkGetEnumMacro(PhasesToPerform, vtkCellGridEvaluator::Phases);
 
   /// Invoked during evaluation before any cell-grid responders are run.
-  void Initialize() override;
+  bool Initialize() override;
   /// Invoked at the start of each pass.
   void StartPass() override;
   /// Invoked at the end of each pass.
   bool IsAnotherPassRequired() override;
   /// Invoked during evaluation after all cell-grid responders are run.
-  void Finalize() override;
+  bool Finalize() override;
 
   // Return a point locator that can be used to find input points quickly.
   // vtkStaticPointLocator* GetLocator();

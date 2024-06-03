@@ -645,7 +645,11 @@ bool vtkCellGrid::Query(vtkCellGridQuery* query)
   }
 
   bool ok = true;
-  query->Initialize();
+  if (!query->Initialize())
+  {
+    ok = false;
+    return ok;
+  }
   do
   {
     query->StartPass();
@@ -654,7 +658,8 @@ bool vtkCellGrid::Query(vtkCellGridQuery* query)
       ok &= cellType.second->Query(query);
     }
   } while (query->IsAnotherPassRequired());
-  query->Finalize();
+  bool didFinalize = query->Finalize();
+  ok &= didFinalize;
   return ok;
 }
 

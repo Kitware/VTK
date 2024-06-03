@@ -113,10 +113,10 @@ public:
   ///@group Query Execution.
   ///@{
   /// This clears the ArrayMap ivar before the algorithm starts.
-  void Initialize() override;
+  bool Initialize() override;
 
   /// This clears the ArrayMap ivar after the algorithm completes (to save space).
-  void Finalize() override;
+  bool Finalize() override;
   ///@}
 
   ///@group Source and Target Cell-Grids.

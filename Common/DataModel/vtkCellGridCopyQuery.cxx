@@ -74,13 +74,15 @@ void vtkCellGridCopyQuery::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-void vtkCellGridCopyQuery::Initialize()
+bool vtkCellGridCopyQuery::Initialize()
 {
+  bool ok = this->Superclass::Initialize();
   this->ArrayMap.clear();
   this->AttributeMap.clear();
+  return ok;
 }
 
-void vtkCellGridCopyQuery::Finalize()
+bool vtkCellGridCopyQuery::Finalize()
 {
   this->ArrayMap.clear();
   this->AttributeMap.clear();
@@ -97,6 +99,7 @@ void vtkCellGridCopyQuery::Finalize()
 
   // Do not copy the integer attribute counter:
   // this->Target->NextAttribute = this->Source->NextAttribute;
+  return true;
 }
 
 bool vtkCellGridCopyQuery::AddSourceCellAttributeId(int attributeId)
@@ -123,6 +126,11 @@ bool vtkCellGridCopyQuery::AddAllSourceCellAttributeIds()
 
 void vtkCellGridCopyQuery::GetCellAttributeIds(vtkIdList* ids) const
 {
+  if (!ids)
+  {
+    vtkErrorMacro("Null ids passed to " << __func__ << ".");
+    return;
+  }
   ids->Initialize();
   ids->SetNumberOfIds(this->CellAttributeIds.size());
   int ii = 0;

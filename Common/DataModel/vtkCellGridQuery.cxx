@@ -12,9 +12,10 @@ void vtkCellGridQuery::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pass: " << this->Pass << "\n";
 }
 
-void vtkCellGridQuery::Initialize()
+bool vtkCellGridQuery::Initialize()
 {
   this->Pass = -1;
+  return true;
 }
 
 void vtkCellGridQuery::StartPass()

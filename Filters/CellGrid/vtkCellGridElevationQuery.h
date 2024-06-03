@@ -35,8 +35,8 @@ public:
   vtkTypeMacro(vtkCellGridElevationQuery, vtkCellGridQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Initialize() override;
-  void Finalize() override;
+  bool Initialize() override;
+  bool Finalize() override;
 
   std::string Name;
   double Shock{ 0. };

@@ -32,15 +32,31 @@ void vtkCellGridRangeQuery::PrintSelf(ostream& os, vtkIndent indent)
   int cc = -2;
   for (const auto& range : this->Ranges)
   {
-    os << i2 << cc << ": " << range[0] << " " << range[1] << "\n";
+    os << i2;
+    if (cc == -2)
+    {
+      os << "L₂-norm";
+    }
+    else if (cc == -1)
+    {
+      os << "L₁-norm";
+    }
+    else
+    {
+      os << "Component " << cc;
+    }
+    os << ": " << range[0] << " " << range[1] << "\n";
+    ++cc;
   }
 }
 
-void vtkCellGridRangeQuery::Initialize()
+bool vtkCellGridRangeQuery::Initialize()
 {
+  bool ok = this->Superclass::Initialize();
   if (!this->CellAttribute)
   {
-    throw std::runtime_error("Null cell-attribute.");
+    vtkErrorMacro("No attribute provided for range computation.");
+    return false;
   }
   // Allocate space for all components plus L₁ and L₂ norms.
   this->Ranges.resize(this->CellAttribute->GetNumberOfComponents() + 2);
@@ -50,9 +66,10 @@ void vtkCellGridRangeQuery::Initialize()
     range[0] = vtkMath::Inf();
     range[1] = -vtkMath::Inf();
   }
+  return ok;
 }
 
-void vtkCellGridRangeQuery::Finalize()
+bool vtkCellGridRangeQuery::Finalize()
 {
   if (this->CellGrid && this->CellAttribute)
   {
@@ -93,6 +110,7 @@ void vtkCellGridRangeQuery::Finalize()
       ++cc;
     }
   }
+  return true;
 }
 
 void vtkCellGridRangeQuery::GetRange(int component, double* bds)
