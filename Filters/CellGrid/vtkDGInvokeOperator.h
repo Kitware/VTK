@@ -110,11 +110,11 @@ public:
   /// of the operator output and the cell-coefficients, storing the results at the
   /// output iterator. Note that the output iterator must provide random access.
   template <typename InputIterator, typename OutputIterator>
-  bool Invoke(const vtkDGOperatorEntry& op, const vtkCellAttribute::CellTypeInfo& info,
+  bool InvokeOp(const vtkDGOperatorEntry& op, const vtkCellAttribute::CellTypeInfo& info,
     InputIterator begin, InputIterator end, OutputIterator out);
 
   /// \group Internal methods.
-  /// These methods are called by Invoke() depending on whether the attribute has
+  /// These methods are called by InvokeOp() depending on whether the attribute has
   /// shared degrees of freedom (DOF) or not.
   //@{
   template <typename InputIterator, typename OutputIterator>
@@ -162,7 +162,7 @@ public:
 };
 
 template <typename InputIterator, typename OutputIterator>
-bool vtkDGInvokeOperator::Invoke(const vtkDGOperatorEntry& op,
+bool vtkDGInvokeOperator::InvokeOp(const vtkDGOperatorEntry& op,
   const vtkCellAttribute::CellTypeInfo& info, InputIterator begin, InputIterator end,
   OutputIterator out)
 {

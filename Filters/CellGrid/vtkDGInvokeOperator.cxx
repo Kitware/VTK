@@ -78,7 +78,7 @@ bool vtkDGInvokeOperator::Invoke(const vtkDGOperatorEntry& op,
   }
 
   SimpleInputPoints<int> in(num, cellIds, rst);
-  return this->Invoke(op, info, in.begin(), in.end(), result);
+  return this->InvokeOp(op, info, in.begin(), in.end(), result);
 }
 
 bool vtkDGInvokeOperator::Invoke(const vtkDGOperatorEntry& op,
@@ -95,7 +95,7 @@ bool vtkDGInvokeOperator::Invoke(const vtkDGOperatorEntry& op,
   }
 
   SimpleInputPoints<vtkIdType> in(num, cellIds, rst);
-  return this->Invoke(op, info, in.begin(), in.end(), result);
+  return this->InvokeOp(op, info, in.begin(), in.end(), result);
 }
 
 VTK_ABI_NAMESPACE_END
