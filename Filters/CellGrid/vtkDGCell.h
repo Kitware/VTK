@@ -40,6 +40,21 @@ class VTKFILTERSCELLGRID_EXPORT vtkDGCell : public vtkCellMetadata
 {
 public:
   /// A map holding operators that evaluate DG cells.
+  ///
+  /// Operators currently include "Basis" and "BasisGradient" to evaluate
+  /// the polynomial basis functions for a cell-attribute. But in the future
+  /// this may also include operators such as "Curl", "Divergence", and
+  /// higher-order derivative operators.
+  ///
+  /// Besides operators being indexed on their purpose (the operator name),
+  /// they are indexed on the function space in which they live (such as
+  /// the space of nodal functions, edge-centered functions, face-centered
+  /// functions, constant functions, etc.), the polynomial basis inside
+  /// the function space and its order are also indexed.
+  ///
+  /// vtkDGInterpolateCalculator and other query-responders should use
+  /// this map along with vtkDGInvokeOperator to perform interpolation
+  /// or other work requiring basis-function computation.
   using OperatorMap = std::unordered_map<vtkStringToken, // operator name
     std::unordered_map<vtkStringToken,                   // function space
       std::unordered_map<vtkStringToken,                 // basis name
