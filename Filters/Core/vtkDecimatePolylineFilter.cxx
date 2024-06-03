@@ -5,16 +5,17 @@
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
-#include "vtkDoubleArray.h"
+#include "vtkDecimatePolylineStrategy.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkLine.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPriorityQueue.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <map>
+#include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDecimatePolylineFilter);
@@ -26,7 +27,7 @@ class vtkDecimatePolylineFilter::Polyline
 public:
   struct Vertex
   {
-    unsigned index;
+    unsigned int index;
     vtkIdType id;
     Vertex* prev;
     Vertex* next;
@@ -36,27 +37,18 @@ public:
   Polyline(const vtkIdType* vertexOrdering, vtkIdType size)
   {
     this->Size = size;
-    Vertices = new Vertex[size];
+    this->Vertices.resize(size);
     for (vtkIdType idx = 0; idx < size; ++idx)
     {
-      Vertices[idx].index = idx;
-      Vertices[idx].id = vertexOrdering[idx];
-      Vertices[idx].prev = (idx > 0 ? &Vertices[idx - 1] : nullptr);
-      Vertices[idx].next = (idx < size - 1 ? &Vertices[idx + 1] : nullptr);
-      Vertices[idx].removable = true;
+      this->Vertices[idx].index = static_cast<unsigned int>(idx);
+      this->Vertices[idx].id = vertexOrdering[idx];
+      this->Vertices[idx].prev = (idx > 0 ? &this->Vertices[idx - 1] : nullptr);
+      this->Vertices[idx].next = (idx < size - 1 ? &this->Vertices[idx + 1] : nullptr);
+      this->Vertices[idx].removable = true;
     }
-    Vertices[0].removable = Vertices[size - 1].removable = false;
+    this->Vertices[0].removable = Vertices[size - 1].removable = false;
     // Some polylines close in on themselves
     this->IsLoop = Vertices[0].id == Vertices[size - 1].id;
-  }
-
-  ~Polyline()
-  {
-    if (Vertices)
-    {
-      delete[] Vertices;
-      Vertices = nullptr;
-    }
   }
 
   void Remove(vtkIdType vertexIdx)
@@ -67,55 +59,59 @@ public:
   }
 
   vtkIdType Size;
-  Vertex* Vertices;
+  std::vector<Vertex> Vertices;
   bool IsLoop;
 };
 
 //------------------------------------------------------------------------------
-// Create object with specified reduction of 90%.
-vtkDecimatePolylineFilter::vtkDecimatePolylineFilter()
+vtkMTimeType vtkDecimatePolylineFilter::GetMTime()
 {
-  this->TargetReduction = 0.90;
-  this->PriorityQueue = vtkSmartPointer<vtkPriorityQueue>::New();
-  this->MaximumError = VTK_DOUBLE_MAX;
-  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  if (this->DecimationStrategy != nullptr)
+  {
+    vtkMTimeType strategyMTime = this->DecimationStrategy->GetMTime();
+    mTime = strategyMTime > mTime ? strategyMTime : mTime;
+  }
+  return mTime;
 }
-
-//------------------------------------------------------------------------------
-vtkDecimatePolylineFilter::~vtkDecimatePolylineFilter() = default;
 
 //------------------------------------------------------------------------------
 double vtkDecimatePolylineFilter::ComputeError(
   vtkPolyData* input, Polyline* polyline, vtkIdType idx)
 {
-  vtkPoints* inputPoints = input->GetPoints();
+  vtkIdType p1Id = polyline->Vertices[idx].prev->id;
+  vtkIdType originId = polyline->Vertices[idx].id;
+  vtkIdType p2Id = polyline->Vertices[idx].next->id;
 
-  double x1[3], x[3], x2[3];
-  inputPoints->GetPoint(polyline->Vertices[idx].prev->id, x1);
-  inputPoints->GetPoint(polyline->Vertices[idx].id, x);
-  inputPoints->GetPoint(polyline->Vertices[idx].next->id, x2);
-
-  if (vtkMath::Distance2BetweenPoints(x1, x2) == 0.0)
-  {
-    return 0.0;
-  }
-  else
-  {
-    return vtkLine::DistanceToLine(x, x1, x2);
-  }
+  return this->DecimationStrategy->ComputeError(input, originId, p1Id, p2Id);
 }
 
 //------------------------------------------------------------------------------
-//  Reduce the number of points in a set of polylines
-//
-int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
+int vtkDecimatePolylineFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and output
+  int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+
+  if (numPieces > 1)
+  {
+    // This filter requires at least 1 ghost level to work in distributed mode
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+      vtkMath::Max(ghostLevel, 1));
+  }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -128,6 +124,7 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     return 1;
   }
+
   vtkIdType numLines = inputLines->GetNumberOfCells();
   vtkIdType numPts = inputPoints->GetNumberOfPoints();
   if (numLines < 1 || numPts < 1)
@@ -135,8 +132,14 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
+  if (this->DecimationStrategy == nullptr)
+  {
+    vtkWarningMacro("No decimation strategy has been defined. The decimation cannot be performed.");
+    return 1;
+  }
+
   // Allocate memory and prepare for data processing
-  vtkPoints* newPts = vtkPoints::New();
+  vtkNew<vtkPoints> newPts;
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
@@ -152,13 +155,15 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->SetDataType(VTK_DOUBLE);
   }
 
-  vtkCellArray* newLines = vtkCellArray::New();
+  vtkNew<vtkCellArray> newLines;
   newLines->AllocateExact(numLines, numLines * 2);
+
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
+  outPD->CopyAllocate(inPD);
+
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
-  outPD->CopyAllocate(inPD);
   outCD->CopyAllocate(inCD);
 
   auto lineIter = vtkSmartPointer<vtkCellArrayIterator>::Take(inputLines->NewIterator());
@@ -182,19 +187,21 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
     lineIter->GetCurrentCell(polylineSize, polyLineVerts);
 
     // construct a polyline as a doubly linked list
-    vtkDecimatePolylineFilter::Polyline* polyline =
-      new vtkDecimatePolylineFilter::Polyline(polyLineVerts, polylineSize);
+    std::shared_ptr<Polyline> polyline = std::make_shared<Polyline>(polyLineVerts, polylineSize);
 
-    double error;
-    for (vtkIdType vertexIdx = 0; vertexIdx < polyline->Size; ++vertexIdx)
+    // Can only decimate polyline with at least 3 points
+    if (polylineSize > 2)
     {
-      // only vertices that are removable have associated error values
-      if (polyline->Vertices[vertexIdx].removable)
+      for (vtkIdType vertexIdx = 0; vertexIdx < polyline->Size; ++vertexIdx)
       {
-        error = this->ComputeError(input, polyline, vertexIdx);
-        if (error <= this->MaximumError)
+        // only vertices that are removable have associated error values
+        if (polyline->Vertices[vertexIdx].removable)
         {
-          this->PriorityQueue->Insert(error, vertexIdx);
+          double error = this->ComputeError(input, polyline.get(), vertexIdx);
+          if (error <= this->MaximumError)
+          {
+            this->PriorityQueue->Insert(error, vertexIdx);
+          }
         }
       }
     }
@@ -220,7 +227,7 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
       // again, only vertices that are removable have associated error values
       if (polyline->Vertices[poppedIdx].prev->removable)
       {
-        error = this->ComputeError(input, polyline, prevIdx);
+        double error = this->ComputeError(input, polyline.get(), prevIdx);
         this->PriorityQueue->DeleteId(prevIdx);
         if (error <= this->MaximumError)
         {
@@ -230,7 +237,7 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
       if (polyline->Vertices[poppedIdx].next->removable)
       {
-        error = this->ComputeError(input, polyline, nextIdx);
+        double error = this->ComputeError(input, polyline.get(), nextIdx);
         this->PriorityQueue->DeleteId(nextIdx);
         if (error <= this->MaximumError)
         {
@@ -240,17 +247,15 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     // What's left over is now spit out as a new polyline
-    vtkIdType newId = newLines->InsertNextCell(currentNumPts);
+    vtkIdType newId = newLines->InsertNextCell(static_cast<int>(currentNumPts));
     outCD->CopyData(inCD, lineIter->GetCurrentCellId(), newId);
 
-    std::map<vtkIdType, vtkIdType>::iterator it;
-
-    Polyline::Vertex* vertex = &(polyline->Vertices[0]);
+    Polyline::Vertex* vertex = polyline->Vertices.data();
     while (vertex != nullptr)
     {
       // points that are repeated within polylines are represented by
       // only one point instance
-      it = pointIdMap.find(vertex->id);
+      auto it = pointIdMap.find(vertex->id);
       if (it == pointIdMap.end())
       {
         newId = newPts->InsertNextPoint(inputPoints->GetPoint(vertex->id));
@@ -266,7 +271,6 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
       vertex = vertex->next;
     }
 
-    delete polyline;
     this->PriorityQueue->Reset();
   }
 
@@ -274,11 +278,9 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   output->SetPoints(newPts);
   output->SetLines(newLines);
 
-  newLines->Delete();
-  newPts->Delete();
-
   return 1;
 }
+
 //------------------------------------------------------------------------------
 void vtkDecimatePolylineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
