@@ -294,6 +294,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
     # MacOS OpenGL issue (intermittent)
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+    "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
   )
 endif ()
 
