@@ -228,7 +228,7 @@ bool EvaluateBasisFunctions(vtkCellGrid* grid, vtkDGCell* dgCell)
 
   // Test basis evaluation for HGrad (and constant, for vertex) function space
   // Note: This only tests linear/constant shape functions.
-  std::vector<int> cellId(nn, 0);
+  std::vector<vtkIdType> cellId(nn, 0);
   std::vector<double> result;
   result.resize(nn * 3);
   vtkNew<vtkDoubleArray> pc2;
@@ -421,7 +421,7 @@ bool TestDeRhamBases(vtkCellGrid* grid, vtkDeRhamCell* drCell)
     return false;
   }
   vtkIdType nn = testPoints->GetNumberOfVerts();
-  std::vector<int> cellId(nn, 0);
+  std::vector<vtkIdType> cellId(nn, 0);
   std::vector<double> jacobians;
   jacobians.resize(nn * 9);
   evaluator.Invoke(shapeGradOp, shapeTypeInfo, nn, cellId.data(), params, jacobians.data());

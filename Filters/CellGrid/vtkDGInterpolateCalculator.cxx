@@ -36,10 +36,9 @@ void vtkDGInterpolateCalculator::Evaluate(
 {
   /* static thread_local */ vtkDGInvokeOperator computeValue;
   std::array<double, 3> arst{ rst[0], rst[1], rst[2] };
-  int icell = cellId;
   // value.resize(this->FieldBasisOp.OperatorSize * );
   computeValue.Invoke(
-    this->FieldBasisOp, this->FieldCellInfo, 1, &icell, arst.data(), value.data());
+    this->FieldBasisOp, this->FieldCellInfo, 1, &cellId, arst.data(), value.data());
 
   // Now, for H(curl) and H(div) elements, transform the resulting vectors
   // by the inverse Jacobian of the cell's *shape* function.
@@ -179,8 +178,7 @@ void vtkDGInterpolateCalculator::InternalDerivative(
   static thread_local vtkDGInvokeOperator computeGradient;
   jacobian.resize(
     UseShape ? 3 * this->Dimension : this->FieldBasisOp.OperatorSize * this->Dimension);
-  int icell = cellId;
-  computeGradient.Invoke(gradOp, cellInfo, 1, &icell, &rst[0], jacobian.data());
+  computeGradient.Invoke(gradOp, cellInfo, 1, &cellId, &rst[0], jacobian.data());
 }
 
 void vtkDGInterpolateCalculator::EvaluateDerivative(

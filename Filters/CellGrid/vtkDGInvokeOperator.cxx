@@ -65,23 +65,6 @@ struct SimpleInputPoints
 } // anonymous namespace
 
 bool vtkDGInvokeOperator::Invoke(const vtkDGOperatorEntry& op,
-  const vtkCellAttribute::CellTypeInfo& info, std::size_t num, const int* cellIds,
-  const double* rst, double* result)
-{
-  if (!cellIds || !rst || !result)
-  {
-    return false;
-  }
-  if (num <= 0)
-  {
-    return true;
-  }
-
-  SimpleInputPoints<int> in(num, cellIds, rst);
-  return this->InvokeOp(op, info, in.begin(), in.end(), result);
-}
-
-bool vtkDGInvokeOperator::Invoke(const vtkDGOperatorEntry& op,
   const vtkCellAttribute::CellTypeInfo& info, std::size_t num, const vtkIdType* cellIds,
   const double* rst, double* result)
 {

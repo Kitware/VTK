@@ -143,9 +143,6 @@ public:
   /// cell IDs and parametric coordinates to be repeated even if only one
   /// varies over the \a num requested invocations.
   bool Invoke(const vtkDGOperatorEntry& op, const vtkCellAttribute::CellTypeInfo& info,
-    std::size_t num, const int* cellIds, const double* rst, double* result);
-
-  bool Invoke(const vtkDGOperatorEntry& op, const vtkCellAttribute::CellTypeInfo& info,
     std::size_t num, const vtkIdType* cellIds, const double* rst, double* result);
 
   /// Hold the function coefficients for a single cell.
