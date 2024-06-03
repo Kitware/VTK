@@ -29,7 +29,7 @@ public:
   vtkTypeMacro(vtkInterpolateCalculator, vtkCellAttributeCalculator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //!\group Interpolating Values
+  /// @name InterpolatingValues Interpolating Values
   ///@{
   /// Subclasses must override this method to perform evaluation.
   ///

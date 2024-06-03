@@ -113,7 +113,7 @@ public:
   bool InvokeOp(const vtkDGOperatorEntry& op, const vtkCellAttribute::CellTypeInfo& info,
     InputIterator begin, InputIterator end, OutputIterator out);
 
-  /// \group Internal methods.
+  /// @name InternalMethods Internal methods.
   /// These methods are called by InvokeOp() depending on whether the attribute has
   /// shared degrees of freedom (DOF) or not.
   //@{

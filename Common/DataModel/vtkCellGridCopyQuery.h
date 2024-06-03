@@ -110,7 +110,7 @@ public:
   vtkTypeMacro(vtkCellGridCopyQuery, vtkCellGridQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  ///@group Query Execution.
+  ///@name QueryExecution Query Execution.
   ///@{
   /// This clears the ArrayMap ivar before the algorithm starts.
   bool Initialize() override;
@@ -119,7 +119,7 @@ public:
   bool Finalize() override;
   ///@}
 
-  ///@group Source and Target Cell-Grids.
+  ///@name SourceAndTarget Source and Target Cell-Grids.
   ///@{
 
   /// Set/get the source cell-grid to copy into the cell-grid on which this query is run.
@@ -132,7 +132,7 @@ public:
 
   ///@}
 
-  ///@group Copy Style Setup.
+  ///@name CopySetup Copy Style Setup.
   ///@{
 
   /// Set/get whether to copy cell topology or leave each output instance
@@ -203,7 +203,7 @@ public:
 
   ///@}
 
-  ///@group Attribute Copying Setup.
+  ///@name AttCopySetup Attribute Copying Setup.
   ///
   /// Note that even when GetCellAttributeIds() returns an empty set,
   /// the shape attribute may be copied. (Having a geometric shape
@@ -232,7 +232,7 @@ public:
 
   ///@}
 
-  ///@group Attribute Copying State.
+  ///@name AttCopyState Attribute Copying State.
   ///
   ///@{
 
@@ -258,7 +258,8 @@ public:
 
   ///@}
 
-  ///@group Responder Helpers.
+  ///@name ResponderHelpers
+  /// Responder Helpers.
   ///
   /// These methods are available for query-responders to use inside
   /// their implementations of Query().

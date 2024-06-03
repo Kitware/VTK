@@ -69,7 +69,7 @@ public:
    */
   unsigned long GetActualMemorySize() override;
 
-  ///@group Copying.
+  ///@name Copying  Copying
   ///@{
   /// Copy \a baseSrc by reference (which must be a vtkCellGrid) into this object.
   ///
@@ -90,7 +90,7 @@ public:
   bool CopyStructure(vtkCellGrid* other, bool byReference = true);
   ///@}
 
-  ///@group Array-groups.
+  ///@name ArrayGroups Array-groups.
   ///
   /// A cell grid can have any number of *groups* of arrays.
   /// Each group must have the same number of tuples.

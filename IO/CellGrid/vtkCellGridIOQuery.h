@@ -35,7 +35,7 @@ public:
   vtkTypeMacro(vtkCellGridIOQuery, vtkCellGridQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  ///@group Deserialization
+  ///@name Deserialization Deserialization
   ///@{
   /**
    * Prepare to deserialize cell metadata from the given \a sourceData JSON object.
@@ -48,7 +48,7 @@ public:
     std::vector<vtkCellAttribute*>& attributeList);
   ///@}
 
-  ///@group Serialization
+  ///@name Serialization Serialization
   ///@{
   /**
    * Prepare to serialize cell metadata to the given \a parent JSON object.
@@ -57,7 +57,7 @@ public:
     const std::unordered_map<vtkAbstractArray*, vtkStringToken>& arrayLocations);
   ///@}
 
-  ///@group Responder utilities
+  ///@name ResponderUtilities Responder utilities
   ///@{
   /// Return the JSON object that is our source or target.
   nlohmann::json* GetData() { return this->Data; }

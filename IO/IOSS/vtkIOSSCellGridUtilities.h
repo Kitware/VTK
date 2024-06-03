@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+#ifndef vtkIOSSCellGridUtilities_h
+#define vtkIOSSCellGridUtilities_h
+
 /**
  * @namespace vtkIOSSCellGridUtilities
  * @brief internal utilities for vtkIOSSCellGridReader
@@ -13,9 +17,6 @@
  * or vice-versa. Thus, methods that are not straddling that fence should be not be
  * added here.
  */
-
-#ifndef vtkIOSSCellGridUtilities_h
-#define vtkIOSSCellGridUtilities_h
 
 #include "vtkCellAttribute.h" // For CellTypeInfo internal class.
 #include "vtkDataArraySelection.h"
