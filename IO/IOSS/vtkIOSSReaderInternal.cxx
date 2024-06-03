@@ -124,6 +124,7 @@ bool vtkIOSSReaderInternal::UpdateDatabaseNames(vtkIOSSReader* self)
   auto filenames = this->FileNames;
   auto controller = self->GetController();
   const int myrank = controller ? controller->GetLocalProcessId() : 0;
+  const int ranks = controller ? controller->GetNumberOfProcesses() : 1;
 
   if (myrank == 0)
   {
@@ -135,6 +136,17 @@ bool vtkIOSSReaderInternal::UpdateDatabaseNames(vtkIOSSReader* self)
       if (self->GetScanForRelatedFiles())
       {
         filenames = vtkIOSSFilesScanner::GetRelatedFiles(filenames);
+      }
+    }
+    else if (filenames.size() == 1 && *filenames.begin() == "catalyst.bin" && ranks > 1)
+    {
+      // "catalyst.bin" is a special filename to indicate that we should read from catalyst.
+      // To make sure that each node creates a database handle to try to read something
+      // from catalyst, we need to create a "filename" for each rank.
+      filenames.clear();
+      for (int i = 0; i < ranks; ++i)
+      {
+        filenames.insert("catalyst.bin." + std::to_string(ranks) + "." + std::to_string(i));
       }
     }
     else if (self->GetScanForRelatedFiles())
