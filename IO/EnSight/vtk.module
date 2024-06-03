@@ -22,5 +22,8 @@ PRIVATE_DEPENDS
 OPTIONAL_DEPENDS
   VTK::ParallelMPI
 TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::ParallelMPI
   VTK::RenderingOpenGL2
+  VTK::RenderingParallel
   VTK::TestingRendering
