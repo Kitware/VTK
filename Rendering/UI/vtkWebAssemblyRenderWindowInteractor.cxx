@@ -56,7 +56,7 @@ EM_BOOL HandleResize(int eventType, const EmscriptenUiEvent* e, void* userData)
 {
   auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
   handler->PushEvent(eventType, e);
-  return 0;
+  return EM_TRUE;
 }
 
 //------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ EM_BOOL HandleMouseMove(int eventType, const EmscriptenMouseEvent* e, void* user
 {
   auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
   handler->PushEvent(eventType, e);
-  return 0;
+  return EM_TRUE;
 }
 
 //------------------------------------------------------------------------------
@@ -72,7 +72,15 @@ EM_BOOL HandleMouseButton(int eventType, const EmscriptenMouseEvent* e, void* us
 {
   auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
   handler->PushEvent(eventType, e);
-  return 0;
+  return EM_TRUE;
+}
+
+//------------------------------------------------------------------------------
+EM_BOOL HandleTouch(int eventType, const EmscriptenTouchEvent* e, void* userData)
+{
+  auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
+  handler->PushEvent(eventType, e);
+  return EM_TRUE;
 }
 
 //------------------------------------------------------------------------------
@@ -80,7 +88,7 @@ EM_BOOL HandleMouseFocus(int eventType, const EmscriptenMouseEvent* e, void* use
 {
   auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
   handler->PushEvent(eventType, e);
-  return 0;
+  return EM_TRUE;
 }
 
 //------------------------------------------------------------------------------
@@ -88,7 +96,7 @@ EM_BOOL HandleWheel(int eventType, const EmscriptenWheelEvent* e, void* userData
 {
   auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
   handler->PushEvent(eventType, e);
-  return 0;
+  return EM_TRUE;
 }
 
 //------------------------------------------------------------------------------
@@ -96,7 +104,7 @@ EM_BOOL HandleFocus(int eventType, const EmscriptenFocusEvent* e, void* userData
 {
   auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
   handler->PushEvent(eventType, e);
-  return 0;
+  return EM_TRUE;
 }
 
 //------------------------------------------------------------------------------
@@ -104,7 +112,7 @@ EM_BOOL HandleKey(int eventType, const EmscriptenKeyboardEvent* e, void* userDat
 {
   auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
   handler->PushEvent(eventType, e);
-  return 0;
+  return EM_TRUE;
 }
 
 //------------------------------------------------------------------------------
@@ -112,7 +120,7 @@ EM_BOOL HandleKeyPress(int eventType, const EmscriptenKeyboardEvent* e, void* us
 {
   auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
   handler->PushEvent(eventType, e);
-  return 0;
+  return EM_TRUE;
 }
 
 //------------------------------------------------------------------------------
@@ -336,6 +344,40 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(Event* event)
         emEvent->deltaX > 0 ? vtkCommand::MouseWheelRightEvent : vtkCommand::MouseWheelLeftEvent);
       break;
     }
+    case EMSCRIPTEN_EVENT_TOUCHSTART:
+    {
+      auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event->Data);
+      for (int idx = 0; idx < emEvent->numTouches; idx++)
+      {
+        this->SetEventInformationFlipY(emEvent->touches[idx].targetX, emEvent->touches[idx].targetY,
+          emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr, idx);
+      }
+      this->LeftButtonPressEvent();
+      break;
+    }
+    case EMSCRIPTEN_EVENT_TOUCHCANCEL:
+    case EMSCRIPTEN_EVENT_TOUCHEND:
+    {
+      auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event->Data);
+      for (int idx = 0; idx < emEvent->numTouches; idx++)
+      {
+        this->SetEventInformationFlipY(emEvent->touches[idx].targetX, emEvent->touches[idx].targetY,
+          emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr, idx);
+      }
+      this->LeftButtonReleaseEvent();
+      break;
+    }
+    case EMSCRIPTEN_EVENT_TOUCHMOVE:
+    {
+      auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event->Data);
+      for (int idx = 0; idx < emEvent->numTouches; idx++)
+      {
+        this->SetEventInformationFlipY(emEvent->touches[idx].targetX, emEvent->touches[idx].targetY,
+          emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr, idx);
+      }
+      this->MouseMoveEvent();
+      break;
+    }
     default:
       vtkWarningMacro(<< "Unhandled event " << event->Type);
       break;
@@ -397,6 +439,12 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
   emscripten_set_mousedown_callback(canvas, this->Handler.get(), 0, ::HandleMouseButton);
   emscripten_set_mouseup_callback(canvas, this->Handler.get(), 0, ::HandleMouseButton);
 
+  emscripten_set_touchmove_callback(canvas, this->Handler.get(), 0, ::HandleTouch);
+
+  emscripten_set_touchstart_callback(canvas, this->Handler.get(), 0, ::HandleTouch);
+  emscripten_set_touchend_callback(canvas, this->Handler.get(), 0, ::HandleTouch);
+  emscripten_set_touchcancel_callback(canvas, this->Handler.get(), 0, ::HandleTouch);
+
   emscripten_set_mouseenter_callback(canvas, this->Handler.get(), 0, ::HandleMouseFocus);
   emscripten_set_mouseleave_callback(canvas, this->Handler.get(), 0, ::HandleMouseFocus);
 
@@ -433,6 +481,12 @@ void vtkWebAssemblyRenderWindowInteractor::TerminateApp(void)
 
   emscripten_set_mousedown_callback(canvas, nullptr, 0, nullptr);
   emscripten_set_mouseup_callback(canvas, nullptr, 0, nullptr);
+
+  emscripten_set_touchmove_callback(canvas, nullptr, 0, nullptr);
+
+  emscripten_set_touchstart_callback(canvas, nullptr, 0, nullptr);
+  emscripten_set_touchend_callback(canvas, nullptr, 0, nullptr);
+  emscripten_set_touchcancel_callback(canvas, nullptr, 0, nullptr);
 
   emscripten_set_mouseenter_callback(canvas, nullptr, 0, nullptr);
   emscripten_set_mouseleave_callback(canvas, nullptr, 0, nullptr);
