@@ -59,10 +59,13 @@ Common/Core/vtkScalarsToColors.h
 Common/Core/vtkWindow.h
 Common/DataModel/vtkAbstractCellArray.h
 Common/DataModel/vtkCellData.h
+Common/DataModel/vtkCompositeDataSet.h
 Common/DataModel/vtkDataObject.h
+Common/DataModel/vtkDataObjectTree.h
 Common/DataModel/vtkDataSet.h
 Common/DataModel/vtkFieldData.h
 Common/DataModel/vtkImageData.h
+Common/DataModel/vtkMultiPieceDataSet.h
 Common/DataModel/vtkPointData.h
 Common/DataModel/vtkPointSet.h
 Common/DataModel/vtkPolyData.h

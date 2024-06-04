@@ -2,6 +2,9 @@ Common/Core/vtkDataArray.h
 Common/Core/vtkStringArray.h
 Common/DataModel/vtkCellArray.h
 Common/DataModel/vtkDataSetAttributes.h
+Common/DataModel/vtkMultiBlockDataSet.h
+Common/DataModel/vtkPartitionedDataSet.h
+Common/DataModel/vtkPartitionedDataSetCollection.h
 Common/DataModel/vtkPiecewiseFunction.h
 Common/DataModel/vtkTable.h
 Common/DataModel/vtkUnstructuredGrid.h
