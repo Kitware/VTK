@@ -280,7 +280,7 @@ struct SurfaceNets
   void GeneratePoint(vtkIdType ptId, vtkIdType i, vtkIdType j)
   {
     float* x = this->NewPts + 3 * ptId;
-    x[0] = this->Min0 + static_cast<float>(i) - 0.5,
+    x[0] = this->Min0 + static_cast<float>(i) - 0.5;
     x[1] = this->Min1 + static_cast<float>(j) - 0.5;
     x[2] = this->K;
   }

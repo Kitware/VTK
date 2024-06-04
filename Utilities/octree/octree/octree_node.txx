@@ -210,7 +210,7 @@ const octree_node<T_, d_, A_>& octree_node<T_, d_, A_>::operator[](int child) co
   {
     throw std::domain_error("Attempt to access children of an octree leaf node.");
   }
-  return this->_M_chilren[child];
+  return this->m_children[child];
 }
 
 /**\brief Return a reference to a child node.
