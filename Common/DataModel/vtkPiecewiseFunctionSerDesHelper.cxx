@@ -11,6 +11,11 @@
 
 extern "C"
 {
+  /**
+   * Register the (de)serialization handlers of vtkPiecewiseFunction
+   * @param ser   a vtkSerializer instance
+   * @param deser a vtkDeserializer instance
+   */
   int RegisterHandlers_vtkPiecewiseFunctionSerDesHelper(void* ser, void* deser);
 }
 static nlohmann::json Serialize_vtkPiecewiseFunction(

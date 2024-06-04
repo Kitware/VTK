@@ -34,6 +34,11 @@
 
 extern "C"
 {
+  /**
+   * Register the (de)serialization handlers of vtkDataArray
+   * @param ser   a vtkSerializer instance
+   * @param deser a vtkDeserializer instance
+   */
   int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser);
 }
 

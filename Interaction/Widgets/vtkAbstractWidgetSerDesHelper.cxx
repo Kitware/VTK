@@ -93,6 +93,11 @@
 
 extern "C"
 {
+  /**
+   * Register the (de)serialization handlers of vtkAbstractWidget
+   * @param ser   a vtkSerializer instance
+   * @param deser a vtkDeserializer instance
+   */
   int RegisterHandlers_vtkAbstractWidgetSerDesHelper(void* ser, void* deser);
 }
 
