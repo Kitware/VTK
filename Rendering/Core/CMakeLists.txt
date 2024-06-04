@@ -193,6 +193,7 @@ if (VTK_WRAP_SERIALIZATION)
   list(APPEND serialization_helper_sources
     vtkAbstractMapperSerDesHelper.cxx
     vtkColorTransferFunctionSerDesHelper.cxx
+    vtkCompositeDataDisplayAttributesSerDesHelper.cxx
     vtkDataSetMapperSerDesHelper.cxx
     vtkTextureSerDesHelper.cxx)
 endif ()    

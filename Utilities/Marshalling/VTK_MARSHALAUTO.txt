@@ -216,6 +216,7 @@ Rendering/Core/vtkAbstractVolumeMapper.h
 Rendering/Core/vtkActor.h
 Rendering/Core/vtkActor2D.h
 Rendering/Core/vtkCamera.h
+Rendering/Core/vtkCompositePolyDataMapper.h
 Rendering/Core/vtkCoordinate.h
 Rendering/Core/vtkCuller.h
 Rendering/Core/vtkFrustumCoverageCuller.h

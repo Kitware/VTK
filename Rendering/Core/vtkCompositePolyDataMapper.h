@@ -21,6 +21,7 @@
 #include "vtkDeprecation.h"         // for VTK_DEPRECATED_IN_9_3_0
 #include "vtkRenderingCoreModule.h" // for export macro
 #include "vtkStateStorage.h"        // for ivar
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include <array>  // for ColorResult. Remove when double* GetBlockColor gets removed.
 #include <memory> // for unique_ptr
@@ -36,7 +37,7 @@ class vtkInformation;
 class vtkPolyData;
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkCompositePolyDataMapper : public vtkPolyDataMapper
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCompositePolyDataMapper : public vtkPolyDataMapper
 {
 public:
   static vtkCompositePolyDataMapper* New();

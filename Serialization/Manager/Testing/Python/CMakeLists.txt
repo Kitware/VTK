@@ -1,6 +1,7 @@
 vtk_add_test_python(
   TestBlobs.py,NO_VALID
   TestCompositeDataSets.py,NO_VALID
+  TestCompositePolyDataMapper.py,NO_VALID
   TestChartsScatter.py,NO_VALID
   TestDynamic.py,NO_VALID
   TestInitialize.py,NO_VALID

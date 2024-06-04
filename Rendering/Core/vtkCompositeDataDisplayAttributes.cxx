@@ -8,13 +8,19 @@
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDataSet.h"
+#include "vtkDeserializer.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkScalarsToColors.h"
+#include "vtkSerializer.h"
 
+// clang-format off
+#include "vtk_nlohmannjson.h"
+#include VTK_NLOHMANN_JSON(json.hpp)
+// clang-format on
 VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
@@ -1066,4 +1072,179 @@ vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
   }
   return nullptr;
 }
+
+#define SERIALIZE_MAP_SIMPLE(name)                                                                 \
+  do                                                                                               \
+  {                                                                                                \
+    auto& dst = state[#name] = json::array();                                                      \
+    for (auto& iter : this->Block##name)                                                           \
+    {                                                                                              \
+      dst.push_back(                                                                               \
+        { { "Key", serializer->SerializeJSON(iter.first) }, { "Value", iter.second } });           \
+    }                                                                                              \
+  } while (0);
+
+#define SERIALIZE_MAP_OF_VTK_COLOR3D(name)                                                         \
+  do                                                                                               \
+  {                                                                                                \
+    auto& dst = state[#name] = json::array();                                                      \
+    for (auto& iter : this->Block##name)                                                           \
+    {                                                                                              \
+      dst.push_back({ { "Key", serializer->SerializeJSON(iter.first) },                            \
+        { "Values", { iter.second.GetRed(), iter.second.GetGreen(), iter.second.GetBlue() } } });  \
+    }                                                                                              \
+  } while (0);
+
+#define SERIALIZE_MAP_OF_VTK_VECTOR2D(name)                                                        \
+  do                                                                                               \
+  {                                                                                                \
+    auto& dst = state[#name] = json::array();                                                      \
+    for (auto& iter : this->Block##name)                                                           \
+    {                                                                                              \
+      dst.push_back({ { "Key", serializer->SerializeJSON(iter.first) },                            \
+        { "Values", { iter.second[0], iter.second[1] } } });                                       \
+    }                                                                                              \
+  } while (0);
+
+#define SERIALIZE_MAP_OF_VTK_OBJECTS(name)                                                         \
+  do                                                                                               \
+  {                                                                                                \
+    auto& dst = state[#name] = json::array();                                                      \
+    for (auto& iter : this->Block##name)                                                           \
+    {                                                                                              \
+      dst.push_back({ { "Key", serializer->SerializeJSON(iter.first) },                            \
+        { "Value", serializer->SerializeJSON(iter.second) } });                                    \
+    }                                                                                              \
+  } while (0);
+
+//----------------------------------------------------------------------------
+nlohmann::json vtkCompositeDataDisplayAttributes::Serialize(vtkSerializer* serializer)
+{
+  using json = nlohmann::json;
+  json state;
+  SERIALIZE_MAP_SIMPLE(Visibilities);
+  SERIALIZE_MAP_OF_VTK_COLOR3D(Colors);
+  SERIALIZE_MAP_SIMPLE(Opacities);
+  SERIALIZE_MAP_SIMPLE(Materials);
+  SERIALIZE_MAP_SIMPLE(Pickabilities);
+  SERIALIZE_MAP_SIMPLE(ScalarVisibilities);
+  SERIALIZE_MAP_SIMPLE(UseLookupTableScalarRanges);
+  SERIALIZE_MAP_SIMPLE(InterpolateScalarsBeforeMappings);
+  SERIALIZE_MAP_SIMPLE(ColorModes);
+  SERIALIZE_MAP_SIMPLE(ScalarModes);
+  SERIALIZE_MAP_SIMPLE(ArrayAccessModes);
+  SERIALIZE_MAP_SIMPLE(ArrayComponents);
+  SERIALIZE_MAP_SIMPLE(ArrayIds);
+  SERIALIZE_MAP_OF_VTK_VECTOR2D(ScalarRanges);
+  SERIALIZE_MAP_SIMPLE(ArrayNames);
+  SERIALIZE_MAP_OF_VTK_OBJECTS(LookupTables);
+  SERIALIZE_MAP_SIMPLE(FieldDataTupleIds);
+  return state;
+}
+
+#define DESERIALIZE_MAP_SIMPLE(name, type)                                                         \
+  do                                                                                               \
+  {                                                                                                \
+    const auto propertyIter = state.find(#name);                                                   \
+    if ((propertyIter != state.end()) && propertyIter->is_array())                                 \
+    {                                                                                              \
+      const auto items = propertyIter->get<nlohmann::json::array_t>();                             \
+      for (auto& item : items)                                                                     \
+      {                                                                                            \
+        const auto* context = deserializer->GetContext();                                          \
+        const auto keyIdentifier = item["Key"].at("Id").get<vtkTypeUInt32>();                      \
+        auto subObject = context->GetObjectAtId(keyIdentifier);                                    \
+        deserializer->DeserializeJSON(keyIdentifier, subObject);                                   \
+        auto value = item["Value"].get<type>();                                                    \
+        this->Block##name[vtkDataObject::SafeDownCast(subObject)] = value;                         \
+      }                                                                                            \
+    }                                                                                              \
+  } while (0);
+
+#define DESERIALIZE_MAP_OF_VTK_COLOR3D(name)                                                       \
+  do                                                                                               \
+  {                                                                                                \
+    const auto propertyIter = state.find(#name);                                                   \
+    if ((propertyIter != state.end()) && propertyIter->is_array())                                 \
+    {                                                                                              \
+      const auto items = propertyIter->get<nlohmann::json::array_t>();                             \
+      for (auto& item : items)                                                                     \
+      {                                                                                            \
+        const auto* context = deserializer->GetContext();                                          \
+        const auto keyIdentifier = item["Key"].at("Id").get<vtkTypeUInt32>();                      \
+        auto keyObject = context->GetObjectAtId(keyIdentifier);                                    \
+        deserializer->DeserializeJSON(keyIdentifier, keyObject);                                   \
+        auto values = item["Values"].get<json::array_t>();                                         \
+        this->Block##name[vtkDataObject::SafeDownCast(keyObject)] =                                \
+          vtkColor3d(values[0], values[1], values[2]);                                             \
+      }                                                                                            \
+    }                                                                                              \
+  } while (0);
+
+#define DESERIALIZE_MAP_OF_VTK_VECTOR2D(name)                                                      \
+  do                                                                                               \
+  {                                                                                                \
+    const auto propertyIter = state.find(#name);                                                   \
+    if ((propertyIter != state.end()) && propertyIter->is_array())                                 \
+    {                                                                                              \
+      const auto items = propertyIter->get<nlohmann::json::array_t>();                             \
+      for (auto& item : items)                                                                     \
+      {                                                                                            \
+        const auto* context = deserializer->GetContext();                                          \
+        const auto keyIdentifier = item["Key"].at("Id").get<vtkTypeUInt32>();                      \
+        auto keyObject = context->GetObjectAtId(keyIdentifier);                                    \
+        deserializer->DeserializeJSON(keyIdentifier, keyObject);                                   \
+        auto values = item["Values"].get<json::array_t>();                                         \
+        this->Block##name[vtkDataObject::SafeDownCast(keyObject)] =                                \
+          vtkVector2d(values[0], values[1]);                                                       \
+      }                                                                                            \
+    }                                                                                              \
+  } while (0);
+
+#define DESERIALIZE_MAP_OF_VTK_OBJECTS(name, type)                                                 \
+  do                                                                                               \
+  {                                                                                                \
+    const auto propertyIter = state.find(#name);                                                   \
+    if ((propertyIter != state.end()) && propertyIter->is_array())                                 \
+    {                                                                                              \
+      const auto items = propertyIter->get<nlohmann::json::array_t>();                             \
+      for (auto& item : items)                                                                     \
+      {                                                                                            \
+        const auto* context = deserializer->GetContext();                                          \
+        const auto keyIdentifier = item["Key"].at("Id").get<vtkTypeUInt32>();                      \
+        auto keyObject = context->GetObjectAtId(keyIdentifier);                                    \
+        deserializer->DeserializeJSON(keyIdentifier, keyObject);                                   \
+        const auto valueIdentifier = item["Value"].at("Id").get<vtkTypeUInt32>();                  \
+        auto valueObject = context->GetObjectAtId(valueIdentifier);                                \
+        deserializer->DeserializeJSON(valueIdentifier, valueObject);                               \
+        this->Block##name[vtkDataObject::SafeDownCast(keyObject)] =                                \
+          type::SafeDownCast(valueObject);                                                         \
+      }                                                                                            \
+    }                                                                                              \
+  } while (0);
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::Deserialize(
+  const nlohmann::json& state, vtkDeserializer* deserializer)
+{
+  using json = nlohmann::json;
+  DESERIALIZE_MAP_SIMPLE(Visibilities, bool);
+  DESERIALIZE_MAP_OF_VTK_COLOR3D(Colors);
+  DESERIALIZE_MAP_SIMPLE(Opacities, double);
+  DESERIALIZE_MAP_SIMPLE(Materials, std::string);
+  DESERIALIZE_MAP_SIMPLE(Pickabilities, bool);
+  DESERIALIZE_MAP_SIMPLE(ScalarVisibilities, bool);
+  DESERIALIZE_MAP_SIMPLE(UseLookupTableScalarRanges, bool);
+  DESERIALIZE_MAP_SIMPLE(InterpolateScalarsBeforeMappings, bool);
+  DESERIALIZE_MAP_SIMPLE(ColorModes, int);
+  DESERIALIZE_MAP_SIMPLE(ScalarModes, int);
+  DESERIALIZE_MAP_SIMPLE(ArrayAccessModes, int);
+  DESERIALIZE_MAP_SIMPLE(ArrayComponents, int);
+  DESERIALIZE_MAP_SIMPLE(ArrayIds, int);
+  DESERIALIZE_MAP_OF_VTK_VECTOR2D(ScalarRanges);
+  DESERIALIZE_MAP_SIMPLE(ArrayNames, std::string);
+  DESERIALIZE_MAP_OF_VTK_OBJECTS(LookupTables, vtkScalarsToColors);
+  DESERIALIZE_MAP_SIMPLE(FieldDataTupleIds, vtkIdType);
+}
+
 VTK_ABI_NAMESPACE_END

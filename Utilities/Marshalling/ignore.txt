@@ -668,9 +668,7 @@ Rendering/Core/vtkCellGridMapper.h
 Rendering/Core/vtkCellGridRenderRequest.h
 Rendering/Core/vtkCellPicker.h
 Rendering/Core/vtkCompositeCellGridMapper.h
-Rendering/Core/vtkCompositeDataDisplayAttributes.h
 Rendering/Core/vtkCompositeDataDisplayAttributesLegacy.h
-Rendering/Core/vtkCompositePolyDataMapper.h
 Rendering/Core/vtkCompositePolyDataMapperDelegator.h
 Rendering/Core/vtkDiscretizableColorTransferFunction.h
 Rendering/Core/vtkDistanceToCamera.h
