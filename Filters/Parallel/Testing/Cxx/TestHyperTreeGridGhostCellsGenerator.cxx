@@ -204,6 +204,16 @@ int TestGhostMasking(vtkMPIController* controller)
     }
   }
 
+  // Check that Depth cell data is correct
+  const double expectedDepthRange[2] = { 0, 3 };
+  vtkDataArray* outDepth = htg->GetCellData()->GetScalars("Depth");
+  if (::CheckArray(outDepth, 1, expectedNbOfCells[myRank], expectedDepthRange, myRank) ==
+    EXIT_FAILURE)
+  {
+    vtkErrorWithObjectMacro(
+      nullptr, << "Depth array outside of expected range for rank " << myRank);
+    ret = EXIT_FAILURE;
+  }
   return ret;
 }
 }
