@@ -77,11 +77,16 @@ public:
 
   ///@{
   /**
-   * Configurable chunk size for transient (time-dependent) data, where arrays resized every
-   * timestep, hence requiring chunking. Read more about chunks and chunk size here :
+   * Get/set the chunk size used for chunk storage layout. Chunked storage is required for
+   * extensible/unlimited dimensions datasets (such as time-dependent data), and filters such as
+   * compression. Read more about chunks and chunk size here :
    * https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/
    *
-   * Defaults to 100.
+   * Regarding performance impact of chunking and how to find the optimal value depending on the
+   * data, please check this documentation:
+   * https://docs.hdfgroup.org/hdf5/develop/_l_b_dset_layout.html
+   *
+   * Defaults to 25000 (to fit with the default chunk cache of 1Mb of HDF5).
    */
   vtkSetMacro(ChunkSize, int);
   vtkGetMacro(ChunkSize, int);
@@ -306,7 +311,7 @@ private:
   bool Overwrite = true;
   bool WriteAllTimeSteps = true;
   bool UseExternalComposite = false;
-  int ChunkSize = 100;
+  int ChunkSize = 25000;
   int CompressionLevel = 0;
 
   // Temporal-related private variables
