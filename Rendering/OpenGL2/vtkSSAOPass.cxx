@@ -359,7 +359,8 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
          "      occlusion = occlusion / float(kernelSize);\n"
          "    }\n"
          "  }\n"
-         "  gl_FragData[0] = vec4(vec3(1.0 - occlusion), 1.0);\n";
+         "  gl_FragData[0] = vec4(vec3(1.0 - clamp((occlusion - ("
+      << this->IntensityShift << ")) * (" << this->IntensityScale << "), 0.0, 1.0)), 1.0); \n";
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl", ssImpl.str());
 
