@@ -282,6 +282,9 @@ Rendering/Label/vtkLabeledTreeMapDataMapper.h
 Rendering/Label/vtkLabelHierarchy.h
 Rendering/Label/vtkLabelPlacementMapper.h
 Rendering/Label/vtkLabelRenderStrategy.h
+Rendering/LICOpenGL2/vtkCompositeSurfaceLICMapper.h
+Rendering/LICOpenGL2/vtkSurfaceLICInterface.h
+Rendering/LICOpenGL2/vtkSurfaceLICMapper.h
 Rendering/OpenGL2/vtkCameraPass.h
 Rendering/OpenGL2/vtkClearRGBPass.h
 Rendering/OpenGL2/vtkClearZPass.h

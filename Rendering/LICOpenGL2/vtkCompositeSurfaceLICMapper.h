@@ -18,12 +18,14 @@
 
 #include "vtkNew.h"                       // for ivars
 #include "vtkRenderingLICOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSurfaceLICInterface;
 class vtkCompositePolyDataMapperDelegator;
 
-class VTKRENDERINGLICOPENGL2_EXPORT vtkCompositeSurfaceLICMapper : public vtkCompositePolyDataMapper
+class VTKRENDERINGLICOPENGL2_EXPORT VTK_MARSHALAUTO vtkCompositeSurfaceLICMapper
+  : public vtkCompositePolyDataMapper
 {
 public:
   static vtkCompositeSurfaceLICMapper* New();

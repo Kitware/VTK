@@ -46,12 +46,14 @@
 
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingLICOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSurfaceLICInterface;
 class vtkPainterCommunicator;
 
-class VTKRENDERINGLICOPENGL2_EXPORT vtkSurfaceLICMapper : public vtkOpenGLPolyDataMapper
+class VTKRENDERINGLICOPENGL2_EXPORT VTK_MARSHALAUTO vtkSurfaceLICMapper
+  : public vtkOpenGLPolyDataMapper
 {
 public:
   static vtkSurfaceLICMapper* New();

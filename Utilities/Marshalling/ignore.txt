@@ -741,6 +741,16 @@ Rendering/Core/vtkVisibilitySort.h
 Rendering/Core/vtkWindowLevelLookupTable.h
 Rendering/Core/vtkWindowToImageFilter.h
 Rendering/Core/vtkWorldPointPicker.h
+Rendering/LICOpenGL2/vtkBatchedSurfaceLICMapper.h
+Rendering/LICOpenGL2/vtkCompositeSurfaceLICMapperDelegator.h
+Rendering/LICOpenGL2/vtkImageDataLIC2D.h
+Rendering/LICOpenGL2/vtkLICNoiseHelper.h
+Rendering/LICOpenGL2/vtkLineIntegralConvolution2D.h
+Rendering/LICOpenGL2/vtkPainterCommunicator.h
+Rendering/LICOpenGL2/vtkStructuredGridLIC2D.h
+Rendering/LICOpenGL2/vtkSurfaceLICComposite.h
+Rendering/LICOpenGL2/vtkSurfaceLICHelper.h
+Rendering/LICOpenGL2/vtkTextureIO.h
 Rendering/Label/vtkLabelHierarchyAlgorithm.h
 Rendering/Label/vtkLabelHierarchyCompositeIterator.h
 Rendering/Label/vtkLabelHierarchyIterator.h
