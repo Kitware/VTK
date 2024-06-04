@@ -87,6 +87,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
     # Consistent timeout. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19303
     "^VTK::RenderingOpenGL2Cxx-TestFloor$"
+
+    # Intermittent flakiness; may be related to CI runner OpenGL config.
+    # Appears as a colormap or color-range failure:
+    "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
     )
 endif ()
 
@@ -212,6 +216,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_mpi")
     "^VTK::ParallelMPICxx-MPI-TestNonBlockingCommunication$"
     "^VTK::ParallelMPICxx-MPI-TestPProbe$"
     "^VTK::ParallelMPICxx-MPI-TestProcess$"
+
+    # Failures that appear related to OpenGL driver.
+    #    MESA: error: ZINK: vkCreateInstance failed (VK_ERROR_INCOMPATIBLE_DRIVER)
+    #    glx: failed to create drisw screen
+    #    failed to load driver: zink
+    "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     )
 endif ()
 
@@ -349,7 +359,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
       "^VTK::FiltersModelingPython-TestImprintFilter3$"
       "^VTK::FiltersModelingPython-TestImprintFilter6$"
       "^VTK::FiltersSourcesPython-TestStaticCellLocatorLineIntersection$"
-      "^VTK::InteractionWidgetsPython-TestTensorWidget2$")
+      "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
+      # Intermittent flakiness; may be related to CI runner OpenGL config.
+      # Appears as a colormap or color-range failure:
+      "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+    )
   endif ()
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos.*_x86_64")
     list(APPEND test_exclusions
