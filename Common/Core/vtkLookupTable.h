@@ -287,7 +287,9 @@ public:
   /**
    * Specify the number of values (i.e., colors) in the lookup table.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetNumberOfTableValues(vtkIdType number);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkIdType GetNumberOfTableValues() { return this->NumberOfColors; }
   ///@}
 
