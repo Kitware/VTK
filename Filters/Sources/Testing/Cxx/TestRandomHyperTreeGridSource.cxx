@@ -313,7 +313,7 @@ void TestHyperTreeGridGetShiftedLevelZeroIndex_3D()
   vtkIdType treeIndexMaxNumberCell = 0;
   ComputeGlobalCellIndexByHTAndtreeIndexMaxNumberCell(
     htGrid, globalCellIndexByHT, treeIndexMaxNumberCell);
-  assert(globalCellIndexByHT.size() == nbTrees ||
+  assert(globalCellIndexByHT.size() == static_cast<size_t>(nbTrees) ||
     GuruMeditation("Valid size global index HT is this contexte !"));
   //
   std::vector<bool> maskedRootCellsTree(nbTrees, false);
@@ -411,7 +411,7 @@ void TestHyperTreeGridGetShiftedLevelZeroIndex_2D(unsigned int _hiddenAxis, vtkI
   vtkIdType treeIndexMaxNumberCell = 0;
   ComputeGlobalCellIndexByHTAndtreeIndexMaxNumberCell(
     htGrid, globalCellIndexByHT, treeIndexMaxNumberCell);
-  assert(globalCellIndexByHT.size() == _nbTrees ||
+  assert(globalCellIndexByHT.size() == static_cast<size_t>(_nbTrees) ||
     GuruMeditation("Valid size global index HT is this contexte !"));
   //
   std::vector<bool> maskedRootCellsTree(_nbTrees, false);
