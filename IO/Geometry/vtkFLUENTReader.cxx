@@ -2243,7 +2243,6 @@ bool vtkFLUENTReader::ParseCaseFile()
   this->FluentCaseFile->seekg(0, ios::beg);
 
   bool ret = true;
-  bool unrecognizeIndexEncountered = false;
   // XXX: Each of these parsing method should be improved for error reporting and robustness
   while (this->GetCaseChunk())
   {
@@ -2364,14 +2363,9 @@ bool vtkFLUENTReader::ParseCaseFile()
       case 3063:
         break;
       default:
-        unrecognizeIndexEncountered = true;
+        vtkWarningMacro(
+          "Unsupported/Unrecognized index found while parsing file: " + std::to_string(index));
         break;
-    }
-
-    if (unrecognizeIndexEncountered)
-    {
-      vtkWarningMacro(
-        "Error parsing .case file: Unsupported/Unrecognized index: " + std::to_string(index));
     }
   }
   return ret;
