@@ -11,8 +11,6 @@
  * vtkIOSSCellGridReader provides some helper functions to go between vtkCellGrid
  * and Ioss. Not intended for public consumption. API likely to change without notice.
  *
- * @section DeveloperNotes Developer Notes
- *
  * We limit this namespace for utility functions that go between Ioss and vtkCellGrid
  * or vice-versa. Thus, methods that are not straddling that fence should be not be
  * added here.
