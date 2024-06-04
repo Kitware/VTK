@@ -24,7 +24,7 @@ int vtkServerSocket::GetServerPort()
 }
 
 //------------------------------------------------------------------------------
-int vtkServerSocket::CreateServer(int port)
+int vtkServerSocket::CreateServer(int port, const std::string& bindAddr)
 {
   if (this->SocketDescriptor != -1)
   {
@@ -37,7 +37,7 @@ int vtkServerSocket::CreateServer(int port)
   {
     return -1;
   }
-  if (this->BindSocket(this->SocketDescriptor, port) != 0 ||
+  if (this->BindSocket(this->SocketDescriptor, port, bindAddr) != 0 ||
     this->Listen(this->SocketDescriptor) != 0)
   {
     // failed to bind or listen.
@@ -47,6 +47,12 @@ int vtkServerSocket::CreateServer(int port)
   }
   // Success.
   return 0;
+}
+
+//------------------------------------------------------------------------------
+int vtkServerSocket::CreateServer(int port)
+{
+  return this->CreateServer(port, "0.0.0.0");
 }
 
 //------------------------------------------------------------------------------
