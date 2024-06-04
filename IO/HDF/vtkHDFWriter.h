@@ -89,6 +89,23 @@ public:
 
   ///@{
   /**
+   * Get/set the compression level used by hdf5.
+   * The compression level is between 0 (no compression) and 9 (max compression level).
+   *
+   * @warning Compression level used can have a big performance impact for writing/reading data.
+   * For reference, the default value used by HDF5 when we apply a compression is 4.
+   *
+   * @note Only points, cells and data arrays will be compressed. Other datas are considered to be
+   * too small to be worth compressing.
+   *
+   * Default to 0.
+   */
+  vtkSetClampMacro(CompressionLevel, int, 0, 9);
+  vtkGetMacro(CompressionLevel, int);
+  ///@}
+
+  ///@{
+  /**
    * When set, write composite leaf blocks in different files,
    * named FileName_without_extension_BlockName.extension.
    * If FileName does not have an extension, blocks are named
@@ -290,6 +307,7 @@ private:
   bool WriteAllTimeSteps = true;
   bool UseExternalComposite = false;
   int ChunkSize = 100;
+  int CompressionLevel = 0;
 
   // Temporal-related private variables
   double* timeSteps = nullptr;

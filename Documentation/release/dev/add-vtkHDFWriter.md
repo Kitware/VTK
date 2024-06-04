@@ -11,4 +11,5 @@ every other containing the data relative to a non-composite leaf.
 Both are considered equivalent by the reader.
 
 For now, distributed writing and multi-partition datasets not supported.
-For PDC, only the first partition of each PartitionedDataset is written.
+
+User can compress chunked dataset thanks to the CompressionLevel option.

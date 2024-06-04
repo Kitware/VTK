@@ -150,7 +150,7 @@ public:
    * Returned scoped handle may be invalid
    */
   vtkHDF::ScopedH5DHandle CreateChunkedHdfDataset(hid_t group, const char* name, hid_t type,
-    hid_t dataspace, hsize_t numCols, hsize_t chunkSize[]);
+    hid_t dataspace, hsize_t numCols, hsize_t chunkSize[], int compressionLevel = 0);
 
   /**
    * Creates a dataspace to the exact array dimensions
@@ -172,11 +172,11 @@ public:
   vtkHDF::ScopedH5DHandle CreateSingleValueDataset(hid_t group, const char* name, int value);
 
   /**
-   * Create a chunked dataset with an empty extendable dataspace using chunking.
-   * Returned scoped handle may be invalid
+   * Create a chunked dataset with an empty extendable dataspace using chunking and set the desired
+   * level of compression. Returned scoped handle may be invalid
    */
-  vtkHDF::ScopedH5DHandle InitDynamicDataset(
-    hid_t group, const char* name, hid_t type, hsize_t cols, hsize_t chunkSize[]);
+  vtkHDF::ScopedH5DHandle InitDynamicDataset(hid_t group, const char* name, hid_t type,
+    hsize_t cols, hsize_t chunkSize[], int compressionLevel = 0);
 
   /**
    * Add a single value of integer type to an existing dataspace.
