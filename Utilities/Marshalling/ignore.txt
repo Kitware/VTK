@@ -679,7 +679,6 @@ Rendering/Core/vtkGPUInfo.h
 Rendering/Core/vtkGPUInfoList.h
 Rendering/Core/vtkGPUInfoListArray.h
 Rendering/Core/vtkGenericVertexAttributeMapping.h
-Rendering/Core/vtkGlyph3DMapper.h
 Rendering/Core/vtkGraphMapper.h
 Rendering/Core/vtkGraphToGlyphs.h
 Rendering/Core/vtkGraphicsFactory.h
@@ -777,7 +776,6 @@ Rendering/OpenGL2/vtkOpenGLFluidMapper.h
 Rendering/OpenGL2/vtkOpenGLFramebufferObject.h
 Rendering/OpenGL2/vtkOpenGLGL2PSHelper.h
 Rendering/OpenGL2/vtkOpenGLGlyph3DHelper.h
-Rendering/OpenGL2/vtkOpenGLGlyph3DMapper.h
 Rendering/OpenGL2/vtkOpenGLHardwareSelector.h
 Rendering/OpenGL2/vtkOpenGLHelper.h
 Rendering/OpenGL2/vtkOpenGLHyperTreeGridMapper.h

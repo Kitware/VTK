@@ -23,6 +23,7 @@
 #include "vtkNew.h"                    // For vtkNew
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkVector.h"                 // for ivar
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 #include <stack> // for ivar
 
@@ -30,7 +31,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLGlyph3DHelper;
 class vtkBitArray;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DMapper : public vtkGlyph3DMapper
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLGlyph3DMapper : public vtkGlyph3DMapper
 {
 public:
   static vtkOpenGLGlyph3DMapper* New();
