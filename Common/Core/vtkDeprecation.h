@@ -20,6 +20,10 @@
 // VTK_DEPRECATED_IN_9_1_0("reason for the deprecation")
 // void oldApi();
 // ```
+// or
+// ```cxx
+// class VTK_DEPRECATED_IN_X_Y_Z("reason for deprecation") OPT_EXPORT_MACRO oldClass {
+// ```
 //
 // When selecting which version to deprecate an API in, use the newest macro
 // available in this header.

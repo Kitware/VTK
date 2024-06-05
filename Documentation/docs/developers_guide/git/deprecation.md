@@ -13,8 +13,7 @@ Classes, functions, and methods may be deprecated using the deprecation macros.
 #include "vtkDeprecation.h" // Include the macros.
 
 // A deprecated class.
-VTK_DEPRECATED_IN_X_Y_Z("reason for deprecation")
-class oldClass {
+class VTK_DEPRECATED_IN_X_Y_Z("reason for deprecation") OPT_EXPORT_MACRO oldClass {
 public:
   // A deprecated method.
   VTK_DEPRECATED_IN_X_Y_Z("reason for deprecation")
