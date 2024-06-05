@@ -68,7 +68,8 @@ public:
     Clamp = 0,
     Reinhard = 1,
     Exponential = 2,
-    GenericFilmic = 3
+    GenericFilmic = 3,
+    NeutralPBR = 4
   };
 
   ///@{
@@ -76,7 +77,7 @@ public:
    * Get/Set the tone mapping type.
    * Default is GenericFilmic
    */
-  vtkSetClampMacro(ToneMappingType, int, 0, 3);
+  vtkSetClampMacro(ToneMappingType, int, 0, 4);
   vtkGetMacro(ToneMappingType, int);
   ///@}
 
