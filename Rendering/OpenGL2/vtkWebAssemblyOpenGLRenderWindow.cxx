@@ -208,10 +208,11 @@ void vtkWebAssemblyOpenGLRenderWindow::CreateAWindow()
   // 1. chrome - [.WebGL-0x9fc004be900] GL_INVALID_OPERATION: Invalid operation on multisampled
   // framebuffer
   // 2. firefox - WebGL warning: blitFramebuffer: DRAW_FRAMEBUFFER may not have multiple samples.
-  attrs.antialias = 0;
-  // do not blend the canvas with underlying web page contents.
-  attrs.alpha = 0;
-  attrs.depth = true;
+  attrs.antialias = EM_FALSE;
+  // optionally blend the canvas with underlying web page contents.
+  attrs.alpha = this->EnableTranslucentSurface;
+  attrs.premultipliedAlpha = EM_FALSE;
+  attrs.depth = EM_TRUE;
   attrs.stencil = this->StencilCapable;
 
   const auto result = emscripten_webgl_create_context(this->CanvasId, &attrs);

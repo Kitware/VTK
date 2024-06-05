@@ -795,6 +795,18 @@ public:
   virtual bool GetDeviceToWorldMatrixForDevice(
     vtkEventDataDevice device, vtkMatrix4x4* deviceToWorldMatrix);
 
+  ///@{
+  /**
+   * Set/Get if we want this window to use a translucent surface with alpha channel support.
+   * Note that some implementations do not support this.
+   * Must be set before window initialization.
+   * Default is false.
+   */
+  vtkGetMacro(EnableTranslucentSurface, bool);
+  vtkSetMacro(EnableTranslucentSurface, bool);
+  vtkBooleanMacro(EnableTranslucentSurface, bool);
+  ///@}
+
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow() override;
@@ -849,6 +861,8 @@ protected:
   double PhysicalTranslation[3] = { 0.0, 0.0, 0.0 };
   // Scale of the Physical to World matrix
   double PhysicalScale = 1.0;
+
+  bool EnableTranslucentSurface = false;
 
 private:
   vtkRenderWindow(const vtkRenderWindow&) = delete;
