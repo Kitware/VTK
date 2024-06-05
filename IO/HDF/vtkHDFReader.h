@@ -296,9 +296,6 @@ protected:
 
   unsigned int MaximumLevelsToReadByDefaultForAMR = 0;
 
-  class Implementation;
-  Implementation* Impl;
-
   bool UseCache = false;
   struct DataCache;
   std::shared_ptr<DataCache> Cache;
@@ -306,6 +303,9 @@ protected:
 private:
   vtkHDFReader(const vtkHDFReader&) = delete;
   void operator=(const vtkHDFReader&) = delete;
+
+  class Implementation;
+  Implementation* Impl;
 
   /**
    * Setter for UseTemporalData.

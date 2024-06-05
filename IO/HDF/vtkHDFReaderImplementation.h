@@ -10,7 +10,6 @@
 #define vtkHDFReaderImplementation_h
 
 #include "vtkHDFReader.h"
-#include "vtkHDFUtilities.h"
 #include "vtk_hdf5.h"
 #include <array>
 #include <map>
@@ -54,11 +53,6 @@ public:
    */
   template <typename T>
   bool GetAttribute(const char* attributeName, size_t numberOfElements, T* value);
-  /**
-   * Reads an attribute from the group passed to it
-   */
-  template <typename T>
-  bool GetAttribute(hid_t group, const char* attributeName, size_t numberOfElements, T* value);
   /**
    * Returns the number of partitions for this dataset at the time step
    * `step` if applicable.
@@ -122,13 +116,10 @@ public:
   bool FillAssembly(vtkDataAssembly* data, hid_t assemblyHandle, int assemblyID, std::string path);
   ///@}
 
-  ///@{
   /**
    * Read the number of steps from the opened file
    */
   std::size_t GetNumberOfSteps();
-  std::size_t GetNumberOfSteps(hid_t group);
-  ///@}
 
   ///@{
   /**
@@ -188,84 +179,6 @@ public:
     vtkDataArraySelection* dataArraySelection[3], bool isTemporalData);
   ///@}
 
-protected:
-  /**
-   * Used to store HDF native types in a map
-   */
-  struct TypeDescription
-  {
-    int Class;
-    size_t Size;
-    int Sign;
-    TypeDescription()
-      : Class(H5T_NO_CLASS)
-      , Size(0)
-      , Sign(H5T_SGN_ERROR)
-    {
-    }
-    bool operator<(const TypeDescription& other) const
-    {
-      return Class < other.Class || (Class == other.Class && Size < other.Size) ||
-        (Class == other.Class && Size == other.Size && Sign < other.Sign);
-    }
-  };
-
-  /**
-   * Opens the hdf5 dataset given the 'group' and 'name'.
-   * Returns the hdf dataset and sets 'nativeType' and 'dims'.
-   * The caller needs to close the returned hid_t manually using H5Dclose or a Scoped Handle if it
-   * is not an invalid hid.
-   */
-  hid_t OpenDataSet(hid_t group, const char* name, hid_t* nativeType, std::vector<hsize_t>& dims);
-  /**
-   * Convert C++ template type T to HDF5 native type
-   * this can be constexpr in C++17 standard
-   */
-  template <typename T>
-  hid_t TemplateTypeToHdfNativeType();
-  /**
-   * Create a vtkDataArray based on the C++ template type T.
-   * For instance, for a float we create a vtkFloatArray.
-   * this can be constexpr in C++17 standard
-   */
-  template <typename T>
-  vtkDataArray* NewVtkDataArray();
-
-  ///@{
-  /**
-   * Reads a vtkDataArray of type T from the attributeType, dataset
-   * The array has type 'T' and 'numberOfComponents'. We are reading
-   * fileExtent slab from the array. It returns the array or nullptr
-   * in case of an error.
-   * There are three cases for fileExtent:
-   * fileExtent.size() == 0 - in this case we expect a 1D array and we read
-   *                          the whole array. Used for field arrays.
-   * fileExtent.size()>>1 == ndims - in this case we read a scalar
-   * fileExtent.size()>>1 + 1 == ndims - in this case we read an array with
-   *                           the number of components > 1.
-   */
-  vtkDataArray* NewArrayForGroup(
-    hid_t group, const char* name, const std::vector<hsize_t>& fileExtent);
-  vtkDataArray* NewArrayForGroup(hid_t dataset, hid_t nativeType, const std::vector<hsize_t>& dims,
-    const std::vector<hsize_t>& fileExtent);
-  template <typename T>
-  vtkDataArray* NewArray(
-    hid_t dataset, const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents);
-  template <typename T>
-  bool NewArray(
-    hid_t dataset, const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents, T* data);
-  vtkStringArray* NewStringArray(hid_t dataset, hsize_t size);
-  ///@}
-  /**
-   * Builds a map between native types and GetArray routines for that type.
-   */
-  void BuildTypeReaderMap();
-  /**
-   * Associates a struct of three integers with HDF type. This can be used as
-   * key in a map.
-   */
-  TypeDescription GetTypeDescription(hid_t type);
-
 private:
   std::string FileName;
   hid_t File;
@@ -276,11 +189,6 @@ private:
   int NumberOfPieces;
   std::array<int, 2> Version;
   vtkHDFReader* Reader;
-  using ArrayReader = vtkDataArray* (vtkHDFReader::Implementation::*)(hid_t dataset,
-    const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents);
-  std::map<TypeDescription, ArrayReader> TypeReaderMap;
-
-  bool ReadDataSetType();
 
   ///@{
   /**
