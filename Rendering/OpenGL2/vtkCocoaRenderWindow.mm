@@ -1095,16 +1095,25 @@ void vtkCocoaRenderWindow::Render()
   // Do the superclass stuff.
   this->vtkOpenGLRenderWindow::Render();
 
-  // If and only if (1) we created the NSWindow ourselves (as opposed to it being provided to us),
-  // (2) this is the first render ever, (3) we are not already inside the rendering process, (4) we
-  // have passed through Initialize(), and (5) the window is mapped to screen, then kick the main
-  // runloop so that the NSWindow is actually rendered on-screen by macOS. (By running the runloop
-  // 'until' the 'distant past', it will not repeat and only run this once.)
+  // Under certain circumstances, we want the Render() to be followed by a
+  // round of event handling.  For simple VTK programs that don't implement
+  // their own runloop, this is needed for macOS to draw the window and its
+  // decorations on-screen.  The runloop is triggered if and only if:
+  // (1) we created the NSWindow ourselves (it wasn't given to us),
+  // (2) this is the first time the window is rendered,
+  // (3) we are not being called from within another Render() call,
+  // (4) we have passed through Initialize(), and
+  // (5) the window is mapped to screen.
   if (this->WindowCreated && neverRendered && !this->InRender && this->OnScreenInitialized &&
     this->Mapped)
   {
+    // Setting InRender=1 guards against triggering an additional render
+    // within the current render.  The runloop is run only until "distantPast"
+    // to ensure that it stops and returns after pending events are processed.
+    this->InRender = 1;
     NSRunLoop* mainRunLoop = [NSRunLoop mainRunLoop];
     [mainRunLoop runUntilDate:[NSDate distantPast]];
+    this->InRender = 0;
   }
 }
 
