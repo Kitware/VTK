@@ -106,6 +106,38 @@ public:
 
   ///@{
   /**
+   * Get/set the data at \a tupleIdx by filling in a user-provided array
+   * of integers.
+   *
+   * This variant accepts signed 64-bit integers for the tuple.
+   * Subclasses of vtkDataArray whose IsIntegral() method returns true
+   * should override this method to provide exact integer values; the
+   * default implementation uses double-precision to integer conversion.
+   */
+  virtual void GetIntegerTuple(vtkIdType tupleIdx, vtkTypeInt64* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  virtual void SetIntegerTuple(vtkIdType tupleIdx, vtkTypeInt64* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the data at \a tupleIdx by filling in a user-provided array
+   * of unsigned integers.
+   *
+   * This variant accepts unsigned 64-bit integers for the tuple.
+   * Subclasses of vtkDataArray whose IsIntegral() method returns true
+   * should override this method to provide exact integer values; the
+   * default implementation uses double-precision to integer conversion.
+   */
+  virtual void GetUnsignedTuple(vtkIdType tupleIdx, vtkTypeUInt64* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  virtual void SetUnsignedTuple(vtkIdType tupleIdx, vtkTypeUInt64* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  ///@}
+
+  ///@{
+  /**
    * These methods are included as convenience for the wrappers.
    * GetTuple() and SetTuple() which return/take arrays can not be
    * used from wrapped languages. These methods can be used instead.

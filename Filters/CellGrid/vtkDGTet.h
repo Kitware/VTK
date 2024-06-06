@@ -44,6 +44,7 @@ public:
   std::pair<int, int> GetSideRangeForType(int sideType) const override;
   int GetNumberOfSidesOfDimension(int dimension) const override;
   const std::vector<vtkIdType>& GetSideConnectivity(int side) const override;
+  const std::vector<vtkIdType>& GetSidesOfSide(int side) const override;
   Shape GetSideShape(int side) const override;
   ///@}
 
@@ -54,6 +55,7 @@ public:
   static constexpr int Dimension = 3;
   static const std::array<std::array<double, 3>, 4> Parameters;
   static const std::array<std::vector<vtkIdType>, 15> Sides;
+  static const std::array<std::vector<vtkIdType>, 15> SidesOfSides;
   static const std::array<int, Dimension + 2> SideOffsets;
   static const std::array<Shape, Dimension + 2> SideShapes;
 

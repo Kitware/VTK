@@ -34,8 +34,10 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellAttribute;
 class vtkCellGridQuery;
+class vtkCellGridCopyQuery;
 class vtkCellMetadata;
 class vtkDataSetAttributes;
+class vtkInformationIntegerVectorKey;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkCellGrid : public vtkDataObject
 {
@@ -67,14 +69,34 @@ public:
    */
   unsigned long GetActualMemorySize() override;
 
+  ///@name Copying  Copying
   ///@{
-  /**
-   * Shallow and Deep copy. These copy the data, but not any pipeline connections.
-   */
+  /// Copy \a baseSrc by reference (which must be a vtkCellGrid) into this object.
+  ///
+  /// This copies cell metadata (i.e., topology) and cell-attributes (including
+  /// the cell-attribute holding the geometric shape).
   void ShallowCopy(vtkDataObject* baseSrc) override;
+
+  /// Copy \a baseSrc by value (which must be a vtkCellGrid) into this object.
+  ///
+  /// This copies cell metadata (i.e., topology) and cell-attributes (including
+  /// the cell-attribute holding the geometric shape).
   void DeepCopy(vtkDataObject* baseSrc) override;
+
+  /// Copy the geometric and topological data from \a other, but not any attributes.
+  ///
+  /// If \a byReference is true, references to source arrays are used directly.
+  /// Otherwise, deep copies of the \a other cell-grid's arrays are created.
+  bool CopyStructure(vtkCellGrid* other, bool byReference = true);
   ///@}
 
+  ///@name ArrayGroups Array-groups.
+  ///
+  /// A cell grid can have any number of *groups* of arrays.
+  /// Each group must have the same number of tuples.
+  /// The groups are related to a particular \a type (generally
+  /// they are functional groups related to a particular type of
+  /// cell or its sides).
   ///@{
   /**
    * Fetch a partition of DOF arrays.
@@ -90,6 +112,15 @@ public:
   {
     return this->ArrayGroups;
   }
+
+  /// This method populates the map you pass with pointers to all arrays
+  /// in this cell-grid's vtkDataSetAttributes instances.
+  ///
+  /// Various queries and responders need ways to refer to arrays by name
+  /// rather than by pointer; this provides a way to produce names based
+  /// on the array-group that the array belongs to.
+  void MapArrayLocations(
+    std::unordered_map<vtkAbstractArray*, vtkStringToken>& arrayLocations) const;
   ///@}
 
   /**
@@ -336,6 +367,11 @@ public:
   std::set<int> GetCellAttributeIds() const;
   std::vector<int> GetUnorderedCellAttributeIds() const;
 
+  /// Return a vector of all this grid's cell-attributes.
+  ///
+  /// This is a convenience for scripting.
+  std::vector<vtkSmartPointer<vtkCellAttribute>> GetCellAttributeList() const;
+
   ///@{
   /**
    * Return an attribute given its hash.
@@ -360,7 +396,6 @@ public:
    */
   vtkCellAttribute* GetCellAttributeById(int attributeId);
   vtkCellAttribute* GetCellAttributeByName(const std::string& name);
-  vtkCellAttribute* GetCellAttributeByNameAndType(const std::string& name, vtkStringToken attType);
   ///@}
 
   ///@{
@@ -422,7 +457,19 @@ public:
   static vtkDataArray* CorrespondingArray(
     vtkCellGrid* gridA, vtkDataArray* arrayA, vtkCellGrid* gridB);
 
+  /// This information key is used to mark arrays with the string token(s)
+  /// of their owning vtkDataSetAttributes instance.
+  ///
+  /// If this key exists on an array, it indicates that calling
+  /// vtkCellGrid::GetAttributes() with its value will return a
+  /// vtkDataSetAttributes instance that holds the array.
+  /// It is used to accelerate the CorrespondingArray() method.
+  static vtkInformationIntegerVectorKey* ARRAY_GROUP_IDS();
+
 protected:
+  // Provide write access to this->NextAttribute:
+  friend class vtkCellGridCopyQuery;
+
   vtkCellGrid();
   ~vtkCellGrid() override;
 

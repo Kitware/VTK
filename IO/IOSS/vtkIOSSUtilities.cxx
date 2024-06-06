@@ -524,6 +524,12 @@ static vtkIdType GetNumberOfPointsInCellType(int vtk_cell_type, int ioss_num_poi
   {
     case VTK_POLY_VERTEX:
       return -1;
+    case VTK_LAGRANGE_TETRAHEDRON:
+      if (ioss_num_points == 15)
+      {
+        return ioss_num_points;
+      }
+      break;
     case VTK_LAGRANGE_WEDGE:
       if (ioss_num_points == 21)
       {
@@ -777,6 +783,28 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
 
           /* body center */
           16
+        };
+        // clang-format on
+      }
+      break;
+
+    case VTK_LAGRANGE_TETRAHEDRON:
+      if (vtk_cell_points == 15)
+      { // tet-15
+        // clang-format off
+        ordering_transform = std::vector<int>{
+          /* corner points */
+          1, 2, 3, 4,
+
+          /* edge centers */
+          5, 6, 7,
+          8, 9, 10,
+
+          /* triangle centers */
+          12, 15, 13, 14,
+
+          /* body center */
+          11
         };
         // clang-format on
       }

@@ -115,28 +115,29 @@ void vtkCellGridEvaluator::InterpolateCellParameters(vtkTypeUInt32Array* cellTyp
   this->SetClassifierPointParameters(pointParameters);
 }
 
-void vtkCellGridEvaluator::Initialize()
+bool vtkCellGridEvaluator::Initialize()
 {
+  bool ok = this->Superclass::Initialize(); // Resets this->Pass.
   // Check our configuration.
   switch (this->PhasesToPerform)
   {
     case Phases::None:
     {
       vtkErrorMacro("Evaluator is not configured.");
-      return;
+      return false;
     }
     case Phases::Classify:
       if (!this->InputPoints)
       {
         vtkErrorMacro("No input points provided.");
-        return;
+        return false;
       }
       break;
     case Phases::ClassifyAndInterpolate:
       if (!this->InputPoints)
       {
         vtkErrorMacro("No input points provided.");
-        return;
+        return false;
       }
       break;
     case Phases::Interpolate:
@@ -144,7 +145,7 @@ void vtkCellGridEvaluator::Initialize()
         !this->ClassifierCellOffsets || !this->ClassifierPointParameters)
       {
         vtkErrorMacro("One or more input arrays are missing.");
-        return;
+        return false;
       }
       break;
   }
@@ -152,6 +153,7 @@ void vtkCellGridEvaluator::Initialize()
   // Reset our state.
   this->Allocations.clear();
   this->InterpolatedValues->SetNumberOfTuples(0);
+  return ok;
 }
 
 void vtkCellGridEvaluator::StartPass()
@@ -315,7 +317,10 @@ bool vtkCellGridEvaluator::IsAnotherPassRequired()
   }
 }
 
-void vtkCellGridEvaluator::Finalize() {}
+bool vtkCellGridEvaluator::Finalize()
+{
+  return true;
+}
 
 vtkCellGridEvaluator::AllocationsByCellType& vtkCellGridEvaluator::GetAllocationsForCellType(
   vtkStringToken cellType)

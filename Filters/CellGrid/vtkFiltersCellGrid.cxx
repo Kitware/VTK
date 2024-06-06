@@ -3,12 +3,14 @@
 #include "vtkFiltersCellGrid.h"
 
 #include "vtkCellGridBoundsQuery.h"
+#include "vtkCellGridCopyQuery.h"
 #include "vtkCellGridElevationQuery.h"
 #include "vtkCellGridEvaluator.h"
 #include "vtkCellGridRangeQuery.h"
 #include "vtkCellGridSidesQuery.h"
 #include "vtkDGAttributeInformation.h"
 #include "vtkDGBoundsResponder.h"
+#include "vtkDGCopyResponder.h"
 #include "vtkDGEdge.h"
 #include "vtkDGElevationResponder.h"
 #include "vtkDGEvaluator.h"
@@ -25,6 +27,38 @@
 #include "vtkDGWdg.h"
 #include "vtkInterpolateCalculator.h"
 #include "vtkUnstructuredGridToCellGrid.h"
+
+#include "vtkDGConstantOperators.h"
+#include "vtkDGHCurlOperators.h"
+#include "vtkDGHDivOperators.h"
+#include "vtkDGHGradOperators.h"
+
+VTK_ABI_NAMESPACE_BEGIN
+
+using namespace vtk::literals;
+
+// Since cell-attribute calculators for the vtkDGCell subclasses all
+// generally respond to the same sets of tags, this helper function
+// registers them appropriately.
+template <typename CalcType, typename ResponderType>
+void registerCalculatorResponder(vtkCellGridResponders* responders, ResponderType* instance)
+{
+  // All the DG cells support constant and HGRAD function spaces:
+  responders->RegisterCalculator<vtkDGCell, CalcType>(instance,
+    { { { "function-space"_token, { "constant"_token, "HGRAD"_token } },
+      { "basis"_token, { "I"_token, "C"_token } } } });
+  // Only DeRham cells support HCURL and HGRAD function spaces:
+  responders->RegisterCalculator<vtkDeRhamCell, CalcType>(instance,
+    { { { "function-space"_token, { "HCURL"_token, "HDIV"_token } },
+      { "basis"_token, { "I"_token } } } });
+  // Only higher-order tet, wedge, and pyramid have "F"ull basis, and that only for HGRAD:
+  responders->RegisterCalculator<vtkDGTet, CalcType>(instance,
+    { { { "function-space"_token, { "HGRAD"_token } }, { "basis"_token, { "F"_token } } } });
+  responders->RegisterCalculator<vtkDGPyr, CalcType>(instance,
+    { { { "function-space"_token, { "HGRAD"_token } }, { "basis"_token, { "F"_token } } } });
+  responders->RegisterCalculator<vtkDGWdg, CalcType>(instance,
+    { { { "function-space"_token, { "HGRAD"_token } }, { "basis"_token, { "F"_token } } } });
+}
 
 void vtkFiltersCellGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -49,6 +83,32 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
   {
     once = true;
 
+    vtkStringToken basisI = "I";
+    vtkStringToken basisC = "C";
+    vtkStringToken basisF = "F";
+    vtkStringToken fsGrad = "HGRAD";
+    vtkStringToken fsCurl = "HCURL";
+    vtkStringToken fsDiv = "HDIV";
+    vtkStringToken fsConst = "constant";
+    vtkStringToken dsCoord = "coordinates";
+    vtkStringToken dsPData = "point-data";
+
+    (void)basisI;
+    (void)basisC;
+    (void)basisF;
+    (void)fsGrad;
+    (void)fsCurl;
+    (void)fsDiv;
+    (void)fsConst;
+    (void)dsCoord;
+    (void)dsPData;
+
+    // Register the basis function (and some gradient) operators in each of our function spaces.
+    vtk::basis::constant::RegisterOperators();
+    vtk::basis::hgrad::RegisterOperators();
+    vtk::basis::hcurl::RegisterOperators();
+    vtk::basis::hdiv::RegisterOperators();
+
     // Query responders
     vtkNew<vtkDGBoundsResponder> dgBds;
     vtkNew<vtkDGElevationResponder> dgElv;
@@ -56,6 +116,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     vtkNew<vtkDGRangeResponder> dgRng;
     vtkNew<vtkDGSidesResponder> dgSds;
     vtkNew<vtkDGTranscribeUnstructuredCells> dgTrs;
+    vtkNew<vtkDGCopyResponder> dgCpy;
 
     // Attribute calculators
     vtkNew<vtkDGInterpolateCalculator> dgInterp;
@@ -63,8 +124,8 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
 
     auto* responders = vtkCellMetadata::GetResponders();
 
-    // clang-format off
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridBoundsQuery>(dgBds.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCopyQuery>(dgCpy.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridElevationQuery>(dgElv.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridEvaluator>(dgEva.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridRangeQuery>(dgRng.GetPointer());
@@ -72,34 +133,12 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridTranscribeQuery>(dgTrs.GetPointer());
 
     // Register calculators
-    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("DG constant C0", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("DG HGRAD C0", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("DG HGRAD C1", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("DG HGRAD I2", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("DG HGRAD C2", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("CG HGRAD C1", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("CG HGRAD I2", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkInterpolateCalculator>("CG HGRAD C2", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDeRhamCell, vtkInterpolateCalculator>("CG HCURL I1", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDeRhamCell, vtkInterpolateCalculator>("DG HCURL I1", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDeRhamCell, vtkInterpolateCalculator>("CG HDIV I1", dgInterp.GetPointer());
-    responders->RegisterCalculator<vtkDeRhamCell, vtkInterpolateCalculator>("DG HDIV I1", dgInterp.GetPointer());
-
-    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("DG constant C0", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("DG HGRAD C0", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("DG HGRAD C1", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("DG HGRAD I2", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("DG HGRAD C2", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("CG HGRAD C1", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("CG HGRAD I2", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDGCell, vtkCellAttributeInformation>("CG HGRAD C2", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDeRhamCell, vtkCellAttributeInformation>("CG HCURL I1", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDeRhamCell, vtkCellAttributeInformation>("DG HCURL I1", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDeRhamCell, vtkCellAttributeInformation>("CG HDIV I1", dgAttInfo.GetPointer());
-    responders->RegisterCalculator<vtkDeRhamCell, vtkCellAttributeInformation>("DG HDIV I1", dgAttInfo.GetPointer());
-
-    // clang-format on
+    // # Register vtkInterpolateCalculator responders.
+    registerCalculatorResponder<vtkInterpolateCalculator>(responders, dgInterp.GetPointer());
+    registerCalculatorResponder<vtkCellAttributeInformation>(responders, dgAttInfo.GetPointer());
   }
 
   return true;
 }
+
+VTK_ABI_NAMESPACE_END

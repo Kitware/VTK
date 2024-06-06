@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#ifndef vtkIOSSUtilities_h
+#define vtkIOSSUtilities_h
 /**
  * @namespace vtkIOSSUtilities
  * @brief internal utilities for vtkIOSSReader
@@ -14,9 +16,6 @@
  * added here.
  *
  */
-
-#ifndef vtkIOSSUtilities_h
-#define vtkIOSSUtilities_h
 
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"

@@ -2041,7 +2041,7 @@ bool vtkIOSSReaderInternal::GetNodeFields(vtkDataSetAttributes* dsa,
   }
 }
 
-bool vtkIOSSReaderInternal::GenerateFileId(vtkDataSetAttributes* cd, vtkIdType numberOfCells,
+bool vtkIOSSReaderInternal::GenerateFileId(vtkDataSetAttributes* cellData, vtkIdType numberOfCells,
   Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle)
 {
   if (!group_entity)
@@ -2053,7 +2053,7 @@ bool vtkIOSSReaderInternal::GenerateFileId(vtkDataSetAttributes* cd, vtkIdType n
   if (auto file_ids = vtkDataArray::SafeDownCast(cache.Find(group_entity, "__vtk_file_ids__")))
   {
     assert(numberOfCells == file_ids->GetNumberOfTuples());
-    cd->AddArray(file_ids);
+    cellData->AddArray(file_ids);
     return true;
   }
 
@@ -2079,7 +2079,7 @@ bool vtkIOSSReaderInternal::GenerateFileId(vtkDataSetAttributes* cd, vtkIdType n
 
   std::fill(file_ids->GetPointer(0), file_ids->GetPointer(0) + numberOfCells, fileId);
   cache.Insert(group_entity, "__vtk_file_ids__", file_ids.GetPointer());
-  cd->AddArray(file_ids);
+  cellData->AddArray(file_ids);
   return true;
 }
 

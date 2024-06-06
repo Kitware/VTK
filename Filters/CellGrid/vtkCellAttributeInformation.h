@@ -50,7 +50,7 @@ public:
   /// Return the number of basis functions for the cell type in question.
   virtual int GetNumberOfBasisFunctions() const = 0;
 
-  /// Return the number of components of each basis function.
+  /// Return the number of components generated for each basis function.
   ///
   /// For HGRAD function spaces, this is 1.
   /// For HCURL or HDIV function spaces, this is equal to the parametric dimension

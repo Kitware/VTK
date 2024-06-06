@@ -24,6 +24,7 @@
 #include "vtkPolyDataAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
 class vtkCellGridEvaluator;
 
 class VTKFILTERSCELLGRID_EXPORT vtkCellGridPointProbe : public vtkPolyDataAlgorithm
@@ -32,6 +33,13 @@ public:
   static vtkCellGridPointProbe* New();
   vtkTypeMacro(vtkCellGridPointProbe, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /// Set the input cell-grid connection.
+  ///
+  /// This is used by ParaView. You may also simply
+  /// call SetInputConnection(1, \a source) to obtain
+  /// the same result.
+  void SetSourceConnection(vtkAlgorithmOutput* source);
 
   /// Set/get the name of the generated vtkCellAttribute to interpolate.
   ///

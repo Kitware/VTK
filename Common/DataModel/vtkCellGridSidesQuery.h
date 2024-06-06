@@ -10,7 +10,8 @@
 
 #include "vtkCellGridQuery.h"
 
-#include "vtkStringToken.h" // For API.
+#include "vtkHashCombiner.h" // For templated AddSide() method.
+#include "vtkStringToken.h"  // For API.
 
 #include <functional>
 #include <map>
@@ -24,12 +25,20 @@ class vtkIdTypeArray;
 
 /**\brief A cell-grid query for enumerating sides of cells.
  *
- * As responders invoke the AddSides() method on this query,
- * entries are added to storage indicating the number of times
- * a given shape + connectivity appear. After the query is
- * finalized, calling GetSides() will return a map holding
- * sets of sides organized by cell ID for any shape + connectivity
- * repeated an odd number of times.
+ * This query runs in 3 passes (see vtkCellGridSidesQuery::PassWork):
+ *
+ * + In the first pass, responders invoke the AddSides() method on
+ *   this query, entries are added to this->Hashes storage indicating
+ *   the cells which are bounded by a given shape + connectivity.
+ * + In the second pass, responders consume the entries created above
+ *   (removing them as they are processed) and replace them with
+ *   entries in this->Sides. This reorganizes the hashes into groups
+ *   more amenable to output as side arrays. This pass is called
+ *   "Summarization," since not every input side identified will be
+ *   output.
+ * + In the third and final pass, responders create new cells in
+ *   the output cell-grid that correspond to the selected sides of
+ *   the input.
  */
 class VTKCOMMONDATAMODEL_EXPORT vtkCellGridSidesQuery : public vtkCellGridQuery
 {
@@ -38,16 +47,94 @@ public:
   vtkTypeMacro(vtkCellGridSidesQuery, vtkCellGridQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /// An enum specifying which side(s) each responder should generate.
+  enum SideFlags : int
+  {
+    // Individual bits
+    VerticesOfEdges = 0x01,    //!< Input edges should produce endpoint vertices.
+    VerticesOfSurfaces = 0x02, //!< Input surfaces should produce corner vertices.
+    EdgesOfSurfaces = 0x04,    //!< Input surfaces should produce bounding edges.
+    VerticesOfVolumes = 0x08,  //!< Input volumes should produce corner vertices.
+    EdgesOfVolumes = 0x10,     //!< Input volumes should produce edges bounding faces.
+    SurfacesOfVolumes = 0x20,  //!< Input volumes should produce bounding surfaces.
+
+    // Useful (but not exhaustive) combinations
+    SurfacesOfInputs = 0x20,   //!< Produce surfaces (i.e., omit sides of renderable geometry).
+    EdgesOfInputs = 0x14,      //!< Produce edges of inputs of higher dimension.
+    VerticesOfInputs = 0x0b,   //!< Produce vertices of inputs of higher dimension.
+    AllSides = 0x3f,           //!< Produce all sides of inputs that have any sides.
+    NextLowestDimension = 0x25 //!< Given an input of dimenson D, produce sides of dimension D-1.
+  };
+
   /// An enum specifying the work responders should perform for each pass.
   enum PassWork : int
   {
     /// Responders should call AddSide() on each cell's sides to insert
     /// entries into this->Hashes.
     HashSides = 0,
-    /// Responders should insert new side sets into their parent cell-grid.
-    /// At the start of this pass, this->Hashes is transformed into this->Sides
-    /// by calling this->SummarizeSides().
-    GenerateSideSets = 1
+    /// Responders should claim entries in this->Hashes by transcribing them
+    /// to this->Sides and then deleting the entry in this->Hashes to prevent
+    /// multiple responders from processing them.
+    Summarize = 1,
+    /// Responders should insert new side sets into their parent cell-grid
+    /// by examining this->Sides.
+    GenerateSideSets = 2
+  };
+
+  /// An enum specifying the strategy by which input hashes are summarized
+  /// into output Sides entries.
+  enum SummaryStrategy
+  {
+    /// The number of hash entries for a given side should be used to
+    /// decide whether to include a hash's side in the output.
+    /// If a side occurs an odd number of times, it should be included
+    /// in the output.
+    Winding,
+    /// If a hash entry entry exists, a single side should be included
+    /// in the output.
+    AnyOccurrence,
+    /// Hashes for shapes (a) of dimension (d-1) that occur an odd number of
+    /// times and (b) of dimension < (d-1) that occur once or more should
+    /// be included in the output. (Dimension d is the dimension of the
+    /// input shapes, whether they are cells or sides.
+    Boundary
+  };
+
+  /// Indicate how output should be generated or marked so selection works as expected.
+  enum SelectionMode
+  {
+    Input, //!< Input shapes should be selected when output sides are picked.
+    Output //!< Output sides should be selected when they are picked.
+  };
+
+  /// Records held by a hash-entry that represent the side of one cell.
+  ///
+  /// All instances of Side owned by a single hash-entry have the same
+  /// hash but correspond to distinct sides of different cells.
+  struct Side
+  {
+    /// The type of cell whose side is hashed.
+    vtkStringToken CellType;
+    /// The shape of the side being hashed.
+    vtkStringToken SideShape;
+    /// The degree of freedom starting the hash sequence.
+    vtkIdType DOF;
+    /// The ID of the side being hashed.
+    int SideId;
+
+    /// Compare side-hashes to allow set insertion.
+    bool operator<(const Side& other) const
+    {
+      return (this->CellType < other.CellType) ||
+        (this->CellType == other.CellType &&
+          ((this->DOF < other.DOF) || (this->DOF == other.DOF && this->SideId < other.SideId)));
+    }
+  };
+
+  /// Each hash entry corresponds to one or more sides of one or more cells.
+  struct Entry
+  {
+    std::set<Side> Sides;
   };
 
   /// A structure created by the GetSideSetArrays() method for responders to use.
@@ -68,14 +155,67 @@ public:
   /// edges, and vertices are all renderable; volumetric cells are not).
   ///
   /// The default is false.
-  vtkSetMacro(PreserveRenderableCells, vtkTypeBool);
-  vtkGetMacro(PreserveRenderableCells, vtkTypeBool);
-  vtkBooleanMacro(PreserveRenderableCells, vtkTypeBool);
+  vtkSetMacro(PreserveRenderableInputs, vtkTypeBool);
+  vtkGetMacro(PreserveRenderableInputs, vtkTypeBool);
+  vtkBooleanMacro(PreserveRenderableInputs, vtkTypeBool);
 
-  void Initialize() override;
+  /// Set/get whether to omit computation of sides for renderable cells.
+  ///
+  /// A cell is renderable if it is of dimension 2 or less (i.e., surfaces,
+  /// edges, and vertices are all renderable; volumetric cells are not).
+  /// This setting, when used in combination with PreserveRenderableInputs,
+  /// allows the filter to behave similar to vtkPolyData surface extraction
+  /// filters; volumetric cells will have sides computed but others will be
+  /// passed through from the input unaltered.
+  ///
+  /// The default is false.
+  vtkSetMacro(OmitSidesForRenderableInputs, vtkTypeBool);
+  vtkGetMacro(OmitSidesForRenderableInputs, vtkTypeBool);
+  vtkBooleanMacro(OmitSidesForRenderableInputs, vtkTypeBool);
+
+  /// Set/get which sides to generate given input cells/sides.
+  ///
+  /// OutputDimensionControl is a bit-vector taking values from the SideFlags
+  /// enumeration. It determines which sides of the input should be generated.
+  /// The default is SideFlags::SurfacesOfInputs, which will only emit surfaces
+  /// of volumetric cells.
+  vtkSetMacro(OutputDimensionControl, int);
+  vtkGetMacro(OutputDimensionControl, int);
+  vtkBooleanMacro(OutputDimensionControl, int);
+
+  /// Set/get the strategy responders should use to generate entries in
+  /// Sides from entries in Hashes.
+  ///
+  /// The default is BoundaryStrategy.
+  vtkSetEnumMacro(Strategy, SummaryStrategy);
+  vtkGetEnumMacro(Strategy, SummaryStrategy);
+  void SetStrategyToWinding() { this->SetStrategy(SummaryStrategy::Winding); }
+  void SetStrategyToAnyOccurrence() { this->SetStrategy(SummaryStrategy::AnyOccurrence); }
+  void SetStrategyToBoundary() { this->SetStrategy(SummaryStrategy::Boundary); }
+
+  /// Set/get whether the extracted sides should be marked as selectable
+  /// or whether their originating data should be selectable.
+  ///
+  /// Responders should use this to *either*:
+  /// (a) mark the output to indicate what shapes should be selected upon being picked; or
+  /// (b) output different shapes so that picking implicitly results in the proper shape
+  ///     being picked.
+  ///
+  /// The default SelectionMode::Input indicates the input data should be selected.
+  /// Other values indicate the generated output sides should be selected.
+  vtkSetEnumMacro(SelectionType, SelectionMode);
+  vtkGetEnumMacro(SelectionType, SelectionMode);
+
+  bool Initialize() override;
   void StartPass() override;
   bool IsAnotherPassRequired() override;
-  void Finalize() override;
+  bool Finalize() override;
+
+  /// Return the map of hashed side information.
+  ///
+  /// This is public so that responders may edit it
+  /// during the PassWork::Summarize pass.
+  std::unordered_map<std::size_t, Entry>& GetHashes() { return this->Hashes; }
 
   std::unordered_map<vtkStringToken,
     std::unordered_map<vtkStringToken, std::unordered_map<vtkIdType, std::set<int>>>>&
@@ -103,7 +243,7 @@ public:
   ///   (3, 2, 0, 1) → starts at index 2 (0) and hashes backwards: (0, 2, 3, 1)
   ///   (4, 5, 6, 7) → starts at index 0 (4) and hashes backwards: (4, 7, 6, 5)
   ///   (7, 3, 6, 2) → starts at index 3 (2) and hashes forwards:  (2, 7, 3, 6)
-  ///
+  //
   /// By storing the \a cellType, we avoid requiring a global-to-local cell numbering
   /// in vtkCellGrid instances (as vtkPolyData incurs) which may hold multiple types of cells.
   //@{
@@ -125,13 +265,13 @@ public:
     bool forward = conn[(ss + 1) % NN] > conn[(ss + NN - 1) % NN];
 
     std::size_t hashedValue = std::hash<std::size_t>{}(NN);
-    vtkCellGridSidesQuery::HashCombiner()(hashedValue, shape.GetId());
+    vtkHashCombiner()(hashedValue, shape.GetId());
     if (forward)
     {
       for (std::size_t ii = 0; ii < NN; ++ii)
       {
         std::size_t hashedToken = std::hash<T>{}(conn[(ss + ii) % NN]);
-        vtkCellGridSidesQuery::HashCombiner()(hashedValue, hashedToken);
+        vtkHashCombiner()(hashedValue, hashedToken);
       }
     }
     else // backward
@@ -140,7 +280,7 @@ public:
       {
         std::size_t hashedToken = std::hash<T>{}(conn[(ss + NN - ii) % NN]);
         // hashedValue = hashedValue ^ (hashedToken << (ii + 1));
-        vtkCellGridSidesQuery::HashCombiner()(hashedValue, hashedToken);
+        vtkHashCombiner()(hashedValue, hashedToken);
       }
     }
     this->Hashes[hashedValue].Sides.insert(Side{ cellType, shape, cell, side });
@@ -169,14 +309,14 @@ public:
     bool forward = conn[(ss + 1) % NN] > conn[(ss + NN - 1) % NN];
 
     std::size_t hashedValue = std::hash<std::size_t>{}(NN);
-    vtkCellGridSidesQuery::HashCombiner()(hashedValue, shape.GetId());
+    vtkHashCombiner()(hashedValue, shape.GetId());
     // std::cout << "Hash(" << (forward ? "F" : "R") << ")";
     if (forward)
     {
       for (std::size_t ii = 0; ii < NN; ++ii)
       {
         std::size_t hashedToken = std::hash<T>{}(conn[(ss + ii) % NN]);
-        vtkCellGridSidesQuery::HashCombiner()(hashedValue, hashedToken);
+        vtkHashCombiner()(hashedValue, hashedToken);
         // std::cout << " " << conn[(ss + ii) % NN];
       }
     }
@@ -186,7 +326,7 @@ public:
       {
         std::size_t hashedToken = std::hash<T>{}(conn[(ss + NN - ii) % NN]);
         // hashedValue = hashedValue ^ (hashedToken << (ii + 1));
-        vtkCellGridSidesQuery::HashCombiner()(hashedValue, hashedToken);
+        vtkHashCombiner()(hashedValue, hashedToken);
         // std::cout << " " << conn[(ss + NN - ii) % NN];
       }
     }
@@ -198,71 +338,23 @@ public:
   /// Return arrays of cell+side IDs for the given \a cellType.
   std::vector<SideSetArray> GetSideSetArrays(vtkStringToken cellType);
 
-  // Hash combiner adapted from boost::hash_combine
-  class HashCombiner
-  {
-  public:
-    template <typename T>
-    void operator()(T& h, typename std::enable_if<sizeof(T) == 8, std::size_t>::type k)
-    {
-      constexpr T m = 0xc6a4a7935bd1e995ull;
-      constexpr int r = 47;
+  /// Return a string-token with the given selection mode or vice-versa.
+  static vtkStringToken SelectionModeToLabel(SelectionMode mode);
+  static SelectionMode SelectionModeFromLabel(vtkStringToken token);
 
-      k *= m;
-      k ^= k >> r;
-      k *= m;
-
-      h ^= k;
-      h *= m;
-
-      // Completely arbitrary number, to prevent 0's
-      // from hashing to 0.
-      h += 0xe6546b64;
-    }
-
-    template <typename T>
-    void operator()(T& h, typename std::enable_if<sizeof(T) == 4, std::size_t>::type k)
-    {
-      constexpr std::uint32_t c1 = 0xcc9e2d51;
-      constexpr std::uint32_t c2 = 0x1b873593;
-      constexpr std::uint32_t r1 = 15;
-      constexpr std::uint32_t r2 = 13;
-
-      k *= c1;
-      k = (k << r1) | (k >> (32 - r1));
-      k *= c2;
-
-      h ^= k;
-      h = (h << r2) | (h >> (32 - r2));
-      h = h * 5 + 0xe6546b64;
-    }
-  };
+  /// Return a string-token with the given summarization strategy or vice-versa.
+  static vtkStringToken SummaryStrategyToLabel(SummaryStrategy strategy);
+  static SummaryStrategy SummaryStrategyFromLabel(vtkStringToken token);
 
 protected:
   vtkCellGridSidesQuery() = default;
   ~vtkCellGridSidesQuery() override = default;
 
-  struct Side
-  {
-    vtkStringToken CellType;
-    vtkStringToken SideShape;
-    vtkIdType DOF;
-    int SideId;
-    bool operator<(const Side& other) const
-    {
-      return (this->CellType < other.CellType) ||
-        (this->CellType == other.CellType &&
-          ((this->DOF < other.DOF) || (this->DOF == other.DOF && this->SideId < other.SideId)));
-    }
-  };
-  struct Entry
-  {
-    std::set<Side> Sides;
-  };
-
-  void SummarizeSides();
-
-  vtkTypeBool PreserveRenderableCells{ false };
+  vtkTypeBool PreserveRenderableInputs{ false };
+  vtkTypeBool OmitSidesForRenderableInputs{ false };
+  int OutputDimensionControl{ SideFlags::SurfacesOfInputs };
+  SelectionMode SelectionType{ SelectionMode::Input };
+  SummaryStrategy Strategy{ SummaryStrategy::Boundary };
   std::unordered_map<std::size_t, Entry> Hashes;
   std::unordered_map<vtkStringToken,
     std::unordered_map<vtkStringToken, std::unordered_map<vtkIdType, std::set<int>>>>

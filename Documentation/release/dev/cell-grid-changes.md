@@ -83,7 +83,7 @@ reference elements into world coordinates).
 Several of the queries above are used to implement
 subclasses of vtkAlgorithm which accept cell grids.
 
-+ vtkCellGridComputeSurface – compute the external boundaries of cells using vtkCellGridSidesQuery.
++ vtkCellGridComputeSides – compute the external boundaries of cells using vtkCellGridSidesQuery.
 + vtkCellGridElevation – add a new cell attribute to an existing cell grid using vtkCellGridElevationQuery.
 + vtkUnstructuredGridToCellGrid – convert an unstructured grid into a cell grid using its internal TranscribeQuery.
 

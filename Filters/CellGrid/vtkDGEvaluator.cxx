@@ -14,6 +14,7 @@
 #include "vtkInterpolateCalculator.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStringToken.h"
 #include "vtkTypeInt64Array.h"
@@ -176,7 +177,8 @@ bool vtkDGEvaluator::ClassifyPoints(
     return false;
   }
 
-  auto arrays = shape->GetArraysForCellType(cellType->GetClassName());
+  auto cellTypeInfo = shape->GetCellTypeInfo(cellType->GetClassName());
+  auto& arrays = cellTypeInfo.ArraysByRole;
   auto it = arrays.find("values"_hash);
   vtkDataArray* coords = nullptr;
   if (it != arrays.end())
@@ -184,10 +186,10 @@ bool vtkDGEvaluator::ClassifyPoints(
     coords = vtkDataArray::SafeDownCast(it->second);
   }
   it = arrays.find("connectivity"_hash);
-  vtkTypeInt64Array* conn = nullptr;
+  vtkDataArray* conn = nullptr;
   if (it != arrays.end())
   {
-    conn = vtkTypeInt64Array::SafeDownCast(it->second);
+    conn = vtkDataArray::SafeDownCast(it->second);
   }
   if (!conn || !coords)
   {
@@ -268,7 +270,7 @@ bool vtkDGEvaluator::ClassifyPoints(
   for (vtkIdType ii = 0; ii < numCells; ++ii)
   {
     // Get corner point IDs
-    conn->GetTypedTuple(ii, cellConn.data());
+    conn->GetIntegerTuple(ii, cellConn.data());
     // Get corner point coordinates
     for (int jj = 0; jj < numCorners; ++jj)
     {
@@ -306,7 +308,8 @@ bool vtkDGEvaluator::EvaluatePositions(
   }
   auto grid = dgCell->GetCellGrid();
   auto shape = grid ? grid->GetShapeAttribute() : nullptr;
-  auto calc = caches->AttributeCalculator<vtkInterpolateCalculator>(dgCell, shape);
+  auto calc = caches->AttributeCalculator<vtkInterpolateCalculator>(
+    dgCell, shape, dgCell->GetAttributeTags(shape, true));
   if (!calc)
   {
     return false;
@@ -405,7 +408,8 @@ bool vtkDGEvaluator::InterpolatePoints(
   }
   auto attribute = query->GetCellAttribute();
   // Get a calculator initialized to work on the attribute we wish to interpolate:
-  auto calc = caches->AttributeCalculator<vtkInterpolateCalculator>(dgCell, attribute);
+  auto calc = caches->AttributeCalculator<vtkInterpolateCalculator>(
+    dgCell, attribute, dgCell->GetAttributeTags(attribute, true));
   if (!calc)
   {
     return false;
@@ -418,18 +422,21 @@ bool vtkDGEvaluator::InterpolatePoints(
   auto& alloc = query->GetAllocationsForCellType(dgCell->GetClassName());
   vtkIdType outputPointId = alloc.Offset; // The start of the output points we will interpolate
   vtkIdType numberOfPoints = alloc.GetNumberOfOutputPoints(); // The number of points to process.
-  vtkVector3d rst;
-  vtkTypeUInt64 cellId;
-  std::vector<double> value;
-  value.resize(attribute->GetNumberOfComponents());
 
-  for (const vtkIdType end = outputPointId + numberOfPoints; outputPointId < end; ++outputPointId)
-  {
-    cellIds->GetTypedTuple(outputPointId, &cellId);
-    pointParams->GetTuple(outputPointId, rst.GetData());
-    calc->Evaluate(cellId, rst, value);
-    values->SetTuple(outputPointId, value.data());
-  }
+  const vtkIdType end = outputPointId + numberOfPoints;
+  vtkSMPTools::For(outputPointId, end, [&](vtkIdType bid, vtkIdType eid) {
+    vtkTypeUInt64 cellId;
+    vtkVector3d rst;
+    std::vector<double> value;
+    value.resize(attribute->GetNumberOfComponents());
+    for (vtkIdType ii = bid; ii < eid; ++ii)
+    {
+      cellIds->GetTypedTuple(ii, &cellId);
+      pointParams->GetTuple(ii, rst.GetData());
+      calc->Evaluate(cellId, rst, value);
+      values->SetTuple(ii, value.data());
+    }
+  });
 
   return true;
 }

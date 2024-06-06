@@ -47,9 +47,13 @@ void vtkCellGridRenderRequest::PrintSelf(std::ostream& os, vtkIndent indent)
   }
 }
 
-void vtkCellGridRenderRequest::Initialize() {}
+bool vtkCellGridRenderRequest::Initialize()
+{
+  bool ok = this->Superclass::Initialize();
+  return ok;
+}
 
-void vtkCellGridRenderRequest::Finalize()
+bool vtkCellGridRenderRequest::Finalize()
 {
   // Always reset the request after releasing resources (but
   // never assume we're going to release resources after a
@@ -58,6 +62,7 @@ void vtkCellGridRenderRequest::Finalize()
   {
     this->SetIsReleasingResources(false);
   }
+  return true;
 }
 
 void vtkCellGridRenderRequest::SetMapper(vtkCellGridMapper* mapper)

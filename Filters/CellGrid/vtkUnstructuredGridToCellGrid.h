@@ -72,8 +72,8 @@ public:
     vtkTypeMacro(vtkUnstructuredGridToCellGrid::TranscribeQuery, vtkCellGridQuery);
     static TranscribeQuery* New();
 
-    void Initialize() override;
-    void Finalize() override;
+    bool Initialize() override;
+    bool Finalize() override;
 
     /// Sum counts of all input cell types that generate the same output cell type.
     ///
@@ -82,7 +82,7 @@ public:
     bool SumOutputCounts();
 
     /// For each point- or cell-data array from the Input, create an output cell-attribute.
-    void AddCellAttributes(vtkDataSetAttributes* attributes, vtkStringToken fieldType);
+    void AddCellAttributes(vtkDataSetAttributes* attributes);
 
     /// A claim on input vtkCell types registered by an output vtkCellMetadata subclass.
     ///

@@ -25,7 +25,7 @@ public:
   vtkTypeMacro(vtkCellGridBoundsQuery, vtkCellGridQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Initialize() override;
+  bool Initialize() override;
   void GetBounds(double* bds) VTK_SIZEHINT(6);
   void AddBounds(vtkBoundingBox& bbox);
 

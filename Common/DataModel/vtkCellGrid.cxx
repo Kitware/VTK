@@ -4,10 +4,12 @@
 
 #include "vtkCellAttribute.h"
 #include "vtkCellGridBoundsQuery.h"
+#include "vtkCellGridCopyQuery.h"
 #include "vtkCellMetadata.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationDataObjectKey.h"
+#include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
@@ -15,6 +17,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkCellGrid);
+vtkInformationKeyMacro(vtkCellGrid, ARRAY_GROUP_IDS, IntegerVector);
 
 vtkCellGrid::vtkCellGrid() = default;
 vtkCellGrid::~vtkCellGrid() = default;
@@ -96,34 +99,19 @@ void vtkCellGrid::ShallowCopy(vtkDataObject* baseSrc)
     return;
   }
 
-  this->ArrayGroups.clear();
-  for (const auto& entry : src->ArrayGroups)
+  vtkNew<vtkCellGridCopyQuery> copier;
+  copier->SetSource(src);
+  copier->SetTarget(this);
+  copier->CopyOnlyShapeOff();
+  copier->AddAllSourceCellAttributeIds();
+  copier->CopyCellsOn();
+  copier->CopyArraysOn();
+  copier->CopyArrayValuesOn();
+  copier->DeepCopyArraysOff();
+  if (!src->Query(copier))
   {
-    auto* dsa = this->GetAttributes(entry.first);
-    dsa->ShallowCopy(entry.second);
+    vtkErrorMacro("Failed to copy the source " << src);
   }
-
-  // Copy attributes by reference. This works because we shallow-copy the array groups above,
-  // so all the arrays from src are referenced by us as well.
-  this->Attributes = src->Attributes;
-  this->RangeCache = src->GetRangeCache();
-  this->ShapeAttribute = src->ShapeAttribute;
-  this->HaveShape = src->HaveShape;
-  this->NextAttribute = src->NextAttribute;
-
-  // We must create new instances of vtkCellMetadata since they point back to
-  // the parent vtkCellGrid.
-  this->Cells.clear();
-  for (const auto& cellEntry : src->Cells)
-  {
-    auto cellType = vtkCellMetadata::NewInstance(cellEntry.second->GetClassName(), this);
-    cellType->ShallowCopy(cellEntry.second);
-  }
-
-  this->SetSchema(src->GetSchemaName(), src->GetSchemaVersion());
-  this->SetContentVersion(src->GetContentVersion());
-
-  this->Modified();
 }
 
 void vtkCellGrid::DeepCopy(vtkDataObject* baseSrc)
@@ -135,75 +123,33 @@ void vtkCellGrid::DeepCopy(vtkDataObject* baseSrc)
     return;
   }
 
-  this->Initialize();
-
-  std::map<vtkAbstractArray*, vtkAbstractArray*> arrayRewrites;
-  const auto& srcMap = src->GetArrayGroups();
-  for (auto it = srcMap.begin(); it != srcMap.end(); ++it)
+  vtkNew<vtkCellGridCopyQuery> copier;
+  copier->SetSource(src);
+  copier->SetTarget(this);
+  copier->CopyOnlyShapeOff();
+  copier->AddAllSourceCellAttributeIds();
+  copier->CopyCellsOn();
+  copier->CopyArraysOn();
+  copier->CopyArrayValuesOn();
+  copier->DeepCopyArraysOn();
+  if (!src->Query(copier))
   {
-    auto* dsa = this->GetAttributes(it->first);
-    dsa->DeepCopy(it->second);
-    if (it->second->GetNumberOfArrays() != dsa->GetNumberOfArrays())
-    {
-      vtkErrorMacro("Arrays for group "
-        << it->first << " cannot be mapped. Cell attributes will reference wrong arrays.");
-    }
-    else
-    {
-      for (int ii = 0; ii < dsa->GetNumberOfArrays(); ++ii)
-      {
-        arrayRewrites[it->second->GetAbstractArray(ii)] = dsa->GetAbstractArray(ii);
-      }
-    }
+    vtkErrorMacro("Failed to copy the source " << src);
   }
+}
 
-  this->Attributes.clear();
-  this->RangeCache.clear();
-  auto* srcShape = src->GetShapeAttribute();
-  auto& srcRange = src->GetRangeCache();
-  for (const auto& entry : src->Attributes)
+bool vtkCellGrid::CopyStructure(vtkCellGrid* other, bool byReference)
+{
+  vtkNew<vtkCellGridCopyQuery> copier;
+  copier->SetSource(other);
+  copier->SetTarget(this);
+  copier->CopyOnlyShapeOn();
+  copier->SetDeepCopyArrays(!byReference);
+  if (other->Query(copier))
   {
-    vtkNew<vtkCellAttribute> attribute;
-    attribute->DeepCopy(entry.second);
-    // Copy any range information for the cell-attribute:
-    auto cacheIt = srcRange.find(entry.second);
-    if (cacheIt != srcRange.end())
-    {
-      this->RangeCache[attribute].resize(attribute->GetNumberOfComponents() + 2);
-      std::size_t ii = 0;
-      for (const auto& componentRange : cacheIt->second)
-      {
-        if (componentRange.FiniteRangeTime > entry.second->GetMTime())
-        {
-          this->RangeCache[attribute][ii].FiniteRange = cacheIt->second[ii].FiniteRange;
-          this->RangeCache[attribute][ii].FiniteRangeTime.Modified();
-        }
-        if (componentRange.EntireRangeTime > entry.second->GetMTime())
-        {
-          this->RangeCache[attribute][ii].EntireRange = cacheIt->second[ii].EntireRange;
-          this->RangeCache[attribute][ii].EntireRangeTime.Modified();
-        }
-        ++ii;
-      }
-    }
-    // Now add the attribute (after adding the range info).
-    this->AddCellAttribute(attribute);
-    if (srcShape == entry.second)
-    {
-      this->SetShapeAttribute(attribute);
-    }
+    return true;
   }
-
-  this->Cells.clear();
-  for (const auto& cellEntry : src->Cells)
-  {
-    auto cellType = vtkCellMetadata::NewInstance(cellEntry.second->GetClassName(), this);
-    cellType->DeepCopy(cellEntry.second);
-  }
-  this->NextAttribute = src->NextAttribute;
-  this->SetSchema(src->GetSchemaName(), src->GetSchemaVersion());
-  this->SetContentVersion(src->GetContentVersion());
-  this->Modified();
+  return false;
 }
 
 vtkDataSetAttributes* vtkCellGrid::GetAttributes(int type)
@@ -235,6 +181,23 @@ vtkDataSetAttributes* vtkCellGrid::FindAttributes(vtkStringToken type) const
   return this->FindAttributes(type.GetId());
 }
 
+void vtkCellGrid::MapArrayLocations(
+  std::unordered_map<vtkAbstractArray*, vtkStringToken>& arrayLocations) const
+{
+  for (const auto& entry : this->ArrayGroups)
+  {
+    auto groupToken = entry.first;
+    for (vtkIdType ii = 0; ii < entry.second->GetNumberOfArrays(); ++ii)
+    {
+      auto* arr = entry.second->GetAbstractArray(ii);
+      if (arr)
+      {
+        arrayLocations[arr] = groupToken;
+      }
+    }
+  }
+}
+
 vtkUnsignedCharArray* vtkCellGrid::GetGhostArray(int type)
 {
   vtkUnsignedCharArray* result = nullptr;
@@ -260,17 +223,51 @@ bool vtkCellGrid::SupportsGhostArray(int type)
 
 int vtkCellGrid::GetAttributeTypeForArray(vtkAbstractArray* arr)
 {
-  // First, search through DOF arrays:
+  // First, see if the array is marked with a group for fast lookup.
+  if (arr->HasInformation())
+  {
+    auto* info = arr->GetInformation();
+    if (info->Has(ARRAY_GROUP_IDS()))
+    {
+      int numGroups = info->Length(vtkCellGrid::ARRAY_GROUP_IDS());
+      int* groupIds = info->Get(vtkCellGrid::ARRAY_GROUP_IDS());
+      for (int gg = 0; gg < numGroups; ++gg)
+      {
+        if (auto* group = this->FindAttributes(groupIds[gg]))
+        {
+          if (auto* array = group->GetAbstractArray(arr->GetName()))
+          {
+            if (array != arr)
+            {
+              // NB: We might update info by rewriting ARRAY_GROUP_IDS to
+              //     exclude groupIds[gg], but it is possible – because
+              //     arrays are shallow-copied – that they may end up in
+              //     multiple groups across multiple instances of
+              //     vtkCellGrid and we do not necessarily want to de-index
+              //     arr across all cell-grids.
+              continue;
+            }
+            return groupIds[gg];
+          }
+        }
+      }
+    }
+  }
+
+  // Next, search through DOF arrays:
   for (auto it = this->ArrayGroups.begin(); it != this->ArrayGroups.end(); ++it)
   {
     for (int ii = 0; ii < it->second->GetNumberOfArrays(); ++ii)
     {
       if (it->second->GetAbstractArray(ii) == arr)
       {
+        // Accelerate next lookup by adding the result.
+        arr->GetInformation()->Append(ARRAY_GROUP_IDS(), it->first);
         return it->first;
       }
     }
   }
+
   // If not a DOF array, perhaps it is field data:
   for (int ii = 0; ii < this->FieldData->GetNumberOfArrays(); ++ii)
   {
@@ -339,12 +336,15 @@ vtkCellMetadata* vtkCellGrid::AddCellMetadata(vtkCellMetadata* cellType)
   vtkSmartPointer<vtkCellMetadata> owner = cellType;
   this->Cells[owner->Hash()] = owner;
   owner->SetCellGrid(this);
+  // Because we have added cells, clear any cell-attribute ranges cached.
+  this->RangeCache.clear();
   return cellType;
 }
 
 int vtkCellGrid::AddAllCellMetadata()
 {
   int numAdded = 0;
+  vtkIdType numNewCells = 0;
   auto metadataTypeNames = vtkCellMetadata::CellTypes();
   for (const auto& metadataTypeName : metadataTypeNames)
   {
@@ -352,7 +352,13 @@ int vtkCellGrid::AddAllCellMetadata()
     if (metadata)
     {
       ++numAdded;
+      numNewCells += metadata->GetNumberOfCells();
     }
+  }
+  if (numNewCells > 0)
+  {
+    // Because we have added cells, clear any cell-attribute ranges cached.
+    this->RangeCache.clear();
   }
   return numAdded;
 }
@@ -369,6 +375,8 @@ bool vtkCellGrid::RemoveCellMetadata(vtkCellMetadata* cellType)
     return false;
   }
   this->Cells.erase(it);
+  // Because we have removed cells, clear any cell-attribute ranges cached.
+  this->RangeCache.clear();
   return true;
 }
 
@@ -484,14 +492,9 @@ bool vtkCellGrid::GetCellAttributeRange(
   // recompute the range.
   auto cacheIt = this->RangeCache.find(attribute);
   if (cacheIt == this->RangeCache.end() ||
-    (finiteRange &&
-      (cacheIt->second[componentIndex + 2].FiniteRangeTime < attribute->GetMTime() ||
-        cacheIt->second[componentIndex + 2].FiniteRange.size() <=
-          static_cast<std::size_t>(componentIndex))) ||
-    (!finiteRange &&
-      (cacheIt->second[componentIndex + 2].EntireRangeTime < attribute->GetMTime() ||
-        cacheIt->second[componentIndex + 2].EntireRange.size() <=
-          static_cast<std::size_t>(componentIndex))))
+    cacheIt->second.size() <= static_cast<std::size_t>(componentIndex + 2) ||
+    (finiteRange && cacheIt->second[componentIndex + 2].FiniteRangeTime < attribute->GetMTime()) ||
+    (!finiteRange && cacheIt->second[componentIndex + 2].EntireRangeTime < attribute->GetMTime()))
   {
     if (!this->ComputeRangeInternal(attribute, componentIndex, finiteRange))
     {
@@ -543,6 +546,16 @@ std::vector<int> vtkCellGrid::GetUnorderedCellAttributeIds() const
   return result;
 }
 
+std::vector<vtkSmartPointer<vtkCellAttribute>> vtkCellGrid::GetCellAttributeList() const
+{
+  std::vector<vtkSmartPointer<vtkCellAttribute>> result;
+  for (const auto& entry : this->Attributes)
+  {
+    result.push_back(entry.second);
+  };
+  return result;
+}
+
 vtkCellAttribute* vtkCellGrid::GetCellAttribute(vtkStringToken::Hash hash)
 {
   auto it = this->Attributes.find(hash);
@@ -570,19 +583,6 @@ vtkCellAttribute* vtkCellGrid::GetCellAttributeByName(const std::string& name)
   for (const auto& entry : this->Attributes)
   {
     if (entry.second->GetName() == name)
-    {
-      return entry.second;
-    }
-  }
-  return nullptr;
-}
-
-vtkCellAttribute* vtkCellGrid::GetCellAttributeByNameAndType(
-  const std::string& name, vtkStringToken attType)
-{
-  for (const auto& entry : this->Attributes)
-  {
-    if (entry.second->GetName() == name && entry.second->GetAttributeType() == attType)
     {
       return entry.second;
     }
@@ -645,7 +645,11 @@ bool vtkCellGrid::Query(vtkCellGridQuery* query)
   }
 
   bool ok = true;
-  query->Initialize();
+  if (!query->Initialize())
+  {
+    ok = false;
+    return ok;
+  }
   do
   {
     query->StartPass();
@@ -654,7 +658,8 @@ bool vtkCellGrid::Query(vtkCellGridQuery* query)
       ok &= cellType.second->Query(query);
     }
   } while (query->IsAnotherPassRequired());
-  query->Finalize();
+  bool didFinalize = query->Finalize();
+  ok &= didFinalize;
   return ok;
 }
 
@@ -690,6 +695,35 @@ vtkDataArray* vtkCellGrid::CorrespondingArray(
 
   const char* arrayName = arrayA->GetName();
 
+  // If we have ARRAY_GROUP_IDS, look there first.
+  auto* infoA = arrayA->HasInformation() ? arrayA->GetInformation() : nullptr;
+  if (infoA && infoA->Has(ARRAY_GROUP_IDS()))
+  {
+    int numGroups = infoA->Length(vtkCellGrid::ARRAY_GROUP_IDS());
+    int* groupIds = infoA->Get(vtkCellGrid::ARRAY_GROUP_IDS());
+    for (int gg = 0; gg < numGroups; ++gg)
+    {
+      if (auto* groupA = gridA->FindAttributes(groupIds[gg]))
+      {
+        if (auto* array = groupA->GetArray(arrayName))
+        {
+          if (array != arrayA)
+          {
+            continue;
+          }
+          if (auto* groupB = gridB->FindAttributes(groupIds[gg]))
+          {
+            arrayB = groupB->GetArray(arrayName);
+            if (arrayB)
+            {
+              return arrayB;
+            }
+          }
+        }
+      }
+    }
+  }
+
   // We don't currently index arrays by their parent group.
   // Just iterate groups until we find a match.
   for (const auto& groupEntry : gridA->ArrayGroups)
@@ -699,6 +733,8 @@ vtkDataArray* vtkCellGrid::CorrespondingArray(
     {
       continue;
     }
+    // The input array was not marked with a group but was present in a group; add it:
+    arrayA->GetInformation()->Append(ARRAY_GROUP_IDS(), groupEntry.first);
     auto* groupB = gridB->FindAttributes(groupEntry.first);
     if (!groupB)
     {
@@ -707,6 +743,11 @@ vtkDataArray* vtkCellGrid::CorrespondingArray(
     arrayB = groupB->GetArray(arrayName);
     if (arrayB)
     {
+      if (!arrayB->HasInformation() || !arrayB->GetInformation()->Has(ARRAY_GROUP_IDS()))
+      {
+        // Mark arrayB for fast lookup.
+        arrayB->GetInformation()->Append(ARRAY_GROUP_IDS(), groupEntry.first);
+      }
       return arrayB;
     }
     // Continue, hoping arrayA is in multiple array groups…

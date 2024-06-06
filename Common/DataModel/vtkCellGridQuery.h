@@ -33,7 +33,10 @@ public:
   ///
   /// You may override this method to do additional work, but you must
   /// be careful to call the base method from your override.
-  virtual void Initialize();
+  ///
+  /// Returning false will abort processing of the query.
+  /// No error message will be printed.
+  virtual bool Initialize();
 
   /// Mark the start of a pass through each cell type.
   /// This increments the \a Pass ivar which responders can access.
@@ -50,7 +53,7 @@ public:
   virtual bool IsAnotherPassRequired() { return false; }
 
   /// Override this if your query-result state requires finalization.
-  virtual void Finalize() {}
+  virtual bool Finalize() { return true; }
 
 protected:
   vtkCellGridQuery() = default;

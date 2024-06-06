@@ -19,9 +19,11 @@ void vtkCellGridBoundsQuery::PrintSelf(ostream& os, vtkIndent indent)
      << " " << this->Bounds[3] << ", " << this->Bounds[4] << " " << this->Bounds[5] << "\n";
 }
 
-void vtkCellGridBoundsQuery::Initialize()
+bool vtkCellGridBoundsQuery::Initialize()
 {
+  bool ok = this->Superclass::Initialize();
   vtkMath::UninitializeBounds(this->Bounds.data());
+  return ok;
 }
 
 void vtkCellGridBoundsQuery::GetBounds(double* bds)

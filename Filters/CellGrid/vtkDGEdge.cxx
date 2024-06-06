@@ -20,8 +20,8 @@ vtkStandardNewMacro(vtkDGEdge);
 static bool registerType = vtkCellMetadata::RegisterType<vtkDGEdge>();
 
 const std::array<std::array<double, 3>, 2> vtkDGEdge::Parameters{ {
-  { 0., 0., 0. }, // node 0
-  { 1., 0., 0. }, // node 1
+  { -1., 0., 0. }, // node 0
+  { +1., 0., 0. }, // node 1
 } };
 
 const std::array<int, vtkDGEdge::Dimension + 2> vtkDGEdge::SideOffsets{ { 0, 1,
@@ -36,7 +36,17 @@ const std::array<std::vector<vtkIdType>, 3> vtkDGEdge::Sides{ {
   { 1 }     // vertex 1
 } };
 
-vtkDGEdge::vtkDGEdge() = default;
+const std::array<std::vector<vtkIdType>, 3> vtkDGEdge::SidesOfSides{ {
+  { 0, 1 }, // edge itself
+  {},       // vertex 0
+  {}        // vertex 1
+} };
+
+vtkDGEdge::vtkDGEdge()
+{
+  this->CellSpec.SourceShape = this->GetShape();
+}
+
 vtkDGEdge::~vtkDGEdge() = default;
 
 void vtkDGEdge::PrintSelf(ostream& os, vtkIndent indent)
@@ -96,6 +106,16 @@ const std::vector<vtkIdType>& vtkDGEdge::GetSideConnectivity(int side) const
     return dummy;
   }
   return this->Sides[side + 1];
+}
+
+const std::vector<vtkIdType>& vtkDGEdge::GetSidesOfSide(int side) const
+{
+  if (side < -1 || side >= 2)
+  {
+    static std::vector<vtkIdType> dummy;
+    return dummy;
+  }
+  return this->SidesOfSides[side + 1];
 }
 
 vtkTypeFloat32Array* vtkDGEdge::GetReferencePoints() const

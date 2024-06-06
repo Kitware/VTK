@@ -16,11 +16,14 @@
 #ifndef vtkDGCell_h
 #define vtkDGCell_h
 
-#include "vtkFiltersCellGridModule.h" // for export macro
+#include "vtkFiltersCellGridModule.h" // For export macro.
 
+#include "vtkCellAttribute.h"      // For CellTypeInfo.
+#include "vtkCellGridResponders.h" // For vtkCellGridResponders::TagSet.
 #include "vtkCellMetadata.h"
-#include "vtkStringToken.h" // for vtkStringToken::Hash
-#include "vtkVector.h"      // for IsInside API.
+#include "vtkDGOperatorEntry.h" // For GetOperatorEntry API.
+#include "vtkStringToken.h"     // For vtkStringToken::Hash.
+#include "vtkVector.h"          // For IsInside, GetParametricCenterOfSide APIs.
 
 #include <vector> // for side connectivity
 
@@ -36,6 +39,29 @@ class vtkTypeInt32Array;
 class VTKFILTERSCELLGRID_EXPORT vtkDGCell : public vtkCellMetadata
 {
 public:
+  /// A map holding operators that evaluate DG cells.
+  ///
+  /// Operators currently include "Basis" and "BasisGradient" to evaluate
+  /// the polynomial basis functions for a cell-attribute. But in the future
+  /// this may also include operators such as "Curl", "Divergence", and
+  /// higher-order derivative operators.
+  ///
+  /// Besides operators being indexed on their purpose (the operator name),
+  /// they are indexed on the function space in which they live (such as
+  /// the space of nodal functions, edge-centered functions, face-centered
+  /// functions, constant functions, etc.), the polynomial basis inside
+  /// the function space and its order are also indexed.
+  ///
+  /// vtkDGInterpolateCalculator and other query-responders should use
+  /// this map along with vtkDGInvokeOperator to perform interpolation
+  /// or other work requiring basis-function computation.
+  using OperatorMap = std::unordered_map<vtkStringToken, // operator name
+    std::unordered_map<vtkStringToken,                   // function space
+      std::unordered_map<vtkStringToken,                 // basis name
+        std::unordered_map<int,                          // order or -1
+          std::unordered_map<vtkStringToken,             // cell type-name
+            vtkDGOperatorEntry>>>>>;
+
   /// All possible shapes for DG cells.
   enum Shape : int
   {
@@ -60,15 +86,12 @@ public:
   {
     Source() = default;
     Source(const Source&) = default;
-    Source(vtkDataArray* conn, vtkIdType off, bool blank, Shape shape, int sideType)
-      : Connectivity(conn)
-      , Offset(off)
-      , Blanked(blank)
-      , SourceShape(shape)
-      , SideType(sideType)
-    {
-    }
-    Source& operator=(const Source& other) = default;
+    Source(vtkDataArray* conn, vtkIdType off, bool blank, Shape shape, int sideType);
+    Source(vtkDataArray* conn, vtkIdType off, bool blank, Shape shape, int sideType, int selnType,
+      vtkDataArray* nodalGhostMarks);
+    Source& operator=(const Source&) = default;
+    /// Override the destructor to de-reference Connectivity, NodalGhostMarks.
+    virtual ~Source() = default;
 
     /// An array holding cell connectivity or (cell-id, side-id) tuples.
     ///
@@ -77,6 +100,13 @@ public:
     /// If the array is side connectivity, then each tuple consists of a
     /// cell ID for component 0 and a side ID for component 1.
     vtkDataArray* Connectivity{ nullptr };
+
+    /// An array holding per-point "ghost" information (or null).
+    ///
+    /// If this array is non-null, then the mesh is distributed across
+    /// multiple vtkCellGrid instances and this array has a mark for
+    /// each point that is either 0 or from vtkDataSetAttributes::PointGhostTypes.
+    vtkDataArray* NodalGhostMarks{ nullptr };
 
     /// Offset (start ID; used for picking) of the first cell or side in \a Connectivity.
     vtkIdType Offset{ 0 };
@@ -90,6 +120,13 @@ public:
     /// The type of the side (for calling GetSideRangeForType).
     /// The default of -1 indicates the that the source is the cell-type itself, not any side.
     int SideType{ -1 };
+
+    /// If \a SideType >= 0, this determines what should be selected.
+    ///
+    /// A value of -1 indicates the parent cell (whatever its dimension) should be
+    /// chosen when a side in this Source is selected. Other values indicate a
+    /// side should be extracted, but for now this should be -1 or SideType.
+    int SelectionType{ -1 };
   };
 
   vtkTypeMacro(vtkDGCell, vtkCellMetadata);
@@ -146,6 +183,17 @@ public:
   /// visualize and analyze elements.
   virtual const std::array<double, 3>& GetCornerParameter(int corner) const = 0;
 
+  /// Return the parametric center of a cell or its side.
+  ///
+  /// Pass -1 for \a side if you want the cell's center.
+  /// Otherwise, pass the side ID.
+  ///
+  /// This method simply averages corner-point coordinates.
+  /// It is not fast, since it averages values each time it
+  /// is called. If you need to re-use this information, you
+  /// are responsible for caching it locally.
+  virtual vtkVector3d GetParametricCenterOfSide(int sideId) const;
+
   /// Return the number of different side shapes of this cell type.
   ///
   /// Example: a wedge has 4 side shapes: Quadrilateral, Triangle, Edge, and Vertex.
@@ -177,6 +225,15 @@ public:
 
   /// A python-wrapped version of GetSideRangeForType.
   int* GetSideRangeForSideType(int sideType) VTK_SIZEHINT(2);
+
+  /// Return the range of side IDs for all sides of the given \a dimension.
+  ///
+  /// An invalid range (side.first > side.second) is returned if no sides
+  /// of the given dimension exist.
+  virtual std::pair<int, int> GetSideRangeForDimension(int dimension) const;
+
+  /// A python-wrapped version of GetSideRangeForDimension.
+  int* GetSideRangeForSideDimension(int sideDimension) VTK_SIZEHINT(2);
 
   /// Return the number of boundaries this type of cell has of a given \a dimension.
   ///
@@ -213,6 +270,14 @@ public:
   /// (a vector of the counting numbers from 0 to this->GetNumberOfCorners()).
   /// This feature is used when rendering cells of dimension 2 or lower.
   virtual const std::vector<vtkIdType>& GetSideConnectivity(int side) const = 0;
+
+  /// Return a vector of side IDs given an input side ID.
+  ///
+  /// Passing a \a side of -1 will return the sides of the element itself.
+  /// The returned values **are not** corner-point IDs; they **are** side IDs.
+  /// You can call GetSideConnectivity on each entry of the returned vector
+  /// to obtain corner-point IDs.
+  virtual const std::vector<vtkIdType>& GetSidesOfSide(int side) const = 0;
 
   /// Return a singleton array initialized with the reference-cell's corner point coordinates.
   ///
@@ -264,6 +329,28 @@ public:
   ///
   /// Note that the wedge has multiple 2-d sides (both quadilaterals and triangles).
   void FillSideOffsetsAndShapes(vtkTypeInt32Array* arr) const;
+
+  /// A convenience function to fetch attribute-calculator tags for an attribute.
+  ///
+  /// Query-responders are ultimately responsible for providing tags when fetching
+  /// a attribute-calculator, but this method is a convenience since many responders
+  /// will follow the same pattern.
+  ///
+  /// Pass \a inheritedTypes as true when passing the result to
+  /// vtkCellGridResponders::AttributeCalculator() (so that any responder which
+  /// applies to an inherited class will be used to find a calculator).
+  /// Pass \a inheritedTypes as false when using the result to register a
+  /// calculator (so that the calculator is not made available to parent classes
+  /// of this cell type).
+  vtkCellGridResponders::TagSet GetAttributeTags(
+    vtkCellAttribute* attribute, bool inheritedTypes = false);
+
+  /// Return an operator entry
+  vtkDGOperatorEntry GetOperatorEntry(
+    vtkStringToken opName, const vtkCellAttribute::CellTypeInfo& attributeInfo);
+
+  /// Return a map of operators registered for vtkDGCell and its subclasses.
+  static OperatorMap& GetOperators();
 
 protected:
   vtkDGCell();

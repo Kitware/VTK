@@ -12,6 +12,7 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::FiltersCellGrid
   VTK::IOCore
   VTK::ParallelCore
 PRIVATE_DEPENDS

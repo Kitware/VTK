@@ -31,62 +31,6 @@ namespace
 constexpr char iossCurlPrefix[] = "EDGE_COEFF_";
 constexpr char iossDivPrefix[] = "FACE_COEFF_";
 
-template <typename IntegerType>
-std::string exponentStringSuperscript(IntegerType exponent)
-{
-  if (exponent == 0)
-  {
-    return "⁰";
-  }
-  std::string result;
-  bool isNegative = std::is_signed<IntegerType>::value && (exponent < 0);
-  exponent = std::abs(exponent);
-  while (exponent)
-  {
-    switch (exponent % 10)
-    {
-      case 0:
-        result.insert(0, "⁰");
-        break;
-      case 1:
-        result.insert(0, "¹");
-        break;
-      case 2:
-        result.insert(0, "²");
-        break;
-      case 3:
-        result.insert(0, "³");
-        break;
-      case 4:
-        result.insert(0, "⁴");
-        break;
-      case 5:
-        result.insert(0, "⁵");
-        break;
-      case 6:
-        result.insert(0, "⁶");
-        break;
-      case 7:
-        result.insert(0, "⁷");
-        break;
-      case 8:
-        result.insert(0, "⁸");
-        break;
-      case 9:
-        result.insert(0, "⁹");
-        break;
-      default:
-        break;
-    }
-    exponent = exponent / 10;
-  }
-  if (isNegative)
-  {
-    result.insert(0, "¯");
-  }
-  return result;
-}
-
 vtkDGCell::Shape dgCellShapeFromVTKShape(int vtkCellType)
 {
   auto result = vtkDGCell::Shape::None;
@@ -225,21 +169,19 @@ std::size_t numberOfIntegrationPoints(vtkDGCell* dgCell,
   std::size_t nn = 0;
   // XXX(c++14)
 #if __cplusplus < 201400L
-  auto tokenId = annotation.BasisSource.GetId();
-  if (tokenId == "Intrepid2"_hash)
+  if (annotation.BasisSource == "Intrepid2"_token)
   {
     std::size_t order = annotation.QuadratureScheme.Data().substr(1, 1)[0] - '0';
-    tokenId = annotation.FunctionSpace.GetId();
-    if (tokenId == "HDIV"_hash)
-    {
+    if (annotation.FunctionSpace == "HDIV"_token)
+    { // case "HDIV":
       nn = order * dgCell->GetNumberOfSidesOfDimension(1);
     }
-    else if (tokenId == "HCURL"_hash)
-    {
+    else if (annotation.FunctionSpace == "HCURL"_token)
+    { // case "HCURL":
       nn = order * dgCell->GetNumberOfSidesOfDimension(dgCell->GetDimension() - 1);
     }
-    else if (tokenId == "HGRAD"_hash)
-    {
+    else if (annotation.FunctionSpace == "HGRAD"_token)
+    { // case "HGRAD":
       // TODO: Handle higher orders; this only works for order = 1:
       nn = order * dgCell->GetNumberOfCorners();
     }
@@ -484,11 +426,12 @@ void uniquifyArrayName(vtkAbstractArray* valueArray, vtkDataSetAttributes* dsa)
 }
 
 vtkCellAttribute* createOrAppendCellAttribute(vtkCellGrid* cellGrid, vtkDGCell* dgCell,
-  vtkStringToken arrayNameOut, vtkStringToken attributeType, vtkStringToken attributeSpace,
-  int numberOfComponents, vtkAbstractArray* valueArray)
+  vtkStringToken arrayNameOut, vtkStringToken attributeSpace, int numberOfComponents,
+  vtkStringToken dofSharing, vtkStringToken functionSpace, vtkStringToken basis, int order,
+  vtkAbstractArray* valueArray)
 {
   bool created = false;
-  auto* attr = cellGrid->GetCellAttributeByNameAndType(arrayNameOut.Data(), attributeType);
+  auto* attr = cellGrid->GetCellAttributeByName(arrayNameOut.Data());
   if (!attr)
   {
     created = true;
@@ -498,19 +441,11 @@ vtkCellAttribute* createOrAppendCellAttribute(vtkCellGrid* cellGrid, vtkDGCell* 
     {
       arrayNameOut = uniquifyAttributeName(arrayNameOut, cellGrid);
     }
-    attr->Initialize(arrayNameOut, attributeType, attributeSpace, numberOfComponents);
+    attr->Initialize(arrayNameOut, attributeSpace, numberOfComponents);
   }
   else
   {
     bool mismatch = false;
-    if (attr->GetAttributeType() != attributeType)
-    {
-      vtkErrorWithObjectMacro(dgCell,
-        "Existing cell-attribute " << attr << " " << attr->GetName().Data()
-                                   << " has mismatched type \"" << attr->GetAttributeType().Data()
-                                   << "\" vs. \"" << attributeType.Data() << "\".");
-      mismatch = true;
-    }
     if (attr->GetNumberOfComponents() != numberOfComponents)
     {
       vtkErrorWithObjectMacro(dgCell,
@@ -527,14 +462,12 @@ vtkCellAttribute* createOrAppendCellAttribute(vtkCellGrid* cellGrid, vtkDGCell* 
                                    << "\" vs. \"" << attributeSpace.Data() << "\".");
       mismatch = true;
     }
-    // Some IOSS files contain fields with the same name but different
-    // interpolation schemes. Allow this by creating cell-attributes with
-    // the same name but different attributeTypes.
+    // Create a new cell-attribute in the case of a mismatch.
     if (mismatch)
     {
       created = true;
       attr = vtkCellAttribute::New();
-      attr->Initialize(arrayNameOut, attributeType, attributeSpace, numberOfComponents);
+      attr->Initialize(arrayNameOut, attributeSpace, numberOfComponents);
     }
   }
   if (created)
@@ -549,10 +482,14 @@ vtkCellAttribute* createOrAppendCellAttribute(vtkCellGrid* cellGrid, vtkDGCell* 
     ::uniquifyArrayName(valueArray, dsa);
   }
   dsa->AddArray(valueArray);
-  vtkCellAttribute::ArraysForCellType arraysByRole;
-  arraysByRole["values"_token] = valueArray;
-  arraysByRole["connectivity"_token] = dsa->GetScalars();
-  if (!attr->SetArraysForCellType(longCellType, arraysByRole))
+  vtkCellAttribute::CellTypeInfo cellTypeInfo;
+  cellTypeInfo.DOFSharing = dofSharing;
+  cellTypeInfo.FunctionSpace = functionSpace;
+  cellTypeInfo.Basis = basis;
+  cellTypeInfo.Order = order;
+  cellTypeInfo.ArraysByRole["values"_token] = valueArray;
+  cellTypeInfo.ArraysByRole["connectivity"_token] = dsa->GetScalars();
+  if (!attr->SetCellTypeInfo(longCellType, cellTypeInfo))
   {
     vtkWarningWithObjectMacro(
       dgCell, "Could not set arrays for \"" << dgCell->GetClassName() << "\".");
@@ -700,10 +637,15 @@ bool vtkDGTranscribeUnstructuredCells::TranscribeMatchingCells(
   if (shape)
   {
     auto coords = query->Output->GetAttributes("coordinates"_hash)->GetVectors();
-    vtkCellAttribute::ArraysForCellType arrayMap;
-    arrayMap["values"] = coords;
-    arrayMap["connectivity"] = conn;
-    shape->SetArraysForCellType(typeToken, arrayMap);
+    vtkCellAttribute::CellTypeInfo cellTypeInfo;
+    cellTypeInfo.DOFSharing = "CG"_token;
+    cellTypeInfo.FunctionSpace = "HGRAD"_token;
+    cellTypeInfo.Basis = "C"_token;
+    cellTypeInfo.Order =
+      1; // TODO: FIXME: Determine proper order based on cell connectivity and shape?
+    cellTypeInfo.ArraysByRole["values"] = coords;
+    cellTypeInfo.ArraysByRole["connectivity"] = conn;
+    shape->SetCellTypeInfo(typeToken, cellTypeInfo);
   }
 
   // The point-data arrays have all been copied by reference to
@@ -810,11 +752,10 @@ void vtkDGTranscribeUnstructuredCells::AddCellAttributes(TranscribeQuery* query,
       if (annotation.first.FunctionSpace == "HCURL"_token ||
         annotation.first.FunctionSpace == "HDIV"_token)
       {
-        dofSharing = "DG"_token;
+        dofSharing = vtkStringToken(); // "DG"_token;
       }
-      vtkStringToken attributeType = dofSharing.Data() + " " +
-        annotation.first.FunctionSpace.Data() + " " + annotation.second.QuadratureScheme.Data();
-      vtkStringToken attributeSpace = "ℝ^n";
+      std::size_t order = annotation.second.QuadratureScheme.Data().substr(1, 1)[0] - '0';
+      vtkStringToken basis = annotation.second.QuadratureScheme.Data().substr(0, 1);
 
       // A. Handle multi-component, multi-integration-point fields by interleaving
       // many arrays into a single array with M * N components (where M is the
@@ -828,12 +769,14 @@ void vtkDGTranscribeUnstructuredCells::AddCellAttributes(TranscribeQuery* query,
         {
           // Create vector/tensor cell-attribute of the proper name and type.
           int numberOfComponents = static_cast<int>(glomEntry.second.Members.size());
+          auto attributeSpace = vtkCellAttribute::EncodeSpace("ℝ", numberOfComponents);
           // Rewrite all the arrays into a single array.
           if (auto oneBigArray = ::interleaveArrays(glomEntry.first, arrays))
           {
             // Create a cell-attribute.
             auto* attr = ::createOrAppendCellAttribute(query->Output, dgCell, glomEntry.first,
-              attributeType, attributeSpace, numberOfComponents, oneBigArray);
+              attributeSpace, numberOfComponents, dofSharing, annotation.first.FunctionSpace, basis,
+              static_cast<int>(order), oneBigArray);
             (void)attr;
 #ifdef VTK_DBG_TRANSCRIBE
             std::cout << "Found MIMC glom \"" << glomEntry.first.Data() << "\" with "
@@ -859,12 +802,14 @@ void vtkDGTranscribeUnstructuredCells::AddCellAttributes(TranscribeQuery* query,
         if (::findArrays(fieldName, cellData, arrays, dgCell, annotation.second))
         {
           int numberOfComponents = static_cast<int>(arrays.size());
+          auto attributeSpace = vtkCellAttribute::EncodeSpace("ℝ", numberOfComponents);
           // Rewrite all the per-integration-point arrays into a single array.
           if (auto oneBigArray = ::interleaveArrays(fieldName, arrays))
           {
             // Create a cell-attribute.
             auto* attr = ::createOrAppendCellAttribute(query->Output, dgCell, fieldName,
-              attributeType, attributeSpace, numberOfComponents, oneBigArray);
+              attributeSpace, numberOfComponents, dofSharing, annotation.first.FunctionSpace, basis,
+              static_cast<int>(order), oneBigArray);
             (void)attr;
 #ifdef VTK_DBG_TRANSCRIBE
             std::cout << "      Found SIMC scalar \"" << fieldName.Data() << "\" with "
@@ -906,10 +851,10 @@ void vtkDGTranscribeUnstructuredCells::AddCellAttributes(TranscribeQuery* query,
 
       // Create scalar cell-attribute of the proper name and type.
       int numberOfComponents = arr->GetNumberOfComponents();
-      vtkStringToken attributeType = "DG constant C0";
-      vtkStringToken attributeSpace = "ℝ" + exponentStringSuperscript(numberOfComponents);
+      auto dofSharing = vtkStringToken();
+      vtkStringToken attributeSpace = vtkCellAttribute::EncodeSpace("ℝ", numberOfComponents);
       auto* attr = ::createOrAppendCellAttribute(query->Output, dgCell, arr->GetName(),
-        attributeType, attributeSpace, numberOfComponents, arr);
+        attributeSpace, numberOfComponents, dofSharing, "constant"_token, "C"_token, 0, arr);
       (void)attr;
 #ifdef VTK_DBG_TRANSCRIBE
       vtkIndent indent(6);
@@ -944,10 +889,10 @@ void vtkDGTranscribeUnstructuredCells::AddPointAttributes(TranscribeQuery* query
 
     int numberOfComponents = arr->GetNumberOfComponents();
     // Create scalar cell-attribute of the proper name and type.
-    vtkStringToken attributeType = "CG HGRAD C1";
-    vtkStringToken attributeSpace = "ℝ" + exponentStringSuperscript(numberOfComponents);
-    auto* attr = ::createOrAppendCellAttribute(query->Output, dgCell, arr->GetName(), attributeType,
-      attributeSpace, numberOfComponents, arr);
+    vtkStringToken dofSharing = "CG";
+    vtkStringToken attributeSpace = vtkCellAttribute::EncodeSpace("ℝ", numberOfComponents);
+    auto* attr = ::createOrAppendCellAttribute(query->Output, dgCell, arr->GetName(),
+      attributeSpace, numberOfComponents, dofSharing, "HGRAD"_token, "C"_token, 1, arr);
     (void)attr;
   }
 }

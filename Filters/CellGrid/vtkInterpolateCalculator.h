@@ -17,6 +17,9 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkDataArray;
+class vtkIdTypeArray;
+
 /**\brief Calculate field values at a point in a cell's parametric space.
  *
  */
@@ -26,8 +29,16 @@ public:
   vtkTypeMacro(vtkInterpolateCalculator, vtkCellAttributeCalculator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /// @name InterpolatingValues Interpolating Values
+  ///@{
   /// Subclasses must override this method to perform evaluation.
+  ///
+  /// You must resize \a value before calling Evaluate so there is enough
+  /// space to hold the resulting value(s).
   virtual void Evaluate(vtkIdType cellId, const vtkVector3d& rst, std::vector<double>& value) = 0;
+
+  /// Subclasses may override this method to perform multiple evaluations at a time.
+  virtual void Evaluate(vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result) = 0;
 
   /// Return true if the function has an analytic derivative.
   virtual bool AnalyticDerivative() const { return false; }
@@ -44,6 +55,10 @@ public:
   /// difference along each axis by passing a different \a neighborhood value.
   virtual void EvaluateDerivative(vtkIdType cellId, const vtkVector3d& rst,
     std::vector<double>& jacobian, double neighborhood = 1e-3);
+
+  /// Subclasses may override this method to perform multiple derivative-evaluations at a time.
+  virtual void EvaluateDerivative(
+    vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result) = 0;
 
 #if 0
   /// Return true if the given parametric coordinates lie inside the cell (or

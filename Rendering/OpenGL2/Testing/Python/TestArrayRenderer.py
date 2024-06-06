@@ -4,7 +4,7 @@ from vtkmodules.vtkCommonCore import vtkStringToken
 from vtkmodules.vtkCommonDataModel import vtkCellGrid
 from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
 from vtkmodules.vtkFiltersSources import vtkCubeSource, vtkOutlineCornerFilter
-from vtkmodules.vtkFiltersCellGrid import vtkCellGridComputeSurface
+from vtkmodules.vtkFiltersCellGrid import vtkCellGridComputeSides
 from vtkmodules.vtkRenderingCore import vtkRenderWindow, vtkRenderer, vtkActor, vtkPolyDataMapper
 from vtkmodules.vtkRenderingOpenGL2 import vtkArrayRenderer, vtkShader, vtkShaderProgram
 from vtkmodules.vtkInteractionWidgets import vtkCameraOrientationWidget
@@ -49,7 +49,7 @@ rr = vtkRenderer()
 ac = vtkActor()
 ar = vtkArrayRenderer()
 cr = vtkCellGridReader()
-cs = vtkCellGridComputeSurface()
+cs = vtkCellGridComputeSides()
 ow = vtkCameraOrientationWidget()
 
 # Configure the pipeline
@@ -97,7 +97,7 @@ ar.SetNumberOfInstances(sideConn.GetNumberOfTuples())
 fr = [1, -1] # field range (defaulted to invalid range)
 for attId in cg.GetUnorderedCellAttributeIds():
     cellAtt = cg.GetCellAttributeById(attId)
-    print(cellAtt.GetName().Data(), cellAtt.GetAttributeType().Data())
+    print(cellAtt.GetName().Data())
     conn = cellAtt.GetArrayForCellTypeAndRole('vtkDGTet', 'connectivity')
     vals = cellAtt.GetArrayForCellTypeAndRole('vtkDGTet', 'values')
     # Note: Since we are rendering a single cell-shape at a time, we do
@@ -107,7 +107,7 @@ for attId in cg.GetUnorderedCellAttributeIds():
     # ar.BindArrayToTexture(cname, conn, True) # Reshape to a 1-D array with 1 component per tuple.
     # ar.BindArrayToTexture(vname, vals, False)
     # print('  Binding "%s" and "%s"' % (cname.Data(), vname.Data()))
-    if cellAtt.GetName() == cellAttName and cellAtt.GetAttributeType() == cellAttType:
+    if cellAtt.GetName() == cellAttName:
         cname = vtkStringToken('field_conn')
         vname = vtkStringToken('field_vals')
         ar.BindArrayToTexture(cname, conn, True) # Reshape to a 1-D array with 1 component per tuple.
@@ -119,8 +119,8 @@ for attId in cg.GetUnorderedCellAttributeIds():
             fr = [-1e-11, 1e-11]
         print('fr', fr)
         ac.GetShaderProperty().GetFragmentCustomUniforms().SetUniform3f('field_range', (fr[0], fr[1], fr[1] - fr[0]))
-        print('  Binding "%s" and "%s" for "%s" type "%s"' % \
-            (cname.Data(), vname.Data(), cellAttName.Data(), cellAtt.GetAttributeType().Data()))
+        print('  Binding "%s" and "%s" for "%s"' % \
+            (cname.Data(), vname.Data(), cellAttName.Data()))
         print('    Range [%g, %g] %g' % (fr[0], fr[1], fr[1] - fr[0]))
     elif cellAtt == cg.GetShapeAttribute():
         cname = vtkStringToken('shape_conn')

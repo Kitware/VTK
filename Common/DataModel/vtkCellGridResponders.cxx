@@ -12,6 +12,39 @@ VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;
 
+bool vtkCellGridResponders::CalculatorForTagSet::Matches(const TagSet& providedTags) const
+{
+  // We don't care if \a providedTags contains extra key+value data,
+  // but \a providedTags *must* have one or more matches for each key
+  // in this->MatchingTags.
+  for (const auto& tagEntry : this->MatchingTags)
+  {
+    auto keyIt = providedTags.find(tagEntry.first);
+    if (keyIt == providedTags.end())
+    {
+      return false;
+    }
+    bool foundMatch = false;
+    for (const auto& value : keyIt->second)
+    {
+      auto valueIt = tagEntry.second.find(value);
+      if (valueIt != tagEntry.second.end())
+      {
+        // We found a match for tagEntry.first in providedTags; skip to the next tagEntry.
+        foundMatch = true;
+        break;
+      }
+    }
+    if (foundMatch)
+    {
+      continue;
+    }
+    // We had a key match but no values matched.
+    return false;
+  }
+  return true;
+}
+
 vtkStandardNewMacro(vtkCellGridResponders);
 
 void vtkCellGridResponders::PrintSelf(ostream& os, vtkIndent indent)
@@ -78,52 +111,66 @@ bool vtkCellGridResponders::Query(vtkCellMetadata* cellType, vtkCellGridQuery* q
 }
 
 vtkSmartPointer<vtkCellAttributeCalculator> vtkCellGridResponders::AttributeCalculator(
-  vtkStringToken calculatorType, vtkCellMetadata* cellType, vtkCellAttribute* cellAttribute) const
+  vtkStringToken calculatorType, vtkCellMetadata* cellType, vtkCellAttribute* attrib,
+  const TagSet& tags) const
 {
-  if (!cellType || !cellAttribute)
+  vtkSmartPointer<vtkCellAttributeCalculator> calc;
+  auto it = this->CalculatorRegistry.find(calculatorType);
+  if (it == this->CalculatorRegistry.end())
   {
-    vtkErrorMacro("Null cell metadata or attribute.");
-    return nullptr;
+    return calc;
   }
-  auto cit = this->Calculators.find(calculatorType);
-  if (cit == this->Calculators.end())
+  // For now, return the first registered calculator that matches the provided tags.
+  // In the future, it may be possible to compute some discriminatory metric
+  // to compare all matching CalculatorForTagSet objects.
+  for (const auto& entry : it->second)
   {
-    vtkErrorMacro("No such calculator type " << calculatorType.Data() << ".");
-    return nullptr;
-  }
-  std::unordered_map<vtkStringToken,
-    std::unordered_map<vtkStringToken, vtkSmartPointer<vtkCellAttributeCalculator>>>::const_iterator
-    mit;
-  std::unordered_map<vtkStringToken, vtkSmartPointer<vtkCellAttributeCalculator>>::const_iterator
-    ait;
-  bool didFind = false;
-  vtkStringToken tags = cellAttribute->GetAttributeType();
-  for (const auto& cellTypeToken : cellType->InheritanceHierarchy())
-  {
-    if (cellTypeToken == "vtkObject"_token)
+    if (entry.Matches(tags))
     {
+      calc = entry.CalculatorPrototype;
       break;
     }
-    mit = cit->second.find(cellTypeToken);
-    if (mit == cit->second.end())
-    {
-      continue;
-    }
-    ait = mit->second.find(tags);
-    if (ait == mit->second.end() || !ait->second)
-    {
-      continue;
-    }
-    didFind = true;
-    break;
   }
-  if (!didFind)
+  if (calc)
   {
-    vtkErrorMacro("No calculator support for " << cellType->GetClassName() << " cells and "
-                                               << cellAttribute->GetAttributeType().Data() << ".");
-    return nullptr;
+    calc = calc->Prepare<vtkCellAttributeCalculator>(cellType, attrib);
   }
-  return ait->second->Prepare<vtkCellAttributeCalculator>(cellType, cellAttribute);
+  return calc;
+}
+
+vtkSmartPointer<vtkObject> vtkCellGridResponders::GetCacheData(std::size_t key)
+{
+  vtkSmartPointer<vtkObject> value;
+  auto it = this->Caches.find(key);
+  if (it == this->Caches.end())
+  {
+    return value;
+  }
+  return it->second;
+}
+
+bool vtkCellGridResponders::SetCacheData(
+  std::size_t key, vtkSmartPointer<vtkObject> value, bool overwrite)
+{
+  auto it = this->Caches.find(key);
+  if (it != this->Caches.end())
+  {
+    if (!overwrite)
+    {
+      return false;
+    }
+    else if (!value)
+    {
+      this->Caches.erase(it);
+      return true;
+    }
+  }
+  if (!value)
+  {
+    return false;
+  }
+  this->Caches[key] = value;
+  return true;
 }
 
 VTK_ABI_NAMESPACE_END

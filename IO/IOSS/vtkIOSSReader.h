@@ -2,6 +2,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
+#ifndef vtkIOSSReader_h
+#define vtkIOSSReader_h
+
 /**
  * @class vtkIOSSReader
  * @brief Reader for IOSS (Sierra IO System)
@@ -155,9 +158,6 @@
  * @sa
  * vtkIOSSWriter, vtkExodusIIReader, vtkCGNSReader
  */
-
-#ifndef vtkIOSSReader_h
-#define vtkIOSSReader_h
 
 #include "vtkIOIOSSModule.h" // for export macros
 #include "vtkNew.h"          // for vtkNew

@@ -24,7 +24,7 @@ const std::array<std::array<double, 3>, 5> vtkDGPyr::Parameters{ {
   { +1., -1., 0. }, // node 1
   { +1., +1., 0. }, // node 2
   { -1., +1., 0. }, // node 3
-  { 0., 0., 1. }    // node 4
+  { 0., 0., +1. }   // node 4
 } };
 
 const std::array<int, vtkDGPyr::Dimension + 3> vtkDGPyr::SideOffsets{ { 0, 1, 5, 6, 14, 19 } };
@@ -60,7 +60,16 @@ const std::array<std::vector<vtkIdType>, 19> vtkDGPyr::Sides{ {
   { 4 }              // vertex 4
 } };
 
-vtkDGPyr::vtkDGPyr() = default;
+/// SidesOfSides is generated from Sides by TestCellGridSideInfo.
+const std::array<std::vector<vtkIdType>, 19> vtkDGPyr::SidesOfSides{ { { 0, 1, 2, 3, 4 },
+  { 5, 10, 9 }, { 6, 11, 10 }, { 7, 12, 11 }, { 8, 9, 12 }, { 8, 7, 6, 5 }, { 13, 14 }, { 14, 15 },
+  { 16, 15 }, { 13, 16 }, { 13, 17 }, { 14, 17 }, { 15, 17 }, { 16, 17 }, {}, {}, {}, {}, {} } };
+
+vtkDGPyr::vtkDGPyr()
+{
+  this->CellSpec.SourceShape = this->GetShape();
+}
+
 vtkDGPyr::~vtkDGPyr() = default;
 
 void vtkDGPyr::PrintSelf(ostream& os, vtkIndent indent)
@@ -122,6 +131,16 @@ const std::vector<vtkIdType>& vtkDGPyr::GetSideConnectivity(int side) const
     return dummy;
   }
   return this->Sides[side + 1];
+}
+
+const std::vector<vtkIdType>& vtkDGPyr::GetSidesOfSide(int side) const
+{
+  if (side < -1 || side >= 19)
+  {
+    static std::vector<vtkIdType> dummy;
+    return dummy;
+  }
+  return this->SidesOfSides[side + 1];
 }
 
 vtkTypeFloat32Array* vtkDGPyr::GetReferencePoints() const

@@ -128,11 +128,12 @@ using namespace vtk::literals; // for ""_token
 vtkStandardNewMacro(vtkUnstructuredGridToCellGrid);
 vtkStandardNewMacro(vtkUnstructuredGridToCellGrid::TranscribeQuery);
 
-void vtkUnstructuredGridToCellGrid::TranscribeQuery::Initialize()
+bool vtkUnstructuredGridToCellGrid::TranscribeQuery::Initialize()
 {
+  bool ok = this->Superclass::Initialize();
   if (!this->Input)
   {
-    return;
+    return false;
   }
   switch (this->Phase)
   {
@@ -157,9 +158,10 @@ void vtkUnstructuredGridToCellGrid::TranscribeQuery::Initialize()
     case VTK_TRANSCRIBE_CELLGRID_PHASE_CONVERT:
       break;
   }
+  return ok;
 }
 
-void vtkUnstructuredGridToCellGrid::TranscribeQuery::Finalize()
+bool vtkUnstructuredGridToCellGrid::TranscribeQuery::Finalize()
 {
   switch (this->Phase)
   {
@@ -172,8 +174,7 @@ void vtkUnstructuredGridToCellGrid::TranscribeQuery::Finalize()
       vtkNew<vtkCellAttribute> shape;
       // NB: These values are hardwired for now. In the future, we should examine the
       //     claimed cell types and choose something appropriate.
-      // shape->Initialize("shape", "continuous Lagrange polynomial order 1", "ℝ³", 3);
-      shape->Initialize("shape", "CG HGRAD C1", "ℝ³", 3);
+      shape->Initialize("shape", "ℝ³", 3);
       this->Output->SetShapeAttribute(shape);
       this->Coordinates = this->Input->GetPoints()->GetData();
       if (this->Coordinates)
@@ -182,11 +183,8 @@ void vtkUnstructuredGridToCellGrid::TranscribeQuery::Finalize()
         {
           this->Coordinates->SetName("points");
         }
-        this->Output->GetAttributes("coordinates")->SetVectors(this->Coordinates);
+        this->Output->GetAttributes("coordinates"_token)->SetVectors(this->Coordinates);
       }
-
-      // this->AddCellAttributes(this->Input->GetPointData(), "continuous Lagrange polynomial");
-      // this->AddCellAttributes(this->Input->GetCellData(), "DG HGRAD C0");
     }
     break;
     case VTK_TRANSCRIBE_CELLGRID_PHASE_CONVERT:
@@ -194,6 +192,7 @@ void vtkUnstructuredGridToCellGrid::TranscribeQuery::Finalize()
       this->Output = nullptr;
       break;
   }
+  return true;
 }
 
 bool vtkUnstructuredGridToCellGrid::TranscribeQuery::SumOutputCounts()
@@ -231,7 +230,7 @@ bool vtkUnstructuredGridToCellGrid::TranscribeQuery::SumOutputCounts()
 }
 
 void vtkUnstructuredGridToCellGrid::TranscribeQuery::AddCellAttributes(
-  vtkDataSetAttributes* attributes, vtkStringToken fieldType)
+  vtkDataSetAttributes* attributes)
 {
   int numberOfArrays = attributes->GetNumberOfArrays();
   for (int aa = 0; aa < numberOfArrays; ++aa)
@@ -239,49 +238,13 @@ void vtkUnstructuredGridToCellGrid::TranscribeQuery::AddCellAttributes(
     auto* arrayIn = attributes->GetAbstractArray(aa);
     if (!arrayIn || !arrayIn->GetName())
     {
-      vtkWarningMacro("Empty or unnamed array " << aa << " for " << fieldType.Data() << ".");
+      vtkWarningMacro("Empty or unnamed array " << aa << ".");
       continue;
     }
     int nc = arrayIn->GetNumberOfComponents();
     vtkNew<vtkCellAttribute> attribOut;
-    std::string fullFieldType =
-      fieldType.Data() + (fieldType.Data().find("DG") == std::string::npos ? " I1" : " I0");
-    std::ostringstream fieldSpace;
-    fieldSpace << "ℝ";
-    switch (nc)
-    {
-      case 1:
-        fieldSpace << "¹";
-        break;
-      case 2:
-        fieldSpace << "²";
-        break;
-      case 3:
-        fieldSpace << "³";
-        break;
-      case 4:
-        fieldSpace << "⁴";
-        break;
-      case 5:
-        fieldSpace << "⁵";
-        break;
-      case 6:
-        fieldSpace << "⁶";
-        break;
-      case 7:
-        fieldSpace << "⁷";
-        break;
-      case 8:
-        fieldSpace << "⁸";
-        break;
-      case 9:
-        fieldSpace << "⁹";
-        break;
-      default:
-        fieldSpace << "^" << nc;
-        break;
-    }
-    attribOut->Initialize(arrayIn->GetName(), fullFieldType, fieldSpace.str(), nc);
+    std::string fieldSpace = vtkCellAttribute::EncodeSpace("ℝ", nc);
+    attribOut->Initialize(arrayIn->GetName(), fieldSpace, nc);
     this->Output->AddCellAttribute(attribOut);
   }
 }

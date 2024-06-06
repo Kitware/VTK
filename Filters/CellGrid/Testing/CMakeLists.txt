@@ -1,6 +1,11 @@
 vtk_module_test_data(
+  Data/dgEdges.dg
+  Data/dgGhostHexahedra.dg
   Data/dgHexahedra.dg
+  Data/dgMixed.dg
+  Data/dgPyramid19.dg
   Data/dgPyramids.dg
+  Data/dgQuadraticQuadrilaterals.dg
   Data/dgQuadrilateral.dg
   Data/dgTetrahedra.dg
   Data/dgTriangle.dg

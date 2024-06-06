@@ -30,9 +30,6 @@
 // Define which interpolation functions to call for the cell shape and color.
 #define axisPermutationForSide {ShapeName}_axisPermutationForSide
 #define normalToSideAt {ShapeName}_normalToSideAt
-#define shapeBasisGradientAt {ShapeBasisName}_basisGradientAt
-#define shapeBasisAt {ShapeBasisName}_basisAt
-#define colorBasisAt {ColorBasisName}_basisAt
 
 // Define different kinds of color override types
 #define ScalarVisualizationOverride_NONE {ScalarVisualizationOverride_NONE}

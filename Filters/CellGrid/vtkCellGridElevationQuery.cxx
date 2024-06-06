@@ -19,14 +19,17 @@ void vtkCellGridElevationQuery::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-void vtkCellGridElevationQuery::Initialize()
+bool vtkCellGridElevationQuery::Initialize()
 {
-  this->Elevation->Initialize(this->Name, "DG HGRAD C0 I1"_token, "ℝ¹"_token, 1);
+  bool ok = this->Superclass::Initialize();
+  this->Elevation->Initialize(this->Name, "ℝ"_token, 1);
+  return ok;
 }
 
-void vtkCellGridElevationQuery::Finalize()
+bool vtkCellGridElevationQuery::Finalize()
 {
   // this->Elevation->SetColormap(…);
+  return true;
 }
 
 VTK_ABI_NAMESPACE_END

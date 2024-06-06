@@ -114,7 +114,7 @@ inline vtkBuffer<ScalarT>* vtkBuffer<ScalarT>::ExtendedNew()
 
 //------------------------------------------------------------------------------
 template <typename ScalarT>
-void vtkBuffer<ScalarT>::SetBuffer(typename vtkBuffer<ScalarT>::ScalarType* array, vtkIdType size)
+void vtkBuffer<ScalarT>::SetBuffer(typename vtkBuffer<ScalarT>::ScalarType* array, vtkIdType sz)
 {
   if (this->Pointer != array)
   {
@@ -124,7 +124,7 @@ void vtkBuffer<ScalarT>::SetBuffer(typename vtkBuffer<ScalarT>::ScalarType* arra
     }
     this->Pointer = array;
   }
-  this->Size = size;
+  this->Size = sz;
 }
 //------------------------------------------------------------------------------
 template <typename ScalarT>

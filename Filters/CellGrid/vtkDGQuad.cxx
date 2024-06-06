@@ -38,13 +38,30 @@ const std::array<std::vector<vtkIdType>, 9> vtkDGQuad::Sides{ {
   { 3 }           // vertex 3
 } };
 
+/// SidesOfSides is generated from Sides by TestCellGridSideInfo.
+const std::array<std::vector<vtkIdType>, 9> vtkDGQuad::SidesOfSides{ {
+  { 0, 1, 2, 3 },
+  { 4, 5 },
+  { 5, 6 },
+  { 7, 6 },
+  { 4, 7 },
+  {},
+  {},
+  {},
+  {},
+} };
+
 const std::array<int, vtkDGQuad::Dimension + 2> vtkDGQuad::SideOffsets{ { 0, 1, 5, 9 } };
 
 const std::array<vtkDGCell::Shape, vtkDGQuad::Dimension + 2> vtkDGQuad::SideShapes{
   { Shape::Quadrilateral, Shape::Edge, Shape::Vertex, Shape::None }
 };
 
-vtkDGQuad::vtkDGQuad() = default;
+vtkDGQuad::vtkDGQuad()
+{
+  this->CellSpec.SourceShape = this->GetShape();
+}
+
 vtkDGQuad::~vtkDGQuad() = default;
 
 void vtkDGQuad::PrintSelf(ostream& os, vtkIndent indent)
@@ -106,6 +123,16 @@ const std::vector<vtkIdType>& vtkDGQuad::GetSideConnectivity(int side) const
     return dummy;
   }
   return this->Sides[side + 1];
+}
+
+const std::vector<vtkIdType>& vtkDGQuad::GetSidesOfSide(int side) const
+{
+  if (side < -1 || side >= 8)
+  {
+    static std::vector<vtkIdType> dummy;
+    return dummy;
+  }
+  return this->SidesOfSides[side + 1];
 }
 
 vtkTypeFloat32Array* vtkDGQuad::GetReferencePoints() const

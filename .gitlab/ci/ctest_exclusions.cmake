@@ -5,7 +5,8 @@ set(test_exclusions
 if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
     # Flaky; timesout sometimes on macOS and Linux
-    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$")
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$"
+  )
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
@@ -86,6 +87,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
     # Consistent timeout. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19303
     "^VTK::RenderingOpenGL2Cxx-TestFloor$"
+
+    # Intermittent flakiness; may be related to CI runner OpenGL config.
+    # Appears as a colormap or color-range failure:
+    "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
     )
 endif ()
 
@@ -211,6 +216,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_mpi")
     "^VTK::ParallelMPICxx-MPI-TestNonBlockingCommunication$"
     "^VTK::ParallelMPICxx-MPI-TestPProbe$"
     "^VTK::ParallelMPICxx-MPI-TestProcess$"
+
+    # Failures that appear related to OpenGL driver.
+    #    MESA: error: ZINK: vkCreateInstance failed (VK_ERROR_INCOMPATIBLE_DRIVER)
+    #    glx: failed to create drisw screen
+    #    failed to load driver: zink
+    "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     )
 endif ()
 
@@ -256,8 +267,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     # Fail to present D3D resources (see #18657)
     "^VTK::RenderingOpenGL2Cxx-TestWin32OpenGLDXRenderWindow$"
 
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19183 
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19183
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
+    # Thread-local objects are not destroyed at program exit.
+    # https://stackoverflow.com/questions/50897768/in-visual-studio-thread-local-variables-destructor-not-called-when-used-with
+    "^VTK::FiltersCellGridPython-TestCellGridRange$"
+    "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
   )
 endif ()
 
@@ -289,6 +304,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
     # MacOS OpenGL issue (intermittent)
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+    "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
   )
 endif ()
 
@@ -343,7 +359,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
       "^VTK::FiltersModelingPython-TestImprintFilter3$"
       "^VTK::FiltersModelingPython-TestImprintFilter6$"
       "^VTK::FiltersSourcesPython-TestStaticCellLocatorLineIntersection$"
-      "^VTK::InteractionWidgetsPython-TestTensorWidget2$")
+      "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
+      # Intermittent flakiness; may be related to CI runner OpenGL config.
+      # Appears as a colormap or color-range failure:
+      "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+    )
   endif ()
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos.*_x86_64")
     list(APPEND test_exclusions
@@ -373,6 +393,11 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "ospray")
   list(APPEND test_exclusions
+    # Fails with:
+    #     ZINK: vkCreateInstance failed (VK_ERROR_INCOMPATIBLE_DRIVER)
+    #     glx: failed to create drisw screen
+    #     failed to load driver: zink
+    "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     # Cache segfaults on docker
     "^VTK::RenderingRayTracingCxx-TestOSPRayCache$"
     # https://github.com/ospray/ospray/issues/571

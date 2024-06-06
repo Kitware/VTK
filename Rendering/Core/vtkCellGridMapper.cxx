@@ -58,7 +58,15 @@ void vtkCellGridMapper::PrepareColormap(vtkScalarsToColors* cmap)
   if (!cmap)
   {
     // Create a cool-to-warm (blue to red) diverging colormap by default:
-    ctf->SetVectorModeToMagnitude();
+    if (this->GetArrayComponent() >= 0)
+    {
+      ctf->SetVectorModeToComponent();
+      ctf->SetVectorComponent(this->GetArrayComponent());
+    }
+    else
+    {
+      ctf->SetVectorModeToMagnitude();
+    }
     ctf->SetColorSpaceToDiverging();
     ctf->AddRGBPoint(0.0, 59. / 255., 76. / 255., 192. / 255.);
     ctf->AddRGBPoint(0.5, 221. / 255., 221. / 255., 221. / 255.);

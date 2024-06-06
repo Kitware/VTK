@@ -24,7 +24,8 @@
 #include "vtkCellAttribute.h" // For Attribute ivar.
 #include "vtkCellGridQuery.h"
 
-#include <array> // For Range ivar.
+#include <array>  // For Ranges ivar.
+#include <vector> // For Ranges ivar.
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -60,19 +61,28 @@ public:
   vtkGetObjectMacro(CellAttribute, vtkCellAttribute);
 
   /// Invoked during evaluation before any cell-grid responders are run.
-  void Initialize() override;
+  bool Initialize() override;
 
   /// Invoked during evaluation after all cell-grid responders are run.
-  void Finalize() override;
+  bool Finalize() override;
 
   /// Return the computed range (after the query is evaluated).
-  void GetRange(double* range) VTK_SIZEHINT(2);
-  const std::array<double, 2>& GetRange() const { return this->Range; }
+  void GetRange(int component, double* range) VTK_SIZEHINT(2);
+  const std::array<double, 2>& GetRange(int component) const;
+  inline void GetRange(double* range) VTK_SIZEHINT(2)
+  {
+    return this->GetRange(this->Component, range);
+  }
+  inline const std::array<double, 2>& GetRange() const { return this->GetRange(this->Component); }
 
   /// Used by query-responders to update the range during evaluation.
   ///
   /// Calling \a AddRange() with an invalid range has no effect.
   void AddRange(const std::array<double, 2>& other);
+
+  /// This is an additional call that responders can use to provide range
+  /// for components not currently queried.
+  void AddRange(int component, const std::array<double, 2>& other);
 
   /// Store the finite/entire range for a single component of a cell-attribute.
   ///
@@ -105,7 +115,7 @@ protected:
   vtkTypeBool FiniteRange{ false };
   vtkCellGrid* CellGrid{ nullptr };
   vtkCellAttribute* CellAttribute{ nullptr };
-  std::array<double, 2> Range{ { 1, 0 } };
+  std::vector<std::array<double, 2>> Ranges;
 
 private:
   vtkCellGridRangeQuery(const vtkCellGridRangeQuery&) = delete;

@@ -38,6 +38,7 @@ set(classes
   vtkCellData
   vtkCellGrid
   vtkCellGridBoundsQuery
+  vtkCellGridCopyQuery
   vtkCellGridEvaluator
   vtkCellGridRangeQuery
   vtkCellGridQuery

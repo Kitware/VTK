@@ -31,8 +31,51 @@ class vtkDataSetAttributes;
 class VTKCOMMONDATAMODEL_EXPORT vtkCellAttribute : public vtkObject
 {
 public:
+  /// A dictionary of arrays indexed by their roles in interpolation.
   using ArraysForCellType = std::unordered_map<vtkStringToken, vtkSmartPointer<vtkAbstractArray>>;
-  using Arrays = std::unordered_map<vtkStringToken, ArraysForCellType>;
+
+  struct CellTypeInfo
+  {
+    // The array-group name holding shared degree-of-freedom (DOF)
+    // data if the attribute is shared. This is invalid for
+    // discontinuous attributes
+    vtkStringToken DOFSharing;
+    /// The function space used to interpolate values of the attribute
+    /// on cells of the matching type.
+    ///
+    /// Examples include "HGRAD", "HDIV", and "HCURL".
+    vtkStringToken FunctionSpace;
+    /// The interpolation scheme of the attribute on cells of the
+    /// matching type.
+    ///
+    /// For polynomial interpolants, this is often used to
+    /// indicate whether the basis covers the entire polynomial
+    /// space or a particular subset of it.
+    /// For example, serendipitity elements are often marked
+    /// incomplete since they do not cover the entire space
+    /// along each parametric coordinate axis.
+    ///
+    /// Examples include "I"ncomplete, "C"omplete, and "F"ull.
+    vtkStringToken Basis;
+    /// The interpolation order of the attribute on cells of the
+    /// matching type.
+    int Order;
+    /// A dictionary of arrays indexed by their roles in interpolation.
+    ///
+    /// This is used by render-responders and interpolation calculators
+    /// to interpolate attribute values.
+    ArraysForCellType ArraysByRole;
+
+    /// Comparator used to test inequality.
+    bool operator!=(const CellTypeInfo& other) const;
+
+    /// Explicitly include assignment and copy-construction.
+    CellTypeInfo() = default;
+    CellTypeInfo(const CellTypeInfo& other) = default;
+    CellTypeInfo& operator=(const CellTypeInfo& other) = default;
+  };
+
+  using Arrays = std::unordered_map<vtkStringToken, CellTypeInfo>;
 
   vtkTypeMacro(vtkCellAttribute, vtkObject);
   static vtkCellAttribute* New();
@@ -49,29 +92,6 @@ public:
    */
   vtkGetMacro(Id, int);
   vtkSetMacro(Id, int);
-
-  /**
-   * Return a (user-presentable) type for this attribute.
-   *
-   * The type should reflect the nature of the function and
-   * may reflect the nature of the cell shapes supported.
-   *
-   * The type is distinct from the space in which values reside;
-   * instead it describes the mathematical technique used to
-   * interpolate values (e.g., "rational spline", "polynomial",
-   * "partition of unity", "stochastic", etc.), behavior at cell
-   * boundaries, and other relevant information.
-   * For example, a quadratic field that allows discontinuities
-   * at cell boundaries and uses H(Grad) Lagrange interpolation
-   * of arbitrary order (i.e., order may differ per cell) might
-   * return "DG HGRAD [CI]n", where "n" indicates the integration
-   * order is arbitrary. The "C" or "I" preceding the order
-   * indicates the basis is "complete (C)" or "incomplete (I)."
-   *
-   * Currently, this is just a free-form string but in the future
-   * we may adopt a more rigorous standard.
-   */
-  virtual vtkStringToken GetAttributeType() const { return this->AttributeType; }
 
   /**
    * Return a token identifying the space containing all field values.
@@ -93,6 +113,9 @@ public:
    * it also specifies how users should interpret operations such
    * as addition and/or multipliciation, especially in the case of
    * transforms applied to the domain.
+   *
+   * If you wish to encode/decode the exponents for a space like ℝ³,
+   * see vtkCellAttribute::EncodeExponent/DecodeExponent().
    */
   virtual vtkStringToken GetSpace() const { return this->Space; }
 
@@ -111,8 +134,7 @@ public:
    * into an unordered container as it will change the reported hash,
    * which can cause crashes later.
    */
-  virtual bool Initialize(vtkStringToken name, vtkStringToken attributeType, vtkStringToken space,
-    int numberOfComponents);
+  virtual bool Initialize(vtkStringToken name, vtkStringToken space, int numberOfComponents);
 
   /**
    * Hash this attribute so it can be inserted into unordered containers.
@@ -125,7 +147,7 @@ public:
    * Return the arrays required to evaluate this attribute on
    * cells of the given type.
    */
-  virtual ArraysForCellType GetArraysForCellType(vtkStringToken cellType) const;
+  virtual CellTypeInfo GetCellTypeInfo(vtkStringToken cellType) const;
 
   /**
    * Return an array for the given cell type and role.
@@ -139,12 +161,12 @@ public:
    * Set the arrays required to evaluate this attribute on cells
    * of the given type.
    *
-   * TODO: Instead of accepting a fixed type (ArraysForCellType), this method
+   * TODO: Instead of accepting a fixed type (CellTypeInfo), this method
    *       should be templated to accept any object so that cell types can put
    *       whatever state is needed here in order to assist in evaluating the
    *       attribute.
    */
-  virtual bool SetArraysForCellType(vtkStringToken cellType, const ArraysForCellType& arrays);
+  virtual bool SetCellTypeInfo(vtkStringToken cellType, const CellTypeInfo& cellTypeInfo);
 
   /// Return a default colormap associated with the attribute.
   vtkScalarsToColors* GetColormap() const { return this->Colormap; }
@@ -153,9 +175,11 @@ public:
   /**
    * Copy data from an \a other attribute instance into this instance.
    *
-   * Currently, the only difference between shallow and deep copies is
-   * that the colormap is copied by reference when shallow-copying and
+   * The colormap is copied by reference when shallow-copying and
    * a cloned instance is created when deep-copying.
+   * The shallow-copy method provides an option to omit copying any
+   * arrays related to the attribute, while the deep-copy method
+   * provides a map to look up replacements for arrays.
    *
    * Note that the list of array pointers is copied by reference
    * (even when deep-copying a vtkCellAttribute) unless you provide
@@ -165,16 +189,31 @@ public:
    * copies it has created. If any array is mentioned in \a AllArrays
    * and is not present in \a arrayRewrites, it is copied by reference.
    */
-  virtual void ShallowCopy(vtkCellAttribute* other);
+  virtual void ShallowCopy(vtkCellAttribute* other, bool copyArrays = true);
   virtual void DeepCopy(vtkCellAttribute* other,
     const std::map<vtkAbstractArray*, vtkAbstractArray*>& arrayRewrites = {});
+
+  /// Given a space string (e.g., ℝ³⁻ or ℚ¹), decode the base (e.g., ℝ resp. ℚ),
+  /// exponent (e.g., 3 resp. 1), and halfspace indicator (-1 resp. 0).
+  ///
+  /// If parsing fails, return false.
+  ///
+  /// The halfspace indicator is either -1 (indicating only the negative halfspace),
+  /// +1 (indicating only the positive halfspace), or 0 (indicating no restriction).
+  ///
+  /// If \a quiet is true, no parse errors will be printed. This is used to ensure
+  /// tests with expected errors do not fail; you should generally pass false.
+  static bool DecodeSpace(
+    const std::string& space, std::string& base, double& exp, int& halfspace, bool quiet = false);
+
+  /// Return a space string given a description of it via \a base, \a exp, and \a halfspace.
+  static std::string EncodeSpace(const std::string& base, unsigned int, int halfspace = 0);
 
 protected:
   vtkCellAttribute() = default;
   ~vtkCellAttribute() override = default;
 
   vtkStringToken Name;
-  vtkStringToken AttributeType;
   vtkStringToken Space;
   int NumberOfComponents = 1;
   Arrays AllArrays;
