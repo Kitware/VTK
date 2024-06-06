@@ -260,6 +260,11 @@ vtkCellAttribute* vtkCellGridCopyQuery::CopyOrUpdateAttributeRecord(
     targetAttribute = amit->second;
   }
 
+  if (!this->CopyCellTypes)
+  {
+    return targetAttribute;
+  }
+
   // Regardless of whether the attribute pre-existed or not,
   // add arrays for each cell type.
   auto oldCellTypeInfo = srcAtt->GetCellTypeInfo(cellType);
