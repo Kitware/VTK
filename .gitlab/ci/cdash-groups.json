@@ -22,7 +22,6 @@
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wasm32_emscripten_linux_chrome]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wasm32_emscripten_windows_chrome]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wasm64_emscripten_linux_chrome]" },
-        { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wasm64_emscripten_windows_chrome]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wheel_linux38_x86_64]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wheel_linux38_x86_64_egl]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wheel_linux38_x86_64_egl_ext_vtk]" },

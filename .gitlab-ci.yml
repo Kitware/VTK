@@ -487,29 +487,6 @@ wasm32-emscripten-windows-chrome:test:
     needs:
         - wasm32-emscripten-windows-chrome:build
 
-## Cross compile for the 'wasm64-emscripten' architecture on a windows host
-wasm64-emscripten-windows-chrome:build:
-    extends:
-        - .wasm64_emscripten_windows_chrome
-        - .cmake_build_wasm_emscripten_windows
-        - .windows_builder_tags
-        - .cmake_build_artifacts
-        - .run_manually
-    dependencies: []
-    needs: []
-
-wasm64-emscripten-windows-chrome:test:
-    extends:
-        - .wasm64_emscripten_windows_chrome
-        - .cmake_test_wasm_emscripten_windows
-        - .windows_tester_tags
-        - .cmake_test_artifacts
-        - .run_automatically
-    dependencies:
-        - wasm64-emscripten-windows-chrome:build
-    needs:
-        - wasm64-emscripten-windows-chrome:build
-
 ## Python wheel builds
 
 wheel-linux-python38-x86_64:build:
