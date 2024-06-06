@@ -29,7 +29,7 @@ static nlohmann::json Serialize_vtkCompositeDataDisplayAttributes(
   {
     state = f(object, serializer);
   }
-  state["SuperClassNames"].push_back("vtkCompositeDataDisplayAttributes");
+  state["SuperClassNames"].push_back("vtkObject");
 
   const auto objectState = object->Serialize(serializer);
   state.insert(objectState.begin(), objectState.end());
