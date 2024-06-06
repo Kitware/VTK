@@ -645,8 +645,8 @@ bool vtkHDFWriter::InitializeChunkedDatasets(hid_t group, vtkUnstructuredGrid* i
 
   // Cell types array is specific to UG
   hsize_t largeChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 1 };
-  if (this->Impl->InitDynamicDataset(group, "Types", H5T_STD_U8LE, SINGLE_COLUMN, largeChunkSize) ==
-    H5I_INVALID_HID)
+  if (this->Impl->InitDynamicDataset(group, "Types", H5T_STD_U8LE, SINGLE_COLUMN, largeChunkSize,
+        this->CompressionLevel) == H5I_INVALID_HID)
   {
     vtkErrorMacro(<< "Could not initialize types dataset when creating: " << this->FileName);
     return false;
@@ -704,8 +704,8 @@ bool vtkHDFWriter::InitializePointDatasets(hid_t group, vtkPoints* points)
   std::vector<hsize_t> pointChunkSize{ static_cast<hsize_t>(this->ChunkSize),
     static_cast<hsize_t>(components) };
   bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(
-                  group, "Points", datatype, components, pointChunkSize.data()) != H5I_INVALID_HID;
+  initResult &= this->Impl->InitDynamicDataset(group, "Points", datatype, components,
+                  pointChunkSize.data(), this->CompressionLevel) != H5I_INVALID_HID;
   initResult &= this->Impl->InitDynamicDataset(group, "NumberOfPoints", H5T_STD_I64LE,
                   SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
   return initResult;
@@ -721,7 +721,7 @@ bool vtkHDFWriter::InitializePrimitiveDataset(hid_t group)
   initResult &= this->Impl->InitDynamicDataset(group, "NumberOfCells", H5T_STD_I64LE, SINGLE_COLUMN,
                   SMALL_CHUNK) != H5I_INVALID_HID;
   initResult &= this->Impl->InitDynamicDataset(group, "Connectivity", H5T_STD_I64LE, SINGLE_COLUMN,
-                  largeChunkSize) != H5I_INVALID_HID;
+                  largeChunkSize, this->CompressionLevel) != H5I_INVALID_HID;
   initResult &= this->Impl->InitDynamicDataset(group, "NumberOfConnectivityIds", H5T_STD_I64LE,
                   SINGLE_COLUMN, SMALL_CHUNK) != H5I_INVALID_HID;
   return initResult;
@@ -940,7 +940,8 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
         hsize_t ChunkSizeComponent[] = { static_cast<hsize_t>(this->ChunkSize),
           static_cast<unsigned long>(array->GetNumberOfComponents()) };
         if (this->Impl->InitDynamicDataset(group, arrayName, dataType,
-              array->GetNumberOfComponents(), ChunkSizeComponent) == H5I_INVALID_HID)
+              array->GetNumberOfComponents(), ChunkSizeComponent,
+              this->CompressionLevel) == H5I_INVALID_HID)
         {
           vtkWarningMacro(<< "Could not initialize offset dataset for: " << arrayName
                           << " when creating: " << this->FileName);

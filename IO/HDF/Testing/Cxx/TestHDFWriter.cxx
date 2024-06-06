@@ -31,6 +31,7 @@ struct WriterConfigOptions
   bool UseExternalComposite;
   bool MergePartsOnRead; // Should be false when reading PartitionedData
   std::string FileNameSuffix;
+  int CompressionLevel;
 };
 }
 //----------------------------------------------------------------------------
@@ -91,6 +92,7 @@ bool TestWriteAndRead(
     fullPath = tempPath + options->FileNameSuffix;
     writer->SetFileName(fullPath.c_str());
     writer->SetUseExternalComposite(options->UseExternalComposite);
+    writer->SetCompressionLevel(options->CompressionLevel);
   }
   else
   {
@@ -137,8 +139,8 @@ bool TestWriteAndRead(
 //----------------------------------------------------------------------------
 bool TestWriteAndReadConfigurations(vtkDataObject* data, const std::string& path)
 {
-  std::vector<WriterConfigOptions> options{ { true, false, "_ExternalComposite" },
-    { false, false, "_NoExternalComposite" } };
+  std::vector<WriterConfigOptions> options{ { true, false, "_ExternalComposite", 1 },
+    { false, false, "_NoExternalComposite", 9 } };
 
   for (auto& optionSet : options)
   {
@@ -243,7 +245,7 @@ bool TestPartitionedUnstructuredGrid(const std::string& tempDir, const std::stri
 
     // Write and read the partitioned unstructuredGrid in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    WriterConfigOptions options{ false, false, "PVTU" }; // Read file without merging parts
+    WriterConfigOptions options{ false, false, "PVTU", 1 }; // Read file without merging parts
     if (!TestWriteAndRead(baseData, tempPath, &options))
     {
       return false;
@@ -273,7 +275,7 @@ bool TestPartitionedPolyData(const std::string& tempDir, const std::string& data
 
     // Write and read the partitioned PolyData in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    WriterConfigOptions options{ false, false, "PVTP" }; // Read file without merging parts
+    WriterConfigOptions options{ false, false, "PVTP", 0 }; // Read file without merging parts
     if (!TestWriteAndRead(baseData, tempPath, &options))
     {
       return false;

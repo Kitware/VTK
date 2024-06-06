@@ -293,8 +293,9 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateHdfDataset(
 }
 
 //------------------------------------------------------------------------------
-vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateChunkedHdfDataset(
-  hid_t group, const char* name, hid_t type, hid_t dataspace, hsize_t numCols, hsize_t chunkSize[])
+vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateChunkedHdfDataset(hid_t group,
+  const char* name, hid_t type, hid_t dataspace, hsize_t numCols, hsize_t chunkSize[],
+  int compressionLevel)
 {
   vtkHDF::ScopedH5PHandle plist = H5Pcreate(H5P_DATASET_CREATE);
   if (plist == H5I_INVALID_HID)
@@ -309,6 +310,11 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateChunkedHdfDataset(
   else
   {
     H5Pset_chunk(plist, 2, chunkSize); // 2-Dimensional
+  }
+
+  if (compressionLevel != 0)
+  {
+    H5Pset_deflate(plist, compressionLevel);
   }
 
   vtkHDF::ScopedH5DHandle dset =
@@ -568,16 +574,16 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(
 }
 
 //------------------------------------------------------------------------------
-vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::InitDynamicDataset(
-  hid_t group, const char* name, hid_t type, hsize_t cols, hsize_t chunkSize[])
+vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group,
+  const char* name, hid_t type, hsize_t cols, hsize_t chunkSize[], int compressionLevel)
 {
   vtkHDF::ScopedH5SHandle emptyDataspace = this->CreateUnlimitedSimpleDataspace(cols);
   if (emptyDataspace == H5I_INVALID_HID)
   {
     return H5I_INVALID_HID;
   }
-  vtkHDF::ScopedH5DHandle dataset =
-    this->CreateChunkedHdfDataset(group, name, type, emptyDataspace, cols, chunkSize);
+  vtkHDF::ScopedH5DHandle dataset = this->CreateChunkedHdfDataset(
+    group, name, type, emptyDataspace, cols, chunkSize, compressionLevel);
   return dataset;
 }
 

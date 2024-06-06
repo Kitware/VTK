@@ -45,7 +45,8 @@ bool TestTransientData(const std::string& tempDir, const std::string& dataRoot,
     tempPath += baseName + ".vtkhdf";
     HDFWriter->SetFileName(tempPath.c_str());
     HDFWriter->SetWriteAllTimeSteps(true);
-    HDFWriter->SetChunkSize(30);
+    HDFWriter->SetChunkSize(100);
+    HDFWriter->SetCompressionLevel(4);
     HDFWriter->Write();
 
     // Read the data just written
@@ -162,7 +163,7 @@ bool TestTransientStaticMesh(
   tempPath += baseName + ".vtkhdf";
   HDFWriter->SetFileName(tempPath.c_str());
   HDFWriter->SetWriteAllTimeSteps(true);
-  HDFWriter->SetChunkSize(30);
+  HDFWriter->SetCompressionLevel(1);
   if (!HDFWriter->Write())
   {
     std::cerr << "An error occured while writing the static mesh HDF file" << std::endl;
