@@ -48,6 +48,8 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+#include "vtkNew.h" // for member
+
 #define VTK_EXTRACT_POINT_SEEDED_REGIONS 1
 #define VTK_EXTRACT_CELL_SEEDED_REGIONS 2
 #define VTK_EXTRACT_SPECIFIED_REGIONS 3
@@ -204,54 +206,96 @@ public:
   vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
+  ///@{
+  /**
+   * Set/get the activation of the compression for the output arrays.
+   * When on, the output arrays is compressed to optimize memory.
+   * This is used only when ColorRegions is true.
+   * Default is true.
+   */
+  vtkSetMacro(CompressArrays, bool);
+  vtkGetMacro(CompressArrays, bool);
+  vtkBooleanMacro(CompressArrays, bool);
+  ///@}
+
 protected:
   vtkConnectivityFilter();
   ~vtkConnectivityFilter() override;
 
+  ///@{
+  /**
+   * Usual vtkAlgorithm method implementations.
+   */
   vtkTypeBool ProcessRequest(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
-  // Usual data generation method
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  // Requires a vtkDataSet
   int FillInputPortInformation(int port, vtkInformation* info) override;
+  // Outputs a vtkDataSet
   int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
+  ///@}
 
-  vtkTypeBool ColorRegions; // boolean turns on/off scalar gen for separate regions
-  int ExtractionMode;       // how to extract regions
-  int OutputPointsPrecision;
-  vtkIdList* Seeds;              // id's of points or cells used to seed regions
-  vtkIdList* SpecifiedRegionIds; // regions specified for extraction
-  vtkIdTypeArray* RegionSizes;   // size (in cells) of each region extracted
+  /**
+   * Add regions ids array to output dataset.
+   * Compress arrays if CompressArrays is on.
+   */
+  void AddRegionsIds(vtkDataSet* output, vtkDataArray* pointArray, vtkDataArray* cellArray);
 
-  double ClosestPoint[3];
+  // boolean turns on/off scalar gen for separate regions
+  vtkTypeBool ColorRegions = 0;
+  // how to extract regions
+  int ExtractionMode = VTK_EXTRACT_LARGEST_REGION;
+  int OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
+  // id's of points or cells used to seed regions
+  vtkIdList* Seeds = nullptr;
+  // regions specified for extraction
+  vtkIdList* SpecifiedRegionIds = nullptr;
+  // size (in cells) of each region extracted
+  vtkIdTypeArray* RegionSizes = nullptr;
 
-  vtkTypeBool ScalarConnectivity;
-  double ScalarRange[2];
+  double ClosestPoint[3] = { 0, 0, 0 };
 
-  int RegionIdAssignmentMode;
+  vtkTypeBool ScalarConnectivity = 0;
+  double ScalarRange[2] = { 0, 1 };
 
+  int RegionIdAssignmentMode = UNSPECIFIED;
+
+  /**
+   * Mark current cell as visited and assign region number.  Note:
+   * traversal occurs across shared vertices.
+   */
   void TraverseAndMark(vtkDataSet* input);
 
   void OrderRegionIds(vtkIdTypeArray* pointRegionIds, vtkIdTypeArray* cellRegionIds);
 
+  /**
+   * Compress the given array, returning a vtkImplicitArray.
+   * Useful for RegionId arrays, that offten have a small amount of different values.
+   *
+   * see ColorRegions.
+   * Uses vtkToImplicitArrayFilter and relevant strategy.
+   */
+  vtkSmartPointer<vtkDataArray> CompressWithImplicit(vtkDataArray* array);
+
 private:
   // used to support algorithm execution
-  vtkFloatArray* CellScalars;
-  vtkIdList* NeighborCellPointIds;
-  vtkIdType* Visited;
-  vtkIdType* PointMap;
-  vtkIdTypeArray* NewScalars;
-  vtkIdTypeArray* NewCellScalars;
-  vtkIdType RegionNumber;
-  vtkIdType PointNumber;
-  vtkIdType NumCellsInRegion;
-  vtkDataArray* InScalars;
-  vtkIdList* Wave;
-  vtkIdList* Wave2;
-  vtkIdList* PointIds;
-  vtkIdList* CellIds;
+  vtkNew<vtkFloatArray> CellScalars;
+  vtkNew<vtkIdList> NeighborCellPointIds;
+  vtkIdType* Visited = nullptr;
+  vtkIdType* PointMap = nullptr;
+  vtkNew<vtkIdTypeArray> NewScalars;
+  vtkNew<vtkIdTypeArray> NewCellScalars;
+  vtkIdType RegionNumber = 0;
+  vtkIdType PointNumber = 0;
+  vtkIdType NumCellsInRegion = 0;
+  vtkDataArray* InScalars = nullptr;
+  vtkIdList* Wave = nullptr;
+  vtkIdList* Wave2 = nullptr;
+  vtkIdList* PointIds = nullptr;
+  vtkIdList* CellIds = nullptr;
+  bool CompressArrays = true;
 
   vtkConnectivityFilter(const vtkConnectivityFilter&) = delete;
   void operator=(const vtkConnectivityFilter&) = delete;

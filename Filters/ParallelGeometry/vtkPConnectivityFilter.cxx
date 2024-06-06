@@ -8,7 +8,6 @@
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
-#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkIdTypeArray.h"
@@ -28,13 +27,10 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkWeakPointer.h"
 
-#include <algorithm>
 #include <map>
 #include <numeric>
 #include <set>
 #include <vector>
-
-#include "vtkDoubleArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace
@@ -450,12 +446,14 @@ int vtkPConnectivityFilter::RequestData(
     int saveExtractionMode = this->ExtractionMode;
     int saveColorRegions = this->ColorRegions;
     int saveRegionIdAssignmentMode = this->RegionIdAssignmentMode;
+    bool compressArrays = this->GetCompressArrays();
 
     // Overwrite custom member variables temporarily.
     this->ScalarConnectivity = 0;
     this->ExtractionMode = VTK_EXTRACT_ALL_REGIONS;
     this->ColorRegions = 1;
     this->RegionIdAssignmentMode = UNSPECIFIED;
+    this->CompressArraysOff();
 
     // Invoke the connectivity algorithm in the superclass.
     success = this->Superclass::RequestData(request, inputVector, outputVector);
@@ -464,6 +462,7 @@ int vtkPConnectivityFilter::RequestData(
     this->ExtractionMode = saveExtractionMode;
     this->ColorRegions = saveColorRegions;
     this->RegionIdAssignmentMode = saveRegionIdAssignmentMode;
+    this->SetCompressArrays(compressArrays);
   }
   else
   {
@@ -877,6 +876,10 @@ int vtkPConnectivityFilter::RequestData(
     // No coloring desired. Remove the RegionId arrays.
     outputPD->RemoveArray("RegionId");
     outputCD->RemoveArray("RegionId");
+  }
+  else
+  {
+    this->AddRegionsIds(output, pointRegionIds, cellRegionIds);
   }
 
   return 1;
