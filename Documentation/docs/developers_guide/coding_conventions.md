@@ -345,34 +345,6 @@ rules that say "All code".
 
   - Not supported by GCC 4.8 (can be used once GCC 4.9 is required)
 
-* [constexpr](http://en.cppreference.com/w/cpp/language/constexpr)
-
-  - [Not supported by VS2013](https://msdn.microsoft.com/en-us/library/hh567368.aspx)
-
-* [unicode string literals](http://en.cppreference.com/w/cpp/language/string_literal)  [(n2442)](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm)
-
-  - [Not supported by VS2013](https://msdn.microsoft.com/en-us/library/hh567368.aspx)
-
-* [universal character names in literals](http://en.cppreference.com/w/cpp/language/character_literal)  [(n2170)](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2170.html)
-
-   - [Not supported by VS2013](https://msdn.microsoft.com/en-us/library/hh567368.aspx)
-
-* [user-defined literals](http://en.cppreference.com/w/cpp/language/user_literal)  [(n2765)](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2765.pdf)
-
-   - [Not supported by VS2013](https://msdn.microsoft.com/en-us/library/hh567368.aspx)
-
-* Extended sizeof [(n2253)](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2253.html)
-
-   - [Not supported by VS2013](https://msdn.microsoft.com/en-us/library/hh567368.aspx)
-
-* [Unrestricted Unions](http://en.cppreference.com/w/cpp/language/union)  [(n2544)](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2544.pdf)
-
-    - [Not supported by VS2013](https://msdn.microsoft.com/en-us/library/hh567368.aspx)
-
-* [Noexcept](http://en.cppreference.com/w/cpp/language/noexcept)  [(n3050)](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2010/n3050.html)
-
-    - [Not supported by VS2013](https://msdn.microsoft.com/en-us/library/hh567368.aspx)
-
 Parts of this coding style are enforced by git commit hooks that are put in
 place when the developer runs the SetupForDevelopment script, other parts
 are enforced by smoke tests that run as part of VTK’s regression test suite.
