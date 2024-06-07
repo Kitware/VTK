@@ -5,6 +5,8 @@
 
 #include "vtkAMRBox.h"
 #include "vtkAMRInformation.h"
+#include "vtkCharArray.h"
+#include "vtkDataAssembly.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkHierarchicalBoxDataSet.h"
@@ -18,6 +20,7 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkStringArray.h"
 #include "vtkUniformGrid.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
@@ -261,6 +264,21 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataS
       }
     }
     *fp << "ENDCHILD\n";
+  }
+  if (pd->GetDataAssembly())
+  {
+    const auto dataAssemblyStr = pd->GetDataAssembly()->SerializeToXML(vtkIndent());
+    *fp << "DATAASSEMBLY " << dataAssemblyStr.size() << "\n";
+    vtkNew<vtkCharArray> dataAssemblyArray;
+    dataAssemblyArray->SetName("DataAssembly");
+    dataAssemblyArray->SetNumberOfValues(dataAssemblyStr.size());
+    std::copy(dataAssemblyStr.begin(), dataAssemblyStr.end(), dataAssemblyArray->GetPointer(0));
+    this->WriteArray(fp, VTK_CHAR, dataAssemblyArray, "", dataAssemblyArray->GetNumberOfTuples(),
+      dataAssemblyArray->GetNumberOfComponents());
+  }
+  else
+  {
+    *fp << "DATAASSEMBLY 0\n";
   }
 
   return true;

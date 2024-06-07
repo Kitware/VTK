@@ -4,6 +4,8 @@
 
 #include "vtkAMRBox.h"
 #include "vtkAMRInformation.h"
+#include "vtkCharArray.h"
+#include "vtkDataAssembly.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
@@ -670,6 +672,37 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkPartitionedDataSetCollection* 
       // eat up the ENDCHILD marker.
       this->ReadString(line);
     }
+  }
+  if (!this->ReadString(line))
+  {
+    vtkErrorMacro("Failed to read DATAASSEMBLY");
+    return false;
+  }
+
+  if (strncmp(this->LowerCase(line), "dataassembly", strlen("dataassembly")) != 0)
+  {
+    vtkErrorMacro("Failed to read DATAASSEMBLY. Instead got " << line);
+    return false;
+  }
+
+  unsigned int dataAssemblySize = 0;
+  if (!this->Read(&dataAssemblySize))
+  {
+    vtkErrorMacro("Failed to read the DATAASSEMBLY size.");
+    return false;
+  }
+  if (dataAssemblySize > 0)
+  {
+    auto dataAssemblyArray = vtk::TakeSmartPointer(
+      vtkCharArray::SafeDownCast(this->ReadArray("char", dataAssemblySize, 1)));
+    if (!dataAssemblyArray)
+    {
+      vtkErrorMacro("Failed to read the DATAASSEMBLY.");
+      return false;
+    }
+    vtkNew<vtkDataAssembly> dataAssembly;
+    dataAssembly->InitializeFromXML(dataAssemblyArray->GetPointer(0));
+    mp->SetDataAssembly(dataAssembly);
   }
 
   return true;
