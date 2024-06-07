@@ -46,7 +46,7 @@
         - if: '$CI_PROJECT_PATH == "vtk/vtk"'
           changes: *code_change
           when: delayed
-          start_in: 30 minutes
+          start_in: 4 hours
         - when: never
 
 .merged_only:
