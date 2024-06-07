@@ -67,6 +67,7 @@ dummy:build:
 readthedocs:build:
     stage: test
     extends:
+        - .readthedocs
         - .linux_builder_tags
         - .make_sphinx_docs
         - .sphinx_artifacts

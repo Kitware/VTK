@@ -634,7 +634,6 @@
     interruptible: true
 
 .make_sphinx_docs:
-    extends: .readthedocs
     script:
         # take care of "dubious ownership in repository at '/builds/gitlab-kitware-sciviz-ci'" error
         - git config --global --add safe.directory /builds/gitlab-kitware-sciviz-ci
