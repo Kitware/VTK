@@ -657,8 +657,10 @@ void vtkGridAxesActor2D::UpdateTextActors(vtkViewport* viewport)
     }
 
     /// XXX: improve this.
-    vtkVector2i offset(vtkContext2D::FloatToInt(axisNormals[index].GetX() * 10 * tileScale[0]),
-      vtkContext2D::FloatToInt(axisNormals[index].GetY() * 10 * tileScale[1]));
+    vtkVector2i offset(vtkContext2D::FloatToInt(axisNormals[index].GetX() * 10 * tileScale[0] +
+                         this->LabelDisplayOffset[axis]),
+      vtkContext2D::FloatToInt(
+        axisNormals[index].GetY() * 10 * tileScale[1] + this->LabelDisplayOffset[axis]));
 
     vtkLabels::ResizeLabels(
       this->Labels->TickLabels[index], numTicks, activeAxisHelpers[axis]->GetLabelProperties());

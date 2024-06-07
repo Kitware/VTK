@@ -282,6 +282,21 @@ public:
   int HasTranslucentPolygonalGeometry() override;
   void ReleaseGraphicsResources(vtkWindow*) override;
 
+  ///@{
+  /**
+   * Set/Get the label display offset
+   *
+   * This is useful to offset axes labels if they overlap at the corners.
+   *
+   * \note Uses display space coordinates
+   */
+  virtual void SetLabelDisplayOffset(int xoffset, int yoffset);
+  virtual void SetLabelDisplayOffset(const int offset[2]);
+  virtual int* GetLabelDisplayOffset() VTK_SIZEHINT(2);
+  VTK_WRAPEXCLUDE virtual void GetLabelDisplayOffset(int& xoffset, int& yoffset);
+  VTK_WRAPEXCLUDE virtual void GetLabelDisplayOffset(int offset[2]);
+  ///@}
+
 protected:
   vtkGridAxesActor3D();
   ~vtkGridAxesActor3D() override;

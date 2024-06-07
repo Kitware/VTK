@@ -607,6 +607,43 @@ void vtkGridAxesActor3D::ShallowCopy(vtkProp* prop)
 }
 
 //----------------------------------------------------------------------------
+void vtkGridAxesActor3D::SetLabelDisplayOffset(int xoffset, int yoffset)
+{
+  int* off = this->GetLabelDisplayOffset();
+  if ((off[0] != xoffset) || (off[1] != yoffset))
+  {
+    for (int cc = 0; cc < 6; ++cc)
+    {
+      this->GridAxes2DActors[cc]->SetLabelDisplayOffset(xoffset, yoffset);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkGridAxesActor3D::SetLabelDisplayOffset(const int off[2])
+{
+  this->SetLabelDisplayOffset(off[0], off[1]);
+}
+
+//----------------------------------------------------------------------------
+int* vtkGridAxesActor3D::GetLabelDisplayOffset()
+{
+  return this->GridAxes2DActors[0]->GetLabelDisplayOffset();
+}
+
+//----------------------------------------------------------------------------
+void vtkGridAxesActor3D::GetLabelDisplayOffset(int& xoff, int& yoff)
+{
+  this->GridAxes2DActors[0]->GetLabelDisplayOffset(xoff, yoff);
+}
+
+//----------------------------------------------------------------------------
+void vtkGridAxesActor3D::GetLabelDisplayOffset(int off[2])
+{
+  this->GridAxes2DActors[0]->GetLabelDisplayOffset(off);
+}
+
+//----------------------------------------------------------------------------
 void vtkGridAxesActor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

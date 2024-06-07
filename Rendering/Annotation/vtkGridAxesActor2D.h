@@ -249,6 +249,18 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
+  ///@{
+  /**
+   * Set/Get the label display offset
+   *
+   * This is useful to offset axes labels if they overlap at the corners.
+   *
+   * \note Uses display space coordinates
+   */
+  vtkSetVector2Macro(LabelDisplayOffset, int);
+  vtkGetVector2Macro(LabelDisplayOffset, int);
+  ///@}
+
 protected:
   vtkGridAxesActor2D();
   ~vtkGridAxesActor2D() override;
@@ -272,6 +284,7 @@ protected:
   vtkNew<vtkAxis> AxisHelpers[3];
   vtkNew<vtkContextScene> AxisHelperScene;
   vtkTimeStamp UpdateLabelTextPropertiesMTime;
+  int LabelDisplayOffset[2] = { 0, 0 };
 
   bool ForceOpaque;
   std::function<double(double)> TickLabelFunction[3] = { nullptr, nullptr, nullptr };
