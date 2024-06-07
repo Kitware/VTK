@@ -67,10 +67,11 @@ dummy:build:
 readthedocs:build:
     stage: test
     extends:
-      - .linux_builder_tags
-      - .make_sphinx_docs
-      - .sphinx_artifacts
-      - .run_automatically
+        - .readthedocs
+        - .linux_builder_tags
+        - .make_sphinx_docs
+        - .sphinx_artifacts
+        - .run_automatically
     dependencies: []
     needs: []
     timeout: 15 minutes
