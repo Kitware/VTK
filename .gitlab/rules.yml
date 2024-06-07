@@ -26,7 +26,7 @@
           when: on_success
         - if: '$CI_PROJECT_PATH == "vtk/vtk"'
           when: delayed
-          start_in: 30 minutes
+          start_in: 4 hours
         - when: never
 
 .merged_only:
