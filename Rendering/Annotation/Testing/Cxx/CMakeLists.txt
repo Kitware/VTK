@@ -30,6 +30,7 @@ vtk_add_test_cxx(vtkRenderingAnnotationCxxTests tests
   TestCubeAxesWithZInnerPolys.cxx
   TestCubeAxesWithZLines.cxx
   TestEmptyCornerAnnotation.cxx
+  TestGridAxesActor3D.cxx
   TestLegendBoxActor.cxx
   TestLegendBoxActor2.cxx
   TestLegendScaleActor.cxx
