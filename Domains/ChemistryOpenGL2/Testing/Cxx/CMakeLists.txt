@@ -11,7 +11,7 @@ vtk_test_cxx_executable(vtkDomainsChemistryOpenGL2CxxTests tests
 # On some machines this test takes 260ish seconds to complete, this allows for
 # some extra time
 if(NOT VTK_TEST_TIMEOUT_TestPDBBallAndStickShadows)
-  set(VTK_TEST_TIMEOUT_TestPDBBallAndStickShadows 360)
+  set(VTK_TEST_TIMEOUT_TestPDBBallAndStickShadows 400)
 endif()
 set_tests_properties(VTK::DomainsChemistryOpenGL2Cxx-TestPDBBallAndStickShadows
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPDBBallAndStickShadows}

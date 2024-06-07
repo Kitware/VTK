@@ -1,2 +1,118 @@
+# This file suppresses all tests known to currently fail under TSan.
+# This allows programmers to run TSan locally and ensure they do not
+# introduce additional test failures with their code changes.
+#
+# To use this file:
+# export TSAN_OPTIONS="suppressions=/path/to/VTK/Utilities/DynamicAnalysis/tsan.supp"
+#
+# Of course, eventually, little by little, we should get all these issues fixed and this file
+# should ideally end up empty.
+#
+# TSan umbrella issue: https://gitlab.kitware.com/vtk/vtk/-/issues/19331
+
 # Suppress all interceptors in libgdal
 called_from_lib:libgdal
+
+# test: RenderingAnnotationPython-cubeAxes2
+race:ReplaceCellPointAtIdImpl::operator()
+
+# test: FiltersPointsPython-TestDensifyPointCloudFilter, FiltersGeneralPython-TestCellLocators
+race:BucketList<int>::MapOffsets<int>::operator()
+
+# test: FiltersModelingPython-TestTrimmedExtrusionFilter, FiltersCoreCxx-TestExtractCellsAlongPolyLine
+# https://gitlab.kitware.com/vtk/vtk/-/issues/18842
+race:MapOffsets<int>::operator()
+
+# test: FiltersCoreCxx-TestResampleWithDataSet2, FiltersCoreCxx-TestProbeFilterImageInput
+# https://gitlab.kitware.com/vtk/vtk/-/issues/19325
+race:vtkProbeFilter::ProbeImagePointsInCell
+
+# test: FiltersCorePython-teapotHulls
+# https://gitlab.kitware.com/vtk/vtk/-/issues/19328
+race:vtkHull::ComputePlaneDistances
+
+# test: CommonDataModelCxx-TestSMPFeatures
+# This is a bug in the test, not the VTK library, but the same bug exists in the library, see suppression right above.
+# https://gitlab.kitware.com/vtk/vtk/-/issues/19328
+race:TestSMPFeatures.cxx
+
+# test: FiltersExtractionCxx-TestExtractionExpression
+# https://gitlab.kitware.com/vtk/vtk/-/issues/19329
+race:FrustumPlanesType::Initialize
+
+# test: FiltersExtractionCxx-TestExtractionExpression
+race:vtkSelection::EvaluateFunctor::operator()
+
+# test: FiltersExtractionCxx-TestExtractionExpression
+# This is a case of writing same value to same address
+race:GeneratePointMap
+
+# test: FiltersFlowPathsPython-TestFindCell
+race:TracerIntegrator::CompositeOverSeeds::operator()
+
+# test: FiltersCorePython-TestContour3DLinearGrid
+race:ContourCellsBase<vtkAOSDataArrayTemplate<float>, vtkAOSDataArrayTemplate<float>, vtkAOSDataArrayTemplate<double>>::ProduceTriangles::operator()
+
+# test: FiltersCorePython-Test3DLinearGridCrinkleExtractor
+race:ExtractPointsAndCells::operator()
+
+# test: FiltersCorePython-TestSurfaceNets2D2
+race:SurfaceNets<short>::ClassifyYEdges
+race:SurfaceNets<float>::ClassifyYZEdges
+
+# test: FiltersCorePython-TestSurfaceNets3D
+race:SurfaceNets<short>::ClassifyYZEdges
+
+# test: FiltersCorePython-TestOrientedFlyingEdgesPlaneCutter
+race:vtkFlyingEdgesPlaneCutterAlgorithm<float>::ProcessYZEdges
+
+# test: FiltersCoreCxx-TestFlyingEdges
+race:vtkFlyingEdges3DAlgorithm<float>::ProcessYZEdges
+
+# test: FiltersCorePython-TestBinnedDecimation
+race:SelectOutput<int>::operator()
+race:InitializePointMap<int>::operator()
+
+# test: FiltersFlowPathsPython-TestCellLocatorInterpolatedVelocityField
+race:vtkPolyLine::GenerateSlidingNormals
+
+# test: FiltersCorePython-TestUnstructuredGridPlaneCutter
+race:ProduceTriangles::Impl::operator()
+
+# test: FiltersSMPCxx-TestSMPContour
+race:vtkSMPMergePoints::Merge
+
+# test: FiltersPointsPython-TestSignedDistanceFilter
+race:vtkExtractSurfaceAlgorithm<float>::GenerateTrisImpl::operator()
+
+# test: FiltersExtractionCxx-TestHyperTreeGridSelection
+race:vtkHyperTreeGridGeometryEntry::Initialize
+
+# test: FiltersStatisticsCxx-TestExtractHistogram
+race:FiniteMinAndMaxWithBlankingFunctor<vtkIntArray>::Initialize
+
+# test: FiltersGeneralCxx-TestWarpScalarGenerateEnclosure
+race:MarkCellBoundary::MarkCell
+
+# test: FiltersGeneralPython-TestDiscreteFlyingEdges2D
+race:vtkDiscreteFlyingEdges2DAlgorithm<unsigned short>::GenerateLinesImpl::operator()
+
+# test: FiltersGeneralPython-TestDiscreteFlyingEdgesClipper2D
+race:vtkDiscreteClipperAlgorithm<unsigned short>::ClassifyYEdges
+
+# test: FiltersGeneralPython-TestFEDiscreteClipper2D
+# https://gitlab.kitware.com/vtk/vtk/-/issues/19330
+race:LabelVector::IsLabelValue
+
+# test: FiltersGeneralPython-TestFEDiscreteClipper2D
+race:vtkDiscreteClipperAlgorithm<short>::ClassifyYEdges
+
+# test: FiltersGeneralPython-TestStaticCellLocatorPlaneIntersection
+race:CellPlaneCandidates<int>::operator()
+
+# test: CommonExecutionModelCxx-TestAbortSMPFilter
+# a race of checking and setting `AbortOutput` 
+race:vtkAlgorithm::CheckAbort()
+
+# test: CommonExecutionModelCxx-TestAbortSMPFilter
+race:vtkParallelMergeCells::MapCellsImpl::operator()
