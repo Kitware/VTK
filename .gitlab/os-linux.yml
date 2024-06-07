@@ -8,10 +8,10 @@
         GIT_SUBMODULE_STRATEGY: none
 
 .readthedocs:
+    extends: .linux
+
     image: "readthedocs/build:ubuntu-20.04-2023.05.03"
     variables:
-        GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
-        GIT_SUBMODULE_STRATEGY: none
         PYTHON_VERSION: 3.11.6
 
 .manylinux2014_x86_64:
