@@ -86,7 +86,7 @@ std::pair<int, int> vtkDGVert::GetSideRangeForType(int sideType) const
 int vtkDGVert::GetNumberOfSidesOfDimension(int dimension) const
 {
   (void)dimension;
-  return 0;
+  return dimension == -1 ? 1 : 0;
 }
 
 const std::vector<vtkIdType>& vtkDGVert::GetSideConnectivity(int side) const

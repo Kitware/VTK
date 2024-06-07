@@ -356,7 +356,7 @@ protected:
    * On error, `std::runtime_error` is thrown.
    */
   vtkSmartPointer<vtkAbstractArray> GetField(const std::string& fieldname, Ioss::Region* region,
-    Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep,
+    const Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep,
     vtkIdTypeArray* ids_to_extract = nullptr, const std::string& cache_key_suffix = std::string());
   ///@}
 

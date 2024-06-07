@@ -116,8 +116,9 @@ bool vtkCellGridIOQuery::InsertCellTypeAttributeInfo(vtkCellGrid* grid,
     if (groupIt == this->ArrayLocations.end())
     {
       ok = false;
-      vtkWarningMacro(
-        "Unmanaged array " << entry.second << " in role " << entry.first.Data() << " skipped.");
+      std::string name = entry.second ? entry.second->GetName() : "null";
+      vtkWarningMacro("Unmanaged array " << entry.second << " (" << name << ") in role "
+                                         << entry.first.Data() << " skipped.");
       continue;
     }
     arraysByRole[entry.first.Data()] =

@@ -32,6 +32,8 @@ const std::array<int, vtkDGPyr::Dimension + 3> vtkDGPyr::SideOffsets{ { 0, 1, 5,
 const std::array<vtkDGCell::Shape, vtkDGPyr::Dimension + 3> vtkDGPyr::SideShapes{ { Shape::Pyramid,
   Shape::Triangle, Shape::Quadrilateral, Shape::Edge, Shape::Vertex, Shape::None } };
 
+const std::array<int, vtkDGPyr::Dimension + 1> vtkDGPyr::SidesOfDimension{ { 1, 5, 8, 5 } };
+
 // WARNING: The order of sides **must** match the IOSS (Exodus) side order or side sets
 //   from Exodus files will not be rendered properly. Note that this order **coincidentally**
 //   matches the Intrepid face ordering for HDiv face-coefficients but does **not** match
@@ -116,11 +118,11 @@ std::pair<int, int> vtkDGPyr::GetSideRangeForType(int sideType) const
 
 int vtkDGPyr::GetNumberOfSidesOfDimension(int dimension) const
 {
-  if (dimension < 0 || dimension >= this->Dimension)
+  if (dimension < -1 || dimension >= this->Dimension)
   {
     return 0;
   }
-  return this->SideOffsets[Dimension - dimension + 1] - this->SideOffsets[Dimension - dimension];
+  return this->SidesOfDimension[dimension + 1];
 }
 
 const std::vector<vtkIdType>& vtkDGPyr::GetSideConnectivity(int side) const

@@ -380,8 +380,12 @@ struct CoefficientRangeWorker : public BaseRangeWorker<DOFSharing, Exceptions>
 };
 
 // This worker is for DeRham (and perhaps other) attributes that require
-// evaluation of a vector-valued shape-attribute basis to be combined with
-// the attribute's coefficients to produce a valid range.
+// evaluation of (1) a vector-valued shape-attribute basis and (2) a
+// function of the shape Jacobian to be combined with the attribute's
+// coefficients in order to obtain the range.
+//
+// The worker evaluates the attribute at parametric centers of multiple
+// sides to obtain an estimate for the attribute's range.
 template <bool DOFSharing, bool Exceptions>
 struct EvaluatorRangeWorker : public BaseRangeWorker<DOFSharing, Exceptions>
 {
@@ -403,31 +407,11 @@ struct EvaluatorRangeWorker : public BaseRangeWorker<DOFSharing, Exceptions>
   {
     // For cells of this shape, generate the parametric points at which
     // we will evaluate the attribute in order to bound its range.
-    // For now, we used a fixed set of points. For HCURL, we sample
-    // mid-edge points (the average parametric coordinate along each
-    // side that is a curve). For HDIV, we sample mid-face points
-    // (the average parametric coordinate along each side that is a
-    // surface).
+    // For now, we used a fixed set of points: the corners of the cell.
+    // To handle nonlinear fields, we need to sample at additional points.
     this->Locations->SetNumberOfComponents(3);
-    int fsDim = 0;
+    int fsDim = 0; // Might also consider 1 for HCURL and (dgCell->GetDimension() - 1) for HDIV
     int numSides = 0;
-    if (fieldInfo.FunctionSpace == "HCURL"_token)
-    {
-      fsDim = 1;
-    }
-    else if (fieldInfo.FunctionSpace == "HDIV"_token)
-    {
-      fsDim = dgCell->GetDimension() - 1;
-    }
-    else if (fieldInfo.FunctionSpace == "HGRAD"_token)
-    {
-      fsDim = 0;
-    }
-    else
-    {
-      vtkGenericWarningMacro("Unhandled function space " << fieldInfo.FunctionSpace.Data() << ".");
-      throw std::runtime_error("Unhandled function space " + fieldInfo.FunctionSpace.Data());
-    }
     numSides = dgCell->GetNumberOfSidesOfDimension(fsDim);
     this->Locations->SetNumberOfTuples(numSides);
     int nst = dgCell->GetNumberOfSideTypes();
@@ -480,6 +464,17 @@ struct EvaluatorRangeWorker : public BaseRangeWorker<DOFSharing, Exceptions>
     }
     cellRange->SetNumberOfComponents(this->Attribute->GetNumberOfComponents());
     cellRange->SetNumberOfTuples(this->Locations->GetNumberOfTuples());
+  }
+
+  void Finalize()
+  {
+    BaseRangeWorker<DOFSharing, Exceptions>::Initialize();
+
+    auto& calc = this->TLInterp.Local();
+    if (calc)
+    {
+      calc = nullptr;
+    }
   }
 
   void operator()(vtkIdType begin, vtkIdType end)
@@ -582,10 +577,9 @@ bool vtkDGRangeResponder::HCurlRange(vtkDGCell* dgCell, vtkCellAttribute* attrib
   vtkCellGridRangeQuery* request)
 {
   (void)values;
-  // NB: This will compute the range of the cells (not sides).
-  vtkIdType numTuples = dgCell->GetCellSpec().Connectivity->GetNumberOfTuples();
+  vtkIdType numCells = dgCell->GetNumberOfCells();
   EvaluatorRangeWorker<DOFSharing, FiniteRange> computeRange(dgCell, attribute, cellTypeInfo);
-  vtkSMPTools::For(0, numTuples, computeRange);
+  vtkSMPTools::For(0, numCells, computeRange);
   computeRange.CacheRanges(request);
   return true;
 }
@@ -596,10 +590,9 @@ bool vtkDGRangeResponder::HDivRange(vtkDGCell* dgCell, vtkCellAttribute* attribu
   vtkCellGridRangeQuery* request)
 {
   (void)values;
-  // NB: This will compute the range of the cells (not sides).
-  vtkIdType numTuples = dgCell->GetCellSpec().Connectivity->GetNumberOfTuples();
-  CoefficientRangeWorker<DOFSharing, FiniteRange> computeRange(dgCell, attribute, cellTypeInfo);
-  vtkSMPTools::For(0, numTuples, computeRange);
+  vtkIdType numCells = dgCell->GetNumberOfCells();
+  EvaluatorRangeWorker<DOFSharing, FiniteRange> computeRange(dgCell, attribute, cellTypeInfo);
+  vtkSMPTools::For(0, numCells, computeRange);
   computeRange.CacheRanges(request);
   return true;
 }

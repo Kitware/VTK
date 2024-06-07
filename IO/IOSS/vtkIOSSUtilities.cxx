@@ -927,11 +927,11 @@ vtkSmartPointer<vtkPoints> GetMeshModelCoordinates(
 }
 
 //----------------------------------------------------------------------------
-bool IsFieldTransient(Ioss::GroupingEntity* entity, const std::string& fieldname)
+bool IsFieldTransient(const Ioss::GroupingEntity* entity, const std::string& fieldname)
 {
   if (entity->type() == Ioss::EntityType::SIDESET)
   {
-    auto sideSet = static_cast<Ioss::SideSet*>(entity);
+    const auto* sideSet = static_cast<const Ioss::SideSet*>(entity);
     bool is_transient = !sideSet->get_side_blocks().empty();
     for (auto& sideBlock : sideSet->get_side_blocks())
     {

@@ -3,13 +3,20 @@
 #include "vtkFiltersCellGrid.h"
 
 #include "vtkCellGridBoundsQuery.h"
+#include "vtkCellGridCellCenters.h"
+#include "vtkCellGridCellSource.h"
 #include "vtkCellGridCopyQuery.h"
 #include "vtkCellGridElevationQuery.h"
 #include "vtkCellGridEvaluator.h"
 #include "vtkCellGridRangeQuery.h"
 #include "vtkCellGridSidesQuery.h"
+#include "vtkCellGridToUnstructuredGrid.h"
+#include "vtkCellGridTransform.h"
+#include "vtkCellGridWarp.h"
 #include "vtkDGAttributeInformation.h"
 #include "vtkDGBoundsResponder.h"
+#include "vtkDGCellCenterResponder.h"
+#include "vtkDGCellSourceResponder.h"
 #include "vtkDGCopyResponder.h"
 #include "vtkDGEdge.h"
 #include "vtkDGElevationResponder.h"
@@ -21,9 +28,12 @@
 #include "vtkDGRangeResponder.h"
 #include "vtkDGSidesResponder.h"
 #include "vtkDGTet.h"
+#include "vtkDGTranscribeCellGridCells.h"
 #include "vtkDGTranscribeUnstructuredCells.h"
+#include "vtkDGTransformResponder.h"
 #include "vtkDGTri.h"
 #include "vtkDGVert.h"
+#include "vtkDGWarp.h"
 #include "vtkDGWdg.h"
 #include "vtkInterpolateCalculator.h"
 #include "vtkUnstructuredGridToCellGrid.h"
@@ -92,6 +102,8 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     vtkStringToken fsConst = "constant";
     vtkStringToken dsCoord = "coordinates";
     vtkStringToken dsPData = "point-data";
+    vtkStringToken pointsT = "points";
+    vtkStringToken shapeT = "shape";
 
     (void)basisI;
     (void)basisC;
@@ -102,6 +114,8 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     (void)fsConst;
     (void)dsCoord;
     (void)dsPData;
+    (void)pointsT;
+    (void)shapeT;
 
     // Register the basis function (and some gradient) operators in each of our function spaces.
     vtk::basis::constant::RegisterOperators();
@@ -112,11 +126,16 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     // Query responders
     vtkNew<vtkDGBoundsResponder> dgBds;
     vtkNew<vtkDGElevationResponder> dgElv;
+    vtkNew<vtkDGCellCenterResponder> dgCtr;
+    vtkNew<vtkDGCellSourceResponder> dgSrc;
+    vtkNew<vtkDGCopyResponder> dgCpy;
     vtkNew<vtkDGEvaluator> dgEva;
     vtkNew<vtkDGRangeResponder> dgRng;
     vtkNew<vtkDGSidesResponder> dgSds;
-    vtkNew<vtkDGTranscribeUnstructuredCells> dgTrs;
-    vtkNew<vtkDGCopyResponder> dgCpy;
+    vtkNew<vtkDGTranscribeUnstructuredCells> dgTru;
+    vtkNew<vtkDGTranscribeCellGridCells> dgTrg;
+    vtkNew<vtkDGTransformResponder> dgTfm;
+    vtkNew<vtkDGWarp> dgWrp;
 
     // Attribute calculators
     vtkNew<vtkDGInterpolateCalculator> dgInterp;
@@ -127,10 +146,17 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridBoundsQuery>(dgBds.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCopyQuery>(dgCpy.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridElevationQuery>(dgElv.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCellCenters::Query>(
+      dgCtr.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCellSource::Query>(dgSrc.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridEvaluator>(dgEva.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridRangeQuery>(dgRng.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridSidesQuery>(dgSds.GetPointer());
-    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridTranscribeQuery>(dgTrs.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridTranscribeQuery>(dgTru.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridToUnstructuredGrid::Query>(
+      dgTrg.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridTransform::Query>(dgTfm.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridWarp::Query>(dgWrp.GetPointer());
 
     // Register calculators
     // # Register vtkInterpolateCalculator responders.

@@ -24,8 +24,6 @@
 #include "vtkIOSSReader.h"
 #include "vtkNew.h" // for vtkNew
 
-#include <map> // for std::map
-
 VTK_ABI_NAMESPACE_BEGIN
 
 class VTKIOIOSS_EXPORT vtkIOSSCellGridReader : public vtkIOSSReader

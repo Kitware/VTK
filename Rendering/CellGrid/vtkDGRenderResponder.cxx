@@ -450,8 +450,10 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   store.push_back(fmt::arg("ColorCellBasisSize",
     colorInfo ? colorInfo->GetNumberOfBasisFunctions() * colorInfo->GetBasisValueSize() : 1));
   // When we have a vector-valued basis function, we should scale by the shape's inverse Jacobian.
-  store.push_back(fmt::arg(
-    "ColorScaleInverseJacobian", colorInfo ? (colorInfo->GetBasisValueSize() == 3 ? 1 : 0) : 0));
+  store.push_back(fmt::arg("ColorScaleInverseJacobian",
+    this->Color ? (colorTypeInfo.FunctionSpace == "HCURL"_token ? 1 : 0) : 0));
+  store.push_back(fmt::arg("ColorScaleScaledJacobian",
+    this->Color ? (colorTypeInfo.FunctionSpace == "HDIV"_token ? 1 : 0) : 0));
   this->RenderHelper->SetIncludeColormap(!!this->Color);
 #ifdef vtkDGRenderResponder_DEBUG
   std::cout << "Color cell-attribute: " << this->Color << "\n";
@@ -585,8 +587,8 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
     }
     compRange[2] = compRange[1] - compRange[0];
 #ifdef vtkDGRenderResponder_DEBUG
-    std::cout << "  Color range: [" << compRange[0] << ", " << compRange[1] << "] delta "
-              << compRange[2] << " comp " << colorComp << "\n";
+    std::cout << "  Color range (" << this->Color->GetName().Data() << "[" << colorComp << "]): "
+              << "[" << compRange[0] << ", " << compRange[1] << "] delta " << compRange[2] << "\n";
 #endif
     actor->GetShaderProperty()->GetFragmentCustomUniforms()->SetUniformi(
       "color_component", colorComp);
