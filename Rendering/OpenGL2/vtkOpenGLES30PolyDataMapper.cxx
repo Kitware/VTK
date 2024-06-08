@@ -434,27 +434,24 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderEdges(
       "  vec4 nextPosition = MCDCMatrix * nextVertexMC;\n"
       "  vec4 prevPosition = MCDCMatrix * prevVertexMC;\n"
       "  vec2 pos[4];\n"
-      "  float vertexId = float(gl_VertexID);\n"
-      "  int useID = 0;\n"
-      "  if (mod(vertexId, 3.0) == 0.0)"
+      "  int localVertexId = gl_VertexID % 3;\n"
+      "  if (localVertexId == 0)"
       "  {\n"
       "    pos[0] = gl_Position.xy/gl_Position.w;\n"
       "    pos[1] = nextPosition.xy/nextPosition.w;\n"
       "    pos[2] = prevPosition.xy/prevPosition.w;\n"
       "  }\n"
-      "  else if (mod(vertexId, 3.0) == 1.0)"
+      "  else if (localVertexId == 1)"
       "  {\n"
       "    pos[0] = prevPosition.xy/prevPosition.w;\n"
       "    pos[1] = gl_Position.xy/gl_Position.w;\n"
       "    pos[2] = nextPosition.xy/nextPosition.w;\n"
-      "    useID = 1;\n"
       "  }\n"
-      "  else if (mod(vertexId, 3.0) == 2.0)"
+      "  else if (localVertexId == 2)"
       "  {\n"
       "    pos[0] = nextPosition.xy/nextPosition.w;\n"
       "    pos[1] = prevPosition.xy/prevPosition.w;\n"
       "    pos[2] = gl_Position.xy/gl_Position.w;\n"
-      "    useID = 2;\n"
       "  }\n"
 
       "for(int i = 0; i < 3; ++i)\n"
@@ -473,22 +470,9 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderEdges(
       "  edgeEqn[i] = vec4(tmp.x, tmp.y, 0.0, -d);\n"
       "}\n"
 
-      "vec2 offsets[3];\n"
-      "offsets[0] = edgeEqn[2].xy + edgeEqn[0].xy;\n"
-      "offsets[0] = -0.5*normalize(offsets[0])*lineWidth;\n"
-      "offsets[0] /= vpDims.zw;\n"
-      "offsets[1] = edgeEqn[0].xy + edgeEqn[1].xy;\n"
-      "offsets[1] = -0.5*normalize(offsets[1])*lineWidth;\n"
-      "offsets[1] /= vpDims.zw;\n"
-      "offsets[2] = edgeEqn[1].xy + edgeEqn[2].xy;\n"
-      "offsets[2] = -0.5*normalize(offsets[2])*lineWidth;\n"
-      "offsets[2] /= vpDims.zw;\n"
-
       "if (edgeValue < 4.0) edgeEqn[2].z = lineWidth;\n"
       "if (mod(edgeValue, 4.0) < 2.0) edgeEqn[1].z = lineWidth;\n"
-      "if (mod(edgeValue, 2.0) < 1.0) edgeEqn[0].z = lineWidth;\n"
-
-      "gl_Position.xy = gl_Position.xy + offsets[useID]*gl_Position.w;\n");
+      "if (mod(edgeValue, 2.0) < 1.0) edgeEqn[0].z = lineWidth;\n");
     shaders[vtkShader::Vertex]->SetSource(VSSource);
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::Edges::Dec",

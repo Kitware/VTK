@@ -15,7 +15,7 @@
 #include "vtkRTAnalyticSource.h"
 #include "vtkTestUtilities.h"
 
-int returnValue = 0;
+static int returnValue = 0;
 
 void PulseSourceTest()
 {

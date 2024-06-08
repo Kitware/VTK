@@ -87,11 +87,12 @@ int vtkArrayCalculator::FillInputPortInformation(int vtkNotUsed(port), vtkInform
 }
 
 //------------------------------------------------------------------------------
-enum ResultType
+typedef enum
 {
   SCALAR_RESULT,
   VECTOR_RESULT
-} resultType = SCALAR_RESULT;
+} ResultType;
+static ResultType resultType = SCALAR_RESULT;
 
 //------------------------------------------------------------------------------
 template <typename TFunctionParser, typename TResultArray>

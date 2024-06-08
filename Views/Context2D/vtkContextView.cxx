@@ -20,7 +20,7 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContextView);
 
 vtkCxxSetObjectMacro(vtkContextView, Context, vtkContext2D);
-vtkCxxSetObjectMacro(vtkContextView, Scene, vtkContextScene);
+vtkCxxSetSmartPointerMacro(vtkContextView, Scene, vtkContextScene);
 
 //------------------------------------------------------------------------------
 vtkContextView::vtkContextView()
@@ -29,9 +29,8 @@ vtkContextView::vtkContextView()
   vtkNew<vtkContextDevice2D> pd;
   this->Context->Begin(pd);
 
-  vtkContextActor* actor = vtkContextActor::New();
+  vtkNew<vtkContextActor> actor;
   this->Renderer->AddActor(actor);
-  actor->Delete();
   this->Scene = actor->GetScene(); // We keep a pointer to this for convenience
   // Should not need to do this...
   this->Scene->SetRenderer(this->Renderer);
@@ -69,6 +68,11 @@ void vtkContextView::PrintSelf(ostream& os, vtkIndent indent)
   if (this->Context)
   {
     this->Context->PrintSelf(os, indent.GetNextIndent());
+  }
+  os << indent << "Scene: " << this->Scene << "\n";
+  if (this->Scene)
+  {
+    this->Scene->PrintSelf(os, indent.GetNextIndent());
   }
 }
 VTK_ABI_NAMESPACE_END

@@ -303,7 +303,10 @@ void vtkContextScene::SetTransform(vtkTransform2D* transform)
   {
     return;
   }
-  this->Transform->Delete();
+  if (this->Transform != nullptr)
+  {
+    this->Transform->Delete();
+  }
   this->Transform = transform;
   this->Transform->Register(this);
 }
@@ -677,7 +680,26 @@ void vtkContextScene::EventCopy(const vtkContextMouseEvent& e)
 void vtkContextScene::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  // Print out the chart's geometry if it has been set
-  os << indent << "Widthxheight: " << this->Geometry[0] << "\t" << this->Geometry[1] << endl;
+  os << indent << "Geometry: " << this->Geometry[0] << 'x' << this->Geometry[1] << '\n';
+  os << indent << "Origin: " << this->Origin[0] << 'x' << this->Origin[1] << '\n';
+  os << indent << "UseBufferId: " << this->UseBufferId << '\n';
+  os << indent << "ScaleTiles: " << this->ScaleTiles << '\n';
+  os << indent << "Dirty: " << this->GetDirty() << '\n';
+  os << indent << "AnnotationLink: " << this->AnnotationLink << '\n';
+  if (this->AnnotationLink)
+  {
+    this->AnnotationLink->PrintSelf(os, indent.GetNextIndent());
+  }
+  os << indent << "Renderer: " << this->Renderer << '\n';
+  os << indent << "Transform: " << this->Transform << '\n';
+  if (this->Transform)
+  {
+    this->Transform->PrintSelf(os, indent.GetNextIndent());
+  }
+  os << indent << "Children: " << this->Children << '\n';
+  if (this->Children)
+  {
+    this->Children->PrintSelf(os, indent.GetNextIndent());
+  }
 }
 VTK_ABI_NAMESPACE_END

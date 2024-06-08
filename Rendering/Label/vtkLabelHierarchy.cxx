@@ -1894,7 +1894,7 @@ void vtkLabelHierarchy::SetPoints(vtkPoints* src)
 
   if (src)
   {
-    // this->ComputeHierarchy( this->CoincidentPts, this->CoincidenceMap );
+    this->ComputeHierarchy();
   }
 }
 

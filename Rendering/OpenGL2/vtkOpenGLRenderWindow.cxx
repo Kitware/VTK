@@ -77,11 +77,10 @@ static const vtkOpenGLRenderWindowDriverInfo vtkOpenGLRenderWindowMSAATextureBug
   { "X.Org", "", "AMD" },
 };
 
-const char* defaultWindowName = "Visualization Toolkit - OpenGL";
+static const char* defaultWindowName = "Visualization Toolkit - OpenGL";
 
-const char* ResolveShader =
-  R"***(
-  //VTK::System::Dec
+static const char* ResolveShader =
+  R"***(//VTK::System::Dec
   in vec2 texCoord;
   uniform sampler2DMS tex;
   uniform int samplecount;
@@ -110,9 +109,8 @@ const char* ResolveShader =
   }
   )***";
 
-const char* DepthBlitShader =
-  R"***(
-  //VTK::System::Dec
+static const char* DepthBlitShader =
+  R"***(//VTK::System::Dec
   in vec2 texCoord;
   uniform sampler2D tex;
   uniform vec2 texLL;
@@ -125,7 +123,7 @@ const char* DepthBlitShader =
   }
   )***";
 
-const char* DepthReadShader =
+static const char* DepthReadShader =
   R"***(//VTK::System::Dec
   in vec2 texCoord;
   uniform sampler2D tex;
@@ -156,9 +154,8 @@ const char* DepthReadShader =
   }
   )***";
 
-const char* FlipShader =
-  R"***(
-  //VTK::System::Dec
+static const char* FlipShader =
+  R"***(//VTK::System::Dec
   in vec2 texCoord;
   uniform sampler2D tex;
   //VTK::Output::Dec
@@ -1068,9 +1065,11 @@ int vtkOpenGLRenderWindow::ReadPixels(
   }
 
   // Must clear previous errors first.
+#ifdef VTK_REPORT_OPENGL_ERRORS
   while (glGetError() != GL_NO_ERROR)
   {
   }
+#endif
 
   this->GetState()->vtkglDisable(GL_SCISSOR_TEST);
 

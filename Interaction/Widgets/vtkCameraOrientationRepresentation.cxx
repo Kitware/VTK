@@ -624,10 +624,12 @@ int vtkCameraOrientationRepresentation::RenderOpaqueGeometry(vtkViewport* vp)
 
   if (this->Container->GetVisibility())
   {
+    this->Container->SetPropertyKeys(this->GetPropertyKeys());
     this->Container->GetMapper()->Update();
     count += this->Container->RenderOpaqueGeometry(vp);
   }
 
+  this->Shafts->SetPropertyKeys(this->GetPropertyKeys());
   this->Shafts->GetMapper()->Update();
   count += this->Shafts->RenderOpaqueGeometry(vp);
 
@@ -636,6 +638,7 @@ int vtkCameraOrientationRepresentation::RenderOpaqueGeometry(vtkViewport* vp)
     for (int dir = 0; dir < 2; ++dir)
     {
       const auto& handle = this->Handles[ax][dir];
+      handle->SetPropertyKeys(this->GetPropertyKeys());
       handle->GetMapper()->Update();
       count += handle->RenderOpaqueGeometry(vp);
     }
@@ -650,17 +653,21 @@ int vtkCameraOrientationRepresentation::RenderTranslucentPolygonalGeometry(vtkVi
 
   if (this->Container->GetVisibility())
   {
+    this->Container->SetPropertyKeys(this->GetPropertyKeys());
     this->Container->GetMapper()->Update();
     count += this->Container->RenderTranslucentPolygonalGeometry(vp);
   }
 
+  this->Shafts->SetPropertyKeys(this->GetPropertyKeys());
   this->Shafts->GetMapper()->Update();
   count += this->Shafts->RenderTranslucentPolygonalGeometry(vp);
+
   for (int ax = 0; ax < 3; ++ax)
   {
     for (int dir = 0; dir < 2; ++dir)
     {
       const auto& handle = this->Handles[ax][dir];
+      handle->SetPropertyKeys(this->GetPropertyKeys());
       handle->GetMapper()->Update();
       count += handle->RenderTranslucentPolygonalGeometry(vp);
     }

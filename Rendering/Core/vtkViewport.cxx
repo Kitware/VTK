@@ -32,6 +32,7 @@ vtkViewport::vtkViewport()
   this->BackgroundAlpha = 0.0;
 
   this->GradientBackground = false;
+  this->DitherGradient = true;
 
   this->EnvironmentalBG[0] = 0;
   this->EnvironmentalBG[1] = 0;
