@@ -164,6 +164,7 @@ protected:
    * Returns zero if there was an error.
    */
   int ReadInt(int* result);
+  int ReadInt(vtkIdType* result);
   int ReadPartId(int* result);
   ///@}
 
@@ -189,7 +190,7 @@ protected:
    * Internal function to read in a float array.
    * Returns zero if there was an error.
    */
-  int ReadFloatArray(float* result, int numFloats);
+  int ReadFloatArray(float* result, vtkIdType numFloats);
 
   /**
    * Counts the number of timesteps in the geometry file
