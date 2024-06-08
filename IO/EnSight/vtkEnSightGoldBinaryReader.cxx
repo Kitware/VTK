@@ -131,8 +131,7 @@ public:
 
         vtkNew<vtkFloatArray> pbuffer;
         pbuffer->SetNumberOfTuples(partialIndices->GetNumberOfIds());
-        self->ReadFloatArray(
-          pbuffer->GetPointer(0), static_cast<int>(partialIndices->GetNumberOfIds()));
+        self->ReadFloatArray(pbuffer->GetPointer(0), partialIndices->GetNumberOfIds());
 
         // now copy the tuples over from pbuffer to buffer.
         vtkNew<vtkIdList> srcIds;
@@ -735,8 +734,8 @@ int vtkEnSightGoldBinaryReader::SkipStructuredGrid(char line[256])
 int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
 {
   int lineRead = 1;
-  int i;
-  int numElements;
+  vtkIdType i;
+  vtkIdType numElements;
   int cellType;
 
   while (lineRead && strncmp(line, "part", 4) != 0)
@@ -1881,10 +1880,10 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
   int partId, char line[80], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
   int lineRead = 1;
-  int i, j;
+  vtkIdType i, j;
   int* nodeIdList;
-  int numElements;
-  int idx, cellId, cellType;
+  vtkIdType numElements, cellId;
+  int idx, cellType;
   float *xCoords, *yCoords, *zCoords;
 
   this->NumberOfNewOutputs++;
@@ -2937,6 +2936,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
     else
     {
       vtkErrorMacro("undefined geometry file line '" << line << "'");
+      // TOOD: skip?
       return -1;
     }
     this->GoldIFile->peek();
@@ -3325,6 +3325,17 @@ int vtkEnSightGoldBinaryReader::ReadPartId(int* result)
   return 1;
 }
 
+int vtkEnSightGoldBinaryReader::ReadInt(vtkIdType* result)
+{
+  int resultInt;
+  if (!this->ReadInt(&resultInt))
+  {
+    return 0;
+  }
+  *result = static_cast<vtkIdType>(resultInt);
+  return 1;
+}
+
 // Internal function to read a single integer.
 // Returns zero if there was an error.
 int vtkEnSightGoldBinaryReader::ReadInt(int* result)
@@ -3496,7 +3507,7 @@ int vtkEnSightGoldBinaryReader::ReadLong(vtkTypeInt64* result)
 
 // Internal function to read a float array.
 // Returns zero if there was an error.
-int vtkEnSightGoldBinaryReader::ReadFloatArray(float* result, int numFloats)
+int vtkEnSightGoldBinaryReader::ReadFloatArray(float* result, vtkIdType numFloats)
 {
   if (numFloats <= 0)
   {
