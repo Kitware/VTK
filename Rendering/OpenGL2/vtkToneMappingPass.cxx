@@ -188,6 +188,25 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
           "  toned = clamp(toned, vec3(0.f), vec3(1.f));\n"
           "//VTK::FSQ::Impl");
         break;
+      case NeutralPBR:
+        // adapted from Khronos reference implementation:
+        // https://github.com/KhronosGroup/ToneMapping/blob/main/PBR_Neutral/pbrNeutral.glsl
+        vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
+          "  const float startCompression = 0.8 - 0.04;\n"
+          "  const float desaturation = 0.15;\n"
+          "  float x = min(color.r, min(color.g, color.b));\n"
+          "  float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;\n"
+          "  vec3 toned = color - vec3(offset);\n"
+          "  float peak = max(toned.r, max(toned.g, toned.b));\n"
+          "  if (peak >= startCompression)\n"
+          "  {\n"
+          "    const float d = 1. - startCompression;\n"
+          "    float newPeak = 1. - d * d / (peak + d - startCompression);\n"
+          "    toned *= newPeak / peak;\n"
+          "    float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);\n"
+          "    toned = mix(toned, newPeak * vec3(1, 1, 1), g);\n"
+          "  }\n"
+          "//VTK::FSQ::Impl");
     }
 
     // Recorrect gamma and output
