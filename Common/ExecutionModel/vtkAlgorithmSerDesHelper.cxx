@@ -12,6 +12,11 @@
 
 extern "C"
 {
+  /**
+   * Register the (de)serialization handlers of vtkAlgorithm
+   * @param ser   a vtkSerializer instance
+   * @param deser a vtkDeserializer instance
+   */
   int RegisterHandlers_vtkAlgorithmSerDesHelper(void* ser, void* deser);
 }
 

@@ -331,6 +331,9 @@ if (VTK_WRAP_SERIALIZATION)
   list(APPEND serialization_helper_sources
     vtkCellArraySerDesHelper.cxx
     vtkDataSetAttributesSerDesHelper.cxx
+    vtkMultiBlockDataSetSerDesHelper.cxx
+    vtkPartitionedDataSetSerDesHelper.cxx
+    vtkPartitionedDataSetCollectionSerDesHelper.cxx
     vtkPiecewiseFunctionSerDesHelper.cxx
     vtkTableSerDesHelper.cxx
     vtkUnstructuredGridSerDesHelper.cxx)

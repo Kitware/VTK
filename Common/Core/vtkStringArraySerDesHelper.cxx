@@ -12,12 +12,9 @@
 extern "C"
 {
   /**
-   * Register the (de)serialization handlers of classes from all serialized libraries.
+   * Register the (de)serialization handlers of vtkStringArray
    * @param ser   a vtkSerializer instance
    * @param deser a vtkDeserializer instance
-   * @param error when registration fails, the error message is pointed to by `error`. Use it for
-   * logging purpose.
-   * @warning The memory pointed to by `error` is not dynamically allocated. Do not free it.
    */
   int RegisterHandlers_vtkStringArraySerDesHelper(void* ser, void* deser);
 }

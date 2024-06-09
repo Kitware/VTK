@@ -20,12 +20,13 @@
 #include "vtkMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWeakPointer.h"         // needed for vtkWeakPointer.
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataDisplayAttributes;
 class vtkDataObjectTree;
 
-class VTKRENDERINGCORE_EXPORT vtkGlyph3DMapper : public vtkMapper
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkGlyph3DMapper : public vtkMapper
 {
 public:
   static vtkGlyph3DMapper* New();

@@ -11,6 +11,11 @@
 
 extern "C"
 {
+  /**
+   * Register the (de)serialization handlers of vtkColorTransferFunction
+   * @param ser   a vtkSerializer instance
+   * @param deser a vtkDeserializer instance
+   */
   int RegisterHandlers_vtkColorTransferFunctionSerDesHelper(void* ser, void* deser);
 }
 

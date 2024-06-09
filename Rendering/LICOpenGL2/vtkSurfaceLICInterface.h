@@ -46,6 +46,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingLICOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
@@ -58,7 +59,7 @@ class vtkPainterCommunicator;
 class vtkSurfaceLICHelper;
 class vtkWindow;
 
-class VTKRENDERINGLICOPENGL2_EXPORT vtkSurfaceLICInterface : public vtkObject
+class VTKRENDERINGLICOPENGL2_EXPORT VTK_MARSHALAUTO vtkSurfaceLICInterface : public vtkObject
 {
 public:
   static vtkSurfaceLICInterface* New();

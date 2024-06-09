@@ -39,3 +39,4 @@ TEST_DEPENDS
   VTK::TestingCore
   VTK::TestingRendering
   VTK::opengl
+INCLUDE_MARSHAL

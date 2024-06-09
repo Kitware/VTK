@@ -14,6 +14,11 @@
 
 extern "C"
 {
+  /**
+   * Register the (de)serialization handlers of vtkTexture
+   * @param ser   a vtkSerializer instance
+   * @param deser a vtkDeserializer instance
+   */
   int RegisterHandlers_vtkTextureSerDesHelper(void* ser, void* deser);
 }
 

@@ -21,12 +21,14 @@
 #ifndef vtkMultiPieceDataSet_h
 #define vtkMultiPieceDataSet_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPartitionedDataSet.h"
+
+#include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
-class VTKCOMMONDATAMODEL_EXPORT vtkMultiPieceDataSet : public vtkPartitionedDataSet
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkMultiPieceDataSet : public vtkPartitionedDataSet
 {
 public:
   static vtkMultiPieceDataSet* New();

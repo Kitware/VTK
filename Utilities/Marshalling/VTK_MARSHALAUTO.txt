@@ -59,10 +59,13 @@ Common/Core/vtkScalarsToColors.h
 Common/Core/vtkWindow.h
 Common/DataModel/vtkAbstractCellArray.h
 Common/DataModel/vtkCellData.h
+Common/DataModel/vtkCompositeDataSet.h
 Common/DataModel/vtkDataObject.h
+Common/DataModel/vtkDataObjectTree.h
 Common/DataModel/vtkDataSet.h
 Common/DataModel/vtkFieldData.h
 Common/DataModel/vtkImageData.h
+Common/DataModel/vtkMultiPieceDataSet.h
 Common/DataModel/vtkPointData.h
 Common/DataModel/vtkPointSet.h
 Common/DataModel/vtkPolyData.h
@@ -213,10 +216,12 @@ Rendering/Core/vtkAbstractVolumeMapper.h
 Rendering/Core/vtkActor.h
 Rendering/Core/vtkActor2D.h
 Rendering/Core/vtkCamera.h
+Rendering/Core/vtkCompositePolyDataMapper.h
 Rendering/Core/vtkCoordinate.h
 Rendering/Core/vtkCuller.h
 Rendering/Core/vtkFrustumCoverageCuller.h
 Rendering/Core/vtkFXAAOptions.h
+Rendering/Core/vtkGlyph3DMapper.h
 Rendering/Core/vtkHardwareWindow.h
 Rendering/Core/vtkImageActor.h
 Rendering/Core/vtkImageMapper.h
@@ -277,6 +282,9 @@ Rendering/Label/vtkLabeledTreeMapDataMapper.h
 Rendering/Label/vtkLabelHierarchy.h
 Rendering/Label/vtkLabelPlacementMapper.h
 Rendering/Label/vtkLabelRenderStrategy.h
+Rendering/LICOpenGL2/vtkCompositeSurfaceLICMapper.h
+Rendering/LICOpenGL2/vtkSurfaceLICInterface.h
+Rendering/LICOpenGL2/vtkSurfaceLICMapper.h
 Rendering/OpenGL2/vtkCameraPass.h
 Rendering/OpenGL2/vtkClearRGBPass.h
 Rendering/OpenGL2/vtkClearZPass.h
@@ -298,6 +306,7 @@ Rendering/OpenGL2/vtkOpaquePass.h
 Rendering/OpenGL2/vtkOpenGLActor.h
 Rendering/OpenGL2/vtkOpenGLCamera.h
 Rendering/OpenGL2/vtkOpenGLFXAAPass.h
+Rendering/OpenGL2/vtkOpenGLGlyph3DMapper.h
 Rendering/OpenGL2/vtkOpenGLImageMapper.h
 Rendering/OpenGL2/vtkOpenGLImageSliceMapper.h
 Rendering/OpenGL2/vtkOpenGLLight.h

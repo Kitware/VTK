@@ -23,7 +23,8 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_3_0
+#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_3_0
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <vector> // For GetDataSets
 
@@ -35,7 +36,7 @@ class vtkInformation;
 class vtkInformationStringKey;
 class vtkInformationIntegerKey;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkCompositeDataSet : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkCompositeDataSet : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkCompositeDataSet, vtkDataObject);

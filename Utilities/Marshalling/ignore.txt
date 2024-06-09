@@ -244,7 +244,6 @@ Common/DataModel/vtkClosestNPointsStrategy.h
 Common/DataModel/vtkClosestPointStrategy.h
 Common/DataModel/vtkColor.h
 Common/DataModel/vtkCompositeDataIterator.h
-Common/DataModel/vtkCompositeDataSet.h
 Common/DataModel/vtkCompositeDataSetNodeReference.h
 Common/DataModel/vtkCompositeDataSetRange.h
 Common/DataModel/vtkCone.h
@@ -256,7 +255,7 @@ Common/DataModel/vtkDataAssembly.h
 Common/DataModel/vtkDataAssemblyUtilities.h
 Common/DataModel/vtkDataAssemblyVisitor.h
 Common/DataModel/vtkDataObjectCollection.h
-Common/DataModel/vtkDataObjectTree.h
+Common/DataModel/vtkDataObjectImplicitBackendInterface.h
 Common/DataModel/vtkDataObjectTreeInternals.h
 Common/DataModel/vtkDataObjectTreeIterator.h
 Common/DataModel/vtkDataObjectTreeRange.h
@@ -362,8 +361,6 @@ Common/DataModel/vtkMarchingSquaresLineCases.h
 Common/DataModel/vtkMeanValueCoordinatesInterpolator.h
 Common/DataModel/vtkMergePoints.h
 Common/DataModel/vtkMolecule.h
-Common/DataModel/vtkMultiBlockDataSet.h
-Common/DataModel/vtkMultiPieceDataSet.h
 Common/DataModel/vtkMutableDirectedGraph.h
 Common/DataModel/vtkMutableUndirectedGraph.h
 Common/DataModel/vtkNonLinearCell.h
@@ -374,8 +371,6 @@ Common/DataModel/vtkOctreePointLocatorNode.h
 Common/DataModel/vtkOrderedTriangulator.h
 Common/DataModel/vtkOutEdgeIterator.h
 Common/DataModel/vtkOverlappingAMR.h
-Common/DataModel/vtkPartitionedDataSet.h
-Common/DataModel/vtkPartitionedDataSetCollection.h
 Common/DataModel/vtkPath.h
 Common/DataModel/vtkPentagonalPrism.h
 Common/DataModel/vtkPeriodicDataArray.h
@@ -673,9 +668,7 @@ Rendering/Core/vtkCellGridMapper.h
 Rendering/Core/vtkCellGridRenderRequest.h
 Rendering/Core/vtkCellPicker.h
 Rendering/Core/vtkCompositeCellGridMapper.h
-Rendering/Core/vtkCompositeDataDisplayAttributes.h
 Rendering/Core/vtkCompositeDataDisplayAttributesLegacy.h
-Rendering/Core/vtkCompositePolyDataMapper.h
 Rendering/Core/vtkCompositePolyDataMapperDelegator.h
 Rendering/Core/vtkDiscretizableColorTransferFunction.h
 Rendering/Core/vtkDistanceToCamera.h
@@ -686,7 +679,6 @@ Rendering/Core/vtkGPUInfo.h
 Rendering/Core/vtkGPUInfoList.h
 Rendering/Core/vtkGPUInfoListArray.h
 Rendering/Core/vtkGenericVertexAttributeMapping.h
-Rendering/Core/vtkGlyph3DMapper.h
 Rendering/Core/vtkGraphMapper.h
 Rendering/Core/vtkGraphToGlyphs.h
 Rendering/Core/vtkGraphicsFactory.h
@@ -749,6 +741,16 @@ Rendering/Core/vtkVisibilitySort.h
 Rendering/Core/vtkWindowLevelLookupTable.h
 Rendering/Core/vtkWindowToImageFilter.h
 Rendering/Core/vtkWorldPointPicker.h
+Rendering/LICOpenGL2/vtkBatchedSurfaceLICMapper.h
+Rendering/LICOpenGL2/vtkCompositeSurfaceLICMapperDelegator.h
+Rendering/LICOpenGL2/vtkImageDataLIC2D.h
+Rendering/LICOpenGL2/vtkLICNoiseHelper.h
+Rendering/LICOpenGL2/vtkLineIntegralConvolution2D.h
+Rendering/LICOpenGL2/vtkPainterCommunicator.h
+Rendering/LICOpenGL2/vtkStructuredGridLIC2D.h
+Rendering/LICOpenGL2/vtkSurfaceLICComposite.h
+Rendering/LICOpenGL2/vtkSurfaceLICHelper.h
+Rendering/LICOpenGL2/vtkTextureIO.h
 Rendering/Label/vtkLabelHierarchyAlgorithm.h
 Rendering/Label/vtkLabelHierarchyCompositeIterator.h
 Rendering/Label/vtkLabelHierarchyIterator.h
@@ -784,7 +786,6 @@ Rendering/OpenGL2/vtkOpenGLFluidMapper.h
 Rendering/OpenGL2/vtkOpenGLFramebufferObject.h
 Rendering/OpenGL2/vtkOpenGLGL2PSHelper.h
 Rendering/OpenGL2/vtkOpenGLGlyph3DHelper.h
-Rendering/OpenGL2/vtkOpenGLGlyph3DMapper.h
 Rendering/OpenGL2/vtkOpenGLHardwareSelector.h
 Rendering/OpenGL2/vtkOpenGLHelper.h
 Rendering/OpenGL2/vtkOpenGLHyperTreeGridMapper.h

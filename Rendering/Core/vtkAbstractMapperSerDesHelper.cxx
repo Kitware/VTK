@@ -13,6 +13,11 @@
 
 extern "C"
 {
+  /**
+   * Register the (de)serialization handlers of vtkAbstractMapper
+   * @param ser   a vtkSerializer instance
+   * @param deser a vtkDeserializer instance
+   */
   int RegisterHandlers_vtkAbstractMapperSerDesHelper(void* ser, void* deser);
 }
 
@@ -22,31 +27,29 @@ static nlohmann::json Serialize_vtkAbstractMapper(
   using json = nlohmann::json;
   json state;
   auto* object = vtkAbstractMapper::SafeDownCast(objectBase);
-  // skip vtkAlgorithm
-  if (auto f = serializer->GetHandler(typeid(vtkAbstractMapper::Superclass::Superclass)))
-  {
-    state = f(object, serializer);
-  }
-  state["SuperClassNames"].push_back("vtkAlgorithm");
   if (object->GetClippingPlanes())
   {
     state["ClippingPlanes"] =
       serializer->SerializeJSON(reinterpret_cast<vtkObjectBase*>(object->GetClippingPlanes()));
   }
-  // vtkDataSetMapper is a special case handled by vtkDataSetMapperSerialization.cxx
+  // vtkDataSetMapper is a special case handled by vtkDataSetMapperSerDes.cxx
   if (object->IsA("vtkDataSetMapper"))
   {
-    return state;
-  }
-  int outPort = 0;
-  if (auto* inputAlg = object->GetInputAlgorithm(0, 0, outPort))
-  {
-    inputAlg->Update(outPort);
-    if (auto* inputData = inputAlg->GetOutputDataObject(outPort))
+    // skip vtkAlgorithm
+    if (auto f = serializer->GetHandler(typeid(vtkAbstractMapper::Superclass::Superclass)))
     {
-      state["ExtractedInputData"] = serializer->SerializeJSON(inputData);
+      state = f(object, serializer);
     }
   }
+  else
+  {
+    // serialize vtkAlgorithm properties
+    if (auto f = serializer->GetHandler(typeid(vtkAbstractMapper::Superclass)))
+    {
+      state = f(object, serializer);
+    }
+  }
+  state["SuperClassNames"].push_back("vtkAlgorithm");
   return state;
 }
 
@@ -54,21 +57,24 @@ static void Deserialize_vtkAbstractMapper(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
   auto* object = vtkAbstractMapper::SafeDownCast(objectBase);
-  if (auto f = deserializer->GetHandler(typeid(vtkAbstractMapper::Superclass::Superclass)))
-  {
-    f(state, object, deserializer);
-  }
   VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(
     ClippingPlanes, vtkPlaneCollection, state, object, deserializer);
-  // vtkDataSetMapper is a special case handled by vtkDataSetMapperSerialization.cxx
+  // vtkDataSetMapper is a special case handled by vtkDataSetMapperSerDes.cxx
   if (object->IsA("vtkDataSetMapper"))
   {
-    return;
+    // skip vtkAlgorithm
+    if (auto f = deserializer->GetHandler(typeid(vtkAbstractMapper::Superclass::Superclass)))
+    {
+      f(state, object, deserializer);
+    }
   }
   else
   {
-    VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE_DIFFERENT_NAMES(
-      ExtractedInputData, InputDataObject, vtkDataObject, state, object, deserializer);
+    // deserialize vtkAlgorithm properties
+    if (auto f = deserializer->GetHandler(typeid(vtkAbstractMapper::Superclass)))
+    {
+      f(state, object, deserializer);
+    }
   }
 }
 
