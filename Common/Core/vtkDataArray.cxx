@@ -247,7 +247,7 @@ void vtkDataArray::GetIntegerTuple(vtkIdType tupleIdx, vtkTypeInt64* tuple)
   static VTK_THREAD_LOCAL std::vector<double> data;
   int numComp = this->GetNumberOfComponents();
   data.resize(numComp);
-  this->GetTuple(tupleIdx, &data[0]);
+  this->GetTuple(tupleIdx, data.data());
   for (int ii = 0; ii < numComp; ++ii)
   {
     tuple[ii] = static_cast<vtkTypeInt64>(data[ii]);
@@ -264,7 +264,7 @@ void vtkDataArray::SetIntegerTuple(vtkIdType tupleIdx, vtkTypeInt64* tuple)
   {
     data[ii] = static_cast<double>(tuple[ii]);
   }
-  this->SetTuple(tupleIdx, &data[0]);
+  this->SetTuple(tupleIdx, data.data());
 }
 
 //------------------------------------------------------------------------------
@@ -273,7 +273,7 @@ void vtkDataArray::GetUnsignedTuple(vtkIdType tupleIdx, vtkTypeUInt64* tuple)
   static VTK_THREAD_LOCAL std::vector<double> data;
   int numComp = this->GetNumberOfComponents();
   data.resize(numComp);
-  this->GetTuple(tupleIdx, &data[0]);
+  this->GetTuple(tupleIdx, data.data());
   for (int ii = 0; ii < numComp; ++ii)
   {
     tuple[ii] = static_cast<vtkTypeUInt64>(data[ii]);
@@ -290,7 +290,7 @@ void vtkDataArray::SetUnsignedTuple(vtkIdType tupleIdx, vtkTypeUInt64* tuple)
   {
     data[ii] = static_cast<double>(tuple[ii]);
   }
-  this->SetTuple(tupleIdx, &data[0]);
+  this->SetTuple(tupleIdx, data.data());
 }
 
 //------------------------------------------------------------------------------
