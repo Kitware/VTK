@@ -1682,6 +1682,7 @@ template<>
 vtkAlgorithm* InstantiateInterfaceExtractor<vtkUnstructuredGrid>(vtkUnstructuredGrid* input)
 {
   vtkDataSetSurfaceFilter* extractor = vtkDataSetSurfaceFilter::New();
+  extractor->SetAllowInterpolation( false );
 
   // This part is a hack to keep global point ids on the output of the surface filter.
   // It would be too messy to change its behavior, so what we do is we untag the global id
