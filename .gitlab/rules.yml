@@ -54,7 +54,9 @@
         - if: '$CI_MERGE_REQUEST_ID'
           when: never
         - if: '$CI_PROJECT_PATH == "vtk/vtk"'
-          when: on_success
+          changes: *code_change
+          when: delayed
+          start_in: 4 hours
         - when: never
 
 .release_only:
