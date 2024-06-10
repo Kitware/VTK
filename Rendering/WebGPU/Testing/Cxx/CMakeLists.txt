@@ -1,6 +1,7 @@
 # (vtk/vtk#19322): Run these tests in CI for wasm with _vtk_test_cxx_wasm_enabled_in_browser=1
 # (vtk/vtk#19322): Add baselines for these unit tests
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  TestActorFaceCullingProperty.cxx,NO_DATA
   TestCellScalarMappedColors.cxx,NO_DATA,NO_VALID
   TestCompositePolyDataMapper.cxx,NO_DATA,NO_VALID
   TestConesBenchmark.cxx,NO_DATA,NO_VALID

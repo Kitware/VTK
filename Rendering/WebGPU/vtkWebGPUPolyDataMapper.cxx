@@ -958,12 +958,23 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
   const int representation = actor->GetProperty()->GetRepresentation();
   const std::string reprAsStr = actor->GetProperty()->GetRepresentationAsString();
   ///@}
+
+  if (actor->GetProperty()->GetBackfaceCulling())
+  {
+    descriptor.primitive.cullMode = wgpu::CullMode::Back;
+  }
+  else if (actor->GetProperty()->GetFrontfaceCulling())
+  {
+    descriptor.primitive.cullMode = wgpu::CullMode::Front;
+  }
+
   if (this->PointPrimitiveBGInfo.VertexCount > 0)
   {
     std::string info = "primitive=VTK_POINT;representation=" + reprAsStr;
     descriptor.primitive.topology = wgpu::PrimitiveTopology::TriangleList;
     this->PointPrimitiveBGInfo.Pipeline = device.CreateRenderPipeline(&descriptor);
   }
+
   if (this->LinePrimitiveBGInfo.VertexCount > 0)
   {
     std::string info = "primitive=VTK_LINE;representation=" + reprAsStr;
@@ -972,6 +983,7 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
       : wgpu::PrimitiveTopology::LineList;
     this->LinePrimitiveBGInfo.Pipeline = device.CreateRenderPipeline(&descriptor);
   }
+
   if (this->TrianglePrimitiveBGInfo.VertexCount > 0)
   {
     std::string info = "primitive=VTK_TRIANGLE;representation=" + reprAsStr;
