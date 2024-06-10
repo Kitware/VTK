@@ -572,11 +572,29 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
     for (int i = 0; i < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++i)
     {
-      this->DataArraySelection[i]->RemoveAllArrays();
       const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(i);
+      // Remove obsolete arrays from selection
+      vtkIdType arrId = 0;
+      while (arrId < this->DataArraySelection[i]->GetNumberOfArrays())
+      {
+        auto arrName = this->DataArraySelection[i]->GetArrayName(arrId);
+        if (std::find(arrayNames.cbegin(), arrayNames.cend(), arrName) == arrayNames.cend())
+        {
+          // Selected array is not available anymore
+          this->DataArraySelection[i]->RemoveArrayByName(arrName);
+        }
+        else
+        {
+          arrId++;
+        }
+      }
+      // Add new arrays to selection
       for (const std::string& arrayName : arrayNames)
       {
-        this->DataArraySelection[i]->AddArray(arrayName.c_str());
+        if (!this->DataArraySelection[i]->ArrayExists(arrayName.c_str()))
+        {
+          this->DataArraySelection[i]->AddArray(arrayName.c_str());
+        }
       }
     }
   }
