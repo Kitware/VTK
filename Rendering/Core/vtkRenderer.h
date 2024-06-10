@@ -611,7 +611,8 @@ public:
    * If nothing was picked then NULL is returned.  This method selects from
    * the renderer's Prop list. Additionally, you can set the field
    * association of the hardware selector used internally, and get its selection
-   * result by passing a non-null vtkSmartPointer<vtkSelection>.
+   * result by passing a non-null vtkSmartPointer<vtkSelection>. The picked prop
+   * is guaranteed to be the first node in the selection result.
    */
   vtkAssemblyPath* PickProp(double selectionX, double selectionY, int fieldAssociation,
     vtkSmartPointer<vtkSelection> selection) override

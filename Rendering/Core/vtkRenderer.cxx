@@ -1951,6 +1951,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1, d
     // store the list of picked props
     vtkProp* closestProp = nullptr;
     double closestDepth = 2.0;
+    unsigned int closestIdx = 0;
     this->PickResultProps = vtkPropCollection::New();
     unsigned int numPicked = sel->GetNumberOfNodes();
     for (unsigned int pIdx = 0; pIdx < numPicked; pIdx++)
@@ -1966,12 +1967,23 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1, d
         {
           closestProp = aProp;
           closestDepth = adepth;
+          closestIdx = pIdx;
         }
       }
     }
     if (closestProp == nullptr)
     {
       return nullptr;
+    }
+    if (closestIdx != 0)
+    {
+      // reorder the selection so that the closest / picked prop is the first selection node
+      std::string nodeNameZero = sel->GetNodeNameAtIndex(0);
+      std::string nodeNameClosest = sel->GetNodeNameAtIndex(closestIdx);
+
+      vtkSmartPointer<vtkSelectionNode> temp = sel->GetNode(nodeNameZero);
+      sel->SetNode(nodeNameZero, sel->GetNode(nodeNameClosest));
+      sel->SetNode(nodeNameClosest, temp);
     }
     closestProp->InitPathTraversal();
     this->PickedProp = closestProp->GetNextPath();
