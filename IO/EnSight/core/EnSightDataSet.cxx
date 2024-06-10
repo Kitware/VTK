@@ -2081,6 +2081,11 @@ void EnSightDataSet::PassThroughUniformGrid(const GridOptions& opts, int partId)
   auto& numCells = it->second.NumElements;
   this->ReadDimensions(opts.HasRange, dimensions, numPts, numCells);
 
+  if (numPts == 0)
+  {
+    return;
+  }
+
   this->GeometryFile.SkipNNumbers<float>(6);
 
   this->PassThroughOptionalSections(opts, numPts, numCells);
@@ -2518,6 +2523,12 @@ void EnSightDataSet::ReadDimensions(bool hasRange, int dimensions[3], int& numPt
   }
 
   numPts = dimensions[0] * dimensions[1] * dimensions[2];
+  if (numPts == 0)
+  {
+    numCells = 0;
+    return;
+  }
+
   numCells = 1;
   for (int i = 0; i < 3; i++)
   {
