@@ -427,7 +427,6 @@ void readFileValues(const std::string& filename, std::vector<T>& values)
 } // end anon namespace
 
 VTK_ABI_NAMESPACE_BEGIN
-
 //------------------------------------------------------------------------------
 bool EnSightDataSet::CheckVersion(const char* casefilename)
 {
@@ -1160,7 +1159,7 @@ bool EnSightDataSet::ReadMeasuredGeometry(
     // not required, so we'll assume if we don't have a filename, that it's not an error
     return true;
   }
-  if (!selection->ArrayIsEnabled("particles"))
+  if (!selection->ArrayIsEnabled(this->MeasuredPartName.c_str()))
   {
     return true;
   }
@@ -1253,10 +1252,11 @@ bool EnSightDataSet::ReadMeasuredGeometry(
   pds->SetPartition(0, polydata);
   this->MeasuredPartitionId = output->GetNumberOfPartitionedDataSets();
   output->SetPartitionedDataSet(this->MeasuredPartitionId, pds);
-  output->GetMetaData(this->MeasuredPartitionId)->Set(vtkCompositeDataSet::NAME(), "particles");
+  output->GetMetaData(this->MeasuredPartitionId)
+    ->Set(vtkCompositeDataSet::NAME(), this->MeasuredPartName);
 
   auto assembly = output->GetDataAssembly();
-  auto validName = vtkDataAssembly::MakeValidNodeName("particles");
+  auto validName = vtkDataAssembly::MakeValidNodeName(this->MeasuredPartName.c_str());
   auto node = assembly->AddNode(validName.c_str());
   assembly->AddDataSetIndex(node, this->MeasuredPartitionId);
   return true;
@@ -1356,7 +1356,7 @@ bool EnSightDataSet::GetPartInfo(vtkDataArraySelection* partSelection,
 
   if (!this->MeasuredFileName.empty())
   {
-    partSelection->AddArray("particles");
+    partSelection->AddArray(this->MeasuredPartName.c_str());
   }
 
   for (auto& var : this->Variables)
@@ -1605,7 +1605,7 @@ void EnSightDataSet::ReadVariableNodes(EnSightFile& file, const std::string& arr
 void EnSightDataSet::ReadVariableMeasuredNodes(EnSightFile& file, const std::string& arrayName,
   int numComponents, vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection)
 {
-  if (!selection->ArrayIsEnabled("particles"))
+  if (!selection->ArrayIsEnabled(this->MeasuredPartName.c_str()))
   {
     return;
   }

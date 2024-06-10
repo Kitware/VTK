@@ -300,6 +300,7 @@ private:
   std::string MeasuredFileName;
   EnSightFile MeasuredFile;
   int MeasuredPartitionId = -1;
+  std::string MeasuredPartName = "measured particles";
 
   std::vector<std::string> FilePath;
 

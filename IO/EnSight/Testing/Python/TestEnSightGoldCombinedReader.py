@@ -150,7 +150,7 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     reader = self.setupReader(casefile)
     reader.UpdateInformation()
     reader.GetPartSelection().DisableAllArrays()
-    reader.GetPartSelection().EnableArray("particles")
+    reader.GetPartSelection().EnableArray("measured particles")
     reader.Update()
 
     data = reader.GetOutput()
