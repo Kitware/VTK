@@ -242,6 +242,7 @@ void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors* self,
   unsigned long count = 0;
   unsigned long target;
   int dataType = inData->GetScalarType();
+  int scalarSize = inData->GetScalarSize();
   int numberOfComponents, numberOfOutputComponents, outputFormat;
   int rowLength;
   vtkScalarsToColors* lookupTable = self->GetLookupTable();
@@ -278,7 +279,7 @@ void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors* self,
 
   // Loop through output pixels
   outPtr1 = outPtr;
-  inPtr1 = inPtr;
+  inPtr1 = inPtr + self->GetActiveComponent() * scalarSize;
   for (idxZ = 0; idxZ < extZ; idxZ++)
   {
     for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)

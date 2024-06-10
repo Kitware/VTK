@@ -3256,6 +3256,11 @@ void vtkImageReslice::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
 
   // Get the input scalars
   vtkDataArray* scalars = inData[0][0]->GetPointData()->GetScalars();
+  if (!scalars)
+  {
+    // no data to reslice
+    return;
+  }
 
   // Get the output pointer
   void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);

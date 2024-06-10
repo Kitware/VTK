@@ -606,8 +606,8 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (numPieces > 1)
     {
-      int div = Nt / numPieces;
-      int rem = Nt % numPieces;
+      vtkIdType div = Nt / numPieces;
+      vtkIdType rem = Nt % numPieces;
 
       vtkIdType myNt = piece < rem ? div + 1 : div;
       vtkIdType myOffset = piece < rem ? (div + 1) * piece : (div + 1) * rem + div * (piece - rem);

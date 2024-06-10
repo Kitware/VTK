@@ -242,9 +242,9 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         }
         else
         {
-          // Otherwise remove leading whitespaces
+          // Otherwise remove leading blankspaces
           result = parser->DiscardUntil(
-            [](char c) { return !std::isspace(static_cast<unsigned char>(c)); });
+            [](char c) { return !std::isblank(static_cast<unsigned char>(c)); });
           if (result != vtkParseResult::Ok)
           {
             continue;
@@ -329,7 +329,22 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
 
+      // Check last value (which is optional)
+      double w{};
+      result = parser->Parse(w);
+      if (result == vtkParseResult::Error)
+      {
+        vtkErrorMacro(<< "Unexpected token at L." << lineNumber);
+        return 0;
+      }
+
       points->InsertNextPoint(point.data());
+
+      // skip flushLine if we consumed end of line or whole stream
+      if (result == vtkParseResult::EndOfLine || result == vtkParseResult::EndOfStream)
+      {
+        continue;
+      }
 
       result = flushLine();
     }
@@ -347,7 +362,22 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
 
+      // Check last value (which is optional)
+      double z{};
+      result = parser->Parse(z);
+      if (result == vtkParseResult::Error)
+      {
+        vtkErrorMacro(<< "Unexpected token at L." << lineNumber);
+        return 0;
+      }
+
       tcoords->InsertNextTuple(tcoord.data());
+
+      // skip flushLine if we consumed end of line or whole stream
+      if (result == vtkParseResult::EndOfLine || result == vtkParseResult::EndOfStream)
+      {
+        continue;
+      }
 
       result = flushLine();
     }
