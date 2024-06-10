@@ -20,7 +20,6 @@
 #include "vtkTypeInt32Array.h"
 #include "vtkVectorOperators.h"
 
-#include "vtkPolyData.h"
 #include "vtkXMLPolyDataWriter.h"
 
 #include "vtkCellGridWriter.h"
