@@ -471,6 +471,17 @@ public:
   vtkIdType GetNumberOfElements(int type) override;
 
   /**
+   * Abstract method which return the mesh (geometry/topology) modification time.
+   * This time is different from the usual MTime which also takes into
+   * account the modification of data arrays. This function can be used to
+   * track the changes on the mesh separately from the data arrays
+   * (eg. static mesh over time with transient data).
+   * The default implementation returns the MTime. It is up to subclasses
+   * to provide a better approach.
+   */
+  virtual vtkMTimeType GetMeshMTime();
+
+  /**
    * Returns 1 if there are any ghost cells
    * 0 otherwise.
    */
