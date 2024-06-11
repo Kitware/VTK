@@ -386,6 +386,7 @@ wasm32-emscripten-linux-chrome:build:
         - .run_manually
     dependencies: []
     needs: []
+    stage: quick
 
 wasm32-emscripten-linux-chrome:test:
     extends:
@@ -474,7 +475,6 @@ wasm32-emscripten-windows-chrome:build:
         - .run_manually
     dependencies: []
     needs: []
-    stage: quick
 
 wasm32-emscripten-windows-chrome:test:
     extends:
