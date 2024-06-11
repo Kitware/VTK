@@ -107,10 +107,18 @@ void vtkRadialGridActor2D::ComputeAxisWorldRange(
 void vtkRadialGridActor2D::UpdateAxisTitle(vtkAxisActor2D* axis, double angle)
 {
   vtkNumberToString converter;
+  converter.SetNotation(vtkNumberToString::Fixed);
+  converter.SetPrecision(0);
   std::string formattedString = converter.Convert(angle);
   std::string title = formattedString + " deg";
 
   axis->SetTitle(title.c_str());
+
+  // keep text angle between -90 and 90 degrees for readability
+  double textAngle = std::fmod(angle + 90, 180) - 90;
+
+  vtkTextProperty* textProperty = axis->GetTitleTextProperty();
+  textProperty->SetOrientation(textAngle);
 }
 
 //------------------------------------------------------------------------------
@@ -128,6 +136,13 @@ void vtkRadialGridActor2D::SetupAxes(vtkViewport* viewport)
     axis->SetLabelVisibility(index == 0);
     axis->SkipFirstTickOn();
 
+    axis->SetUseFontSizeFromProperty(true);
+    axis->SetProperty(this->GetProperty());
+    axis->SetLabelTextProperty(this->GetTextProperty());
+    vtkNew<vtkTextProperty> titleProp;
+    titleProp->ShallowCopy(this->GetTextProperty());
+    axis->SetTitleTextProperty(titleProp);
+
     axis->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
     axis->GetPositionCoordinate()->SetValue(this->Origin[0], this->Origin[1]);
 
@@ -144,11 +159,6 @@ void vtkRadialGridActor2D::SetupAxes(vtkViewport* viewport)
     double worldRange[2];
     this->ComputeAxisWorldRange(viewport, axis, worldRange);
     axis->SetRange(worldRange);
-
-    axis->SetUseFontSizeFromProperty(true);
-    axis->SetProperty(this->GetProperty());
-    axis->SetLabelTextProperty(this->GetTextProperty());
-    axis->SetTitleTextProperty(this->GetTextProperty());
   }
 }
 

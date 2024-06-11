@@ -73,7 +73,8 @@ void vtkArcGridActorPrivate::BuildGrid(vtkViewport* viewport)
   vtkMath::Subtract(startAxes, centerViewportCoordinates, startAxes);
 
   double origin[3] = { 1, 0, 0 };
-  const double startAngle = vtkMath::AngleBetweenVectors(origin, startAxes);
+  double zAxis[3] = { 0, 0, 1 };
+  const double startAngle = vtkMath::SignedAngleBetweenVectors(origin, startAxes, zAxis);
   const double maxRadius = vtkMath::Norm(startAxes);
 
   const double totalAngle = vtkMath::RadiansFromDegrees(this->Angle);
