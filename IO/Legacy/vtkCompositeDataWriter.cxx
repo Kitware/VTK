@@ -5,7 +5,6 @@
 
 #include "vtkAMRBox.h"
 #include "vtkAMRInformation.h"
-#include "vtkCharArray.h"
 #include "vtkDataAssembly.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataObjectWriter.h"
@@ -268,13 +267,12 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataS
   if (pd->GetDataAssembly())
   {
     const auto dataAssemblyStr = pd->GetDataAssembly()->SerializeToXML(vtkIndent());
-    *fp << "DATAASSEMBLY " << dataAssemblyStr.size() << "\n";
-    vtkNew<vtkCharArray> dataAssemblyArray;
+    *fp << "DATAASSEMBLY 1 \n";
+    vtkNew<vtkStringArray> dataAssemblyArray;
     dataAssemblyArray->SetName("DataAssembly");
-    dataAssemblyArray->SetNumberOfValues(dataAssemblyStr.size());
-    std::copy(dataAssemblyStr.begin(), dataAssemblyStr.end(), dataAssemblyArray->GetPointer(0));
-    this->WriteArray(fp, VTK_CHAR, dataAssemblyArray, "", dataAssemblyArray->GetNumberOfTuples(),
-      dataAssemblyArray->GetNumberOfComponents());
+    dataAssemblyArray->InsertNextValue(dataAssemblyStr);
+    this->WriteArray(fp, dataAssemblyArray->GetDataType(), dataAssemblyArray, "",
+      dataAssemblyArray->GetNumberOfTuples(), dataAssemblyArray->GetNumberOfComponents());
   }
   else
   {
