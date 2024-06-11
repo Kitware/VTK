@@ -20,6 +20,7 @@
 #include "vtkWebGPUInternalsBindGroupLayout.h"
 #include "vtkWebGPUInternalsBuffer.h"
 #include "vtkWebGPULight.h"
+#include "vtkWebGPUPolyDataMapper.h"
 #include "vtkWebGPURenderWindow.h"
 
 #include <cstring>
@@ -223,6 +224,9 @@ void vtkWebGPURenderer::DeviceRender()
   this->CreateBuffers();
   this->UpdateBufferData();
 
+  this->UpdateComputePipelines();
+  this->ComputePass();
+
   this->BeginEncoding(); // all pipelines execute in single render pass, for now.
   this->ActiveCamera->UpdateViewport(this);
 
@@ -307,6 +311,124 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
   }
   this->NumberOfPropsUpdated += result;
   return result;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::UpdateComputePipelines()
+{
+  vtkWebGPURenderWindow* webGPURenderWindow;
+  webGPURenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  if (webGPURenderWindow == nullptr)
+  {
+    return;
+  }
+
+  for (vtkSmartPointer<vtkWebGPUComputePipeline> computePipeline : this->NotSetupComputePipelines)
+  {
+    computePipeline->SetAdapter(webGPURenderWindow->GetAdapter());
+    computePipeline->SetDevice(webGPURenderWindow->GetDevice());
+
+    this->UpdateComputeBuffers(computePipeline);
+    this->SetupComputePipelines.push_back(computePipeline);
+  }
+
+  this->NotSetupComputePipelines.clear();
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::UpdateComputeBuffers(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline)
+{
+  for (int i = 0; i < this->PropArrayCount; i++)
+  {
+    vtkWebGPUActor* wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
+    if (wgpuActor == nullptr)
+    {
+      continue;
+    }
+
+    vtkWebGPUPolyDataMapper* wgpuMapper =
+      vtkWebGPUPolyDataMapper::SafeDownCast(wgpuActor->GetMapper());
+    if (wgpuMapper == nullptr)
+    {
+      continue;
+    }
+
+    std::vector<vtkSmartPointer<vtkWebGPUComputeRenderBuffer>> renderBufferToRemove;
+    for (auto it = wgpuMapper->NotSetupComputeRenderBuffers.begin();
+         it != wgpuMapper->NotSetupComputeRenderBuffers.end();)
+    {
+      vtkSmartPointer<vtkWebGPUComputeRenderBuffer> renderBuffer;
+      vtkWeakPointer<vtkWebGPUComputePipeline> associatedPipeline;
+
+      renderBuffer = *it;
+      associatedPipeline = renderBuffer->GetAssociatedPipeline();
+      if (associatedPipeline.Get() != pipeline.Get())
+      {
+        // Not the right compute pipeline
+        it++;
+        continue;
+      }
+
+      renderBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_COMPUTE_STORAGE);
+
+      bool erased = false;
+      if (renderBuffer->GetPointBufferAttribute() !=
+        vtkWebGPUPolyDataMapper::PointDataAttributes::POINT_UNDEFINED)
+      {
+        // Point data attribute
+
+        vtkWebGPUPolyDataMapper::PointDataAttributes bufferAttribute =
+          renderBuffer->GetPointBufferAttribute();
+
+        renderBuffer->SetByteSize(wgpuMapper->GetPointAttributeByteSize(bufferAttribute));
+        renderBuffer->SetRenderBufferOffset(
+          wgpuMapper->GetPointAttributeByteOffset(bufferAttribute) / sizeof(float));
+        renderBuffer->SetRenderBufferElementCount(
+          wgpuMapper->GetPointAttributeByteSize(bufferAttribute) /
+          wgpuMapper->GetPointAttributeElementSize(bufferAttribute));
+
+        renderBuffer->SetWGPUBuffer(wgpuMapper->GetPointDataWGPUBuffer());
+
+        it = wgpuMapper->NotSetupComputeRenderBuffers.erase(it);
+        erased = true;
+      }
+      else if (renderBuffer->GetCellBufferAttribute() != vtkWebGPUPolyDataMapper::CELL_UNDEFINED)
+      {
+        // Cell data attribute
+
+        vtkWebGPUPolyDataMapper::CellDataAttributes bufferAttribute =
+          renderBuffer->GetCellBufferAttribute();
+
+        renderBuffer->SetByteSize(wgpuMapper->GetCellAttributeByteSize(bufferAttribute));
+        renderBuffer->SetRenderBufferOffset(
+          wgpuMapper->GetCellAttributeByteOffset(bufferAttribute) / sizeof(float));
+        renderBuffer->SetRenderBufferElementCount(
+          wgpuMapper->GetCellAttributeByteSize(bufferAttribute) /
+          wgpuMapper->GetCellAttributeElementSize(bufferAttribute));
+
+        renderBuffer->SetWGPUBuffer(wgpuMapper->GetCellDataWGPUBuffer());
+
+        // Erasing the element. erase() returns the iterator on the next element after removal
+        it = wgpuMapper->NotSetupComputeRenderBuffers.erase(it);
+        erased = true;
+      }
+      else
+      {
+        vtkLog(ERROR,
+          "Could not determine the attribute represented by the render buffer with label "
+            << renderBuffer->GetLabel());
+      }
+
+      if (!erased)
+      {
+        // We only want to ++ the iterator if we didn't erase an element. If we erased an element,
+        // we already got the next iterator with the value returned by erase()
+        it++;
+      }
+
+      associatedPipeline->SetupRenderBuffer(renderBuffer);
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -471,6 +593,17 @@ void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* vtkNotUsed(w))
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderer::ComputePass()
+{
+  // Executing the compute pipelines before the rendering so that the
+  // render can take the compute pipelines results into account
+  for (vtkSmartPointer<vtkWebGPUComputePipeline> pipeline : this->SetupComputePipelines)
+  {
+    pipeline->Dispatch();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderer::BeginEncoding()
 {
   vtkDebugMacro(<< __func__);
@@ -573,6 +706,12 @@ wgpu::ShaderModule vtkWebGPURenderer::HasShaderCache(const std::string& source)
 void vtkWebGPURenderer::InsertShader(const std::string& source, wgpu::ShaderModule shader)
 {
   this->ShaderCache.emplace(source, shader);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::AddComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline)
+{
+  this->NotSetupComputePipelines.push_back(pipeline);
 }
 
 VTK_ABI_NAMESPACE_END

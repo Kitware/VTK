@@ -18,6 +18,12 @@ Here is a list of currently implemented features:
 9. `vtkXWebGPURenderWindow` is an implementation of `vtkWebGPURenderWindow` that uses X11 for Linux desktop rendering.
 10. Depth testing.
 
+###### Compute shader API
+
+The compute shader API allows offloading work from the CPU onto the GPU using WebGPU compute shaders.
+User-level information about the usage of the API can be found [here](./webgpu-compute-api-user.md).
+Developper-level information about the API can be found [here](./webgpu-compute-api-dev.md).
+
 #### Future work
 Since WebGPU is already an abstraction over graphics APIs, this module doesn't create another level of abstraction. It uses WebGPU's C++ flavor
 for it's object-oriented API and RAII. There are helper classes in the `vtkWebGPUInternals...` files for convenience and to make the bind group

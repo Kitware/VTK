@@ -41,8 +41,17 @@ public:
     LayoutEntryInitializationHelper(const wgpu::BindGroupLayoutEntry& entry);
   };
 
+  /**
+   * Creates the bind group layout from a list of bind group layout entries
+   */
   static wgpu::BindGroupLayout MakeBindGroupLayout(const wgpu::Device& device,
     std::initializer_list<LayoutEntryInitializationHelper> entriesInitializer);
+
+  /**
+   * Creates the bind group layout from a list of bind group layout entries
+   */
+  static wgpu::BindGroupLayout MakeBindGroupLayout(
+    const wgpu::Device& device, const std::vector<wgpu::BindGroupLayoutEntry>& entries);
 };
 VTK_ABI_NAMESPACE_END
 

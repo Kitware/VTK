@@ -3,6 +3,11 @@
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestCellScalarMappedColors.cxx,NO_DATA,NO_VALID
   TestCompositePolyDataMapper.cxx,NO_DATA,NO_VALID
+  TestComputeDoublePipelineRenderBuffer.cxx,NO_DATA
+  TestComputeModifyPointColors.cxx,NO_DATA
+  TestComputeModifyCellColors.cxx,NO_DATA
+  TestComputePipeline.cxx,NO_DATA_,NO_VALID
+  TestComputePipelineUniform.cxx,NO_DATA_,NO_VALID
   TestConesBenchmark.cxx,NO_DATA,NO_VALID
   TestLineRendering.cxx,NO_DATA,NO_VALID
   TestPointScalarMappedColors.cxx,NO_DATA,NO_VALID

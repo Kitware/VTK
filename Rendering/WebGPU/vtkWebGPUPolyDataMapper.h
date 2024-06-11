@@ -9,10 +9,14 @@
 #include "vtkType.h"                  // for types
 #include "vtk_wgpu.h"                 // for webgpu
 
+#include <unordered_set> // for the not set compute render buffers
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkTypeFloat32Array;
 class vtkWebGPURenderWindow;
+class vtkWebGPURenderer;
+class vtkWebGPUComputeRenderBuffer;
 
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUPolyDataMapper : public vtkPolyDataMapper
 {
@@ -20,6 +24,32 @@ public:
   static vtkWebGPUPolyDataMapper* New();
   vtkTypeMacro(vtkWebGPUPolyDataMapper, vtkPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * All the attributes supported by the point data buffer
+   */
+  enum PointDataAttributes : int
+  {
+    POINT_POSITIONS = 0,
+    POINT_COLORS,
+    POINT_NORMALS,
+    POINT_TANGENTS,
+    POINT_UVS,
+    POINT_NB_ATTRIBUTES,
+    POINT_UNDEFINED
+  };
+
+  /**
+   * All the attributes supported by the cell data buffer
+   */
+  enum CellDataAttributes : int
+  {
+    CELL_COLORS = 0,
+    CELL_NORMALS,
+    CELL_EDGES,
+    CELL_NB_ATTRIBUTES,
+    CELL_UNDEFINED
+  };
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
@@ -38,7 +68,7 @@ public:
   void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
-   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * @warning: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
@@ -88,6 +118,32 @@ public:
    */
   void ProcessSelectorPixelBuffers(
     vtkHardwareSelector* sel, std::vector<unsigned int>& pixeloffsets, vtkProp* prop) override;
+
+  /**
+   * Returns an already configured (ready to be added to a vtkWebGPUComputePipeline) buffer bound to
+   * the given group and binding.
+   *
+   * All point data (positions, normals, colors, ...) of this mapper is contained within the single
+   * returned buffer. To access the requested (specified by 'attribute') part of the buffer, an
+   * offset and a length are automatically bound as uniforms on the 'uniformsGroups' and
+   * 'uniformsBinding' given.
+   * The offset can then be used in the shader to access the relevant part of the buffer while the
+   * length can be used for bounds checking
+   *
+   * @warning: The returned buffer is already configured and should immediately be inserted into a
+   * compute pipeline via vtkWebGPUComputePipeline::AddBuffer() without further modifications
+   * through vtkWebGPUComputeBuffer setter methods (other than SetLabel())
+   */
+  vtkSmartPointer<vtkWebGPUComputeRenderBuffer> AcquirePointAttributeComputeRenderBuffer(
+    PointDataAttributes attribute, int bufferGroup, int bufferBinding, int uniformsGroup,
+    int uniformsBinding);
+
+  /**
+   * Same as AcquirePointAttributeComputeRenderBuffer but for cell data attributes
+   */
+  vtkSmartPointer<vtkWebGPUComputeRenderBuffer> AcquireCellAttributeComputeRenderBuffer(
+    CellDataAttributes attribute, int bufferGroup, int bufferBinding, int uniformsGroup,
+    int uniformsBinding);
 
 protected:
   vtkWebGPUPolyDataMapper();
@@ -221,6 +277,77 @@ protected:
   vtkDataArray* LastColors = nullptr;
 
 private:
+  friend class vtkWebGPUComputeRenderBuffer;
+  friend class vtkWebGPURenderer;
+
+  /**
+   * Returns the wgpu::Buffer containing the point data attributes of this mapper
+   */
+  wgpu::Buffer GetPointDataWGPUBuffer() { return this->MeshSSBO.Point.Buffer; }
+
+  /**
+   * Returns the wgpu::Buffer containing the cell data attributes of this mapper
+   */
+  wgpu::Buffer GetCellDataWGPUBuffer() { return this->MeshSSBO.Cell.Buffer; }
+
+  /**
+   * List of the RenderBuffers created by calls to AcquirePointAttributeComputeRenderBuffer(). This
+   * list is used in the vtkWebGPURenderer where these render buffers are actually going to be set
+   * up / created on the device.
+   * This list only contains buffers that have been set up.
+   */
+  std::vector<vtkSmartPointer<vtkWebGPUComputeRenderBuffer>> SetupComputeRenderBuffers;
+
+  /**
+   * Compute render buffers that yet have to be set up on their compute pipelines
+   */
+  std::unordered_set<vtkSmartPointer<vtkWebGPUComputeRenderBuffer>> NotSetupComputeRenderBuffers;
+
+  /**
+   * Order in which the point data attributes are concatenated into the mapper mesh SSBO
+   */
+  const PointDataAttributes PointDataAttributesOrder[PointDataAttributes::POINT_NB_ATTRIBUTES] = {
+    PointDataAttributes::POINT_POSITIONS, PointDataAttributes::POINT_COLORS,
+    PointDataAttributes::POINT_NORMALS, PointDataAttributes::POINT_TANGENTS,
+    PointDataAttributes::POINT_UVS
+  };
+
+  /**
+   * Order in which the cell data attributes are concatenated into the mapper mesh SSBO
+   */
+  const CellDataAttributes CellDataAttributesOrder[CellDataAttributes::CELL_NB_ATTRIBUTES] = {
+    CellDataAttributes::CELL_EDGES, CellDataAttributes::CELL_COLORS,
+    CellDataAttributes::CELL_NORMALS
+  };
+
+  ///@{
+  /**
+   * Returns the size of the 'sub-buffer' within the whole point/cell data SSBO for the given
+   * attribute
+   */
+  unsigned long GetPointAttributeByteSize(vtkWebGPUPolyDataMapper::PointDataAttributes attribute);
+  unsigned long GetCellAttributeByteSize(vtkWebGPUPolyDataMapper::CellDataAttributes attribute);
+  ///@}
+
+  ///@{
+  /**
+   * Returns the size in bytes of one element of the given attribute.
+   * 4 * sizeof(float) for an RGBA color attribute for example
+   */
+  unsigned long GetPointAttributeElementSize(
+    vtkWebGPUPolyDataMapper::PointDataAttributes attribute);
+  unsigned long GetCellAttributeElementSize(vtkWebGPUPolyDataMapper::CellDataAttributes attribute);
+  ///@}
+
+  ///@{
+  /**
+   * Returns the offset at which the 'sub-buffer' of 'attribute' starts within the mesh SSBO point
+   * data buffer
+   */
+  vtkIdType GetPointAttributeByteOffset(PointDataAttributes attribute);
+  vtkIdType GetCellAttributeByteOffset(CellDataAttributes attribute);
+  ///@}
+
   vtkWebGPUPolyDataMapper(const vtkWebGPUPolyDataMapper&) = delete;
   void operator=(const vtkWebGPUPolyDataMapper&) = delete;
 };

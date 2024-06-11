@@ -8,6 +8,9 @@ set(classes
   vtkWebGPUActor
   vtkWebGPUCamera
   vtkWebGPUClearPass
+  vtkWebGPUComputePipeline
+  vtkWebGPUComputeBuffer
+  vtkWebGPUComputeRenderBuffer
   vtkWebGPUHardwareSelector
   vtkWebGPULight
   vtkWebGPURenderWindow
@@ -20,6 +23,8 @@ set(private_classes
   vtkWebGPUInternalsBindGroup
   vtkWebGPUInternalsBindGroupLayout
   vtkWebGPUInternalsBuffer
+  vtkWebGPUInternalsCallbacks
+  vtkWebGPUInternalsComputeBuffer
   vtkWebGPUInternalsPipelineLayout
   vtkWebGPUInternalsRenderPassCreateInfo
   vtkWebGPUInternalsRenderPassDescriptor
@@ -55,10 +60,19 @@ set(webgpu_overrides
 )
 
 unset(wgsl_shader_sources)
-unset(wgsl_shader_headers)
-set(shader_files
+unset(private_wgsl_shader_headers)
+unset(public_wgsl_shader_headers)
+set(private_shader_files
   wgsl/PolyData.wgsl)
-foreach (file IN LISTS shader_files)
+
+set(public_shader_files
+  Testing/Cxx/TestShaders/TestComputePipelineShader.wgsl
+  Testing/Cxx/TestShaders/TestComputePipelineUniformShader.wgsl
+  Testing/Cxx/TestShaders/TestComputeModifyPointColorsShader.wgsl
+  Testing/Cxx/TestShaders/TestComputeModifyPointPositionsShader.wgsl
+  Testing/Cxx/TestShaders/TestComputeModifyCellColorsShader.wgsl)
+
+foreach (file IN LISTS private_shader_files)
   vtk_encode_string(
     INPUT         "${file}"
     EXPORT_SYMBOL "VTKRENDERINGWEBGPU_NO_EXPORT"
@@ -67,9 +81,25 @@ foreach (file IN LISTS shader_files)
     SOURCE_OUTPUT source)
   list(APPEND wgsl_shader_sources
     "${source}")
-  list(APPEND wgsl_shader_headers
+  list(APPEND private_wgsl_shader_headers
     "${header}")
 endforeach ()
+
+foreach(file IN LISTS public_shader_files)
+  vtk_encode_string(
+    INPUT         "${file}"
+    EXPORT_SYMBOL "VTKRENDERINGWEBGPU_EXPORT"
+    EXPORT_HEADER "vtkRenderingWebGPUModule.h"
+    HEADER_OUTPUT header
+    SOURCE_OUTPUT source
+    ABI_MANGLE_HEADER       "vtkABINamespace.h"
+    ABI_MANGLE_SYMBOL_BEGIN "VTK_ABI_NAMESPACE_BEGIN"
+    ABI_MANGLE_SYMBOL_END   "VTK_ABI_NAMESPACE_END")
+  list(APPEND wgsl_shader_sources
+    "${source}")
+  list(APPEND public_wgsl_shader_headers
+    "${header}")
+endforeach()
 
 foreach (webgpu_override IN LISTS webgpu_overrides)
   vtk_object_factory_declare(
@@ -153,7 +183,8 @@ vtk_module_add_module(VTK::RenderingWebGPU
   PRIVATE_CLASSES ${private_classes}
   SOURCES ${vtk_object_factory_source} ${sources} ${wgsl_shader_sources}
   HEADERS ${headers}
-  PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${wgsl_shader_headers})
+  NOWRAP_HEADERS ${public_wgsl_shader_headers}
+  PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${private_wgsl_shader_headers})
 
 vtk_module_compile_features(VTK::RenderingWebGPU
   PUBLIC
