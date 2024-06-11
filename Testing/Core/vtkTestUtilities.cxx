@@ -21,6 +21,7 @@
 #include "vtkFieldData.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridCellCenters.h"
+#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
@@ -150,7 +151,6 @@ template <>
 struct DataObjectTraits<vtkHyperTreeGrid>
 {
   static constexpr bool IsStructured = false;
-  static constexpr bool IsRectilinear = true;
   static constexpr bool HasPoints = false;
   static constexpr bool HasCells = true;
   using BaseMapper = DummyMapper;
@@ -1280,15 +1280,6 @@ typename std::enable_if<DataObjectTraits<DataSetT>::HasPoints == true, bool>::ty
 }
 
 //----------------------------------------------------------------------------
-template <class FieldDataT = void, class DataObjectT, class PointMapperT>
-typename std::enable_if<DataObjectTraits<DataObjectT>::HasPoints == false, bool>::type
-TestPointData(DataObjectT*, DataObjectT*, PointMapperT&&, double)
-{
-  // No point data, always succeeding.
-  return true;
-}
-
-//----------------------------------------------------------------------------
 template <class FieldDataT = void, class DataObjectT>
 bool TestPoints(DataObjectT* ds1, DataObjectT* ds2, double toleranceFactor)
 {
@@ -1377,18 +1368,11 @@ void AddArrayCopyWithUniqueNameToFieldData(std::string nameRoot, vtkDataArray* a
 }
 
 //----------------------------------------------------------------------------
-void AddCellMetaDataToCellDataImpl(vtkHyperTreeGrid* out1, vtkHyperTreeGrid* out2)
+void AddCellMetaDataToCellDataImpl(
+  vtkHyperTreeGrid* vtkNotUsed(out1), vtkHyperTreeGrid* vtkNotUsed(out2))
 {
-  vtkBitArray* mask1 = out1->GetMask();
-  vtkBitArray* mask2 = out2->GetMask();
-
-  if (!mask1 || !mask2)
-  {
-    return;
-  }
-
-  AddArrayCopyWithUniqueNameToFieldData(
-    "mask_", mask1, mask2, out1->GetCellData(), out2->GetCellData());
+  // No special array to handle for HTG, the mask being used during tree iteration,
+  // it does not need to be compared value-by-value
 }
 
 //----------------------------------------------------------------------------
@@ -1571,6 +1555,165 @@ struct TestDataObjectsImpl<vtkTable>
     {
       vtkLog(ERROR, "Failed to match the 2 input data objects of type vtkTable.");
       return false;
+    }
+    return true;
+  }
+};
+
+//============================================================================
+/**
+ * Recursively check if the trees pointed by the 2 cursors have
+ * the same structure and associated data.
+ */
+bool CheckTreeEqual(vtkHyperTreeGridNonOrientedGeometryCursor* cursor1,
+  vtkHyperTreeGridNonOrientedGeometryCursor* cursor2, vtkCellData* data1, vtkCellData* data2)
+{
+  vtkIdType currentId1 = cursor1->GetGlobalNodeIndex();
+  vtkIdType currentId2 = cursor2->GetGlobalNodeIndex();
+
+  // Match mask status
+  if (cursor1->IsMasked() != cursor2->IsMasked())
+  {
+    vtkLog(ERROR, "Mismatched mask status for ids " << currentId1 << "/" << currentId2);
+    return false;
+  }
+
+  if (cursor1->IsMasked())
+  {
+    // Ignore masked cell
+    return true;
+  }
+
+  for (int id = 0; id < data1->GetNumberOfArrays(); ++id)
+  {
+    vtkDataArray* array1 = vtkArrayDownCast<vtkDataArray>(data1->GetAbstractArray(id));
+    vtkDataArray* array2 =
+      array1 ? vtkArrayDownCast<vtkDataArray>(data2->GetAbstractArray(array1->GetName())) : nullptr;
+    if (!array1 || !array2)
+    {
+      vtkLog(ERROR, "Cannot process arrays.");
+      return false;
+    }
+
+    // Compare a single value using the vtkDataArray API
+    int ncomps = array1->GetNumberOfComponents();
+    if (ncomps != array2->GetNumberOfComponents())
+    {
+      vtkLog(ERROR, "Mismatched number of composants in array " << array1->GetName());
+      return false;
+    }
+    double* tuple1 = array1->GetTuple(currentId1);
+    double* tuple2 = array2->GetTuple(currentId2);
+    for (int comp = 0; comp < ncomps; comp++)
+    {
+      if (tuple1[comp] != tuple2[comp])
+      {
+        vtkLog(ERROR, "Array mismatch for " << array1->GetName() << " in input HyperTreeGrid");
+        return false;
+      }
+    }
+  }
+
+  // Match leaf status
+  if (cursor1->IsLeaf() != cursor2->IsLeaf())
+  {
+    vtkLog(ERROR, "Mismatched leaves" << currentId1 << "/" << currentId2);
+    return false;
+  }
+
+  if (cursor1->IsLeaf())
+  {
+    return true;
+  }
+
+  if (cursor1->GetNumberOfChildren() != cursor2->GetNumberOfChildren())
+  {
+    vtkLog(ERROR, "Mismatched number of children");
+    return false;
+  }
+
+  // Recurse over children
+  bool result = true;
+  for (int child = 0; child < cursor1->GetNumberOfChildren(); ++child)
+  {
+    cursor1->ToChild(child);
+    cursor2->ToChild(child);
+    result &= ::CheckTreeEqual(cursor1, cursor2, data1, data2);
+    cursor1->ToParent();
+    cursor2->ToParent();
+  }
+  return result;
+}
+
+/**
+ * HyperTreeGrid needs special comparison, because 2 equivalent HTGs can have a different internal
+ * structure and memory layout. Comparison needs to be done using cursors over each HyperTree.
+ */
+template <>
+struct TestDataObjectsImpl<vtkHyperTreeGrid>
+{
+  static bool Execute(vtkHyperTreeGrid* htg1, vtkHyperTreeGrid* htg2, double toleranceFactor)
+  {
+    if (!TestFieldData(htg1->GetFieldData(), htg2->GetFieldData(),
+          IdentityMapper(htg1->GetFieldData()->GetNumberOfTuples()), toleranceFactor, true))
+    {
+      return false;
+    }
+
+    vtkCellData* data1 = htg1->GetCellData();
+    vtkCellData* data2 = htg2->GetCellData();
+
+    // Compare extent
+    const int* extent1 = htg1->GetExtent();
+    const int* extent2 = htg2->GetExtent();
+    for (int i = 0; i < 5; i++)
+    {
+      if (extent1[i] != extent2[i])
+      {
+        vtkLog(ERROR, "Extent doesn't match between the 2 input vtkHyperTreeGrid");
+        return false;
+      }
+    }
+
+    // Compare dimensions
+    const unsigned int* dims1 = htg1->GetDimensions();
+    const unsigned int* dims2 = htg2->GetDimensions();
+    for (int i = 0; i < 3; i++)
+    {
+      if (dims1[i] != dims2[i])
+      {
+        vtkLog(ERROR, "Dimension doesn't match between the 2 input vtkHyperTreeGrid");
+        return false;
+      }
+    }
+
+    if (htg1->GetOrientation() != htg2->GetOrientation())
+    {
+      vtkLog(ERROR, "Orientation doesn't match between the 2 input vtkHyperTreeGrid");
+      return false;
+    }
+
+    if (data1->GetNumberOfArrays() != data2->GetNumberOfArrays())
+    {
+      vtkLog(ERROR, "Number of arrays doesn't match between the 2 input vtkHyperTreeGrid");
+      return false;
+    }
+
+    // Iterate over HTGs
+    vtkIdType indexHTG1 = 0, indexHTG2 = 0;
+    vtkHyperTreeGrid::vtkHyperTreeGridIterator iterator1, iterator2;
+    htg1->InitializeTreeIterator(iterator1);
+    htg2->InitializeTreeIterator(iterator2);
+    vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor1, cursor2;
+    while (iterator1.GetNextTree(indexHTG1) && iterator2.GetNextTree(indexHTG2))
+    {
+      htg1->InitializeNonOrientedGeometryCursor(cursor1, indexHTG1);
+      htg2->InitializeNonOrientedGeometryCursor(cursor2, indexHTG2);
+
+      if (!::CheckTreeEqual(cursor1, cursor2, data1, data2))
+      {
+        return false;
+      }
     }
     return true;
   }

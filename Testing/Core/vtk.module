@@ -15,7 +15,9 @@ PRIVATE_DEPENDS
   VTK::FiltersHyperTree
 TEST_DEPENDS
   VTK::FiltersCore
+  VTK::FiltersSources
   VTK::FiltersHyperTree
+  VTK::FiltersParallelDIY2
   VTK::ImagingCore
   VTK::IOXML
   VTK::TestingRendering
