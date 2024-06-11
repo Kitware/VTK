@@ -95,6 +95,8 @@ int TestFLUENTReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  // Note: fluent_quad.msh contains some variations in line formats so this is also a test
+  // about whether we can robustly read different formats
   if (!::TestFLUENTReaderMSHSurfaceAscii(GetFilePath(argc, argv, "Data/fluent_quad.msh")))
   {
     return EXIT_FAILURE;
