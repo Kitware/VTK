@@ -35,9 +35,124 @@ vtkStandardNewMacro(vtkGhostCellsGenerator);
 vtkCxxSetObjectMacro(vtkGhostCellsGenerator, Controller, vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
+struct vtkGhostCellsGenerator::StaticMeshCache
+{
+  // Output with ghost cells already generated
+  vtkSmartPointer<vtkDataObject> Cache;
+  vtkMTimeType CachedMeshMTime = 0;
+  bool Initialized = false;
+};
+
+//----------------------------------------------------------------------------
+/**
+ * Interface to dispatch work over every contained vtkDataSet.
+ * If input is a vtkDataSet subclass, forward it directly to
+ * ComputeDataSet.
+ * If input is a vtkDataObjectTree subclass, iterate over
+ * inner non empty vtkDataSet leaves.
+ * @note From vtkDataObjectMeshCache
+ */
+struct GenericDataObjectWorker
+{
+  virtual ~GenericDataObjectWorker() = default;
+
+  /**
+   * Entry point. In the end, call ComputeDataSet for every
+   * contained vtkDataSet.
+   */
+  void Compute(vtkDataObject* dataobject)
+  {
+    auto dataset = vtkDataSet::SafeDownCast(dataobject);
+    if (dataset)
+    {
+      this->ComputeDataSet(dataset);
+      return;
+    }
+    auto composite = vtkDataObjectTree::SafeDownCast(dataobject);
+    if (composite)
+    {
+      this->ComputeComposite(composite);
+      return;
+    }
+
+    this->SkippedData = true;
+  }
+
+  /**
+   * Iterate over inner vtkDataSet to call ComputeDataSet
+   */
+  void ComputeComposite(vtkDataObjectTree* composite)
+  {
+    auto options = vtk::DataObjectTreeOptions::TraverseSubTree |
+      vtk::DataObjectTreeOptions::SkipEmptyNodes | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
+    for (auto dataLeaf : vtk::Range(composite, options))
+    {
+      auto dataset = vtkDataSet::SafeDownCast(dataLeaf);
+      if (dataset)
+      {
+        this->ComputeDataSet(dataset);
+      }
+      else
+      {
+        this->SkippedData = true;
+      }
+    }
+  }
+
+  /**
+   * To be reimplemented to do the actual work.
+   * Will be called multiple times for composite.
+   */
+  virtual void ComputeDataSet(vtkDataSet* dataset) = 0;
+
+  bool SkippedData = false;
+};
+
+/**
+ * Worker to compute mesh mtime.
+ * For composite, return the max value.
+ * @note From vtkDataObjectMeshCache
+ */
+struct MeshMTimeWorker : public GenericDataObjectWorker
+{
+  ~MeshMTimeWorker() override = default;
+
+  void ComputeDataSet(vtkDataSet* dataset) override
+  {
+    auto polydata = vtkPolyData::SafeDownCast(dataset);
+    auto ugrid = vtkUnstructuredGrid::SafeDownCast(dataset);
+
+    if (polydata)
+    {
+      this->MeshTime = std::max(this->MeshTime, polydata->GetMeshMTime());
+    }
+
+    if (ugrid)
+    {
+      this->MeshTime = std::max(this->MeshTime, ugrid->GetMeshMTime());
+    }
+  }
+
+  vtkMTimeType MeshTime = 0;
+};
+
+/**
+ * @brief Helper to get the Mesh Modified time of any type of dataset
+ * @note From vtkDataObjectMeshCache
+ * @note No longer necessary when vtkCompositeDataset / vtkDataset support GetMeshMTime themselves
+ */
+vtkMTimeType GetMeshMTime(vtkDataObject* input)
+{
+  MeshMTimeWorker meshtime;
+  meshtime.Compute(input);
+  return meshtime.MeshTime;
+}
+
+//----------------------------------------------------------------------------
 vtkGhostCellsGenerator::vtkGhostCellsGenerator()
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
+  this->MeshCache = std::make_shared<StaticMeshCache>();
 }
 
 //----------------------------------------------------------------------------
@@ -82,7 +197,6 @@ int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  bool error = false;
   int retVal = 1;
 
   vtkSmartPointer<vtkDataObject> modifInputDO =
@@ -105,9 +219,53 @@ int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector
     modifInputDO->ShallowCopy(gidGenerator->GetOutputDataObject(0));
   }
 
+  int reqGhostLayers =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+
+  if (this->UseStaticMeshCache)
+  {
+    if (!this->MeshCache->Initialized)
+    {
+      this->MeshCache->Cache.TakeReference(inputDO->NewInstance());
+      this->MeshCache->Initialized = true;
+      this->MeshCache->CachedMeshMTime = 0;
+    }
+
+    vtkMTimeType inputMeshMTime = GetMeshMTime(inputDO);
+    if (this->MeshCache->CachedMeshMTime < inputMeshMTime)
+    {
+      // Generate ghost cells and cache them
+      retVal &= this->GenerateGhostCells(inputDO, this->MeshCache->Cache, reqGhostLayers, false);
+      this->MeshCache->CachedMeshMTime = inputMeshMTime;
+
+      outputDO->ShallowCopy(this->MeshCache->Cache);
+    }
+    else
+    {
+      // Sync only
+      retVal &= this->GenerateGhostCells(inputDO, this->MeshCache->Cache, reqGhostLayers, true);
+      outputDO->ShallowCopy(this->MeshCache->Cache);
+    }
+  }
+  else
+  {
+    retVal &=
+      this->GenerateGhostCells(modifInputDO, outputDO, reqGhostLayers, this->SynchronizeOnly);
+  }
+
+  return retVal;
+}
+
+//----------------------------------------------------------------------------
+int vtkGhostCellsGenerator::GenerateGhostCells(
+  vtkDataObject* inputDO, vtkDataObject* outputDO, int reqGhostLayers, bool syncOnly)
+{
+  bool error = false;
+  int retVal = 1;
+
   std::vector<vtkDataObject*> inputPDSs, outputPDSs;
 
-  if (auto inputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(modifInputDO))
+  if (auto inputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO))
   {
     auto outputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(outputDO);
     outputPDSC->CopyStructure(inputPDSC);
@@ -120,7 +278,7 @@ int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector
   }
   else
   {
-    inputPDSs.emplace_back(modifInputDO);
+    inputPDSs.emplace_back(inputDO);
     outputPDSs.emplace_back(outputDO);
   }
 
@@ -181,7 +339,7 @@ int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector
     // point.
     bool canSyncCell = false;
     bool canSyncPoint = false;
-    if (this->SynchronizeOnly &&
+    if (syncOnly &&
       vtkGhostCellsGenerator::CanSynchronize(inputPartition, canSyncCell, canSyncPoint))
     {
       std::vector<vtkDataSet*> inputsDS =
@@ -193,8 +351,6 @@ int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector
     }
     else
     {
-      int reqGhostLayers =
-        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
       int numberOfGhostLayersToCompute = this->BuildIfRequired
         ? reqGhostLayers
         : std::max(reqGhostLayers, this->NumberOfGhostLayers);

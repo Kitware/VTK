@@ -78,6 +78,8 @@
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
 #include "vtkWeakPointer.h"               // for vtkWeakPointer
 
+#include <memory> // for std::shared_ptr
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkMultiProcessController;
@@ -162,6 +164,20 @@ public:
   vtkBooleanMacro(SynchronizeOnly, bool);
   ///@}
 
+  ///@{
+  /**
+   * Specify if the filter should keep a cache of the input geometry.
+   * Ghost cells will be generated once on the first update, and following updates
+   * will only regenerate them if the input mesh has changed.
+   * This should allow speedups in cases where the mesh is the same, at the cost of
+   * increased memory footprint.
+   * Default is FALSE.
+   */
+  vtkSetMacro(UseStaticMeshCache, bool);
+  vtkGetMacro(UseStaticMeshCache, bool);
+  vtkBooleanMacro(UseStaticMeshCache, bool);
+  ///@}
+
 protected:
   vtkGhostCellsGenerator();
   ~vtkGhostCellsGenerator() override;
@@ -185,6 +201,8 @@ protected:
   bool BuildIfRequired = true;
 
 private:
+  struct StaticMeshCache;
+
   vtkGhostCellsGenerator(const vtkGhostCellsGenerator&) = delete;
   void operator=(const vtkGhostCellsGenerator&) = delete;
 
@@ -196,9 +214,15 @@ private:
    */
   bool CanSynchronize(vtkDataObject* input, bool& canSyncCell, bool& canSyncPoint);
 
+  int GenerateGhostCells(
+    vtkDataObject* input, vtkDataObject* output, int reqGhostLayers, bool syncOnly);
+
   bool GenerateGlobalIds = false;
   bool GenerateProcessIds = false;
   bool SynchronizeOnly = false;
+
+  bool UseStaticMeshCache = false;
+  std::shared_ptr<StaticMeshCache> MeshCache;
 };
 
 VTK_ABI_NAMESPACE_END
