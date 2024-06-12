@@ -25,26 +25,15 @@ int CellSizeFilter2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE, VTK_BEZIER_TETRAHEDRON, VTK_BEZIER_HEXAHEDRON,
     VTK_BEZIER_WEDGE };
 
-  std::vector<bool> complete;
   for (const auto cellType : SupportedCellTypes)
   {
-
-    if (cellType == VTK_TRIANGLE || cellType == VTK_LAGRANGE_TETRAHEDRON ||
-      cellType == VTK_LAGRANGE_WEDGE)
-    {
-      complete = { false, true };
-    }
-    else
-    {
-      complete = { false };
-    }
-    for (size_t j = 0; j < complete.size(); j++)
+    for (bool complete : { false, true })
     {
       vtkNew<vtkCellTypeSource> cellTypeSource;
       cellTypeSource->SetBlocksDimensions(1, 1, 1);
       cellTypeSource->SetCellOrder(2);
       cellTypeSource->SetCellType(cellType);
-      cellTypeSource->SetCompleteQuadraticSimplicialElements(complete[j]);
+      cellTypeSource->SetCompleteQuadraticSimplicialElements(complete);
       vtkNew<vtkCellSizeFilter> filter;
       filter->SetInputConnection(cellTypeSource->GetOutputPort());
       filter->ComputeSumOn();
