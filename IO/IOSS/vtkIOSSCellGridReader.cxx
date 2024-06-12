@@ -88,7 +88,7 @@ vtkIOSSCellGridReader::vtkIOSSCellGridReader()
   this->Internals = new vtkIOSSCellGridReaderInternal(this);
 }
 
-vtkIOSSCellGridReader::~vtkIOSSCellGridReader() {}
+vtkIOSSCellGridReader::~vtkIOSSCellGridReader() = default;
 
 int vtkIOSSCellGridReader::ReadMetaData(vtkInformation* metadata)
 {

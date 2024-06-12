@@ -20,7 +20,6 @@
 #include "vtkTypeInt32Array.h"
 #include "vtkVectorOperators.h"
 
-#include "vtkPolyData.h"
 #include "vtkXMLPolyDataWriter.h"
 
 #include "vtkCellGridWriter.h"
@@ -205,9 +204,9 @@ bool EvaluateBasisFunctions(vtkCellGrid* grid, vtkDGCell* dgCell)
     icalc->EvaluateDerivative(/* cell */ 0, rst, value, 1e-5);
 
     verts->InsertNextCell(1, &ii);
-    ddr->SetTuple(ii, &value[0]);
-    dds->SetTuple(ii, &value[3]);
-    ddt->SetTuple(ii, &value[6]);
+    ddr->SetTuple(ii, value.data());
+    dds->SetTuple(ii, value.data() + 3);
+    ddt->SetTuple(ii, value.data() + 6);
   }
 
   std::string fname = vtkDGCell::GetShapeName(dgCell->GetShape()).Data();

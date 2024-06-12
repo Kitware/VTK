@@ -222,7 +222,7 @@ public:
   virtual bool AddAllSourceCellAttributeIds();
 
   /// Return the set of attribute IDs scheduled to be copied when the query is run.
-  const std::set<int> GetCellAttributeIds() const { return this->CellAttributeIds; }
+  const std::set<int>& GetCellAttributeIds() const { return this->CellAttributeIds; }
 
   /// Populate \a ids with the attribute IDs scheduled to be copied when the query is run.
   void GetCellAttributeIds(vtkIdList* ids) const;

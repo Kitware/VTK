@@ -549,9 +549,10 @@ std::vector<int> vtkCellGrid::GetUnorderedCellAttributeIds() const
 std::vector<vtkSmartPointer<vtkCellAttribute>> vtkCellGrid::GetCellAttributeList() const
 {
   std::vector<vtkSmartPointer<vtkCellAttribute>> result;
+  result.reserve(this->Attributes.size());
   for (const auto& entry : this->Attributes)
   {
-    result.push_back(entry.second);
+    result.emplace_back(entry.second);
   };
   return result;
 }
