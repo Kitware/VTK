@@ -83,11 +83,15 @@ protected:
    */
   void CloseSocket(int socketdescriptor);
 
+  ///@{
   /**
-   * Binds socket to a particular port.
+   * Binds socket to a particular port and IPv4 address if specified.
+   * `bindAddr` defaults to INADDR_ANY (0.0.0.0) if not specified.
    * Returns 0 on success other -1 is returned.
    */
+  int BindSocket(int socketdescriptor, int port, const std::string& bindAddr);
   int BindSocket(int socketdescriptor, int port);
+  ///@}
 
   /**
    * Selects a socket ie. waits for it to change status.

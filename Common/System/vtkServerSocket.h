@@ -22,11 +22,15 @@ public:
   vtkTypeMacro(vtkServerSocket, vtkSocket);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
   /**
-   * Creates a server socket at a given port and binds to it.
+   * Creates a server socket at a given port and binds given IPV4 address to it.
+   * `bindAddr` defaults to INADDR_ANY (0.0.0.0) if not specified.
    * Returns -1 on error. 0 on success.
    */
+  int CreateServer(int port, const std::string& bindAddr);
   int CreateServer(int port);
+  ///@}
 
   /**
    * Waits for a connection. When a connection is received
