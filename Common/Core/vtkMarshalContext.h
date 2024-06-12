@@ -23,8 +23,8 @@
 #include "vtkWeakPointer.h"      // for vtkWeakPointer
 
 // clang-format off
-#include "vtk_nlohmannjson.h"            // for json
-#include VTK_NLOHMANN_JSON(json_fwd.hpp) // for json
+#include "vtk_nlohmannjson.h"        // for json
+#include VTK_NLOHMANN_JSON(json.hpp) // for json
 // clang-format on
 
 #include <memory> // for unique_ptr

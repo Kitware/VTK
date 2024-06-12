@@ -28,7 +28,7 @@
 
 // clang-format off
 #include "vtk_nlohmannjson.h"
-#include VTK_NLOHMANN_JSON(json_fwd.hpp)
+#include VTK_NLOHMANN_JSON(json.hpp)
 // clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN
