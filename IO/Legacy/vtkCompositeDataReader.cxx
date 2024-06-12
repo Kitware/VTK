@@ -4,7 +4,6 @@
 
 #include "vtkAMRBox.h"
 #include "vtkAMRInformation.h"
-#include "vtkCharArray.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
@@ -22,6 +21,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkUniformGrid.h"
 
 #include <sstream>
@@ -685,23 +685,23 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkPartitionedDataSetCollection* 
     return false;
   }
 
-  unsigned int dataAssemblySize = 0;
-  if (!this->Read(&dataAssemblySize))
+  unsigned int hasDataAssembly = 0;
+  if (!this->Read(&hasDataAssembly))
   {
-    vtkErrorMacro("Failed to read the DATAASSEMBLY size.");
+    vtkErrorMacro("Failed to read if it has DATAASSEMBLY.");
     return false;
   }
-  if (dataAssemblySize > 0)
+  if (hasDataAssembly > 0)
   {
-    auto dataAssemblyArray = vtk::TakeSmartPointer(
-      vtkCharArray::SafeDownCast(this->ReadArray("char", dataAssemblySize, 1)));
+    auto dataAssemblyArray =
+      vtk::TakeSmartPointer(vtkStringArray::SafeDownCast(this->ReadArray("string", 1, 1)));
     if (!dataAssemblyArray)
     {
       vtkErrorMacro("Failed to read the DATAASSEMBLY.");
       return false;
     }
     vtkNew<vtkDataAssembly> dataAssembly;
-    dataAssembly->InitializeFromXML(dataAssemblyArray->GetPointer(0));
+    dataAssembly->InitializeFromXML(dataAssemblyArray->GetValue(0).c_str());
     mp->SetDataAssembly(dataAssembly);
   }
 
