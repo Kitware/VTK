@@ -539,7 +539,7 @@ int vtkFLUENTReader::GetCaseIndex()
   std::string sindex;
 
   int i = 1;
-  while (this->CaseBuffer.at(i) != ' ')
+  while (this->CaseBuffer.at(i) != ' ' && this->CaseBuffer.at(i) != '(')
   {
     sindex += this->CaseBuffer.at(i++);
   }
@@ -552,7 +552,7 @@ int vtkFLUENTReader::GetDataIndex()
   std::string sindex;
 
   int i = 1;
-  while (this->DataBuffer.at(i) != ' ')
+  while (this->DataBuffer.at(i) != ' ' && this->DataBuffer.at(i) != '(')
   {
     sindex += this->DataBuffer.at(i++);
   }
@@ -2401,22 +2401,23 @@ void vtkFLUENTReader::GetLittleEndianFlag()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNodesAscii()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int zoneId, firstIndex, lastIndex;
   int type, nd;
   sscanf(info.c_str(), "%x %x %x %d %d", &zoneId, &firstIndex, &lastIndex, &type, &nd);
 
-  if (this->CaseBuffer.at(5) == '0')
+  if (zoneId == 0)
   {
     this->Points->Allocate(lastIndex);
   }
   else
   {
-    size_t dstart = this->CaseBuffer.find('(', 5);
+    size_t dstart = this->CaseBuffer.find('(', infoEnd);
     size_t dend = this->CaseBuffer.find(')', dstart + 1);
-    std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
+    std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - infoStart - 1);
     std::stringstream pdatastream(pdata);
 
     double x, y, z;
@@ -2445,14 +2446,15 @@ void vtkFLUENTReader::GetNodesAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNodesSinglePrecision()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int zoneId, firstIndex, lastIndex;
   int type;
   sscanf(info.c_str(), "%x %x %x %d", &zoneId, &firstIndex, &lastIndex, &type);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   double x, y, z;
@@ -2491,14 +2493,15 @@ void vtkFLUENTReader::GetNodesSinglePrecision()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNodesDoublePrecision()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int zoneId, firstIndex, lastIndex;
   int type;
   sscanf(info.c_str(), "%x %x %x %d", &zoneId, &firstIndex, &lastIndex, &type);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   if (this->GridDimension == 3)
@@ -2534,11 +2537,12 @@ void vtkFLUENTReader::GetNodesDoublePrecision()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellsAscii()
 {
-  if (this->CaseBuffer.at(5) == '0')
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
+  if (info[0] == '0')
   { // Cell Info
-    size_t start = this->CaseBuffer.find('(', 1);
-    size_t end = this->CaseBuffer.find(')', 1);
-    std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
     unsigned int zoneId, firstIndex, lastIndex;
     int type;
     sscanf(info.c_str(), "%x %x %x %d", &zoneId, &firstIndex, &lastIndex, &type);
@@ -2546,18 +2550,15 @@ void vtkFLUENTReader::GetCellsAscii()
   }
   else
   { // Cell Definitions
-    size_t start = this->CaseBuffer.find('(', 1);
-    size_t end = this->CaseBuffer.find(')', 1);
-    std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
     unsigned int zoneId, firstIndex, lastIndex;
     int type, elementType;
     sscanf(info.c_str(), "%x %x %x %d %d", &zoneId, &firstIndex, &lastIndex, &type, &elementType);
 
     if (elementType == 0)
     {
-      size_t dstart = this->CaseBuffer.find('(', 5);
+      size_t dstart = this->CaseBuffer.find('(', infoEnd);
       size_t dend = this->CaseBuffer.find(')', dstart + 1);
-      std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
+      std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - infoStart - 1);
       std::stringstream pdatastream(pdata);
       for (unsigned int i = firstIndex; i <= lastIndex; i++)
       {
@@ -2587,15 +2588,16 @@ void vtkFLUENTReader::GetCellsAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellsBinary()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int zoneId, firstIndex, lastIndex, type, elementType;
   sscanf(info.c_str(), "%x %x %x %x %x", &zoneId, &firstIndex, &lastIndex, &type, &elementType);
 
   if (elementType == 0)
   {
-    size_t dstart = this->CaseBuffer.find('(', 7);
+    size_t dstart = this->CaseBuffer.find('(', infoEnd);
     size_t ptr = dstart + 1;
     for (unsigned int i = firstIndex; i <= lastIndex; i++)
     {
@@ -2626,12 +2628,12 @@ void vtkFLUENTReader::GetCellsBinary()
 //------------------------------------------------------------------------------
 bool vtkFLUENTReader::GetFacesAscii()
 {
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  if (this->CaseBuffer.at(5) == '0')
+  if (info[0] == '0')
   { // Face Info
-    size_t start = this->CaseBuffer.find('(', 1);
-    size_t end = this->CaseBuffer.find(')', 1);
-    std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
     unsigned int zoneId, firstIndex, lastIndex, bcType;
     sscanf(info.c_str(), "%x %x %x %x", &zoneId, &firstIndex, &lastIndex, &bcType);
 
@@ -2639,15 +2641,12 @@ bool vtkFLUENTReader::GetFacesAscii()
   }
   else
   { // Face Definitions
-    size_t start = this->CaseBuffer.find('(', 1);
-    size_t end = this->CaseBuffer.find(')', 1);
-    std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
     unsigned int zoneId, firstIndex, lastIndex, bcType, faceType;
     sscanf(info.c_str(), "%x %x %x %x %x", &zoneId, &firstIndex, &lastIndex, &bcType, &faceType);
 
-    size_t dstart = this->CaseBuffer.find('(', 7);
+    size_t dstart = this->CaseBuffer.find('(', infoEnd);
     size_t dend = this->CaseBuffer.find(')', dstart + 1);
-    std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
+    std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - infoStart - 1);
     std::stringstream pdatastream(pdata);
 
     int numberOfNodesInFace = 0;
@@ -2716,12 +2715,14 @@ bool vtkFLUENTReader::GetFacesAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetFacesBinary()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int zoneId, firstIndex, lastIndex, bcType, faceType;
   sscanf(info.c_str(), "%x %x %x %x %x", &zoneId, &firstIndex, &lastIndex, &bcType, &faceType);
-  size_t dstart = this->CaseBuffer.find('(', 7);
+
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   int numberOfNodesInFace = 0;
   size_t ptr = dstart + 1;
   for (unsigned int i = firstIndex; i <= lastIndex; i++)
@@ -2812,15 +2813,16 @@ void vtkFLUENTReader::ReadZone()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int firstIndex, lastIndex, periodicZone, shadowZone;
   sscanf(info.c_str(), "%x %x %x %x", &firstIndex, &lastIndex, &periodicZone, &shadowZone);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t dend = this->CaseBuffer.find(')', dstart + 1);
-  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
+  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - infoStart - 1);
   std::stringstream pdatastream(pdata);
 
   int faceIndex1, faceIndex2;
@@ -2835,13 +2837,14 @@ void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetPeriodicShadowFacesBinary()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int firstIndex, lastIndex, periodicZone, shadowZone;
   sscanf(info.c_str(), "%x %x %x %x", &firstIndex, &lastIndex, &periodicZone, &shadowZone);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   // int faceIndex1, faceIndex2;
@@ -2859,15 +2862,16 @@ void vtkFLUENTReader::GetPeriodicShadowFacesBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellTreeAscii()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int cellId0, cellId1, parentZoneId, childZoneId;
   sscanf(info.c_str(), "%x %x %x %x", &cellId0, &cellId1, &parentZoneId, &childZoneId);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t dend = this->CaseBuffer.find(')', dstart + 1);
-  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
+  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - infoStart - 1);
   std::stringstream pdatastream(pdata);
 
   int numberOfKids, kid;
@@ -2887,13 +2891,14 @@ void vtkFLUENTReader::GetCellTreeAscii()
 void vtkFLUENTReader::GetCellTreeBinary()
 {
 
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int cellId0, cellId1, parentZoneId, childZoneId;
   sscanf(info.c_str(), "%x %x %x %x", &cellId0, &cellId1, &parentZoneId, &childZoneId);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   int numberOfKids, kid;
@@ -2914,15 +2919,16 @@ void vtkFLUENTReader::GetCellTreeBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetFaceTreeAscii()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int faceId0, faceId1, parentZoneId, childZoneId;
   sscanf(info.c_str(), "%x %x %x %x", &faceId0, &faceId1, &parentZoneId, &childZoneId);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t dend = this->CaseBuffer.find(')', dstart + 1);
-  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
+  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - infoStart - 1);
   std::stringstream pdatastream(pdata);
 
   int numberOfKids, kid;
@@ -2941,13 +2947,14 @@ void vtkFLUENTReader::GetFaceTreeAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetFaceTreeBinary()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int faceId0, faceId1, parentZoneId, childZoneId;
   sscanf(info.c_str(), "%x %x %x %x", &faceId0, &faceId1, &parentZoneId, &childZoneId);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   int numberOfKids, kid;
@@ -2968,15 +2975,16 @@ void vtkFLUENTReader::GetFaceTreeBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int faceId0, faceId1;
   sscanf(info.c_str(), "%x %x", &faceId0, &faceId1);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t dend = this->CaseBuffer.find(')', dstart + 1);
-  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
+  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - infoStart - 1);
   std::stringstream pdatastream(pdata);
 
   int parentId0, parentId1;
@@ -2993,13 +3001,14 @@ void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetInterfaceFaceParentsBinary()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   unsigned int faceId0, faceId1;
   sscanf(info.c_str(), "%x %x", &faceId0, &faceId1);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   int parentId0, parentId1;
@@ -3018,15 +3027,16 @@ void vtkFLUENTReader::GetInterfaceFaceParentsBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = this->CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = this->CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   int kidId, parentId, numberOfFaces;
   sscanf(info.c_str(), "%d %d %d", &kidId, &parentId, &numberOfFaces);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t dend = this->CaseBuffer.find(')', dstart + 1);
-  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - start - 1);
+  std::string pdata = this->CaseBuffer.substr(dstart + 1, dend - infoStart - 1);
   std::stringstream pdatastream(pdata);
 
   int child, parent;
@@ -3042,13 +3052,14 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationBinary()
 {
-  size_t start = this->CaseBuffer.find('(', 1);
-  size_t end = this->CaseBuffer.find(')', 1);
-  std::string info = CaseBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->CaseBuffer.find('(', 1);
+  size_t infoEnd = this->CaseBuffer.find(')', 1);
+  std::string info = CaseBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+
   int kidId, parentId, numberOfFaces;
   sscanf(info.c_str(), "%d %d %d", &kidId, &parentId, &numberOfFaces);
 
-  size_t dstart = this->CaseBuffer.find('(', 7);
+  size_t dstart = this->CaseBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   int child, parent;
@@ -3892,15 +3903,15 @@ double vtkFLUENTReader::GetDataBufferDouble(int ptr)
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetData(int dataType)
 {
-  size_t start = this->DataBuffer.find('(', 1);
-  size_t end = this->DataBuffer.find(')', 1);
-  std::string info = this->DataBuffer.substr(start + 1, end - start - 1);
+  size_t infoStart = this->DataBuffer.find('(', 1);
+  size_t infoEnd = this->DataBuffer.find(')', 1);
+  std::string info = this->DataBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
   std::stringstream infostream(info);
   int subSectionId, zoneId, size, nTimeLevels, nPhases, firstId, lastId;
   infostream >> subSectionId >> zoneId >> size >> nTimeLevels >> nPhases >> firstId >> lastId;
 
   // Set up stream or pointer to data
-  size_t dstart = this->DataBuffer.find('(', 7);
+  size_t dstart = this->DataBuffer.find('(', infoEnd);
   size_t dend = this->DataBuffer.find(')', dstart + 1);
   std::string pdata = this->DataBuffer.substr(dstart + 1, dend - dstart - 2);
   std::stringstream pdatastream(pdata);
