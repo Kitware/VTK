@@ -1907,19 +1907,26 @@ function (vtk_module_link module)
     PROPERTY "_vtk_module_${module}_kit")
   if (_vtk_link_kit)
     if (_vtk_link_PRIVATE)
+      set(_vtk_link_PRIVATE_seed_args "${_vtk_link_PRIVATE_args}")
+      set(_vtk_link_PRIVATE_args "PRIVATE")
+
       _vtk_private_kit_link_target("${module}"
         CREATE_IF_NEEDED
         SETUP_TARGET_NAME _vtk_link_private_kit_link_target)
       foreach (_vtk_link_private IN LISTS _vtk_link_PRIVATE)
-        set(_vtk_link_private
+        set(_vtk_link_private_for_kit
           "$<LINK_ONLY:${_vtk_link_private}>")
         if (_vtk_link_NO_KIT_EXPORT_IF_SHARED AND BUILD_SHARED_LIBS)
+          set(_vtk_link_private_for_kit
+            "$<BUILD_INTERFACE:${_vtk_link_private_for_kit}>")
           set(_vtk_link_private
             "$<BUILD_INTERFACE:${_vtk_link_private}>")
         endif ()
         target_link_libraries("${_vtk_link_private_kit_link_target}"
           INTERFACE
-            "${_vtk_link_private}")
+            "${_vtk_link_private_for_kit}")
+        list(APPEND _vtk_link_PRIVATE_args
+          "${_vtk_link_private}")
       endforeach ()
     endif ()
   endif ()
