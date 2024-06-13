@@ -53,6 +53,9 @@
     rules:
         - if: '$CI_MERGE_REQUEST_ID'
           when: never
+        - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_PATH == "vtk/vtk"'
+          changes: *code_change
+          when: on_success
         - if: '$CI_PROJECT_PATH == "vtk/vtk"'
           changes: *code_change
           when: delayed
