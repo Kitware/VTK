@@ -71,17 +71,22 @@ vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::Che
   bool debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != nullptr);
 
 #if VTK_MODULE_ENABLE_VTK_PythonInterpreter
-  // Initialize the python interpreter if needed
-  vtkMplStartUpDebugMacro("Initializing Python, if not already.");
-  vtkPythonInterpreter::Initialize();
-  vtkMplStartUpDebugMacro("Attempting to import matplotlib.");
+  if (!Py_IsInitialized())
+  {
+    // Initialize the python interpreter if needed
+    vtkMplStartUpDebugMacro("Initializing Python, if not already.");
+    vtkPythonInterpreter::Initialize();
+  }
 #endif
   if (!Py_IsInitialized())
   {
     // Don't store the result; it might be available if Python is initialized
     // elsewhere later.
+    vtkMplStartUpDebugMacro("Python is not available.");
     return UNAVAILABLE;
   }
+
+  vtkMplStartUpDebugMacro("Attempting to import matplotlib.");
 
   vtkPythonScopeGilEnsurer gilEnsurer;
   if (PyErr_Occurred() || !PyImport_ImportModule("matplotlib") || PyErr_Occurred())
@@ -202,8 +207,11 @@ void vtkMatplotlibMathTextUtilities::CleanupPythonObjects()
 bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 {
 #if VTK_MODULE_ENABLE_VTK_PythonInterpreter
-  // ensure that Python is initialized.
-  vtkPythonInterpreter::Initialize();
+  if (!Py_IsInitialized())
+  {
+    // ensure that Python is initialized.
+    vtkPythonInterpreter::Initialize();
+  }
 #endif
   if (!Py_IsInitialized())
   {
@@ -237,8 +245,11 @@ bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 {
 #if VTK_MODULE_ENABLE_VTK_PythonInterpreter
-  // ensure that Python is initialized.
-  vtkPythonInterpreter::Initialize();
+  if (!Py_IsInitialized())
+  {
+    // ensure that Python is initialized.
+    vtkPythonInterpreter::Initialize();
+  }
 #endif
   if (!Py_IsInitialized())
   {
@@ -272,8 +283,11 @@ bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 bool vtkMatplotlibMathTextUtilities::InitializeFontPropertiesClass()
 {
 #if VTK_MODULE_ENABLE_VTK_PythonInterpreter
-  // ensure that Python is initialized.
-  vtkPythonInterpreter::Initialize();
+  if (!Py_IsInitialized())
+  {
+    // ensure that Python is initialized.
+    vtkPythonInterpreter::Initialize();
+  }
 #endif
   if (!Py_IsInitialized())
   {
