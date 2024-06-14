@@ -27,6 +27,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestBlurAndSobelPasses.cxx
   TestCameraShiftScale.cxx,NO_DATA
   TestCoincident.cxx
+  TestCoincidentFloor.cxx
   TestCompositeDataPointGaussian.cxx,NO_DATA
   TestCompositeDataPointGaussianSelection.cxx,NO_DATA
   TestCompositePolyDataMapper2.cxx,NO_DATA
