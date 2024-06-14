@@ -368,8 +368,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos.*_x86_64")
     list(APPEND test_exclusions
       # MacOS OpenGL issue (intermittent)
-      "^VTK::RenderingCellGridPython-TestCellGridRendering$"
       "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+      "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
+      "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     )
   endif()
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
