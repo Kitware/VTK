@@ -122,7 +122,7 @@ public:
 
   ///@{
   /**
-   * When set, write each time step in different files,
+   * When set, write each time step in a different file,
    * named FileName_without_extension_X.extension, where X is the time step index.
    * If FileName does not have an extension, files are named FileName_X.vtkhdf
    * These individual time files are referenced by the main file using the HDF5 virtual dataset
@@ -136,6 +136,19 @@ public:
    */
   vtkSetMacro(UseExternalTimeSteps, bool);
   vtkGetMacro(UseExternalTimeSteps, bool);
+  ///@}
+
+  ///@{
+  /**
+   * When set, write each partition in a different file,
+   * named FileName_without_extension_partX.extension, where X is the partition index.
+   * If FileName does not have an extension, files are named FileName_partX.vtkhdf
+   * These individual time files are referenced by the main file using the HDF5 virtual dataset
+   * feature, just like the `UseExternalTimeSteps` does.
+   * Default is false.
+   */
+  vtkSetMacro(UseExternalPartitions, bool);
+  vtkGetMacro(UseExternalPartitions, bool);
   ///@}
 
 protected:
@@ -328,6 +341,7 @@ private:
   bool WriteAllTimeSteps = true;
   bool UseExternalComposite = false;
   bool UseExternalTimeSteps = false;
+  bool UseExternalPartitions = false;
   int ChunkSize = 25000;
   int CompressionLevel = 0;
 

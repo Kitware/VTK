@@ -213,17 +213,17 @@ void vtkHDFWriter::WriteData()
 
   if (this->IsTemporal && this->UseExternalTimeSteps)
   {
-    // Write the block data in an external file
+    // Write the time step data in an external file
     std::string timestepSuffix = std::to_string(this->CurrentTimeIndex);
     std::string subFilePath =
       ::getExternalBlockFileName(std::string(this->FileName), timestepSuffix);
     vtkNew<vtkHDFWriter> writer;
     writer->SetInputData(input);
     writer->SetFileName(subFilePath.c_str());
-    // TODO: Copy params function
     writer->SetCompressionLevel(this->CompressionLevel);
     writer->SetChunkSize(this->ChunkSize);
     writer->SetUseExternalComposite(this->UseExternalComposite);
+    writer->SetUseExternalPartitions(this->UseExternalPartitions);
     if (!writer->Write())
     {
       vtkErrorMacro(<< "Could not write timestep file " << subFilePath);
@@ -387,6 +387,32 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
 {
   for (unsigned int partIndex = 0; partIndex < input->GetNumberOfPartitions(); partIndex++)
   {
+    // Write individual partitions in different files
+    if (this->UseExternalPartitions)
+    {
+      std::string partitionSuffix = "part" + std::to_string(partIndex);
+      std::string subFilePath =
+        ::getExternalBlockFileName(std::string(this->FileName), partitionSuffix);
+      vtkNew<vtkHDFWriter> writer;
+      writer->SetInputData(input->GetPartition(partIndex));
+      writer->SetFileName(subFilePath.c_str());
+      writer->SetCompressionLevel(this->CompressionLevel);
+      writer->SetChunkSize(this->ChunkSize);
+      if (!writer->Write())
+      {
+        vtkErrorMacro(<< "Could not write partition file " << subFilePath);
+        return false;
+      }
+      this->Impl->OpenSubfile(subFilePath);
+
+      if (partIndex == input->GetNumberOfPartitions() - 1)
+      {
+        // On the last partition, the implementation creates virtual datasets referencing all
+        // Subfiles. This can only be done once we know the size of all sub-datasets.
+        this->Impl->SetIsLastTimeStep(true);
+      }
+    }
+
     vtkDataSet* partition = input->GetPartition(partIndex);
     this->DispatchDataObject(group, partition, partIndex);
   }
@@ -838,7 +864,7 @@ bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
   {
     hid_t datatype = vtkHDFUtilities::getH5TypeFromVtkType(input->GetPoints()->GetDataType());
     if (!this->Impl->AddOrCreateDataset(
-          group, "Points", H5T_IEEE_F64LE, input->GetPoints()->GetData()))
+          group, "Points", H5T_IEEE_F32LE, input->GetPoints()->GetData()))
     {
       vtkErrorMacro(<< "Can not create points dataset when creating: " << this->FileName);
       return false;
@@ -1033,6 +1059,8 @@ bool vtkHDFWriter::AppendExternalBlock(vtkDataObject* block, std::string& blockN
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputData(block);
   writer->SetFileName(subfileName.c_str());
+  writer->SetCompressionLevel(this->CompressionLevel);
+  writer->SetUseExternalPartitions(this->UseExternalPartitions);
   if (!writer->Write())
   {
     vtkErrorMacro(<< "Could not write block file " << subfileName);

@@ -597,7 +597,8 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
 bool vtkHDFWriter::Implementation::AddOrCreateDataset(
   hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray)
 {
-  if (this->Writer->GetUseExternalTimeSteps() && group != this->StepsGroup)
+  if ((this->Writer->GetUseExternalTimeSteps() || this->Writer->GetUseExternalPartitions()) &&
+    group != this->StepsGroup)
   {
     if (this->IsLastTimeStep)
     {
@@ -692,7 +693,8 @@ bool vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group, const char* n
 {
   // When writing timesteps externally, don't create a dynamic dataset,
   // But create a virtual one on the last step.
-  if (this->Writer->GetUseExternalTimeSteps() && group != this->StepsGroup)
+  if ((this->Writer->GetUseExternalTimeSteps() || this->Writer->GetUseExternalPartitions()) &&
+    group != this->StepsGroup)
   {
     if (std::find(NOT_EXTERNAL.begin(), NOT_EXTERNAL.end(), std::string(name)) ==
       NOT_EXTERNAL.end())
