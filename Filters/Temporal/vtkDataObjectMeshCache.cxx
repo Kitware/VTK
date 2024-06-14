@@ -230,6 +230,10 @@ void vtkDataObjectMeshCache::SetOriginalDataObject(vtkDataObject* input)
     return;
   }
 
+  // Clear existing dataset ptrs
+  this->OriginalCompositeDataSet = nullptr;
+  this->OriginalDataSet = nullptr;
+
   if (vtkCompositeDataSet::SafeDownCast(input))
   {
     vtkWarningMacro("Composite " << input->GetClassName() << " has unsupported block(s).");
