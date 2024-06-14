@@ -14,6 +14,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+
+#include <set>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeArrays);
@@ -108,6 +112,62 @@ int vtkMergeArrays::MergeDataObjectFields(vtkDataObject* input, int idx, vtkData
 int vtkMergeArrays::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkMergeArrays::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  int numberOfInputs = inputVector[0]->GetNumberOfInformationObjects();
+  if (numberOfInputs < 2)
+  {
+    vtkErrorMacro(<< "This filter needs at least 2 inputs.");
+    return 0;
+  }
+
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  // Aggregates time values
+  std::set<double> allTimeSteps;
+  for (int idx = 0; idx < numberOfInputs; ++idx)
+  {
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
+    if (!inInfo)
+    {
+      continue;
+    }
+
+    if (!inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+    {
+      continue;
+    }
+
+    int numberOfTimeSteps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    double* values = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+    for (int step = 0; step < numberOfTimeSteps; step++)
+    {
+      allTimeSteps.insert(values[step]);
+    }
+  }
+
+  if (allTimeSteps.empty())
+  {
+    // Not having any timesteps is fine, just return.
+    return 1;
+  }
+
+  // Forward these timesteps to the output
+  std::vector<double> allTimeStepsVec(allTimeSteps.begin(), allTimeSteps.end());
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), allTimeStepsVec.data(),
+    static_cast<int>(allTimeStepsVec.size()));
+
+  double timeRange[2];
+  timeRange[0] = allTimeStepsVec.front();
+  timeRange[1] = allTimeStepsVec.back();
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
+
   return 1;
 }
 
