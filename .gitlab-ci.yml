@@ -403,7 +403,7 @@ wasm32-emscripten-linux-chrome:test:
 wasm32-emscripten:package:
     extends:
         - .wasm32_emscripten_linux_chrome
-        - .cmake_package_wasm32_emscripten_linux
+        - .cmake_package_wasm_emscripten_linux
         - .linux_packager_tags
         - .cmake_webassembly_artifacts
         - .run_automatically
@@ -447,7 +447,7 @@ wasm64-emscripten-linux-chrome:test:
 wasm64-emscripten:package:
     extends:
         - .wasm64_emscripten_linux_chrome
-        - .cmake_package_wasm64_emscripten_linux
+        - .cmake_package_wasm_emscripten_linux
         - .linux_packager_tags
         - .cmake_webassembly_artifacts
         - .run_automatically
