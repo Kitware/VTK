@@ -424,6 +424,13 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
 {
   bool writeSuccess = true;
 
+  if (this->GetUseExternalPartitions())
+  {
+    // When writing partitions in individual files,
+    // force writing each vtkPartitionedDataset in a different file.
+    this->SetUseExternalComposite(true);
+  }
+
   auto* pdc = vtkPartitionedDataSetCollection::SafeDownCast(input);
   auto* mb = vtkMultiBlockDataSet::SafeDownCast(input);
   if (pdc)

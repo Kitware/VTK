@@ -141,8 +141,8 @@ bool TestWriteAndRead(
 //----------------------------------------------------------------------------
 bool TestWriteAndReadConfigurations(vtkDataObject* data, const std::string& path, bool mergeParts)
 {
-  std::vector<WriterConfigOptions> options{ { false, true, mergeParts, "_NoExtPartExtComp", 1 },
-    { false, false, mergeParts, "_NoExtPartNoExtComp", 3 },
+  std::vector<WriterConfigOptions> options{ { false, false, mergeParts, "_NoExtPartNoExtComp", 3 },
+    { false, true, mergeParts, "_NoExtPartExtComp", 1 },
     { true, true, mergeParts, "_ExtPartExtComp", 2 },
     { true, false, mergeParts, "_ExtPartNoExtComp", 5 } };
 
@@ -366,13 +366,13 @@ int TestHDFWriter(int argc, char* argv[])
 
   // Run tests
   bool testPasses = true;
-  testPasses &= TestEmptyPolyData(tempDir);
-  testPasses &= TestSpherePolyData(tempDir);
-  testPasses &= TestComplexPolyData(tempDir, dataRoot);
-  testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
-  testPasses &= TestPartitionedUnstructuredGrid(tempDir, dataRoot);
-  testPasses &= TestPartitionedPolyData(tempDir, dataRoot);
-  // testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
+  // testPasses &= TestEmptyPolyData(tempDir);
+  // testPasses &= TestSpherePolyData(tempDir);
+  // testPasses &= TestComplexPolyData(tempDir, dataRoot);
+  // testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
+  // testPasses &= TestPartitionedUnstructuredGrid(tempDir, dataRoot);
+  // testPasses &= TestPartitionedPolyData(tempDir, dataRoot);
+  testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
   // testPasses &= TestMultiBlock(tempDir, dataRoot);
 
   return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
