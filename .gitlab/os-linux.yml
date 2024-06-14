@@ -399,6 +399,7 @@
 
     variables:
         CMAKE_CONFIGURATION: wasm32_emscripten_linux_chrome
+        WASM_WORDSIZE: 32
 
 .wasm64_emscripten_linux_chrome:
     extends:
@@ -406,6 +407,7 @@
 
     variables:
         CMAKE_CONFIGURATION: wasm64_emscripten_linux_chrome
+        WASM_WORDSIZE: 64
 
 .linux_builder_tags:
     tags:
@@ -689,7 +691,7 @@
 
     interruptible: true
 
-.cmake_package_wasm32_emscripten_linux:
+.cmake_package_wasm_emscripten_linux:
     stage: package
 
     script:
@@ -699,21 +701,7 @@
         - .gitlab/ci/node.sh
         - export PATH=$PWD/.gitlab/node/bin:$PATH
         - node --version
-        - .gitlab/ci/create_webassembly_archive.sh 32
-
-    interruptible: true
-
-.cmake_package_wasm64_emscripten_linux:
-    stage: package
-
-    script:
-        - .gitlab/ci/cmake.sh latest
-        - export PATH=$PWD/.gitlab/cmake/bin:$PATH
-        - cmake --version
-        - .gitlab/ci/node.sh
-        - export PATH=$PWD/.gitlab/node/bin:$PATH
-        - node --version
-        - .gitlab/ci/create_webassembly_archive.sh 64
+        - .gitlab/ci/create_webassembly_archive.sh $WASM_WORDSIZE
 
     interruptible: true
 
