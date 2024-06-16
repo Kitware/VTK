@@ -57,6 +57,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestPolyDataRemoveCell.cxx
   TestPolygon.cxx
   TestPolygonBoundedTriangulate.cxx
+  TestPolygonNormalOverflow.cxx
   TestPolyhedron0.cxx
   TestPolyhedron1.cxx
   TestPolyhedron3.cxx
