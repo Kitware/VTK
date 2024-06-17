@@ -9,17 +9,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-namespace
-{
-// List of datasets outside of the steps group
-// That should not be referenced by the main file using external datasets
-const std::vector<std::string> NOT_EXTERNAL{
-  "NumberOfPoints",
-  "NumberOfCells",
-  "NumberOfConnectivityIds",
-};
-}
-
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::WriteHeader(hid_t group, const char* hdfType)
 {
@@ -490,6 +479,18 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
 bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
   hid_t group, const char* name, int value, bool offset, bool trim)
 {
+
+  if (this->Subfiles.size() > 0 &&
+    (this->Writer->GetUseExternalTimeSteps() || this->Writer->GetUseExternalPartitions()) &&
+    group != this->StepsGroup)
+  {
+    if (this->IsLastTimeStep)
+    {
+      return this->CreateVirtualDataset(group, name, H5T_STD_I64LE, 1) != H5I_INVALID_HID;
+    }
+    return true;
+  }
+
   if (!H5Lexists(group, name, H5P_DEFAULT))
   {
     // Dataset needs to be created
@@ -603,7 +604,8 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(
   {
     if (this->IsLastTimeStep)
     {
-      return this->CreateVirtualDataset(group, name, type, dataArray) != H5I_INVALID_HID;
+      return this->CreateVirtualDataset(group, name, type, dataArray->GetNumberOfComponents()) !=
+        H5I_INVALID_HID;
     }
     return true;
   }
@@ -623,10 +625,9 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(
 
 //------------------------------------------------------------------------------
 vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
-  hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray)
+  hid_t group, const char* name, hid_t type, int numComp)
 {
   const std::string datasetPath = this->GetGroupName(group) + "/" + name;
-  const int numComp = dataArray->GetNumberOfComponents();
   const int numDim = numComp == 1 ? 1 : 2;
 
   // Initialize VDS property
@@ -659,8 +660,8 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
     vtkHDF::ScopedH5DHandle sourceDataset =
       H5Dopen(this->Subfiles[i], datasetPath.c_str(), H5P_DEFAULT);
     vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
-    std::vector<hsize_t> sourceDims(3), sourceMaxDims(3); // TODO: unused
-    H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), sourceMaxDims.data());
+    std::vector<hsize_t> sourceDims(3);
+    H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr);
 
     // Select hyperslab in destination space
     std::vector<hsize_t> start{ offset };
@@ -692,18 +693,13 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
 bool vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group, const char* name, hid_t type,
   hsize_t cols, hsize_t chunkSize[], int compressionLevel)
 {
-  // When writing timesteps externally, don't create a dynamic dataset,
-  // But create a virtual one on the last step.
+  // When writing data externally, don't create a dynamic dataset,
+  // But create a virtual one based on the subfiles on the last step or partition.
   if (this->Subfiles.size() > 0 &&
     (this->Writer->GetUseExternalTimeSteps() || this->Writer->GetUseExternalPartitions()) &&
     group != this->StepsGroup)
   {
-    if (std::find(NOT_EXTERNAL.begin(), NOT_EXTERNAL.end(), std::string(name)) ==
-      NOT_EXTERNAL.end())
-    {
-      // Dataset is not in the exclusion list
-      return true;
-    }
+    return true;
   }
 
   vtkHDF::ScopedH5SHandle emptyDataspace = this->CreateUnlimitedSimpleDataspace(cols);

@@ -166,7 +166,7 @@ public:
    *
    */
   vtkHDF::ScopedH5DHandle CreateVirtualDataset(
-    hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray);
+    hid_t group, const char* name, hid_t type, int numComp);
 
   /**
    * Create a chunked dataset in the given group from a dataspace.
