@@ -28,6 +28,7 @@ enum supportedDataSetTypes
 struct WriterConfigOptions
 {
   bool UseExternalTimeSteps;
+  bool UseExternalPartitions;
   std::string FileNameSuffix;
 };
 }
@@ -49,6 +50,7 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
   tempPath += baseName + ".vtkhdf" + config.FileNameSuffix;
   HDFWriter->SetFileName(tempPath.c_str());
   HDFWriter->SetUseExternalTimeSteps(config.UseExternalTimeSteps);
+  HDFWriter->SetUseExternalPartitions(config.UseExternalPartitions);
   HDFWriter->SetWriteAllTimeSteps(true);
   HDFWriter->SetChunkSize(100);
   HDFWriter->SetCompressionLevel(4);
@@ -204,8 +206,11 @@ int TestHDFWriterTemporal(int argc, char* argv[])
   // Run tests : read data, write it, read the written data and compare to the original
   std::vector<std::string> baseNames = { "transient_sphere.hdf", "transient_cube.hdf",
     "transient_harmonics.hdf" };
-  std::vector<WriterConfigOptions> configs{ { false, "_NoExternalTime" },
-    { true, "_ExternalTime" } };
+  std::vector<WriterConfigOptions> configs{ { false, false, "_NoExtTimeNoExtPart" },
+    { false, true, "_NoExtTimeExtPart" }, { true, false, "_ExtTimeNoExtPart" },
+    { true, true, "_ExtTimeExtPart" } };
+
+  // Test the whole matrix "file" x "config"
   for (const auto config : configs)
   {
     for (const auto fileName : baseNames)
