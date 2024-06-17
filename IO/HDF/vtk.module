@@ -22,9 +22,11 @@ PRIVATE_DEPENDS
   VTK::IOCore
   VTK::vtksys
   VTK::FiltersTemporal
+  VTK::ParallelCore
 TEST_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersHybrid
+  VTK::FiltersParallelDIY2
   VTK::FiltersPoints
   VTK::FiltersSources
   VTK::FiltersTemporal
@@ -34,3 +36,7 @@ TEST_DEPENDS
   VTK::IOXML
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::FiltersParallelMPI
+  VTK::mpi
+  VTK::ParallelMPI

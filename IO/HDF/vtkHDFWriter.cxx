@@ -9,12 +9,14 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
+#include "vtkDummyController.h"
 #include "vtkErrorCode.h"
 #include "vtkHDFUtilities.h"
 #include "vtkHDFWriterImplementation.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -24,8 +26,11 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <numeric>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHDFWriter);
+vtkCxxSetObjectMacro(vtkHDFWriter, Controller, vtkMultiProcessController);
 
 namespace
 {
@@ -78,12 +83,23 @@ std::string getExternalBlockFileName(std::string&& filename, std::string& blockn
 vtkHDFWriter::vtkHDFWriter()
   : Impl(new Implementation(this))
 {
+  this->Controller = vtkMultiProcessController::GetGlobalController();
+  if (this->Controller == nullptr)
+  {
+    this->UsesDummyController = true;
+    this->SetController(vtkDummyController::New());
+  }
 }
 
 //------------------------------------------------------------------------------
 vtkHDFWriter::~vtkHDFWriter()
 {
   this->SetFileName(nullptr);
+  if (this->UsesDummyController)
+  {
+    this->Controller->Delete();
+  }
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -131,6 +147,16 @@ int vtkHDFWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
 int vtkHDFWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
+  if (this->Controller)
+  {
+    int numberOfProcesses = this->Controller->GetNumberOfProcesses();
+    int myRank = this->Controller->GetLocalProcessId();
+
+    vtkInformation* info = inputVector[0]->GetInformationObject(0);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), myRank);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numberOfProcesses);
+  }
+
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (this->WriteAllTimeSteps && inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
@@ -151,6 +177,7 @@ int vtkHDFWriter::RequestData(vtkInformation* request,
     return 1;
   }
 
+  this->GatherData();
   this->WriteData();
 
   if (this->IsTemporal)
@@ -247,6 +274,86 @@ void vtkHDFWriter::WriteData()
   }
   this->DispatchDataObject(this->Impl->GetRoot(), input);
   this->UpdatePreviousStepMeshMTime(input);
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFWriter::GatherData()
+{
+  vtkDataSet* input = vtkDataSet::SafeDownCast(this->GetInput());
+  if (!input)
+  {
+    // vtkErrorMacro(<< "Invalid input, expected vtkDataSet");
+    // No error
+    return;
+  }
+  int numProcs = this->Controller->GetNumberOfProcesses();
+  int rank = this->Controller->GetLocalProcessId();
+
+  // Collect number of points
+  vtkIdType localNumPoints = input->GetNumberOfPoints();
+  std::vector<vtkIdType> gatherNumPoints(numProcs, 0);
+  this->Controller->AllGather(&localNumPoints, gatherNumPoints.data(), 1);
+  this->PointOffsets.resize(numProcs);
+  std::partial_sum(gatherNumPoints.begin(), gatherNumPoints.end(), this->PointOffsets.begin());
+
+  vtkPolyData* polydata = vtkPolyData::SafeDownCast(input);
+  if (polydata)
+  {
+    // Collect number of cells and connectivity ids for each polydata topology
+    auto cellArrayTopos = this->Impl->GetCellArraysForTopos(polydata);
+    vtkIdType numTopos = cellArrayTopos.size();
+    std::vector<vtkIdType> numCellsTopo(numTopos, 0);
+    std::vector<vtkIdType> numConnIdsTopo(numTopos, 0);
+
+    for (int i = 0; i < numTopos; i++)
+    {
+      numCellsTopo[i] = cellArrayTopos[i].cellArray->GetNumberOfCells();
+      numConnIdsTopo[i] = cellArrayTopos[i].cellArray->GetNumberOfConnectivityIds();
+    }
+
+    // Gather from all other ranks
+    std::vector<vtkIdType> gatherNumCells(numProcs * numTopos, 0);
+    this->Controller->AllGather(numCellsTopo.data(), gatherNumCells.data(), numTopos);
+    std::vector<vtkIdType> gatherNumConnIds(numProcs * numTopos, 0);
+    this->Controller->AllGather(numConnIdsTopo.data(), gatherNumConnIds.data(), numTopos);
+
+    this->CellOffsets.resize(numTopos * numProcs);
+    this->ConnectivityIdOffsets.resize(numTopos * numProcs);
+    // Compute running sum for each topology
+    for (int topo = 0; topo < numTopos; topo++)
+    {
+      for (int proc = 0; proc < numProcs; proc++)
+      {
+        int currentIndex = numTopos * proc + topo;
+        int lastCellOffset =
+          currentIndex - numTopos >= 0 ? numCellsTopo[currentIndex - numTopos] : 0;
+        this->CellOffsets[currentIndex] = numCellsTopo[currentIndex] + lastCellOffset;
+
+        int lastConnectivityOffset =
+          currentIndex - numTopos >= 0 ? numConnIdsTopo[currentIndex - numTopos] : 0;
+        this->ConnectivityIdOffsets[currentIndex] =
+          numConnIdsTopo[currentIndex] + lastConnectivityOffset;
+      }
+    }
+  }
+  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
+  if (unstructuredGrid)
+  {
+    // Collect number of cells
+    vtkIdType localNumCells = input->GetNumberOfCells();
+    std::vector<vtkIdType> gatherNumCells(numProcs, 0);
+    this->Controller->AllGather(&localNumCells, gatherNumPoints.data(), 1);
+    this->CellOffsets.resize(numProcs);
+    std::partial_sum(gatherNumCells.begin(), gatherNumCells.end(), this->CellOffsets.begin());
+
+    // Collect connectivity Ids
+    vtkIdType localNumConnIds = unstructuredGrid->GetCells()->GetNumberOfConnectivityIds();
+    std::vector<vtkIdType> gatherNumConnIds(numProcs, 0);
+    this->ConnectivityIdOffsets.resize(numProcs);
+    this->Controller->AllGather(&localNumConnIds, gatherNumConnIds.data(), 1);
+    std::partial_sum(
+      gatherNumConnIds.begin(), gatherNumConnIds.end(), this->ConnectivityIdOffsets.begin());
+  }
 }
 
 //------------------------------------------------------------------------------

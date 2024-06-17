@@ -5,4 +5,15 @@ vtk_add_test_cxx(vtkIOHDFCxxTests tests
   TestHDFWriterTemporal.cxx,NO_VALID
   )
 
+if (TARGET VTK::ParallelMPI)
+  set(vtkIOHDFCxxTests-MPI_NUMPROCS 4)
+
+  set(vtkIOHDFCxxTests-MPI_NUMPROCS 4)
+  vtk_add_test_mpi(vtkIOHDFCxxTests-MPI mpi_test
+    TestHDFWriterParallel.cxx,NO_VALID
+  )
+
+  vtk_test_cxx_executable(vtkIOHDFCxxTests-MPI mpi_test)
+endif()
+
 vtk_test_cxx_executable(vtkIOHDFCxxTests tests)

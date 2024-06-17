@@ -26,6 +26,7 @@ class vtkUnstructuredGrid;
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
 class vtkMultiBlockDataSet;
+class vtkMultiProcessController;
 
 typedef int64_t hid_t;
 
@@ -48,6 +49,14 @@ public:
   static vtkHDFWriter* New();
   vtkTypeMacro(vtkHDFWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  ///@{
+  /**
+   * Set and get the controller.
+   */
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  ///@}
 
   ///@{
   /**
@@ -183,6 +192,12 @@ private:
    * attribute in vtkHDF format.
    */
   void WriteData() override;
+
+  /**
+   * Gather information relative to each piece, and write offsets to vectors PointOffsets,
+   * CellOffsets and ConnectivityIdOffsets.
+   */
+  void GatherData();
 
   /**
    * Dispatch the input vtkDataObject to the right writing function, depending on its dynamic type.
@@ -353,6 +368,13 @@ private:
   int CurrentTimeIndex = 0;
   int NumberOfTimeSteps = 0;
   vtkMTimeType PreviousStepMeshMTime = 0;
+
+  // Parallel variables
+  vtkMultiProcessController* Controller;
+  bool UsesDummyController = false;
+  std::vector<vtkIdType> PointOffsets;
+  std::vector<vtkIdType> CellOffsets;
+  std::vector<vtkIdType> ConnectivityIdOffsets;
 };
 VTK_ABI_NAMESPACE_END
 #endif
