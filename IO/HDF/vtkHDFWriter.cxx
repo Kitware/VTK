@@ -872,7 +872,7 @@ bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
   {
     hid_t datatype = vtkHDFUtilities::getH5TypeFromVtkType(input->GetPoints()->GetDataType());
     if (!this->Impl->AddOrCreateDataset(
-          group, "Points", H5T_IEEE_F32LE, input->GetPoints()->GetData()))
+          group, "Points", H5T_IEEE_F64LE, input->GetPoints()->GetData()))
     {
       vtkErrorMacro(<< "Can not create points dataset when creating: " << this->FileName);
       return false;
