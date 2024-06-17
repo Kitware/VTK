@@ -9,8 +9,11 @@
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkGenerateGlobalIds.h"
+#include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridDepthLimiter.h"
+#include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMatrix3x3.h"
@@ -23,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkRandomHyperTreeGridSource.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
@@ -601,7 +605,6 @@ std::vector<std::string> TestDataSetFailures(vtkHyperTreeGrid* htg, std::ostring
 {
   std::vector<std::string> retLog;
 
-  TestCoords(htg, logStream, retLog);
   TestExtent(htg, logStream, retLog);
   TestDataFailures(htg, logStream, retLog);
 
@@ -613,10 +616,7 @@ std::vector<std::string> TestDataSetFailures(vtkHyperTreeGrid* htg, std::ostring
   auto other = vtkHyperTreeGrid::SafeDownCast(limiter->GetOutputDataObject(0));
 
   CheckErrorMessage<vtkHyperTreeGrid>(vtkTestUtilities::CompareDataObjects(htg, other), logStream,
-    "Cells of input of type vtkHyperTreeGrid do not match.", retLog, "Topology");
-
-  CheckErrorMessage<vtkHyperTreeGrid>(vtkTestUtilities::CompareCells(htg, other), logStream,
-    "Cells of input of type vtkHyperTreeGrid do not match.", retLog, "Topology");
+    "Mismatched leaves", retLog, "Topology");
 
   return retLog;
 }
@@ -1009,6 +1009,97 @@ bool TestTableAndArrays()
 
   return retLog.empty();
 }
+
+/**
+ * Recursively deep copy the input tree pointed by the cursor
+ * to the output, ignoring masked branches. This will create a new HTG
+ * with a totally different internal structure,
+ * that should still be identical to the original one.
+ */
+void CopyInputTreeToOutput(vtkHyperTreeGridNonOrientedCursor* inCursor,
+  vtkHyperTreeGridNonOrientedCursor* outCursor, vtkCellData* inCellData, vtkCellData* outCellData,
+  vtkBitArray* inMask, vtkBitArray* outMask)
+{
+  vtkIdType outIdx = outCursor->GetGlobalNodeIndex();
+  vtkIdType inIdx = inCursor->GetGlobalNodeIndex();
+  if (inMask)
+  {
+    outMask->InsertTuple1(outIdx, inMask->GetValue(inIdx));
+  }
+  outCellData->InsertTuple(outIdx, inIdx, inCellData);
+  if (!inCursor->IsMasked())
+  {
+    if (!inCursor->IsLeaf())
+    {
+      outCursor->SubdivideLeaf();
+      for (int ichild = 0; ichild < inCursor->GetNumberOfChildren(); ++ichild)
+      {
+        outCursor->ToChild(ichild);
+        inCursor->ToChild(ichild);
+        ::CopyInputTreeToOutput(inCursor, outCursor, inCellData, outCellData, inMask, outMask);
+        outCursor->ToParent();
+        inCursor->ToParent();
+      }
+    }
+  }
+}
+
+/**
+ * Compare HyperTreeGrid with a different memory layout.
+ */
+bool TestRandomHyperTreeGridCompare()
+{
+  // Create a random HTG source using masking
+  vtkNew<vtkRandomHyperTreeGridSource> randomSource;
+  randomSource->SetDimensions(3, 3, 3);
+  randomSource->SetMaxDepth(5);
+  randomSource->SetMaskedFraction(0.3);
+  randomSource->SetSplitFraction(0.8);
+
+  // Generate global ids field
+  vtkNew<vtkGenerateGlobalIds> globalIds;
+  globalIds->SetInputConnection(randomSource->GetOutputPort());
+
+  // Limit HTG depth
+  vtkNew<vtkHyperTreeGridDepthLimiter> limiter;
+  limiter->SetInputConnection(globalIds->GetOutputPort());
+  limiter->SetDepth(4);
+  limiter->Update();
+  vtkHyperTreeGrid* sourceHTG = limiter->GetHyperTreeGridOutput();
+
+  // Create copy its structure, not its content
+  vtkNew<vtkHyperTreeGrid> copyHTG;
+  copyHTG->CopyEmptyStructure(sourceHTG);
+  copyHTG->GetCellData()->CopyStructure(sourceHTG->GetCellData());
+
+  vtkBitArray* inputMask = sourceHTG->GetMask();
+  vtkNew<vtkBitArray> outputMask;
+
+  // Copy recursively each tree
+  vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor, inCursor;
+  vtkHyperTreeGrid::vtkHyperTreeGridIterator inputIterator;
+  vtkIdType inTreeIndex = 0, totalVertices = 0;
+  sourceHTG->InitializeTreeIterator(inputIterator);
+  while (inputIterator.GetNextTree(inTreeIndex))
+  {
+    sourceHTG->InitializeNonOrientedCursor(inCursor, inTreeIndex);
+    copyHTG->InitializeNonOrientedCursor(outCursor, inTreeIndex, true);
+    outCursor->SetGlobalIndexStart(totalVertices);
+    ::CopyInputTreeToOutput(
+      inCursor, outCursor, sourceHTG->GetCellData(), copyHTG->GetCellData(), inputMask, outputMask);
+    totalVertices += outCursor->GetTree()->GetNumberOfVertices();
+  }
+  copyHTG->SetMask(outputMask);
+
+  if (!vtkTestUtilities::CompareDataObjects(sourceHTG, copyHTG) ||
+    !vtkTestUtilities::CompareDataObjects(copyHTG, sourceHTG))
+  {
+    vtkLog(ERROR, "HyperTreeGrids should be similar, but they are not.");
+    return false;
+  }
+
+  return true;
+}
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -1030,6 +1121,7 @@ int TestDataObjectCompare(int argc, char* argv[])
   retVal &= ::TestDataSet<vtkPolyData, vtkXMLPolyDataReader>(root, "poly_data_template.vtp");
   retVal &= ::TestDataSet<vtkHyperTreeGrid, vtkXMLHyperTreeGridReader>(
     root, "hyper_tree_grid_template.htg");
+  retVal &= ::TestRandomHyperTreeGridCompare();
   retVal &=
     ::TestDataSet<vtkPartitionedDataSetCollection, vtkXMLPartitionedDataSetCollectionReader>(
       root, "partitioned_dataset_collection_template.vtpc");
