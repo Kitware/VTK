@@ -15,6 +15,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkHDFReaderImplementation.h"
+#include "vtkHDFUtilities.h"
 #include "vtkHDFVersion.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
