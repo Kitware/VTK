@@ -479,12 +479,11 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
 bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
   hid_t group, const char* name, int value, bool offset, bool trim)
 {
-
-  if (this->Subfiles.size() > 0 &&
-    (this->Writer->GetUseExternalTimeSteps() || this->Writer->GetUseExternalPartitions()) &&
-    group != this->StepsGroup)
+  // Assume that when subfiles are set, we don't need to write data unless
+  // WriteVirtualDS is set, which means all subfiles have been written.
+  if (this->Subfiles.size() > 0 && group != this->StepsGroup)
   {
-    if (this->IsLastTimeStep)
+    if (this->SubFilesReady)
     {
       return this->CreateVirtualDataset(group, name, H5T_STD_I64LE, 1) != H5I_INVALID_HID;
     }
@@ -598,11 +597,9 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
 bool vtkHDFWriter::Implementation::AddOrCreateDataset(
   hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray)
 {
-  if (this->Subfiles.size() > 0 &&
-    (this->Writer->GetUseExternalTimeSteps() || this->Writer->GetUseExternalPartitions()) &&
-    group != this->StepsGroup)
+  if (this->Subfiles.size() > 0 && group != this->StepsGroup)
   {
-    if (this->IsLastTimeStep)
+    if (this->SubFilesReady)
     {
       return this->CreateVirtualDataset(group, name, type, dataArray->GetNumberOfComponents()) !=
         H5I_INVALID_HID;
@@ -695,9 +692,7 @@ bool vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group, const char* n
 {
   // When writing data externally, don't create a dynamic dataset,
   // But create a virtual one based on the subfiles on the last step or partition.
-  if (this->Subfiles.size() > 0 &&
-    (this->Writer->GetUseExternalTimeSteps() || this->Writer->GetUseExternalPartitions()) &&
-    group != this->StepsGroup)
+  if (this->Subfiles.size() > 0 && group != this->StepsGroup)
   {
     return true;
   }

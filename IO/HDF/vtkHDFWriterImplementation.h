@@ -47,15 +47,15 @@ public:
   /**
    * Open subfile where data has already been written, and needs to be referenced by the main file
    * using virtual datasets.
-   * Return file if the subfile cannot be opened
+   * Return false if the subfile cannot be opened.
    */
   bool OpenSubfile(const std::string& filename);
 
   /**
-   * Inform the implementation that this is the last time step processed, which means
-   * HDF5 datasets
+   * Inform the implementation that all the data has been written in subfiles,
+   * and that the virtual datasets can now be created from them.
    */
-  void SetIsLastTimeStep(bool status) { this->IsLastTimeStep = status; }
+  void SetSubFilesReady(bool status) { this->SubFilesReady = status; }
 
   /**
    * Create the steps group in the root group. Set a member variable to store the group, so it can
@@ -163,7 +163,10 @@ public:
     hid_t group, const char* name, hid_t type, int rank, const hsize_t dimensions[]);
 
   /**
-   *
+   * Create a virtual dataset from all the subfiles that have been added.
+   * This virtual dataset references the datasets with the same name in subfiles,
+   * and its first dimension is the sum of all subfiles datasets'.
+   * the number of components must be the same in every subfile.
    */
   vtkHDF::ScopedH5DHandle CreateVirtualDataset(
     hid_t group, const char* name, hid_t type, int numComp);
@@ -247,9 +250,9 @@ private:
   vtkHDF::ScopedH5FHandle File;
   vtkHDF::ScopedH5GHandle Root;
   vtkHDF::ScopedH5GHandle StepsGroup;
-  std::vector<vtkHDF::ScopedH5FHandle> Subfiles; // TODO: create a map instead
+  std::vector<vtkHDF::ScopedH5FHandle> Subfiles;
   std::vector<std::string> SubfileNames;
-  bool IsLastTimeStep = false;
+  bool SubFilesReady = false;
 };
 
 VTK_ABI_NAMESPACE_END

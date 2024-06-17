@@ -119,6 +119,7 @@ public:
    */
   vtkSetMacro(UseExternalComposite, bool);
   vtkGetMacro(UseExternalComposite, bool);
+  ///@}
 
   ///@{
   /**

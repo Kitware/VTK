@@ -202,6 +202,8 @@ void vtkHDFWriter::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkHDFWriter::WriteData()
 {
+  this->Impl->SetSubFilesReady(false);
+
   // Root group only needs to be opened for the first timestep
   if (this->CurrentTimeIndex == 0 && !this->Impl->OpenFile(this->Overwrite))
   {
@@ -234,7 +236,7 @@ void vtkHDFWriter::WriteData()
     {
       // On the last timestep, the implementation creates virtual datasets referencing all
       // Subfiles. This can only be done once we know the size of all sub-datasets.
-      this->Impl->SetIsLastTimeStep(true);
+      this->Impl->SetSubFilesReady(true);
     }
   }
 
@@ -304,7 +306,6 @@ void vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
   }
 
   vtkErrorMacro(<< "Dataset type not supported: " << input->GetClassName());
-  return;
 }
 
 //------------------------------------------------------------------------------
@@ -409,7 +410,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
       {
         // On the last partition, the implementation creates virtual datasets referencing all
         // Subfiles. This can only be done once we know the size of all sub-datasets.
-        this->Impl->SetIsLastTimeStep(true);
+        this->Impl->SetSubFilesReady(true);
       }
     }
 
