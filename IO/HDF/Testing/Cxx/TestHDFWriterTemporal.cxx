@@ -100,27 +100,11 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
       return false;
     }
 
-    // Data is either PolyData or UG
-    vtkPolyData* basepolyData = vtkPolyData::SafeDownCast(HDFReaderBaseline->GetOutput());
-    vtkPolyData* hdfpolyData = vtkPolyData::SafeDownCast(HDFReader->GetOutput());
-    if (basepolyData && hdfpolyData)
+    if (!vtkTestUtilities::CompareDataObjects(
+          HDFReaderBaseline->GetOutput(), HDFReader->GetOutput()))
     {
-      if (!vtkTestUtilities::CompareDataObjects(hdfpolyData, basepolyData))
-      {
-        std::cerr << "vtkDataset do not match" << std::endl;
-        return false;
-      }
-    }
-    else
-    {
-      vtkUnstructuredGrid* baseData =
-        vtkUnstructuredGrid::SafeDownCast(HDFReaderBaseline->GetOutput());
-      vtkUnstructuredGrid* hdfData = vtkUnstructuredGrid::SafeDownCast(HDFReader->GetOutput());
-      if (!vtkTestUtilities::CompareDataObjects(hdfData, baseData))
-      {
-        std::cerr << "vtkDataset do not match" << std::endl;
-        return false;
-      }
+      std::cerr << "data objects do not match" << std::endl;
+      return false;
     }
   }
   return true;
