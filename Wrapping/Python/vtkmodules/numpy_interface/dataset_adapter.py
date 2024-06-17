@@ -67,6 +67,9 @@ except ImportError:
     raise RuntimeError("This module depends on the numpy module. Please make\
 sure that it is installed properly.")
 
+# version 2 has many API changes from version 1
+NUMPY_MAJOR_VERSION = int(numpy.__version__.split('.')[0])
+
 import itertools
 import operator
 import sys
@@ -293,8 +296,8 @@ class VTKArray(numpy.ndarray):
                                  (self.__class__.__name__, name))
         return getattr(o, name)
 
-    def __array_wrap__(self, out_arr, context=None):
-        if out_arr.shape == ():
+    def __array_wrap__(self, out_arr, context=None, return_scalar=False):
+        if return_scalar or (NUMPY_MAJOR_VERSION < 2 and out_arr.shape == ()):
             # Convert to scalar value
             return out_arr[()]
         else:
