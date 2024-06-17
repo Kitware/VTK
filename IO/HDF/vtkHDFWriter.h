@@ -112,7 +112,7 @@ public:
   ///@{
   /**
    * When set, write composite leaf blocks in different files,
-   * named FileName_without_extension_BlockName.extension.
+   * named FileStem_BlockName.extension.
    * If FileName does not have an extension, blocks are named FileName_BlockName.vtkhdf
    * These files are referenced by the main file using external links.
    * Default is false.
@@ -123,13 +123,14 @@ public:
 
   ///@{
   /**
-   * When set, write each time step in a different file,
-   * named FileName_without_extension_X.extension, where X is the time step index.
-   * If FileName does not have an extension, files are named FileName_X.vtkhdf
+   * When set, write each time step in a different file.
    * These individual time files are referenced by the main file using the HDF5 virtual dataset
    * feature. This way, individual time step files can be opened by the reader as a non
    * time-dependent dataset, and the main file referencing those as a time-dependent file
    * seamlessly.
+   *
+   * Subfiles are named FileStem_X.extension, where X is the time step index.
+   * extension defaults to .vtkhdf in case the base filename does not have one already.
    *
    * Note: this option does not support static meshes. Points and cells with be copied
    * across time step files.
@@ -142,10 +143,11 @@ public:
   ///@{
   /**
    * When set, write each partition in a different file,
-   * named FileName_without_extension_partX.extension, where X is the partition index.
+   * named FileStem_partX.extension, where X is the partition index.
    * If FileName does not have an extension, files are named FileName_partX.vtkhdf
    * These individual time files are referenced by the main file using the HDF5 virtual dataset
    * feature, just like the `UseExternalTimeSteps` does.
+   * When applied to composite datasets, this option forces UseExternalComposite ON.
    * Default is false.
    */
   vtkSetMacro(UseExternalPartitions, bool);

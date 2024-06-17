@@ -11,7 +11,7 @@ or as a collection of files: one describing the composite assembly structure, an
 every other containing the data relative to a non-composite leaf.
 Both are considered equivalent by the reader.
 
-Temporal datasets vtkPartitionedDataset and can also be written in separate files,
+Temporal datasets and vtkPartitionedDataset can also be written in separate files,
 one for each time step or partition, with a main file that references their data
 
 For now, distributed writing is not supported.

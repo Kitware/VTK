@@ -4,6 +4,7 @@
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkImageData.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
@@ -95,6 +96,11 @@ bool TestWriteAndRead(
     writer->SetUseExternalComposite(options->UseExternalComposite);
     writer->SetUseExternalPartitions(options->UseExternalPartitions);
     writer->SetCompressionLevel(options->CompressionLevel);
+
+    vtkLog(INFO,
+      "Testing " << fullPath << " with options Ext composite: " << options->UseExternalComposite
+                 << " ext partitions: " << options->UseExternalPartitions << " compression "
+                 << options->CompressionLevel);
   }
   else
   {

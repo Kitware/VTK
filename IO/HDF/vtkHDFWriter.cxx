@@ -64,7 +64,7 @@ std::string getExternalBlockFileName(std::string&& filename, std::string& blockn
   std::string subfileName;
   if (lastDotPos != std::string::npos)
   {
-    // <FileName_without_extension>_<BlockName>.<extension>
+    // <FileStem>_<BlockName>.<extension>
     const std::string rawName = filename.substr(0, lastDotPos);
     const std::string extension = filename.substr(lastDotPos);
     return rawName + "_" + blockname + extension;

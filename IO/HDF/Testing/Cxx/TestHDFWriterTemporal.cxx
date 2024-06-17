@@ -7,6 +7,7 @@
 #include "vtkGenerateTimeSteps.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyData.h"
@@ -37,7 +38,6 @@ struct WriterConfigOptions
 bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
   const std::string& baseName, const WriterConfigOptions& config)
 {
-  std::cout << "Writing " << baseName << std::endl;
   // Open original temporal HDF data
   const std::string basePath = dataRoot + "/Data/" + baseName;
   vtkNew<vtkHDFReader> baseHDFReader;
@@ -56,6 +56,9 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
   HDFWriter->SetCompressionLevel(4);
   HDFWriter->Write();
 
+  vtkLog(INFO,
+    "Testing " << tempPath << " with options Ext time steps: " << config.UseExternalTimeSteps
+               << " ext partitions: " << config.UseExternalPartitions);
   // Read the data just written
   vtkNew<vtkHDFReader> HDFReader;
   if (!HDFReader->CanReadFile(tempPath.c_str()))
