@@ -1166,30 +1166,17 @@ bool vtkHDFWriter::AppendDataArrayOffset(
 }
 
 //------------------------------------------------------------------------------
-/* TO IMPROVE
- * The template here could be replaced by a vtkDataSet once the GetMeshMTime
- * method will be implemented at its level.
- */
-template <typename vtkStaticMeshDataSetT>
-bool vtkHDFWriter::HasGeometryChangedFromPreviousStep(vtkStaticMeshDataSetT* input)
+bool vtkHDFWriter::HasGeometryChangedFromPreviousStep(vtkDataSet* input)
 {
   return input->GetMeshMTime() != this->PreviousStepMeshMTime;
 }
 
 //------------------------------------------------------------------------------
-/* TO IMPROVE
- * Here too we could avoid casting and use vtkDataSet when it'll support
- * the GetMeshMTime method.
- */
 void vtkHDFWriter::UpdatePreviousStepMeshMTime(vtkDataObject* input)
 {
-  if (auto polyDataInput = vtkPolyData::SafeDownCast(input))
+  if (auto dsInput = vtkDataSet::SafeDownCast(input))
   {
-    this->PreviousStepMeshMTime = polyDataInput->GetMeshMTime();
-  }
-  else if (auto unstructuredGridInput = vtkUnstructuredGrid::SafeDownCast(input))
-  {
-    this->PreviousStepMeshMTime = unstructuredGridInput->GetMeshMTime();
+    this->PreviousStepMeshMTime = dsInput->GetMeshMTime();
   }
 }
 
