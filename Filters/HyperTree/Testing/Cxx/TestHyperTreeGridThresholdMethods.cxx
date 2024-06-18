@@ -8,70 +8,10 @@
 #include "vtkHyperTreeGridThreshold.h"
 #include "vtkNew.h"
 #include "vtkRandomHyperTreeGridSource.h"
-
-namespace
-{
-/**
- * Return true if both trees pointed by cursors represent the same structure,
- * and have matching data
- */
-bool CheckTreeEqual(vtkHyperTreeGridNonOrientedGeometryCursor* cursor1,
-  vtkHyperTreeGridNonOrientedGeometryCursor* cursor2, vtkDataArray* depth1, vtkDataArray* depth2)
-{
-  vtkIdType currentId1 = cursor1->GetGlobalNodeIndex();
-  vtkIdType currentId2 = cursor2->GetGlobalNodeIndex();
-
-  if (cursor1->IsMasked() != cursor2->IsMasked())
-  {
-    std::cerr << "Mismatching leaves" << std::endl;
-    return false;
-  }
-
-  if (cursor1->IsMasked())
-  {
-    return true;
-  }
-
-  if (depth1->GetTuple1(currentId1) != depth2->GetTuple1(currentId2))
-  {
-    std::cerr << "Depth array value mismatch" << std::endl;
-    return false;
-  }
-
-  if (cursor1->IsLeaf() != cursor2->IsLeaf())
-  {
-    std::cerr << "Mismatching leaves" << std::endl;
-    return false;
-  }
-
-  if (cursor1->IsLeaf())
-  {
-    return true;
-  }
-
-  if (cursor1->GetNumberOfChildren() != cursor2->GetNumberOfChildren())
-  {
-    std::cerr << "Mismatching number of children" << std::endl;
-    return false;
-  }
-
-  // Recurse over children
-  bool result = true;
-  for (int child = 0; child < cursor1->GetNumberOfChildren(); ++child)
-  {
-    cursor1->ToChild(child);
-    cursor2->ToChild(child);
-    result &= ::CheckTreeEqual(cursor1, cursor2, depth1, depth2);
-    cursor1->ToParent();
-    cursor2->ToParent();
-  }
-
-  return result;
-}
-}
+#include "vtkTestUtilities.h"
 
 /**
- * Test that all 3 methods for thresholding give an equivalent analytic result
+ * Test that all 3 methods for HTG thresholding give an equivalent analytic result
  */
 int TestHyperTreeGridThresholdMethods(int, char*[])
 {
@@ -126,45 +66,21 @@ int TestHyperTreeGridThresholdMethods(int, char*[])
   std::cout << "Indexed arrays threshold method took " << elapsed_seconds.count() << "s"
             << std::endl;
 
-  // Check that all methods yield an identical HTG
-  vtkDataArray* depthMask = vtkDataArray::SafeDownCast(htgMask->GetCellData()->GetArray("Depth"));
-  vtkDataArray* depthCopy = vtkDataArray::SafeDownCast(htgCopy->GetCellData()->GetArray("Depth"));
-  vtkDataArray* depthIndex = vtkDataArray::SafeDownCast(htgIndex->GetCellData()->GetArray("Depth"));
-
-  vtkIdType indexMask = 0, indexCopy = 0, indexIndex = 0;
-  vtkHyperTreeGrid::vtkHyperTreeGridIterator iteratorMask, iteratorCopy, iteratorIndex;
-  htgMask->InitializeTreeIterator(iteratorMask);
-  htgCopy->InitializeTreeIterator(iteratorCopy);
-  htgIndex->InitializeTreeIterator(iteratorIndex);
-  vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursorMask, cursorCopy, cursorIndex;
-  while (iteratorMask.GetNextTree(indexMask) && iteratorCopy.GetNextTree(indexCopy) &&
-    iteratorIndex.GetNextTree(indexIndex))
+  if (!vtkTestUtilities::CompareDataObjects(htgMask, htgCopy))
   {
-    htgMask->InitializeNonOrientedGeometryCursor(cursorMask, indexMask);
-    htgCopy->InitializeNonOrientedGeometryCursor(cursorCopy, indexCopy);
-    htgIndex->InitializeNonOrientedGeometryCursor(cursorIndex, indexIndex);
-
-    if (!::CheckTreeEqual(cursorMask, cursorCopy, depthMask, depthCopy))
-    {
-      std::cerr << "Error: Threshold methods mask and copy do not have the same result."
-                << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    if (!::CheckTreeEqual(cursorMask, cursorIndex, depthMask, depthIndex))
-    {
-      std::cerr << "Error: Threshold methods mask and index do not have the same result."
-                << std::endl;
-      return EXIT_FAILURE;
-    }
-
+    std::cerr << "Mask and copy method do not give the same result" << std::endl;
+    return EXIT_FAILURE;
+  }
+  else if (!vtkTestUtilities::CompareDataObjects(htgMask, htgIndex))
+  {
+    std::cerr << "Mask and copy index array do not give the same result" << std::endl;
+    return EXIT_FAILURE;
+  }
+  else if (!vtkTestUtilities::CompareDataObjects(htgIndex, htgCopy))
+  {
     // Technically redundant
-    if (!::CheckTreeEqual(cursorIndex, cursorCopy, depthIndex, depthCopy))
-    {
-      std::cerr << "Error: Threshold methods index and copy do not have the same result."
-                << std::endl;
-      return EXIT_FAILURE;
-    }
+    std::cerr << "Index array and copy method do not give the same result" << std::endl;
+    return EXIT_FAILURE;
   }
 
   return EXIT_SUCCESS;
