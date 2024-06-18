@@ -26,8 +26,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <numeric>
-
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHDFWriter);
 vtkCxxSetObjectMacro(vtkHDFWriter, Controller, vtkMultiProcessController);
@@ -63,7 +61,7 @@ std::string getBlockName(vtkPartitionedDataSetCollection* pdc, int datasetId)
  * Return the filename for an external file containing <blockname>, made from
  * the original <filename>.
  */
-std::string getExternalBlockFileName(std::string&& filename, std::string& blockname)
+std::string getExternalBlockFileName(const std::string&& filename, const std::string& blockname)
 {
   size_t lastDotPos = filename.find_last_of('.');
   std::string subfileName;
@@ -86,6 +84,9 @@ vtkHDFWriter::vtkHDFWriter()
   this->Controller = vtkMultiProcessController::GetGlobalController();
   if (this->Controller == nullptr)
   {
+    // No multi-process controller has been set, use a dummy one.
+    // Mark that it has been created by this process so we can destroy it
+    // After the filter execution.
     this->UsesDummyController = true;
     this->SetController(vtkDummyController::New());
   }
@@ -152,12 +153,9 @@ int vtkHDFWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 {
   if (this->Controller)
   {
-    int numberOfProcesses = this->Controller->GetNumberOfProcesses();
-    int myRank = this->Controller->GetLocalProcessId();
-
     vtkInformation* info = inputVector[0]->GetInformationObject(0);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), myRank);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numberOfProcesses);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), this->Rank);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), this->NbProcs);
   }
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -175,14 +173,11 @@ int vtkHDFWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 int vtkHDFWriter::RequestData(vtkInformation* request,
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
-  vtkDebugMacro("In RequestData for " << this->FileName);
-
   if (!this->FileName)
   {
     return 1;
   }
 
-  this->GatherData();
   this->WriteData();
 
   if (this->IsTemporal)
@@ -257,8 +252,8 @@ void vtkHDFWriter::WriteData()
   if (this->IsTemporal && this->UseExternalTimeSteps)
   {
     // Write the time step data in an external file
-    std::string timestepSuffix = std::to_string(this->CurrentTimeIndex);
-    std::string subFilePath =
+    const std::string timestepSuffix = std::to_string(this->CurrentTimeIndex);
+    const std::string subFilePath =
       ::getExternalBlockFileName(std::string(this->FileName), timestepSuffix);
     vtkNew<vtkHDFWriter> writer;
     writer->SetInputData(input);
@@ -295,86 +290,6 @@ void vtkHDFWriter::WriteData()
     this->DispatchDataObject(this->Impl->GetRoot(), input);
   }
   this->UpdatePreviousStepMeshMTime(input);
-}
-
-//------------------------------------------------------------------------------
-void vtkHDFWriter::GatherData()
-{
-  vtkDataSet* input = vtkDataSet::SafeDownCast(this->GetInput());
-  if (!input)
-  {
-    // vtkErrorMacro(<< "Invalid input, expected vtkDataSet");
-    // No error
-    return;
-  }
-  int numProcs = this->Controller->GetNumberOfProcesses();
-  int rank = this->Controller->GetLocalProcessId();
-
-  // Collect number of points
-  vtkIdType localNumPoints = input->GetNumberOfPoints();
-  std::vector<vtkIdType> gatherNumPoints(numProcs, 0);
-  this->Controller->AllGather(&localNumPoints, gatherNumPoints.data(), 1);
-  this->PointOffsets.resize(numProcs);
-  std::partial_sum(gatherNumPoints.begin(), gatherNumPoints.end(), this->PointOffsets.begin());
-
-  vtkPolyData* polydata = vtkPolyData::SafeDownCast(input);
-  if (polydata)
-  {
-    // Collect number of cells and connectivity ids for each polydata topology
-    auto cellArrayTopos = this->Impl->GetCellArraysForTopos(polydata);
-    vtkIdType numTopos = cellArrayTopos.size();
-    std::vector<vtkIdType> numCellsTopo(numTopos, 0);
-    std::vector<vtkIdType> numConnIdsTopo(numTopos, 0);
-
-    for (int i = 0; i < numTopos; i++)
-    {
-      numCellsTopo[i] = cellArrayTopos[i].cellArray->GetNumberOfCells();
-      numConnIdsTopo[i] = cellArrayTopos[i].cellArray->GetNumberOfConnectivityIds();
-    }
-
-    // Gather from all other ranks
-    std::vector<vtkIdType> gatherNumCells(numProcs * numTopos, 0);
-    this->Controller->AllGather(numCellsTopo.data(), gatherNumCells.data(), numTopos);
-    std::vector<vtkIdType> gatherNumConnIds(numProcs * numTopos, 0);
-    this->Controller->AllGather(numConnIdsTopo.data(), gatherNumConnIds.data(), numTopos);
-
-    this->CellOffsets.resize(numTopos * numProcs);
-    this->ConnectivityIdOffsets.resize(numTopos * numProcs);
-    // Compute running sum for each topology
-    for (int topo = 0; topo < numTopos; topo++)
-    {
-      for (int proc = 0; proc < numProcs; proc++)
-      {
-        int currentIndex = numTopos * proc + topo;
-        int lastCellOffset =
-          currentIndex - numTopos >= 0 ? numCellsTopo[currentIndex - numTopos] : 0;
-        this->CellOffsets[currentIndex] = numCellsTopo[currentIndex] + lastCellOffset;
-
-        int lastConnectivityOffset =
-          currentIndex - numTopos >= 0 ? numConnIdsTopo[currentIndex - numTopos] : 0;
-        this->ConnectivityIdOffsets[currentIndex] =
-          numConnIdsTopo[currentIndex] + lastConnectivityOffset;
-      }
-    }
-  }
-  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
-  if (unstructuredGrid)
-  {
-    // Collect number of cells
-    vtkIdType localNumCells = input->GetNumberOfCells();
-    std::vector<vtkIdType> gatherNumCells(numProcs, 0);
-    this->Controller->AllGather(&localNumCells, gatherNumPoints.data(), 1);
-    this->CellOffsets.resize(numProcs);
-    std::partial_sum(gatherNumCells.begin(), gatherNumCells.end(), this->CellOffsets.begin());
-
-    // Collect connectivity Ids
-    vtkIdType localNumConnIds = unstructuredGrid->GetCells()->GetNumberOfConnectivityIds();
-    std::vector<vtkIdType> gatherNumConnIds(numProcs, 0);
-    this->ConnectivityIdOffsets.resize(numProcs);
-    this->Controller->AllGather(&localNumConnIds, gatherNumConnIds.data(), 1);
-    std::partial_sum(
-      gatherNumConnIds.begin(), gatherNumConnIds.end(), this->ConnectivityIdOffsets.begin());
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -441,13 +356,14 @@ void vtkHDFWriter::DispatchDistributedDataObject(vtkDataObject* input)
 {
   // Write piece to external file
   {
-    std::string partitionSuffix = "part" + std::to_string(this->Rank);
-    std::string subFilePath =
+    const std::string partitionSuffix = "part" + std::to_string(this->Rank);
+    const std::string subFilePath =
       ::getExternalBlockFileName(std::string(this->FileName), partitionSuffix);
+    vtkDebugMacro("Writing subfile " << subFilePath.c_str() << " from rank " << this->Rank);
     vtkNew<vtkHDFWriter> writer;
     writer->SetInputData(input);
     writer->SetFileName(subFilePath.c_str());
-    writer->SetMultiPieceInput(false);
+    writer->SetMultiPieceInput(false); // So this function does not recurse infinitely
     writer->SetCompressionLevel(this->CompressionLevel);
     writer->SetChunkSize(this->ChunkSize);
     if (!writer->Write())
@@ -456,16 +372,19 @@ void vtkHDFWriter::DispatchDistributedDataObject(vtkDataObject* input)
     }
   }
 
+  // Make sure all processes have written their associated subfile
   this->Controller->Barrier();
-  vtkDebugMacro("Barrier ok");
 
-  // Write main file in rank 0
-  if (this->Rank == 0)
+  // Write main file in rank 0 if the input is either poly data or unstructured grid
+  // Composite types' parts cannot be written in virtual datasets
+  vtkPolyData* polyData = vtkPolyData::SafeDownCast(input);
+  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
+  if (this->Rank == 0 && (polyData || unstructuredGrid))
   {
     for (int i = 0; i < this->NbProcs; i++)
     {
-      std::string partitionSuffix = "part" + std::to_string(i);
-      std::string subFilePath =
+      const std::string partitionSuffix = "part" + std::to_string(i);
+      const std::string subFilePath =
         ::getExternalBlockFileName(std::string(this->FileName), partitionSuffix);
       this->Impl->OpenSubfile(subFilePath);
     }
@@ -557,8 +476,8 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     // Write individual partitions in different files
     if (this->UseExternalPartitions)
     {
-      std::string partitionSuffix = "part" + std::to_string(partIndex);
-      std::string subFilePath =
+      const std::string partitionSuffix = "part" + std::to_string(partIndex);
+      const std::string subFilePath =
         ::getExternalBlockFileName(std::string(this->FileName), partitionSuffix);
       vtkNew<vtkHDFWriter> writer;
       writer->SetInputData(input->GetPartition(partIndex));
@@ -1118,8 +1037,7 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
 
     // Create the group corresponding to point, cell or field data
     const char* groupName = groupNames[iAttribute];
-    std::string offsetsGroupNameStr = std::string(groupName);
-    offsetsGroupNameStr += "Offsets";
+    const std::string offsetsGroupNameStr = std::string(groupName) + "Offsets";
     const char* offsetsGroupName = offsetsGroupNameStr.c_str();
 
     if (this->CurrentTimeIndex == 0 && partId == 0)
@@ -1203,7 +1121,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
   {
     vtkHDF::ScopedH5GHandle datasetGroup;
     vtkPartitionedDataSet* currentBlock = pdc->GetPartitionedDataSet(datasetId);
-    std::string currentName = ::getBlockName(pdc, datasetId);
+    const std::string currentName = ::getBlockName(pdc, datasetId);
 
     if (this->UseExternalComposite)
     {
@@ -1226,10 +1144,11 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendExternalBlock(vtkDataObject* block, std::string& blockName)
+bool vtkHDFWriter::AppendExternalBlock(vtkDataObject* block, const std::string& blockName)
 {
   // Write the block data in an external file
-  std::string subfileName = ::getExternalBlockFileName(std::string(this->FileName), blockName);
+  const std::string subfileName =
+    ::getExternalBlockFileName(std::string(this->FileName), blockName);
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputData(block);
   writer->SetFileName(subfileName.c_str());

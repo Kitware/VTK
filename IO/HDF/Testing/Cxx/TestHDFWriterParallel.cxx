@@ -15,7 +15,7 @@
 
 namespace
 {
-bool TestParallelPolyData(vtkMPIController* controller, const std::string& tempDir)
+bool TestParallelUnstrucutredGrid(vtkMPIController* controller, const std::string& tempDir)
 {
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
@@ -32,13 +32,12 @@ bool TestParallelPolyData(vtkMPIController* controller, const std::string& tempD
 
   // Write it to disk
   std::string filePath = tempDir + "/parallel_sphere.vtkhdf";
+  std::string filePathPart = tempDir + "/parallel_sphere_part" + std::to_string(myRank) + ".vtkhdf";
 
   {
     vtkNew<vtkHDFWriter> writer;
     writer->SetInputConnection(redistribute->GetOutputPort());
     writer->SetFileName(filePath.c_str());
-    writer->SetDebug(true);
-    writer->SetUseExternalPartitions(true);
     writer->Write();
   }
 
@@ -50,14 +49,18 @@ bool TestParallelPolyData(vtkMPIController* controller, const std::string& tempD
   reader->SetFileName(filePath.c_str());
   reader->UpdatePiece(myRank, nbRanks, 0);
 
+  vtkNew<vtkHDFReader> readerPart;
+  readerPart->SetFileName(filePathPart.c_str());
+  readerPart->Update();
+
   vtkUnstructuredGrid* readPiece =
     vtkUnstructuredGrid::SafeDownCast(reader->GetOutputDataObject(0));
   vtkUnstructuredGrid* originalPiece =
     vtkUnstructuredGrid::SafeDownCast(redistribute->GetOutputDataObject(0));
+  vtkUnstructuredGrid* readPart =
+    vtkUnstructuredGrid::SafeDownCast(readerPart->GetOutputDataObject(0));
 
-  std::cout << myRank << " " << readPiece->GetNumberOfCells() << " cells" << std::endl;
-
-  if (readPiece == nullptr || originalPiece == nullptr)
+  if (readPiece == nullptr || originalPiece == nullptr || readPart == nullptr)
   {
     vtkLog(ERROR, "Piece should not be null");
     return false;
@@ -66,6 +69,12 @@ bool TestParallelPolyData(vtkMPIController* controller, const std::string& tempD
   if (!vtkTestUtilities::CompareDataObjects(readPiece, originalPiece))
   {
     vtkLog(ERROR, "Original and read piece do not match");
+    return false;
+  }
+
+  if (!vtkTestUtilities::CompareDataObjects(readPiece, readPart))
+  {
+    vtkLog(ERROR, "Read piece and read part do not match");
     return false;
   }
 
@@ -86,8 +95,7 @@ int TestHDFWriterParallel(int argc, char* argv[])
   std::string tempDir{ tempDirCStr };
   delete[] tempDirCStr;
 
-  bool res = ::TestParallelPolyData(controller, tempDir);
+  bool res = ::TestParallelUnstrucutredGrid(controller, tempDir);
   controller->Finalize();
-  return EXIT_SUCCESS;
-  // return res ? EXIT_SUCCESS : EXIT_FAILURE;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }

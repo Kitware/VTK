@@ -89,7 +89,6 @@ bool TestWriteAndRead(
   std::string fullPath = tempPath;
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputData(data);
-  writer->SetDebug(true);
   if (options)
   {
     fullPath = tempPath + options->FileNameSuffix;
