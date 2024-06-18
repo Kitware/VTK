@@ -224,11 +224,11 @@ void VTXvtkVTU::ReadPiece(size_t step, size_t pieceID)
 void VTXvtkVTU::Init()
 {
   auto lf_InitPieceDataSetType = [&](types::Piece& piece, const types::DataSetType type,
-                                   const pugi::xml_node& pieceNode, const bool persist) {
+                                   const pugi::xml_node& pieceNode) {
     const std::string nodeName = DataSetType(type);
     const pugi::xml_node dataSetNode = helper::XMLNode(
       nodeName, pieceNode, true, "when reading " + nodeName + " node in ImageData", false);
-    types::DataSet dataSet = helper::XMLInitDataSet(dataSetNode, this->SpecialNames, persist);
+    types::DataSet dataSet = helper::XMLInitDataSet(dataSetNode, this->SpecialNames);
     piece[type] = dataSet;
   };
 
@@ -247,10 +247,10 @@ void VTXvtkVTU::Init()
   {
     types::Piece piece;
     // CellData persist
-    lf_InitPieceDataSetType(piece, types::DataSetType::CellData, xmlPieceNode, true);
-    lf_InitPieceDataSetType(piece, types::DataSetType::PointData, xmlPieceNode, false);
-    lf_InitPieceDataSetType(piece, types::DataSetType::Cells, xmlPieceNode, true);
-    lf_InitPieceDataSetType(piece, types::DataSetType::Points, xmlPieceNode, true);
+    lf_InitPieceDataSetType(piece, types::DataSetType::CellData, xmlPieceNode);
+    lf_InitPieceDataSetType(piece, types::DataSetType::PointData, xmlPieceNode);
+    lf_InitPieceDataSetType(piece, types::DataSetType::Cells, xmlPieceNode);
+    lf_InitPieceDataSetType(piece, types::DataSetType::Points, xmlPieceNode);
 
     this->Pieces.push_back(piece);
     ++pieces;

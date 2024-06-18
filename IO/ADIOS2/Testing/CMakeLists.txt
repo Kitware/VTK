@@ -13,6 +13,7 @@ vtk_module_test_data(
   Data/ADIOS2/vtx/bp3/heat3D_3.bp.dir/,REGEX:.*
   Data/ADIOS2/vtx/bp3/heat3D_4.bp.dir/,REGEX:.*
   Data/ADIOS2/vtx/bp3/heat1D_1.bp.dir/,REGEX:.*
+  Data/ADIOS2/vtx/bp4/cell-data-time.bp/,REGEX:.*
   Data/ADIOS2/vtx/bp4/heat3D_1.bp/,REGEX:.*
   Data/ADIOS2/vtx/bp4/heat3D_2.bp/,REGEX:.*
   Data/ADIOS2/vtx/bp4/heat3D_3.bp/,REGEX:.*
