@@ -211,7 +211,10 @@ void vtkWebAssemblyOpenGLRenderWindow::CreateAWindow()
   attrs.antialias = EM_FALSE;
   // optionally blend the canvas with underlying web page contents.
   attrs.alpha = this->EnableTranslucentSurface;
-  attrs.premultipliedAlpha = EM_FALSE;
+  // when the canvas is translucent (EnableTranslucentSurface is enabled), it's important that
+  // premultipliedAlpha is also enabled because VTK results are premultiplied alpha by the default
+  // blending function (see vtkOpenGLRenderWindow::Start).
+  attrs.premultipliedAlpha = EM_TRUE;
   attrs.depth = EM_TRUE;
   attrs.stencil = this->StencilCapable;
 
