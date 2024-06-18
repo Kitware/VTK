@@ -5,9 +5,10 @@
 #define vtkWebGPUComputePipeline_h
 
 #include "vtkObject.h"
-#include "vtkWGPUContext.h"               // for requesting device / adapter
-#include "vtkWebGPUComputeBuffer.h"       // for compute buffers used by the pipeline
-#include "vtkWebGPUComputeRenderBuffer.h" // for compute render buffers used by the pipeline
+#include "vtkWGPUContext.h"                    // for requesting device / adapter
+#include "vtkWebGPUComputeBuffer.h"            // for compute buffers used by the pipeline
+#include "vtkWebGPUComputeRenderBuffer.h"      // for compute render buffers used by the pipeline
+#include "vtkWebGPUInternalsComputePipeline.h" // for "pimpl"
 
 #include <unordered_map>
 
@@ -91,14 +92,22 @@ public:
    * Returns the index of the buffer that can for example be used as input to the
    * ReadBufferFromGPU function
    */
-  int AddBuffer(vtkWebGPUComputeBuffer* buffer);
+  int AddBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer);
 
   /**
    * Adds a render buffer to the pipeline. A render buffer can be obtained from
    * vtkWebGPUPolyDataMapper::AcquirePointXXXXRenderBuffer() or
    * vtkWebGPUPolyDataMapper::AcquireCellXXXXRenderBuffer()
    */
-  void AddRenderBuffer(vtkWebGPUComputeRenderBuffer* renderBuffer);
+  void AddRenderBuffer(vtkSmartPointer<vtkWebGPUComputeRenderBuffer> renderBuffer);
+
+  /**
+   * Resizes a buffer of the pipeline.
+   *
+   * @warning: After the resize, the data of the buffer is undefined and should be updated by a call
+   * to UpdateBufferData()
+   */
+  void ResizeBuffer(int bufferIndex, vtkIdType newByteSize);
 
   /*
    * This function maps the buffer, making it accessible to the CPU. This is
@@ -112,12 +121,109 @@ public:
     int bufferIndex, vtkWebGPUComputePipeline::MapAsyncCallback callback, void* userdata);
 
   /**
-   * Makes some various (and obvious) checks to ensure that the buffer is ready to be created.
-   *
    * Returns true if the buffer is correct.
-   * If the buffer is incorrect, returns false
+   * If the buffer is incorrect, returns false.
+   *
+   * This function makes various checks such as whether the group and binding of the buffer are
+   * correct and also if the group/binding combination is unique or not, ...
    */
   bool IsBufferValid(vtkWebGPUComputeBuffer* buffer, const char* bufferLabel);
+
+  /**
+   * Updates the data of a buffer.
+   * The given data is expected to be at most the size of the buffer.
+   * If N bytes are given to update but the buffer size is > N, only the first N bytes
+   * will be updated, the rest will remain unchanged.
+   * The data is immediately available to the GPU (no call to Update() is necessary for this call to
+   * take effect)
+   *
+   * @note: This method can be used even if the buffer was initially configured with std::vector
+   * data and the given data can safely be destroyed directly after calling this function.
+   */
+  template <typename T>
+  void UpdateBufferData(int bufferIndex, const std::vector<T>& newData)
+  {
+    auto& internals = *this->Internals;
+
+    if (!this->CheckBufferIndex(bufferIndex, std::string("UpdataBufferData")))
+    {
+      return;
+    }
+
+    vtkSmartPointer<vtkWebGPUComputeBuffer> buffer = internals.Buffers[bufferIndex];
+    vtkIdType byteSize = buffer->GetByteSize();
+    vtkIdType givenSize = newData.size() * sizeof(T);
+
+    if (givenSize > byteSize)
+    {
+      vtkLog(ERROR,
+        "std::vector data given to UpdateBufferData with index "
+          << bufferIndex << " is too big. " << givenSize
+          << "bytes were given but the buffer is only " << byteSize
+          << " bytes long. No data was updated by this call.");
+
+      return;
+    }
+
+    wgpu::Buffer wgpuBuffer = internals.WGPUBuffers[bufferIndex];
+    internals.Device.GetQueue().WriteBuffer(
+      wgpuBuffer, 0, newData.data(), newData.size() * sizeof(T));
+  }
+
+  /**
+   * Similar to the overload without offset of this function.
+   * The offset is used to determine where in the buffer to reupload data.
+   * Useful when only a portion of the buffer needs to be reuploaded.
+   */
+  template <typename T>
+  void UpdateBufferData(int bufferIndex, vtkIdType byteOffset, const std::vector<T>& data)
+  {
+    auto& internals = *this->Internals;
+
+    if (!this->CheckBufferIndex(bufferIndex, std::string("UpdataBufferData with offset")))
+    {
+      return;
+    }
+
+    vtkSmartPointer<vtkWebGPUComputeBuffer> buffer = internals.Buffers[bufferIndex];
+    vtkIdType byteSize = buffer->GetByteSize();
+    vtkIdType givenSize = data.size() * sizeof(T);
+
+    if (givenSize + byteOffset > byteSize)
+    {
+      vtkLog(ERROR,
+        "std::vector data given to UpdateBufferData with index "
+          << bufferIndex << " and offset " << byteOffset << " is too big. " << givenSize
+          << "bytes and offset " << byteOffset << " were given but the buffer is only " << byteSize
+          << " bytes long. No data was updated by this call.");
+
+      return;
+    }
+
+    wgpu::Buffer wgpuBuffer = internals.WGPUBuffers[bufferIndex];
+    internals.Device.GetQueue().WriteBuffer(
+      wgpuBuffer, byteOffset, data.data(), data.size() * sizeof(T));
+  }
+
+  /**
+   * Updates the data of a buffer with a vtkDataArray.
+   * The given data is expected to be at most the size of the buffer.
+   * If N bytes are given to update but the buffer size is > N, only the first N bytes
+   * will be updated, the rest will remain unchanged.
+   * The data is immediately available to the GPU (no call to Update() is necessary for this call
+   * to take effect)
+   *
+   * @note: This method can be used even if the buffer is configured for using data from an
+   * std::vector. The given data can safely be destroyed directly after calling this function.
+   */
+  void UpdateBufferData(int bufferIndex, vtkDataArray* newData);
+
+  /**
+   * Similar to the overload without offset of this function.
+   * The offset is used to determine where in the buffer to reupload data.
+   * Useful when only a portion of the buffer needs to be reuploaded.
+   */
+  void UpdateBufferData(int bufferIndex, vtkIdType byteOffset, vtkDataArray* newData);
 
   ///@{
   /*
@@ -138,7 +244,7 @@ public:
    * ReadBufferFromGPU() and then Update() is valid. You do not need to call Update() after every
    * pipeline call. It can be called only once "at the end".
    */
-  void Update() { vtkWGPUContext::WaitABit(); }
+  void Update();
 
 protected:
   /**
@@ -150,6 +256,7 @@ protected:
 private:
   friend class vtkWebGPURenderer;
   friend class vtkWebGPURenderWindow;
+  friend class vtkWebGPUInternalsComputePipeline;
 
   vtkWebGPUComputePipeline(const vtkWebGPUComputePipeline&) = delete;
   void operator=(const vtkWebGPUComputePipeline&) = delete;
@@ -165,6 +272,35 @@ private:
   void SetDevice(wgpu::Device device);
 
   /**
+   * Checks if a given index is suitable for indexing this->Buffers. Logs an error if the index is
+   * negative or greater than the number of buffer of the pipeline. The callerFunctionName parameter
+   * is using to give more information on what function used an invalid buffer index
+   *
+   * Returns true if the buffer index is valid, false if it's not.
+   */
+  bool CheckBufferIndex(int bufferIndex, const std::string& callerFunctionName);
+
+  /**
+   * Makes some various (and obvious) checks to ensure that the buffer is ready to be created.
+   *
+   * Returns true if the buffer is correct.
+   * If the buffer is incorrect, returns false and logs the error with the ERROR verbosity
+   */
+  bool CheckBufferCorrectness(vtkWebGPUComputeBuffer* buffer, const char* bufferLabel);
+
+  /**
+   * Destroys and recreates a buffer with the given newByteSize
+   * Only the wgpu::Buffer object is recreated so the binding/group of the group doesn't change
+   */
+  void RecreateBuffer(int bufferIndex, vtkIdType newByteSize);
+
+  /**
+   * After recreating a wgpu::Buffer, the bind group entry (and the bind group) will need to be
+   * updated. This
+   */
+  void RecreateBufferBindGroup(int bufferIndex);
+
+  /**
    * Binds the buffer to the pipeline at the WebGPU level.
    * To use once the buffer has been properly set up.
    */
@@ -177,8 +313,7 @@ private:
   // Label used for debugging
   std::string Label = "VTK Compute pipeline";
 
-  struct ComputePipelineInternals;
-  std::unique_ptr<ComputePipelineInternals> Internals;
+  std::unique_ptr<vtkWebGPUInternalsComputePipeline> Internals;
 };
 
 VTK_ABI_NAMESPACE_END

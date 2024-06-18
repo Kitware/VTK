@@ -21,7 +21,14 @@ public:
    */
   static void UploadFromDataArray(
     wgpu::Device device, wgpu::Buffer wgpuBuffer, vtkDataArray* dataArray);
+
+  /**
+   * Uploads a vtkDataArray with offset to the given wgpuBuffer
+   */
+  static void UploadFromDataArray(
+    wgpu::Device device, wgpu::Buffer wgpuBuffer, vtkIdType byteOffset, vtkDataArray* dataArray);
 };
 
 VTK_ABI_NAMESPACE_END
+
 #endif

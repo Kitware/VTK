@@ -4,12 +4,15 @@
 #include "vtkWebGPUInternalsComputeBuffer.h"
 #include "vtkArrayDispatch.h"
 
+namespace
+{
 class DispatchDataWriter
 {
 public:
-  DispatchDataWriter(wgpu::Device device, wgpu::Buffer buffer)
+  DispatchDataWriter(wgpu::Device device, wgpu::Buffer buffer, vtkIdType byteOffset)
     : Device(device)
     , Buffer(buffer)
+    , ByteOffset(byteOffset)
   {
   }
 
@@ -28,21 +31,30 @@ public:
     }
 
     this->Device.GetQueue().WriteBuffer(
-      Buffer, 0, data.data(), data.size() * srcArray->GetDataTypeSize());
+      this->Buffer, this->ByteOffset, data.data(), data.size() * srcArray->GetDataTypeSize());
   }
 
 private:
   wgpu::Device Device;
   wgpu::Buffer Buffer;
+  vtkIdType ByteOffset;
 };
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputeBuffer::UploadFromDataArray(
   wgpu::Device device, wgpu::Buffer buffer, vtkDataArray* dataArray)
 {
+  UploadFromDataArray(device, buffer, 0, dataArray);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUInternalsComputeBuffer::UploadFromDataArray(
+  wgpu::Device device, wgpu::Buffer buffer, vtkIdType byteOffset, vtkDataArray* dataArray)
+{
   using DispatchAllTypes = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
 
-  DispatchDataWriter dispatchDataWriter(device, buffer);
+  DispatchDataWriter dispatchDataWriter(device, buffer, byteOffset);
 
   if (!DispatchAllTypes::Execute(dataArray, dispatchDataWriter))
   {

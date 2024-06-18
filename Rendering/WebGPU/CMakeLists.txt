@@ -25,6 +25,7 @@ set(private_classes
   vtkWebGPUInternalsBuffer
   vtkWebGPUInternalsCallbacks
   vtkWebGPUInternalsComputeBuffer
+  vtkWebGPUInternalsComputePipeline
   vtkWebGPUInternalsPipelineLayout
   vtkWebGPUInternalsRenderPassCreateInfo
   vtkWebGPUInternalsRenderPassDescriptor
@@ -75,7 +76,7 @@ set(public_shader_files
 foreach (file IN LISTS private_shader_files)
   vtk_encode_string(
     INPUT         "${file}"
-    EXPORT_SYMBOL "VTKRENDERINGWEBGPU_NO_EXPORT"
+    EXPORT_SYMBOL "VTKRENDERINGWEBGPU_EXPORT"
     EXPORT_HEADER "vtkRenderingWebGPUModule.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)

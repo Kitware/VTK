@@ -12,51 +12,8 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-vtkStandardNewMacro(vtkWebGPUComputePipeline);
-
 namespace
 {
-//------------------------------------------------------------------------------
-wgpu::BufferUsage ComputeBufferModeToBufferUsage(vtkWebGPUComputeBuffer::BufferMode mode)
-{
-  switch (mode)
-  {
-    case vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE:
-    case vtkWebGPUComputeBuffer::READ_WRITE_COMPUTE_STORAGE:
-      return wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage;
-
-    case vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE:
-      return wgpu::BufferUsage::CopySrc | wgpu::BufferUsage::Storage;
-
-    case vtkWebGPUComputeBuffer::BufferMode::UNIFORM_BUFFER:
-      return wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Uniform;
-
-    default:
-      return wgpu::BufferUsage::None;
-  }
-}
-
-//------------------------------------------------------------------------------
-wgpu::BufferBindingType ComputeBufferModeToBufferBindingType(
-  vtkWebGPUComputeBuffer::BufferMode mode)
-{
-  switch (mode)
-  {
-    case vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE:
-      return wgpu::BufferBindingType::ReadOnlyStorage;
-
-    case vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_COMPUTE_STORAGE:
-    case vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE:
-      return wgpu::BufferBindingType::Storage;
-
-    case vtkWebGPUComputeBuffer::BufferMode::UNIFORM_BUFFER:
-      return wgpu::BufferBindingType::Uniform;
-
-    default:
-      return wgpu::BufferBindingType::Undefined;
-  }
-}
-
 /**
  * Structure used to pass data to the asynchronous callback of wgpu::Buffer.MapAsync()
  */
@@ -70,8 +27,8 @@ struct InternalMapBufferAsyncData
   vtkIdType byteSize = -1;
 
   // The callback given by the user that will be called once the buffer is mapped. The user will
-  // usually use their callback to copy the data from the mapped buffer into a CPU-side buffer that
-  // will use the result of the compute shader in the rest of the application
+  // usually use their callback to copy the data from the mapped buffer into a CPU-side buffer
+  // that will use the result of the compute shader in the rest of the application
   vtkWebGPUComputePipeline::MapAsyncCallback userCallback;
   // Userdata passed to userCallback. This is typically the structure that contains the CPU-side
   // buffer into which the data of the mapped buffer will be copied
@@ -79,269 +36,11 @@ struct InternalMapBufferAsyncData
 };
 }
 
-class vtkWebGPUComputePipeline::ComputePipelineInternals
-{
-public:
-  ComputePipelineInternals(vtkWebGPUComputePipeline* self)
-    : Self(self)
-  {
-  }
-
-  /**
-   * Given a buffer, create the associated bind group layout entry
-   * that will be used when creating the bind group layouts
-   */
-  void AddBindGroupLayoutEntry(
-    uint32_t bindGroup, uint32_t binding, vtkWebGPUComputeBuffer::BufferMode mode)
-  {
-    wgpu::BufferBindingType bindingType = ComputeBufferModeToBufferBindingType(mode);
-
-    vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper bglEntry{ binding,
-      wgpu::ShaderStage::Compute, bindingType };
-
-    this->BindGroupLayoutEntries[bindGroup].push_back(bglEntry);
-  }
-
-  /**
-   * Given a buffer, create the associated bind group entry
-   * that will be used when creating the bind groups
-   */
-  void AddBindGroupEntry(wgpu::Buffer wgpuBuffer, uint32_t bindGroup, uint32_t binding,
-    vtkWebGPUComputeBuffer::BufferMode mode, uint32_t offset)
-  {
-    wgpu::BufferBindingType bindingType = ComputeBufferModeToBufferBindingType(mode);
-
-    vtkWebGPUInternalsBindGroup::BindingInitializationHelper bgEntry{ binding, wgpuBuffer, offset };
-
-    this->BindGroupEntries[bindGroup].push_back(bgEntry.GetAsBinding());
-  }
-
-  /**
-   * Initializes the adapter of the compute pipeline
-   */
-  void CreateAdapter()
-  {
-    if (this->Adapter != nullptr)
-    {
-      // The adapter already exists, it must have been given by SetAdapter()
-      return;
-    }
-
-#if defined(__APPLE__)
-    wgpu::BackendType backendType = wgpu::BackendType::Metal;
-#elif defined(_WIN32)
-    wgpu::BackendType backendType = wgpu::BackendType::D3D12;
-#else
-    wgpu::BackendType backendType = wgpu::BackendType::Undefined;
-#endif
-
-    wgpu::RequestAdapterOptions adapterOptions;
-    adapterOptions.backendType = backendType;
-    adapterOptions.powerPreference = wgpu::PowerPreference::HighPerformance;
-    this->Adapter = vtkWGPUContext::RequestAdapter(adapterOptions);
-  }
-
-  /**
-   * Initializes the device of the compute pipeline
-   */
-  void CreateDevice()
-  {
-    if (this->Device != nullptr)
-    {
-      // The device already exists, it must have been given by SetDevice()
-      return;
-    }
-
-    wgpu::DeviceDescriptor deviceDescriptor;
-    deviceDescriptor.nextInChain = nullptr;
-    deviceDescriptor.deviceLostCallback = &vtkWebGPUInternalsCallbacks::DeviceLostCallback;
-    deviceDescriptor.label = Self->Label.c_str();
-    this->Device = vtkWGPUContext::RequestDevice(this->Adapter, deviceDescriptor);
-    this->Device.SetUncapturedErrorCallback(
-      &vtkWebGPUInternalsCallbacks::UncapturedErrorCallback, nullptr);
-  }
-
-  /**
-   * Compiles the shader source given into a WGPU shader module
-   */
-  void CreateShaderModule()
-  {
-    this->ShaderModule =
-      vtkWebGPUInternalsShaderModule::CreateFromWGSL(this->Device, Self->ShaderSource);
-  }
-
-  /**
-   * Creates all the bind groups and bind group layouts of this compute pipeline from the buffers
-   * that have been added so far.
-   */
-  void CreateBindGroupsAndLayouts()
-  {
-    this->BindGroupLayouts.clear();
-    this->BindGroups.clear();
-
-    for (const auto& mapEntry : this->BindGroupLayoutEntries)
-    {
-      int bindGroup = mapEntry.first;
-
-      const std::vector<wgpu::BindGroupLayoutEntry>& bglEntries =
-        this->BindGroupLayoutEntries[mapEntry.first];
-      const std::vector<wgpu::BindGroupEntry>& bgEntries = this->BindGroupEntries[mapEntry.first];
-
-      this->BindGroupLayouts.push_back(CreateBindGroupLayout(this->Device, bglEntries));
-      this->BindGroups.push_back(vtkWebGPUInternalsBindGroup::MakeBindGroup(
-        this->Device, BindGroupLayouts.back(), bgEntries));
-    }
-  }
-
-  /**
-   * Creates the bind group layout of a given list of buffers (that must all belong to the same bind
-   * group)
-   */
-  wgpu::BindGroupLayout CreateBindGroupLayout(
-    const wgpu::Device& device, const std::vector<wgpu::BindGroupLayoutEntry>& layoutEntries)
-  {
-    wgpu::BindGroupLayout bgl =
-      vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device, layoutEntries);
-    return bgl;
-  }
-
-  /**
-   * Creates the compute pipeline that will be used to dispatch the compute shader
-   */
-  void CreateComputePipeline()
-  {
-    wgpu::ComputePipelineDescriptor computePipelineDescriptor;
-    computePipelineDescriptor.compute.constantCount = 0;
-    computePipelineDescriptor.compute.constants = nullptr;
-    computePipelineDescriptor.compute.entryPoint = Self->ShaderEntryPoint.c_str();
-    computePipelineDescriptor.compute.module = this->ShaderModule;
-    computePipelineDescriptor.compute.nextInChain = nullptr;
-    computePipelineDescriptor.label = this->WGPUComputePipelineLabel.c_str();
-    computePipelineDescriptor.layout = CreateComputePipelineLayout();
-
-    this->ComputePipeline = this->Device.CreateComputePipeline(&computePipelineDescriptor);
-  }
-
-  /**
-   * Creates the compute pipeline layout associated with the bind group layouts of this compute
-   * pipeline
-   *
-   * @warning: The bind group layouts must have been created by CreateBindGroups() prior to calling
-   * this function
-   */
-  wgpu::PipelineLayout CreateComputePipelineLayout()
-  {
-    wgpu::PipelineLayoutDescriptor computePipelineLayoutDescriptor;
-    computePipelineLayoutDescriptor.bindGroupLayoutCount = this->BindGroupLayouts.size();
-    computePipelineLayoutDescriptor.bindGroupLayouts = this->BindGroupLayouts.data();
-    computePipelineLayoutDescriptor.nextInChain = nullptr;
-
-    return this->Device.CreatePipelineLayout(&computePipelineLayoutDescriptor);
-  }
-
-  /**
-   * Creates and returns a command encoder
-   */
-  wgpu::CommandEncoder CreateCommandEncoder()
-  {
-    wgpu::CommandEncoderDescriptor commandEncoderDescriptor;
-    commandEncoderDescriptor.label = this->WGPUCommandEncoderLabel.c_str();
-
-    return this->Device.CreateCommandEncoder(&commandEncoderDescriptor);
-  }
-
-  /**
-   * Creates a compute pass encoder from a command encoder
-   */
-  wgpu::ComputePassEncoder CreateComputePassEncoder(const wgpu::CommandEncoder& commandEncoder)
-  {
-    wgpu::ComputePassDescriptor computePassDescriptor;
-    computePassDescriptor.nextInChain = nullptr;
-    computePassDescriptor.timestampWrites = 0;
-    return commandEncoder.BeginComputePass(&computePassDescriptor);
-  }
-
-  /**
-   * Encodes the compute pass and dispatches the workgroups
-   *
-   * @warning: The bind groups and the compute pipeline must have been created prior to calling this
-   * function
-   */
-  void DispatchComputePass(unsigned int groupsX, unsigned int groupsY, unsigned int groupsZ)
-  {
-    if (groupsX * groupsY * groupsZ == 0)
-    {
-      vtkLogF(ERROR,
-        "Invalid number of workgroups when dispatching compute pipeline \"%s\". Work groups sizes "
-        "(X, Y, Z) were: (%d, %d, %d) but no dimensions can be 0.",
-        Self->Label.c_str(), groupsX, groupsY, groupsZ);
-
-      return;
-    }
-
-    wgpu::CommandEncoder commandEncoder = this->CreateCommandEncoder();
-
-    wgpu::ComputePassEncoder computePassEncoder = CreateComputePassEncoder(commandEncoder);
-    computePassEncoder.SetPipeline(this->ComputePipeline);
-    for (int bindGroupIndex = 0; bindGroupIndex < this->BindGroups.size(); bindGroupIndex++)
-    {
-      computePassEncoder.SetBindGroup(bindGroupIndex, this->BindGroups[bindGroupIndex], 0, nullptr);
-    }
-    computePassEncoder.DispatchWorkgroups(groupsX, groupsY, groupsZ);
-    computePassEncoder.End();
-
-    this->SubmitCommandEncoderToQueue(commandEncoder);
-  }
-
-  /**
-   * Finishes the encoding of a command encoder and submits the resulting command buffer
-   * to the queue
-   */
-  void SubmitCommandEncoderToQueue(const wgpu::CommandEncoder& commandEncoder)
-  {
-    wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
-    this->Device.GetQueue().Submit(1, &commandBuffer);
-  }
-
-  bool Initialized = false;
-
-  wgpu::Adapter Adapter = nullptr;
-  wgpu::Device Device = nullptr;
-  wgpu::ShaderModule ShaderModule;
-  std::vector<wgpu::BindGroup> BindGroups;
-  // Maps a bind group index to to the list of bind group entries for this group. These
-  // entries will be used at the creation of the bind groups
-  std::unordered_map<int, std::vector<wgpu::BindGroupEntry>> BindGroupEntries;
-  std::vector<wgpu::BindGroupLayout> BindGroupLayouts;
-  // Maps a bind group index to to the list of bind group layout entries for this group.
-  // These layout entries will be used at the creation of the bind group layouts
-  std::unordered_map<int, std::vector<wgpu::BindGroupLayoutEntry>> BindGroupLayoutEntries;
-  wgpu::ComputePipeline ComputePipeline;
-
-  std::vector<vtkWebGPUComputeBuffer*> Buffers;
-  std::vector<wgpu::Buffer> WGPUBuffers;
-
-  /**
-   * Render buffers use already existing wgpu buffers (those of poly data mappers for example) and
-   * thus need to be handled differently
-   */
-  std::vector<vtkSmartPointer<vtkWebGPUComputeRenderBuffer>> RenderBuffers;
-
-  // How many groups to launch when dispatching the compute
-  unsigned int GroupsX = 0, GroupsY = 0, GroupsZ = 0;
-
-  // Label used for the wgpu compute pipeline of this VTK compute pipeline
-  std::string WGPUComputePipelineLabel = "WebGPU compute pipeline of \"VTK Compute pipeline\"";
-  // Label used for the wgpu command encoders created and used by this VTK compute pipeline
-  std::string WGPUCommandEncoderLabel = "WebGPU command encoder of \"VTK Compute pipeline\"";
-
-  // Main class
-  vtkWebGPUComputePipeline* Self;
-};
+vtkStandardNewMacro(vtkWebGPUComputePipeline);
 
 //------------------------------------------------------------------------------
 vtkWebGPUComputePipeline::vtkWebGPUComputePipeline()
-  : Internals(new ComputePipelineInternals(this))
+  : Internals(new vtkWebGPUInternalsComputePipeline(this))
 {
   this->Internals->CreateAdapter();
   this->Internals->CreateDevice();
@@ -400,7 +99,7 @@ void vtkWebGPUComputePipeline::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WGPU Compute pipeline: " << internals.ComputePipeline.Get() << std::endl;
 
   os << indent << internals.Buffers.size() << "buffers: " << std::endl;
-  for (vtkWebGPUComputeBuffer* buffer : internals.Buffers)
+  for (vtkSmartPointer<vtkWebGPUComputeBuffer> buffer : internals.Buffers)
   {
     buffer->PrintSelf(os, indent);
   }
@@ -460,7 +159,7 @@ void vtkWebGPUComputePipeline::SetDevice(wgpu::Device device)
 }
 
 //------------------------------------------------------------------------------
-int vtkWebGPUComputePipeline::AddBuffer(vtkWebGPUComputeBuffer* buffer)
+int vtkWebGPUComputePipeline::AddBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer)
 {
   auto& internals = *this->Internals;
 
@@ -478,10 +177,15 @@ int vtkWebGPUComputePipeline::AddBuffer(vtkWebGPUComputeBuffer* buffer)
     return -1;
   }
 
-  wgpu::Buffer wgpuBuffer =
-    vtkWebGPUInternalsBuffer::CreateABuffer(internals.Device, buffer->GetByteSize(),
-      ComputeBufferModeToBufferUsage(buffer->GetMode()), false, bufferLabel.c_str());
+  wgpu::BufferUsage bufferUsage =
+    vtkWebGPUInternalsComputePipeline::ComputeBufferModeToBufferUsage(buffer->GetMode());
+  wgpu::Buffer wgpuBuffer = vtkWebGPUInternalsBuffer::CreateABuffer(
+    internals.Device, buffer->GetByteSize(), bufferUsage, false, bufferLabel.c_str());
 
+  // The buffer is read only by the shader if it doesn't have CopySrc (meaning that we would be
+  // mapping the buffer from the GPU to read its results on the CPU meaning that the shader writes
+  // to the buffer)
+  bool bufferReadOnly = !(bufferUsage | wgpu::BufferUsage::CopySrc);
   // Uploading from std::vector or vtkDataArray if one of the two is present
   switch (buffer->GetDataType())
   {
@@ -491,8 +195,10 @@ int vtkWebGPUComputePipeline::AddBuffer(vtkWebGPUComputeBuffer* buffer)
         internals.Device.GetQueue().WriteBuffer(
           wgpuBuffer, 0, buffer->GetDataPointer(), buffer->GetByteSize());
       }
-      else
+      else if (bufferReadOnly)
       {
+        // Only warning if we're using a read only buffer without uploading data to initialize it
+
         vtkLog(WARNING,
           "The buffer with label \""
             << bufferLabel
@@ -506,8 +212,10 @@ int vtkWebGPUComputePipeline::AddBuffer(vtkWebGPUComputeBuffer* buffer)
         vtkWebGPUInternalsComputeBuffer::UploadFromDataArray(
           internals.Device, wgpuBuffer, buffer->GetDataArray());
       }
-      else
+      else if (bufferReadOnly)
       {
+        // Only warning if we're using a read only buffer without uploading data to initialize it
+
         vtkLog(WARNING,
           "The buffer with label \"" << bufferLabel
                                      << "\" has data type VTK_DATA_ARRAY but no vtkDataArray data "
@@ -534,7 +242,8 @@ int vtkWebGPUComputePipeline::AddBuffer(vtkWebGPUComputeBuffer* buffer)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputePipeline::AddRenderBuffer(vtkWebGPUComputeRenderBuffer* renderBuffer)
+void vtkWebGPUComputePipeline::AddRenderBuffer(
+  vtkSmartPointer<vtkWebGPUComputeRenderBuffer> renderBuffer)
 {
   auto& internals = *this->Internals;
 
@@ -543,6 +252,88 @@ void vtkWebGPUComputePipeline::AddRenderBuffer(vtkWebGPUComputeRenderBuffer* ren
   internals.Buffers.push_back(renderBuffer);
   internals.WGPUBuffers.push_back(renderBuffer->GetWGPUBuffer());
   internals.RenderBuffers.push_back(renderBuffer);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePipeline::ResizeBuffer(int bufferIndex, vtkIdType newByteSize)
+{
+  if (!this->CheckBufferIndex(bufferIndex, std::string("ResizeBuffer")))
+  {
+    return;
+  }
+
+  vtkWebGPUComputeBuffer* buffer = this->Internals->Buffers[bufferIndex];
+
+  this->RecreateBuffer(bufferIndex, newByteSize);
+  this->RecreateBufferBindGroup(bufferIndex);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePipeline::RecreateBuffer(int bufferIndex, vtkIdType newByteSize)
+{
+  auto& internals = *this->Internals;
+
+  vtkSmartPointer<vtkWebGPUComputeBuffer> buffer = internals.Buffers[bufferIndex];
+
+  // Updating the byte size
+  buffer->SetByteSize(newByteSize);
+  const char* bufferLabel = buffer->GetLabel().c_str();
+  wgpu::BufferUsage bufferUsage =
+    vtkWebGPUInternalsComputePipeline::ComputeBufferModeToBufferUsage(buffer->GetMode());
+
+  // Recreating the buffer
+  internals.WGPUBuffers[bufferIndex] = vtkWebGPUInternalsBuffer::CreateABuffer(
+    internals.Device, newByteSize, bufferUsage, false, bufferLabel);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePipeline::RecreateBufferBindGroup(int bufferIndex)
+{
+  auto& internals = *this->Internals;
+
+  vtkSmartPointer<vtkWebGPUComputeBuffer> buffer = internals.Buffers[bufferIndex];
+
+  // We also need to recreate the bind group entry (and the bind group below) that corresponded to
+  // this buffer.
+  // We first need to find the bind group entry that corresponded to this buffer
+  std::vector<wgpu::BindGroupEntry>& bgEntries = internals.BindGroupEntries[buffer->GetGroup()];
+  for (wgpu::BindGroupEntry& entry : bgEntries)
+  {
+    // We only need to check the binding because we already retrieved all the entries that
+    // correspond to the group of the buffer
+    if (entry.binding == buffer->GetBinding())
+    {
+      // Replacing the buffer by the one we just recreated
+      entry.buffer = internals.WGPUBuffers[bufferIndex];
+
+      break;
+    }
+  }
+
+  // Finding which bind group is the one to recreate
+  int bindGroupIndex = -1;
+  for (int i = 0; i < internals.BindGroupsOrder.size(); i++)
+  {
+    if (internals.BindGroupsOrder[i] == buffer->GetGroup())
+    {
+      bindGroupIndex = i;
+
+      break;
+    }
+  }
+
+  if (bindGroupIndex == -1)
+  {
+    // We couldn't find the bind group, something went wrong
+    vtkLog(ERROR,
+      "Unable to find the bind group to which the buffer of index" << bufferIndex << " belongs.");
+
+    return;
+  }
+
+  // Recreating the right bind group
+  internals.BindGroups[bindGroupIndex] = vtkWebGPUInternalsBindGroup::MakeBindGroup(
+    internals.Device, internals.BindGroupLayouts[bindGroupIndex], bgEntries);
 }
 
 //------------------------------------------------------------------------------
@@ -625,6 +416,96 @@ void vtkWebGPUComputePipeline::ReadBufferFromGPU(
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUComputePipeline::UpdateBufferData(int bufferIndex, vtkDataArray* newData)
+{
+  auto& internals = *this->Internals;
+
+  if (!this->CheckBufferIndex(bufferIndex, std::string("UpdateBufferData")))
+  {
+    return;
+  }
+
+  vtkSmartPointer<vtkWebGPUComputeBuffer> buffer = internals.Buffers[bufferIndex];
+  vtkIdType byteSize = buffer->GetByteSize();
+  vtkIdType givenSize = newData->GetNumberOfValues() * newData->GetDataTypeSize();
+
+  if (givenSize > byteSize)
+  {
+    vtkLog(ERROR,
+      "std::vector data given to UpdateBufferData with index "
+        << bufferIndex << " is too big. " << givenSize << "bytes were given but the buffer is only "
+        << byteSize << " bytes long. No data was updated by this call.");
+
+    return;
+  }
+
+  wgpu::Buffer wgpuBuffer = internals.WGPUBuffers[bufferIndex];
+
+  vtkWebGPUInternalsComputeBuffer::UploadFromDataArray(internals.Device, wgpuBuffer, newData);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePipeline::UpdateBufferData(
+  int bufferIndex, vtkIdType byteOffset, vtkDataArray* newData)
+{
+  auto& internals = *this->Internals;
+
+  if (!this->CheckBufferIndex(bufferIndex, std::string("UpdateBufferData with offset")))
+  {
+    return;
+  }
+
+  vtkSmartPointer<vtkWebGPUComputeBuffer> buffer = internals.Buffers[bufferIndex];
+  vtkIdType byteSize = buffer->GetByteSize();
+  vtkIdType givenSize = newData->GetNumberOfValues() * newData->GetDataTypeSize();
+
+  if (givenSize + byteOffset > byteSize)
+  {
+    vtkLog(ERROR,
+      "vtkDataArray data given to UpdateBufferData with index "
+        << bufferIndex << " and offset " << byteOffset << " is too big. " << givenSize
+        << "bytes and offset " << byteOffset << " were given but the buffer is only " << byteSize
+        << " bytes long. No data was updated by this call.");
+
+    return;
+  }
+
+  wgpu::Buffer wgpuBuffer = internals.WGPUBuffers[bufferIndex];
+
+  vtkWebGPUInternalsComputeBuffer::UploadFromDataArray(
+    internals.Device, wgpuBuffer, byteOffset, newData);
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUComputePipeline::CheckBufferIndex(
+  int bufferIndex, const std::string& callerFunctionName)
+{
+  auto& internals = *this->Internals;
+
+  if (bufferIndex < 0)
+  {
+    vtkLog(ERROR,
+      "Negative bufferIndex given to "
+        << callerFunctionName << ". Make sure to use an index that was returned by AddBuffer().");
+
+    return false;
+  }
+
+  if (bufferIndex >= internals.Buffers.size())
+  {
+    vtkLog(ERROR,
+      "Invalid bufferIndex given to "
+        << callerFunctionName << ". Index was '" << bufferIndex << "' while there are "
+        << internals.Buffers.size()
+        << " available buffers. Make sure to use an index that was returned by AddBuffer().");
+
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkWebGPUComputePipeline::IsBufferValid(
   vtkWebGPUComputeBuffer* buffer, const char* bufferLabel)
 {
@@ -651,7 +532,7 @@ bool vtkWebGPUComputePipeline::IsBufferValid(
   else
   {
     // Checking that the buffer isn't already used
-    for (vtkWebGPUComputeBuffer* existingBuffer : internals.Buffers)
+    for (vtkSmartPointer<vtkWebGPUComputeBuffer> existingBuffer : internals.Buffers)
     {
       if (buffer->GetBinding() == existingBuffer->GetBinding() &&
         buffer->GetGroup() == existingBuffer->GetGroup())
@@ -695,6 +576,26 @@ void vtkWebGPUComputePipeline::Dispatch()
   }
 
   internals.DispatchComputePass(internals.GroupsX, internals.GroupsY, internals.GroupsZ);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePipeline::Update()
+{
+  bool workDone = false;
+
+  // clang-format off
+  this->Internals->Device.GetQueue().OnSubmittedWorkDone([](WGPUQueueWorkDoneStatus, void* userdata)
+  { 
+    *static_cast<bool*>(userdata) = true; 
+  }, &workDone);
+  // clang-format on
+
+  // Waiting for the compute pipeline to complete all its work. The callback that will set workDone
+  // to true will be called when all the work has been dispatched to the GPU and completed.
+  while (!workDone)
+  {
+    vtkWGPUContext::WaitABit();
+  }
 }
 
 VTK_ABI_NAMESPACE_END
