@@ -8,8 +8,9 @@ set(classes
   vtkWebGPUActor
   vtkWebGPUCamera
   vtkWebGPUClearPass
-  vtkWebGPUComputePipeline
   vtkWebGPUComputeBuffer
+  vtkWebGPUComputeFrustumCuller
+  vtkWebGPUComputePipeline
   vtkWebGPUComputeRenderBuffer
   vtkWebGPUHardwareSelector
   vtkWebGPULight
@@ -64,6 +65,7 @@ unset(wgsl_shader_sources)
 unset(private_wgsl_shader_headers)
 unset(public_wgsl_shader_headers)
 set(private_shader_files
+  wgsl/FrustumCullingShader.wgsl
   wgsl/PolyData.wgsl)
 
 set(public_shader_files

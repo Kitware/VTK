@@ -336,6 +336,12 @@ void vtkWebGPURenderer::UpdateComputePipelines()
 }
 
 //------------------------------------------------------------------------------
+std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> vtkWebGPURenderer::GetSetupComputePipelines()
+{
+  return this->SetupComputePipelines;
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderer::UpdateComputeBuffers(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline)
 {
   for (int i = 0; i < this->PropArrayCount; i++)

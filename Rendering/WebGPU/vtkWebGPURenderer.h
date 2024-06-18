@@ -74,6 +74,11 @@ public:
   void UpdateComputePipelines();
 
   /**
+   * Returns the list of compute pipelines of this renderer that have been setup
+   */
+  std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> GetSetupComputePipelines();
+
+  /**
    * Request props to encode render commands.
    */
   int RenderGeometry();

@@ -4,7 +4,6 @@
 #define vtkWebGPURenderWindow_h
 
 #include "vtkRenderWindow.h"
-
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtkTypeUInt8Array.h"        // for ivar
 #include "vtk_wgpu.h"                 // for webgpu
@@ -300,6 +299,12 @@ protected:
 private:
   vtkWebGPURenderWindow(const vtkWebGPURenderWindow&) = delete;
   void operator=(const vtkWebGPURenderWindow&) = delete;
+
+  /**
+   * Sets up the compute pipeline of the vtkWebGPURenderer of this render window so that they use
+   * the same Adapter and Device as this render window
+   */
+  void InitializeComputePipelines();
 };
 
 VTK_ABI_NAMESPACE_END

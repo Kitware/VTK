@@ -168,6 +168,41 @@ protected:
   void SetupBindGroups(const wgpu::Device& device, vtkRenderer* renderer);
 
   /**
+   * Returns the size of the 'sub-buffer' within the whole point data SSBO for the given attribute
+   */
+  unsigned long GetPointAttributeByteSize(vtkWebGPUPolyDataMapper::PointDataAttributes attribute);
+
+  /**
+   * Returns the size of the 'sub-buffer' within the whole cell data SSBO for the given attribute
+   */
+  unsigned long GetCellAttributeByteSize(vtkWebGPUPolyDataMapper::CellDataAttributes attribute);
+
+  /**
+   * Returns the size in bytes of one element of the given attribute.
+   * 4 * sizeof(float) for an RGBA color attribute for example
+   */
+  unsigned long GetPointAttributeElementSize(
+    vtkWebGPUPolyDataMapper::PointDataAttributes attribute);
+
+  /**
+   * Returns the size in bytes of one element of the given attribute.
+   * 4 * sizeof(float) for an RGBA color attribute for example
+   */
+  unsigned long GetCellAttributeElementSize(vtkWebGPUPolyDataMapper::CellDataAttributes attribute);
+
+  /**
+   * Returns the offset at which the 'sub-buffer' of 'attribute' starts within the mesh SSBO point
+   * data buffer
+   */
+  vtkIdType GetPointAttributeByteOffset(PointDataAttributes attribute);
+
+  /**
+   * Returns the offset at which the 'sub-buffer' of 'attribute' starts within the mesh SSBO cell
+   * data buffer
+   */
+  vtkIdType GetCellAttributeByteOffset(CellDataAttributes attribute);
+
+  /**
    * Enqueues a write command on the device queue for all buffers whose data is outdated.
    * Internally, dawn uses a staging ring buffer, as a result, vtk arrays are copied
    * into that host-side buffer and kept alive until uploaded.
@@ -319,34 +354,6 @@ private:
     CellDataAttributes::CELL_EDGES, CellDataAttributes::CELL_COLORS,
     CellDataAttributes::CELL_NORMALS
   };
-
-  ///@{
-  /**
-   * Returns the size of the 'sub-buffer' within the whole point/cell data SSBO for the given
-   * attribute
-   */
-  unsigned long GetPointAttributeByteSize(vtkWebGPUPolyDataMapper::PointDataAttributes attribute);
-  unsigned long GetCellAttributeByteSize(vtkWebGPUPolyDataMapper::CellDataAttributes attribute);
-  ///@}
-
-  ///@{
-  /**
-   * Returns the size in bytes of one element of the given attribute.
-   * 4 * sizeof(float) for an RGBA color attribute for example
-   */
-  unsigned long GetPointAttributeElementSize(
-    vtkWebGPUPolyDataMapper::PointDataAttributes attribute);
-  unsigned long GetCellAttributeElementSize(vtkWebGPUPolyDataMapper::CellDataAttributes attribute);
-  ///@}
-
-  ///@{
-  /**
-   * Returns the offset at which the 'sub-buffer' of 'attribute' starts within the mesh SSBO point
-   * data buffer
-   */
-  vtkIdType GetPointAttributeByteOffset(PointDataAttributes attribute);
-  vtkIdType GetCellAttributeByteOffset(CellDataAttributes attribute);
-  ///@}
 
   vtkWebGPUPolyDataMapper(const vtkWebGPUPolyDataMapper&) = delete;
   void operator=(const vtkWebGPUPolyDataMapper&) = delete;

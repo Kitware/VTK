@@ -238,6 +238,18 @@ wgpu::TextureFormat vtkWebGPURenderWindow::GetPreferredSwapChainTextureFormat()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::InitializeComputePipelines()
+{
+  vtkWebGPURenderer* wgpuRenderer =
+    vtkWebGPURenderer::SafeDownCast(this->GetRenderers()->GetFirstRenderer());
+  for (vtkWebGPUComputePipeline* pipeline : wgpuRenderer->GetSetupComputePipelines())
+  {
+    pipeline->SetAdapter(this->Adapter);
+    pipeline->SetDevice(this->Device);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::CreateSwapChain()
 {
   vtkDebugMacro(<< __func__ << '(' << this->Size[0] << ',' << this->Size[1] << ')');
@@ -528,6 +540,7 @@ void vtkWebGPURenderWindow::Start()
   if (!this->WGPUInitialized)
   {
     this->WGPUInitialized = this->Initialize(); // calls WGPUInit after surface is created.
+    this->InitializeComputePipelines();
     this->CreateSwapChain();
     this->CreateOffscreenColorAttachments();
     this->CreateDepthStencilTexture();

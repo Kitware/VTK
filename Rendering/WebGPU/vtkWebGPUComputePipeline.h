@@ -281,14 +281,6 @@ private:
   bool CheckBufferIndex(int bufferIndex, const std::string& callerFunctionName);
 
   /**
-   * Makes some various (and obvious) checks to ensure that the buffer is ready to be created.
-   *
-   * Returns true if the buffer is correct.
-   * If the buffer is incorrect, returns false and logs the error with the ERROR verbosity
-   */
-  bool CheckBufferCorrectness(vtkWebGPUComputeBuffer* buffer, const char* bufferLabel);
-
-  /**
    * Destroys and recreates a buffer with the given newByteSize
    * Only the wgpu::Buffer object is recreated so the binding/group of the group doesn't change
    */

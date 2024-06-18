@@ -58,7 +58,6 @@ int TestComputePipelineUniform(int argc, char** argv)
   inputValues2Buffer->SetData(inputVector2Values);
   inputValues2Buffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
 
-  // Creating a buffer for the additional uniform
   float myUniform = 2.5f;
   std::vector<float> multiplierUniform = { myUniform };
   vtkNew<vtkWebGPUComputeBuffer> uniformBuffer;
