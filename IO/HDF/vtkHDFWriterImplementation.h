@@ -24,7 +24,6 @@ public:
   hid_t GetRoot() { return this->Root; }
   hid_t GetFile() { return this->File; }
   hid_t GetStepsGroup() { return this->StepsGroup; }
-  const char* GetLastError() { return this->LastError; }
 
   /**
    * Write version and type attributes to the root group
@@ -246,7 +245,6 @@ public:
 
 private:
   vtkHDFWriter* Writer;
-  const char* LastError;
   vtkHDF::ScopedH5FHandle File;
   vtkHDF::ScopedH5GHandle Root;
   vtkHDF::ScopedH5GHandle StepsGroup;

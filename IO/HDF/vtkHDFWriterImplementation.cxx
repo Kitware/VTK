@@ -80,7 +80,6 @@ bool vtkHDFWriter::Implementation::OpenFile(bool overwrite)
     filename, overwrite ? H5F_ACC_TRUNC : H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT) };
   if (file == H5I_INVALID_HID)
   {
-    this->LastError = "Can not create file";
     return false;
   }
 
@@ -88,7 +87,6 @@ bool vtkHDFWriter::Implementation::OpenFile(bool overwrite)
   vtkHDF::ScopedH5GHandle root = this->CreateHdfGroupWithLinkOrder(file, "VTKHDF");
   if (root == H5I_INVALID_HID)
   {
-    this->LastError = "Can not create root group";
     return false;
   }
 
@@ -104,7 +102,6 @@ bool vtkHDFWriter::Implementation::OpenSubfile(const std::string& filename)
   vtkHDF::ScopedH5FHandle file{ H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT) };
   if (file == H5I_INVALID_HID)
   {
-    this->LastError = "Can not open sub-file";
     return false;
   }
 
@@ -480,7 +477,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
 {
   // Assume that when subfiles are set, we don't need to write data unless
   // SubFilesReady is set, which means all subfiles have been written.
-  if (this->Subfiles.size() > 0 && group != this->StepsGroup)
+  if (!this->Subfiles.empty() && group != this->StepsGroup)
   {
     if (this->SubFilesReady)
     {
@@ -596,7 +593,7 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
 bool vtkHDFWriter::Implementation::AddOrCreateDataset(
   hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray)
 {
-  if (this->Subfiles.size() > 0 && group != this->StepsGroup)
+  if (!this->Subfiles.empty() && group != this->StepsGroup)
   {
     if (this->SubFilesReady)
     {
@@ -678,7 +675,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
     }
 
     // Create source H5S
-    vtkHDF::ScopedH5SHandle srcSpace = H5Screate_simple(numDim, sourceDims.data(), NULL);
+    vtkHDF::ScopedH5SHandle srcSpace = H5Screate_simple(numDim, sourceDims.data(), nullptr);
 
     // Build the mapping
     if (H5Pset_virtual(virtualSourceP, destSpace, this->SubfileNames[i].c_str(),
@@ -702,7 +699,7 @@ bool vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group, const char* n
 {
   // When writing data externally, don't create a dynamic dataset,
   // But create a virtual one based on the subfiles on the last step or partition.
-  if (this->Subfiles.size() > 0 && group != this->StepsGroup)
+  if (!this->Subfiles.empty() && group != this->StepsGroup)
   {
     return true;
   }

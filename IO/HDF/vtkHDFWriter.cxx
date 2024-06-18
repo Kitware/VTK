@@ -870,7 +870,6 @@ bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
 {
   if (input->GetPoints() != nullptr && input->GetPoints()->GetData() != nullptr)
   {
-    hid_t datatype = vtkHDFUtilities::getH5TypeFromVtkType(input->GetPoints()->GetDataType());
     if (!this->Impl->AddOrCreateDataset(
           group, "Points", H5T_IEEE_F64LE, input->GetPoints()->GetData()))
     {

@@ -200,9 +200,9 @@ int TestHDFWriterTemporal(int argc, char* argv[])
     { true, true, "_ExtTimeExtPart" } };
 
   // Test the whole matrix "file" x "config"
-  for (const auto config : configs)
+  for (const auto& config : configs)
   {
-    for (const auto fileName : baseNames)
+    for (const auto& fileName : baseNames)
     {
       result &= TestTemporalData(tempDir, dataRoot, fileName, config);
     }
