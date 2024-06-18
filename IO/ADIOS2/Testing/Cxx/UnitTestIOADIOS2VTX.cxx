@@ -17,8 +17,16 @@
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
 #endif
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkInformation.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
 #include <string>
@@ -528,6 +536,105 @@ void WriteBPFileUnsupportedType(const std::string& fileName)
   fs.close();
 }
 
+bool TestNoFile(const std::string&)
+{
+  bool success = false;
+  try
+  {
+    vtkNew<vtkADIOS2VTXReader> reader;
+    reader->SetFileName("NONE.bp");
+    reader->Update();
+  }
+  catch (std::exception&)
+  {
+    // TODO: Throwing an exception from the request function of a reader
+    // (or any other pipeline object) is a bad way to signal an error. The
+    // VTK pipeline is not designed to unwind from exceptions, and it causes
+    // programs like ParaView and VisIt to just crash without warning. The
+    // right thing to do is to write a message using vtkErrorMacro and return
+    // 0 from the request function.
+    success = true;
+  }
+  return success;
+}
+
+bool TestPointDataTime(const std::string& baseDir)
+{
+  std::string filename = baseDir + "heat3D_4.bp";
+  vtkNew<vtkADIOS2VTXReader> adios2Reader;
+  adios2Reader->SetFileName(filename.c_str());
+
+  adios2Reader->Update();
+
+  auto checkTimestep = [&](double timestep) {
+    adios2Reader->GetOutputInformation(0)->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timestep);
+    adios2Reader->Update();
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(adios2Reader->GetOutput()->NewIterator());
+    iter->GoToFirstItem();
+    vtkDataSet* output = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    vtkDataArray* field = output->GetPointData()->GetArray("Tdouble");
+    for (vtkIdType index = 0; index < field->GetNumberOfValues(); ++index)
+    {
+      double expected = timestep + static_cast<double>(index);
+      double read = field->GetTuple1(index);
+      if (expected != read)
+      {
+        throw std::logic_error(
+          "Unexpected value read from file at time " + std::to_string(timestep));
+      }
+    }
+  };
+
+  checkTimestep(0);
+  checkTimestep(1);
+  checkTimestep(2);
+  checkTimestep(2);
+  checkTimestep(1);
+  checkTimestep(0);
+
+  return true;
+}
+
+bool TestCellDataTime(const std::string& baseDir)
+{
+  std::string filename = baseDir + "cell-data-time.bp";
+  vtkNew<vtkADIOS2VTXReader> adios2Reader;
+  adios2Reader->SetFileName(filename.c_str());
+
+  adios2Reader->Update();
+
+  adios2Reader->GetOutputInformation(0)->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 0);
+  adios2Reader->Update();
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(adios2Reader->GetOutput()->NewIterator());
+  iter->GoToFirstItem();
+  vtkDataSet* output = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+  vtkDataArray* field = output->GetCellData()->GetArray("f");
+  if ((field->GetTuple1(0) != 0) || (field->GetTuple1(1) != 0))
+  {
+    std::cout << "Bad value at time 0\n";
+    return false;
+  }
+
+  adios2Reader->GetOutputInformation(0)->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 1);
+  adios2Reader->Update();
+  iter.TakeReference(adios2Reader->GetOutput()->NewIterator());
+  iter->GoToFirstItem();
+  output = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+  field = output->GetCellData()->GetArray("f");
+  if ((field->GetTuple1(0) != 1) || (field->GetTuple1(1) != 2))
+  {
+    std::cout << "Bad value at time 1\n";
+    return false;
+  }
+
+  return true;
+}
+
 } // end empty namespace
 
 int UnitTestIOADIOS2VTX(int argc, char* argv[])
@@ -538,7 +645,9 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
     return rootDirectory + "/dummy_" + std::to_string(id) + ".bp";
   };
 
-  auto lf_Test = [&](const std::string& fileName, const size_t id, const bool print = false) {
+  auto lf_TestBadFile = [&](
+                          const std::string& fileName, const size_t id, const bool print = false) {
+    std::cout << id << " " << fileName << "\n";
     bool isCaught = false;
     try
     {
@@ -548,6 +657,12 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
     }
     catch (std::exception& e)
     {
+      // TODO: Throwing an exception from the request function of a reader
+      // (or any other pipeline object) is a bad way to signal an error. The
+      // VTK pipeline is not designed to unwind from exceptions, and it causes
+      // programs like ParaView and VisIt to just crash without warning. The
+      // right thing to do is to write a message using vtkErrorMacro and return
+      // 0 from the request function.
       isCaught = true;
       if (print)
       {
@@ -557,7 +672,7 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
     if (!isCaught)
     {
       throw std::logic_error(
-        "ERROR: ADIOS2 VTK Reader unit test " + std::to_string(id) + " failed\n");
+        "ERROR: ADIOS2 VTK Reader unit test " + std::to_string(id) + "(" + fileName + ") failed\n");
     }
   };
 
@@ -577,7 +692,7 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
   ++testID;                                                                                        \
   fileName = lf_GetFileName(testID);                                                               \
   function(fileName);                                                                              \
-  lf_Test(fileName, testID);
+  lf_TestBadFile(fileName, testID);
 
   ADIOS2VTK_UNIT_TEST(WriteBPFileNoSchema)
   ADIOS2VTK_UNIT_TEST(WriteBPFileMissingVTKFileNode)
@@ -599,23 +714,24 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
   ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedShape)
   ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedType)
 
-  ++testID;
-  bool failed = true;
-  try
-  {
-    vtkNew<vtkADIOS2VTXReader> reader;
-    reader->SetFileName("NONE.bp");
-    reader->Update();
-  }
-  catch (std::exception&)
-  {
-    failed = false;
-  }
-  if (failed)
-  {
-    throw std::logic_error(
-      "ERROR: ADIOS2 VTK Reader unit test " + std::to_string(testID) + " failed\n");
-  }
+  std::string baseDir = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/vtx/bp4/");
+
+  auto lf_TestCornerCase = [&](bool (*function)(const std::string&), const char* name) {
+    ++testID;
+    std::cout << testID << " " << name << "\n";
+    bool success = function(baseDir);
+    if (!success)
+    {
+      throw std::logic_error(
+        "ERROR: ADIOS2 VTK Reader unit test " + std::to_string(testID) + "(" + name + ") failed\n");
+    }
+  };
+
+#define ADIOS2VTK_CORNER_CASE_TEST(function) lf_TestCornerCase(function, #function);
+
+  ADIOS2VTK_CORNER_CASE_TEST(TestNoFile)
+  ADIOS2VTK_CORNER_CASE_TEST(TestPointDataTime)
+  ADIOS2VTK_CORNER_CASE_TEST(TestCellDataTime)
 
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   mpiController->Finalize();

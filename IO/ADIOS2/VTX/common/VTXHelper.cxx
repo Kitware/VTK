@@ -164,7 +164,7 @@ pugi::xml_attribute XMLAttribute(const std::string attributeName, const pugi::xm
 }
 
 types::DataSet XMLInitDataSet(
-  const pugi::xml_node& dataSetNode, const std::set<std::string>& specialNames, const bool persist)
+  const pugi::xml_node& dataSetNode, const std::set<std::string>& specialNames)
 {
   types::DataSet dataSet;
 
@@ -174,12 +174,6 @@ types::DataSet XMLInitDataSet(
       "Name", dataArrayNode, true, "when parsing Name attribute in ADIOS2 VTK XML schema", true);
     auto result = dataSet.emplace(xmlName.value(), types::DataArray());
     types::DataArray& dataArray = result.first->second;
-
-    // set if persist, overwritten by special names
-    if (persist)
-    {
-      dataArray.Persist = true;
-    }
 
     // handle special names
     const std::string name(xmlName.value());
@@ -191,12 +185,10 @@ types::DataSet XMLInitDataSet(
       if (specialName == "connectivity")
       {
         dataArray.IsIdType = true;
-        dataArray.Persist = true;
       }
       else if (specialName == "vertices")
       {
         dataArray.HasTuples = true;
-        dataArray.Persist = true;
 
         const pugi::xml_attribute xmlOrder = XMLAttribute("Ordering", dataArrayNode, true,
           "when parsing vertices \"Order\" attribute in ADIOS2 VTK XML schema", false);
@@ -209,7 +201,7 @@ types::DataSet XMLInitDataSet(
       }
       else if (specialName == "types")
       {
-        dataArray.Persist = true;
+        // Nothing to do
       }
     }
 
