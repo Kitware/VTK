@@ -89,6 +89,9 @@ vtkHDFWriter::vtkHDFWriter()
     this->UsesDummyController = true;
     this->SetController(vtkDummyController::New());
   }
+
+  this->NbProcs = this->Controller->GetNumberOfProcesses();
+  this->Rank = this->Controller->GetLocalProcessId();
 }
 
 //------------------------------------------------------------------------------
@@ -98,8 +101,8 @@ vtkHDFWriter::~vtkHDFWriter()
   if (this->UsesDummyController)
   {
     this->Controller->Delete();
+    this->SetController(nullptr);
   }
-  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -172,6 +175,8 @@ int vtkHDFWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 int vtkHDFWriter::RequestData(vtkInformation* request,
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
+  vtkDebugMacro("In RequestData for " << this->FileName);
+
   if (!this->FileName)
   {
     return 1;
@@ -232,11 +237,20 @@ void vtkHDFWriter::WriteData()
   this->Impl->SetSubFilesReady(false);
 
   // Root group only needs to be opened for the first timestep
-  if (this->CurrentTimeIndex == 0 && !this->Impl->OpenFile(this->Overwrite))
+  vtkDebugMacro(<< "Writing rank " << this->Rank << "/" << this->NbProcs << " file "
+                << this->FileName);
+  if ((this->NbProcs > 1 && !this->MultiPieceInput) ||
+    (this->CurrentTimeIndex == 0 && this->Rank == 0))
   {
-    vtkErrorMacro(<< "Could not open file : " << this->FileName);
-    return;
+    if (!this->Impl->CreateFile(this->Overwrite))
+    {
+      vtkErrorMacro(<< "Could not create file : " << this->FileName);
+      return;
+    }
   }
+
+  // Wait for the file to be created
+  this->Controller->Barrier();
 
   vtkDataObject* input = vtkDataObject::SafeDownCast(this->GetInput());
 
@@ -272,7 +286,14 @@ void vtkHDFWriter::WriteData()
   {
     this->UpdatePreviousStepMeshMTime(input);
   }
-  this->DispatchDataObject(this->Impl->GetRoot(), input);
+  if (this->NbProcs > 1 && this->MultiPieceInput)
+  {
+    this->DispatchDistributedDataObject(input);
+  }
+  else
+  {
+    this->DispatchDataObject(this->Impl->GetRoot(), input);
+  }
   this->UpdatePreviousStepMeshMTime(input);
 }
 
@@ -416,6 +437,44 @@ void vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
 }
 
 //------------------------------------------------------------------------------
+void vtkHDFWriter::DispatchDistributedDataObject(vtkDataObject* input)
+{
+  // Write piece to external file
+  {
+    std::string partitionSuffix = "part" + std::to_string(this->Rank);
+    std::string subFilePath =
+      ::getExternalBlockFileName(std::string(this->FileName), partitionSuffix);
+    vtkNew<vtkHDFWriter> writer;
+    writer->SetInputData(input);
+    writer->SetFileName(subFilePath.c_str());
+    writer->SetMultiPieceInput(false);
+    writer->SetCompressionLevel(this->CompressionLevel);
+    writer->SetChunkSize(this->ChunkSize);
+    if (!writer->Write())
+    {
+      vtkErrorMacro(<< "Could not write partition file " << subFilePath);
+    }
+  }
+
+  this->Controller->Barrier();
+  vtkDebugMacro("Barrier ok");
+
+  // Write main file in rank 0
+  if (this->Rank == 0)
+  {
+    for (int i = 0; i < this->NbProcs; i++)
+    {
+      std::string partitionSuffix = "part" + std::to_string(i);
+      std::string subFilePath =
+        ::getExternalBlockFileName(std::string(this->FileName), partitionSuffix);
+      this->Impl->OpenSubfile(subFilePath);
+    }
+    this->Impl->SetSubFilesReady(true);
+    this->DispatchDataObject(this->Impl->GetRoot(), input);
+  }
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned int partId)
 {
   if (partId == 0 && this->CurrentTimeIndex == 0 && !this->InitializeChunkedDatasets(group, input))
@@ -506,6 +565,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
       writer->SetFileName(subFilePath.c_str());
       writer->SetCompressionLevel(this->CompressionLevel);
       writer->SetChunkSize(this->ChunkSize);
+      vtkDebugMacro("Write subfile" << subFilePath);
       if (!writer->Write())
       {
         vtkErrorMacro(<< "Could not write partition file " << subFilePath);

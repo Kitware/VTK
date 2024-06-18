@@ -14,6 +14,7 @@ Both are considered equivalent by the reader.
 Temporal datasets and vtkPartitionedDataset can also be written in separate files,
 one for each time step or partition, with a main file that references their data
 
-For now, distributed writing is not supported.
-
 User can compress chunked dataset thanks to the CompressionLevel option.
+
+Parallel writing is supported for distributed data, written either in a single file,
+or with a file for each partition, as explicited above.

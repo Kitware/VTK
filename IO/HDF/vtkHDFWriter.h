@@ -151,7 +151,7 @@ public:
 
   ///@{
   /**
-   * When set, write each partition in a different file,
+   * When set, write each partition of the input vtkPartitionedDataSet in a different file,
    * named FileStem_partX.extension, where X is the partition index.
    * If FileName does not have an extension, files are named FileName_partX.vtkhdf
    * These individual time files are referenced by the main file using the HDF5 virtual dataset
@@ -161,6 +161,14 @@ public:
    */
   vtkSetMacro(UseExternalPartitions, bool);
   vtkGetMacro(UseExternalPartitions, bool);
+  ///@}
+
+  ///@{
+  /**
+   *
+   */
+  vtkSetMacro(MultiPieceInput, bool);
+  vtkGetMacro(MultiPieceInput, bool);
   ///@}
 
 protected:
@@ -204,6 +212,11 @@ private:
    * Data will be written in the specified group, which must already exist.
    */
   void DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId = 0);
+
+  /**
+   *
+   */
+  void DispatchDistributedDataObject(vtkDataObject* input);
 
   ///@{
   /**
@@ -371,6 +384,9 @@ private:
 
   // Parallel variables
   vtkMultiProcessController* Controller;
+  bool MultiPieceInput = true;
+  int NbProcs = 1;
+  int Rank = 0;
   bool UsesDummyController = false;
   std::vector<vtkIdType> PointOffsets;
   std::vector<vtkIdType> CellOffsets;
