@@ -101,7 +101,6 @@ bool vtkHDFWriter::Implementation::OpenFile(bool overwrite)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::OpenSubfile(const std::string& filename)
 {
-  // Create file
   vtkHDF::ScopedH5FHandle file{ H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT) };
   if (file == H5I_INVALID_HID)
   {
@@ -480,7 +479,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
   hid_t group, const char* name, int value, bool offset, bool trim)
 {
   // Assume that when subfiles are set, we don't need to write data unless
-  // WriteVirtualDS is set, which means all subfiles have been written.
+  // SubFilesReady is set, which means all subfiles have been written.
   if (this->Subfiles.size() > 0 && group != this->StepsGroup)
   {
     if (this->SubFilesReady)
@@ -624,13 +623,16 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(
 vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   hid_t group, const char* name, hid_t type, int numComp)
 {
-  const std::string datasetPath = this->GetGroupName(group) + "/" + name;
-  const int numDim = numComp == 1 ? 1 : 2;
 
   // Initialize VDS property
   vtkHDF::ScopedH5PHandle virtualSourceP = H5Pcreate(H5P_DATASET_CREATE);
+  if (virtualSourceP == H5I_INVALID_HID)
+  {
+    return H5I_INVALID_HID;
+  }
 
   // Collect total dataset size
+  const std::string datasetPath = this->GetGroupName(group) + "/" + name;
   hsize_t totalSize = 0;
   for (auto& fileRoot : this->Subfiles)
   {
@@ -643,6 +645,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
 
   // Create destination dataspace with the final size
   std::vector<hsize_t> dspaceDims{ totalSize };
+  const int numDim = numComp == 1 ? 1 : 2;
   if (numDim == 2)
   {
     dspaceDims.emplace_back(numComp);
@@ -651,7 +654,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
 
   // Add virtual mapping for each timestep file
   hsize_t offset = 0;
-  for (int i = 0; i < this->Subfiles.size(); i++)
+  for (std::size_t i = 0; i < this->Subfiles.size(); i++)
   {
     // Open source dataset/dataspace
     vtkHDF::ScopedH5DHandle sourceDataset =
@@ -668,14 +671,21 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
       start.emplace_back(0);
       count.emplace_back(sourceDims[1]);
     }
-    H5Sselect_hyperslab(destSpace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
+    if (H5Sselect_hyperslab(
+          destSpace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr) < 0)
+    {
+      return H5I_INVALID_HID;
+    }
 
     // Create source H5S
-    vtkHDF::ScopedH5SHandle src_space = H5Screate_simple(numDim, sourceDims.data(), NULL);
+    vtkHDF::ScopedH5SHandle srcSpace = H5Screate_simple(numDim, sourceDims.data(), NULL);
 
     // Build the mapping
-    H5Pset_virtual(
-      virtualSourceP, destSpace, this->SubfileNames[i].c_str(), datasetPath.c_str(), src_space);
+    if (H5Pset_virtual(virtualSourceP, destSpace, this->SubfileNames[i].c_str(),
+          datasetPath.c_str(), srcSpace) < 0)
+    {
+      return H5I_INVALID_HID;
+    }
 
     offset += sourceDims[0];
   }

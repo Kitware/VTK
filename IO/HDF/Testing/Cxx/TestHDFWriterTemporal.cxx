@@ -63,7 +63,7 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
   vtkNew<vtkHDFReader> HDFReader;
   if (!HDFReader->CanReadFile(tempPath.c_str()))
   {
-    std::cerr << "vtkHDFReader can not read file: " << tempPath << std::endl;
+    vtkLog(ERROR, "vtkHDFReader can not read file: " << tempPath);
     return false;
   }
   HDFReader->SetFileName(tempPath.c_str());
@@ -77,8 +77,9 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
   int totalTimeStepsHDF = HDFReader->GetNumberOfSteps();
   if (totalTimeStepsXML != totalTimeStepsHDF)
   {
-    std::cerr << "total time steps in both HDF files do not match: " << totalTimeStepsHDF
-              << " instead of " << totalTimeStepsXML << std::endl;
+    vtkLog(ERROR,
+      "total time steps in both HDF files do not match: " << totalTimeStepsHDF << " instead of "
+                                                          << totalTimeStepsXML);
     return false;
   }
 
@@ -95,15 +96,16 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
     // Time values must be the same
     if (HDFReader->GetTimeValue() != HDFReaderBaseline->GetTimeValue())
     {
-      std::cerr << "timestep value does not match : " << HDFReader->GetTimeValue() << " instead of "
-                << HDFReaderBaseline->GetTimeValue() << std::endl;
+      vtkLog(ERROR,
+        "timestep value does not match : " << HDFReader->GetTimeValue() << " instead of "
+                                           << HDFReaderBaseline->GetTimeValue());
       return false;
     }
 
     if (!vtkTestUtilities::CompareDataObjects(
           HDFReaderBaseline->GetOutput(), HDFReader->GetOutput()))
     {
-      std::cerr << "data objects do not match" << std::endl;
+      vtkLog(ERROR, "data objects do not match");
       return false;
     }
   }
@@ -159,7 +161,7 @@ bool TestTemporalStaticMesh(
   HDFWriter->SetCompressionLevel(1);
   if (!HDFWriter->Write())
   {
-    std::cerr << "An error occured while writing the static mesh HDF file" << std::endl;
+    vtkLog(ERROR, "An error occured while writing the static mesh HDF file");
     return false;
   }
   /* TODO
@@ -184,7 +186,7 @@ int TestHDFWriterTemporal(int argc, char* argv[])
   testHelper->AddArguments(argc, argv);
   if (!testHelper->IsFlagSpecified("-D"))
   {
-    std::cerr << "Error: -D /path/to/data was not specified." << std::endl;
+    vtkLog(ERROR, "-D /path/to/data was not specified.");
     return EXIT_FAILURE;
   }
   std::string dataRoot = testHelper->GetDataRoot();
