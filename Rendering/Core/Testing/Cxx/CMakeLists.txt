@@ -113,6 +113,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestPointSelection.cxx,NO_VALID
   TestPointSelectionWithCellData.cxx,NO_VALID
   TestPolygonSelection.cxx
+  TestPolyDataMapperNormals.cxx
   TestResetCameraScreenSpace.cxx
   TestResetCameraVerticalAspectRatio.cxx
   TestResetCameraVerticalAspectRatioParallel.cxx
