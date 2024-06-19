@@ -261,12 +261,13 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(Event* event)
     case EMSCRIPTEN_EVENT_FOCUSOUT:
     case EMSCRIPTEN_EVENT_MOUSELEAVE:
     {
+      // resets repeat counter when focus is lost while a key is being pressed in order to prevent
+      // overflow.
+      this->RepeatCounter = 0;
       this->InvokeEvent(vtkCommand::LeaveEvent);
       break;
     }
-    case EMSCRIPTEN_EVENT_KEYUP:
     case EMSCRIPTEN_EVENT_KEYDOWN:
-    case EMSCRIPTEN_EVENT_KEYPRESS:
     {
       auto emEvent = reinterpret_cast<const EmscriptenKeyboardEvent*>(event->Data);
       const size_t nChar = strlen(emEvent->key);
@@ -275,25 +276,32 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(Event* event)
       {
         keyCode = emEvent->key[0];
       }
-      int eventVTK = 0;
-      if (event->Type == EMSCRIPTEN_EVENT_KEYDOWN)
-      {
-        eventVTK = vtkCommand::KeyPressEvent;
-      }
-      else if (event->Type == EMSCRIPTEN_EVENT_KEYUP)
-      {
-        this->RepeatCounter = 0;
-        eventVTK = vtkCommand::KeyReleaseEvent;
-      }
-      else // EMSCRIPTEN_EVENT_KEYPRESS
-      {
-        ++this->RepeatCounter;
-        eventVTK = vtkCommand::CharEvent;
-      }
+      // track repeated presses as long as the keydown event is sent
+      ++this->RepeatCounter;
       this->SetAltKey(emEvent->altKey);
       this->SetKeyEventInformation(
         emEvent->ctrlKey, emEvent->shiftKey, keyCode, this->RepeatCounter, emEvent->key);
-      this->InvokeEvent(eventVTK, nullptr);
+      this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
+      // additionally invokes CharEvent to satisfy observers that listen to it.
+      // this is similar to other interactors.
+      this->InvokeEvent(vtkCommand::CharEvent, nullptr);
+      break;
+    }
+    case EMSCRIPTEN_EVENT_KEYUP:
+    {
+      auto emEvent = reinterpret_cast<const EmscriptenKeyboardEvent*>(event->Data);
+      const size_t nChar = strlen(emEvent->key);
+      char keyCode = 0;
+      if (nChar == 1)
+      {
+        keyCode = emEvent->key[0];
+      }
+      // reset repeat counter
+      this->RepeatCounter = 0;
+      this->SetAltKey(emEvent->altKey);
+      this->SetKeyEventInformation(
+        emEvent->ctrlKey, emEvent->shiftKey, keyCode, this->RepeatCounter, emEvent->key);
+      this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
       break;
     }
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
