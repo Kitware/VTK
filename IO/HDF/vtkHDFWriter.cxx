@@ -61,7 +61,7 @@ std::string getBlockName(vtkPartitionedDataSetCollection* pdc, int datasetId)
  * Return the filename for an external file containing <blockname>, made from
  * the original <filename>.
  */
-std::string getExternalBlockFileName(const std::string&& filename, const std::string& blockname)
+std::string GetExternalBlockFileName(const std::string&& filename, const std::string& blockname)
 {
   size_t lastDotPos = filename.find_last_of('.');
   std::string subfileName;
@@ -234,7 +234,7 @@ void vtkHDFWriter::WriteData()
   // Root group only needs to be opened for the first timestep
   vtkDebugMacro(<< "Writing rank " << this->Rank << "/" << this->NbProcs << " file "
                 << this->FileName);
-  if ((this->NbProcs > 1 && !this->MultiPieceInput) ||
+  if ((this->NbProcs > 1 && !this->WriteDistributedOutput) ||
     (this->CurrentTimeIndex == 0 && this->Rank == 0))
   {
     if (!this->Impl->CreateFile(this->Overwrite))
@@ -254,7 +254,7 @@ void vtkHDFWriter::WriteData()
     // Write the time step data in an external file
     const std::string timestepSuffix = std::to_string(this->CurrentTimeIndex);
     const std::string subFilePath =
-      ::getExternalBlockFileName(std::string(this->FileName), timestepSuffix);
+      ::GetExternalBlockFileName(std::string(this->FileName), timestepSuffix);
     vtkNew<vtkHDFWriter> writer;
     writer->SetInputData(input);
     writer->SetFileName(subFilePath.c_str());
@@ -281,7 +281,7 @@ void vtkHDFWriter::WriteData()
   {
     this->UpdatePreviousStepMeshMTime(input);
   }
-  if (this->NbProcs > 1 && this->MultiPieceInput)
+  if (this->NbProcs > 1 && this->WriteDistributedOutput)
   {
     this->DispatchDistributedDataObject(input);
   }
@@ -354,16 +354,26 @@ void vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
 //------------------------------------------------------------------------------
 void vtkHDFWriter::DispatchDistributedDataObject(vtkDataObject* input)
 {
+  // Composite types' parts cannot be written yet in virtual datasets
+  vtkPolyData* polyData = vtkPolyData::SafeDownCast(input);
+  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
+  if (!polyData && !unstructuredGrid)
+  {
+    vtkErrorMacro("Unsupported distributed type. This writer only supports vtkUnstructuredGrid and "
+                  "vtkPolyData in a distributed context.");
+    return;
+  }
+
   // Write piece to external file
   {
     const std::string partitionSuffix = "part" + std::to_string(this->Rank);
     const std::string subFilePath =
-      ::getExternalBlockFileName(std::string(this->FileName), partitionSuffix);
+      ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
     vtkDebugMacro("Writing subfile " << subFilePath.c_str() << " from rank " << this->Rank);
     vtkNew<vtkHDFWriter> writer;
     writer->SetInputData(input);
     writer->SetFileName(subFilePath.c_str());
-    writer->SetMultiPieceInput(false); // So this function does not recurse infinitely
+    writer->SetWriteDistributedOutput(false); // So this function does not recurse infinitely
     writer->SetCompressionLevel(this->CompressionLevel);
     writer->SetChunkSize(this->ChunkSize);
     if (!writer->Write())
@@ -375,17 +385,14 @@ void vtkHDFWriter::DispatchDistributedDataObject(vtkDataObject* input)
   // Make sure all processes have written their associated subfile
   this->Controller->Barrier();
 
-  // Write main file in rank 0 if the input is either poly data or unstructured grid
-  // Composite types' parts cannot be written in virtual datasets
-  vtkPolyData* polyData = vtkPolyData::SafeDownCast(input);
-  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
-  if (this->Rank == 0 && (polyData || unstructuredGrid))
+  // Write main file in rank 0
+  if (this->Rank == 0)
   {
     for (int i = 0; i < this->NbProcs; i++)
     {
       const std::string partitionSuffix = "part" + std::to_string(i);
       const std::string subFilePath =
-        ::getExternalBlockFileName(std::string(this->FileName), partitionSuffix);
+        ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
       this->Impl->OpenSubfile(subFilePath);
     }
     this->Impl->SetSubFilesReady(true);
@@ -478,13 +485,12 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     {
       const std::string partitionSuffix = "part" + std::to_string(partIndex);
       const std::string subFilePath =
-        ::getExternalBlockFileName(std::string(this->FileName), partitionSuffix);
+        ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
       vtkNew<vtkHDFWriter> writer;
       writer->SetInputData(input->GetPartition(partIndex));
       writer->SetFileName(subFilePath.c_str());
       writer->SetCompressionLevel(this->CompressionLevel);
       writer->SetChunkSize(this->ChunkSize);
-      vtkDebugMacro("Write subfile" << subFilePath);
       if (!writer->Write())
       {
         vtkErrorMacro(<< "Could not write partition file " << subFilePath);
@@ -1148,7 +1154,7 @@ bool vtkHDFWriter::AppendExternalBlock(vtkDataObject* block, const std::string& 
 {
   // Write the block data in an external file
   const std::string subfileName =
-    ::getExternalBlockFileName(std::string(this->FileName), blockName);
+    ::GetExternalBlockFileName(std::string(this->FileName), blockName);
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputData(block);
   writer->SetFileName(subfileName.c_str());

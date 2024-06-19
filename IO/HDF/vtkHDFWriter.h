@@ -37,7 +37,7 @@ typedef int64_t hid_t;
  * vtkMultiBlockDataSet and vtkPartitionedDataSetCollection data types,
  * as well as time-varying data.
  *
- * Parallel writing is supported for vtkPolyData and vtkUnstructuredGrid with pieces written to
+ * Distributed writing is supported for vtkPolyData and vtkUnstructuredGrid with pieces written to
  * separate files, and referenced by the main written on rank 0 one using HDF5 virtual datasets.
  *
  * Options are provided for data compression, and writing partitions, composite parts and time steps
@@ -174,12 +174,13 @@ public:
 
   ///@{
   /**
-   * If true, consider the input as multi-piece and write pieces to individual numbered parts.
+   * If true, consider the input as distributed and write pieces to individual numbered file parts.
+   * Otherwise, consider the input as a single standalone piece.
    * Only applies for multi-process execution.
    * Default is true.
    */
-  vtkSetMacro(MultiPieceInput, bool);
-  vtkGetMacro(MultiPieceInput, bool);
+  vtkSetMacro(WriteDistributedOutput, bool);
+  vtkGetMacro(WriteDistributedOutput, bool);
   ///@}
 
 protected:
@@ -381,6 +382,7 @@ private:
   bool UseExternalComposite = false;
   bool UseExternalTimeSteps = false;
   bool UseExternalPartitions = false;
+  bool WriteDistributedOutput = true;
   int ChunkSize = 25000;
   int CompressionLevel = 0;
 
@@ -391,9 +393,8 @@ private:
   int NumberOfTimeSteps = 0;
   vtkMTimeType PreviousStepMeshMTime = 0;
 
-  // Parallel variables
-  vtkMultiProcessController* Controller;
-  bool MultiPieceInput = true;
+  // Distributed-related variables
+  vtkMultiProcessController* Controller = nullptr;
   int NbProcs = 1;
   int Rank = 0;
   bool UsesDummyController = false;

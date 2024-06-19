@@ -113,7 +113,7 @@ bool vtkHDFWriter::Implementation::OpenFile()
   }
 
   this->File = std::move(file);
-  this->Root = OpenExistingGroup(file, "VTKHDF");
+  this->Root = this->OpenExistingGroup(file, "VTKHDF");
 
   return this->Root != H5I_INVALID_HID;
 }
