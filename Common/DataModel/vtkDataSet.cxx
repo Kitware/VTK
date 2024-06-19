@@ -1030,6 +1030,12 @@ vtkIdType vtkDataSet::GetNumberOfElements(int type)
 }
 
 //------------------------------------------------------------------------------
+vtkMTimeType vtkDataSet::GetMeshMTime()
+{
+  return this->GetMTime();
+}
+
+//------------------------------------------------------------------------------
 vtkIdType vtkDataSet::GetCellSize(vtkIdType cellId)
 {
   // We allocate a new id list each time so this method is thread-safe
