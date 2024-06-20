@@ -4,6 +4,7 @@
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkImageData.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
@@ -28,6 +29,7 @@ namespace
 {
 struct WriterConfigOptions
 {
+  bool UseExternalPartitions;
   bool UseExternalComposite;
   bool MergePartsOnRead; // Should be false when reading PartitionedData
   std::string FileNameSuffix;
@@ -92,7 +94,13 @@ bool TestWriteAndRead(
     fullPath = tempPath + options->FileNameSuffix;
     writer->SetFileName(fullPath.c_str());
     writer->SetUseExternalComposite(options->UseExternalComposite);
+    writer->SetUseExternalPartitions(options->UseExternalPartitions);
     writer->SetCompressionLevel(options->CompressionLevel);
+
+    vtkLog(INFO,
+      "Testing " << fullPath << " with options Ext composite: " << options->UseExternalComposite
+                 << " ext partitions: " << options->UseExternalPartitions << " compression "
+                 << options->CompressionLevel);
   }
   else
   {
@@ -137,10 +145,12 @@ bool TestWriteAndRead(
 }
 
 //----------------------------------------------------------------------------
-bool TestWriteAndReadConfigurations(vtkDataObject* data, const std::string& path)
+bool TestWriteAndReadConfigurations(vtkDataObject* data, const std::string& path, bool mergeParts)
 {
-  std::vector<WriterConfigOptions> options{ { true, false, "_ExternalComposite", 1 },
-    { false, false, "_NoExternalComposite", 9 } };
+  std::vector<WriterConfigOptions> options{ { false, false, mergeParts, "_NoExtPartNoExtComp", 3 },
+    { false, true, mergeParts, "_NoExtPartExtComp", 1 },
+    { true, true, mergeParts, "_ExtPartExtComp", 2 },
+    { true, false, mergeParts, "_ExtPartNoExtComp", 5 } };
 
   for (auto& optionSet : options)
   {
@@ -245,8 +255,7 @@ bool TestPartitionedUnstructuredGrid(const std::string& tempDir, const std::stri
 
     // Write and read the partitioned unstructuredGrid in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    WriterConfigOptions options{ false, false, "PVTU", 1 }; // Read file without merging parts
-    if (!TestWriteAndRead(baseData, tempPath, &options))
+    if (!TestWriteAndReadConfigurations(baseData, tempPath, false))
     {
       return false;
     }
@@ -275,8 +284,7 @@ bool TestPartitionedPolyData(const std::string& tempDir, const std::string& data
 
     // Write and read the partitioned PolyData in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    WriterConfigOptions options{ false, false, "PVTP", 0 }; // Read file without merging parts
-    if (!TestWriteAndRead(baseData, tempPath, &options))
+    if (!TestWriteAndReadConfigurations(baseData, tempPath, false))
     {
       return false;
     }
@@ -304,7 +312,7 @@ bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
 
     // Write and read the vtkMultiBlockDataSet in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndReadConfigurations(baseData, tempPath))
+    if (!TestWriteAndReadConfigurations(baseData, tempPath, true))
     {
       return false;
     }
@@ -334,7 +342,7 @@ bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::str
 
     // Write and read the vtkPartitionedDataSetCollection in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndReadConfigurations(baseData, tempPath))
+    if (!TestWriteAndReadConfigurations(baseData, tempPath, true))
     {
       return false;
     }
