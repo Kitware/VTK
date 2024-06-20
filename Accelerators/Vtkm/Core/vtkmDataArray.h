@@ -39,15 +39,18 @@
 
 #include <memory> // For std::unique_ptr<>
 
-namespace internal
+namespace fromvtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
 
 template <typename T>
-class ArrayHandleHelperInterface;
+class ArrayHandleHelperBase;
+
+template <typename T>
+struct ArrayHandleHelperSwapper;
 
 VTK_ABI_NAMESPACE_END
-} // internal
+} // fromvtkm
 
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
@@ -66,12 +69,26 @@ public:
 
   /// @brief Set the VTK-m ArrayHandle to be wrapped
   ///
-  template <typename V, typename S>
-  void SetVtkmArrayHandle(const vtkm::cont::ArrayHandle<V, S>& ah);
+  void SetVtkmArrayHandle(const vtkm::cont::UnknownArrayHandle& ah);
 
   /// @brief Get the underlying ArrayHandle.
   ///
   vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const;
+
+  ///@{
+  /// If the data in the ArrayHandle has a basic layout, this does a shallow copy.
+  /// Otherwise, it does a deep copy.
+  void* GetVoidPointer(vtkIdType valueIdx) override;
+  void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) override;
+  ///@}
+
+  /// Support methods for \c vtkGenericDataArray.
+  ValueType GetValue(vtkIdType valueIdx) const;
+  void SetValue(vtkIdType valueIdx, ValueType value);
+  void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const;
+  void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple);
+  ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const;
+  void SetTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType value);
 
 protected:
   vtkmDataArray();
@@ -92,21 +109,16 @@ protected:
   bool ComputeFiniteVectorRange(
     double range[2], const unsigned char* ghosts, unsigned char ghostsToSkip = 0xff) override;
 
-private:
-  // To access concept methods
-  friend Superclass;
-
   /// concept methods for \c vtkGenericDataArray
-  ValueType GetValue(vtkIdType valueIdx) const;
-  void SetValue(vtkIdType valueIdx, ValueType value);
-  void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const;
-  void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple);
-  ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const;
-  void SetTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType value);
   bool AllocateTuples(vtkIdType numberOfTuples);
   bool ReallocateTuples(vtkIdType numberOfTuples);
 
-  std::unique_ptr<internal::ArrayHandleHelperInterface<T>> Helper;
+private:
+  // To access concept methods
+  friend Superclass;
+  friend fromvtkm::ArrayHandleHelperSwapper<T>;
+
+  mutable std::unique_ptr<fromvtkm::ArrayHandleHelperBase<T>> Helper;
 
   vtkmDataArray(const vtkmDataArray&) = delete;
   void operator=(const vtkmDataArray&) = delete;

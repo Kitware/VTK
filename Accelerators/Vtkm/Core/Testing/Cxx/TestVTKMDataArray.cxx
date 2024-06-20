@@ -2,13 +2,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkmDataArray.h"
 
-#include "vtkDoubleArray.h"
+#include "vtkArrayDispatch.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkIntArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <vtkm/cont/ArrayHandle.h>
 #include <vtkm/cont/ArrayHandleConstant.h>
+#include <vtkm/cont/ArrayHandleGroupVec.h>
+#include <vtkm/cont/ArrayHandleRuntimeVec.h>
 #include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
 
 #include <chrono>
@@ -79,6 +82,8 @@ auto FlattenVec(const VecType& vec)
 template <typename ArrayHandleType>
 void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
 {
+  using ComponentType =
+    typename vtkm::VecTraits<typename ArrayHandleType::ValueType>::BaseComponentType;
   vtkSmartPointer<vtkDataArray> vtkArray;
   vtkArray.TakeReference(make_vtkmDataArray(vtkmArray));
 
@@ -102,6 +107,47 @@ void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
     {
       TEST_VERIFY(IsEqualFloat(tuple[j], static_cast<double>(vec[j])), "values don't match");
       TEST_VERIFY(IsEqualFloat(vtkArray->GetComponent(i, j), static_cast<double>(vec[j])),
+        "values don't match");
+    }
+  }
+
+  auto dispatchCheck = [&](auto* dispatchedArray) {
+    vtkDataArrayAccessor<std::remove_pointer_t<decltype(dispatchedArray)>> accessor(
+      dispatchedArray);
+
+    for (vtkIdType tupleI = 0; tupleI < length; ++tupleI)
+    {
+      auto vec = FlattenVec(vtkmPortal.Get(tupleI));
+      for (int componentI = 0; componentI < numberOfComponents; ++componentI)
+      {
+        TEST_VERIFY(IsEqualFloat(static_cast<double>(accessor.Get(tupleI, componentI)),
+                      static_cast<double>(vec[componentI])),
+          "values don't match");
+      }
+    }
+  };
+
+  std::cout << "Verify accessor on vtkDataArray.\n";
+  dispatchCheck(vtkArray.Get());
+
+  std::cout << "Verify dispatch works.\n";
+  using ExpectedArrayType = vtkmDataArray<ComponentType>;
+  using ArrayTypes = vtkTypeList::Create<ExpectedArrayType>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<ArrayTypes>;
+  TEST_VERIFY(Dispatcher::Execute(vtkArray, dispatchCheck), "Could not dispatch correctly.");
+
+  std::cout << "Get data as raw array.\n";
+  // This is a semi-deprecated way of accessing the data, but it should still work.
+  ExpectedArrayType* typedArray = ExpectedArrayType::SafeDownCast(vtkArray);
+  ComponentType* rawArray = reinterpret_cast<ComponentType*>(typedArray->GetVoidPointer(0));
+  for (vtkIdType tupleI = 0; tupleI < length; ++tupleI)
+  {
+    auto vec = FlattenVec(vtkmPortal.Get(tupleI));
+    for (int componentI = 0; componentI < numberOfComponents; ++componentI)
+    {
+      TEST_VERIFY(
+        IsEqualFloat(static_cast<double>(rawArray[(tupleI * numberOfComponents) + componentI]),
+          static_cast<double>(vec[componentI])),
         "values don't match");
     }
   }
@@ -297,11 +343,11 @@ void TestComputeRange(int numberOfTuples, int numberOfComponents, const T betwee
 int TestVTKMDataArray(int, char*[])
 try
 {
-  static const std::vector<double> testData = { 3.0, 6.0, 2.0, 5.0, 1.0, 0.0, 4.0, 9.0, 8.0, 7.0,
-    10.0, 11.0 };
+  auto testData = vtkm::cont::make_ArrayHandle<double>(
+    { 3.0, 6.0, 2.0, 5.0, 1.0, 0.0, 4.0, 9.0, 8.0, 7.0, 10.0, 11.0 });
 
   std::cout << "Testing with Basic ArrayHandle\n";
-  TestWithArrayHandle(vtkm::cont::make_ArrayHandle(testData, vtkm::CopyFlag::Off));
+  TestWithArrayHandle(testData);
   std::cout << "Passed\n";
 
   std::cout << "Testing with ArrayHandleConstant\n";
@@ -313,10 +359,12 @@ try
   TestWithArrayHandle(vtkm::cont::ArrayHandleUniformPointCoordinates(vtkm::Id3{ 3 }));
   std::cout << "Passed\n";
 
-  std::cout << "Testing with ArrayHandleGroupVecVariable\n";
-  TestWithArrayHandle(vtkm::cont::make_ArrayHandleGroupVecVariable(
-    vtkm::cont::make_ArrayHandle(testData, vtkm::CopyFlag::Off),
-    vtkm::cont::ArrayHandleCounting<vtkm::Id>(0, 2, vtkm::Id(testData.size() / 2) + 1)));
+  std::cout << "Testing with ArrayHandleGroupVec\n";
+  TestWithArrayHandle(vtkm::cont::make_ArrayHandleGroupVec<2>(testData));
+  std::cout << "Passed\n";
+
+  std::cout << "Testing with ArrayHandleRuntimeVec\n";
+  TestWithArrayHandle(vtkm::cont::make_ArrayHandleRuntimeVec(2, testData));
   std::cout << "Passed\n";
 
   std::cout << "Testing Range with int\n";
