@@ -2,8 +2,6 @@ NAME
   VTK::RenderingVR
 LIBRARY_NAME
   vtkRenderingVR
-IMPLEMENTS
-  VTK::RenderingCore
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
@@ -21,5 +19,4 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::opengl
-  VTK::IOXML
   VTK::ImagingSources

@@ -20,7 +20,6 @@ DEPENDS
   VTK::ParallelCore
   VTK::RenderingCore
   VTK::RenderingOpenGL2
-  VTK::RenderingVR
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonMath
