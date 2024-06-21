@@ -39,5 +39,10 @@ vtk_add_test_cxx(vtkIOADIOS2VTXCxxTests tests TESTING_DATA NO_OUTPUT
   TestIOADIOS2VTX_VTU2DRendering.cxx,NO_VALID
   TestIOADIOS2VTX_VTU1DRendering.cxx,NO_VALID)
 
+# This test loads several "bad" files to make sure the reader correctly
+# responds and does not crash. But we do expect pipeline errors, so turn
+# off the checking of fail regular expressions.
+set_property(TEST VTK::IOADIOS2Cxx-UnitTestIOADIOS2VTX PROPERTY FAIL_REGULAR_EXPRESSION)
+
 vtk_test_cxx_executable(vtkIOADIOS2VTXCxxTests tests)
 target_link_libraries(vtkIOADIOS2VTXCxxTests PUBLIC adios2::adios2)
