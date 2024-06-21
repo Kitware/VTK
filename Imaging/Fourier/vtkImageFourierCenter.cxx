@@ -104,7 +104,7 @@ void vtkImageFourierCenter::ThreadedRequestData(vtkInformation* vtkNotUsed(reque
   // Determine the mid for the filtered axis
   wholeMin0 = wholeExtent[this->Iteration * 2];
   wholeMax0 = wholeExtent[this->Iteration * 2 + 1];
-  mid0 = (wholeMin0 + wholeMax0) / 2;
+  mid0 = (wholeMin0 + wholeMax0 + 1) / 2;
 
   // initialize input coordinates
   inCoords[0] = outExt[0];
