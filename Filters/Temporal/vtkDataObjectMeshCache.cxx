@@ -8,9 +8,8 @@
 #include "vtkDataArrayRange.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeRange.h"
+#include "vtkDataSet.h"
 #include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectMeshCache);
@@ -88,18 +87,7 @@ struct MeshMTimeWorker : public GenericDataObjectWorker
 
   void ComputeDataSet(vtkDataSet* dataset) override
   {
-    auto polydata = vtkPolyData::SafeDownCast(dataset);
-    auto ugrid = vtkUnstructuredGrid::SafeDownCast(dataset);
-
-    if (polydata)
-    {
-      this->MeshTime = std::max(this->MeshTime, polydata->GetMeshMTime());
-    }
-
-    if (ugrid)
-    {
-      this->MeshTime = std::max(this->MeshTime, ugrid->GetMeshMTime());
-    }
+    this->MeshTime = std::max(this->MeshTime, dataset->GetMeshMTime());
   }
 
   vtkMTimeType MeshTime = 0;
@@ -115,16 +103,9 @@ struct SupportedDataWorker : public GenericDataObjectWorker
 {
   ~SupportedDataWorker() override = default;
 
-  bool Supported() { return !this->SkippedData && this->SupportedLeaves; }
+  bool Supported() { return !this->SkippedData; }
 
-  void ComputeDataSet(vtkDataSet* dataset) override
-  {
-    bool supportedLeaf =
-      vtkPolyData::SafeDownCast(dataset) || vtkUnstructuredGrid::SafeDownCast(dataset);
-    this->SupportedLeaves = this->SupportedLeaves && supportedLeaf;
-  }
-
-  bool SupportedLeaves = true;
+  void ComputeDataSet(vtkDataSet* vtkNotUsed(dataset)) override {}
 };
 
 /**
@@ -248,6 +229,10 @@ void vtkDataObjectMeshCache::SetOriginalDataObject(vtkDataObject* input)
     this->Modified();
     return;
   }
+
+  // Clear existing dataset ptrs
+  this->OriginalCompositeDataSet = nullptr;
+  this->OriginalDataSet = nullptr;
 
   if (vtkCompositeDataSet::SafeDownCast(input))
   {

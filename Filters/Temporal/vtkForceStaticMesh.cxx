@@ -1,15 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) Kitware SAS
 // SPDX-License-Identifier: BSD-3-Clause
+
 #include "vtkForceStaticMesh.h"
 
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkObjectFactory.h" // for standard new macro
 #include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
+
+#include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkForceStaticMesh);
@@ -89,16 +92,10 @@ bool vtkForceStaticMesh::IsValidCache(vtkDataSet* input)
       validCache = false;
     }
     vtkDataSet* internalCache = vtkDataSet::SafeDownCast(this->Cache);
-    if (input->GetNumberOfPoints() != internalCache->GetNumberOfPoints())
+    if (input->GetMeshMTime() > internalCache->GetMeshMTime())
     {
-      vtkWarningMacro("Cache has been invalidated, the number of points in input changed, from "
-        << internalCache->GetNumberOfPoints() << " to " << input->GetNumberOfPoints());
-      validCache = false;
-    }
-    if (input->GetNumberOfCells() != internalCache->GetNumberOfCells())
-    {
-      vtkWarningMacro("Cache has been invalidated, the number of cells in input changed, from "
-        << internalCache->GetNumberOfCells() << " to " << input->GetNumberOfCells());
+      vtkWarningMacro("Cache has been invalidated, mesh modification time is more recent: "
+        << input->GetMeshMTime() << " (input) > " << internalCache->GetMeshMTime() << " (cache)");
       validCache = false;
     }
   }
@@ -155,19 +152,12 @@ bool vtkForceStaticMesh::IsValidCache(vtkCompositeDataSet* input)
 
       if (cacheBlock /*&& inputBlock */)
       {
-        if (inputBlock->GetNumberOfPoints() != cacheBlock->GetNumberOfPoints())
+        if (inputBlock->GetMeshMTime() > cacheBlock->GetMeshMTime())
         {
           vtkWarningMacro(
-            "Cache has been invalidated, the number of points in a block changed, from "
-            << cacheBlock->GetNumberOfPoints() << " to " << inputBlock->GetNumberOfPoints());
-          validCache = false;
-          break;
-        }
-        if (inputBlock->GetNumberOfCells() != cacheBlock->GetNumberOfCells())
-        {
-          vtkWarningMacro(
-            "Cache has been invalidated, the number of cells in a block changed, from "
-            << cacheBlock->GetNumberOfCells() << " to " << inputBlock->GetNumberOfCells());
+            "Cache has been invalidated, a block's mesh modification time is more recent"
+            << inputBlock->GetMeshMTime() << " (input) > " << cacheBlock->GetMeshMTime()
+            << " (cache)");
           validCache = false;
           break;
         }

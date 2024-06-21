@@ -327,8 +327,7 @@ private:
   /**
    * Check if the mesh geometry changed between this step and the last.
    */
-  template <typename vtkStaticMeshDataSetT>
-  bool HasGeometryChangedFromPreviousStep(vtkStaticMeshDataSetT* input);
+  bool HasGeometryChangedFromPreviousStep(vtkDataSet* input);
 
   /**
    * Update the time value of the MeshMTime which wiil be used in the next time step
