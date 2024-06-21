@@ -150,7 +150,7 @@ public:
   ///@}
   ///@{
   /**
-   * Shallow copy the input point data arrays to the output
+   * Shallow copy the input point data arrays to the output.
    * Off by default.
    */
   vtkSetMacro(PassPointArrays, vtkTypeBool);
