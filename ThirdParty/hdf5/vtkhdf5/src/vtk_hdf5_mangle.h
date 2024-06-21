@@ -3138,6 +3138,8 @@
 #define H5_time_t_reg_free_list vtkhdf5_H5_time_t_reg_free_list
 #define H5T_init vtkhdf5_H5T_init
 #define H5T__init_native vtkhdf5_H5T__init_native
+#define H5T__init_native_internal vtkhdf5_H5T__init_native_internal
+#define H5T__init_native_float_types vtkhdf5_H5T__init_native_float_types
 #define H5T__insert vtkhdf5_H5T__insert
 #define H5Tinsert vtkhdf5_H5Tinsert
 #define H5T_invoke_vol_optional vtkhdf5_H5T_invoke_vol_optional
