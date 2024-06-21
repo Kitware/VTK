@@ -17,6 +17,8 @@
  * See the description of class vtkPiecewiseFunction for an explanation of
  * midpoint and sharpness.
  *
+ * Note that transparency (alpha) is only supported in NanColorRGBA feature.
+ *
  * @sa
  * vtkPiecewiseFunction
  */
