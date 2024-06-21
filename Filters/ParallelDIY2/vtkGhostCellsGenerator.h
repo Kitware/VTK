@@ -78,11 +78,10 @@
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
 #include "vtkWeakPointer.h"               // for vtkWeakPointer
 
-#include <memory> // for std::shared_ptr
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkMultiProcessController;
+class vtkDataObjectMeshCache;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkGhostCellsGenerator : public vtkPassInputTypeAlgorithm
 {
@@ -201,8 +200,6 @@ protected:
   bool BuildIfRequired = true;
 
 private:
-  struct StaticMeshCache;
-
   vtkGhostCellsGenerator(const vtkGhostCellsGenerator&) = delete;
   void operator=(const vtkGhostCellsGenerator&) = delete;
 
@@ -217,12 +214,15 @@ private:
   int GenerateGhostCells(
     vtkDataObject* input, vtkDataObject* output, int reqGhostLayers, bool syncOnly);
 
+  void UpdateCache(vtkDataObject* updatedOutput);
+  bool UseCacheIfPossible(vtkDataObject* input, vtkDataObject* output);
+
   bool GenerateGlobalIds = false;
   bool GenerateProcessIds = false;
   bool SynchronizeOnly = false;
 
   bool UseStaticMeshCache = false;
-  std::shared_ptr<StaticMeshCache> MeshCache;
+  vtkNew<vtkDataObjectMeshCache> MeshCache;
 };
 
 VTK_ABI_NAMESPACE_END

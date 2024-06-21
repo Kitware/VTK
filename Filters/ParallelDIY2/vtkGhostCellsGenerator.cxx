@@ -6,6 +6,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDIYGhostUtilities.h"
+#include "vtkDataObjectMeshCache.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkExplicitStructuredGrid.h"
@@ -15,7 +16,6 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -35,124 +35,10 @@ vtkStandardNewMacro(vtkGhostCellsGenerator);
 vtkCxxSetObjectMacro(vtkGhostCellsGenerator, Controller, vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
-struct vtkGhostCellsGenerator::StaticMeshCache
-{
-  // Output with ghost cells already generated
-  vtkSmartPointer<vtkDataObject> Cache;
-  vtkMTimeType CachedMeshMTime = 0;
-  bool Initialized = false;
-};
-
-//----------------------------------------------------------------------------
-/**
- * Interface to dispatch work over every contained vtkDataSet.
- * If input is a vtkDataSet subclass, forward it directly to
- * ComputeDataSet.
- * If input is a vtkDataObjectTree subclass, iterate over
- * inner non empty vtkDataSet leaves.
- * @note From vtkDataObjectMeshCache
- */
-struct GenericDataObjectWorker
-{
-  virtual ~GenericDataObjectWorker() = default;
-
-  /**
-   * Entry point. In the end, call ComputeDataSet for every
-   * contained vtkDataSet.
-   */
-  void Compute(vtkDataObject* dataobject)
-  {
-    auto dataset = vtkDataSet::SafeDownCast(dataobject);
-    if (dataset)
-    {
-      this->ComputeDataSet(dataset);
-      return;
-    }
-    auto composite = vtkDataObjectTree::SafeDownCast(dataobject);
-    if (composite)
-    {
-      this->ComputeComposite(composite);
-      return;
-    }
-
-    this->SkippedData = true;
-  }
-
-  /**
-   * Iterate over inner vtkDataSet to call ComputeDataSet
-   */
-  void ComputeComposite(vtkDataObjectTree* composite)
-  {
-    auto options = vtk::DataObjectTreeOptions::TraverseSubTree |
-      vtk::DataObjectTreeOptions::SkipEmptyNodes | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
-    for (auto dataLeaf : vtk::Range(composite, options))
-    {
-      auto dataset = vtkDataSet::SafeDownCast(dataLeaf);
-      if (dataset)
-      {
-        this->ComputeDataSet(dataset);
-      }
-      else
-      {
-        this->SkippedData = true;
-      }
-    }
-  }
-
-  /**
-   * To be reimplemented to do the actual work.
-   * Will be called multiple times for composite.
-   */
-  virtual void ComputeDataSet(vtkDataSet* dataset) = 0;
-
-  bool SkippedData = false;
-};
-
-/**
- * Worker to compute mesh mtime.
- * For composite, return the max value.
- * @note From vtkDataObjectMeshCache
- */
-struct MeshMTimeWorker : public GenericDataObjectWorker
-{
-  ~MeshMTimeWorker() override = default;
-
-  void ComputeDataSet(vtkDataSet* dataset) override
-  {
-    auto polydata = vtkPolyData::SafeDownCast(dataset);
-    auto ugrid = vtkUnstructuredGrid::SafeDownCast(dataset);
-
-    if (polydata)
-    {
-      this->MeshTime = std::max(this->MeshTime, polydata->GetMeshMTime());
-    }
-
-    if (ugrid)
-    {
-      this->MeshTime = std::max(this->MeshTime, ugrid->GetMeshMTime());
-    }
-  }
-
-  vtkMTimeType MeshTime = 0;
-};
-
-/**
- * @brief Helper to get the Mesh Modified time of any type of dataset
- * @note From vtkDataObjectMeshCache
- * @note No longer necessary when vtkCompositeDataset / vtkDataset support GetMeshMTime themselves
- */
-vtkMTimeType GetMeshMTime(vtkDataObject* input)
-{
-  MeshMTimeWorker meshtime;
-  meshtime.Compute(input);
-  return meshtime.MeshTime;
-}
-
-//----------------------------------------------------------------------------
 vtkGhostCellsGenerator::vtkGhostCellsGenerator()
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  this->MeshCache = std::make_shared<StaticMeshCache>();
+  this->MeshCache->SetConsumer(this);
 }
 
 //----------------------------------------------------------------------------
@@ -224,35 +110,20 @@ int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector
 
   if (this->UseStaticMeshCache)
   {
-    if (!this->MeshCache->Initialized)
+    if (this->UseCacheIfPossible(modifInputDO, outputDO))
     {
-      this->MeshCache->Cache.TakeReference(inputDO->NewInstance());
-      this->MeshCache->Initialized = true;
-      this->MeshCache->CachedMeshMTime = 0;
-    }
-
-    vtkMTimeType inputMeshMTime = GetMeshMTime(inputDO);
-    if (this->MeshCache->CachedMeshMTime < inputMeshMTime)
-    {
-      // Generate ghost cells and cache them
-      retVal &= this->GenerateGhostCells(inputDO, this->MeshCache->Cache, reqGhostLayers, false);
-      this->MeshCache->CachedMeshMTime = inputMeshMTime;
-
-      outputDO->ShallowCopy(this->MeshCache->Cache);
-    }
-    else
-    {
-      // Sync only
-      retVal &= this->GenerateGhostCells(inputDO, this->MeshCache->Cache, reqGhostLayers, true);
-      outputDO->ShallowCopy(this->MeshCache->Cache);
+      // Cache copied to output, we still need to sync
+      retVal &= this->GenerateGhostCells(modifInputDO, outputDO, reqGhostLayers, true);
+      return retVal;
     }
   }
-  else
+
+  retVal &= this->GenerateGhostCells(modifInputDO, outputDO, reqGhostLayers, this->SynchronizeOnly);
+
+  if (this->UseStaticMeshCache)
   {
-    retVal &=
-      this->GenerateGhostCells(modifInputDO, outputDO, reqGhostLayers, this->SynchronizeOnly);
+    this->UpdateCache(outputDO);
   }
-
   return retVal;
 }
 
@@ -425,6 +296,34 @@ bool vtkGhostCellsGenerator::CanSynchronize(
     inputPoint->GetProcessIds();
 
   return canSyncCell && canSyncPoint;
+}
+
+//----------------------------------------------------------------------------
+bool vtkGhostCellsGenerator::UseCacheIfPossible(vtkDataObject* input, vtkDataObject* output)
+{
+  assert(input && output);
+  if (!this->MeshCache->IsSupportedData(input))
+  {
+    return false;
+  }
+
+  this->MeshCache->SetOriginalDataObject(input);
+
+  auto status = this->MeshCache->GetStatus();
+  if (status.enabled())
+  {
+    this->MeshCache->CopyCacheToDataObject(output);
+    return true;
+  }
+
+  return false;
+}
+
+//----------------------------------------------------------------------------
+void vtkGhostCellsGenerator::UpdateCache(vtkDataObject* updatedOutput)
+{
+  assert(updatedOutput);
+  this->MeshCache->UpdateCache(updatedOutput);
 }
 
 //----------------------------------------------------------------------------

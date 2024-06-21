@@ -3385,6 +3385,8 @@ int TestNonlinearCells(vtkMultiProcessController* controller)
 
 bool TestStaticMeshCache()
 {
+  vtkLog(INFO, "Testing static mesh cache");
+
   // Create the pipeline to produce the initial grid
   vtkNew<vtkConeSource> cone1;
   cone1->SetResolution(15);
@@ -3415,6 +3417,7 @@ bool TestStaticMeshCache()
   vtkNew<vtkGhostCellsGenerator> ghostCellGenerator;
   ghostCellGenerator->SetInputConnection(addScalars->GetOutputPort());
   ghostCellGenerator->SetUseStaticMeshCache(true);
+  ghostCellGenerator->SetBuildIfRequired(true);
   ghostCellGenerator->Update();
 
   auto outputPDC =
