@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPProbeFilter
- * @brief   probe dataset in parallel
+ * @brief   probe dataset in distributed parallel computation
  *
  * This filter works correctly only if the whole geometry dataset
  * (that specify the point locations used to probe input) is available on all
