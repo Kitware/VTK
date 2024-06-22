@@ -839,6 +839,11 @@ bool vtkGLTFDocumentLoader::LoadImageData()
     else // If image is defined via uri
     {
       auto stream = this->InternalModel->URILoader->Load(image.Uri);
+      if (!stream)
+      {
+        vtkErrorMacro("Invalid Uri:" << image.Uri);
+        return false;
+      }
 
       // Magic numbers used to detect image format
       static constexpr std::array<std::uint8_t, 4> jpegMagic = { 0xFF, 0xD8, 0xFF, 0xE0 };
