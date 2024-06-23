@@ -14,9 +14,9 @@ case "$architecture" in
         ;;
 esac
 readonly node_args
-version=$( node $node_args --eval "import('./build/bin/vtkWasmSceneManager.mjs').then(m => m.default().then(i => console.log(i.getVTKVersion())))" )
+version=$( node $node_args --eval "import('./build/install/bin/vtkWasmSceneManager.mjs').then(m => m.default().then(i => console.log(i.getVTKVersion())))" )
 readonly version
 
-cd build/bin
+cd build/install/bin
 tar -cvzf "vtk-$version-$architecture.tar.gz" ./vtkWasmSceneManager.*
 cd ../../

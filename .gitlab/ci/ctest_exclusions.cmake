@@ -476,7 +476,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestWindowBlits$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_linux_chrome$")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_linux_chrome_ext_vtk$")
   list(APPEND test_exclusions
     # Disabled until CI figures out a way to use hardware accel. inside linux container.
     "^VTK::RenderingCoreCxx"
