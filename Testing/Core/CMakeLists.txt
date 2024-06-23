@@ -23,7 +23,10 @@ vtk_module_add_module(VTK::TestingCore
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_link_options(VTK::TestingCore
     INTERFACE
-      "--js-library=${CMAKE_CURRENT_SOURCE_DIR}/vtkEmscriptenTestUtilities.js")
+      "$<BUILD_INTERFACE:--js-library=${CMAKE_CURRENT_SOURCE_DIR}/vtkEmscriptenTestUtilities.js>"
+      "$<INSTALL_INTERFACE:--js-library=$<INSTALL_PREFIX>/lib/vtkEmscriptenTestUtilities.js>")
+  install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtkEmscriptenTestUtilities.js"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif ()
 
 # Write out a summary of the configuration for use in the
