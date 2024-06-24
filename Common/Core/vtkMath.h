@@ -1900,9 +1900,13 @@ inline ReturnTypeT vtkMath::Distance2BetweenPoints(const TupleRangeT1& p1, const
 template <class VectorT1, class VectorT2, class VectorT3>
 void vtkMath::Cross(VectorT1&& a, VectorT2&& b, VectorT3& c)
 {
-  c[0] = a[1] * b[2] - a[2] * b[1];
-  c[1] = a[2] * b[0] - a[0] * b[2];
-  c[2] = a[0] * b[1] - a[1] * b[0];
+  typedef typename vtkMatrixUtilities::ScalarTypeExtractor<VectorT3>::value_type ValueType;
+  ValueType Cx = a[1] * b[2] - a[2] * b[1];
+  ValueType Cy = a[2] * b[0] - a[0] * b[2];
+  ValueType Cz = a[0] * b[1] - a[1] * b[0];
+  c[0] = Cx;
+  c[1] = Cy;
+  c[2] = Cz;
 }
 
 //----------------------------------------------------------------------------

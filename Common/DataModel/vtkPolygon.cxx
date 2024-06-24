@@ -132,17 +132,16 @@ struct NormalWorker
   void operator()(ArrayT* p, int numPts, const vtkIdType* pts, double* n)
   {
     auto points = vtk::DataArrayTupleRange<3>(p);
-    using ValueType = typename decltype(points[0])::value_type;
     using PointType = typename decltype(points)::ConstTupleReferenceType;
-    ValueType tmp[3], v1[3], v2[3];
+    double v1[3], v2[3];
     PointType p0 = points[::GetPointId<PointIdRedirection>(pts, 0)];
     vtkMath::Subtract(points[::GetPointId<PointIdRedirection>(pts, 1)], p0, v1);
 
     for (vtkIdType pointId = 2; pointId < numPts; ++pointId)
     {
       vtkMath::Subtract(points[::GetPointId<PointIdRedirection>(pts, pointId)], p0, v2);
-      vtkMath::Cross(v1, v2, tmp);
-      vtkMath::Add(n, tmp, n);
+      vtkMath::Cross(v1, v2, v1);
+      vtkMath::Add(n, v1, n);
       std::swap(v1, v2);
     }
   }
