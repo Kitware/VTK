@@ -1035,6 +1035,17 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReaderInternal::GetDataSets(
   // TODO: ideally, this method shouldn't depend on format but entity type.
   switch (this->Format)
   {
+    case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
+      switch (vtk_entity_type)
+      {
+        case EntityType::STRUCTUREDBLOCK:
+        case EntityType::SIDESET:
+          return this->GetCGNSDataSets(blockname, vtk_entity_type, handle, timestep, self);
+
+        default:
+          return this->GetExodusDataSets(blockname, vtk_entity_type, handle, timestep, self);
+      }
+
     case vtkIOSSUtilities::DatabaseFormatType::CGNS:
       switch (vtk_entity_type)
       {
@@ -1048,7 +1059,6 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReaderInternal::GetDataSets(
       }
 
     case vtkIOSSUtilities::DatabaseFormatType::EXODUS:
-    case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
       switch (vtk_entity_type)
       {
         case EntityType::STRUCTUREDBLOCK:
