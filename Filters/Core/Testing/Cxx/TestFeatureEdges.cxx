@@ -222,10 +222,10 @@ bool TestMixedTypes()
   vtkImageData* lineImageRef =
     vtkImageData::SafeDownCast(lineImagePointToCell->GetOutputDataObject(0));
 
-  vtkDoubleArray* imageRefArray =
-    vtkArrayDownCast<vtkDoubleArray>(imageRef->GetCellData()->GetAbstractArray(0));
-  vtkDoubleArray* lineRefArray =
-    vtkArrayDownCast<vtkDoubleArray>(lineImageRef->GetCellData()->GetAbstractArray(0));
+  vtkDataArray* imageRefArray =
+    vtkArrayDownCast<vtkDataArray>(imageRef->GetCellData()->GetAbstractArray(0));
+  vtkDataArray* lineRefArray =
+    vtkArrayDownCast<vtkDataArray>(lineImageRef->GetCellData()->GetAbstractArray(0));
 
   vtkNew<vtkFeatureEdges> edges;
   edges->BoundaryEdgesOn();
@@ -272,8 +272,7 @@ bool TestMixedTypes()
   outputMapToGrid->SetId(18, 21);
   outputMapToGrid->SetId(19, 23);
 
-  vtkDoubleArray* outArray =
-    vtkArrayDownCast<vtkDoubleArray>(out->GetCellData()->GetAbstractArray(0));
+  vtkDataArray* outArray = vtkArrayDownCast<vtkDataArray>(out->GetCellData()->GetAbstractArray(0));
 
   for (vtkIdType id = 0; id < out->GetNumberOfCells(); ++id)
   {
@@ -281,7 +280,7 @@ bool TestMixedTypes()
     // 1D grid
     if (id < maxExtent)
     {
-      if (lineRefArray->GetValue(id) != outArray->GetValue(id))
+      if (lineRefArray->GetTuple1(id) != outArray->GetTuple1(id))
       {
         error = true;
       }
@@ -290,8 +289,8 @@ bool TestMixedTypes()
     else
     {
       if (std::abs(
-            imageRefArray->GetValue(outputMapToGrid->GetId(id - lineImage->GetNumberOfCells())) -
-            outArray->GetValue(id)) > 0.001)
+            imageRefArray->GetTuple1(outputMapToGrid->GetId(id - lineImage->GetNumberOfCells())) -
+            outArray->GetTuple1(id)) > 0.001)
       {
         error = true;
       }

@@ -118,7 +118,7 @@ void CreatePointData(vtkDataSet* grid, int numberOfComponents, int offset, const
 }
 
 //------------------------------------------------------------------------------
-int IsGradientCorrect(vtkDoubleArray* gradients, int offset)
+int IsGradientCorrect(vtkDataArray* gradients, int offset)
 {
   int numberOfComponents = gradients->GetNumberOfComponents();
   for (vtkIdType i = 0; i < gradients->GetNumberOfTuples(); i++)
@@ -152,7 +152,7 @@ int IsGradientCorrect(vtkDoubleArray* gradients, int offset)
 //------------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // vorticity from it
-int IsVorticityCorrect(vtkDoubleArray* gradients, vtkDoubleArray* vorticity)
+int IsVorticityCorrect(vtkDataArray* gradients, vtkDataArray* vorticity)
 {
   if (gradients->GetNumberOfComponents() != 9 || vorticity->GetNumberOfComponents() != 3)
   {
@@ -189,7 +189,7 @@ int IsVorticityCorrect(vtkDoubleArray* gradients, vtkDoubleArray* vorticity)
 //------------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // Q criterion from it
-int IsQCriterionCorrect(vtkDoubleArray* gradients, vtkDoubleArray* qCriterion)
+int IsQCriterionCorrect(vtkDataArray* gradients, vtkDataArray* qCriterion)
 {
   if (gradients->GetNumberOfComponents() != 9 || qCriterion->GetNumberOfComponents() != 1)
   {
@@ -199,7 +199,7 @@ int IsQCriterionCorrect(vtkDoubleArray* gradients, vtkDoubleArray* qCriterion)
   for (vtkIdType i = 0; i < gradients->GetNumberOfTuples(); i++)
   {
     double* g = gradients->GetTuple(i);
-    double qc = qCriterion->GetValue(i);
+    double qc = qCriterion->GetTuple1(i);
 
     double t1 = .25 *
       ((g[7] - g[5]) * (g[7] - g[5]) + (g[3] - g[1]) * (g[3] - g[1]) +
@@ -224,7 +224,7 @@ int IsQCriterionCorrect(vtkDoubleArray* gradients, vtkDoubleArray* qCriterion)
 //------------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // divergence from it
-int IsDivergenceCorrect(vtkDoubleArray* gradients, vtkDoubleArray* divergence)
+int IsDivergenceCorrect(vtkDataArray* gradients, vtkDataArray* divergence)
 {
   if (gradients->GetNumberOfComponents() != 9 || divergence->GetNumberOfComponents() != 1)
   {
@@ -234,7 +234,7 @@ int IsDivergenceCorrect(vtkDoubleArray* gradients, vtkDoubleArray* divergence)
   for (vtkIdType i = 0; i < gradients->GetNumberOfTuples(); i++)
   {
     double* g = gradients->GetTuple(i);
-    double div = divergence->GetValue(i);
+    double div = divergence->GetTuple1(i);
     double gValue = g[0] + g[4] + g[8];
 
     if (!ArePointsWithinTolerance(div, gValue))
@@ -283,8 +283,7 @@ int PerformTest(vtkDataSet* grid)
     cellGradients->Update();
     pointGradients->Update();
 
-    vtkDoubleArray* gradCellArray = vtkArrayDownCast<vtkDoubleArray>(
-      vtkDataSet::SafeDownCast(cellGradients->GetOutput())->GetCellData()->GetArray(resultName));
+    vtkDataArray* gradCellArray = cellGradients->GetOutput()->GetCellData()->GetArray(resultName);
 
     if (!grid->IsA("vtkUnstructuredGrid"))
     {
@@ -296,8 +295,8 @@ int PerformTest(vtkDataSet* grid)
       }
     }
 
-    vtkDoubleArray* gradPointArray = vtkArrayDownCast<vtkDoubleArray>(
-      vtkDataSet::SafeDownCast(pointGradients->GetOutput())->GetPointData()->GetArray(resultName));
+    vtkDataArray* gradPointArray =
+      pointGradients->GetOutput()->GetPointData()->GetArray(resultName);
 
     if (!IsGradientCorrect(gradPointArray, offset))
     {
@@ -324,8 +323,8 @@ int PerformTest(vtkDataSet* grid)
     pointVorticity->Update();
 
     // cell stuff
-    vtkDoubleArray* vorticityCellArray = vtkArrayDownCast<vtkDoubleArray>(
-      vtkDataSet::SafeDownCast(cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
+    vtkDataArray* vorticityCellArray =
+      cellVorticity->GetOutput()->GetCellData()->GetArray("Vorticity");
 
     if (!IsVorticityCorrect(gradCellArray, vorticityCellArray))
     {
@@ -333,26 +332,22 @@ int PerformTest(vtkDataSet* grid)
     }
 
     // point stuff
-    vtkDoubleArray* vorticityPointArray = vtkArrayDownCast<vtkDoubleArray>(
-      vtkDataSet::SafeDownCast(pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
+    vtkDataArray* vorticityPointArray =
+      pointVorticity->GetOutput()->GetPointData()->GetArray("Vorticity");
 
     if (!IsVorticityCorrect(gradPointArray, vorticityPointArray))
     {
       return EXIT_FAILURE;
     }
-    vtkDoubleArray* divergencePointArray =
-      vtkArrayDownCast<vtkDoubleArray>(vtkDataSet::SafeDownCast(pointVorticity->GetOutput())
-                                         ->GetPointData()
-                                         ->GetArray("Divergence"));
+    vtkDataArray* divergencePointArray =
+      pointVorticity->GetOutput()->GetPointData()->GetArray("Divergence");
 
     if (!IsDivergenceCorrect(gradPointArray, divergencePointArray))
     {
       return EXIT_FAILURE;
     }
-    vtkDoubleArray* qCriterionPointArray =
-      vtkArrayDownCast<vtkDoubleArray>(vtkDataSet::SafeDownCast(pointVorticity->GetOutput())
-                                         ->GetPointData()
-                                         ->GetArray("Q-criterion"));
+    vtkDataArray* qCriterionPointArray =
+      pointVorticity->GetOutput()->GetPointData()->GetArray("Q-criterion");
     if (!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
     {
       return EXIT_FAILURE;
@@ -396,8 +391,7 @@ int TestGradient(int* cellTypes, vtkGeneralTransform* transform)
     cellTypeSource->SetCellType(cellTypes[i]);
     gradientFilter->Update();
     // Arrays generated by vtkm filters are of type `vtkAOSDataArrayTemplate`
-    auto* result = vtkFloatArray::Superclass::SafeDownCast(
-      gradientFilter->GetOutput()->GetPointData()->GetArray("Gradients"));
+    auto* result = gradientFilter->GetOutput()->GetPointData()->GetArray("Gradients");
     double range[2];
     result->GetRange(range, 0);
     if (range[0] < .99 || range[1] > 1.01)
@@ -452,8 +446,8 @@ int TestPoints(vtkImageData* grid, vtkUnstructuredGrid* ref)
 //------------------------------------------------------------------------------
 int TestCells(vtkImageData* grid, vtkPointSet* ref)
 {
-  auto gridArray = vtkArrayDownCast<vtkDoubleArray>(grid->GetCellData()->GetAbstractArray("Pres"));
-  auto refArray = vtkArrayDownCast<vtkDoubleArray>(ref->GetPointData()->GetAbstractArray("Pres"));
+  vtkDataArray* gridArray(grid->GetCellData()->GetArray("Pres"));
+  vtkDataArray* refArray(ref->GetPointData()->GetArray("Pres"));
   double refPoint[3];
   double bounds[6];
   int extent[6];
@@ -470,7 +464,7 @@ int TestCells(vtkImageData* grid, vtkPointSet* ref)
     ijk[2] = (refPoint[2] - bounds[4]) / (bounds[5] - bounds[4]) * (width[2] - 1);
     vtkIdType gridPointId = vtkStructuredData::ComputeCellId(width, ijk);
 
-    if (std::abs(gridArray->GetValue(gridPointId) - refArray->GetValue(pointId)) > 1e-6)
+    if (std::abs(gridArray->GetTuple1(gridPointId) - refArray->GetTuple1(pointId)) > 1e-6)
     {
       vtkGenericWarningMacro("Computing gradient on a grid with hidden cells failed");
       return EXIT_FAILURE;
