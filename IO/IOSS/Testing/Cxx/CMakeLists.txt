@@ -22,6 +22,7 @@ vtk_add_test_cxx(vtkIOIOSSCxxTests tests
 
 if (TARGET VTK::catalyst)
   vtk_add_test_cxx(vtkIOIOSSCxxTests tests
+    TestIOSSCatalystCGNS.cxx
     TestIOSSCatalystExodus.cxx
   )
 endif()

@@ -56,6 +56,7 @@ endfunction()
 
 vtk_add_conduit_data(Iocatalyst_can_ex2 1 44)
 vtk_add_conduit_data(Iocatalyst_can_ex2 4 44)
+vtk_add_conduit_data(Iocatalyst_sparc1_cgns 1 3)
 
 if (VTK_USE_LARGE_DATA)
   list(APPEND datasets
