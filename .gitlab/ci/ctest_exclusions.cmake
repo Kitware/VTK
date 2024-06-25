@@ -271,6 +271,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     # Thread-local objects are not destroyed at program exit.
     # https://stackoverflow.com/questions/50897768/in-visual-studio-thread-local-variables-destructor-not-called-when-used-with
+    "^VTK::FiltersCellGridPython-TestCellGridPointProbe$"
     "^VTK::FiltersCellGridPython-TestCellGridRange$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
   )
