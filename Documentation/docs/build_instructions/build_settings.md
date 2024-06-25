@@ -48,6 +48,10 @@ Less common, but variables which may be of interest to some:
     this also runs unit tests in web workers, which is the only way for the tests
     to reliably load data files without having to embed entire datasets inside
     the test binaries.
+  * `VTK_TESTING_WASM_ENGINE` (default ``):
+    Path to a wasm runtime executable. This is used to run C++ tests in wasm environments.
+  * `VTK_TESTING_WASM_ENGINE_ARGUMENTS` (default ``):
+    Space separated arguments passed to the wasm runtime executable.
 
 OpenGL-related options:
 
