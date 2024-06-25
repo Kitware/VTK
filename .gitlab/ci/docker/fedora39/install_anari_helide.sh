@@ -3,7 +3,7 @@
 set -e
 
 readonly anari_repo="https://github.com/KhronosGroup/ANARI-SDK.git"
-readonly anari_commit="v0.9.1"
+readonly anari_commit="v0.10.0"
 
 readonly anari_root="$HOME/ANARI-SDK"
 readonly anari_src="$HOME/ANARI-SDK"
