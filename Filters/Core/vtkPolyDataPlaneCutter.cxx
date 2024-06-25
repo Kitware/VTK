@@ -591,8 +591,6 @@ vtkMTimeType vtkPolyDataPlaneCutter::GetMTime()
 int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkLog(INFO, "Executing vtkPolyData plane cutter");
-
   // Get the input and output
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
