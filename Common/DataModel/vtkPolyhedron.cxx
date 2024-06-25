@@ -131,42 +131,6 @@ typedef std::unordered_set<Edge, hash_fn, equal_fn> EdgeSet;
 typedef vtkIdVectorType Face;
 typedef std::vector<Face> FaceVector;
 
-//// Special class for iterating through polyhedron faces
-////----------------------------------------------------------------------------
-class vtkPolyhedronFaceIterator
-{
-public:
-  vtkIdType CurrentPolygonSize;
-  vtkIdType* Polygon;
-  vtkIdType* Current;
-  vtkIdType NumberOfPolygons;
-  vtkIdType Id;
-
-  vtkPolyhedronFaceIterator(vtkIdType numFaces, vtkIdType* t)
-  {
-    this->CurrentPolygonSize = t[0];
-    this->Polygon = t;
-    this->Current = t + 1;
-    this->NumberOfPolygons = numFaces;
-    this->Id = 0;
-  }
-  vtkIdType* operator++()
-  {
-    this->Current += this->CurrentPolygonSize + 1;
-    this->Polygon = this->Current - 1;
-    this->Id++;
-    if (this->Id < this->NumberOfPolygons)
-    {
-      this->CurrentPolygonSize = this->Polygon[0];
-    }
-    else
-    {
-      this->CurrentPolygonSize = VTK_ID_MAX;
-    }
-    return this->Current;
-  }
-};
-
 //------------------------------------------------------------------------------
 // Construct the hexahedron with eight points.
 vtkPolyhedron::vtkPolyhedron()
