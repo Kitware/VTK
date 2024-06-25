@@ -433,6 +433,16 @@ public:
    */
   vtkPolyData* GetPolyData();
 
+  /**
+   * Shallow copy of a polyhedron.
+   */
+  void ShallowCopy(vtkCell* c) override;
+
+  /**
+   * Deep copy of a polyhedron.
+   */
+  void DeepCopy(vtkCell* c) override;
+
 protected:
   vtkPolyhedron();
   ~vtkPolyhedron() override;

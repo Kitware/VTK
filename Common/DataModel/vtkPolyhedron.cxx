@@ -2532,6 +2532,32 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
 }
 
 //------------------------------------------------------------------------------
+void vtkPolyhedron::ShallowCopy(vtkCell* c)
+{
+  this->Superclass::ShallowCopy(c);
+
+  vtkPolyhedron* cell = vtkPolyhedron::SafeDownCast(c);
+  if (cell)
+  {
+    this->GlobalFaces->ShallowCopy(cell->GlobalFaces);
+    this->Initialize();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPolyhedron::DeepCopy(vtkCell* c)
+{
+  this->Superclass::DeepCopy(c);
+
+  vtkPolyhedron* cell = vtkPolyhedron::SafeDownCast(c);
+  if (cell)
+  {
+    this->GlobalFaces->DeepCopy(cell->GlobalFaces);
+    this->Initialize();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkPolyhedron::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
