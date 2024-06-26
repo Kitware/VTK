@@ -123,7 +123,7 @@
 #include "vtkCell3D.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDeprecation.h"           // For VTK_DEPRECATED
-#include "vtkNew.h"
+#include "vtkNew.h"                   // For vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
