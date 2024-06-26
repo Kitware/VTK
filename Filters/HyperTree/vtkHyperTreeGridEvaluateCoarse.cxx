@@ -156,9 +156,9 @@ void vtkHyperTreeGridEvaluateCoarse::ProcessNode(vtkHyperTreeGridNonOrientedCurs
       },
       false);
 
-    for (int ichild = 0; ichild < outCursor->GetNumberOfChildren(); ++ichild)
+    for (unsigned char ichild = 0; ichild < outCursor->GetNumberOfChildren(); ++ichild)
     {
-      queue.Push(std::move(ichild));
+      queue.Push(static_cast<int>(ichild));
     }
     queue.Flush();
   }

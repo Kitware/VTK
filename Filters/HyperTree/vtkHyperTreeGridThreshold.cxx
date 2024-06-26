@@ -492,9 +492,9 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTreeWithCreateNewMask(
         },
         true);
 
-      for (int ichild = 0; ichild < numChildren; ++ichild)
+      for (unsigned char ichild = 0; ichild < outCursor->GetNumberOfChildren(); ++ichild)
       {
-        queue.Push(std::move(ichild));
+        queue.Push(static_cast<int>(ichild));
       }
 
       while (!queue.IsEmpty())
