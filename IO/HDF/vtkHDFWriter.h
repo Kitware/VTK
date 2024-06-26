@@ -172,17 +172,6 @@ public:
   vtkGetMacro(UseExternalPartitions, bool);
   ///@}
 
-  ///@{
-  /**
-   * If true, consider the input as distributed and write pieces to individual numbered file parts.
-   * Otherwise, consider the input as a single standalone piece.
-   * Only applies for multi-process execution.
-   * Default is true.
-   */
-  vtkSetMacro(WriteDistributedOutput, bool);
-  vtkGetMacro(WriteDistributedOutput, bool);
-  ///@}
-
 protected:
   /**
    * Override vtkWriter's ProcessRequest method, in order to dispatch the request
@@ -220,13 +209,9 @@ private:
   void DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId = 0);
 
   /**
-   * Dispatch the input data object containing multiple pieces distributed across processes
-   * to the specialized writer function. Write individual parts in X_partN.vtkhdf files, where X is
-   * the base file name provided to this filter.
-   * For Unstructured Grid and Poly Data types, write a main file referencing all pieces through
-   * HDF5 virtual datasets, like the UseExternalPartitions option would do.
+   * For distributed datasets, write the meta-file
    */
-  void DispatchDistributedDataObject(vtkDataObject* input);
+  void WriteDistributedMetafile(vtkDataObject* input);
 
   ///@{
   /**
@@ -382,7 +367,6 @@ private:
   bool UseExternalComposite = false;
   bool UseExternalTimeSteps = false;
   bool UseExternalPartitions = false;
-  bool WriteDistributedOutput = true;
   int ChunkSize = 25000;
   int CompressionLevel = 0;
 

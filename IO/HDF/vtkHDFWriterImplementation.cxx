@@ -71,16 +71,14 @@ bool vtkHDFWriter::Implementation::WriteHeader(hid_t group, const char* hdfType)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::CreateFile(bool overwrite)
+bool vtkHDFWriter::Implementation::CreateFile(bool overwrite, const std::string& filename)
 {
-  const char* filename = this->Writer->GetFileName();
-
   // Create file
   vtkDebugWithObjectMacro(
     this->Writer, << "Creating file " << this->Writer->Rank << ": " << filename);
 
   vtkHDF::ScopedH5FHandle file{ H5Fcreate(
-    filename, overwrite ? H5F_ACC_TRUNC : H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT) };
+    filename.c_str(), overwrite ? H5F_ACC_TRUNC : H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT) };
   if (file == H5I_INVALID_HID)
   {
     return false;
@@ -116,6 +114,16 @@ bool vtkHDFWriter::Implementation::OpenFile()
   this->Root = this->OpenExistingGroup(this->File, "VTKHDF");
 
   return this->Root != H5I_INVALID_HID;
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFWriter::Implementation::CloseFile()
+{
+  vtkDebugWithObjectMacro(this->Writer,
+    "Closing current file " << this->File << this->Writer->FileName << this->Writer->Rank);
+  // Setting to H5I_INVALID_HID closes the group/file using RAII
+  this->Root = H5I_INVALID_HID;
+  this->File = H5I_INVALID_HID;
 }
 
 //------------------------------------------------------------------------------
