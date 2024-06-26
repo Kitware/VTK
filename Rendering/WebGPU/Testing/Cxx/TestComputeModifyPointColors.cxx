@@ -85,6 +85,7 @@ int TestComputeModifyPointColors(int argc, char* argv[])
   int bufferBinding = 0;
   int uniformsGroup = 0;
   int uniformsBinding = 1;
+
   vtkSmartPointer<vtkWebGPUComputeRenderBuffer> pointColorsRenderBuffer =
     webGPUMapper->AcquirePointAttributeComputeRenderBuffer(
       vtkWebGPUPolyDataMapper::PointDataAttributes::POINT_COLORS, bufferGroup, bufferBinding,

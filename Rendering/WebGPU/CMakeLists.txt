@@ -8,8 +8,9 @@ set(classes
   vtkWebGPUActor
   vtkWebGPUCamera
   vtkWebGPUClearPass
-  vtkWebGPUComputePipeline
   vtkWebGPUComputeBuffer
+  vtkWebGPUComputeFrustumCuller
+  vtkWebGPUComputePipeline
   vtkWebGPUComputeRenderBuffer
   vtkWebGPUHardwareSelector
   vtkWebGPULight
@@ -25,6 +26,7 @@ set(private_classes
   vtkWebGPUInternalsBuffer
   vtkWebGPUInternalsCallbacks
   vtkWebGPUInternalsComputeBuffer
+  vtkWebGPUInternalsComputePipeline
   vtkWebGPUInternalsPipelineLayout
   vtkWebGPUInternalsRenderPassCreateInfo
   vtkWebGPUInternalsRenderPassDescriptor
@@ -63,6 +65,7 @@ unset(wgsl_shader_sources)
 unset(private_wgsl_shader_headers)
 unset(public_wgsl_shader_headers)
 set(private_shader_files
+  wgsl/FrustumCullingShader.wgsl
   wgsl/PolyData.wgsl)
 
 set(public_shader_files
@@ -75,7 +78,7 @@ set(public_shader_files
 foreach (file IN LISTS private_shader_files)
   vtk_encode_string(
     INPUT         "${file}"
-    EXPORT_SYMBOL "VTKRENDERINGWEBGPU_NO_EXPORT"
+    EXPORT_SYMBOL "VTKRENDERINGWEBGPU_EXPORT"
     EXPORT_HEADER "vtkRenderingWebGPUModule.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)

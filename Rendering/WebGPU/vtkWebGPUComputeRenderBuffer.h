@@ -16,9 +16,10 @@ class vtkWebGPUComputePipeline;
 
 /**
  * Render buffers are returned by calls to
- * vtkWebGPUPolyDataMapper::AcquirePointAttributeComputeRenderBuffer() and represent a buffer that
- * is used by the rendering pipeline and that can also be added to a compute pipeline
+ * vtkWebGPUPolyDataMapper::AcquireXXXXAttributeComputeRenderBuffer() and represent a buffer that
+ * is used by the rendering pipeline and that can also be added to a compute pipeline.
  */
+
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputeRenderBuffer : public vtkWebGPUComputeBuffer
 {
 public:
