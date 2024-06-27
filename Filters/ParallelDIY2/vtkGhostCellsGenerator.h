@@ -165,12 +165,11 @@ public:
 
   ///@{
   /**
-   * Specify if the filter should keep a cache of the input geometry.
+   * Specify if the filter should keep a cache of the output geometry.
    * Ghost cells will be generated once on the first update, and following updates
    * will only regenerate them if the input mesh has changed.
-   * This should allow speedups in cases where the mesh is the same, at the cost of
-   * increased memory footprint.
-   * Default is FALSE.
+   * This should allow faster execution in cases where the mesh is the same.
+   * Default is TRUE.
    */
   vtkSetMacro(UseStaticMeshCache, bool);
   vtkGetMacro(UseStaticMeshCache, bool);
@@ -221,7 +220,7 @@ private:
   bool GenerateProcessIds = false;
   bool SynchronizeOnly = false;
 
-  bool UseStaticMeshCache = false;
+  bool UseStaticMeshCache = true;
   vtkNew<vtkDataObjectMeshCache> MeshCache;
 };
 
