@@ -14,12 +14,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkImporter, RenderWindow, vtkRenderWindow);
 
-vtkImporter::vtkImporter()
-{
-  this->Renderer = nullptr;
-  this->RenderWindow = nullptr;
-}
-
+//------------------------------------------------------------------------------
 vtkImporter::~vtkImporter()
 {
   this->SetRenderWindow(nullptr);
@@ -31,16 +26,19 @@ vtkImporter::~vtkImporter()
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkImporter::ReadData()
 {
   // this->Import actors, cameras, lights and properties
+  // Do not check for UpdateStatus but try to import all that is possible
   this->ImportActors(this->Renderer);
   this->ImportCameras(this->Renderer);
   this->ImportLights(this->Renderer);
   this->ImportProperties(this->Renderer);
 }
 
-void vtkImporter::Read()
+//------------------------------------------------------------------------------
+bool vtkImporter::Update()
 {
   vtkRenderer* renderer;
 
@@ -74,9 +72,20 @@ void vtkImporter::Read()
   {
     this->ReadData();
     this->ImportEnd();
+    if (this->UpdateStatus == vtkImporter::UpdateStatusEnum::NOT_SET)
+    {
+      this->UpdateStatus = vtkImporter::UpdateStatusEnum::SUCCESS;
+    }
   }
+  else
+  {
+    this->UpdateStatus = vtkImporter::UpdateStatusEnum::FAILURE;
+  }
+
+  return this->UpdateStatus == vtkImporter::UpdateStatusEnum::SUCCESS;
 }
 
+//------------------------------------------------------------------------------
 void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
