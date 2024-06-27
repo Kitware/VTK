@@ -14,6 +14,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkThreadedTaskQueue.h"
 #include "vtkUniformHyperTreeGrid.h"
 
 #include "vtkHyperTreeGridNonOrientedCursor.h"
@@ -23,7 +24,7 @@
 
 namespace
 {
-
+constexpr int MAX_MUTEX = 1024;
 /*
  * Pure abstract interface for implementing how to deal with output
  * cell data during the thresholding
@@ -265,6 +266,22 @@ int vtkHyperTreeGridThreshold::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObje
   {
     output->ShallowCopy(input);
 
+    // Create mutexes covering the whole array for concurrent accesses to the same byte of
+    // vtkBitArray
+    const vtkIdType nbCells = output->GetNumberOfCells();
+    const vtkIdType nbBytesMask = nbCells / 8;
+    const vtkIdType nbMutexes = std::max<vtkIdType>(std::min<vtkIdType>(MAX_MUTEX, nbBytesMask), 1);
+    this->ArrayMutexSize = nbCells / nbMutexes + 1;
+    if (this->ArrayMutexSize % 8 != 0)
+    {
+      // Align the size of mutex array with byte delimitation
+      this->ArrayMutexSize += 8 - this->ArrayMutexSize % 8;
+    }
+    this->ArrayMutexSize = std::max(this->ArrayMutexSize, 8);
+    assert("ArrayMutexSize is a multiple of 8" && this->ArrayMutexSize % 8 == 0);
+    std::vector<std::mutex> list(nbMutexes);
+    this->OutMaskMutexes.swap(list); // std::mutex is not movable, need to use a swap
+
     this->OutMask->SetNumberOfTuples(output->GetNumberOfCells());
 
     // Iterate over all input and output hyper trees
@@ -445,13 +462,16 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTreeWithCreateNewMask(
   // Flag to recursively decide whether a tree node should discarded
   bool discard = true;
 
-  if (this->InMask && this->InMask->GetValue(outId))
+  if (this->InMask)
   {
-    // Mask output cell if necessary
-    this->OutMask->InsertTuple1(outId, discard);
+    if (this->InMask->GetValue(outId))
+    {
+      // Mask output cell if necessary
+      this->SafeInsertOutMask(outId, discard);
 
-    // Return whether current node is within range
-    return discard;
+      // Return whether current node is within range
+      return discard;
+    }
   }
 
   // Descend further into input trees only if cursor is not at leaf
@@ -459,31 +479,72 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTreeWithCreateNewMask(
   {
     // If input cursor is neither at leaf nor at maximum depth, recurse to all children
     int numChildren = outCursor->GetNumberOfChildren();
-    for (int ichild = 0; ichild < numChildren; ++ichild)
+
+    if (outCursor->GetLevel() <= 2)
     {
-      if (this->CheckAbort())
+      // Create a new thread for every child, when we're not too deep into the tree
+      vtkThreadedTaskQueue<bool, int> queue(
+        [this, outCursor](int ichild) {
+          vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor> childOutCursor =
+            vtk::TakeSmartPointer(outCursor->CloneFromCurrentEntry());
+
+          return this->RecursivelyProcessChild(childOutCursor, ichild);
+        },
+        true);
+
+      for (unsigned char ichild = 0; ichild < outCursor->GetNumberOfChildren(); ++ichild)
       {
-        break;
+        queue.Push(static_cast<int>(ichild));
       }
-      // Descend into child in output grid as well
-      outCursor->ToChild(ichild);
-      // Recurse and keep track of whether some children are kept
-      discard &= this->RecursivelyProcessTreeWithCreateNewMask(outCursor);
-      // Return to parent in output grid
-      outCursor->ToParent();
-    } // child
-  }   // if (! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth)
+
+      while (!queue.IsEmpty())
+      {
+        bool result;
+        queue.Pop(result);
+        discard &= result;
+      }
+    }
+    else
+    {
+      for (int ichild = 0; ichild < numChildren; ++ichild)
+      {
+        // Recurse and keep track of whether some children are kept
+        discard &= this->RecursivelyProcessChild(outCursor, ichild);
+      }
+    }
+  }
   else
   {
     // Input cursor is at leaf, check whether it is within range
-    double value = this->InScalars->GetTuple1(outId);
-    discard = value < this->LowerThreshold || value > this->UpperThreshold;
-  } // else
+    std::array<double, 1> val{ 0.0 };
+    this->InScalars->GetTuple(outId, val.data());
+    discard = val[0] < this->LowerThreshold || val[0] > this->UpperThreshold;
+  }
 
   // Mask output cell if necessary
-  this->OutMask->InsertTuple1(outId, discard);
+  this->SafeInsertOutMask(outId, discard);
 
   // Return whether current node is within range
   return discard;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridThreshold::RecursivelyProcessChild(
+  vtkHyperTreeGridNonOrientedCursor* outCursor, int ichild)
+{
+  assert("pre: has child ichild" && ichild < outCursor->GetNumberOfChildren());
+  outCursor->ToChild(ichild);
+  bool discard = this->RecursivelyProcessTreeWithCreateNewMask(outCursor);
+  outCursor->ToParent();
+
+  return discard;
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridThreshold::SafeInsertOutMask(vtkIdType tupleIdx, double value)
+{
+  assert("pre: ArrayMutexSize not null" && this->ArrayMutexSize > 0);
+  const std::lock_guard<std::mutex> lock(this->OutMaskMutexes[tupleIdx / this->ArrayMutexSize]);
+  this->OutMask->InsertTuple1(tupleIdx, value);
 }
 VTK_ABI_NAMESPACE_END

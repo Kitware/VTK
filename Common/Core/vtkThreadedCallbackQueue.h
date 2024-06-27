@@ -20,9 +20,9 @@
 #ifndef vtkThreadedCallbackQueue_h
 #define vtkThreadedCallbackQueue_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkParallelCoreModule.h" // For export macro
-#include "vtkSmartPointer.h"       // For vtkSmartPointer
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include <atomic>             // For atomic_bool
 #include <condition_variable> // For condition variable
@@ -39,7 +39,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKPARALLELCORE_EXPORT vtkThreadedCallbackQueue : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkThreadedCallbackQueue : public vtkObject
 {
 private:
   /**

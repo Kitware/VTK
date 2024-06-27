@@ -329,6 +329,7 @@ set(classes
   vtkStringToken
   vtkTimePointUtility
   vtkTimeStamp
+  vtkThreadedCallbackQueue
   vtkUnsignedCharArray
   vtkUnsignedIntArray
   vtkUnsignedLongArray
@@ -354,6 +355,7 @@ set(template_classes
   vtkMappedDataArray
   vtkSOADataArrayTemplate
   vtkSparseArray
+  vtkThreadedTaskQueue
   vtkTypedArray
   vtkTypedDataArray)
 
@@ -432,6 +434,7 @@ set(headers
   vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
   vtkTestDataArray.h
+  vtkThreadedTaskQueue.h
   vtkType.h
   vtkTypeTraits.h
   vtkTypedDataArrayIterator.h
@@ -456,6 +459,7 @@ set(private_headers
 
 set(templates
   vtkArrayIteratorTemplateImplicit.txx
+  vtkThreadedCallbackQueue.txx
   ${vtk_smp_templates})
 
 set(private_templates

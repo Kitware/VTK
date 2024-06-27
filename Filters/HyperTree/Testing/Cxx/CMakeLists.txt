@@ -52,6 +52,7 @@ set(test_sources
   TestHyperTreeGridBinaryClipPlanes.cxx
   TestHyperTreeGridBinaryEllipseMaterial.cxx
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
+  TestHyperTreeGridEvaluateCoarse.cxx,NO_VALID,NO_OUPUT
   TestHyperTreeGridExtractGhostCells.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridGeometryPassCellIds.cxx
   TestHyperTreeGridRemoveGhostCells.cxx,NO_VALID,NO_OUTPUT
@@ -96,6 +97,7 @@ set(test_sources
   TestHyperTreeGridTernaryHyperbola.cxx
   TestHyperTreeGridTernarySphereMaterial.cxx
   TestHyperTreeGridTernarySphereMaterialReflections.cxx
+  TestHyperTreeGridThresholdMethods.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridToDualGrid.cxx
   TestHyperTreeGridVisibleLeavesSize.cxx,NO_VALID,NO_OUPUT
   )

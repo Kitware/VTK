@@ -721,6 +721,7 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrien
   {
     // Cursor is not at leaf, recurse to all all children
     int numChildren = cursor->GetNumberOfChildren();
+    std::vector<bool> signs(numContours);
     for (int child = 0; child < numChildren; ++child)
     {
       if (this->CheckAbort())
@@ -728,7 +729,6 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrien
         break;
       }
       // Create storage for signs relative to contour values
-      std::vector<bool> signs(numContours);
 
       cursor->ToChild(child);
 
@@ -745,11 +745,11 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrien
           vtkIdType childId = cursor->GetGlobalNodeIndex();
 
           // Compute and store selection flags for current contour
-          if (!child)
+          if (child == 0)
           {
             // Initialize sign array with sign of first child
             signs[c] = (this->CellSigns[c]->GetTuple1(childId) != 0.0);
-          } // if ( ! child )
+          }
           else
           {
             // For subsequent children compare their sign with stored value
