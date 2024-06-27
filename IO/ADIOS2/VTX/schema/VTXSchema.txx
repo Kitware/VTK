@@ -27,7 +27,7 @@ void VTXSchema::GetDataArrayCommon(
 {
   dataArray.IsUpdated = true;
 
-  if (dataArray.Persist)
+  if (variable.Steps() < 2)
   {
     const auto blocksInfo = this->Engine.BlocksInfo(variable, step);
     if (blocksInfo.empty())

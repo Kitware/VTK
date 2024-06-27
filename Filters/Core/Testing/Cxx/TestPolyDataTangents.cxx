@@ -16,6 +16,7 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkPolyDataTangents.h"
 #include "vtkProperty.h"
+#include "vtkRandomAttributeGenerator.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -35,8 +36,13 @@ int TestPolyDataTangents(int argc, char* argv[])
   reader->SetFileName(fname);
   delete[] fname;
 
+  vtkNew<vtkRandomAttributeGenerator> randomAttributes;
+  randomAttributes->SetInputConnection(reader->GetOutputPort());
+  randomAttributes->GenerateAllDataOff();
+  randomAttributes->GenerateCellScalarsOn();
+
   vtkNew<vtkPolyDataNormals> normals;
-  normals->SetInputConnection(reader->GetOutputPort());
+  normals->SetInputConnection(randomAttributes->GetOutputPort());
   normals->SplittingOff();
 
   vtkNew<vtkTriangleFilter> triangle;

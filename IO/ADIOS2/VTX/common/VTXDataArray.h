@@ -47,13 +47,6 @@ public:
   /** true: tuples > 1, false: tuples = 1 */
   bool HasTuples = false;
 
-  /**
-   *  true: if variable doesn't exist in a step don't attempt to read,
-   *  use the latest known values. Common case: mesh variables
-   *  false: attempt to read always
-   */
-  bool Persist = false;
-
   /** true: new value is found and read, false: not updated */
   bool IsUpdated = true;
 

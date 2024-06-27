@@ -13,8 +13,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
-#include "vtkPriorityQueue.h"
-#include "vtkTriangleStrip.h"
 
 #include "vtkSMPTools.h"
 
@@ -22,13 +20,16 @@ VTK_ABI_NAMESPACE_BEGIN
 struct TangentComputation
 {
   TangentComputation(vtkIdType offset, vtkPoints* points, vtkCellArray* triangles,
-    vtkDataArray* tcoords, vtkDataArray* tangents, vtkPolyDataTangents* filter)
+    vtkDataArray* tcoords, vtkDataArray* tangents, vtkCellData* inCD, vtkCellData* outCD,
+    vtkPolyDataTangents* filter)
   {
+    this->Offset = offset;
     this->Points = points;
     this->Triangles = triangles;
     this->TCoords = tcoords;
     this->Tangents = tangents;
-    this->Offset = offset;
+    this->InCD = inCD;
+    this->OutCD = outCD;
     this->Filter = filter;
   }
 
@@ -98,6 +99,7 @@ struct TangentComputation
       }
 
       this->Tangents->SetTuple(cellId, tangent);
+      this->OutCD->CopyData(this->InCD, cellId, cellId);
     }
   }
 
@@ -106,6 +108,7 @@ private:
   vtkCellArray* Triangles;
   vtkDataArray* TCoords;
   vtkDataArray* Tangents;
+  vtkCellData *InCD, *OutCD;
   vtkIdType Offset;
   vtkPolyDataTangents* Filter;
 };
@@ -127,33 +130,49 @@ int vtkPolyDataTangents::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkPoints* inPts = input->GetPoints();
   vtkCellArray* inPolys = input->GetPolys();
-  vtkPointData* pd = input->GetPointData();
+  vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
+  vtkCellData* inCD = input->GetCellData();
+  vtkCellData* outCD = output->GetCellData();
 
-  vtkDataArray* tcoords = pd->GetTCoords();
+  vtkDataArray* tcoords = inPD->GetTCoords();
 
   vtkIdType numPolys = input->GetNumberOfPolys();
 
-  if (3 * numPolys != inPolys->GetNumberOfConnectivityIds() || input->GetNumberOfStrips() > 0)
+  vtkIdType largestCellSize = input->GetPolys()->GetMaxCellSize();
+  if (largestCellSize != 3 || 3 * numPolys != inPolys->GetNumberOfConnectivityIds())
   {
     vtkErrorMacro("This filter only supports triangles, triangulate first.");
     return 0;
   }
 
+  if (input->GetNumberOfStrips() > 0)
+  {
+    vtkErrorMacro("This filter does not support strips, use the triangulate filter first.");
+    return 0;
+  }
+
+  if (input->GetNumberOfLines() > 0)
+  {
+    vtkErrorMacro("This filter only supports triangles, remove lines first.");
+    return 0;
+  }
+
   vtkIdType numVerts = input->GetNumberOfVerts();
-  vtkIdType numLines = input->GetNumberOfLines();
 
   //  Initial pass to compute polygon tangents without effects of neighbors
+  vtkIdType outNumCell = numVerts + numPolys;
   vtkNew<vtkFloatArray> cellTangents;
   cellTangents->SetNumberOfComponents(3);
   cellTangents->SetName("Tangents");
-  cellTangents->SetNumberOfTuples(numVerts + numLines + numPolys);
+  cellTangents->SetNumberOfTuples(outNumCell);
 
-  TangentComputation functor(numVerts + numLines, inPts, inPolys, tcoords, cellTangents, this);
+  outCD->CopyAllocate(inCD, outNumCell);
 
-  vtkSMPTools::For(0, numVerts + numLines + numPolys, functor);
+  TangentComputation functor(numVerts, inPts, inPolys, tcoords, cellTangents, inCD, outCD, this);
+  vtkSMPTools::For(0, numVerts + numPolys, functor);
 
-  outPD->PassData(pd);
+  outPD->PassData(inPD);
 
   this->UpdateProgress(0.8);
 
@@ -202,7 +221,6 @@ int vtkPolyDataTangents::RequestData(vtkInformation* vtkNotUsed(request),
 
   // copy the original vertices and lines to the output
   output->SetVerts(input->GetVerts());
-  output->SetLines(input->GetLines());
 
   return 1;
 }

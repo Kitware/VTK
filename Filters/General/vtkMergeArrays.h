@@ -66,8 +66,16 @@ protected:
   virtual int MergeDataObjectFields(vtkDataObject* input, int inputIndex, vtkDataObject* output);
   ///@}
 
-  // see algorithm for more info
+  /**
+   * Make sure that this filter can take a dynamic number of input.
+   */
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
+  /**
+   * Gets the metadata from input informations and aggregates time information to the output.
+   */
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
