@@ -122,6 +122,7 @@
 
 #include "vtkCell3D.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
@@ -131,8 +132,6 @@ class vtkQuad;
 class vtkTetra;
 class vtkPolygon;
 class vtkLine;
-class vtkIdToIdVectorMapType;
-class vtkIdToIdMapType;
 class vtkEdgeTable;
 class vtkPolyData;
 class vtkCellLocator;
@@ -142,7 +141,7 @@ class vtkPointLocator;
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyhedron : public vtkCell3D
 {
 public:
-  typedef std::map<vtkIdType, vtkIdType> vtkPointIdMap;
+  using vtkPointIdMap = std::map<vtkIdType, vtkIdType>;
 
   ///@{
   /**
@@ -434,6 +433,16 @@ public:
    */
   vtkPolyData* GetPolyData();
 
+  /**
+   * Shallow copy of a polyhedron.
+   */
+  void ShallowCopy(vtkCell* c) override;
+
+  /**
+   * Deep copy of a polyhedron.
+   */
+  void DeepCopy(vtkCell* c) override;
+
 protected:
   vtkPolyhedron();
   ~vtkPolyhedron() override;
@@ -451,13 +460,6 @@ protected:
 
   // Backward compatibility
   vtkIdTypeArray* LegacyGlobalFaces;
-
-  // vtkCell has the data members Points (x,y,z coordinates) and PointIds (global cell ids).
-  // These data members are implicitly organized in canonical space, i.e., where the cell
-  // point ids are (0,1,...,npts-1).
-  // The PointIdMap is constructed during the call of the Initialize() method and maps global
-  // point ids to the canonical point ids.
-  vtkPointIdMap* PointIdMap;
 
   // If edges are needed. Note that the edge numbering is in canonical space.
   int EdgesGenerated;        // true/false
@@ -481,7 +483,8 @@ protected:
   void ComputeParametricCoordinate(const double x[3], double pc[3]);
   void ComputePositionFromParametricCoordinate(const double pc[3], double x[3]);
 
-  void GeneratePointToIncidentFacesAndValenceAtPoint();
+  VTK_DEPRECATED_IN_9_4_0("Use GeneratePointToIncidentFaces instead.")
+  void GeneratePointToIncidentFacesAndValenceAtPoint() { this->GeneratePointToIncidentFaces(); }
 
   // Members for supporting geometric operations
   int PolyDataConstructed;
@@ -493,15 +496,23 @@ protected:
   vtkIdList* CellIds;
   vtkGenericCell* Cell;
 
-  // Members used in GetPointToIncidentFaces
-  vtkIdType** PointToIncidentFaces;
-  vtkIdType* ValenceAtPoint;
-
 private:
   vtkPolyhedron(const vtkPolyhedron&) = delete;
   void operator=(const vtkPolyhedron&) = delete;
 
   friend class vtkPolyhedronUtilities;
+
+  // vtkCell has the data members Points (x,y,z coordinates) and PointIds (global cell ids).
+  // These data members are implicitly organized in canonical space, i.e., where the cell
+  // point ids are (0,1,...,npts-1).
+  // The PointIdMap is constructed during the call of the Initialize() method and maps global
+  // point ids to the canonical point ids.
+  vtkPointIdMap PointIdMap;
+
+  void GeneratePointToIncidentFaces();
+
+  // Members used in GetPointToIncidentFaces
+  std::vector<std::vector<vtkIdType>> PointToIncidentFaces;
 };
 
 //----------------------------------------------------------------------------
