@@ -185,6 +185,10 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderMissingProperty,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/Triangle/material-no-pbrMetallicRoughness.gltf}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFWriterCityGML,TestGLTFWriter.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/CityGML/Part-4-Buildings-V4-one.gml}
 )
 
