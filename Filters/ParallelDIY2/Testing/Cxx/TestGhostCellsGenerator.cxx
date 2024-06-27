@@ -16,13 +16,15 @@
 #include "vtkCellData.h"
 #include "vtkCellTypeSource.h"
 #include "vtkCommunicator.h"
+#include "vtkConeSource.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkGenerateTimeSteps.h"
 #include "vtkGhostCellsGenerator.h"
+#include "vtkGroupDataSetsFilter.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
-#include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
@@ -35,6 +37,7 @@
 #include "vtkPointDataToCellData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkRandomAttributeGenerator.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRemoveGhosts.h"
 #include "vtkStaticPointLocator.h"
@@ -3379,6 +3382,63 @@ int TestNonlinearCells(vtkMultiProcessController* controller)
   }
   return retVal;
 }
+
+bool TestStaticMeshCache()
+{
+  vtkLog(INFO, "Testing static mesh cache");
+
+  // Create the pipeline to produce the initial grid
+  vtkNew<vtkConeSource> cone1;
+  cone1->SetResolution(15);
+
+  vtkNew<vtkConeSource> cone2;
+  cone2->SetResolution(12);
+  cone2->SetCenter(2, 2, 2);
+
+  vtkNew<vtkGroupDataSetsFilter> group;
+  group->SetInputConnection(0, cone1->GetOutputPort());
+  group->AddInputConnection(0, cone2->GetOutputPort());
+  group->SetOutputTypeToPartitionedDataSetCollection();
+
+  vtkNew<vtkGenerateTimeSteps> addTime;
+  addTime->SetInputConnection(group->GetOutputPort());
+  addTime->AddTimeStepValue(0);
+  addTime->AddTimeStepValue(1);
+  addTime->AddTimeStepValue(2);
+  addTime->AddTimeStepValue(3);
+
+  vtkNew<vtkRandomAttributeGenerator> addScalars;
+  addScalars->SetInputConnection(addTime->GetOutputPort());
+  addScalars->GenerateAllDataOff();
+  addScalars->GenerateCellScalarsOn();
+  addScalars->SetDataTypeToDouble();
+  addScalars->SetComponentRange(0, 30);
+
+  vtkNew<vtkGhostCellsGenerator> ghostCellGenerator;
+  ghostCellGenerator->SetInputConnection(addScalars->GetOutputPort());
+  ghostCellGenerator->SetUseStaticMeshCache(true);
+  ghostCellGenerator->SetBuildIfRequired(true);
+  ghostCellGenerator->Update();
+
+  auto outputPDC =
+    vtkPartitionedDataSetCollection::SafeDownCast(ghostCellGenerator->GetOutputDataObject(0));
+  auto outputPD = vtkPolyData::SafeDownCast(outputPDC->GetPartitionAsDataObject(0, 0));
+  const auto initMeshTime = outputPD->GetMeshMTime();
+
+  ghostCellGenerator->UpdateTimeStep(2); // update scalars, not mesh
+
+  outputPDC =
+    vtkPartitionedDataSetCollection::SafeDownCast(ghostCellGenerator->GetOutputDataObject(0));
+  outputPD = vtkPolyData::SafeDownCast(outputPDC->GetPartitionAsDataObject(0, 0));
+
+  if (outputPD->GetMeshMTime() != initMeshTime)
+  {
+    vtkLog(ERROR, "GetMeshMTime has changed, mesh was not properly cached");
+    return false;
+  }
+
+  return true;
+}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -3427,6 +3487,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
   }
 
   if (!TestNonlinearCells(contr))
+  {
+    retVal = EXIT_FAILURE;
+  }
+
+  if (!TestStaticMeshCache())
   {
     retVal = EXIT_FAILURE;
   }
