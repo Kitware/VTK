@@ -77,7 +77,14 @@ void vtkOBJImporter::ReadData()
   this->Impl->Update();
   if (Impl->GetSuccessParsingFiles())
   {
-    bindTexturedPolydataToRenderWindow(this->RenderWindow, this->Renderer, Impl);
+    if (!bindTexturedPolydataToRenderWindow(this->RenderWindow, this->Renderer, Impl))
+    {
+      this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
+    }
+  }
+  else
+  {
+    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
   }
 }
 

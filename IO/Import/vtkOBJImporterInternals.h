@@ -143,7 +143,7 @@ private:
 class vtkRenderWindow;
 class vtkRenderer;
 VTKIOIMPORT_EXPORT
-void bindTexturedPolydataToRenderWindow(
+bool bindTexturedPolydataToRenderWindow(
   vtkRenderWindow* renderWindow, vtkRenderer* renderer, vtkOBJPolyDataProcessor* reader);
 
 VTK_ABI_NAMESPACE_END
