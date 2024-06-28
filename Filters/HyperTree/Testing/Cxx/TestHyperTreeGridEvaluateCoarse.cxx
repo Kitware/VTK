@@ -6,9 +6,11 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridEvaluateCoarse.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkLogger.h"
 #include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkRandomHyperTreeGridSource.h"
+#include "vtkTestUtilities.h"
 
 #include <cmath>
 #include <numeric>
@@ -53,9 +55,8 @@ bool CheckTree(
 
   return result && IsInRange(depthOut->GetTuple1(currentId), level);
 }
-}
 
-int TestHyperTreeGridEvaluateCoarse(int, char*[])
+bool TestSumOperator()
 {
   vtkNew<vtkRandomHyperTreeGridSource> source;
   source->SetDimensions(3, 3, 3);
@@ -89,9 +90,45 @@ int TestHyperTreeGridEvaluateCoarse(int, char*[])
     if (!::CheckTree(outCursor, depthOut, 0))
     {
       std::cerr << "Node " << index << " failed validation." << std::endl;
-      return EXIT_FAILURE;
+      return false;
     }
   }
 
-  return EXIT_SUCCESS;
+  return true;
+}
+
+bool TestNoChange(bool fast)
+{
+  vtkNew<vtkRandomHyperTreeGridSource> source;
+  source->SetDimensions(4, 4, 4);
+  source->SetMaxDepth(MAX_DEPTH);
+  source->SetMaskedFraction(0.1);
+  source->SetSeed(2);
+  source->SetSplitFraction(0.6);
+
+  vtkNew<vtkHyperTreeGridEvaluateCoarse> evaluate;
+  evaluate->SetInputConnection(source->GetOutputPort());
+  evaluate->SetOperator(fast ? vtkHyperTreeGridEvaluateCoarse::OPERATOR_DON_T_CHANGE_FAST
+                             : vtkHyperTreeGridEvaluateCoarse::OPERATOR_DON_T_CHANGE);
+  evaluate->Update();
+
+  vtkHyperTreeGrid* inputHTG = source->GetHyperTreeGridOutput();
+  vtkHyperTreeGrid* outputHTG = evaluate->GetHyperTreeGridOutput();
+
+  if (!vtkTestUtilities::CompareDataObjects(inputHTG, outputHTG))
+  {
+    std::cerr << "Input & Output HTG should be identical" << std::endl;
+    return false;
+  }
+  return true;
+}
+}
+
+int TestHyperTreeGridEvaluateCoarse(int, char*[])
+{
+  bool res = true;
+  res &= ::TestSumOperator();
+  res &= ::TestNoChange(false);
+  res &= ::TestNoChange(true);
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }

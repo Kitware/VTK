@@ -10,6 +10,8 @@
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkTestUtilities.h"
 
+#include <chrono>
+
 /**
  * Test that all 3 methods for HTG thresholding give an equivalent analytic result
  */

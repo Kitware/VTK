@@ -104,24 +104,24 @@ void vtkHyperTreeGridEvaluateCoarse::ProcessNodeNoChange(
   vtkHyperTreeGridNonOrientedCursor* outCursor)
 {
   vtkIdType id = outCursor->GetGlobalNodeIndex();
+  this->OutData->CopyData(this->InData, id, id);
 
-  // If not operation
-  if (this->Operator == vtkHyperTreeGridEvaluateCoarse::OPERATOR_DON_T_CHANGE)
+  if (outCursor->IsLeaf() || outCursor->IsMasked())
   {
-    this->OutData->CopyData(this->InData, id, id);
-    // Coarse
-    for (unsigned int ichild = 0; ichild < this->NumberOfChildren; ++ichild)
-    {
-      if (this->CheckAbort())
-      {
-        break;
-      }
-      outCursor->ToChild(ichild);
-      // We go through the children's cells
-      ProcessNodeNoChange(outCursor);
-      outCursor->ToParent();
-    }
     return;
+  }
+
+  // Coarse
+  for (unsigned int ichild = 0; ichild < this->NumberOfChildren; ++ichild)
+  {
+    if (this->CheckAbort())
+    {
+      break;
+    }
+    outCursor->ToChild(ichild);
+    // We go through the children's cells
+    this->ProcessNodeNoChange(outCursor);
+    outCursor->ToParent();
   }
 }
 
