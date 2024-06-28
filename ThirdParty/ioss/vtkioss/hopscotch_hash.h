@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (c) 2017, 2022 Thibaut Goetghebuer-Planchon <tessil@gmx.com>
+ * Copyright (c) 2017, 2022, 2023 Thibaut Goetghebuer-Planchon <tessil@gmx.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,6 +47,7 @@
 #define TSL_HH_NO_RANGE_ERASE_WITH_CONST_ITERATOR
 #endif
 
+// NOLINTBEGIN
 namespace tsl {
   namespace detail_hopscotch_hash {
 
@@ -681,10 +682,11 @@ namespace tsl {
       }
 
       hopscotch_hash(hopscotch_hash &&other) noexcept(
-          std::is_nothrow_move_constructible<Hash>::value &&std::is_nothrow_move_constructible<
-              KeyEqual>::value &&std::is_nothrow_move_constructible<GrowthPolicy>::value
-                               &&std::is_nothrow_move_constructible<buckets_container_type>::value
-                               &&std::is_nothrow_move_constructible<overflow_container_type>::value)
+          std::is_nothrow_move_constructible<Hash>::value &&
+          std::is_nothrow_move_constructible<KeyEqual>::value &&
+          std::is_nothrow_move_constructible<GrowthPolicy>::value &&
+          std::is_nothrow_move_constructible<buckets_container_type>::value &&
+          std::is_nothrow_move_constructible<overflow_container_type>::value)
           : Hash(std::move(static_cast<Hash &>(other))),
             KeyEqual(std::move(static_cast<KeyEqual &>(other))),
             GrowthPolicy(std::move(static_cast<GrowthPolicy &>(other))),
@@ -708,8 +710,8 @@ namespace tsl {
       hopscotch_hash &operator=(const hopscotch_hash &other)
       {
         if (&other != this) {
-          Hash::        operator=(other);
-          KeyEqual::    operator=(other);
+          Hash::operator=(other);
+          KeyEqual::operator=(other);
           GrowthPolicy::operator=(other);
 
           m_buckets_data      = other.m_buckets_data;
@@ -1467,7 +1469,7 @@ namespace tsl {
       /*
        * Return true if a rehash will change the position of a key-value in the
        * neighborhood of ibucket_neighborhood_check. In this case a rehash is needed
-       * instead of puting the value in overflow list.
+       * instead of putting the value in overflow list.
        */
       bool will_neighborhood_change_on_rehash(size_t ibucket_neighborhood_check) const
       {
@@ -1845,7 +1847,7 @@ namespace tsl {
       /**
        * Min size of the hash table before a rehash can occurs automatically (except
        * if m_max_load_threshold_rehash os reached). If the neighborhood of a bucket
-       * is full before the min is reacher, the elements are put into
+       * is full before the min is reached, the elements are put into
        * m_overflow_elements.
        */
       size_type m_min_load_threshold_rehash;
@@ -1862,5 +1864,6 @@ namespace tsl {
   } // end namespace detail_hopscotch_hash
 
 } // end namespace tsl
+// NOLINTEND
 
 #endif

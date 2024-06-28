@@ -3,8 +3,8 @@
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
-#include <cgns/Iocgns_IOFactory.h>
-#include <cgns/Iocgns_Initializer.h>
+#include "cgns/Iocgns_IOFactory.h"
+#include "cgns/Iocgns_Initializer.h"
 
 namespace Iocgns {
 

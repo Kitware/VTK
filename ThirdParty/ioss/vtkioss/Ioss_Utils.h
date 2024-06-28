@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -6,16 +6,12 @@
 
 #pragma once
 
-#include "ioss_export.h"
-
-#include "vtk_ioss_mangle.h"
-
-#include <Ioss_CodeTypes.h>
-#include <Ioss_ElementTopology.h>
-#include <Ioss_EntityType.h>
-#include <Ioss_Field.h>
-#include <Ioss_Property.h>
-#include <Ioss_Sort.h>
+#include "Ioss_CodeTypes.h"
+#include "Ioss_ElementTopology.h"
+#include "Ioss_EntityType.h"
+#include "Ioss_Field.h"
+#include "Ioss_Property.h"
+#include "Ioss_Sort.h"
 #include <algorithm> // for sort, lower_bound, copy, etc
 #include <cassert>
 #include <cmath>
@@ -26,6 +22,10 @@
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 #include <vector>    // for vector
+
+#include "ioss_export.h"
+#include "vtk_ioss_mangle.h"
+
 namespace Ioss {
   class DatabaseIO;
   class Field;
@@ -33,30 +33,63 @@ namespace Ioss {
   class Region;
   class SideBlock;
   class PropertyManager;
+  enum class ElementShape : unsigned int;
 } // namespace Ioss
 
-#define IOSS_ERROR(errmsg) throw std::runtime_error((errmsg).str())
+[[noreturn]] inline void IOSS_ERROR(const std::ostringstream &errmsg)
+{
+  throw std::runtime_error((errmsg).str());
+}
+
+#ifdef NDEBUG
+#define IOSS_ASSERT_USED(x) (void)x
+#else
+#define IOSS_ASSERT_USED(x)
+#endif
+
+// We have been relying on the assumption that calling `.data()` on an empty vector
+// will return `nullptr`.  However, according to cppreference (based on the standard):
+//
+// `If size() is 0, data() may or may not return a null pointer.`
+//
+// We don't have any systems on which we have found that (yet?), but this is proactive
+// in removing our use of `.data()` on potentially empty vectors...
+template <typename T> IOSS_NODISCARD constexpr T *Data(std::vector<T> &vec)
+{
+  return vec.empty() ? nullptr : vec.data();
+}
+
+template <typename T> IOSS_NODISCARD constexpr const T *Data(const std::vector<T> &vec)
+{
+  return vec.empty() ? nullptr : vec.data();
+}
+
+template <typename T, size_t N> IOSS_NODISCARD constexpr T *Data(std::array<T, N> &arr)
+{
+  return N == 0 ? nullptr : arr.data();
+}
+
+template <typename T, size_t N> IOSS_NODISCARD constexpr const T *Data(const std::array<T, N> &arr)
+{
+  return N == 0 ? nullptr : arr.data();
+}
 
 namespace Ioss {
   /* \brief Utility methods.
    */
   class IOSS_EXPORT Utils
   {
-  public:
-    Utils()  = default;
-    ~Utils() = default;
-
-    /**
-     * \defgroup IossStreams Streams used for IOSS output
-     *@{
-     */
     static std::ostream
         *m_outputStream; ///< general informational output (very rare). Default std::cerr
     static std::ostream *m_debugStream;   ///< debug output when requested. Default std::cerr
     static std::ostream *m_warningStream; ///< IOSS warning output. Default std::cerr
     static std::string m_preWarningText;  ///< is a string that prepends all warning message output.
                                           ///< Default is "\nIOSS WARNING: "
-
+  public:
+    /**
+     * \defgroup IossStreams Streams used for IOSS output
+     *@{
+     */
     /** \brief set the stream for all streams (output, debug, and warning) to the specified
      * `out_stream`
      */
@@ -64,15 +97,17 @@ namespace Ioss {
 
     /** \brief get the debug stream.
      */
-    static std::ostream &get_debug_stream();
+    IOSS_NODISCARD static std::ostream &get_debug_stream();
 
     /** \brief get the warning stream.
      */
-    static std::ostream &get_warning_stream();
+    IOSS_NODISCARD static std::ostream &get_warning_stream();
 
     /** \brief get the output stream.
      */
-    static std::ostream &get_output_stream();
+    IOSS_NODISCARD static std::ostream &get_output_stream();
+
+    IOSS_NODISCARD static std::string &get_warning_text() { return m_preWarningText; }
 
     /** \brief set the output stream to the specified `output_stream`
      */
@@ -104,8 +139,24 @@ namespace Ioss {
       }
     }
 
+    // NOTE: This code previously checked for existence of filesystem include, but
+    //       gcc-8.X has the include but needs a library, also intel and clang
+    //       pretend to be gcc, so macro to test for usability of filesystem
+    //       was complicated and we can easily get by with the following code.
+    static bool is_path_absolute(const std::string &path)
+    {
+      if (!path.empty()) {
+#ifdef __IOSS_WINDOWS__
+        return path[0] == '\\' && path[1] == ':';
+#else
+        return path[0] == '/';
+#endif
+      }
+      return false;
+    }
+
     /** \brief guess file type from extension */
-    static std::string get_type_from_file(const std::string &filename);
+    IOSS_NODISCARD static std::string get_type_from_file(const std::string &filename);
 
     template <typename T> static void uniquify(std::vector<T> &vec, bool skip_first = false)
     {
@@ -129,7 +180,8 @@ namespace Ioss {
       index.back() = sum;
     }
 
-    template <typename T> static T find_index_location(T node, const std::vector<T> &index)
+    template <typename T>
+    IOSS_NODISCARD static T find_index_location(T node, const std::vector<T> &index)
     {
       // 0-based node numbering
       // index[p] = first node (0-based) on processor p
@@ -198,19 +250,19 @@ namespace Ioss {
      * fmt::print("{:{}d}", number, number_width(number,false))
      * ```
      */
-    inline static int number_width(const size_t number, bool use_commas = false)
+    IOSS_NODISCARD inline static int number_width(const size_t number, bool use_commas = false)
     {
       if (number == 0) {
         return 1;
       }
-      int width = int(std::floor(std::log10(number))) + 1;
+      int width = static_cast<int>(std::floor(std::log10(number))) + 1;
       if (use_commas) {
         width += ((width - 1) / 3);
       }
       return width;
     }
 
-    inline static int power_2(int count)
+    IOSS_NODISCARD inline static int power_2(int count)
     {
       // Return the power of two which is equal to or greater than `count`
       // count = 15 -> returns 16
@@ -225,7 +277,8 @@ namespace Ioss {
       return pow2;
     }
 
-    template <typename T> static bool check_block_order(const std::vector<T *> &blocks)
+    template <typename T>
+    IOSS_NODISCARD static bool check_block_order(IOSS_MAYBE_UNUSED const std::vector<T *> &blocks)
     {
 #ifndef NDEBUG
       // Verify that element blocks are defined in sorted offset order...
@@ -243,16 +296,15 @@ namespace Ioss {
         }
         eb_offset = this_off;
       }
+#else
+      IOSS_PAR_UNUSED(blocks);
 #endif
       return true;
     }
 
-    static int term_width();
+    IOSS_NODISCARD static int term_width();
 
-    static int log_power_2(uint64_t value);
-
-    static char **get_name_array(size_t count, int size);
-    static void   delete_name_array(char **names, int count);
+    IOSS_NODISCARD static int log_power_2(uint64_t value);
 
     /** \brief Get formatted time and date strings.
      *
@@ -266,17 +318,18 @@ namespace Ioss {
      */
     static void time_and_date(char *time_string, char *date_string, size_t length);
 
-    static std::string decode_filename(const std::string &filename, int processor,
-                                       int num_processors);
-    static int         get_number(const std::string &suffix);
-    static int         extract_id(const std::string &name_id);
-    static std::string encode_entity_name(const std::string &entity_type, int64_t id);
+    IOSS_NODISCARD static std::string decode_filename(const std::string &filename, int processor,
+                                                      int num_processors);
+    IOSS_NODISCARD static int         get_number(const std::string &suffix);
+    IOSS_NODISCARD static int         extract_id(const std::string &name_id);
+    IOSS_NODISCARD static std::string encode_entity_name(const std::string &entity_type,
+                                                         int64_t            id);
 
     /** Return the trailing digits (if any) from `name`
      * `hex20` would return the string `20`
      * `tetra` would return an empty string.
      */
-    static std::string get_trailing_digits(const std::string &name);
+    IOSS_NODISCARD static std::string get_trailing_digits(const std::string &name);
 
     /** \brief create a string that describes the list of input `ids` collapsing ranges if possible.
      *
@@ -286,9 +339,9 @@ namespace Ioss {
      * The sequence of ids `1, 2, 3, 5, 6, 7` with `rng_sep=".."` will return the default
      * string `1..3, 5..8`
      */
-    static std::string format_id_list(const std::vector<size_t> &ids,
-                                      const std::string         &rng_sep = " to ",
-                                      const std::string         &seq_sep = ", ");
+    IOSS_NODISCARD static std::string format_id_list(const std::vector<size_t> &ids,
+                                                     const std::string         &rng_sep = " to ",
+                                                     const std::string         &seq_sep = ", ");
 
     /** \brief Convert a string to lower case, and convert spaces to `_`.
      *
@@ -328,7 +381,7 @@ namespace Ioss {
      *  \param[in] block The entity.
      *  \returns True if the entity has the property `omitted`.
      */
-    static bool block_is_omitted(Ioss::GroupingEntity *block);
+    IOSS_NODISCARD static bool block_is_omitted(Ioss::GroupingEntity *block);
 
     /** \brief Process the base element type `base` which has
      *         `nodes_per_element` nodes and a spatial dimension of `spatial`
@@ -343,28 +396,29 @@ namespace Ioss {
      *  \param[in] spatial The spatial dimension of the element.
      *  \returns The Ioss-formatted element name.
      */
-    static std::string fixup_type(const std::string &base, int nodes_per_element, int spatial);
+    IOSS_NODISCARD static std::string fixup_type(const std::string &base, int nodes_per_element,
+                                                 int spatial);
 
     /** \brief Uppercase the first letter of the string
      *
      *  \param[in] name The string to convert.
      *  \returns The converted string.
      */
-    static std::string capitalize(std::string name);
+    IOSS_NODISCARD static std::string capitalize(std::string name);
 
     /** \brief Convert a string to upper case.
      *
      *  \param[in] name The string to convert.
      *  \returns The converted string.
      */
-    static std::string uppercase(std::string name);
+    IOSS_NODISCARD static std::string uppercase(std::string name);
 
     /** \brief Convert a string to lower case.
      *
      *  \param[in] name The string to convert.
      *  \returns The converted string.
      */
-    static std::string lowercase(std::string name);
+    IOSS_NODISCARD static std::string lowercase(std::string name);
 
     static void check_non_null(void *ptr, const char *type, const std::string &name,
                                const std::string &func);
@@ -375,15 +429,15 @@ namespace Ioss {
      *  \param[in] s2 Second string
      *  \returns `true` if strings are equal
      */
-    static bool str_equal(const std::string &s1, const std::string &s2);
+    IOSS_NODISCARD static bool str_equal(const std::string &s1, const std::string &s2);
 
     /** \brief Case-insensitive substring comparison.
      *
-     *  \param[in] prefix
-     *  \param[in] str
+     *  \param[in] prefix The prefix that should start the string
+     *  \param[in] str The string which should begin with prefix
      *  \returns `true` if `str` begins with `prefix` or `prefix` is empty
      */
-    static bool substr_equal(const std::string &prefix, const std::string &str);
+    IOSS_NODISCARD static bool substr_equal(const std::string &prefix, const std::string &str);
 
     /** Check all values in `data` to make sure that if they are converted to a double and
      * back again, there will be no data loss.  This requires that the value be less than 2^53.
@@ -400,11 +454,7 @@ namespace Ioss {
      *
      *  \returns The platform information string.
      */
-    static std::string platform_information();
-
-    /** \brief Return amount of memory being used on this processor */
-    static size_t get_memory_info();
-    static size_t get_hwm_memory_info();
+    IOSS_NODISCARD static std::string platform_information();
 
     /** \brief Get a filename relative to the specified working directory (if any)
      *         of the current execution.
@@ -416,10 +466,11 @@ namespace Ioss {
      *  \param[in] working_directory the path to which the relative_filename path is appended.
      *  \returns The full path (working_directory + relative_filename)
      */
-    static std::string local_filename(const std::string &relative_filename, const std::string &type,
-                                      const std::string &working_directory);
+    IOSS_NODISCARD static std::string local_filename(const std::string &relative_filename,
+                                                     const std::string &type,
+                                                     const std::string &working_directory);
 
-    static void get_fields(int64_t entity_count, char **names, int num_names,
+    static void get_fields(int64_t entity_count, Ioss::NameList &names,
                            Ioss::Field::RoleType fld_role, const DatabaseIO *db, int *local_truth,
                            std::vector<Ioss::Field> &fields);
 
@@ -446,11 +497,11 @@ namespace Ioss {
      *  \param[in] sb Compute the offset for element sides in this SideBlock
      *  \returns The offset.
      */
-    static int64_t get_side_offset(const Ioss::SideBlock *sb);
+    IOSS_NODISCARD static int64_t get_side_offset(const Ioss::SideBlock *sb);
 
-    static unsigned int hash(const std::string &name);
+    IOSS_NODISCARD static unsigned int hash(const std::string &name);
 
-    static double timer();
+    IOSS_NODISCARD static double timer();
 
     /** \brief Convert an input file to a vector of strings containing one string for each line of
      * the file.
@@ -462,10 +513,13 @@ namespace Ioss {
      *  \param[out] lines The vector of strings containing the lines of the file
      *  \param[in] max_line_length The maximum number of characters in any line of the file.
      */
-    static void input_file(const std::string &file_name, std::vector<std::string> *lines,
+    static void input_file(const std::string &file_name, Ioss::NameList *lines,
                            size_t max_line_length = 0);
 
-    template <class T> static std::string to_string(const T &t) { return std::to_string(t); }
+    template <class T> IOSS_NODISCARD static std::string to_string(const T &t)
+    {
+      return std::to_string(t);
+    }
 
     //! \brief Tries to shorten long variable names to an acceptable
     //! length, and converts to lowercase and spaces to `_`
@@ -485,12 +539,13 @@ namespace Ioss {
     //! characters and append a 2 character hash+separator.
     //!
     //! It also converts name to lowercase and converts spaces to `_`
-    static std::string variable_name_kluge(const std::string &name, size_t component_count,
-                                           size_t copies, size_t max_var_len);
+    IOSS_NODISCARD static std::string variable_name_kluge(const std::string &name,
+                                                          size_t component_count, size_t copies,
+                                                          size_t max_var_len);
 
-    static std::string shape_to_string(const Ioss::ElementShape &shape);
+    IOSS_NODISCARD static std::string shape_to_string(const Ioss::ElementShape &shape);
 
-    static std::string entity_type_to_string(const Ioss::EntityType &type);
+    IOSS_NODISCARD static std::string entity_type_to_string(const Ioss::EntityType &type);
 
     /** \brief Create a nominal mesh for use in history databases.
      *
@@ -504,18 +559,28 @@ namespace Ioss {
     static void generate_history_mesh(Ioss::Region *region);
 
     static void info_fields(const Ioss::GroupingEntity *ige, Ioss::Field::RoleType role,
-                            const std::string &header, const std::string &suffix = "\n\t");
+                            const std::string &header, const std::string &suffix = "\n\t",
+                            bool detail = false);
 
     static void info_property(const Ioss::GroupingEntity *ige, Ioss::Property::Origin origin,
                               const std::string &header, const std::string &suffix = "\n\t",
                               bool print_empty = false);
 
+    static void insert_sort_and_unique(const Ioss::NameList &src, Ioss::NameList &dest)
+    {
+      dest.insert(dest.end(), src.begin(), src.end());
+      std::sort(dest.begin(), dest.end(), std::less<std::string>());
+      auto endIter = std::unique(dest.begin(), dest.end());
+      dest.resize(endIter - dest.begin());
+    }
+
   private:
     // SEE: http://lemire.me/blog/2017/04/10/removing-duplicates-from-lists-quickly
     template <typename T> static size_t unique(std::vector<T> &out, bool skip_first)
     {
-      if (out.empty())
+      if (out.empty()) {
         return 0;
+      }
       size_t i    = 1;
       size_t pos  = 1;
       T      oldv = out[0];
@@ -534,14 +599,16 @@ namespace Ioss {
     }
   };
 
-  inline std::ostream &OUTPUT() { return *Utils::m_outputStream; }
+  inline std::ostream &OUTPUT() { return Utils::get_output_stream(); }
 
-  inline std::ostream &DebugOut() { return *Utils::m_debugStream; }
+  inline std::ostream &DebugOut() { return Utils::get_debug_stream(); }
 
-  inline std::ostream &WarnOut()
+  inline std::ostream &WarnOut(bool output_prewarning = true)
   {
-    *Utils::m_warningStream << Utils::m_preWarningText;
-    return *Utils::m_warningStream;
+    if (output_prewarning) {
+      Utils::get_warning_stream() << Utils::get_warning_text();
+    }
+    return Utils::get_warning_stream();
   }
 
 } // namespace Ioss

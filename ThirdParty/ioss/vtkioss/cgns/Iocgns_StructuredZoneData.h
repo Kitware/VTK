@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2022 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -7,13 +7,17 @@
  */
 #pragma once
 
-#include "iocgns_export.h"
-
-#include <Ioss_CodeTypes.h>
-#include <Ioss_StructuredBlock.h>
+#include "Ioss_CodeTypes.h"
+#include "Ioss_StructuredBlock.h"
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <utility>
+#include <vector>
+
+#include "Ioss_ZoneConnectivity.h"
+#include "iocgns_export.h"
+#include "vtk_ioss_mangle.h"
 
 namespace Iocgns {
   enum Ordinal {
@@ -75,7 +79,7 @@ namespace Iocgns {
     std::vector<Ioss::ZoneConnectivity> m_zoneConnectivity{};
 
     // ========================================================================
-    bool is_active() const
+    IOSS_NODISCARD bool is_active() const
     {
       // Zone is active if it hasn't been split.
       return m_child1 == nullptr && m_child2 == nullptr;
@@ -84,17 +88,23 @@ namespace Iocgns {
     // ========================================================================
     // Assume the "work" or computational effort required for a
     // block is proportional to the number of cells.
-    size_t work() const { return (size_t)m_ordinal[0] * m_ordinal[1] * m_ordinal[2]; }
-    size_t cell_count() const { return (size_t)m_ordinal[0] * m_ordinal[1] * m_ordinal[2]; }
+    IOSS_NODISCARD size_t work() const
+    {
+      return (size_t)m_ordinal[0] * m_ordinal[1] * m_ordinal[2];
+    }
+    IOSS_NODISCARD size_t cell_count() const
+    {
+      return (size_t)m_ordinal[0] * m_ordinal[1] * m_ordinal[2];
+    }
 
-    size_t node_count() const
+    IOSS_NODISCARD size_t node_count() const
     {
       return (size_t)(m_ordinal[0] + 1) * (m_ordinal[1] + 1) * (m_ordinal[2] + 1);
     }
 
-    std::pair<StructuredZoneData *, StructuredZoneData *> split(int zone_id, double avg_work,
-                                                                int rank, bool verbose);
-    void resolve_zgc_split_donor(const std::vector<Iocgns::StructuredZoneData *> &zones);
-    void update_zgc_processor(const std::vector<Iocgns::StructuredZoneData *> &zones);
+    IOSS_NODISCARD std::pair<StructuredZoneData *, StructuredZoneData *>
+                   split(int zone_id, double avg_work, int rank, bool verbose);
+    void           resolve_zgc_split_donor(const std::vector<Iocgns::StructuredZoneData *> &zones);
+    void           update_zgc_processor(const std::vector<Iocgns::StructuredZoneData *> &zones);
   };
 } // namespace Iocgns

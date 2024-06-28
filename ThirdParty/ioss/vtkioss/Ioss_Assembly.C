@@ -1,25 +1,26 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021, 2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_Assembly.h>
-#include <Ioss_DatabaseIO.h>
-#include <Ioss_GroupingEntity.h>
-#include <Ioss_Property.h>
-#include <Ioss_PropertyManager.h>
-#include <Ioss_Region.h>
-#include <algorithm>
+#include "Ioss_Assembly.h"
+#include "Ioss_DatabaseIO.h"
+#include "Ioss_GroupingEntity.h"
+#include "Ioss_Property.h"
+#include "Ioss_PropertyManager.h"
 #include <cstddef>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
+#include <iosfwd>
 #include <string>
-#include <vector>
+
+#include "Ioss_CodeTypes.h"
+#include "Ioss_Utils.h"
 
 namespace {
-  const std::string id_str() { return std::string("id"); }
-  void              check_is_valid(const Ioss::Assembly *assem, const Ioss::GroupingEntity *member)
+  std::string id_str() { return {"id"}; }
+  void        check_is_valid(const Ioss::Assembly *assem, const Ioss::GroupingEntity *member)
   {
     // Ensure that `member` is not already a member and that its type matches
     // the current type.
@@ -82,11 +83,6 @@ Ioss::Assembly::Assembly(Ioss::DatabaseIO *io_database, const std::string &my_na
   properties.add(Ioss::Property(this, "member_type", Ioss::Property::INTEGER));
 }
 
-Ioss::Assembly::Assembly(const Ioss::Assembly &other)
-    : GroupingEntity(other), m_members(other.m_members), m_type(other.m_type)
-{
-}
-
 const Ioss::EntityContainer &Ioss::Assembly::get_members() const { return m_members; }
 
 const Ioss::GroupingEntity *Ioss::Assembly::get_member(const std::string &my_name) const
@@ -144,13 +140,19 @@ int64_t Ioss::Assembly::internal_put_field_data(const Ioss::Field &field, void *
   return get_database()->put_field(this, field, data, data_size);
 }
 
+int64_t Ioss::Assembly::internal_get_zc_field_data(const Field &field, void **data,
+                                                   size_t *data_size) const
+{
+  return get_database()->get_zc_field(this, field, data, data_size);
+}
+
 Ioss::Property Ioss::Assembly::get_implicit_property(const std::string &my_name) const
 {
   if (my_name == "member_count") {
-    return Ioss::Property(my_name, static_cast<int>(m_members.size()));
+    return {my_name, static_cast<int>(m_members.size())};
   }
   if (my_name == "member_type") {
-    return Ioss::Property(my_name, static_cast<int>(m_type));
+    return {my_name, static_cast<int>(m_type)};
   }
 
   return Ioss::GroupingEntity::get_implicit_property(my_name);

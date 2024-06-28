@@ -1,17 +1,26 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_CodeTypes.h>
-#include <Ioss_SmartAssert.h>
-#include <algorithm>
-#include <cgns/Iocgns_StructuredZoneData.h>
+#include "Ioss_CodeTypes.h"
+#include "Ioss_SmartAssert.h"
+#include "cgns/Iocgns_StructuredZoneData.h"
+#include <assert.h>
+#include <cstdlib>
 #include "vtk_fmt.h"
+#include VTK_FMT(fmt/core.h)
+#include VTK_FMT(fmt/format.h)
+#if !defined __NVCC__
 #include VTK_FMT(fmt/color.h)
+#endif
+#include <cmath>
 #include VTK_FMT(fmt/ostream.h)
+#include <string>
 #include <tokenize.h>
+
+#include "Ioss_Utils.h"
 
 namespace {
   struct Range
@@ -363,7 +372,9 @@ namespace Iocgns {
       fmt::print(
           Ioss::DebugOut(), "{}",
           fmt::format(
+#if !defined __NVCC__
               fg(fmt::color::cyan),
+#endif
               "\nSplit Zone {} ({}) Adam {} ({}) with intervals {:>12},\twork = {:12}, offset {} "
               "{} {}, ordinal {}, ratio {:.3f}\n",
               m_name, m_zone, m_adam->m_name, m_adam->m_zone,
@@ -484,10 +495,10 @@ namespace Iocgns {
   StructuredZoneData::update_zgc_processor(const std::vector<Iocgns::StructuredZoneData *> &zones)
   {
     for (auto &zgc : m_zoneConnectivity) {
-      auto &donor_zone = zones[zgc.m_donorZone - 1];
+      const auto &donor_zone = zones[zgc.m_donorZone - 1];
       assert(donor_zone->m_proc >= 0);
-      zgc.m_donorProcessor = donor_zone->m_proc;
-      auto &owner_zone     = zones[zgc.m_ownerZone - 1];
+      zgc.m_donorProcessor   = donor_zone->m_proc;
+      const auto &owner_zone = zones[zgc.m_ownerZone - 1];
       assert(owner_zone->m_proc >= 0);
       zgc.m_ownerProcessor = owner_zone->m_proc;
     }

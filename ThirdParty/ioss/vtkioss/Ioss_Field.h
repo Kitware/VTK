@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -6,14 +6,19 @@
 
 #pragma once
 
-#include "ioss_export.h"
+#include "Ioss_CodeTypes.h"
+#include <cstddef> // for size_t
+#if !defined BUILT_IN_SIERRA
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
+#endif
+#include <stdint.h>
+#include <string> // for string
+#include <vector> // for vector
 
+#include "ioss_export.h"
 #include "vtk_ioss_mangle.h"
 
-#include <Ioss_CodeTypes.h>
-#include <cstddef> // for size_t
-#include <string>  // for string
-#include <vector>  // for vector
 namespace Ioss {
   class GroupingEntity;
   class Transform;
@@ -40,14 +45,29 @@ namespace Ioss {
 
     enum class InOut { INPUT, OUTPUT };
 
-    static Ioss::Field::BasicType get_field_type(char /*dummy*/) { return CHARACTER; }
-    static Ioss::Field::BasicType get_field_type(double /*dummy*/) { return DOUBLE; }
-    static Ioss::Field::BasicType get_field_type(int /*dummy*/) { return INTEGER; }
-    static Ioss::Field::BasicType get_field_type(unsigned int /*dummy*/) { return INTEGER; }
-    static Ioss::Field::BasicType get_field_type(int64_t /*dummy*/) { return INT64; }
-    static Ioss::Field::BasicType get_field_type(uint64_t /*dummy*/) { return INT64; }
-    static Ioss::Field::BasicType get_field_type(Complex /*dummy*/) { return COMPLEX; }
-    static Ioss::Field::BasicType get_field_type(const std::string & /*dummy*/) { return STRING; }
+    IOSS_NODISCARD static Ioss::Field::BasicType get_field_type(char /*dummy*/)
+    {
+      return CHARACTER;
+    }
+    IOSS_NODISCARD static Ioss::Field::BasicType get_field_type(double /*dummy*/) { return DOUBLE; }
+    IOSS_NODISCARD static Ioss::Field::BasicType get_field_type(int /*dummy*/) { return INTEGER; }
+    IOSS_NODISCARD static Ioss::Field::BasicType get_field_type(unsigned int /*dummy*/)
+    {
+      return INTEGER;
+    }
+    IOSS_NODISCARD static Ioss::Field::BasicType get_field_type(int64_t /*dummy*/) { return INT64; }
+    IOSS_NODISCARD static Ioss::Field::BasicType get_field_type(uint64_t /*dummy*/)
+    {
+      return INT64;
+    }
+    IOSS_NODISCARD static Ioss::Field::BasicType get_field_type(Complex /*dummy*/)
+    {
+      return COMPLEX;
+    }
+    IOSS_NODISCARD static Ioss::Field::BasicType get_field_type(const std::string & /*dummy*/)
+    {
+      return STRING;
+    }
 
     /* \brief Categorizes the type of information held in the field.
      */
@@ -93,25 +113,24 @@ namespace Ioss {
     Field(std::string name, BasicType type, const std::string &storage, int copies, RoleType role,
           size_t value_count = 0, size_t index = 0);
 
+    Field(std::string name, BasicType type, const std::string &storage,
+          const std::string &secondary, RoleType role, size_t value_count = 0, size_t index = 0);
+
     Field(std::string name, BasicType type, const VariableType *storage, RoleType role,
           size_t value_count = 0, size_t index = 0);
 
-    Field(const Ioss::Field &from)      = default;
-    Field &operator=(const Field &from) = default;
-    ~Field()                            = default;
-
     // Compare two fields (used for STL container)
-    bool operator<(const Field &other) const;
+    IOSS_NODISCARD bool operator<(const Field &other) const;
 
-    bool operator==(const Ioss::Field &rhs) const;
-    bool operator!=(const Ioss::Field &rhs) const;
-    bool equal(const Ioss::Field &rhs) const;
+    IOSS_NODISCARD bool operator==(const Ioss::Field &rhs) const;
+    IOSS_NODISCARD bool operator!=(const Ioss::Field &rhs) const;
+    IOSS_NODISCARD bool equal(const Ioss::Field &rhs) const;
 
-    bool is_valid() const { return type_ != INVALID; }
-    bool is_invalid() const { return type_ == INVALID; }
+    IOSS_NODISCARD bool is_valid() const { return type_ != INVALID; }
+    IOSS_NODISCARD bool is_invalid() const { return type_ == INVALID; }
 
-    const std::string &get_name() const { return name_; }
-    std::string       &get_name() { return name_; }
+    IOSS_NODISCARD const std::string &get_name() const { return name_; }
+    IOSS_NODISCARD std::string &get_name() { return name_; }
 
     /** \brief Get name of the 'component_indexth` component (1-based)
      *
@@ -121,36 +140,65 @@ namespace Ioss {
      *            on the field is set to '1' which means 'unset'
      * \returns name of the specified component
      */
-    std::string get_component_name(int component_index, InOut in_out, char suffix = 1) const;
-    int         get_component_count(InOut in_out) const;
+    IOSS_NODISCARD std::string get_component_name(int component_index, InOut in_out,
+                                                  char suffix = 1) const;
+    IOSS_NODISCARD int         get_component_count(InOut in_out) const;
 
-    void set_suffix_separator(char suffix_separator) { suffixSeparator_ = suffix_separator; }
-    char get_suffix_separator() const { return suffixSeparator_; }
-    void set_suffices_uppercase(bool true_false) { sufficesUppercase_ = true_false; }
-    bool get_suffices_uppercase() const { return sufficesUppercase_; }
+    Field &set_suffix_separator(char suffix_separator1, char suffix_separator2 = 2)
+    {
+      suffixSeparator1_ = suffix_separator1;
+      suffixSeparator2_ = suffix_separator2 == 2 ? suffix_separator1 : suffix_separator2;
+      return *this;
+    }
+    IOSS_NODISCARD char get_suffix_separator(int index = 0) const
+    {
+      return index == 0 ? suffixSeparator1_ : suffixSeparator2_;
+    }
+    Field &set_suffices_uppercase(bool true_false)
+    {
+      sufficesUppercase_ = true_false;
+      return *this;
+    }
+    IOSS_NODISCARD bool get_suffices_uppercase() const { return sufficesUppercase_; }
+
+    const Field        &set_zero_copy_enabled(bool true_false = true) const;
+    IOSS_NODISCARD bool zero_copy_enabled() const { return zeroCopyable_; }
 
     /** \brief Get the basic data type of the data held in the field.
      *
      * \returns the basic data type of the data held in the field.
      */
-    BasicType get_type() const { return type_; }
+    IOSS_NODISCARD BasicType get_type() const { return type_; }
 
-    const VariableType *raw_storage() const { return rawStorage_; }
-    const VariableType *transformed_storage() const { return transStorage_; }
+    IOSS_NODISCARD const VariableType *raw_storage() const { return rawStorage_; }
+    IOSS_NODISCARD const VariableType *transformed_storage() const { return transStorage_; }
 
-    size_t raw_count() const { return rawCount_; }           // Number of items in field
-    size_t transformed_count() const { return transCount_; } // Number of items in field
+    IOSS_NODISCARD size_t raw_count() const { return rawCount_; } // Number of items in field
+    IOSS_NODISCARD size_t transformed_count() const
+    {
+      return transCount_;
+    } // Number of items in field
 
-    size_t get_size() const; // data size (in bytes) required to hold entire field
+    IOSS_NODISCARD size_t get_size() const; // data size (in bytes) required to hold entire field
+    IOSS_NODISCARD size_t get_basic_size() const; // data size (in bytes) of the basic type
 
     /** \brief Get the role (MESH, ATTRIBUTE, TRANSIENT, REDUCTION, etc.) of the data in the field.
      *
      * \returns The RoleType of the data in the field.
      */
-    RoleType get_role() const { return role_; }
+    IOSS_NODISCARD RoleType get_role() const { return role_; }
 
-    size_t get_index() const { return index_; }
-    void   set_index(size_t index) const { index_ = index; }
+    IOSS_NODISCARD size_t get_index() const { return index_; }
+    const Field          &set_index(size_t index) const
+    {
+      index_ = index;
+      return *this;
+    }
+    Field &set_index(size_t index)
+    {
+      index_ = index;
+      return *this;
+    }
 
     void reset_count(size_t new_count);  // new number of items in field
     void reset_type(BasicType new_type); // new type of items in field.
@@ -164,20 +212,20 @@ namespace Ioss {
     // throws exception if the types don't match.
     void check_type(BasicType the_type) const;
 
-    bool               is_type(BasicType the_type) const { return the_type == type_; }
+    IOSS_NODISCARD bool is_type(BasicType the_type) const { return the_type == type_; }
 
-    std::string        type_string() const;
-    static std::string type_string(BasicType type);
+    IOSS_NODISCARD std::string        type_string() const;
+    IOSS_NODISCARD static std::string type_string(BasicType type);
 
-    std::string        role_string() const;
-    static std::string role_string(RoleType role);
+    IOSS_NODISCARD std::string        role_string() const;
+    IOSS_NODISCARD static std::string role_string(RoleType role);
 
-    bool add_transform(Transform *my_transform);
-    bool transform(void *data);
-    bool has_transform() const { return !transforms_.empty(); }
+    bool                add_transform(Transform *my_transform);
+    bool                transform(void *data);
+    IOSS_NODISCARD bool has_transform() const { return !transforms_.empty(); }
 
   private:
-    std::string name_;
+    std::string name_{};
 
     size_t rawCount_{};   // Count of items in field before transformation
     size_t transCount_{}; // Count of items in field after transformed
@@ -188,13 +236,26 @@ namespace Ioss {
     BasicType type_{INVALID};
     RoleType  role_{INTERNAL};
 
-    const VariableType *rawStorage_{};   // Storage type of raw field
-    const VariableType *transStorage_{}; // Storage type after transformation
+    const VariableType *rawStorage_{nullptr};   // Storage type of raw field
+    const VariableType *transStorage_{nullptr}; // Storage type after transformation
 
-    std::vector<Transform *> transforms_;
-    char                     suffixSeparator_{1}; // Value = 1 means unset; use database default.
-    bool sufficesUppercase_{false}; // True if the suffices are uppercase on database...
+    std::vector<Transform *> transforms_{};
+    char                     suffixSeparator1_{1}; // Value = 1 means unset; use database default.
+    char                     suffixSeparator2_{1}; // Value = 1 means unset; use database default.
+    bool         sufficesUppercase_{false}; // True if the suffices are uppercase on database...
+    mutable bool zeroCopyable_{false};      // True if the field is zero-copyable.
 
     bool equal_(const Ioss::Field &rhs, bool quiet) const;
   };
+  IOSS_EXPORT std::ostream &operator<<(std::ostream &os, const Field &fld);
 } // namespace Ioss
+
+#if !defined BUILT_IN_SIERRA
+#if FMT_VERSION >= 90000
+namespace fmt {
+  template <> struct formatter<Ioss::Field> : ostream_formatter
+  {
+  };
+} // namespace fmt
+#endif
+#endif

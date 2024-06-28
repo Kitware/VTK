@@ -1,20 +1,20 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_DatabaseIO.h>
-#include <Ioss_ElementBlock.h>
-#include <Ioss_ElementTopology.h>
-#include <Ioss_EntityBlock.h>
-#include <Ioss_Field.h>
-#include <Ioss_Property.h>
-#include <Ioss_SideBlock.h>
+#include "Ioss_DatabaseIO.h"
+#include "Ioss_ElementTopology.h"
+#include "Ioss_EntityBlock.h"
+#include "Ioss_Field.h"
+#include "Ioss_Property.h"
+#include "Ioss_SideBlock.h"
 #include <cassert>
 #include <cstddef>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
+#include <iosfwd>
 #include <string>
 #include <tokenize.h>
 #include <vector>
@@ -22,6 +22,7 @@
 #include "Ioss_FieldManager.h"
 #include "Ioss_ParallelUtils.h"
 #include "Ioss_PropertyManager.h"
+#include "Ioss_Utils.h"
 
 /** \brief Create a side block.
  *
@@ -120,24 +121,30 @@ int64_t Ioss::SideBlock::internal_put_field_data(const Ioss::Field &field, void 
   return get_database()->put_field(this, field, data, data_size);
 }
 
+int64_t Ioss::SideBlock::internal_get_zc_field_data(const Field &field, void **data,
+                                                    size_t *data_size) const
+{
+  return get_database()->get_zc_field(this, field, data, data_size);
+}
+
 Ioss::Property Ioss::SideBlock::get_implicit_property(const std::string &my_name) const
 {
   if (my_name == "distribution_factor_count") {
     if (field_exists("distribution_factors")) {
       int64_t nnodes = topology()->number_nodes();
       int64_t nside  = entity_count();
-      return Ioss::Property(my_name, nnodes * nside);
+      return {my_name, nnodes * nside};
     }
-    return Ioss::Property(my_name, 0);
+    return {my_name, 0};
   }
   if (my_name == "parent_topology_type") {
-    return Ioss::Property(my_name, parent_element_topology()->name());
+    return {my_name, parent_element_topology()->name()};
   }
 
   return Ioss::EntityBlock::get_implicit_property(my_name);
 }
 
-void Ioss::SideBlock::block_membership(std::vector<std::string> &block_members)
+void Ioss::SideBlock::block_membership(Ioss::NameList &block_members)
 {
   // Simplest case.  If the surfaces are split by element block, then this will
   // return non-null
@@ -158,9 +165,9 @@ namespace {
   template <typename INT> int internal_consistent_side_number(std::vector<INT> &element_side)
   {
     size_t ecount = element_side.size();
-    int    side   = ecount > 0 ? element_side[1] : 0;
+    int    side   = ecount > 0 ? static_cast<INT>(element_side[1]) : 0;
     for (size_t i = 3; i < ecount; i += 2) {
-      int this_side = element_side[i];
+      int this_side = static_cast<INT>(element_side[i]);
       if (this_side != side) {
         side = 999; // Indicates the sides are not consistent ;
         break;
@@ -230,9 +237,7 @@ bool Ioss::SideBlock::equal_(const Ioss::SideBlock &rhs, bool quiet) const
   if (!quiet) {
     return Ioss::EntityBlock::equal(rhs);
   }
-  else {
-    return Ioss::EntityBlock::operator==(rhs);
-  }
+  return Ioss::EntityBlock::operator==(rhs);
 }
 
 bool Ioss::SideBlock::operator==(const Ioss::SideBlock &rhs) const { return equal_(rhs, true); }

@@ -1,14 +1,16 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021, 2023, 2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
 /* S Manoharan. Advanced Computer Research Institute. Lyon. France */
-#include <Ioss_GetLongOpt.h>
+#include "Ioss_GetLongOpt.h"
+#include <cstdio>
 #include <cstring>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/color.h)
+#include VTK_FMT(fmt/core.h)
 #include VTK_FMT(fmt/ostream.h)
 #include <sstream>
 
@@ -17,10 +19,7 @@ namespace Ioss {
    *
    * \param optmark The command line symbol designating options.
    */
-  GetLongOption::GetLongOption(const char optmark) : optmarker(optmark)
-  {
-    ustring = "[valid options and arguments]";
-  }
+  GetLongOption::GetLongOption(const char optmark) : optmarker(optmark) {}
 
   /** \brief Frees dynamically allocated memory.
    *
@@ -107,8 +106,7 @@ namespace Ioss {
    */
   const char *GetLongOption::retrieve(const char *const opt) const
   {
-    Cell *t;
-    for (t = table; t != nullptr; t = t->next) {
+    for (Cell *t = table; t != nullptr; t = t->next) {
       if (strcmp(opt, t->option) == 0) {
         return t->value;
       }
@@ -200,7 +198,7 @@ namespace Ioss {
             }
           }
         } /* end if */
-      }   /* end for */
+      } /* end for */
 
       if (matchStatus == PartialMatch) {
         int stat = setcell(pc, tmptoken, *(argv + 1), pname);
@@ -280,7 +278,7 @@ namespace Ioss {
             pc          = t;
           }
         } /* end if */
-      }   /* end for */
+      } /* end for */
 
       if (matchStatus == PartialMatch) {
         ladtoken = strtok(nullptr, " \t");

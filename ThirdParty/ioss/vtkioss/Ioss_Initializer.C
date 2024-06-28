@@ -1,12 +1,12 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_CodeTypes.h>
-#include <Ioss_ElementPermutation.h>
-#include <Ioss_StandardElementTypes.h>
+#include "Ioss_ElementPermutation.h"
+#include "Ioss_StandardElementTypes.h"
+
 #if defined IOSS_THREADSAFE
 #include <mutex>
 #endif
@@ -103,5 +103,3 @@ Ioss::Initializer::Initializer()
 
   Ioss::Super::factory();
 }
-
-Ioss::Initializer::~Initializer() = default;

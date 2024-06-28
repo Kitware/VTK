@@ -1,46 +1,60 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_BoundingBox.h>
-#include <Ioss_CodeTypes.h>
-#include <Ioss_CommSet.h>
-#include <Ioss_DBUsage.h>
-#include <Ioss_DatabaseIO.h>
-#include <Ioss_ElementTopology.h>
-#include <Ioss_EntityBlock.h>
-#include <Ioss_Field.h>
-#include <Ioss_FileInfo.h>
-#include <Ioss_GroupingEntity.h>
-#include <Ioss_NodeBlock.h>
-#include <Ioss_ParallelUtils.h>
-#include <Ioss_Property.h>
-#include <Ioss_Region.h>
-#include <Ioss_SerializeIO.h>
-#include <Ioss_SideBlock.h>
-#include <Ioss_SideSet.h>
-#include <Ioss_Sort.h>
-#include <Ioss_State.h>
-#include <Ioss_StructuredBlock.h>
-#include <Ioss_SurfaceSplit.h>
-#include <Ioss_Utils.h>
+#include "Ioss_BoundingBox.h"
+#include "Ioss_CodeTypes.h"
+#include "Ioss_ElementTopology.h"
+#include "Ioss_Enumerate.h"
+#include "Ioss_FileInfo.h"
+#include "Ioss_ParallelUtils.h"
+#include "Ioss_Sort.h"
 #include <algorithm>
 #include <cassert>
 #include <cfloat>
+#include <cmath>
 #include <cstddef>
-#include <cstring>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
-#include <iomanip>
 #include <iostream>
-#include <iterator>
+#include <map>
 #include <set>
+#include <stdint.h>
 #include <string>
 #include <tokenize.h>
 #include <utility>
 #include <vector>
+
+#include "Ioss_Assembly.h"
+#include "Ioss_Blob.h"
+#include "Ioss_CommSet.h"
+#include "Ioss_DBUsage.h"
+#include "Ioss_DataSize.h"
+#include "Ioss_DatabaseIO.h"
+#include "Ioss_EdgeBlock.h"
+#include "Ioss_EdgeSet.h"
+#include "Ioss_ElementBlock.h"
+#include "Ioss_ElementSet.h"
+#include "Ioss_EntityType.h"
+#include "Ioss_FaceBlock.h"
+#include "Ioss_FaceSet.h"
+#include "Ioss_Field.h"
+#include "Ioss_GroupingEntity.h"
+#include "Ioss_Map.h"
+#include "Ioss_NodeBlock.h"
+#include "Ioss_NodeSet.h"
+#include "Ioss_Property.h"
+#include "Ioss_PropertyManager.h"
+#include "Ioss_Region.h"
+#include "Ioss_SerializeIO.h"
+#include "Ioss_SideBlock.h"
+#include "Ioss_SideSet.h"
+#include "Ioss_StructuredBlock.h"
+#include "Ioss_SurfaceSplit.h"
+#include "Ioss_Utils.h"
+#include "Ioss_VariableType.h"
 
 #if defined SEACAS_HAVE_DATAWARP
 extern "C" {
@@ -94,7 +108,7 @@ namespace {
                          double &xmax, double &ymax, double &zmax)
   {
     std::vector<int> elem_block_nodes(node_count);
-    for (auto &node : connectivity) {
+    for (const auto &node : connectivity) {
       elem_block_nodes[node - 1] = 1;
     }
 
@@ -163,6 +177,41 @@ namespace {
       ymin = ymax = 0.0;
     }
   }
+
+  template <typename T>
+  std::vector<size_t> get_entity_offsets(const std::string      &field_name,
+                                         const std::vector<T *> &entity_container)
+  {
+    size_t              num_blocks = entity_container.size();
+    std::vector<size_t> offsets(num_blocks + 1, 0);
+
+    for (const auto &entityTuple : Ioss::enumerate(entity_container)) {
+      const auto &i = std::get<0>(entityTuple);       // Extract the index from the tuple
+      const auto &entity = std::get<1>(entityTuple);  // Extract the entity from the tuple
+      if (entity->field_exists(field_name)) {
+        Ioss::Field field = entity->get_field(field_name);
+        offsets[i + 1] = entity->entity_count() * field.raw_storage()->component_count();
+      }
+    }
+
+    for (size_t i = 1; i <= num_blocks; ++i) {
+      offsets[i] += offsets[i - 1];
+    }
+
+    return offsets;
+  }
+
+  template <typename ENTITY>
+  int64_t zero_copy_not_enabled(const ENTITY *entity, const Ioss::Field &field,
+                                const Ioss::DatabaseIO *db)
+  {
+    std::ostringstream errmsg;
+    fmt::print(errmsg,
+               "On {} {}, the field {} is specified as zero-copy enabled, but the database {} does "
+               "not support zero-copy for this field and/or entity type.\n",
+               entity->type_string(), entity->name(), field.get_name(), db->get_filename());
+    IOSS_ERROR(errmsg);
+  }
 } // namespace
 
 namespace Ioss {
@@ -207,6 +256,39 @@ namespace Ioss {
     // vz to be a 3-component field 'v'.
     Utils::check_set_bool_property(properties, "FIELD_STRIP_TRAILING_UNDERSCORE",
                                    fieldStripTrailing_);
+
+    // Determine how to handle duplicate incompatible fields (transient and attribute field with
+    // same name, ...)
+    if (properties.exists("DUPLICATE_FIELD_NAME_BEHAVIOR")) {
+      auto prop = properties.get("DUPLICATE_FIELD_NAME_BEHAVIOR").get_string();
+      if (prop == "IGNORE") {
+        duplicateFieldBehavior = DuplicateFieldBehavior::IGNORE_;
+      }
+      else if (prop == "WARNING") {
+        duplicateFieldBehavior = DuplicateFieldBehavior::WARNING_;
+      }
+      else if (prop == "ERROR") {
+        duplicateFieldBehavior = DuplicateFieldBehavior::ERROR_;
+      }
+      else {
+        std::ostringstream errmsg;
+        fmt::print(errmsg,
+                   "Invalid value ({}) for property `DUPLICATE_FIELD_NAME_BEHAVIOR`.\n"
+                   "\tValid values are `IGNORE`, `WARNING`, or `ERROR`\n",
+                   prop);
+        IOSS_ERROR(errmsg);
+      }
+    }
+    else {
+      bool allow_duplicate = false;
+      Utils::check_set_bool_property(properties, "IGNORE_DUPLICATE_FIELD_NAMES", allow_duplicate);
+      if (allow_duplicate) {
+        duplicateFieldBehavior = DuplicateFieldBehavior::WARNING_;
+      }
+      else {
+        duplicateFieldBehavior = DuplicateFieldBehavior::ERROR_;
+      }
+    }
 
     if (properties.exists("SURFACE_SPLIT_TYPE")) {
       Ioss::SurfaceSplitType split_type = Ioss::SPLIT_INVALID;
@@ -260,9 +342,15 @@ namespace Ioss {
     Utils::check_set_bool_property(properties, "ENABLE_TRACING", m_enableTracing);
     Utils::check_set_bool_property(properties, "TIME_STATE_INPUT_OUTPUT", m_timeStateInOut);
     {
-      bool logging;
+      bool logging = false;
       if (Utils::check_set_bool_property(properties, "LOGGING", logging)) {
         set_logging(logging);
+      }
+    }
+    {
+      bool nan_detection = false;
+      if (Utils::check_set_bool_property(properties, "NAN_DETECTION", nan_detection)) {
+        set_nan_detection(nan_detection);
       }
     }
 
@@ -278,7 +366,7 @@ namespace Ioss {
       }
     }
 
-    check_setDW();
+    check_set_dw();
 
     if (!is_input()) {
       // Create full path to the output file at this point if it doesn't
@@ -346,7 +434,7 @@ namespace Ioss {
    *
    * We currently only want output files to be directed to BB.
    */
-  void DatabaseIO::check_setDW() const
+  void DatabaseIO::check_set_dw() const
   {
     if (!is_input()) {
       bool set_dw = false;
@@ -387,12 +475,12 @@ namespace Ioss {
    * storage available across all compute nodes accessible via high
    * speed NIC.
    */
-  void DatabaseIO::openDW(const std::string &filename) const
+  void DatabaseIO::open_dw(const std::string &filename) const
   {
-    set_pfsname(filename); // Name on permanent-file-store
-    if (using_dw()) {      // We are about to write to a output database in BB
+    set_pfs_name(filename); // Name on permanent-file-store
+    if (using_dw()) {       // We are about to write to a output database in BB
       Ioss::FileInfo path{filename};
-      Ioss::FileInfo bb_file{get_dwPath() + path.tailname()};
+      Ioss::FileInfo bb_file{get_dw_path() + path.tailname()};
       if (bb_file.exists() && !bb_file.is_writable()) {
         // already existing file which has been closed If we can't
         // write to the file on the BB, then it is a file which is
@@ -417,38 +505,38 @@ namespace Ioss {
         fmt::print(Ioss::DebugOut(), "DW: (FAKE) dw_wait_file_stage({});\n", bb_file.filename());
 #endif
       }
-      set_dwname(bb_file.filename());
+      set_dw_name(bb_file.filename());
     }
     else {
-      set_dwname(filename);
+      set_dw_name(filename);
     }
   }
 
-  /** \brief This function gets called inside closeDatabase__(), which checks if Cray Datawarp (DW)
+  /** \brief This function gets called inside closeDatabase_nl(), which checks if Cray Datawarp (DW)
    * is in use, if so, we want to call a stageout before actual close of this file.
    */
-  void DatabaseIO::closeDW() const
+  void DatabaseIO::close_dw() const
   {
     if (using_dw()) {
       if (!using_parallel_io() || myProcessor == 0) {
 #if defined SEACAS_HAVE_DATAWARP
         int complete = 0, pending = 0, deferred = 0, failed = 0;
-        dw_query_file_stage(get_dwname().c_str(), &complete, &pending, &deferred, &failed);
+        dw_query_file_stage(get_dw_name().c_str(), &complete, &pending, &deferred, &failed);
 #if IOSS_DEBUG_OUTPUT
         auto initial = std::chrono::steady_clock::now();
         fmt::print(Ioss::DebugOut(), "Query: {}, {}, {}, {}\n", complete, pending, deferred,
                    failed);
 #endif
         if (pending > 0) {
-          int dwret = dw_wait_file_stage(get_dwname().c_str());
+          int dwret = dw_wait_file_stage(get_dw_name().c_str());
           if (dwret < 0) {
             std::ostringstream errmsg;
-            fmt::print(errmsg, "ERROR: failed waiting for file stage `{}`: {}\n", get_dwname(),
+            fmt::print(errmsg, "ERROR: failed waiting for file stage `{}`: {}\n", get_dw_name(),
                        std::strerror(-dwret));
             IOSS_ERROR(errmsg);
           }
 #if IOSS_DEBUG_OUTPUT
-          dw_query_file_stage(get_dwname().c_str(), &complete, &pending, &deferred, &failed);
+          dw_query_file_stage(get_dw_name().c_str(), &complete, &pending, &deferred, &failed);
           fmt::print(Ioss::DebugOut(), "Query: {}, {}, {}, {}\n", complete, pending, deferred,
                      failed);
 #endif
@@ -456,10 +544,10 @@ namespace Ioss {
 
 #if IOSS_DEBUG_OUTPUT
         fmt::print(Ioss::DebugOut(), "\nDW: BEGIN dw_stage_file_out({}, {}, DW_STAGE_IMMEDIATE);\n",
-                   get_dwname(), get_pfsname());
+                   get_dw_name(), get_pfs_name());
 #endif
         int ret =
-            dw_stage_file_out(get_dwname().c_str(), get_pfsname().c_str(), DW_STAGE_IMMEDIATE);
+            dw_stage_file_out(get_dw_name().c_str(), get_pfs_name().c_str(), DW_STAGE_IMMEDIATE);
 
 #if IOSS_DEBUG_OUTPUT
         auto                          time_now = std::chrono::steady_clock::now();
@@ -469,13 +557,13 @@ namespace Ioss {
         if (ret < 0) {
           std::ostringstream errmsg;
           fmt::print(errmsg, "ERROR: file staging of `{}` to `{}` failed at close: {}\n",
-                     get_dwname(), get_pfsname(), std::strerror(-ret));
+                     get_dw_name(), get_pfs_name(), std::strerror(-ret));
           IOSS_ERROR(errmsg);
         }
 #else
         fmt::print(Ioss::DebugOut(),
-                   "\nDW: (FAKE) dw_stage_file_out({}, {}, DW_STAGE_IMMEDIATE);\n", get_dwname(),
-                   get_pfsname());
+                   "\nDW: (FAKE) dw_stage_file_out({}, {}, DW_STAGE_IMMEDIATE);\n", get_dw_name(),
+                   get_pfs_name());
 #endif
       }
       if (using_parallel_io()) {
@@ -484,9 +572,9 @@ namespace Ioss {
     }
   }
 
-  void DatabaseIO::openDatabase__() const { openDW(get_filename()); }
+  void DatabaseIO::openDatabase_nl() const { open_dw(get_filename()); }
 
-  void DatabaseIO::closeDatabase__() const { closeDW(); }
+  void DatabaseIO::closeDatabase_nl() const { close_dw(); }
 
   IfDatabaseExistsBehavior DatabaseIO::open_create_behavior() const
   {
@@ -512,13 +600,55 @@ namespace Ioss {
         decodedFilename = get_filename();
       }
 
-      openDW(decodedFilename);
+      open_dw(decodedFilename);
       if (using_dw()) {
         // Note that if using_dw(), then we need to set the decodedFilename to the BB name.
-        decodedFilename = get_dwname();
+        decodedFilename = get_dw_name();
       }
     }
     return decodedFilename;
+  }
+
+  bool DatabaseIO::verify_field_data(const GroupingEntity *ge, const Field &field,
+                                     Ioss::Field::InOut in_out, void *data) const
+  {
+    bool nan_found = false;
+    if (field.is_type(Ioss::Field::BasicType::DOUBLE)) {
+
+      auto  *rdata      = static_cast<double *>(data);
+      size_t comp_count = field.get_component_count(in_out);
+      size_t num_to_get = field.raw_count();
+
+      // First, let's just see if there are ANY nans...
+      nan_found = std::find_if(rdata, rdata + comp_count * num_to_get, [](double v) {
+                    return std::isnan(v);
+                  }) != rdata + comp_count * num_to_get;
+
+      if (nan_found) {
+        // We know there is at least on nan.  Now we will do a slower run through the data so can
+        // give user a more accurate idea of how many and where they exist...
+        std::string direction = in_out == Ioss::Field::InOut::OUTPUT ? "writing" : "reading";
+        std::vector<size_t> nans;
+        nans.reserve(num_to_get / 10);
+
+        for (size_t comp = 0; comp < comp_count; comp++) {
+          for (size_t i = 0; i < num_to_get; i++) {
+            size_t idx = comp_count * i + comp;
+            if (std::isnan(rdata[idx])) {
+              nans.push_back(i);
+            }
+          }
+          if (!nans.empty()) {
+            fmt::print(Ioss::WarnOut(), "Found {} NaN{} {} field '{}' on {} '{}' at {} {}.\n",
+                       nans.size(), nans.size() > 1 ? "s" : "", direction,
+                       get_component_name(field, in_out, comp + 1), ge->type_string(), ge->name(),
+                       nans.size() > 1 ? "indices" : "index", Ioss::Utils::format_id_list(nans));
+            nans.clear();
+          }
+        }
+      }
+    }
+    return nan_found;
   }
 
   void DatabaseIO::verify_and_log(const GroupingEntity *ge, const Field &field, int in_out) const
@@ -539,12 +669,12 @@ namespace Ioss {
     if (m_timeStateInOut) {
       m_stateStart = std::chrono::steady_clock::now();
     }
-    return begin_state__(state, time);
+    return begin_state_nl(state, time);
   }
   bool DatabaseIO::end_state(int state, double time)
   {
     IOSS_FUNC_ENTER(m_);
-    bool res = end_state__(state, time);
+    bool res = end_state_nl(state, time);
     if (m_timeStateInOut) {
       auto finish = std::chrono::steady_clock::now();
       log_time(m_stateStart, finish, state, time, is_input(), singleProcOnly, util_);
@@ -554,9 +684,9 @@ namespace Ioss {
   }
 
   // Default versions do nothing...
-  bool DatabaseIO::begin_state__(int /* state */, double /* time */) { return true; }
+  bool DatabaseIO::begin_state_nl(int /* state */, double /* time */) { return true; }
 
-  bool DatabaseIO::end_state__(int /* state */, double /* time */) { return true; }
+  bool DatabaseIO::end_state_nl(int /* state */, double /* time */) { return true; }
 
   void DatabaseIO::handle_groups()
   {
@@ -590,10 +720,10 @@ namespace Ioss {
       return;
     }
 
-    std::string              prop   = properties.get(property_name).get_string();
-    std::vector<std::string> groups = tokenize(prop, ":");
+    std::string    prop   = properties.get(property_name).get_string();
+    Ioss::NameList groups = tokenize(prop, ":");
     for (auto &group : groups) {
-      std::vector<std::string> group_spec = tokenize(group, ",");
+      Ioss::NameList group_spec = tokenize(group, ",");
 
       // group_spec should contain the name of the new group as
       // the first location and the members of the group as subsequent
@@ -614,7 +744,7 @@ namespace Ioss {
 
   template <typename T>
   void DatabaseIO::create_group(EntityType /*type*/, const std::string &type_name,
-                                const std::vector<std::string> &group_spec, const T * /*set_type*/)
+                                const Ioss::NameList &group_spec, const T * /*set_type*/)
   {
     fmt::print(Ioss::WarnOut(),
                "Grouping of {0} sets is not yet implemented.\n"
@@ -623,9 +753,8 @@ namespace Ioss {
   }
 
   template <>
-  void DatabaseIO::create_group(EntityType type, const std::string & /*type_name*/,
-                                const std::vector<std::string> &group_spec,
-                                const SideSet * /*set_type*/)
+  void DatabaseIO::create_group(EntityType            type, const std::string            &/*type_name*/,
+                                const Ioss::NameList &group_spec, const SideSet * /*set_type*/)
   {
     // Not generalized yet... This only works for T == SideSet
     if (type != SIDESET) {
@@ -636,18 +765,18 @@ namespace Ioss {
     int64_t df_count     = 0;
 
     // Create the new set...
-    auto new_set = new SideSet(this, group_spec[0]);
+    auto *new_set = new SideSet(this, group_spec[0]);
 
     get_region()->add(new_set);
 
     // Find the member SideSets...
-    for (size_t i = 1; i < group_spec.size(); i++) {
-      SideSet *set = get_region()->get_sideset(group_spec[i]);
+    for (const auto &spec : group_spec) {
+      SideSet *set = get_region()->get_sideset(spec);
       if (set != nullptr) {
         const SideBlockContainer &side_blocks = set->get_side_blocks();
-        for (auto &sbold : side_blocks) {
+        for (const auto &sbold : side_blocks) {
           size_t  side_count = sbold->entity_count();
-          auto    sbnew      = new SideBlock(this, sbold->name(), sbold->topology()->name(),
+          auto   *sbnew      = new SideBlock(this, sbold->name(), sbold->topology()->name(),
                                              sbold->parent_element_topology()->name(), side_count);
           int64_t id         = sbold->get_property("id").get_int();
           sbnew->property_add(Property("set_offset", entity_count));
@@ -674,7 +803,7 @@ namespace Ioss {
         fmt::print(Ioss::WarnOut(),
                    "While creating the grouped surface '{}', the surface '{}' does not exist. "
                    "This surface will skipped and not added to the group.\n\n",
-                   group_spec[0], group_spec[i]);
+                   group_spec[0], spec);
       }
     }
   }
@@ -689,7 +818,7 @@ namespace Ioss {
 
     bool                         first          = true;
     const ElementBlockContainer &element_blocks = get_region()->get_element_blocks();
-    for (auto block : element_blocks) {
+    for (auto *block : element_blocks) {
       size_t element_count = block->entity_count();
 
       // Check face types.
@@ -713,7 +842,7 @@ namespace Ioss {
    *
    *  \param[in] info The strings to add.
    */
-  void DatabaseIO::add_information_records(const std::vector<std::string> &info)
+  void DatabaseIO::add_information_records(const Ioss::NameList &info)
   {
     informationRecords.reserve(informationRecords.size() + info.size());
     informationRecords.insert(informationRecords.end(), info.begin(), info.end());
@@ -747,9 +876,37 @@ namespace Ioss {
     qaRecords.push_back(time);
   }
 
-  void DatabaseIO::set_block_omissions(const std::vector<std::string> &omissions,
-                                       const std::vector<std::string> &inclusions)
+  void DatabaseIO::set_block_omissions(const Ioss::NameList &omissions,
+                                       const Ioss::NameList &inclusions)
   {
+    if (!omissions.empty() && !inclusions.empty()) {
+      // Only one can be non-empty
+      std::ostringstream errmsg;
+      fmt::print(errmsg,
+                 "ERROR: Only one of element block omission or inclusion can be non-empty"
+                 "       [{}]\n",
+                 get_filename());
+      IOSS_ERROR(errmsg);
+    }
+
+    if (!assemblyOmissions.empty() && !inclusions.empty()) {
+      std::ostringstream errmsg;
+      fmt::print(errmsg,
+                 "ERROR: Only one of element block inclusion or assembly omission can be non-empty"
+                 "       [{}]\n",
+                 get_filename());
+      IOSS_ERROR(errmsg);
+    }
+
+    if (!assemblyInclusions.empty() && !omissions.empty()) {
+      std::ostringstream errmsg;
+      fmt::print(errmsg,
+                 "ERROR: Only one of element block omission or assembly inclusion can be non-empty"
+                 "       [{}]\n",
+                 get_filename());
+      IOSS_ERROR(errmsg);
+    }
+
     if (!omissions.empty()) {
       blockOmissions.assign(omissions.cbegin(), omissions.cend());
       Ioss::sort(blockOmissions.begin(), blockOmissions.end());
@@ -760,14 +917,32 @@ namespace Ioss {
     }
   }
 
-  void DatabaseIO::set_assembly_omissions(const std::vector<std::string> &omissions,
-                                          const std::vector<std::string> &inclusions)
+  void DatabaseIO::set_assembly_omissions(const Ioss::NameList &omissions,
+                                          const Ioss::NameList &inclusions)
   {
     if (!omissions.empty() && !inclusions.empty()) {
       // Only one can be non-empty
       std::ostringstream errmsg;
       fmt::print(errmsg,
                  "ERROR: Only one of assembly omission or inclusion can be non-empty"
+                 "       [{}]\n",
+                 get_filename());
+      IOSS_ERROR(errmsg);
+    }
+
+    if (!blockOmissions.empty() && !inclusions.empty()) {
+      std::ostringstream errmsg;
+      fmt::print(errmsg,
+                 "ERROR: Only one of element block omission or assembly inclusion can be non-empty"
+                 "       [{}]\n",
+                 get_filename());
+      IOSS_ERROR(errmsg);
+    }
+
+    if (!blockInclusions.empty() && !omissions.empty()) {
+      std::ostringstream errmsg;
+      fmt::print(errmsg,
+                 "ERROR: Only one of element block inclusion or assembly omission can be non-empty"
                  "       [{}]\n",
                  get_filename());
       IOSS_ERROR(errmsg);
@@ -806,7 +981,7 @@ namespace Ioss {
       const ElementBlockContainer &element_blocks = get_region()->get_element_blocks();
 
       bool all_sphere = true;
-      for (auto &block : element_blocks) {
+      for (const auto &block : element_blocks) {
         const ElementTopology *elem_type = block->topology();
         const ElementTopology *side_type = elem_type->boundary_type();
         if (side_type == nullptr) {
@@ -846,8 +1021,8 @@ namespace Ioss {
     assert(!sideTopology.empty());
   }
 
-  void DatabaseIO::get_block_adjacencies__(const Ioss::ElementBlock *eb,
-                                           std::vector<std::string> &block_adjacency) const
+  void DatabaseIO::get_block_adjacencies_nl(const Ioss::ElementBlock *eb,
+                                            Ioss::NameList           &block_adjacency) const
   {
     if (!blockAdjacenciesCalculated) {
       compute_block_adjacencies();
@@ -913,7 +1088,7 @@ namespace Ioss {
     std::vector<std::vector<int>> inv_con(nodeCount);
 
     {
-      Ioss::SerializeIO serializeIO__(this);
+      Ioss::SerializeIO serializeIO_(this);
       int               blk_position = -1;
       for (Ioss::ElementBlock *eb : element_blocks) {
         if (eb->property_exists("original_block_order")) {
@@ -926,7 +1101,7 @@ namespace Ioss {
         if (int_byte_size_api() == 8) {
           std::vector<int64_t> conn;
           eb->get_field_data("connectivity_raw", conn);
-          for (auto &node : conn) {
+          for (const auto &node : conn) {
             assert(node > 0 && node - 1 < nodeCount);
             node_used[node - 1] = blk_position + 1;
           }
@@ -934,7 +1109,7 @@ namespace Ioss {
         else {
           std::vector<int> conn;
           eb->get_field_data("connectivity_raw", conn);
-          for (auto &node : conn) {
+          for (const auto &node : conn) {
             assert(node > 0 && node - 1 < nodeCount);
             node_used[node - 1] = blk_position + 1;
           }
@@ -1063,7 +1238,7 @@ namespace Ioss {
         IOSS_ERROR(errmsg);
       }
 
-      result = MPI_Waitall(req_cnt, request.data(), status.data());
+      result = MPI_Waitall(req_cnt, Data(request), Data(status));
 
       if (result != MPI_SUCCESS) {
         std::ostringstream errmsg;
@@ -1127,8 +1302,8 @@ namespace Ioss {
       }
 
       std::vector<unsigned> out_data(element_blocks.size() * bits_size);
-      MPI_Allreduce((void *)data.data(), out_data.data(), static_cast<int>(data.size()),
-                    MPI_UNSIGNED, MPI_BOR, util().communicator());
+      MPI_Allreduce((void *)Data(data), Data(out_data), static_cast<int>(data.size()), MPI_UNSIGNED,
+                    MPI_BOR, util().communicator());
 
       offset = 0;
       for (size_t jblk = 0; jblk < element_blocks.size(); jblk++) {
@@ -1169,7 +1344,7 @@ namespace Ioss {
       std::vector<double>                minmax;
       minmax.reserve(6 * nblock);
 
-      for (auto &block : element_blocks) {
+      for (const auto &block : element_blocks) {
         double xmin, ymin, zmin, xmax, ymax, zmax;
         if (block->get_database()->int_byte_size_api() == 8) {
           std::vector<int64_t> connectivity;
@@ -1194,9 +1369,10 @@ namespace Ioss {
 
       util().global_array_minmax(minmax, Ioss::ParallelUtils::DO_MIN);
 
-      for (size_t i = 0; i < element_blocks.size(); i++) {
-        Ioss::ElementBlock    *block = element_blocks[i];
-        const std::string     &name  = block->name();
+      for (const auto &elementBlockTuple : Ioss::enumerate(element_blocks)) {
+        const auto &i = std::get<0>(elementBlockTuple);
+        const auto &block = std::get<1>(elementBlockTuple);
+        const std::string& name = block->name();
         AxisAlignedBoundingBox bbox(minmax[6 * i + 0], minmax[6 * i + 1], minmax[6 * i + 2],
                                     -minmax[6 * i + 3], -minmax[6 * i + 4], -minmax[6 * i + 5]);
         elementBlockBoundingBoxes[name] = bbox;
@@ -1258,6 +1434,173 @@ namespace Ioss {
 
     return {xx.first, yy.first, zz.first, xx.second, yy.second, zz.second};
   }
+
+#ifndef DOXYGEN_SKIP_THIS
+  template std::vector<size_t>
+  DatabaseIO::get_entity_field_data_internal(const std::string                       &field_name,
+                                             const std::vector<Ioss::ElementBlock *> &elem_blocks,
+                                             void *data, size_t data_size) const;
+#endif
+
+  template <typename T>
+  std::vector<size_t>
+  DatabaseIO::get_entity_field_data_internal(const std::string      &field_name,
+                                             const std::vector<T *> &entity_container, void *data,
+                                             size_t data_size) const
+  {
+    std::vector<size_t> offset = get_entity_offsets(field_name, entity_container);
+
+    for (const auto &entityTuple : Ioss::enumerate(entity_container)) {
+      const auto &i = std::get<0>(entityTuple);         // Extract the index from the tuple
+      const auto &entity = std::get<1>(entityTuple);    // Extract the entity from the tuple
+      if (entity->field_exists(field_name)) {
+        auto        num_to_get_for_block = offset[i + 1] - offset[i];
+        Ioss::Field field                = entity->get_field(field_name);
+        size_t      field_byte_size      = field.get_basic_size();
+        size_t      block_data_size      = num_to_get_for_block * field_byte_size;
+
+        if (block_data_size != field.get_size()) {
+          std::ostringstream errmsg;
+          fmt::print(
+              errmsg,
+              "ERROR: Field '{}' data size {} on entity {} does not match computed size {}\n\n",
+              field_name, field.get_size(), entity->name(), block_data_size);
+          IOSS_ERROR(errmsg);
+        }
+
+        size_t expected_data_size = offset[i + 1] * field_byte_size;
+
+        if (data_size < expected_data_size) {
+          std::ostringstream errmsg;
+          fmt::print(
+              errmsg,
+              "ERROR: Field '{}' data size {} on entity {} is less than expected size {}\n\n",
+              field_name, data_size, entity->name(), expected_data_size);
+          IOSS_ERROR(errmsg);
+        }
+
+        size_t block_data_offset = offset[i] * field_byte_size;
+
+        auto retval =
+            get_field_internal(entity, field, (char *)data + block_data_offset, block_data_size);
+
+        size_t block_component_count = field.raw_storage()->component_count();
+        if (num_to_get_for_block != retval * block_component_count) {
+          std::ostringstream errmsg;
+          fmt::print(errmsg,
+                     "ERROR: Data length {} for field {} on block {} is not expected length {}\n\n",
+                     retval * block_component_count, field_name, entity->name(),
+                     num_to_get_for_block);
+          IOSS_ERROR(errmsg);
+        }
+
+        if (retval >= 0) {
+          field.transform((char *)data + block_data_offset);
+        }
+      }
+    }
+
+    return offset;
+  }
+
+  std::vector<size_t>
+  DatabaseIO::get_entity_field_data(const std::string                       &field_name,
+                                    const std::vector<Ioss::ElementBlock *> &elem_blocks,
+                                    void *data, size_t data_size) const
+  {
+    return get_entity_field_data_internal(field_name, elem_blocks, data, data_size);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::Region *reg, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(reg, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::NodeBlock *nb, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(nb, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::EdgeBlock *nb, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(nb, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::FaceBlock *nb, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(nb, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::ElementBlock *eb, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(eb, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::SideBlock *fb, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(fb, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::NodeSet *ns, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(ns, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::EdgeSet *ns, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(ns, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::FaceSet *ns, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(ns, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::ElementSet *ns, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(ns, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::SideSet *fs, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(fs, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::CommSet *cs, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(cs, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::Assembly *as, const Ioss::Field &field,
+                                            void **, size_t *) const
+  {
+    return zero_copy_not_enabled(as, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::Blob *bl, const Ioss::Field &field, void **,
+                                            size_t *) const
+  {
+    return zero_copy_not_enabled(bl, field, this);
+  }
+
+  int64_t DatabaseIO::get_zc_field_internal(const Ioss::StructuredBlock *sb,
+                                            const Ioss::Field &field, void **, size_t *) const
+  {
+    return zero_copy_not_enabled(sb, field, this);
+  }
+
 } // namespace Ioss
 
 namespace {
@@ -1281,7 +1624,7 @@ namespace {
                  current_state, state_time);
 
       double total = 0.0;
-      for (auto &p_time : all_times) {
+      for (const auto &p_time : all_times) {
         total += p_time;
       }
 
@@ -1327,7 +1670,7 @@ namespace {
         fmt::print(strm, "{} [{:.5f}]\t", symbol, diff.count());
 
         int64_t total = 0;
-        for (auto &p_size : all_sizes) {
+        for (const auto &p_size : all_sizes) {
           total += p_size;
         }
         // Now append each processors size onto the stream...
@@ -1337,7 +1680,7 @@ namespace {
                      total / all_sizes.size());
         }
         else {
-          for (auto &p_size : all_sizes) {
+          for (const auto &p_size : all_sizes) {
             fmt::print(strm, "{:8d}:", p_size);
           }
         }

@@ -7,12 +7,13 @@
 #pragma once
 
 #include "iocatalyst_export.h"
+#include "vtk_ioss_mangle.h"
 
+#include "Ioss_CodeTypes.h"
+#include "Ioss_DBUsage.h"    // for DatabaseUsage
 #include "Ioss_DatabaseIO.h" // for DatabaseIO
-#include <Ioss_CodeTypes.h>
-#include <Ioss_DBUsage.h>   // for DatabaseUsage
-#include <Ioss_IOFactory.h> // for IOFactory
-#include <string>           // for string
+#include "Ioss_IOFactory.h"  // for IOFactory
+#include <string>            // for string
 
 namespace Ioss {
   class PropertyManager;

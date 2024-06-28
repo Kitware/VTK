@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -6,12 +6,8 @@
 
 #pragma once
 
-#include "iogn_export.h"
-
-#include "vtk_ioss_mangle.h"
-
-#include <Ioss_CodeTypes.h>
-#include <Ioss_EntityType.h> // for EntityType
+#include "Ioss_CodeTypes.h"
+#include "Ioss_EntityType.h" // for EntityType
 #include <array>
 #include <cstddef> // for size_t
 #include <cstdint> // for int64_t
@@ -20,6 +16,9 @@
 #include <utility> // for pair
 #include <vector>  // for vector
 
+#include "iogn_export.h"
+#include "vtk_ioss_mangle.h"
+
 namespace Iogn {
   class IOGN_EXPORT GeneratedMesh
   {
@@ -27,37 +26,37 @@ namespace Iogn {
     enum ShellLocation { MX = 0, PX = 1, MY = 2, PY = 3, MZ = 4, PZ = 5 };
 
     /**
-       Generate a cube mesh of size 'num_x' by 'num_y' by 'num_z' elements.
-       By default, the mesh is generated on a single processor.  If 'proc_count' is
-       greater than 1, then the mesh will be distributed over 'proc_count' processors
-       and this process will get the portion of the mesh for 'my_proc'.
-       The mesh will be decomposed along the 'Z' axis so 'num_z' must be greater than
-       or equal to 'proc_count' and for even distribution of the hexes 'num_z' mod 'proc_count'
+       Generate a cube mesh of size `num_x` by `num_y` by `num_z` elements.
+       By default, the mesh is generated on a single processor.  If `proc_count` is
+       greater than 1, then the mesh will be distributed over `proc_count` processors
+       and this process will get the portion of the mesh for `my_proc`.
+       The mesh will be decomposed along the `Z` axis so `num_z` must be greater than
+       or equal to `proc_count` and for even distribution of the hexes `num_z` mod `proc_count`
        should be zero.
 
        The mesh can optionally include shell elements along each face of the cube mesh.
-       These are specified via the 'add_shell_block' function.
+       These are specified via the `add_shell_block` function.
 
        The mesh can optionally include nodesets/sidesets along each
        face of the cube mesh.  These are specified via the
-       'add_nodesets' and 'add_sidesets' functions.
+       `add_nodesets` and `add_sidesets` functions.
 
-       If the 'parameters' string constructor is used, the string
+       If the `parameters` string constructor is used, the string
        is parsed to determine the intervals in each direction and,
        optionally, additional information.  The form of the string
        is "IxJxK" where I, J, and K are  the number of intervals
        in the X, Y, and Z directions respectively and the "x" are
-       literal 'x' characters.  For example, the constructor
+       literal `x` characters.  For example, the constructor
        GeneratedMesh("10x12x14") will create the same mesh as
        GeneratedMesh(10,12,14)
 
        Additional valid options are:
-       - help -- no argument, shows valid options
-       - show -- no argument, prints out a summary of the
+       - `help` -- no argument, shows valid options
+       - `show` -- no argument, prints out a summary of the
        GeneratedMesh() parameters. The output will look similar
        to:
-       \code
-       "10x12x8|shell:xX|bbox:-10,-10,-10,10,10,10|nodeset:xyz|sideset:XYZ|show"
+       ```
+       10x12x8|shell:xX|bbox:-10,-10,-10,10,10,10|nodeset:xyz|sideset:XYZ|show
 
        Mesh Parameters:
        Intervals: 10 by 12 by 8
@@ -69,33 +68,33 @@ namespace Iogn {
        Block Count           = 3
        NodeSet Count         = 3
        SideSet Count         = 3
-       \endcode
+       ```
 
-       - tets -- no argument - specifies that each hex should be
+       - `tets` -- no argument - specifies that each hex should be
        split into 6 tetrahedral elements.  Cannot currently be used with
        shells or sidesets.
 
-       - pyramids -- no argument - specifies that each hex should be
+       - `pyramids` -- no argument - specifies that each hex should be
        split into 6 pyramidal elements.
 
-       - shell -- argument = xXyYzZ which specifies whether there is a shell
-       block at that location. 'x' is minimum x face, 'X' is maximum x face,
+       - `shell` -- argument = xXyYzZ which specifies whether there is a shell
+       block at that location. `x` is minimum x face, `X` is maximum x face,
        similarly for y and z.  Note that the argument string is a single
        multicharacter string.  You can add multiple shell blocks to a face,
        for example, shell:xxx would add three layered shell blocks on the
        minimum x face.  An error is output if a non xXyYzZ character is
        found, but execution continues.
 
-       - nodeset -- argument = xXyYzZ which specifies whether there is
-       a nodeset at that location. 'x' is minimum x face, 'X' is
+       - `nodeset` -- argument = xXyYzZ which specifies whether there is
+       a nodeset at that location. `x` is minimum x face, `X` is
        maximum x face, similarly for y and z.  Note that the argument
        string is a single multicharacter string.  You can add multiple
        nodesets to a face, for example, nodeset:xxx would add three
        nodesets on the minimum x face.  An error is output if a non
        xXyYzZ character is found, but execution continues.
 
-       - sideset -- argument = xXyYzZ which specifies whether there is
-       a sideset at that location. 'x' is minimum x face, 'X' is
+       - `sideset` -- argument = xXyYzZ which specifies whether there is
+       a sideset at that location. `x` is minimum x face, `X` is
        maximum x face, similarly for y and z.  Note that the argument
        string is a single multicharacter string.  You can add multiple
        sidesets to a face, for example, sideset:xxx would add three
@@ -105,7 +104,7 @@ namespace Iogn {
        be on the shell elements; else the sideset will be on the hex
        elements.
 
-       - zdecomp -- argument = n0, n1, n2, ..., n#proc-1 which are the number
+       - `zdecomp` -- argument = n0, n1, n2, ..., n#proc-1 which are the number
        of intervals in the z direction for each processor in a pallel run.
        If this option is specified, then the total number of intervals in the
        z direction is the sum of the n0, n1, ... An interval count must be
@@ -113,15 +112,15 @@ namespace Iogn {
        the number of intervals on each processor in the z direction is
        numZ/numProc with the extras added to the lower numbered processors.
 
-       - scale -- argument = xs, ys, zs which are the scale factors in the x,
+       - `scale` -- argument = xs, ys, zs which are the scale factors in the x,
        y, and z directions. All three must be specified if this option is
        present.
 
-       - offset -- argument = xoff, yoff, zoff which are the offsets in the
+       - `offset` -- argument = xoff, yoff, zoff which are the offsets in the
        x, y, and z directions.  All three must be specified if this option
        is present.
 
-       - bbox -- argument = xmin, ymin, zmin, xmax, ymax, zmax
+       - `bbox` -- argument = xmin, ymin, zmin, xmax, ymax, zmax
        which specify the lower left and upper right corners of
        the bounding box for the generated mesh.  This will
        calculate the scale and offset which will fit the mesh in
@@ -130,8 +129,8 @@ namespace Iogn {
        specified later in the option list, you may not get the
        desired bounding box.
 
-       - rotate -- argument = axis,angle,axis,angle,...
-       where axis is 'x', 'y', or 'z' and angle is the rotation angle in
+       - `rotate` -- argument = axis,angle,axis,angle,...
+       where axis is `x`, `y`, or `z` and angle is the rotation angle in
        degrees. Multiple rotations are cumulative. The composite rotation
        matrix is applied at the time the coordinates are retrieved after
        scaling and offset are applied.
@@ -154,9 +153,7 @@ namespace Iogn {
        output and execution will continue.
 
        An example of valid input is:
-       \code
-       "10x20x40|scale:1,0.5,0.25|offset:-5,-5,-5|shell:xX"
-       \endcode
+       `"10x20x40|scale:1,0.5,0.25|offset:-5,-5,-5|shell:xX"`
 
        This would create a mesh with 10 intervals in x, 20 in y, 40 in z
        The mesh would be centered on 0,0,0 with a range of 10 in each
@@ -172,8 +169,7 @@ namespace Iogn {
     GeneratedMesh();
     GeneratedMesh(const GeneratedMesh &)            = delete;
     GeneratedMesh &operator=(const GeneratedMesh &) = delete;
-
-    virtual ~GeneratedMesh() = default;
+    virtual ~GeneratedMesh()                        = default;
 
     /**
      * Split each hexahedral element into 6 tetrahedral elements.
@@ -255,7 +251,7 @@ namespace Iogn {
 
     /**
      * Set rotation.  Multiple calls are cumulative.
-     * Rotate 'angle_degrees' degrees about the axis 'axis'
+     * Rotate `angle_degrees` degrees about the axis `axis`
      * Center of rotation is about the origin and operates
      * on the scaled/offset coordinates of the mesh.
      */
@@ -264,104 +260,104 @@ namespace Iogn {
     /**
      * Return number of nodes in the entire model.
      */
-    virtual int64_t node_count() const;
+    IOSS_NODISCARD virtual int64_t node_count() const;
 
     /**
      * Return number of nodes on this processor.
      */
-    virtual int64_t node_count_proc() const;
+    IOSS_NODISCARD virtual int64_t node_count_proc() const;
 
     /**
      * Return number of element blocks in the entire model.
      */
-    virtual int block_count() const;
+    IOSS_NODISCARD virtual int block_count() const;
 
     /**
      * Return number of nodesets in the entire model.
      */
-    virtual int nodeset_count() const;
+    IOSS_NODISCARD virtual int nodeset_count() const;
 
     /**
-     * Return number of nodeset nodes on nodeset 'id'
+     * Return number of nodeset nodes on nodeset `id`
      */
-    int64_t nodeset_node_count(int64_t id) const;
+    IOSS_NODISCARD int64_t nodeset_node_count(int64_t id) const;
 
     /**
-     * Return number of nodeset nodes on nodeset 'id' on the current processor
+     * Return number of nodeset nodes on nodeset `id` on the current processor
      */
-    virtual int64_t nodeset_node_count_proc(int64_t id) const;
+    IOSS_NODISCARD virtual int64_t nodeset_node_count_proc(int64_t id) const;
 
     /**
      * Return string (quad4 or tri3) giving face topology of sidesets in model
      */
-    virtual std::string get_sideset_topology() const;
+    IOSS_NODISCARD virtual std::string get_sideset_topology() const;
 
     /**
      * Return number of sidesets in the entire model.
      */
-    virtual int sideset_count() const;
+    IOSS_NODISCARD virtual int sideset_count() const;
 
     /**
-     * Return number of sideset 'sides' on sideset 'id'
+     * Return number of sideset `sides` on sideset `id`
      */
-    int64_t sideset_side_count(int64_t id) const;
+    IOSS_NODISCARD int64_t sideset_side_count(int64_t id) const;
 
     /**
-     * Return number of sideset 'sides' on sideset 'id' on the current
+     * Return number of sideset `sides` on sideset `id` on the current
      * processor.
      */
-    virtual int64_t sideset_side_count_proc(int64_t id) const;
+    IOSS_NODISCARD virtual int64_t sideset_side_count_proc(int64_t id) const;
 
     /**
      * Return number of elements in all element blocks in the model.
      */
-    virtual int64_t element_count() const;
+    IOSS_NODISCARD virtual int64_t element_count() const;
 
     /**
      * Return number of shell elements in all element blocks in the model.
      */
-    int64_t shell_element_count(ShellLocation /*loc*/) const;
+    IOSS_NODISCARD int64_t shell_element_count(ShellLocation /*loc*/) const;
 
     /**
      * Return number of elements in all element blocks on this processor.
      */
-    virtual int64_t element_count_proc() const;
+    IOSS_NODISCARD virtual int64_t element_count_proc() const;
 
     /**
      * Return number of shell elements in all element blocks on this processor.
      */
-    int64_t shell_element_count_proc(ShellLocation /*loc*/) const;
+    IOSS_NODISCARD int64_t shell_element_count_proc(ShellLocation /*loc*/) const;
 
-    int timestep_count() const { return timestepCount; }
+    IOSS_NODISCARD int timestep_count() const { return timestepCount; }
     /**
      * Return number of elements in the element block with id
-     * 'block_number'. The 'block_number' ranges from '1' to
-     * 'block_count()'.
+     * `block_number`. The `block_number` ranges from `1` to
+     * `block_count()`.
      */
-    virtual int64_t element_count(int64_t block_number) const;
+    IOSS_NODISCARD virtual int64_t element_count(int64_t block_number) const;
 
     /**
      * Return number of elements on this processor in the element
-     * block with id 'block_number'. The 'block_number' ranges from
-     * '1' to 'block_count()'.
+     * block with id `block_number`. The `block_number` ranges from
+     * `1` to `block_count()`.
      */
-    virtual int64_t element_count_proc(int64_t block_number) const;
+    IOSS_NODISCARD virtual int64_t element_count_proc(int64_t block_number) const;
 
     /**
      * Returns pair containing "topology type string" and "number of
      * nodes / element". The topology type string will be "hex8" for
      * the hex element block and "shell4" for the shell element blocks.
      */
-    virtual std::pair<std::string, int> topology_type(int64_t block_number) const;
+    IOSS_NODISCARD virtual std::pair<std::string, int> topology_type(int64_t block_number) const;
 
-    void            build_node_map(Ioss::Int64Vector &map, std::vector<int> &proc, int64_t slab,
-                                   size_t slabOffset, size_t adjacentProc, size_t index);
-    virtual int64_t communication_node_count_proc() const;
-    virtual void    node_communication_map(Ioss::Int64Vector &map, std::vector<int> &proc);
-    virtual void    owning_processor(int *owner, int64_t num_node);
+    void build_node_map(Ioss::Int64Vector &map, std::vector<int> &proc, int64_t slab,
+                        size_t slabOffset, size_t adjacentProc, size_t index);
+    IOSS_NODISCARD virtual int64_t communication_node_count_proc() const;
+    virtual void node_communication_map(Ioss::Int64Vector &map, std::vector<int> &proc);
+    virtual void owning_processor(int *owner, int64_t num_node);
 
     /**
-     * Fill the passed in 'map' argument with the node map
+     * Fill the passed in `map` argument with the node map
      * "map[local_position] = global_id" for the nodes on this
      * processor.
      */
@@ -369,7 +365,7 @@ namespace Iogn {
     virtual void node_map(Ioss::IntVector &map) const;
 
     /**
-     * Fill the passed in 'map' argument with the element map
+     * Fill the passed in `map` argument with the element map
      * "map[local_position] = global_id" for the elements on this
      * processor in block "block_number".
      */
@@ -377,7 +373,7 @@ namespace Iogn {
     virtual void element_map(int64_t block_number, Ioss::IntVector &map) const;
 
     /**
-     * Fill the passed in 'map' argument with the element map
+     * Fill the passed in `map` argument with the element map
      * "map[local_position] = global_id" for all elements on this
      * processor
      */
@@ -385,7 +381,7 @@ namespace Iogn {
     virtual void element_map(Ioss::IntVector &map) const;
 
     /**
-     * Fill the passed in 'map' argument with the element map pair
+     * Fill the passed in `map` argument with the element map pair
      * "map[local_position] = element global_id" and
      * "map[local_position+1] = element local face id (0-based)" for
      * all elements on the current processor having a face on the
@@ -395,13 +391,13 @@ namespace Iogn {
 
     /**
      * Return the connectivity for the elements on this processor in
-     * the block with id 'block_number'. If the elements in this block
-     * have 'npe' nodes per element, then the first 'npe' entries in
-     * the 'conn' vector will be the nodal connectivity for the first
-     * element; the next 'npe' entries are the nodal connectivity for
-     * the second element.  The 'connect' vector will be resized to the
+     * the block with id `block_number`. If the elements in this block
+     * have `npe` nodes per element, then the first `npe` entries in
+     * the `conn` vector will be the nodal connectivity for the first
+     * element; the next `npe` entries are the nodal connectivity for
+     * the second element.  The `connect` vector will be resized to the
      * size required to contain the nodal connectivity for the
-     * specified block; all information in 'connect' will be overwritten.
+     * specified block; all information in `connect` will be overwritten.
      */
     void         connectivity(int64_t block_number, Ioss::Int64Vector &connect) const;
     void         connectivity(int64_t block_number, Ioss::IntVector &connect) const;
@@ -410,10 +406,10 @@ namespace Iogn {
 
     /**
      * Return the coordinates for all nodes on this processor.  The
-     * first 3 entries in the 'coord' vector are the x, y, and z
-     * coordinates of the first node, etc.  The 'coord' vector will be
+     * first 3 entries in the `coord` vector are the x, y, and z
+     * coordinates of the first node, etc.  The `coord` vector will be
      * resized to the size required to contain the nodal coordinates;
-     * all information in 'coord' will be overwritten.
+     * all information in `coord` will be overwritten.
      */
     virtual void coordinates(std::vector<double> &coord) const;
     virtual void coordinates(double *coord) const;
@@ -428,7 +424,7 @@ namespace Iogn {
                              std::vector<double> &z) const;
 
     /**
-     * Return the coordinates for componenet 'comp' (1=x, 2=y, 3=z)
+     * Return the coordinates for component `comp` (1=x, 2=y, 3=z)
      * for all nodes on this processor. The
      * vector will be resized to the size required to contain the
      * nodal coordinates; all information in the vector will be
@@ -440,8 +436,8 @@ namespace Iogn {
     virtual void coordinates(int component, double *xyz) const;
 
     /**
-     * Return the list of nodes in nodeset 'id' on this processor.
-     * The 'nodes' vector will be resized to the size required to
+     * Return the list of nodes in nodeset `id` on this processor.
+     * The `nodes` vector will be resized to the size required to
      * contain the node list. The ids are global ids.
      */
     virtual void nodeset_nodes(int64_t id, Ioss::Int64Vector &nodes) const;
@@ -450,20 +446,20 @@ namespace Iogn {
      * Return the list of the face/ordinal pairs
      * "elem_sides[local_position]   = element global_id" and
      * "elem_sides[local_position+1] = element local face id (0-based)"
-     * for the faces in sideset 'id' on this
-     * processor.  The 'elem_sides' vector will be resized to the size
+     * for the faces in sideset `id` on this
+     * processor.  The `elem_sides` vector will be resized to the size
      * required to contain the list. The element ids are global ids,
      * the side ordinal is 0-based.
      */
     virtual void sideset_elem_sides(int64_t id, Ioss::Int64Vector &elem_sides) const;
 
-    virtual std::vector<std::string> sideset_touching_blocks(int64_t set_id) const;
+    virtual Ioss::NameList sideset_touching_blocks(int64_t set_id) const;
 
-    int64_t get_num_x() const { return numX; }
-    int64_t get_num_y() const { return numY; }
-    int64_t get_num_z() const { return numZ; }
+    IOSS_NODISCARD int64_t get_num_x() const { return numX; }
+    IOSS_NODISCARD int64_t get_num_y() const { return numY; }
+    IOSS_NODISCARD int64_t get_num_z() const { return numZ; }
 
-    size_t get_variable_count(Ioss::EntityType type) const
+    IOSS_NODISCARD size_t get_variable_count(Ioss::EntityType type) const
     {
       return variableCount.find(type) != variableCount.end() ? variableCount.find(type)->second : 0;
     }
@@ -474,7 +470,7 @@ namespace Iogn {
     template <typename INT> void raw_connectivity(int64_t block_number, INT *connect) const;
 
     void set_variable_count(const std::string &type, size_t count);
-    void parse_options(const std::vector<std::string> &groups);
+    void parse_options(const Ioss::NameList &groups);
     void show_parameters() const;
     void initialize();
 

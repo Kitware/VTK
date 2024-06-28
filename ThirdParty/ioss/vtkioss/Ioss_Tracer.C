@@ -4,12 +4,11 @@
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_Tracer.h>
-#include <Ioss_Utils.h>
+#include "Ioss_Tracer.h"
+#include "Ioss_Utils.h"
 #include <cassert>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
-#include <iostream>
 
 namespace Ioss {
   int Tracer::level;

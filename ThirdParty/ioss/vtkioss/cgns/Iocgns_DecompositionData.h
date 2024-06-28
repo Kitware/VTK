@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2022 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -8,6 +8,7 @@
 #pragma once
 
 #include "iocgns_export.h"
+#include "vtk_ioss_mangle.h"
 
 #include <vtk_cgns.h> // xxx(kitware)
 #include VTK_CGNS(cgnsconfig.h)
@@ -28,14 +29,14 @@
 #include <cstddef>
 #include <cstdint>
 
-#include <Ioss_CodeTypes.h>
-#include <Ioss_Decomposition.h>
-#include <Ioss_FaceGenerator.h>
-#include <Ioss_Field.h>
-#include <Ioss_MeshType.h>
-#include <Ioss_PropertyManager.h>
-#include <Ioss_StructuredBlock.h>
-#include <cgns/Iocgns_StructuredZoneData.h>
+#include "Ioss_CodeTypes.h"
+#include "Ioss_Decomposition.h"
+#include "Ioss_FaceGenerator.h"
+#include "Ioss_Field.h"
+#include "Ioss_MeshType.h"
+#include "Ioss_PropertyManager.h"
+#include "Ioss_StructuredBlock.h"
+#include "cgns/Iocgns_StructuredZoneData.h"
 
 #include <vtk_cgns.h> // xxx(kitware)
 #include VTK_CGNS(cgnslib.h)
@@ -72,23 +73,23 @@ namespace Iocgns {
     DecompositionDataBase() = default;
 
     virtual ~DecompositionDataBase();
-    virtual void   decompose_model(int filePtr, Ioss::MeshType mesh_type) = 0;
-    virtual size_t ioss_node_count() const                                = 0;
-    virtual size_t ioss_elem_count() const                                = 0;
-    virtual int    int_size() const                                       = 0;
+    virtual void                  decompose_model(int filePtr, Ioss::MeshType mesh_type) = 0;
+    IOSS_NODISCARD virtual size_t ioss_node_count() const                                = 0;
+    IOSS_NODISCARD virtual size_t ioss_elem_count() const                                = 0;
+    IOSS_NODISCARD virtual int    int_size() const                                       = 0;
 
-    virtual int    spatial_dimension() const = 0;
-    virtual size_t global_node_count() const = 0;
-    virtual size_t global_elem_count() const = 0;
+    IOSS_NODISCARD virtual int    spatial_dimension() const = 0;
+    IOSS_NODISCARD virtual size_t global_node_count() const = 0;
+    IOSS_NODISCARD virtual size_t global_elem_count() const = 0;
 
-    virtual size_t decomp_node_offset() const = 0;
-    virtual size_t decomp_node_count() const  = 0;
-    virtual size_t decomp_elem_offset() const = 0;
-    virtual size_t decomp_elem_count() const  = 0;
+    IOSS_NODISCARD virtual size_t decomp_node_offset() const = 0;
+    IOSS_NODISCARD virtual size_t decomp_node_count() const  = 0;
+    IOSS_NODISCARD virtual size_t decomp_elem_offset() const = 0;
+    IOSS_NODISCARD virtual size_t decomp_elem_count() const  = 0;
 
-    virtual std::vector<double> &centroids() = 0;
+    IOSS_NODISCARD virtual std::vector<double> &centroids() = 0;
 
-    virtual size_t get_commset_node_size() const = 0;
+    IOSS_NODISCARD virtual size_t get_commset_node_size() const = 0;
 
     virtual void get_node_coordinates(int filePtr, double *ioss_data,
                                       const Ioss::Field &field) const = 0;
@@ -136,24 +137,51 @@ namespace Iocgns {
     DecompositionData(const Ioss::PropertyManager &props, Ioss_MPI_Comm communicator);
     ~DecompositionData() override = default;
 
-    int int_size() const override { return sizeof(INT); }
+    IOSS_NODISCARD int int_size() const override { return sizeof(INT); }
 
     void decompose_model(int filePtr, Ioss::MeshType mesh_type) override;
 
-    int spatial_dimension() const override { return m_decomposition.m_spatialDimension; }
+    IOSS_NODISCARD int spatial_dimension() const override
+    {
+      return m_decomposition.m_spatialDimension;
+    }
 
-    size_t global_node_count() const override { return m_decomposition.global_node_count(); }
-    size_t global_elem_count() const override { return m_decomposition.global_elem_count(); }
+    IOSS_NODISCARD size_t global_node_count() const override
+    {
+      return m_decomposition.global_node_count();
+    }
+    IOSS_NODISCARD size_t global_elem_count() const override
+    {
+      return m_decomposition.global_elem_count();
+    }
 
-    size_t ioss_node_count() const override { return m_decomposition.ioss_node_count(); }
-    size_t ioss_elem_count() const override { return m_decomposition.ioss_elem_count(); }
+    IOSS_NODISCARD size_t ioss_node_count() const override
+    {
+      return m_decomposition.ioss_node_count();
+    }
+    IOSS_NODISCARD size_t ioss_elem_count() const override
+    {
+      return m_decomposition.ioss_elem_count();
+    }
 
-    size_t decomp_node_offset() const override { return m_decomposition.file_node_offset(); }
-    size_t decomp_node_count() const override { return m_decomposition.file_node_count(); }
-    size_t decomp_elem_offset() const override { return m_decomposition.file_elem_offset(); }
-    size_t decomp_elem_count() const override { return m_decomposition.file_elem_count(); }
+    IOSS_NODISCARD size_t decomp_node_offset() const override
+    {
+      return m_decomposition.file_node_offset();
+    }
+    IOSS_NODISCARD size_t decomp_node_count() const override
+    {
+      return m_decomposition.file_node_count();
+    }
+    IOSS_NODISCARD size_t decomp_elem_offset() const override
+    {
+      return m_decomposition.file_elem_offset();
+    }
+    IOSS_NODISCARD size_t decomp_elem_count() const override
+    {
+      return m_decomposition.file_elem_count();
+    }
 
-    std::vector<double> &centroids() override { return m_decomposition.m_centroids; }
+    IOSS_NODISCARD std::vector<double> &centroids() override { return m_decomposition.m_centroids; }
 
     template <typename T>
     void communicate_element_data(T *file_data, T *ioss_data, size_t comp_count) const
@@ -188,7 +216,7 @@ namespace Iocgns {
 
     void get_node_field(int filePtr, int step, int field_offset, double *data) const;
 
-    size_t get_commset_node_size() const override
+    IOSS_NODISCARD size_t get_commset_node_size() const override
     {
       return m_decomposition.m_nodeCommMap.size() / 2;
     }
@@ -203,13 +231,13 @@ namespace Iocgns {
     void get_sideset_data(int filePtr);
     void generate_zone_shared_nodes(int filePtr, INT min_node, INT max_node);
 
-    bool i_own_node(size_t node)
+    IOSS_NODISCARD bool i_own_node(size_t node)
         const // T/F if node with global index node owned by this processors ioss-decomp.
     {
       return m_decomposition.i_own_node(node);
     }
 
-    bool i_own_elem(size_t elem)
+    IOSS_NODISCARD bool i_own_elem(size_t elem)
         const // T/F if node with global index elem owned by this processors ioss-decomp.
     {
       return m_decomposition.i_own_elem(elem);
@@ -218,12 +246,12 @@ namespace Iocgns {
     // global_index is 1-based index into global list of nodes [1..global_node_count]
     // return value is 1-based index into local list of nodes on this
     // processor (ioss-decomposition)
-    size_t node_global_to_local(size_t global_index) const
+    IOSS_NODISCARD size_t node_global_to_local(size_t global_index) const
     {
       return m_decomposition.node_global_to_local(global_index);
     }
 
-    size_t elem_global_to_local(size_t global_index) const
+    IOSS_NODISCARD size_t elem_global_to_local(size_t global_index) const
     {
       return m_decomposition.elem_global_to_local(global_index);
     }

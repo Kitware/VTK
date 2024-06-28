@@ -1,13 +1,12 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021, 2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
-#include <Ioss_GroupingEntity.h>
-#include <Ioss_Property.h>
-#include <Ioss_Utils.h>
-#include <algorithm>
-#include <cstddef>
+#include "Ioss_GroupingEntity.h"
+#include "Ioss_Property.h"
+#include "Ioss_Utils.h"
+#include <assert.h>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <ostream>
@@ -17,14 +16,14 @@ namespace {
   std::string type_string(Ioss::Property::BasicType type)
   {
     switch (type) {
-    case Ioss::Property::INVALID: return std::string("invalid");
-    case Ioss::Property::REAL: return std::string("real");
-    case Ioss::Property::INTEGER: return std::string("integer");
-    case Ioss::Property::POINTER: return std::string("pointer");
-    case Ioss::Property::STRING: return std::string("string");
-    case Ioss::Property::VEC_INTEGER: return std::string("vector<int>");
-    case Ioss::Property::VEC_DOUBLE: return std::string("vector<double>");
-    default: return std::string("internal error");
+    case Ioss::Property::INVALID: return {"invalid"};
+    case Ioss::Property::REAL: return {"real"};
+    case Ioss::Property::INTEGER: return {"integer"};
+    case Ioss::Property::POINTER: return {"pointer"};
+    case Ioss::Property::STRING: return {"string"};
+    case Ioss::Property::VEC_INTEGER: return {"vector<int>"};
+    case Ioss::Property::VEC_DOUBLE: return {"vector<double>"};
+    default: return {"internal error"};
     }
   }
 
@@ -151,37 +150,46 @@ Ioss::Property::Property(const Ioss::GroupingEntity *ge, std::string name, const
  *
  *  \param[in] from The Ioss::Property to copy
  */
-Ioss::Property::Property(const Ioss::Property &from)
-    : name_(from.name_), type_(from.type_), origin_(from.origin_)
+Ioss::Property::Property(const Ioss::Property& from)
+  : name_(from.name_)
+  , type_(from.type_)
+  , origin_(from.origin_)
 {
-  if (!is_implicit() && type_ == STRING) {
+  if (!is_implicit() && type_ == STRING)
+  {
     data_.sval = new std::string(*(from.data_.sval));
   }
-  else if (!is_implicit() && type_ == VEC_DOUBLE) {
+  else if (!is_implicit() && type_ == VEC_DOUBLE)
+  {
     data_.dvec = new std::vector<double>(*(from.data_.dvec));
   }
-  else if (!is_implicit() && type_ == VEC_INTEGER) {
+  else if (!is_implicit() && type_ == VEC_INTEGER)
+  {
     data_.ivec = new std::vector<int>(*(from.data_.ivec));
   }
-  else {
+  else
+  {
     data_ = from.data_;
   }
 }
 
 Ioss::Property::~Property()
 {
-  if (!is_implicit() && type_ == STRING) {
+  if (!is_implicit() && type_ == STRING)
+  {
     delete data_.sval;
   }
-  else if (!is_implicit() && type_ == VEC_DOUBLE) {
+  else if (!is_implicit() && type_ == VEC_DOUBLE)
+  {
     delete data_.dvec;
   }
-  else if (!is_implicit() && type_ == VEC_INTEGER) {
+  else if (!is_implicit() && type_ == VEC_INTEGER)
+  {
     delete data_.ivec;
   }
 }
 
-Ioss::Property &Ioss::Property::operator=(Ioss::Property rhs)
+Ioss::Property& Ioss::Property::operator=(Ioss::Property rhs)
 {
   std::swap(this->name_, rhs.name_);
   std::swap(this->type_, rhs.type_);
@@ -192,11 +200,15 @@ Ioss::Property &Ioss::Property::operator=(Ioss::Property rhs)
 
 bool Ioss::Property::operator==(const Ioss::Property &rhs) const
 {
-  if (this->name_.compare(rhs.name_) != 0) {
+  if (this->name_ != rhs.name_) {
     return false;
   }
 
   if (this->type_ != rhs.type_) {
+    return false;
+  }
+
+  if (this->origin_ != rhs.origin_) {
     return false;
   }
 
@@ -244,12 +256,11 @@ bool Ioss::Property::operator==(const Ioss::Property &rhs) const
     std::string s_lhs, s_rhs;
     this->get_value(&s_lhs);
     rhs.get_value(&s_rhs);
-    if (s_lhs.compare(s_rhs) != 0) {
+    if (s_lhs != s_rhs) {
       return false;
     }
     break;
   }
-
   return true;
 }
 
@@ -341,84 +352,98 @@ void *Ioss::Property::get_pointer() const
 
 bool Ioss::Property::get_value(int64_t *value) const
 {
-  bool valid_request = type_ == INTEGER ? true : false;
+  bool valid_request = type_ == INTEGER;
   if (is_explicit()) {
+    assert(std::holds_alternative<int64_t>(data_));
     *value = data_.ival;
   }
   else {
-    const Ioss::GroupingEntity *ge       = data_.ge;
-    const Ioss::Property        implicit = ge->get_implicit_property(name_);
-    valid_request                        = implicit.get_value(value);
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = data_.ge;
+    const auto  implicit = ge->get_implicit_property(name_);
+    valid_request        = implicit.get_value(value);
   }
   return valid_request;
 }
 
 bool Ioss::Property::get_value(double *value) const
 {
-  bool valid_request = type_ == REAL ? true : false;
+  bool valid_request = type_ == REAL;
   if (is_explicit()) {
+    assert(std::holds_alternative<double>(data_));
     *value = data_.rval;
   }
   else {
-    const Ioss::GroupingEntity *ge       = data_.ge;
-    const Ioss::Property        implicit = ge->get_implicit_property(name_);
-    valid_request                        = implicit.get_value(value);
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = data_.ge;
+    const auto  implicit = ge->get_implicit_property(name_);
+    valid_request        = implicit.get_value(value);
   }
   return valid_request;
 }
 
 bool Ioss::Property::get_value(std::string *value) const
 {
-  bool valid_request = type_ == STRING ? true : false;
+  bool valid_request = type_ == STRING;
   if (is_explicit()) {
-    *value = *(data_.sval);
+    assert(std::holds_alternative<std::string>(data_));
+    *value = *data_.sval;
   }
   else {
-    const Ioss::GroupingEntity *ge       = data_.ge;
-    const Ioss::Property        implicit = ge->get_implicit_property(name_);
-    valid_request                        = implicit.get_value(value);
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = data_.ge;
+    const auto  implicit = ge->get_implicit_property(name_);
+    valid_request        = implicit.get_value(value);
   }
   return valid_request;
 }
 
 bool Ioss::Property::get_value(std::vector<int> *value) const
 {
-  bool valid_request = type_ == VEC_INTEGER ? true : false;
+  bool valid_request = type_ == VEC_INTEGER;
   if (is_explicit()) {
-    std::copy(data_.ivec->begin(), data_.ivec->end(), std::back_inserter(*value));
+    assert(std::holds_alternative<std::vector<int>>(data_));
+    auto ivec = *data_.ivec;
+    std::copy(ivec.begin(), ivec.end(), std::back_inserter(*value));
   }
   else {
-    const Ioss::GroupingEntity *ge       = data_.ge;
-    const Ioss::Property        implicit = ge->get_implicit_property(name_);
-    valid_request                        = implicit.get_value(value);
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = data_.ge;
+    const auto  implicit = ge->get_implicit_property(name_);
+    valid_request        = implicit.get_value(value);
   }
   return valid_request;
 }
 
 bool Ioss::Property::get_value(std::vector<double> *value) const
 {
-  bool valid_request = type_ == VEC_DOUBLE ? true : false;
+  bool valid_request = type_ == VEC_DOUBLE;
   if (is_explicit()) {
-    std::copy(data_.dvec->begin(), data_.dvec->end(), std::back_inserter(*value));
+    assert(std::holds_alternative<std::vector<double>>(data_));
+    auto dvec = *data_.dvec;
+    std::copy(dvec.begin(), dvec.end(), std::back_inserter(*value));
   }
   else {
-    const Ioss::GroupingEntity *ge       = data_.ge;
-    const Ioss::Property        implicit = ge->get_implicit_property(name_);
-    valid_request                        = implicit.get_value(value);
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = data_.ge;
+    const auto  implicit = ge->get_implicit_property(name_);
+    valid_request        = implicit.get_value(value);
   }
   return valid_request;
 }
 
 bool Ioss::Property::get_value(void *&value) const
 {
-  bool valid_request = type_ == POINTER ? true : false;
+  bool valid_request = type_ == POINTER;
   if (is_explicit()) {
+    assert(std::holds_alternative<void *>(data_));
     value = data_.pval;
   }
   else {
-    const Ioss::GroupingEntity *ge       = data_.ge;
-    const Ioss::Property        implicit = ge->get_implicit_property(name_);
-    valid_request                        = implicit.get_value(value);
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const Ioss::GroupingEntity* ge = data_.ge;
+    const auto  implicit = ge->get_implicit_property(name_);
+    valid_request        = implicit.get_value(value);
   }
   return valid_request;
 }

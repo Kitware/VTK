@@ -4,18 +4,16 @@
 //
 // See packages/seacas/LICENSE for details
 
-#include <exodus/Ioex_DatabaseIO.h> // for Ioex DatabaseIO
-#include <exodus/Ioex_IOFactory.h>  // for Ioex IOFactory
+#include "exodus/Ioex_DatabaseIO.h" // for Ioex DatabaseIO
+#include "exodus/Ioex_IOFactory.h"  // for Ioex IOFactory
 
 #if defined(PARALLEL_AWARE_EXODUS)          // Defined in exodusII.h
-#include <exodus/Ioex_ParallelDatabaseIO.h> // for Ioex ParallelDatabaseIO
+#include "exodus/Ioex_ParallelDatabaseIO.h" // for Ioex ParallelDatabaseIO
 #endif
-#include <tokenize.h>
-
-#include <cstddef> // for nullptr
 #include <vtk_exodusII.h>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
+#include <ostream>
 #include <string> // for string
 
 #include "Ioss_CodeTypes.h" // for Ioss_MPI_Comm
@@ -25,9 +23,6 @@
 #if !defined(NO_PARMETIS_SUPPORT)
 #include <parmetis.h>
 #endif
-namespace Ioss {
-  class DatabaseIO;
-} // namespace Ioss
 
 #if defined(PARALLEL_AWARE_EXODUS)
 namespace {
@@ -65,7 +60,7 @@ namespace Ioex {
     // The "exodus" and "parallel_exodus" databases can both be accessed
     // from this factory.  The "parallel_exodus" is returned only if the following
     // are true:
-    // 0. The db_usage is 'READ_MODEL' (not officially supported for READ_RESTART yet)
+    // 0. The db_usage is an input type.
     // 1. Parallel run with >1 processor
     // 2. There is a DECOMPOSITION_METHOD specified in 'properties'
     // 3. The decomposition method is not "EXTERNAL"
@@ -75,13 +70,13 @@ namespace Ioex {
 
     bool decompose = false;
     if (proc_count > 1) {
-      if (db_usage == Ioss::READ_MODEL || db_usage == Ioss::READ_RESTART) {
+      if (is_input_event(db_usage)) {
         std::string method = check_decomposition_property(properties, db_usage);
         if (!method.empty() && method != "EXTERNAL") {
           decompose = true;
         }
       }
-      else if (db_usage == Ioss::WRITE_RESULTS || db_usage == Ioss::WRITE_RESTART) {
+      else {
         if (check_composition_property(properties, db_usage)) {
           decompose = true;
         }
@@ -129,7 +124,7 @@ namespace {
     if (db_usage == Ioss::READ_MODEL) {
       decomp_property = "MODEL_DECOMPOSITION_METHOD";
     }
-    else if (db_usage == Ioss::READ_RESTART) {
+    else if (db_usage == Ioss::READ_RESTART || db_usage == Ioss::QUERY_TIMESTEPS_ONLY) {
       decomp_property = "RESTART_DECOMPOSITION_METHOD";
     }
 

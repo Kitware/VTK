@@ -1,18 +1,16 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_DatabaseIO.h>
-#include <Ioss_ElementSet.h>
-#include <Ioss_Property.h>
+#include "Ioss_DatabaseIO.h"
+#include "Ioss_ElementSet.h"
+#include "Ioss_Property.h"
 #include <cstddef>
-#include <string>
 #include <vector>
 
 #include "Ioss_EntitySet.h"
-#include "Ioss_GroupingEntity.h"
 
 namespace Ioss {
   class Field;
@@ -44,9 +42,15 @@ int64_t Ioss::ElementSet::internal_put_field_data(const Ioss::Field &field, void
   return get_database()->put_field(this, field, data, data_size);
 }
 
-Ioss::Property Ioss::ElementSet::get_implicit_property(const std::string &my_name) const
+int64_t Ioss::ElementSet::internal_get_zc_field_data(const Field &field, void **data,
+                                                     size_t *data_size) const
 {
-  return Ioss::GroupingEntity::get_implicit_property(my_name);
+  return get_database()->get_zc_field(this, field, data, data_size);
 }
 
-void Ioss::ElementSet::block_membership(std::vector<std::string> & /*block_members*/) {}
+Ioss::Property Ioss::ElementSet::get_implicit_property(const std::string &my_name) const
+{
+  return Ioss::EntitySet::get_implicit_property(my_name);
+}
+
+void Ioss::ElementSet::block_membership(Ioss::NameList & /*block_members*/) {}

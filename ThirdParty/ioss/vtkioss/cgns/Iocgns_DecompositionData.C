@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -7,16 +7,16 @@
 #include <vtk_cgns.h> // xxx(kitware)
 #include VTK_CGNS(cgnsconfig.h)
 #if CG_BUILD_PARALLEL
-#include <cgns/Iocgns_Defines.h>
+#include "cgns/Iocgns_Defines.h"
 
-#include <Ioss_CodeTypes.h>
-#include <Ioss_ParallelUtils.h>
-#include <Ioss_SmartAssert.h>
-#include <Ioss_Sort.h>
-#include <Ioss_StructuredBlock.h>
-#include <Ioss_Utils.h>
-#include <cgns/Iocgns_DecompositionData.h>
-#include <cgns/Iocgns_Utils.h>
+#include "Ioss_CodeTypes.h"
+#include "Ioss_ParallelUtils.h"
+#include "Ioss_SmartAssert.h"
+#include "Ioss_Sort.h"
+#include "Ioss_StructuredBlock.h"
+#include "Ioss_Utils.h"
+#include "cgns/Iocgns_DecompositionData.h"
+#include "cgns/Iocgns_Utils.h"
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/color.h)
 #include VTK_FMT(fmt/format.h)
@@ -141,8 +141,8 @@ namespace {
         std::array<cgsize_t, 6> donor_range;
         Ioss::IJK_t             transform;
 
-        CGCHECK(cg_1to1_read(cgns_file_ptr, base, zone, i + 1, connectname, donorname, range.data(),
-                             donor_range.data(), transform.data()));
+        CGCHECK(cg_1to1_read(cgns_file_ptr, base, zone, i + 1, connectname, donorname, Data(range),
+                             Data(donor_range), Data(transform)));
 
         // Get number of nodes shared with other "previous" zones...
         // A "previous" zone will have a lower zone number this this zone...
@@ -445,14 +445,14 @@ namespace Iocgns {
       std::vector<double> y;
       std::vector<double> z;
 
-      get_file_node_coordinates(filePtr, 0, x.data());
+      get_file_node_coordinates(filePtr, 0, Data(x));
       if (m_decomposition.m_spatialDimension > 1) {
         y.resize(decomp_node_count());
-        get_file_node_coordinates(filePtr, 1, y.data());
+        get_file_node_coordinates(filePtr, 1, Data(y));
       }
       if (m_decomposition.m_spatialDimension > 2) {
         z.resize(decomp_node_count());
-        get_file_node_coordinates(filePtr, 2, z.data());
+        get_file_node_coordinates(filePtr, 2, Data(z));
       }
 
       m_decomposition.calculate_element_centroids(x, y, z);
@@ -565,8 +565,8 @@ namespace Iocgns {
           CGNSIntVector points(npnts);
           CGNSIntVector donors(npnts);
 
-          CGCHECK2(cg_conn_read(filePtr, base, zone, i + 1, points.data(), donor_datatype,
-                                donors.data()));
+          CGCHECK2(
+              cg_conn_read(filePtr, base, zone, i + 1, Data(points), donor_datatype, Data(donors)));
 
           for (int j = 0; j < npnts; j++) {
             // Convert to 0-based global id by subtracting 1 and adding zone.m_nodeOffset
@@ -777,7 +777,7 @@ namespace Iocgns {
 #endif
       block.fileSectionOffset = blk_start;
       CGCHECK2(cgp_elements_read_data(filePtr, base, zone, section, blk_start, blk_end,
-                                      connectivity.data()));
+                                      Data(connectivity)));
       size_t el          = 0;
       INT    zone_offset = block.zoneNodeOffset;
 
@@ -825,8 +825,8 @@ namespace Iocgns {
         CGNSIntVector parent(4 * sset.file_count());
 
         int base = 1; // Only single base supported so far.
-        CGCHECK2(cg_elements_read(filePtr, base, sset.zone(), sset.section(), nodes.data(),
-                                  parent.data()));
+        CGCHECK2(cg_elements_read(filePtr, base, sset.zone(), sset.section(), Data(nodes),
+                                  Data(parent)));
 
         if (parent[0] == 0) {
           // Get rid of 'parent' list -- not used.
@@ -845,11 +845,11 @@ namespace Iocgns {
             std::vector<INT> file_data(blk.fileCount);
             std::iota(file_data.begin(), file_data.end(), blk.fileSectionOffset);
             std::vector<INT> zone_local_zone_global(blk.iossCount);
-            communicate_element_data(file_data.data(), zone_local_zone_global.data(), 1);
+            communicate_element_data(Data(file_data), Data(zone_local_zone_global), 1);
             Ioss::Utils::clear(file_data);
 
             std::vector<INT> connectivity(blk.ioss_count() * blk.nodesPerEntity);
-            get_block_connectivity(filePtr, connectivity.data(), sset.zone() - 1, true);
+            get_block_connectivity(filePtr, Data(connectivity), sset.zone() - 1, true);
 
             auto topo = Ioss::ElementTopology::factory(blk.topologyType, true);
             // Should map the connectivity from cgns to ioss, but only use the lower order which is
@@ -911,7 +911,7 @@ namespace Iocgns {
         }
 
         std::vector<int> has_elems(m_sideSets.size() * m_decomposition.m_processorCount);
-        MPI_Allgather(has_elems_local.data(), has_elems_local.size(), MPI_INT, has_elems.data(),
+        MPI_Allgather(Data(has_elems_local), has_elems_local.size(), MPI_INT, Data(has_elems),
                       has_elems_local.size(), MPI_INT, m_decomposition.m_comm);
 
         for (size_t i = 0; i < m_sideSets.size(); i++) {
@@ -981,18 +981,18 @@ namespace Iocgns {
   {
     std::vector<double> tmp(decomp_node_count());
     if (field.get_name() == "mesh_model_coordinates_x") {
-      get_file_node_coordinates(filePtr, 0, tmp.data());
-      communicate_node_data(tmp.data(), ioss_data, 1);
+      get_file_node_coordinates(filePtr, 0, Data(tmp));
+      communicate_node_data(Data(tmp), ioss_data, 1);
     }
 
     else if (field.get_name() == "mesh_model_coordinates_y") {
-      get_file_node_coordinates(filePtr, 1, tmp.data());
-      communicate_node_data(tmp.data(), ioss_data, 1);
+      get_file_node_coordinates(filePtr, 1, Data(tmp));
+      communicate_node_data(Data(tmp), ioss_data, 1);
     }
 
     else if (field.get_name() == "mesh_model_coordinates_z") {
-      get_file_node_coordinates(filePtr, 2, tmp.data());
-      communicate_node_data(tmp.data(), ioss_data, 1);
+      get_file_node_coordinates(filePtr, 2, Data(tmp));
+      communicate_node_data(Data(tmp), ioss_data, 1);
     }
 
     else if (field.get_name() == "mesh_model_coordinates") {
@@ -1013,8 +1013,8 @@ namespace Iocgns {
       // and 1 communicate_node_data call.
       //
       for (int d = 0; d < m_decomposition.m_spatialDimension; d++) {
-        get_file_node_coordinates(filePtr, d, tmp.data());
-        communicate_node_data(tmp.data(), ioss_tmp.data(), 1);
+        get_file_node_coordinates(filePtr, d, Data(tmp));
+        communicate_node_data(Data(tmp), Data(ioss_tmp), 1);
 
         size_t index = d;
         for (size_t i = 0; i < ioss_node_count(); i++) {
@@ -1063,7 +1063,7 @@ namespace Iocgns {
       offset += count;
       beg = end;
     }
-    communicate_node_data(tmp.data(), ioss_data, 1);
+    communicate_node_data(Data(tmp), ioss_data, 1);
   }
 
   template void DecompositionData<int>::get_sideset_element_side(
@@ -1085,7 +1085,7 @@ namespace Iocgns {
     CGNSIntVector parent(4 * sset.file_count());
 
     CGCHECK2(
-        cg_elements_read(filePtr, base, sset.zone(), sset.section(), nodes.data(), parent.data()));
+        cg_elements_read(filePtr, base, sset.zone(), sset.section(), Data(nodes), Data(parent)));
 
     if (parent[0] == 0) {
       // Get rid of 'parent' list -- not used.
@@ -1100,7 +1100,7 @@ namespace Iocgns {
 
       // TODO: Should we filter down to just corner nodes?
       CGNSIntVector face_nodes(sset.entitylist_map.size() * nodes_per_face);
-      communicate_set_data(nodes.data(), face_nodes.data(), sset, nodes_per_face);
+      communicate_set_data(Data(nodes), Data(face_nodes), sset, nodes_per_face);
 
       // Now, iterate the face connectivity vector and find a match in `m_boundaryFaces`
       size_t offset = 0;
@@ -1166,10 +1166,10 @@ namespace Iocgns {
       }
       auto blk  = m_elementBlocks[sset.zone() - 1];
       auto topo = Ioss::ElementTopology::factory(blk.topologyType, true);
-      Utils::map_cgns_face_to_ioss(topo, sset.file_count(), element_side.data());
+      Utils::map_cgns_face_to_ioss(topo, sset.file_count(), Data(element_side));
       // The above was all on root processor for this side set, now need to send data to other
       // processors that own any of the elements in the sideset.
-      communicate_set_data(element_side.data(), ioss_data, sset, 2);
+      communicate_set_data(Data(element_side), ioss_data, sset, 2);
     }
   }
 
@@ -1188,8 +1188,7 @@ namespace Iocgns {
     CGNSIntVector file_conn(blk.file_count() * blk.nodesPerEntity);
     int           base = 1;
     CGCHECK2(cgp_elements_read_data(filePtr, base, blk.zone(), blk.section(), blk.fileSectionOffset,
-                                    blk.fileSectionOffset + blk.file_count() - 1,
-                                    file_conn.data()));
+                                    blk.fileSectionOffset + blk.file_count() - 1, Data(file_conn)));
 
     if (!raw_ids) {
       // Map from zone-local node numbers to global implicit
@@ -1209,7 +1208,7 @@ namespace Iocgns {
       }
     }
 
-    communicate_block_data(file_conn.data(), data, blk, (size_t)blk.nodesPerEntity);
+    communicate_block_data(Data(file_conn), data, blk, (size_t)blk.nodesPerEntity);
   }
 
 #ifndef DOXYGEN_SKIP_THIS
@@ -1232,14 +1231,14 @@ namespace Iocgns {
     cgsize_t            range_max[1] = {(cgsize_t)(blk.fileSectionOffset + blk.file_count() - 1)};
 
     CGCHECK2(cgp_field_read_data(filePtr, base, blk.zone(), solution_index, field_index, range_min,
-                                 range_max, cgns_data.data()));
+                                 range_max, Data(cgns_data)));
 
-    communicate_block_data(cgns_data.data(), data, blk, (size_t)1);
+    communicate_block_data(Data(cgns_data), data, blk, (size_t)1);
   }
 
   DecompositionDataBase::~DecompositionDataBase()
   {
-    for (auto &zone : m_structuredZones) {
+    for (const auto &zone : m_structuredZones) {
       delete zone;
     }
   }
