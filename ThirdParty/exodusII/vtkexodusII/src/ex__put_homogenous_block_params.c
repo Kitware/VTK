@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2023 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -15,14 +15,14 @@
  * Permits some optimizations and safer for N->1 parallel.
  * Arbitrary  polyhedra are handled in more general routine; not here.
  */
-int ex__put_homogenous_block_params(int exoid, size_t block_count, const struct ex_block *blocks)
+int exi_put_homogenous_block_params(int exoid, size_t block_count, const struct ex_block *blocks)
 {
 
   int  status;
   int  varid, dims[2];
   char errmsg[MAX_ERR_LENGTH];
 
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -133,7 +133,7 @@ int ex__put_homogenous_block_params(int exoid, size_t block_count, const struct 
   }
 
   for (size_t i = 0; i < block_count; i++) {
-    int blk_id_ndx = 1 + ex__inc_file_item(exoid, ex__get_counter_list(blocks[i].type));
+    int blk_id_ndx = 1 + exi_inc_file_item(exoid, exi_get_counter_list(blocks[i].type));
 
     if (blocks[i].num_entry == 0) { /* Is this a NULL element block? */
       continue;
@@ -154,26 +154,26 @@ int ex__put_homogenous_block_params(int exoid, size_t block_count, const struct 
     case EX_EDGE_BLOCK:
       dneblk  = DIM_NUM_ED_IN_EBLK(blk_id_ndx);
       dnnpe   = DIM_NUM_NOD_PER_ED(blk_id_ndx);
-      dnepe   = 0;
-      dnfpe   = 0;
+      dnepe   = NULL;
+      dnfpe   = NULL;
       dnape   = DIM_NUM_ATT_IN_EBLK(blk_id_ndx);
       vblkatt = VAR_EATTRIB(blk_id_ndx);
       vattnam = VAR_NAME_EATTRIB(blk_id_ndx);
       vnodcon = VAR_EBCONN(blk_id_ndx);
-      vedgcon = 0;
-      vfaccon = 0;
+      vedgcon = NULL;
+      vfaccon = NULL;
       break;
     case EX_FACE_BLOCK:
       dneblk  = DIM_NUM_FA_IN_FBLK(blk_id_ndx);
       dnnpe   = DIM_NUM_NOD_PER_FA(blk_id_ndx);
-      dnepe   = 0;
-      dnfpe   = 0;
+      dnepe   = NULL;
+      dnfpe   = NULL;
       dnape   = DIM_NUM_ATT_IN_FBLK(blk_id_ndx);
       vblkatt = VAR_FATTRIB(blk_id_ndx);
       vattnam = VAR_NAME_FATTRIB(blk_id_ndx);
       vnodcon = VAR_FBCONN(blk_id_ndx);
-      vedgcon = 0;
-      vfaccon = 0;
+      vedgcon = NULL;
+      vfaccon = NULL;
       break;
     case EX_ELEM_BLOCK:
       dneblk  = DIM_NUM_EL_IN_BLK(blk_id_ndx);
@@ -266,22 +266,7 @@ int ex__put_homogenous_block_params(int exoid, size_t block_count, const struct 
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex__compress_variable(exoid, varid, 2);
-
-#if defined(PARALLEL_AWARE_EXODUS)
-      /*
-       * There is currently a bug in netcdf-4.5.1-devel and earlier
-       * for partial parallel output of strided arrays in collective
-       * mode for netcdf-4-based output.  If the number of attributes >
-       * 1 and in parallel mode, set the mode to independent.
-       */
-      if (blocks[i].num_attribute > 1) {
-        struct ex__file_item *file = ex__find_file_item(exoid);
-        if (file->is_parallel && file->is_hdf5) {
-          nc_var_par_access(exoid, varid, NC_INDEPENDENT);
-        }
-      }
-#endif
+      exi_compress_variable(exoid, varid, 2);
 
       /* Attribute names... */
       dims[0] = numattrdim;
@@ -295,7 +280,7 @@ int ex__put_homogenous_block_params(int exoid, size_t block_count, const struct 
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-#if NC_HAS_HDF5
+#if defined(EX_CAN_USE_NC_DEF_VAR_FILL)
       int fill = NC_FILL_CHAR;
       nc_def_var_fill(exoid, att_name_varid, 0, &fill);
 #endif
@@ -320,7 +305,7 @@ int ex__put_homogenous_block_params(int exoid, size_t block_count, const struct 
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex__compress_variable(exoid, connid, 1);
+      exi_compress_variable(exoid, connid, 1);
 
       /* store element type as attribute of connectivity variable */
       if ((status = nc_put_att_text(exoid, connid, ATT_NAME_ELB, strlen(blocks[i].topology) + 1,
@@ -360,7 +345,9 @@ int ex__put_homogenous_block_params(int exoid, size_t block_count, const struct 
   }
 
   /* leave define mode  */
-  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = exi_leavedef(exoid, __func__)) != NC_NOERR) {
+    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to exit define mode in file id %d", exoid);
+    ex_err_fn(exoid, __func__, errmsg, status);
     return (EX_FATAL);
   }
 
@@ -382,7 +369,7 @@ int ex__put_homogenous_block_params(int exoid, size_t block_count, const struct 
       */
       size_t count[2];
       size_t start[2];
-      char * text = "";
+      char  *text = "";
 
       count[0] = 1;
       start[1] = 0;
@@ -399,6 +386,6 @@ int ex__put_homogenous_block_params(int exoid, size_t block_count, const struct 
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  ex__leavedef(exoid, __func__);
+  exi_leavedef(exoid, __func__);
   return (EX_FATAL);
 }

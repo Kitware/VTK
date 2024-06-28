@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -7,16 +7,16 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_WARN, ex__comp_ws, etc
+#include "exodusII_int.h" // for EX_WARN, exi_comp_ws, etc
 
 /*!
 \internal
 \ingroup ResultsData
-\note This function is called internally by ex_put_var() to handle
+\note This function is called internally by ex_put_var_time() to handle
 the writing of nodal variable values.
 
-The function ex__put_nodal_var() writes the values of a single nodal
-variable for a single time step. The function ex_put_variable_param()
+The function exi_put_nodal_var_time() writes the values of a single nodal
+variable for multiple time steps. The function ex_put_variable_param()
 must be invoked before this call is made.
 
 Because nodal variables are floating point values, the application
@@ -24,7 +24,7 @@ code must declare the array passed to be the appropriate type
 (float or double) to match the compute word size passed in
 ex_create() or ex_open().
 
-\return In case of an error, ex__put_nodal_var() returns a negative number; a
+\return In case of an error, exi_put_nodal_var() returns a negative number; a
 warning will return a positive number. Possible causes of errors
 include:
   -  data file not properly opened with call to ex_create() or ex_open()
@@ -37,16 +37,18 @@ nodal variables.
 ex_create() or
                               ex_open().
 
-\param[in] time_step          The time step number, as described under
-ex_put_time(). This
-                              is essentially a counter that is incremented when
-results variables
-                              are output. The first time step is 1.
-
 \param[in] nodal_var_index    The index of the nodal variable. The first
 variable has an index of 1.
 
 \param[in] num_nodes          The number of nodal points.
+
+\param[in] beg_time_step      The beginning time step number, as described under ex_put_time().
+                              This is counter that is incremented when results variables
+                              are output. The first time step is 1.
+
+\param[in] end_time_step      The ending time step number, as described under ex_put_time().
+                              This is counter that is incremented when results variables
+                              are output. The first time step is 1.
 
 \param[in]  nodal_var_vals    Array of num_nodes values of the
 nodal_var_index-th nodal
@@ -66,20 +68,20 @@ for (k=1; k <= num_nod_vars; k++) {
       \comment{application code fills in this array}
       nodal_var_vals[j] = 10.0;
    }
-   error = ex_put_nodal_var(exoid, time_step, k, num_nodes,
+   error = ex_put_var_time(exoid, EX_NODAL, k, 0, num_nodes, beg_time_step, end_time_step
                             nodal_var_vals);
 }
 ~~~
 
 */
 
-int ex__put_nodal_var(int exoid, int time_step, int nodal_var_index, int64_t num_nodes,
-                      const void *nodal_var_vals)
+int exi_put_nodal_var_time(int exoid, int nodal_var_index, int64_t num_nodes, int beg_time_step,
+                           int end_time_step, const void *nodal_var_vals)
 
 {
   int    status;
   int    varid;
-  size_t start[3], count[3];
+  size_t start[2], count[2];
   char   errmsg[MAX_ERR_LENGTH];
 
   if ((status = nc_inq_varid(exoid, VAR_NOD_VAR_NEW(nodal_var_index), &varid)) != NC_NOERR) {
@@ -88,15 +90,13 @@ int ex__put_nodal_var(int exoid, int time_step, int nodal_var_index, int64_t num
     ex_err_fn(exoid, __func__, errmsg, status);
     return (EX_WARN);
   }
-  start[0] = --time_step;
+  start[0] = --beg_time_step;
   start[1] = 0;
-  start[2] = 0;
 
-  count[0] = 1;
+  count[0] = end_time_step - beg_time_step;
   count[1] = num_nodes;
-  count[2] = 0;
 
-  if (ex__comp_ws(exoid) == 4) {
+  if (exi_comp_ws(exoid) == 4) {
     status = nc_put_vara_float(exoid, varid, start, count, nodal_var_vals);
   }
   else {

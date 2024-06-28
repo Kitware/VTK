@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex__comp_ws, etc
+#include "exodusII_int.h" // for EX_FATAL, exi_comp_ws, etc
 
 /*!
 \ingroup ResultsData
@@ -54,11 +54,11 @@ int ex_put_time(int exoid, int time_step, const void *time_value)
   int                   varid;
   size_t                start[1];
   char                  errmsg[MAX_ERR_LENGTH];
-  struct ex__file_item *file = NULL;
+  struct exi_file_item *file = NULL;
 
   EX_FUNC_ENTER();
 
-  file = ex__find_file_item(exoid);
+  file = exi_find_file_item(exoid);
   if (!file) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unknown file id %d.", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADFILEID);
@@ -80,7 +80,7 @@ int ex_put_time(int exoid, int time_step, const void *time_value)
   /* store time value */
   start[0] = --time_step;
 
-  if (ex__comp_ws(exoid) == 4) {
+  if (exi_comp_ws(exoid) == 4) {
     status = nc_put_var1_float(exoid, varid, start, time_value);
   }
   else {

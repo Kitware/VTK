@@ -26,7 +26,8 @@
 #include <exodusII.h>     // for ex_err, etc
 #include <exodusII_int.h> // for EX_FATAL, DIM_NUM_BOR_ELEMS, etc
 
-int ex_put_processor_elem_maps(int exoid, void_int *elem_mapi, void_int *elem_mapb, int processor)
+int ex_put_processor_elem_maps(int exoid, const void_int *elem_mapi, const void_int *elem_mapb,
+                               int processor)
 {
   char    ftype[2];
   int     status, dimid, varid;
@@ -38,12 +39,12 @@ int ex_put_processor_elem_maps(int exoid, void_int *elem_mapi, void_int *elem_ma
   /*-----------------------------Execution begins-----------------------------*/
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* Get the file type */
-  if (ex__get_file_type(exoid, ftype) != EX_NOERR) {
+  if (exi_get_file_type(exoid, ftype) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unable to find file type for file ID %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
 

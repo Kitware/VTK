@@ -59,13 +59,13 @@ int ex_get_prop(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, const c
   int    num_props, i, propid;
   int    found = false;
   size_t start[1];
-  char * name;
+  char  *name;
   char   tmpstr[MAX_STR_LENGTH + 1];
 
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -123,9 +123,9 @@ int ex_get_prop(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, const c
   }
 
   /* find index into property array using obj_id; read value from property */
-  /* array at proper index; ex__id_lkup returns an index that is 1-based,   */
+  /* array at proper index; exi_id_lkup returns an index that is 1-based,   */
   /* but netcdf expects 0-based arrays so subtract 1                       */
-  status = ex__id_lkup(exoid, obj_type, obj_id);
+  status = exi_id_lkup(exoid, obj_type, obj_id);
   if (status > 0) {
     start[0] = status - 1;
   }

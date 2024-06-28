@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex__comp_ws, etc
+#include "exodusII_int.h" // for EX_FATAL, exi_comp_ws, etc
 
 /*!
  * reads the coordinates of some of the nodes in the model for the specified component
@@ -38,7 +38,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
   const char *which = "XYZ";
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -66,7 +66,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  if (ex__get_dimension(exoid, DIM_NUM_DIM, "dimensions", &num_dim, &ndimdim, __func__) !=
+  if (exi_get_dimension(exoid, DIM_NUM_DIM, "dimensions", &num_dim, &ndimdim, __func__) !=
       NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -99,7 +99,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
         start[1] = 0;
       }
 
-      if (ex__comp_ws(exoid) == 4) {
+      if (exi_comp_ws(exoid) == 4) {
         status = nc_get_vara_float(exoid, coordid, start, count, coor);
       }
       else {
@@ -132,7 +132,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
         EX_FUNC_LEAVE(EX_FATAL);
       }
 
-      if (ex__comp_ws(exoid) == 4) {
+      if (exi_comp_ws(exoid) == 4) {
         status = nc_get_vara_float(exoid, coordid, start, count, coor);
       }
       else {

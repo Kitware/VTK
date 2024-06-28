@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -48,7 +48,7 @@ int ex_get_loadbal_param(int exoid, void_int *num_int_nodes, void_int *num_bor_n
   char errmsg[MAX_ERR_LENGTH];
   /*-----------------------------Execution begins-----------------------------*/
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -72,12 +72,12 @@ int ex_get_loadbal_param(int exoid, void_int *num_int_nodes, void_int *num_bor_n
   }
 
   /* Check the file version information */
-  if ((dimid = ne__check_file_version(exoid)) != EX_NOERR) {
+  if ((dimid = nei_check_file_version(exoid)) != EX_NOERR) {
     EX_FUNC_LEAVE(dimid);
   }
 
   /* Get the file type */
-  if (ex__get_file_type(exoid, ftype) != EX_NOERR) {
+  if (exi_get_file_type(exoid, ftype) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unable to find file type for file ID %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
 
@@ -479,7 +479,7 @@ int ex_get_loadbal_param(int exoid, void_int *num_int_nodes, void_int *num_bor_n
   /* check if I need to get the dimension of the elemental comm map */
   if (varidx[1] == -1) {
     /* Get the elemental comm map information */
-    if ((status = nc_inq_dimid(exoid, DIM_NUM_E_CMAPS, &dimid)) != NC_NOERR) {
+    if (nc_inq_dimid(exoid, DIM_NUM_E_CMAPS, &dimid) != NC_NOERR) {
       varidx[1] = 0;
     }
     else {

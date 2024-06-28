@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -27,11 +27,9 @@ struct ncvar
 
 static int ex_get_nonstandard_ids(int exoid, ex_entity_type obj_type, void_int *ids)
 {
-  int  status;
-  char errmsg[MAX_ERR_LENGTH];
 
   int64_t               count = 0;
-  struct ex__file_item *file  = ex__find_file_item(exoid);
+  struct exi_file_item *file  = exi_find_file_item(exoid);
   if (file) {
     if (obj_type == EX_ASSEMBLY) {
       count = file->assembly_count;
@@ -58,8 +56,10 @@ static int ex_get_nonstandard_ids(int exoid, ex_entity_type obj_type, void_int *
     }
 
     for (int varid = 0; varid < nvars; varid++) {
+      int status;
       if ((status = nc_inq_var(exoid, varid, var.name, &var.type, &var.ndims, var.dims,
                                &var.natts)) != NC_NOERR) {
+        char errmsg[MAX_ERR_LENGTH];
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get variable parameters in file id %d",
                  exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
@@ -81,6 +81,7 @@ static int ex_get_nonstandard_ids(int exoid, ex_entity_type obj_type, void_int *
           break;
         }
         if (status != NC_NOERR) {
+          char errmsg[MAX_ERR_LENGTH];
           snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get %s ids in file id %d",
                    ex_name_of_object(obj_type), exoid);
           ex_err_fn(exoid, __func__, errmsg, status);
@@ -94,13 +95,12 @@ static int ex_get_nonstandard_ids(int exoid, ex_entity_type obj_type, void_int *
 
 int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
 {
-  int  varid, status;
-  char errmsg[MAX_ERR_LENGTH];
+  int varid, status;
 
   const char *varidobj;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -124,13 +124,17 @@ int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
   case EX_FACE_MAP: varidobj = VAR_FAM_PROP(1); break;
   case EX_ELEM_MAP: varidobj = VAR_EM_PROP(1); break;
   default: /* invalid variable type */
+  {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid type specified in file id %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
+  }
 
   /* Determine if there are any 'obj-type' objects */
-  if ((status = nc_inq_dimid(exoid, ex__dim_num_objects(obj_type), &varid)) != NC_NOERR) {
+  if ((status = nc_inq_dimid(exoid, exi_dim_num_objects(obj_type), &varid)) != NC_NOERR) {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no %s defined in file id %d",
              ex_name_of_object(obj_type), exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
@@ -139,6 +143,7 @@ int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
 
   /* inquire id's of previously defined dimensions and variables  */
   if ((status = nc_inq_varid(exoid, varidobj, &varid)) != NC_NOERR) {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate %s ids variable in file id %d",
              ex_name_of_object(obj_type), exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
@@ -154,6 +159,7 @@ int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
   }
 
   if (status != NC_NOERR) {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to return %s ids in file id %d",
              ex_name_of_object(obj_type), exoid);
     ex_err_fn(exoid, __func__, errmsg, status);

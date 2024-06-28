@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021, 2023, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -128,6 +128,7 @@ exoid = ex_create ("test.exo"       \comment{filename path}
 
 #include "exodusII_int.h"
 #include <vtk_mpi.h>
+#include <stdlib.h>
 
 /* NOTE: Do *not* call `ex_create_par_int()` directly.  The public API
  *       function name is `ex_create_par()` which is a wrapper that calls
@@ -157,46 +158,81 @@ int ex_create_par_int(const char *path, int cmode, int *comp_ws, int *io_ws, MPI
   EX_FUNC_LEAVE(EX_FATAL);
 #endif
 
+  if (!path || strlen(path) == 0) {
+    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Filename is not specified.");
+    ex_err(__func__, errmsg, EX_BADFILEMODE);
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
+
+  char *canon_path = exi_canonicalize_filename(path);
+
   /* Verify that this file is not already open for read or write...
      In theory, should be ok for the file to be open multiple times
      for read, but bad things can happen if being read and written
      at the same time...
   */
-  if (ex__check_multiple_open(path, EX_WRITE, __func__)) {
+  if (exi_check_multiple_open(canon_path, EX_WRITE, __func__)) {
+    free(canon_path);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  nc_mode = ex__handle_mode(my_mode, is_parallel, run_version);
+  nc_mode = exi_handle_mode(my_mode, is_parallel, run_version);
 
-  if ((status = nc_create_par(path, nc_mode, comm, info, &exoid)) != NC_NOERR) {
+#if defined NC_NOATTCREORD
+  /* Disable attribute creation order tracking if available... */
+  if (my_mode & EX_NETCDF4) {
+    nc_mode |= NC_NOATTCREORD;
+  }
+#endif
+
+#if defined NC_NODIMSCALE_ATTACH
+  /* Disable attaching dimscales to variables (netcdf-c issue #2128) if available */
+  if (my_mode & EX_NETCDF4) {
+    nc_mode |= NC_NODIMSCALE_ATTACH;
+  }
+#endif
+
+  /* There is an issue on some versions of mpi that limit the length of the path to <250 characters
+   * Check for that here and use `path` if `canon_path` is >=250 characters...
+   */
+  if (strlen(canon_path) >= 250) {
+    status = nc_create_par(path, nc_mode, comm, info, &exoid);
+  }
+  else {
+    status = nc_create_par(canon_path, nc_mode, comm, info, &exoid);
+  }
+  if (status != NC_NOERR) {
     if (my_mode & EX_NETCDF4) {
 #if NC_HAS_PARALLEL4
-      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: file create failed for %s.", path);
+      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: file create failed for %s.", canon_path);
 #else
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: file create failed for %s in NetCDF-4 "
                "mode.\n\tThis library does not support parallel NetCDF-4 files (HDF5-based).",
-               path);
+               canon_path);
 #endif
     }
     else {
 #if NC_HAS_PNETCDF
-      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: file create failed for %s", path);
+      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: file create failed for %s", canon_path);
 #else
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: file create failed for %s in PnetCDF "
                "mode.\n\tThis library does not provide PnetCDF support.",
-               path);
+               canon_path);
 #endif
     }
     ex_err(__func__, errmsg, status);
+    free(canon_path);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  status = ex__populate_header(exoid, path, my_mode, is_parallel, comp_ws, io_ws);
+  status = exi_populate_header(exoid, canon_path, my_mode, is_parallel, comp_ws, io_ws);
   if (status != EX_NOERR) {
+    free(canon_path);
     EX_FUNC_LEAVE(status);
   }
+  free(canon_path);
   EX_FUNC_LEAVE(exoid);
 }
 #else
@@ -204,5 +240,5 @@ int ex_create_par_int(const char *path, int cmode, int *comp_ws, int *io_ws, MPI
  * Prevent warning in some versions of ranlib(1) because the object
  * file has no symbols.
  */
-const char exodus_unused_symbol_dummy_ex_create_par;
+extern const char exodus_unused_symbol_dummy_ex_create_par;
 #endif

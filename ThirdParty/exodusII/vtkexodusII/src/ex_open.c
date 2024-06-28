@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2023 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -27,6 +27,7 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, etc
+#include <stdlib.h>
 /*!
 \ingroup Utilities
 
@@ -101,13 +102,11 @@ exoid = ex_open ("test.exo",     \co{filename path}
 int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *version,
                 int run_version)
 {
-  int     exoid  = -1;
-  int     status = 0, stat_att = 0, stat_dim = 0;
+  int     exoid         = -1;
+  int     status        = 0;
   nc_type att_type      = NC_NAT;
-  size_t  att_len       = 0;
   int     old_fill      = 0;
   int     file_wordsize = 0;
-  int     dim_str_name  = 0;
   int     int64_status  = 0;
   int     nc_mode       = 0;
 
@@ -119,7 +118,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
   /* set error handling mode to no messages, non-fatal errors */
   ex_opts(exoptval); /* call required to set ncopts first time through */
 
-  ex__check_version(run_version);
+  exi_check_version(run_version);
 
   if ((mode & EX_READ) && (mode & EX_WRITE)) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Cannot specify both EX_READ and EX_WRITE");
@@ -127,12 +126,21 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  if (!path || strlen(path) == 0) {
+    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Filename is not specified.");
+    ex_err(__func__, errmsg, EX_BADFILEMODE);
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
+
+  char *canon_path = exi_canonicalize_filename(path);
+
   /* Verify that this file is not already open for read or write...
      In theory, should be ok for the file to be open multiple times
      for read, but bad things can happen if being read and written
      at the same time...
   */
-  if (ex__check_multiple_open(path, mode, __func__)) {
+  if (exi_check_multiple_open(canon_path, mode, __func__)) {
+    free(canon_path);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -146,7 +154,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
     }
 #endif
 
-    if ((status = nc_open(path, nc_mode, &exoid)) != NC_NOERR) {
+    if ((status = nc_open(canon_path, nc_mode, &exoid)) != NC_NOERR) {
       /* NOTE: netCDF returns an id of -1 on an error - but no error code! */
       /* It is possible that the user is trying to open a netcdf4
          file, but the netcdf4 capabilities aren't available in the
@@ -168,7 +176,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
       int type = 0;
       ex_opts(EX_VERBOSE);
 
-      ex__check_file_type(path, &type);
+      exi_check_file_type(canon_path, &type);
 
       if (type == 0) {
         /* Error message printed at lower level */
@@ -180,7 +188,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
                  "file:\n\t'%s'\n\tfailed. The netcdf library supports "
                  "netcdf-4 so there must be a filesystem or some other "
                  "issue.\n",
-                 path);
+                 canon_path);
         ex_err(__func__, errmsg, status);
 #else
         /* This is an hdf5 (netcdf4) file. If NC_HAS_HDF5 is not defined,
@@ -196,7 +204,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
                  "file:\n\t'%s'.\n\tEither the netcdf library does not "
                  "support netcdf-4 or there is a filesystem or some "
                  "other issue.\n",
-                 path);
+                 canon_path);
         ex_err(__func__, errmsg, status);
 #endif
       }
@@ -207,7 +215,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
                  "file:\n\t'%s'\n\tfailed. The netcdf library supports "
                  "CDF5-type files so there must be a filesystem or some other "
                  "issue \n",
-                 path);
+                 canon_path);
         ex_err(__func__, errmsg, status);
 #else
         /* This is an cdf5 (64BIT_DATA) file. If NC_64BIT_DATA is not defined,
@@ -223,33 +231,34 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
                  "file:\n\t'%s'.\n\tEither the netcdf library does not "
                  "support CDF5 or there is a filesystem or some "
                  "other issue \n",
-                 path);
+                 canon_path);
         ex_err(__func__, errmsg, status);
 
 #endif
       }
       else if (type == 1) {
-	/* Possibly an issue with an older file created by a Java-based NetCDF library which wrote
-	 * corrupted data which is now being checked by newer releases of the NetCDF library...
-	 * SEE: https://github.com/Unidata/netcdf-c/issues/1115
-	 */
-      snprintf(errmsg, MAX_ERR_LENGTH,
-               "ERROR: failed to open '%s' of type %d for reading.\n"
-	       "\t\tIf this is an old file, it is possible that it has some internal corruption\n"
-	       "\t\tthat is now being checked by recent versions of the NetCDF library.\n"
-	       "\t\tTo fix, you can find an older version of `nccopy` (prior to 4.6.0)\n"
-               "\t\tthen try `nccopy bad_file.g fixed_file.g`.",
-               path, type);
-      ex_err(__func__, errmsg, status);
-      EX_FUNC_LEAVE(EX_FATAL);
-
+        /* Possibly an issue with an older file created by a Java-based NetCDF library which wrote
+         * corrupted data which is now being checked by newer releases of the NetCDF library...
+         * SEE: https://github.com/Unidata/netcdf-c/issues/1115
+         */
+        snprintf(errmsg, MAX_ERR_LENGTH,
+                 "ERROR: failed to open '%s' of type %d for reading.\n"
+                 "\t\tIf this is an old file, it is possible that it has some internal corruption\n"
+                 "\t\tthat is now being checked by recent versions of the NetCDF library.\n"
+                 "\t\tTo fix, you can find an older version of `nccopy` (prior to 4.6.0)\n"
+                 "\t\tthen try `nccopy bad_file.g fixed_file.g`.",
+                 canon_path, type);
+        ex_err(__func__, errmsg, status);
+        free(canon_path);
+        EX_FUNC_LEAVE(EX_FATAL);
       }
       snprintf(errmsg, MAX_ERR_LENGTH,
-               "ERROR: failed to open %s of type %d for reading. Either "
+               "ERROR: failed to open %s of type %d for reading.\n\tEither "
                "the file does not exist,\n\tor there is a permission or file "
                "format issue.",
-               path, type);
+               canon_path, type);
       ex_err(__func__, errmsg, status);
+      free(canon_path);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }
@@ -263,32 +272,37 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
 #endif
     }
 #endif
-    if ((status = nc_open(path, nc_mode, &exoid)) != NC_NOERR) {
+    if ((status = nc_open(canon_path, nc_mode, &exoid)) != NC_NOERR) {
       /* NOTE: netCDF returns an id of -1 on an error - but no error code! */
       snprintf(errmsg, MAX_ERR_LENGTH,
-               "ERROR: failed to open %s for read/write. Either the file "
+               "ERROR: failed to open %s for read/write.\n\tEither the file "
                "does not exist,\n\tor there is a permission or file format "
                "issue.",
-               path);
+               canon_path);
       ex_err(__func__, errmsg, status);
+      free(canon_path);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
     /* turn off automatic filling of netCDF variables */
     if ((status = nc_set_fill(exoid, NC_NOFILL, &old_fill)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to set nofill mode in file id %d named %s",
-               exoid, path);
+               exoid, canon_path);
       ex_err_fn(exoid, __func__, errmsg, status);
+      free(canon_path);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
-    stat_att = nc_inq_att(exoid, NC_GLOBAL, ATT_MAX_NAME_LENGTH, &att_type, &att_len);
-    stat_dim = nc_inq_dimid(exoid, DIM_STR_NAME, &dim_str_name);
+    size_t att_len      = 0;
+    int    stat_att     = nc_inq_att(exoid, NC_GLOBAL, ATT_MAX_NAME_LENGTH, &att_type, &att_len);
+    int    dim_str_name = 0;
+    int    stat_dim     = nc_inq_dimid(exoid, DIM_STR_NAME, &dim_str_name);
     if (stat_att != NC_NOERR || stat_dim != NC_NOERR) {
       if ((status = nc_redef(exoid)) != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH,
-                 "ERROR: failed to place file id %d named %s into define mode", exoid, path);
+                 "ERROR: failed to place file id %d named %s into define mode", exoid, canon_path);
         ex_err_fn(exoid, __func__, errmsg, status);
+        free(canon_path);
         EX_FUNC_LEAVE(EX_FATAL);
       }
 
@@ -299,6 +313,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
           snprintf(errmsg, MAX_ERR_LENGTH,
                    "ERROR: failed to add maximum_name_length attribute in file id %d", exoid);
           ex_err_fn(exoid, __func__, errmsg, status);
+          free(canon_path);
           EX_FUNC_LEAVE(EX_FATAL);
         }
       }
@@ -307,16 +322,20 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
        * add it now. */
       if (stat_dim != NC_NOERR) {
         /* Not found; set to default value of 32+1. */
-        int max_name = ex__default_max_name_length < 32 ? 32 : ex__default_max_name_length;
+        int max_name = exi_default_max_name_length < 32 ? 32 : exi_default_max_name_length;
         if ((status = nc_def_dim(exoid, DIM_STR_NAME, max_name + 1, &dim_str_name)) != NC_NOERR) {
           snprintf(errmsg, MAX_ERR_LENGTH,
                    "ERROR: failed to define string name dimension in file id %d named %s", exoid,
-                   path);
+                   canon_path);
           ex_err_fn(exoid, __func__, errmsg, status);
+          free(canon_path);
           EX_FUNC_LEAVE(EX_FATAL);
         }
       }
-      if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
+      if ((status = exi_leavedef(exoid, __func__)) != NC_NOERR) {
+        snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to exit define mode in file id %d", exoid);
+        ex_err_fn(exoid, __func__, errmsg, status);
+        free(canon_path);
         EX_FUNC_LEAVE(EX_FATAL);
       }
     }
@@ -330,6 +349,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get database version for file id: %d",
              exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
+    free(canon_path);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -338,6 +358,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Unsupported file version %.2f in file id: %d",
              *version, exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+    free(canon_path);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -348,6 +369,7 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get file wordsize from file id: %d",
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
+      free(canon_path);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }
@@ -372,26 +394,30 @@ int ex_open_int(const char *path, int mode, int *comp_ws, int *io_ws, float *ver
      not know that file was closed and possibly new file opened for
      this exoid
   */
-  if (ex__find_file_item(exoid) != NULL) {
+  if (exi_find_file_item(exoid) != NULL) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: There is an existing file already using the file "
              "id %d which was also assigned to file %s.\n\tWas "
              "nc_close() called instead of ex_close() on an open Exodus "
              "file?\n",
-             exoid, path);
+             exoid, canon_path);
     ex_err_fn(exoid, __func__, errmsg, EX_BADFILEID);
     nc_close(exoid);
+    free(canon_path);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* initialize floating point and integer size conversion. */
-  if (ex__conv_init(exoid, comp_ws, io_ws, file_wordsize, int64_status, false, false, false,
+  if (exi_conv_init(exoid, comp_ws, io_ws, file_wordsize, int64_status, false, false, false,
                     mode & EX_WRITE) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH,
-             "ERROR: failed to initialize conversion routines in file id %d named %s", exoid, path);
+             "ERROR: failed to initialize conversion routines in file id %d named %s", exoid,
+             canon_path);
     ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
+    free(canon_path);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  free(canon_path);
   EX_FUNC_LEAVE(exoid);
 }

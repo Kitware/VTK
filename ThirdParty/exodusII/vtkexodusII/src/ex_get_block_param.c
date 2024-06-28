@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -36,7 +36,6 @@
 int ex_get_block_param(int exoid, ex_block *block)
 {
   int         dimid, connid, blk_id_ndx;
-  size_t      len, i;
   char        errmsg[MAX_ERR_LENGTH];
   int         status;
   const char *dnument = NULL;
@@ -47,11 +46,9 @@ int ex_get_block_param(int exoid, ex_block *block)
   const char *ablknam = NULL;
   const char *vblkcon = NULL;
 
-  struct ex__file_item *file = NULL;
-
   EX_FUNC_ENTER();
 
-  file = ex__find_file_item(exoid);
+  struct exi_file_item *file = exi_find_file_item(exoid);
   if (!file) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unknown file id %d in ex_get_block_param().", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADFILEID);
@@ -59,7 +56,7 @@ int ex_get_block_param(int exoid, ex_block *block)
   }
 
   /* First, locate index of element block id in VAR_ID_EL_BLK array */
-  blk_id_ndx = ex__id_lkup(exoid, block->type, block->id);
+  blk_id_ndx = exi_id_lkup(exoid, block->type, block->id);
   if (blk_id_ndx <= 0) {
     ex_get_err(NULL, NULL, &status);
     if (status != 0) {
@@ -84,8 +81,8 @@ int ex_get_block_param(int exoid, ex_block *block)
   case EX_EDGE_BLOCK:
     dnument = DIM_NUM_ED_IN_EBLK(blk_id_ndx);
     dnumnod = DIM_NUM_NOD_PER_ED(blk_id_ndx);
-    dnumedg = 0;
-    dnumfac = 0;
+    dnumedg = NULL;
+    dnumfac = NULL;
     dnumatt = DIM_NUM_ATT_IN_EBLK(blk_id_ndx);
     vblkcon = VAR_EBCONN(blk_id_ndx);
     ablknam = ATT_NAME_ELB;
@@ -93,8 +90,8 @@ int ex_get_block_param(int exoid, ex_block *block)
   case EX_FACE_BLOCK:
     dnument = DIM_NUM_FA_IN_FBLK(blk_id_ndx);
     dnumnod = DIM_NUM_NOD_PER_FA(blk_id_ndx);
-    dnumedg = 0; /* it is possible this might be non-NULL some day */
-    dnumfac = 0;
+    dnumedg = NULL; /* it is possible this might be non-NULL some day */
+    dnumfac = NULL;
     dnumatt = DIM_NUM_ATT_IN_FBLK(blk_id_ndx);
     vblkcon = VAR_FBCONN(blk_id_ndx);
     ablknam = ATT_NAME_ELB;
@@ -124,6 +121,7 @@ int ex_get_block_param(int exoid, ex_block *block)
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  size_t len;
   if ((status = nc_inq_dimlen(exoid, dimid, &len)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to get number of %ss in block  %" PRId64 " in file id %d",
@@ -243,7 +241,7 @@ int ex_get_block_param(int exoid, ex_block *block)
       ex_err_fn(exoid, __func__, errmsg, EX_MSG);
     }
 
-    for (i = 0; i < MAX_STR_LENGTH + 1; i++) {
+    for (int i = 0; i < MAX_STR_LENGTH + 1; i++) {
       block->topology[i] = '\0';
 
       /* get the element type name */
@@ -256,7 +254,7 @@ int ex_get_block_param(int exoid, ex_block *block)
     }
 
     /* get rid of trailing blanks */
-    ex__trim(block->topology);
+    exi_trim(block->topology);
   }
   EX_FUNC_LEAVE(EX_NOERR);
 }

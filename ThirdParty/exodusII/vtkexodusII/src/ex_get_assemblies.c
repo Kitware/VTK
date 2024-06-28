@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -13,13 +13,13 @@
  * writes the assembly parameters and optionally assembly data for all assemblies
  * assumes that `assembly` is large enough to contain all assemblies.
  * \param   exoid                   exodus file id
- * \param  *assembly                array of ex_assembly structures
+ * \param   assembly                array of ex_assembly structures
  */
 int ex_get_assemblies(int exoid, ex_assembly *assembly)
 {
   /* Determine number of assemblies on database */
-  int num_assembly        = ex_inquire_int(exoid, EX_INQ_ASSEMBLY);
-  int max_use_name_length = ex_inquire_int(exoid, EX_INQ_DB_MAX_USED_NAME_LENGTH);
+  int num_assembly        = (int)ex_inquire_int(exoid, EX_INQ_ASSEMBLY);
+  int max_use_name_length = (int)ex_inquire_int(exoid, EX_INQ_DB_MAX_USED_NAME_LENGTH);
 
   if (num_assembly < 0) {
     char errmsg[MAX_ERR_LENGTH];

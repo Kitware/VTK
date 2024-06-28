@@ -37,12 +37,12 @@ int ex_get_processor_elem_maps(int exoid, void_int *elem_mapi, void_int *elem_ma
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* Get the file type */
-  if (ex__get_file_type(exoid, ftype) != EX_NOERR) {
+  if (exi_get_file_type(exoid, ftype) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unable to find file type for file ID %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
 

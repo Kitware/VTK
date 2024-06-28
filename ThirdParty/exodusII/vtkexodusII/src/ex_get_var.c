@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, ex_name_of_object, etc
-#include "exodusII_int.h" // for ex__check_valid_file_id, etc
+#include "exodusII_int.h" // for exi_check_valid_file_id, etc
 
 /*!
 \ingroup ResultsData
@@ -68,79 +68,6 @@ error = ex_get_var (idexo, time_step, EX_ELEM_BLOCK, var_index, blk_id,
 int ex_get_var(int exoid, int time_step, ex_entity_type var_type, int var_index,
                ex_entity_id obj_id, int64_t num_entry_this_obj, void *var_vals)
 {
-  int    status;
-  int    varid, obj_id_ndx;
-  size_t start[2], count[2];
-  char   errmsg[MAX_ERR_LENGTH];
-
-  EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
-    EX_FUNC_LEAVE(EX_FATAL);
-  }
-
-  if (var_type == EX_NODAL) {
-    /* FIXME: Special case: ignore obj_id, possible large_file complications,
-     * etc. */
-    status = ex__get_nodal_var(exoid, time_step, var_index, num_entry_this_obj, var_vals);
-    EX_FUNC_LEAVE(status);
-  }
-  if (var_type == EX_GLOBAL) {
-    /* FIXME: Special case: all vars stored in 2-D single array. */
-    status = ex__get_glob_vars(exoid, time_step, num_entry_this_obj, var_vals);
-    EX_FUNC_LEAVE(status);
-  }
-
-  /* Determine index of obj_id in VAR_ID_EL_BLK array */
-  obj_id_ndx = ex__id_lkup(exoid, var_type, obj_id);
-  if (obj_id_ndx <= 0) {
-    ex_get_err(NULL, NULL, &status);
-
-    if (status != 0) {
-      if (status == EX_NULLENTITY) {
-        snprintf(errmsg, MAX_ERR_LENGTH,
-                 "Warning: no %s variables for NULL block %" PRId64 " in file id %d",
-                 ex_name_of_object(var_type), obj_id, exoid);
-        ex_err_fn(exoid, __func__, errmsg, EX_NULLENTITY);
-        EX_FUNC_LEAVE(EX_WARN);
-      }
-      snprintf(errmsg, MAX_ERR_LENGTH,
-               "ERROR: failed to locate %s id %" PRId64 " in id variable in file id %d",
-               ex_name_of_object(var_type), obj_id, exoid);
-      ex_err_fn(exoid, __func__, errmsg, status);
-      EX_FUNC_LEAVE(EX_FATAL);
-    }
-  }
-
-  /* inquire previously defined variable */
-
-  if ((status = nc_inq_varid(exoid, ex__name_var_of_object(var_type, var_index, obj_id_ndx),
-                             &varid)) != NC_NOERR) {
-    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate %s %" PRId64 " var %d in file id %d",
-             ex_name_of_object(var_type), obj_id, var_index, exoid);
-    ex_err_fn(exoid, __func__, errmsg, status);
-    EX_FUNC_LEAVE(EX_FATAL);
-  }
-
-  /* read values of element variable */
-  start[0] = --time_step;
-  start[1] = 0;
-
-  count[0] = 1;
-  count[1] = num_entry_this_obj;
-
-  if (ex__comp_ws(exoid) == 4) {
-    status = nc_get_vara_float(exoid, varid, start, count, var_vals);
-  }
-  else {
-    status = nc_get_vara_double(exoid, varid, start, count, var_vals);
-  }
-
-  if (status != NC_NOERR) {
-    snprintf(errmsg, MAX_ERR_LENGTH,
-             "ERROR: failed to get %s %" PRId64 " variable %d in file id %d",
-             ex_name_of_object(var_type), obj_id, var_index, exoid);
-    ex_err_fn(exoid, __func__, errmsg, status);
-    EX_FUNC_LEAVE(EX_FATAL);
-  }
-  EX_FUNC_LEAVE(EX_NOERR);
+  return ex_get_var_multi_time(exoid, var_type, var_index, obj_id, num_entry_this_obj, time_step,
+                               time_step, var_vals);
 }

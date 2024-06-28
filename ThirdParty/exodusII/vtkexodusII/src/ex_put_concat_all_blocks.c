@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022, 2023 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -41,9 +41,6 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
   int    elem_work = 0; /* is DIM_NUM_EL_BLK defined? If so, there's work to do */
   int    edge_work = 0; /* is DIM_NUM_ED_BLK defined? If so, there's work to do */
   int    face_work = 0; /* is DIM_NUM_FA_BLK defined? If so, there's work to do */
-#if NC_HAS_HDF5
-  int fill = NC_FILL_CHAR;
-#endif
 
   int *edge_id_int = NULL;
   int *face_id_int = NULL;
@@ -88,7 +85,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
     elem_id_int = param->elem_blk_id;
   }
 
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -214,7 +211,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-#if NC_HAS_HDF5
+#if defined(EX_CAN_USE_NC_DEF_VAR_FILL)
 #define EX_PREPARE_ATTRIB_ARRAY(TNAME, CURBLK, DNAME, DVAL, ID, VANAME, VADIM0, VADIM1, VANNAME)   \
   if (DVAL[iblk] > 0) {                                                                            \
     if ((status = nc_def_dim(exoid, DNAME(CURBLK + 1), DVAL[iblk], &VADIM1)) != NC_NOERR) {        \
@@ -238,7 +235,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       ex_err_fn(exoid, __func__, errmsg, status);                                                  \
       goto error_ret; /* exit define mode and return */                                            \
     }                                                                                              \
-    ex__compress_variable(exoid, temp, 2);                                                         \
+    exi_compress_variable(exoid, temp, 2);                                                         \
                                                                                                    \
     /* Attribute names... */                                                                       \
     dims[0] = VADIM1;                                                                              \
@@ -250,6 +247,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       ex_err_fn(exoid, __func__, errmsg, status);                                                  \
       goto error_ret; /* exit define mode and return */                                            \
     }                                                                                              \
+    int fill = NC_FILL_CHAR;                                                                       \
     nc_def_var_fill(exoid, temp, 0, &fill);                                                        \
   }
 #else
@@ -276,7 +274,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       ex_err_fn(exoid, __func__, errmsg, status);                                                  \
       goto error_ret; /* exit define mode and return */                                            \
     }                                                                                              \
-    ex__compress_variable(exoid, temp, 2);                                                         \
+    exi_compress_variable(exoid, temp, 2);                                                         \
                                                                                                    \
     /* Attribute names... */                                                                       \
     dims[0] = VADIM1;                                                                              \
@@ -309,7 +307,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       ex_err_fn(exoid, __func__, errmsg, status);                                                  \
       goto error_ret; /* exit define mode and return */                                            \
     }                                                                                              \
-    ex__compress_variable(exoid, connid, 1);                                                       \
+    exi_compress_variable(exoid, connid, 1);                                                       \
   }
 
   /* Iterate over edge blocks ... */
@@ -322,7 +320,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       eb_id = edge_id_int[iblk];
     }
 
-    cur_num_edge_blk = ex__get_file_item(exoid, ex__get_counter_list(EX_EDGE_BLOCK));
+    cur_num_edge_blk = exi_get_file_item(exoid, exi_get_counter_list(EX_EDGE_BLOCK));
     if (cur_num_edge_blk >= (int)num_edge_blk) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: exceeded number of edge blocks (%ld) defined in file id %d",
@@ -331,9 +329,9 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       goto error_ret;
     }
 
-    /* NOTE: ex__inc_file_item  is used to find the number of edge blocks
+    /* NOTE: exi_inc_file_item  is used to find the number of edge blocks
        for a specific file and returns that value incremented. */
-    cur_num_edge_blk = ex__inc_file_item(exoid, ex__get_counter_list(EX_EDGE_BLOCK));
+    cur_num_edge_blk = exi_inc_file_item(exoid, exi_get_counter_list(EX_EDGE_BLOCK));
 
     if (param->num_edge_this_blk[iblk] == 0) { /* Is this a NULL edge block? */
       continue;
@@ -390,7 +388,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       fb_id = face_id_int[iblk];
     }
 
-    cur_num_face_blk = ex__get_file_item(exoid, ex__get_counter_list(EX_FACE_BLOCK));
+    cur_num_face_blk = exi_get_file_item(exoid, exi_get_counter_list(EX_FACE_BLOCK));
     if (cur_num_face_blk >= (int)num_face_blk) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: exceeded number of face blocks (%ld) defined in file id %d",
@@ -399,9 +397,9 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       goto error_ret;
     }
 
-    /* NOTE: ex__inc_file_item  is used to find the number of edge blocks
+    /* NOTE: exi_inc_file_item  is used to find the number of edge blocks
        for a specific file and returns that value incremented. */
-    cur_num_face_blk = ex__inc_file_item(exoid, ex__get_counter_list(EX_FACE_BLOCK));
+    cur_num_face_blk = exi_inc_file_item(exoid, exi_get_counter_list(EX_FACE_BLOCK));
 
     if (param->num_face_this_blk[iblk] == 0) { /* Is this a NULL face block? */
       continue;
@@ -458,7 +456,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       eb_id = elem_id_int[iblk];
     }
 
-    cur_num_elem_blk = ex__get_file_item(exoid, ex__get_counter_list(EX_ELEM_BLOCK));
+    cur_num_elem_blk = exi_get_file_item(exoid, exi_get_counter_list(EX_ELEM_BLOCK));
     if (cur_num_elem_blk >= (int)num_elem_blk) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: exceeded number of element blocks (%ld) defined "
@@ -468,9 +466,9 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
       goto error_ret;
     }
 
-    /* NOTE: ex__inc_file_item  is used to find the number of element blocks
+    /* NOTE: exi_inc_file_item  is used to find the number of element blocks
        for a specific file and returns that value incremented. */
-    cur_num_elem_blk = ex__inc_file_item(exoid, ex__get_counter_list(EX_ELEM_BLOCK));
+    cur_num_elem_blk = exi_inc_file_item(exoid, exi_get_counter_list(EX_ELEM_BLOCK));
 
     if (param->num_elem_this_blk[iblk] == 0) { /* Is this a NULL element block? */
       continue;
@@ -559,7 +557,7 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
         ex_err_fn(exoid, __func__, errmsg, status);
       }
       for (i = 1; i <= num_maps[map_type]; ++i) {
-        const char *mapname = ex__name_of_map(map_enums[map_type], i);
+        const char *mapname = exi_name_of_map(map_enums[map_type], i);
         if (nc_inq_varid(exoid, mapname, &temp) != NC_NOERR) {
           int map_int_type = NC_INT;
           if (ex_int64_status(exoid) & EX_MAPS_INT64_DB) {
@@ -578,14 +576,16 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
             ex_err_fn(exoid, __func__, errmsg, status);
             goto error_ret; /* exit define mode and return */
           }
-          ex__compress_variable(exoid, temp, 1);
+          exi_compress_variable(exoid, temp, 1);
         }
       }
     }
   }
 
   /* leave define mode  */
-  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = exi_leavedef(exoid, __func__)) != NC_NOERR) {
+    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to exit define mode");
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -593,6 +593,6 @@ int ex_put_concat_all_blocks(int exoid, const ex_block_params *param)
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  ex__leavedef(exoid, __func__);
+  exi_leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

@@ -41,11 +41,11 @@ int ex_get_set_param(int exoid, ex_entity_type set_type, ex_entity_id set_id,
   size_t lnum_entry_in_set;
   size_t lnum_dist_fact_in_set;
   char   errmsg[MAX_ERR_LENGTH];
-  char * numentryptr = NULL;
-  char * numdfptr    = NULL;
+  char  *numentryptr = NULL;
+  char  *numdfptr    = NULL;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -66,7 +66,7 @@ int ex_get_set_param(int exoid, ex_entity_type set_type, ex_entity_id set_id,
     }
   }
   /* first check if any sets are specified */
-  if ((status = nc_inq_dimid(exoid, ex__dim_num_objects(set_type), &dimid)) != NC_NOERR) {
+  if ((status = nc_inq_dimid(exoid, exi_dim_num_objects(set_type), &dimid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no %ss stored in file id %d",
              ex_name_of_object(set_type), exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
@@ -74,7 +74,7 @@ int ex_get_set_param(int exoid, ex_entity_type set_type, ex_entity_id set_id,
   }
 
   /* Lookup index of set id in VAR_*S_IDS array */
-  set_id_ndx = ex__id_lkup(exoid, set_type, set_id);
+  set_id_ndx = exi_id_lkup(exoid, set_type, set_id);
   if (set_id_ndx <= 0) {
     ex_get_err(NULL, NULL, &status);
 
@@ -114,7 +114,7 @@ int ex_get_set_param(int exoid, ex_entity_type set_type, ex_entity_id set_id,
   }
 
   /* inquire values of dimension for number of entities in set */
-  if (ex__get_dimension(exoid, numentryptr, "entries", &lnum_entry_in_set, &dimid, __func__) !=
+  if (exi_get_dimension(exoid, numentryptr, "entries", &lnum_entry_in_set, &dimid, __func__) !=
       NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }

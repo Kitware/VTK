@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -9,14 +9,12 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-static int ex__look_up_var(int exoid, ex_entity_type var_type, ex_entity_id obj_id,
+static int exi_look_up_var(int exoid, ex_entity_type var_type, ex_entity_id obj_id,
                            const char *var_obj_id, const char *dim_num_obj_var, int *varid)
 {
-  int    status;
-  int    obj_id_ndx;
-  int    time_dim, numvardim, dims[2];
-  size_t num_obj_var;
-  char   errmsg[MAX_ERR_LENGTH];
+  int  status;
+  int  obj_id_ndx;
+  char errmsg[MAX_ERR_LENGTH];
 
   if (var_type == EX_ASSEMBLY) {
     status = nc_inq_varid(exoid, VAR_ENTITY_ASSEMBLY(obj_id), varid);
@@ -42,7 +40,7 @@ static int ex__look_up_var(int exoid, ex_entity_type var_type, ex_entity_id obj_
   }
   else {
     /* Determine index of obj_id in var_obj_id array */
-    obj_id_ndx = ex__id_lkup(exoid, var_type, obj_id);
+    obj_id_ndx = exi_id_lkup(exoid, var_type, obj_id);
     if (obj_id_ndx <= 0) {
       ex_get_err(NULL, NULL, &status);
 
@@ -63,9 +61,10 @@ static int ex__look_up_var(int exoid, ex_entity_type var_type, ex_entity_id obj_
       }
     }
   }
-  if ((status = nc_inq_varid(exoid, ex__name_red_var_of_object(var_type, obj_id_ndx), varid)) !=
+  if ((status = nc_inq_varid(exoid, exi_name_red_var_of_object(var_type, obj_id_ndx), varid)) !=
       NC_NOERR) {
     if (status == NC_ENOTVAR) { /* variable doesn't exist, create it! */
+      int time_dim;
       if ((status = nc_inq_dimid(exoid, DIM_TIME, &time_dim)) != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate time dimension in file id %d",
                  exoid);
@@ -73,7 +72,9 @@ static int ex__look_up_var(int exoid, ex_entity_type var_type, ex_entity_id obj_
         return EX_FATAL;
       }
 
-      if ((status = ex__get_dimension(exoid, dim_num_obj_var, ex_name_of_object(var_type),
+      size_t num_obj_var;
+      int    numvardim;
+      if ((status = exi_get_dimension(exoid, dim_num_obj_var, ex_name_of_object(var_type),
                                       &num_obj_var, &numvardim, __func__)) != EX_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH,
                  "ERROR: failed to inquire number of %s reduction variables in file id %d",
@@ -90,26 +91,25 @@ static int ex__look_up_var(int exoid, ex_entity_type var_type, ex_entity_id obj_
       }
 
       /* define NetCDF variable to store reduction variable values */
-      dims[0] = time_dim;
-      dims[1] = numvardim;
-      if ((status = nc_def_var(exoid, ex__name_red_var_of_object(var_type, obj_id_ndx),
+      int dims[] = {time_dim, numvardim};
+      if ((status = nc_def_var(exoid, exi_name_red_var_of_object(var_type, obj_id_ndx),
                                nc_flt_code(exoid), 2, dims, varid)) != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define %s in file id %d",
                  ex_name_of_object(var_type), exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
-        ex__leavedef(exoid, __func__);
+        exi_leavedef(exoid, __func__);
         return (EX_FATAL);
       }
-      ex__compress_variable(exoid, *varid, 2);
+      exi_compress_variable(exoid, *varid, 2);
 
       /*    leave define mode  */
-      if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
+      if ((status = exi_leavedef(exoid, __func__)) != NC_NOERR) {
         return (EX_FATAL);
       }
     }
     else {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate %s %s in file id %d",
-               ex_name_of_object(var_type), ex__name_red_var_of_object(var_type, obj_id_ndx),
+               ex_name_of_object(var_type), exi_name_red_var_of_object(var_type, obj_id_ndx),
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       return (EX_FATAL);
@@ -189,7 +189,7 @@ int ex_put_reduction_vars(int exoid, int time_step, ex_entity_type var_type, ex_
 
   EX_FUNC_ENTER();
 
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -200,34 +200,34 @@ int ex_put_reduction_vars(int exoid, int time_step, ex_entity_type var_type, ex_
     return ex_put_var(exoid, time_step, var_type, 1, 1, num_variables, var_vals);
     break;
   case EX_ASSEMBLY:
-    status = ex__look_up_var(exoid, var_type, obj_id, "assembly", DIM_NUM_ASSEMBLY_RED_VAR, &varid);
+    status = exi_look_up_var(exoid, var_type, obj_id, "assembly", DIM_NUM_ASSEMBLY_RED_VAR, &varid);
     break;
   case EX_BLOB:
-    status = ex__look_up_var(exoid, var_type, obj_id, "blob", DIM_NUM_BLOB_RED_VAR, &varid);
+    status = exi_look_up_var(exoid, var_type, obj_id, "blob", DIM_NUM_BLOB_RED_VAR, &varid);
     break;
   case EX_EDGE_BLOCK:
-    status = ex__look_up_var(exoid, var_type, obj_id, VAR_ID_ED_BLK, DIM_NUM_EDG_RED_VAR, &varid);
+    status = exi_look_up_var(exoid, var_type, obj_id, VAR_ID_ED_BLK, DIM_NUM_EDG_RED_VAR, &varid);
     break;
   case EX_FACE_BLOCK:
-    status = ex__look_up_var(exoid, var_type, obj_id, VAR_ID_FA_BLK, DIM_NUM_FAC_RED_VAR, &varid);
+    status = exi_look_up_var(exoid, var_type, obj_id, VAR_ID_FA_BLK, DIM_NUM_FAC_RED_VAR, &varid);
     break;
   case EX_ELEM_BLOCK:
-    status = ex__look_up_var(exoid, var_type, obj_id, VAR_ID_EL_BLK, DIM_NUM_ELE_RED_VAR, &varid);
+    status = exi_look_up_var(exoid, var_type, obj_id, VAR_ID_EL_BLK, DIM_NUM_ELE_RED_VAR, &varid);
     break;
   case EX_NODE_SET:
-    status = ex__look_up_var(exoid, var_type, obj_id, VAR_NS_IDS, DIM_NUM_NSET_RED_VAR, &varid);
+    status = exi_look_up_var(exoid, var_type, obj_id, VAR_NS_IDS, DIM_NUM_NSET_RED_VAR, &varid);
     break;
   case EX_EDGE_SET:
-    status = ex__look_up_var(exoid, var_type, obj_id, VAR_ES_IDS, DIM_NUM_ESET_RED_VAR, &varid);
+    status = exi_look_up_var(exoid, var_type, obj_id, VAR_ES_IDS, DIM_NUM_ESET_RED_VAR, &varid);
     break;
   case EX_FACE_SET:
-    status = ex__look_up_var(exoid, var_type, obj_id, VAR_FS_IDS, DIM_NUM_FSET_RED_VAR, &varid);
+    status = exi_look_up_var(exoid, var_type, obj_id, VAR_FS_IDS, DIM_NUM_FSET_RED_VAR, &varid);
     break;
   case EX_SIDE_SET:
-    status = ex__look_up_var(exoid, var_type, obj_id, VAR_SS_IDS, DIM_NUM_SSET_RED_VAR, &varid);
+    status = exi_look_up_var(exoid, var_type, obj_id, VAR_SS_IDS, DIM_NUM_SSET_RED_VAR, &varid);
     break;
   case EX_ELEM_SET:
-    status = ex__look_up_var(exoid, var_type, obj_id, VAR_ELS_IDS, DIM_NUM_ELSET_RED_VAR, &varid);
+    status = exi_look_up_var(exoid, var_type, obj_id, VAR_ELS_IDS, DIM_NUM_ELSET_RED_VAR, &varid);
     break;
   default:
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: invalid variable type (%d) specified for file id %d",
@@ -247,7 +247,7 @@ int ex_put_reduction_vars(int exoid, int time_step, ex_entity_type var_type, ex_
   start[1] = 0;
   count[1] = num_variables;
 
-  if (ex__comp_ws(exoid) == 4) {
+  if (exi_comp_ws(exoid) == 4) {
     status = nc_put_vara_float(exoid, varid, start, count, var_vals);
   }
   else {
