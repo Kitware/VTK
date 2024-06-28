@@ -67,6 +67,7 @@ Common/Core/vtkGarbageCollectorManager.h
 Common/Core/vtkGaussianRandomSequence.h
 Common/Core/vtkGenericDataArray.h
 Common/Core/vtkGenericDataArrayLookupHelper.h
+Common/Core/vtkHashCombiner.h
 Common/Core/vtkIOStream.h
 Common/Core/vtkIOStreamFwd.h
 Common/Core/vtkIdListCollection.h
@@ -225,6 +226,7 @@ Common/DataModel/vtkCellAttribute.h
 Common/DataModel/vtkCellAttributeCalculator.h
 Common/DataModel/vtkCellGrid.h
 Common/DataModel/vtkCellGridBoundsQuery.h
+Common/DataModel/vtkCellGridCopyQuery.h
 Common/DataModel/vtkCellGridEvaluator.h
 Common/DataModel/vtkCellGridQuery.h
 Common/DataModel/vtkCellGridRangeQuery.h
@@ -780,7 +782,6 @@ Rendering/OpenGL2/vtkOpenGLBillboardTextActor3D.h
 Rendering/OpenGL2/vtkOpenGLBufferObject.h
 Rendering/OpenGL2/vtkOpenGLCellToVTKCellMap.h
 Rendering/OpenGL2/vtkOpenGLCompositePolyDataMapperDelegator.h
-Rendering/OpenGL2/vtkOpenGLES30PolyDataMapper2D.h
 Rendering/OpenGL2/vtkOpenGLFXAAFilter.h
 Rendering/OpenGL2/vtkOpenGLFluidMapper.h
 Rendering/OpenGL2/vtkOpenGLFramebufferObject.h
