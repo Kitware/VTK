@@ -1,7 +1,5 @@
-#ifndef EXODUS_CONFIG_H
-#define EXODUS_CONFIG_H
+#pragma once
 #cmakedefine EXODUS_THREADSAFE
 
 @SEACAS_DEPRECATED_DECLARATIONS@
 
-#endif

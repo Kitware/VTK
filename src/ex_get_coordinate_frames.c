@@ -106,7 +106,7 @@ int ex_get_coordinate_frames(int exoid, int *nframes, void_int *cf_ids, void *pt
   size_t count = 0; /* number vars to put in varput   */
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -166,7 +166,7 @@ int ex_get_coordinate_frames(int exoid, int *nframes, void_int *cf_ids, void *pt
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
-    if (ex__comp_ws(exoid) == 4) {
+    if (exi_comp_ws(exoid) == 4) {
       status = nc_get_var_float(exoid, varids, pt_coordinates);
     }
     else {

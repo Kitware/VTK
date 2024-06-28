@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_WARN, ex__comp_ws, etc
+#include "exodusII_int.h" // for EX_WARN, exi_comp_ws, etc
 
 /*!
 \deprecated Use ex_put_var()(exoid, time_step, EX_NODAL, nodal_var_index, 1, num_nodes,

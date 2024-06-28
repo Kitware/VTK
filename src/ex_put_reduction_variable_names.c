@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -29,9 +29,8 @@
 static int ex_put_var_names_int(int exoid, ex_entity_type obj_type, int num_vars, char *tname,
                                 char *dnumvar, char *vnames, int *varid)
 {
-  int  status;
-  int  dimid;
-  char errmsg[MAX_ERR_LENGTH];
+  int status;
+  int dimid;
 
   if ((status = nc_inq_dimid(exoid, dnumvar, &dimid)) != NC_NOERR) {
     if (status != NC_NOERR) {
@@ -44,11 +43,13 @@ static int ex_put_var_names_int(int exoid, ex_entity_type obj_type, int num_vars
 
   if ((status = nc_inq_varid(exoid, vnames, varid)) != NC_NOERR) {
     if (status == NC_ENOTVAR) {
+      char errmsg[MAX_ERR_LENGTH];
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: no %s variable names defined in file id %d", tname,
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
     }
     else {
+      char errmsg[MAX_ERR_LENGTH];
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: %s name variable names not found in file id %d",
                tname, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
@@ -119,13 +120,12 @@ error = ex_put_variable_names (exoid, EX_NODAL, num_nod_vars, var_names);
 */
 
 int ex_put_reduction_variable_names(int exoid, ex_entity_type obj_type, int num_vars,
-                                    char *var_names[])
+                                    char *const var_names[])
 {
-  int  varid, status;
-  char errmsg[MAX_ERR_LENGTH];
+  int varid;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -174,15 +174,16 @@ int ex_put_reduction_variable_names(int exoid, ex_entity_type obj_type, int num_
     ex_put_var_names_int(exoid, obj_type, num_vars, "element set", DIM_NUM_ELSET_RED_VAR,
                          VAR_NAME_ELSET_RED_VAR, &varid);
     break;
-  default:
+  default: {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid variable type %d specified in file id %d",
              obj_type, exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
+  }
 
   /* write EXODUS variable names */
-  status = ex__put_names(exoid, varid, num_vars, var_names, obj_type, "variable", __func__);
-
+  int status = exi_put_names(exoid, varid, num_vars, var_names, obj_type, "variable", __func__);
   EX_FUNC_LEAVE(status);
 }

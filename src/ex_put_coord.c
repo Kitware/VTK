@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -95,13 +95,13 @@ int ex_put_coord(int exoid, const void *x_coor, const void *y_coor, const void *
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* inquire id's of previously defined dimensions  */
 
-  if ((status = nc_inq_dimid(exoid, DIM_NUM_NODES, &numnoddim)) != NC_NOERR) {
+  if (nc_inq_dimid(exoid, DIM_NUM_NODES, &numnoddim) != NC_NOERR) {
     /* If not found, then this file is storing 0 nodes.
        Return immediately */
     EX_FUNC_LEAVE(EX_NOERR);
@@ -162,7 +162,7 @@ int ex_put_coord(int exoid, const void *x_coor, const void *y_coor, const void *
   /* write out the coordinates  */
   for (i = 0; i < num_dim; i++) {
     const void *coor  = NULL;
-    char *      which = NULL;
+    char       *which = NULL;
 
     if (i == 0) {
       coor    = x_coor;
@@ -181,7 +181,7 @@ int ex_put_coord(int exoid, const void *x_coor, const void *y_coor, const void *
     }
 
     if (coor != NULL && coordid != -1) {
-      if (ex__comp_ws(exoid) == 4) {
+      if (exi_comp_ws(exoid) == 4) {
         status = nc_put_var_float(exoid, coordid, coor);
       }
       else {

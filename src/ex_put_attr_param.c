@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -46,12 +46,9 @@ int ex_put_attr_param(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, i
   int         numobjentdim;
   int         obj_id_ndx;
   int         numattrdim;
-#if NC_HAS_HDF5
-  int fill = NC_FILL_CHAR;
-#endif
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -60,7 +57,7 @@ int ex_put_attr_param(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, i
     obj_id_ndx = 0;
   }
   else {
-    obj_id_ndx = ex__id_lkup(exoid, obj_type, obj_id);
+    obj_id_ndx = exi_id_lkup(exoid, obj_type, obj_id);
     if (obj_id_ndx <= 0) {
       ex_get_err(NULL, NULL, &status);
 
@@ -176,7 +173,7 @@ int ex_put_attr_param(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, i
     ex_err_fn(exoid, __func__, errmsg, status);
     goto error_ret; /* exit define mode and return */
   }
-  ex__compress_variable(exoid, varid, 2);
+  exi_compress_variable(exoid, varid, 2);
 
   /* inquire previously defined dimensions  */
   if ((status = nc_inq_dimid(exoid, DIM_STR_NAME, &strdim)) != NC_NOERR) {
@@ -196,12 +193,13 @@ int ex_put_attr_param(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, i
     ex_err_fn(exoid, __func__, errmsg, status);
     goto error_ret; /* exit define mode and return */
   }
-#if NC_HAS_HDF5
+#if defined(EX_CAN_USE_NC_DEF_VAR_FILL)
+  int fill = NC_FILL_CHAR;
   nc_def_var_fill(exoid, varid, 0, &fill);
 #endif
 
   /* leave define mode  */
-  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = exi_leavedef(exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -209,6 +207,6 @@ int ex_put_attr_param(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, i
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  ex__leavedef(exoid, __func__);
+  exi_leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

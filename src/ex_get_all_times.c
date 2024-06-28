@@ -59,7 +59,7 @@ int ex_get_all_times(int exoid, void *time_values)
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -71,7 +71,7 @@ int ex_get_all_times(int exoid, void *time_values)
   }
 
   /*read time values */
-  if (ex__comp_ws(exoid) == 4) {
+  if (exi_comp_ws(exoid) == 4) {
     status = nc_get_var_float(exoid, varid, time_values);
   }
   else {

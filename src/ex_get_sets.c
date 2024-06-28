@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_set, EX_FATAL, EX_NOERR, etc
-#include "exodusII_int.h" // for ex__check_valid_file_id
+#include "exodusII_int.h" // for exi_check_valid_file_id
 
 int ex_get_sets(int exoid, size_t set_count, struct ex_set *sets)
 {
@@ -16,7 +16,7 @@ int ex_get_sets(int exoid, size_t set_count, struct ex_set *sets)
   int    stat;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 

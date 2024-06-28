@@ -40,12 +40,12 @@ int ex_get_elem_type(int exoid, ex_entity_id elem_blk_id, char *elem_type)
   /*****************************************************************************/
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* inquire id's of previously defined dimensions */
-  if ((el_blk_id_ndx = ex__id_lkup(exoid, EX_ELEM_BLOCK, elem_blk_id)) == -1) {
+  if ((el_blk_id_ndx = exi_id_lkup(exoid, EX_ELEM_BLOCK, elem_blk_id)) == -1) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to find element block ID %" PRId64 " in file %d", elem_blk_id, exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -36,8 +36,6 @@
 static int ex_get_dim_value(int exoid, const char *name, const char *dimension_name, int dimension,
                             size_t *value)
 {
-  char errmsg[MAX_ERR_LENGTH];
-  int  status;
 
   if (nc_inq_dimid(exoid, dimension_name, &dimension) != NC_NOERR) {
     /* optional and default to zero. */
@@ -45,7 +43,9 @@ static int ex_get_dim_value(int exoid, const char *name, const char *dimension_n
   }
   else {
     size_t tmp;
+    int    status;
     if ((status = nc_inq_dimlen(exoid, dimension, &tmp)) != NC_NOERR) {
+      char errmsg[MAX_ERR_LENGTH];
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of %s in file id %d", name,
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
@@ -64,36 +64,39 @@ int ex_get_init_global(int exoid, void_int *num_nodes_g, void_int *num_elems_g,
                        void_int *num_elem_blks_g, void_int *num_node_sets_g,
                        void_int *num_side_sets_g)
 {
-  int    dimid;
-  size_t nng, neg, nebg, nnsg, nssg;
-
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* Check the file version information */
-  if ((dimid = ne__check_file_version(exoid)) != EX_NOERR) {
+  int dimid;
+  if ((dimid = nei_check_file_version(exoid)) != EX_NOERR) {
     EX_FUNC_LEAVE(dimid);
   }
 
+  size_t nng;
   if (ex_get_dim_value(exoid, "global nodes", DIM_NUM_NODES_GLOBAL, dimid, &nng) != EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  size_t neg;
   if (ex_get_dim_value(exoid, "global elements", DIM_NUM_ELEMS_GLOBAL, dimid, &neg) != EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  size_t nebg;
   if (ex_get_dim_value(exoid, "global element blocks", DIM_NUM_ELBLK_GLOBAL, dimid, &nebg) !=
       EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  size_t nnsg;
   if (ex_get_dim_value(exoid, "global node sets", DIM_NUM_NS_GLOBAL, dimid, &nnsg) != EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  size_t nssg;
   if (ex_get_dim_value(exoid, "global side sets", DIM_NUM_SS_GLOBAL, dimid, &nssg) != EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }

@@ -24,7 +24,7 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex__comp_ws, etc
+#include "exodusII_int.h" // for EX_FATAL, exi_comp_ws, etc
 
 /*!
  * writes the attributes for an edge/face/element block
@@ -41,13 +41,13 @@ int ex_put_attr(int exoid, ex_entity_type blk_type, ex_entity_id blk_id, const v
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   if (blk_type != EX_NODAL) {
     /* Determine index of blk_id in VAR_ID_EL_BLK array */
-    blk_id_ndx = ex__id_lkup(exoid, blk_type, blk_id);
+    blk_id_ndx = exi_id_lkup(exoid, blk_type, blk_id);
     if (blk_id_ndx <= 0) {
       ex_get_err(NULL, NULL, &status);
 
@@ -94,7 +94,7 @@ int ex_put_attr(int exoid, ex_entity_type blk_type, ex_entity_id blk_id, const v
   }
 
   /* write out the attributes  */
-  if (ex__comp_ws(exoid) == 4) {
+  if (exi_comp_ws(exoid) == 4) {
     status = nc_put_var_float(exoid, attrid, attrib);
   }
   else {
