@@ -422,6 +422,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-TestGlyph3DMapperOrientationArray$"
     "^VTK::RenderingCoreCxx-TestLabeledContourMapperWithActorMatrix$"
     "^VTK::RenderingCoreCxx-TestOpacity$"
+    "^VTK::RenderingCoreCxx-TestPolyDataMapperNormals$"
     "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$"
     "^VTK::RenderingCoreCxx-TestTranslucentImageActorDepthPeeling$"
     "^VTK::RenderingCoreCxx-TestTranslucentLUTDepthPeeling$"

@@ -1277,9 +1277,12 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
       // We have no point or cell normals, so compute something.
       // Caveat: this assumes that neighboring fragments are present,
       // result is undefined (maybe NaN?) if neighbors are missing.
+      // The partial derivatives are scaled by the inverse of fwidth
+      // to avoid overflow or underflow in the following computations.
       vtkShaderProgram::Substitute(fsSource, "//VTK::UniformFlow::Impl",
-        "vec3 fdx = dFdx(vertexVC.xyz);\n"
-        "  vec3 fdy = dFdy(vertexVC.xyz);\n"
+        "float scale = 1.0/length(fwidth(vertexVC.xyz));\n"
+        "  vec3 fdx = dFdx(vertexVC.xyz)*scale;\n"
+        "  vec3 fdy = dFdy(vertexVC.xyz)*scale;\n"
         "  //VTK::UniformFlow::Impl\n" // For further replacements
       );
       std::ostringstream fsImpl;
