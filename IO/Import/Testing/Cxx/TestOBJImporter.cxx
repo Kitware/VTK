@@ -54,7 +54,11 @@ int TestOBJImporter(int argc, char* argv[])
   renWin->AddRenderer(ren);
   iren->SetRenderWindow(renWin);
   importer->SetRenderWindow(renWin);
-  importer->Update();
+  if (!importer->Update())
+  {
+    std::cerr << "ERROR: Importer failed to update\n";
+    return EXIT_FAILURE;
+  }
 
   ren->ResetCamera();
 

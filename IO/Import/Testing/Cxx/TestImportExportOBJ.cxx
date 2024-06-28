@@ -44,7 +44,11 @@ int TestImportExportOBJ(int argc, char* argv[])
     importer->SetRenderWindow(renderWindow);
     renderWindow = importer->GetRenderWindow();
     renderer = importer->GetRenderer();
-    importer->Read();
+    if (!importer->Update())
+    {
+      std::cerr << "ERROR: Importer failed to update\n";
+      return EXIT_FAILURE;
+    }
   }
   else if (extension == "gltf" || extension == "glb")
   {
@@ -53,7 +57,11 @@ int TestImportExportOBJ(int argc, char* argv[])
     importer->SetRenderWindow(renderWindow);
     renderWindow = importer->GetRenderWindow();
     renderer = importer->GetRenderer();
-    importer->Read();
+    if (!importer->Update())
+    {
+      std::cerr << "ERROR: Importer failed to update\n";
+      return EXIT_FAILURE;
+    }
   }
   else
   {

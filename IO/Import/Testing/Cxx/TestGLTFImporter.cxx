@@ -32,13 +32,18 @@ int TestGLTFImporter(int argc, char* argv[])
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
   importer->SetCamera(cameraIndex);
-  importer->Update();
+  if (!importer->Update())
+  {
+    std::cerr << "ERROR: Importer failed to update\n";
+    return EXIT_FAILURE;
+  }
+
   auto hierarchy = importer->GetSceneHierarchy();
   if (hierarchy == nullptr || hierarchy->GetNumberOfChildren(0) == 0)
   {
     hierarchy->Print(std::cout);
     std::cerr << "ERROR: scene hierarchy cannot be null!\n";
-    return 1;
+    return EXIT_FAILURE;
   }
   renderWindow->Render();
 

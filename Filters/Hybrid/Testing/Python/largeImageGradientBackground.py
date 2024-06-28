@@ -24,7 +24,7 @@ importer = vtk3DSImporter()
 importer.SetRenderWindow(renWin1)
 importer.ComputeNormalsOn()
 importer.SetFileName(VTK_DATA_ROOT + "/Data/iflamigm.3ds")
-importer.Read()
+importer.Update()
 
 importer.GetRenderer().SetBackground(0.7568627450980392, 0.7647058823529412, 0.9098039215686275)
 importer.GetRenderer().SetBackground2(0.4549019607843137, 0.4705882352941176, 0.7450980392156863)
