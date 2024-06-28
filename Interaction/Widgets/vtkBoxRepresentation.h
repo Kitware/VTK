@@ -96,6 +96,7 @@ public:
    * transform can be used to control the position of vtkProp3D's, as well as
    * other transformation operations (e.g., vtkTransformPolyData).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual void GetTransform(vtkTransform* t);
 
   /**
@@ -104,6 +105,7 @@ public:
    * where PlaceWidget() was initially called (i.e., the original bounding
    * box).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual void SetTransform(vtkTransform* t);
 
   /**

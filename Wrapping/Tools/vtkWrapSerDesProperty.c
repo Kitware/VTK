@@ -346,46 +346,17 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
     }
   }
 
-  if (isVTKObject)
+  if (!isRHSGetter && isVTKObject)
   {
-    if (isRHSGetter)
-    {
-      fprintf(fp, "  {\n");
-      fprintf(fp, "    auto value = %s::New();\n", propertyInfo->ClassName);
-      // get id of the object currently being serialized.
-      fprintf(fp, "    const auto identifier = serializer->GetContext()->GetId(object);\n");
-      fprintf(fp,
-        "    const auto objectState = "
-        "serializer->GetContext()->States().find(std::to_string(identifier));\n");
-      // edit the current object's state
-      fprintf(fp, "    if (objectState != serializer->GetContext()->States().end())\n");
-      fprintf(fp, "    {\n");
-      fprintf(fp,
-        "      const auto subId = objectState->at(\"%s\").at(\"Id\").get<vtkTypeUInt32>();\n",
-        keyName);
-      fprintf(fp, "      serializer->GetContext()->UnRegisterState(subId);\n");
-      fprintf(fp, "    }\n");
-      // keep new object alive
-      fprintf(fp, "    serializer->GetContext()->KeepAlive(\"%s\", value);\n", classInfo->Name);
-      fprintf(fp, "    object->%s(value);\n", getterName);
-      fprintf(fp, "    state[\"%s\"] = ", keyName);
-      vtkWrapSerDes_WriteSerializerVTKObject(fp, isConst, isVTKSmartPointer);
-      fprintf(fp, ";\n");
-      fprintf(fp, "    value->Delete();\n");
-      fprintf(fp, "  }\n");
-    }
-    else
-    {
-      fprintf(fp, "  {\n");
-      fprintf(fp, "    auto value = object->%s();\n", getterName);
-      fprintf(fp, "    if (value)\n");
-      fprintf(fp, "    {\n");
-      fprintf(fp, "      state[\"%s\"] = ", keyName);
-      vtkWrapSerDes_WriteSerializerVTKObject(fp, isConst, isVTKSmartPointer);
-      fprintf(fp, ";\n");
-      fprintf(fp, "    }\n");
-      fprintf(fp, "  }\n");
-    }
+    fprintf(fp, "  {\n");
+    fprintf(fp, "    auto value = object->%s();\n", getterName);
+    fprintf(fp, "    if (value)\n");
+    fprintf(fp, "    {\n");
+    fprintf(fp, "      state[\"%s\"] = ", keyName);
+    vtkWrapSerDes_WriteSerializerVTKObject(fp, isConst, isVTKSmartPointer);
+    fprintf(fp, ";\n");
+    fprintf(fp, "    }\n");
+    fprintf(fp, "  }\n");
     return 1;
   }
   else if (isNumeric)
