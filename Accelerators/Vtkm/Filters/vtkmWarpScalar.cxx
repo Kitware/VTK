@@ -21,7 +21,7 @@
 
 #include "vtkm/cont/DataSet.h"
 
-#include <vtkm/filter/field_transform/WarpScalar.h>
+#include <vtkm/filter/field_transform/Warp.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmWarpScalar);
@@ -96,16 +96,18 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
     }
     vtkm::Id numberOfPoints = in.GetCoordinateSystem().GetData().GetNumberOfValues();
 
+    vtkm::filter::field_transform::Warp filter;
+
     // ScaleFactor in vtk is the scalarAmount in vtk-m.
-    vtkm::filter::field_transform::WarpScalar warpScalar(this->ScaleFactor);
-    warpScalar.SetUseCoordinateSystemAsField(true);
+    filter.SetScaleFactor(this->ScaleFactor);
+    filter.SetUseCoordinateSystemAsField(true);
 
     // Get/generate the normal field
     if (inNormals && !this->UseNormal)
     { // DataNormal
       auto inNormalsField = tovtkm::Convert(inNormals, vtkDataObject::FIELD_ASSOCIATION_POINTS);
       in.AddField(inNormalsField);
-      warpScalar.SetNormalField(inNormals->GetName());
+      filter.SetDirectionField(inNormals->GetName());
     }
     else if (this->XYPlane)
     {
@@ -114,7 +116,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
       vtkm::cont::ArrayHandleConstant<vecType> vectorAH =
         vtkm::cont::make_ArrayHandleConstant(normal, numberOfPoints);
       in.AddPointField("zNormal", vectorAH);
-      warpScalar.SetNormalField("zNormal");
+      filter.SetDirectionField("zNormal");
     }
     else
     {
@@ -124,7 +126,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
       vtkm::cont::ArrayHandleConstant<vecType> vectorAH =
         vtkm::cont::make_ArrayHandleConstant(normal, numberOfPoints);
       in.AddPointField("instanceNormal", vectorAH);
-      warpScalar.SetNormalField("instanceNormal");
+      filter.SetDirectionField("instanceNormal");
     }
 
     if (this->XYPlane)
@@ -136,23 +138,23 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
         zValues.push_back(input->GetPoints()->GetPoint(i)[2]);
       }
       in.AddPointField("scalarfactor", zValues);
-      warpScalar.SetScalarFactorField("scalarfactor");
+      filter.SetScaleField("scalarfactor");
     }
     else
     {
-      warpScalar.SetScalarFactorField(std::string(inScalars->GetName()));
+      filter.SetScaleField(std::string(inScalars->GetName()));
     }
 
-    auto result = warpScalar.Execute(in);
-    vtkDataArray* warpScalarResult =
-      fromvtkm::Convert(result.GetField("warpscalar", vtkm::cont::Field::Association::Points));
+    auto result = filter.Execute(in);
+    vtkDataArray* warpResult =
+      fromvtkm::Convert(result.GetField("Warp", vtkm::cont::Field::Association::Points));
     vtkPoints* newPts = vtkPoints::New();
     // Update points
-    newPts->SetNumberOfPoints(warpScalarResult->GetNumberOfTuples());
-    newPts->SetData(warpScalarResult);
+    newPts->SetNumberOfPoints(warpResult->GetNumberOfTuples());
+    newPts->SetData(warpResult);
     output->SetPoints(newPts);
     newPts->Delete();
-    warpScalarResult->FastDelete();
+    warpResult->FastDelete();
   }
   catch (const vtkm::cont::Error& e)
   {
