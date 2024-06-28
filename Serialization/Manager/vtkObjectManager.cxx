@@ -493,15 +493,29 @@ void vtkObjectManager::UpdateStatesFromObjects()
   this->Context->ResetDirectDependencies();
   // All objects go under the top level root node
   vtkMarshalContext::ScopedParentTracker rootNodeTracker(this->Context, vtkObjectManager::ROOT());
-  // serializes all objects with strong references.
-  for (const auto& object : this->Context->StrongObjects().at(this->OWNERSHIP_KEY()))
+  // serializes all objects with strong references held by the manager.
+  const auto managerStrongObjectsIter = this->Context->StrongObjects().find(this->OWNERSHIP_KEY());
+  // serializes all objects with strong references held by the deserializer.
+  const auto deserializerOwnershipKey = this->Deserializer->GetObjectDescription();
+  const auto deserStrongObjectsIter = this->Context->StrongObjects().find(deserializerOwnershipKey);
+  if (managerStrongObjectsIter != this->Context->StrongObjects().end())
   {
-    auto stateId = this->Serializer->SerializeJSON(object);
-    auto idIter = stateId.find("Id");
-    if ((idIter != stateId.end()) && idIter->is_number_unsigned())
+    for (const auto& object : managerStrongObjectsIter->second)
     {
-      auto& state = this->Context->GetState(idIter->get<vtkTypeUInt32>());
-      state["vtk-object-manager-kept-alive"] = true;
+      auto stateId = this->Serializer->SerializeJSON(object);
+      auto idIter = stateId.find("Id");
+      if ((idIter != stateId.end()) && idIter->is_number_unsigned())
+      {
+        auto& state = this->Context->GetState(idIter->get<vtkTypeUInt32>());
+        state["vtk-object-manager-kept-alive"] = true;
+      }
+    }
+  }
+  else if (deserStrongObjectsIter != this->Context->StrongObjects().end())
+  {
+    for (const auto& object : deserStrongObjectsIter->second)
+    {
+      this->Serializer->SerializeJSON(object);
     }
   }
   // Remove unused states

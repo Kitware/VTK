@@ -1,4 +1,5 @@
 vtk_add_test_python(
+  TestBiDirectionalSerialization.py,NO_VALID
   TestBlobs.py,NO_VALID
   TestCompositeDataSets.py,NO_VALID
   TestCompositePolyDataMapper.py,NO_VALID
