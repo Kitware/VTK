@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -8,20 +8,19 @@
 #pragma once
 
 #include "ioss_export.h"
-
 #include "vtk_ioss_mangle.h"
 
-#include <Ioss_CodeTypes.h>
+#include "Ioss_CodeTypes.h"
 #include <string>
 
-#include <Ioss_VariableType.h>
+#include "Ioss_VariableType.h"
 
 namespace Ioss {
   class IOSS_EXPORT NamedSuffixVariableType : public VariableType
   {
   public:
     //  'which' is 1-based
-    std::string label(int which, const char /* suffix_sep */) const override
+    IOSS_NODISCARD std::string label(int which, const char /* suffix_sep */) const override
     {
       return suffixList[which - 1];
     }
@@ -34,12 +33,17 @@ namespace Ioss {
     }
     NamedSuffixVariableType(const NamedSuffixVariableType &) = delete;
 
+    IOSS_NODISCARD VariableType::Type type() const override { return Type::NAMED_SUFFIX; }
+    IOSS_NODISCARD std::string type_string() const override { return "NamedSuffix"; }
+
     //! Define the suffix list for this field.
     //  'which' is 1-based to conform to the 'label' function usage.
     // If user doesn't add suffices, then 'label' will return "UNSET"
     void add_suffix(size_t which, const std::string &suffix) { suffixList[which - 1] = suffix; }
 
+    void print() const override final;
+
   private:
-    std::vector<std::string> suffixList{};
+    Ioss::NameList suffixList{};
   };
 } // namespace Ioss

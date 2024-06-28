@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -7,26 +7,26 @@
 // -*- Mode: c++ -*-
 #pragma once
 
-#include "ioex_export.h"
-
-#include "vtk_ioss_mangle.h"
-
-#include <Ioss_DBUsage.h>
-#include <Ioss_DatabaseIO.h>
-#include <Ioss_Field.h>
-#include <Ioss_Map.h>
-#include <Ioss_Utils.h>
-
-#include <vtk_exodusII.h>
-
+#include "Ioss_DBUsage.h"
+#include "Ioss_DatabaseIO.h"
+#include "Ioss_Field.h"
+#include "Ioss_Map.h"
+#include "Ioss_Utils.h"
 #include <algorithm>
 #include <cstdint>
 #include <ctime>
+#include <vtk_exodusII.h>
 #include <map>
 #include <set>
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "Ioss_CodeTypes.h"
+#include "Ioss_DataSize.h"
+#include "Ioss_State.h"
+#include "ioex_export.h"
+#include "vtk_ioss_mangle.h"
 
 namespace Ioss {
   class Assembly;
@@ -48,6 +48,9 @@ namespace Ioss {
   class StructuredBlock;
   class CommSet;
   class ElementTopology;
+  class Field;
+  class Map;
+  class PropertyManager;
 } // namespace Ioss
 
 /** \brief A namespace for the exodus database format.
@@ -77,18 +80,16 @@ namespace Ioex {
   public:
     BaseDatabaseIO(Ioss::Region *region, const std::string &filename, Ioss::DatabaseUsage db_usage,
                    Ioss_MPI_Comm communicator, const Ioss::PropertyManager &props);
-    BaseDatabaseIO(const BaseDatabaseIO &from)            = delete;
-    BaseDatabaseIO &operator=(const BaseDatabaseIO &from) = delete;
 
     ~BaseDatabaseIO() override;
 
-    const std::string get_format() const override { return "Exodus"; }
+    IOSS_NODISCARD std::string get_format() const override { return "Exodus"; }
 
     // Check capabilities of input/output database...  Returns an
     // unsigned int with the supported Ioss::EntityTypes or'ed
     // together. If "return_value & Ioss::EntityType" is set, then the
     // database supports that type (e.g. return_value & Ioss::FACESET)
-    unsigned entity_field_support() const override;
+    IOSS_NODISCARD unsigned entity_field_support() const override;
 
   protected:
     // Check to see if database state is ok...
@@ -96,22 +97,21 @@ namespace Ioex {
     // If 'error_message' non-null, then put the warning message into the string and return it.
     // If 'bad_count' non-null, it counts the number of processors where the file does not exist.
     //    if ok returns false, but *bad_count==0, then the routine does not support this argument.
-    bool ok__(bool write_message = false, std::string *error_message = nullptr,
-              int *bad_count = nullptr) const override;
+    IOSS_NODISCARD bool ok_nl(bool write_message = false, std::string *error_message = nullptr,
+                              int *bad_count = nullptr) const override;
 
-    bool open_group__(const std::string &group_name) override;
-    bool create_subgroup__(const std::string &group_name) override;
+    bool open_group_nl(const std::string &group_name) override;
+    bool create_subgroup_nl(const std::string &group_name) override;
 
-    bool begin__(Ioss::State state) override;
-    bool end__(Ioss::State state) override;
+    bool begin_nl(Ioss::State state) override;
+    bool end_nl(Ioss::State state) override;
 
     void open_state_file(int state);
 
-    bool begin_state__(int state, double time) override;
-    bool end_state__(int state, double time) override;
-    void get_step_times__() override = 0;
+    bool begin_state_nl(int state, double time) override;
+    bool end_state_nl(int state, double time) override;
 
-    int maximum_symbol_length() const override { return maximumNameLength; }
+    IOSS_NODISCARD int maximum_symbol_length() const override { return maximumNameLength; }
 
     // NOTE: If this is called after write_meta_data, it will have no affect.
     //       Also, it only affects output databases, not input.
@@ -126,13 +126,12 @@ namespace Ioex {
                             Ioss::Map &entity_map, void *ids, size_t num_to_get,
                             size_t offset) const;
 
-    void compute_block_membership__(Ioss::SideBlock          *efblock,
-                                    std::vector<std::string> &block_membership) const override;
+    void compute_block_membership_nl(Ioss::SideBlock *efblock,
+                                     Ioss::NameList  &block_membership) const override;
 
-    int  int_byte_size_db() const override;
-    void set_int_byte_size_api(Ioss::DataSize size) const override;
+    IOSS_NODISCARD int int_byte_size_db() const override;
+    void               set_int_byte_size_api(Ioss::DataSize size) const override;
 
-  protected:
     int64_t get_field_internal(const Ioss::Region *reg, const Ioss::Field &field, void *data,
                                size_t data_size) const override             = 0;
     int64_t get_field_internal(const Ioss::NodeBlock *nb, const Ioss::Field &field, void *data,
@@ -198,15 +197,15 @@ namespace Ioex {
     virtual void write_meta_data(Ioss::IfDatabaseExistsBehavior behavior) = 0;
     void         write_results_metadata(bool gather_data, Ioss::IfDatabaseExistsBehavior behavior);
 
-    void openDatabase__() const override { get_file_pointer(); }
+    void openDatabase_nl() const override { (void)get_file_pointer(); }
 
-    void closeDatabase__() const override
+    void closeDatabase_nl() const override
     {
       free_file_pointer();
-      closeDW();
+      close_dw();
     }
 
-    int get_file_pointer() const override = 0; // Open file and set exodusFilePtr.
+    IOSS_NODISCARD int get_file_pointer() const override = 0; // Open file and set exodusFilePtr.
 
     virtual int free_file_pointer() const; // Close file and set exodusFilePtr.
 
@@ -216,7 +215,8 @@ namespace Ioex {
                                     bool overwrite, bool abort_if_error) const = 0;
     void         finalize_file_open() const;
 
-    int  get_current_state() const; // Get current state with error checks and usage message.
+    IOSS_NODISCARD int
+         get_current_state() const; // Get current state with error checks and usage message.
     void put_qa();
     void put_info();
 
@@ -239,8 +239,9 @@ namespace Ioex {
     void add_attribute_fields(Ioss::GroupingEntity *block, int attribute_count,
                               const std::string &type);
 
-    void common_write_meta_data(Ioss::IfDatabaseExistsBehavior behavior);
-    void output_other_meta_data();
+    void common_write_metadata(Ioss::IfDatabaseExistsBehavior behavior);
+    void output_other_metadata();
+    void output_field_metadata();
 
     int64_t internal_add_results_fields(ex_entity_type type, Ioss::GroupingEntity *entity,
                                         int64_t position, int64_t block_count,
@@ -249,6 +250,9 @@ namespace Ioex {
     int64_t add_results_fields(Ioss::GroupingEntity *entity, int64_t position = 0);
     int64_t add_reduction_results_fields(Ioss::GroupingEntity *entity);
     void    add_mesh_reduction_fields(int64_t id, Ioss::GroupingEntity *entity);
+    std::vector<Ioss::Field> get_fields_via_field_metadata(Ioss::GroupingEntity *entity,
+                                                           ex_entity_type        type,
+                                                           Ioss::NameList       &names);
 
     void add_region_fields();
     void store_reduction_field(const Ioss::Field &field, const Ioss::GroupingEntity *ge,
@@ -261,13 +265,11 @@ namespace Ioex {
 
     // Handle special output time requests -- primarily restart (cycle, keep, overwrite)
     // Given the global region step, return the step on the database...
-    int get_database_step(int global_step) const;
+    IOSS_NODISCARD int get_database_step(int global_step) const;
 
-    void flush_database__() const override;
+    void flush_database_nl() const override;
     void finalize_write(int state, double sim_time);
 
-    // Private member data...
-  protected:
     mutable int m_exodusFilePtr{-1};
     // If using links to file-per-state, the file pointer for "base" file.
     mutable int m_exodusBasePtr{-1};

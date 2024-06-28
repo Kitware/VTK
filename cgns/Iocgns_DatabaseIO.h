@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -6,25 +6,26 @@
 
 #pragma once
 
-#include "iocgns_export.h"
-
-#include <Ioss_CodeTypes.h>
-#include <Ioss_DBUsage.h>    // for DatabaseUsage
-#include <Ioss_DatabaseIO.h> // for DatabaseIO
-#include <Ioss_FaceGenerator.h>
-#include <Ioss_IOFactory.h> // for IOFactory
-#include <Ioss_Map.h>       // for Map
-#include <Ioss_State.h>     // for State
-#include <cstddef>          // for size_t
-#include <cstdint>          // for int64_t
-#include <iostream>         // for ostream
-#include <map>
-#include <string> // for string
-
-#include <cgns/Iocgns_Defines.h>
-
+#include "Ioss_CodeTypes.h"
+#include "Ioss_DBUsage.h"    // for DatabaseUsage
+#include "Ioss_DatabaseIO.h" // for DatabaseIO
+#include "Ioss_FaceGenerator.h"
+#include "Ioss_IOFactory.h" // for IOFactory
+#include "Ioss_Map.h"       // for Map
+#include "Ioss_State.h"     // for State
+#include "cgns/Iocgns_Defines.h"
 #include <vtk_cgns.h> // xxx(kitware)
 #include VTK_CGNS(cgnslib.h)
+#include <cgnstypes.h>
+#include <cstddef>  // for size_t
+#include <cstdint>  // for int64_t
+#include <iostream> // for ostream
+#include <map>
+#include <string> // for string
+#include <vector>
+
+#include "iocgns_export.h"
+#include "vtk_ioss_mangle.h"
 
 namespace Ioss {
   class Assembly;
@@ -46,6 +47,8 @@ namespace Ioss {
   class SideSet;
   class EntityBlock;
   class StructuredBlock;
+  class Map;
+  class PropertyManager;
 } // namespace Ioss
 
 /** \brief A namespace for the CGNS database format.
@@ -64,48 +67,49 @@ namespace Iocgns {
     // unsigned int with the supported Ioss::EntityTypes or'ed
     // together. If "return_value & Ioss::EntityType" is set, then the
     // database supports that type (e.g. return_value & Ioss::FACESET)
-    unsigned entity_field_support() const override;
-
-    int64_t node_global_to_local__(int64_t global, bool must_exist) const override;
-    int64_t element_global_to_local__(int64_t global) const override;
+    IOSS_NODISCARD unsigned entity_field_support() const override;
 
     ~DatabaseIO() override;
 
-    const std::string get_format() const override { return "CGNS"; }
+    IOSS_NODISCARD std::string get_format() const override { return "CGNS"; }
 
     // This isn't quite true since a CGNS library with cgsize_t == 64-bits can read
     // a file with 32-bit ints. However,...
-    int int_byte_size_db() const override { return CG_SIZEOF_SIZE; }
+    IOSS_NODISCARD int int_byte_size_db() const override { return CG_SIZEOF_SIZE; }
 
-    bool node_major() const override { return false; }
+    IOSS_NODISCARD bool node_major() const override { return false; }
 
     // Metadata-related functions.
-    void read_meta_data__() override;
     void write_meta_data();
     void write_results_meta_data();
 
-    int get_file_pointer() const override;
+    IOSS_NODISCARD int get_file_pointer() const override;
 
   private:
+    IOSS_NODISCARD int64_t node_global_to_local_nl(int64_t global, bool must_exist) const override;
+    IOSS_NODISCARD int64_t element_global_to_local_nl(int64_t global) const override;
+
+    void read_meta_data_nl() override;
+
     void open_state_file(int state);
     void free_state_pointer();
 
-    void openDatabase__() const override;
-    void closeDatabase__() const override;
+    void openDatabase_nl() const override;
+    void closeDatabase_nl() const override;
 
-    bool begin__(Ioss::State state) override;
-    bool end__(Ioss::State state) override;
+    IOSS_NODISCARD bool begin_nl(Ioss::State state) override;
+    IOSS_NODISCARD bool end_nl(Ioss::State state) override;
 
-    bool begin_state__(int state, double time) override;
-    bool end_state__(int state, double time) override;
-    void flush_database__() const override;
+    IOSS_NODISCARD bool begin_state_nl(int state, double time) override;
+    IOSS_NODISCARD bool end_state_nl(int state, double time) override;
+    void                flush_database_nl() const override;
 
     bool   check_valid_file_open(int status) const;
     void   create_structured_block(int base, int zone, size_t &num_node);
     void   create_structured_block_fpp(int base, int num_zones, size_t &num_node);
     size_t finalize_structured_blocks();
     void   finalize_database() const override;
-    void   get_step_times__() override;
+    void   get_step_times_nl() override;
 
     void create_unstructured_block(int base, int zone, size_t &num_node);
     void write_adjacency_data();
@@ -193,11 +197,11 @@ namespace Iocgns {
                                       void *data, size_t data_size) const;
 
     // ID Mapping functions.
-    const Ioss::Map &get_map(entity_type type) const;
-    const Ioss::Map &get_map(Ioss::Map &entity_map, int64_t entityCount, int64_t file_offset,
-                             int64_t file_count, entity_type type) const;
+    IOSS_NODISCARD const Ioss::Map &get_map(entity_type type) const;
+    IOSS_NODISCARD const Ioss::Map &get_map(Ioss::Map &entity_map, int64_t entityCount,
+                                            int64_t file_offset, int64_t file_count,
+                                            entity_type type) const;
 
-  private:
     mutable int m_cgnsFilePtr{-1};
     mutable int m_cgnsBasePtr{
         -1}; // If using links to file-per-state, the file pointer for "base" file.

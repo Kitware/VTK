@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -7,18 +7,17 @@
 #pragma once
 
 #include "ioss_export.h"
-
 #include "vtk_ioss_mangle.h"
 
-#include <Ioss_CodeTypes.h>       // for Complex
-#include <Ioss_DatabaseIO.h>      // for DatabaseIO
-#include <Ioss_EntityType.h>      // for EntityType
-#include <Ioss_Field.h>           // for Field, Field::RoleType, etc
-#include <Ioss_FieldManager.h>    // for FieldManager, NameList
-#include <Ioss_Property.h>        // for Property
-#include <Ioss_PropertyManager.h> // for PropertyManager
-#include <Ioss_State.h>           // for State
-#include <Ioss_VariableType.h>    // for component_count()
+#include "Ioss_CodeTypes.h"       // for Complex
+#include "Ioss_DatabaseIO.h"      // for DatabaseIO
+#include "Ioss_EntityType.h"      // for EntityType
+#include "Ioss_Field.h"           // for Field, Field::RoleType, etc
+#include "Ioss_FieldManager.h"    // for FieldManager, NameList
+#include "Ioss_Property.h"        // for Property
+#include "Ioss_PropertyManager.h" // for PropertyManager
+#include "Ioss_State.h"           // for State
+#include "Ioss_VariableType.h"    // for component_count()
 #include <cstddef>                // for size_t, nullptr
 #include <cstdint>                // for int64_t
 #include <string>                 // for string
@@ -29,8 +28,6 @@
 #endif
 
 namespace Ioss {
-
-  class EntityBlock;
 
   /** \brief Base class for all 'grouping' entities.
    *  The following derived classes are typical:
@@ -52,7 +49,7 @@ namespace Ioss {
    *  A Region is also a grouping entity, except that its list of subentites
    *  are other GroupingEntities. That is, it maintains a list of NodeBlocks,
    *  ElementBlocks, NodeLists, CommLists and Surfaces. [Similar to the
-   *  "Composite Patter" in Design Patterns]  All interface to GroupingEntities
+   *  "Composite Pattern" in Design Patterns]  All interface to GroupingEntities
    *  is through the Region class; clients of the IO subsystem have no direct
    *  access to the underlying GroupingEntities (other than the Region).
    *
@@ -74,17 +71,17 @@ namespace Ioss {
 
     GroupingEntity() = default;
     GroupingEntity(DatabaseIO *io_database, const std::string &my_name, int64_t entity_count);
-    GroupingEntity(const GroupingEntity &);
-    GroupingEntity &operator=(const GroupingEntity &) = delete;
+    GroupingEntity(const GroupingEntity &other);
+    GroupingEntity &operator=(const GroupingEntity &rhs) = delete;
 
     virtual ~GroupingEntity();
 
-    State get_state() const;
+    IOSS_NODISCARD State get_state() const;
 
-    DatabaseIO  *get_database() const;
-    void         set_database(DatabaseIO *io_database);
-    void         reset_database(DatabaseIO *io_database);
-    virtual void delete_database();
+    IOSS_NODISCARD DatabaseIO *get_database() const;
+    void                       set_database(DatabaseIO *io_database);
+    void                       reset_database(DatabaseIO *io_database);
+    virtual void               delete_database();
 
     /** Return the GroupingEntity pointer of the "object" that this
      *  entity is contained in.  For example, a SideBlock would
@@ -94,14 +91,14 @@ namespace Ioss {
      *  A NodeBlock containing the subset of nodes in a StructuredBlock
      *  would return that StructuredBlock.
      */
-    virtual const GroupingEntity *contained_in() const;
+    IOSS_NODISCARD virtual const GroupingEntity *contained_in() const;
 
     /** \brief Get name of entity.
      *
      *  This short-circuits the process of getting the name via the property.
      *  \returns The same information as: entity->get_property("name").get_string()
      */
-    const std::string &name() const { return entityName; }
+    IOSS_NODISCARD const std::string &name() const { return entityName; }
 
     /** \brief Set the name of the entity.
      *
@@ -115,14 +112,14 @@ namespace Ioss {
      *  This is the default name if no name is assigned in the mesh database.
      *  \returns The generic name.
      */
-    std::string generic_name() const;
+    IOSS_NODISCARD std::string generic_name() const;
 
     /** Determine whether a name is an alias for this entity.
      *
      *  \param[in] my_name Determine whether this name is an alias for this entity.
      *  \returns True if input name is an alias for this entity.
      */
-    bool is_alias(const std::string &my_name) const;
+    IOSS_NODISCARD bool is_alias(const std::string &my_name) const;
 
     /** \brief Get list of blocks that the entities in this GroupingEntity "touch".
      *
@@ -132,51 +129,53 @@ namespace Ioss {
      * Entries are pushed onto the "block_members" vector, so it will be
      * appended to if it is not empty at entry to the function.
      */
-    virtual void block_membership(std::vector<std::string> & /* block_members */) {}
+    virtual void block_membership(Ioss::NameList & /* block_members */) {}
 
-    std::string get_filename() const;
+    IOSS_NODISCARD std::string get_filename() const;
 
     /** \brief Get the name of the particular type of entity.
      *
      *  \returns The name of the particular type of entity.
      */
-    virtual std::string type_string() const = 0;
+    IOSS_NODISCARD virtual std::string type_string() const = 0;
 
     /** \brief Get a short name of the particular type of entity.
      *
      *  \returns The short name of the particular type of entity.
      */
-    virtual std::string short_type_string() const = 0;
+    IOSS_NODISCARD virtual std::string short_type_string() const = 0;
 
     /** \brief What does this entity contain
      *
      *  \returns The name of the thing this entity contains.
      */
-    virtual std::string contains_string() const = 0;
+    IOSS_NODISCARD virtual std::string contains_string() const = 0;
 
     /** \brief Get the EntityType, which indicates the particular type of GroupingEntity this is.
      *
      *  \returns The particular EntityType of this GroupingEntity.
      */
-    virtual EntityType type() const = 0;
+    IOSS_NODISCARD virtual EntityType type() const = 0;
 
     // ========================================================================
     //                                PROPERTIES
     // ========================================================================
     // Property-related information....
     // Just forward it through to the property manager...
-    void        property_add(const Property &new_prop);
-    void        property_erase(const std::string &property_name);
-    bool        property_exists(const std::string &property_name) const;
-    Property    get_property(const std::string &property_name) const;
-    int64_t     get_optional_property(const std::string &property, int64_t optional_value) const;
-    std::string get_optional_property(const std::string &property_name,
-                                      const std::string &optional_value) const;
-    NameList    property_describe() const;
-    int         property_describe(NameList *names) const;
-    NameList    property_describe(Ioss::Property::Origin origin) const;
-    int         property_describe(Ioss::Property::Origin origin, NameList *names) const;
-    size_t      property_count() const;
+    inline void                    property_add(const Property &new_prop);
+    inline void                    property_erase(const std::string &property_name);
+    IOSS_NODISCARD inline bool     property_exists(const std::string &property_name) const;
+    IOSS_NODISCARD inline Property get_property(const std::string &property_name) const;
+    IOSS_NODISCARD inline int64_t  get_optional_property(const std::string &property,
+                                                         int64_t            optional_value) const;
+    IOSS_NODISCARD inline std::string
+                                   get_optional_property(const std::string &property_name,
+                                                         const std::string &optional_value) const;
+    IOSS_NODISCARD inline NameList property_describe() const;
+    inline int                     property_describe(NameList *names) const;
+    IOSS_NODISCARD inline NameList property_describe(Ioss::Property::Origin origin) const;
+    inline int property_describe(Ioss::Property::Origin origin, NameList *names) const;
+    IOSS_NODISCARD inline size_t property_count() const;
     /** Add a property, or change its value if it already exists with
         a different value */
     void property_update(const std::string &property, int64_t value) const;
@@ -186,20 +185,20 @@ namespace Ioss {
     //                                FIELDS
     // ========================================================================
     // Just forward these through to the field manager...
-    void         field_add(Field new_field);
-    void         field_erase(const std::string &field_name);
-    void         field_erase(Field::RoleType role);
-    bool         field_exists(const std::string &field_name) const;
-    Field        get_field(const std::string &field_name) const;
-    const Field &get_fieldref(const std::string &field_name) const;
-    int          field_describe(NameList *names) const;
-    NameList     field_describe() const;
-    int          field_describe(Field::RoleType role, NameList *names) const;
-    NameList     field_describe(Field::RoleType role) const;
-    size_t       field_count() const;
-    size_t       field_count(Field::RoleType role) const;
+    void                               field_add(Field new_field);
+    inline void                        field_erase(const std::string &field_name);
+    inline void                        field_erase(Field::RoleType role);
+    IOSS_NODISCARD inline bool         field_exists(const std::string &field_name) const;
+    IOSS_NODISCARD inline Field        get_field(const std::string &field_name) const;
+    IOSS_NODISCARD inline const Field &get_fieldref(const std::string &field_name) const;
+    inline int                         field_describe(NameList *names) const;
+    IOSS_NODISCARD inline NameList     field_describe() const;
+    inline int                         field_describe(Field::RoleType role, NameList *names) const;
+    IOSS_NODISCARD inline NameList     field_describe(Field::RoleType role) const;
+    IOSS_NODISCARD inline size_t       field_count() const;
+    IOSS_NODISCARD size_t              field_count(Field::RoleType role) const;
 
-    bool         check_for_duplicate(const Ioss::Field &new_field) const;
+    IOSS_NODISCARD bool check_for_duplicate(const Ioss::Field &new_field) const;
 
     // Put this fields data into 'data'.
 
@@ -208,6 +207,12 @@ namespace Ioss {
     int64_t get_field_data(const std::string &field_name, void *data, size_t data_size) const;
 
     int64_t put_field_data(const std::string &field_name, void *data, size_t data_size) const;
+
+    // Zero-copy API.  *IF* a field is zero-copyable, then this function will set the `data`
+    // pointer to point to a chunk of memory of size `data_size` bytes containing the field
+    // data for the specified field.  If the field is not zero-copyable, then the  `data`
+    // pointer will point to `nullptr` and `data_size` will be 0.
+    int64_t get_field_data(const std::string &field_name, void **data, size_t *data_size) const;
 
     // Put this fields data into the specified std::vector space.
     // Returns number of entities for which the field was read.
@@ -243,7 +248,7 @@ namespace Ioss {
      *
      *  \returns The number of bytes.
      */
-    Ioss::Field::BasicType field_int_type() const
+    IOSS_NODISCARD Ioss::Field::BasicType field_int_type() const
     {
       if (database_ == nullptr || get_database()->int_byte_size_api() == 4) {
         return Ioss::Field::INT32;
@@ -252,14 +257,14 @@ namespace Ioss {
       return Ioss::Field::INT64;
     }
 
-    unsigned int hash() const { return hash_; }
+    IOSS_NODISCARD unsigned int hash() const { return hash_; }
 
-    int64_t entity_count() const { return get_property("entity_count").get_int(); }
+    IOSS_NODISCARD int64_t entity_count() const { return get_property("entity_count").get_int(); }
 
     // COMPARE GroupingEntities
-    bool operator!=(const GroupingEntity &rhs) const;
-    bool operator==(const GroupingEntity &rhs) const;
-    bool equal(const GroupingEntity &rhs) const;
+    IOSS_NODISCARD bool operator!=(const GroupingEntity &rhs) const;
+    IOSS_NODISCARD bool operator==(const GroupingEntity &rhs) const;
+    IOSS_NODISCARD bool equal(const GroupingEntity &rhs) const;
 
   protected:
     void count_attributes() const;
@@ -275,14 +280,14 @@ namespace Ioss {
     // private and provide friend...
     void really_delete_database();
 
-    // Handle implicit properties -- These are calcuated from data stored
+    // Handle implicit properties -- These are calculated from data stored
     // in the grouping entity instead of having an explicit value assigned.
     // An example would be 'element_block_count' for a region.
     // Note that even though this is a pure virtual function, an implementation
     // is provided to return properties that are common to all grouping entities.
     // Derived classes should call 'GroupingEntity::get_implicit_property'
     // if the requested property is not specific to their type.
-    virtual Property get_implicit_property(const std::string &my_name) const = 0;
+    IOSS_NODISCARD virtual Property get_implicit_property(const std::string &my_name) const = 0;
 
     PropertyManager properties;
     FieldManager    fields;
@@ -292,13 +297,16 @@ namespace Ioss {
     virtual int64_t internal_put_field_data(const Field &field, void *data,
                                             size_t data_size = 0) const = 0;
 
+    virtual int64_t internal_get_zc_field_data(const Field &field, void **data,
+                                               size_t *data_size) const = 0;
+
     int64_t entityCount = 0;
 
 #if defined(IOSS_THREADSAFE)
     mutable std::mutex m_;
 #endif
 
-    bool equal_(const GroupingEntity &rhs, const bool quiet) const;
+    IOSS_NODISCARD bool equal_(const GroupingEntity &rhs, bool quiet) const;
 
   private:
     void verify_field_exists(const std::string &field_name, const std::string &inout) const;
@@ -517,15 +525,15 @@ int64_t Ioss::GroupingEntity::get_field_data(const std::string &field_name,
   verify_field_exists(field_name, "input");
 
   Ioss::Field field = get_field(field_name);
-  field.check_type(Ioss::Field::get_field_type(T(0)));
+  field.check_type(Ioss::Field::get_field_type(static_cast<T>(0)));
 
   data.resize(field.raw_count() * field.raw_storage()->component_count());
   size_t data_size = data.size() * sizeof(T);
-  auto   retval    = internal_get_field_data(field, data.data(), data_size);
+  auto   retval    = internal_get_field_data(field, Data(data), data_size);
 
   // At this point, transform the field if specified...
   if (retval >= 0) {
-    field.transform(data.data());
+    field.transform(Data(data));
   }
 
   return retval;
@@ -550,11 +558,11 @@ int64_t Ioss::GroupingEntity::put_field_data(const std::string    &field_name,
   if (field.has_transform()) {
     // Need non-const data since the transform will change the users data.
     std::vector<T> nc_data(data);
-    field.transform(nc_data.data());
-    return internal_put_field_data(field, nc_data.data(), data_size);
+    field.transform(Data(nc_data));
+    return internal_put_field_data(field, Data(nc_data), data_size);
   }
 
-  T *my_data = const_cast<T *>(data.data());
+  T *my_data = const_cast<T *>(Data(data));
   return internal_put_field_data(field, my_data, data_size);
 }
 
@@ -565,9 +573,9 @@ int64_t Ioss::GroupingEntity::put_field_data(const std::string &field_name,
   verify_field_exists(field_name, "output");
 
   Ioss::Field field = get_field(field_name);
-  field.check_type(Ioss::Field::get_field_type(T(0)));
+  field.check_type(Ioss::Field::get_field_type(static_cast<T>(0)));
   size_t data_size = data.size() * sizeof(T);
-  T     *my_data   = const_cast<T *>(data.data());
+  T     *my_data   = const_cast<T *>(Data(data));
   field.transform(my_data);
   return internal_put_field_data(field, my_data, data_size);
 }

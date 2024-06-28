@@ -1,17 +1,16 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
-#include "Ioss_CodeTypes.h"     // for SEACAS_HAVE_MPI
-#include <Ioss_DatabaseIO.h>    // for DatabaseIO
-#include <Ioss_ParallelUtils.h> // for ParallelUtils
-#include <Ioss_SerializeIO.h>
-#include <Ioss_Utils.h> // for IOSS_ERROR, Ioss::WarnOut()
+#include "Ioss_DatabaseIO.h"    // for DatabaseIO
+#include "Ioss_ParallelUtils.h" // for ParallelUtils
+#include "Ioss_SerializeIO.h"
+#include "Ioss_Utils.h" // for IOSS_ERROR, Ioss::WarnOut()
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
-#include <ostream> // for operator<<, etc
-#include <string>  // for char_traits
+
+#include "Ioss_CodeTypes.h" // for SEACAS_HAVE_MPI
 
 namespace Ioss {
 
@@ -26,8 +25,7 @@ namespace Ioss {
   std::mutex SerializeIO::m_;
 #endif
 
-  SerializeIO::SerializeIO(const DatabaseIO *database_io)
-      : m_databaseIO(database_io), m_activeFallThru(true)
+  SerializeIO::SerializeIO(const DatabaseIO *database_io) : m_databaseIO(database_io)
 
   {
     if (m_databaseIO->using_parallel_io()) {
@@ -51,7 +49,7 @@ namespace Ioss {
         do {
           util.barrier();
         } while (++s_owner != s_groupRank);
-        m_databaseIO->openDatabase__();
+        m_databaseIO->openDatabase_nl();
       }
       else {
         s_owner = s_groupRank;
@@ -68,7 +66,7 @@ namespace Ioss {
       IOSS_FUNC_ENTER(m_);
       if (!m_activeFallThru) {
         if (s_groupFactor > 0) {
-          m_databaseIO->closeDatabase__();
+          m_databaseIO->closeDatabase_nl();
           s_owner                        = s_groupRank;
           const Ioss::ParallelUtils util = m_databaseIO->util();
           do {
