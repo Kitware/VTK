@@ -12,26 +12,20 @@
 #include "DICOMCallback.h"
 #include "DICOMConfig.h"
 
-#include <stdlib.h>
-#if !defined(__MWERKS__)
-#include <math.h>
-#endif
 #include <cassert>
-#include <time.h>
-#if !defined(__MWERKS__)
+#include <math.h>
+#include <stdlib.h>
 #include <sys/types.h>
-#endif
+#include <time.h>
 
 #include <iostream>
 #include <string.h>
 #include <string>
 
-// Define DEBUG_DICOM to get debug messages
-// #define DEBUG_DICOM
-
 #define DICOMPARSER_IGNORE_MAGIC_NUMBER
 
 VTK_ABI_NAMESPACE_BEGIN
+
 static const char* DICOM_MAGIC = "DICM";
 static const int OPTIONAL_SKIP = 128;
 
@@ -85,21 +79,6 @@ bool DICOMParser::OpenFile(const std::string& filename)
     this->FileName = filename;
   }
 
-#ifdef DEBUG_DICOM
-  if (this->ParserOutputFile.rdbuf()->is_open())
-  {
-    this->ParserOutputFile.flush();
-    this->ParserOutputFile.close();
-  }
-
-  std::string fn(filename);
-  std::string append(".parser.txt");
-  std::string parseroutput(fn + append);
-  // std::string parseroutput(std::string(std::string(filename) +
-  // std::string(".parser.txt")));
-  this->ParserOutputFile.open(parseroutput.c_str()); //, std::ios::app);
-#endif
-
   return val;
 }
 
@@ -120,11 +99,6 @@ DICOMParser::~DICOMParser()
   delete this->DataFile;
   delete this->TransferSyntaxCB;
   delete this->Implementation;
-
-#ifdef DEBUG_DICOM
-  this->ParserOutputFile.flush();
-  this->ParserOutputFile.close();
-#endif
 }
 
 bool DICOMParser::ReadHeader()
@@ -326,10 +300,6 @@ void DICOMParser::ReadNextRecord(
       callbackType = mytype;
     }
 
-#ifdef DEBUG_DICOM
-    this->DumpTag(this->ParserOutputFile, group, element, callbackType, tempdata, length);
-#endif
-
     std::pair<const DICOMMapKey, DICOMMapValue> p = *iter;
     DICOMMapValue mv = p.second;
 
@@ -340,42 +310,9 @@ void DICOMParser::ReadNextRecord(
     {
       if (doSwap)
       {
-#ifdef DEBUG_DICOM
-        std::cout << "==============================" << std::endl;
-        std::cout << "TOGGLE BS FOR IMAGE" << std::endl;
-        std::cout << " ToggleByteSwapImageData : " << this->ToggleByteSwapImageData << std::endl;
-        std::cout << " DataFile Byte Swap : " << this->DataFile->GetPlatformIsBigEndian()
-                  << std::endl;
-        std::cout << "==============================" << std::endl;
-#endif
         size_t uLength = static_cast<size_t>(length);
         DICOMFile::swap2(reinterpret_cast<ushort*>(tempdata), reinterpret_cast<ushort*>(tempdata),
           static_cast<int>(uLength / sizeof(ushort)));
-      }
-      else
-      {
-#ifdef DEBUG_DICOM
-        std::cout << "==============================" << std::endl;
-        std::cout << " AT IMAGE DATA " << std::endl;
-        std::cout << " ToggleByteSwapImageData : " << this->ToggleByteSwapImageData << std::endl;
-        std::cout << " DataFile Byte Swap : " << this->DataFile->GetPlatformIsBigEndian()
-                  << std::endl;
-
-        int t2 = int((0x0000FF00 & callbackType) >> 8);
-        int t1 = int((0x000000FF & callbackType));
-
-        if (t1 == 0 && t2 == 0)
-        {
-          t1 = '?';
-          t2 = '?';
-        }
-
-        char ct2(t2);
-        char ct1(t1);
-        std::cout << " Callback type : " << ct1 << ct2 << std::endl;
-
-        std::cout << "==============================" << std::endl;
-#endif
       }
     }
     else
@@ -455,10 +392,6 @@ void DICOMParser::ReadNextRecord(
     {
       DataFile->Skip(length);
     }
-#ifdef DEBUG_DICOM
-    this->DumpTag(
-      this->ParserOutputFile, group, element, mytype, (unsigned char*)"Unread.", length);
-#endif
   }
 }
 
@@ -667,23 +600,13 @@ void DICOMParser::TransferSyntaxCallback(
   DICOMParser*, doublebyte, doublebyte, DICOMParser::VRTypes, unsigned char* val, quadbyte)
 
 {
-#ifdef DEBUG_DICOM
-  std::cout << "DICOMParser::TransferSyntaxCallback" << std::endl;
-#endif
-
   const char* TRANSFER_UID_EXPLICIT_BIG_ENDIAN = "1.2.840.10008.1.2.2";
   const char* TRANSFER_UID_GE_PRIVATE_IMPLICIT_BIG_ENDIAN = "1.2.840.113619.5.2";
-
-  // char* fileEndian = "LittleEndian";
-  // char* dataEndian = "LittleEndian";
 
   this->ToggleByteSwapImageData = false;
 
   if (strcmp(TRANSFER_UID_EXPLICIT_BIG_ENDIAN, reinterpret_cast<char*>(val)) == 0)
   {
-#ifdef DEBUG_DICOM
-    std::cout << "EXPLICIT BIG ENDIAN" << std::endl;
-#endif
     this->ToggleByteSwapImageData = true;
     //
     // Data byte order is big endian
@@ -694,13 +617,6 @@ void DICOMParser::TransferSyntaxCallback(
   else if (strcmp(TRANSFER_UID_GE_PRIVATE_IMPLICIT_BIG_ENDIAN, reinterpret_cast<char*>(val)) == 0)
   {
     this->ToggleByteSwapImageData = true;
-#ifdef DEBUG_DICOM
-    std::cout << "GE PRIVATE TRANSFER SYNTAX" << std::endl;
-    std::cout << "ToggleByteSwapImageData : " << this->ToggleByteSwapImageData << std::endl;
-#endif
-  }
-  else
-  {
   }
 }
 

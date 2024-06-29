@@ -194,35 +194,12 @@ protected:
   bool ByteSwapData;
 
   //
-  // Stores a map from pair<group, element> keys to
-  // values of pair<vector<DICOMCallback*>, datatype>
-  //
-  // DICOMParserMap Map;
-
-  //
-  // Stores a map from pair<group, element> keys to
-  // values of datatype.  We use this to store the
-  // datatypes for implicit keys that we are
-  // interested in.
-  //
-  // DICOMImplicitTypeMap TypeMap;
-
-  //
-  // Used for outputting debug information.
-  //
-  std::ofstream ParserOutputFile;
-
-  //
   // Pointer to the DICOMFile we're parsing.
   //
   DICOMFile* DataFile;
   std::string FileName;
 
   bool ToggleByteSwapImageData;
-
-  // std::vector<doublebyte> Groups;
-  // std::vector<doublebyte> Elements;
-  // std::vector<VRTypes> Datatypes;
 
   DICOMMemberCallback<DICOMParser>* TransferSyntaxCB;
 
