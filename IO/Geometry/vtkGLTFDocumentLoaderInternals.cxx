@@ -295,7 +295,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessorBounds(
   const nlohmann::json& root, vtkGLTFDocumentLoader::Accessor& accessor)
 {
   // min
-  const nlohmann::json& minArray = root["min"];
+  const nlohmann::json& minArray = root.value("min", nlohmann::json::array());
   if (!minArray.empty() && minArray.is_array())
   {
     if (minArray.size() != accessor.NumberOfComponents)
@@ -312,7 +312,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessorBounds(
     }
   }
   // max
-  const nlohmann::json& maxArray = root["max"];
+  const nlohmann::json& maxArray = root.value("max", nlohmann::json::array());
   if (!maxArray.empty() && maxArray.is_array())
   {
     if (maxArray.size() != accessor.NumberOfComponents)
@@ -364,10 +364,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadAnimation(
       return false;
     }
     channel.TargetNode = -1;
-    vtkGLTFUtils::GetIntValue(channelRoot["target"], "node", channel.TargetNode);
+    const auto& target = channelRoot.value("target", nlohmann::json::object());
+    vtkGLTFUtils::GetIntValue(target, "node", channel.TargetNode);
 
     std::string targetPathString;
-    if (!vtkGLTFUtils::GetStringValue(channelRoot["target"], "path", targetPathString))
+    if (!vtkGLTFUtils::GetStringValue(target, "path", targetPathString))
     {
       vtkErrorWithObjectMacro(
         this->Self, "Invalid animation.channel.target.path value for animation " << animation.Name);
@@ -400,7 +401,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAnimation(
 
   float maxDuration = 0;
   // Load sampler metadata
-  for (const auto& samplerRoot : root["samplers"])
+  for (const auto& samplerRoot : root.value("samplers", nlohmann::json::array()))
   {
     vtkGLTFDocumentLoader::Animation::Sampler sampler;
     if (!vtkGLTFUtils::GetUIntValue(samplerRoot, "input", sampler.Input))
@@ -529,12 +530,12 @@ bool vtkGLTFDocumentLoaderInternals::LoadCamera(
 
   if (type == "orthographic")
   {
-    camRoot = root["orthographic"];
+    camRoot = root.value("orthographic", nlohmann::json::object());
     camera.IsPerspective = false;
   }
   else if (type == "perspective")
   {
-    camRoot = root["perspective"];
+    camRoot = root.value("perspective", nlohmann::json::object());
     camera.IsPerspective = true;
   }
   else
@@ -657,7 +658,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
   double metallicFactor = 1;
   double roughnessFactor = 1;
 
-  const auto& pbrRoot = root["pbrMetallicRoughness"];
+  const auto& pbrRoot = root.value("pbrMetallicRoughness", nlohmann::json::object());
   if (!pbrRoot.empty())
   {
     if (vtkGLTFUtils::GetDoubleValue(pbrRoot, "metallicFactor", metallicFactor))
@@ -783,7 +784,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadMesh(
   }
 
   // Load primitives
-  for (const auto& glTFPrimitive : root["primitives"])
+  for (const auto& glTFPrimitive : root.value("primitives", nlohmann::json::array()))
   {
     vtkGLTFDocumentLoader::Primitive primitive;
     if (this->LoadPrimitive(glTFPrimitive, primitive))
@@ -1068,7 +1069,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadPrimitive(
 
   primitive.IndicesId = -1;
   vtkGLTFUtils::GetIntValue(root, "indices", primitive.IndicesId);
-  const auto& glTFAttributes = root["attributes"];
+  const auto& glTFAttributes = root.value("attributes", nlohmann::json::object());
   if (!glTFAttributes.empty() && glTFAttributes.is_object())
   {
     for (const auto& glTFAttribute : glTFAttributes.items())
@@ -1192,8 +1193,8 @@ bool vtkGLTFDocumentLoaderInternals::LoadSparse(
     vtkErrorWithObjectMacro(this->Self, "Invalid accessor.sparse.count value");
     return false;
   }
-  const nlohmann::json& indices = root["indices"];
-  const nlohmann::json& values = root["values"];
+  const nlohmann::json& indices = root.value("indices", nlohmann::json::object());
+  const nlohmann::json& values = root.value("values", nlohmann::json::object());
   if (indices.empty() || values.empty() || !indices.is_object() || !values.is_object())
   {
     vtkErrorWithObjectMacro(
@@ -1547,8 +1548,9 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualNodeExtension(const nl
 bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtension(
   const nlohmann::json& root, vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual& lightsExtension)
 {
-  lightsExtension.Lights.reserve(root["lights"].size());
-  for (const auto& glTFLight : root["lights"])
+  const auto& lights = root.value("lights", nlohmann::json::array());
+  lightsExtension.Lights.reserve(lights.size());
+  for (const auto& glTFLight : lights)
   {
     vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light light;
     if (this->LoadKHRLightsPunctualExtensionLight(glTFLight, light))
@@ -1600,7 +1602,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
   {
     light.Type = vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::SPOT;
     // Load innerConeAngle and outerConeAngle
-    auto const& glTFSpot = root["spot"];
+    auto const& glTFSpot = root.value("spot", nlohmann::json());
     if (glTFSpot.is_null() || !glTFSpot.is_object())
     {
       vtkErrorWithObjectMacro(
