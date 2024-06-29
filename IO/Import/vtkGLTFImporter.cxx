@@ -419,6 +419,7 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
   if (!model)
   {
     vtkErrorMacro("The GLTF model is nullptr, aborting.");
+    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
     return;
   }
 
@@ -557,6 +558,7 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
   if (!model)
   {
     vtkErrorMacro("The GLTF model is nullptr, aborting.");
+    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
     return;
   }
 
@@ -602,7 +604,9 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
   // update enabled camera
   if (this->EnabledCamera >= this->GetNumberOfCameras())
   {
-    vtkErrorMacro("Camera index " << this->EnabledCamera << "is invalid");
+    vtkWarningMacro("Camera index "
+      << this->EnabledCamera
+      << "is invalid, cameras have been imported but none have been enabled.");
     this->EnabledCamera = -1;
     return;
   }
@@ -664,6 +668,7 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
   if (!model)
   {
     vtkErrorMacro("The GLTF model is nullptr, aborting.");
+    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
     return;
   }
 
@@ -749,6 +754,7 @@ void vtkGLTFImporter::ApplySkinningMorphing()
   if (!model)
   {
     vtkErrorMacro("The GLTF model is nullptr, aborting.");
+    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
     return;
   }
 

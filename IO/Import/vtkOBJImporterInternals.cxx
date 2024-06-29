@@ -355,23 +355,23 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
   return listOfMaterials;
 }
 
-void bindTexturedPolydataToRenderWindow(
+bool bindTexturedPolydataToRenderWindow(
   vtkRenderWindow* renderWindow, vtkRenderer* renderer, vtkOBJPolyDataProcessor* reader)
 {
   if (nullptr == (renderWindow))
   {
     vtkErrorWithObjectMacro(reader, "RenderWindow is null, failure!");
-    return;
+    return false;
   }
   if (nullptr == (renderer))
   {
     vtkErrorWithObjectMacro(reader, "Renderer is null, failure!");
-    return;
+    return false;
   }
   if (nullptr == (reader))
   {
     vtkErrorWithObjectMacro(reader, "vtkOBJPolyDataProcessor is null, failure!");
-    return;
+    return false;
   }
 
   reader->actor_list.clear();
@@ -538,6 +538,7 @@ void bindTexturedPolydataToRenderWindow(
 
     reader->actor_list.push_back(actor); // keep a handle on actors to animate later
   }
+  return true;
   /** post-condition of this function: the renderer has had a bunch of actors added to it */
 }
 
