@@ -19,21 +19,6 @@
 //
 // END toolkit (ITK, VTK, etc) specific
 //
-#define dicom_stl std
-
-#ifdef DICOM_ANSI_STDLIB
-#define dicom_stream std
-
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#else
-#define dicom_stream
-
-#include <fstream.h>
-#include <iomanip.h>
-#include <iostream.h>
-#endif
 
 #ifdef DICOM_DLL
 #ifdef DICOMParser_EXPORTS
