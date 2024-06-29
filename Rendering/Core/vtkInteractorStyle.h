@@ -145,6 +145,7 @@ public:
    * Set/Get the Interactor wrapper being controlled by this object.
    * (Satisfy superclass API.)
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetInteractor(vtkRenderWindowInteractor* interactor) override;
 
   /**
@@ -154,6 +155,7 @@ public:
    * themselves. This is a legacy requirement, and convenient for the
    * user.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetEnabled(int) override;
 
   ///@{
