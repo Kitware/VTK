@@ -12,7 +12,7 @@
 #pragma warn - 8027 /* functions containing while are not expanded inline */
 #endif
 
-#include <fstream>
+#include <iosfwd>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -196,16 +196,9 @@ public:
 
 protected:
   //
-  // Internal storage for the filename.
-  //
-  // char* Filename;
-
-  //
   // Internal storage for the file pointer.
   //
-  // FILE* Fptr;
-
-  std::ifstream InputStream;
+  std::istream* InputStream;
 
   //
   // Flag for swapping bytes.

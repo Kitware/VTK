@@ -9,6 +9,8 @@
 #include "DICOMFile.h"
 #include "DICOMConfig.h"
 
+#include "vtksys/FStream.hxx"
+
 #include <iomanip>
 #include <iostream>
 #include <stdio.h>
@@ -33,6 +35,7 @@ DICOMFile::DICOMFile()
   {
     PlatformEndian = "LittleEndian";
   }
+  InputStream = nullptr;
 }
 
 DICOMFile::~DICOMFile()
@@ -74,59 +77,78 @@ void DICOMFile::operator=(const DICOMFile& in)
 
 bool DICOMFile::Open(const std::string& filename)
 {
+  std::ios_base::openmode mode = std::ios::in;
 #ifdef _WIN32
-  InputStream.open(filename.c_str(), std::ios::binary | std::ios::in);
-#else
-  InputStream.open(filename.c_str(), std::ios::in);
+  mode |= std::ios::binary;
 #endif
+  delete InputStream; // ensure any old streams are closed
+  InputStream = new vtksys::ifstream(filename.c_str(), mode);
 
-  // return InputStream.is_open();
-  return InputStream.rdbuf()->is_open();
+  if (InputStream && !InputStream->fail())
+  {
+    return true;
+  }
+
+  delete InputStream;
+  InputStream = nullptr;
+  return false;
 }
 
 void DICOMFile::Close()
 {
-  InputStream.close();
+  delete InputStream;
+  InputStream = nullptr;
 }
 
 long DICOMFile::Tell()
 {
-  long loc = static_cast<long>(InputStream.tellg());
-  // std::cout << "Tell: " << loc << std::endl;
-  return loc;
+  if (InputStream)
+  {
+    return static_cast<long>(InputStream->tellg());
+  }
+  return 0;
 }
 
 void DICOMFile::SkipToPos(long increment)
 {
-  InputStream.seekg(increment, std::ios::beg);
+  if (InputStream)
+  {
+    InputStream->seekg(increment, std::ios::beg);
+  }
 }
 
 long DICOMFile::GetSize()
 {
-  long curpos = this->Tell();
+  if (InputStream)
+  {
+    long curpos = this->Tell();
 
-  InputStream.seekg(0, std::ios::end);
+    InputStream->seekg(0, std::ios::end);
 
-  long size = this->Tell();
-  // std::cout << "Tell says size is: " << size << std::endl;
-  this->SkipToPos(curpos);
+    long size = this->Tell();
+    this->SkipToPos(curpos);
 
-  return size;
+    return size;
+  }
+  return 0;
 }
 
 void DICOMFile::Skip(long increment)
 {
-  InputStream.seekg(increment, std::ios::cur);
+  if (InputStream)
+  {
+    InputStream->seekg(increment, std::ios::cur);
+  }
 }
 
 void DICOMFile::SkipToStart()
 {
-  InputStream.seekg(0, std::ios::beg);
+  InputStream->seekg(0, std::ios::beg);
 }
 
 void DICOMFile::Read(void* ptr, long nbytes)
 {
-  InputStream.read(static_cast<char*>(ptr), nbytes);
+  InputStream->read(static_cast<char*>(ptr), nbytes);
   // std::cout << (char*) ptr << std::endl;
 }
 
