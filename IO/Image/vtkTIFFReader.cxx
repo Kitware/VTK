@@ -8,6 +8,8 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+
+#include "vtksys/Encoding.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
@@ -146,7 +148,12 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Open(const char* filename)
   {
     return false;
   }
+#if defined(_WIN32)
+  std::wstring widepath = vtksys::Encoding::ToWide(filename);
+  this->Image = TIFFOpenW(widepath.c_str(), "r");
+#else
   this->Image = TIFFOpen(filename, "r");
+#endif
   if (!this->Image)
   {
     this->Clean();
