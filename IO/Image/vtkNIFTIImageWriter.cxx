@@ -14,7 +14,9 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVersion.h"
-#include <vtksys/SystemTools.hxx>
+
+#include "vtksys/Encoding.hxx"
+#include "vtksys/SystemTools.hxx"
 
 #include <sstream>
 
@@ -35,6 +37,23 @@ vtkStandardNewMacro(vtkNIFTIImageWriter);
 vtkCxxSetObjectMacro(vtkNIFTIImageWriter, QFormMatrix, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkNIFTIImageWriter, SFormMatrix, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkNIFTIImageWriter, NIFTIHeader, vtkNIFTIImageHeader);
+
+//------------------------------------------------------------------------------
+namespace
+{
+
+// helper function for opening compressed files
+gzFile GZFopen(const char* path, const char* mode)
+{
+#if defined(_WIN32)
+  std::wstring wpath = vtksys::Encoding::ToWide(path);
+  return gzopen_w(wpath.c_str(), mode);
+#else
+  return gzopen(path, mode);
+#endif
+}
+
+}
 
 //------------------------------------------------------------------------------
 vtkNIFTIImageWriter::vtkNIFTIImageWriter()
@@ -653,7 +672,7 @@ int vtkNIFTIImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
   FILE* ufile = nullptr;
   if (isCompressed)
   {
-    file = gzopen(hdrname, "wb");
+    file = GZFopen(hdrname, "wb");
   }
   else
   {
@@ -716,7 +735,7 @@ int vtkNIFTIImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
     if (isCompressed)
     {
       gzclose(file);
-      file = gzopen(imgname, "wb");
+      file = GZFopen(imgname, "wb");
     }
     else
     {
