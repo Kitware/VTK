@@ -18,6 +18,7 @@
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
 class vtkStringArray;
 
 class VTKCOMMONSYSTEM_EXPORT vtkDirectory : public vtkObject
@@ -73,7 +74,8 @@ public:
   ///@}
 
   /**
-   * Get the current working directory.
+   * Get the current working directory.  Returns nullptr on failure, or if
+   * the provided buffer is too small.
    */
   static VTK_FILEPATH const char* GetCurrentWorkingDirectory(char* buf, unsigned int len);
 
