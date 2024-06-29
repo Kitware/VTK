@@ -21,6 +21,8 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
+#include <algorithm> // For std::max
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkIdList;
