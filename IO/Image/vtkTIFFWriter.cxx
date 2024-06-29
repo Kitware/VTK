@@ -11,6 +11,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtk_tiff.h"
 
+#include "vtksys/Encoding.hxx"
+
 #include <sstream>
 #include <vector>
 
@@ -160,7 +162,12 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
     // Large image detected, use BigTIFF mode
     writeMode << "8";
   }
+#if defined(_WIN32)
+  std::wstring widepath = vtksys::Encoding::ToWide(this->InternalFileName);
+  TIFF* tif = TIFFOpenW(widepath.c_str(), writeMode.str().c_str());
+#else
   TIFF* tif = TIFFOpen(this->InternalFileName, writeMode.str().c_str());
+#endif
 
   if (!tif)
   {
