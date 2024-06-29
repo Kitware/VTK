@@ -18,7 +18,9 @@
 #include "vtkStringArray.h"
 #include "vtkVersion.h"
 
+#include "vtksys/Encoding.hxx"
 #include "vtksys/SystemTools.hxx"
+
 #include <sstream>
 
 // Header for NIFTI
@@ -34,6 +36,23 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNIFTIImageReader);
+
+//------------------------------------------------------------------------------
+namespace
+{
+
+// helper function for opening compressed files
+gzFile GZFopen(const char* path, const char* mode)
+{
+#if defined(_WIN32)
+  std::wstring wpath = vtksys::Encoding::ToWide(path);
+  return gzopen_w(wpath.c_str(), mode);
+#else
+  return gzopen(path, mode);
+#endif
+}
+
+}
 
 //------------------------------------------------------------------------------
 vtkNIFTIImageReader::vtkNIFTIImageReader()
@@ -358,7 +377,7 @@ int vtkNIFTIImageReader::CanReadFile(const char* filename)
   }
 
   // try opening file
-  gzFile file = gzopen(hdrname, "rb");
+  gzFile file = GZFopen(hdrname, "rb");
 
   delete[] hdrname;
 
@@ -466,7 +485,7 @@ int vtkNIFTIImageReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro("Opening NIFTI file " << hdrname);
 
   // try opening file
-  gzFile file = gzopen(hdrname, "rb");
+  gzFile file = GZFopen(hdrname, "rb");
 
   if (!file)
   {
@@ -1095,7 +1114,7 @@ int vtkNIFTIImageReader::RequestData(vtkInformation* request,
 
   unsigned char* dataPtr = static_cast<unsigned char*>(data->GetScalarPointer());
 
-  gzFile file = gzopen(imgname, "rb");
+  gzFile file = GZFopen(imgname, "rb");
 
   delete[] imgname;
 
