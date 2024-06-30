@@ -85,7 +85,7 @@ class TestStyleBase(object):
 
                     # Start by pressing the button
 
-                    iren.SetEventInformationFlipY(start_x, start_y, ctrl, shift, '', 0, '')
+                    iren.SetEventInformationFlipY(start_x, start_y, ctrl, shift, '\0', 0, '')
                     eval('iren.InvokeEvent("' + button + 'ButtonPressEvent")')
                     pos = iren.GetEventPosition()
                     #print " - Starting: " + str(pos)
@@ -98,7 +98,7 @@ class TestStyleBase(object):
                         sign *= -1
                         x = self.randint(win_center_x + radius * 2 * sign, win_center_y + radius * sign)
                         y = self.randint(win_center_y + radius * 2 * sign, win_center_y + radius * sign)
-                        iren.SetEventInformationFlipY(x, y, ctrl, shift, '', 0, '')
+                        iren.SetEventInformationFlipY(x, y, ctrl, shift, '\0', 0, '')
                         #pos = iren.GetEventPosition()
                         #lastPos = iren.GetLastEventPosition()
                         #print " - Moving:   " + str(pos) + " " + str(ctrl) + " " + str(shift) + " (was " + str(lastPos) + ")"
@@ -115,7 +115,7 @@ class TestStyleBase(object):
 
                     # End by releasing the button
 
-                    iren.SetEventInformationFlipY(x, y, ctrl, shift, '', 0, '')
+                    iren.SetEventInformationFlipY(x, y, ctrl, shift, '\0', 0, '')
                     eval('iren.InvokeEvent("' + button + 'ButtonReleaseEvent")')
 
                 print(".")
