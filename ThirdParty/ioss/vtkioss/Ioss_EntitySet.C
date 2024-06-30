@@ -4,11 +4,10 @@
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_EntitySet.h>
-#include <Ioss_Field.h>
-#include <Ioss_Property.h>
+#include "Ioss_EntitySet.h"
+#include "Ioss_Field.h"
+#include "Ioss_Property.h"
 #include <cstddef>
-#include <string>
 
 #include "Ioss_FieldManager.h"
 #include "Ioss_GroupingEntity.h"

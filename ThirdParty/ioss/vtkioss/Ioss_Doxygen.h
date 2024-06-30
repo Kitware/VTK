@@ -10,10 +10,35 @@ https://github.com/sandialabs/seacas
 
 For bug reports, documentation errors, and enhancement suggestions, contact:
 - Gregory D. Sjaardema
-- WEB:   https://github.com/sandialabs/seacas/issues
+- WEB:   https://github.com/sandialabs/seacas
 - EMAIL: gdsjaar@sandia.gov
 - EMAIL: gsjaardema@gmail.com
 - PHONE: (505) 844-2701 (office)
+
+\section db_types Database Types
+
+The IOSS system supports multiple database formats.  The default format is the Sandia-developed Exodus format.  The list below shows all supported
+database input and/or output formats.  Not all of these may be available on all builds; the supported databases on a particular installation can be
+determined by running the `io_info --config` program.
+
+Type             | Input/Output  | Description
+-----------------|---------------|--------------------------
+exodus           | Input/Output  | Sandia-developed database system for unstructured mesh input/output (https://sandialabs.github.io/seacas-docs/sphinx/html/index.html#exodus-library)
+cgns             | Input/Output  | CFD General Notation System (https://cgns.github.io/)
+generated        | Input         | Generate an unstructured hex/shell mesh using a token string (Iogn::GeneratedMesh::GeneratedMesh)
+textmesh         | Input         | Generate an unstructured mesh using a token string
+heartbeat        | Output        | A text based output for global values
+pamgen           | Input         | (https://trilinos.github.io/pamgen.html)
+gen_struc        | Input         | Generate a structured mesh using a token string (IxJxK)
+catalyst_exodus  | Output        | Visualization pipeline, exodus-based
+catalyst_cgns    | Output        | Visualization pipeline, cgns-based
+null             | Output        | No data written to disk, no calculations done by ioss
+exonull          | Output        | No data written to disk, but uses all of the exodus io database infrastructure/calculations
+adios            | Input/Output  | Adaptable Input/Output system, (https://adios2.readthedocs.io/en/latest/)
+faodel           | Input/Output  | (https://github.com/faodel/faodel)
+exodusii         | Input/Output  | alias for exodus
+genesis          | Input/Output  | alias for exodus
+par_cgns         | Input/Output  | alias for parallel CGNS 
 
 \section properties Properties
 
@@ -84,6 +109,7 @@ PARALLEL_IO_MODE | netcdf4, hdf5, pnetcdf, (mpiio and mpiposix are deprecated)
  FIELD_STRIP_TRAILING_UNDERSCORE | on / [off] | If `FIELD_SUFFIX_SEPARATOR` is empty and there are fields that end with an underscore, then strip the underscore. (`a_x`, `a_y`, `a_z` is vector field `a`).
  IGNORE_ATTRIBUTE_NAMES   | on/[off] | Do not read the attribute names that may exist on an input database. Instead for an element block with N attributes, the fields will be named `attribute_1` ... `attribute_N`
  SURFACE_SPLIT_TYPE       | {type} | Specify how to split sidesets into homogeneous sideblocks. Either an integer or string: 1 or `TOPOLOGY`, 2 or `BLOCK`, 3 or `NO_SPLIT`.  Default is `TOPOLOGY` if not specified.
+ DUPLICATE_FIELD_NAME_BEHAVIOR | {behavior} | Determine how to handle duplicate incompatible fields on a database.  Valid values are `IGNORE`, `WARNING`, or `ERROR` (default).  An incompatible field is two or more fields with the same name, but different sizes or roles or types.
 
 ## Output Database-Related Properties
  Property        | Value  | Description
@@ -155,12 +181,14 @@ file. Then, the first file will be reopened and steps 0.7, 0.8, and
 ## Properties for the heartbeat output
  Property              | Value  | Description
 -----------------------|:------:|-----------------------------------------------------------
-  FILE_FORMAT          | [default], spyhis, csv, ts_csv, text, ts_text | predefined formats for heartbeat output. `ts_` outputs timestamp.
-  FLUSH_INTERVAL       | int   | Minimum time interval between flushing heartbeat data to disk.  Default is 10 seconds
+  FILE_FORMAT          | [default], spyhis, csv, ts_csv, text, ts_text | predefined formats for heartbeat output. The ones starting with `ts_` output timestamps.
+  FLUSH_INTERVAL       | int   | Minimum time interval between flushing heartbeat data to disk.  Default is 10 seconds.  Set to 0 to flush every step (bad performance)
+  HEARTBEAT_FLUSH_INTERVAL | int   | Minimum time interval between flushing heartbeat data to disk.  Default is 10 seconds (Same as FLUSH_INTERVAL, but doesn't affect other database types)
   TIME_STAMP_FORMAT    | [%H:%M:%S] | Format used to format time stamp.  See strftime man page
   SHOW_TIME_STAMP      | on/off | Should the output lines be preceded by the timestamp
   FIELD_SEPARATOR      | [, ]   | separator to be used between output fields.
-  PRECISION            | 0..16 [5] | Precision used for floating point output.
+  FULL_PRECISION       | on/[off] | output will contain as many digits as needed to fully represent the doubles value.  FIELD_WIDTH will be ignored for doubles if this is specified.
+  PRECISION            | -1..16 [5] | Precision used for floating point output. If set to `-1`, then the output will contain as many digits as needed to fully represent the doubles value.  FIELD_WIDTH will be ignored for doubles if precision is set to -1.
   FIELD_WIDTH          | 0.. |  Width of an output field. If 0, then use natural width.
   SHOW_LABELS          | on/[off]  | Should each field be preceded by its name (ke=1.3e9, ie=2.0e9)
   SHOW_LEGEND          | [on]/off  | Should a legend be printed at the beginning of the output showing the field names for each column of data.

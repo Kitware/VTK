@@ -1,18 +1,19 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021, 2023, 2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_Field.h>
-#include <Ioss_VariableType.h>
+#include "Ioss_Field.h"
+#include "Ioss_VariableType.h"
+#include "transform/Iotr_Offset3D.h"
 #include <cassert>
 #include <cstddef>
-#include <string>
-#include <transform/Iotr_Offset3D.h>
+#include <stdint.h>
 #include <vector>
 
 #include "Ioss_Transform.h"
+#include "Ioss_TransformFactory.h"
 
 namespace Iotr {
 
@@ -22,9 +23,9 @@ namespace Iotr {
     return &registerThis;
   }
 
-  Offset3D_Factory::Offset3D_Factory() : Factory("offset3D")
+  Offset3D_Factory::Offset3D_Factory() : Ioss::TransformFactory("offset3D")
   {
-    Factory::alias("offset3D", "add3D");
+    Ioss::TransformFactory::alias("offset3D", "add3D");
   }
 
   Ioss::Transform *Offset3D_Factory::make(const std::string & /*unused*/) const
@@ -80,7 +81,7 @@ namespace Iotr {
       }
     }
     else if (field.get_type() == Ioss::Field::INTEGER) {
-      int *idata = static_cast<int *>(data);
+      auto *idata = static_cast<int *>(data);
 
       for (size_t i = 0; i < count * 3; i += 3) {
         idata[i + 0] += intOffset[0];
@@ -89,7 +90,7 @@ namespace Iotr {
       }
     }
     else if (field.get_type() == Ioss::Field::INT64) {
-      int64_t *idata = static_cast<int64_t *>(data);
+      auto *idata = static_cast<int64_t *>(data);
 
       for (size_t i = 0; i < count * 3; i += 3) {
         idata[i + 0] += intOffset[0];

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -27,8 +27,9 @@
  * revision history -
  *
  */
+
 #include "exodusII.h"     // for ex_err, ex_name_of_object, etc
-#include "exodusII_int.h" // for ex__check_valid_file_id, etc
+#include "exodusII_int.h" // for exi_check_valid_file_id, etc
 
 /*
  * reads the connectivity array for an element block
@@ -61,7 +62,7 @@ int ex_get_partial_conn(int exoid, ex_entity_type blk_type, ex_entity_id blk_id,
   const char *vfaceconn  = NULL;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -78,7 +79,7 @@ int ex_get_partial_conn(int exoid, ex_entity_type blk_type, ex_entity_id blk_id,
 
   /* Locate index of element block id in VAR_ID_EL_BLK array */
 
-  blk_id_ndx = ex__id_lkup(exoid, blk_type, blk_id);
+  blk_id_ndx = exi_id_lkup(exoid, blk_type, blk_id);
   if (blk_id_ndx <= 0) {
     ex_get_err(NULL, NULL, &status);
 
@@ -102,19 +103,19 @@ int ex_get_partial_conn(int exoid, ex_entity_type blk_type, ex_entity_id blk_id,
   switch (blk_type) {
   case EX_EDGE_BLOCK:
     dnumnodent = DIM_NUM_NOD_PER_ED(blk_id_ndx);
-    dnumedgent = 0;
-    dnumfacent = 0;
+    dnumedgent = NULL;
+    dnumfacent = NULL;
     vnodeconn  = VAR_EBCONN(blk_id_ndx);
-    vedgeconn  = 0;
-    vfaceconn  = 0;
+    vedgeconn  = NULL;
+    vfaceconn  = NULL;
     break;
   case EX_FACE_BLOCK:
     dnumnodent = DIM_NUM_NOD_PER_FA(blk_id_ndx);
-    dnumedgent = 0;
-    dnumfacent = 0;
+    dnumedgent = NULL;
+    dnumfacent = NULL;
     vnodeconn  = VAR_FBCONN(blk_id_ndx);
-    vedgeconn  = 0;
-    vfaceconn  = 0;
+    vedgeconn  = NULL;
+    vfaceconn  = NULL;
     break;
   case EX_ELEM_BLOCK:
     dnumnodent = DIM_NUM_NOD_PER_EL(blk_id_ndx);

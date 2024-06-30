@@ -7,6 +7,7 @@
 #pragma once
 
 #include "iocatalyst_export.h"
+#include "vtk_ioss_mangle.h"
 
 namespace Iocatalyst {
   /** \brief Initialization of the Catalyst database parts of the Ioss library.

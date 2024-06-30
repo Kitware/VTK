@@ -122,14 +122,14 @@ error = ex_put_variable_names (exoid, EX_NODAL, num_nod_vars, var_names);
 
 */
 
-int ex_put_variable_names(int exoid, ex_entity_type obj_type, int num_vars, char *var_names[])
+int ex_put_variable_names(int exoid, ex_entity_type obj_type, int num_vars, char *const var_names[])
 {
   int  varid  = 0;
   int  status = 0;
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -178,7 +178,7 @@ int ex_put_variable_names(int exoid, ex_entity_type obj_type, int num_vars, char
   }
 
   /* write EXODUS variable names */
-  status = ex__put_names(exoid, varid, num_vars, var_names, obj_type, "variable", __func__);
+  status = exi_put_names(exoid, varid, num_vars, var_names, obj_type, "variable", __func__);
 
   EX_FUNC_LEAVE(status);
 }

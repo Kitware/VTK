@@ -1,3 +1,6 @@
+
+See SEACAS (including Exodus) documentation at http://sandialabs.github.io/seacas-docs/
+
 ========================================================================
 CONTACT:
 
@@ -5,23 +8,7 @@ Greg Sjaardema,
 Sandia National Laboratories,
 gdsjaar@sandia.gov, gsjaardema@gmail.com
 
-========================================================================
-LICENSE:
-The Exodus library is licensed under the terms of the BSD License.
-
-Legal stuff (copyright, licensing restrictions, etc.) can be found in
-the file COPYRIGHT which contains:
-
-1. The NTESS Copyright Notice.
-2. The BSD License.
-
 We appreciate feedback from users of this package.  Please send
 comments, suggestions, and bug reports to Greg Sjaardema
 <gdsjaar@sandia.gov>, <gsjaardema@gmail.com>
 
-Please identify the version of the package.
-
-========================================================================
-BUILDING
-
-See instructions at the top-level of the repository in README.md

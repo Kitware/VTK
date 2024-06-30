@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, ex_name_of_object, etc
-#include "exodusII_int.h" // for ex__check_valid_file_id, etc
+#include "exodusII_int.h" // for exi_check_valid_file_id, etc
 
 /*
  * reads the values of a single element variable for one element block at
@@ -52,21 +52,21 @@ int ex_get_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
     /* FIXME: Special case: ignore obj_id, possible large_file complications,
      * etc. */
     status =
-        ex__get_partial_nodal_var(exoid, time_step, var_index, start_index, num_entities, var_vals);
+        exi_get_partial_nodal_var(exoid, time_step, var_index, start_index, num_entities, var_vals);
     EX_FUNC_LEAVE(status);
   }
   if (var_type == EX_GLOBAL) {
     /* FIXME: Special case: all vars stored in 2-D single array. */
-    status = ex__get_glob_vars(exoid, time_step, num_entities, var_vals);
+    status = exi_get_glob_vars(exoid, time_step, num_entities, var_vals);
     EX_FUNC_LEAVE(status);
   }
 
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* Determine index of obj_id in VAR_ID_EL_BLK array */
-  obj_id_ndx = ex__id_lkup(exoid, var_type, obj_id);
+  obj_id_ndx = exi_id_lkup(exoid, var_type, obj_id);
   if (obj_id_ndx <= 0) {
     ex_get_err(NULL, NULL, &status);
 
@@ -88,7 +88,7 @@ int ex_get_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
 
   /* inquire previously defined variable */
 
-  if ((status = nc_inq_varid(exoid, ex__name_var_of_object(var_type, var_index, obj_id_ndx),
+  if ((status = nc_inq_varid(exoid, exi_name_var_of_object(var_type, var_index, obj_id_ndx),
                              &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate %s %" PRId64 " var %d in file id %d",
              ex_name_of_object(var_type), obj_id, var_index, exoid);
@@ -106,7 +106,7 @@ int ex_get_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
     start[1] = 0;
   }
 
-  if (ex__comp_ws(exoid) == 4) {
+  if (exi_comp_ws(exoid) == 4) {
     status = nc_get_vara_float(exoid, varid, start, count, var_vals);
   }
   else {

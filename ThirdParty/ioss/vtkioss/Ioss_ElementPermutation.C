@@ -1,23 +1,18 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_CodeTypes.h> // for IntVector
-#include <Ioss_ElementPermutation.h>
-#include <Ioss_ElementTopology.h>
-#include <Ioss_Utils.h>
-
-#include <cassert> // for assert
-#include <cstddef> // for size_t
-#include <ostream> // for basic_ostream, etc
-#include <string>  // for string, char_traits, etc
-#include <utility> // for pair
-#include <vector>  // for vector
-
+#include "Ioss_CodeTypes.h" // for IntVector
+#include "Ioss_ElementPermutation.h"
+#include "Ioss_Utils.h"
+#include <assert.h>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
+#include <ostream> // for basic_ostream, etc
+#include <string>  // for string, char_traits, etc
+#include <vector>  // for vector
 
 namespace Ioss {
   void EPRegistry::insert(const Ioss::EPM_VP &value, bool delete_me)
@@ -30,7 +25,7 @@ namespace Ioss {
 
   EPRegistry::~EPRegistry()
   {
-    for (auto &entry : m_deleteThese) {
+    for (const auto &entry : m_deleteThese) {
       delete entry;
     }
   }
@@ -47,8 +42,6 @@ namespace Ioss {
     return registry_;
   }
 
-  Ioss::ElementPermutation::~ElementPermutation() = default;
-
   ElementPermutation *Ioss::ElementPermutation::factory(const std::string &type)
   {
     std::string ltype = Ioss::Utils::lowercase(type);
@@ -57,7 +50,7 @@ namespace Ioss {
     auto                      iter = registry().find(ltype);
 
     if (iter == registry().end()) {
-      std::string base1 = Ioss::SuperPermutation::basename;
+      std::string base1{"super"};
       if (ltype.compare(0, base1.length(), base1) == 0) {
         // A ring permutation can have a varying number of nodes.  Create
         // a permutation type for this ring permutation. The node count
@@ -119,8 +112,9 @@ namespace Ioss {
   bool ElementPermutation::fill_permutation_indices(Permutation           permutation,
                                                     std::vector<Ordinal> &nodeOrdinalVector) const
   {
-    if (!valid_permutation(permutation))
+    if (!valid_permutation(permutation)) {
       return false;
+    }
 
     nodeOrdinalVector.resize(num_permutation_nodes());
     const auto &ordinals = m_permutationNodeOrdinals[permutation];
@@ -177,7 +171,7 @@ namespace Ioss {
 
   bool ElementPermutation::equal_(const ElementPermutation &rhs, bool quiet) const
   {
-    if (this->m_type.compare(rhs.m_type) != 0) {
+    if (this->m_type != rhs.m_type) {
       if (!quiet) {
         fmt::print(Ioss::OUTPUT(), "Element Permutation: NAME mismatch ({} vs. {})\n",
                    this->m_type.c_str(), rhs.m_type.c_str());
@@ -234,61 +228,46 @@ namespace Ioss {
   bool ElementPermutation::equal(const ElementPermutation &rhs) const { return equal_(rhs, false); }
 
   //====================================================================================================
-  const char *NullPermutation::name = "none";
-
   void NullPermutation::factory() { static NullPermutation registerThis; }
 
-  NullPermutation::NullPermutation() : ElementPermutation(NullPermutation::name)
-  {
-    set_permutation(0, 0, 0, {});
-  }
+  NullPermutation::NullPermutation() : ElementPermutation("none") { set_permutation(0, 0, 0, {}); }
 
   //====================================================================================================
-  const char *SpherePermutation::name = "sphere";
-
   void SpherePermutation::factory() { static SpherePermutation registerThis; }
 
-  SpherePermutation::SpherePermutation() : ElementPermutation(SpherePermutation::name)
+  SpherePermutation::SpherePermutation() : ElementPermutation("sphere")
   {
     set_permutation(1, 1, 1, {{0}});
   }
 
   //====================================================================================================
-  const char *LinePermutation::name = "line";
-
   void LinePermutation::factory() { static LinePermutation registerThis; }
 
-  LinePermutation::LinePermutation() : ElementPermutation(LinePermutation::name)
+  LinePermutation::LinePermutation() : ElementPermutation("line")
   {
     set_permutation(2, 2, 1, {{0, 1}, {1, 0}});
   }
 
   //====================================================================================================
-  const char *SpringPermutation::name = "spring";
-
   void SpringPermutation::factory() { static SpringPermutation registerThis; }
 
-  SpringPermutation::SpringPermutation() : ElementPermutation(SpringPermutation::name)
+  SpringPermutation::SpringPermutation() : ElementPermutation("spring")
   {
     set_permutation(2, 2, 2, {{0, 1}, {1, 0}});
   }
 
   //====================================================================================================
-  const char *TriPermutation::name = "tri";
-
   void TriPermutation::factory() { static TriPermutation registerThis; }
 
-  TriPermutation::TriPermutation() : ElementPermutation(TriPermutation::name)
+  TriPermutation::TriPermutation() : ElementPermutation("tri")
   {
     set_permutation(3, 6, 3, {{0, 1, 2}, {2, 0, 1}, {1, 2, 0}, {0, 2, 1}, {2, 1, 0}, {1, 0, 2}});
   }
 
   //====================================================================================================
-  const char *QuadPermutation::name = "quad";
-
   void QuadPermutation::factory() { static QuadPermutation registerThis; }
 
-  QuadPermutation::QuadPermutation() : ElementPermutation(QuadPermutation::name)
+  QuadPermutation::QuadPermutation() : ElementPermutation("quad")
   {
     set_permutation(4, 8, 4,
                     {{0, 1, 2, 3},
@@ -302,11 +281,9 @@ namespace Ioss {
   }
 
   //====================================================================================================
-  const char *TetPermutation::name = "tet";
-
   void TetPermutation::factory() { static TetPermutation registerThis; }
 
-  TetPermutation::TetPermutation() : ElementPermutation(TetPermutation::name)
+  TetPermutation::TetPermutation() : ElementPermutation("tet")
   {
     set_permutation(4, 12, 12,
                     {{0, 1, 2, 3},
@@ -324,21 +301,17 @@ namespace Ioss {
   }
 
   //====================================================================================================
-  const char *PyramidPermutation::name = "pyramid";
-
   void PyramidPermutation::factory() { static PyramidPermutation registerThis; }
 
-  PyramidPermutation::PyramidPermutation() : ElementPermutation(PyramidPermutation::name)
+  PyramidPermutation::PyramidPermutation() : ElementPermutation("pyramid")
   {
     set_permutation(5, 4, 4, {{0, 1, 2, 3, 4}, {1, 2, 3, 0, 4}, {2, 3, 0, 1, 4}, {3, 0, 1, 2, 4}});
   }
 
   //====================================================================================================
-  const char *WedgePermutation::name = "wedge";
-
   void WedgePermutation::factory() { static WedgePermutation registerThis; }
 
-  WedgePermutation::WedgePermutation() : ElementPermutation(WedgePermutation::name)
+  WedgePermutation::WedgePermutation() : ElementPermutation("wedge")
   {
     set_permutation(6, 6, 6,
                     {{0, 1, 2, 3, 4, 5},
@@ -350,11 +323,9 @@ namespace Ioss {
   }
 
   //====================================================================================================
-  const char *HexPermutation::name = "hex";
-
   void HexPermutation::factory() { static HexPermutation registerThis; }
 
-  HexPermutation::HexPermutation() : ElementPermutation(HexPermutation::name)
+  HexPermutation::HexPermutation() : ElementPermutation("hex")
   {
     set_permutation(8, 24, 24,
                     {{0, 1, 2, 3, 4, 5, 6, 7}, {0, 1, 5, 4, 3, 2, 6, 7}, {0, 4, 7, 3, 1, 5, 6, 2},
@@ -373,9 +344,7 @@ namespace Ioss {
   // {0, 1, 2, 3}, {1, 2, 3, 0}, {2, 3, 0, 1}, {3, 0, 1, 2}
   // and the following negative permutations
   // {0, 3, 2, 1}, {3, 2, 1, 0}, {2, 1, 0, 3}, {1, 0, 3, 2}
-  const char *SuperPermutation::basename = "super";
-
-  std::string SuperPermutation::get_name(unsigned n) { return basename + std::to_string(n); }
+  std::string SuperPermutation::get_name(unsigned n) { return "super" + std::to_string(n); }
 
   void SuperPermutation::make_super(const std::string &type)
   {

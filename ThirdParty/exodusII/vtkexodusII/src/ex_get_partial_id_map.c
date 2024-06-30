@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -29,20 +29,16 @@
 int ex_get_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_entity_num,
                           int64_t num_entities, void_int *map)
 {
-  int         dimid, mapid, status;
-  int64_t     i;
-  size_t      num_entries;
-  size_t      start[1], count[1];
-  char        errmsg[MAX_ERR_LENGTH];
-  const char *dnumentries;
-  const char *vmap;
-  const char *tname;
+  char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  const char *dnumentries;
+  const char *vmap;
+  const char *tname;
   switch (map_type) {
   case EX_NODE_MAP:
     tname       = "node";
@@ -72,10 +68,13 @@ int ex_get_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_enti
   }
 
   /* See if any entries are stored in this file */
+  int dimid;
   if (nc_inq_dimid(exoid, dnumentries, &dimid) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_NOERR);
   }
 
+  size_t num_entries;
+  int    status;
   if ((status = nc_inq_dimlen(exoid, dimid, &num_entries)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of %ss in file id %d", tname,
              exoid);
@@ -100,17 +99,18 @@ int ex_get_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_enti
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  int mapid;
   if (nc_inq_varid(exoid, vmap, &mapid) != NC_NOERR) {
     /* generate portion of the default map (1..num_entries) */
     if (ex_int64_status(exoid) & EX_MAPS_INT64_API) {
       int64_t *lmap = (int64_t *)map;
-      for (i = 0; i < num_entities; i++) {
+      for (int64_t i = 0; i < num_entities; i++) {
         lmap[i] = start_entity_num + i;
       }
     }
     else {
       int *lmap = (int *)map;
-      for (i = 0; i < num_entities; i++) {
+      for (int64_t i = 0; i < num_entities; i++) {
         lmap[i] = start_entity_num + i;
       }
     }
@@ -118,8 +118,8 @@ int ex_get_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_enti
     EX_FUNC_LEAVE(EX_NOERR);
   }
 
-  start[0] = start_entity_num - 1;
-  count[0] = num_entities;
+  size_t start[] = {start_entity_num - 1};
+  size_t count[] = {num_entities};
   if (count[0] == 0) {
     start[0] = 0;
   }

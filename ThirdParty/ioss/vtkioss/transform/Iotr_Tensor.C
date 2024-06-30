@@ -1,17 +1,18 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021, 2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_Field.h>
-#include <Ioss_VariableType.h>
+#include "Ioss_Field.h"
+#include "Ioss_VariableType.h"
+#include "transform/Iotr_Tensor.h"
 #include <cassert>
 #include <cstddef>
 #include <string>
-#include <transform/Iotr_Tensor.h>
 
 #include "Ioss_Transform.h"
+#include "Ioss_TransformFactory.h"
 
 namespace Iotr {
 
@@ -21,16 +22,16 @@ namespace Iotr {
     return &registerThis;
   }
 
-  Tensor_Factory::Tensor_Factory() : Factory("generic_tensor")
+  Tensor_Factory::Tensor_Factory() : Ioss::TransformFactory("generic_tensor")
   {
-    Factory::alias("generic_tensor", "trace");      // scalar
-    Factory::alias("generic_tensor", "deviator");   // tensor
-    Factory::alias("generic_tensor", "spherical");  // tensor
-    Factory::alias("generic_tensor", "invariants"); // vector
-    Factory::alias("generic_tensor", "invariant1"); // scalar
-    Factory::alias("generic_tensor", "invariant2"); // scalar
-    Factory::alias("generic_tensor", "invariant3"); // scalar
-    Factory::alias("generic_tensor", "magnitude");  // scalar
+    Ioss::TransformFactory::alias("generic_tensor", "trace");      // scalar
+    Ioss::TransformFactory::alias("generic_tensor", "deviator");   // tensor
+    Ioss::TransformFactory::alias("generic_tensor", "spherical");  // tensor
+    Ioss::TransformFactory::alias("generic_tensor", "invariants"); // vector
+    Ioss::TransformFactory::alias("generic_tensor", "invariant1"); // scalar
+    Ioss::TransformFactory::alias("generic_tensor", "invariant2"); // scalar
+    Ioss::TransformFactory::alias("generic_tensor", "invariant3"); // scalar
+    Ioss::TransformFactory::alias("generic_tensor", "magnitude");  // scalar
   }
 
   Ioss::Transform *Tensor_Factory::make(const std::string &type) const { return new Tensor(type); }

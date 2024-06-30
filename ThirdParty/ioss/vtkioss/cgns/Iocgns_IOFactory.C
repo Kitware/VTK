@@ -1,22 +1,21 @@
-// Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022, 2023, 2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include "Ioss_DBUsage.h"           // for DatabaseUsage
-#include "Ioss_IOFactory.h"         // for IOFactory
-#include <cgns/Iocgns_DatabaseIO.h> // for DatabaseIO -- serial
-#include <cgns/Iocgns_IOFactory.h>
-#include <cgns/Iocgns_Utils.h>
-#include <cstddef> // for nullptr
-#include <string>  // for string
-#include <tokenize.h>
+#include "cgns/Iocgns_DatabaseIO.h" // for DatabaseIO -- serial
+#include "cgns/Iocgns_IOFactory.h"
+#include "cgns/Iocgns_Utils.h"
+#include <vtk_cgns.h>
+#include VTK_CGNS(cgnstypes.h)
+#include <string> // for string
 
-#include <vtk_cgns.h> // xxx(kitware)
-#include VTK_CGNS(cgnsconfig.h)
+#include "Ioss_CodeTypes.h"
+#include "Ioss_DBUsage.h"   // for DatabaseUsage
+#include "Ioss_IOFactory.h" // for IOFactory
 #if CG_BUILD_PARALLEL
-#include <cgns/Iocgns_ParallelDatabaseIO.h> // for DatabaseIO -- parallel
+#include "cgns/Iocgns_ParallelDatabaseIO.h" // for DatabaseIO -- parallel
 #endif
 
 namespace Ioss {

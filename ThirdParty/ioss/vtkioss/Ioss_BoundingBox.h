@@ -7,7 +7,6 @@
 #pragma once
 
 #include "ioss_export.h"
-
 #include "vtk_ioss_mangle.h"
 
 namespace Ioss {

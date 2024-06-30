@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -27,7 +27,7 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_set_specs, ex_err, etc
-#include "exodusII_int.h" // for ex__check_valid_file_id, etc
+#include "exodusII_int.h" // for exi_check_valid_file_id, etc
 
 int ex_get_concat_sets(int exoid, ex_entity_type set_type, struct ex_set_specs *set_specs)
 {
@@ -40,13 +40,13 @@ int ex_get_concat_sets(int exoid, ex_entity_type set_type, struct ex_set_specs *
   void *sets_dist_fact = set_specs->sets_dist_fact;
 
   int        num_sets, i;
-  float *    flt_dist_fact;
-  double *   dbl_dist_fact;
+  float     *flt_dist_fact;
+  double    *dbl_dist_fact;
   char       errmsg[MAX_ERR_LENGTH];
   ex_inquiry ex_inq_val;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -76,7 +76,7 @@ int ex_get_concat_sets(int exoid, ex_entity_type set_type, struct ex_set_specs *
 
   /* first check if any sets are specified */
 
-  if ((status = nc_inq_dimid(exoid, ex__dim_num_objects(set_type), &dimid)) != NC_NOERR) {
+  if ((status = nc_inq_dimid(exoid, exi_dim_num_objects(set_type), &dimid)) != NC_NOERR) {
     if (status == NC_EBADDIM) {
       snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no %ss defined for file id %d",
                ex_name_of_object(set_type), exoid);
@@ -118,7 +118,7 @@ int ex_get_concat_sets(int exoid, ex_entity_type set_type, struct ex_set_specs *
   }
 
   for (i = 0; i < num_sets; i++) {
-    int set_id;
+    int64_t set_id;
     if (ex_int64_status(exoid) & EX_IDS_INT64_API) {
       set_id = ((int64_t *)set_specs->sets_ids)[i];
     }
@@ -178,7 +178,7 @@ int ex_get_concat_sets(int exoid, ex_entity_type set_type, struct ex_set_specs *
         int *sets_extra_list = set_specs->sets_extra_list;
         int *sets_extra = sets_extra_list ? &(sets_extra_list)[((int *)sets_entry_index)[i]] : NULL;
         status          = ex_get_set(exoid, set_type, set_id,
-                            &(sets_entry_list[((int *)sets_entry_index)[i]]), sets_extra);
+                                     &(sets_entry_list[((int *)sets_entry_index)[i]]), sets_extra);
       }
     }
 
@@ -187,7 +187,7 @@ int ex_get_concat_sets(int exoid, ex_entity_type set_type, struct ex_set_specs *
     }
 
     /* get distribution factors for this set */
-    if (sets_dist_fact != 0) {
+    if (sets_dist_fact != NULL) {
       size_t df_idx;
       size_t num_dist;
       if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
@@ -199,7 +199,7 @@ int ex_get_concat_sets(int exoid, ex_entity_type set_type, struct ex_set_specs *
         num_dist = ((int *)num_dist_per_set)[i];
       }
       if (num_dist > 0) { /* only get df if they exist */
-        if (ex__comp_ws(exoid) == sizeof(float)) {
+        if (exi_comp_ws(exoid) == sizeof(float)) {
           flt_dist_fact = sets_dist_fact;
           status        = ex_get_set_dist_fact(exoid, set_type, set_id, &(flt_dist_fact[df_idx]));
         }

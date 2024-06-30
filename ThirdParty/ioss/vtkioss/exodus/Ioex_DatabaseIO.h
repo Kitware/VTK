@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -7,26 +7,24 @@
 // -*- Mode: c++ -*-
 #pragma once
 
-#include "ioex_export.h"
-
-#include "vtk_ioss_mangle.h"
-
-#include <Ioss_DBUsage.h>
-#include <Ioss_Field.h>
-#include <Ioss_Map.h>
-#include <Ioss_Utils.h>
-#include <exodus/Ioex_BaseDatabaseIO.h>
-
-#include <vtk_exodusII.h>
-
+#include "Ioss_DBUsage.h"
+#include "Ioss_Field.h"
+#include "Ioss_Map.h"
+#include "Ioss_Utils.h"
+#include "exodus/Ioex_BaseDatabaseIO.h"
 #include <algorithm>
 #include <cstdint>
 #include <ctime>
+#include <vtk_exodusII.h>
 #include <map>
 #include <set>
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "Ioss_CodeTypes.h"
+#include "ioex_export.h"
+#include "vtk_ioss_mangle.h"
 
 namespace Ioss {
   class GroupingEntity;
@@ -46,6 +44,11 @@ namespace Ioss {
   class StructuredBlock;
   class CommSet;
   class ElementTopology;
+  class Assembly;
+  class Blob;
+  class Field;
+  class Map;
+  class PropertyManager;
 } // namespace Ioss
 
 namespace Ioex {
@@ -61,22 +64,19 @@ namespace Ioex {
   public:
     DatabaseIO(Ioss::Region *region, const std::string &filename, Ioss::DatabaseUsage db_usage,
                Ioss_MPI_Comm communicator, const Ioss::PropertyManager &props);
-    DatabaseIO(const DatabaseIO &from)            = delete;
-    DatabaseIO &operator=(const DatabaseIO &from) = delete;
-    ~DatabaseIO() override                        = default;
 
     // Kluge -- a few applications need access so can directly access exodus API
-    int get_file_pointer() const override; // Open file and set exodusFilePtr.
+    IOSS_NODISCARD int get_file_pointer() const override; // Open file and set exodusFilePtr.
 
   private:
-    void get_step_times__() override;
+    void get_step_times_nl() override;
 
     bool open_input_file(bool write_message, std::string *error_msg, int *bad_count,
                          bool abort_if_error) const override;
     bool handle_output_file(bool write_message, std::string *error_msg, int *bad_count,
                             bool overwrite, bool abort_if_error) const override;
-    bool check_valid_file_ptr(bool write_message, std::string *error_msg, int *bad_count,
-                              bool abort_if_error) const;
+    IOSS_NODISCARD bool check_valid_file_ptr(bool write_message, std::string *error_msg,
+                                             int *bad_count, bool abort_if_error) const;
 
     int64_t get_field_internal(const Ioss::Region *reg, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
@@ -161,7 +161,7 @@ namespace Ioex {
     void compute_node_status() const;
 
     // Metadata-related functions.
-    void read_meta_data__() override;
+    void read_meta_data_nl() override;
     void read_communication_metadata();
 
     int64_t read_transient_field(const Ioex::VariableNameMap &variables, const Ioss::Field &field,
@@ -206,9 +206,10 @@ namespace Ioex {
     void get_commsets();
 
     // ID Mapping functions.
-    const Ioss::Map &get_map(ex_entity_type type) const;
-    const Ioss::Map &get_map(Ioss::Map &entity_map, int64_t entity_count,
-                             ex_entity_type entity_type, ex_inquiry inquiry_type) const;
+    IOSS_NODISCARD const Ioss::Map &get_map(ex_entity_type type) const;
+    IOSS_NODISCARD const Ioss::Map &get_map(Ioss::Map &entity_map, int64_t entity_count,
+                                            ex_entity_type entity_type,
+                                            ex_inquiry     inquiry_type) const;
 
     // Internal data handling
     int64_t handle_node_ids(void *ids, int64_t num_to_get) const;

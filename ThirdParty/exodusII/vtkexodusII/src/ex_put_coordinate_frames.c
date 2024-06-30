@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -27,17 +27,10 @@
 #include "exodusII.h"     // for ex_err, EXERRVAL, etc
 #include "exodusII_int.h" // for EX_FATAL, EX_NOERR, etc
 
-int ex_put_coordinate_frames(int exoid, int nframes, const void_int *cf_ids, void *pt_coordinates,
-                             const char *tags)
+int ex_put_coordinate_frames(int exoid, int nframes, const void_int *cf_ids,
+                             const void *pt_coordinates, const char *tags)
 {
-  int  status;
-  int  dim, dim9;              /* dimension id for nframes, nframes*9 */
   char errmsg[MAX_ERR_LENGTH]; /* buffer for error messages      */
-  int  varcoords;              /* variable id for the coordinates */
-  int  varids;                 /* variable id for the frame ids  */
-  int  vartags;                /* variable id for the frame tags */
-  int  i;                      /* general indices */
-  int  int_type;
 
   EX_FUNC_ENTER();
 
@@ -53,22 +46,24 @@ int ex_put_coordinate_frames(int exoid, int nframes, const void_int *cf_ids, voi
     EX_FUNC_LEAVE(1);
   }
 
-  assert(cf_ids != 0);
-  assert(pt_coordinates != 0);
-  assert(tags != 0);
+  assert(cf_ids != NULL);
+  assert(pt_coordinates != NULL);
+  assert(tags != NULL);
 
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* make the definitions */
   /* go into define mode. define num_frames, num_frames9 */
+  int status;
   if ((status = nc_redef(exoid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to place file id %d into define mode", exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  int dim, dim9; /* dimension id for nframes, nframes*9 */
   if ((status = nc_def_dim(exoid, DIM_NUM_CFRAMES, nframes, &dim)) != NC_NOERR ||
       (nc_def_dim(exoid, DIM_NUM_CFRAME9, nframes * 9, &dim9) != NC_NOERR)) {
     snprintf(errmsg, MAX_ERR_LENGTH,
@@ -77,12 +72,15 @@ int ex_put_coordinate_frames(int exoid, int nframes, const void_int *cf_ids, voi
     goto error_ret;
   }
 
-  int_type = NC_INT;
+  int int_type = NC_INT;
   if (ex_int64_status(exoid) & EX_IDS_INT64_DB) {
     int_type = NC_INT64;
   }
 
   /* define the variables. coordinates, tags and ids */
+  int varcoords; /* variable id for the coordinates */
+  int varids;    /* variable id for the frame ids  */
+  int vartags;   /* variable id for the frame tags */
   if (nc_def_var(exoid, VAR_FRAME_COORDS, nc_flt_code(exoid), 1, &dim9, &varcoords) != NC_NOERR ||
       (nc_def_var(exoid, VAR_FRAME_IDS, int_type, 1, &dim, &varids) != NC_NOERR) ||
       (nc_def_var(exoid, VAR_FRAME_TAGS, NC_CHAR, 1, &dim, &vartags) != NC_NOERR)) {
@@ -93,13 +91,13 @@ int ex_put_coordinate_frames(int exoid, int nframes, const void_int *cf_ids, voi
   }
 
   /* leave define mode */
-  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = exi_leavedef(exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* check variables consistency */
-  for (i = 0; i < nframes; i++) {
-    if (strchr("RrCcSs", tags[i]) == 0) {
+  for (int i = 0; i < nframes; i++) {
+    if (strchr("RrCcSs", tags[i]) == NULL) {
       snprintf(errmsg, MAX_ERR_LENGTH, "Warning: Unrecognized coordinate frame tag: '%c'.",
                tags[i]);
       ex_err_fn(exoid, __func__, errmsg, 2);
@@ -127,7 +125,7 @@ int ex_put_coordinate_frames(int exoid, int nframes, const void_int *cf_ids, voi
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  if (ex__comp_ws(exoid) == 4) {
+  if (exi_comp_ws(exoid) == 4) {
     status = nc_put_var_float(exoid, varcoords, pt_coordinates);
   }
   else {
@@ -142,6 +140,6 @@ int ex_put_coordinate_frames(int exoid, int nframes, const void_int *cf_ids, voi
   EX_FUNC_LEAVE(EX_NOERR);
 
 error_ret:
-  ex__leavedef(exoid, __func__);
+  exi_leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

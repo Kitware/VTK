@@ -8,14 +8,14 @@
 #include <tokenize.h>
 
 using TokenList = std::vector<std::string>;
-TokenList Ioss::tokenize(const std::string &str, const std::string &separators)
+TokenList Ioss::tokenize(const std::string &str, const std::string &separators, bool allow_empty)
 {
   TokenList tokens;
   auto      first = std::begin(str);
   while (first != std::end(str)) {
     const auto second =
         std::find_first_of(first, std::end(str), std::begin(separators), std::end(separators));
-    if (first != second) {
+    if (allow_empty || (first != second)) {
       tokens.emplace_back(first, second);
     }
     if (second == std::end(str)) {

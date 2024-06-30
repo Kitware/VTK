@@ -42,8 +42,8 @@
  *  \param    *sset_var_tab    sideset variable truth table array
  */
 
-int ex_put_all_var_param(int exoid, int num_g, int num_n, int num_e, int *elem_var_tab, int num_m,
-                         int *nset_var_tab, int num_s, int *sset_var_tab)
+int ex_put_all_var_param(int exoid, int num_g, int num_n, int num_e, const int *elem_var_tab,
+                         int num_m, const int *nset_var_tab, int num_s, const int *sset_var_tab)
 {
   ex_var_params vparam;
 
@@ -54,15 +54,15 @@ int ex_put_all_var_param(int exoid, int num_g, int num_n, int num_e, int *elem_v
   vparam.num_face      = 0;
   vparam.face_var_tab  = 0;
   vparam.num_elem      = num_e;
-  vparam.elem_var_tab  = elem_var_tab;
+  vparam.elem_var_tab  = (int *)elem_var_tab;
   vparam.num_nset      = num_m;
-  vparam.nset_var_tab  = nset_var_tab;
+  vparam.nset_var_tab  = (int *)nset_var_tab;
   vparam.num_eset      = 0;
   vparam.eset_var_tab  = 0;
   vparam.num_fset      = 0;
   vparam.fset_var_tab  = 0;
   vparam.num_sset      = num_s;
-  vparam.sset_var_tab  = sset_var_tab;
+  vparam.sset_var_tab  = (int *)sset_var_tab;
   vparam.num_elset     = 0;
   vparam.elset_var_tab = 0;
 

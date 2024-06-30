@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022, 2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -7,14 +7,16 @@
 #pragma once
 
 #include "iocatalyst_export.h"
+#include "vtk_ioss_mangle.h"
 
+#include "Ioss_DBUsage.h"
+#include "Ioss_DatabaseIO.h"
 #include "Ioss_EntitySet.h"
 #include "Ioss_Region.h"  // for Region, SideSetContainer, etc
 #include "Ioss_SideSet.h" // for SideBlockContainer, SideSet
-#include <Ioss_DBUsage.h>
-#include <Ioss_DatabaseIO.h>
 
 #include "Ioss_Field.h" // for Field, etc
+#include "Iocatalyst_CatalystManager.h"
 
 #include <memory> // for std::unique_ptr
 
@@ -29,6 +31,8 @@ namespace Iocatalyst {
     DatabaseIO(Ioss::Region *region, const std::string &filename, Ioss::DatabaseUsage db_usage,
                Ioss_MPI_Comm communicator, const Ioss::PropertyManager &props);
     ~DatabaseIO() override;
+
+    using RegionContainer = std::vector<Ioss::Region *>;
 
     // Check capabilities of input/output database...  Returns an
     // unsigned int with the supported Ioss::EntityTypes or'ed
@@ -48,7 +52,7 @@ namespace Iocatalyst {
     void finalize_database() const override {}
 
     /** Return a string specifying underlying format of database (exodus, cgns, ...) */
-    const std::string get_format() const { return "CATALYST2"; }
+    std::string get_format() const override { return "CATALYST2"; }
 
     /** \brief Determine whether the database needs information about process ownership of nodes.
      *
@@ -76,95 +80,132 @@ namespace Iocatalyst {
      */
     bool deep_copy() const { return this->useDeepCopy; }
 
+    void *get_catalyst_conduit_node();
+
+    void print_catalyst_conduit_node();
+
+    std::string get_catalyst_dump_dir() const;
+
+    void set_split_type_changed(bool split_type_changed) { split_type_c = split_type_changed; }
+    IOSS_NODISCARD bool split_type_changed() const { return split_type_c; }
+
   private:
-    bool open_group__(const std::string & /* group_name */) override { return false; }
-    bool create_subgroup__(const std::string & /* group_name */) override { return false; }
+    bool open_group_nl(const std::string & /* group_name */) override { return false; }
+    bool create_subgroup_nl(const std::string & /* group_name */) override { return false; }
 
-    bool begin__(Ioss::State state) override;
-    bool end__(Ioss::State state) override;
+    bool begin_nl(Ioss::State state) override;
+    bool end_nl(Ioss::State state) override;
 
-    void read_meta_data__() override;
-    void get_step_times__() override;
+    void read_meta_data_nl() override;
+    void get_step_times_nl() override;
 
-    bool begin_state__(int state, double time) override;
-    bool end_state__(int state, double time) override;
+    bool begin_state_nl(int state, double time) override;
+    bool end_state_nl(int state, double time) override;
+
+    CatalystManager::CatalystPipelineID catPipeID;
 
     void
-    compute_block_membership__(Ioss::SideBlock * /* efblock */,
-                               std::vector<std::string> & /* block_membership */) const override
+    compute_block_membership_nl(Ioss::SideBlock * /* efblock */,
+                                std::vector<std::string> & /* block_membership */) const override
     {
     }
 
     int64_t get_field_internal(const Ioss::Region *reg, const Ioss::Field &field, void *data,
-                               size_t data_size) const override
-    {
-      return -1;
-    }
+                               size_t data_size) const override;
     int64_t get_field_internal(const Ioss::NodeBlock *nb, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t get_field_internal(const Ioss::EdgeBlock *nb, const Ioss::Field &field, void *data,
+    int64_t get_field_internal(const Ioss::EdgeBlock *eb, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t get_field_internal(const Ioss::FaceBlock *nb, const Ioss::Field &field, void *data,
+    int64_t get_field_internal(const Ioss::FaceBlock *fb, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
     int64_t get_field_internal(const Ioss::ElementBlock *eb, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t get_field_internal(const Ioss::SideBlock *fb, const Ioss::Field &field, void *data,
+    int64_t get_field_internal(const Ioss::SideBlock *sb, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
     int64_t get_field_internal(const Ioss::NodeSet *ns, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t get_field_internal(const Ioss::EdgeSet *ns, const Ioss::Field &field, void *data,
+    int64_t get_field_internal(const Ioss::EdgeSet *es, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t get_field_internal(const Ioss::FaceSet *ns, const Ioss::Field &field, void *data,
+    int64_t get_field_internal(const Ioss::FaceSet *fs, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t get_field_internal(const Ioss::ElementSet *ns, const Ioss::Field &field, void *data,
+    int64_t get_field_internal(const Ioss::ElementSet *es, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t get_field_internal(const Ioss::SideSet *fs, const Ioss::Field &field, void *data,
+    int64_t get_field_internal(const Ioss::SideSet *ss, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
     int64_t get_field_internal(const Ioss::CommSet *cs, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t get_field_internal(const Ioss::Assembly * /*as*/, const Ioss::Field & /*field*/,
-                               void * /*data*/, size_t /*data_size*/) const override;
-    int64_t get_field_internal(const Ioss::Blob * /*bl*/, const Ioss::Field & /*field*/,
-                               void * /*data*/, size_t /*data_size*/) const override;
-    int64_t get_field_internal(const Ioss::StructuredBlock * /*sb*/, const Ioss::Field & /*field*/,
-                               void * /*data*/, size_t /*data_size*/) const override;
+    int64_t get_field_internal(const Ioss::Assembly *as, const Ioss::Field &field, void *data,
+                               size_t data_size) const override;
+    int64_t get_field_internal(const Ioss::Blob *bl, const Ioss::Field &field,
+                               void *data, size_t data_size) const override;
+    int64_t get_field_internal(const Ioss::StructuredBlock *sb, const Ioss::Field &field,
+                               void *data, size_t data_size) const override;
+
+    int64_t get_zc_field_internal(const Ioss::Region *reg, const Ioss::Field &field, void **data,
+                                  size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::NodeBlock *nb, const Ioss::Field &field, void **data,
+                                  size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::EdgeBlock *eb, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::FaceBlock *fb, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::ElementBlock *eb, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::SideBlock *sb, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::NodeSet *ns, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::EdgeSet *es, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::FaceSet *fs, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::ElementSet *es, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::SideSet *ss, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::CommSet *cs, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::Assembly *as, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::Blob *bl, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
+    int64_t get_zc_field_internal(const Ioss::StructuredBlock *sb, const Ioss::Field &field,
+                                  void **data, size_t *data_size) const override;
 
     int64_t put_field_internal(const Ioss::Region *reg, const Ioss::Field &field, void *data,
-                               size_t data_size) const override
-    {
-      return -1;
-    }
+                               size_t data_size) const override;
     int64_t put_field_internal(const Ioss::NodeBlock *nb, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t put_field_internal(const Ioss::EdgeBlock *nb, const Ioss::Field &field, void *data,
+    int64_t put_field_internal(const Ioss::EdgeBlock *eb, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t put_field_internal(const Ioss::FaceBlock *nb, const Ioss::Field &field, void *data,
+    int64_t put_field_internal(const Ioss::FaceBlock *fb, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
     int64_t put_field_internal(const Ioss::ElementBlock *eb, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t put_field_internal(const Ioss::SideBlock *fb, const Ioss::Field &field, void *data,
+    int64_t put_field_internal(const Ioss::SideBlock *sb, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
     int64_t put_field_internal(const Ioss::NodeSet *ns, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t put_field_internal(const Ioss::EdgeSet *ns, const Ioss::Field &field, void *data,
+    int64_t put_field_internal(const Ioss::EdgeSet *es, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t put_field_internal(const Ioss::FaceSet *ns, const Ioss::Field &field, void *data,
+    int64_t put_field_internal(const Ioss::FaceSet *fs, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t put_field_internal(const Ioss::ElementSet *ns, const Ioss::Field &field, void *data,
+    int64_t put_field_internal(const Ioss::ElementSet *es, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t put_field_internal(const Ioss::SideSet *fs, const Ioss::Field &field, void *data,
+    int64_t put_field_internal(const Ioss::SideSet *ss, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
     int64_t put_field_internal(const Ioss::CommSet *cs, const Ioss::Field &field, void *data,
                                size_t data_size) const override;
-    int64_t put_field_internal(const Ioss::Assembly * /*as*/, const Ioss::Field & /*field*/,
-                               void * /*data*/, size_t /*data_size*/) const override;
-    int64_t put_field_internal(const Ioss::Blob * /*bl*/, const Ioss::Field & /*field*/,
-                               void * /*data*/, size_t /*data_size*/) const override;
-    int64_t put_field_internal(const Ioss::StructuredBlock * /*sb*/, const Ioss::Field & /*field*/,
-                               void * /*data*/, size_t /*data_size*/) const override;
+    int64_t put_field_internal(const Ioss::Assembly *as, const Ioss::Field &field, void *data,
+                               size_t data_size) const override;
+    int64_t put_field_internal(const Ioss::Blob *bl, const Ioss::Field &field,
+                               void *data, size_t data_size) const override;
+    int64_t put_field_internal(const Ioss::StructuredBlock *sb, const Ioss::Field &field,
+                               void *data, size_t data_size) const override;
 
     class ImplementationT;
     std::unique_ptr<ImplementationT> Impl;
     bool                             useDeepCopy;
+    bool                             split_type_c{false};
   };
 } // namespace Iocatalyst

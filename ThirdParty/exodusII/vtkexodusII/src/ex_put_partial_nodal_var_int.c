@@ -26,7 +26,7 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_WARN, ex__comp_ws, etc
+#include "exodusII_int.h" // for EX_WARN, exi_comp_ws, etc
 
 /*!
   \internal
@@ -45,7 +45,7 @@
  * \param nodal_var_vals   array of nodal variable values
  */
 
-int ex__put_partial_nodal_var(int exoid, int time_step, int nodal_var_index, int64_t start_node,
+int exi_put_partial_nodal_var(int exoid, int time_step, int nodal_var_index, int64_t start_node,
                               int64_t num_nodes, const void *nodal_var_vals)
 
 {
@@ -55,7 +55,7 @@ int ex__put_partial_nodal_var(int exoid, int time_step, int nodal_var_index, int
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -75,7 +75,7 @@ int ex__put_partial_nodal_var(int exoid, int time_step, int nodal_var_index, int
     start[1] = 0;
   }
 
-  if (ex__comp_ws(exoid) == 4) {
+  if (exi_comp_ws(exoid) == 4) {
     status = nc_put_vara_float(exoid, varid, start, count, nodal_var_vals);
   }
   else {

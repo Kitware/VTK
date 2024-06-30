@@ -1,27 +1,23 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_CodeTypes.h>
-#include <Ioss_DatabaseIO.h>
-#include <Ioss_FileInfo.h>
-#include <Ioss_SubSystem.h>
-#include <Ioss_Utils.h>
-
-#include <algorithm>
+#include "Ioss_CodeTypes.h"
 #include <cassert>
 #include <cctype>
-#include <chrono>
 #include <cstdint>
-#include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/chrono.h)
+#include VTK_FMT(fmt/core.h)
 #include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
+#include VTK_FMT(fmt/ranges.h)
 #include <fstream>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <tokenize.h>
@@ -37,40 +33,35 @@
 #endif
 #include <cstdio>
 
-// For memory utilities...
+#include "Ioss_CompositeVariableType.h"
+#include "Ioss_DatabaseIO.h"
+#include "Ioss_ElementBlock.h"
+#include "Ioss_ElementTopology.h"
+#include "Ioss_EntityType.h"
+#include "Ioss_Field.h"
+#include "Ioss_FileInfo.h"
+#include "Ioss_GroupingEntity.h"
+#include "Ioss_IOFactory.h"
+#include "Ioss_NodeBlock.h"
+#include "Ioss_Property.h"
+#include "Ioss_PropertyManager.h"
+#include "Ioss_Region.h"
+#include "Ioss_SideBlock.h"
+#include "Ioss_State.h"
+#include "Ioss_Utils.h"
+#include "Ioss_VariableType.h"
+
 #if defined(__IOSS_WINDOWS__)
 #include <io.h>
+
 #define isatty _isatty
 #define WIN32_LEAN_AND_MEAN
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#if 0
-#include <psapi.h>
-#endif
 #include <windows.h>
-
-#elif defined(__unix__) || defined(__unix) || defined(unix) ||                                     \
-    (defined(__APPLE__) && defined(__MACH__))
-#include <sys/resource.h>
+#else
 #include <unistd.h>
-
-#if defined(__APPLE__) && defined(__MACH__)
-#include <mach/mach.h>
-
-#elif (defined(_AIX) || defined(__TOS__AIX__)) ||                                                  \
-    (defined(__sun__) || defined(__sun) || defined(sun) && (defined(__SVR4) || defined(__svr4__)))
-#include <fcntl.h>
-#include <procfs.h>
-
-#elif defined(__linux__) || defined(__linux) || defined(linux) || defined(__gnu_linux__)
-#include <stdio.h>
-#endif
-#endif
-
-#if defined(BGQ_LWK) && defined(__linux__)
-#include <spi/include/kernel/location.h>
-#include <spi/include/kernel/memory.h>
 #endif
 
 std::ostream *Ioss::Utils::m_warningStream  = &std::cerr;
@@ -84,12 +75,12 @@ namespace {
   ////////////////////////////////////////////////////////////////////////
   bool is_separator(const char separator, const char value) { return separator == value; }
 
-  int match(const char *name1, const char *name2)
+  size_t match(const char *name1, const char *name2)
   {
-    int l1  = static_cast<int>(std::strlen(name1));
-    int l2  = static_cast<int>(std::strlen(name2));
-    int len = l1 < l2 ? l1 : l2;
-    for (int i = 0; i < len; i++) {
+    auto l1  = std::strlen(name1);
+    auto l2  = std::strlen(name2);
+    auto len = l1 < l2 ? l1 : l2;
+    for (size_t i = 0; i < len; i++) {
       if (name1[i] != name2[i]) {
         while (i > 0 && (isdigit(name1[i - 1]) != 0) && (isdigit(name2[i - 1]) != 0)) {
           i--;
@@ -101,6 +92,11 @@ namespace {
     return len;
   }
 
+  size_t match(const std::string &name1, const std::string &name2)
+  {
+    return match(name1.c_str(), name2.c_str());
+  }
+
   // Split 'str' into 'tokens' based on the 'separator' character.
   // If 'str' starts with 1 or more 'separator', they are part of the
   // first token and not used for splitting.  If there are multiple
@@ -109,8 +105,7 @@ namespace {
   // characters of the next token.
   // `__this___is_a_string__for_tokens` will split to 6 tokens:
   // `__this` `__is` `a` `string` `_for` `tokens`
-  void field_tokenize(const std::string &str, const char separator,
-                      std::vector<std::string> &tokens)
+  Ioss::NameList field_tokenize(const std::string &str, const char separator)
   {
     std::string curr_token;
     // Skip leading separators...
@@ -118,12 +113,13 @@ namespace {
     while (i < str.length() && is_separator(separator, str[i])) {
       curr_token += str[i++];
     }
+    Ioss::NameList tokens;
     for (; i < str.length(); ++i) {
       char curr_char = str[i];
 
       // determine if current character is a separator
       bool is_sep = is_separator(separator, curr_char);
-      if (is_sep && curr_token != "") {
+      if (is_sep && !curr_token.empty()) {
         // we just completed a token
         tokens.push_back(curr_token);
         curr_token.clear();
@@ -136,9 +132,10 @@ namespace {
         curr_token += curr_char;
       }
     }
-    if (curr_token != "") {
+    if (!curr_token.empty()) {
       tokens.push_back(curr_token);
     }
+    return tokens;
   }
 } // namespace
 
@@ -285,24 +282,6 @@ std::string Ioss::Utils::encode_entity_name(const std::string &entity_type, int6
   return fmt::format("{}_{}", entity_type, id);
 }
 
-char **Ioss::Utils::get_name_array(size_t count, int size)
-{
-  auto names = new char *[count];
-  for (size_t i = 0; i < count; i++) {
-    names[i] = new char[size + 1];
-    std::memset(names[i], '\0', size + 1);
-  }
-  return names;
-}
-
-void Ioss::Utils::delete_name_array(char **names, int count)
-{
-  for (int i = 0; i < count; i++) {
-    delete[] names[i];
-  }
-  delete[] names;
-}
-
 std::string Ioss::Utils::fixup_type(const std::string &base, int nodes_per_element, int spatial)
 {
   std::string type = base;
@@ -398,8 +377,9 @@ int Ioss::Utils::field_warning(const Ioss::GroupingEntity *ge, const Ioss::Field
 }
 
 namespace {
-  const Ioss::VariableType *match_composite_field(char **names, Ioss::IntVector &which_names,
-                                                  const char suffix_separator)
+  const Ioss::VariableType *match_composite_field(Ioss::NameList  &names,
+                                                  Ioss::IntVector &which_names,
+                                                  const char       suffix_separator)
   {
     // ASSUME: Fields are in order...
     // The field we are trying to match will be a composite field of
@@ -466,7 +446,7 @@ namespace {
     return type;
   }
 
-  const Ioss::VariableType *match_single_field(char **names, Ioss::IntVector &which_names,
+  const Ioss::VariableType *match_single_field(Ioss::NameList &names, Ioss::IntVector &which_names,
                                                const char suffix_separator,
                                                bool       ignore_realn_fields)
   {
@@ -488,9 +468,9 @@ namespace {
     return type;
   }
 
-  Ioss::Field get_next_field(char **names, int num_names, size_t count,
-                             Ioss::Field::RoleType fld_role, const char suffix_separator,
-                             const int *truth_table, bool ignore_realn_fields)
+  Ioss::Field get_next_field(Ioss::NameList &names, size_t count, Ioss::Field::RoleType fld_role,
+                             const char suffix_separator, const int *truth_table,
+                             bool ignore_realn_fields)
   {
     // NOTE: 'names' are all lowercase at this point.
 
@@ -498,12 +478,12 @@ namespace {
     // must have an field_suffix_sep in the name separating the suffixes from
     // the main name.
 
-    // Find first unused name (used names have '\0' as first character...
-    int  index       = 0;
-    bool found_valid = false;
-    for (index = 0; index < num_names; index++) {
+    // Find first unused name (used names are empty())
+    size_t index       = 0;
+    bool   found_valid = false;
+    for (index = 0; index < names.size(); index++) {
       assert(truth_table == nullptr || truth_table[index] == 1 || truth_table[index] == 0);
-      if ((truth_table == nullptr || truth_table[index] == 1) && names[index][0] != '\0') {
+      if ((truth_table == nullptr || truth_table[index] == 1) && !names[index].empty()) {
         found_valid = true;
         break;
       }
@@ -511,16 +491,16 @@ namespace {
 
     if (!found_valid) {
       // Return an invalid field...
-      return Ioss::Field("", Ioss::Field::INVALID, IOSS_SCALAR(), fld_role, 1);
+      return {"", Ioss::Field::INVALID, IOSS_SCALAR(), fld_role, 1};
     }
 
     // At this point, name[index] should be a valid potential field
     // name and all names[i] with i < index are either already used or
     // not valid for this grouping entity (truth_table entry == 0).
-    assert(index < num_names && names[index][0] != '\0' &&
+    assert(index < names.size() && !names[index].empty() &&
            (truth_table == nullptr || truth_table[index] == 1));
-    char *name        = names[index];
-    auto  name_length = strlen(name);
+    const auto &name        = names[index];
+    auto        name_length = name.length();
 
     // Split the name up into tokens separated by the
     // 'suffix_separator'.  Note that the basename itself could
@@ -530,8 +510,7 @@ namespace {
     // (back_stress_xx_01). At the current time, a composite variable
     // type can only contain two non-composite variable types, so we
     // only need to look to be concerned with the last 1 or 2 tokens...
-    std::vector<std::string> tokens;
-    field_tokenize(name, suffix_separator, tokens);
+    auto   tokens     = field_tokenize(name, suffix_separator);
     size_t num_tokens = tokens.size();
 
     // Check that tokenizer did not return empty tokens...
@@ -541,7 +520,7 @@ namespace {
       // Return a SCALAR field
       Ioss::Field field(name, Ioss::Field::REAL, IOSS_SCALAR(), fld_role, count);
       field.set_index(index);
-      names[index][0] = '\0';
+      names[index] = "";
       return field;
     }
 
@@ -581,13 +560,13 @@ namespace {
         // It is possible that the first name(s) that match with two
         // suffices have a basename that match other names with only a
         // single suffix lc_cam_x, lc_cam_y, lc_sfarea.
-        for (int id = index + 1; id < num_names; id++) {
-          char                    *tst_name = names[id];
-          std::vector<std::string> subtokens;
-          field_tokenize(tst_name, suffix_separator, subtokens);
+        for (size_t id = index + 1; id < names.size(); id++) {
+          const auto &tst_name  = names[id];
+          auto        subtokens = field_tokenize(tst_name, suffix_separator);
           if ((truth_table == nullptr || truth_table[id] == 1) && // Defined on this entity
-              std::strncmp(name, tst_name, bn_len) == 0 &&       // base portion must match
-              (!same_length || (strlen(tst_name) == name_length)) &&
+              Ioss::Utils::str_equal(name.substr(0, bn_len),
+                                     tst_name.substr(0, bn_len)) && // base portion must match
+              (!same_length || tst_name.length() == name_length) &&
               subtokens.size() == num_tokens) {
             which_names.push_back(id);
           }
@@ -615,13 +594,18 @@ namespace {
             field.set_suffix_separator(suffix_separator);
           }
           // Are suffices upper or lowercase...
-          std::vector<std::string> tmp;
-          field_tokenize(names[which_names[0]], suffix_separator, tmp);
-          Ioss::Suffix suffix{tmp[tmp.size() - 1]};
+          auto tmp = field_tokenize(names[which_names[0]], suffix_separator);
+
+          // If a composite variable, then need to check the interior suffix, not the last (which
+          // will be 1,2,...)
+          bool is_composite = dynamic_cast<const Ioss::CompositeVariableType *>(
+                                  field.transformed_storage()) != nullptr;
+
+          Ioss::Suffix suffix{tmp[tmp.size() - (is_composite ? 2 : 1)]};
           field.set_suffices_uppercase(suffix.is_uppercase());
           field.set_index(index);
           for (const auto &which_name : which_names) {
-            names[which_name][0] = '\0';
+            names[which_name] = "";
           }
           return field;
         }
@@ -631,22 +615,21 @@ namespace {
           Ioss::Field field(name, Ioss::Field::REAL, IOSS_SCALAR(), fld_role, count);
 
           // Are suffices upper or lowercase...
-          std::vector<std::string> tmp;
-          field_tokenize(names[which_names[0]], suffix_separator, tmp);
+          auto         tmp = field_tokenize(names[which_names[0]], suffix_separator);
           Ioss::Suffix suffix{tmp[tmp.size() - 1]};
           field.set_suffices_uppercase(suffix.is_uppercase());
           field.set_index(index);
-          names[index][0] = '\0';
+          names[index] = "";
           return field;
         }
       }
       suffix_size--;
     }
-    return Ioss::Field("", Ioss::Field::INVALID, IOSS_SCALAR(), fld_role, 1);
+    return {"", Ioss::Field::INVALID, IOSS_SCALAR(), fld_role, 1};
   }
 
   // common
-  bool define_field(size_t nmatch, size_t match_length, char **names,
+  bool define_field(size_t nmatch, size_t match_length, Ioss::NameList &names, size_t index,
                     std::vector<Ioss::Suffix> &suffices, size_t entity_count,
                     Ioss::Field::RoleType fld_role, std::vector<Ioss::Field> &fields,
                     bool strip_trailing_, bool ignore_realn_fields, char suffix_separator)
@@ -660,12 +643,11 @@ namespace {
         nmatch = 1;
       }
       else {
-        char *name         = names[0];
-        name[match_length] = '\0';
-        auto suffix        = suffix_separator;
-        if (strip_trailing_ && name[match_length - 1] == '_') {
-          name[match_length - 1] = '\0';
-          suffix                 = '_';
+        auto name   = names[index].substr(0, match_length);
+        auto suffix = suffix_separator;
+        if (strip_trailing_ && name.back() == '_') {
+          name   = name.substr(0, name.length() - 1);
+          suffix = '_';
         }
         Ioss::Field field(name, Ioss::Field::REAL, type, fld_role, entity_count);
         if (suffix != suffix_separator) {
@@ -677,7 +659,7 @@ namespace {
           fields.push_back(field);
         }
         for (size_t j = 0; j < nmatch; j++) {
-          names[j][0] = '\0';
+          names[index + j] = "";
         }
         return true;
       }
@@ -686,11 +668,11 @@ namespace {
     // NOTE: nmatch could be reset inside previous if block.
     // This is not an 'else' block, it is a new if block.
     if (nmatch == 1) {
-      Ioss::Field field(names[0], Ioss::Field::REAL, IOSS_SCALAR(), fld_role, entity_count);
+      Ioss::Field field(names[index], Ioss::Field::REAL, IOSS_SCALAR(), fld_role, entity_count);
       if (field.is_valid()) {
         fields.push_back(field);
       }
-      names[0][0] = '\0';
+      names[index] = "";
       return false;
     }
     return false; // Can't get here...  Quiet the compiler
@@ -699,9 +681,8 @@ namespace {
 
 // Read scalar fields off an input database and determine whether
 // they are components of a higher order type (vector, tensor, ...).
-void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in this entity.
-                             char  **names,        // Raw list of field names from exodus
-                             int     num_names,    // Number of names in list
+void Ioss::Utils::get_fields(int64_t         entity_count, // The number of objects in this entity.
+                             Ioss::NameList &names,        // Raw list of field names from exodus
                              Ioss::Field::RoleType   fld_role, // Role of field
                              const Ioss::DatabaseIO *db,
                              int                    *local_truth, // Truth table for this entity;
@@ -715,19 +696,19 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
 
   if (!enable_field_recognition) {
     // Create a separate field for each name.
-    for (int i = 0; i < num_names; i++) {
-      if (local_truth == nullptr || local_truth[i] == 1) {
+    for (size_t i = 0; i < names.size(); i++) {
+      if (!names[i].empty() && (local_truth == nullptr || local_truth[i] == 1)) {
         Ioss::Field field(names[i], Ioss::Field::REAL, IOSS_SCALAR(), fld_role, entity_count);
         field.set_index(i);
         fields.push_back(field);
-        names[i][0] = '\0';
+        names[i] = "";
       }
     }
   }
   else if (suffix_separator != 0) {
     while (true) {
       // NOTE: 'get_next_field' determines storage type (vector, tensor,...)
-      Ioss::Field field = get_next_field(names, num_names, entity_count, fld_role, suffix_separator,
+      Ioss::Field field = get_next_field(names, entity_count, fld_role, suffix_separator,
                                          local_truth, ignore_realn_fields);
       if (field.is_valid()) {
         fields.push_back(field);
@@ -740,19 +721,22 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
   else {
     // This routine is used if there is no field component separator.  E.g.,
     // fieldx, fieldy, fieldz instead of field_x field_y field_z
-    int                       nmatch = 1;
-    int                       ibeg   = 0;
-    int                       pmat   = 0;
+    size_t                    nmatch = 1;
+    size_t                    ibeg   = 0;
+    size_t                    pmat   = 0;
     std::vector<Ioss::Suffix> suffices;
   top:
 
-    while (ibeg + nmatch < num_names) {
+    while (ibeg + nmatch < names.size()) {
       if (local_truth != nullptr) {
-        while (ibeg < num_names && local_truth[ibeg] == 0) {
+        while (ibeg < names.size() && local_truth[ibeg] == 0) {
           ibeg++;
         }
       }
-      for (int i = ibeg + 1; i < num_names; i++) {
+      while (ibeg < names.size() && names[ibeg].empty()) {
+        ibeg++;
+      }
+      for (size_t i = ibeg + 1; i < names.size(); i++) {
         auto mat = match(names[ibeg], names[i]);
         if (local_truth != nullptr && local_truth[i] == 0) {
           mat = 0;
@@ -768,8 +752,7 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
         // should match only 3 characters of the basename (sig), but
         // sigxx and sigxy will match 4 characters) so consider a
         // valid match if the match length is >= previous match length.
-        if ((std::strlen(names[ibeg]) == std::strlen(names[i])) && mat > 0 &&
-            (pmat == 0 || mat >= pmat)) {
+        if ((names[ibeg].length() == names[i].length()) && mat > 0 && (pmat == 0 || mat >= pmat)) {
           nmatch++;
           if (nmatch == 2) {
             // Get suffix for first field in the match
@@ -784,7 +767,7 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
         else {
 
           bool multi_component =
-              define_field(nmatch, pmat, &names[ibeg], suffices, entity_count, fld_role, fields,
+              define_field(nmatch, pmat, names, ibeg, suffices, entity_count, fld_role, fields,
                            strip_trailing_, ignore_realn_fields, suffix_separator);
           if (!multi_component) {
             // Although we matched multiple suffices, it wasn't a
@@ -808,10 +791,10 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
     // have forms a multi-component field; if not, then define a
     // scalar field and jump up to the loop again to handle the others
     // that had been gathered.
-    if (ibeg < num_names) {
+    if (ibeg < names.size()) {
       if (local_truth == nullptr || local_truth[ibeg] == 1) {
         bool multi_component =
-            define_field(nmatch, pmat, &names[ibeg], suffices, entity_count, fld_role, fields,
+            define_field(nmatch, pmat, names, ibeg, suffices, entity_count, fld_role, fields,
                          strip_trailing_, ignore_realn_fields, suffix_separator);
         clear(suffices);
         if (nmatch > 1 && !multi_component) {
@@ -863,118 +846,9 @@ std::string Ioss::Utils::platform_information()
       fmt::format("Node: {0}, OS: {1} {2}, {3}, Machine: {4}", sys_info.nodename, sys_info.sysname,
                   sys_info.release, sys_info.version, sys_info.machine);
 #else
-  std::string                 info = "Node: Unknown, OS: Unknown, Machine: Unknown";
+  std::string info = "Node: Unknown, OS: Unknown, Machine: Unknown";
 #endif
   return info;
-}
-
-size_t Ioss::Utils::get_memory_info()
-{
-  // Code from http://nadeausoftware.com/sites/NadeauSoftware.com/files/getRSS.c
-  size_t memory_usage = 0;
-#if defined(__IOSS_WINDOWS__)
-#if 0
-  /* Windows -------------------------------------------------- */
-  PROCESS_MEMORY_COUNTERS info;
-  GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
-  memory_usage = (size_t)info.WorkingSetSize;
-#else
-  memory_usage = 0;
-#endif
-
-#elif defined(__APPLE__) && defined(__MACH__)
-  kern_return_t               error;
-  mach_msg_type_number_t      outCount;
-  mach_task_basic_info_data_t taskinfo{};
-
-  taskinfo.virtual_size = 0;
-  outCount              = MACH_TASK_BASIC_INFO_COUNT;
-  error                 = task_info(mach_task_self(), MACH_TASK_BASIC_INFO,
-                                    reinterpret_cast<task_info_t>(&taskinfo), &outCount);
-  if (error == KERN_SUCCESS) {
-    memory_usage = taskinfo.resident_size;
-  }
-#elif __linux__
-#if defined(BGQ_LWK)
-  uint64_t heap;
-  Kernel_GetMemorySize(KERNEL_MEMSIZE_HEAP, &heap);
-  memory_usage = heap;
-#else
-  // On Linux, the /proc pseudo-file system contains a directory for
-  // each running or zombie process. The /proc/[pid]/stat,
-  // /proc/[pid]/statm, and /proc/[pid]/status pseudo-files for the
-  // process with id [pid] all contain a process's current resident
-  // set size, among other things. But the /proc/[pid]/statm
-  // pseudo-file is the easiest to read since it contains a single
-  // line of text with white-space delimited values:
-  //
-  // * total program size
-  // * resident set size
-  // * shared pages
-  // * text (code) size
-  // * library size
-  // * data size (heap + stack)
-  // * dirty pages
-  //
-  // The second value provides the process's current resident set size
-  // in pages. To get the field for the current process, open
-  // /proc/self/statm and parse the second integer value. Multiply the
-  // field by the page size from sysconf( ).
-
-  long  rss = 0L;
-  FILE *fp  = NULL;
-  if ((fp = fopen("/proc/self/statm", "r")) == NULL)
-    return (size_t)0L; // Can't open? */
-  if (fscanf(fp, "%*s%ld", &rss) != 1) {
-    fclose(fp);
-    return (size_t)0L; // Can't read? */
-  }
-  fclose(fp);
-  memory_usage = (size_t)rss * (size_t)sysconf(_SC_PAGESIZE);
-#endif
-#endif
-  return memory_usage;
-}
-
-size_t Ioss::Utils::get_hwm_memory_info()
-{
-  // Code from http://nadeausoftware.com/sites/NadeauSoftware.com/files/getRSS.c
-  size_t memory_usage = 0;
-#if defined(__IOSS_WINDOWS__)
-#if 0
-  /* Windows -------------------------------------------------- */
-  PROCESS_MEMORY_COUNTERS info;
-  GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
-  memory_usage = (size_t)info.PeakWorkingSetSize;
-#else
-  memory_usage = 0;
-#endif
-
-#elif (defined(_AIX) || defined(__TOS__AIX__)) ||                                                  \
-    (defined(__sun__) || defined(__sun) || defined(sun) && (defined(__SVR4) || defined(__svr4__)))
-  /* AIX and Solaris ------------------------------------------ */
-  struct psinfo psinfo;
-  int           fd = -1;
-  if ((fd = open("/proc/self/psinfo", O_RDONLY)) == -1)
-    return (size_t)0L; /* Can't open? */
-  if (read(fd, &psinfo, sizeof(psinfo)) != sizeof(psinfo)) {
-    close(fd);
-    return (size_t)0L; /* Can't read? */
-  }
-  close(fd);
-  memory_usage = (size_t)(psinfo.pr_rssize * 1024L);
-
-#elif (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && !defined(BGQ_LWK))
-  /* BSD, Linux, and OSX -------------------------------------- */
-  struct rusage rusage;
-  getrusage(RUSAGE_SELF, &rusage);
-#if defined(__APPLE__) && defined(__MACH__)
-  memory_usage = (size_t)rusage.ru_maxrss;
-#else
-  memory_usage = (size_t)(rusage.ru_maxrss * 1024L);
-#endif
-#endif
-  return memory_usage;
 }
 
 bool Ioss::Utils::block_is_omitted(Ioss::GroupingEntity *block)
@@ -1087,44 +961,44 @@ int64_t Ioss::Utils::get_side_offset(const Ioss::SideBlock *sb)
 std::string Ioss::Utils::shape_to_string(const Ioss::ElementShape &shape)
 {
   switch (shape) {
-  case Ioss::ElementShape::UNKNOWN: return std::string("Unknown");
-  case Ioss::ElementShape::POINT: return std::string("Point");
-  case Ioss::ElementShape::SPHERE: return std::string("Sphere");
-  case Ioss::ElementShape::LINE: return std::string("Line");
-  case Ioss::ElementShape::SPRING: return std::string("Spring");
-  case Ioss::ElementShape::TRI: return std::string("Tri");
-  case Ioss::ElementShape::QUAD: return std::string("Quad");
-  case Ioss::ElementShape::TET: return std::string("Tet");
-  case Ioss::ElementShape::PYRAMID: return std::string("Pyramid");
-  case Ioss::ElementShape::WEDGE: return std::string("Wedge");
-  case Ioss::ElementShape::HEX: return std::string("Hex");
-  case Ioss::ElementShape::SUPER: return std::string("Super");
+  case Ioss::ElementShape::UNKNOWN: return {"Unknown"};
+  case Ioss::ElementShape::POINT: return {"Point"};
+  case Ioss::ElementShape::SPHERE: return {"Sphere"};
+  case Ioss::ElementShape::LINE: return {"Line"};
+  case Ioss::ElementShape::SPRING: return {"Spring"};
+  case Ioss::ElementShape::TRI: return {"Tri"};
+  case Ioss::ElementShape::QUAD: return {"Quad"};
+  case Ioss::ElementShape::TET: return {"Tet"};
+  case Ioss::ElementShape::PYRAMID: return {"Pyramid"};
+  case Ioss::ElementShape::WEDGE: return {"Wedge"};
+  case Ioss::ElementShape::HEX: return {"Hex"};
+  case Ioss::ElementShape::SUPER: return {"Super"};
   }
-  return std::string("Invalid shape [") + std::to_string(unsigned(shape)) + std::string("]");
+  return fmt::format("Invalid shape [{}]", unsigned(shape));
 }
 
 std::string Ioss::Utils::entity_type_to_string(const Ioss::EntityType &type)
 {
   switch (type) {
-  case Ioss::EntityType::NODEBLOCK: return std::string("NODEBLOCK");
-  case Ioss::EntityType::EDGEBLOCK: return std::string("EDGEBLOCK");
-  case Ioss::EntityType::FACEBLOCK: return std::string("FACEBLOCK");
-  case Ioss::EntityType::ELEMENTBLOCK: return std::string("ELEMENTBLOCK");
-  case Ioss::EntityType::NODESET: return std::string("NODESET");
-  case Ioss::EntityType::EDGESET: return std::string("EDGESET");
-  case Ioss::EntityType::FACESET: return std::string("FACESET");
-  case Ioss::EntityType::ELEMENTSET: return std::string("ELEMENTSET");
-  case Ioss::EntityType::SIDESET: return std::string("SIDESET");
-  case Ioss::EntityType::COMMSET: return std::string("COMMSET");
-  case Ioss::EntityType::SIDEBLOCK: return std::string("SIDEBLOCK");
-  case Ioss::EntityType::REGION: return std::string("REGION");
-  case Ioss::EntityType::SUPERELEMENT: return std::string("SUPERELEMENT");
-  case Ioss::EntityType::STRUCTUREDBLOCK: return std::string("STRUCTUREDBLOCK");
-  case Ioss::EntityType::ASSEMBLY: return std::string("ASSEMBLY");
-  case Ioss::EntityType::BLOB: return std::string("BLOB");
-  case Ioss::EntityType::INVALID_TYPE: return std::string("INVALID_TYPE");
+  case Ioss::EntityType::NODEBLOCK: return {"NODEBLOCK"};
+  case Ioss::EntityType::EDGEBLOCK: return {"EDGEBLOCK"};
+  case Ioss::EntityType::FACEBLOCK: return {"FACEBLOCK"};
+  case Ioss::EntityType::ELEMENTBLOCK: return {"ELEMENTBLOCK"};
+  case Ioss::EntityType::NODESET: return {"NODESET"};
+  case Ioss::EntityType::EDGESET: return {"EDGESET"};
+  case Ioss::EntityType::FACESET: return {"FACESET"};
+  case Ioss::EntityType::ELEMENTSET: return {"ELEMENTSET"};
+  case Ioss::EntityType::SIDESET: return {"SIDESET"};
+  case Ioss::EntityType::COMMSET: return {"COMMSET"};
+  case Ioss::EntityType::SIDEBLOCK: return {"SIDEBLOCK"};
+  case Ioss::EntityType::REGION: return {"REGION"};
+  case Ioss::EntityType::SUPERELEMENT: return {"SUPERELEMENT"};
+  case Ioss::EntityType::STRUCTUREDBLOCK: return {"STRUCTUREDBLOCK"};
+  case Ioss::EntityType::ASSEMBLY: return {"ASSEMBLY"};
+  case Ioss::EntityType::BLOB: return {"BLOB"};
+  case Ioss::EntityType::INVALID_TYPE: return {"INVALID_TYPE"};
   }
-  return std::string("Invalid entity type [") + std::to_string(unsigned(type)) + std::string("]");
+  return fmt::format("Invalid entity type [{}]", unsigned(type));
 }
 
 unsigned int Ioss::Utils::hash(const std::string &name)
@@ -1151,7 +1025,7 @@ double Ioss::Utils::timer()
   return std::chrono::duration<double>(now - initial_time).count();
 }
 
-void Ioss::Utils::input_file(const std::string &file_name, std::vector<std::string> *lines,
+void Ioss::Utils::input_file(const std::string &file_name, Ioss::NameList *lines,
                              size_t max_line_length)
 {
   // Create an ifstream for the input file. This does almost the same
@@ -1293,7 +1167,7 @@ namespace {
     // Convert to base-26 'number'
     hashval %= HASHSIZE;
     char word[3] = {char(hashval / 26 + 'a'), char(hashval % 26 + 'a'), '\0'};
-    return (std::string(word));
+    return {word};
   }
 } // namespace
 
@@ -1353,7 +1227,7 @@ std::string Ioss::Utils::variable_name_kluge(const std::string &name, size_t com
   // scope names unique...
   std::string s = std::string(name).substr(len - maxlen, len);
   assert(s.length() <= maxlen);
-  new_str = s;
+  new_str = std::move(s);
 
   // NOTE: The hash is not added if the name is not shortened.
   std::string hash_string = two_letter_hash(name.c_str());
@@ -1393,7 +1267,7 @@ void Ioss::Utils::generate_history_mesh(Ioss::Region *region)
   }
 }
 
-// Safer than Ioss::Utils::copy_string -- guarantees null termination
+// Safer than strcpy -- guarantees null termination
 void Ioss::Utils::copy_string(char *dest, char const *source, size_t elements)
 {
   char *d;
@@ -1453,7 +1327,7 @@ std::string Ioss::Utils::get_type_from_file(const std::string &filename)
   if (all_dig) {
     auto tokens = Ioss::tokenize(filename, ".");
     if (tokens.size() >= 4) {
-      auto proc_count = tokens[tokens.size() - 2];
+      const auto &proc_count = tokens[tokens.size() - 2];
       if (proc_count.find_first_not_of("0123456789") == std::string::npos) {
         extension = tokens[tokens.size() - 3];
       }
@@ -1463,17 +1337,15 @@ std::string Ioss::Utils::get_type_from_file(const std::string &filename)
   if (extension == "e" || extension == "g" || extension == "gen" || extension == "exo") {
     return "exodus";
   }
-  else if (extension == "cgns") {
+  if (extension == "cgns") {
     return "cgns";
   }
-  else {
-    // "exodus" is default...
-    return "exodus";
-  }
+  // "exodus" is default...
+  return "exodus";
 }
 
 void Ioss::Utils::info_fields(const Ioss::GroupingEntity *ige, Ioss::Field::RoleType role,
-                              const std::string &header, const std::string &suffix)
+                              const std::string &header, const std::string &suffix, bool detail)
 {
   Ioss::NameList fields = ige->field_describe(role);
 
@@ -1490,22 +1362,25 @@ void Ioss::Utils::info_fields(const Ioss::GroupingEntity *ige, Ioss::Field::Role
     max_width = max_width > field_name.length() ? max_width : field_name.length();
   }
 
-  size_t width = Ioss::Utils::term_width();
-  if (width == 0) {
-    width = 80;
-  }
+  size_t width   = Ioss::Utils::term_width();
   size_t cur_out = 8; // Tab width...
   if (!header.empty()) {
     cur_out = header.size() + suffix.size() + 16; // Assume 2 tabs...
   }
   for (const auto &field_name : fields) {
-    const Ioss::VariableType *var_type   = ige->get_field(field_name).raw_storage();
-    int                       comp_count = var_type->component_count();
-    fmt::print("{1:>{0}s}:{2}  ", max_width, field_name, comp_count);
-    cur_out += max_width + 4;
-    if (cur_out + max_width >= width) {
-      fmt::print("\n\t");
-      cur_out = 8;
+    if (detail) {
+      const auto &field_ref = ige->get_fieldref(field_name);
+      fmt::print("{}{}", field_ref, suffix);
+    }
+    else {
+      const Ioss::VariableType *var_type   = ige->get_field(field_name).raw_storage();
+      int                       comp_count = var_type->component_count();
+      fmt::print("{1:>{0}s}:{2}  ", max_width, field_name, comp_count);
+      cur_out += max_width + 4;
+      if (cur_out + max_width >= width) {
+        fmt::print(suffix);
+        cur_out = 8;
+      }
     }
   }
   if (!header.empty()) {
@@ -1594,5 +1469,4 @@ void Ioss::Utils::copyright(std::ostream &out, const std::string &year_range)
              "OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
              "\n",
              year_range);
-  return;
 }

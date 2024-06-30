@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, ex_name_of_object, etc
-#include "exodusII_int.h" // for ex__is_parallel, etc
+#include "exodusII_int.h" // for exi_is_parallel, etc
 
 /*!
  * reads a portion of the set entry list and set extra list for a single set
@@ -29,16 +29,16 @@ int ex_get_partial_set(int exoid, ex_entity_type set_type, ex_entity_id set_id, 
   int    entry_list_id, extra_list_id, set_id_ndx;
   size_t start[1], count[1];
   char   errmsg[MAX_ERR_LENGTH];
-  char * entryptr = NULL;
-  char * extraptr = NULL;
+  char  *entryptr = NULL;
+  char  *extraptr = NULL;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* first check if any sets are specified */
-  if ((status = nc_inq_dimid(exoid, ex__dim_num_objects(set_type), &dimid)) != NC_NOERR) {
+  if ((status = nc_inq_dimid(exoid, exi_dim_num_objects(set_type), &dimid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: no %ss defined in file id %d",
              ex_name_of_object(set_type), exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
@@ -46,7 +46,7 @@ int ex_get_partial_set(int exoid, ex_entity_type set_type, ex_entity_id set_id, 
   }
 
   /* Lookup index of set id in VAR_*S_IDS array */
-  set_id_ndx = ex__id_lkup(exoid, set_type, set_id);
+  set_id_ndx = exi_id_lkup(exoid, set_type, set_id);
   if (set_id_ndx <= 0) {
     ex_get_err(NULL, NULL, &status);
 
@@ -98,7 +98,7 @@ int ex_get_partial_set(int exoid, ex_entity_type set_type, ex_entity_id set_id, 
   }
 
   /* read the entry list and extra list arrays */
-  if (set_entry_list != NULL || ex__is_parallel(exoid)) {
+  if (set_entry_list != NULL || exi_is_parallel(exoid)) {
     start[0] = offset - 1;
     count[0] = num_to_get;
     if (count[0] == 0) {
@@ -122,7 +122,7 @@ int ex_get_partial_set(int exoid, ex_entity_type set_type, ex_entity_id set_id, 
   }
 
   /* only do for edge, face and side sets */
-  if (extraptr && (set_extra_list != NULL || ex__is_parallel(exoid))) {
+  if (extraptr && (set_extra_list != NULL || exi_is_parallel(exoid))) {
     if ((status = nc_inq_varid(exoid, extraptr, &extra_list_id)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to locate extra list for %s %" PRId64 " in file id %d",

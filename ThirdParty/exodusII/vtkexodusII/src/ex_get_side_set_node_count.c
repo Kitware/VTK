@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -37,13 +37,13 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
   void_int *side_set_side_list = NULL;
   size_t    elem_ctr;
 
-  struct ex__elem_blk_parm *elem_blk_parms = NULL;
+  struct exi_elem_blk_parm *elem_blk_parms = NULL;
 
   char errmsg[MAX_ERR_LENGTH];
   int  err_stat = EX_NOERR;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -64,7 +64,7 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
   }
 
   /* Lookup index of side set id in VAR_SS_IDS array */
-  if (ex__id_lkup(exoid, EX_SIDE_SET, side_set_id) <= 0) {
+  if (exi_id_lkup(exoid, EX_SIDE_SET, side_set_id) <= 0) {
     ;
   }
   ex_get_err(NULL, NULL, &status);
@@ -101,10 +101,8 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  int int_size = sizeof(int);
-  if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
-    int_size = sizeof(int64_t);
-  }
+  bool ints_64  = ex_int64_status(exoid) & EX_BULK_INT64_API;
+  int  int_size = ints_64 ? sizeof(int64_t) : sizeof(int);
 
   /* First determine the  # of elements in the side set*/
   int err;
@@ -176,7 +174,7 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
       for (i = 0; i < tot_num_ss_elem; i++) {
         elems[i] = i; /* init index array to current position */
       }
-      ex__iqsort64(side_set_elem_list, elems, tot_num_ss_elem);
+      exi_iqsort64(side_set_elem_list, elems, tot_num_ss_elem);
     }
     else {
       /* Sort side set element list into index array  - non-destructive */
@@ -184,7 +182,7 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
       for (i = 0; i < tot_num_ss_elem; i++) {
         elems[i] = i; /* init index array to current position */
       }
-      ex__iqsort(side_set_elem_list, elems, tot_num_ss_elem);
+      exi_iqsort(side_set_elem_list, elems, tot_num_ss_elem);
     }
   }
 
@@ -215,7 +213,7 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
   }
 
   /* Allocate space for the element block params */
-  if (!(elem_blk_parms = malloc(num_elem_blks * sizeof(struct ex__elem_blk_parm)))) {
+  if (!(elem_blk_parms = malloc(num_elem_blks * sizeof(struct exi_elem_blk_parm)))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate space for element block params "
              "for file id %d",
@@ -235,7 +233,7 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
       id = ((int *)elem_blk_ids)[i];
     }
 
-    err_stat = ex__get_block_param(exoid, id, ndim, &elem_blk_parms[i]);
+    err_stat = exi_get_block_param(exoid, id, ndim, &elem_blk_parms[i]);
     if (err_stat != EX_NOERR) {
       goto cleanup;
     }
@@ -248,43 +246,51 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
    * side set.
    */
 
-  j = 0; /* The current element block... */
-  for (ii = 0; ii < tot_num_ss_elem; ii++) {
+  /* There is not partial read for this function, but all ranks must call because exodus runs
+   * NC_COLLECTIVE for all variables.  Typically, either all ranks call and get same data, or one
+   * rank reads.  To do the one rank read, we only store the data if `side_set_node_cnt_list !=
+   * NULL`
+   */
+  if (side_set_node_cnt_list != NULL) {
+    j = 0; /* The current element block... */
+    for (ii = 0; ii < tot_num_ss_elem; ii++) {
 
-    if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
-      i    = ((int64_t *)ss_elem_ndx)[ii];
-      elem = ((int64_t *)side_set_elem_list)[i];
-      side = ((int64_t *)side_set_side_list)[i] - 1; /* Convert to 0-based sides */
-    }
-    else {
-      i    = ((int *)ss_elem_ndx)[ii];
-      elem = ((int *)side_set_elem_list)[i];
-      side = ((int *)side_set_side_list)[i] - 1; /* Convert to 0-based sides */
-    }
-
-    /*
-     * Since the elements are being accessed in sorted, order, the
-     * block that contains the elements must progress sequentially
-     * from block 0 to block[num_elem_blks-1]. Once we find an element
-     * not in this block, find a following block that contains it...
-     */
-    for (; j < num_elem_blks; j++) {
-      if (elem <= elem_blk_parms[j].elem_ctr) {
-        break;
+      if (ints_64) {
+        i    = ((int64_t *)ss_elem_ndx)[ii];
+        elem = ((int64_t *)side_set_elem_list)[i];
+        side = ((int64_t *)side_set_side_list)[i] - 1; /* Convert to 0-based sides */
       }
-    }
+      else {
+        i    = ((int *)ss_elem_ndx)[ii];
+        elem = ((int *)side_set_elem_list)[i];
+        side = ((int *)side_set_side_list)[i] - 1; /* Convert to 0-based sides */
+      }
 
-    if (j < num_elem_blks) {
-      assert(side < elem_blk_parms[j].num_sides);
-      side_set_node_cnt_list[i] = elem_blk_parms[j].num_nodes_per_side[side];
-    }
-    else {
-      snprintf(errmsg, MAX_ERR_LENGTH,
-               "ERROR: Invalid element number %" PRId64 " found in side set %" PRId64 " in file %d",
-               elem, side_set_id, exoid);
-      ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-      err_stat = EX_FATAL;
-      goto cleanup;
+      /*
+       * Since the elements are being accessed in sorted, order, the
+       * block that contains the elements must progress sequentially
+       * from block 0 to block[num_elem_blks-1]. Once we find an element
+       * not in this block, find a following block that contains it...
+       */
+      for (; j < num_elem_blks; j++) {
+        if (elem <= elem_blk_parms[j].elem_ctr) {
+          break;
+        }
+      }
+
+      if (j < num_elem_blks) {
+        assert(side < elem_blk_parms[j].num_sides);
+        side_set_node_cnt_list[i] = elem_blk_parms[j].num_nodes_per_side[side];
+      }
+      else {
+        snprintf(errmsg, MAX_ERR_LENGTH,
+                 "ERROR: Invalid element number %" PRId64 " found in side set %" PRId64
+                 " in file %d",
+                 elem, side_set_id, exoid);
+        ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+        err_stat = EX_FATAL;
+        goto cleanup;
+      }
     }
   }
 

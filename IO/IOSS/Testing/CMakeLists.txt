@@ -32,6 +32,32 @@ if (VTK_WRAP_PYTHON)
   )
 endif ()
 
+# functino to add conduit data. it passes the dataset_name, num_mpi_nodes, and num_timesteps as arguments
+function(vtk_add_conduit_data dataset_name num_mpi_nodes num_timesteps)
+  set(local_datasets)
+  math(EXPR max_mpi_node "${num_mpi_nodes} - 1")
+  foreach (mpi_node RANGE 0 ${max_mpi_node})
+    list(APPEND local_datasets
+      "Data/${dataset_name}_MPI_${num_mpi_nodes}/initialize_params.conduit_bin.${num_mpi_nodes}.${mpi_node}"
+      "Data/${dataset_name}_MPI_${num_mpi_nodes}/initialize_params.conduit_bin.${num_mpi_nodes}.${mpi_node}_json"
+      "Data/${dataset_name}_MPI_${num_mpi_nodes}/finalize_params.conduit_bin.${num_mpi_nodes}.${mpi_node}"
+      "Data/${dataset_name}_MPI_${num_mpi_nodes}/finalize_params.conduit_bin.${num_mpi_nodes}.${mpi_node}_json"
+    )
+    math(EXPR max_timestep "${num_timesteps} - 1")
+    foreach (timestep RANGE 0 ${max_timestep})
+      list(APPEND local_datasets
+        "Data/${dataset_name}_MPI_${num_mpi_nodes}/execute_invc${timestep}_params.conduit_bin.${num_mpi_nodes}.${mpi_node}"
+        "Data/${dataset_name}_MPI_${num_mpi_nodes}/execute_invc${timestep}_params.conduit_bin.${num_mpi_nodes}.${mpi_node}_json"
+      )
+    endforeach ()
+  endforeach ()
+  set(datasets "${datasets};${local_datasets}" PARENT_SCOPE)
+endfunction()
+
+vtk_add_conduit_data(Iocatalyst_can_ex2 1 44)
+vtk_add_conduit_data(Iocatalyst_can_ex2 4 44)
+vtk_add_conduit_data(Iocatalyst_sparc1_cgns 1 3)
+
 if (VTK_USE_LARGE_DATA)
   list(APPEND datasets
     Data/Exodus/SAND2017-5827O-FSM_Residual-bad-eigen.e

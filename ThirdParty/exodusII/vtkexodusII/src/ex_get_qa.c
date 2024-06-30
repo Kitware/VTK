@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex__trim, etc
+#include "exodusII_int.h" // for EX_FATAL, exi_trim, etc
 
 /*!
 \ingroup Utilities
@@ -55,28 +55,25 @@ error = ex_get_qa (exoid, qa_record);
 
 int ex_get_qa(int exoid, char *qa_record[][4])
 {
-  int    status;
-  int    dimid, varid;
-  size_t i, j;
-  size_t num_qa_records, start[3], count[3];
-
-  char errmsg[MAX_ERR_LENGTH];
-
-  int rootid = exoid & EX_FILE_ID_MASK;
-
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* inquire previously defined dimensions and variables  */
+  int status;
+  int rootid = exoid & EX_FILE_ID_MASK;
+  int dimid;
   if ((status = nc_inq_dimid(rootid, DIM_NUM_QA, &dimid)) != NC_NOERR) {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no qa records stored in file id %d", rootid);
     ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
+  size_t num_qa_records;
   if ((status = nc_inq_dimlen(rootid, dimid, &num_qa_records)) != NC_NOERR) {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of qa records in file id %d",
              rootid);
     ex_err_fn(exoid, __func__, errmsg, status);
@@ -85,7 +82,9 @@ int ex_get_qa(int exoid, char *qa_record[][4])
 
   /* do this only if there are any QA records */
   if (num_qa_records > 0) {
+    int varid;
     if ((status = nc_inq_varid(rootid, VAR_QA_TITLE, &varid)) != NC_NOERR) {
+      char errmsg[MAX_ERR_LENGTH];
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate qa record data in file id %d",
                rootid);
       ex_err_fn(exoid, __func__, errmsg, status);
@@ -93,22 +92,19 @@ int ex_get_qa(int exoid, char *qa_record[][4])
     }
 
     /* read the QA records */
-    for (i = 0; i < num_qa_records; i++) {
-      for (j = 0; j < 4; j++) {
-        start[0] = i;
-        count[0] = 1;
-        start[1] = j;
-        count[1] = 1;
-        start[2] = 0;
-        count[2] = MAX_STR_LENGTH + 1;
+    for (size_t i = 0; i < num_qa_records; i++) {
+      for (size_t j = 0; j < 4; j++) {
+        size_t start[] = {i, j, 0};
+        size_t count[] = {1, 1, MAX_STR_LENGTH + 1};
         if ((status = nc_get_vara_text(rootid, varid, start, count, qa_record[i][j])) != NC_NOERR) {
+          char errmsg[MAX_ERR_LENGTH];
           snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get qa record data in file id %d",
                    rootid);
           ex_err_fn(exoid, __func__, errmsg, status);
           EX_FUNC_LEAVE(EX_FATAL);
         }
         qa_record[i][j][MAX_STR_LENGTH] = '\0';
-        ex__trim(qa_record[i][j]);
+        exi_trim(qa_record[i][j]);
       }
     }
   }

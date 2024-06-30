@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -6,14 +6,16 @@
 
 #pragma once
 
-#include "ioss_export.h"
-
-#include <Ioss_CodeTypes.h>
+#include "Ioss_CodeTypes.h"
 #include <assert.h>
 #include <limits>
-#include <map>    // for map, map<>::value_compare
+#include <map> // for map, map<>::value_compare
+#include <stdint.h>
 #include <string> // for string, operator<
 #include <vector> // for vector
+
+#include "ioss_export.h"
+#include "vtk_ioss_mangle.h"
 
 namespace Ioss {
   class ElementTopology;
@@ -34,10 +36,13 @@ namespace Ioss {
   class IOSS_EXPORT EPRegistry
   {
   public:
-    void                            insert(const Ioss::EPM_VP &value, bool delete_me);
-    ElementPermutationMap::iterator begin() { return m_registry.begin(); }
-    ElementPermutationMap::iterator end() { return m_registry.end(); }
-    ElementPermutationMap::iterator find(const std::string &type) { return m_registry.find(type); }
+    void           insert(const Ioss::EPM_VP &value, bool delete_me);
+    IOSS_NODISCARD ElementPermutationMap::iterator begin() { return m_registry.begin(); }
+    IOSS_NODISCARD ElementPermutationMap::iterator end() { return m_registry.end(); }
+    IOSS_NODISCARD ElementPermutationMap::iterator find(const std::string &type)
+    {
+      return m_registry.find(type);
+    }
 
     ~EPRegistry();
 
@@ -55,34 +60,29 @@ namespace Ioss {
   class IOSS_EXPORT ElementPermutation
   {
   public:
-    ElementPermutation(const ElementPermutation &)            = delete;
-    ElementPermutation &operator=(const ElementPermutation &) = delete;
-
-    virtual ~ElementPermutation();
-
-    unsigned num_permutations() const;
+    IOSS_NODISCARD unsigned num_permutations() const;
 
     // The number of positive permutations must be less than or equal to the total number of
     // permutations
-    unsigned num_positive_permutations() const;
+    IOSS_NODISCARD unsigned num_positive_permutations() const;
 
-    bool is_positive_polarity(Permutation permutation) const;
+    IOSS_NODISCARD bool is_positive_polarity(Permutation permutation) const;
 
     // Permutation type is unsigned so only need to check upper bound
-    bool valid_permutation(Permutation permutation) const;
+    IOSS_NODISCARD bool valid_permutation(Permutation permutation) const;
 
     // For a validated permutation, return the node ordinals
     bool fill_permutation_indices(Permutation           permutation,
                                   std::vector<Ordinal> &nodeOrdinalVector) const;
 
     // For a given permutation, return the node ordinals
-    std::vector<Ordinal> permutation_indices(Permutation permutation) const;
+    IOSS_NODISCARD std::vector<Ordinal> permutation_indices(Permutation permutation) const;
 
-    Permutation num_permutation_nodes() const;
+    IOSS_NODISCARD Permutation num_permutation_nodes() const;
 
-    const std::string &type() const;
+    IOSS_NODISCARD const std::string &type() const;
 
-    static ElementPermutation *factory(const std::string &type);
+    IOSS_NODISCARD static ElementPermutation *factory(const std::string &type);
 
     /** \brief Get the names of element permutations known to Ioss.
      *
@@ -95,11 +95,11 @@ namespace Ioss {
      *
      *  \returns The list of known element topology names.
      */
-    static NameList describe();
+    IOSS_NODISCARD static NameList describe();
 
-    bool operator==(const Ioss::ElementPermutation &rhs) const;
-    bool operator!=(const Ioss::ElementPermutation &rhs) const;
-    bool equal(const Ioss::ElementPermutation &rhs) const;
+    IOSS_NODISCARD bool operator==(const Ioss::ElementPermutation &rhs) const;
+    IOSS_NODISCARD bool operator!=(const Ioss::ElementPermutation &rhs) const;
+    IOSS_NODISCARD bool equal(const Ioss::ElementPermutation &rhs) const;
 
   protected:
     explicit ElementPermutation(std::string type, bool delete_me = false);
@@ -135,11 +135,7 @@ namespace Ioss {
   class IOSS_EXPORT NullPermutation : public ElementPermutation
   {
   public:
-    static const char *name;
-
     static void factory();
-    ~NullPermutation() override              = default;
-    NullPermutation(const NullPermutation &) = delete;
 
   protected:
     NullPermutation();
@@ -148,11 +144,7 @@ namespace Ioss {
   class IOSS_EXPORT SpherePermutation : public ElementPermutation
   {
   public:
-    static const char *name;
-
     static void factory();
-    ~SpherePermutation() override                = default;
-    SpherePermutation(const SpherePermutation &) = delete;
 
   protected:
     SpherePermutation();
@@ -161,11 +153,7 @@ namespace Ioss {
   class IOSS_EXPORT LinePermutation : public ElementPermutation
   {
   public:
-    static const char *name;
-
     static void factory();
-    ~LinePermutation() override              = default;
-    LinePermutation(const LinePermutation &) = delete;
 
   protected:
     LinePermutation();
@@ -174,11 +162,7 @@ namespace Ioss {
   class IOSS_EXPORT SpringPermutation : public ElementPermutation
   {
   public:
-    static const char *name;
-
     static void factory();
-    ~SpringPermutation() override                = default;
-    SpringPermutation(const SpringPermutation &) = delete;
 
   protected:
     SpringPermutation();
@@ -187,11 +171,7 @@ namespace Ioss {
   class IOSS_EXPORT TriPermutation : public ElementPermutation
   {
   public:
-    static const char *name;
-
     static void factory();
-    ~TriPermutation() override             = default;
-    TriPermutation(const TriPermutation &) = delete;
 
   protected:
     TriPermutation();
@@ -200,11 +180,7 @@ namespace Ioss {
   class IOSS_EXPORT QuadPermutation : public ElementPermutation
   {
   public:
-    static const char *name;
-
     static void factory();
-    ~QuadPermutation() override              = default;
-    QuadPermutation(const QuadPermutation &) = delete;
 
   protected:
     QuadPermutation();
@@ -213,11 +189,7 @@ namespace Ioss {
   class IOSS_EXPORT TetPermutation : public ElementPermutation
   {
   public:
-    static const char *name;
-
     static void factory();
-    ~TetPermutation() override             = default;
-    TetPermutation(const TetPermutation &) = delete;
 
   protected:
     TetPermutation();
@@ -226,11 +198,7 @@ namespace Ioss {
   class IOSS_EXPORT PyramidPermutation : public ElementPermutation
   {
   public:
-    static const char *name;
-
     static void factory();
-    ~PyramidPermutation() override                 = default;
-    PyramidPermutation(const PyramidPermutation &) = delete;
 
   protected:
     PyramidPermutation();
@@ -239,11 +207,7 @@ namespace Ioss {
   class IOSS_EXPORT WedgePermutation : public ElementPermutation
   {
   public:
-    static const char *name;
-
     static void factory();
-    ~WedgePermutation() override               = default;
-    WedgePermutation(const WedgePermutation &) = delete;
 
   protected:
     WedgePermutation();
@@ -252,11 +216,7 @@ namespace Ioss {
   class IOSS_EXPORT HexPermutation : public ElementPermutation
   {
   public:
-    static const char *name;
-
     static void factory();
-    ~HexPermutation() override             = default;
-    HexPermutation(const HexPermutation &) = delete;
 
   protected:
     HexPermutation();
@@ -265,13 +225,9 @@ namespace Ioss {
   class IOSS_EXPORT SuperPermutation : public ElementPermutation
   {
   public:
-    static const char *basename;
-
     static void make_super(const std::string &type);
     static void factory();
     static void factory(unsigned n);
-    ~SuperPermutation() override               = default;
-    SuperPermutation(const SuperPermutation &) = delete;
 
     static std::string get_name(unsigned n);
 

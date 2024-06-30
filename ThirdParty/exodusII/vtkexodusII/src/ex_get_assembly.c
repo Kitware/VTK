@@ -17,7 +17,7 @@
 
 int ex_get_assembly(int exoid, ex_assembly *assembly)
 {
-  struct ex__file_item *file   = NULL;
+  struct exi_file_item *file   = NULL;
   int                   status = 0;
   int                   dimid  = 0;
   size_t                len    = 0;
@@ -25,7 +25,7 @@ int ex_get_assembly(int exoid, ex_assembly *assembly)
 
   EX_FUNC_ENTER();
 
-  file = ex__find_file_item(exoid);
+  file = exi_find_file_item(exoid);
   if (!file) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unknown file id %d.", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADFILEID);

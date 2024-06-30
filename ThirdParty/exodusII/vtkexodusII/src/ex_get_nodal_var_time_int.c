@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_WARN, ex__comp_ws, etc
+#include "exodusII_int.h" // for EX_WARN, exi_comp_ws, etc
 
 /*!
 The function ex_get_nodal_var_time() reads the values of a nodal
@@ -78,7 +78,7 @@ error = ex_get_var_time(exoid, EX_NODAL, var_index, node_num, beg_time,
 ~~~
 */
 
-int ex__get_nodal_var_time(int exoid, int nodal_var_index, int64_t node_number, int beg_time_step,
+int exi_get_nodal_var_time(int exoid, int nodal_var_index, int64_t node_number, int beg_time_step,
                            int end_time_step, void *nodal_var_vals)
 {
   int    status;
@@ -87,7 +87,7 @@ int ex__get_nodal_var_time(int exoid, int nodal_var_index, int64_t node_number, 
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
   /* Check that times are in range */
@@ -170,7 +170,7 @@ int ex__get_nodal_var_time(int exoid, int nodal_var_index, int64_t node_number, 
     count[1] = 1;
   }
 
-  if (ex__comp_ws(exoid) == 4) {
+  if (exi_comp_ws(exoid) == 4) {
     status = nc_get_vara_float(exoid, varid, start, count, nodal_var_vals);
   }
   else {

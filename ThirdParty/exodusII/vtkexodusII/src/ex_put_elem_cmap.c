@@ -30,8 +30,8 @@
 #include <exodusII.h>     // for ex_err, etc
 #include <exodusII_int.h> // for EX_FATAL, DIM_ECNT_CMAP, etc
 
-int ex_put_elem_cmap(int exoid, ex_entity_id map_id, void_int *elem_ids, void_int *side_ids,
-                     void_int *proc_ids, int processor)
+int ex_put_elem_cmap(int exoid, ex_entity_id map_id, const void_int *elem_ids,
+                     const void_int *side_ids, const void_int *proc_ids, int processor)
 {
   int     map_idx, varid, dimid, status;
   size_t  start[1], count[1], ret_val;
@@ -42,7 +42,7 @@ int ex_put_elem_cmap(int exoid, ex_entity_id map_id, void_int *elem_ids, void_in
   /*-----------------------------Execution begins-----------------------------*/
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -56,7 +56,7 @@ int ex_put_elem_cmap(int exoid, ex_entity_id map_id, void_int *elem_ids, void_in
   }
 
   /* Get the index for this map_id */
-  if ((map_idx = ne__id_lkup(exoid, VAR_E_COMM_IDS, varidx, map_id)) == -1) {
+  if ((map_idx = nei_id_lkup(exoid, VAR_E_COMM_IDS, varidx, map_id)) == -1) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to find index for variable \"%s\" in file ID %d", VAR_E_COMM_IDS,
              exoid);
