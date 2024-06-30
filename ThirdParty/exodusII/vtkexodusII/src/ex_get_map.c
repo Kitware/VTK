@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -43,40 +43,42 @@ error = ex_get_map(exoid, elem_map);
 
 int ex_get_map(int exoid, void_int *elem_map)
 {
-  int    numelemdim, mapid, status;
-  size_t num_elem, i;
-  char   errmsg[MAX_ERR_LENGTH];
+  int status;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* inquire id's of previously defined dimensions and variables  */
 
   /* See if file contains any elements...*/
-  if ((status = nc_inq_dimid(exoid, DIM_NUM_ELEM, &numelemdim)) != NC_NOERR) {
+  int numelemdim;
+  if (nc_inq_dimid(exoid, DIM_NUM_ELEM, &numelemdim) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_NOERR);
   }
 
+  size_t num_elem;
   if ((status = nc_inq_dimlen(exoid, numelemdim, &num_elem)) != NC_NOERR) {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of elements in file id %d",
              exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+  int mapid;
   if (nc_inq_varid(exoid, VAR_MAP, &mapid) != NC_NOERR) {
     /* generate default map of 1..n, where n is num_elem */
     if (ex_int64_status(exoid) & EX_MAPS_INT64_API) {
       int64_t *lmap = (int64_t *)elem_map;
-      for (i = 0; i < num_elem; i++) {
+      for (size_t i = 0; i < num_elem; i++) {
         lmap[i] = i + 1;
       }
     }
     else {
       int *lmap = (int *)elem_map;
-      for (i = 0; i < num_elem; i++) {
+      for (size_t i = 0; i < num_elem; i++) {
         lmap[i] = i + 1;
       }
     }
@@ -93,6 +95,7 @@ int ex_get_map(int exoid, void_int *elem_map)
   }
 
   if (status != NC_NOERR) {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get element order map in file id %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);

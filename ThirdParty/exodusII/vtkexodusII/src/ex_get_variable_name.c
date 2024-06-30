@@ -40,7 +40,7 @@ int ex_get_variable_name(int exoid, ex_entity_type obj_type, int var_num, char *
   const char *vname = NULL;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -79,7 +79,7 @@ int ex_get_variable_name(int exoid, ex_entity_type obj_type, int var_num, char *
     int api_name_size = ex_inquire_int(exoid, EX_INQ_MAX_READ_NAME_LENGTH);
     int name_size     = db_name_size < api_name_size ? db_name_size : api_name_size;
 
-    status = ex__get_name(exoid, varid, var_num - 1, var_name, name_size, obj_type, __func__);
+    status = exi_get_name(exoid, varid, var_num - 1, var_name, name_size, obj_type, __func__);
     if (status != NC_NOERR) {
       EX_FUNC_LEAVE(EX_FATAL);
     }

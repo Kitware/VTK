@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -34,7 +34,7 @@
 /*!
   \ingroup ModelDescription
 
-The function ex_get_init() reads the initializationinitialization
+The function ex_get_init() reads the initialization
 parameters from an opened exodus file.
 
 \return In case of an error, ex_get_init() returns a negative number;
@@ -79,7 +79,7 @@ int ex_get_init(int exoid, char *title, void_int *num_dim, void_int *num_nodes, 
   int            errval;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -112,12 +112,12 @@ int ex_get_init(int exoid, char *title, void_int *num_dim, void_int *num_nodes, 
     int *n_node_sets = num_node_sets;
     int *n_side_sets = num_side_sets;
 
-    *n_dim       = info.num_dim;
-    *n_nodes     = info.num_nodes;
-    *n_elem      = info.num_elem;
-    *n_elem_blk  = info.num_elem_blk;
-    *n_node_sets = info.num_node_sets;
-    *n_side_sets = info.num_side_sets;
+    *n_dim       = (int)info.num_dim;
+    *n_nodes     = (int)info.num_nodes;
+    *n_elem      = (int)info.num_elem;
+    *n_elem_blk  = (int)info.num_elem_blk;
+    *n_node_sets = (int)info.num_node_sets;
+    *n_side_sets = (int)info.num_side_sets;
   }
   ex_copy_string(title, info.title, MAX_LINE_LENGTH + 1);
 

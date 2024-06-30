@@ -1,16 +1,19 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_Utils.h>
-#include <Ioss_ZoneConnectivity.h>
-#include <cstddef> // for size_t
+#include "Ioss_Utils.h"
+#include "Ioss_ZoneConnectivity.h"
 #include "vtk_fmt.h"
+#include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
+#include VTK_FMT(fmt/ranges.h)
 #include <string> // for string
 #include <vector> // for vector
+
+#include "Ioss_CodeTypes.h"
 
 namespace {
   int sign(int value) { return value < 0 ? -1 : 1; }
@@ -103,158 +106,185 @@ namespace Ioss {
 
   bool ZoneConnectivity::equal_(const Ioss::ZoneConnectivity &rhs, bool quiet) const
   {
+    // If `quiet` is true, then this is a helper function for the operator=
+    // and should return as soon as the equal/not-equal status is determined
+    //
+    // If `quiet` is false, then this is a helper function for the mesh compare
+    // utility and should report as many differences as it finds, so don't
+    // return until end...
+    bool same = true;
+
     if (this->m_connectionName != rhs.m_connectionName) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_connectionName MISMATCH ({} vs {})\n",
-                   this->m_connectionName, rhs.m_connectionName);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_connectionName MISMATCH ('{}' vs '{}')\n",
+                 this->m_connectionName, rhs.m_connectionName);
+      same = false;
     }
 
     if (this->m_donorName != rhs.m_donorName) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorName MISMATCH ({} vs {})\n",
-                   this->m_donorName, rhs.m_donorName);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorName MISMATCH ('{}' vs '{}')\n",
+                 this->m_donorName, rhs.m_donorName);
+      same = false;
     }
 
     if (this->m_transform != rhs.m_transform) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_transform MISMATCH!  ({} vs {})\n",
-                   fmt::join(this->m_transform, ":"), fmt::join(rhs.m_transform, ":"));
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_transform MISMATCH!  ({} vs {})\n",
+                 fmt::join(this->m_transform, ":"), fmt::join(rhs.m_transform, ":"));
+      same = false;
     }
 
     if (this->m_ownerRangeBeg != rhs.m_ownerRangeBeg) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerRangeBeg MISMATCH ({} vs {})\n",
-                   fmt::join(this->m_ownerRangeBeg, ":"), fmt::join(rhs.m_ownerRangeBeg, ":"));
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerRangeBeg MISMATCH ({} vs {})\n",
+                 fmt::join(this->m_ownerRangeBeg, ":"), fmt::join(rhs.m_ownerRangeBeg, ":"));
+      same = false;
     }
 
     if (this->m_ownerRangeEnd != rhs.m_ownerRangeEnd) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerRangeEnd MISMATCH ({} vs {})\n",
-                   fmt::join(this->m_ownerRangeEnd, ":"), fmt::join(rhs.m_ownerRangeEnd, ":"));
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerRangeEnd MISMATCH ({} vs {})\n",
+                 fmt::join(this->m_ownerRangeEnd, ":"), fmt::join(rhs.m_ownerRangeEnd, ":"));
+      same = false;
     }
 
     if (this->m_ownerOffset != rhs.m_ownerOffset) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerOffset MISMATCH ({} vs {})\n",
-                   fmt::join(this->m_ownerOffset, ":"), fmt::join(rhs.m_ownerOffset, ":"));
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerOffset MISMATCH ({} vs {})\n",
+                 fmt::join(this->m_ownerOffset, ":"), fmt::join(rhs.m_ownerOffset, ":"));
+      same = false;
     }
 
     if (this->m_donorRangeBeg != rhs.m_donorRangeBeg) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorRangeBeg MISMATCH ({} vs {})\n",
-                   fmt::join(this->m_donorRangeBeg, ":"), fmt::join(rhs.m_donorRangeBeg, ":"));
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorRangeBeg MISMATCH ({} vs {})\n",
+                 fmt::join(this->m_donorRangeBeg, ":"), fmt::join(rhs.m_donorRangeBeg, ":"));
+      same = false;
     }
 
     if (this->m_donorRangeEnd != rhs.m_donorRangeEnd) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorRangeEnd MISMATCH ({} vs {})\n",
-                   fmt::join(this->m_donorRangeEnd, ":"), fmt::join(rhs.m_donorRangeEnd, ":"));
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorRangeEnd MISMATCH ({} vs {})\n",
+                 fmt::join(this->m_donorRangeEnd, ":"), fmt::join(rhs.m_donorRangeEnd, ":"));
+      same = false;
     }
 
     if (this->m_donorOffset != rhs.m_donorOffset) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorOffset MISMATCH ({} vs {})\n",
-                   fmt::join(this->m_donorOffset, ":"), fmt::join(rhs.m_donorOffset, ":"));
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorOffset MISMATCH ({} vs {})\n",
+                 fmt::join(this->m_donorOffset, ":"), fmt::join(rhs.m_donorOffset, ":"));
+      same = false;
     }
 
     if (this->m_ownerGUID != rhs.m_ownerGUID) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerGUID MISMATCH ({} vs {})\n",
-                   this->m_ownerGUID, rhs.m_ownerGUID);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerGUID MISMATCH ({} vs {})\n",
+                 this->m_ownerGUID, rhs.m_ownerGUID);
+      same = false;
     }
 
     if (this->m_donorGUID != rhs.m_donorGUID) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorGUID MISMATCH ({} vs {})\n",
-                   this->m_donorGUID, rhs.m_donorGUID);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorGUID MISMATCH ({} vs {})\n",
+                 this->m_donorGUID, rhs.m_donorGUID);
+      same = false;
     }
 
     if (this->m_ownerZone != rhs.m_ownerZone) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerZone MISMATCH ({} vs {})\n",
-                   this->m_ownerZone, rhs.m_ownerZone);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerZone MISMATCH ({} vs {})\n",
+                 this->m_ownerZone, rhs.m_ownerZone);
+      same = false;
     }
 
     if (this->m_donorZone != rhs.m_donorZone) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorZone MISMATCH ({} vs {})\n",
-                   this->m_donorZone, rhs.m_donorZone);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorZone MISMATCH ({} vs {})\n",
+                 this->m_donorZone, rhs.m_donorZone);
+      same = false;
     }
 
     if (this->m_ownerProcessor != rhs.m_ownerProcessor) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerProcessor MISMATCH ({} vs {})\n",
-                   this->m_ownerProcessor, rhs.m_ownerProcessor);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerProcessor MISMATCH ({} vs {})\n",
+                 this->m_ownerProcessor, rhs.m_ownerProcessor);
+      same = false;
     }
 
     if (this->m_donorProcessor != rhs.m_donorProcessor) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorProcessor MISMATCH ({} vs {})\n",
-                   this->m_donorProcessor, rhs.m_donorProcessor);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorProcessor MISMATCH ({} vs {})\n",
+                 this->m_donorProcessor, rhs.m_donorProcessor);
+      same = false;
     }
 
     if (this->m_sameRange != rhs.m_sameRange) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_sameRange MISMATCH ({} vs {})\n",
-                   this->m_sameRange, rhs.m_sameRange);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_sameRange MISMATCH ({} vs {})\n",
+                 this->m_sameRange, rhs.m_sameRange);
+      same = false;
     }
 
     if (this->m_ownsSharedNodes != rhs.m_ownsSharedNodes) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownsSharedNodes MISMATCH ({} vs {})\n",
-                   this->m_ownsSharedNodes, rhs.m_ownsSharedNodes);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownsSharedNodes MISMATCH ({} vs {})\n",
+                 this->m_ownsSharedNodes, rhs.m_ownsSharedNodes);
+      same = false;
     }
 
     if (this->m_fromDecomp != rhs.m_fromDecomp) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_fromDecomp MISMATCH ({} vs {})\n",
-                   this->m_fromDecomp, rhs.m_fromDecomp);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_fromDecomp MISMATCH ({} vs {})\n",
+                 this->m_fromDecomp, rhs.m_fromDecomp);
+      same = false;
     }
 
     if (this->m_isActive != rhs.m_isActive) {
-      if (!quiet) {
-        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_isActive MISMATCH ({} vs {})\n",
-                   this->m_isActive, rhs.m_isActive);
+      if (quiet) {
+        return false;
       }
-      return false;
+      fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_isActive MISMATCH ({} vs {})\n",
+                 this->m_isActive, rhs.m_isActive);
+      same = false;
     }
-    return true;
+    return same;
   }
 
   bool ZoneConnectivity::operator==(const Ioss::ZoneConnectivity &rhs) const
@@ -286,10 +316,7 @@ namespace Ioss {
 
     int same_count = (diff0 == 0 ? 1 : 0) + (diff1 == 0 ? 1 : 0) + (diff2 == 0 ? 1 : 0);
 
-    if (same_count > 1) {
-      return false;
-    }
-    return true;
+    return same_count <= 1;
   }
 
   bool ZoneConnectivity::retain_original() const

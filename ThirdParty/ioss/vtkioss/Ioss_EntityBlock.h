@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022, 2023, 2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -6,14 +6,14 @@
 
 #pragma once
 
-#include "ioss_export.h"
-
-#include "vtk_ioss_mangle.h"
-
-#include <Ioss_GroupingEntity.h> // for GroupingEntity
-#include <Ioss_Property.h>       // for Property
+#include "Ioss_GroupingEntity.h" // for GroupingEntity
+#include "Ioss_Property.h"       // for Property
 #include <cstddef>               // for size_t
 #include <string>                // for string
+
+#include "ioss_export.h"
+#include "vtk_ioss_mangle.h"
+
 namespace Ioss {
   class DatabaseIO;
 } // namespace Ioss
@@ -40,20 +40,20 @@ namespace Ioss {
   public:
     EntityBlock &operator=(const EntityBlock &) = delete;
 
-    Property get_implicit_property(const std::string &my_name) const override = 0;
+    IOSS_NODISCARD Property get_implicit_property(const std::string &my_name) const override = 0;
 
     /** \brief Get the topology of the entities in the block.
      *
      *  \returns The topology.
      */
-    const ElementTopology *topology() const { return topology_; }
+    IOSS_NODISCARD const ElementTopology *topology() const { return topology_; }
 
     /** \brief Determine whether the block contains the entity with a given id.
      *
      *  \param[in] local_id The id to check.
      *  \returns True if the block contains the entity.
      */
-    bool contains(size_t local_id) const
+    IOSS_NODISCARD bool contains(size_t local_id) const
     {
       return idOffset < local_id && local_id <= idOffset + entityCount;
     }
@@ -89,11 +89,11 @@ namespace Ioss {
      *
      *  offset < file_descriptor <= offset+number_elements_per_block
      */
-    size_t get_offset() const { return idOffset; }
+    IOSS_NODISCARD size_t get_offset() const { return idOffset; }
 
-    bool operator==(const Ioss::EntityBlock &rhs) const;
-    bool operator!=(const Ioss::EntityBlock &rhs) const;
-    bool equal(const Ioss::EntityBlock &rhs) const;
+    IOSS_NODISCARD bool operator==(const Ioss::EntityBlock &rhs) const;
+    IOSS_NODISCARD bool operator!=(const Ioss::EntityBlock &rhs) const;
+    IOSS_NODISCARD bool equal(const Ioss::EntityBlock &rhs) const;
 
   protected:
     EntityBlock(DatabaseIO *io_database, const std::string &my_name, const std::string &entity_type,
@@ -103,9 +103,8 @@ namespace Ioss {
 
     ElementTopology *topology_{nullptr};
 
-  protected:
     size_t idOffset{0};
 
-    bool equal_(const Ioss::EntityBlock &rhs, const bool quiet) const;
+    bool equal_(const Ioss::EntityBlock &rhs, bool quiet) const;
   };
 } // namespace Ioss

@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -6,25 +6,32 @@
 
 #pragma once
 
-#include "ioss_export.h"
-
-#include "vtk_ioss_mangle.h"
-
-#include <Ioss_BoundingBox.h>
-#include <Ioss_CodeTypes.h>
-#include <Ioss_EntityBlock.h>
-#include <Ioss_NodeBlock.h>
-#include <Ioss_Property.h>
-#include <Ioss_ZoneConnectivity.h>
-#include <array>
-#include <cassert>
+#include "Ioss_BoundingBox.h"
+#include "Ioss_CodeTypes.h"
+#include "Ioss_EntityBlock.h"
+#include "Ioss_NodeBlock.h"
+#include "Ioss_Property.h"
+#include "Ioss_ZoneConnectivity.h"
+#if !defined BUILT_IN_SIERRA
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
+#endif
+#include <array>
+#include <cassert>
+#include <iosfwd>
+#include <stddef.h>
+#include <stdint.h>
 #include <string>
+#include <vector>
+
+#include "Ioss_EntityType.h"
+#include "ioss_export.h"
+#include "vtk_ioss_mangle.h"
 
 #if defined(SEACAS_HAVE_CGNS) && !defined(BUILT_IN_SIERRA)
 #include <vtk_cgns.h> // xxx(kitware)
 #include VTK_CGNS(cgnstypes.h)
+
 using IOSS_SB_INT = cgsize_t;
 #else
 // If this is not being built with CGNS, then default to using 32-bit integers.
@@ -35,9 +42,7 @@ using IOSS_SB_INT = int;
 
 namespace Ioss {
   class Region;
-
-  struct BoundaryCondition;
-  IOSS_EXPORT std::ostream &operator<<(std::ostream &os, const BoundaryCondition &bc);
+  class Field;
 
   struct IOSS_EXPORT BoundaryCondition
   {
@@ -59,20 +64,21 @@ namespace Ioss {
     // necessary.
     BoundaryCondition() = default;
 
-    BoundaryCondition(const BoundaryCondition &copy_from) = default;
+    BoundaryCondition(const BoundaryCondition &copy_from)            = default;
+    BoundaryCondition &operator=(const BoundaryCondition &copy_from) = default;
 
     // Determine which "face" of the parent block this BC is applied to.
-    int which_face() const;
+    IOSS_NODISCARD int which_face() const;
 
     // Does range specify a valid face
-    bool is_valid() const;
+    IOSS_NODISCARD bool is_valid() const;
 
     // Return number of cell faces in the BC
-    size_t get_face_count() const;
+    IOSS_NODISCARD size_t get_face_count() const;
 
-    bool operator==(const Ioss::BoundaryCondition &rhs) const;
-    bool operator!=(const Ioss::BoundaryCondition &rhs) const;
-    bool equal(const Ioss::BoundaryCondition &rhs) const;
+    IOSS_NODISCARD bool operator==(const Ioss::BoundaryCondition &rhs) const;
+    IOSS_NODISCARD bool operator!=(const Ioss::BoundaryCondition &rhs) const;
+    IOSS_NODISCARD bool equal(const Ioss::BoundaryCondition &rhs) const;
 
     std::string m_bcName{};
     std::string m_famName{};
@@ -88,11 +94,11 @@ namespace Ioss {
       archive(m_bcName, m_famName, m_rangeBeg, m_rangeEnd, m_face);
     }
 
-    friend std::ostream &operator<<(std::ostream &os, const BoundaryCondition &bc);
-
   private:
     bool equal_(const Ioss::BoundaryCondition &rhs, bool quiet) const;
   };
+
+  IOSS_EXPORT std::ostream &operator<<(std::ostream &os, const BoundaryCondition &bc);
 
   class DatabaseIO;
 
@@ -116,26 +122,24 @@ namespace Ioss {
 
     StructuredBlock *clone(DatabaseIO *database) const;
 
-    ~StructuredBlock() override;
+    IOSS_NODISCARD std::string type_string() const override { return "StructuredBlock"; }
+    IOSS_NODISCARD std::string short_type_string() const override { return "structuredblock"; }
+    IOSS_NODISCARD std::string contains_string() const override { return "Cell"; }
+    IOSS_NODISCARD EntityType  type() const override { return STRUCTUREDBLOCK; }
 
-    std::string type_string() const override { return "StructuredBlock"; }
-    std::string short_type_string() const override { return "structuredblock"; }
-    std::string contains_string() const override { return "Cell"; }
-    EntityType  type() const override { return STRUCTUREDBLOCK; }
-
-    const Ioss::NodeBlock &get_node_block() const { return m_nodeBlock; }
-    Ioss::NodeBlock       &get_node_block() { return m_nodeBlock; }
+    IOSS_NODISCARD const Ioss::NodeBlock &get_node_block() const { return m_nodeBlock; }
+    IOSS_NODISCARD Ioss::NodeBlock &get_node_block() { return m_nodeBlock; }
 
     /** \brief Does block contain any cells
      */
-    bool is_active() const { return m_ijk[0] * m_ijk[1] * m_ijk[2] > 0; }
+    IOSS_NODISCARD bool is_active() const { return m_ijk[0] * m_ijk[1] * m_ijk[2] > 0; }
 
-    // Handle implicit properties -- These are calcuated from data stored
+    // Handle implicit properties -- These are calculated from data stored
     // in the grouping entity instead of having an explicit value assigned.
     // An example would be 'element_block_count' for a region.
-    Property get_implicit_property(const std::string &my_name) const override;
+    IOSS_NODISCARD Property get_implicit_property(const std::string &my_name) const override;
 
-    AxisAlignedBoundingBox get_bounding_box() const;
+    IOSS_NODISCARD AxisAlignedBoundingBox get_bounding_box() const;
 
     /** \brief Set the 'offset' for the block.
      *
@@ -165,10 +169,10 @@ namespace Ioss {
     void set_node_global_offset(size_t offset) { m_nodeGlobalOffset = offset; }
     void set_cell_global_offset(size_t offset) { m_cellGlobalOffset = offset; }
 
-    size_t get_node_offset() const { return m_nodeOffset; }
-    size_t get_cell_offset() const { return m_cellOffset; }
-    size_t get_node_global_offset() const { return m_nodeGlobalOffset; }
-    size_t get_cell_global_offset() const { return m_cellGlobalOffset; }
+    IOSS_NODISCARD size_t get_node_offset() const { return m_nodeOffset; }
+    IOSS_NODISCARD size_t get_cell_offset() const { return m_cellOffset; }
+    IOSS_NODISCARD size_t get_node_global_offset() const { return m_nodeGlobalOffset; }
+    IOSS_NODISCARD size_t get_cell_global_offset() const { return m_cellGlobalOffset; }
 
     void set_ijk_offset(int axis, size_t offset);
     void set_ijk_global(int axis, size_t global);
@@ -176,19 +180,19 @@ namespace Ioss {
     void set_ijk_offset(const IJK_t &offset);
     void set_ijk_global(const IJK_t &global);
 
-    IJK_t get_ijk_offset() const { return m_offset; }
-    IJK_t get_ijk_local() const { return m_ijk; }
-    IJK_t get_ijk_global() const { return m_ijkGlobal; }
+    IOSS_NODISCARD IJK_t get_ijk_offset() const { return m_offset; }
+    IOSS_NODISCARD IJK_t get_ijk_local() const { return m_ijk; }
+    IOSS_NODISCARD IJK_t get_ijk_global() const { return m_ijkGlobal; }
 
     // Get the global (over all processors) cell
     // id at the specified i,j,k location (1 <= i,j,k <= ni,nj,nk).  1-based.
-    size_t get_global_cell_id(int i, int j, int k) const
+    IOSS_NODISCARD size_t get_global_cell_id(int i, int j, int k) const
     {
       return m_cellGlobalOffset + static_cast<size_t>(k - 1) * m_ijkGlobal[0] * m_ijkGlobal[1] +
              static_cast<size_t>(j - 1) * m_ijkGlobal[0] + i;
     }
 
-    size_t get_global_cell_id(IJK_t index) const
+    IOSS_NODISCARD size_t get_global_cell_id(IJK_t index) const
     {
       return get_global_cell_id(index[0], index[1], index[2]);
     }
@@ -196,21 +200,21 @@ namespace Ioss {
     // Get the global (over all processors) node
     // offset at the specified i,j,k location (1 <= i,j,k <= ni,nj,nk).  0-based, does not account
     // for shared nodes.
-    size_t get_global_node_offset(int i, int j, int k) const
+    IOSS_NODISCARD size_t get_global_node_offset(int i, int j, int k) const
     {
       return m_nodeGlobalOffset +
              static_cast<size_t>(k - 1) * (m_ijkGlobal[0] + 1) * (m_ijkGlobal[1] + 1) +
              static_cast<size_t>(j - 1) * (m_ijkGlobal[0] + 1) + i - 1;
     }
 
-    size_t get_global_node_offset(IJK_t index) const
+    IOSS_NODISCARD size_t get_global_node_offset(IJK_t index) const
     {
       return get_global_node_offset(index[0], index[1], index[2]);
     }
 
     // Get the local (relative to this block on this processor) node id at the specified
     // i,j,k location (1 <= i,j,k <= ni+1,nj+1,nk+1).  0-based.
-    size_t get_block_local_node_offset(int ii, int jj, int kk) const
+    IOSS_NODISCARD size_t get_block_local_node_offset(int ii, int jj, int kk) const
     {
       auto i = ii - m_offset[0];
       auto j = jj - m_offset[1];
@@ -221,28 +225,28 @@ namespace Ioss {
              static_cast<size_t>(j - 1) * (m_ijk[0] + 1) + i - 1;
     }
 
-    size_t get_block_local_node_offset(IJK_t index) const
+    IOSS_NODISCARD size_t get_block_local_node_offset(IJK_t index) const
     {
       return get_block_local_node_offset(index[0], index[1], index[2]);
     }
 
     // Get the local (on this processor) cell-node offset at the specified
     // i,j,k location (1 <= i,j,k <= ni+1,nj+1,nk+1).  0-based.
-    size_t get_local_node_offset(int i, int j, int k) const
+    IOSS_NODISCARD size_t get_local_node_offset(int i, int j, int k) const
     {
       return get_block_local_node_offset(i, j, k) + m_nodeOffset;
     }
 
-    size_t get_local_node_offset(IJK_t index) const
+    IOSS_NODISCARD size_t get_local_node_offset(IJK_t index) const
     {
       return get_local_node_offset(index[0], index[1], index[2]);
     }
 
-    std::vector<IOSS_SB_INT> get_cell_node_ids(bool add_offset) const
+    IOSS_NODISCARD std::vector<IOSS_SB_INT> get_cell_node_ids(bool add_offset) const
     {
       size_t                   node_count = get_property("node_count").get_int();
       std::vector<IOSS_SB_INT> ids(node_count);
-      get_cell_node_ids(ids.data(), add_offset);
+      get_cell_node_ids(Data(ids), add_offset);
       return ids;
     }
 
@@ -322,16 +326,16 @@ namespace Ioss {
       return index;
     }
 
-    bool contains(size_t global_offset) const
+    IOSS_NODISCARD bool contains_node(size_t global_offset) const
     {
       return (global_offset >= m_nodeOffset &&
               global_offset < m_nodeOffset + get_property("node_count").get_int());
     }
 
     /* COMPARE two StructuredBlocks */
-    bool operator==(const Ioss::StructuredBlock &rhs) const;
-    bool operator!=(const Ioss::StructuredBlock &rhs) const;
-    bool equal(const Ioss::StructuredBlock &rhs) const;
+    IOSS_NODISCARD bool operator==(const Ioss::StructuredBlock &rhs) const;
+    IOSS_NODISCARD bool operator!=(const Ioss::StructuredBlock &rhs) const;
+    IOSS_NODISCARD bool equal(const Ioss::StructuredBlock &rhs) const;
 
   protected:
     int64_t internal_get_field_data(const Field &field, void *data,
@@ -339,6 +343,9 @@ namespace Ioss {
 
     int64_t internal_put_field_data(const Field &field, void *data,
                                     size_t data_size) const override;
+
+    int64_t internal_get_zc_field_data(const Field &field, void **data,
+                                       size_t *data_size) const override;
 
   private:
     bool  equal_(const Ioss::StructuredBlock &rhs, bool quiet) const;
@@ -367,8 +374,12 @@ namespace Ioss {
   };
 } // namespace Ioss
 
+#if !defined BUILT_IN_SIERRA
+#if FMT_VERSION >= 90000
 namespace fmt {
   template <> struct formatter<Ioss::BoundaryCondition> : ostream_formatter
   {
   };
 } // namespace fmt
+#endif
+#endif

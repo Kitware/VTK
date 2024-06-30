@@ -1,15 +1,15 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include "Ioss_DBUsage.h"                   // for DatabaseUsage
-#include "Ioss_IOFactory.h"                 // for IOFactory
-#include <catalyst/Iocatalyst_DatabaseIO.h> // for DatabaseIO
+#include "Ioss_DBUsage.h"   // for DatabaseUsage
+#include "Ioss_IOFactory.h" // for IOFactory
+#include <catalyst/Iocatalyst_DatabaseIO.h>
 #include <catalyst/Iocatalyst_IOFactory.h>
-#include <stddef.h> // for nullptr
-#include <string>   // for string
+#include <cstddef> // for nullptr
+#include <string>  // for string
 
 #include <catalyst.hpp>
 #include "vtk_fmt.h"
@@ -48,8 +48,9 @@ namespace Iocatalyst {
 
     conduit_cpp::Node node;
     catalyst_about(conduit_cpp::c_node(&node));
-    auto implementation = node.has_path("catalyst/implementation") ?
-      node["catalyst/implementation"].as_string() : std::string("stub");
+    auto implementation = node.has_path("catalyst/implementation")
+                              ? node["catalyst/implementation"].as_string()
+                              : std::string("stub");
     fmt::print(config, "\t\tImplementation: {}\n\n", implementation.c_str());
     return config.str();
   }

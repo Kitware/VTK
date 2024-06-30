@@ -1,17 +1,14 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_CompositeVariableType.h>
-#include <Ioss_Utils.h>
-#include <Ioss_VariableType.h>
+#include "Ioss_CompositeVariableType.h"
+#include "Ioss_VariableType.h"
 #include <cassert>
-#include <cstdio>
 #include <map>
 #include <string>
-#include <utility>
 
 namespace Ioss {
   std::string CompositeVariableType::composite_name(const std::string &base, int copies)
@@ -66,7 +63,7 @@ namespace Ioss {
     int which_instance = (which - 1) / base_comp;
     int which_base     = (which - 1) % base_comp;
 
-    std::string my_label = baseType->label(which_base + 1, suffix_sep);
+    std::string my_label = baseType->label(which_base + 1);
     if (suffix_sep != 0 && base_comp > 1) {
       tmp_sep[0] = suffix_sep;
       my_label += tmp_sep;
@@ -74,9 +71,4 @@ namespace Ioss {
     my_label += VariableType::numeric_label(which_instance + 1, copies_, name());
     return my_label;
   }
-
-  const VariableType *CompositeVariableType::GetBaseType() const { return baseType; }
-
-  int CompositeVariableType::GetNumCopies() const { return copies_; }
-
 } // namespace Ioss

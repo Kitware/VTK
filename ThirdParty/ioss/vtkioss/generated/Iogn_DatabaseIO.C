@@ -1,18 +1,30 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include "Ioss_CommSet.h"      // for CommSet
-#include "Ioss_DBUsage.h"      // for DatabaseUsage
-#include "Ioss_DatabaseIO.h"   // for DatabaseIO
-#include "Ioss_ElementBlock.h" // for ElementBlock
-#include "Ioss_ElementTopology.h"
-#include "Ioss_EntityType.h"     // for EntityType, etc
-#include "Ioss_Field.h"          // for Field, etc
-#include "Ioss_GroupingEntity.h" // for GroupingEntity
-#include "Ioss_Hex8.h"
+#include "Ioss_CodeTypes.h" // for Int64Vector, IntVector
+#include "Ioss_SideBlock.h" // for SideBlock
+#include "Ioss_Utils.h"     // for Utils, IOSS_ERROR
+#include "generated/Iogn_DatabaseIO.h"
+#include "generated/Iogn_GeneratedMesh.h" // for GeneratedMesh
+#include <cassert>                        // for assert
+#include <cmath>                          // for sqrt
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ostream.h)
+#include <iostream> // for ostringstream
+#include <stdlib.h>
+#include <string> // for string, operator==, etc
+
+#include "Ioss_CommSet.h"         // for CommSet
+#include "Ioss_DBUsage.h"         // for DatabaseUsage
+#include "Ioss_DatabaseIO.h"      // for DatabaseIO
+#include "Ioss_ElementBlock.h"    // for ElementBlock
+#include "Ioss_EntityType.h"      // for EntityType, etc
+#include "Ioss_Field.h"           // for Field, etc
+#include "Ioss_GroupingEntity.h"  // for GroupingEntity
 #include "Ioss_IOFactory.h"       // for IOFactory
 #include "Ioss_Map.h"             // for Map, MapContainer
 #include "Ioss_NodeBlock.h"       // for NodeBlock
@@ -23,19 +35,6 @@
 #include "Ioss_Region.h"          // for Region
 #include "Ioss_SideSet.h"         // for SideSet
 #include "Ioss_VariableType.h"    // for VariableType
-#include <Ioss_CodeTypes.h>       // for Int64Vector, IntVector
-#include <Ioss_SideBlock.h>       // for SideBlock
-#include <Ioss_Utils.h>           // for Utils, IOSS_ERROR
-#include <algorithm>              // for copy
-#include <cassert>                // for assert
-#include <cmath>                  // for sqrt
-#include "vtk_fmt.h"
-#include VTK_FMT(fmt/ostream.h)
-#include <generated/Iogn_DatabaseIO.h>
-#include <generated/Iogn_GeneratedMesh.h> // for GeneratedMesh
-#include <iostream>                       // for ostringstream
-#include <string>                         // for string, operator==, etc
-#include <utility>                        // for pair
 
 namespace {
   template <typename INT>
@@ -128,7 +127,7 @@ namespace Iogn {
 
   DatabaseIO::~DatabaseIO() { delete m_generatedMesh; }
 
-  void DatabaseIO::read_meta_data__()
+  void DatabaseIO::read_meta_data_nl()
   {
     if (m_generatedMesh == nullptr) {
       if (get_filename() == "external") {
@@ -174,7 +173,7 @@ namespace Iogn {
     nodesetCount      = m_generatedMesh->nodeset_count();
     sidesetCount      = m_generatedMesh->sideset_count();
 
-    get_step_times__();
+    get_step_times_nl();
 
     add_transient_fields(this_region);
     get_nodeblocks();
@@ -187,11 +186,11 @@ namespace Iogn {
         Ioss::Property(std::string("title"), std::string("GeneratedMesh: ") += get_filename()));
   }
 
-  bool DatabaseIO::begin__(Ioss::State /* state */) { return true; }
+  bool DatabaseIO::begin_nl(Ioss::State /* state */) { return true; }
 
-  bool DatabaseIO::end__(Ioss::State /* state */) { return true; }
+  bool DatabaseIO::end_nl(Ioss::State /* state */) { return true; }
 
-  bool DatabaseIO::begin_state__(int /* state */, double time)
+  bool DatabaseIO::begin_state_nl(int /* state */, double time)
   {
     currentTime = time;
     return true;
@@ -251,8 +250,8 @@ namespace Iogn {
 
     const Ioss::Field &id_fld = nb->get_fieldref("ids");
     std::vector<char>  ids(id_fld.get_size());
-    get_field_internal(nb, id_fld, ids.data(), id_fld.get_size());
-    fill_transient_data(nb, field, data, ids.data(), num_to_get, currentTime);
+    get_field_internal(nb, id_fld, Data(ids), id_fld.get_size());
+    fill_transient_data(nb, field, data, Data(ids), num_to_get, currentTime);
 
     return num_to_get;
   }
@@ -328,8 +327,8 @@ namespace Iogn {
       // Fill the field with arbitrary data...
       const Ioss::Field &id_fld = eb->get_fieldref("ids");
       std::vector<char>  ids(id_fld.get_size());
-      get_field_internal(eb, id_fld, ids.data(), id_fld.get_size());
-      fill_transient_data(eb, field, data, ids.data(), num_to_get, currentTime);
+      get_field_internal(eb, id_fld, Data(ids), id_fld.get_size());
+      fill_transient_data(eb, field, data, Data(ids), num_to_get, currentTime);
     }
     else if (role == Ioss::Field::REDUCTION) {
       num_to_get = Ioss::Utils::field_warning(eb, field, "input reduction");
@@ -384,7 +383,7 @@ namespace Iogn {
         std::vector<int64_t> elem_side;
         m_generatedMesh->sideset_elem_sides(id, elem_side);
         if (field.get_name() == "element_side_raw") {
-          map_global_to_local(get_element_map(), elem_side.size(), 2, &elem_side[0]);
+          map_global_to_local(get_element_map(), elem_side.size(), 2, Data(elem_side));
         }
 
         if (field.is_type(Ioss::Field::INTEGER)) {
@@ -407,8 +406,8 @@ namespace Iogn {
         if (m_useVariableDf) {
           const Ioss::Field &id_fld = sd_blk->get_fieldref("ids");
           std::vector<char>  ids(id_fld.get_size());
-          get_field_internal(sd_blk, id_fld, ids.data(), id_fld.get_size());
-          fill_transient_data(sd_blk, field, data, ids.data(), num_to_get);
+          get_field_internal(sd_blk, id_fld, Data(ids), id_fld.get_size());
+          fill_transient_data(sd_blk, field, data, Data(ids), num_to_get);
         }
         else {
           fill_constant_data(field, data, 1.0);
@@ -422,8 +421,8 @@ namespace Iogn {
     else if (role == Ioss::Field::TRANSIENT) {
       const Ioss::Field &id_fld = sd_blk->get_fieldref("ids");
       std::vector<char>  ids(id_fld.get_size());
-      get_field_internal(sd_blk, id_fld, ids.data(), id_fld.get_size());
-      fill_transient_data(sd_blk, field, data, ids.data(), num_to_get, currentTime);
+      get_field_internal(sd_blk, id_fld, Data(ids), id_fld.get_size());
+      fill_transient_data(sd_blk, field, data, Data(ids), num_to_get, currentTime);
     }
     return num_to_get;
   }
@@ -441,7 +440,7 @@ namespace Iogn {
         std::vector<int64_t> nodes;
         m_generatedMesh->nodeset_nodes(id, nodes);
         if (field.get_name() == "ids_raw") {
-          map_global_to_local(get_node_map(), nodes.size(), 1, &nodes[0]);
+          map_global_to_local(get_node_map(), nodes.size(), 1, Data(nodes));
         }
 
         if (field.is_type(Ioss::Field::INTEGER)) {
@@ -464,8 +463,8 @@ namespace Iogn {
         if (m_useVariableDf) {
           const Ioss::Field &id_fld = ns->get_fieldref("ids");
           std::vector<char>  ids(id_fld.get_size());
-          get_field_internal(ns, id_fld, ids.data(), id_fld.get_size());
-          fill_transient_data(ns, field, data, ids.data(), num_to_get);
+          get_field_internal(ns, id_fld, Data(ids), id_fld.get_size());
+          fill_transient_data(ns, field, data, Data(ids), num_to_get);
         }
         else {
           fill_constant_data(field, data, 1.0);
@@ -478,49 +477,12 @@ namespace Iogn {
     else if (role == Ioss::Field::TRANSIENT) {
       const Ioss::Field &id_fld = ns->get_fieldref("ids");
       std::vector<char>  ids(id_fld.get_size());
-      get_field_internal(ns, id_fld, ids.data(), id_fld.get_size());
-      fill_transient_data(ns, field, data, ids.data(), num_to_get, currentTime);
+      get_field_internal(ns, id_fld, Data(ids), id_fld.get_size());
+      fill_transient_data(ns, field, data, Data(ids), num_to_get, currentTime);
     }
     return num_to_get;
   }
 
-  int64_t DatabaseIO::get_field_internal(const Ioss::EdgeBlock * /* fs */,
-                                         const Ioss::Field & /* field */, void * /* data */,
-                                         size_t /* data_size */) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::get_field_internal(const Ioss::FaceBlock * /* fs */,
-                                         const Ioss::Field & /* field */, void * /* data */,
-                                         size_t /* data_size */) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::get_field_internal(const Ioss::EdgeSet * /* fs */,
-                                         const Ioss::Field & /* field */, void * /* data */,
-                                         size_t /* data_size */) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::get_field_internal(const Ioss::FaceSet * /* fs */,
-                                         const Ioss::Field & /* field */, void * /* data */,
-                                         size_t /* data_size */) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::get_field_internal(const Ioss::ElementSet * /* fs */,
-                                         const Ioss::Field & /* field */, void * /* data */,
-                                         size_t /* data_size */) const
-  {
-    return -1;
-  }
-
-  int64_t DatabaseIO::get_field_internal(const Ioss::SideSet * /* ss */,
-                                         const Ioss::Field & /* field */, void * /* data */,
-                                         size_t /* data_size */) const
-  {
-    return -1;
-  }
   int64_t DatabaseIO::get_field_internal(const Ioss::CommSet *cs, const Ioss::Field &field,
                                          void *data, size_t data_size) const
   {
@@ -585,80 +547,6 @@ namespace Iogn {
     return num_to_get;
   }
 
-  // Input only database -- these will never be called...
-  int64_t DatabaseIO::put_field_internal(const Ioss::Region * /*reg*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::ElementBlock * /*eb*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::FaceBlock * /*nb*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::EdgeBlock * /*nb*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::NodeBlock * /*nb*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::ElementSet * /*ns*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::FaceSet * /*ns*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::EdgeSet * /*ns*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::NodeSet * /*ns*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::SideSet * /*ss*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::SideBlock * /*sb*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-  int64_t DatabaseIO::put_field_internal(const Ioss::CommSet * /*cs*/,
-                                         const Ioss::Field & /*field*/, void * /*data*/,
-                                         size_t /*data_size*/) const
-  {
-    return -1;
-  }
-
   const Ioss::Map &DatabaseIO::get_node_map() const
   {
     // Allocate space for node number map and read it in...
@@ -667,7 +555,7 @@ namespace Iogn {
       nodeMap.set_size(nodeCount);
       std::vector<int64_t> map;
       m_generatedMesh->node_map(map);
-      nodeMap.set_map(map.data(), map.size(), 0, true);
+      nodeMap.set_map(Data(map), map.size(), 0, true);
     }
     return nodeMap;
   }
@@ -680,7 +568,7 @@ namespace Iogn {
       elemMap.set_size(elementCount);
       std::vector<int64_t> map;
       m_generatedMesh->element_map(map);
-      elemMap.set_map(map.data(), map.size(), 0, true);
+      elemMap.set_map(Data(map), map.size(), 0, true);
     }
     return elemMap;
   }
@@ -695,7 +583,7 @@ namespace Iogn {
     add_transient_fields(block);
   }
 
-  void DatabaseIO::get_step_times__()
+  void DatabaseIO::get_step_times_nl()
   {
     auto time_step_count = m_generatedMesh->timestep_count();
     for (int i = 0; i < time_step_count; i++) {
@@ -784,7 +672,7 @@ namespace Iogn {
       sideset->property_add(Ioss::Property("guid", util().generate_guid(iss + 1)));
       get_region()->add(sideset);
 
-      std::vector<std::string> touching_blocks = m_generatedMesh->sideset_touching_blocks(iss + 1);
+      Ioss::NameList touching_blocks = m_generatedMesh->sideset_touching_blocks(iss + 1);
       if (touching_blocks.size() == 1) {
         std::string sd_block_name = name;
         sd_block_name += "_";
@@ -862,7 +750,8 @@ namespace Iogn {
     size_t           var_count = m_generatedMesh->get_variable_count(type);
     for (size_t i = 0; i < var_count; i++) {
       std::string var_name = entity->type_string() + "_" + std::to_string(i + 1);
-      entity->field_add(Ioss::Field(var_name, Ioss::Field::REAL, "scalar", Ioss::Field::TRANSIENT));
+      entity->field_add(
+          Ioss::Field(std::move(var_name), Ioss::Field::REAL, "scalar", Ioss::Field::TRANSIENT));
     }
   }
 } // namespace Iogn

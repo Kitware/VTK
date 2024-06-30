@@ -1,55 +1,56 @@
-// Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022, 2023, 2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_ConcreteVariableType.h>
-#include <Ioss_VariableType.h>
-
+#include "Ioss_ConcreteVariableType.h"
+#include "Ioss_VariableType.h"
 #include <cassert>
 #include <string>
 
+#include "Ioss_CodeTypes.h"
+
 namespace {
-  const std::string X() { return std::string("x"); }
-  const std::string Y() { return std::string("y"); }
-  const std::string Z() { return std::string("z"); }
-  const std::string Q() { return std::string("q"); }
-  const std::string S() { return std::string("s"); }
+  std::string X() { return {"x"}; }
+  std::string Y() { return {"y"}; }
+  std::string Z() { return {"z"}; }
+  std::string Q() { return {"q"}; }
+  std::string S() { return {"s"}; }
 
-  const std::string XX() { return std::string("xx"); }
-  const std::string YY() { return std::string("yy"); }
-  const std::string ZZ() { return std::string("zz"); }
-  const std::string XY() { return std::string("xy"); }
-  const std::string YZ() { return std::string("yz"); }
-  const std::string ZX() { return std::string("zx"); }
-  const std::string YX() { return std::string("yx"); }
-  const std::string ZY() { return std::string("zy"); }
-  const std::string XZ() { return std::string("xz"); }
+  std::string XX() { return {"xx"}; }
+  std::string YY() { return {"yy"}; }
+  std::string ZZ() { return {"zz"}; }
+  std::string XY() { return {"xy"}; }
+  std::string YZ() { return {"yz"}; }
+  std::string ZX() { return {"zx"}; }
+  std::string YX() { return {"yx"}; }
+  std::string ZY() { return {"zy"}; }
+  std::string XZ() { return {"xz"}; }
 
-  const std::string invalid() { return std::string("invalid"); }
-  const std::string scalar() { return std::string("scalar"); }
-  const std::string vector_2d() { return std::string("vector_2d"); }
-  const std::string vector_3d() { return std::string("vector_3d"); }
-  const std::string quaternion_2d() { return std::string("quaternion_2d"); }
-  const std::string quaternion_3d() { return std::string("quaternion_3d"); }
-  const std::string full_tensor_36() { return std::string("full_tensor_36"); }
-  const std::string full_tensor_32() { return std::string("full_tensor_32"); }
-  const std::string full_tensor_22() { return std::string("full_tensor_22"); }
-  const std::string full_tensor_16() { return std::string("full_tensor_16"); }
-  const std::string full_tensor_12() { return std::string("full_tensor_12"); }
-  const std::string sym_tensor_33() { return std::string("sym_tensor_33"); }
-  const std::string sym_tensor_31() { return std::string("sym_tensor_31"); }
-  const std::string sym_tensor_21() { return std::string("sym_tensor_21"); }
-  const std::string sym_tensor_13() { return std::string("sym_tensor_13"); }
-  const std::string sym_tensor_11() { return std::string("sym_tensor_11"); }
-  const std::string sym_tensor_10() { return std::string("sym_tensor_10"); }
-  const std::string asym_tensor_03() { return std::string("asym_tensor_03"); }
-  const std::string asym_tensor_02() { return std::string("asym_tensor_02"); }
-  const std::string asym_tensor_01() { return std::string("asym_tensor_01"); }
-  const std::string matrix_22() { return std::string("matrix_22"); }
-  const std::string matrix_33() { return std::string("matrix_33"); }
-  const std::string testonly() { return std::string("testonly"); }
+  std::string invalid() { return {"invalid"}; }
+  std::string scalar() { return {"scalar"}; }
+  std::string vector_2d() { return {"vector_2d"}; }
+  std::string vector_3d() { return {"vector_3d"}; }
+  std::string quaternion_2d() { return {"quaternion_2d"}; }
+  std::string quaternion_3d() { return {"quaternion_3d"}; }
+  std::string full_tensor_36() { return {"full_tensor_36"}; }
+  std::string full_tensor_32() { return {"full_tensor_32"}; }
+  std::string full_tensor_22() { return {"full_tensor_22"}; }
+  std::string full_tensor_16() { return {"full_tensor_16"}; }
+  std::string full_tensor_12() { return {"full_tensor_12"}; }
+  std::string sym_tensor_33() { return {"sym_tensor_33"}; }
+  std::string sym_tensor_31() { return {"sym_tensor_31"}; }
+  std::string sym_tensor_21() { return {"sym_tensor_21"}; }
+  std::string sym_tensor_13() { return {"sym_tensor_13"}; }
+  std::string sym_tensor_11() { return {"sym_tensor_11"}; }
+  std::string sym_tensor_10() { return {"sym_tensor_10"}; }
+  std::string asym_tensor_03() { return {"asym_tensor_03"}; }
+  std::string asym_tensor_02() { return {"asym_tensor_02"}; }
+  std::string asym_tensor_01() { return {"asym_tensor_01"}; }
+  std::string matrix_22() { return {"matrix_22"}; }
+  std::string matrix_33() { return {"matrix_33"}; }
+  std::string testonly() { return {"testonly"}; }
 } // namespace
 
 Ioss::StorageInitializer::StorageInitializer()
@@ -90,7 +91,7 @@ std::string Ioss::Invalid_Storage::label(int /*which*/, const char /*suffix_sep*
 }
 
 std::string Ioss::Invalid_Storage::label_name(const std::string &base, int /*which*/,
-                                              const char /*suffix_sep*/,
+                                              const char /*suffix_sep*/, const char /*suffix_sep*/,
                                               bool /*suffices_uppercase*/) const
 {
   return base;
@@ -107,17 +108,15 @@ Ioss::Scalar::Scalar() : Ioss::VariableType(scalar(), 1)
   Ioss::VariableType::alias("scalar", "unsigned integer");
 }
 
-std::string Ioss::Scalar::label(int which, const char /*suffix_sep*/) const
+std::string Ioss::Scalar::label(IOSS_MAYBE_UNUSED int which, const char /*suffix_sep*/) const
 {
   assert(which > 0 && which <= component_count());
-  switch (which) {
-  case 1: return "";
-  default: return "";
-  }
+  return "";
 }
 
 std::string Ioss::Scalar::label_name(const std::string &base, int /*which*/,
-                                     const char /*suffix_sep*/, bool /*suffices_uppercase*/) const
+                                     const char /*suffix_sep*/, const char /*suffix_sep*/,
+                                     bool /*suffices_uppercase*/) const
 {
   return base;
 }

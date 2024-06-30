@@ -7,6 +7,7 @@
 #pragma once
 
 #include "iocgns_export.h"
+#include "vtk_ioss_mangle.h"
 
 namespace Iocgns {
   class IOCGNS_EXPORT Initializer

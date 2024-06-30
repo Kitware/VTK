@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -24,8 +24,11 @@ namespace Ioss {
     WRITE_HISTORY =
         16, /**< Global results data, such as total energy, will be written to this database. */
     WRITE_HEARTBEAT =
-        32 /**< Text-based results data for particular nodes, edges, faces, elements,
+        32, /**< Text-based results data for particular nodes, edges, faces, elements,
                 or global variables at particular times will be written to this database. */
+    QUERY_TIMESTEPS_ONLY = 64 /**< Special mode where the application is *only* going to query
+                                 the number of timesteps and the timestep values on the database.
+                                 All other region data will not exist. */
   };
 
   enum IfDatabaseExistsBehavior {
@@ -40,6 +43,7 @@ namespace Ioss {
 
   inline bool is_input_event(Ioss::DatabaseUsage db_usage)
   {
-    return db_usage == Ioss::READ_MODEL || db_usage == Ioss::READ_RESTART;
+    return db_usage == Ioss::READ_MODEL || db_usage == Ioss::READ_RESTART ||
+           db_usage == Ioss::QUERY_TIMESTEPS_ONLY;
   }
 } // namespace Ioss

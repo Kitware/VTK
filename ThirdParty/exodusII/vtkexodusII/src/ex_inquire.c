@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2023 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -10,106 +10,108 @@
 #include "exodusII_int.h"
 
 /*! \cond INTERNAL */
-static int ex__get_dimension_value(int exoid, int64_t *var, int default_value,
+static int exi_get_dimension_value(int exoid, int64_t *var, int default_value,
                                    const char *dimension_name, int missing_ok)
 {
-  int    status;
-  char   errmsg[MAX_ERR_LENGTH];
-  size_t idum;
-  int    dimid;
+  int status;
+  int dimid;
 
   if ((status = nc_inq_dimid(exoid, dimension_name, &dimid)) != NC_NOERR) {
     *var = default_value;
     if (missing_ok) {
-      return (EX_NOERR);
+      return EX_NOERR;
     }
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to retrieve dimension %s for file id %d",
              dimension_name, exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
+  size_t idum;
   if ((status = nc_inq_dimlen(exoid, dimid, &idum)) != NC_NOERR) {
     *var = default_value;
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to retrieve value for dimension %s for file id %d", dimension_name,
              exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
   *var = idum;
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 static int ex_get_concat_set_len(int exoid, int64_t *set_length, const char *set_name,
                                  const char *set_num_dim, const char *set_stat_var,
                                  const char *set_size_root, int missing_ok)
 {
-  int    i;
-  int    status;
-  char   errmsg[MAX_ERR_LENGTH];
-  size_t idum;
-  int    dimid, varid;
-  size_t num_sets;
-  int *  stat_vals = NULL;
-
   *set_length = 0; /* default return value */
 
-  if ((status = nc_inq_dimid(exoid, set_num_dim, &dimid)) == NC_NOERR) {
+  int dimid;
+  if (nc_inq_dimid(exoid, set_num_dim, &dimid) == NC_NOERR) {
+    int    status;
+    size_t num_sets;
     if ((status = nc_inq_dimlen(exoid, dimid, &num_sets)) != NC_NOERR) {
+      char errmsg[MAX_ERR_LENGTH];
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of %s sets in file id %d",
                set_name, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     /* Allocate space for stat array */
+    int *stat_vals = NULL;
     if (!(stat_vals = malloc((int)num_sets * sizeof(int)))) {
+      char errmsg[MAX_ERR_LENGTH];
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to allocate memory for %s set status "
                "array for file id %d",
                set_name, exoid);
       ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     /* get variable id of status array */
-    if ((status = nc_inq_varid(exoid, set_stat_var, &varid)) == NC_NOERR) {
+    int varid;
+    if (nc_inq_varid(exoid, set_stat_var, &varid) == NC_NOERR) {
       /* if status array exists, use it, otherwise assume, object exists
          to be backward compatible */
       if ((status = nc_get_var_int(exoid, varid, stat_vals)) != NC_NOERR) {
         free(stat_vals);
+        char errmsg[MAX_ERR_LENGTH];
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get %s set status array from file id %d",
                  set_name, exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
     else { /* default: status is true */
-      for (i = 0; i < num_sets; i++) {
+      for (size_t i = 0; i < num_sets; i++) {
         stat_vals[i] = 1;
       }
     }
 
-    for (i = 0; i < num_sets; i++) {
+    for (size_t i = 0; i < num_sets; i++) {
       if (stat_vals[i] == 0) { /* is this object null? */
         continue;
       }
 
-      if ((status = nc_inq_dimid(exoid, ex__catstr(set_size_root, i + 1), &dimid)) != NC_NOERR) {
+      size_t idum;
+      if (nc_inq_dimid(exoid, exi_catstr(set_size_root, i + 1), &dimid) != NC_NOERR) {
         if (missing_ok) {
           idum = 0;
         }
         else {
           *set_length = 0;
           free(stat_vals);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
       }
       else {
-        if ((status = nc_inq_dimlen(exoid, dimid, &idum)) != NC_NOERR) {
+        if (nc_inq_dimlen(exoid, dimid, &idum) != NC_NOERR) {
           *set_length = 0;
           free(stat_vals);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
       }
 
@@ -118,7 +120,7 @@ static int ex_get_concat_set_len(int exoid, int64_t *set_length, const char *set
 
     free(stat_vals);
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 static void flt_cvt(float *xptr, double x) { *xptr = (float)x; }
@@ -127,19 +129,16 @@ static void flt_cvt(float *xptr, double x) { *xptr = (float)x; }
 static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float *ret_float,
                                char *ret_char)
 {
-  int       dimid, varid, rootid;
-  void_int *ids = NULL;
-  size_t    i;
-  size_t    ldum = 0;
-  size_t    num_sets, idum;
-  int *     stat_vals;
-  char      errmsg[MAX_ERR_LENGTH];
-  int       status;
-  char      tmp_title[2048];
-  int       num_var;
+  int    dimid, varid;
+  size_t ldum = 0;
+  size_t num_sets, idum;
+  int   *stat_vals;
+  char   errmsg[MAX_ERR_LENGTH];
+  int    status;
+  int    num_var;
 
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
-    return (EX_FATAL);
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    return EX_FATAL;
   }
 
   if (ret_char) {
@@ -148,19 +147,19 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
   if (!ret_int) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: integer argument is NULL which is not allowed.");
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
-  rootid = exoid & EX_FILE_ID_MASK;
+  int rootid = exoid & EX_FILE_ID_MASK;
 
   switch (req_info) {
   case EX_INQ_FILE_TYPE:
 
     /* obsolete call */
-    /*returns "r" for regular EXODUS file or "h" for history EXODUS file*/
+    /*return "r" for regular EXODUS file or "h" for history EXODUS file*/
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: file type inquire is obsolete");
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-    return (EX_WARN);
+    return EX_WARN;
 
   case EX_INQ_API_VERS:
     /* returns the EXODUS API version number */
@@ -169,7 +168,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                "Warning: float argument is NULL for EX_INQ_API_VERS "
                "which is not allowed.");
       ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     if (nc_get_att_float(rootid, NC_GLOBAL, ATT_API_VERSION, ret_float) !=
@@ -179,7 +178,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get EXODUS API version for file id %d",
                  rootid);
         ex_err_fn(exoid, __func__, errmsg, status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -192,14 +191,14 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                "Warning: float argument is NULL for EX_INQ_DB_VERS "
                "which is not allowed.");
       ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     if ((status = nc_get_att_float(rootid, NC_GLOBAL, ATT_VERSION, ret_float)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to get EXODUS database version for file id %d", rootid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     break;
 
@@ -212,9 +211,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
       flt_cvt(ret_float, version);
     }
 
-    if (ret_int) {
-      *ret_int = EX_API_VERS_NODOT;
-    }
+    *ret_int = EX_API_VERS_NODOT;
     break;
 
   case EX_INQ_DB_MAX_ALLOWED_NAME_LENGTH:
@@ -222,7 +219,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
        It will not include the space for the trailing null, so if it
        is defined as 33 on the database, 32 will be returned.
     */
-    if ((status = nc_inq_dimid(rootid, DIM_STR_NAME, &dimid)) != NC_NOERR) {
+    if (nc_inq_dimid(rootid, DIM_STR_NAME, &dimid) != NC_NOERR) {
       /* If not found, then an older database */
       *ret_int = 32;
     }
@@ -233,7 +230,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get name string length in file id %d",
                  exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       *ret_int = name_length - 1;
@@ -272,7 +269,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
      * default if not set by the client is 32 characters. The value
      * does not include the trailing null.
      */
-    struct ex__file_item *file = ex__find_file_item(rootid);
+    struct exi_file_item *file = exi_find_file_item(rootid);
 
     if (!file) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unknown file id %d for ex_inquire_int().", rootid);
@@ -291,17 +288,18 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                "for file id %d",
                rootid);
       ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     else {
       /* returns the title of the database */
       /* Title is stored at root level... */
+      char tmp_title[2048];
       if ((status = nc_get_att_text(rootid, NC_GLOBAL, ATT_TITLE, tmp_title)) != NC_NOERR) {
         *ret_char = '\0';
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get database title for file id %d",
                  exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       ex_copy_string(ret_char, tmp_title, MAX_LINE_LENGTH + 1);
     }
@@ -309,9 +307,9 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_DIM:
     /* returns the dimensionality (2 or 3, for 2-d or 3-d) of the database */
-    if (ex__get_dimension(exoid, DIM_NUM_DIM, "database dimensionality", &ldum, &dimid, __func__) !=
+    if (exi_get_dimension(exoid, DIM_NUM_DIM, "database dimensionality", &ldum, &dimid, __func__) !=
         NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = ldum;
     break;
@@ -320,7 +318,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
     /* returns the number of assemblies */
     {
       *ret_int                   = 0;
-      struct ex__file_item *file = ex__find_file_item(exoid);
+      struct exi_file_item *file = exi_find_file_item(exoid);
       if (file) {
         *ret_int = file->assembly_count;
       }
@@ -331,7 +329,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
     /* returns the number of blobs */
     {
       *ret_int                   = 0;
-      struct ex__file_item *file = ex__find_file_item(exoid);
+      struct exi_file_item *file = exi_find_file_item(exoid);
       if (file) {
         *ret_int = file->blob_count;
       }
@@ -340,7 +338,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_NODES:
     /* returns the number of nodes */
-    if (ex__get_dimension(exoid, DIM_NUM_NODES, "nodes", &ldum, &dimid, NULL) != NC_NOERR) {
+    if (exi_get_dimension(exoid, DIM_NUM_NODES, "nodes", &ldum, &dimid, NULL) != NC_NOERR) {
       *ret_int = 0;
     }
     else {
@@ -350,7 +348,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_ELEM:
     /* returns the number of elements */
-    if (ex__get_dimension(exoid, DIM_NUM_ELEM, "elements", &ldum, &dimid, NULL) != NC_NOERR) {
+    if (exi_get_dimension(exoid, DIM_NUM_ELEM, "elements", &ldum, &dimid, NULL) != NC_NOERR) {
       *ret_int = 0;
     }
     else {
@@ -360,7 +358,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_ELEM_BLK:
     /* returns the number of element blocks */
-    if (ex__get_dimension(exoid, DIM_NUM_EL_BLK, "element blocks", &ldum, &dimid, NULL) !=
+    if (exi_get_dimension(exoid, DIM_NUM_EL_BLK, "element blocks", &ldum, &dimid, NULL) !=
         NC_NOERR) {
       *ret_int = 0;
     }
@@ -371,7 +369,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_NODE_SETS:
     /* returns the number of node sets */
-    if (ex__get_dimension(exoid, DIM_NUM_NS, "node sets", &ldum, &dimid, NULL) != NC_NOERR) {
+    if (exi_get_dimension(exoid, DIM_NUM_NS, "node sets", &ldum, &dimid, NULL) != NC_NOERR) {
       *ret_int = 0;
     }
     else {
@@ -404,10 +402,10 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of node sets in file id %d",
                  exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
-      for (i = 0; i < num_sets; i++) {
+      for (size_t i = 0; i < num_sets; i++) {
         if ((status = nc_inq_varid(exoid, VAR_FACT_NS(i + 1), &varid)) != NC_NOERR) {
           if (status == NC_ENOTVAR) {
             idum = 0; /* this dist factor doesn't exist */
@@ -419,7 +417,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                 "ERROR: failed to locate number of dist fact for %zu'th node set in file id %d", i,
                 exoid);
             ex_err_fn(exoid, __func__, errmsg, status);
-            return (EX_FATAL);
+            return EX_FATAL;
           }
         }
         else {
@@ -429,7 +427,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                      "ERROR: failed to locate number of nodes in %zu'th node set in file id %d", i,
                      exoid);
             ex_err_fn(exoid, __func__, errmsg, status);
-            return (EX_FATAL);
+            return EX_FATAL;
           }
           if ((status = nc_inq_dimlen(exoid, dimid, &idum)) != NC_NOERR) {
             *ret_int = 0;
@@ -437,7 +435,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                      "ERROR: failed to get number of nodes in %zu'th node set in file id %d", i,
                      exoid);
             ex_err_fn(exoid, __func__, errmsg, status);
-            return (EX_FATAL);
+            return EX_FATAL;
           }
         }
         *ret_int += idum;
@@ -448,7 +446,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_SIDE_SETS:
     /* returns the number of side sets */
-    if (ex__get_dimension(exoid, DIM_NUM_SS, "side sets", &ldum, &dimid, NULL) != NC_NOERR) {
+    if (exi_get_dimension(exoid, DIM_NUM_SS, "side sets", &ldum, &dimid, NULL) != NC_NOERR) {
       *ret_int = 0;
     }
     else {
@@ -467,22 +465,23 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of side sets in file id %d",
                  exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
+      int *ids = NULL;
       if (!(ids = malloc(num_sets * sizeof(int64_t)))) { /* May be getting 2x what is
                                                             needed, but should be OK */
         snprintf(errmsg, MAX_ERR_LENGTH,
                  "ERROR: failed to allocate memory for side set ids for file id %d", exoid);
         ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       if (ex_get_ids(exoid, EX_SIDE_SET, ids) == EX_FATAL) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get side set ids in file id %d", exoid);
         ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
         free(ids);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       /* allocate space for stat array */
@@ -493,10 +492,10 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                  "array for file id %d",
                  exoid);
         ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       /* get variable id of status array */
-      if ((status = nc_inq_varid(exoid, VAR_SS_STAT, &varid)) == NC_NOERR) {
+      if (nc_inq_varid(exoid, VAR_SS_STAT, &varid) == NC_NOERR) {
         /* if status array exists, use it, otherwise assume, object exists
            to be backward compatible */
 
@@ -506,18 +505,18 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
           snprintf(errmsg, MAX_ERR_LENGTH,
                    "ERROR: failed to get element block status array from file id %d", exoid);
           ex_err_fn(exoid, __func__, errmsg, status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
       }
       else { /* default: status is true */
-        for (i = 0; i < num_sets; i++) {
+        for (size_t i = 0; i < num_sets; i++) {
           stat_vals[i] = 1;
         }
       }
 
       /* walk id list, get each side set node length and sum for total */
 
-      for (i = 0; i < num_sets; i++) {
+      for (size_t i = 0; i < num_sets; i++) {
         ex_entity_id id;
         if (stat_vals[i] == 0) { /* is this object null? */
           continue;
@@ -547,7 +546,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
           ex_err_fn(exoid, __func__, errmsg, status);
           free(stat_vals);
           free(ids);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
       }
 
@@ -584,10 +583,10 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of side sets in file id %d",
                  exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
-      for (i = 0; i < num_sets; i++) {
+      for (size_t i = 0; i < num_sets; i++) {
         if ((status = nc_inq_dimid(exoid, DIM_NUM_DF_SS(i + 1), &dimid)) != NC_NOERR) {
           if (status == NC_EBADDIM) {
             ldum = 0; /* this dist factor doesn't exist */
@@ -599,7 +598,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                 "ERROR: failed to locate number of dist fact for %zu'th side set in file id %d", i,
                 exoid);
             ex_err_fn(exoid, __func__, errmsg, status);
-            return (EX_FATAL);
+            return EX_FATAL;
           }
         }
         else {
@@ -609,7 +608,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                      "ERROR: failed to get number of dist factors in %zu'th side set in file id %d",
                      i, exoid);
             ex_err_fn(exoid, __func__, errmsg, status);
-            return (EX_FATAL);
+            return EX_FATAL;
           }
         }
         *ret_int += ldum;
@@ -620,7 +619,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_QA:
     /* returns the number of QA records */
-    if (ex__get_dimension(rootid, DIM_NUM_QA, "QA records", &ldum, &dimid, NULL) != NC_NOERR) {
+    if (exi_get_dimension(rootid, DIM_NUM_QA, "QA records", &ldum, &dimid, NULL) != NC_NOERR) {
       *ret_int = 0;
     }
     else {
@@ -630,7 +629,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_INFO:
     /* returns the number of information records */
-    if (ex__get_dimension(rootid, DIM_NUM_INFO, "info records", &ldum, &dimid, NULL) != NC_NOERR) {
+    if (exi_get_dimension(rootid, DIM_NUM_INFO, "info records", &ldum, &dimid, NULL) != NC_NOERR) {
       *ret_int = 0;
     }
     else {
@@ -640,8 +639,8 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_TIME:
     /*     returns the number of time steps stored in the database */
-    if (ex__get_dimension(exoid, DIM_TIME, "time dimension", &ldum, &dimid, __func__) != NC_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension(exoid, DIM_TIME, "time dimension", &ldum, &dimid, __func__) != NC_NOERR) {
+      return EX_FATAL;
     }
     *ret_int = ldum;
     break;
@@ -663,7 +662,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_ELEM_MAP:
     /* returns the number of element maps */
-    if (ex__get_dimension(exoid, DIM_NUM_EM, "element maps", &ldum, &dimid, NULL) != NC_NOERR) {
+    if (exi_get_dimension(exoid, DIM_NUM_EM, "element maps", &ldum, &dimid, NULL) != NC_NOERR) {
       *ret_int = 0;
     }
     else {
@@ -678,7 +677,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_NODE_MAP:
     /* returns the number of node maps */
-    if (ex__get_dimension(exoid, DIM_NUM_NM, "node maps", &ldum, &dimid, NULL) != NC_NOERR) {
+    if (exi_get_dimension(exoid, DIM_NUM_NM, "node maps", &ldum, &dimid, NULL) != NC_NOERR) {
       *ret_int = 0;
     }
     else {
@@ -693,22 +692,22 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_EDGE:
     /* returns the number of edges (defined across all edge blocks). */
-    if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_EDGE, 1) != EX_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension_value(exoid, ret_int, 0, DIM_NUM_EDGE, 1) != EX_NOERR) {
+      return EX_FATAL;
     }
     break;
 
   case EX_INQ_EDGE_BLK:
     /* returns the number of edge blocks. */
-    if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_ED_BLK, 1) != EX_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension_value(exoid, ret_int, 0, DIM_NUM_ED_BLK, 1) != EX_NOERR) {
+      return EX_FATAL;
     }
     break;
 
   case EX_INQ_EDGE_SETS:
     /* returns the number of edge sets. */
-    if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_ES, 1) != EX_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension_value(exoid, ret_int, 0, DIM_NUM_ES, 1) != EX_NOERR) {
+      return EX_FATAL;
     }
     break;
 
@@ -737,22 +736,22 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_FACE:
     /* returns the number of faces (defined across all face blocks). */
-    if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_FACE, 1) != EX_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension_value(exoid, ret_int, 0, DIM_NUM_FACE, 1) != EX_NOERR) {
+      return EX_FATAL;
     }
     break;
 
   case EX_INQ_FACE_BLK:
     /* returns the number of face blocks. */
-    if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_FA_BLK, 1) != EX_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension_value(exoid, ret_int, 0, DIM_NUM_FA_BLK, 1) != EX_NOERR) {
+      return EX_FATAL;
     }
     break;
 
   case EX_INQ_FACE_SETS:
     /* returns the number of face sets. */
-    if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_FS, 1) != EX_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension_value(exoid, ret_int, 0, DIM_NUM_FS, 1) != EX_NOERR) {
+      return EX_FATAL;
     }
     break;
 
@@ -781,8 +780,8 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_ELEM_SETS:
     /* returns the number of element sets. */
-    if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_ELS, 1) != EX_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension_value(exoid, ret_int, 0, DIM_NUM_ELS, 1) != EX_NOERR) {
+      return EX_FATAL;
     }
     break;
 
@@ -804,92 +803,92 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
 
   case EX_INQ_EDGE_MAP:
     /* returns the number of edge maps. */
-    if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_EDM, 1) != EX_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension_value(exoid, ret_int, 0, DIM_NUM_EDM, 1) != EX_NOERR) {
+      return EX_FATAL;
     }
     break;
 
   case EX_INQ_FACE_MAP:
     /*     returns the number of face maps. */
-    if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_FAM, 1) != EX_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension_value(exoid, ret_int, 0, DIM_NUM_FAM, 1) != EX_NOERR) {
+      return EX_FATAL;
     }
     break;
 
   case EX_INQ_NUM_NODE_VAR:
     if (ex_get_variable_param(exoid, EX_NODAL, &num_var) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = num_var;
     break;
 
   case EX_INQ_NUM_EDGE_BLOCK_VAR:
     if (ex_get_variable_param(exoid, EX_EDGE_BLOCK, &num_var) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = num_var;
     break;
 
   case EX_INQ_NUM_FACE_BLOCK_VAR:
     if (ex_get_variable_param(exoid, EX_FACE_BLOCK, &num_var) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = num_var;
     break;
 
   case EX_INQ_NUM_ELEM_BLOCK_VAR:
     if (ex_get_variable_param(exoid, EX_ELEM_BLOCK, &num_var) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = num_var;
     break;
 
   case EX_INQ_NUM_NODE_SET_VAR:
     if (ex_get_variable_param(exoid, EX_NODE_SET, &num_var) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = num_var;
     break;
 
   case EX_INQ_NUM_EDGE_SET_VAR:
     if (ex_get_variable_param(exoid, EX_EDGE_SET, &num_var) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = num_var;
     break;
 
   case EX_INQ_NUM_FACE_SET_VAR:
     if (ex_get_variable_param(exoid, EX_FACE_SET, &num_var) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = num_var;
     break;
 
   case EX_INQ_NUM_ELEM_SET_VAR:
     if (ex_get_variable_param(exoid, EX_ELEM_SET, &num_var) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = num_var;
     break;
 
   case EX_INQ_NUM_SIDE_SET_VAR:
     if (ex_get_variable_param(exoid, EX_SIDE_SET, &num_var) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = num_var;
     break;
 
   case EX_INQ_NUM_GLOBAL_VAR:
     if (ex_get_variable_param(exoid, EX_GLOBAL, &num_var) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     *ret_int = num_var;
     break;
 
   case EX_INQ_COORD_FRAMES:
     /* return the number of coordinate frames */
-    if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_CFRAMES, 1) != EX_NOERR) {
-      return (EX_FATAL);
+    if (exi_get_dimension_value(exoid, ret_int, 0, DIM_NUM_CFRAMES, 1) != EX_NOERR) {
+      return EX_FATAL;
     }
     break;
 
@@ -937,7 +936,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                "null for file id %d",
                exoid);
       ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 #if NC_HAS_HDF5
     nc_inq_grpname(exoid, ret_char);
@@ -969,7 +968,7 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
                "null for file id %d",
                exoid);
       ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 #if NC_HAS_HDF5
     nc_inq_grpname_full(exoid, NULL, ret_char);
@@ -991,9 +990,9 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
     *ret_int = 0;
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: invalid inquiry %d", req_info);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 /*!
@@ -1021,7 +1020,7 @@ int num_block = ex_inquire_int(exoid, EX_INQ_ELEM_BLK);
 */
 int64_t ex_inquire_int(int exoid, ex_inquiry req_info)
 {
-  char *  cdummy  = NULL; /* Needed just for function call, unused. */
+  char   *cdummy  = NULL; /* Needed just for function call, unused. */
   float   fdummy  = 0;    /* Needed just for function call, unused. */
   int64_t ret_val = 0;
   int     error;
@@ -1095,7 +1094,7 @@ int ex_inquire(int exoid, ex_inquiry req_info, void_int *ret_int, float *ret_flo
   }
   /* ret_int is a 32-bit int */
   int64_t tmp_int;
-  int *   return_int = ret_int;
+  int    *return_int = ret_int;
 
   EX_FUNC_ENTER();
   ierr        = ex_inquire_internal(exoid, req_info, &tmp_int, ret_float, ret_char);

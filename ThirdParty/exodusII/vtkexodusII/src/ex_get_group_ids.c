@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -10,7 +10,8 @@
 #include "exodusII_int.h" // for EX_FATAL, EX_NOERR
 
 /**
- * \ingroup Utilities Given a file or group 'parent' id, return the
+ * \ingroup Utilities
+ * Given a file or group 'parent' id, return the
  * number of child groups and the ids of the child groups below the
  * parent.  If num_groups is NULL, do not return count; if group_ids
  * is NULL, do not return ids.
@@ -23,7 +24,7 @@ int ex_get_group_ids(int parent_id, int *num_groups, int *group_ids)
   int status;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(parent_id, __func__) != EX_NOERR) {
+  if (exi_check_valid_file_id(parent_id, __func__) != EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 

@@ -34,7 +34,7 @@
  * \param names       ptr array of entity names
  */
 
-int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
+int ex_put_names(int exoid, ex_entity_type obj_type, char *const names[])
 {
   int    status;
   int    varid;
@@ -44,7 +44,7 @@ int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
   const char *vname = NULL;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -82,7 +82,7 @@ int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  ex__get_dimension(exoid, ex__dim_num_objects(obj_type), ex_name_of_object(obj_type), &num_entity,
+  exi_get_dimension(exoid, exi_dim_num_objects(obj_type), ex_name_of_object(obj_type), &num_entity,
                     &varid, __func__);
 
   if ((status = nc_inq_varid(exoid, vname, &varid)) != NC_NOERR) {
@@ -93,7 +93,7 @@ int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
   }
 
   /* write EXODUS entitynames */
-  status = ex__put_names(exoid, varid, num_entity, names, obj_type, "", __func__);
+  status = exi_put_names(exoid, varid, num_entity, names, obj_type, "", __func__);
 
   EX_FUNC_LEAVE(status);
 }

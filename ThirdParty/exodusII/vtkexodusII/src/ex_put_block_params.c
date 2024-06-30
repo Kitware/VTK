@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2023 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -35,9 +35,9 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
   int    connid        = 0;
   int    npeid;
   char   errmsg[MAX_ERR_LENGTH];
-  char * entity_type1     = NULL;
-  char * entity_type2     = NULL;
-  int *  blocks_to_define = NULL;
+  char  *entity_type1     = NULL;
+  char  *entity_type2     = NULL;
+  int   *blocks_to_define = NULL;
   const char *dnumblk     = NULL;
   const char *vblkids     = NULL;
   const char *vblksta     = NULL;
@@ -53,16 +53,13 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
   const char *dnnpe       = NULL;
   const char *dnepe       = NULL;
   const char *dnfpe       = NULL;
-#if NC_HAS_HDF5
-  int fill = NC_FILL_CHAR;
-#endif
 
   if (block_count == 0) {
     return (EX_NOERR);
   }
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -115,16 +112,16 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
       ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
       EX_FUNC_LEAVE(EX_FATAL);
     }
-    if ((status = ex__get_dimension(exoid, dnumblk, ex_name_of_object(last_type), &num_blk, &dimid,
+    if ((status = exi_get_dimension(exoid, dnumblk, ex_name_of_object(last_type), &num_blk, &dimid,
                                     __func__)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: No %ss defined in file id %d",
                ex_name_of_object(last_type), exoid);
-      ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
     if (block_count == num_blk) {
-      status = ex__put_homogenous_block_params(exoid, block_count, blocks);
+      status = exi_put_homogenous_block_params(exoid, block_count, blocks);
       EX_FUNC_LEAVE(status);
     }
   }
@@ -165,11 +162,11 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
     }
 
     /* first check if any blocks of that type are specified */
-    if ((status = ex__get_dimension(exoid, dnumblk, ex_name_of_object(blocks[i].type), &num_blk,
+    if ((status = exi_get_dimension(exoid, dnumblk, ex_name_of_object(blocks[i].type), &num_blk,
                                     &dimid, __func__)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: No %ss defined in file id %d",
                ex_name_of_object(blocks[i].type), exoid);
-      ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
+      ex_err_fn(exoid, __func__, errmsg, status);
       free(blocks_to_define);
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -189,7 +186,7 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
-    status = ex__id_lkup(exoid, blocks[i].type, blocks[i].id);
+    status = exi_id_lkup(exoid, blocks[i].type, blocks[i].id);
     if (-status != EX_LOOKUPFAIL) { /* found the element block id */
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: %s id %" PRId64 " already exists in file id %d",
                ex_name_of_object(blocks[i].type), blocks[i].id, exoid);
@@ -200,10 +197,10 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
 
     /* Keep track of the total number of element blocks defined using a counter
        stored in a linked list keyed by exoid.
-       NOTE: ex__get_file_item  is a function that finds the number of element
+       NOTE: exi_get_file_item  is a function that finds the number of element
        blocks for a specific file and returns that value.
     */
-    cur_num_blk = ex__get_file_item(exoid, ex__get_counter_list(blocks[i].type));
+    cur_num_blk = exi_get_file_item(exoid, exi_get_counter_list(blocks[i].type));
     if (cur_num_blk >= (int)num_blk) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: exceeded number of %ss (%d) defined in file id %d",
                ex_name_of_object(blocks[i].type), (int)num_blk, exoid);
@@ -212,9 +209,9 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
-    /*   NOTE: ex__inc_file_item  is a function that finds the number of element
+    /*   NOTE: exi_inc_file_item  is a function that finds the number of element
          blocks for a specific file and returns that value incremented. */
-    cur_num_blk = ex__inc_file_item(exoid, ex__get_counter_list(blocks[i].type));
+    cur_num_blk = exi_inc_file_item(exoid, exi_get_counter_list(blocks[i].type));
     start[0]    = cur_num_blk;
 
     /* write out block id to previously defined id array variable*/
@@ -274,27 +271,27 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
     case EX_EDGE_BLOCK:
       dneblk  = DIM_NUM_ED_IN_EBLK(blk_id_ndx);
       dnnpe   = DIM_NUM_NOD_PER_ED(blk_id_ndx);
-      dnepe   = 0;
-      dnfpe   = 0;
+      dnepe   = NULL;
+      dnfpe   = NULL;
       dnape   = DIM_NUM_ATT_IN_EBLK(blk_id_ndx);
       vblkatt = VAR_EATTRIB(blk_id_ndx);
       vattnam = VAR_NAME_EATTRIB(blk_id_ndx);
       vnodcon = VAR_EBCONN(blk_id_ndx);
-      vedgcon = 0;
-      vfaccon = 0;
+      vedgcon = NULL;
+      vfaccon = NULL;
       break;
     case EX_FACE_BLOCK:
       dneblk  = DIM_NUM_FA_IN_FBLK(blk_id_ndx);
       dnnpe   = DIM_NUM_NOD_PER_FA(blk_id_ndx);
-      dnepe   = 0;
-      dnfpe   = 0;
+      dnepe   = NULL;
+      dnfpe   = NULL;
       dnape   = DIM_NUM_ATT_IN_FBLK(blk_id_ndx);
       vblkatt = VAR_FATTRIB(blk_id_ndx);
       vattnam = VAR_NAME_FATTRIB(blk_id_ndx);
       vnodcon = VAR_FBCONN(blk_id_ndx);
       vnpecnt = VAR_FBEPEC(blk_id_ndx);
-      vedgcon = 0;
-      vfaccon = 0;
+      vedgcon = NULL;
+      vfaccon = NULL;
       break;
     case EX_ELEM_BLOCK:
       dneblk  = DIM_NUM_EL_IN_BLK(blk_id_ndx);
@@ -383,22 +380,7 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex__compress_variable(exoid, varid, 2);
-
-#if defined(PARALLEL_AWARE_EXODUS)
-      /*
-       * There is currently a bug in netcdf-4.5.1-devel and earlier
-       * for partial parallel output of strided arrays in collective
-       * mode for netcdf-4-based output.  If the number of attributes >
-       * 1 and in parallel mode, set the mode to independent.
-       */
-      if (blocks[i].num_attribute > 1) {
-        struct ex__file_item *file = ex__find_file_item(exoid);
-        if (file->is_parallel && file->is_hdf5) {
-          nc_var_par_access(exoid, varid, NC_INDEPENDENT);
-        }
-      }
-#endif
+      exi_compress_variable(exoid, varid, 2);
 
       /* inquire previously defined dimensions  */
       if ((status = nc_inq_dimid(exoid, DIM_STR_NAME, &strdim)) != NC_NOERR) {
@@ -418,7 +400,8 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-#if NC_HAS_HDF5
+#if defined(EX_CAN_USE_NC_DEF_VAR_FILL)
+      int fill = NC_FILL_CHAR;
       nc_def_var_fill(exoid, att_name_varid, 0, &fill);
 #endif
     }
@@ -531,7 +514,7 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
           ex_err_fn(exoid, __func__, errmsg, status);
           goto error_ret; /* exit define mode and return */
         }
-        ex__compress_variable(exoid, connid, 1);
+        exi_compress_variable(exoid, connid, 1);
       }
     }
     /* store element type as attribute of connectivity variable */
@@ -579,7 +562,9 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
   free(blocks_to_define);
 
   /* leave define mode  */
-  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = exi_leavedef(exoid, __func__)) != NC_NOERR) {
+    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to exit define mode");
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -598,7 +583,7 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
          write anything; avoids corruption in some cases.
       */
       size_t count[2];
-      char * text = "";
+      char  *text = "";
       size_t j;
 
       count[0] = 1;
@@ -618,6 +603,6 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
 error_ret:
   free(blocks_to_define);
 
-  ex__leavedef(exoid, __func__);
+  exi_leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

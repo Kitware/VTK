@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -7,17 +7,16 @@
 // -*- Mode: c++ -*-
 #pragma once
 
-#include "ioex_export.h"
-
-#include "vtk_ioss_mangle.h"
-
 #include <vtk_exodusII.h>
+
+#include "ioex_export.h"
+#include "vtk_ioss_mangle.h"
 #if defined PARALLEL_AWARE_EXODUS
-#include <Ioss_CodeTypes.h>
-#include <Ioss_DBUsage.h>               // for DatabaseUsage
-#include <Ioss_Map.h>                   // for Map
-#include <Ioss_State.h>                 // for State
-#include <exodus/Ioex_BaseDatabaseIO.h> // for DatabaseIO
+#include "Ioss_CodeTypes.h"
+#include "Ioss_DBUsage.h"               // for DatabaseUsage
+#include "Ioss_Map.h"                   // for Map
+#include "Ioss_State.h"                 // for State
+#include "exodus/Ioex_BaseDatabaseIO.h" // for DatabaseIO
 #include <functional>                   // for less
 #include <map>                          // for map, map<>::value_compare
 #include <memory>
@@ -28,9 +27,11 @@
 #include <time.h>   // for nullptr, time_t
 #include <utility>  // for pair
 #include <vector>   // for vector
+
 namespace Ioex {
   class DecompositionDataBase;
-}
+  struct BlockFieldData;
+} // namespace Ioex
 namespace Ioex {
   template <typename INT> class DecompositionData;
 }
@@ -69,19 +70,21 @@ namespace Ioex {
     ParallelDatabaseIO(Ioss::Region *region, const std::string &filename,
                        Ioss::DatabaseUsage db_usage, Ioss_MPI_Comm communicator,
                        const Ioss::PropertyManager &properties);
-    ParallelDatabaseIO(const ParallelDatabaseIO &from)            = delete;
-    ParallelDatabaseIO &operator=(const ParallelDatabaseIO &from) = delete;
     ~ParallelDatabaseIO();
 
-    int  get_file_pointer() const override; // Open file and set exodusFilePtr.
-    bool needs_shared_node_information() const override { return true; }
+    IOSS_NODISCARD int  get_file_pointer() const override; // Open file and set exodusFilePtr.
+    IOSS_NODISCARD bool needs_shared_node_information() const override { return true; }
+
+    std::vector<size_t> get_entity_field_data(const std::string                       &field_name,
+                                              const std::vector<Ioss::ElementBlock *> &elem_blocks,
+                                              void *data, size_t data_size) const override;
 
   private:
     void compute_node_status() const;
 
-    void release_memory__() override;
+    void release_memory_nl() override;
 
-    void get_step_times__() override;
+    void get_step_times_nl() override;
 
     bool open_input_file(bool write_message, std::string *error_msg, int *bad_count,
                          bool abort_if_error) const override;
@@ -173,7 +176,7 @@ namespace Ioex {
     void output_node_map() const;
 
     // Metadata-related functions.
-    void read_meta_data__() override;
+    void read_meta_data_nl() override;
 
     int64_t read_transient_field(const Ioex::VariableNameMap &variables, const Ioss::Field &field,
                                  const Ioss::GroupingEntity *ge, void *data) const;
@@ -195,6 +198,8 @@ namespace Ioex {
     void write_entity_transient_field(const Ioss::Field &field, const Ioss::GroupingEntity *ge,
                                       int64_t count, void *variables) const;
     void write_meta_data(Ioss::IfDatabaseExistsBehavior behavior) override;
+    template <typename INT>
+      void output_processor_id_map(Ioss::Region *region, INT /*dummy*/);
 
     // Read related metadata and store it in the region...
     void read_region();
@@ -217,10 +222,11 @@ namespace Ioex {
     void check_valid_values() const;
 
     // ID Mapping functions.
-    const Ioss::Map &get_map(ex_entity_type type) const;
-    const Ioss::Map &get_map(Ioss::Map &entity_map, int64_t entityCount, int64_t file_offset,
-                             int64_t file_count, ex_entity_type entity_type,
-                             ex_inquiry inquiry_type) const;
+    IOSS_NODISCARD const Ioss::Map &get_map(ex_entity_type type) const;
+    IOSS_NODISCARD const Ioss::Map &get_map(Ioss::Map &entity_map, int64_t entityCount,
+                                            int64_t file_offset, int64_t file_count,
+                                            ex_entity_type entity_type,
+                                            ex_inquiry     inquiry_type) const;
 
     // Internal data handling
     int64_t handle_node_ids(void *ids, int64_t num_to_get, size_t offset, size_t count) const;
@@ -238,6 +244,21 @@ namespace Ioex {
                            size_t data_size) const;
     int64_t put_side_field(const Ioss::SideBlock *sd_blk, const Ioss::Field &field, void *data,
                            size_t data_size) const;
+
+    template <typename T>
+    std::vector<Ioex::BlockFieldData>
+    get_entity_block_field_data(const Ioex::VariableNameMap &variables,
+                                const std::string           &field_name,
+                                const std::vector<T *>      &entity_container) const;
+
+    std::vector<size_t>
+    get_entity_connectivity_field_data(const std::string                       &field_name,
+                                       const std::vector<Ioss::ElementBlock *> &elem_blocks,
+                                       void *data, size_t data_size) const;
+
+    std::vector<size_t> get_entity_transient_field_data(
+        const Ioex::VariableNameMap &variables, const std::string &field_name,
+        const std::vector<Ioss::ElementBlock *> &elem_blocks, void *data) const;
 
     // Private member data...
     mutable std::unique_ptr<DecompositionDataBase> decomp;

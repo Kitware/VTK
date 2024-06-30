@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex__comp_ws, etc
+#include "exodusII_int.h" // for EX_FATAL, exi_comp_ws, etc
 
 /*!
 The function ex_get_coord() reads the nodal coordinates of the
@@ -75,17 +75,17 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
   int coordidx, coordidy, coordidz;
 
   int    numnoddim, ndimdim;
-  size_t num_nod, num_dim, start[2], count[2], i;
+  size_t num_nod, num_dim;
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* inquire id's of previously defined dimensions  */
 
-  if (ex__get_dimension(exoid, DIM_NUM_DIM, "dimension count", &num_dim, &ndimdim, __func__) !=
+  if (exi_get_dimension(exoid, DIM_NUM_DIM, "dimension count", &num_dim, &ndimdim, __func__) !=
       NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -111,17 +111,19 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
-    for (i = 0; i < num_dim; i++) {
-      char *which = NULL;
-      start[0]    = i;
-      start[1]    = 0;
+    for (size_t i = 0; i < num_dim; i++) {
+      char  *which = NULL;
+      size_t start[2];
+      size_t count[2];
+      start[0] = i;
+      start[1] = 0;
 
       count[0] = 1;
       count[1] = num_nod;
 
       if (i == 0 && x_coor != NULL) {
         which = "X";
-        if (ex__comp_ws(exoid) == 4) {
+        if (exi_comp_ws(exoid) == 4) {
           status = nc_get_vara_float(exoid, coordid, start, count, x_coor);
         }
         else {
@@ -130,7 +132,7 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
       }
       else if (i == 1 && y_coor != NULL) {
         which = "Y";
-        if (ex__comp_ws(exoid) == 4) {
+        if (exi_comp_ws(exoid) == 4) {
           status = nc_get_vara_float(exoid, coordid, start, count, y_coor);
         }
         else {
@@ -139,7 +141,7 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
       }
       else if (i == 2 && z_coor != NULL) {
         which = "Z";
-        if (ex__comp_ws(exoid) == 4) {
+        if (exi_comp_ws(exoid) == 4) {
           status = nc_get_vara_float(exoid, coordid, start, count, z_coor);
         }
         else {
@@ -188,7 +190,7 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
     }
 
     /* write out the coordinates  */
-    for (i = 0; i < num_dim; i++) {
+    for (size_t i = 0; i < num_dim; i++) {
       void *coor  = NULL;
       char *which = NULL;
 
@@ -209,7 +211,7 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
       }
 
       if (coor != NULL && coordid != -1) {
-        if (ex__comp_ws(exoid) == 4) {
+        if (exi_comp_ws(exoid) == 4) {
           status = nc_get_var_float(exoid, coordid, coor);
         }
         else {

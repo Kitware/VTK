@@ -1,22 +1,22 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021, 2023, 2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include "Ioss_BoundingBox.h"  // for AxisAlignedBoundingBox
-#include "Ioss_EntityBlock.h"  // for EntityBlock
-#include "Ioss_FieldManager.h" // for FieldManager
-#include <Ioss_DatabaseIO.h>   // for DatabaseIO
-#include <Ioss_ElementBlock.h>
-#include <Ioss_Field.h>    // for Field, etc
-#include <Ioss_Property.h> // for Property
+#include "Ioss_DatabaseIO.h" // for DatabaseIO
+#include "Ioss_ElementBlock.h"
+#include "Ioss_Field.h"    // for Field, etc
+#include "Ioss_Property.h" // for Property
 #include <cstddef>         // for size_t
 #include <string>          // for string
 #include <vector>          // for vector
 
+#include "Ioss_BoundingBox.h"  // for AxisAlignedBoundingBox
+#include "Ioss_EntityBlock.h"  // for EntityBlock
+#include "Ioss_FieldManager.h" // for FieldManager
+
 namespace Ioss {
-  class Field;
 
   /** \brief Create an element block.
    *
@@ -37,8 +37,6 @@ namespace Ioss {
                            number_elements));
   }
 
-  ElementBlock::~ElementBlock() = default;
-
   Property ElementBlock::get_implicit_property(const std::string &my_name) const
   {
     return EntityBlock::get_implicit_property(my_name);
@@ -56,14 +54,20 @@ namespace Ioss {
     return get_database()->put_field(this, field, data, data_size);
   }
 
-  void ElementBlock::get_block_adjacencies(std::vector<std::string> &block_adjacency) const
+  int64_t ElementBlock::internal_get_zc_field_data(const Field &field, void **data,
+                                                   size_t *data_size) const
+  {
+    return get_database()->get_zc_field(this, field, data, data_size);
+  }
+
+  void ElementBlock::get_block_adjacencies(Ioss::NameList &block_adjacency) const
   {
     get_database()->get_block_adjacencies(this, block_adjacency);
   }
 
-  std::vector<std::string> ElementBlock::get_block_adjacencies() const
+  Ioss::NameList ElementBlock::get_block_adjacencies() const
   {
-    std::vector<std::string> block_adjacency;
+    Ioss::NameList block_adjacency;
     get_database()->get_block_adjacencies(this, block_adjacency);
     return block_adjacency;
   }

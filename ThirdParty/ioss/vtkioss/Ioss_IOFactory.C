@@ -1,24 +1,27 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021, 2023 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include "Ioss_DBUsage.h" // for DatabaseUsage
-#include <Ioss_IOFactory.h>
-#include <Ioss_ParallelUtils.h>
-#include <Ioss_Utils.h> // for IOSS_ERROR
-#include <Ioss_Version.h>
-#include <cstddef> // for nullptr
+#include "Ioss_IOFactory.h"
+#include "Ioss_ParallelUtils.h"
+#include "Ioss_Utils.h" // for IOSS_ERROR
+#include "Ioss_Version.h"
 #include "vtk_fmt.h"
+#include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
+#include VTK_FMT(fmt/ranges.h)
 #include <map>     // for _Rb_tree_iterator, etc
 #include <ostream> // for basic_ostream, etc
 #include <set>
-#include <string>  // for char_traits, string, etc
-#include <utility> // for pair
+#include <string> // for char_traits, string, etc
+
+#include "Ioss_CodeTypes.h"
+#include "Ioss_DBUsage.h" // for DatabaseUsage
+#include "Ioss_PropertyManager.h"
 #if defined(SEACAS_HAVE_MPI)
-#include <Ioss_Decomposition.h>
+#include "Ioss_Decomposition.h"
 #endif
 
 namespace {
@@ -26,7 +29,7 @@ namespace {
   std::mutex m_;
 #endif
 
-  int describe__(Ioss::IOFactoryMap *registry, Ioss::NameList *names)
+  int describe_nl(Ioss::IOFactoryMap *registry, Ioss::NameList *names)
   {
     int                                count = 0;
     Ioss::IOFactoryMap::const_iterator I;
@@ -40,7 +43,7 @@ namespace {
 
 namespace Ioss {
   class DatabaseIO;
-  class PropertyManager;
+
   using IOFactoryValuePair = IOFactoryMap::value_type;
 } // namespace Ioss
 
@@ -84,7 +87,7 @@ Ioss::DatabaseIO *Ioss::IOFactory::create(const std::string &type, const std::st
       std::ostringstream errmsg;
       fmt::print(errmsg, "ERROR: The database type '{}' is not supported.\n", type);
       Ioss::NameList db_types;
-      describe__(registry(), &db_types);
+      describe_nl(registry(), &db_types);
       fmt::print(errmsg, "\nSupported database types:\n\t{}\n\n",
                  fmt::join(db_types.begin(), db_types.end(), " "));
       IOSS_ERROR(errmsg);
@@ -116,7 +119,7 @@ Ioss::DatabaseIO *Ioss::IOFactory::create(const std::string &type, const std::st
 int Ioss::IOFactory::describe(NameList *names)
 {
   IOSS_FUNC_ENTER(m_);
-  return describe__(registry(), names);
+  return describe_nl(registry(), names);
 }
 
 /** \brief Get the names of database formats known to IOSS.

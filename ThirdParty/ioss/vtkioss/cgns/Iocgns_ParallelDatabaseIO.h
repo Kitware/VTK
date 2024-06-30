@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -7,26 +7,27 @@
 #pragma once
 
 #include "iocgns_export.h"
+#include "vtk_ioss_mangle.h"
 
 #include <vtk_cgns.h> // xxx(kitware)
 #include VTK_CGNS(cgnsconfig.h)
 #if CG_BUILD_PARALLEL
 
-#include <Ioss_CodeTypes.h>
-#include <Ioss_DBUsage.h>    // for DatabaseUsage
-#include <Ioss_DatabaseIO.h> // for DatabaseIO
-#include <Ioss_IOFactory.h>  // for IOFactory
-#include <Ioss_Map.h>        // for Map
-#include <Ioss_MeshType.h>
-#include <Ioss_State.h> // for State
+#include "Ioss_CodeTypes.h"
+#include "Ioss_DBUsage.h"    // for DatabaseUsage
+#include "Ioss_DatabaseIO.h" // for DatabaseIO
+#include "Ioss_IOFactory.h"  // for IOFactory
+#include "Ioss_Map.h"        // for Map
+#include "Ioss_MeshType.h"
+#include "Ioss_State.h" // for State
 #include <cstddef>      // for size_t
 #include <cstdint>      // for int64_t
 #include <iostream>     // for ostream
 #include <memory>
 #include <string> // for string
 
-#include <cgns/Iocgns_DecompositionData.h>
-#include <cgns/Iocgns_Defines.h>
+#include "cgns/Iocgns_DecompositionData.h"
+#include "cgns/Iocgns_Defines.h"
 
 #include VTK_CGNS(cgnslib.h)
 
@@ -64,55 +65,56 @@ namespace Iocgns {
 
     ~ParallelDatabaseIO() override;
 
-    const std::string get_format() const override { return "CGNS"; }
+    IOSS_NODISCARD std::string get_format() const override { return "CGNS"; }
 
     // Check capabilities of input/output database...  Returns an
     // unsigned int with the supported Ioss::EntityTypes or'ed
     // together. If "return_value & Ioss::EntityType" is set, then the
     // database supports that type (e.g. return_value & Ioss::FACESET)
-    unsigned entity_field_support() const override;
+    IOSS_NODISCARD unsigned entity_field_support() const override;
 
-    int64_t node_global_to_local__(int64_t global, bool must_exist) const override;
-    int64_t element_global_to_local__(int64_t global) const override;
+    IOSS_NODISCARD int get_file_pointer() const override;
 
-    void release_memory__() override;
+    IOSS_NODISCARD bool node_major() const override { return false; }
 
-    int get_file_pointer() const override;
-
-    bool node_major() const override { return false; }
-
-    bool needs_shared_node_information() const override { return false; }
+    IOSS_NODISCARD bool needs_shared_node_information() const override { return false; }
 
     // This isn't quite true since a CGNS library with cgsize_t == 64-bits can read
     // a file with 32-bit ints. However,...
-    int int_byte_size_db() const override { return CG_SIZEOF_SIZE; }
+    IOSS_NODISCARD int int_byte_size_db() const override { return CG_SIZEOF_SIZE; }
 
     // Metadata-related functions.
-    void read_meta_data__() override;
     void write_meta_data();
     void write_results_meta_data();
 
   private:
+    void read_meta_data_nl() override;
+
+    IOSS_NODISCARD int64_t node_global_to_local_nl(int64_t global, bool must_exist) const override;
+    IOSS_NODISCARD int64_t element_global_to_local_nl(int64_t global) const override;
+
+    void release_memory_nl() override;
+
     void open_state_file(int state);
     void free_state_pointer();
 
-    void openDatabase__() const override;
-    void closeDatabase__() const override;
-    void closeBaseDatabase__() const;
+    void openDatabase_nl() const override;
+    void closeDatabase_nl() const override;
+    void closeBaseDatabase_nl() const;
 
-    bool begin__(Ioss::State state) override;
-    bool end__(Ioss::State state) override;
+    bool begin_nl(Ioss::State state) override;
+    bool end_nl(Ioss::State state) override;
 
-    bool begin_state__(int state, double time) override;
-    bool end_state__(int state, double time) override;
-    void flush_database__() const override;
+    bool begin_state_nl(int state, double time) override;
+    bool end_state_nl(int state, double time) override;
+    void flush_database_nl() const override;
 
     void    handle_structured_blocks();
     void    handle_unstructured_blocks();
     size_t  finalize_structured_blocks();
     int64_t handle_node_ids(void *ids, int64_t num_to_get) const;
     void    finalize_database() const override;
-    void    get_step_times__() override;
+    void    get_step_times_nl() override;
     void    write_adjacency_data();
 
     int64_t get_field_internal(const Ioss::Region *reg, const Ioss::Field &field, void *data,

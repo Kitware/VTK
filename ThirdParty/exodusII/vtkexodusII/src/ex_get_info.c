@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex__trim, etc
+#include "exodusII_int.h" // for EX_FATAL, exi_trim, etc
 
 /*!
   \ingroup Utilities
@@ -47,28 +47,27 @@ error = ex_get_info (exoid, info);
 
 int ex_get_info(int exoid, char **info)
 {
-  int    status;
-  size_t i;
-  int    dimid, varid;
-  size_t num_info, start[2], count[2];
-  char   errmsg[MAX_ERR_LENGTH];
-
-  int rootid = exoid & EX_FILE_ID_MASK;
+  int status;
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* inquire previously defined dimensions and variables  */
+  int rootid = exoid & EX_FILE_ID_MASK;
+  int dimid;
   if ((status = nc_inq_dimid(rootid, DIM_NUM_INFO, &dimid)) != NC_NOERR) {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH,
              "Warning: failed to locate number of info records in file id %d", rootid);
     ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
+  size_t num_info;
   if ((status = nc_inq_dimlen(rootid, dimid, &num_info)) != NC_NOERR) {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of info records in file id %d",
              rootid);
     ex_err_fn(exoid, __func__, errmsg, status);
@@ -77,7 +76,9 @@ int ex_get_info(int exoid, char **info)
 
   /* do this only if there are any information records */
   if (num_info > 0) {
+    int varid;
     if ((status = nc_inq_varid(rootid, VAR_INFO, &varid)) != NC_NOERR) {
+      char errmsg[MAX_ERR_LENGTH];
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate info record data in file id %d",
                rootid);
       ex_err_fn(exoid, __func__, errmsg, status);
@@ -85,20 +86,19 @@ int ex_get_info(int exoid, char **info)
     }
 
     /* read the information records */
-    for (i = 0; i < num_info; i++) {
-      start[0] = i;
-      count[0] = 1;
-      start[1] = 0;
-      count[1] = MAX_LINE_LENGTH + 1;
+    for (size_t i = 0; i < num_info; i++) {
+      size_t start[] = {i, 0};
+      size_t count[] = {1, MAX_LINE_LENGTH + 1};
 
       if ((status = nc_get_vara_text(rootid, varid, start, count, info[i])) != NC_NOERR) {
+        char errmsg[MAX_ERR_LENGTH];
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get info record data in file id %d",
                  rootid);
         ex_err_fn(exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }
       info[i][MAX_LINE_LENGTH] = '\0';
-      ex__trim(info[i]);
+      exi_trim(info[i]);
     }
   }
   EX_FUNC_LEAVE(EX_NOERR);

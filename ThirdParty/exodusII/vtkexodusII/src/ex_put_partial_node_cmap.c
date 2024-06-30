@@ -40,8 +40,8 @@
  */
 
 int ex_put_partial_node_cmap(int exoid, ex_entity_id map_id, int64_t start_entity_num,
-                             int64_t num_entities, void_int *node_ids, void_int *proc_ids,
-                             int processor)
+                             int64_t num_entities, const void_int *node_ids,
+                             const void_int *proc_ids, int processor)
 {
   int     map_idx, varid, dimid, status;
   size_t  start[1], count[1], ret_val;
@@ -52,7 +52,7 @@ int ex_put_partial_node_cmap(int exoid, ex_entity_id map_id, int64_t start_entit
   /*-----------------------------Execution begins-----------------------------*/
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -66,7 +66,7 @@ int ex_put_partial_node_cmap(int exoid, ex_entity_id map_id, int64_t start_entit
   }
 
   /* Get the index for this map_id */
-  if ((map_idx = ne__id_lkup(exoid, VAR_N_COMM_IDS, varidx, map_id)) == -1) {
+  if ((map_idx = nei_id_lkup(exoid, VAR_N_COMM_IDS, varidx, map_id)) == -1) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to find index for variable \"%s\" in file ID %d", VAR_N_COMM_IDS,
              exoid);

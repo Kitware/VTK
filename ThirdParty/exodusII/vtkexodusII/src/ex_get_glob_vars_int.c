@@ -24,13 +24,13 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for ex__comp_ws, EX_FATAL, etc
+#include "exodusII_int.h" // for exi_comp_ws, EX_FATAL, etc
 
 /*!
  Internal function. Do not use in client code.
  */
 
-int ex__get_glob_vars(int exoid, int time_step, int num_glob_vars, void *glob_var_vals)
+int exi_get_glob_vars(int exoid, int time_step, int num_glob_vars, void *glob_var_vals)
 {
   int    varid;
   int    status;
@@ -38,7 +38,7 @@ int ex__get_glob_vars(int exoid, int time_step, int num_glob_vars, void *glob_va
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+  if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -57,7 +57,7 @@ int ex__get_glob_vars(int exoid, int time_step, int num_glob_vars, void *glob_va
   count[0] = 1;
   count[1] = num_glob_vars;
 
-  if (ex__comp_ws(exoid) == 4) {
+  if (exi_comp_ws(exoid) == 4) {
     status = nc_get_vara_float(exoid, varid, start, count, glob_var_vals);
   }
   else {

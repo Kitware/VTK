@@ -1,17 +1,19 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021, 2023, 2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_DatabaseIO.h>
-#include <Ioss_Field.h>
-#include <Ioss_NodeBlock.h>
-#include <Ioss_Property.h>
+#include "Ioss_DatabaseIO.h"
+#include "Ioss_Field.h"
+#include "Ioss_NodeBlock.h"
+#include "Ioss_Property.h"
 #include <cassert>
 #include <cstddef>
 #include <string>
 
+#include "Ioss_BoundingBox.h"
+#include "Ioss_CodeTypes.h"
 #include "Ioss_EntityBlock.h"
 #include "Ioss_FieldManager.h"
 #include "Ioss_PropertyManager.h"
@@ -73,7 +75,6 @@ Ioss::NodeBlock::NodeBlock(Ioss::DatabaseIO *io_database, const std::string &my_
 }
 
 Ioss::NodeBlock::NodeBlock(const Ioss::NodeBlock &other) = default;
-Ioss::NodeBlock::~NodeBlock()                            = default;
 
 Ioss::Property Ioss::NodeBlock::get_implicit_property(const std::string &my_name) const
 {
@@ -90,6 +91,12 @@ int64_t Ioss::NodeBlock::internal_put_field_data(const Ioss::Field &field, void 
                                                  size_t data_size) const
 {
   return get_database()->put_field(this, field, data, data_size);
+}
+
+int64_t Ioss::NodeBlock::internal_get_zc_field_data(const Field &field, void **data,
+                                                    size_t *data_size) const
+{
+  return get_database()->get_zc_field(this, field, data, data_size);
 }
 
 Ioss::AxisAlignedBoundingBox Ioss::NodeBlock::get_bounding_box() const

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -7,7 +7,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for ex__file_item, EX_FATAL, etc
+#include "exodusII_int.h" // for exi_file_item, EX_FATAL, etc
 #include "stdbool.h"
 
 /*! \file
@@ -24,13 +24,13 @@
 
 #define NC_FLOAT_WORDSIZE 4
 
-static struct ex__file_item *file_list = NULL;
+static struct exi_file_item *file_list = NULL;
 
-struct ex__file_item *ex__find_file_item(int exoid)
+struct exi_file_item *exi_find_file_item(int exoid)
 {
   /* Find base filename in case exoid refers to a group */
   int                   base_exoid = (unsigned)exoid & EX_FILE_ID_MASK;
-  struct ex__file_item *ptr        = file_list;
+  struct exi_file_item *ptr        = file_list;
   while (ptr) {
     if (ptr->file_id == base_exoid) {
       break;
@@ -41,13 +41,13 @@ struct ex__file_item *ex__find_file_item(int exoid)
 }
 
 #define EX__MAX_PATHLEN 8192
-int ex__check_multiple_open(const char *path, int mode, const char *func)
+int exi_check_multiple_open(const char *path, int mode, const char *func)
 {
   EX_FUNC_ENTER();
   bool                  is_write = mode & EX_WRITE;
   char                  tmp[EX__MAX_PATHLEN];
   size_t                pathlen;
-  struct ex__file_item *ptr = file_list;
+  struct exi_file_item *ptr = file_list;
   while (ptr) {
     nc_inq_path(ptr->file_id, &pathlen, tmp);
     /* If path is too long, assume it is ok... */
@@ -72,7 +72,7 @@ int ex__check_multiple_open(const char *path, int mode, const char *func)
   EX_FUNC_LEAVE(EX_NOERR);
 }
 
-int ex__check_valid_file_id(int exoid, const char *func)
+int exi_check_valid_file_id(int exoid, const char *func)
 {
   bool error = false;
   if (exoid <= 0) {
@@ -80,7 +80,7 @@ int ex__check_valid_file_id(int exoid, const char *func)
   }
 #if !defined BUILT_IN_SIERRA
   else {
-    struct ex__file_item *file = ex__find_file_item(exoid);
+    struct exi_file_item *file = exi_find_file_item(exoid);
 
     if (!file) {
       error = true;
@@ -107,14 +107,13 @@ int ex__check_valid_file_id(int exoid, const char *func)
   return EX_NOERR;
 }
 
-int ex__conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_wordsize,
+int exi_conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_wordsize,
                   int int64_status, bool is_parallel, bool is_hdf5, bool is_pnetcdf, bool is_write)
 {
   char                  errmsg[MAX_ERR_LENGTH];
-  struct ex__file_item *new_file;
-  int                   filetype = 0;
+  struct exi_file_item *new_file = NULL;
 
-  /*! ex__conv_init() initializes the floating point conversion process.
+  /*! exi_conv_init() initializes the floating point conversion process.
    *
    * \param exoid         an integer uniquely identifying the file of interest.
    *
@@ -161,7 +160,7 @@ int ex__conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_word
 /* If the following line causes a compile-time error, then there is a problem
  * which will cause exodus to not work correctly on this platform.
  *
- * Contact Greg Sjaardema, gdsjaar@sandia.gov for asisstance.
+ * Contact Greg Sjaardema, gdsjaar@sandia.gov for assistance.
  */
 #define CT_ASSERT(e) extern char(*ct_assert(void))[sizeof(char[1 - 2 * !(e)])]
   CT_ASSERT((sizeof(float) == 4 || sizeof(float) == 8) &&
@@ -220,9 +219,10 @@ int ex__conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_word
    *  3 -- netcdf4 classic  (NC_FORMAT_NETCDF4_CLASSIC -1)
    */
 
+  int filetype = 0;
   nc_inq_format(exoid, &filetype);
 
-  if (!(new_file = malloc(sizeof(struct ex__file_item)))) {
+  if (!(new_file = malloc(sizeof(struct exi_file_item)))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate memory for internal file "
              "structure storage file id %d",
@@ -234,7 +234,7 @@ int ex__conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_word
   new_file->file_id               = exoid;
   new_file->user_compute_wordsize = *comp_wordsize == 4 ? 0 : 1;
   new_file->int64_status          = int64_status;
-  new_file->maximum_name_length   = ex__default_max_name_length;
+  new_file->maximum_name_length   = exi_default_max_name_length;
   new_file->time_varid            = -1;
   new_file->compression_algorithm = EX_COMPRESS_GZIP;
   new_file->assembly_count        = 0;
@@ -267,22 +267,20 @@ int ex__conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_word
 /*............................................................................*/
 /*............................................................................*/
 
-/*! ex__conv_exit() takes the structure identified by "exoid" out of the linked
+/*! exi_conv_exit() takes the structure identified by "exoid" out of the linked
  * list which describes the files that ex_conv_array() knows how to convert.
  *
- * \note it is absolutely necessary for ex__conv_exit() to be called after
+ * \note it is absolutely necessary for exi_conv_exit() to be called after
  *       ncclose(), if the parameter used as "exoid" is the id returned from
  *       an ncopen() or nccreate() call, as netCDF reuses file ids!
  *       the best place to do this is ex_close(), which is where I did it.
  *
  * \param exoid  integer which uniquely identifies the file of interest.
  */
-void ex__conv_exit(int exoid)
+void exi_conv_exit(int exoid)
 {
-
-  char                  errmsg[MAX_ERR_LENGTH];
-  struct ex__file_item *file = file_list;
-  struct ex__file_item *prev = NULL;
+  struct exi_file_item *file = file_list;
+  struct exi_file_item *prev = NULL;
 
   EX_FUNC_ENTER();
   while (file) {
@@ -295,6 +293,7 @@ void ex__conv_exit(int exoid)
   }
 
   if (!file) {
+    char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: failure to clear file id %d - not in list.", exoid);
     ex_err(__func__, errmsg, -EX_BADFILEID);
     EX_FUNC_VOID();
@@ -319,13 +318,13 @@ nc_type nc_flt_code(int exoid)
   /*!
    * \ingroup Utilities
    * nc_flt_code() returns either NC_FLOAT or NC_DOUBLE, based on the parameters
-   * with which ex__conv_init() was called.  nc_flt_code() is used as the nc_type
+   * with which exi_conv_init() was called.  nc_flt_code() is used as the nc_type
    * parameter on ncvardef() calls that define floating point variables.
    *
    * "exoid" is some integer which uniquely identifies the file of interest.
    */
   EX_FUNC_ENTER();
-  struct ex__file_item *file = ex__find_file_item(exoid);
+  struct exi_file_item *file = exi_find_file_item(exoid);
 
   if (!file) {
     char errmsg[MAX_ERR_LENGTH];
@@ -336,7 +335,7 @@ nc_type nc_flt_code(int exoid)
   EX_FUNC_LEAVE(file->netcdf_type_code);
 }
 
-int ex_int64_status(int exoid)
+unsigned ex_int64_status(int exoid)
 {
   /*!
    * \ingroup Utilities
@@ -359,7 +358,7 @@ int ex_int64_status(int exoid)
    #EX_INQ_INT64_API) |
   */
   EX_FUNC_ENTER();
-  struct ex__file_item *file = ex__find_file_item(exoid);
+  struct exi_file_item *file = exi_find_file_item(exoid);
 
   if (!file) {
     char errmsg[MAX_ERR_LENGTH];
@@ -389,12 +388,8 @@ int ex_set_int64_status(int exoid, int mode)
      | #EX_ALL_INT64_API | (#EX_MAPS_INT64_API \| #EX_IDS_INT64_API \| #EX_BULK_INT64_API \|
     #EX_INQ_INT64_API) |
   */
-
-  int api_mode = 0;
-  int db_mode  = 0;
-
   EX_FUNC_ENTER();
-  struct ex__file_item *file = ex__find_file_item(exoid);
+  struct exi_file_item *file = exi_find_file_item(exoid);
 
   if (!file) {
     char errmsg[MAX_ERR_LENGTH];
@@ -404,8 +399,8 @@ int ex_set_int64_status(int exoid, int mode)
   }
 
   /* Strip of all non-INT64_API values */
-  api_mode = mode & EX_ALL_INT64_API;
-  db_mode  = file->int64_status & EX_ALL_INT64_DB;
+  int api_mode = mode & EX_ALL_INT64_API;
+  int db_mode  = file->int64_status & EX_ALL_INT64_DB;
 
   file->int64_status = api_mode | db_mode;
   EX_FUNC_LEAVE(file->int64_status);
@@ -418,7 +413,7 @@ int ex_set_int64_status(int exoid, int mode)
 int ex_set_option(int exoid, ex_option_type option, int option_value)
 {
   EX_FUNC_ENTER();
-  struct ex__file_item *file = ex__find_file_item(exoid);
+  struct exi_file_item *file = exi_find_file_item(exoid);
   if (!file) {
     char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unknown file id %d for ex_set_option().", exoid);
@@ -478,14 +473,14 @@ int ex_set_option(int exoid, ex_option_type option, int option_value)
 
 /*!
  * \ingroup Utilities
- * ex__comp_ws() returns 4 (i.e. sizeof(float)) or 8 (i.e. sizeof(double)),
+ * exi_comp_ws() returns 4 (i.e. sizeof(float)) or 8 (i.e. sizeof(double)),
  * depending on the value of floating point word size used to initialize
  * the conversion facility for this file id (exoid).
  * \param exoid  integer which uniquely identifies the file of interest.
  */
-int ex__comp_ws(int exoid)
+int exi_comp_ws(int exoid)
 {
-  struct ex__file_item *file = ex__find_file_item(exoid);
+  struct exi_file_item *file = exi_find_file_item(exoid);
 
   if (!file) {
     char errmsg[MAX_ERR_LENGTH];
@@ -499,16 +494,16 @@ int ex__comp_ws(int exoid)
 
 /*!
  * \ingroup Utilities
- * ex__is_parallel() returns 1 (true) or 0 (false) depending on whether
+ * exi_is_parallel() returns 1 (true) or 0 (false) depending on whether
  * the file was opened in parallel or serial/file-per-processor mode.
  * Note that in this case parallel assumes the output of a single file,
  * not a parallel run using file-per-processor.
  * \param exoid  integer which uniquely identifies the file of interest.
  */
-int ex__is_parallel(int exoid)
+int exi_is_parallel(int exoid)
 {
   EX_FUNC_ENTER();
-  struct ex__file_item *file = ex__find_file_item(exoid);
+  struct exi_file_item *file = exi_find_file_item(exoid);
 
   if (!file) {
     char errmsg[MAX_ERR_LENGTH];
@@ -537,8 +532,7 @@ int ex__is_parallel(int exoid)
 int ex_set_parallel(int exoid, int is_parallel)
 {
   EX_FUNC_ENTER();
-  int                   old_value = 0;
-  struct ex__file_item *file      = ex__find_file_item(exoid);
+  struct exi_file_item *file = exi_find_file_item(exoid);
 
   if (!file) {
     char errmsg[MAX_ERR_LENGTH];
@@ -547,7 +541,7 @@ int ex_set_parallel(int exoid, int is_parallel)
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  old_value         = file->is_parallel;
+  int old_value     = file->is_parallel;
   file->is_parallel = is_parallel;
   /* Stored as 1 for parallel, 0 for serial or file-per-processor */
   EX_FUNC_LEAVE(old_value);

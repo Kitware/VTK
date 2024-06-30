@@ -7,6 +7,7 @@
 #pragma once
 
 #include "vtk_ioss_mangle.h"
+
 namespace Ioss {
 
   /** \brief Access states for a database.

@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -6,20 +6,20 @@
 
 #pragma once
 
-#include "iogn_export.h"
-
-#include "vtk_ioss_mangle.h"
-
-#include <Ioss_Beam2.h>
-#include <Ioss_Hex8.h>
-#include <Ioss_Shell4.h>
+#include "Ioss_Beam2.h"
+#include "Ioss_CodeTypes.h"
+#include "Ioss_Hex8.h"
+#include "Ioss_Shell4.h"
+#include "generated/Iogn_GeneratedMesh.h" // for GeneratedMesh
 #include <cstddef>                        // for size_t
 #include <cstdint>                        // for int64_t
 #include <exception>                      // for exception
-#include <generated/Iogn_GeneratedMesh.h> // for GeneratedMesh
 #include <string>                         // for string
 #include <utility>                        // for pair
 #include <vector>                         // for vector
+
+#include "iogn_export.h"
+#include "vtk_ioss_mangle.h"
 
 namespace Iogn {
 
@@ -34,12 +34,12 @@ namespace Iogn {
 
   enum Topology { Beam2 = 2, Shell4 = 4, Hex8 = 8 };
 
-  inline std::string getTopologyName(Topology topology)
+  IOSS_NODISCARD inline std::string getTopologyName(Topology topology)
   {
     switch (topology) {
-    case Shell4: return std::string(Ioss::Shell4::name);
-    case Hex8: return std::string(Ioss::Hex8::name);
-    case Beam2: return std::string(Ioss::Beam2::name);
+    case Shell4: return {Ioss::Shell4::name};
+    case Hex8: return {Ioss::Hex8::name};
+    case Beam2: return {Ioss::Beam2::name};
     }
     throw std::exception();
   }
@@ -64,17 +64,16 @@ namespace Iogn {
     // element side (1-based) The side id is: side_id =
     // 10*element_id + local_side_number This assumes that all
     // sides in a sideset are boundary sides.
-    std::vector<std::vector<int>>         sidesetConnectivity;
-    std::vector<std::vector<std::string>> sidesetTouchingBlocks;
+    std::vector<std::vector<int>> sidesetConnectivity;
+    std::vector<Ioss::NameList>   sidesetTouchingBlocks;
 
-    ExodusData() {}
+    ExodusData() = delete;
     ExodusData(std::vector<double> coords, std::vector<std::vector<int>> elemBlockConnectivity,
                std::vector<int> globalNumOfElemsInBlock, std::vector<int> localNumOfElemsInBlock,
                std::vector<Topology> blockTopoData, int globalNumNodes,
                std::vector<int> globalIdsOfLocalElems, std::vector<int> globalIdsLocalNodes,
-               std::vector<std::vector<int>>         sidesetConn = std::vector<std::vector<int>>(),
-               std::vector<std::vector<std::string>> sidesetBlocks =
-                   std::vector<std::vector<std::string>>())
+               std::vector<std::vector<int>> sidesetConn   = std::vector<std::vector<int>>(),
+               std::vector<Ioss::NameList>   sidesetBlocks = std::vector<Ioss::NameList>())
         : coordinates(std::move(coords)),
           elementBlockConnectivity(std::move(elemBlockConnectivity)),
           globalNumberOfElementsInBlock(std::move(globalNumOfElemsInBlock)),
@@ -142,25 +141,23 @@ namespace Iogn {
     {
     }
 
-    ~DashSurfaceMesh() override = default;
+    IOSS_NODISCARD int64_t node_count() const override;
+    IOSS_NODISCARD int64_t node_count_proc() const override;
 
-    int64_t node_count() const override;
-    int64_t node_count_proc() const override;
+    IOSS_NODISCARD int64_t element_count() const override;
+    IOSS_NODISCARD int64_t element_count(int64_t surfaceNumber) const override;
+    IOSS_NODISCARD int64_t element_count_proc() const override;
+    IOSS_NODISCARD int64_t element_count_proc(int64_t block_number) const override;
 
-    int64_t element_count() const override;
-    int64_t element_count(int64_t surfaceNumber) const override;
-    int64_t element_count_proc() const override;
-    int64_t element_count_proc(int64_t block_number) const override;
+    IOSS_NODISCARD int block_count() const override;
 
-    int block_count() const override;
+    IOSS_NODISCARD int     nodeset_count() const override;
+    IOSS_NODISCARD int64_t nodeset_node_count_proc(int64_t id) const override;
 
-    int     nodeset_count() const override;
-    int64_t nodeset_node_count_proc(int64_t id) const override;
+    IOSS_NODISCARD int     sideset_count() const override;
+    IOSS_NODISCARD int64_t sideset_side_count_proc(int64_t id) const override;
 
-    int     sideset_count() const override;
-    int64_t sideset_side_count_proc(int64_t id) const override;
-
-    int64_t communication_node_count_proc() const override;
+    IOSS_NODISCARD int64_t communication_node_count_proc() const override;
 
     void coordinates(double *coord) const override;
     void coordinates(std::vector<double> &coord) const override;
@@ -171,7 +168,7 @@ namespace Iogn {
 
     void connectivity(int64_t block_number, int *connect) const override;
 
-    std::pair<std::string, int> topology_type(int64_t block_number) const override;
+    IOSS_NODISCARD std::pair<std::string, int> topology_type(int64_t block_number) const override;
 
     void sideset_elem_sides(int64_t setId, std::vector<int64_t> &elem_sides) const override;
 
@@ -198,25 +195,23 @@ namespace Iogn {
   public:
     explicit ExodusMesh(const ExodusData &exodusData);
 
-    ~ExodusMesh() override = default;
+    IOSS_NODISCARD int64_t node_count() const override;
+    IOSS_NODISCARD int64_t node_count_proc() const override;
 
-    int64_t node_count() const override;
-    int64_t node_count_proc() const override;
+    IOSS_NODISCARD int64_t element_count() const override;
+    IOSS_NODISCARD int64_t element_count(int64_t blockNumber) const override;
+    IOSS_NODISCARD int64_t element_count_proc() const override;
+    IOSS_NODISCARD int64_t element_count_proc(int64_t blockNumber) const override;
 
-    int64_t element_count() const override;
-    int64_t element_count(int64_t blockNumber) const override;
-    int64_t element_count_proc() const override;
-    int64_t element_count_proc(int64_t blockNumber) const override;
+    IOSS_NODISCARD int block_count() const override;
 
-    int block_count() const override;
+    IOSS_NODISCARD int     nodeset_count() const override;
+    IOSS_NODISCARD int64_t nodeset_node_count_proc(int64_t id) const override;
 
-    int     nodeset_count() const override;
-    int64_t nodeset_node_count_proc(int64_t id) const override;
+    IOSS_NODISCARD int     sideset_count() const override;
+    IOSS_NODISCARD int64_t sideset_side_count_proc(int64_t id) const override;
 
-    int     sideset_count() const override;
-    int64_t sideset_side_count_proc(int64_t id) const override;
-
-    int64_t communication_node_count_proc() const override;
+    IOSS_NODISCARD int64_t communication_node_count_proc() const override;
 
     void coordinates(double *coord) const override;
     void coordinates(std::vector<double> &coord) const override;
@@ -227,11 +222,11 @@ namespace Iogn {
 
     void connectivity(int64_t blockNumber, int *connectivityForBlock) const override;
 
-    std::pair<std::string, int> topology_type(int64_t blockNumber) const override;
+    IOSS_NODISCARD std::pair<std::string, int> topology_type(int64_t blockNumber) const override;
 
     void sideset_elem_sides(int64_t setId, std::vector<int64_t> &elem_sides) const override;
 
-    std::vector<std::string> sideset_touching_blocks(int64_t setId) const override;
+    Ioss::NameList sideset_touching_blocks(int64_t setId) const override;
 
     void nodeset_nodes(int64_t nset_id, std::vector<int64_t> &nodes) const override;
 

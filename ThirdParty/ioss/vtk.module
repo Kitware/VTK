@@ -14,6 +14,8 @@ PRIVATE_DEPENDS
   VTK::zlib
 OPTIONAL_DEPENDS
   VTK::mpi
+  VTK::catalyst
 TEST_DEPENDS
   VTK::TestingCore
+  VTK::fmt
 THIRD_PARTY

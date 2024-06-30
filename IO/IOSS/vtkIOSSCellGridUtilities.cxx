@@ -22,11 +22,16 @@
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
 
-#include <Ioss_ElementTopology.h>
-#include <Ioss_Field.h>
-#include <Ioss_NodeBlock.h>
-#include <Ioss_SideBlock.h>
-#include <Ioss_SideSet.h>
+// Ioss includes
+#include <vtk_ioss.h>
+// clang-format off
+#include VTK_IOSS(Ioss_ElementTopology.h)
+#include VTK_IOSS(Ioss_Field.h)
+#include VTK_IOSS(Ioss_NodeBlock.h)
+#include VTK_IOSS(Ioss_SideBlock.h)
+#include VTK_IOSS(Ioss_SideSet.h)
+#include VTK_IOSS(Ioss_TransformFactory.h)
+// clang-format on
 
 #include <memory>
 
@@ -337,7 +342,7 @@ bool GetConnectivity(Ioss::GroupingEntity* group_entity, vtkCellGrid* grid, vtkD
   if (!cellSpec.Connectivity)
   {
     std::vector<int> permutation;
-    auto transform = std::unique_ptr<Ioss::Transform>(Iotr::Factory::create("offset"));
+    auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
     transform->set_property("offset", -1);
     auto ids_raw = vtkIOSSUtilities::GetData(group_entity, "connectivity_raw", transform.get());
     // Transfer ownership to a vtkDataSetAttributes instance:

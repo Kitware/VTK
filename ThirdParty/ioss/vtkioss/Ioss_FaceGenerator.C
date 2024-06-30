@@ -1,36 +1,30 @@
-// Copyright(C) 1999-2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_CodeTypes.h>
-
-#include <Ioss_CommSet.h>
-#include <Ioss_DBUsage.h>
-#include <Ioss_DatabaseIO.h>
-#include <Ioss_ElementBlock.h>
-#include <Ioss_ElementTopology.h>
-#include <Ioss_FaceGenerator.h>
-#include <Ioss_IOFactory.h>
-#include <Ioss_NodeBlock.h>
-#include <Ioss_ParallelUtils.h>
-#include <Ioss_Property.h>
-#include <Ioss_Region.h>
-
-#include <algorithm>
-#include <chrono>
+#include "Ioss_CodeTypes.h"
+#include "Ioss_CommSet.h"
+#include "Ioss_ElementBlock.h"
+#include "Ioss_ElementTopology.h"
+#include "Ioss_FaceGenerator.h"
+#include "Ioss_NodeBlock.h"
+#include "Ioss_Property.h"
+#include "Ioss_Region.h"
+#include <cassert>
 #include "vtk_fmt.h"
-#include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
-#include <functional>
+#include <iosfwd>
 #include <numeric>
-#include <random>
-#include <utility>
+#include <stdint.h>
+
+#include "Ioss_Utils.h"
+#include "robin_set.h"
 
 // Options for generating hash function key...
 #define USE_MURMUR
-//#define USE_RANDOM
+// #define USE_RANDOM
 
 #define DO_TIMING 0
 
@@ -48,7 +42,7 @@ namespace {
 #endif
 
 #if defined(USE_MURMUR)
-  uint64_t MurmurHash64A(const size_t key);
+  uint64_t MurmurHash64A(size_t key);
 #endif
 
   void create_face(Ioss::FaceUnorderedSet &faces, size_t id, std::array<size_t, 4> &conn,
@@ -76,11 +70,7 @@ namespace {
     eb->get_field_data("connectivity_raw", connectivity);
 
     std::vector<INT> elem_ids;
-    if (local_ids) {
-      elem_ids.resize(eb->entity_count());
-      std::iota(elem_ids.begin(), elem_ids.end(), static_cast<INT>(eb->get_offset() + 1));
-    }
-    else {
+    if (!local_ids) {
       eb->get_field_data("ids", elem_ids);
     }
 
@@ -97,28 +87,30 @@ namespace {
     size_t num_elem          = eb->entity_count();
 
     for (size_t elem = 0, offset = 0; elem < num_elem; elem++, offset += num_node_per_elem) {
+      auto elem_id = local_ids ? eb->get_offset() + elem + 1 : elem_ids[elem];
       for (int face = 0; face < num_face_per_elem; face++) {
         size_t id = 0;
         assert(face_node_count[face] <= 4);
         std::array<size_t, 4> conn = {{0, 0, 0, 0}};
         for (int j = 0; j < face_node_count[face]; j++) {
           size_t fnode = offset + face_conn[face][j];
-          size_t lnode = connectivity[fnode]; // local since "connectivity_raw"
-          conn[j]      = ids[lnode - 1];      // Convert to global
+          size_t lnode = connectivity[fnode];                // local since "connectivity_raw"
+          conn[j]      = local_ids ? lnode : ids[lnode - 1]; // Convert to global
           id += hash_ids[lnode - 1];
         }
-        create_face(faces, id, conn, elem_ids[elem], face);
+        create_face(faces, id, conn, elem_id, face);
       }
     }
   }
 
   template <typename INT>
-  void resolve_parallel_faces(Ioss::Region &region, Ioss::FaceUnorderedSet &faces,
-                              const std::vector<size_t> &hash_ids, INT /*dummy*/)
+  void resolve_parallel_faces(IOSS_MAYBE_UNUSED Ioss::Region &region,
+                              IOSS_MAYBE_UNUSED Ioss::FaceUnorderedSet &faces,
+                              IOSS_MAYBE_UNUSED const std::vector<size_t> &hash_ids, INT /*dummy*/)
   {
-    PAR_UNUSED(region);
-    PAR_UNUSED(faces);
-    PAR_UNUSED(hash_ids);
+    IOSS_PAR_UNUSED(region);
+    IOSS_PAR_UNUSED(faces);
+    IOSS_PAR_UNUSED(hash_ids);
 
 #ifdef SEACAS_HAVE_MPI
     size_t proc_count = region.get_database()->util().parallel_size();
@@ -133,12 +125,11 @@ namespace {
       // can only be shared with one other processor...
 
       // get nodal communication data CommSet...
-      Ioss::CommSet *css = region.get_commset("commset_node");
-
       std::vector<std::pair<INT, INT>> proc_entity;
       {
         // entity_processor consists of node,proc, node,proc, entries.
         std::vector<INT> entity_processor;
+        Ioss::CommSet   *css = region.get_commset("commset_node");
         css->get_field_data("entity_processor_raw", entity_processor);
 
         proc_entity.reserve(entity_processor.size() / 2);
@@ -245,7 +236,7 @@ namespace {
       // For now, use all-to-all; optimization is just send to processors with
       // data...
       std::vector<INT> check_count(proc_count);
-      MPI_Alltoall(potential_count.data(), 1, Ioss::mpi_type((INT)0), check_count.data(), 1,
+      MPI_Alltoall(Data(potential_count), 1, Ioss::mpi_type((INT)0), Data(check_count), 1,
                    Ioss::mpi_type((INT)0), region.get_database()->util().communicator());
 
       const int            values_per_face = 6; // id, 4-node-conn, element
@@ -334,14 +325,27 @@ namespace Ioss {
 
   FaceGenerator::FaceGenerator(Ioss::Region &region) : region_(region) {}
 
-  template void FaceGenerator::generate_faces(int, bool, bool);
-  template void FaceGenerator::generate_faces(int64_t, bool, bool);
+  FaceUnorderedSet &FaceGenerator::faces(const Ioss::ElementBlock *block)
+  {
+    const auto &name = block->name();
+    return faces_[name];
+  }
+
+  void FaceGenerator::clear(const Ioss::ElementBlock *block)
+  {
+    const auto &name = block->name();
+    faces_[name].clear();
+  }
+
+  template IOSS_EXPORT void FaceGenerator::generate_faces(int, bool, bool);
+  template IOSS_EXPORT void FaceGenerator::generate_faces(int64_t, bool, bool);
 
   template <typename INT>
   void FaceGenerator::generate_faces(INT /*dummy*/, bool block_by_block, bool local_ids)
   {
     if (block_by_block) {
-      generate_block_faces(INT(0), local_ids);
+      const auto &ebs = region_.get_element_blocks();
+      generate_block_faces(ebs, INT(0), local_ids);
     }
     else {
       generate_model_faces(INT(0), local_ids);
@@ -356,45 +360,59 @@ namespace Ioss {
     }
   }
 
-  template <typename INT> void FaceGenerator::generate_block_faces(INT /*dummy*/, bool local_ids)
+  void FaceGenerator::hash_local_node_ids(size_t count)
+  {
+    hashIds_.reserve(count);
+    for (size_t i = 1; i <= count; i++) {
+      hashIds_.push_back(id_hash(i));
+    }
+  }
+
+  template IOSS_EXPORT void FaceGenerator::generate_block_faces(const Ioss::ElementBlockContainer &,
+                                                                int, bool);
+  template IOSS_EXPORT void FaceGenerator::generate_block_faces(const Ioss::ElementBlockContainer &,
+                                                                int64_t, bool);
+
+  template <typename INT>
+  void FaceGenerator::generate_block_faces(const Ioss::ElementBlockContainer &ebs, INT /*dummy*/,
+                                           bool                               local_ids)
   {
     // Convert ids into hashed-ids
     Ioss::NodeBlock *nb = region_.get_node_blocks()[0];
 
-    std::vector<INT> ids;
-    if (local_ids) {
-      ids.resize(nb->entity_count());
-      std::iota(ids.begin(), ids.end(), 1);
-    }
-    else {
-      nb->get_field_data("ids", ids);
-    }
 #if DO_TIMING
     auto starth = std::chrono::steady_clock::now();
 #endif
-    hash_node_ids(ids);
+    std::vector<INT> ids;
+    if (local_ids) {
+      hash_local_node_ids(nb->entity_count());
+    }
+    else {
+      nb->get_field_data("ids", ids);
+      hash_node_ids(ids);
+    }
 #if DO_TIMING
     auto endh = std::chrono::steady_clock::now();
 #endif
 
-    const auto &ebs = region_.get_element_blocks();
-    for (auto &eb : ebs) {
+    for (const auto &eb : ebs) {
       const std::string &name    = eb->name();
       size_t             numel   = eb->entity_count();
-      size_t             reserve = 3.2 * numel;
+      size_t             reserve = 2.0 * numel;
       faces_[name].reserve(reserve);
+      faces_[name].max_load_factor(0.9);
       internal_generate_faces(eb, faces_[name], ids, hashIds_, local_ids, (INT)0);
     }
 
 #if DO_TIMING
     auto endf = std::chrono::steady_clock::now();
 #endif
-    for (auto &eb : ebs) {
+    for (const auto &eb : ebs) {
       resolve_parallel_faces(region_, faces_[eb->name()], hashIds_, (INT)0);
     }
 #if DO_TIMING
     size_t face_count = 0;
-    for (auto &eb : ebs) {
+    for (const auto &eb : ebs) {
       face_count += faces_[eb->name()].size();
     }
     auto endp  = std::chrono::steady_clock::now();
@@ -420,6 +438,7 @@ namespace Ioss {
     fmt::print("Total time:          \t{:.6} ms\n\n",
                std::chrono::duration<double, std::milli>(endp - starth).count());
 #endif
+    hashIds_.clear();
   }
 
   template <typename INT> void FaceGenerator::generate_model_faces(INT /*dummy*/, bool local_ids)
@@ -449,7 +468,7 @@ namespace Ioss {
     size_t reserve = 3.2 * numel;
     my_faces.reserve(reserve);
     const auto &ebs = region_.get_element_blocks();
-    for (auto &eb : ebs) {
+    for (const auto &eb : ebs) {
       internal_generate_faces(eb, my_faces, ids, hashIds_, local_ids, (INT)0);
     }
 
@@ -481,6 +500,7 @@ namespace Ioss {
     fmt::print("Total time:          \t{:.3f} ms\n\n",
                std::chrono::duration<double, std::milli>(endp - starth).count());
 #endif
+    hashIds_.clear();
   }
 } // namespace Ioss
 

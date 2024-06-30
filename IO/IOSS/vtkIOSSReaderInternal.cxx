@@ -38,6 +38,12 @@
 #include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
 
+// Ioss includes
+#include <vtk_ioss.h>
+// clang-format off
+#include VTK_IOSS(Ioss_TransformFactory.h)
+// clang-format on
+
 #include <algorithm>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -118,6 +124,7 @@ bool vtkIOSSReaderInternal::UpdateDatabaseNames(vtkIOSSReader* self)
   auto filenames = this->FileNames;
   auto controller = self->GetController();
   const int myrank = controller ? controller->GetLocalProcessId() : 0;
+  const int ranks = controller ? controller->GetNumberOfProcesses() : 1;
 
   if (myrank == 0)
   {
@@ -129,6 +136,17 @@ bool vtkIOSSReaderInternal::UpdateDatabaseNames(vtkIOSSReader* self)
       if (self->GetScanForRelatedFiles())
       {
         filenames = vtkIOSSFilesScanner::GetRelatedFiles(filenames);
+      }
+    }
+    else if (filenames.size() == 1 && *filenames.begin() == "catalyst.bin" && ranks > 1)
+    {
+      // "catalyst.bin" is a special filename to indicate that we should read from catalyst.
+      // To make sure that each node creates a database handle to try to read something
+      // from catalyst, we need to create a "filename" for each rank.
+      filenames.clear();
+      for (int i = 0; i < ranks; ++i)
+      {
+        filenames.insert("catalyst.bin." + std::to_string(ranks) + "." + std::to_string(i));
       }
     }
     else if (self->GetScanForRelatedFiles())
@@ -1017,6 +1035,17 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReaderInternal::GetDataSets(
   // TODO: ideally, this method shouldn't depend on format but entity type.
   switch (this->Format)
   {
+    case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
+      switch (vtk_entity_type)
+      {
+        case EntityType::STRUCTUREDBLOCK:
+        case EntityType::SIDESET:
+          return this->GetCGNSDataSets(blockname, vtk_entity_type, handle, timestep, self);
+
+        default:
+          return this->GetExodusDataSets(blockname, vtk_entity_type, handle, timestep, self);
+      }
+
     case vtkIOSSUtilities::DatabaseFormatType::CGNS:
       switch (vtk_entity_type)
       {
@@ -1030,7 +1059,6 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReaderInternal::GetDataSets(
       }
 
     case vtkIOSSUtilities::DatabaseFormatType::EXODUS:
-    case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
       switch (vtk_entity_type)
       {
         case EntityType::STRUCTUREDBLOCK:
@@ -1239,7 +1267,7 @@ void vtkIOSSReaderInternal::GenerateElementAndSideIds(vtkDataSet* dataset, Ioss:
               << "[.\n";
 #endif
     // ioss element_side_raw is 1-indexed; make it 0-indexed for VTK.
-    auto transform = std::unique_ptr<Ioss::Transform>(Iotr::Factory::create("offset"));
+    auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
     transform->set_property("offset", -1);
 
     auto element_side_raw =

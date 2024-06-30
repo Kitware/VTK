@@ -1,15 +1,14 @@
-// Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022, 2023, 2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 #pragma once
 
+#include "Ioss_CodeTypes.h"
+
 #include "ioss_export.h"
-
 #include "vtk_ioss_mangle.h"
-
-#include <Ioss_CodeTypes.h>
 
 namespace Ioss {
   class DatabaseIO;
@@ -68,30 +67,30 @@ namespace Ioss {
     SerializeIO &operator=(const SerializeIO &from) = delete;
     ~SerializeIO();
 
-    inline static int getOwner() { return s_owner; }
+    IOSS_NODISCARD inline static int getOwner() { return s_owner; }
 
-    inline static int getRank() { return s_rank; }
+    IOSS_NODISCARD inline static int getRank() { return s_rank; }
 
-    inline static int getSize() { return s_size; }
+    IOSS_NODISCARD inline static int getSize() { return s_size; }
 
-    inline static int getGroupRank() { return s_groupRank; }
+    IOSS_NODISCARD inline static int getGroupRank() { return s_groupRank; }
 
-    inline static int getGroupSize() { return s_groupSize; }
+    IOSS_NODISCARD inline static int getGroupSize() { return s_groupSize; }
 
     static void setGroupFactor(int factor);
 
-    inline static bool isEnabled() { return s_groupFactor != 0; }
+    IOSS_NODISCARD inline static bool isEnabled() { return s_groupFactor != 0; }
 
-    inline static bool inBarrier() { return s_owner != -1; }
+    IOSS_NODISCARD inline static bool inBarrier() { return s_owner != -1; }
 
-    inline static bool inMyGroup() { return s_owner == s_groupRank; }
+    IOSS_NODISCARD inline static bool inMyGroup() { return s_owner == s_groupRank; }
 
   private:
     const DatabaseIO *m_databaseIO; ///< Database I/O pointer
 #if defined(IOSS_THREADSAFE)
     static std::mutex m_;
 #endif
-    bool m_activeFallThru; ///< No barriers since my group is running
+    bool m_activeFallThru{true}; ///< No barriers since my group is running
 
     static int s_groupFactor; ///< Grouping factor
     static int s_size;        ///< Number of processors
