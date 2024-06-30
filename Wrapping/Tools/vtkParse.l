@@ -323,6 +323,8 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 "__attribute__"  skip_macro_arguments(); /* gcc attributes */
 
+"__attribute"  skip_macro_arguments(); /* icc attributes */
+
 "__declspec"  skip_macro_arguments(); /* Windows linkage */
 
 ("__cdecl"|"__clrcall"|"__stdcall"|"__fastcall"|"__thiscall") /* Windows */
@@ -330,6 +332,8 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 "__restrict__" /* gcc/clang/other extension */
 
 "__restrict" /* MSVC extension */
+
+("__forceinline"|"__inline") return(INLINE); /* MSVC extensions */
 
 "nullptr" {
       yylval.str = vtkstrndup(yytext, yyleng);
