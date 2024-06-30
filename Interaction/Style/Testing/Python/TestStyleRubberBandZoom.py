@@ -38,9 +38,9 @@ iren.SetInteractorStyle(rbz)
 renWin.Render()
 ren.GetActiveCamera().SetClippingRange(538.2413295991446, 551.8332823667997)
 # Test style
-iren.SetEventInformationFlipY(250,250,0,0,"0",0,"0")
+iren.SetEventInformationFlipY(250,250,0,0,chr(0),0,"")
 iren.InvokeEvent("LeftButtonPressEvent")
-iren.SetEventInformationFlipY(100,100,0,0,"0",0,"0")
+iren.SetEventInformationFlipY(100,100,0,0,chr(0),0,"")
 iren.InvokeEvent("MouseMoveEvent")
 iren.InvokeEvent("LeftButtonReleaseEvent")
 # --- end of script --

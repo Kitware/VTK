@@ -68,9 +68,9 @@ class TestStyleRubberBandZoomPerspective(vtkmodules.test.Testing.vtkTest):
         self.renderWindow.Render()
 
     def interact(self):
-        self.iren.SetEventInformationFlipY(150, 150, 0, 0, "0", 0, "0")
+        self.iren.SetEventInformationFlipY(150, 150, 0, 0, chr(0), 0, "")
         self.iren.InvokeEvent("LeftButtonPressEvent")
-        self.iren.SetEventInformationFlipY(192, 182, 0, 0, "0", 0, "0")
+        self.iren.SetEventInformationFlipY(192, 182, 0, 0, chr(0), 0, "")
         self.iren.InvokeEvent("MouseMoveEvent")
         self.iren.InvokeEvent("LeftButtonReleaseEvent")
 
