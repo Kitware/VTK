@@ -107,6 +107,14 @@ void vtkGeoTransform::Inverse()
   this->Modified();
 }
 
+void vtkGeoTransform::InternalDeepCopy(vtkAbstractTransform* transform)
+{
+  vtkGeoTransform* t = static_cast<vtkGeoTransform*>(transform);
+  this->SetSourceProjection(t->GetSourceProjection());
+  this->SetDestinationProjection(t->GetDestinationProjection());
+  this->SetTransformZCoordinate(t->GetTransformZCoordinate());
+}
+
 void vtkGeoTransform::InternalTransformPoint(const float in[3], float out[3])
 {
   double ind[3];
