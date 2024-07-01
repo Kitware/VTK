@@ -30,9 +30,13 @@ static nlohmann::json Serialize_vtkCellArray(vtkObjectBase* object, vtkSerialize
     {
       state = superSerializer(object, serializer);
     }
-    state["Offsets"] = serializer->SerializeJSON(cellArray->GetOffsetsArray());
-    state["Connectivity"] = serializer->SerializeJSON(cellArray->GetConnectivityArray());
-    state["NumberOfCells"] = cellArray->GetNumberOfCells();
+    state["NumberOfCells"] = 0;
+    if (cellArray->GetNumberOfCells() > 0)
+    {
+      state["Offsets"] = serializer->SerializeJSON(cellArray->GetOffsetsArray());
+      state["Connectivity"] = serializer->SerializeJSON(cellArray->GetConnectivityArray());
+      state["NumberOfCells"] = cellArray->GetNumberOfCells();
+    }
     return state;
   }
   else

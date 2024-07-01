@@ -188,7 +188,21 @@ bool vtkMarshalContext::RegisterObject(vtkObjectBase* objectBase, vtkTypeUInt32&
   {
     identifier = this->MakeId();
   }
-  return internals.WeakObjects.emplace(identifier, objectBase).second;
+  else
+  {
+    // bump the counter so that newer calls to `MakeId` doesn't give out already used identifiers.
+    this->Internals->UniqueId = std::max(this->Internals->UniqueId, identifier);
+  }
+  auto objectIter = internals.WeakObjects.find(identifier);
+  if (objectIter == internals.WeakObjects.end())
+  {
+    return internals.WeakObjects.emplace(identifier, objectBase).second;
+  }
+  else
+  {
+    objectIter->second = objectBase;
+    return true;
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -778,12 +778,14 @@ public:
    * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
    * The x axis scale is used for \sa PhysicalScale
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual void SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
 
   /**
    * Get physical to world transform matrix. Members used to calculate the matrix:
    * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
 
   /**
