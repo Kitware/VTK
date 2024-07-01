@@ -71,11 +71,14 @@ bool vtkHDFWriter::Implementation::WriteHeader(hid_t group, const char* hdfType)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::OpenFile(bool overwrite)
+bool vtkHDFWriter::Implementation::CreateFile(bool overwrite)
 {
   const char* filename = this->Writer->GetFileName();
 
   // Create file
+  vtkDebugWithObjectMacro(
+    this->Writer, << "Creating file " << this->Writer->Rank << ": " << filename);
+
   vtkHDF::ScopedH5FHandle file{ H5Fcreate(
     filename, overwrite ? H5F_ACC_TRUNC : H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT) };
   if (file == H5I_INVALID_HID)
@@ -97,8 +100,30 @@ bool vtkHDFWriter::Implementation::OpenFile(bool overwrite)
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::OpenFile()
+{
+  const char* filename = this->Writer->GetFileName();
+  vtkDebugWithObjectMacro(
+    this->Writer, << "Opening file on rank" << this->Writer->Rank << ": " << filename);
+
+  vtkHDF::ScopedH5FHandle file{ H5Fopen(filename, H5F_ACC_RDWR, H5P_DEFAULT) };
+  if (file == H5I_INVALID_HID)
+  {
+    return false;
+  }
+
+  this->File = std::move(file);
+  this->Root = this->OpenExistingGroup(this->File, "VTKHDF");
+
+  return this->Root != H5I_INVALID_HID;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::OpenSubfile(const std::string& filename)
 {
+  vtkDebugWithObjectMacro(
+    this->Writer, << "Opening sub file on rank " << this->Writer->Rank << ": " << filename);
+
   vtkHDF::ScopedH5FHandle file{ H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT) };
   if (file == H5I_INVALID_HID)
   {

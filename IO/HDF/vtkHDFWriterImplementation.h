@@ -34,14 +34,19 @@ public:
   bool WriteHeader(hid_t group, const char* hdfType);
 
   /**
-   * Open the file from the filename and create the root VTKHDF group
+   * Create the file from the filename and create the root VTKHDF group.
+   * This file is closed on object destruction.
    * Overwrite the file if it exists by default
-   * This doesn't write any attribute or dataset to the file
-   * This file is not closed until another root is opened or this object is destructed
-   * Returns wether the operation was successful
+   * Returns true if the operation was successful
    * If the operation fails, the file may have been created
    */
-  bool OpenFile(bool overwrite = true);
+  bool CreateFile(bool overwrite = true);
+
+  /**
+   * Open existing VTKHDF file and set Root and File members.
+   * This file is closed on object destruction.
+   */
+  bool OpenFile();
 
   /**
    * Open subfile where data has already been written, and needs to be referenced by the main file

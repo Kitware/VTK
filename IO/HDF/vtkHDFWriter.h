@@ -26,14 +26,24 @@ class vtkUnstructuredGrid;
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
 class vtkMultiBlockDataSet;
+class vtkMultiProcessController;
 
 typedef int64_t hid_t;
 
 /**
- * Writes Dataset input to the VTK HDF format. Currently only
- * supports serial processing and a single time step of vtkPolyData or vtkUnstructuredGrid
+ * Writes input dataset to a VTKHDF file.
  *
- * File format specification is here:
+ * This writer can handle vtkPolyData, vtkUnstructuredGrid, vtkPartitionedDataSet,
+ * vtkMultiBlockDataSet and vtkPartitionedDataSetCollection data types,
+ * as well as time-varying data.
+ *
+ * Distributed writing is supported for vtkPolyData and vtkUnstructuredGrid with pieces written to
+ * separate files, and referenced by the main written on rank 0 one using HDF5 virtual datasets.
+ *
+ * Options are provided for data compression, and writing partitions, composite parts and time steps
+ * in different files.
+ *
+ * Full file format specification is here:
  * https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#hdf-file-formats
  *
  */
@@ -48,6 +58,14 @@ public:
   static vtkHDFWriter* New();
   vtkTypeMacro(vtkHDFWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  ///@{
+  /**
+   * Set and get the controller.
+   */
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  ///@}
 
   ///@{
   /**
@@ -142,7 +160,7 @@ public:
 
   ///@{
   /**
-   * When set, write each partition in a different file,
+   * When set, write each partition of the input vtkPartitionedDataSet in a different file,
    * named FileStem_partX.extension, where X is the partition index.
    * If FileName does not have an extension, files are named FileName_partX.vtkhdf
    * These individual time files are referenced by the main file using the HDF5 virtual dataset
@@ -152,6 +170,17 @@ public:
    */
   vtkSetMacro(UseExternalPartitions, bool);
   vtkGetMacro(UseExternalPartitions, bool);
+  ///@}
+
+  ///@{
+  /**
+   * If true, consider the input as distributed and write pieces to individual numbered file parts.
+   * Otherwise, consider the input as a single standalone piece.
+   * Only applies for multi-process execution.
+   * Default is true.
+   */
+  vtkSetMacro(WriteDistributedOutput, bool);
+  vtkGetMacro(WriteDistributedOutput, bool);
   ///@}
 
 protected:
@@ -189,6 +218,15 @@ private:
    * Data will be written in the specified group, which must already exist.
    */
   void DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId = 0);
+
+  /**
+   * Dispatch the input data object containing multiple pieces distributed across processes
+   * to the specialized writer function. Write individual parts in X_partN.vtkhdf files, where X is
+   * the base file name provided to this filter.
+   * For Unstructured Grid and Poly Data types, write a main file referencing all pieces through
+   * HDF5 virtual datasets, like the UseExternalPartitions option would do.
+   */
+  void DispatchDistributedDataObject(vtkDataObject* input);
 
   ///@{
   /**
@@ -297,7 +335,7 @@ private:
    * and create an external link from VTKHDF/blockName to this file's content.
    * The block should be of non-composite type.
    */
-  bool AppendExternalBlock(vtkDataObject* block, std::string& blockName);
+  bool AppendExternalBlock(vtkDataObject* block, const std::string& blockName);
   ///@}
 
   /**
@@ -344,6 +382,7 @@ private:
   bool UseExternalComposite = false;
   bool UseExternalTimeSteps = false;
   bool UseExternalPartitions = false;
+  bool WriteDistributedOutput = true;
   int ChunkSize = 25000;
   int CompressionLevel = 0;
 
@@ -353,6 +392,15 @@ private:
   int CurrentTimeIndex = 0;
   int NumberOfTimeSteps = 0;
   vtkMTimeType PreviousStepMeshMTime = 0;
+
+  // Distributed-related variables
+  vtkMultiProcessController* Controller = nullptr;
+  int NbProcs = 1;
+  int Rank = 0;
+  bool UsesDummyController = false;
+  std::vector<vtkIdType> PointOffsets;
+  std::vector<vtkIdType> CellOffsets;
+  std::vector<vtkIdType> ConnectivityIdOffsets;
 };
 VTK_ABI_NAMESPACE_END
 #endif

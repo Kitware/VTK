@@ -180,7 +180,7 @@ bool TestSpherePolyData(const std::string& tempDir)
 //----------------------------------------------------------------------------
 bool TestComplexPolyData(const std::string& tempDir, const std::string& dataRoot)
 {
-  std::vector<std::string> baseNames = { "cow.vtp", "isofill_0.vtp" };
+  const std::vector<std::string> baseNames = { "cow.vtp", "isofill_0.vtp" };
   for (const auto& baseName : baseNames)
   {
     // Get a polydata from a VTP

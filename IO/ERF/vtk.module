@@ -15,7 +15,7 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::hdf5
-  VTK::IOHDF
+  VTK::IOHDFTools
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::vtksys
