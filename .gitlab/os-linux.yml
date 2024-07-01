@@ -187,12 +187,13 @@
         OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         MODULES: mpi/openmpi-x86_64
 
-.el7_mindeps_python_qt5:
+.el7_mindeps_debug_python_qt5:
     extends:
         - .el7_mindeps
 
     variables:
-        CMAKE_CONFIGURATION: el7_mindeps_python_qt5
+        CMAKE_CONFIGURATION: el7_mindeps_debug_python_qt5
+        CMAKE_BUILD_TYPE: Debug
 
 .el8_icc_python:
     extends:
