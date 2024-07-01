@@ -22,6 +22,13 @@
 #ifdef Status
 #undef Status
 #endif
+// Defined in X11/Xlibint.h
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 
 #endif
 // VTK-HeaderTest-Exclude: vtkTk.h
