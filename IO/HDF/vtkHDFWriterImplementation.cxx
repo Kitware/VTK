@@ -7,6 +7,8 @@
 
 #include "vtk_hdf5.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
@@ -120,7 +122,8 @@ bool vtkHDFWriter::Implementation::OpenFile()
 void vtkHDFWriter::Implementation::CloseFile()
 {
   vtkDebugWithObjectMacro(this->Writer,
-    "Closing current file " << this->File << this->Writer->FileName << this->Writer->Rank);
+    "Closing current file " << this->File << this->Writer->FileName << " on rank "
+                            << this->Writer->Rank);
   // Setting to H5I_INVALID_HID closes the group/file using RAII
   this->Root = H5I_INVALID_HID;
   this->File = H5I_INVALID_HID;
@@ -148,6 +151,7 @@ bool vtkHDFWriter::Implementation::OpenSubfile(const std::string& filename)
 vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::OpenExistingGroup(
   hid_t group, const char* name)
 {
+  vtkDebugWithObjectMacro(this->Writer, << "Opening group " << name);
   return H5Gopen(group, name, H5P_DEFAULT);
 }
 
@@ -653,6 +657,8 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(
 vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   hid_t group, const char* name, hid_t type, int numComp)
 {
+  vtkDebugWithObjectMacro(
+    this->Writer, "Creating virtual dataset " << name << " in " << this->GetGroupName(group));
 
   // Initialize VDS property
   vtkHDF::ScopedH5PHandle virtualSourceP = H5Pcreate(H5P_DATASET_CREATE);
@@ -683,47 +689,141 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   vtkHDF::ScopedH5SHandle destSpace = H5Screate_simple(numDim, dspaceDims.data(), nullptr);
 
   // Add virtual mapping for each timestep file
-  hsize_t offset = 0;
-  for (std::size_t i = 0; i < this->Subfiles.size(); i++)
+  hsize_t destinationOffset = 0;
+  std::vector<hsize_t> sourceOffsets(this->Subfiles.size(), 0);
+
+  const std::vector<std::string> singles{ "NumberOfPoints", "NumberOfCells",
+    "NumberOfConnectivityIds" };
+  bool single = std::find(singles.begin(), singles.end(), name) != singles.end();
+  bool indexedOnPoints = false;
+  if (this->GetGroupName(group) == std::string("/VTKHDF/PointData") ||
+    name == std::string("Points"))
   {
-    // Open source dataset/dataspace
-    vtkHDF::ScopedH5DHandle sourceDataset =
-      H5Dopen(this->Subfiles[i], datasetPath.c_str(), H5P_DEFAULT);
-    vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
-    std::vector<hsize_t> sourceDims(3);
-    H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr);
+    indexedOnPoints = true;
+    vtkDebugWithObjectMacro(
+      this->Writer, << name << " is indexed on points in group " << this->GetGroupName(group));
+  }
 
-    // Select hyperslab in destination space
-    std::vector<hsize_t> start{ offset };
-    std::vector<hsize_t> count{ sourceDims[0] };
-    if (numDim == 2)
+  int totalSteps = 1;
+  if (single || indexedOnPoints)
+  // if (single)
+  {
+    totalSteps = this->Writer->NumberOfTimeSteps;
+  }
+
+  int prevOffset = -1;
+  for (int step = 0; step < totalSteps; step++)
+  {
+    for (std::size_t part = 0; part < this->Subfiles.size(); part++)
     {
-      start.emplace_back(0);
-      count.emplace_back(sourceDims[1]);
-    }
-    if (H5Sselect_hyperslab(
-          destSpace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr) < 0)
-    {
-      return H5I_INVALID_HID;
-    }
+      // Open source dataset/dataspace
+      vtkHDF::ScopedH5DHandle sourceDataset =
+        H5Dopen(this->Subfiles[part], datasetPath.c_str(), H5P_DEFAULT);
+      vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
+      std::vector<hsize_t> sourceDims(3);
+      H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr);
 
-    // Create source H5S
-    vtkHDF::ScopedH5SHandle srcSpace = H5Screate_simple(numDim, sourceDims.data(), nullptr);
+      std::vector<hsize_t> destinationStart{ destinationOffset };
+      std::vector<hsize_t> destinationCount{
+        sourceDims[0]
+      }; // By default, select the whole source dataset
 
-    // Build the mapping
-    if (H5Pset_virtual(virtualSourceP, destSpace, this->SubfileNames[i].c_str(),
-          datasetPath.c_str(), srcSpace) < 0)
-    {
-      return H5I_INVALID_HID;
+      std::vector<hsize_t> sourceStart{ sourceOffsets[part] };
+      std::vector<hsize_t> sourceCount{ 1 }; // Duplicate?
+
+      if (this->Writer->IsTemporal && (single || indexedOnPoints))
+      {
+
+        if (single)
+        {
+          // Select only one value in the source dataspace
+          sourceCount[0] = 1;
+          sourceDims[0] = 1;
+          destinationCount[0] = 1;
+        }
+        else if (indexedOnPoints)
+        {
+          // Find NumberOfPoints in source file
+          hsize_t partNbPoints = this->GetSubfileNumberOf("/VTKHDF/NumberOfPoints", part, step);
+          hsize_t partPointsOffset =
+            this->GetSubfileNumberOf("/VTKHDF/Steps/PointOffsets", part, step);
+
+          if (name == std::string("Points") && prevOffset == partPointsOffset)
+          {
+            vtkDebugWithObjectMacro(nullptr, << "Static mesh, not writing dataset");
+            continue;
+          }
+          prevOffset = partPointsOffset;
+
+          sourceCount[0] = partNbPoints;
+          sourceStart[0] = partPointsOffset;
+          sourceDims[0] = partNbPoints;
+          destinationCount[0] = partNbPoints;
+        }
+
+        // Select hyperslab in source space of size 1
+        if (numDim == 2)
+        {
+          sourceStart.emplace_back(0);
+          sourceCount.emplace_back(sourceDims[1]); // All components
+        }
+        if (H5Sselect_hyperslab(sourceDataSpace, H5S_SELECT_SET, sourceStart.data(), nullptr,
+              sourceCount.data(), nullptr) < 0)
+        {
+          return H5I_INVALID_HID;
+        }
+      }
+
+      // Select hyperslab in destination space
+      if (numDim == 2)
+      {
+        destinationStart.emplace_back(0);
+        destinationCount.emplace_back(sourceDims[1]); // All components
+      }
+      if (H5Sselect_hyperslab(destSpace, H5S_SELECT_SET, destinationStart.data(), nullptr,
+            destinationCount.data(), nullptr) < 0)
+      {
+        return H5I_INVALID_HID;
+      }
+
+      vtkDebugWithObjectMacro(this->Writer,
+        << "Build mapping of " << name << " from [" << sourceStart[0] << "+" << sourceCount[0]
+        << "] to [" << destinationStart[0] << "+" << destinationCount[0] << "]");
+
+      // Create source H5S
+      vtkHDF::ScopedH5SHandle srcSpace = H5Screate_simple(numDim, sourceDims.data(), nullptr);
+
+      // Build the mapping
+      if (H5Pset_virtual(virtualSourceP, destSpace, this->SubfileNames[part].c_str(),
+            datasetPath.c_str(), srcSpace) < 0)
+      {
+        return H5I_INVALID_HID;
+      }
+
+      destinationOffset += sourceDims[0];
+      sourceOffsets[part] += sourceDims[0];
     }
-
-    offset += sourceDims[0];
   }
 
   // Create the virtual dataset
   vtkHDF::ScopedH5DHandle vdset =
     H5Dcreate(group, name, type, destSpace, H5P_DEFAULT, virtualSourceP, H5P_DEFAULT);
   return vdset;
+}
+
+hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
+  const std::string& qualifier, std::size_t subfileId, int part)
+{
+  // TODO: Error handling
+  vtkHDF::ScopedH5DHandle sourceNumPoints =
+    H5Dopen(this->Subfiles[subfileId], qualifier.c_str(), H5P_DEFAULT);
+  std::array<hsize_t, 1> start{ static_cast<unsigned long>(part) }, count{ 1 }, numPoints{ 0 };
+  vtkHDF::ScopedH5SHandle dataspace = H5Dget_space(sourceNumPoints);
+  vtkHDF::ScopedH5SHandle destSpace = H5Screate_simple(1, count.data(), nullptr);
+  H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
+  H5Dread(sourceNumPoints, H5T_NATIVE_INT, destSpace, dataspace, H5P_DEFAULT, numPoints.data());
+  vtkDebugWithObjectMacro(this->Writer, << "Fetched " << qualifier << ": " << numPoints[0]);
+  return numPoints[0];
 }
 
 //------------------------------------------------------------------------------

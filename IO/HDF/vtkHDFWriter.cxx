@@ -241,9 +241,9 @@ void vtkHDFWriter::WriteData()
     {
       // TODO: Check it's only UG/PD
       const std::string partitionSuffix = "part" + std::to_string(this->Rank);
-      const std::string subFilePath =
+      const std::string filePath =
         ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
-      this->Impl->CreateFile(this->Overwrite, subFilePath);
+      this->Impl->CreateFile(this->Overwrite, filePath);
     }
     else
     {
@@ -296,10 +296,8 @@ void vtkHDFWriter::WriteData()
 
   this->UpdatePreviousStepMeshMTime(input);
 
-  // Write the metafile only for distributed datasets, and on the last timestep if any
-  if (this->NbProcs > 1 &&
-    (!this->IsTemporal ||
-      (this->IsTemporal && this->CurrentTimeIndex == this->NumberOfTimeSteps - 1)))
+  // Write the metafile for distributed datasets, gathering information from all timesteps
+  if (this->NbProcs > 1)
   {
     this->WriteDistributedMetafile(input);
   }
@@ -308,6 +306,14 @@ void vtkHDFWriter::WriteData()
 //------------------------------------------------------------------------------
 void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
 {
+  // Only relevant on the last time step
+  if (this->IsTemporal && this->CurrentTimeIndex != this->NumberOfTimeSteps - 1)
+  {
+    return;
+  }
+
+  vtkDebugMacro("Writing meta file name " << this->FileName << " for rank " << this->Rank);
+
   // Make sure all processes have written and closed their associated subfile
   this->Impl->CloseFile();
   this->Controller->Barrier();
@@ -324,8 +330,17 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
       this->Impl->OpenSubfile(subFilePath);
     }
     this->Impl->SetSubFilesReady(true);
+    this->CurrentTimeIndex = 0; // Reset time so that datasets are initialized properly
     this->DispatchDataObject(this->Impl->GetRoot(), input);
   }
+
+  vtkDebugMacro(
+    "Done writing virtual datasets for " << this->FileName << " for rank " << this->Rank);
+
+  // Fill steps group
+
+  vtkDebugMacro("Done meta file name " << this->FileName << " for rank " << this->Rank);
+  this->CurrentTimeIndex = this->NumberOfTimeSteps - 1;
 }
 
 //------------------------------------------------------------------------------

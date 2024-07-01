@@ -181,6 +181,11 @@ public:
     hid_t group, const char* name, hid_t type, int numComp);
 
   /**
+   *
+   */
+  hsize_t GetSubfileNumberOf(const std::string& qualifier, std::size_t subfileId, int part);
+
+  /**
    * Create a chunked dataset in the given group from a dataspace.
    * Chunked datasets are used to append data iteratively
    * Returned scoped handle may be invalid
