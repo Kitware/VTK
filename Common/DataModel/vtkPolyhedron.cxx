@@ -901,7 +901,8 @@ bool vtkPolyhedron::IsConvex()
     // 3. We get the z component of the normal of the highest face
     //    If this is null, the face is in the vertical plane
     tmp0 =
-      c0p[2] - vtkMath::Dot(c0p, n) * n[2] > c1p[2] - vtkMath::Dot(c1p, n) * n[2] ? n0[2] : n1[2];
+      ((c0p[2] - vtkMath::Dot(c0p, n) * n[2]) > (c1p[2] - vtkMath::Dot(c1p, n) * n[2]) ? n0[2]
+                                                                                       : n1[2]);
     if (std::abs(tmp0) < eps)
     {
       continue;
