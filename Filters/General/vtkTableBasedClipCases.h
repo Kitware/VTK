@@ -9060,17 +9060,10 @@ private:
 #endif
 
 public:
-#if defined(VTK_COMPILER_MSVC)
-// For some reason, vtkWrapHierarchy & MSVC don't like forced inline functions here
-#define VTK_CLIP_INLINE inline
-#else
-#define VTK_CLIP_INLINE VTK_ALWAYS_INLINE
-#endif
-
   /**
    * Given a cell type return if it's supported by this class.
    */
-  VTK_CLIP_INLINE static constexpr bool IsCellTypeSupported(int cellType)
+  VTK_ALWAYS_INLINE static constexpr bool IsCellTypeSupported(int cellType)
   {
     return SupportedCellTypes[cellType];
   }
@@ -9080,13 +9073,13 @@ public:
    * Given the number of points and a case index, return if the cell is kept.
    */
   template <bool InOut = TInsideOut>
-  typename std::enable_if<InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellKept(
+  typename std::enable_if<InOut, bool>::type VTK_ALWAYS_INLINE static constexpr IsCellKept(
     vtkIdType vtkNotUsed(numberOfPoints), uint8_t caseIndex)
   {
     return caseIndex == 0;
   }
   template <bool InOut = TInsideOut>
-  typename std::enable_if<!InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellKept(
+  typename std::enable_if<!InOut, bool>::type VTK_ALWAYS_INLINE static constexpr IsCellKept(
     vtkIdType numberOfPoints, uint8_t caseIndex)
   {
     return caseIndex == CellMaxCase[numberOfPoints];
@@ -9098,13 +9091,13 @@ public:
    * Given the number of points and a case index, return if the cell is discarded.
    */
   template <bool InOut = TInsideOut>
-  typename std::enable_if<InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellDiscarded(
+  typename std::enable_if<InOut, bool>::type VTK_ALWAYS_INLINE static constexpr IsCellDiscarded(
     vtkIdType numberOfPoints, uint8_t caseIndex)
   {
     return caseIndex == CellMaxCase[numberOfPoints];
   }
   template <bool InOut = TInsideOut>
-  typename std::enable_if<!InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellDiscarded(
+  typename std::enable_if<!InOut, bool>::type VTK_ALWAYS_INLINE static constexpr IsCellDiscarded(
     vtkIdType vtkNotUsed(numberOfPoints), uint8_t caseIndex)
   {
     return caseIndex == 0;
@@ -9120,7 +9113,7 @@ public:
    * ...
    */
   template <bool InOut = TInsideOut>
-  typename std::enable_if<InOut, uint8_t*>::type VTK_CLIP_INLINE static GetCellCase(
+  typename std::enable_if<InOut, uint8_t*>::type VTK_ALWAYS_INLINE static GetCellCase(
     int cellType, uint8_t caseIndex)
   {
     return const_cast<uint8_t*>(
@@ -9128,7 +9121,7 @@ public:
         caseIndex]]);
   }
   template <bool InOut = TInsideOut>
-  typename std::enable_if<!InOut, uint8_t*>::type VTK_CLIP_INLINE static GetCellCase(
+  typename std::enable_if<!InOut, uint8_t*>::type VTK_ALWAYS_INLINE static GetCellCase(
     int cellType, uint8_t caseIndex)
   {
     return const_cast<uint8_t*>(
@@ -9141,7 +9134,7 @@ public:
    *
    * This is used in correspondence with GetShapeCase.
    */
-  VTK_CLIP_INLINE static constexpr EDGEIDXS* GetCellEdges(int cellType)
+  VTK_ALWAYS_INLINE static constexpr EDGEIDXS* GetCellEdges(int cellType)
   {
     return const_cast<EDGEIDXS*>(CellEdges[cellType]);
   }
@@ -9149,7 +9142,7 @@ public:
   /**
    * Given a shape type, return the VTK cell type.
    */
-  VTK_CLIP_INLINE static constexpr uint8_t GetCellType(uint8_t shapeType)
+  VTK_ALWAYS_INLINE static constexpr uint8_t GetCellType(uint8_t shapeType)
   {
     return shapeType & 0x07;
   }
