@@ -191,6 +191,7 @@ public:
 //----------------------------------------------------------------------------
 vtkAnariPolyDataMapperNodeInternals::vtkAnariPolyDataMapperNodeInternals(
   vtkAnariPolyDataMapperNode* owner)
+  : Owner(owner)
 {
 }
 
