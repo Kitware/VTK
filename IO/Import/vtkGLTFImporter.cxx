@@ -731,7 +731,7 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
-void vtkGLTFImporter::UpdateTimeStep(double timeValue)
+bool vtkGLTFImporter::UpdateAtTimeValue(double timeValue)
 {
   for (int animationId = 0; animationId < this->GetNumberOfAnimations(); animationId++)
   {
@@ -745,6 +745,8 @@ void vtkGLTFImporter::UpdateTimeStep(double timeValue)
   this->ImportCameras(this->Renderer);
 
   this->ApplySkinningMorphing();
+
+  return this->GetUpdateStatus() == vtkImporter::UpdateStatusEnum::SUCCESS;
 }
 
 //----------------------------------------------------------------------------
