@@ -310,9 +310,6 @@ void vtkWebGPURenderer::ConfigureComputePipelines()
 
   for (vtkSmartPointer<vtkWebGPUComputePipeline> computePipeline : this->NotSetupComputePipelines)
   {
-    computePipeline->SetAdapter(webGPURenderWindow->GetAdapter());
-    computePipeline->SetDevice(webGPURenderWindow->GetDevice());
-
     this->ConfigureComputeRenderBuffers(computePipeline);
     this->SetupComputePipelines.push_back(computePipeline);
   }
@@ -802,6 +799,23 @@ void vtkWebGPURenderer::InsertShader(const std::string& source, wgpu::ShaderModu
 void vtkWebGPURenderer::AddComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline)
 {
   this->NotSetupComputePipelines.push_back(pipeline);
+
+  vtkWebGPURenderWindow* wgpuRenderWindow =
+    vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  wgpu::Adapter renderWindowAdapter = wgpuRenderWindow->GetAdapter();
+  wgpu::Device renderWindowDevice = wgpuRenderWindow->GetDevice();
+
+  if (renderWindowAdapter.Get() == nullptr || renderWindowDevice.Get() == nullptr)
+  {
+    vtkLog(ERROR,
+      "Trying to add a compute pipeline to a vtkWebGPURenderer whose vtkWebGPURenderWindow wasn't "
+      "initialized (or the renderer wasn't added to the render window.)");
+
+    return;
+  }
+
+  pipeline->SetAdapter(wgpuRenderWindow->GetAdapter());
+  pipeline->SetDevice(wgpuRenderWindow->GetDevice());
 }
 
 VTK_ABI_NAMESPACE_END

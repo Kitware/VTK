@@ -56,7 +56,7 @@ public:
    * Concrete render windows must create a platform window and initialize this->WindowId.
    * Upon success, please call WGPUInit().
    */
-  virtual bool Initialize() = 0;
+  virtual bool WindowSetup() = 0;
 
   /**
    * Create a not-off-screen window.
@@ -67,6 +67,20 @@ public:
    * Destroy a not-off-screen window.
    */
   virtual void DestroyWindow() = 0;
+
+  /**
+   * Creates the WebGPU context, swapchain, depth buffer, color attachment, ...
+   *
+   * A call to this function is necessary if a WebGPU Compute class is going to use resources of the
+   * render window or its renderers (or resources of the renderers, mappers for example).
+   * This is because the resources of the render window are only made available when Initialize() is
+   * called.
+   *
+   * For example, a vtkWebGPUOcclusionCuller (which uses textures of the render window to do the
+   * culling) cannot be setup without these resources being available, hence the need for the
+   * Initialize() call.
+   */
+  void Initialize() override;
 
   void Start() override;
 
@@ -205,8 +219,7 @@ public:
    * This texture is expected to be bound on \@group('bindGroup') \@binding('binding') in the
    * compute shader that uses it.
    */
-  vtkSmartPointer<vtkWebGPUComputeRenderTexture> AcquireDepthBufferRenderTexture(
-    int bindGroup, int binding);
+  vtkSmartPointer<vtkWebGPUComputeRenderTexture> AcquireDepthBufferRenderTexture();
 
 protected:
   vtkWebGPURenderWindow();
@@ -237,11 +250,13 @@ protected:
   void CreateFSQGraphicsPipeline();
   void DestroyFSQGraphicsPipeline();
 
+  void RecreateComputeRenderTextures();
+
   void RenderOffscreenTexture();
 
   void FlushCommandBuffers(vtkTypeUInt32 count, wgpu::CommandBuffer* buffers);
 
-  bool WGPUInitialized = false;
+  bool RenderTexturesSetup = false;
 
   wgpu::PowerPreference PowerPreference = wgpu::PowerPreference::HighPerformance;
 #if defined(__APPLE__)
@@ -328,24 +343,14 @@ private:
   void InitializeRendererComputePipelines();
 
   /**
-   * Finishes the setup of the compute render textures acquired by the user.
-   *
-   * If the 'recreate' parameter is true, the render texture will be recreate in its compute pass.
-   * If it is false, the render texture will only be setup. Passing this parameter to true is
-   * typically necessary when the window has been resized and we need to **re**-create the render
-   * texture
-   */
-  void SetupComputeRenderTextures(bool recreate);
-
-  /**
    * Submits command buffers to the device queue. This allows the execution of additional custom
    * commands by the render window.
    */
   void SubmitCommandBuffer(int count, wgpu::CommandBuffer* commandBuffer);
 
-  /**
-   * List of textures that have been acquired by the user for use in a compute pipeline
-   */
+  // Render textures acquired by the user on this render window. They are kept here in case the
+  // render window is resized, in which case, we'll need to resize the render textures --> We need
+  // access to the textures
   std::vector<vtkSmartPointer<vtkWebGPUComputeRenderTexture>> ComputeRenderTextures;
 };
 

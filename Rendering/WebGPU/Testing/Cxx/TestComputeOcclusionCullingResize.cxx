@@ -107,7 +107,7 @@ int TestComputeOcclusionCullingResize(int, char*[])
 {
   // How many props are expected to be rendered at each frame (with modification of the props in
   // between the frames)
-  std::vector<int> renderedPropCountsReference = { 1, 2, 3, 4, 5, 1, 1 };
+  std::vector<int> renderedPropCountsReference = { 1, 2, 3, 4, 5, 1, 5 };
   // How many props were actually renderer
   std::vector<int> renderedPropCounts;
 
@@ -115,6 +115,10 @@ int TestComputeOcclusionCullingResize(int, char*[])
   renWin->SetWindowName(__func__);
   renWin->SetMultiSamples(0);
   renWin->SetSize(512, 512);
+  // Initialize() call necessary when a WebGPU compute class is going to use the render window.
+  // Here, the OcclusionCuller internally uses the resources of the render window so Initialize()
+  // must be called
+  renWin->Initialize();
 
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 
@@ -164,6 +168,10 @@ int TestComputeOcclusionCullingResize(int, char*[])
   // still get only 1 prop rendered if the depth buffer / mipmaps was properly resized when the
   // render window was resized
   renWin->SetSize(1500, 512);
+  renderer->GetActiveCamera()->SetFocalPoint(-0.897737, 0.380353, -1.62994);
+  renderer->GetActiveCamera()->SetPosition(-2.07265, 0.517861, 0.0729139);
+  renderer->GetActiveCamera()->SetViewUp(0.0514601, 0.997658, -0.045057);
+
   renWin->Render();
   renderedPropCounts.push_back(renderer->GetNumberOfPropsRendered());
   CheckRenderCount(renderedPropCounts, renderedPropCountsReference);

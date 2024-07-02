@@ -460,5 +460,19 @@ vtkWebGPURenderer* wegpuRenderer = vtkWebGPURenderer::SafeDownCast(renWin->GetRe
 wegpuRenderer->AddComputePipeline(myComputePipeline);
 ```
 
+Warning: to add a compute pipeline to a `vtkWebGPURenderer`, the `vtkRenderWindow` of the renderer must be "initialized". This
+means that you must call `renWin->Initialize()` before adding the compute pipeline to the renderer. This is because
+the `Initialize()` method creates the WebGPU internal state of the render window which the compute pipeline of the renderer
+is going to need.
+
 And that's it. You do not need to call the `Update()` method for the compute pipeline to be executed.
 This is done automatically by the rendering pipeline on each frame.
+
+`vtkWebGPURenderWindow` also exposes methods to access render textures used by the rendering pipeline such as the depth buffer
+(only texture exposed for now). These textures are accessible through `vtkWebGPUComputeRenderTexture`s (analogous to `vtkWebGPUComputeRenderBuffer`s).
+They can be aquired with methods such as `AcquireDepthBufferRenderTexture()`. Here again, you will need to call `vtkRenderWindow::Initialize()` before
+calling `AcquireDepthBufferRenderTexture()` because it is the `Initialize()` method that creates the textures of the render window.
+
+Render textures are used as regular textures. Add them to a compute pass with `vtkWebGPUComputePass::AddRenderTexture()`. Store the
+index of the texture returned by that call. Use that texture index to create a texture view with `vtkWebGPUComputePass::CreateTextureView()`.
+Configure the texture view, add it to the compute pass and you're done. Your render texture is ready to be used in one of your shaders.

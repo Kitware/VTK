@@ -147,6 +147,7 @@ int vtkWebGPUHelpers::ComputeTextureFormatToVTKDataType(
       return VTK_UNSIGNED_CHAR;
 
     case vtkWebGPUComputeTexture::TextureFormat::R32_FLOAT:
+    case vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS:
       return VTK_FLOAT;
 
     default:

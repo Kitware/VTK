@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPURenderWindow.h"
+#include "vtkCamera.h"
 #include "vtkFloatArray.h"
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
@@ -174,7 +175,6 @@ void vtkWebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 bool vtkWebGPURenderWindow::WGPUInit()
 {
-  vtkDebugMacro(<< __func__ << " WGPUInitialized=" << this->WGPUInitialized);
   vtkWGPUContext::LogAvailableAdapters();
   ///@{ TODO: CLEAN UP DEVICE ACQUISITION
   // for emscripten, the glue code is expected to pre-initialize an instance, adapter and a device.
@@ -214,9 +214,27 @@ bool vtkWebGPURenderWindow::WGPUInit()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::Initialize()
+{
+  if (!this->WindowSetup()) // calls WGPUInit after surface is created.
+  {
+    vtkLog(ERROR, "Unable to setup WebGPU.");
+    return;
+  }
+
+  this->CreateSwapChain();
+  this->CreateOffscreenColorAttachments();
+  this->CreateDepthStencilTexture();
+  this->CreateFSQGraphicsPipeline();
+  this->InitializeRendererComputePipelines();
+
+  this->Initialized = true;
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::WGPUFinalize()
 {
-  vtkDebugMacro(<< __func__ << " WGPUInitialized=" << this->WGPUInitialized);
+  vtkDebugMacro(<< __func__ << " Initialized=" << this->Initialized);
   this->DestroyDepthStencilTexture();
   this->DestroySwapChain();
   this->Device = nullptr;
@@ -242,20 +260,29 @@ wgpu::TextureFormat vtkWebGPURenderWindow::GetPreferredSwapChainTextureFormat()
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkWebGPUComputeRenderTexture>
-vtkWebGPURenderWindow::AcquireDepthBufferRenderTexture(int bindGroup, int binding)
+vtkWebGPURenderWindow::AcquireDepthBufferRenderTexture()
 {
+  if (!this->Initialized)
+  {
+    vtkLog(ERROR,
+      "You must call vtkRenderWindow::Initialize() before acquiring a render texture from the "
+      "RenderWindow.");
+    return nullptr;
+  }
+
   vtkSmartPointer<vtkWebGPUComputeRenderTexture> texture =
     vtkSmartPointer<vtkWebGPUComputeRenderTexture>::New();
 
-  texture->SetGroup(bindGroup);
-  texture->SetBinding(binding);
-  // Set size is not called here since the window size may not be known yet. SetSize() will be
-  // called in SetupComputeRenderTextures() texture->SetSize(...);
+  int* dims = this->GetSize();
+
+  texture->SetSize(dims[0], dims[1]);
   texture->SetMode(vtkWebGPUComputeTexture::TextureMode::READ_ONLY);
   texture->SetSampleType(vtkWebGPUComputeTexture::TextureSampleType::DEPTH);
   texture->SetAspect(vtkWebGPUComputeTextureView::TextureViewAspect::ASPECT_DEPTH);
   texture->SetLabel("Depth buffer render texture");
   texture->SetType(vtkWebGPUComputeRenderTexture::RenderTextureType::DEPTH_BUFFER);
+  texture->SetWebGPUTexture(this->DepthStencil.Texture);
+  texture->SetFormat(vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS);
 
   this->ComputeRenderTextures.push_back(texture);
 
@@ -287,76 +314,6 @@ void vtkWebGPURenderWindow::InitializeRendererComputePipelines()
     {
       pipeline->SetAdapter(this->Adapter);
       pipeline->SetDevice(this->Device);
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkWebGPURenderWindow::SetupComputeRenderTextures(bool recreate)
-{
-  for (vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture : this->ComputeRenderTextures)
-  {
-    wgpu::TextureViewDimension viewDimension;
-
-    switch (renderTexture->GetType())
-    {
-      case vtkWebGPUComputeRenderTexture::RenderTextureType::DEPTH_BUFFER:
-      {
-        vtkWebGPUComputePass* associatedPass;
-
-        // The texture view descriptor for the depth buffer
-        wgpu::TextureViewDescriptor depthOnlyViewDescriptor;
-        depthOnlyViewDescriptor.arrayLayerCount = 1;
-        depthOnlyViewDescriptor.aspect = wgpu::TextureAspect::DepthOnly;
-        depthOnlyViewDescriptor.baseArrayLayer = 0;
-        depthOnlyViewDescriptor.baseMipLevel = 0;
-        depthOnlyViewDescriptor.dimension = wgpu::TextureViewDimension::e2D;
-        depthOnlyViewDescriptor.format = wgpu::TextureFormat::Depth24Plus;
-        depthOnlyViewDescriptor.label =
-          "vtkWebGPURenderWindow - Texture view of compute depth buffer render texture";
-        depthOnlyViewDescriptor.mipLevelCount = 1;
-        depthOnlyViewDescriptor.nextInChain = nullptr;
-
-        wgpu::TextureView depthOnlyView =
-          this->DepthStencil.Texture.CreateView(&depthOnlyViewDescriptor);
-
-        viewDimension = wgpu::TextureViewDimension::e2D;
-
-        renderTexture->SetSize(this->GetSize()[0], this->GetSize()[1]);
-        renderTexture->SetWebGPUTexture(this->DepthStencil.Texture);
-
-        associatedPass = renderTexture->GetAssociatedComputePass();
-        if (associatedPass == nullptr)
-        {
-          vtkLog(ERROR,
-            "A render texture didn't have an associated compute pass in "
-            "SetupComputeRenderTextures");
-
-          continue;
-        }
-
-        if (recreate)
-        {
-          associatedPass->Internals->RecreateRenderTexture(
-            renderTexture, viewDimension, depthOnlyView);
-        }
-        else
-        {
-          associatedPass->Internals->SetupRenderTexture(
-            renderTexture, viewDimension, depthOnlyView);
-        }
-
-        break;
-      }
-
-      default:
-        vtkLog(ERROR,
-          "The compute render texture with label "
-            << renderTexture->GetLabel()
-            << " was ill-configured and its RenderTextureType was undefined.");
-
-        // Skipping this texture
-        continue;
     }
   }
 }
@@ -569,6 +526,47 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::RecreateComputeRenderTextures()
+{
+  for (const auto& renderTexture : this->ComputeRenderTextures)
+  {
+    int* dims = this->GetSize();
+
+    // Upadting the size of the texture
+    renderTexture->SetSize(dims[0], dims[1]);
+
+    // Updating the WebGPU texture used by the render texture since it has been recreated by the
+    // window resize
+    switch (renderTexture->GetType())
+    {
+      case vtkWebGPUComputeRenderTexture::RenderTextureType::DEPTH_BUFFER:
+        renderTexture->SetWebGPUTexture(this->DepthStencil.Texture);
+        break;
+      default:
+        vtkLog(ERROR,
+          "Unhandled ComputeRenderTexture type in "
+          "vtkWebGPURenderWindow::RecreateComputeRenderTextures. This is an internal error.");
+        break;
+    }
+
+    vtkWeakPointer<vtkWebGPUComputePass> associatedComputePass =
+      renderTexture->GetAssociatedComputePass();
+
+    if (associatedComputePass == nullptr)
+    {
+      vtkLog(WARNING,
+        "The render texture with label \""
+          << renderTexture->GetLabel()
+          << "\" didn't have an associated compute pass. Did you forget to add the render texture "
+             "to a compute pass?");
+
+      continue;
+    }
+    associatedComputePass->Internals->RecreateRenderTexture(renderTexture);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::DestroyFSQGraphicsPipeline()
 {
   this->FSQ.BindGroup = nullptr;
@@ -657,22 +655,20 @@ void vtkWebGPURenderWindow::Start()
 {
   int* size = this->GetSize();
   vtkDebugMacro(<< __func__ << '(' << size[0] << ',' << size[1] << ')');
+
   this->Size[0] = (size[0] > 0 ? size[0] : 300);
   this->Size[1] = (size[1] > 0 ? size[1] : 300);
 
-  if (!this->WGPUInitialized)
+  vtkDebugMacro(<< __func__ << " Initialized=" << this->Initialized);
+
+  if (!this->Initialized)
   {
-    this->WGPUInitialized = this->Initialize(); // calls WGPUInit after surface is created.
-    this->InitializeRendererComputePipelines();
-    this->CreateSwapChain();
-    this->CreateOffscreenColorAttachments();
-    this->CreateDepthStencilTexture();
-    this->CreateFSQGraphicsPipeline();
-    this->InitializeRendererComputePipelines();
-    this->SetupComputeRenderTextures(false);
+    this->Initialize();
   }
-  else if (this->Size[0] != this->SwapChain.Width || this->Size[1] != this->SwapChain.Height)
+
+  if (this->Size[0] != this->SwapChain.Width || this->Size[1] != this->SwapChain.Height)
   {
+    // Window's size changed, need to recreate the swap chain, textures, ...
     this->DestroyFSQGraphicsPipeline();
     this->DestroyDepthStencilTexture();
     this->DestroyOffscreenColorAttachments();
@@ -681,12 +677,7 @@ void vtkWebGPURenderWindow::Start()
     this->CreateOffscreenColorAttachments();
     this->CreateDepthStencilTexture();
     this->CreateFSQGraphicsPipeline();
-    this->SetupComputeRenderTextures(true);
-  }
-
-  if (!this->WGPUInitialized)
-  {
-    vtkErrorMacro(<< "Failed to initialize WebGPU!");
+    this->RecreateComputeRenderTextures();
   }
 
   this->CreateCommandEncoder();

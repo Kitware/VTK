@@ -76,6 +76,11 @@ public:
   bool CheckTextureViewCorrectness(vtkWebGPUComputeTextureView* textureView);
 
   /**
+   * Checks whether or not the associated ParentComputePass and ParentPassDevice are non-null.
+   */
+  bool CheckParentComputePass(const std::string& callerFunctionName);
+
+  /**
    * Destroys and recreates the texture with the given index.
    */
   void RecreateTexture(std::size_t textureIndex);
@@ -124,10 +129,16 @@ public:
     vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture newWgpuTexture);
 
   /**
-   * Adds a render texture to the storage. A render texture can be obtained from
+   * Adds a render texture to the storage.
+   *
+   * A render texture can be obtained from
    * vtkWebGPURenderWindow::AcquireDepthBufferRenderTexture() and analogous methods.
+   *
+   * The main difference in terms of implementation between this method and AddTexture() is that
+   * AddRenderTexture() does not create a wgpu::Texture object since the render texture already
+   * contains the texture object (configured when AcquireXXXRenderTexture() was called).
    */
-  void AddRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture);
+  int AddRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture);
 
   /**
    * Adds a texture to the storage and upload its data to the device
@@ -149,22 +160,14 @@ public:
   vtkSmartPointer<vtkWebGPUComputeTextureView> CreateTextureView(std::size_t textureIndex);
 
   /**
-   * Binds the texture to the device at the WebGPU level.
-   * To use once the texture has been properly set up.
-   */
-  void SetupRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture,
-    wgpu::TextureViewDimension textureViewDimension, wgpu::TextureView textureView);
-
-  /**
    * Recreates a render texture given a new textureView and possibly new parameters as specified in
-   * the 'renderTexture' parameter
+   * the 'renderTexture' parameter. This also recreates the texture views that were created on this
+   * render texture.
    *
-   * @warning This method assumes that the render texture was already setup by a
-   * previous call to SetupRenderTexture(...) i.e. this method can only do RE-creation, not
-   * creation.
+   * This function is mainly called after the render window has been resized and render textures
+   * have thus also been resized.
    */
-  void RecreateRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture,
-    wgpu::TextureViewDimension textureViewDimension, wgpu::TextureView textureView);
+  void RecreateRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture);
 
   /**
    * Deletes all the texture views of a given texture (given by its index)
@@ -312,9 +315,9 @@ private:
   friend class vtkWebGPUInternalsComputePass;
 
   // Compute pass that uses this texture storage
-  vtkWeakPointer<vtkWebGPUComputePass> ParentComputePass;
+  vtkWeakPointer<vtkWebGPUComputePass> ParentComputePass = nullptr;
   // Device of the parent compute pass that is used when creating textures and texture views
-  wgpu::Device ParentPassDevice;
+  wgpu::Device ParentPassDevice = nullptr;
 
   // Compute textures of the storage
   std::vector<vtkSmartPointer<vtkWebGPUComputeTexture>> Textures;

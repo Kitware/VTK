@@ -86,7 +86,7 @@ int TestConesBenchmark(int argc, char* argv[])
   style->SetDefaultRenderer(renderer);
   renWin->Render();
 
-  const int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
+  const int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

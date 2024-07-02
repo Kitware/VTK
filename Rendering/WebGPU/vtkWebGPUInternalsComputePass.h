@@ -242,22 +242,14 @@ public:
   void SetupRenderBuffer(vtkSmartPointer<vtkWebGPUComputeRenderBuffer> renderBuffer);
 
   /**
-   * Binds the texture to the compute pass at the WebGPU level.
-   * To use once the texture has been properly set up.
-   */
-  void SetupRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture,
-    wgpu::TextureViewDimension textureViewDimension, wgpu::TextureView textureView);
-
-  /**
    * Recreates a render texture given a new textureView and possibly new parameters as specified in
-   * the 'renderTexture' parameter
+   * the 'renderTexture' parameter. This also recreates the texture views that were created on this
+   * render texture.
    *
-   * @warning This method assumes that the render texture was already setup in the pass by a
-   * previous call to SetupRenderTexture(...) i.e. this method can only do RE-creation, not
-   * creation.
+   * This function is mainly called after the render window has been resized and render textures
+   * have thus also been resized.
    */
-  void RecreateRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture,
-    wgpu::TextureViewDimension textureViewDimension, wgpu::TextureView textureView);
+  void RecreateRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture);
 
   /**
    * Creates the compute pipeline that will be used to dispatch the compute shader
