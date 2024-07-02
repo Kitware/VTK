@@ -4,11 +4,16 @@
 #define vtkWebGPURenderWindow_h
 
 #include "vtkRenderWindow.h"
-#include "vtkRenderingWebGPUModule.h" // for export macro
-#include "vtkTypeUInt8Array.h"        // for ivar
-#include "vtk_wgpu.h"                 // for webgpu
+
+#include "vtkRenderingWebGPUModule.h"      // for export macro
+#include "vtkTypeUInt8Array.h"             // for ivar
+#include "vtkWebGPUComputePipeline.h"      // for the compute pipelines of this render window
+#include "vtkWebGPUComputeRenderTexture.h" // for compute render textures
+#include "vtk_wgpu.h"                      // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkWebGPUComputeOcclusionCuller;
 
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPURenderWindow : public vtkRenderWindow
 {
@@ -181,6 +186,8 @@ public:
   }
 
   inline wgpu::CommandEncoder GetCommandEncoder() { return this->CommandEncoder; }
+  // Initializes this->CommandEncode with a new command encoder
+  void CreateCommandEncoder();
   inline wgpu::TextureView GetOffscreenColorAttachmentView() { return this->ColorAttachment.View; }
   inline wgpu::TextureView GetDepthStencilView() { return this->DepthStencil.View; }
   inline wgpu::TextureFormat GetDepthStencilFormat() { return this->DepthStencil.Format; }
@@ -189,6 +196,17 @@ public:
   inline wgpu::Adapter GetAdapter() { return this->Adapter; }
 
   wgpu::TextureFormat GetPreferredSwapChainTextureFormat();
+
+  /**
+   * Returns a vtkWebGPUComputeRenderTexture ready to be added to a compute pipeline using
+   * vtkWebGPUComputePipeline::AddRenderTexture() that "points" to the depth buffer of this
+   * vtkWebGPURenderWindow.
+   *
+   * This texture is expected to be bound on \@group('bindGroup') \@binding('binding') in the
+   * compute shader that uses it.
+   */
+  vtkSmartPointer<vtkWebGPUComputeRenderTexture> AcquireDepthBufferRenderTexture(
+    int bindGroup, int binding);
 
 protected:
   vtkWebGPURenderWindow();
@@ -297,6 +315,9 @@ protected:
   int ScreenSize[2];
 
 private:
+  // For accessing SubmitCommandBuffer to submit custom prop render work
+  friend class vtkWebGPUComputeOcclusionCuller;
+
   vtkWebGPURenderWindow(const vtkWebGPURenderWindow&) = delete;
   void operator=(const vtkWebGPURenderWindow&) = delete;
 
@@ -304,7 +325,28 @@ private:
    * Sets up the compute pipeline of the vtkWebGPURenderer of this render window so that they use
    * the same Adapter and Device as this render window
    */
-  void InitializeComputePipelines();
+  void InitializeRendererComputePipelines();
+
+  /**
+   * Finishes the setup of the compute render textures acquired by the user.
+   *
+   * If the 'recreate' parameter is true, the render texture will be recreate in its compute pass.
+   * If it is false, the render texture will only be setup. Passing this parameter to true is
+   * typically necessary when the window has been resized and we need to **re**-create the render
+   * texture
+   */
+  void SetupComputeRenderTextures(bool recreate);
+
+  /**
+   * Submits command buffers to the device queue. This allows the execution of additional custom
+   * commands by the render window.
+   */
+  void SubmitCommandBuffer(int count, wgpu::CommandBuffer* commandBuffer);
+
+  /**
+   * List of textures that have been acquired by the user for use in a compute pipeline
+   */
+  std::vector<vtkSmartPointer<vtkWebGPUComputeRenderTexture>> ComputeRenderTextures;
 };
 
 VTK_ABI_NAMESPACE_END

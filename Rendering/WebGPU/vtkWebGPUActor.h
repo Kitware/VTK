@@ -54,7 +54,7 @@ public:
   // vtkWebGPUActor::Update vs vtkWebGPUActor::Render
   enum class MapperRenderType
   {
-    None,
+    None = 0,
     UpdateBuffers,
     RenderPassEncode,
     RenderBundleEncode

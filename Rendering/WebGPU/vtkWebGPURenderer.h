@@ -8,17 +8,22 @@
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtkSmartPointer.h"          // for ivar
 #include "vtkTypeUInt32Array.h"       // for ivar
+#include "vtkWebGPUActor.h"           // for the actors rendered last frame
 #include "vtkWebGPUComputePipeline.h" // for the compute pipelines used by this renderer
 #include "vtk_wgpu.h"                 // for webgpu
 
 #include <string>        // for ivar
 #include <unordered_map> // for ivar
+#include <unordered_set> // for the set of actors rendered last frame
 
 class vtkAbstractMapper;
 class vtkRenderState;
 class vtkFrameBufferObjectBase;
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkWebGPUComputeOcclusionCuller;
+
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPURenderer : public vtkRenderer
 {
 public:
@@ -48,7 +53,10 @@ public:
 
   void DeviceRender() override;
 
-  void Clear() override;
+  /**
+   * Updates / creates the various buffer necessary for the rendering of the props
+   */
+  void PrepareRender();
 
   /**
    * Ask all props to update themselves. This process should be limited
@@ -59,19 +67,19 @@ public:
   int UpdateGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
   /**
-   * Set up the buffers of a given vtkWebGPUComputePipeline.
+   * Set up the buffers of a given vtkWebGPUComputePass.
    * Loops through all the actors of this renderer. If an access to the data attributes buffer of
    * the actor was requested by the user through
    * vtkWebGPUPolyDataMapper::AcquirePointAttributeComputeRenderBuffer(), we'll have to set up the
-   * WebGPU buffer to access the point data attributes (if it belongs to the right pipeline).
+   * WebGPU buffer to access the point data attributes (if it belongs to the right compute pass).
    */
-  void UpdateComputeBuffers(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
+  void ConfigureComputeRenderBuffers(vtkSmartPointer<vtkWebGPUComputePipeline> computePipeline);
 
   /**
    * Sets the adapter and the device of the render window of this renderer to the compute pipelines
    * of this renderer
    */
-  void UpdateComputePipelines();
+  void ConfigureComputePipelines();
 
   /**
    * Returns the list of compute pipelines of this renderer that have been setup
@@ -103,10 +111,15 @@ public:
   void InsertShader(const std::string& source, wgpu::ShaderModule shader);
 
   /**
-   * Add a compute pipeline to the renderer that will be executed each frame before the rendering
+   * Adds a compute pipeline to the renderer that will be executed each frame before the rendering
    * pass.
    */
   void AddComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
+
+  /**
+   * Returns the list of the actors that were rendered last frame
+   */
+  std::unordered_set<vtkProp*> GetPropsRendered() { return this->PropsRendered; }
 
   ///@{
   /**
@@ -160,6 +173,12 @@ protected:
   void BeginEncoding();
   void EndEncoding();
 
+  /**
+   * Encodes the draw commands for the this->PropArrayCount props currently contained in
+   * this->PropArray
+   */
+  void RenderProps();
+
   std::size_t WriteLightsBuffer(std::size_t offset = 0);
   std::size_t WriteSceneTransformsBuffer(std::size_t offset = 0);
   std::size_t WriteActorBlocksBuffer(std::size_t offset = 0);
@@ -212,11 +231,13 @@ protected:
   vtkSmartPointer<vtkTransform> UserLightTransform;
 
 private:
+  friend class vtkWebGPUComputeOcclusionCuller;
+
   vtkWebGPURenderer(const vtkWebGPURenderer&) = delete;
   void operator=(const vtkWebGPURenderer&) = delete;
 
   /**
-   * Dispatch the compute pipelines attached to this renderer in the order they were added by
+   * Dispatches the compute pipelines attached to this renderer in the order they were added by
    * AddComputePipeline()
    */
   void ComputePass();
@@ -231,6 +252,36 @@ private:
    * Compute pipelines that have yet to be setup
    */
   std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> NotSetupComputePipelines;
+
+  /**
+   * Encodes a render command for rendering the given props
+   */
+  wgpu::CommandBuffer EncodePropListRenderCommand(vtkProp** propList, int listLength);
+
+  /**
+   * Whether the compute render buffers of the mappers of the actors of this renderer have already
+   * been initialized or not
+   */
+  bool ComputeBuffersInitialized = false;
+
+  /**
+   * Indicates whether PrepareRender() was called already for this frame or not (and thus we do not
+   * need to call it again).
+   */
+  bool PrepareRenderDone = false;
+
+  /**
+   * Whether to clear the depth/stencil/color buffer before rendering
+   */
+  bool DoClearPass = true;
+
+  /**
+   * List of the actors rendered last frame. Mainly used by the occlusion culler when we want to
+   * render the actors that were rendered last frame in the first pass to build the z-buffer.
+   * Using a set here to be able to efficiently run find operations on the list (the set) of actors
+   * rendered. It makes no sense to have the same actor twice in the list anyway so a set is fine.
+   */
+  std::unordered_set<vtkProp*> PropsRendered;
 };
 
 VTK_ABI_NAMESPACE_END

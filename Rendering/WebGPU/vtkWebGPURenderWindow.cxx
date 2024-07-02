@@ -9,7 +9,7 @@
 #include "vtkTypeUInt8Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkWGPUContext.h"
-#include "vtkWebGPUClearPass.h"
+#include "vtkWebGPUClearDrawPass.h"
 #include "vtkWebGPUInternalsBindGroup.h"
 #include "vtkWebGPUInternalsBindGroupLayout.h"
 #include "vtkWebGPUInternalsCallbacks.h"
@@ -186,6 +186,7 @@ bool vtkWebGPURenderWindow::WGPUInit()
   deviceDescriptor.label = "vtkWebGPURenderWindow::WGPUInit";
   deviceDescriptor.deviceLostCallback = &vtkWebGPUInternalsCallbacks::DeviceLostCallback;
   deviceDescriptor.deviceLostUserdata = this;
+
   ///@{ TODO: Populate feature requests
   // ...
   ///@}
@@ -239,15 +240,130 @@ wgpu::TextureFormat vtkWebGPURenderWindow::GetPreferredSwapChainTextureFormat()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderWindow::InitializeComputePipelines()
+vtkSmartPointer<vtkWebGPUComputeRenderTexture>
+vtkWebGPURenderWindow::AcquireDepthBufferRenderTexture(int bindGroup, int binding)
 {
-  vtkWebGPURenderer* wgpuRenderer =
-    vtkWebGPURenderer::SafeDownCast(this->GetRenderers()->GetFirstRenderer());
-  for (vtkWebGPUComputePipeline* pipeline : wgpuRenderer->GetSetupComputePipelines())
+  vtkSmartPointer<vtkWebGPUComputeRenderTexture> texture =
+    vtkSmartPointer<vtkWebGPUComputeRenderTexture>::New();
+
+  texture->SetGroup(bindGroup);
+  texture->SetBinding(binding);
+  // Set size is not called here since the window size may not be known yet. SetSize() will be
+  // called in SetupComputeRenderTextures() texture->SetSize(...);
+  texture->SetMode(vtkWebGPUComputeTexture::TextureMode::READ_ONLY);
+  texture->SetSampleType(vtkWebGPUComputeTexture::TextureSampleType::DEPTH);
+  texture->SetAspect(vtkWebGPUComputeTextureView::TextureViewAspect::ASPECT_DEPTH);
+  texture->SetLabel("Depth buffer render texture");
+  texture->SetType(vtkWebGPUComputeRenderTexture::RenderTextureType::DEPTH_BUFFER);
+
+  this->ComputeRenderTextures.push_back(texture);
+
+  return texture;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::CreateCommandEncoder()
+{
+  wgpu::CommandEncoderDescriptor encDesc = {};
+  std::stringstream label;
+  encDesc.label = "vtkWebGPURenderWindow::CommandEncoder";
+  this->CommandEncoder = this->Device.CreateCommandEncoder(&encDesc);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::InitializeRendererComputePipelines()
+{
+  vtkRendererCollection* renderers = this->GetRenderers();
+  renderers->InitTraversal();
+
+  vtkRenderer* renderer;
+  while (renderer = renderers->GetNextItem())
   {
-    pipeline->SetAdapter(this->Adapter);
-    pipeline->SetDevice(this->Device);
+    vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
+
+    // Compute pipelines of the renderers
+    for (vtkWebGPUComputePipeline* pipeline : wgpuRenderer->GetSetupComputePipelines())
+    {
+      pipeline->SetAdapter(this->Adapter);
+      pipeline->SetDevice(this->Device);
+    }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetupComputeRenderTextures(bool recreate)
+{
+  for (vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture : this->ComputeRenderTextures)
+  {
+    wgpu::TextureViewDimension viewDimension;
+
+    switch (renderTexture->GetType())
+    {
+      case vtkWebGPUComputeRenderTexture::RenderTextureType::DEPTH_BUFFER:
+      {
+        vtkWebGPUComputePass* associatedPass;
+
+        // The texture view descriptor for the depth buffer
+        wgpu::TextureViewDescriptor depthOnlyViewDescriptor;
+        depthOnlyViewDescriptor.arrayLayerCount = 1;
+        depthOnlyViewDescriptor.aspect = wgpu::TextureAspect::DepthOnly;
+        depthOnlyViewDescriptor.baseArrayLayer = 0;
+        depthOnlyViewDescriptor.baseMipLevel = 0;
+        depthOnlyViewDescriptor.dimension = wgpu::TextureViewDimension::e2D;
+        depthOnlyViewDescriptor.format = wgpu::TextureFormat::Depth24Plus;
+        depthOnlyViewDescriptor.label =
+          "vtkWebGPURenderWindow - Texture view of compute depth buffer render texture";
+        depthOnlyViewDescriptor.mipLevelCount = 1;
+        depthOnlyViewDescriptor.nextInChain = nullptr;
+
+        wgpu::TextureView depthOnlyView =
+          this->DepthStencil.Texture.CreateView(&depthOnlyViewDescriptor);
+
+        viewDimension = wgpu::TextureViewDimension::e2D;
+
+        renderTexture->SetSize(this->GetSize()[0], this->GetSize()[1]);
+        renderTexture->SetWebGPUTexture(this->DepthStencil.Texture);
+
+        associatedPass = renderTexture->GetAssociatedComputePass();
+        if (associatedPass == nullptr)
+        {
+          vtkLog(ERROR,
+            "A render texture didn't have an associated compute pass in "
+            "SetupComputeRenderTextures");
+
+          continue;
+        }
+
+        if (recreate)
+        {
+          associatedPass->Internals->RecreateRenderTexture(
+            renderTexture, viewDimension, depthOnlyView);
+        }
+        else
+        {
+          associatedPass->Internals->SetupRenderTexture(
+            renderTexture, viewDimension, depthOnlyView);
+        }
+
+        break;
+      }
+
+      default:
+        vtkLog(ERROR,
+          "The compute render texture with label "
+            << renderTexture->GetLabel()
+            << " was ill-configured and its RenderTextureType was undefined.");
+
+        // Skipping this texture
+        continue;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SubmitCommandBuffer(int count, wgpu::CommandBuffer* commandBuffer)
+{
+  this->FlushCommandBuffers(count, commandBuffer);
 }
 
 //------------------------------------------------------------------------------
@@ -294,7 +410,9 @@ void vtkWebGPURenderWindow::CreateDepthStencilTexture()
   textureDesc.sampleCount = 1;
   textureDesc.format = wgpu::TextureFormat::Depth24PlusStencil8;
   textureDesc.mipLevelCount = 1;
-  textureDesc.usage = wgpu::TextureUsage::RenderAttachment;
+  // TextureBinding here because we may want to use the depth buffer as a vtkWebComputeRenderTexture
+  // (which will be bound to a compute shader)
+  textureDesc.usage = wgpu::TextureUsage::RenderAttachment | wgpu::TextureUsage::TextureBinding;
 
   // view
   wgpu::TextureViewDescriptor textureViewDesc;
@@ -304,6 +422,8 @@ void vtkWebGPURenderWindow::CreateDepthStencilTexture()
   textureViewDesc.mipLevelCount = 1;
   textureViewDesc.baseArrayLayer = 0;
   textureViewDesc.arrayLayerCount = 1;
+  // To be able to access the depth part of the depth-stencil buffer in a compute pipeline
+  textureViewDesc.aspect = wgpu::TextureAspect::All;
 
   this->DepthStencil.Texture = this->Device.CreateTexture(&textureDesc);
   this->DepthStencil.View = this->DepthStencil.Texture.CreateView(&textureViewDesc);
@@ -380,7 +500,7 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
   wgpu::BindGroupLayout bgl = vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(this->Device,
     {
       // clang-format off
-    { 0, wgpu::ShaderStage::Fragment, wgpu::TextureSampleType::Float, wgpu::TextureViewDimension::e2D, /*multiSampled=*/false }
+      { 0, wgpu::ShaderStage::Fragment, wgpu::TextureSampleType::Float, wgpu::TextureViewDimension::e2D, /*multiSampled=*/false }
       // clang-format on
     });
   bgl.SetLabel("FSQ bind group layout");
@@ -401,6 +521,7 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
       @builtin(position) position: vec4<f32>,
       @location(0) uv: vec2<f32>
     }
+
     @vertex
     fn vertexMain(@builtin(vertex_index) vertex_id: u32) -> VertexOutput {
       var output: VertexOutput;
@@ -426,7 +547,7 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
 
     @fragment
     fn fragmentMain(fragment: FragmentInput) -> @location(0) vec4<f32> {
-      let color = textureLoad(fsqTexture, vec2<i32>(fragment.position.xy), 0).rgba;
+      let color = textureLoad(fsqTexture, vec2<i32>(fragment.position.xy), 0);
       return vec4<f32>(color);
     }
   )");
@@ -541,15 +662,16 @@ void vtkWebGPURenderWindow::Start()
   if (!this->WGPUInitialized)
   {
     this->WGPUInitialized = this->Initialize(); // calls WGPUInit after surface is created.
-    this->InitializeComputePipelines();
+    this->InitializeRendererComputePipelines();
     this->CreateSwapChain();
     this->CreateOffscreenColorAttachments();
     this->CreateDepthStencilTexture();
     this->CreateFSQGraphicsPipeline();
+    this->InitializeRendererComputePipelines();
+    this->SetupComputeRenderTextures(false);
   }
   else if (this->Size[0] != this->SwapChain.Width || this->Size[1] != this->SwapChain.Height)
   {
-    // Recreate if size changed
     this->DestroyFSQGraphicsPipeline();
     this->DestroyDepthStencilTexture();
     this->DestroyOffscreenColorAttachments();
@@ -558,6 +680,7 @@ void vtkWebGPURenderWindow::Start()
     this->CreateOffscreenColorAttachments();
     this->CreateDepthStencilTexture();
     this->CreateFSQGraphicsPipeline();
+    this->SetupComputeRenderTextures(true);
   }
 
   if (!this->WGPUInitialized)
@@ -565,11 +688,7 @@ void vtkWebGPURenderWindow::Start()
     vtkErrorMacro(<< "Failed to initialize WebGPU!");
   }
 
-  wgpu::CommandEncoderDescriptor encDesc = {};
-  std::stringstream label;
-  encDesc.label = "vtkWebGPURenderWindow::Start";
-
-  this->CommandEncoder = this->Device.CreateCommandEncoder(&encDesc);
+  this->CreateCommandEncoder();
 }
 
 //------------------------------------------------------------------------------

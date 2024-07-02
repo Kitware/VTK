@@ -57,14 +57,20 @@ vtkSmartPointer<vtkWebGPUComputePipeline> SetupPointColorsPipeline(
   // Creating the compute pipeline
   int nbGroupsX = std::ceil(polydata->GetPointData()->GetNumberOfTuples() / 32.0f);
 
-  vtkSmartPointer<vtkWebGPUComputePipeline> dynamicColorsCompute;
-  dynamicColorsCompute = vtkSmartPointer<vtkWebGPUComputePipeline>::New();
-  dynamicColorsCompute->SetShaderSource(TestComputeModifyPointColorsShader);
-  dynamicColorsCompute->SetShaderEntryPoint("changePointColorCompute");
-  dynamicColorsCompute->AddRenderBuffer(pointColorsRenderBuffer);
-  dynamicColorsCompute->SetWorkgroups(nbGroupsX, 1, 1);
+  vtkSmartPointer<vtkWebGPUComputePipeline> dynamicColorsPipeline;
+  vtkSmartPointer<vtkWebGPUComputePass> dynamicColorsPass;
 
-  return dynamicColorsCompute;
+  dynamicColorsPipeline = vtkSmartPointer<vtkWebGPUComputePipeline>::New();
+  dynamicColorsPipeline->SetLabel("Dynamic colors compute pipeline");
+  dynamicColorsPass = dynamicColorsPipeline->CreateComputePass();
+
+  dynamicColorsPass->SetShaderSource(TestComputeModifyPointColorsShader);
+  dynamicColorsPass->SetShaderEntryPoint("changePointColorCompute");
+  dynamicColorsPass->AddRenderBuffer(pointColorsRenderBuffer);
+  dynamicColorsPass->SetWorkgroups(nbGroupsX, 1, 1);
+  dynamicColorsPass->SetLabel("Dynamic color compute pass");
+
+  return dynamicColorsPipeline;
 }
 
 vtkSmartPointer<vtkWebGPUComputePipeline> SetupPointPositionsPipeline(
@@ -88,14 +94,20 @@ vtkSmartPointer<vtkWebGPUComputePipeline> SetupPointPositionsPipeline(
   // Creating the compute pipeline
   int nbGroupsX = std::ceil(polydata->GetPointData()->GetNumberOfTuples() / 32.0f);
 
-  vtkSmartPointer<vtkWebGPUComputePipeline> dynamicPositionsCompute;
-  dynamicPositionsCompute = vtkSmartPointer<vtkWebGPUComputePipeline>::New();
-  dynamicPositionsCompute->SetShaderSource(TestComputeModifyPointPositionsShader);
-  dynamicPositionsCompute->SetShaderEntryPoint("changePointPositionCompute");
-  dynamicPositionsCompute->AddRenderBuffer(pointColorsRenderBuffer);
-  dynamicPositionsCompute->SetWorkgroups(nbGroupsX, 1, 1);
+  vtkSmartPointer<vtkWebGPUComputePipeline> dynamicPositionsPipeline;
+  vtkSmartPointer<vtkWebGPUComputePass> dynamicPositionsPass;
 
-  return dynamicPositionsCompute;
+  dynamicPositionsPipeline = vtkSmartPointer<vtkWebGPUComputePipeline>::New();
+  dynamicPositionsPipeline->SetLabel("Dynamic positions compute pipeline");
+  dynamicPositionsPass = dynamicPositionsPipeline->CreateComputePass();
+
+  dynamicPositionsPass->SetShaderSource(TestComputeModifyPointPositionsShader);
+  dynamicPositionsPass->SetShaderEntryPoint("changePointPositionCompute");
+  dynamicPositionsPass->AddRenderBuffer(pointColorsRenderBuffer);
+  dynamicPositionsPass->SetWorkgroups(nbGroupsX, 1, 1);
+  dynamicPositionsPass->SetLabel("Dynamic position compute pass");
+
+  return dynamicPositionsPipeline;
 }
 }
 
@@ -147,21 +159,21 @@ int TestComputeDoublePipelineRenderBuffer(int argc, char* argv[])
   vtkWebGPUPolyDataMapper* webGPUMapper = vtkWebGPUPolyDataMapper::SafeDownCast(mapper);
 
   vtkWebGPURenderer* wgpuRenderer;
-  vtkSmartPointer<vtkWebGPUComputePipeline> dynamicColorsCompute;
-  vtkSmartPointer<vtkWebGPUComputePipeline> dynamicPositionsCompute;
+  vtkSmartPointer<vtkWebGPUComputePipeline> dynamicColorsComputePipeline;
+  vtkSmartPointer<vtkWebGPUComputePipeline> dynamicPositionsComputePipeline;
 
-  dynamicColorsCompute = SetupPointColorsPipeline(webGPUMapper, polydata);
-  dynamicPositionsCompute = SetupPointPositionsPipeline(webGPUMapper, polydata);
+  dynamicColorsComputePipeline = SetupPointColorsPipeline(webGPUMapper, polydata);
+  dynamicPositionsComputePipeline = SetupPointPositionsPipeline(webGPUMapper, polydata);
   // Adding the compute pipeline to the renderer.
   // The pipeline will be executed each frame before the rendering pass
   wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renWin->GetRenderers()->GetFirstRenderer());
-  wgpuRenderer->AddComputePipeline(dynamicColorsCompute);
+  wgpuRenderer->AddComputePipeline(dynamicColorsComputePipeline);
 
   renWin->Render();
 
   // Only adding the compute pipeline for the positions now because we only want it to execute
   // starting on the second frame
-  wgpuRenderer->AddComputePipeline(dynamicPositionsCompute);
+  wgpuRenderer->AddComputePipeline(dynamicPositionsComputePipeline);
   renWin->Render();
 
   // Screenshot taken by the regression testing isn't flipped.

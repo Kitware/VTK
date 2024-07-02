@@ -7,10 +7,10 @@
 #include "vtkCamera.h"            // for manipulating the camera data used by the shader
 #include "vtkCommand.h"           // for handling observers on bounds recomputed
 #include "vtkMatrix4x4.h"         // for manipulating the view-projection matrix
-#include "vtkNew.h"               // for vtk standard new macro
-#include "vtkObjectFactory.h"
-#include "vtkProp.h"     // for manipulating props
-#include "vtkRenderer.h" // for manipulating the renderer
+#include "vtkObjectFactory.h"     // for vtk standard new macro
+#include "vtkProp.h"              // for manipulating props
+#include "vtkRenderer.h"          // for manipulating the renderer
+#include "vtkWebGPUComputePass.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -19,10 +19,10 @@ vtkStandardNewMacro(vtkWebGPUComputeFrustumCuller);
 //------------------------------------------------------------------------------
 vtkWebGPUComputeFrustumCuller::vtkWebGPUComputeFrustumCuller()
 {
-  // General pipeline settings
   this->Pipeline = vtkSmartPointer<vtkWebGPUComputePipeline>::New();
-  this->Pipeline->SetShaderSource(FrustumCullingShader);
-  this->Pipeline->SetShaderEntryPoint("frustumCullingEntryPoint");
+  this->FrustumCullingPass = this->Pipeline->CreateComputePass();
+  this->FrustumCullingPass->SetShaderSource(FrustumCullingShader);
+  this->FrustumCullingPass->SetShaderEntryPoint("frustumCullingEntryPoint");
 
   // Buffer that will contain the number of objects that have not been culled
   vtkSmartPointer<vtkWebGPUComputeBuffer> outputCountBuffer =
@@ -33,7 +33,29 @@ vtkWebGPUComputeFrustumCuller::vtkWebGPUComputeFrustumCuller()
   outputCountBuffer->SetByteSize(sizeof(int));
   outputCountBuffer->SetLabel("Frustum culler output count buffer");
   outputCountBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
-  this->OutputObjectCountBufferIndex = this->Pipeline->AddBuffer(outputCountBuffer);
+  this->OutputObjectCountBufferIndex = this->FrustumCullingPass->AddBuffer(outputCountBuffer);
+}
+
+//------------------------------------------------------------------------------
+vtkWebGPUComputeFrustumCuller::~vtkWebGPUComputeFrustumCuller() = default;
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputeFrustumCuller::PrintSelf(ostream& os, vtkIndent indent)
+{
+  Superclass::PrintSelf(os, indent);
+
+  os << indent << "Previous props count: " << this->PreviousPropsCount << std::endl;
+
+  this->Pipeline->PrintSelf(os, indent);
+  this->FrustumCullingPass->PrintSelf(os, indent);
+
+  os << indent << "Input bounds buffer index: " << this->InputBoundsBufferIndex << std::endl;
+  os << indent
+     << "Camera view projection matrix buffer index: " << this->CameraViewProjMatrixBufferIndex
+     << std::endl;
+  os << indent << "Output indices buffer index: " << this->OutputIndicesBufferIndex << std::endl;
+  os << indent << "Output object cout buffer index: " << this->OutputObjectCountBufferIndex
+     << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -55,16 +77,16 @@ double vtkWebGPUComputeFrustumCuller::Cull(
 
   // Zeroing the counter of objects that passed the culling test
   std::vector<int> zero = { 0 };
-  this->Pipeline->UpdateBufferData(OutputObjectCountBufferIndex, zero);
-  this->Pipeline->Dispatch();
-  this->Pipeline->ReadBufferFromGPU(this->OutputObjectCountBufferIndex,
+  this->FrustumCullingPass->UpdateBufferData(OutputObjectCountBufferIndex, zero);
+  this->FrustumCullingPass->Dispatch();
+  this->FrustumCullingPass->ReadBufferFromGPU(this->OutputObjectCountBufferIndex,
     vtkWebGPUComputeFrustumCuller::OutputObjectCountMapCallback, &listLength);
 
   vtkWebGPUComputeFrustumCuller::OutputIndicesCallbackData callbackData;
   callbackData.indicesCount = &listLength;
   callbackData.propList = propList;
   callbackData.scratchList = &this->CallbackScratchList;
-  this->Pipeline->ReadBufferFromGPU(this->OutputIndicesBufferIndex,
+  this->FrustumCullingPass->ReadBufferFromGPU(this->OutputIndicesBufferIndex,
     vtkWebGPUComputeFrustumCuller::OutputObjectIndicesMapCallback, &callbackData);
   this->Pipeline->Update();
 
@@ -83,7 +105,7 @@ void vtkWebGPUComputeFrustumCuller::ResizeCuller(vtkProp** propList, int newProp
   // Recomputing the number of workgroups needed to cover the new number of props in the compute
   // shader
   int groupsX = std::ceil(newPropsCount / 32.0f);
-  this->Pipeline->SetWorkgroups(groupsX, 1, 1);
+  this->FrustumCullingPass->SetWorkgroups(groupsX, 1, 1);
 
   this->ResizeBoundsBuffer(propList, newPropsCount);
   this->ResizeOutputIndicesBuffer(newPropsCount);
@@ -113,9 +135,10 @@ void vtkWebGPUComputeFrustumCuller::CreateInputBoundsBuffer(
   inputBoundsBuffer->SetBinding(0);
   inputBoundsBuffer->SetLabel("Input bounds buffer");
   inputBoundsBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
+  inputBoundsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
   inputBoundsBuffer->SetData(propsBounds);
 
-  this->InputBoundsBufferIndex = this->Pipeline->AddBuffer(inputBoundsBuffer);
+  this->InputBoundsBufferIndex = this->FrustumCullingPass->AddBuffer(inputBoundsBuffer);
 }
 
 //------------------------------------------------------------------------------
@@ -130,7 +153,7 @@ void vtkWebGPUComputeFrustumCuller::CreateOutputIndicesBuffer(int nbProps)
   outputIndicesBuffer->SetByteSize(nbProps * sizeof(unsigned int));
   outputIndicesBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE);
 
-  this->OutputIndicesBufferIndex = this->Pipeline->AddBuffer(outputIndicesBuffer);
+  this->OutputIndicesBufferIndex = this->FrustumCullingPass->AddBuffer(outputIndicesBuffer);
 }
 
 //------------------------------------------------------------------------------
@@ -142,10 +165,11 @@ void vtkWebGPUComputeFrustumCuller::CreateViewProjMatrixBuffer(const std::vector
   viewProjMatBuffer->SetGroup(0);
   viewProjMatBuffer->SetBinding(3);
   viewProjMatBuffer->SetMode(vtkWebGPUComputeBuffer::UNIFORM_BUFFER);
+  viewProjMatBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
   viewProjMatBuffer->SetData(vpMat);
   viewProjMatBuffer->SetLabel("Camera view-projection matrix uniform buffer");
 
-  this->CameraViewProjMatrixBufferIndex = this->Pipeline->AddBuffer(viewProjMatBuffer);
+  this->CameraViewProjMatrixBufferIndex = this->FrustumCullingPass->AddBuffer(viewProjMatBuffer);
 }
 
 //------------------------------------------------------------------------------
@@ -158,7 +182,8 @@ void vtkWebGPUComputeFrustumCuller::ResizeBoundsBuffer(vtkProp** propList, int n
     // WebGPU doesn't support double precision floating point numbers (as of may 2024). We're thus
     // resizing the buffer with floats size because the compute shader is going to use floats, not
     // doubles which would be the matching type for VTK's bounds.
-    this->Pipeline->ResizeBuffer(this->InputBoundsBufferIndex, newPropsCount * 6 * sizeof(float));
+    this->FrustumCullingPass->ResizeBuffer(
+      this->InputBoundsBufferIndex, newPropsCount * 6 * sizeof(float));
   }
   else
   {
@@ -174,7 +199,11 @@ void vtkWebGPUComputeFrustumCuller::ResizeOutputIndicesBuffer(int newPropsCount)
   {
     // If the buffer already exists, resizing it
 
-    this->Pipeline->ResizeBuffer(this->OutputIndicesBufferIndex, newPropsCount * sizeof(int));
+    // WebGPU doesn't support double precision floating point numbers (as of may 2024). We're thus
+    // resizing the buffer with floats size because the compute shader is going to use floats, not
+    // doubles which would be the matching type for VTK's bounds.
+    this->FrustumCullingPass->ResizeBuffer(
+      this->OutputIndicesBufferIndex, newPropsCount * sizeof(int));
   }
   else
   {
@@ -218,7 +247,7 @@ void vtkWebGPUComputeFrustumCuller::UpdateBoundsBuffer(vtkProp** propList, int l
     }
   }
 
-  this->Pipeline->UpdateBufferData(this->InputBoundsBufferIndex, allBounds);
+  this->FrustumCullingPass->UpdateBufferData(this->InputBoundsBufferIndex, allBounds);
 }
 
 //------------------------------------------------------------------------------
@@ -250,16 +279,8 @@ void vtkWebGPUComputeFrustumCuller::UpdateCamera(vtkRenderer* ren)
   }
   else
   {
-    this->Pipeline->UpdateBufferData(this->CameraViewProjMatrixBufferIndex, matrixData);
+    this->FrustumCullingPass->UpdateBufferData(this->CameraViewProjMatrixBufferIndex, matrixData);
   }
-}
-
-//------------------------------------------------------------------------------
-int vtkWebGPUComputeFrustumCuller::ReuploadBoundsBufferThreshold()
-{
-  // Simply returns the constant for now but this function allows for a smarter implmentation in the
-  // future
-  return vtkWebGPUComputeFrustumCuller::WHOLE_BUFFER_REUPLOAD_THRESHOLD;
 }
 
 //------------------------------------------------------------------------------

@@ -4,7 +4,6 @@
 #ifndef vtkWebGPUComputeFrustumCuller_h
 #define vtkWebGPUComputeFrustumCuller_h
 
-#include "vtkCallbackCommand.h" // for the bounds recomputed callback
 #include "vtkCuller.h"
 #include "vtkNew.h"                   // for new macro
 #include "vtkRenderingWebGPUModule.h" // For export macro
@@ -14,7 +13,21 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 /**
- * This culler culls props to the camera view frustum using WebGPU compute shaders
+ * This culler culls props to the camera view frustum using WebGPU compute shaders.
+ *
+ * To use this culler, simply instantiate it:
+ *
+ * vtkNew<vtkWebGPUComputeFrustumCuller> webgpuFrustumCuller;
+ *
+ * and add it to the cullers of your renderer. Note that by default, the renderer contains a
+ * vtkFrustumCoverageCuller. You probably want to remove it from the renderer before adding the GPU
+ * compute frustum culler as they are pretty much redundant with each other
+ *
+ * // Removing the default culler
+ * renderer->GetCullers()->RemoveAllItems();
+ *
+ * // Adding the WebGPU compute shader frustum culler
+ * renderer->GetCullers()->AddItem(webgpuFrustumCuller);
  */
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputeFrustumCuller : public vtkCuller
 {
@@ -25,9 +38,11 @@ public:
   virtual double Cull(
     vtkRenderer* ren, vtkProp** propList, int& listLength, int& initialized) override;
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
 protected:
   vtkWebGPUComputeFrustumCuller();
-  ~vtkWebGPUComputeFrustumCuller() = default;
+  ~vtkWebGPUComputeFrustumCuller();
 
 private:
   vtkWebGPUComputeFrustumCuller(const vtkWebGPUComputeFrustumCuller&) = delete;
@@ -93,25 +108,9 @@ private:
   void UpdateBoundsBuffer(vtkProp** propList, int listLength);
 
   /**
-   * Re-uploads the camera data to the GPU if necessary (if CameraDirty is true)
+   * Re-uploads the camera data to the GPU
    */
   void UpdateCamera(vtkRenderer* ren);
-
-  /**
-   * Returns an integer that represents the minimum number of props that need to have been modified
-   * for all the actors bounds to be reuploaded to the GPU.
-   *
-   * When the bounds of some actors changed, we're going to have to reupload the new bounds to the
-   * GPU.
-   * If the number of actors' bound that need to be reuploaded is below the value returned by this
-   * function, we're only going to reupload the bounds of the actors that were modified. If the
-   * number of actors is above, we're going to reupload the whole buffer. This is because it would
-   * be faster to process one big upload than dozens of small uploads.
-   *
-   * For now, this function uses an arbitrarily fixed threshold.
-   */
-  static const int WHOLE_BUFFER_REUPLOAD_THRESHOLD = 10;
-  int ReuploadBoundsBufferThreshold();
 
   /**
    * Callback that reads the number of objects that passed the culling test and that stores the
@@ -159,6 +158,9 @@ private:
 
   // Compute pipeline used for the frustum culling compute shader
   vtkSmartPointer<vtkWebGPUComputePipeline> Pipeline;
+
+  // Frustum culling compute shader pass
+  vtkSmartPointer<vtkWebGPUComputePass> FrustumCullingPass;
 
   // Scratch list used by the OutputObjectIndicesMapCallback
   std::vector<vtkProp*> CallbackScratchList;

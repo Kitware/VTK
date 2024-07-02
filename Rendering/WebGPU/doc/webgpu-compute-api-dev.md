@@ -219,3 +219,34 @@ in the 'Regular buffers' section and everything will be in order.
 So overall, the reason why some parts of the setup are done immediately while other parts are done
 only when rendering a frame / calling `Dispatch()` is because we may not have all required
 pieces of information until rendering the first frame / calling `Dispatch()`.
+
+### Buffer/Textures registration
+
+Because it may be useful to use a buffer created for a compute pass in another compute pass,
+everytime a buffer (or texture or any object) is added to a compute pass, it is also registered
+in the compute pipeline associated with the compute pass. This is so that next time the same
+buffer is added to another compute pass, it is found in the "registry" of the compute pipeline
+and can be reused for that compute pass without creating a new WebGPU object.
+
+This registry bookkeeping is done thanks to the two maps of `vtkWebGPUComputePipeline`
+
+```c++
+std::unordered_map<vtkSmartPointer<vtkWebGPUComputeBuffer>, wgpu::Buffer> RegisteredBuffers;
+std::unordered_map<vtkSmartPointer<vtkWebGPUComputeTexture>, wgpu::Texture> RegisteredTextures;
+```
+
+They both map a `vtkWebGPUComputeXXX` to its `wgpu::XXX` equivalent because we want to be able to find the `wgpu::XXX` object from the `vtkWebGPUComputeXXX` object
+
+### Compute passes
+
+Compute passes are contained in a `std::vector` in a compute pipeline. A new `vtkWebGPUComputePass`
+is added to the vector when `vtkWebGPUComputePipeline::CreateComputePass()` is called. Every compute
+pass in a compute pipeline uses the device on the compute pipeline. This is so that buffers/textures created
+for a compute pass can be reused by other compute passes. This wouldn't be possible if a different device was
+used for each compute pass (as WebGPU objects are not shareable between devices).
+
+The `Update()` method of `vtkWebGPUComputePipeline` is responsible for executing the work queued by
+compute passes on the GPU and waiting for the completion of the work. Because all the compute passes use
+the device of the compute pipeline, `Dispatch()`, `ReadFromGPU()` and other such calls queue their work
+onto the device of the compute pipeline. The `Update()` call can then naturally access the work
+queued by the compute passes and wait for the completion of their execution.

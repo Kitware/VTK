@@ -4,7 +4,6 @@
 #include "vtkWebGPUComputeRenderBuffer.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkWebGPUComputePipeline.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -28,22 +27,7 @@ void vtkWebGPUComputeRenderBuffer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RenderBufferOffset: " << this->RenderBufferOffset << std::endl;
   os << indent << "RenderBufferElementCount: " << this->RenderBufferElementCount << std::endl;
 
-  os << indent << "Associated pipeline: ";
-  this->AssociatedPipeline->PrintSelf(os, indent);
-}
-
-//------------------------------------------------------------------------------
-void vtkWebGPUComputeRenderBuffer::SetAssociatedPipeline(
-  vtkWeakPointer<vtkWebGPUComputePipeline> pipeline)
-{
-  if (this->AssociatedPipeline != nullptr)
-  {
-    vtkLog(ERROR,
-      "This buffer is already associated to a pipeline. A buffer cannot be used in two "
-      "pipelines.");
-  }
-
-  this->AssociatedPipeline = pipeline;
+  os << indent << "Associated compute pass: " << this->AssociatedComputePass << std::endl;
 }
 
 VTK_ABI_NAMESPACE_END

@@ -94,19 +94,23 @@ int TestComputeModifyPointColors(int argc, char* argv[])
   pointColorsRenderBuffer->SetLabel("Point colors render buffer");
 
   // Creating the compute pipeline
-  vtkNew<vtkWebGPUComputePipeline> dynamicColorsCompute;
-  dynamicColorsCompute->SetShaderSource(TestComputeModifyPointColorsShader);
-  dynamicColorsCompute->SetShaderEntryPoint("changePointColorCompute");
+  vtkNew<vtkWebGPUComputePipeline> dynamicColorsComputePipeline;
+
+  // Creating the compute pass
+  vtkSmartPointer<vtkWebGPUComputePass> dynamicColorsComputePass =
+    dynamicColorsComputePipeline->CreateComputePass();
+  dynamicColorsComputePass->SetShaderSource(TestComputeModifyPointColorsShader);
+  dynamicColorsComputePass->SetShaderEntryPoint("changePointColorCompute");
   // Adding the render buffer
-  dynamicColorsCompute->AddRenderBuffer(pointColorsRenderBuffer);
+  dynamicColorsComputePass->AddRenderBuffer(pointColorsRenderBuffer);
   int nbGroupsX = std::ceil(polydata->GetPointData()->GetNumberOfTuples() / 32.0f);
-  dynamicColorsCompute->SetWorkgroups(nbGroupsX, 1, 1);
+  dynamicColorsComputePass->SetWorkgroups(nbGroupsX, 1, 1);
 
   // Adding the compute pipeline to the renderer.
   // The pipeline will be executed each frame before the rendering pass
   vtkWebGPURenderer* wegpuRenderer =
     vtkWebGPURenderer::SafeDownCast(renWin->GetRenderers()->GetFirstRenderer());
-  wegpuRenderer->AddComputePipeline(dynamicColorsCompute);
+  wegpuRenderer->AddComputePipeline(dynamicColorsComputePipeline);
 
   renderer->SetBackground(0.2, 0.3, 0.4);
   renWin->Render();

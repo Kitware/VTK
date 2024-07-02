@@ -6,10 +6,14 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestCompositePolyDataMapper.cxx,NO_DATA,NO_VALID
   TestComputeDoublePipelineRenderBuffer.cxx,NO_DATA
   TestComputeFrustumCulling.cxx,NO_DATA,NO_VALID
+  TestComputeOcclusionCulling.cxx,NO_DATA,NO_VALID
+  TestComputeOcclusionCullingResize.cxx,NO_DATA,NO_VALID
   TestComputeModifyPointColors.cxx,NO_DATA
   TestComputeModifyCellColors.cxx,NO_DATA
-  TestComputePipeline.cxx,NO_DATA_,NO_VALID
-  TestComputePipelineUniform.cxx,NO_DATA_,NO_VALID
+  TestComputePass.cxx,NO_DATA_,NO_VALID
+  TestComputePassChained.cxx,NO_DATA_,NO_VALID
+  TestComputePassUniform.cxx,NO_DATA_,NO_VALID
+  TestComputeTexture.cxx,NO_DATA_,NO_VALID
   TestConesBenchmark.cxx,NO_DATA,NO_VALID
   TestLineRendering.cxx,NO_DATA,NO_VALID
   TestPointScalarMappedColors.cxx,NO_DATA,NO_VALID
