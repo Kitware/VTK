@@ -492,8 +492,9 @@ int vtkFLUENTReader::GetCaseChunk()
   //  a binary chunk.
   //
 
-  if (index.size() > 2)
-  { // Binary Chunk
+  if (index.size() > 3)
+  {
+    // Binary Chunk
     char end[120];
     strcpy(end, "End of Binary Section ");
     size_t len = strlen(end);

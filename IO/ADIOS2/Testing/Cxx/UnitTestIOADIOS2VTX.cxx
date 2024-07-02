@@ -538,24 +538,19 @@ void WriteBPFileUnsupportedType(const std::string& fileName)
 
 bool TestNoFile(const std::string&)
 {
-  bool success = false;
-  try
+  vtkNew<vtkADIOS2VTXReader> reader;
+  reader->SetFileName("NONE.bp");
+  // This is equivalent to `reader->Update()`, but it allows us to get the
+  // status of the request back.
+  if (reader->GetExecutive()->Update())
   {
-    vtkNew<vtkADIOS2VTXReader> reader;
-    reader->SetFileName("NONE.bp");
-    reader->Update();
+    std::cout << "Expected non-existing file to return pipeline error.\n";
+    return false;
   }
-  catch (std::exception&)
+  else
   {
-    // TODO: Throwing an exception from the request function of a reader
-    // (or any other pipeline object) is a bad way to signal an error. The
-    // VTK pipeline is not designed to unwind from exceptions, and it causes
-    // programs like ParaView and VisIt to just crash without warning. The
-    // right thing to do is to write a message using vtkErrorMacro and return
-    // 0 from the request function.
-    success = true;
+    return true;
   }
-  return success;
 }
 
 bool TestPointDataTime(const std::string& baseDir)
@@ -587,12 +582,20 @@ bool TestPointDataTime(const std::string& baseDir)
     }
   };
 
-  checkTimestep(0);
-  checkTimestep(1);
-  checkTimestep(2);
-  checkTimestep(2);
-  checkTimestep(1);
-  checkTimestep(0);
+  try
+  {
+    checkTimestep(0);
+    checkTimestep(1);
+    checkTimestep(2);
+    checkTimestep(2);
+    checkTimestep(1);
+    checkTimestep(0);
+  }
+  catch (std::logic_error& e)
+  {
+    std::cout << e.what() << std::endl;
+    return false;
+  }
 
   return true;
 }
@@ -645,34 +648,20 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
     return rootDirectory + "/dummy_" + std::to_string(id) + ".bp";
   };
 
-  auto lf_TestBadFile = [&](
-                          const std::string& fileName, const size_t id, const bool print = false) {
+  auto lf_TestBadFile = [&](const std::string& fileName, const size_t id) {
     std::cout << id << " " << fileName << "\n";
-    bool isCaught = false;
-    try
+    vtkNew<vtkADIOS2VTXReader> reader;
+    reader->SetFileName(fileName.c_str());
+    // This is equivalent to `reader->Update()`, but it allows us to get the
+    // status of the request back.
+    if (reader->GetExecutive()->Update())
     {
-      vtkNew<vtkADIOS2VTXReader> reader;
-      reader->SetFileName(fileName.c_str());
-      reader->Update();
+      std::cout << "ERROR: ADIOS2 VTK Reader unit test " << id << "(" << fileName << ") failed\n";
+      std::cout << "Expected bad file to return pipeline error.\n";
     }
-    catch (std::exception& e)
+    else
     {
-      // TODO: Throwing an exception from the request function of a reader
-      // (or any other pipeline object) is a bad way to signal an error. The
-      // VTK pipeline is not designed to unwind from exceptions, and it causes
-      // programs like ParaView and VisIt to just crash without warning. The
-      // right thing to do is to write a message using vtkErrorMacro and return
-      // 0 from the request function.
-      isCaught = true;
-      if (print)
-      {
-        std::cout << e.what() << "\n";
-      }
-    }
-    if (!isCaught)
-    {
-      throw std::logic_error(
-        "ERROR: ADIOS2 VTK Reader unit test " + std::to_string(id) + "(" + fileName + ") failed\n");
+      // All good. Expected this pipeline error for a bad file.
     }
   };
 
@@ -694,25 +683,36 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
   function(fileName);                                                                              \
   lf_TestBadFile(fileName, testID);
 
-  ADIOS2VTK_UNIT_TEST(WriteBPFileNoSchema)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileMissingVTKFileNode)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedExtent)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedVTKType)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileNoVTKFileNode)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileNoTime)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileTwoNodes)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongWholeExtent)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongOrigin)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileMandatoryNode)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileTwoImageNodes)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongNumberOfComponents)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongTime)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongNodePC1)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongNodePC2)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileNoPieceVTI)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileNoPieceVTU)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedShape)
-  ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedType)
+  try
+  {
+    // NOTE: For these tests we are expecting lots of reported pipeline failures
+    // but no crashes.
+    ADIOS2VTK_UNIT_TEST(WriteBPFileNoSchema)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileMissingVTKFileNode)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedExtent)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedVTKType)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileNoVTKFileNode)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileNoTime)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileTwoNodes)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileWrongWholeExtent)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileWrongOrigin)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileMandatoryNode)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileTwoImageNodes)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileWrongNumberOfComponents)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileWrongTime)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileWrongNodePC1)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileWrongNodePC2)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileNoPieceVTI)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileNoPieceVTU)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedShape)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedType)
+  }
+  catch (std::exception& e)
+  {
+    std::cout << "Caught error!\n";
+    std::cout << e.what() << std::endl;
+    return 1;
+  }
 
   std::string baseDir = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/vtx/bp4/");
 
@@ -729,9 +729,18 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
 
 #define ADIOS2VTK_CORNER_CASE_TEST(function) lf_TestCornerCase(function, #function);
 
-  ADIOS2VTK_CORNER_CASE_TEST(TestNoFile)
-  ADIOS2VTK_CORNER_CASE_TEST(TestPointDataTime)
-  ADIOS2VTK_CORNER_CASE_TEST(TestCellDataTime)
+  try
+  {
+    ADIOS2VTK_CORNER_CASE_TEST(TestNoFile)
+    ADIOS2VTK_CORNER_CASE_TEST(TestPointDataTime)
+    ADIOS2VTK_CORNER_CASE_TEST(TestCellDataTime)
+  }
+  catch (std::exception& e)
+  {
+    std::cout << "Caught error!\n";
+    std::cout << e.what() << std::endl;
+    return 1;
+  }
 
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   mpiController->Finalize();

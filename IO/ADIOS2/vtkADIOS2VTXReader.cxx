@@ -39,19 +39,27 @@ vtkADIOS2VTXReader::~vtkADIOS2VTXReader()
 int vtkADIOS2VTXReader::RequestInformation(vtkInformation* vtkNotUsed(inputVector),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  this->SchemaManager->Update(FileName); // check if FileName changed
+  try
+  {
+    this->SchemaManager->Update(FileName); // check if FileName changed
 
-  // set time info
-  const std::vector<double> vTimes =
-    vtx::helper::MapKeysToVector(this->SchemaManager->Reader->Times);
+    // set time info
+    const std::vector<double> vTimes =
+      vtx::helper::MapKeysToVector(this->SchemaManager->Reader->Times);
 
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  info->Set(
-    vtkStreamingDemandDrivenPipeline::TIME_STEPS(), vTimes.data(), static_cast<int>(vTimes.size()));
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), vTimes.data(),
+      static_cast<int>(vTimes.size()));
 
-  const std::vector<double> timeRange = { vTimes.front(), vTimes.back() };
-  info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange.data(),
-    static_cast<int>(timeRange.size()));
+    const std::vector<double> timeRange = { vTimes.front(), vTimes.back() };
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange.data(),
+      static_cast<int>(timeRange.size()));
+  }
+  catch (std::exception& e)
+  {
+    vtkErrorMacro("Error loading ADIOS2 schema: " << e.what());
+    return 0;
+  }
 
   return 1;
 }
@@ -59,22 +67,38 @@ int vtkADIOS2VTXReader::RequestInformation(vtkInformation* vtkNotUsed(inputVecto
 int vtkADIOS2VTXReader::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  const double newTime = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-  this->SchemaManager->Step = this->SchemaManager->Reader->Times[newTime];
-  this->SchemaManager->Time = newTime;
+  try
+  {
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    const double newTime = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+    this->SchemaManager->Step = this->SchemaManager->Reader->Times[newTime];
+    this->SchemaManager->Time = newTime;
+  }
+  catch (std::exception& e)
+  {
+    vtkErrorMacro("Error loading ADIOS2 schema: " << e.what());
+    return 0;
+  }
   return 1;
 }
 
 int vtkADIOS2VTXReader::RequestData(vtkInformation* vtkNotUsed(inputVector),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
-  vtkMultiBlockDataSet* multiBlock = vtkMultiBlockDataSet::SafeDownCast(output);
+  try
+  {
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
+    vtkMultiBlockDataSet* multiBlock = vtkMultiBlockDataSet::SafeDownCast(output);
 
-  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->SchemaManager->Time);
-  this->SchemaManager->Fill(multiBlock, this->SchemaManager->Step);
+    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->SchemaManager->Time);
+    this->SchemaManager->Fill(multiBlock, this->SchemaManager->Step);
+  }
+  catch (std::exception& e)
+  {
+    vtkErrorMacro("Error loading ADIOS2 schema: " << e.what());
+    return 0;
+  }
   return 1;
 }
 
