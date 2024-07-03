@@ -1632,12 +1632,14 @@ void vtkScalarBarActor::ConfigureScalarBar()
     double rgbval;
     if (this->LookupTable->UsingLogScale())
     {
-      rgbval = log10(range[0]) + i * (log10(range[1]) - log10(range[0])) / this->P->NumColors;
+      rgbval =
+        log10(range[0]) + (i + 0.5) * (log10(range[1]) - log10(range[0])) / this->P->NumColors;
       rgbval = pow(10.0, rgbval);
     }
     else
     {
-      rgbval = range[0] + (range[1] - range[0]) * (i / static_cast<double>(this->P->NumColors));
+      rgbval =
+        range[0] + (range[1] - range[0]) * ((i + 0.5) / static_cast<double>(this->P->NumColors));
     }
     lut->GetColor(rgbval, rgba);
     if (this->OpacityFunction)
