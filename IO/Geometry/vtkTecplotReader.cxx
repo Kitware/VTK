@@ -23,7 +23,8 @@
 #include "vtkUnstructuredGrid.h"
 
 #include "vtk_zlib.h"
-#include <vtksys/SystemTools.hxx>
+#include "vtksys/Encoding.hxx"
+#include "vtksys/SystemTools.hxx"
 
 #include <cctype> // for isspace(), isalnum()
 
@@ -90,7 +91,12 @@ bool FileStreamReader::open(const char* fileName)
     if (count == 2)
     {
       const char* mode = (magic[0] == 0x1f && magic[1] == 0x8b) ? "rb" : "r";
+#if defined(_WIN32)
+      std::wstring fileNameWide = vtksys::Encoding::ToWide(fileName);
+      this->file = gzopen_w(fileNameWide.c_str(), mode);
+#else
       this->file = gzopen(fileName, mode);
+#endif
 
       this->Eof = (this->file == nullptr);
       this->Open = (this->file != nullptr);
