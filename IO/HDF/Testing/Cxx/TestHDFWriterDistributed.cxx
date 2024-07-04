@@ -103,7 +103,7 @@ bool TestParallelTemporalPolyData(
 
   // Redistribute cow
   vtkNew<vtkRedistributeDataSetFilter> redistribute;
-  redistribute->SetGenerateGlobalCellIds(false);
+  redistribute->SetGenerateGlobalCellIds(true);
   // redistribute->SetInputConnection(baseReader->GetOutputPort());
   redistribute->SetInputConnection(sphere->GetOutputPort());
 
@@ -129,13 +129,21 @@ bool TestParallelTemporalPolyData(
   harmonics->AddHarmonic(1.0, 3.0, 0.0, 0.0, 0.6283, 4.7124);
   harmonics->SetInputConnection(generateTimeSteps->GetOutputPort());
 
+  // Original cell ids is not present on every rank
+  vtkNew<vtkPassArrays> pass;
+  pass->SetRemoveArrays(true);
+  pass->AddArray(vtkDataObject::CELL, "vtkOriginalCellIds");
+  pass->SetInputConnection(harmonics->GetOutputPort());
+
   // Write data in parallel to disk
   std::string filePath = tempDir + "/parallel_time_cow.vtkhdf";
+  std::string filePathPart =
+    tempDir + "/parallel_time_cow_part" + std::to_string(myRank) + ".vtkhdf";
 
   {
     vtkNew<vtkHDFWriter> writer;
     writer->SetDebug(true);
-    writer->SetInputConnection(harmonics->GetOutputPort());
+    writer->SetInputConnection(pass->GetOutputPort());
     writer->SetWriteAllTimeSteps(true);
     writer->SetFileName(filePath.c_str());
     writer->Write();
@@ -144,25 +152,67 @@ bool TestParallelTemporalPolyData(
   // All processes write their pieces to disk
   controller->Barrier();
 
-  // Read and compare each timestep
-  // vtkNew<vtkHDFReader> reader;
-  // reader->SetFileName(filePath.c_str());
-  // reader->UpdatePiece(myRank, nbRanks, 0);
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(filePath.c_str());
+  reader->UpdatePiece(myRank, nbRanks, 0);
 
-  // vtkPolyData* readPiece = vtkPolyData::SafeDownCast(reader->GetOutputDataObject(0));
-  // vtkPolyData* originalPiece = vtkPolyData::SafeDownCast(harmonics->GetOutputDataObject(0));
+  vtkNew<vtkHDFReader> readerPart;
+  readerPart->SetFileName(filePathPart.c_str());
+  readerPart->Update();
 
-  // if (readPiece == nullptr || originalPiece == nullptr)
-  // {
-  //   vtkLog(ERROR, "Piece should not be null");
-  //   return false;
-  // }
+  for (int time = 0; time < timeValues.size(); time++)
+  {
+    vtkDebugWithObjectMacro(nullptr, << "Comparing timestep " << time);
+    reader->SetStep(time);
+    reader->UpdatePiece(myRank, nbRanks, 0);
+    readerPart->SetStep(time);
+    readerPart->Update();
+    pass->UpdateTimeStep(time, myRank, nbRanks);
+    pass->Update();
 
-  // if (!vtkTestUtilities::CompareDataObjects(readPiece, originalPiece))
-  // {
-  //   vtkLog(ERROR, "Original and read piece do not match");
-  //   return false;
-  // }
+    vtkUnstructuredGrid* readPiece =
+      vtkUnstructuredGrid::SafeDownCast(reader->GetOutputDataObject(0));
+    vtkNew<vtkPassArrays> pass2;
+    pass2->SetRemoveArrays(true);
+    pass2->AddArray(vtkDataObject::FIELD, "Time");
+    pass2->SetInputDataObject(readPiece);
+    pass2->Update();
+    readPiece = vtkUnstructuredGrid::SafeDownCast(pass2->GetOutputDataObject(0));
+    vtkUnstructuredGrid* originalPiece =
+      vtkUnstructuredGrid::SafeDownCast(pass->GetOutputDataObject(0));
+    vtkUnstructuredGrid* readPart =
+      vtkUnstructuredGrid::SafeDownCast(readerPart->GetOutputDataObject(0));
+    vtkNew<vtkPassArrays> pass3;
+    pass3->SetRemoveArrays(true);
+    pass3->AddArray(vtkDataObject::FIELD, "Time");
+    pass3->SetInputDataObject(readPart);
+    pass3->Update();
+    readPart = vtkUnstructuredGrid::SafeDownCast(pass3->GetOutputDataObject(0));
+
+    if (readPiece == nullptr || originalPiece == nullptr || readPart == nullptr)
+    {
+      vtkLog(ERROR, "Piece should not be null");
+      return false;
+    }
+
+    if (!vtkTestUtilities::CompareDataObjects(readPart, readPiece))
+    {
+      vtkLog(ERROR, "Original and read piece do not match");
+      return false;
+    }
+
+    // if (!vtkTestUtilities::CompareDataObjects(readPiece, originalPiece))
+    // {
+    //   vtkLog(ERROR, "Original and read piece do not match");
+    //   return false;
+    // }
+
+    // if (!vtkTestUtilities::CompareDataObjects(readPiece, readPart))
+    // {
+    //   vtkLog(ERROR, "Read piece and read part do not match");
+    //   return false;
+    // }
+  }
 
   return true;
 }

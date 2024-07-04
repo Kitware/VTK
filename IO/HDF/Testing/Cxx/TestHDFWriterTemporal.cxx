@@ -39,9 +39,11 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
   const std::string& baseName, const WriterConfigOptions& config)
 {
   // Open original temporal HDF data
-  const std::string basePath = dataRoot + "/Data/" + baseName;
+  const std::string basePath = tempDir + "/" + baseName;
   vtkNew<vtkHDFReader> baseHDFReader;
   baseHDFReader->SetFileName(basePath.c_str());
+  baseHDFReader->SetStep(0);
+  baseHDFReader->UpdatePiece(0, 3, 0);
 
   // Write the data to a file using the vtkHDFWriter
   vtkNew<vtkHDFWriter> HDFWriter;
@@ -193,7 +195,7 @@ int TestHDFWriterTemporal(int argc, char* argv[])
   bool result = true;
 
   // Run tests : read data, write it, read the written data and compare to the original
-  std::vector<std::string> baseNames = { "transient_sphere.hdf", "transient_cube.hdf",
+  std::vector<std::string> baseNames = { "parallel_time_cow.vtkhdf", "transient_cube.hdf",
     "transient_harmonics.hdf" };
   std::vector<WriterConfigOptions> configs{ { false, false, "_NoExtTimeNoExtPart" },
     { false, true, "_NoExtTimeExtPart" }, { true, false, "_ExtTimeNoExtPart" },

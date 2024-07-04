@@ -60,11 +60,14 @@ public:
    */
   bool OpenSubfile(const std::string& filename);
 
+  ///@{
   /**
    * Inform the implementation that all the data has been written in subfiles,
    * and that the virtual datasets can now be created from them.
    */
   void SetSubFilesReady(bool status) { this->SubFilesReady = status; }
+  bool GetSubFilesReady() { return this->SubFilesReady; }
+  ///@}
 
   /**
    * Create the steps group in the root group. Set a member variable to store the group, so it can
@@ -179,6 +182,16 @@ public:
    */
   vtkHDF::ScopedH5DHandle CreateVirtualDataset(
     hid_t group, const char* name, hid_t type, int numComp);
+
+  /**
+   *
+   */
+  vtkHDF::ScopedH5DHandle CopyAndInterlace(hid_t group, const char* name, hid_t type);
+
+  /**
+   *
+   */
+  vtkHDF::ScopedH5DHandle WriteSumSteps(hid_t group, const char* name, hid_t type);
 
   /**
    *

@@ -175,7 +175,10 @@ bool NewArray(
     vtkErrorWithObjectMacro(nullptr, << ostr.str());
     return false;
   }
-
+  vtkDebugWithObjectMacro(nullptr, << "Try H5Dread "
+                                   << "start: " << start[0] << ", " << start[1] << ", " << start[2]
+                                   << " count: " << count[0] << ", " << count[1] << ", " << count[2]
+                                   << " type " << nativeType);
   // read hyperslab
   if (H5Dread(dataset, nativeType, memspace, filespace, H5P_DEFAULT, data) < 0)
   {
@@ -818,6 +821,7 @@ vtkDataArray* vtkHDFUtilities::NewArrayForGroup(
     return nullptr;
   }
 
+  vtkDebugWithObjectMacro(nullptr, "New array for group " << name);
   return vtkHDFUtilities::NewArrayForGroup(dataset, nativeType, dims, parameterExtent);
 }
 
@@ -827,6 +831,8 @@ std::vector<vtkIdType> vtkHDFUtilities::GetMetadata(
 {
   std::vector<vtkIdType> v;
   std::vector<hsize_t> fileExtent = { offset, offset + size };
+  vtkDebugWithObjectMacro(
+    nullptr, "Reading " << name << " with extent " << offset << " " << offset + size);
   auto a = vtk::TakeSmartPointer(vtkHDFUtilities::NewArrayForGroup(group, name, fileExtent));
   if (!a)
   {
