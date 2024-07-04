@@ -118,11 +118,8 @@ static void Initialize()
 
   // Set up the native procs for the global proctable
   GPUContext.DawnNativeEntryPoint.ProcTable = dawn::native::GetProcs();
-  dawnProcSetProcs(&GPUContext.DawnNativeEntryPoint.ProcTable);
   GPUContext.DawnNativeEntryPoint.Instance =
     std::unique_ptr<dawn::native::Instance>(new dawn::native::Instance());
-  GPUContext.DawnNativeEntryPoint.Instance->DiscoverDefaultAdapters();
-  GPUContext.DawnNativeEntryPoint.Instance->EnableBackendValidation(true);
 
   // Dawn backend type.
   // Default to D3D12, Metal, Vulkan, OpenGL in that order as D3D12 and Metal
