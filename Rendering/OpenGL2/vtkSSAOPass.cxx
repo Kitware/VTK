@@ -322,6 +322,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
 
     std::stringstream ssImpl;
     ssImpl
+      << std::scientific
       << "\n"
          "  float occlusion = 0.0;\n"
          "  float depth = texture(texDepth, texCoord).r;\n"
