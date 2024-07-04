@@ -4357,6 +4357,11 @@ static void handle_attribute(const char* att, int pack)
     {
       addAttribute(VTK_PARSE_ZEROCOPY);
     }
+    else if (l == 19 && strncmp(att, "vtk::unblockthreads", l) == 0 && !args &&
+      role == VTK_PARSE_ATTRIB_DECL)
+    {
+      addAttribute(VTK_PARSE_UNBLOCKTHREADS);
+    }
     else if (l == 13 && strncmp(att, "vtk::filepath", l) == 0 && !args &&
       role == VTK_PARSE_ATTRIB_DECL)
     {

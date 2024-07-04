@@ -88,6 +88,7 @@ public:
    * Import the actors, cameras, lights and properties into a vtkRenderWindow
    * and return if it was sucessful of not.
    */
+  VTK_UNBLOCKTHREADS
   bool Update();
 
   /**

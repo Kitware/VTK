@@ -154,6 +154,14 @@ option(VTK_USE_MPI "Support MPI" OFF)
 option(VTK_SERIAL_TESTS_USE_MPIEXEC "Used on HPC to run serial tests on compute nodes" OFF)
 mark_as_advanced(VTK_SERIAL_TESTS_USE_MPIEXEC)
 
+# For platforms that don't support Python threads (do any exist?)
+option(VTK_NO_PYTHON_THREADS "Disable Python Threads support" OFF)
+mark_as_advanced(VTK_NO_PYTHON_THREADS)
+# This setting must be ON for Python concurrency
+cmake_dependent_option(VTK_PYTHON_FULL_THREADSAFE "Wrap all Python calls with the GIL" ON
+  "NOT VTK_NO_PYTHON_THREADS" OFF)
+mark_as_advanced(VTK_PYTHON_FULL_THREADSAFE)
+
 #-----------------------------------------------------------------------------
 # Add an option to enable memkind
 if (UNIX AND NOT APPLE)

@@ -17,6 +17,10 @@ set(python_tests
   TestUpdateAndCall.py
 )
 
+if (VTK_PYTHON_FULL_THREADSAFE)
+  list(APPEND python_tests TestThreadConcurrency.py)
+endif ()
+
 if (TARGET vtkpythonmodules_pyi)
   set(TestCompilePYI_ARGS
     "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules"
