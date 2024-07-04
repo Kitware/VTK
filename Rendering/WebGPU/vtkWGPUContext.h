@@ -19,6 +19,8 @@ public:
   static wgpu::Surface CreateSurface(const wgpu::ChainedStruct& surfaceDescriptor);
   static std::size_t Align(std::size_t value, int alignment);
   static void WaitABit();
+
+  static void Finalize();
 };
 
 VTK_ABI_NAMESPACE_END
