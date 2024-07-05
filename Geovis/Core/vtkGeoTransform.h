@@ -127,6 +127,7 @@ protected:
   vtkGeoTransform();
   ~vtkGeoTransform() override;
 
+  void InternalDeepCopy(vtkAbstractTransform*) override;
   void InternalTransformPoints(double* ptsInOut, vtkIdType numPts, int stride);
   vtkGeoProjection* SourceProjection;
   vtkGeoProjection* DestinationProjection;
