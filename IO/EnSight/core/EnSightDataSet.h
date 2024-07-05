@@ -14,6 +14,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
+class vtkDataObjectMeshCache;
 class vtkDataSet;
 class vtkFloatArray;
 class vtkPartitionedDataSetCollection;
@@ -201,6 +202,13 @@ public:
 
   void SetActualTimeValue(double time);
 
+  /**
+   * Returns true if the static mesh cache will be used.
+   */
+  bool UseStaticMeshCache() const;
+
+  vtkDataObjectMeshCache* GetMeshCache();
+
 private:
   bool ParseFormatSection();
   void ParseGeometrySection();
@@ -278,11 +286,8 @@ private:
 
   std::string GeometryFileName;
   EnSightFile GeometryFile;
-  // set true when at least some part of the geometry needs to be cached
-  // use in conjunction with GeometryChangeCoordsOnly
-  bool CacheGeometry = false;
-  bool GeometryCached = false;
 
+  bool IsStaticGeometry = false;
   // indicates that changing geometry is only coordinates, not connectivity
   bool GeometryChangeCoordsOnly = false;
 
@@ -290,7 +295,7 @@ private:
   // only used when GeometryChangeCoordsOnly == true
   int GeometryCStep = -1;
 
-  vtkSmartPointer<vtkPartitionedDataSetCollection> Cache;
+  vtkSmartPointer<vtkDataObjectMeshCache> MeshCache;
 
   std::string MeasuredFileName;
   EnSightFile MeasuredFile;

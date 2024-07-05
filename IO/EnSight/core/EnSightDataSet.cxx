@@ -8,6 +8,7 @@
 #include "vtkCellType.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
+#include "vtkDataObjectMeshCache.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
@@ -643,6 +644,11 @@ void EnSightDataSet::ParseGeometrySection()
       this->GeometryFileName = this->GetFullPath(fileName);
       this->GeometryFile.SetFileNamePattern(this->GeometryFileName);
       extractLinePart(fileNameRegEx, line, option);
+
+      // as per the spec, model or measured filenames for changing geometry cases will contain a '*'
+      // wildcard while static geometry cases won't.
+      this->IsStaticGeometry = (fileName.find('*') != std::string::npos);
+
       // option can be empty, 'change_coords_only', 'change_coords_only cstep', or
       // 'changing_geometry_per_part'. changing_geometry_per_part signals that part lines will have
       // a mandatory additional option in the part lines of the geometry file
@@ -652,11 +658,15 @@ void EnSightDataSet::ParseGeometrySection()
         // change_coords_only indicates that only coords change in geometry, otherwise connectivity
         // changes too. cstep means the zero-based time step that contains the connectivity
         extractLinePart(intRegEx, line, this->GeometryCStep);
-        this->CacheGeometry = true; // since the connectivity info needs to be cached
       }
       if (this->GeometryFile.TimeSet == -1)
       {
-        this->CacheGeometry = true;
+        this->IsStaticGeometry = true;
+      }
+
+      if (this->IsStaticGeometry || this->GeometryChangeCoordsOnly)
+      {
+        this->MeshCache = vtkSmartPointer<vtkDataObjectMeshCache>::New();
       }
     }
     else if (lineType == "measured:")
@@ -965,19 +975,28 @@ bool EnSightDataSet::IsSectionHeader(std::string line)
 bool EnSightDataSet::ReadGeometry(
   vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection)
 {
-  if (this->CacheGeometry && this->GeometryCached)
+  if ((this->IsStaticGeometry || this->GeometryChangeCoordsOnly) && !this->MeshCache)
   {
-    if (!this->Cache)
+    vtkGenericWarningMacro("Cache is null when it should not be");
+    return false;
+  }
+
+  if (this->IsStaticGeometry)
+  {
+    auto cacheStatus = this->MeshCache->GetStatus();
+    if (cacheStatus.CacheDefined)
     {
-      vtkGenericWarningMacro("Cache is null when it should not be");
-      return false;
+      this->MeshCache->CopyCacheToDataObject(output);
+      // nothing changes, no need to read anything
+      return true;
     }
-    // there's two options if CacheGeometry is true. 1) geometry doesn't change at all, or 2) only
-    // the coords change.
-    output->CompositeShallowCopy(this->Cache);
-    if (!this->GeometryChangeCoordsOnly)
+  }
+  else if (this->GeometryChangeCoordsOnly)
+  {
+    if (this->MeshCache->GetStatus().CacheDefined)
     {
-      // nothing changes, so need to read anything
+      this->MeshCache->CopyCacheToDataObject(output);
+      // only the coords change, we still need to read that
       return true;
     }
   }
@@ -1124,14 +1143,9 @@ bool EnSightDataSet::ReadGeometry(
     }
   }
 
-  if (this->CacheGeometry)
+  if (this->IsStaticGeometry || this->GeometryChangeCoordsOnly)
   {
-    if (!this->Cache)
-    {
-      this->Cache = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
-    }
-    this->Cache->CompositeShallowCopy(output);
-    this->GeometryCached = true;
+    this->MeshCache->UpdateCache(output);
   }
 
   return true;
@@ -2286,7 +2300,7 @@ void EnSightDataSet::CreateUnstructuredGridOutput(
   // at this point, if the geometry was change_coords_only, we may be reading from a file that
   // doesn't have the connectivity in it, in which case we'll need to use GeometryCStep to read
   // the connectivity (if we haven't already cached it)
-  if (this->GeometryChangeCoordsOnly && this->GeometryCached)
+  if (this->GeometryChangeCoordsOnly && this->MeshCache->GetStatus().CacheDefined)
   {
     // so we've already cached data in a previous step and now
     // we've updated the coordinates.
@@ -3309,6 +3323,18 @@ std::vector<double> EnSightDataSet::GetEulerTimeSteps()
 void EnSightDataSet::SetActualTimeValue(double time)
 {
   this->ActualTimeValue = time;
+}
+
+//------------------------------------------------------------------------------
+bool EnSightDataSet::UseStaticMeshCache() const
+{
+  return this->IsStaticGeometry || this->GeometryChangeCoordsOnly;
+}
+
+//------------------------------------------------------------------------------
+vtkDataObjectMeshCache* EnSightDataSet::GetMeshCache()
+{
+  return this->MeshCache;
 }
 
 VTK_ABI_NAMESPACE_END
