@@ -932,4 +932,15 @@ int vtkOpenGLLowMemoryBatchedPolyDataMapper::CanUseTextureMapForColoring(vtkData
   return 1;
 }
 
+vtkMTimeType vtkOpenGLLowMemoryBatchedPolyDataMapper::GetMTime()
+{
+  if (this->Parent)
+  {
+    return std::max(this->Superclass::GetMTime(), this->Parent->GetMTime());
+  }
+  else
+  {
+    return this->Superclass::GetMTime();
+  }
+}
 VTK_ABI_NAMESPACE_END
