@@ -354,11 +354,9 @@ bool Ioss::Property::get_value(int64_t *value) const
 {
   bool valid_request = type_ == INTEGER;
   if (is_explicit()) {
-    assert(std::holds_alternative<int64_t>(data_));
     *value = data_.ival;
   }
   else {
-    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
     const auto *ge       = data_.ge;
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
@@ -370,11 +368,9 @@ bool Ioss::Property::get_value(double *value) const
 {
   bool valid_request = type_ == REAL;
   if (is_explicit()) {
-    assert(std::holds_alternative<double>(data_));
     *value = data_.rval;
   }
   else {
-    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
     const auto *ge       = data_.ge;
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
@@ -386,11 +382,9 @@ bool Ioss::Property::get_value(std::string *value) const
 {
   bool valid_request = type_ == STRING;
   if (is_explicit()) {
-    assert(std::holds_alternative<std::string>(data_));
     *value = *data_.sval;
   }
   else {
-    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
     const auto *ge       = data_.ge;
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
@@ -402,12 +396,10 @@ bool Ioss::Property::get_value(std::vector<int> *value) const
 {
   bool valid_request = type_ == VEC_INTEGER;
   if (is_explicit()) {
-    assert(std::holds_alternative<std::vector<int>>(data_));
     auto ivec = *data_.ivec;
     std::copy(ivec.begin(), ivec.end(), std::back_inserter(*value));
   }
   else {
-    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
     const auto *ge       = data_.ge;
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
@@ -419,12 +411,10 @@ bool Ioss::Property::get_value(std::vector<double> *value) const
 {
   bool valid_request = type_ == VEC_DOUBLE;
   if (is_explicit()) {
-    assert(std::holds_alternative<std::vector<double>>(data_));
     auto dvec = *data_.dvec;
     std::copy(dvec.begin(), dvec.end(), std::back_inserter(*value));
   }
   else {
-    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
     const auto *ge       = data_.ge;
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
@@ -436,11 +426,9 @@ bool Ioss::Property::get_value(void *&value) const
 {
   bool valid_request = type_ == POINTER;
   if (is_explicit()) {
-    assert(std::holds_alternative<void *>(data_));
     value = data_.pval;
   }
   else {
-    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
     const Ioss::GroupingEntity* ge = data_.ge;
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
