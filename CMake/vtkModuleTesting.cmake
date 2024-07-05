@@ -405,7 +405,7 @@ function (vtk_add_test_cxx exename _tests)
       if (_vtk_test_cxx_wasm_enabled_in_browser)
         set(_vtk_test_cxx_pre_args
             "$<TARGET_FILE:Python3::Interpreter>"
-            "${CMAKE_SOURCE_DIR}/Testing/WebAssembly/runner.py"
+            "${VTK_SOURCE_DIR}/Testing/WebAssembly/runner.py"
             "--engine=${VTK_TESTING_WASM_ENGINE}"
             "--engine-args=${VTK_TESTING_WASM_ENGINE_ARGUMENTS}"
             "--exit")
