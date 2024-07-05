@@ -95,6 +95,7 @@ void vtkOpenGLLowMemoryBatchedPolyDataMapper::AddBatchElement(
   if (found == this->VTKPolyDataToGLBatchElement.end())
   {
     GLBatchElement glBatchElement;
+    glBatchElement.CellGroupId = 0;
     glBatchElement.Parent = std::move(element);
     glBatchElement.Parent.Marked = true;
     this->VTKPolyDataToGLBatchElement[address] =
