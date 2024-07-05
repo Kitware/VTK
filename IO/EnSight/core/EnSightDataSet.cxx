@@ -426,20 +426,6 @@ void readFileValues(const std::string& filename, std::vector<T>& values)
 } // end anon namespace
 
 VTK_ABI_NAMESPACE_BEGIN
-//------------------------------------------------------------------------------
-EnSightDataSet::EnSightDataSet()
-  : CacheGeometry(false)
-  , GeometryCached(false)
-  , GeometryChangeCoordsOnly(false)
-  , GeometryCStep(-1)
-  , MeasuredPartitionId(-1)
-  , NodeIdsListed(false)
-  , ElementIdsListed(false)
-  , ActualTimeValue(0.0)
-  , UsePartNamesRB(true)
-  , UseEulerTimeSteps(false)
-{
-}
 
 //------------------------------------------------------------------------------
 bool EnSightDataSet::CheckVersion(const char* casefilename)

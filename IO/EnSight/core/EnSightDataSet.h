@@ -138,9 +138,6 @@ struct VariableOptions
 class EnSightDataSet
 {
 public:
-  EnSightDataSet();
-  ~EnSightDataSet() = default;
-
   /**
    * Parses through case file until version information is found.
    * Returns true if the file is an EnSight Gold file
@@ -283,26 +280,26 @@ private:
   EnSightFile GeometryFile;
   // set true when at least some part of the geometry needs to be cached
   // use in conjunction with GeometryChangeCoordsOnly
-  bool CacheGeometry;
-  bool GeometryCached;
+  bool CacheGeometry = false;
+  bool GeometryCached = false;
 
   // indicates that changing geometry is only coordinates, not connectivity
-  bool GeometryChangeCoordsOnly;
+  bool GeometryChangeCoordsOnly = false;
 
   // zero based time step that contains the connectivity.
   // only used when GeometryChangeCoordsOnly == true
-  int GeometryCStep;
+  int GeometryCStep = -1;
 
   vtkSmartPointer<vtkPartitionedDataSetCollection> Cache;
 
   std::string MeasuredFileName;
   EnSightFile MeasuredFile;
-  int MeasuredPartitionId;
+  int MeasuredPartitionId = -1;
 
   std::vector<std::string> FilePath;
 
-  bool NodeIdsListed;
-  bool ElementIdsListed;
+  bool NodeIdsListed = false;
+  bool ElementIdsListed = false;
 
   PartInfoMapType PartInfoMap;
   TimeSetInfoMapType TimeSetInfoMap;
@@ -310,7 +307,7 @@ private:
   std::vector<double> AllTimeSteps;
 
   std::vector<VariableOptions> Variables;
-  double ActualTimeValue;
+  double ActualTimeValue = 0.0;
 
   std::string RigidBodyFileName;
   EnSightFile RigidBodyFile;
@@ -342,7 +339,7 @@ private:
 
   // rigid body files allows for using either part names or part Ids to specify
   // transforms for parts;
-  bool UsePartNamesRB;
+  bool UsePartNamesRB = true;
 
   // keeps track of all transforms for each part
   // if UsePartNamesRB == true, the key is the part name
@@ -360,7 +357,7 @@ private:
   // It's possible for an EnSight dataset to not contain transient data, except for the
   // Euler transforms. In this case, we will populate EulerTimeSteps so we can use it for
   // time information, instead of the usual time set
-  bool UseEulerTimeSteps;
+  bool UseEulerTimeSteps = false;
   std::vector<double> EulerTimeSteps;
 };
 
