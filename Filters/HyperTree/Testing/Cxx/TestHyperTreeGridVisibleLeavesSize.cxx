@@ -152,6 +152,7 @@ bool TestDifferentVolumes()
   source->SetDimensions(3, 3, 3);
   source->SetOutputBounds(-10, 10, -10, 10, -10, 10);
   source->SetSplitFraction(0.1);
+  source->SetMaskedFraction(0.3);
   source->SetSeed(0);
   source->Update();
 
@@ -180,6 +181,15 @@ bool TestDifferentVolumes()
   vtkDataArray* volumeField =
     vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("CellSize"));
   double expectedVolumeValue = 1000.0;
+
+  std::array<double, 2> sizeRange;
+  volumeField->GetRange(sizeRange.data());
+  if (sizeRange[0] != 0.0 || sizeRange[1] != expectedVolumeValue)
+  {
+    std::cerr << "Range is [" << sizeRange[0] << ":" << sizeRange[1]
+              << "] but expected [0.0:" << expectedVolumeValue << "]" << std::endl;
+    return false;
+  }
   for (int i = 0; i < MAX_DEPTH; i++)
   {
     expectedVolumeValue /= 8.0;
