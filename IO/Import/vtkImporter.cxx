@@ -40,7 +40,7 @@ void vtkImporter::ReadData()
 //------------------------------------------------------------------------------
 bool vtkImporter::Update()
 {
-  vtkRenderer* renderer;
+  this->UpdateStatus = vtkImporter::UpdateStatusEnum::SUCCESS;
 
   // if there is no render window, create one
   if (this->RenderWindow == nullptr)
@@ -50,7 +50,7 @@ bool vtkImporter::Update()
   }
 
   // Get the first renderer in the render window
-  renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  vtkRenderer* renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
   if (renderer == nullptr)
   {
     vtkDebugMacro(<< "Creating a Renderer\n");
@@ -72,10 +72,6 @@ bool vtkImporter::Update()
   {
     this->ReadData();
     this->ImportEnd();
-    if (this->UpdateStatus == vtkImporter::UpdateStatusEnum::NOT_SET)
-    {
-      this->UpdateStatus = vtkImporter::UpdateStatusEnum::SUCCESS;
-    }
   }
   else
   {
@@ -217,8 +213,14 @@ bool vtkImporter::GetTemporalInformation(vtkIdType vtkNotUsed(animationIdx),
 }
 
 //------------------------------------------------------------------------------
-void vtkImporter::UpdateTimeStep(double vtkNotUsed(timeValue))
+void vtkImporter::UpdateTimeStep(double timeValue)
 {
-  this->Update();
+  this->UpdateAtTimeValue(timeValue);
+}
+
+//------------------------------------------------------------------------------
+bool vtkImporter::UpdateAtTimeValue(double vtkNotUsed(timeValue))
+{
+  return this->Update();
 }
 VTK_ABI_NAMESPACE_END

@@ -90,7 +90,7 @@ public:
   /**
    * update timestep
    */
-  void UpdateTimeStep(double timeValue) override;
+  bool UpdateAtTimeValue(double timeValue) override;
 
   /**
    * Get the number of available animations.

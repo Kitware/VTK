@@ -158,9 +158,16 @@ public:
 
   /**
    * Import the actors, camera, lights and properties at a specific time value.
-   * If not reimplemented, only call Update().
    */
+  VTK_DEPRECATED_IN_9_4_0("This method is deprected, please use UpdateAtTimeValue instead")
   virtual void UpdateTimeStep(double timeValue);
+
+  /**
+   * Import the actors, camera, lights and properties at a specific time value.
+   * Returns if successful or not.
+   * If not reimplemented, only call Update() and return its output.
+   */
+  virtual bool UpdateAtTimeValue(double timeValue);
 
 protected:
   vtkImporter() = default;
@@ -174,26 +181,29 @@ protected:
   virtual void ImportProperties(vtkRenderer*) {}
   virtual void ReadData();
 
-  enum class UpdateStatusEnum
+  enum class UpdateStatusEnum : bool
   {
-    NOT_SET = -1,
-    SUCCESS = 0,
-    FAILURE = 1
+    SUCCESS,
+    FAILURE
   };
 
   /**
    * Set the update status.
    * Importer implementation should set this during Import
    * if import fails for any reason.
-   * vtkImporter will set this to SUCCESS if it was not set
-   * by the end of the vtkImporter::Read call.
-   * Default is NOT_SET
+   * vtkImporter::Update set this to SUCCESS on call.
+   * Default is SUCCESS;
    */
   void SetUpdateStatus(UpdateStatusEnum updateStatus)
   {
     this->UpdateStatus = updateStatus;
     this->Modified();
   }
+
+  /**
+   * Get the update status
+   */
+  UpdateStatusEnum GetUpdateStatus() { return this->UpdateStatus; }
 
   static std::string GetDataSetDescription(vtkDataSet* ds, vtkIndent indent);
   static std::string GetArrayDescription(vtkAbstractArray* array, vtkIndent indent);
@@ -206,7 +216,9 @@ private:
   vtkImporter(const vtkImporter&) = delete;
   void operator=(const vtkImporter&) = delete;
 
-  UpdateStatusEnum UpdateStatus = UpdateStatusEnum::NOT_SET;
+  bool SetAndCheckUpdateStatus();
+
+  UpdateStatusEnum UpdateStatus = UpdateStatusEnum::SUCCESS;
 };
 
 VTK_ABI_NAMESPACE_END
