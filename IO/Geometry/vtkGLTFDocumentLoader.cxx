@@ -992,6 +992,12 @@ bool vtkGLTFDocumentLoader::ApplyAnimation(float t, int animationId, bool forceS
   const Animation& animation = this->InternalModel->Animations[animationId];
   for (const Animation::Channel& channel : animation.Channels)
   {
+    if (channel.TargetNode >= static_cast<int>(this->InternalModel->Nodes.size()))
+    {
+      vtkErrorMacro("Invalid target node");
+      return false;
+    }
+
     Node& node = this->InternalModel->Nodes[channel.TargetNode];
     const Animation::Sampler& sampler = animation.Samplers[channel.Sampler];
 
@@ -1049,6 +1055,12 @@ void vtkGLTFDocumentLoader::ResetAnimation(int animationId)
   const Animation& animation = this->InternalModel->Animations[animationId];
   for (const Animation::Channel& channel : animation.Channels)
   {
+    if (channel.TargetNode >= static_cast<int>(this->InternalModel->Nodes.size()))
+    {
+      vtkWarningMacro("Invalid target node, skipping reset");
+      continue;
+    }
+
     Node& node = this->InternalModel->Nodes[channel.TargetNode];
     switch (channel.TargetPath)
     {
