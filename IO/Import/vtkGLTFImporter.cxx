@@ -737,7 +737,11 @@ bool vtkGLTFImporter::UpdateAtTimeValue(double timeValue)
   {
     if (this->EnabledAnimations[animationId])
     {
-      this->Loader->ApplyAnimation(static_cast<float>(timeValue), animationId);
+      if (!this->Loader->ApplyAnimation(static_cast<float>(timeValue), animationId))
+      {
+        vtkErrorMacro("Error applying animation");
+        return false;
+      }
     }
   }
   this->Loader->BuildGlobalTransforms();
