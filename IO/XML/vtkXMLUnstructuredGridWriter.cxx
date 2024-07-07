@@ -116,7 +116,7 @@ void vtkXMLUnstructuredGridWriter::AllocatePositionArrays()
   this->Superclass::AllocatePositionArrays();
 
   this->NumberOfCellsPositions = new vtkTypeInt64[this->NumberOfPieces];
-  this->CellsOM->Allocate(this->NumberOfPieces, 5, this->NumberOfTimeSteps);
+  this->CellsOM->Allocate(this->NumberOfPieces, 7, this->NumberOfTimeSteps);
 }
 
 //------------------------------------------------------------------------------
