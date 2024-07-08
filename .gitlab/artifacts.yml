@@ -181,8 +181,8 @@
         expire_in: 1d
         when: always
         paths:
-            - build/bin/vtkWasmSceneManager.*
-            - build/bin/vtk-*-wasm*.tar.gz
+            - build/install/bin/vtkWasmSceneManager.*
+            - build/install/bin/vtk-*-wasm*.tar.gz
 
 .cmake_release_artifacts:
     artifacts:
