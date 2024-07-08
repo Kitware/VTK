@@ -2081,7 +2081,7 @@ struct GeneratePtsWorker
     // The PointMap has been marked as to which points are being used.
     // This needs to be updated to indicate the output point ids.
     TInputIdType* ptMap = extract->PointMap;
-    for (auto ptId = 0; ptId < numInputPts; ++ptId)
+    for (vtkIdType ptId = 0; ptId < numInputPts; ++ptId)
     {
       if (ptMap[ptId] == 1)
       {
