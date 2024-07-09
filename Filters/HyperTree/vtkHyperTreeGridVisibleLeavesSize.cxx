@@ -116,6 +116,13 @@ public:
     this->SizeIndirectionTable->SetNumberOfComponents(1);
     this->SizeIndirectionTable->SetNumberOfTuples(inputHTG->GetNumberOfCells());
 
+    // Initialize the whole indirection array with 0 values
+    this->InsertSize(0.0, 0); // Make sure size 0 is in the size lookup map.
+    for (vtkIdType i = 0; i < this->SizeIndirectionTable->GetNumberOfValues(); i++)
+    {
+      this->SizeIndirectionTable->SetTuple1(i, 0.0);
+    }
+
     this->InputMask = inputHTG->HasMask() ? inputHTG->GetMask() : nullptr;
     this->InputGhost = inputHTG->GetGhostCells();
 
