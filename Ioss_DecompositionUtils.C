@@ -383,14 +383,18 @@ namespace Ioss {
     auto chains      = string_chains(element_chains);
 
     if ((debug_level & 16) != 0) {
-      for (const auto &[chain_root, chain_elements] : chains) {
+      for (const auto &chain : chains) {
+        const auto &chain_root = chain.first;
+        const auto &chain_elements = chain.second;
         fmt::print("Chain Root: {} contains: {}\n", chain_root, fmt::join(chain_elements, ", "));
       }
     }
 
     std::vector<float> weights(element_count, 1);
     // Now, for each chain...
-    for (const auto &[chain_root, chain_elements] : chains) {
+    for (const auto &chain : chains) {
+      const auto &chain_root = chain.first;
+      const auto &chain_elements = chain.second;
       // * Set the weights of all elements in the chain...
       // * non-root = 0, root = length of chain.
       for (const auto &element : chain_elements) {
@@ -418,7 +422,9 @@ namespace Ioss {
     std::vector<int> delta(proc_count);
 
     // Now, for each chain...
-    for (const auto &[chain_root, chain_elements] : chains) {
+    for (const auto &chain : chains) {
+      const auto &chain_root = chain.first;
+      const auto &chain_elements = chain.second;
       if ((debug_level & 16) != 0) {
         fmt::print("Chain Root: {} contains: {}\n", chain_root, fmt::join(chain_elements, ", "));
       }
