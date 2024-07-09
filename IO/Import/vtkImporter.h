@@ -43,8 +43,11 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
+class vtkActorCollection;
+class vtkCollection;
 class vtkDataSet;
 class vtkDoubleArray;
+class vtkLightCollection;
 class vtkRenderWindow;
 class vtkRenderer;
 
@@ -69,6 +72,17 @@ public:
    * the file in to a vtkDataAssembly using node names from the file.
    */
   vtkGetObjectMacro(SceneHierarchy, vtkDataAssembly);
+  ///@}
+
+  ///@{
+  /**
+   * Get collection of actors, cameras and lights that were imported by
+   * this importer. Note that this may return empty collections
+   * if not used in the concrete importer.
+   */
+  vtkActorCollection* GetImportedActors() { return this->ActorCollection.Get(); }
+  vtkCollection* GetImportedCameras() { return this->CameraCollection.Get(); }
+  vtkLightCollection* GetImportedLights() { return this->LightCollection.Get(); }
   ///@}
 
   ///@{
@@ -170,7 +184,7 @@ public:
   virtual bool UpdateAtTimeValue(double timeValue);
 
 protected:
-  vtkImporter() = default;
+  vtkImporter();
   ~vtkImporter() override;
 
   virtual int ImportBegin() { return 1; }
@@ -211,6 +225,10 @@ protected:
   vtkRenderer* Renderer = nullptr;
   vtkRenderWindow* RenderWindow = nullptr;
   vtkSmartPointer<vtkDataAssembly> SceneHierarchy;
+
+  vtkNew<vtkActorCollection> ActorCollection;
+  vtkNew<vtkCollection> CameraCollection;
+  vtkNew<vtkLightCollection> LightCollection;
 
 private:
   vtkImporter(const vtkImporter&) = delete;
