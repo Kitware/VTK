@@ -11,6 +11,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
+class vtkActorCollection;
 
 struct VTKIOIMPORT_EXPORT vtkOBJImportedMaterial
 {
@@ -143,8 +144,8 @@ private:
 class vtkRenderWindow;
 class vtkRenderer;
 VTKIOIMPORT_EXPORT
-bool bindTexturedPolydataToRenderWindow(
-  vtkRenderWindow* renderWindow, vtkRenderer* renderer, vtkOBJPolyDataProcessor* reader);
+bool bindTexturedPolydataToRenderWindow(vtkRenderWindow* renderWindow, vtkRenderer* renderer,
+  vtkOBJPolyDataProcessor* reader, vtkActorCollection* actorCollection);
 
 VTK_ABI_NAMESPACE_END
 #endif
