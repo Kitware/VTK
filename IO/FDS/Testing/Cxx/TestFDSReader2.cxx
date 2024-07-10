@@ -14,6 +14,11 @@
 
 #include <cstdlib>
 
+/**
+ * This regression test ensures that slices names with a a space between the name and the
+ * name delimiter (% or # symbol) are correctly supported.
+ */
+
 namespace
 {
 template <typename T1, typename T2>
