@@ -274,6 +274,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::FiltersCellGridPython-TestCellGridPointProbe$"
     "^VTK::FiltersCellGridPython-TestCellGridRange$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19400
+    "^VTK::RenderingCoreCxx-TestResizingWindowToImageFilter$"
   )
 endif ()
 
