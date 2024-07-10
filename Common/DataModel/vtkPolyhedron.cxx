@@ -654,7 +654,7 @@ int vtkPolyhedron::IsInside(const double x[3], double tolerance)
 {
   if (!this->IsRandomSequenceSeedInitialized)
   {
-    this->RandomSequence->SetSeed(time(nullptr));
+    this->RandomSequence->SetSeed(std::time(nullptr));
     this->IsRandomSequenceSeedInitialized = true;
   }
 
