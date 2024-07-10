@@ -14,6 +14,11 @@
 
 #include <cstdlib>
 
+/**
+ * This regression test ensures that empty slices names are correctly supported.
+ * This scenario seems related to the version of FDS used to generate the test file.
+ */
+
 namespace
 {
 template <typename T1, typename T2>

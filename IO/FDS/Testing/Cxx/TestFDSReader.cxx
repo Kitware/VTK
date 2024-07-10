@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <vtkCellData.h>
 #include <vtkDataAssembly.h>
 #include <vtkFDSReader.h>
 #include <vtkInformation.h>
+#include <vtkMathUtilities.h>
 #include <vtkPartitionedDataSet.h>
 #include <vtkPartitionedDataSetCollection.h>
 #include <vtkPointData.h>
@@ -15,12 +17,35 @@
 #include <cstdlib>
 #include <fstream>
 
+/**
+ * This tests the core features of the FDS reader, i.e. the parsing of:
+ * - Grid
+ * - Devices & HRR
+ * - Slices
+ * - Boundaries
+ *
+ * When adding new features, please consider updating the associated data
+ * (edit the test_core.fds file and re-run the simulation) instead of adding
+ * new files when possible.
+ */
 namespace
 {
 template <typename T1, typename T2>
 bool testValue(T1 gotVal, T2 expectedVal, const char* valName)
 {
   if (gotVal != expectedVal)
+  {
+    std::cerr << "Wrong " << valName << ". Expected " << expectedVal << ", got " << gotVal
+              << std::endl;
+    return false;
+  }
+  return true;
+}
+
+template <typename T1, typename T2>
+bool testValueFuzzy(T1 gotVal, T2 expectedVal, const char* valName)
+{
+  if (!vtkMathUtilities::FuzzyCompare(gotVal, expectedVal))
   {
     std::cerr << "Wrong " << valName << ". Expected " << expectedVal << ", got " << gotVal
               << std::endl;
@@ -52,7 +77,7 @@ bool TestExampleFile(const std::string& dataRoot)
 {
   // Test RequestInformation
   vtkNew<vtkFDSReader> reader;
-  std::string fileName = dataRoot + "/Data/FDS/exemple_kitware/exemple_kitware.smv";
+  std::string fileName = dataRoot + "/Data/FDS/test_core/test_core.smv";
   reader->SetFileName(fileName);
   reader->UpdateInformation();
 
@@ -73,7 +98,7 @@ bool TestExampleFile(const std::string& dataRoot)
   {
     return false;
   }
-  if (!testValue(assembly->GetNumberOfChildren(4), 10, "number of slices"))
+  if (!testValue(assembly->GetNumberOfChildren(4), 11, "number of slices"))
   {
     return false;
   }
@@ -83,11 +108,13 @@ bool TestExampleFile(const std::string& dataRoot)
   }
 
   // Test extraction
-  reader->AddSelector("/exemple_kitware/Grids/Mesh01");
-  reader->AddSelector("/exemple_kitware/Devices/HRR_3D");
-  reader->AddSelector("/exemple_kitware/HRR/exemple_kitware_hrr");
-  reader->AddSelector("/exemple_kitware/Slices/STRUCTURED_VelX_VELOCITY");
-  reader->AddSelector("/exemple_kitware/Boundaries/Mesh01_Blockage_1");
+  reader->AddSelector("/test_core/Grids/Mesh01");
+  reader->AddSelector("/test_core/Devices/HRR_3D");
+  reader->AddSelector("/test_core/HRR/test_core_hrr");
+  reader->AddSelector("/test_core/Slices/STRUCTURED_VelX_VELOCITY");
+  // Following slice contains cell-centered data
+  reader->AddSelector("/test_core/Slices/STRUCTURED_TempZ_TEMPERATURE");
+  reader->AddSelector("/test_core/Boundaries/Mesh01_Blockage_3");
   reader->Update();
 
   vtkPartitionedDataSetCollection* output =
@@ -110,7 +137,9 @@ bool TestExampleFile(const std::string& dataRoot)
   {
     return false;
   }
-  if (!testValue(outAssembly->GetNumberOfChildren(4), 1, "number of slices"))
+  // XXX: STRUCTURED_TempZ_TEMPERATURE covers 2 grids, resulting on having 3 slices.
+  // See https://gitlab.kitware.com/paraview/paraview/-/issues/22683
+  if (!testValue(outAssembly->GetNumberOfChildren(4), 3, "number of slices"))
   {
     return false;
   }
@@ -121,7 +150,7 @@ bool TestExampleFile(const std::string& dataRoot)
 
   // Test Mesh01
   auto nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01"));
-  auto mesh01 =
+  auto* mesh01 =
     vtkRectilinearGrid::SafeDownCast(output->GetPartitionedDataSet(nodeIds[0])->GetPartition(0));
   if (!mesh01)
   {
@@ -141,7 +170,7 @@ bool TestExampleFile(const std::string& dataRoot)
 
   // Test Device HRR_3D
   nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("HRR_3D"));
-  auto hrr3D =
+  auto* hrr3D =
     vtkPolyData::SafeDownCast(output->GetPartitionedDataSet(nodeIds[0])->GetPartition(0));
   if (!hrr3D)
   {
@@ -166,9 +195,8 @@ bool TestExampleFile(const std::string& dataRoot)
   }
 
   // Test HRR
-  nodeIds =
-    outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("exemple_kitware_hrr"));
-  auto hrr = vtkTable::SafeDownCast(output->GetPartitionAsDataObject(nodeIds[0], 0));
+  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("test_core_hrr"));
+  auto* hrr = vtkTable::SafeDownCast(output->GetPartitionAsDataObject(nodeIds[0], 0));
   if (!hrr)
   {
     std::cerr << "HRR is nullptr" << std::endl;
@@ -186,61 +214,125 @@ bool TestExampleFile(const std::string& dataRoot)
     return false;
   }
 
-  // Test slice
+  // Test slice with point-centered data
   nodeIds =
     outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("STRUCTURED_VelX_VELOCITY"));
-  auto slice = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
-  if (!slice)
+  auto* sliceVelX = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
+  if (!sliceVelX)
   {
     std::cerr << "VelX slice is nullptr" << std::endl;
     return false;
   }
 
-  if (!testValue(slice->GetNumberOfPoints(), 441, "number of points in slice VelX"))
+  if (!testValue(sliceVelX->GetNumberOfPoints(), 441, "number of points in sliceVelX"))
   {
     return false;
   }
 
-  if (!testValue(slice->GetNumberOfCells(), 400, "number of cells in slice VelX"))
+  if (!testValue(sliceVelX->GetNumberOfCells(), 400, "number of cells in sliceVelX"))
   {
     return false;
   }
 
-  if (!testValue(
-        slice->GetPointData()->GetArray("Values")->GetComponent(0, 0), 0.0, "value in VelX slice"))
+  if (!sliceVelX->GetPointData()->GetArray("Values"))
+  {
+    std::cerr << "VelX slice has no \"Values\" point data array." << std::endl;
+    return false;
+  }
+
+  if (!testValue(sliceVelX->GetPointData()->GetArray("Values")->GetComponent(0, 0), 0.0,
+        "value in VelX slice"))
+  {
+    return false;
+  }
+
+  // Test slice with cell-centered data
+  nodeIds = outAssembly->GetDataSetIndices(
+    outAssembly->FindFirstNodeWithName("STRUCTURED_TempZ_TEMPERATURE"));
+  auto* sliceTempZ = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
+  if (!sliceTempZ)
+  {
+    std::cerr << "TempZ slice is nullptr" << std::endl;
+    return false;
+  }
+
+  // XXX: Slice TempZ covering first grid only has only 336 points.
+  // Total considering two parts (covering both grids) is 462.
+  // See https://gitlab.kitware.com/paraview/paraview/-/issues/22683
+  if (!testValue(sliceTempZ->GetNumberOfPoints(), 336, "number of points in slice TempZ"))
+  {
+    return false;
+  }
+
+  // XXX: Slice TempZ covering first grid only has only 300 cells.
+  // Total considering two parts (covering both grids) is 400.
+  // See https://gitlab.kitware.com/paraview/paraview/-/issues/22683
+  if (!testValue(sliceTempZ->GetNumberOfCells(), 300, "number of cells in slice TempZ"))
+  {
+    return false;
+  }
+
+  if (!sliceTempZ->GetCellData()->GetArray("Values"))
+  {
+    std::cerr << "TempZ slice has no \"Values\" cell data array." << std::endl;
+    return false;
+  }
+
+  if (!testValue(sliceTempZ->GetCellData()->GetArray("Values")->GetComponent(0, 0), 20.0,
+        "value in TempZ slice"))
   {
     return false;
   }
 
   // Test boundary
-  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_1"));
-  auto boundary = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
+  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_3"));
+  auto* boundary = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
   if (!boundary)
   {
-    std::cerr << "Mesh01_Blockage_1 boundary is nullptr" << std::endl;
+    std::cerr << "Mesh01_Blockage_3 boundary is nullptr" << std::endl;
     return false;
   }
 
   if (!testValue(
-        boundary->GetNumberOfPoints(), 266, "number of points in Mesh01_Blockage_1 boundary"))
+        boundary->GetNumberOfPoints(), 266, "number of points in Mesh01_Blockage_3 boundary"))
   {
     return false;
   }
 
   if (!testValue(
-        boundary->GetNumberOfCells(), 234, "number of cells in Mesh01_Blockage_1 boundary"))
+        boundary->GetNumberOfCells(), 234, "number of cells in Mesh01_Blockage_3 boundary"))
   {
     return false;
   }
 
-  if (!testValue(std::abs(boundary->GetPointData()->GetArray("gauge")->GetComponent(0, 0)) < 1e-6,
-        true, "gauge in Mesh01_Blockage_1 boundary"))
+  if (!boundary->GetPointData()->GetArray("gauge"))
+  {
+    std::cerr << "Mesh01_Blockage_3 boundary has no \"gauge\" point data array." << std::endl;
+    return false;
+  }
+
+  const double value_at_t0 = -0.00013127682905178517103195190429688;
+  if (!testValueFuzzy(boundary->GetPointData()->GetArray("gauge")->GetComponent(0, 0), value_at_t0,
+        "gauge in Mesh01_Blockage_3 boundary"))
+  {
+    return false;
+  }
+
+  if (!boundary->GetCellData()->GetArray("gauge"))
+  {
+    std::cerr << "Mesh01_Blockage_3 boundary has no \"gauge\" point data array." << std::endl;
+    return false;
+  }
+
+  // Same value than before since no interpolation is done on the corner of the boundary
+  if (!testValueFuzzy(boundary->GetCellData()->GetArray("gauge")->GetComponent(0, 0), value_at_t0,
+        "gauge in Mesh01_Blockage_3 boundary"))
   {
     return false;
   }
 
   // Test number of timesteps
-  auto outInfo = reader->GetOutputInformation(0);
+  auto* outInfo = reader->GetOutputInformation(0);
   if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
     std::cerr << "Unable to retrieve timestep information " << std::endl;
@@ -253,13 +345,22 @@ bool TestExampleFile(const std::string& dataRoot)
     return false;
   }
 
+  // Now update timestep
   reader->UpdateTimeStep(8.1);
+
   output = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutput());
   outAssembly = output->GetDataAssembly();
-  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_1"));
+  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_3"));
   boundary = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
-  if (!testValue(std::abs(boundary->GetPointData()->GetArray("gauge")->GetComponent(259, 0)) > 1e-6,
-        true, "gauge in Mesh01_Blockage_1 boundary at time value 8.1"))
+
+  const double value_at_t8 = 0.935839116573333740234375;
+  if (!testValueFuzzy(boundary->GetPointData()->GetArray("gauge")->GetComponent(0, 0), value_at_t8,
+        "gauge in Mesh01_Blockage_3 boundary at time value 8.1"))
+  {
+    return false;
+  }
+  if (!testValueFuzzy(boundary->GetCellData()->GetArray("gauge")->GetComponent(0, 0), value_at_t8,
+        "gauge (cell-centered) in Mesh01_Blockage_3 boundary at time value 8.1"))
   {
     return false;
   }

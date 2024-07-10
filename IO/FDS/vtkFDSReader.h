@@ -26,6 +26,8 @@ class vtkResourceStream;
  * files to read automatically. It outputs a `vtkPartitionedDataSetCollection`
  * containing 5 groups: Grids, Devices, HRR, Slices and Boundaries. Each group
  * contains data sets with the expected values for users of the FDS code.
+ *
+ * FDS & SMV specifications : https://pages.nist.gov/fds-smv/manuals.html
  */
 class VTKIOFDS_EXPORT vtkFDSReader : public vtkPartitionedDataSetCollectionAlgorithm
 {
@@ -103,8 +105,16 @@ private:
   bool ParseGRID(const std::vector<int>& baseNodes);
   bool ParseCSVF(const std::vector<int>& baseNodes);
   bool ParseDEVICE(const std::vector<int>& baseNodes);
-  bool ParseSLCFSLCC(const std::vector<int>& baseNodes);
-  bool ParseBNDF();
+
+  /**
+   * Parse the slices section. Data can be cell-centered (SLCC) or not (SLCF)
+   */
+  bool ParseSLCFSLCC(const std::vector<int>& baseNodes, bool cellCentered);
+
+  /**
+   * Parse the boundary section. Data can be cell-centered (BNDC) or not (BNDF)
+   */
+  bool ParseBNDFBNDC(bool cellCentered);
 
   vtkSmartPointer<vtkResourceStream> Open();
   std::string SanitizeName(const std::string& name);
@@ -114,8 +124,6 @@ private:
   std::set<std::string> Selectors;
 
   vtkNew<vtkDataAssembly> Assembly;
-
-  // vtkSmartPointer<vtkResourceStream> Stream;
 
   double TimeTolerance = 1e-5;
 
