@@ -262,9 +262,9 @@ floating-point type, you can pass a Python `float` (or any type that allows
 implicit conversion to `float`).
 
 For C++ '`char`' parameters, which are rarely used in VTK, you must pass a
-string with a length of 1 or 0 bytes. For unicode, the code must fit into
-eight bits (either ASCII, or within the Latin-1 Supplement block).  An empty
-string signifies a null byte, and '\\0' can also be used.
+string with a length of 1. For unicode, the code must fit into eight bits
+(either ASCII, or within the Latin-1 Supplement block).  A null character
+is represented by '\\0', or equivalently `chr(0)`.
 
 A Python `tuple`, `list`, or any other Python sequence can be passed to a VTK
 method that requires an array or `std::vector` in C++:
