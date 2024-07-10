@@ -300,9 +300,12 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
   {
     for (int comp = 0; comp < vtkStructuredTCellBackend::CellSize; ++comp)
     {
-      values[comp] = (ijk[0] + vtkStructuredTCellBackend::ShiftLUT[0][comp]) +
-        (ijk[1] + vtkStructuredTCellBackend::ShiftLUT[1][comp]) * this->PYStride +
-        (ijk[2] + vtkStructuredTCellBackend::ShiftLUT[2][comp]) * this->PZStride;
+      values[comp] =
+        (static_cast<vtkIdType>(ijk[0]) + vtkStructuredTCellBackend::ShiftLUT[0][comp]) +
+        (static_cast<vtkIdType>(ijk[1]) + vtkStructuredTCellBackend::ShiftLUT[1][comp]) *
+          this->PYStride +
+        (static_cast<vtkIdType>(ijk[2]) + vtkStructuredTCellBackend::ShiftLUT[2][comp]) *
+          this->PZStride;
     }
   }
 
@@ -313,9 +316,12 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
     this->ComputeCellStructuredCoords(tupleId, ijk);
     for (int comp = 0; comp < vtkStructuredTCellBackend::CellSize; ++comp)
     {
-      values[comp] = (ijk[0] + vtkStructuredTCellBackend::ShiftLUT[0][comp]) +
-        (ijk[1] + vtkStructuredTCellBackend::ShiftLUT[1][comp]) * this->PYStride +
-        (ijk[2] + vtkStructuredTCellBackend::ShiftLUT[2][comp]) * this->PZStride;
+      values[comp] =
+        (static_cast<vtkIdType>(ijk[0]) + vtkStructuredTCellBackend::ShiftLUT[0][comp]) +
+        (static_cast<vtkIdType>(ijk[1]) + vtkStructuredTCellBackend::ShiftLUT[1][comp]) *
+          this->PYStride +
+        (static_cast<vtkIdType>(ijk[2]) + vtkStructuredTCellBackend::ShiftLUT[2][comp]) *
+          this->PZStride;
     }
   }
 
