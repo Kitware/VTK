@@ -660,8 +660,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
       "float emix = clamp(0.5 + 0.5*lineWidth - min( min( edist[0], edist[1]), edist[2]), 0.0, "
       "1.0);\n";
 
-    bool canRenderLinesAsTube =
-      actor->GetProperty()->GetRenderLinesAsTubes() && ren->GetLights()->GetNumberOfItems() > 0;
+    // Since "tubes" are faked using normals and lights, consider them disabled if we have no light
+    // in the scene.
+    bool canRenderLinesAsTube = actor->GetProperty()->GetRenderLinesAsTubes() &&
+      this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity > 0;
+
     if (canRenderLinesAsTube)
     {
       fsimpl +=
