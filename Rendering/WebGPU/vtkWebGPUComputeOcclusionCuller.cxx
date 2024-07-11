@@ -672,10 +672,16 @@ void vtkWebGPUComputeOcclusionCuller::UpdateCameraMVPBuffer(vtkRenderer* ren)
   // Getting the view-projection matrix
   vtkMatrix4x4* viewMatrix = camera->GetModelViewTransformMatrix();
 
+  // We're using [0, 1] for znear and zfar here to align with WebGPU convention but [-1, 1] as in
+  // OpenGL would have worked too since we're not using the graphics pipeline (compute shader only)
+  // that actually expects [0, 1]
   vtkMatrix4x4* projectionMatrix =
     camera->GetProjectionTransformMatrix(ren->GetTiledAspectRatio(), -1, 1);
   vtkNew<vtkMatrix4x4> viewProj;
   vtkMatrix4x4::Multiply4x4(projectionMatrix, viewMatrix, viewProj);
+  // Reversing the y-axis because Vulkan has a Y-axis that is flipped compared to OpenGL (and VTK's
+  // projection matrix is OpenGL style)
+  // viewProj->SetElement(1, 1, viewProj->GetElement(1, 1) * -1);
   // WebGPU uses column major matrices but VTK is row major
   viewProj->Transpose();
 

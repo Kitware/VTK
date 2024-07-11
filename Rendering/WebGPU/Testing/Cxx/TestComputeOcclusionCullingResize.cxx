@@ -6,7 +6,7 @@
  * hierarchical z-buffer works properly.
  *
  * The test renders some props and then resizes the window. If the occlusion culler handles the
- * resizing properly, the number of props culled shouldn't have change (and we also shouldn't get
+ * resizing properly, the number of props culled shouldn't change (and we also shouldn't get
  * any WebGPU validation errors)
  */
 
@@ -57,7 +57,6 @@ vtkSmartPointer<vtkActor> CreateTriangle(
   polydata->GetPointData()->SetScalars(colors);
 
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->DebugOn();
   mapper->SetInputData(polydata);
 
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
@@ -128,7 +127,7 @@ int TestComputeOcclusionCullingResize(int argc, char* argv[])
   // Removing the default culler
   renderer->GetCullers()->RemoveAllItems();
 
-  // Adding the WebGPU compute shader frustum culler
+  // Adding the WebGPU compute shader occlusion+frustum culler
   vtkNew<vtkWebGPUComputeOcclusionCuller> webgpuOcclusionCuller;
   webgpuOcclusionCuller->SetRenderWindow(vtkWebGPURenderWindow::SafeDownCast(renWin));
   renderer->GetCullers()->AddItem(webgpuOcclusionCuller);

@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 /**
- * This test first creates a few non-overlapping triangles and then creates 2 quads that overlap the
- * triangles. The occlusion culler is expected to render the first 3 non-overlapping triangles and
- * the first quads as they are not occluded but the second quad is expected to occlude the 2
- * triangles on the right and thus they should be culled and not rendered.
+ * This test first creates a few non-overlapping triangles and then a bigger triangle that covers
+ * some of the previous triangles.
+ *
+ * The occlusion culler is expected to render the first non-overlapping triangles but the bigger
+ * triangle is expected to occlude some of the smaller triangles and thus they should be culled and
+ * not rendered.
  *
  * The number of props rendered by the renderer + compute occlusion culler at each frame is then
  * compared to a reference list to make sure that the culler indeed culled (or not) props as it was
@@ -100,7 +102,6 @@ void CheckRenderCount(
     }
   }
 }
-
 }
 
 //------------------------------------------------------------------------------
@@ -128,7 +129,7 @@ int TestComputeOcclusionCulling(int argc, char* argv[])
   // Removing the default culler
   renderer->GetCullers()->RemoveAllItems();
 
-  // Adding the WebGPU compute shader frustum culler
+  // Adding the WebGPU compute shader occlusion+frustum culler
   vtkNew<vtkWebGPUComputeOcclusionCuller> webgpuOcclusionCuller;
   webgpuOcclusionCuller->SetRenderWindow(vtkWebGPURenderWindow::SafeDownCast(renWin));
   renderer->GetCullers()->AddItem(webgpuOcclusionCuller);

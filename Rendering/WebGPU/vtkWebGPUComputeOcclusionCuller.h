@@ -18,7 +18,26 @@ VTK_ABI_NAMESPACE_BEGIN
  * This culler does both frustum culling and occlusion culling.
  *
  * Occlusion culling culls props that are occluded (behind) other props and that are not visible to
- * the camera because of that. This implementation uses the two-pass hierarchical z-buffer approach.
+ * the camera because of that.
+ *
+ * This implementation uses the two-pass hierarchical z-buffer approach.
+ *
+ * This approach projects the bound of the actors onto the viewport and compares the depth of the
+ * projected region with a prepass depth buffer. This "prepass" depth buffer is built from the
+ * objects that were rendered last frame. These objects offer a good approximation of what objects
+ * will be visible this frame (assuming no brutal camera movements). To make the depth comparison
+ * between the quad of the actor (projection of its bounding box on the viewport) more efficient, a
+ * mipmap chain of the depth buffer is used. Without this mipmap chain, we would have to compare the
+ * depth of all the pixels (there could be dozens to hundreds of thousands depending on the
+ * screen-space size of the actor) of the projected bouding box of the actor against the depth
+ * buffer which would be way too expensive. Using a mipmap chain allows us to choose the right
+ * mipmap so that we only have to check a few (~4 +/- 2) pixels for the depth.
+ *
+ * Resource for a general overview of the algorithm:
+ * https://medium.com/@mil_kru/two-pass-occlusion-culling-4100edcad501
+ *
+ * Resource for non-power of two mipmap calculation:
+ * https://miketuritzin.com/post/hierarchical-depth-buffers/
  *
  * To use this culler, simply instantiate it:
  *
@@ -37,6 +56,13 @@ VTK_ABI_NAMESPACE_BEGIN
  * renderer->GetCullers()->RemoveAllItems();
  *
  * before adding the webgpuOcclusionCuller.
+ *
+ * @warning: In its current state, the compute occlusion culler is expected to fail if the WebGPU
+ * backend used is OpenGL. This is because OpenGL has its texture coordinate origin (0, 0) at the
+ * bottom left corner of the texture whereas the shader of the occlusion culler expects the (0, 0)
+ * of the texture to be in the top left corner. With OpenGL, this will cause reads into the depth
+ * buffer to be reversed along the Y axis and incorrect depth values will be read --> invalid
+ * culling.
  */
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputeOcclusionCuller : public vtkCuller
 {
