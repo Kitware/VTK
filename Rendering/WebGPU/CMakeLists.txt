@@ -10,6 +10,7 @@ set(classes
   vtkWebGPUClearDrawPass
   vtkWebGPUComputeBuffer
   vtkWebGPUComputeFrustumCuller
+  vtkWebGPUComputeOcclusionCuller
   vtkWebGPUComputePass
   vtkWebGPUComputePipeline
   vtkWebGPUComputeRenderBuffer
@@ -76,7 +77,10 @@ unset(private_wgsl_shader_headers)
 unset(public_wgsl_shader_headers)
 set(private_shader_files
   wgsl/FrustumCullingShader.wgsl
-  wgsl/PolyData.wgsl)
+  wgsl/PolyData.wgsl
+  wgsl/OcclusionCullingCopyDepthBuffer.wgsl
+  wgsl/OcclusionCullingDepthMipmaps.wgsl
+  wgsl/OcclusionCullingPropsCulling.wgsl)
 
 set(public_shader_files
   Testing/Cxx/TestShaders/TestComputePassShader.wgsl
