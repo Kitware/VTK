@@ -686,6 +686,7 @@ public:
   /**
    * Set / Get the number of multisamples to use for hardware antialiasing.
    * A value of 1 will be set to 0.
+   * Related to OpenGL parameter GL_MAX_SAMPLES.
    */
   virtual void SetMultiSamples(int);
   vtkGetMacro(MultiSamples, int);
