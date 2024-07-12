@@ -689,6 +689,12 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   vtkLogStartScope(TRACE, "Creating link map between connected blocks");
   LinkMap linkMap = vtkDIYGhostUtilities::ComputeLinkMap(master, inputs, outputGhostLevels);
   vtkLogEndScope("Creating link map between connected blocks");
+  // this is empty if there was an error in the usage of given global IDs.
+  // The error message will be printed internally
+  if (linkMap.empty())
+  {
+    return 0;
+  }
 
   vtkLogStartScope(TRACE, "Relinking blocks using link map");
   vtkDIYUtilities::Link(master, assigner, linkMap);

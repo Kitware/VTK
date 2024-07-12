@@ -2362,13 +2362,6 @@ struct MatchingPointExtractor
   template<class PointArrayT>
   void operator()(PointArrayT* points, vtkIdTypeArray* globalPointIds)
   {
-    if ((globalPointIds == nullptr) != this->SourceGlobalPointIds.empty())
-    {
-      vtkLog(ERROR, "Inconsistency in the presence of global point ids across partitions. "
-          "The pipeline will fail at generating ghost cells");
-      return;
-    }
-
     std::vector<vtkIdType> inverseMap;
     auto sourcePointIdsRange = vtk::DataArrayValueRange<1>(this->SourcePointIds);
 
@@ -2616,7 +2609,7 @@ struct FillUnstructuredDataTopologyBufferFunctor<InputArrayT, OutputArrayT, vtkU
               // a copy of this point.
               faces->InsertCellPoint(-seedPointIdsToSendWithIndex.at(pointId));
             }
-          }          
+          }
         }
       }
       else if (faceLocations){
@@ -3083,6 +3076,13 @@ template<class PointSetT>
         blockStructure.RemappedMatchingReceivedPointIdsSortedLikeTarget;
       vtkDataArray* interfacingPointsArray = blockStructure.InterfacingPoints->GetData();
       vtkIdTypeArray* interfacingGlobalPointIds = blockStructure.InterfacingGlobalPointIds;
+
+      if ((interfacingGlobalPointIds == nullptr) != matchingPointExtractor.SourceGlobalPointIds.empty())
+      {
+        vtkLog(ERROR, "Inconsistency in the presence of global point ids across partitions. "
+            "The pipeline will fail at generating ghost cells");
+        return LinkMap();
+      }
 
       if (!Dispatcher::Execute(interfacingPointsArray, matchingPointExtractor,
             interfacingGlobalPointIds))
