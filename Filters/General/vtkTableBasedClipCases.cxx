@@ -5,31 +5,19 @@
 #include "vtkTableBasedClipCases.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-template <bool TInsideOut>
-constexpr bool vtkTableBasedClipCases<TInsideOut>::SupportedCellTypes[VTK_NUMBER_OF_CELL_TYPES];
+constexpr bool vtkTableBasedClipCasesBase::SupportedCellTypes[VTK_NUMBER_OF_CELL_TYPES];
 
-template <bool TInsideOut>
-constexpr uint8_t vtkTableBasedClipCases<TInsideOut>::CellMaxCase[9];
+constexpr uint8_t vtkTableBasedClipCasesBase::CellMaxCase[9];
 
-template <bool TInsideOut>
-constexpr uint8_t vtkTableBasedClipCases<TInsideOut>::CellEdges[NUM_CELL_TYPES][MAX_NUM_EDGES][2];
+constexpr uint8_t vtkTableBasedClipCasesBase::CellEdges[NUM_CELL_TYPES][MAX_NUM_EDGES][2];
 
-template <bool TInsideOut>
-constexpr uint8_t vtkTableBasedClipCases<TInsideOut>::CellCases[];
+constexpr int16_t vtkTableBasedClipCasesBase::CellCasesStartIndexLookUp[NUM_CELL_TYPES];
 
-template <bool TInsideOut>
-constexpr uint16_t vtkTableBasedClipCases<TInsideOut>::StartCellCases[];
+constexpr std::array<uint8_t, 26665> vtkTableBasedClipCases<false>::CellCases;
 
-template <bool TInsideOut>
-constexpr uint8_t vtkTableBasedClipCases<TInsideOut>::CellCasesInsideOut[];
+constexpr std::array<uint16_t, 670> vtkTableBasedClipCases<false>::StartCellCases;
 
-template <bool TInsideOut>
-constexpr uint16_t vtkTableBasedClipCases<TInsideOut>::StartCellCasesInsideOut[];
+constexpr std::array<uint8_t, 23879> vtkTableBasedClipCases<true>::CellCases;
 
-template <bool TInsideOut>
-constexpr int16_t vtkTableBasedClipCases<TInsideOut>::CellCasesStartIndexLookUp[NUM_CELL_TYPES];
-
-// Explicit instantiation
-template class VTKFILTERSGENERAL_EXPORT vtkTableBasedClipCases<false>;
-template class VTKFILTERSGENERAL_EXPORT vtkTableBasedClipCases<true>;
+constexpr std::array<uint16_t, 670> vtkTableBasedClipCases<true>::StartCellCases;
 VTK_ABI_NAMESPACE_END
