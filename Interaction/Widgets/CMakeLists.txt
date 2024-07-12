@@ -80,6 +80,8 @@ set(classes
   vtkImageOrthoPlanes
   vtkImagePlaneWidget
   vtkImageTracerWidget
+  vtkImplicitConeRepresentation
+  vtkImplicitConeWidget
   vtkImplicitCylinderRepresentation
   vtkImplicitCylinderWidget
   vtkImplicitImageRepresentation
