@@ -3,6 +3,7 @@ set(classes
   vtkAggregateDataSetFilter
   vtkAlignImageDataSetFilter
   vtkAngularPeriodicFilter
+  vtkCleanArrays
   vtkCollectGraph
   vtkCollectPolyData
   vtkCollectTable
@@ -17,6 +18,8 @@ set(classes
   vtkHyperTreeGridGenerateGlobalIds
   vtkHyperTreeGridGenerateProcessIds
   vtkHyperTreeGridGhostCellsGenerator
+  vtkMergeBlocks
+  vtkMultiProcessControllerHelper
   vtkPHyperTreeGridProbeFilter
   vtkIntegrateAttributes
   vtkPeriodicFilter
