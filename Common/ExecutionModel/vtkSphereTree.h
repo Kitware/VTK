@@ -179,6 +179,13 @@ public:
   const double* GetTreeSpheres(int level, vtkIdType& numSpheres);
   ///@}
 
+  ///@{
+  /**
+   * Participate in garbage collection via ReportReferences.
+   */
+  bool UsesGarbageCollector() const override { return true; }
+  ///@}
+
 protected:
   vtkSphereTree();
   ~vtkSphereTree() override;

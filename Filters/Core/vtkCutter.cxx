@@ -13,6 +13,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkFloatArray.h"
+#include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkImageData.h"
@@ -1075,5 +1076,20 @@ void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Cut Scalars: " << (this->GenerateCutScalars ? "On\n" : "Off\n");
 
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
+}
+
+//------------------------------------------------------------------------------
+void vtkCutter::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  // These share our input and might participate in a reference loop
+  vtkGarbageCollectorReport(collector, this->SynchronizedTemplates3D, "SynchronizedTemplates3D");
+  vtkGarbageCollectorReport(
+    collector, this->SynchronizedTemplatesCutter3D, "SynchronizedTemplatesCutter3D");
+  vtkGarbageCollectorReport(
+    collector, this->GridSynchronizedTemplates, "GridSynchronizedTemplates");
+  vtkGarbageCollectorReport(
+    collector, this->RectilinearSynchronizedTemplates, "RectilinearSynchronizedTemplates");
+  vtkGarbageCollectorReport(collector, this->PlaneCutter, "PlaneCutter");
 }
 VTK_ABI_NAMESPACE_END
