@@ -210,6 +210,8 @@ protected:
   void BuildUnstructuredHierarchy(vtkDataSet* input, double* tree);
   int SphereTreeType; // keep track of the type of tree hierarchy generated
 
+  void ReportReferences(vtkGarbageCollector*) override;
+
 private:
   vtkSphereTree(const vtkSphereTree&) = delete;
   void operator=(const vtkSphereTree&) = delete;

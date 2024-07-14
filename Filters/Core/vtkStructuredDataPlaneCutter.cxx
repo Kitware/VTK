@@ -10,6 +10,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkFlyingEdgesPlaneCutter.h"
+#include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -1160,5 +1161,13 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
   output->GetFieldData()->PassData(input->GetFieldData());
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredDataPlaneCutter::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  // the SphereTree shares our input and can be part of a reference loop
+  vtkGarbageCollectorReport(collector, this->SphereTree, "SphereTree");
 }
 VTK_ABI_NAMESPACE_END
