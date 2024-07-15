@@ -5,6 +5,7 @@
 
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
+#include "vtkDataObjectMeshCache.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
@@ -72,6 +73,10 @@ int vtkEnSightGoldCombinedReader::RequestInformation(
   {
     vtkErrorMacro("Case file " << this->CaseFileName << " could not be parsed without error");
     return 0;
+  }
+  if (this->Impl->Reader.UseStaticMeshCache())
+  {
+    this->Impl->Reader.GetMeshCache()->SetConsumer(this);
   }
 
   // the rigid body files need to be read here because it's possible that there's no time step
