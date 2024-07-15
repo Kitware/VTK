@@ -1461,7 +1461,8 @@ vtkIdType vtkHyperTreeGrid::GetShiftedLevelZeroIndex(
     {
       // The axis used for 1D
       assert(di >= 0 ||
-        ("there is no neighbor axis 0" && local_ijk[this->GetAxes()[0]] >= static_cast<int>(-di)));
+        ("there is no neighbor axis 0" &&
+          local_ijk[this->GetAxes()[0]] >= static_cast<unsigned int>(-di)));
       local_ijk[this->GetAxes()[0]] += di;
       // No expected values
       assert(dj == 0);
@@ -1472,10 +1473,12 @@ vtkIdType vtkHyperTreeGrid::GetShiftedLevelZeroIndex(
     {
       // Axes used for 2D
       assert(di >= 0 ||
-        ("there is no neighbor axis 0" && local_ijk[this->GetAxes()[0]] >= static_cast<int>(-di)));
+        ("there is no neighbor axis 0" &&
+          local_ijk[this->GetAxes()[0]] >= static_cast<unsigned int>(-di)));
       local_ijk[this->GetAxes()[0]] += di;
       assert(dj >= 0 ||
-        ("there is no neighbor axis 1" && local_ijk[this->GetAxes()[1]] >= static_cast<int>(-dj)));
+        ("there is no neighbor axis 1" &&
+          local_ijk[this->GetAxes()[1]] >= static_cast<unsigned int>(-dj)));
       local_ijk[this->GetAxes()[1]] += dj;
       // No expected values
       assert(dk == 0);
@@ -1483,14 +1486,14 @@ vtkIdType vtkHyperTreeGrid::GetShiftedLevelZeroIndex(
     }
     case 3:
     {
-      assert(
-        di >= 0 || ("there is no neighbor before axis i" && local_ijk[0] >= static_cast<int>(-di)));
+      assert(di >= 0 ||
+        ("there is no neighbor before axis i" && local_ijk[0] >= static_cast<unsigned int>(-di)));
       local_ijk[0] += di;
-      assert(
-        dj >= 0 || ("there is no neighbor before axis j" && local_ijk[1] >= static_cast<int>(-dj)));
+      assert(dj >= 0 ||
+        ("there is no neighbor before axis j" && local_ijk[1] >= static_cast<unsigned int>(-dj)));
       local_ijk[1] += dj;
-      assert(
-        dk >= 0 || ("there is no neighbor before axis k" && local_ijk[2] >= static_cast<int>(-dk)));
+      assert(dk >= 0 ||
+        ("there is no neighbor before axis k" && local_ijk[2] >= static_cast<unsigned int>(-dk)));
       local_ijk[2] += dk;
       break;
     }
