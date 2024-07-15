@@ -35,9 +35,9 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDoubleArray;
 class vtkImageSSIMThreadData;
 class vtkImageSSIMSMPThreadLocal;
-
 class VTKIMAGINGCORE_EXPORT vtkImageSSIM : public vtkThreadedImageAlgorithm
 {
 public:
@@ -98,6 +98,14 @@ public:
   vtkSetMacro(PatchRadius, double);
   vtkGetMacro(PatchRadius, double);
   ///@}
+
+  /**
+   * Compute error metrics of a provided scalars.
+   * Error is defined as the maximum of all individual values within the used method.
+   * Errors are computed using Minkownski and Wasserstein distances.
+   * Method used are euclidian (tight) or manhattan / earth's mover (loose)
+   */
+  static void ComputeErrorMetrics(vtkDoubleArray* scalars, double& tight, double& loose);
 
 protected:
   vtkImageSSIM();

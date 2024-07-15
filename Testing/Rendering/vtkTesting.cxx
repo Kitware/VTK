@@ -518,110 +518,6 @@ int vtkTesting::RegressionTest(const string& pngFileName, double thresh, ostream
   return this->RegressionTest(src, thresh, os);
 }
 
-namespace
-{
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeMinkowski(vtkDoubleArray* array, double (*f)(double))
-{
-  std::array<double, 3> measure = {};
-
-  auto data = vtk::DataArrayTupleRange<3>(array);
-
-  for (auto lab : data)
-  {
-    for (int dim = 0; dim < 3; ++dim)
-    {
-      measure[dim] += f(1.0 - lab[dim]);
-    }
-  }
-
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    measure[dim] /= array->GetNumberOfTuples();
-  }
-
-  return measure;
-}
-
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeMinkowski1(vtkDoubleArray* array)
-{
-  return ComputeMinkowski(array, &std::abs);
-}
-
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeMinkowski2(vtkDoubleArray* array)
-{
-  auto f = [](double v) { return v * v; };
-  auto measure = ComputeMinkowski(array, f);
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    measure[dim] = std::sqrt(measure[dim]);
-  }
-  return measure;
-}
-
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, double (*f)(double))
-{
-  std::array<double, 3> measure = {};
-
-  auto data = vtk::DataArrayTupleRange<3>(array);
-
-  constexpr int N = 100;
-  std::array<double, N> hist[3] = {};
-
-  for (auto lab : data)
-  {
-    for (int dim = 0; dim < 3; ++dim)
-    {
-      ++hist[dim][std::round(lab[dim] * (N - 1))];
-    }
-  }
-
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    std::array<double, N> cfd;
-    std::partial_sum(hist[dim].begin(), hist[dim].end(), cfd.begin());
-
-    for (std::size_t i = 0; i < N - 1; ++i)
-    {
-      measure[dim] += f(cfd[i]);
-    }
-
-    measure[dim] += f(cfd.back() - array->GetNumberOfTuples());
-  }
-
-  return measure;
-}
-
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeWasserstein1(vtkDoubleArray* array)
-{
-  auto measure = ComputeWasserstein(array, &std::abs);
-  vtkIdType div = array->GetNumberOfTuples() * (100 - 1);
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    measure[dim] /= div;
-  }
-  return measure;
-}
-
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeWasserstein2(vtkDoubleArray* array)
-{
-  auto f = [](double v) { return v * v; };
-  auto measure = ComputeWasserstein(array, f);
-  vtkIdType div = array->GetNumberOfTuples() * array->GetNumberOfTuples() * (100 - 1);
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    measure[dim] /= div;
-    measure[dim] = std::sqrt(measure[dim]);
-  }
-  return measure;
-}
-} // anonymoun namespace
-
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream& os)
 {
@@ -809,32 +705,23 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     vtkDoubleArray* scalars = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(rtId->GetOutputDataObject(0))->GetPointData()->GetScalars());
 
-    auto arrayMax = [](const std::array<double, 3>& v) {
-      return std::max(std::max(v[0], v[1]), v[2]);
-    };
-
     if (imageCompareMethod == LEGACY)
     {
       err = vtkImageDifference::SafeDownCast(rtId)->GetThresholdedError();
     }
     else
     {
-      auto mink1 = ComputeMinkowski1(scalars);
-      auto mink2 = ComputeMinkowski2(scalars);
-      auto wass1 = ComputeWasserstein1(scalars);
-      auto wass2 = ComputeWasserstein2(scalars);
+      assert(scalars);
+      double tight, loose;
+      vtkImageSSIM::ComputeErrorMetrics(scalars, tight, loose);
 
       vtkLog(INFO,
         "When comparing images, error is defined as the maximum of all individual"
           << " values within the used method (TIGHT or LOOSE) using the threshold " << thresh);
       vtkLog(
         INFO, "Error computations on Lab channels using Minkownski and Wasserstein distances:");
-      vtkLog(INFO, "TIGHT_VALID metric (euclidian) :");
-      vtkLog(INFO, "mink2 = [" << mink2[0] << ", " << mink2[1] << ", " << mink2[2] << "]");
-      vtkLog(INFO, "wass2 = [" << wass2[0] << ", " << wass2[1] << ", " << wass2[2] << "]");
-      vtkLog(INFO, "LOOSE_VALID metric (manhattan / earth's mover) :");
-      vtkLog(INFO, "mink1 = [" << mink1[0] << ", " << mink1[1] << ", " << mink1[2] << "]");
-      vtkLog(INFO, "wass1 = [" << wass1[0] << ", " << wass1[1] << ", " << wass1[2] << "]");
+      vtkLog(INFO, "TIGHT_VALID metric (euclidian): " << tight);
+      vtkLog(INFO, "LOOSE_VALID metric (manhattan / earth's mover): " << loose);
       vtkLog(INFO,
         "Note: if the test fails but is visually acceptable, one can make the test pass"
           << " by changing the method (TIGHT_VALID vs LOOSE_VALID) and the threshold in CMake.");
@@ -843,11 +730,11 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
       {
         case TIGHT:
         {
-          err = std::max(arrayMax(mink2), arrayMax(wass2));
+          err = tight;
           break;
         }
         case LOOSE:
-          err = std::max(arrayMax(mink1), arrayMax(wass1));
+          err = loose;
           break;
         default:
           vtkLog(ERROR,
