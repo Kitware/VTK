@@ -148,9 +148,27 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
 
   def checkParticles(self, casefile):
     reader = self.setupReader(casefile)
+    # first check that we have all partitions loaded
+    reader.Update()
+
+    data = reader.GetOutput()
+    self.assertEqual(data.GetNumberOfPartitionedDataSets(), 4)
+
+    pds = data.GetPartitionedDataSet(3)
+    self.assertEqual(pds.GetNumberOfPartitions(), 1)
+
+    part = pds.GetPartition(0)
+    arr = part.GetPointData().GetArray("test-scalar")
+    self.assertIsNotNone(arr)
+    self.assertEqual(arr.GetNumberOfComponents(), 1)
+    arr = part.GetPointData().GetArray("test-vector")
+    self.assertIsNotNone(arr)
+    self.assertEqual(arr.GetNumberOfComponents(), 3)
+
+    # now check for when we only load the particle data
     reader.UpdateInformation()
     reader.GetPartSelection().DisableAllArrays()
-    reader.GetPartSelection().EnableArray("particles")
+    reader.GetPartSelection().EnableArray("measured particles")
     reader.Update()
 
     data = reader.GetOutput()
