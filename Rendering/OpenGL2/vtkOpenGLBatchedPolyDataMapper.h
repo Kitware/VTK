@@ -72,6 +72,11 @@ public:
   virtual void ProcessCompositePixelBuffers(vtkHardwareSelector* sel, vtkProp* prop,
     GLBatchElement* glBatchElement, std::vector<unsigned int>& mypixels);
 
+  /**
+   * Returns the maximum of our and Parent vtkCompositePolyDataMapper's MTime
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkOpenGLBatchedPolyDataMapper();
   ~vtkOpenGLBatchedPolyDataMapper() override;
