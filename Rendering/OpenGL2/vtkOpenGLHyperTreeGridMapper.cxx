@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenGLHyperTreeGridMapper.h"
 
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositePolyDataMapper.h" // For Mapper3D
 #include "vtkObjectFactory.h"           // For the macro
 #include "vtkOpenGLPolyDataMapper.h"    // For PDMapper
@@ -13,6 +14,9 @@ vtkObjectFactoryNewMacro(vtkOpenGLHyperTreeGridMapper);
 vtkOpenGLHyperTreeGridMapper::vtkOpenGLHyperTreeGridMapper()
 {
   this->Mapper = vtkSmartPointer<vtkCompositePolyDataMapper>::New();
+  auto cpdm = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper);
+  vtkNew<vtkCompositeDataDisplayAttributes> compositeAttributes;
+  cpdm->SetCompositeDataDisplayAttributes(compositeAttributes);
 }
 
 //------------------------------------------------------------------------------

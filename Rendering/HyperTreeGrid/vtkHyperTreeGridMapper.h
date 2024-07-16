@@ -11,7 +11,7 @@
 
  * By default, this class use an Adaptive GeometryFilter that extract only
  * the part of the geometry to render. Be careful as this implies that new
- * render my trigger an update of the pipeline to get the new part of the
+ * render may trigger an update of the pipeline to get the new part of the
  * geometry to render.
 
  * Note: this class has its own module to avoid cyclic dependency between Rendering Core
@@ -28,6 +28,8 @@
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include "vtkRenderingHyperTreeGridModule.h" // For export macro
+
+#include <set>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
@@ -82,6 +84,22 @@ public:
   vtkBooleanMacro(UseAdaptiveDecimation, bool);
   ///@}
 
+  ///@{
+  /**
+   * Set/get the visibility for a block given its flat index.
+   * Only works for subclasses whose mapper is composite.
+   */
+  void SetBlockVisibility(unsigned int index, bool visible);
+  bool GetBlockVisibility(unsigned int index);
+  void RemoveBlockVisibility(unsigned int index);
+  void RemoveBlockVisibilities();
+  ///@}
+
+  /**
+   * Apply internally-stored block visibility settings to the composite mapper, if any.
+   */
+  void ApplyBlockVisibilities();
+
   /**
    * Use the internal PolyData Mapper to do the rendering
    * of the HTG transformed by the current SurfaceFilter:
@@ -107,7 +125,7 @@ protected:
   vtkSmartPointer<vtkCompositeDataSet> UpdateWithDecimation(
     vtkCompositeDataSet* htg, vtkRenderer* ren);
 
-  // In 2D mode, these variables control the mapper oprimisations
+  // In 2D mode, these variables control the mapper optimisations
   bool UseAdaptiveDecimation = false;
 
   // render the extracted surface,
@@ -120,6 +138,9 @@ protected:
 private:
   vtkHyperTreeGridMapper(const vtkHyperTreeGridMapper&) = delete;
   void operator=(const vtkHyperTreeGridMapper&) = delete;
+
+  std::set<unsigned int> BlocksShown;
+  std::set<unsigned int> BlocksHidden;
 };
 
 VTK_ABI_NAMESPACE_END
