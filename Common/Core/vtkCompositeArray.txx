@@ -14,10 +14,18 @@ vtkSmartPointer<vtkCompositeArray<T>> ConcatenateDataArrays(
   {
     return nullptr;
   }
-  vtkIdType nComps = arrays[0]->GetNumberOfComponents();
+  vtkIdType nComps = -1;
   for (auto arr : arrays)
   {
-    if (arr->GetNumberOfComponents() != nComps)
+    if (arr == nullptr)
+    {
+      continue;
+    }
+    if (nComps == -1)
+    {
+      nComps = arr->GetNumberOfComponents();
+    }
+    else if (arr->GetNumberOfComponents() != nComps)
     {
       vtkErrorWithObjectMacro(nullptr, "Number of components of all the arrays are not equal");
       return nullptr;
@@ -28,7 +36,7 @@ vtkSmartPointer<vtkCompositeArray<T>> ConcatenateDataArrays(
   composite->SetNumberOfComponents(nComps);
   int nTuples = 0;
   std::for_each(arrays.begin(), arrays.end(),
-    [&nTuples](vtkDataArray* arr) { nTuples += arr->GetNumberOfTuples(); });
+    [&nTuples](vtkDataArray* arr) { nTuples += arr ? arr->GetNumberOfTuples() : 0; });
   composite->SetNumberOfTuples(nTuples);
   return composite;
 }
