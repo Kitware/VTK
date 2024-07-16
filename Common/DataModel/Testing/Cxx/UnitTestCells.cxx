@@ -23,6 +23,18 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
+#include "vtkBiQuadraticQuad.h"
+#include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkBiQuadraticTriangle.h"
+#include "vtkCellArray.h"
+#include "vtkCubicLine.h"
+#include "vtkIdTypeArray.h"
+#include "vtkLogger.h"
+#include "vtkMath.h"
+#include "vtkMathUtilities.h"
+#include "vtkMinimalStandardRandomSequence.h"
+#include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticLinearQuad.h"
@@ -33,22 +45,9 @@
 #include "vtkQuadraticTetra.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
-
-#include "vtkBiQuadraticQuad.h"
-#include "vtkBiQuadraticQuadraticHexahedron.h"
-#include "vtkBiQuadraticQuadraticWedge.h"
-#include "vtkBiQuadraticTriangle.h"
 #include "vtkTriQuadraticHexahedron.h"
 #include "vtkTriQuadraticPyramid.h"
 
-#include "vtkCubicLine.h"
-
-#include "vtkCellArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkMath.h"
-#include "vtkMathUtilities.h"
-#include "vtkMinimalStandardRandomSequence.h"
-#include "vtkPoints.h"
 #include <map>
 #include <sstream>
 #include <string>
@@ -108,7 +107,8 @@ int UnitTestCells(int, char*[])
   vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
   int seed = 1; // Use a fixed seed to avoid the test being flaky.
   randomSequence->SetSeed(seed);
-  std::cout << "Seed value: " << seed << std::endl;
+
+  vtkLogF(INFO, "Seed value: %i", seed);
 
   results["EmptyCell"] = TestOneCell<vtkEmptyCell>(VTK_EMPTY_CELL, MakeEmptyCell());
   results["Vertex"] = TestOneCell<vtkVertex>(VTK_VERTEX, MakeVertex());
