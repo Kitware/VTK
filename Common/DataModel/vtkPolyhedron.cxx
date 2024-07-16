@@ -136,54 +136,12 @@ typedef std::vector<Face> FaceVector;
 // Construct the hexahedron with eight points.
 vtkPolyhedron::vtkPolyhedron()
 {
-  this->Line = vtkLine::New();
-  this->Triangle = vtkTriangle::New();
-  this->Quad = vtkQuad::New();
-  this->Polygon = vtkPolygon::New();
-  this->Tetra = vtkTetra::New();
-  this->GlobalFaces = vtkCellArray::New();
-  this->LegacyGlobalFaces = vtkIdTypeArray::New();
-
-  this->EdgesGenerated = 0;
-  this->EdgeTable = vtkEdgeTable::New();
-  this->Edges = vtkIdTypeArray::New();
   this->Edges->SetNumberOfComponents(2);
-  this->EdgeFaces = vtkIdTypeArray::New();
   this->EdgeFaces->SetNumberOfComponents(2);
-
-  this->FacesGenerated = 0;
-  this->Faces = vtkCellArray::New();
-
-  this->BoundsComputed = 0;
-
-  this->PolyDataConstructed = 0;
-  this->PolyData = vtkPolyData::New();
-  this->LocatorConstructed = 0;
-  this->CellLocator = vtkCellLocator::New();
-  this->CellIds = vtkIdList::New();
-  this->Cell = vtkGenericCell::New();
-  this->IsRandomSequenceSeedInitialized = false;
 }
 
 //------------------------------------------------------------------------------
-vtkPolyhedron::~vtkPolyhedron()
-{
-  this->Line->Delete();
-  this->Triangle->Delete();
-  this->Quad->Delete();
-  this->Polygon->Delete();
-  this->Tetra->Delete();
-  this->GlobalFaces->Delete();
-  this->LegacyGlobalFaces->Delete();
-  this->EdgeTable->Delete();
-  this->Edges->Delete();
-  this->EdgeFaces->Delete();
-  this->Faces->Delete();
-  this->PolyData->Delete();
-  this->CellLocator->Delete();
-  this->CellIds->Delete();
-  this->Cell->Delete();
-}
+vtkPolyhedron::~vtkPolyhedron() = default;
 
 //------------------------------------------------------------------------------
 void vtkPolyhedron::ComputeBounds()
