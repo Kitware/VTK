@@ -44,6 +44,8 @@ namespace vtkIOSSUtilities
 {
 VTK_ABI_NAMESPACE_BEGIN
 
+static vtkSmartPointer<vtkDataArray> ChangeComponents(vtkDataArray* array, int num_components);
+
 //----------------------------------------------------------------------------
 class Cache::CacheInternals
 {
@@ -296,6 +298,15 @@ vtkSmartPointer<vtkDataArray> GetData(const Ioss::GroupingEntity* entity,
   {
     field.add_transform(transform);
     field.transform(array->GetVoidPointer(0));
+  }
+
+  // Check for Transient 2D data that should be 3D for WarpByVector/Glyphs
+  if (entity->type() == vtkioss_Ioss::NODEBLOCK &&
+    field.get_role() == vtkioss_Ioss::Field::RoleType::TRANSIENT && // Nodal / Elem Variables
+    entity->get_property("component_degree").get_int() == 2 &&      // dimension 2 mesh nodeblock
+    field.raw_storage()->component_count() == 2)                    // 2D Vector
+  {
+    array = ChangeComponents(array, 3);
   }
 
   if (cache)
