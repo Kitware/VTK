@@ -42,11 +42,11 @@ vtkOpenXRManager::InstanceVersion vtkOpenXRManager::QueryInstanceVersion(
   // Create the instance with enabled extensions.
   XrInstanceCreateInfo createInfo{ XR_TYPE_INSTANCE_CREATE_INFO };
   createInfo.applicationInfo = XrApplicationInfo{
-    "OpenXR with VTK",      // .applicationName
-    1,                      // .applicationVersion
-    "",                     // .engineName
-    1,                      // .engineVersion
-    XR_CURRENT_API_VERSION, // .apiVersion
+    "OpenXR with VTK",                                               // .applicationName
+    1,                                                               // .applicationVersion
+    "",                                                              // .engineName
+    1,                                                               // .engineVersion
+    XR_MAKE_VERSION(1, 0, XR_VERSION_PATCH(XR_CURRENT_API_VERSION)), // .apiVersion
   };
   createInfo.enabledExtensionCount = static_cast<uint32_t>(enabledExtensions.size());
   createInfo.enabledExtensionNames = enabledExtensions.data();
@@ -804,11 +804,11 @@ bool vtkOpenXRManager::CreateInstance()
   createInfo.enabledExtensionNames = enabledExtensions.data();
 
   XrApplicationInfo applicationInfo = {
-    "OpenXR with VTK",      // .applicationName
-    1,                      // .applicationVersion
-    "",                     // .engineName
-    1,                      // .engineVersion
-    XR_CURRENT_API_VERSION, // .apiVersion
+    "OpenXR with VTK",                                               // .applicationName
+    1,                                                               // .applicationVersion
+    "",                                                              // .engineName
+    1,                                                               // .engineVersion
+    XR_MAKE_VERSION(1, 0, XR_VERSION_PATCH(XR_CURRENT_API_VERSION)), // .apiVersion
   };
 
   createInfo.applicationInfo = applicationInfo;
