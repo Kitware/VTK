@@ -41,7 +41,6 @@ public:
    * @param controller reference to the MPI controller used for parallel operations
    * @param inputHTG reference to the input HyperTreeGrid
    * @param outputHTG reference to the output HyperTreeGrid
-   * @param totalVertices Number of vertices in the input HTG
    */
   vtkHyperTreeGridGhostCellsGeneratorInternals(vtkHyperTreeGridGhostCellsGenerator* self,
     vtkMultiProcessController* controller, vtkHyperTreeGrid* inputHTG, vtkHyperTreeGrid* outputHTG);
@@ -86,8 +85,6 @@ public:
 
   /**
    * ProcessTrees subroutine creating the output ghost array and adding it to the output HTG.
-   *
-   * @param nonGhostVertices The number of vertices in the HTG excluding ghost cells.
    */
   void FinalizeCellData();
 

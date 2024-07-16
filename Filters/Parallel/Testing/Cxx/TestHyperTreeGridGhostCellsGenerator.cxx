@@ -3,6 +3,7 @@
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGenerateGlobalIds.h"
 #include "vtkHyperTreeGridGhostCellsGenerator.h"
 #include "vtkMPIController.h"
 #include "vtkNew.h"
@@ -151,8 +152,7 @@ int TestGhostMasking(vtkMPIController* controller)
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
-  const int expectedNbOfCells[4] = { 208, 256, 192, 248 };
-  const int expectedGhostTypeCutoff[4] = { 97, 145, 137, 89 };
+  const int expectedNbOfCells[4] = { 224, 312, 200, 280 };
 
   // Setup pipeline
   vtkNew<vtkRandomHyperTreeGridSource> htgSource;
@@ -194,7 +194,7 @@ int TestGhostMasking(vtkMPIController* controller)
   }
   for (int i = 0; i < expectedNbOfCells[myRank]; i++)
   {
-    int expectedGhostType = (i <= expectedGhostTypeCutoff[myRank]) ? 0 : 1;
+    int expectedGhostType = (i < nbCellsBefore) ? 0 : 1;
     if (htg->GetGhostCells()->GetTuple1(i) != expectedGhostType)
     {
       vtkErrorWithObjectMacro(nullptr, << "Expected ghost type " << expectedGhostType << " but got "
@@ -214,6 +214,48 @@ int TestGhostMasking(vtkMPIController* controller)
       nullptr, << "Depth array outside of expected range for rank " << myRank);
     ret = EXIT_FAILURE;
   }
+  return ret;
+}
+
+/**
+ * Test with a simple 2D case
+ */
+int TestGhost2D(vtkMPIController* controller)
+{
+  int ret = EXIT_SUCCESS;
+
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  // Setup pipeline
+  vtkNew<vtkRandomHyperTreeGridSource> htgSource;
+  htgSource->SetSeed(0);
+  htgSource->SetMaxDepth(2);
+  htgSource->SetDimensions(5, 5, 5);
+  htgSource->SetMaskedFraction(0.3);
+  htgSource->SetSplitFraction(0.3);
+  htgSource->UpdatePiece(myRank, nbRanks, 0);
+  int nbCellsBefore = htgSource->GetHyperTreeGridOutput()->GetNumberOfCells();
+  vtkLog(TRACE, << "number of cells (before Generator): " << nbCellsBefore);
+
+  // Create GCG
+  vtkHyperTreeGridGhostCellsGenerator* generator =
+    vtkHyperTreeGridGhostCellsGenerator::New(); // early delete
+  generator->SetInputConnection(htgSource->GetOutputPort());
+  vtkSmartPointer<vtkHyperTreeGrid> htg(generator->GetHyperTreeGridOutput());
+  if (generator->UpdatePiece(myRank, nbRanks, 0) != 1)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Fail to update piece for process " << myRank);
+    return EXIT_FAILURE;
+  }
+
+  generator->Delete(); // check the cell data are still consistent
+
+  auto nbCellsAfter = htg->GetNumberOfCells();
+  vtkLog(TRACE, << "number of cells (after Generator): " << nbCellsAfter);
+
+  htg->GetCellData()->GetArray("Depth")->GetTuple1(nbCellsAfter - 3);
+
   return ret;
 }
 }
@@ -247,6 +289,7 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   // Run actual tests
   ret |= ::TestGhostCellFields(controller);
   ret |= ::TestGhostMasking(controller);
+  ret |= ::TestGhost2D(controller);
 
   controller->Finalize();
   return ret;
