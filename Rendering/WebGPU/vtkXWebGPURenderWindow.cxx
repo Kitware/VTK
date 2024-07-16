@@ -55,9 +55,6 @@ vtkXWebGPURenderWindow::vtkXWebGPURenderWindow()
 // free up memory & close the window
 vtkXWebGPURenderWindow::~vtkXWebGPURenderWindow()
 {
-  // close-down all system-specific drawing resources
-  this->Finalize();
-
   vtkRenderer* ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
@@ -65,6 +62,11 @@ vtkXWebGPURenderWindow::~vtkXWebGPURenderWindow()
   {
     ren->SetRenderWindow(nullptr);
   }
+  this->Renderers->RemoveAllItems();
+  // Finalize in turn destroys the WGPUInstance. As a result, it must be called after all renderers
+  // are destroyed. Otherwise, the destructors of WGPU objects held on to by the vtkRenderer will
+  // occur after WGPUInstance is gone, which can crash applications.
+  this->Finalize();
 }
 
 //------------------------------------------------------------------------------------------------

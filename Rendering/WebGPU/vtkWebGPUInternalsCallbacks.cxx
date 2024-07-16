@@ -17,8 +17,11 @@ void vtkWebGPUInternalsCallbacks::DeviceLostCallback(
     case WGPUDeviceLostReason_Destroyed:
       reasonStr = "Destroyed";
       break;
-    case WGPUDeviceLostReason_Undefined:
-      reasonStr = "Undefined";
+    case WGPUDeviceLostReason_InstanceDropped:
+      reasonStr = "InstanceDropped";
+      break;
+    case WGPUDeviceLostReason_FailedCreation:
+      reasonStr = "FailedCreation";
       break;
     default:
       reasonStr = "Unknown";

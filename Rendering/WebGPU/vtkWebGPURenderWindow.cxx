@@ -218,6 +218,7 @@ void vtkWebGPURenderWindow::WGPUFinalize()
   this->DestroyDepthStencilTexture();
   this->DestroySwapChain();
   this->Device = nullptr;
+  vtkWGPUContext::Finalize();
 }
 
 //------------------------------------------------------------------------------

@@ -79,7 +79,6 @@ static void WaitABit()
 namespace vtkWGPUImpl = vtkWGPUEmscriptenImpl;
 #elif VTK_USE_DAWN_WEBGPU
 #include <cstring>
-#include <dawn/dawn_proc.h>
 #include <dawn/native/DawnNative.h>
 namespace vtkWGPUDawnImpl
 {
@@ -89,11 +88,7 @@ static const char* AdapterTypeName(wgpu::AdapterType);
 
 static struct
 {
-  struct
-  {
-    DawnProcTable ProcTable;
-    std::unique_ptr<dawn::native::Instance> Instance = nullptr;
-  } DawnNativeEntryPoint;
+  std::unique_ptr<dawn::native::Instance> Instance = nullptr;
   struct
   {
     dawn::native::Adapter Handle;
@@ -116,13 +111,7 @@ static void Initialize()
     return;
   }
 
-  // Set up the native procs for the global proctable
-  GPUContext.DawnNativeEntryPoint.ProcTable = dawn::native::GetProcs();
-  dawnProcSetProcs(&GPUContext.DawnNativeEntryPoint.ProcTable);
-  GPUContext.DawnNativeEntryPoint.Instance =
-    std::unique_ptr<dawn::native::Instance>(new dawn::native::Instance());
-  GPUContext.DawnNativeEntryPoint.Instance->DiscoverDefaultAdapters();
-  GPUContext.DawnNativeEntryPoint.Instance->EnableBackendValidation(true);
+  GPUContext.Instance = std::unique_ptr<dawn::native::Instance>(new dawn::native::Instance());
 
   // Dawn backend type.
   // Default to D3D12, Metal, Vulkan, OpenGL in that order as D3D12 and Metal
@@ -141,9 +130,15 @@ static void Initialize()
 }
 
 //------------------------------------------------------------------------------
+static void Finalize()
+{
+  GPUContext.Instance.reset(nullptr);
+}
+
+//------------------------------------------------------------------------------
 static void WaitABit()
 {
-  wgpuInstanceProcessEvents(GPUContext.DawnNativeEntryPoint.Instance->Get());
+  wgpuInstanceProcessEvents(GPUContext.Instance->Get());
 }
 
 //------------------------------------------------------------------------------
@@ -159,8 +154,7 @@ static wgpu::Adapter RequestAdapter(const wgpu::RequestAdapterOptions& options)
 {
   Initialize();
 
-  std::vector<dawn::native::Adapter> adapters =
-    GPUContext.DawnNativeEntryPoint.Instance->EnumerateAdapters(&options);
+  std::vector<dawn::native::Adapter> adapters = GPUContext.Instance->EnumerateAdapters(&options);
   for (const dawn::native::Adapter& adapter : adapters)
   {
     GPUContext.Adapter.Handle = adapter;
@@ -189,8 +183,7 @@ static wgpu::Surface CreateSurface(const wgpu::ChainedStruct& surfaceDescriptor)
 {
   wgpu::SurfaceDescriptor descriptor;
   descriptor.nextInChain = &surfaceDescriptor;
-  wgpu::Surface surface =
-    wgpu::Instance(GPUContext.DawnNativeEntryPoint.Instance->Get()).CreateSurface(&descriptor);
+  wgpu::Surface surface = wgpu::Instance(GPUContext.Instance->Get()).CreateSurface(&descriptor);
   if (!surface)
   {
     return nullptr;
@@ -205,7 +198,7 @@ static void LogAvailableAdapters()
 
   std::stringstream msg;
   msg << "Available adapters:\n";
-  for (auto&& a : GPUContext.DawnNativeEntryPoint.Instance->EnumerateAdapters())
+  for (auto&& a : GPUContext.Instance->EnumerateAdapters())
   {
     wgpu::AdapterProperties p;
     a.GetProperties(&p);
@@ -314,4 +307,9 @@ void vtkWGPUContext::WaitABit()
   vtkWGPUImpl::WaitABit();
 }
 
+//------------------------------------------------------------------------------
+void vtkWGPUContext::Finalize()
+{
+  vtkWGPUImpl::Finalize();
+}
 VTK_ABI_NAMESPACE_END
