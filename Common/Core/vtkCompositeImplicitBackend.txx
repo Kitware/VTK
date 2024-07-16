@@ -159,7 +159,14 @@ private:
       vtkNew<CachedArray> newCache;
       newCache->SetBackend(std::make_shared<CachedBackend>(arr));
       newCache->SetNumberOfComponents(1);
-      newCache->SetNumberOfTuples(arr->GetNumberOfTuples() * arr->GetNumberOfComponents());
+      if (arr)
+      {
+        newCache->SetNumberOfTuples(arr->GetNumberOfTuples() * arr->GetNumberOfComponents());
+      }
+      else
+      {
+        newCache->SetNumberOfTuples(0);
+      }
       return newCache;
     });
     if (this->CachedArrays.size() > 0)
