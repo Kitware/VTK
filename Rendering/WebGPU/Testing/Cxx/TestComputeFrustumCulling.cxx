@@ -14,18 +14,16 @@
 #include "vtkCamera.h"
 #include "vtkCullerCollection.h"
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
-#include "vtkObject.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSphereSource.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkWebGPUComputeFrustumCuller.h"
-#include "vtkXMLMultiBlockDataReader.h"
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkActor> CreateTriangle(
@@ -57,7 +55,7 @@ bool renderAndCheckResults(vtkRenderWindow* renWin, vtkRenderer* renderer,
   renWin->Render();
   renderedPropCounts.push_back(renderer->GetNumberOfPropsRendered());
 
-  for (int i = 0; i < renderedPropCounts.size(); i++)
+  for (std::size_t i = 0; i < renderedPropCounts.size(); i++)
   {
     if (renderedPropCounts[i] != renderedPropCountsReference[i])
     {
@@ -74,7 +72,7 @@ bool renderAndCheckResults(vtkRenderWindow* renWin, vtkRenderer* renderer,
 }
 
 //------------------------------------------------------------------------------
-int TestComputeFrustumCulling(int argc, char* argv[])
+int TestComputeFrustumCulling(int, char*[])
 {
   // How many props are expected to be rendered at each frame (with modification of the props in
   // between the frames)

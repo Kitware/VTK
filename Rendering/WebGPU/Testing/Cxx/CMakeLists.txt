@@ -2,30 +2,26 @@
 # (vtk/vtk#19322): Add baselines for these unit tests
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestActorFaceCullingProperty.cxx,NO_DATA
-  TestCellScalarMappedColors.cxx,NO_DATA,NO_VALID
-  TestCompositePolyDataMapper.cxx,NO_DATA,NO_VALID
+  TestCellScalarMappedColors.cxx,NO_DATA
+  # TestCompositePolyDataMapper.cxx,NO_DATA,NO_VALID # FIXME: Composite PolyDataMapper needs updated to delegator design pattern.
   TestComputeDoublePipelineRenderBuffer.cxx,NO_DATA
   TestComputeFrustumCulling.cxx,NO_DATA,NO_VALID
   TestComputeOcclusionCulling.cxx,NO_DATA,NO_VALID
   TestComputeOcclusionCullingResize.cxx,NO_DATA,NO_VALID
   TestComputeModifyPointColors.cxx,NO_DATA
   TestComputeModifyCellColors.cxx,NO_DATA
-  TestComputePass.cxx,NO_DATA_,NO_VALID
-  TestComputePassChained.cxx,NO_DATA_,NO_VALID
-  TestComputePassUniform.cxx,NO_DATA_,NO_VALID
-  TestComputeTexture.cxx,NO_DATA_,NO_VALID
-  TestConesBenchmark.cxx,NO_DATA,NO_VALID
-  TestLineRendering.cxx,NO_DATA,NO_VALID
-  TestPointScalarMappedColors.cxx,NO_DATA,NO_VALID
-  TestScalarModeToggle.cxx,NO_DATA,NO_VALID
-  TestSurfacePlusEdges.cxx,NO_DATA,NO_VALID
-  TestTheQuad.cxx,NO_DATA,NO_VALID
-  TestTheQuadPointRepresentation.cxx,NO_DATA,NO_VALID
-  TestTheQuadWireframeRepresentation.cxx,NO_DATA,NO_VALID
-  TestTheTriangle.cxx,NO_DATA,NO_VALID
-  TestTheTrianglePointRepresentation.cxx,NO_DATA,NO_VALID
-  TestTheTriangleWireframeRepresentation.cxx,NO_DATA,NO_VALID
-  TestVertexRendering.cxx,NO_DATA,NO_VALID
-  TestWireframe.cxx,NO_DATA,NO_VALID)
+  TestComputePass.cxx,NO_DATA,NO_VALID
+  TestComputePassChained.cxx,NO_DATA,NO_VALID
+  TestComputePassUniform.cxx,NO_DATA,NO_VALID
+  TestComputeTexture.cxx,NO_DATA,NO_VALID
+  TestConesBenchmark.cxx,NO_DATA
+  TestLineRendering.cxx,NO_DATA
+  TestPointScalarMappedColors.cxx,NO_DATA
+  TestScalarModeToggle.cxx,NO_DATA
+  TestSurfacePlusEdges.cxx,NO_DATA
+  TestQuad.cxx,NO_DATA
+  TestQuadPointRep.cxx,NO_DATA
+  TestVertexRendering.cxx,NO_DATA
+  TestWireframe.cxx,NO_DATA)
 
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)
