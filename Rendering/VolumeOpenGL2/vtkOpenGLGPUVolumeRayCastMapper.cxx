@@ -792,8 +792,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CaptureDepthTexture(vtkRender
     // First set the parameters
     this->DepthTextureObject->SetWrapS(vtkTextureObject::Repeat);
     this->DepthTextureObject->SetWrapT(vtkTextureObject::Repeat);
+    // GLES3 specificity: can't use Linear filtering when the texture array's internal format is not
+    // texture-filterable (In the specification: 3.8.13, Texture Completeness)
+#ifdef GL_ES_VERSION_3_0
+    this->DepthTextureObject->SetMagnificationFilter(vtkTextureObject::Nearest);
+    this->DepthTextureObject->SetMinificationFilter(vtkTextureObject::Nearest);
+#else
     this->DepthTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
     this->DepthTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
+#endif
+
     if (orenWin->GetStencilCapable())
     {
       this->DepthTextureObject->AllocateDepthStencil(this->WindowSize[0], this->WindowSize[1]);
