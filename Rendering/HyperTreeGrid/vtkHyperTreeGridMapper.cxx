@@ -7,8 +7,9 @@
 #include "vtkCamera.h"
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataSetRange.h"
 #include "vtkCompositePolyDataMapper.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeRange.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGroupDataSetsFilter.h"
 #include "vtkHyperTreeGrid.h"
@@ -38,28 +39,6 @@ vtkSmartPointer<vtkCompositeDataSet> EnsureComposite(vtkDataObject* dobj)
   auto cds = vtkSmartPointer<vtkCompositeDataSet>::Take(outCds->NewInstance());
   cds->CompositeShallowCopy(outCds);
   return cds;
-}
-
-void GetBoundsComposite(vtkCompositeDataSet* cd, double bounds[6])
-{
-  // TODO: bounds for hidden blocks
-  vtkBoundingBox globalBounds;
-  for (auto block : vtk::Range(cd))
-  {
-    if (auto ds = vtkDataSet::SafeDownCast(block))
-    {
-      double localBounds[6];
-      ds->GetBounds(localBounds);
-      globalBounds.AddBounds(localBounds);
-    }
-    else if (auto htg = vtkHyperTreeGrid::SafeDownCast(block))
-    {
-      double localBounds[6];
-      htg->GetBounds(localBounds);
-      globalBounds.AddBounds(localBounds);
-    }
-  }
-  globalBounds.GetBounds(bounds);
 }
 }
 
@@ -127,7 +106,7 @@ void vtkHyperTreeGridMapper::GetBounds(double bounds[6])
 {
   if (this->Input)
   {
-    ::GetBoundsComposite(this->Input, bounds);
+    this->GetBoundsComposite(bounds);
   }
   else
   {
@@ -135,6 +114,43 @@ void vtkHyperTreeGridMapper::GetBounds(double bounds[6])
   }
 }
 
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::GetBoundsComposite(double bounds[6])
+{
+  vtkBoundingBox globalBounds;
+
+  // Input should always be a composite Multiblock because of EnsureComposite
+  auto dtree = vtkDataObjectTree::SafeDownCast(this->Input);
+  if (!dtree)
+  {
+    vtkErrorMacro("Expected a composite input structure");
+    return;
+  }
+  for (const auto& ref : vtk::Range(dtree,
+         vtk::DataObjectTreeOptions::TraverseSubTree | vtk::DataObjectTreeOptions::SkipEmptyNodes))
+  {
+    auto ds = vtkDataSet::SafeDownCast(ref.GetDataObject());
+    auto htg = vtkHyperTreeGrid::SafeDownCast(ref.GetDataObject());
+    bool visible = this->GetBlockVisibility(ref.GetFlatIndex());
+    // When block is hidden, don't count it into bounds
+    if (ds && visible)
+    {
+      double localBounds[6];
+      ds->GetBounds(localBounds);
+      globalBounds.AddBounds(localBounds);
+    }
+    else if (htg && visible)
+    {
+      double localBounds[6];
+      htg->GetBounds(localBounds);
+      globalBounds.AddBounds(localBounds);
+    }
+  }
+
+  globalBounds.GetBounds(bounds);
+}
+
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridMapper::ApplyBlockVisibilities()
 {
   auto compositeMapper = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper);
@@ -170,6 +186,7 @@ void vtkHyperTreeGridMapper::SetBlockVisibility(unsigned int index, bool visible
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridMapper::GetBlockVisibility(unsigned int index)
 {
+  // Due to the Set logic, a block can't be in both sets at the same time
   if (this->BlocksShown.find(index) != this->BlocksShown.end())
   {
     return true;
@@ -178,7 +195,7 @@ bool vtkHyperTreeGridMapper::GetBlockVisibility(unsigned int index)
   {
     return false;
   }
-  return true; // Default visibility for the composite mapper
+  return true; // Visibility unset: block is visible
 }
 
 //------------------------------------------------------------------------------

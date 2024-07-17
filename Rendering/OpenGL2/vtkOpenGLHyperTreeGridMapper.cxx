@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenGLHyperTreeGridMapper.h"
 
-#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositePolyDataMapper.h" // For Mapper3D
 #include "vtkObjectFactory.h"           // For the macro
 #include "vtkOpenGLPolyDataMapper.h"    // For PDMapper

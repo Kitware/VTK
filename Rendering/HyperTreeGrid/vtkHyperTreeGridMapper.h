@@ -29,7 +29,7 @@
 
 #include "vtkRenderingHyperTreeGridModule.h" // For export macro
 
-#include <set>
+#include <set> // For std::set
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
@@ -69,9 +69,11 @@ public:
    * For this mapper, the bounds correspond to the output for the
    * internal surface filter which may be restricted to the Camera frustum
    * if UseCameraFrustum is on.
+   * Bounds take block visibility into account for composite inputs.
    */
   double* GetBounds() override;
   void GetBounds(double bounds[6]) override;
+  void GetBoundsComposite(double bounds[6]);
   ///@}
 
   ///@{
@@ -105,11 +107,6 @@ public:
   void RemoveBlockVisibility(unsigned int index);
   void RemoveBlockVisibilities();
   ///@}
-
-  /**
-   * Apply internally-stored block visibility settings to the composite mapper, if any.
-   */
-  void ApplyBlockVisibilities();
 
   /**
    * Use the internal PolyData Mapper to do the rendering
@@ -152,6 +149,11 @@ private:
 
   std::set<unsigned int> BlocksShown;
   std::set<unsigned int> BlocksHidden;
+
+  /**
+   * Apply internally-stored block visibility settings to the composite mapper, if any.
+   */
+  void ApplyBlockVisibilities();
 };
 
 VTK_ABI_NAMESPACE_END
