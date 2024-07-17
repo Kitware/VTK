@@ -14,9 +14,6 @@ vtkObjectFactoryNewMacro(vtkOpenGLHyperTreeGridMapper);
 vtkOpenGLHyperTreeGridMapper::vtkOpenGLHyperTreeGridMapper()
 {
   this->Mapper = vtkSmartPointer<vtkCompositePolyDataMapper>::New();
-  auto cpdm = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper);
-  vtkNew<vtkCompositeDataDisplayAttributes> compositeAttributes;
-  cpdm->SetCompositeDataDisplayAttributes(compositeAttributes);
 }
 
 //------------------------------------------------------------------------------

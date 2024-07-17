@@ -5,6 +5,7 @@
 #include "vtkActor.h"
 #include "vtkAdaptiveDataSetSurfaceFilter.h"
 #include "vtkCamera.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataSetRange.h"
 #include "vtkCompositePolyDataMapper.h"
@@ -197,6 +198,28 @@ void vtkHyperTreeGridMapper::RemoveBlockVisibilities()
   this->BlocksShown.clear();
   this->BlocksHidden.clear();
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::SetCompositeDataDisplayAttributes(
+  vtkCompositeDataDisplayAttributes* attributes)
+{
+  auto compositeMapper = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper);
+  if (compositeMapper)
+  {
+    compositeMapper->SetCompositeDataDisplayAttributes(attributes);
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkCompositeDataDisplayAttributes* vtkHyperTreeGridMapper::GetCompositeDataDisplayAttributes()
+{
+  auto compositeMapper = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper);
+  if (compositeMapper)
+  {
+    return compositeMapper->GetCompositeDataDisplayAttributes();
+  }
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------

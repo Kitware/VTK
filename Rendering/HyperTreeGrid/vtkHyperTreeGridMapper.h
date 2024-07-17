@@ -34,6 +34,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
 class vtkCompositeDataSet;
+class vtkCompositeDataDisplayAttributes;
 class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkRenderWindow;
@@ -86,8 +87,18 @@ public:
 
   ///@{
   /**
+   * Set/get the composite data set attributes.
+   * This is forwarded to the internal composite polydata mapper if we're using one.
+   */
+  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes* attributes);
+  vtkCompositeDataDisplayAttributes* GetCompositeDataDisplayAttributes();
+  ///@}
+
+  ///@{
+  /**
    * Set/get the visibility for a block given its flat index.
    * Only works for subclasses whose mapper is composite.
+   * CompositeDataDisplayAttributes needs to be set for visibilities to be applied.
    */
   void SetBlockVisibility(unsigned int index, bool visible);
   bool GetBlockVisibility(unsigned int index);
