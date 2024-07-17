@@ -33,6 +33,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
   set(VTK_USE_X OFF CACHE BOOL "")
 endif ()
 
+# webgpu
+configuration_flag(VTK_ENABLE_WEBGPU "webgpu")
+
 # cuda
 configuration_flag(VTK_USE_CUDA "cuda")
 
