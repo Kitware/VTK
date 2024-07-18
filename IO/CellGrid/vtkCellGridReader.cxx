@@ -13,9 +13,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringToken.h"
 
-#include <vtk_nlohmannjson.h>
-#include VTK_NLOHMANN_JSON(json.hpp)
-
 #include <array>
 #include <sstream>
 
@@ -73,7 +70,7 @@ int ArrayTypeToEnum(const std::string& arrayType)
 }
 
 template <typename T>
-void AppendArrayData(T* data, nlohmann::json& values)
+void AppendArrayData(T* data, const nlohmann::json& values)
 {
   auto valueVector = values.get<std::vector<T>>();
   vtkIdType ii = 0;
@@ -148,65 +145,34 @@ int vtkCellGridReader::RequestInformation(
   return 1;
 }
 
-int vtkCellGridReader::RequestData(
-  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
+bool vtkCellGridReader::FromJSON(const nlohmann::json& jj, vtkCellGrid* output)
 {
-  // Get the output
-  vtkCellGrid* output = vtkCellGrid::GetData(outputVector);
-
-  // Make sure we have a file to read.
-  if (!this->FileName)
-  {
-    vtkErrorMacro("A FileName must be specified.");
-    return 0;
-  }
-
-  // Check the file's validity.
-  std::ifstream file(this->FileName);
-  if (!file.good())
-  {
-    vtkErrorMacro("Cannot read file \"" << this->FileName << "\".");
-    return 0;
-  }
-
-  // Read the file into nlohmann json.
-  nlohmann::json jj;
-  try
-  {
-    jj = nlohmann::json::parse(file);
-  }
-  catch (...)
-  {
-    vtkErrorMacro("Cannot parse file \"" << this->FileName << "\".");
-    return 0;
-  }
-
   auto jtype = jj.find("data-type");
   if (jtype == jj.end() || jtype->get<std::string>() != "cell-grid")
   {
     vtkErrorMacro("Data type is missing or incorrect.");
-    return 0;
+    return false;
   }
 
   auto jArrayGroup = jj.find("arrays");
   if (jArrayGroup == jj.end() || !jArrayGroup->is_object())
   {
     vtkErrorMacro("Missing arrays section.");
-    return 0;
+    return false;
   }
 
   auto jAttributes = jj.find("attributes");
   if (jAttributes == jj.end() || !jAttributes->is_array())
   {
     vtkErrorMacro("Missing attributes section.");
-    return 0;
+    return false;
   }
 
   auto jCellTypes = jj.find("cell-types");
   if (jCellTypes == jj.end() || !jCellTypes->is_array())
   {
     vtkErrorMacro("Missing cell-types section.");
-    return 0;
+    return false;
   }
 
   bool skipVersionChecks = false;
@@ -223,17 +189,17 @@ int vtkCellGridReader::RequestData(
     if (jFormatVersion == jj.end() || jFormatVersion->get<std::uint32_t>() > 1)
     {
       vtkErrorMacro("File format version missing or newer than reader code.");
-      return 0;
+      return false;
     }
     if (jSchemaName->get<std::string>() != "dg leaf")
     {
       vtkErrorMacro("Expecting a schema name of 'dg leaf'.");
-      return 0;
+      return false;
     }
     if (jSchemaVersion->get<std::uint32_t>() > 1)
     {
       vtkErrorMacro("Cannot read a schema newer than v1.");
-      return 0;
+      return false;
     }
     output->SetSchema(jSchemaName->get<std::string>(), jSchemaVersion->get<std::uint32_t>());
   }
@@ -330,9 +296,46 @@ int vtkCellGridReader::RequestData(
   this->Query->PrepareToDeserialize(*jCellTypes, *jAttributes, attributeList);
   if (!output->Query(this->Query))
   {
+    return false;
+  }
+
+  return true;
+}
+
+int vtkCellGridReader::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
+{
+  // Get the output
+  vtkCellGrid* output = vtkCellGrid::GetData(outputVector);
+
+  // Make sure we have a file to read.
+  if (!this->FileName)
+  {
+    vtkErrorMacro("A FileName must be specified.");
     return 0;
   }
 
-  return 1;
+  // Check the file's validity.
+  std::ifstream file(this->FileName);
+  if (!file.good())
+  {
+    vtkErrorMacro("Cannot read file \"" << this->FileName << "\".");
+    return 0;
+  }
+
+  // Read the file into nlohmann json.
+  nlohmann::json jj;
+  try
+  {
+    jj = nlohmann::json::parse(file);
+  }
+  catch (...)
+  {
+    vtkErrorMacro("Cannot parse file \"" << this->FileName << "\".");
+    return 0;
+  }
+
+  bool status = this->FromJSON(jj, output);
+  return status ? 1 : 0;
 }
 VTK_ABI_NAMESPACE_END

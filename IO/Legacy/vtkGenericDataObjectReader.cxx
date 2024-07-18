@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGenericDataObjectReader.h"
 
+#include "vtkCellGrid.h"
 #include "vtkCompositeDataReader.h"
 #include "vtkDirectedGraph.h"
 #include "vtkGraph.h"
@@ -10,6 +11,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLegacyCellGridReader.h"
 #include "vtkMolecule.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
@@ -238,6 +240,11 @@ int vtkGenericDataObjectReader::ReadMeshSimple(const std::string& fname, vtkData
 
   switch (this->ReadOutputType())
   {
+    case VTK_CELL_GRID:
+    {
+      this->ReadData<vtkLegacyCellGridReader, vtkCellGrid>(fname.c_str(), "vtkCellGrid", output);
+      return 1;
+    }
     case VTK_MOLECULE:
     {
       this->ReadData<vtkGraphReader, vtkMolecule>(fname.c_str(), "vtkMolecule", output);
@@ -379,6 +386,10 @@ int vtkGenericDataObjectReader::ReadOutputType()
 
     this->CloseVTKFile();
 
+    if (!strncmp(this->LowerCase(line), "cell_grid", 9))
+    {
+      return VTK_CELL_GRID;
+    }
     if (!strncmp(this->LowerCase(line), "molecule", 8))
     {
       return VTK_MOLECULE;
@@ -461,6 +472,11 @@ int vtkGenericDataObjectReader::ReadOutputType()
   }
 
   return -1;
+}
+
+vtkCellGrid* vtkGenericDataObjectReader::GetCellGridOutput()
+{
+  return vtkCellGrid::SafeDownCast(this->GetOutput());
 }
 
 vtkGraph* vtkGenericDataObjectReader::GetGraphOutput()

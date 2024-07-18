@@ -28,11 +28,11 @@ void vtkCellGridIOQuery::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-void vtkCellGridIOQuery::PrepareToDeserialize(nlohmann::json& sourceData,
-  nlohmann::json& attributeData, std::vector<vtkCellAttribute*>& attributeList)
+void vtkCellGridIOQuery::PrepareToDeserialize(const nlohmann::json& sourceData,
+  const nlohmann::json& attributeData, std::vector<vtkCellAttribute*>& attributeList)
 {
-  this->Data = &sourceData;
-  this->AttributeData = &attributeData;
+  this->Data = const_cast<nlohmann::json*>(&sourceData);
+  this->AttributeData = const_cast<nlohmann::json*>(&attributeData);
   this->AttributeList = &attributeList;
   this->ArrayLocations.clear();
   this->Serializing = false;

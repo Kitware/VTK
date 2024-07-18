@@ -1,4 +1,6 @@
 vtk_module_test_data(
+  Data/dgTriangle.dg
+  Data/dgQuadrilateral.dg
   Data/ghost_cells.vtk
   Data/invalid_polydata.vtk)
 
