@@ -11,6 +11,7 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkHyperTreeGridPreConfiguredSource.h"
+#include "vtkIdTypeArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
@@ -67,6 +68,15 @@ int TestCompositeDataProbeFilterWithHyperTreeGrid(int argc, char* argv[])
   prober->SetTolerance(0.0);
   prober->Update();
   prober->GetOutput()->GetPointData()->SetActiveScalars("Depth");
+
+  constexpr int NUMBER_VALID_POINTS = 8000;
+  vtkIdTypeArray* validMask = prober->GetValidPoints();
+  if (validMask->GetNumberOfValues() != NUMBER_VALID_POINTS)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Expected " << NUMBER_VALID_POINTS
+                                     << " valid points in the probe filter, got "
+                                     << validMask->GetNumberOfValues());
+  }
 
   vtkNew<vtkDataSetMapper> mapper;
   mapper->SetInputConnection(prober->GetOutputPort());
