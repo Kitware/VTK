@@ -262,6 +262,17 @@ vtkImageSSIM::vtkImageSSIM()
 }
 
 //------------------------------------------------------------------------------
+void vtkImageSSIM::SetInputToAdditiveChar(unsigned int size)
+{
+  this->C.resize(size);
+  for (unsigned int i = 0; i < size; ++i)
+  {
+    this->C[i][0] = 6.5025;
+    this->C[i][1] = 58.5225;
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkImageSSIM::GrowExtent(int* uExt, int* wholeExtent)
 {
   // grow input whole extent.
@@ -328,17 +339,22 @@ void vtkImageSSIM::SetInputToLab()
 }
 
 //------------------------------------------------------------------------------
+void vtkImageSSIM::SetInputToRGBA()
+{
+  if (this->Mode != MODE_RGBA)
+  {
+    this->SetInputToAdditiveChar(4);
+    this->Mode = MODE_RGBA;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkImageSSIM::SetInputToRGB()
 {
   if (this->Mode != MODE_RGB)
   {
-    this->C.resize(3);
-    for (int i = 0; i < 3; ++i)
-    {
-      this->C[i][0] = 6.5025;
-      this->C[i][1] = 58.5225;
-    }
-
+    this->SetInputToAdditiveChar(3);
     this->Mode = MODE_RGB;
     this->Modified();
   }
@@ -349,11 +365,18 @@ void vtkImageSSIM::SetInputToGrayscale()
 {
   if (this->Mode != MODE_GRAYSCALE)
   {
-    this->C.resize(1);
-    this->C[0][0] = 6.5025;
-    this->C[0][1] = 58.5225;
-
+    this->SetInputToAdditiveChar(1);
     this->Mode = MODE_GRAYSCALE;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkImageSSIM::SetInputToAuto()
+{
+  if (this->Mode != MODE_AUTO)
+  {
+    this->Mode = MODE_AUTO;
     this->Modified();
   }
 }
@@ -361,7 +384,7 @@ void vtkImageSSIM::SetInputToGrayscale()
 //------------------------------------------------------------------------------
 void vtkImageSSIM::SetInputRange(std::vector<int>& range)
 {
-  if (this->Mode != MODE_NONE)
+  if (this->Mode != MODE_INPUT_RANGE)
   {
     this->C.resize(range.size());
     for (std::size_t i = 0; i < range.size(); ++i)
@@ -370,8 +393,8 @@ void vtkImageSSIM::SetInputRange(std::vector<int>& range)
       this->C[i][1] = 0.0009 * range[i] * range[i];
     }
 
+    this->Mode = MODE_INPUT_RANGE;
     this->Modified();
-    this->Mode = MODE_NONE;
   }
 }
 
@@ -402,8 +425,7 @@ int vtkImageSSIM::RequestData(
     return 0;
   }
 
-  // The user hasn't put the right input range
-  if (C.size() != static_cast<std::size_t>(nComp))
+  if (this->Mode == MODE_AUTO)
   {
     C.resize(nComp);
     double r[2];
@@ -415,6 +437,15 @@ int vtkImageSSIM::RequestData(
       C[i][0] *= 0.0001 * C[i][0];
       C[i][1] = 9 * C[i][1];
     }
+  }
+  else if (C.size() < static_cast<std::size_t>(nComp))
+  {
+    vtkLog(ERROR, "Input range is too small for provided input, aborting");
+    return 0;
+  }
+  else if (C.size() > static_cast<std::size_t>(nComp))
+  {
+    vtkLog(TRACE, "Input range is bigger than provided input");
   }
 
   return this->Superclass::RequestData(request, inputVector, outputVector);
