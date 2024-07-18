@@ -396,6 +396,12 @@ double vtkPlotHistogram2D::GetInputArrayValue(int x, int y, int z)
     return std::nan("");
   }
 
+  if (!this->TransferFunction)
+  {
+    vtkErrorMacro("Trying to get value while no transfer function was set.");
+    return std::nan("");
+  }
+
   int vectorMode = this->TransferFunction->GetVectorMode();
   if (vtkPlotHistogram2D::CanComputeMagnitude(selectedArray) &&
     vectorMode == vtkScalarsToColors::VectorModes::MAGNITUDE)
