@@ -511,6 +511,11 @@ void vtkOpenGLAvatar::SetLabel(const char* label)
   this->LabelActor->SetInput(label);
 }
 
+char* vtkOpenGLAvatar::GetLabel()
+{
+  return this->LabelActor->GetInput();
+}
+
 vtkTextProperty* vtkOpenGLAvatar::GetLabelTextProperty()
 {
   return this->LabelActor->GetTextProperty();

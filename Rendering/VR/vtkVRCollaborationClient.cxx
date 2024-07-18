@@ -88,6 +88,7 @@ public:
   void* Requester;
   void* Subscriber;
   zmq_pollitem_t CollabPollItems[2];
+  vtkObject* MoveEventSource;
 
   vtkVRCollaborationClientInternal()
     : CollabPollItems{ { nullptr, 0, ZMQ_POLLIN, 0 }, { nullptr, 0, ZMQ_POLLIN, 0 } }
@@ -105,6 +106,8 @@ public:
 
     this->CollabPollItems[0].socket = this->Requester;
     this->CollabPollItems[1].socket = this->Subscriber;
+
+    this->MoveEventSource = nullptr;
   }
 
   ~vtkVRCollaborationClientInternal()
@@ -153,6 +156,10 @@ vtkVRCollaborationClient::vtkVRCollaborationClient()
     auto ovrrw = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
     return ovrrw ? ovrrw->GetPhysicalScale() : 1.0;
   };
+
+  this->AvatarInitialUpVector[0] = 0.0;
+  this->AvatarInitialUpVector[1] = 1.0;
+  this->AvatarInitialUpVector[2] = 0.0;
 }
 
 vtkVRCollaborationClient::~vtkVRCollaborationClient()
@@ -160,6 +167,16 @@ vtkVRCollaborationClient::~vtkVRCollaborationClient()
   this->Disconnect();
   this->EventCommand->Delete();
   delete this->Internal;
+}
+
+vtkObject* vtkVRCollaborationClient::GetMoveEventSource()
+{
+  return this->Internal->MoveEventSource;
+}
+
+void vtkVRCollaborationClient::SetMoveEventSource(vtkObject* eventSource)
+{
+  this->Internal->MoveEventSource = eventSource;
 }
 
 void vtkVRCollaborationClient::Log(vtkLogger::Verbosity verbosity, std::string const& msg)
@@ -793,7 +810,8 @@ vtkSmartPointer<vtkOpenGLAvatar> vtkVRCollaborationClient::GetAvatar(std::string
     // meters -> ft conversion.
     double scale = this->ScaleCallback();
     newAvatar->SetScale(0.3 * scale);
-    newAvatar->SetUpVector(0, 0, 1);
+    newAvatar->SetUpVector(this->AvatarInitialUpVector[0], this->AvatarInitialUpVector[1],
+      this->AvatarInitialUpVector[2]);
     size_t colorIndex = this->Avatars.size() - 1;
     // base the color on the server's index of avatars.
     try
@@ -1152,8 +1170,16 @@ bool vtkVRCollaborationClient::Initialize(vtkOpenGLRenderer* ren)
   zmq_send_const(this->Internal->Requester, "HelloPMVZ", 9, 0);
   // async reply, so get ID in HandleCollabMessage()
 
-  // add observer based on VR versus windowed
-  if (this->RenderWindow->IsA("vtkVRRenderWindow"))
+  // add observer based on specified event source, or else VR versus windowed
+  if (this->Internal->MoveEventSource)
+  {
+    if (this->MoveObserver == -1)
+    {
+      this->MoveObserver = this->Internal->MoveEventSource->AddObserver(
+        vtkCommand::Move3DEvent, this->EventCommand, 1.0);
+    }
+  }
+  else if (this->RenderWindow->IsA("vtkVRRenderWindow"))
   {
     if (this->MoveObserver == -1)
     {

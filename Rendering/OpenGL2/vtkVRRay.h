@@ -12,8 +12,8 @@
 
 #include "vtkNew.h" // for ivar
 #include "vtkObject.h"
-#include "vtkOpenGLHelper.h"      // ivar
-#include "vtkRenderingVRModule.h" // For export macro
+#include "vtkOpenGLHelper.h"           // ivar
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
@@ -21,7 +21,7 @@ class vtkRenderWindow;
 class vtkOpenGLVertexBufferObject;
 class vtkMatrix4x4;
 
-class VTKRENDERINGVR_EXPORT vtkVRRay : public vtkObject
+class VTKRENDERINGOPENGL2_EXPORT vtkVRRay : public vtkObject
 {
 public:
   static vtkVRRay* New();
