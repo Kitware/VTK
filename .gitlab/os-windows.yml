@@ -94,10 +94,6 @@
         # from GitLab-CI by default (it runs as a Windows service).
         QT_OPENGL: desktop
 
-.windows_tbb_addin:
-    variables:
-        TBB_REDIST_DIR: "intel64\vc14"
-
 .windows_vs2022:
     extends: .windows_build
 
@@ -106,10 +102,17 @@
         VCVARSPLATFORM: "x64"
         VCVARSVERSION: "14.35.32215"
 
+.windows_vs2022_debug_mpi_qt:
+    extends:
+        - .windows_vs2022
+
+    variables:
+        CMAKE_CONFIGURATION: windows_vs2022_debug_mpi_qt
+        CMAKE_BUILD_TYPE: Debug
+
 .windows_vs2022_kits_mpi_python_qt:
     extends:
         - .windows_vs2022
-        # - .windows_tbb_addin
 
     variables:
         CMAKE_CONFIGURATION: windows_vs2022_kits_mpi_python_qt
@@ -124,7 +127,6 @@
 .windows_vs2022_kits_mpi_python_qt_ext_vtk:
     extends:
         - .windows_vs2022
-        # - .windows_tbb_addin
 
     variables:
         CMAKE_CONFIGURATION: windows_vs2022_kits_mpi_python_qt_ext_vtk
@@ -132,7 +134,6 @@
 .windows_vs2022_mpi_python_qt:
     extends:
         - .windows_vs2022
-        # - .windows_tbb_addin
 
     variables:
         CMAKE_CONFIGURATION: windows_vs2022_mpi_python_qt
@@ -140,7 +141,6 @@
 .windows_vs2022_mpi_python_qt_static:
     extends:
         - .windows_vs2022
-        # - .windows_tbb_addin
 
     variables:
         CMAKE_CONFIGURATION: windows_vs2022_mpi_python_qt_static
@@ -226,9 +226,6 @@
     - cmake -P .gitlab/ci/download_python.cmake
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\python;$env:PATH"
     - Set-Item -Force -Path "env:PYTHONHOME" -Value "$pwdpath\.gitlab\python"
-    - cmake -P .gitlab/ci/download_tbb.cmake
-    - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\tbb;$env:CMAKE_PREFIX_PATH"
-    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\tbb\redist\$env:TBB_REDIST_DIR;$env:PATH"
     - cmake -P .gitlab/ci/download_openxr.cmake
     - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\openxr;$env:CMAKE_PREFIX_PATH"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\openxr\x64\bin;$env:PATH"
