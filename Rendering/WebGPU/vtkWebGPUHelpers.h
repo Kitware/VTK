@@ -4,14 +4,13 @@
 #ifndef vtkWebGPUHelpers_h
 #define vtkWebGPUHelpers_h
 
+#include "vtkRenderingWebGPUModule.h"
 #include "vtkWebGPUComputePass.h"
+#include "vtkWebGPUComputeTexture.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkWebGPUComputePass;
-class vtkWebGPUComputePassTextureStorage;
-
-class vtkWebGPUHelpers
+class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUHelpers
 {
 public:
   /**
@@ -38,3 +37,4 @@ private:
 VTK_ABI_NAMESPACE_END
 
 #endif
+// VTK-HeaderTest-Exclude: vtkWebGPUHelpers.h

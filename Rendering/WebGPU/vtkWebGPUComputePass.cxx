@@ -2,10 +2,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUComputePass.h"
+#include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkWebGPUComputePipeline.h"
-#include "vtkWebGPUInternalsComputeBuffer.h"
-#include "vtkWebGPUInternalsTexture.h"
+#include "vtkWebGPUComputeBuffer.h"
+#include "vtkWebGPUComputeRenderBuffer.h"
+#include "vtkWebGPUComputeTexture.h"
+#include "vtkWebGPUComputeTextureView.h"
+#include "vtkWebGPUInternalsComputePass.h"
+#include "vtkWebGPUInternalsComputePassBufferStorage.h"
+#include "vtkWebGPUInternalsComputePassTextureStorage.h"
 #include "vtksys/FStream.hxx"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -144,15 +149,15 @@ void vtkWebGPUComputePass::RecreateComputeTexture(int textureIndex)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputePass::ReadBufferFromGPU(int bufferIndex,
-  vtkWebGPUInternalsComputePassBufferStorage::BufferMapAsyncCallback callback, void* userdata)
+void vtkWebGPUComputePass::ReadBufferFromGPU(
+  int bufferIndex, BufferMapAsyncCallback callback, void* userdata)
 {
   this->Internals->BufferStorage->ReadBufferFromGPU(bufferIndex, callback, userdata);
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputePass::ReadTextureFromGPU(int textureIndex, int mipLevel,
-  vtkWebGPUInternalsComputePassTextureStorage::TextureMapAsyncCallback callback, void* userdata)
+void vtkWebGPUComputePass::ReadTextureFromGPU(
+  int textureIndex, int mipLevel, TextureMapAsyncCallback callback, void* userdata)
 {
   this->Internals->TextureStorage->ReadTextureFromGPU(textureIndex, mipLevel, callback, userdata);
 }
@@ -199,4 +204,17 @@ void vtkWebGPUComputePass::Dispatch()
   this->Internals->WebGPUDispatch(this->GroupsX, this->GroupsY, this->GroupsZ);
 }
 
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePass::WriteBufferData(
+  int bufferIndex, vtkIdType byteOffset, const void* data, std::size_t numBytes)
+{
+  this->Internals->BufferStorage->WriteBuffer(bufferIndex, byteOffset, data, numBytes);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePass::WriteTextureData(
+  int textureIndex, const void* data, std::size_t numBytes)
+{
+  this->Internals->TextureStorage->WriteTexture(textureIndex, data, numBytes);
+}
 VTK_ABI_NAMESPACE_END

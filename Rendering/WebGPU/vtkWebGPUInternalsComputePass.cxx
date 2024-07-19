@@ -4,6 +4,8 @@
 #include "vtkWebGPUInternalsComputePass.h"
 #include "vtkObjectFactory.h"
 #include "vtkWebGPUComputePipeline.h"
+#include "vtkWebGPUInternalsBindGroup.h"
+#include "vtkWebGPUInternalsBindGroupLayout.h"
 #include "vtkWebGPUInternalsShaderModule.h"
 
 VTK_ABI_NAMESPACE_BEGIN

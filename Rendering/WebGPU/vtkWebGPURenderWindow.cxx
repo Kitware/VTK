@@ -13,6 +13,7 @@
 #include "vtkWebGPUInternalsBindGroup.h"
 #include "vtkWebGPUInternalsBindGroupLayout.h"
 #include "vtkWebGPUInternalsCallbacks.h"
+#include "vtkWebGPUInternalsComputePass.h"
 #include "vtkWebGPUInternalsPipelineLayout.h"
 #include "vtkWebGPUInternalsRenderPassCreateInfo.h"
 #include "vtkWebGPUInternalsRenderPipelineDescriptor.h"

@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUInternalsComputePassBufferStorage.h"
-#include "vtkWebGPUComputePass.h"
+#include "vtkWebGPUInternalsBuffer.h"
 #include "vtkWebGPUInternalsComputeBuffer.h"
+#include "vtkWebGPUInternalsComputePass.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -28,7 +29,7 @@ struct InternalMapBufferAsyncData
   // The callback given by the user that will be called once the buffer is mapped. The user will
   // usually use their callback to copy the data from the mapped buffer into a CPU-side buffer that
   // will then use the result of the compute shader in the rest of the application
-  vtkWebGPUInternalsComputePassBufferStorage::BufferMapAsyncCallback userCallback;
+  vtkWebGPUComputePass::BufferMapAsyncCallback userCallback;
 };
 
 //------------------------------------------------------------------------------
@@ -203,8 +204,8 @@ void vtkWebGPUInternalsComputePassBufferStorage::RecreateBuffer(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputePassBufferStorage::ReadBufferFromGPU(std::size_t bufferIndex,
-  vtkWebGPUInternalsComputePassBufferStorage::BufferMapAsyncCallback callback, void* userdata)
+void vtkWebGPUInternalsComputePassBufferStorage::ReadBufferFromGPU(
+  std::size_t bufferIndex, vtkWebGPUComputePass::BufferMapAsyncCallback callback, void* userdata)
 {
   if (!this->CheckBufferIndex(bufferIndex, "ReadBufferFromGPU"))
   {

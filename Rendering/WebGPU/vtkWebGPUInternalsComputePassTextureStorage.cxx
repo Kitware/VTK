@@ -3,10 +3,11 @@
 
 #include "vtkWebGPUInternalsComputePassTextureStorage.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 #include "vtkWebGPUComputePass.h"
 #include "vtkWebGPUComputePipeline.h"
+#include "vtkWebGPUInternalsComputePass.h"
 #include "vtkWebGPUInternalsTexture.h"
-#include <vtkSmartPointer.h>
 
 #include <algorithm> // for std::remove_if
 
@@ -32,7 +33,7 @@ struct InternalMapTextureAsyncData
   // Bytes per row of the padded buffer that contains the mapped texture data
   int bytesPerRow;
   // Callback given by the user
-  vtkWebGPUInternalsComputePassTextureStorage::TextureMapAsyncCallback userCallback;
+  vtkWebGPUComputePass::TextureMapAsyncCallback userCallback;
 };
 }
 
@@ -757,8 +758,7 @@ void vtkWebGPUInternalsComputePassTextureStorage::RebindTextureView(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputePassTextureStorage::ReadTextureFromGPU(std::size_t textureIndex,
-  int mipLevel, vtkWebGPUInternalsComputePassTextureStorage::TextureMapAsyncCallback callback,
-  void* userdata)
+  int mipLevel, vtkWebGPUComputePass::TextureMapAsyncCallback callback, void* userdata)
 {
   if (!CheckTextureIndex(textureIndex, "ReadTextureFromGPU"))
   {

@@ -10,6 +10,7 @@
 #include "vtkObjectFactory.h"     // for vtk standard new macro
 #include "vtkProp.h"              // for manipulating props
 #include "vtkRenderer.h"          // for manipulating the renderer
+#include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputePass.h"
 
 VTK_ABI_NAMESPACE_BEGIN

@@ -9,6 +9,7 @@
 #include "vtkMatrix4x4.h"                    // for the view projection matrix
 #include "vtkObjectFactory.h"                // for vtk standard new macro
 #include "vtkRendererCollection.h"
+#include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputePipeline.h"      // for the occlusion culling pipeline
 #include "vtkWebGPUComputeRenderTexture.h" // for using the depth buffer of the render pipeline
 #include "vtkWebGPUComputeTextureView.h"   // for texture views
