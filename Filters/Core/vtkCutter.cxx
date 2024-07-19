@@ -153,7 +153,7 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet* dataSetInput, vtkPolyData* th
   this->SynchronizedTemplates3D->ComputeScalarsOff();
   this->SynchronizedTemplates3D->ComputeNormalsOff();
   output = this->SynchronizedTemplates3D->GetOutput();
-  this->SynchronizedTemplatesCutter3D->SetGenerateTriangles(this->GetGenerateTriangles());
+  this->SynchronizedTemplates3D->SetGenerateTriangles(this->GetGenerateTriangles());
   this->SynchronizedTemplates3D->Update();
   output->Register(this);
 
