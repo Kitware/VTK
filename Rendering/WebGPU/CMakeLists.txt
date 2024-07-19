@@ -7,18 +7,26 @@ endif ()
 set(classes
   vtkWebGPUActor
   vtkWebGPUCamera
-  vtkWebGPUClearPass
+  vtkWebGPUClearDrawPass
   vtkWebGPUComputeBuffer
   vtkWebGPUComputeFrustumCuller
+  vtkWebGPUComputeOcclusionCuller
+  vtkWebGPUComputePass
   vtkWebGPUComputePipeline
   vtkWebGPUComputeRenderBuffer
+  vtkWebGPUComputeRenderTexture
+  vtkWebGPUComputeTexture
+  vtkWebGPUComputeTextureView
   vtkWebGPUHardwareSelector
+  vtkWebGPUHelpers
   vtkWebGPULight
   vtkWebGPURenderWindow
   vtkWebGPUPolyDataMapper
   vtkWebGPUProperty
   vtkWebGPURenderer
-  vtkWebGPURenderPass)
+  vtkWebGPURenderPass
+  vtkWebGPUTexture
+  vtkWebGPUTextureView)
 
 set(private_classes
   vtkWebGPUInternalsBindGroup
@@ -26,12 +34,15 @@ set(private_classes
   vtkWebGPUInternalsBuffer
   vtkWebGPUInternalsCallbacks
   vtkWebGPUInternalsComputeBuffer
-  vtkWebGPUInternalsComputePipeline
+  vtkWebGPUInternalsComputePass
+  vtkWebGPUInternalsComputePassTextureStorage
+  vtkWebGPUInternalsComputePassBufferStorage
   vtkWebGPUInternalsPipelineLayout
   vtkWebGPUInternalsRenderPassCreateInfo
   vtkWebGPUInternalsRenderPassDescriptor
   vtkWebGPUInternalsRenderPipelineDescriptor
-  vtkWebGPUInternalsShaderModule)
+  vtkWebGPUInternalsShaderModule
+  vtkWebGPUInternalsTexture)
 
 # setup factory overrides
 # NI - Not Implemented
@@ -66,11 +77,16 @@ unset(private_wgsl_shader_headers)
 unset(public_wgsl_shader_headers)
 set(private_shader_files
   wgsl/FrustumCullingShader.wgsl
-  wgsl/PolyData.wgsl)
+  wgsl/PolyData.wgsl
+  wgsl/OcclusionCullingCopyDepthBuffer.wgsl
+  wgsl/OcclusionCullingDepthMipmaps.wgsl
+  wgsl/OcclusionCullingPropsCulling.wgsl)
 
 set(public_shader_files
-  Testing/Cxx/TestShaders/TestComputePipelineShader.wgsl
-  Testing/Cxx/TestShaders/TestComputePipelineUniformShader.wgsl
+  Testing/Cxx/TestShaders/TestComputePassShader.wgsl
+  Testing/Cxx/TestShaders/TestComputePassChainedShader.wgsl
+  Testing/Cxx/TestShaders/TestComputePassUniformShader.wgsl
+  Testing/Cxx/TestShaders/TestComputeTextureShader.wgsl
   Testing/Cxx/TestShaders/TestComputeModifyPointColorsShader.wgsl
   Testing/Cxx/TestShaders/TestComputeModifyPointPositionsShader.wgsl
   Testing/Cxx/TestShaders/TestComputeModifyCellColorsShader.wgsl)

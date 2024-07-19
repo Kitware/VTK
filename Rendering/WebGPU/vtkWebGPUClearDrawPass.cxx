@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkWebGPUClearPass.h"
+#include "vtkWebGPUClearDrawPass.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
@@ -12,22 +12,22 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkWebGPUClearPass);
+vtkStandardNewMacro(vtkWebGPUClearDrawPass);
 
 //------------------------------------------------------------------------------
-vtkWebGPUClearPass::vtkWebGPUClearPass() = default;
+vtkWebGPUClearDrawPass::vtkWebGPUClearDrawPass() = default;
 
 //------------------------------------------------------------------------------
-vtkWebGPUClearPass::~vtkWebGPUClearPass() = default;
+vtkWebGPUClearDrawPass::~vtkWebGPUClearDrawPass() = default;
 
 //------------------------------------------------------------------------------
-void vtkWebGPUClearPass::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWebGPUClearDrawPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-wgpu::RenderPassEncoder vtkWebGPUClearPass::Begin(const vtkRenderState* state)
+wgpu::RenderPassEncoder vtkWebGPUClearDrawPass::Begin(const vtkRenderState* state)
 {
   auto renderer = state->GetRenderer();
   auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(state->GetRenderer()->GetRenderWindow());
@@ -37,8 +37,9 @@ wgpu::RenderPassEncoder vtkWebGPUClearPass::Begin(const vtkRenderState* state)
   };
   wgpu::TextureView depthStencilView = wgpuRenWin->GetDepthStencilView();
 
-  vtkWebGPUInternalsRenderPassDescriptor renderPassDescriptor(backBufferViews, depthStencilView);
-  renderPassDescriptor.label = "vtkWebGPUClearPass::Begin";
+  vtkWebGPUInternalsRenderPassDescriptor renderPassDescriptor(
+    backBufferViews, depthStencilView, this->DoClear);
+  renderPassDescriptor.label = "vtkWebGPUClearDrawPass::Begin";
 
   double* bgColor = renderer->GetBackground();
   for (auto& colorAttachment : renderPassDescriptor.ColorAttachments)
@@ -52,7 +53,7 @@ wgpu::RenderPassEncoder vtkWebGPUClearPass::Begin(const vtkRenderState* state)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUClearPass::Render(const vtkRenderState* state)
+void vtkWebGPUClearDrawPass::Render(const vtkRenderState* state)
 {
   if (!state->IsValid())
   {

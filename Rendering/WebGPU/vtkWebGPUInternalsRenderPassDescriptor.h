@@ -16,7 +16,7 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsRenderPassDescriptor
 public:
   static constexpr int kMaxColorAttachments = 8u;
   vtkWebGPUInternalsRenderPassDescriptor(const std::vector<wgpu::TextureView>& colorAttachmentInfo,
-    wgpu::TextureView depthStencil = wgpu::TextureView());
+    wgpu::TextureView depthStencil = wgpu::TextureView(), bool doClear = true);
   ~vtkWebGPUInternalsRenderPassDescriptor();
 
   vtkWebGPUInternalsRenderPassDescriptor(

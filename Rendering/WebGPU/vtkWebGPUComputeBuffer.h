@@ -16,12 +16,12 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkWebGPUComputePipeline;
+class vtkWebGPUComputePass;
 class vtkWebGPURenderer;
 
 /**
  * Represents the set of parameters that will be used to create a compute shader buffer on the
- * device when it will be added to a pipeline using vtkWebGPUComputePipeline::AddBuffer()
+ * device when it will be added to a compute pass using vtkWebGPUComputePass::AddBuffer()
  */
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputeBuffer : public vtkObject
 {
@@ -31,7 +31,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * - UNINITIALIZED = Buffer mode not set
+   * - UNDEFINED = Buffer mode not set
    *
    * - READ_ONLY_COMPUTE_STORAGE = The GPU can only read from this buffer.
    * A buffer with this mode is declared with <read, storage> in WGSL
@@ -51,7 +51,7 @@ public:
    */
   enum BufferMode
   {
-    UNINITIALIZED = 0,
+    UNDEFINED = 0,
     READ_ONLY_COMPUTE_STORAGE,
     READ_WRITE_COMPUTE_STORAGE,
     READ_WRITE_MAP_COMPUTE_STORAGE,
@@ -68,8 +68,8 @@ public:
    */
   enum BufferDataType
   {
-    STD_VECTOR,
-    VTK_DATA_ARRAY
+    VTK_DATA_ARRAY = 0,
+    STD_VECTOR
   };
 
   ///@{
@@ -121,8 +121,8 @@ public:
    * for the use of a vtkDataArray instead.
    *
    * @warning: This does not copy the data so the data given to this buffer needs to stay valid
-   * (i.e. not freed) until the buffer is added to a compute pipeline using
-   * vtkWebGPUComputePipeline::AddBuffer().
+   * (i.e. not freed) until the buffer is added to a compute pass using
+   * vtkWebGPUComputePass::AddBuffer().
    */
   template <typename T>
   void SetData(const std::vector<T>& data)
@@ -137,8 +137,8 @@ public:
    * of std::vector data instead.
    *
    * NOTE: This does not copy the data so the data given to this buffer needs to stay valid (i.e.
-   * not freed) until the buffer is added to a compute pipeline using
-   * vtkWebGPUComputePipeline::AddBuffer().
+   * not freed) until the buffer is added to a compute pass using
+   * vtkWebGPUComputePass::AddBuffer().
    */
   void SetData(vtkDataArray* data);
 
@@ -176,10 +176,10 @@ public:
 
 protected:
   vtkWebGPUComputeBuffer();
-  ~vtkWebGPUComputeBuffer() = default;
+  ~vtkWebGPUComputeBuffer();
 
 private:
-  friend class vtkWebGPUComputePipeline;
+  friend class vtkWebGPUComputePass;
 
   vtkWebGPUComputeBuffer(const vtkWebGPUComputeBuffer&) = delete;
   void operator=(const vtkWebGPUComputeBuffer&) = delete;
@@ -189,7 +189,7 @@ private:
   // Binding withing the bind group
   vtkIdType Binding = -1;
   // The mode of the buffer can be read only, write only, read/write, ...
-  BufferMode Mode = BufferMode::UNINITIALIZED;
+  BufferMode Mode = BufferMode::UNDEFINED;
   // The type of data that will be uploaded to the GPU
   BufferDataType DataType = BufferDataType::STD_VECTOR;
 

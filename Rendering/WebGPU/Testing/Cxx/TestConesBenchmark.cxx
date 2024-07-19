@@ -5,6 +5,7 @@
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkConeSource.h"
+#include "vtkCullerCollection.h"
 #include "vtkElevationFilter.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkMinimalStandardRandomSequence.h"

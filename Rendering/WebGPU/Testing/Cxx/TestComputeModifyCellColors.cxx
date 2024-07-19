@@ -85,19 +85,23 @@ int TestComputeModifyCellColors(int argc, char* argv[])
   cellColorsRenderBuffer->SetLabel("Cell colors render buffer");
 
   // Creating the compute pipeline
-  vtkNew<vtkWebGPUComputePipeline> cellColorCompute;
-  cellColorCompute->SetShaderSource(TestComputeModifyCellColorsShader);
-  cellColorCompute->SetShaderEntryPoint("changeCellColorCompute");
+  vtkNew<vtkWebGPUComputePipeline> cellColorComputePipeline;
+
+  // Creating the compute pass
+  vtkSmartPointer<vtkWebGPUComputePass> cellColorComputePass =
+    cellColorComputePipeline->CreateComputePass();
+  cellColorComputePass->SetShaderSource(TestComputeModifyCellColorsShader);
+  cellColorComputePass->SetShaderEntryPoint("changeCellColorCompute");
   // Adding the render buffer
-  cellColorCompute->AddRenderBuffer(cellColorsRenderBuffer);
+  cellColorComputePass->AddRenderBuffer(cellColorsRenderBuffer);
   int nbGroupsX = std::ceil(polydata->GetCellData()->GetScalars()->GetNumberOfTuples() / 32.0f);
-  cellColorCompute->SetWorkgroups(nbGroupsX, 1, 1);
+  cellColorComputePass->SetWorkgroups(nbGroupsX, 1, 1);
 
   // Adding the compute pipeline to the renderer.
   // The pipeline will be executed each frame before the rendering pass
   vtkWebGPURenderer* wegpuRenderer =
     vtkWebGPURenderer::SafeDownCast(renWin->GetRenderers()->GetFirstRenderer());
-  wegpuRenderer->AddComputePipeline(cellColorCompute);
+  wegpuRenderer->AddComputePipeline(cellColorComputePipeline);
 
   renderer->SetBackground(0.2, 0.3, 0.4);
   renWin->Render();
