@@ -610,10 +610,10 @@ static const int VTK_VOTE_THRESHOLD = 3;
 // Shoot random rays and count the number of intersections
 int vtkPolyhedron::IsInside(const double x[3], double tolerance)
 {
-  if (!this->IsRandomSequenceSeedInitialized)
+  bool initialized = false;
+  if (this->IsRandomSequenceSeedInitialized.compare_exchange_strong(initialized, true))
   {
-    this->RandomSequence->SetSeed(std::time(nullptr));
-    this->IsRandomSequenceSeedInitialized = true;
+    this->RandomSequence->SetSeed(static_cast<int>(std::time(nullptr)));
   }
 
   // do a quick bounds check

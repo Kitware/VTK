@@ -517,7 +517,7 @@ private:
   std::vector<std::vector<vtkIdType>> PointToIncidentFaces;
 
   vtkNew<vtkMinimalStandardRandomSequence> RandomSequence;
-  bool IsRandomSequenceSeedInitialized = false;
+  std::atomic<bool> IsRandomSequenceSeedInitialized{ false };
 };
 
 //----------------------------------------------------------------------------
