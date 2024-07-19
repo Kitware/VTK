@@ -183,7 +183,12 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
     tp->SetOutput(copy);
   }
 
-  return this->Implementation->InputInternal[p].second->GetOutputPort();
+  vtkTrivialProducer* producer = this->Implementation->InputInternal[p].second;
+  vtkInformation* portInfo = producer->GetOutputPortInformation(0);
+  vtkDataObject* dobj = producer->GetOutputDataObject(0);
+  portInfo->Set(vtkDataObject::DATA_TYPE_NAME(), dobj->GetClassName());
+
+  return producer->GetOutputPort();
 }
 
 //------------------------------------------------------------------------------
