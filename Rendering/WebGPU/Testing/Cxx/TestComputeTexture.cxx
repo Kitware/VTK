@@ -29,7 +29,7 @@ struct CallbackData
 };
 } // namespace
 
-int TestComputeTexture(int argc, char** argv)
+int TestComputeTexture(int, char*[])
 {
   // * 4 for RGBA
   std::vector<unsigned char> referenceOutput(TEXTURE_WIDTH * TEXTURE_HEIGHT * 4);

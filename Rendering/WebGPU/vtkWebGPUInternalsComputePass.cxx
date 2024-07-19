@@ -173,7 +173,7 @@ void vtkWebGPUInternalsComputePass::RecreateBufferBindGroup(int bufferIndex)
   // If the bind group layout doesn't exist yet and we cannot recreate the bind group, it's ok, the
   // Dispatch() call will do it. What matters in such a situation is that we recreated the buffer
   // with the right size so that the Dispatch() can create the right bind group
-  int group = buffer->GetGroup();
+  const std::size_t group = buffer->GetGroup();
   if (group < this->BindGroupLayouts.size())
   {
     this->BindGroups[group] = vtkWebGPUInternalsBindGroup::MakeBindGroup(
@@ -267,7 +267,7 @@ void vtkWebGPUInternalsComputePass::RecreateTextureBindGroup(int textureIndex)
     //
     // Otherwise, if we could find the bind group layout, we need to recreate the bind group that
     // goes with it
-    int group = textureView->GetGroup();
+    const std::size_t group = textureView->GetGroup();
     if (group < this->BindGroupLayouts.size())
     {
       this->BindGroups[group] = vtkWebGPUInternalsBindGroup::MakeBindGroup(
@@ -366,11 +366,8 @@ wgpu::BindGroupLayoutEntry vtkWebGPUInternalsComputePass::CreateBindGroupLayoutE
 
 //------------------------------------------------------------------------------
 wgpu::BindGroupEntry vtkWebGPUInternalsComputePass::CreateBindGroupEntry(wgpu::Buffer wgpuBuffer,
-  uint32_t binding, vtkWebGPUComputeBuffer::BufferMode mode, uint32_t offset)
+  uint32_t binding, vtkWebGPUComputeBuffer::BufferMode vtkNotUsed(mode), uint32_t offset)
 {
-  wgpu::BufferBindingType bindingType =
-    vtkWebGPUInternalsComputePassBufferStorage::ComputeBufferModeToBufferBindingType(mode);
-
   vtkWebGPUInternalsBindGroup::BindingInitializationHelper bgEntry{ binding, wgpuBuffer, offset };
 
   return bgEntry.GetAsBinding();
@@ -417,7 +414,7 @@ void vtkWebGPUInternalsComputePass::WebGPUDispatch(
 
   wgpu::ComputePassEncoder computePassEncoder = CreateComputePassEncoder(commandEncoder);
   computePassEncoder.SetPipeline(this->ComputePipeline);
-  for (int bindGroupIndex = 0; bindGroupIndex < this->BindGroups.size(); bindGroupIndex++)
+  for (std::size_t bindGroupIndex = 0; bindGroupIndex < this->BindGroups.size(); bindGroupIndex++)
   {
     computePassEncoder.SetBindGroup(bindGroupIndex, this->BindGroups[bindGroupIndex], 0, nullptr);
   }

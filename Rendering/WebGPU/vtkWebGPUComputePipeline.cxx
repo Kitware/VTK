@@ -57,8 +57,6 @@ void vtkWebGPUComputePipeline::RegisterBuffer(
 
     for (vtkSmartPointer<vtkWebGPUComputePass> computePass : this->ComputePasses)
     {
-      int computePassBufferIndex = 0;
-
       computePass->Internals->UpdateWebGPUBuffer(buffer, wgpuBuffer);
     }
   }

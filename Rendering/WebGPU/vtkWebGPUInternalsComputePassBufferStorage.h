@@ -66,7 +66,7 @@ public:
   /**
    * Returns the size in bytes of a buffer
    */
-  unsigned int GetBufferByteSize(int bufferIndex);
+  unsigned int GetBufferByteSize(std::size_t bufferIndex);
 
   /**
    * Resizes a buffer.
@@ -74,13 +74,13 @@ public:
    * @warning: After the resize, the data of the buffer is undefined and should be updated by a
    * call to UpdateBufferData()
    */
-  void ResizeBuffer(int bufferIndex, vtkIdType newByteSize);
+  void ResizeBuffer(std::size_t bufferIndex, vtkIdType newByteSize);
 
   /**
    * Destroys and recreates a buffer with the given newByteSize
    * Only the wgpu::Buffer object is recreated so the binding/group of the group doesn't change
    */
-  void RecreateBuffer(int bufferIndex, vtkIdType newByteSize);
+  void RecreateBuffer(std::size_t bufferIndex, vtkIdType newByteSize);
 
   /*
    * This function maps the buffer, making it accessible to the CPU. This is
@@ -90,7 +90,7 @@ public:
    * The buffer data can then be read from the callback and stored
    * in a buffer (std::vector<>, vtkDataArray, ...) passed in via the userdata pointer for example
    */
-  void ReadBufferFromGPU(int bufferIndex,
+  void ReadBufferFromGPU(std::size_t bufferIndex,
     vtkWebGPUInternalsComputePassBufferStorage::BufferMapAsyncCallback callback, void* userdata);
 
   /**
@@ -113,7 +113,7 @@ public:
    *
    */
   template <typename T>
-  void UpdateBufferData(int bufferIndex, const std::vector<T>& newData)
+  void UpdateBufferData(std::size_t bufferIndex, const std::vector<T>& newData)
   {
     if (!CheckBufferIndex(bufferIndex, std::string("UpdataBufferData")))
     {
@@ -146,7 +146,7 @@ public:
    * Useful when only a portion of the buffer needs to be reuploaded.
    */
   template <typename T>
-  void UpdateBufferData(int bufferIndex, vtkIdType byteOffset, const std::vector<T>& data)
+  void UpdateBufferData(std::size_t bufferIndex, vtkIdType byteOffset, const std::vector<T>& data)
   {
     if (!CheckBufferIndex(bufferIndex, std::string("UpdataBufferData with offset")))
     {
@@ -184,14 +184,14 @@ public:
    * @note: This method can be used even if the buffer was initially configured with std::vector
    * data and the given data can safely be destroyed directly after calling this function.
    */
-  void UpdateBufferData(int bufferIndex, vtkDataArray* newData);
+  void UpdateBufferData(std::size_t bufferIndex, vtkDataArray* newData);
 
   /**
    * Similar to the overload without offset of this function.
    * The offset is used to determine where in the buffer to reupload data.
    * Useful when only a portion of the buffer needs to be reuploaded.
    */
-  void UpdateBufferData(int bufferIndex, vtkIdType byteOffset, vtkDataArray* newData);
+  void UpdateBufferData(std::size_t bufferIndex, vtkIdType byteOffset, vtkDataArray* newData);
 
   /**
    * Checks if a given index is suitable for indexing a buffer of this storage.
@@ -202,7 +202,7 @@ public:
    *
    * Returns true if the buffer index is valid, false if it's not.
    */
-  bool CheckBufferIndex(int bufferIndex, const std::string& callerFunctionName);
+  bool CheckBufferIndex(std::size_t bufferIndex, const std::string& callerFunctionName);
 
   /**
    * Makes some various (and obvious) checks to ensure that the buffer is ready to be created.

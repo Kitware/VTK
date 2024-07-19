@@ -23,7 +23,7 @@ namespace
 constexpr int DATA_SIZE = 128;
 } // namespace
 
-int TestComputePassChained(int argc, char** argv)
+int TestComputePassChained(int, char*[])
 {
   // This first vector will be using a vtkDataArray as its data source
   vtkNew<vtkIntArray> inputDataArray;

@@ -52,7 +52,7 @@ void vtkWebGPUInternalsComputePassTextureStorage::SetComputePass(
 
 //------------------------------------------------------------------------------
 bool vtkWebGPUInternalsComputePassTextureStorage::CheckTextureIndex(
-  int textureIndex, const std::string& callerFunctionName)
+  std::size_t textureIndex, const std::string& callerFunctionName)
 {
   if (textureIndex < 0)
   {
@@ -78,7 +78,7 @@ bool vtkWebGPUInternalsComputePassTextureStorage::CheckTextureIndex(
 
 //------------------------------------------------------------------------------
 bool vtkWebGPUInternalsComputePassTextureStorage::CheckTextureViewIndex(
-  int textureViewIndex, const std::string& callerFunctionName)
+  std::size_t textureViewIndex, const std::string& callerFunctionName)
 {
   if (textureViewIndex < 0)
   {
@@ -171,7 +171,7 @@ bool vtkWebGPUInternalsComputePassTextureStorage::CheckTextureViewCorrectness(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputePassTextureStorage::RecreateTexture(int textureIndex)
+void vtkWebGPUInternalsComputePassTextureStorage::RecreateTexture(std::size_t textureIndex)
 {
   vtkSmartPointer<vtkWebGPUComputeTexture> texture = this->Textures[textureIndex];
 
@@ -193,7 +193,7 @@ void vtkWebGPUInternalsComputePassTextureStorage::RecreateTexture(int textureInd
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkWebGPUComputeTexture>
-vtkWebGPUInternalsComputePassTextureStorage::GetComputeTexture(int textureIndex)
+vtkWebGPUInternalsComputePassTextureStorage::GetComputeTexture(std::size_t textureIndex)
 {
   if (!this->CheckTextureIndex(textureIndex, "GetComputeTexture"))
   {
@@ -207,7 +207,7 @@ vtkWebGPUInternalsComputePassTextureStorage::GetComputeTexture(int textureIndex)
 void vtkWebGPUInternalsComputePassTextureStorage::UpdateComputeTextureAndViews(
   vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture newWgpuTexture)
 {
-  int textureIndex = 0;
+  std::size_t textureIndex = 0;
 
   // Finding the index of the texture that needs to be updated as well as updating it with the
   // newWgpuTexture
@@ -242,7 +242,7 @@ void vtkWebGPUInternalsComputePassTextureStorage::UpdateComputeTextureAndViews(
     uint32_t binding = textureView->GetBinding();
     uint32_t group = textureView->GetGroup();
 
-    int entryIndex = 0;
+    std::size_t entryIndex = 0;
     auto find = this->ParentComputePass->Internals->BindGroupLayoutEntries.find(group);
     if (find == this->ParentComputePass->Internals->BindGroupLayoutEntries.end())
     {
@@ -290,7 +290,7 @@ void vtkWebGPUInternalsComputePassTextureStorage::UpdateComputeTextureAndViews(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputePassTextureStorage::RecreateComputeTexture(int textureIndex)
+void vtkWebGPUInternalsComputePassTextureStorage::RecreateComputeTexture(std::size_t textureIndex)
 {
   if (!this->CheckTextureIndex(textureIndex, "RecreateComputeTexture"))
   {
@@ -309,7 +309,7 @@ void vtkWebGPUInternalsComputePassTextureStorage::RecreateComputeTexture(int tex
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputePassTextureStorage::RecreateTextureViews(int textureIndex)
+void vtkWebGPUInternalsComputePassTextureStorage::RecreateTextureViews(std::size_t textureIndex)
 {
   if (!this->CheckTextureIndex(textureIndex, "RecreateTextureViews"))
   {
@@ -508,7 +508,7 @@ int vtkWebGPUInternalsComputePassTextureStorage::AddTextureView(
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkWebGPUComputeTextureView>
-vtkWebGPUInternalsComputePassTextureStorage::CreateTextureView(int textureIndex)
+vtkWebGPUInternalsComputePassTextureStorage::CreateTextureView(std::size_t textureIndex)
 {
   if (!CheckTextureIndex(textureIndex, "CreateTextureView"))
   {
@@ -585,7 +585,7 @@ void vtkWebGPUInternalsComputePassTextureStorage::RecreateRenderTexture(
 
   // Finding the index of the bind group layout / bind group entry that corresponds to the
   // previously created render texture
-  int entryIndex = 0;
+  std::size_t entryIndex = 0;
   for (wgpu::BindGroupLayoutEntry& existingBglEntry :
     this->ParentComputePass->Internals->BindGroupLayoutEntries[group])
   {
@@ -624,7 +624,7 @@ void vtkWebGPUInternalsComputePassTextureStorage::RecreateRenderTexture(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputePassTextureStorage::DeleteTextureViews(int textureIndex)
+void vtkWebGPUInternalsComputePassTextureStorage::DeleteTextureViews(std::size_t textureIndex)
 {
   if (!this->CheckTextureIndex(textureIndex, "DeleteTextureViews"))
   {
@@ -683,7 +683,7 @@ void vtkWebGPUInternalsComputePassTextureStorage::DeleteTextureViews(int texture
 
 //------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputePassTextureStorage::RebindTextureView(
-  int group, int binding, int textureViewIndex)
+  std::size_t group, uint32_t binding, std::size_t textureViewIndex)
 {
   if (!this->CheckTextureViewIndex(textureViewIndex, "RebindTextureView"))
   {
@@ -756,8 +756,9 @@ void vtkWebGPUInternalsComputePassTextureStorage::RebindTextureView(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputePassTextureStorage::ReadTextureFromGPU(int textureIndex, int mipLevel,
-  vtkWebGPUInternalsComputePassTextureStorage::TextureMapAsyncCallback callback, void* userdata)
+void vtkWebGPUInternalsComputePassTextureStorage::ReadTextureFromGPU(std::size_t textureIndex,
+  int mipLevel, vtkWebGPUInternalsComputePassTextureStorage::TextureMapAsyncCallback callback,
+  void* userdata)
 {
   if (!CheckTextureIndex(textureIndex, "ReadTextureFromGPU"))
   {

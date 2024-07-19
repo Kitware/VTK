@@ -23,7 +23,7 @@ constexpr int DATA_SIZE = 128;
 using OutputDataType = float;
 }
 
-int TestComputePass(int argc, char** argv)
+int TestComputePass(int, char*[])
 {
   // This first vector will be using a vtkDataArray as its data source
   vtkNew<vtkIntArray> inputDataArray1;
