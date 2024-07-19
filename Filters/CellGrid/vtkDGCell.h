@@ -139,6 +139,23 @@ public:
   /// Provide access to the (cellId,sideId)-arrays used to define side-cells of this type.
   std::vector<Source>& GetSideSpecs() { return this->SideSpecs; }
 
+  /// Provide access to cell specifications in a uniform way (for both cells and sides).
+  const Source& GetCellSource(int sideType = -1) const;
+
+  /// Python-accessible method to identify number of cell sources.
+  std::size_t GetNumberOfCellSources() const { return this->SideSpecs.size(); }
+
+  /// Python-accessible methods to fetch cell source information.
+  ///
+  /// In C++, you should simply call GetCellSource(\a sideType) and access the ivar.
+  vtkDataArray* GetCellSourceConnectivity(int sideType = -1) const;
+  vtkDataArray* GetCellSourceNodalGhostMarks(int sideType = -1) const;
+  vtkIdType GetCellSourceOffset(int sideType = -1) const;
+  bool GetCellSourceIsBlanked(int sideType = -1) const;
+  Shape GetCellSourceShape(int sideType = -1) const;
+  int GetCellSourceSideType(int sideType = -1) const;
+  int GetCellSourceSelectionType(int sideType = -1) const;
+
   /// Return the number of cells (and sides) of this type present in this cell grid.
   vtkIdType GetNumberOfCells() override;
 
