@@ -58,7 +58,7 @@ public:
   static vtkWebGPUComputePass* New();
   vtkTypeMacro(vtkWebGPUComputePass, vtkObject);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
   /**
