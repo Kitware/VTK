@@ -82,13 +82,13 @@ void RenderNewTriangle(vtkRenderWindow* renWin, vtkRenderer* renderer,
 void CheckRenderCount(
   const std::vector<int>& renderedPropCounts, const std::vector<int>& renderedPropCountsReference)
 {
-  for (int i = 0; i < renderedPropCounts.size(); i++)
+  for (std::size_t i = 0; i < renderedPropCounts.size(); i++)
   {
     if (renderedPropCounts[i] != renderedPropCountsReference[i])
     {
       std::string expectedSequence;
       std::string actualSequence;
-      for (int seqIndex = 0; seqIndex < renderedPropCounts.size(); seqIndex++)
+      for (std::size_t seqIndex = 0; seqIndex < renderedPropCounts.size(); seqIndex++)
       {
         expectedSequence += std::to_string(renderedPropCountsReference[seqIndex]) + ", ";
         actualSequence += std::to_string(renderedPropCounts[seqIndex]) + ", ";
@@ -105,7 +105,7 @@ void CheckRenderCount(
 }
 
 //------------------------------------------------------------------------------
-int TestComputeOcclusionCulling(int argc, char* argv[])
+int TestComputeOcclusionCulling(int, char*[])
 {
   // How many props are expected to be rendered at each frame (with modification of the props in
   // between the frames)

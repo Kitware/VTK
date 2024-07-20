@@ -12,6 +12,7 @@
 #include "vtkWebGPUComputeTextureView.h"   // for compute texture views
 #include "vtk_wgpu.h"                      // for webgpu
 
+#include <cstddef>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -72,7 +73,7 @@ public:
    *
    * Returns true if the texture index is valid, false if it's not.
    */
-  bool CheckTextureIndex(int textureIndex, const std::string& callerFunctionName);
+  bool CheckTextureIndex(std::size_t textureIndex, const std::string& callerFunctionName);
 
   /**
    * Checks if a given index is suitable for indexing this->TextureViews. Logs an error if the index
@@ -82,7 +83,7 @@ public:
    *
    * Returns true if the texture view index is valid, false if it's not.
    */
-  bool CheckTextureViewIndex(int textureViewIndex, const std::string& callerFunctionName);
+  bool CheckTextureViewIndex(std::size_t textureViewIndex, const std::string& callerFunctionName);
 
   /**
    * Makes sure the texture is correct with regards to its properties (size, ...)
@@ -97,7 +98,7 @@ public:
   /**
    * Destroys and recreates the texture with the given index.
    */
-  void RecreateTexture(int textureIndex);
+  void RecreateTexture(std::size_t textureIndex);
 
   /**
    * Retrieves the compute texture associated with the given texture index
@@ -105,13 +106,13 @@ public:
    * @warning The texture will need to be recreated by calling RecreateComputeTexture for all the
    * changes done to this compute texture to take effect
    */
-  vtkSmartPointer<vtkWebGPUComputeTexture> GetComputeTexture(int textureIndex);
+  vtkSmartPointer<vtkWebGPUComputeTexture> GetComputeTexture(std::size_t textureIndex);
 
   /**
    * Recreates a compute texture. Must be called if the compute texture has been modified (after a
    * call to GetComputeTexure for example) for the  changes to take effect.
    */
-  void RecreateComputeTexture(int textureIndex);
+  void RecreateComputeTexture(std::size_t textureIndex);
 
   /**
    * Recreates all the texture views of a texture given its index.
@@ -120,7 +121,7 @@ public:
    * has changed --> the texture view do not point to a correct texture anymore and need to be
    * recreated.
    */
-  void RecreateTextureViews(int textureIndex);
+  void RecreateTextureViews(std::size_t textureIndex);
 
   /**
    * Utilitary method to create a wgpu::TextureView from a ComputeTextureView and the texture this
@@ -165,7 +166,7 @@ public:
    * Returns a new texture view on the given texture (given by the index) that can be configured and
    * then added to the compute pass by AddTextureView()
    */
-  vtkSmartPointer<vtkWebGPUComputeTextureView> CreateTextureView(int textureIndex);
+  vtkSmartPointer<vtkWebGPUComputeTextureView> CreateTextureView(std::size_t textureIndex);
 
   /**
    * Binds the texture to the device at the WebGPU level.
@@ -188,7 +189,7 @@ public:
   /**
    * Deletes all the texture views of a given texture (given by its index)
    */
-  void DeleteTextureViews(int textureIndex);
+  void DeleteTextureViews(std::size_t textureIndex);
 
   /**
    * This function allows the usage of multiple texture views on a single binding point (group /
@@ -205,7 +206,7 @@ public:
    * the second texture (through the second texture view that has been rebound thanks to this
    * function).
    */
-  void RebindTextureView(int group, int binding, int textureViewIndex);
+  void RebindTextureView(std::size_t group, uint32_t binding, std::size_t textureViewIndex);
 
   /*
    * This function maps the buffer, making it accessible to the CPU. This is
@@ -215,14 +216,14 @@ public:
    * The buffer data can then be read from the callback and stored
    * in a buffer (std::vector<>, vtkDataArray, ...) passed in via the userdata pointer for example
    */
-  void ReadTextureFromGPU(int textureIndex, int mipLevel,
+  void ReadTextureFromGPU(std::size_t textureIndex, int mipLevel,
     vtkWebGPUInternalsComputePassTextureStorage::TextureMapAsyncCallback callback, void* userdata);
 
   /**
    * Uploads the given data to the texture starting at pixel (0, 0)
    */
   template <typename T>
-  void UpdateTextureData(int textureIndex, const std::vector<T>& data)
+  void UpdateTextureData(std::size_t textureIndex, const std::vector<T>& data)
   {
     if (!CheckTextureIndex(textureIndex, "UpdateTextureData"))
     {

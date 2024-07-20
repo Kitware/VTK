@@ -376,6 +376,31 @@ fedora39-mpi-python-vtkmoverride:test:
     needs:
         - fedora39-mpi-python-vtkmoverride:build
 
+## WebGPU backend
+fedora39-webgpu:build:
+    extends:
+        - .fedora39_webgpu
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    timeout: 90 minutes
+    dependencies: []
+    needs: []
+
+fedora39-webgpu:test:
+    extends:
+        - .fedora39_webgpu
+        - .cmake_test_linux
+        - .linux_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    timeout: 90 minutes
+    dependencies:
+        - fedora39-webgpu:build
+    needs:
+        - fedora39-webgpu:build
+
 ## Cross compile for the 'wasm32-emscripten' architecture on a linux host
 wasm32-emscripten-linux:build:
     extends:

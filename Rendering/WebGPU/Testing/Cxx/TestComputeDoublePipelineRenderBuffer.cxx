@@ -19,7 +19,6 @@
 #include "TestComputeModifyPointPositionsShader.h"
 #include "vtkActor.h"
 #include "vtkNew.h"
-#include "vtkObject.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"

@@ -69,9 +69,10 @@ wgpu::Texture vtkWebGPUInternalsTexture::CreateATexture(const wgpu::Device& devi
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureView vtkWebGPUInternalsTexture::CreateATextureView(const wgpu::Device& device,
-  wgpu::Texture texture, wgpu::TextureViewDimension dimension, wgpu::TextureAspect aspect,
-  wgpu::TextureFormat format, int baseMipLevel, int mipLevelCount, std::string label)
+wgpu::TextureView vtkWebGPUInternalsTexture::CreateATextureView(
+  const wgpu::Device& vtkNotUsed(device), wgpu::Texture texture,
+  wgpu::TextureViewDimension dimension, wgpu::TextureAspect aspect, wgpu::TextureFormat format,
+  int baseMipLevel, int mipLevelCount, std::string label)
 {
   wgpu::TextureViewDimension textureViewDimension = dimension;
   // Creating a "full" view of the texture

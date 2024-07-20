@@ -143,7 +143,7 @@
 
 .fedora39:
     extends: .linux
-    image: "kitware/vtk:ci-fedora39-20240529"
+    image: "kitware/vtk:ci-fedora39-20240719"
 
 .el7_mindeps:
     extends: .linux
@@ -387,6 +387,13 @@
         # around ASan not being first in the initial library list.
         CMAKE_CONFIGURATION: fedora39_mpi_python_qt_tbb_ubsan
 
+.fedora39_webgpu:
+    extends:
+        - .fedora39
+
+    variables:
+        CMAKE_CONFIGURATION: fedora39_webgpu
+
 .linux_fast_builder_tags:
     tags:
         - build
@@ -503,12 +510,16 @@
     # Enable the Intel compiler if required.
     - '[ "$CC" = "icx" ] && source /opt/intel/oneapi/setvars.sh || true'
 
+.before_script_linux_deps: &before_script_linux_deps
+    - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && cmake -P "$PWD/.gitlab/ci/download_dawn.cmake"'
+
 .cmake_build_linux:
     stage: build
     extends: .warning_policy
 
     script:
         - *before_script_linux
+        - *before_script_linux_deps
         - .gitlab/ci/clang-tidy-cache.sh
         - .gitlab/ci/sccache.sh
         - sccache --start-server
@@ -525,6 +536,7 @@
 
     script:
         - *before_script_linux
+        - *before_script_linux_deps
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
 
     interruptible: true

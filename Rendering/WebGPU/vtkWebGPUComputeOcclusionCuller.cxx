@@ -68,11 +68,10 @@ void vtkWebGPUComputeOcclusionCuller::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HierarchicalZ buffer mipmap count: " << this->HierarchicalZBufferMipmapCount
      << std::endl;
   os << indent << "HierarchicalZ Buffer mimaps [widths, heights]: " << std::endl;
-  for (int index = 0; index < this->MipmapWidths.size(); index++)
+  for (std::size_t index = 0; index < this->MipmapWidths.size(); index++)
   {
     os << indent << "\t [" << this->MipmapWidths[index] << ", " << this->MipmapHeights[index] << "]"
        << std::endl;
-    ;
   }
 
   os << indent << "Depth mipmap pass: ";
@@ -196,6 +195,8 @@ double vtkWebGPUComputeOcclusionCuller::Cull(
   this->OcclusionCullingPipeline->Update();
   this->FirstFrame = false;
 
+  initialized = this->Initialized;
+
   return listLength;
 }
 
@@ -294,7 +295,7 @@ void vtkWebGPUComputeOcclusionCuller::ResizeHierarchicalZBuffer(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeOcclusionCuller::ResizeHierarchicalZBufferMipmapsChain(
-  uint32_t newWidth, uint32_t newHeight)
+  uint32_t vtkNotUsed(newWidth), uint32_t vtkNotUsed(newHeight))
 {
   this->DepthMipmapsPass->DeleteTextureViews(this->HierarchicalZBufferTextureIndexMipmapsPass);
   this->FinishSetupMipmapsPass();
@@ -602,7 +603,7 @@ void vtkWebGPUComputeOcclusionCuller::FillObjectsToDrawCallback(const void* mapp
   // are rendered after the occlusion culling pipeline
   int propListIndex = 0;
   std::unordered_set<vtkProp*>& propsRenderedLastFrame = mapData->renderer->PropsRendered;
-  for (int i = 0; i < passedProps.size(); i++)
+  for (std::size_t i = 0; i < passedProps.size(); i++)
   {
     vtkProp* prop = passedProps[i];
     if (propsRenderedLastFrame.find(prop) == propsRenderedLastFrame.end())
@@ -654,7 +655,7 @@ void vtkWebGPUComputeOcclusionCuller::OutputIndicesCulledCallback(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeOcclusionCuller::WindowResizedCallback(
-  vtkObject* caller, unsigned long eid, void* clientdata, void* calldata)
+  vtkObject* caller, unsigned long vtkNotUsed(eid), void* clientdata, void* vtkNotUsed(calldata))
 {
   vtkWebGPUComputeOcclusionCuller* occlusionCuller =
     static_cast<vtkWebGPUComputeOcclusionCuller*>(clientdata);

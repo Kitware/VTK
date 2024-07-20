@@ -2,22 +2,20 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkConeSource.h"
-#include "vtkElevationFilter.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
-#include "vtkObject.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
-#include "vtkSphereSource.h"
+#include "vtkUnsignedCharArray.h"
 
-int TestTheTrianglePointRepresentation(int argc, char* argv[])
+int TestQuadPointRep(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetWindowName(__func__);
@@ -26,16 +24,16 @@ int TestTheTrianglePointRepresentation(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer);
 
-  // the one and only true triangle
   vtkNew<vtkPolyData> polydata;
   vtkNew<vtkPoints> points;
-  points->InsertNextPoint(-1, -1, 0.0);
-  points->InsertNextPoint(0.0, 1.5, 0.0);
-  points->InsertNextPoint(1, -1, 0.0);
+  points->InsertPoint(0, -1, -1, 1);
+  points->InsertPoint(1, 1, -1, 1);
+  points->InsertPoint(2, -1, 1, 1);
+  points->InsertPoint(3, 1, 1, 1);
   polydata->SetPoints(points);
-  vtkNew<vtkCellArray> triangle;
-  triangle->InsertNextCell({ 0, 2, 1 });
-  polydata->SetPolys(triangle);
+  vtkNew<vtkCellArray> quad;
+  quad->InsertNextCell({ 0, 1, 3, 2 });
+  polydata->SetPolys(quad);
 
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(4);
@@ -52,6 +50,10 @@ int TestTheTrianglePointRepresentation(int argc, char* argv[])
   colors->InsertComponent(2, 1, 0);
   colors->InsertComponent(2, 2, 255);
   colors->InsertComponent(2, 3, 255);
+  colors->InsertComponent(3, 0, 255);
+  colors->InsertComponent(3, 1, 255);
+  colors->InsertComponent(3, 2, 0);
+  colors->InsertComponent(3, 3, 255);
   polydata->GetPointData()->SetScalars(colors);
 
   vtkNew<vtkPolyDataMapper> mapper;
@@ -76,6 +78,10 @@ int TestTheTrianglePointRepresentation(int argc, char* argv[])
 
   renWin->Render();
 
-  iren->Start();
-  return 0;
+  const int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    iren->Start();
+  }
+  return !retVal;
 }

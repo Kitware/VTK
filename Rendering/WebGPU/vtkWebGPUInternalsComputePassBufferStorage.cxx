@@ -157,7 +157,7 @@ void vtkWebGPUInternalsComputePassBufferStorage::AddRenderBuffer(
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkWebGPUInternalsComputePassBufferStorage::GetBufferByteSize(int bufferIndex)
+unsigned int vtkWebGPUInternalsComputePassBufferStorage::GetBufferByteSize(std::size_t bufferIndex)
 {
   if (!this->CheckBufferIndex(bufferIndex, "GetBufferByteSize"))
   {
@@ -169,7 +169,7 @@ unsigned int vtkWebGPUInternalsComputePassBufferStorage::GetBufferByteSize(int b
 
 //------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputePassBufferStorage::ResizeBuffer(
-  int bufferIndex, vtkIdType newByteSize)
+  std::size_t bufferIndex, vtkIdType newByteSize)
 {
   if (!this->CheckBufferIndex(bufferIndex, "ResizeBuffer"))
   {
@@ -187,7 +187,7 @@ void vtkWebGPUInternalsComputePassBufferStorage::ResizeBuffer(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputePassBufferStorage::RecreateBuffer(
-  int bufferIndex, vtkIdType newByteSize)
+  std::size_t bufferIndex, vtkIdType newByteSize)
 {
   vtkSmartPointer<vtkWebGPUComputeBuffer> buffer = this->Buffers[bufferIndex];
 
@@ -203,7 +203,7 @@ void vtkWebGPUInternalsComputePassBufferStorage::RecreateBuffer(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputePassBufferStorage::ReadBufferFromGPU(int bufferIndex,
+void vtkWebGPUInternalsComputePassBufferStorage::ReadBufferFromGPU(std::size_t bufferIndex,
   vtkWebGPUInternalsComputePassBufferStorage::BufferMapAsyncCallback callback, void* userdata)
 {
   if (!this->CheckBufferIndex(bufferIndex, "ReadBufferFromGPU"))
@@ -282,7 +282,7 @@ void vtkWebGPUInternalsComputePassBufferStorage::UpdateWebGPUBuffer(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputePassBufferStorage::UpdateBufferData(
-  int bufferIndex, vtkDataArray* newData)
+  std::size_t bufferIndex, vtkDataArray* newData)
 {
   if (!this->CheckBufferIndex(bufferIndex, std::string("UpdateBufferData")))
   {
@@ -310,7 +310,7 @@ void vtkWebGPUInternalsComputePassBufferStorage::UpdateBufferData(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputePassBufferStorage::UpdateBufferData(
-  int bufferIndex, vtkIdType byteOffset, vtkDataArray* newData)
+  std::size_t bufferIndex, vtkIdType byteOffset, vtkDataArray* newData)
 {
   if (!this->CheckBufferIndex(bufferIndex, std::string("UpdateBufferData with offset")))
   {
@@ -340,7 +340,7 @@ void vtkWebGPUInternalsComputePassBufferStorage::UpdateBufferData(
 
 //------------------------------------------------------------------------------
 bool vtkWebGPUInternalsComputePassBufferStorage::CheckBufferIndex(
-  int bufferIndex, const std::string& callerFunctionName)
+  std::size_t bufferIndex, const std::string& callerFunctionName)
 {
   if (bufferIndex < 0)
   {

@@ -77,4 +77,8 @@ dnf config-manager --add-repo https://download.opensuse.org/repositories/science
 dnf install -y --setopt=install_weak_deps=False \
     openturns-libs openturns-devel
 
+# Vulkan backend dependencies
+dnf install -y --setopt=install_weak_deps=False \
+    mesa-vulkan-drivers
+
 dnf clean all
