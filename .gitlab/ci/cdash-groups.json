@@ -16,6 +16,7 @@
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_mpi_python_vtkmoverride]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_mpi_renderless]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_mpi_renderless_ext_vtk]" },
+        { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora39_webgpu]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_arm64_kits_python_qt]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_x86_64_kits_python_qt]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_x86_64_kits_python_qt_stdthread]" },
