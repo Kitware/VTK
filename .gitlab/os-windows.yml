@@ -357,7 +357,7 @@
     # Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
     - . .\build\ci-venv\Scripts\Activate.ps1
     - pip install -qq -r $pwdpath\.gitlab\ci\requirements.txt
-    - .gitlab\ci\node.ps1
+    - cmake -P .gitlab/ci/download_node.cmake
     - Set-Item -Force -Path "env:NODE_DIR" -Value "$pwdpath\.gitlab\node"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\node;$env:PATH"
     - node --version

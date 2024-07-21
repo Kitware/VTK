@@ -690,7 +690,7 @@
 .before_script_linux_emscripten: &before_script_linux_emscripten
     - *before_script_linux
     # Fetch node
-    - .gitlab/ci/node.sh
+    - cmake -P .gitlab/ci/download_node.cmake
     - export NODE_DIR=$PWD/.gitlab/node
     - export PATH=$PWD/.gitlab/node/bin:$PATH
     - node --version
