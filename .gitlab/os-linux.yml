@@ -143,7 +143,7 @@
 
 .fedora39:
     extends: .linux
-    image: "kitware/vtk:ci-fedora39-20240719"
+    image: "kitware/vtk:ci-fedora39-20240721"
 
 .el7_mindeps:
     extends: .linux
@@ -696,8 +696,6 @@
     - node --version
     - $PWD/.gitlab/ci/emsdk.sh
     # Fetches clang, wasm link tools and emscripten
-    # need `xz` to extract `wasm_binaries.tar.xz` downloaded by `emsdk install`
-    - dnf install -y --setopt=install_weak_deps=False xz
     - $PWD/.gitlab/emsdk/emsdk install latest
     - export PATH=$PWD/.gitlab/emsdk/upstream/bin:$PWD/.gitlab/emsdk/upstream/emscripten:$PATH
     - clang --version
