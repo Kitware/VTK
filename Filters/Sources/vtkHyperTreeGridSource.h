@@ -23,10 +23,10 @@
  * NB: For ease of legibility, white spaces are allowed and ignored.
  *
  * In a parallel context, root level trees can be assigned piece numbers in the string descriptor
- * Prefix trees with a digit to assign it to a distributed piece. The digit prefix acts as a switch,
- * staying active until another digit is specified. For example 0R.R 1R 0RR 2..R | [...] descriptor
- * will assign the first 3 trees to piece 0, the next one to piece 1, the 2 next to piece 0 and the
- * last 3 to piece 2.
+ * Prefix trees with a digit from 0 to 9 to assign it to a distributed piece. The digit prefix acts
+ * as a switch, staying active until another digit is specified. For example 0R.R 1R 0RR 2..R |
+ * [...] descriptor will assign the first 3 trees to piece 0, the next one to piece 1, the 2 next to
+ * piece 0 and the last 3 to piece 2.
  *
  * When no prefix is specified, all trees belong to piece 0 by default.
  *
@@ -260,16 +260,16 @@ protected:
    * Initialize tree grid from descriptor and call subdivide if needed
    */
   void InitTreeFromDescriptor(vtkHyperTreeGrid* output, vtkHyperTreeGridNonOrientedCursor* cursor,
-    int treeIdx, int idx[3], int offset);
+    int treeIdx, int idx[3], int offset = 0);
 
   /**
    * Subdivide grid from descriptor string when it is to be used
-   * `offset` represents the offsets reading in the root level descriptor, caused by process number
+   * `offset` represents the offset reading in the root level descriptor, caused by process number
    * specifiers.
    */
   void SubdivideFromStringDescriptor(vtkHyperTreeGrid* output,
     vtkHyperTreeGridNonOrientedCursor* cursor, unsigned int level, int treeIdx, int childIdx,
-    int idx[3], int parentPos, int offset);
+    int idx[3], int parentPos, int offset = 0);
 
   /**
    * Subdivide grid from descriptor string when it is to be used
@@ -331,9 +331,10 @@ private:
   vtkHyperTreeGridSource(const vtkHyperTreeGridSource&) = delete;
   void operator=(const vtkHyperTreeGridSource&) = delete;
 
+  // Multi-piece utilities
   int Piece = 0;
   int NumPieces = 1;
-  int CurrentTreeProcess = 0;
+  int CurrentTreeProcess = 0; // Track the process where next root trees should go
 };
 
 VTK_ABI_NAMESPACE_END

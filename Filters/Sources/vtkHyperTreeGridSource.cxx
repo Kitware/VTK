@@ -351,8 +351,6 @@ int vtkHyperTreeGridSource::RequestInformation(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
   outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
-  vtkDebugMacro("Start RequestInfo");
-
   return 1;
 }
 
@@ -360,8 +358,6 @@ int vtkHyperTreeGridSource::RequestInformation(
 int vtkHyperTreeGridSource::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  vtkDebugMacro("Start RequestData");
-
   // Retrieve the output
   vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(outputDO);
@@ -374,8 +370,6 @@ int vtkHyperTreeGridSource::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   this->Piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   this->NumPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  vtkDebugMacro("Writing piece " << this->Piece << "/" << this->NumPieces - 1);
 
   output->Initialize();
 
@@ -630,8 +624,6 @@ int vtkHyperTreeGridSource::ProcessTrees(vtkHyperTreeGrid*, vtkDataObject* outpu
   }
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
   vtkIdType offset = 0;
-  vtkDebugMacro("Iterate over " << nbTrees << " trees");
-  vtkDebugMacro("Level descriptor " << this->LevelDescriptors[0]);
   for (vtkIdType itree = 0; itree < nbTrees; ++itree)
   {
     vtkIdType index = itree;
@@ -653,14 +645,10 @@ int vtkHyperTreeGridSource::ProcessTrees(vtkHyperTreeGrid*, vtkDataObject* outpu
     if (this->UseDescriptor)
     {
       char currentChar = this->LevelDescriptors[0][index + offset];
-      vtkDebugMacro("Starting tree with index " << index << "+" << offset << " : " << currentChar);
-
       if (!this->DescriptorBits && currentChar != 'R' && currentChar != '.')
       {
         this->CurrentTreeProcess = currentChar - '0';
         offset++;
-        vtkDebugMacro(
-          "Changing Tree Process to " << this->CurrentTreeProcess << " for offset " << offset);
         if (this->CurrentTreeProcess < 0 || this->CurrentTreeProcess > 9)
         {
           vtkErrorMacro("Unexpected level " << CurrentTreeProcess);
@@ -693,7 +681,6 @@ int vtkHyperTreeGridSource::ProcessTrees(vtkHyperTreeGrid*, vtkDataObject* outpu
 void vtkHyperTreeGridSource::InitTreeFromDescriptor(vtkHyperTreeGrid* output,
   vtkHyperTreeGridNonOrientedCursor* cursor, int treeIdx, int idx[3], int offset)
 {
-  vtkDebugMacro("InitTreeFromDescr");
   // Subdivide using descriptor
   if (!this->DescriptorBits)
   {
@@ -844,6 +831,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
       case '7':
       case '8':
       case '9':
+      {
         // Process-specific tree. Can only be used at root level
         if (!rootLevel)
         {
@@ -851,11 +839,19 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
             << "It is only possible to use digits to bind trees to parallel pieces at root level");
           return 1;
         }
+        char piece = c - '0';
+        if (piece > this->NumPieces)
+        {
+          vtkErrorMacro(<< "Can not assign tree to piece " << piece
+                        << ". Available number of pieces: " << this->NumPieces);
+          return 1;
+        }
 
         // Simply append into the descriptor
         descriptor << c;
 
         break; // case 'digit'
+      }
       default:
         vtkErrorMacro(<< "Unrecognized character: " << c << " at pos " << i << " in descriptor "
                       << this->Descriptor);
@@ -921,10 +917,6 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
   // Calculate pointer into level descriptor string
   unsigned int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx + offset;
 
-  vtkDebugMacro(<< "Subdivide with string " << this->LevelDescriptors.at(level).at(pointer)
-                << " at level " << level << " CurrentTreeP " << this->CurrentTreeProcess
-                << " piece " << this->Piece << "/" << this->NumPieces << " offset " << offset);
-
   // Calculate the node global index
   vtkIdType id = this->LevelBitsIndexCnt[level];
   ++this->LevelBitsIndexCnt[level];
@@ -940,7 +932,7 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
     outData->GetArray("Intercepts")->InsertTuple3(id, v, 0., 3.);
   }
 
-  // Initialize global index of tree
+  // Initialize global index of tree and mask state
   cursor->SetGlobalIndexFromLocal(id);
   cursor->SetMask(false);
 
@@ -1045,17 +1037,10 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
   } // else if
 
   // Process selection for root trees: mask the entire tree if it's not selected for this process
-  if (level == 0 && this->NumPieces > 1 && this->CurrentTreeProcess != this->Piece)
+  if (level == 0 && this->CurrentTreeProcess != this->Piece)
   {
-    vtkDebugMacro(<< "Masking tree " << treeIdx);
     cursor->SetMask(true);
-    return;
   }
-  else
-  {
-    vtkDebugMacro(<< "Not Masking tree " << treeIdx);
-  }
-  vtkDebugMacro(<< "Is Masked? " << cursor->IsMasked());
 }
 
 //------------------------------------------------------------------------------
