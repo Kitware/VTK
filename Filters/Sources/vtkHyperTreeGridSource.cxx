@@ -644,15 +644,18 @@ int vtkHyperTreeGridSource::ProcessTrees(vtkHyperTreeGrid*, vtkDataObject* outpu
 
     if (this->UseDescriptor)
     {
-      char currentChar = this->LevelDescriptors[0][index + offset];
-      if (!this->DescriptorBits && currentChar != 'R' && currentChar != '.')
+      if (!this->DescriptorBits)
       {
-        this->CurrentTreeProcess = currentChar - '0';
-        offset++;
-        if (this->CurrentTreeProcess < 0 || this->CurrentTreeProcess > 9)
+        char currentChar = this->LevelDescriptors[0][index + offset];
+        if (currentChar != 'R' && currentChar != '.')
         {
-          vtkErrorMacro("Unexpected level " << CurrentTreeProcess);
-          return 0;
+          this->CurrentTreeProcess = currentChar - '0';
+          offset++;
+          if (this->CurrentTreeProcess < 0 || this->CurrentTreeProcess > 9)
+          {
+            vtkErrorMacro("Unexpected level " << CurrentTreeProcess);
+            return 0;
+          }
         }
       }
       this->InitTreeFromDescriptor(output, cursor, index, idx, offset);
@@ -1543,14 +1546,19 @@ vtkBitArray* vtkHyperTreeGridSource::ConvertDescriptorStringToBitArray(const std
       case ' ':
       case '|':
         break;
+
+      case '1':
       case 'R':
         //  Refined cell
         desc->InsertNextValue(1);
         break;
+
+      case '0':
       case '.':
         // Leaf cell
         desc->InsertNextValue(0);
         break;
+
       default:
         vtkErrorMacro(<< "Unrecognized character: " << *dit << " in string " << str);
         desc->Delete();
