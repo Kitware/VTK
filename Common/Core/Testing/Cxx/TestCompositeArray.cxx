@@ -5,7 +5,6 @@
 #include "vtkAffineArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIntArray.h"
-#include "vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
 
 #include <cstdlib>
 #include <memory>

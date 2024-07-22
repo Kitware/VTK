@@ -7,3 +7,8 @@ Mask support has been improved and optimized: refined masked cells will not send
 
 Also, new filter `vtkHyperTreeGridExtractGhostCells` and `vtkHyperTreeGridRemoveGhostCells` has been created to extract
 and remove ghost cells for a HTG, similarly to what `vtkExtractGhostCells` and `vtkRemoveGhosts` does for other data types.
+
+# Use vtkCompositeArray in vtkHyperTreeGridGhostCellsGenerator
+
+The vtkHyperTreeGridGhostCellsGenerator now uses vtkCompositeArray to store cell data information.
+This allows to store a shallow copy of the existing cell data instead of building a complete new array.
