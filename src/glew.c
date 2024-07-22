@@ -38,7 +38,15 @@
 
 #if defined(GLEW_OSMESA)
 #  define GLAPI extern
+#  ifndef APIENTRY
+#    define APIENTRY
+#    define GLEW_APIENTRY_DEFINED
+#  endif
 #  include <GL/osmesa.h>
+#  ifdef GLEW_APIENTRY_DEFINED
+#    undef APIENTRY
+#    undef GLEW_APIENTRY_DEFINED
+#  endif
 #elif defined(GLEW_EGL)
 #  include <GL/eglew.h>
 #elif defined(_WIN32)
@@ -1590,6 +1598,8 @@ PFNGLWINDOWPOS3IARBPROC __glewWindowPos3iARB = NULL;
 PFNGLWINDOWPOS3IVARBPROC __glewWindowPos3ivARB = NULL;
 PFNGLWINDOWPOS3SARBPROC __glewWindowPos3sARB = NULL;
 PFNGLWINDOWPOS3SVARBPROC __glewWindowPos3svARB = NULL;
+
+PFNGLMAXACTIVESHADERCORESARMPROC __glewMaxActiveShaderCoresARM = NULL;
 
 PFNGLDRAWBUFFERSATIPROC __glewDrawBuffersATI = NULL;
 
@@ -3767,6 +3777,7 @@ GLboolean __GLEW_ARB_window_pos = GL_FALSE;
 GLboolean __GLEW_ARM_mali_program_binary = GL_FALSE;
 GLboolean __GLEW_ARM_mali_shader_binary = GL_FALSE;
 GLboolean __GLEW_ARM_rgba8 = GL_FALSE;
+GLboolean __GLEW_ARM_shader_core_properties = GL_FALSE;
 GLboolean __GLEW_ARM_shader_framebuffer_fetch = GL_FALSE;
 GLboolean __GLEW_ARM_shader_framebuffer_fetch_depth_stencil = GL_FALSE;
 GLboolean __GLEW_ARM_texture_unnormalized_coordinates = GL_FALSE;
@@ -4316,6 +4327,7 @@ GLboolean __GLEW_QCOM_texture_foveated_subsampled_layout = GL_FALSE;
 GLboolean __GLEW_QCOM_texture_lod_bias = GL_FALSE;
 GLboolean __GLEW_QCOM_tiled_rendering = GL_FALSE;
 GLboolean __GLEW_QCOM_writeonly_rendering = GL_FALSE;
+GLboolean __GLEW_QCOM_ycbcr_degamma = GL_FALSE;
 GLboolean __GLEW_REGAL_ES1_0_compatibility = GL_FALSE;
 GLboolean __GLEW_REGAL_ES1_1_compatibility = GL_FALSE;
 GLboolean __GLEW_REGAL_enable = GL_FALSE;
@@ -5216,6 +5228,9 @@ static const char * _glewExtensionLookup[] = {
 #endif
 #ifdef GL_ARM_rgba8
   "GL_ARM_rgba8",
+#endif
+#ifdef GL_ARM_shader_core_properties
+  "GL_ARM_shader_core_properties",
 #endif
 #ifdef GL_ARM_shader_framebuffer_fetch
   "GL_ARM_shader_framebuffer_fetch",
@@ -6864,6 +6879,9 @@ static const char * _glewExtensionLookup[] = {
 #ifdef GL_QCOM_writeonly_rendering
   "GL_QCOM_writeonly_rendering",
 #endif
+#ifdef GL_QCOM_ycbcr_degamma
+  "GL_QCOM_ycbcr_degamma",
+#endif
 #ifdef GL_REGAL_ES1_0_compatibility
   "GL_REGAL_ES1_0_compatibility",
 #endif
@@ -7307,7 +7325,7 @@ static const char * _glewExtensionLookup[] = {
 
 
 /* Detected in the extension string or strings */
-static GLboolean  _glewExtensionString[952];
+static GLboolean  _glewExtensionString[954];
 /* Detected via extension string or experimental mode */
 static GLboolean* _glewExtensionEnabled[] = {
 #ifdef GL_3DFX_multisample
@@ -8080,6 +8098,9 @@ static GLboolean* _glewExtensionEnabled[] = {
 #endif
 #ifdef GL_ARM_rgba8
   &__GLEW_ARM_rgba8,
+#endif
+#ifdef GL_ARM_shader_core_properties
+  &__GLEW_ARM_shader_core_properties,
 #endif
 #ifdef GL_ARM_shader_framebuffer_fetch
   &__GLEW_ARM_shader_framebuffer_fetch,
@@ -9728,6 +9749,9 @@ static GLboolean* _glewExtensionEnabled[] = {
 #ifdef GL_QCOM_writeonly_rendering
   &__GLEW_QCOM_writeonly_rendering,
 #endif
+#ifdef GL_QCOM_ycbcr_degamma
+  &__GLEW_QCOM_ycbcr_degamma,
+#endif
 #ifdef GL_REGAL_ES1_0_compatibility
   &__GLEW_REGAL_ES1_0_compatibility,
 #endif
@@ -10299,6 +10323,7 @@ static GLboolean _glewInit_GL_ARB_vertex_shader ();
 static GLboolean _glewInit_GL_ARB_vertex_type_2_10_10_10_rev ();
 static GLboolean _glewInit_GL_ARB_viewport_array ();
 static GLboolean _glewInit_GL_ARB_window_pos ();
+static GLboolean _glewInit_GL_ARM_shader_core_properties ();
 static GLboolean _glewInit_GL_ATI_draw_buffers ();
 static GLboolean _glewInit_GL_ATI_element_array ();
 static GLboolean _glewInit_GL_ATI_envmap_bumpmap ();
@@ -13284,6 +13309,19 @@ static GLboolean _glewInit_GL_ARB_window_pos ()
 }
 
 #endif /* GL_ARB_window_pos */
+
+#ifdef GL_ARM_shader_core_properties
+
+static GLboolean _glewInit_GL_ARM_shader_core_properties ()
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((glMaxActiveShaderCoresARM = (PFNGLMAXACTIVESHADERCORESARMPROC)glewGetProcAddress((const GLubyte*)"glMaxActiveShaderCoresARM")) == NULL) || r;
+
+  return r;
+}
+
+#endif /* GL_ARM_shader_core_properties */
 
 #ifdef GL_ATI_draw_buffers
 
@@ -18765,6 +18803,9 @@ static GLenum GLEWAPIENTRY glewContextInit ()
 #ifdef GL_ARB_window_pos
   if (glewExperimental || GLEW_ARB_window_pos) GLEW_ARB_window_pos = !_glewInit_GL_ARB_window_pos();
 #endif /* GL_ARB_window_pos */
+#ifdef GL_ARM_shader_core_properties
+  if (glewExperimental || GLEW_ARM_shader_core_properties) GLEW_ARM_shader_core_properties = !_glewInit_GL_ARM_shader_core_properties();
+#endif /* GL_ARM_shader_core_properties */
 #ifdef GL_ATI_draw_buffers
   if (glewExperimental || GLEW_ATI_draw_buffers) GLEW_ATI_draw_buffers = !_glewInit_GL_ATI_draw_buffers();
 #endif /* GL_ATI_draw_buffers */
@@ -19830,6 +19871,7 @@ GLboolean __EGLEW_ANDROID_image_native_buffer = GL_FALSE;
 GLboolean __EGLEW_ANDROID_native_fence_sync = GL_FALSE;
 GLboolean __EGLEW_ANDROID_presentation_time = GL_FALSE;
 GLboolean __EGLEW_ANDROID_recordable = GL_FALSE;
+GLboolean __EGLEW_ANDROID_telemetry_hint = GL_FALSE;
 GLboolean __EGLEW_ANGLE_d3d_share_handle_client_buffer = GL_FALSE;
 GLboolean __EGLEW_ANGLE_device_d3d = GL_FALSE;
 GLboolean __EGLEW_ANGLE_query_surface_pointer = GL_FALSE;
@@ -19880,6 +19922,7 @@ GLboolean __EGLEW_EXT_platform_xcb = GL_FALSE;
 GLboolean __EGLEW_EXT_present_opaque = GL_FALSE;
 GLboolean __EGLEW_EXT_protected_content = GL_FALSE;
 GLboolean __EGLEW_EXT_protected_surface = GL_FALSE;
+GLboolean __EGLEW_EXT_query_reset_notification_strategy = GL_FALSE;
 GLboolean __EGLEW_EXT_stream_consumer_egloutput = GL_FALSE;
 GLboolean __EGLEW_EXT_surface_CTA861_3_metadata = GL_FALSE;
 GLboolean __EGLEW_EXT_surface_SMPTE2086_metadata = GL_FALSE;
@@ -20945,6 +20988,9 @@ GLenum eglewInit (EGLDisplay display)
 #ifdef EGL_ANDROID_recordable
   EGLEW_ANDROID_recordable = _glewSearchExtension("EGL_ANDROID_recordable", extStart, extEnd);
 #endif /* EGL_ANDROID_recordable */
+#ifdef EGL_ANDROID_telemetry_hint
+  EGLEW_ANDROID_telemetry_hint = _glewSearchExtension("EGL_ANDROID_telemetry_hint", extStart, extEnd);
+#endif /* EGL_ANDROID_telemetry_hint */
 #ifdef EGL_ANGLE_d3d_share_handle_client_buffer
   EGLEW_ANGLE_d3d_share_handle_client_buffer = _glewSearchExtension("EGL_ANGLE_d3d_share_handle_client_buffer", extStart, extEnd);
 #endif /* EGL_ANGLE_d3d_share_handle_client_buffer */
@@ -21105,6 +21151,9 @@ GLenum eglewInit (EGLDisplay display)
 #ifdef EGL_EXT_protected_surface
   EGLEW_EXT_protected_surface = _glewSearchExtension("EGL_EXT_protected_surface", extStart, extEnd);
 #endif /* EGL_EXT_protected_surface */
+#ifdef EGL_EXT_query_reset_notification_strategy
+  EGLEW_EXT_query_reset_notification_strategy = _glewSearchExtension("EGL_EXT_query_reset_notification_strategy", extStart, extEnd);
+#endif /* EGL_EXT_query_reset_notification_strategy */
 #ifdef EGL_EXT_stream_consumer_egloutput
   EGLEW_EXT_stream_consumer_egloutput = _glewSearchExtension("EGL_EXT_stream_consumer_egloutput", extStart, extEnd);
   if (glewExperimental || EGLEW_EXT_stream_consumer_egloutput) EGLEW_EXT_stream_consumer_egloutput = !_glewInit_EGL_EXT_stream_consumer_egloutput();
@@ -25518,6 +25567,13 @@ GLboolean GLEWAPIENTRY glewIsSupported (const char* name)
           continue;
         }
 #endif
+#ifdef GL_ARM_shader_core_properties
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"shader_core_properties", 22))
+        {
+          ret = GLEW_ARM_shader_core_properties;
+          continue;
+        }
+#endif
 #ifdef GL_ARM_shader_framebuffer_fetch
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"shader_framebuffer_fetch", 24))
         {
@@ -29427,6 +29483,13 @@ GLboolean GLEWAPIENTRY glewIsSupported (const char* name)
           continue;
         }
 #endif
+#ifdef GL_QCOM_ycbcr_degamma
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"ycbcr_degamma", 13))
+        {
+          ret = GLEW_QCOM_ycbcr_degamma;
+          continue;
+        }
+#endif
       }
       if (_glewStrSame2(&pos, &len, (const GLubyte*)"REGAL_", 6))
       {
@@ -31522,6 +31585,13 @@ GLboolean eglewIsSupported (const char* name)
           continue;
         }
 #endif
+#ifdef EGL_ANDROID_telemetry_hint
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"telemetry_hint", 14))
+        {
+          ret = EGLEW_ANDROID_telemetry_hint;
+          continue;
+        }
+#endif
       }
       if (_glewStrSame2(&pos, &len, (const GLubyte*)"ANGLE_", 6))
       {
@@ -31878,6 +31948,13 @@ GLboolean eglewIsSupported (const char* name)
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"protected_surface", 17))
         {
           ret = EGLEW_EXT_protected_surface;
+          continue;
+        }
+#endif
+#ifdef EGL_EXT_query_reset_notification_strategy
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"query_reset_notification_strategy", 33))
+        {
+          ret = EGLEW_EXT_query_reset_notification_strategy;
           continue;
         }
 #endif
