@@ -197,7 +197,8 @@ void vtkWebGPUInternalsComputePassBufferStorage::RecreateBuffer(
     vtkWebGPUInternalsComputePassBufferStorage::ComputeBufferModeToBufferUsage(buffer->GetMode());
 
   // Recreating the buffer
-  const char* bufferLabel = buffer->GetLabel().c_str();
+  std::string label = buffer->GetLabel();
+  const char* bufferLabel = label.c_str();
   this->WebGPUBuffers[bufferIndex] = vtkWebGPUInternalsBuffer::CreateABuffer(
     this->ParentPassDevice, newByteSize, bufferUsage, false, bufferLabel);
 }
