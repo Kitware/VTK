@@ -275,7 +275,7 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  virtual void Initialize() {}
+  void Initialize() override {}
 
   std::set<vtkGenericOpenGLResourceFreeCallback*> Resources;
 
