@@ -52,6 +52,7 @@ int TestHyperTreeGridSourceDistributed(int argc, char* argv[])
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
   htg->InitializeTreeIterator(it);
   int treeIndex = 0;
+  bool success = true;
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
   while (it.GetNextTree(inIndex))
   {
@@ -60,11 +61,10 @@ int TestHyperTreeGridSourceDistributed(int argc, char* argv[])
     {
       vtkErrorWithObjectMacro(
         nullptr, "Tree #" << treeIndex - 1 << " does not appear on the right process.");
-      controller->Finalize();
-      return EXIT_FAILURE;
+      success = false;
     }
   }
 
   controller->Finalize();
-  return EXIT_SUCCESS;
+  return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

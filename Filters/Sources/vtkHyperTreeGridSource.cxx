@@ -781,7 +781,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
                           << descriptor.str().size() << " which is not expected value of "
                           << nNextLevel);
 
-            return 0;
+            return 1;
           }
         } // else
 
@@ -869,7 +869,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
     vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
                   << descriptor.str().size() << " which is not expected value of " << nNextLevel);
 
-    return 0;
+    return 1;
   }
 
   // Push per-level descriptor and material mask if used
@@ -950,8 +950,7 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
     //      set value by tree with SetGlobalIndexStart only once
     //    if explicit
     //      set value by cell with SetGlobalIndexFromLocal
-    // 2) if use mask
-    //    set mask to false
+    // 2) set mask to false
 
     // Subdivide hyper tree grid leaf
     cursor->SubdivideLeaf();
@@ -1109,7 +1108,7 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
     vtkErrorMacro(<< "Level descriptor " << nCurrentLevel << " has cardinality "
                   << nCurrentLevelCount << " which is not expected value of " << nNextLevel);
 
-    return 0;
+    return 1;
   }
 
   ++nCurrentLevel;
