@@ -5,11 +5,11 @@ vtk_module_third_party(
     SPDX_LICENSE_IDENTIFIER
       "Zlib"
     SPDX_COPYRIGHT_TEXT
-      "(C) 1995-2022 Jean-loup Gailly and Mark Adler"
+      "(C) 1995-2024 Jean-loup Gailly and Mark Adler"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/tiff.git@for/vtk-20230510-1.2.13"
+      "git+https://gitlab.kitware.com/third-party/zlib.git@for/vtk-20240416-1.3.1"
     VERSION
-      "1.2.13"
+      "1.3.1"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE ZLIB

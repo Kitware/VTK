@@ -11,7 +11,7 @@ vtk_module_third_party(
       "Copyright (c) 1996-1997 Andreas Dilger."
       "Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc."
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/png.git@for/vtk-20210727-1.6.37"
+      "git+https://gitlab.kitware.com/third-party/png.git@for/vtk-20240416-1.6.43"
     VERSION
       "1.6.43"
     STANDARD_INCLUDE_DIRS
