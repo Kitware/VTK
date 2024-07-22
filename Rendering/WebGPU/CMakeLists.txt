@@ -17,7 +17,7 @@ set(classes
   vtkWebGPUComputeRenderTexture
   vtkWebGPUComputeTexture
   vtkWebGPUComputeTextureView
-  vtkWGPUContext
+  vtkWebGPUConfiguration
   vtkWebGPUHardwareSelector
   vtkWebGPUHelpers
   vtkWebGPULight
@@ -38,6 +38,7 @@ set(private_headers
   "Private/vtkWebGPUComputePassInternals.h"
   "Private/vtkWebGPUComputePassTextureStorageInternals.h"
   "Private/vtkWebGPUComputePassBufferStorageInternals.h"
+  "Private/vtkWebGPUConfigurationInternals.h"
   "Private/vtkWebGPUPipelineLayoutInternals.h"
   "Private/vtkWebGPURenderPassCreateInfoInternals.h"
   "Private/vtkWebGPURenderPassDescriptorInternals.h"
@@ -54,6 +55,7 @@ set(private_sources
   "Private/vtkWebGPUComputePassInternals.cxx"
   "Private/vtkWebGPUComputePassTextureStorageInternals.cxx"
   "Private/vtkWebGPUComputePassBufferStorageInternals.cxx"
+  "Private/vtkWebGPUConfigurationInternals.cxx"
   "Private/vtkWebGPUPipelineLayoutInternals.cxx"
   "Private/vtkWebGPURenderPassCreateInfoInternals.cxx"
   "Private/vtkWebGPURenderPassDescriptorInternals.cxx"

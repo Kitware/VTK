@@ -22,7 +22,6 @@
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkTypeFloat32Array.h"
-#include "vtkWGPUContext.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
@@ -607,7 +606,7 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactPointBufferSize()
   result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_TANGENTS);
   result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_UVS);
 
-  result = vtkWGPUContext::Align(result, 32);
+  result = vtkWebGPUConfiguration::Align(result, 32);
   vtkDebugMacro(<< __func__ << "=" << result);
   return result;
 }
@@ -621,7 +620,7 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactCellBufferSize()
   result += this->GetCellAttributeByteSize(CellDataAttributes::CELL_NORMALS);
   result += this->GetCellAttributeByteSize(CellDataAttributes::CELL_EDGES);
 
-  result = vtkWGPUContext::Align(result, 32);
+  result = vtkWebGPUConfiguration::Align(result, 32);
   vtkDebugMacro(<< __func__ << "=" << result);
   return result;
 }

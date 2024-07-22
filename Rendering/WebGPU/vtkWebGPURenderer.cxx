@@ -16,12 +16,12 @@
 #include "vtkTransform.h"
 #include "vtkType.h"
 #include "vtkTypeUInt32Array.h"
-#include "vtkWGPUContext.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
 #include "vtkWebGPUClearDrawPass.h"
 #include "vtkWebGPUComputePass.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
+#include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPULight.h"
 #include "vtkWebGPUPolyDataMapper.h"
 #include "vtkWebGPURenderWindow.h"
@@ -101,7 +101,7 @@ std::size_t vtkWebGPURenderer::WriteActorBlocksBuffer(std::size_t offset /*=0*/)
   const wgpu::Device& device = wgpuRenWin->GetDevice();
   const wgpu::Queue& queue = device.GetQueue();
 
-  const auto size = vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
+  const auto size = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
   std::vector<uint8_t> stage;
   stage.resize(this->Props->GetNumberOfItems() * size);
   vtkProp* aProp = nullptr;
@@ -123,15 +123,15 @@ std::size_t vtkWebGPURenderer::WriteActorBlocksBuffer(std::size_t offset /*=0*/)
 void vtkWebGPURenderer::CreateBuffers()
 {
   const auto transformSize = vtkWebGPUCamera::GetCacheSizeBytes();
-  const auto transformSizePadded = vtkWGPUContext::Align(transformSize, 32);
+  const auto transformSizePadded = vtkWebGPUConfiguration::Align(transformSize, 32);
 
   const auto lightSize = sizeof(vtkTypeUInt32) // light count
     + this->LightIDs.size() * vtkWebGPULight::GetCacheSizeBytes();
-  const auto lightSizePadded = vtkWGPUContext::Align(lightSize, 32);
+  const auto lightSizePadded = vtkWebGPUConfiguration::Align(lightSize, 32);
 
   // use padded for actor because dynamic offsets are used.
   const auto actorBlkSize = vtkMath::Max<std::size_t>(this->Props->GetNumberOfItems() *
-      vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256),
+      vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256),
     256);
 
   auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
@@ -191,7 +191,7 @@ void vtkWebGPURenderer::CreateBuffers()
     // build new cache for bundles and dynamic offsets.
     vtkProp* aProp = nullptr;
     vtkCollectionSimpleIterator piter;
-    const auto size = vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
+    const auto size = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
     int i = 0;
     for (this->Props->InitTraversal(piter); (aProp = this->Props->GetNextProp(piter)); i++)
     {
@@ -310,6 +310,8 @@ void vtkWebGPURenderer::ConfigureComputePipelines()
 
   for (vtkSmartPointer<vtkWebGPUComputePipeline> computePipeline : this->NotSetupComputePipelines)
   {
+    computePipeline->SetWGPUConfiguration(webGPURenderWindow->GetWGPUConfiguration());
+
     this->ConfigureComputeRenderBuffers(computePipeline);
     this->SetupComputePipelines.push_back(computePipeline);
   }
@@ -764,7 +766,7 @@ void vtkWebGPURenderer::SetupActorBindGroup()
     vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->ActorBindGroupLayout,
       {
         // clang-format off
-        { 0, this->ActorBlocksBuffer, 0, vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256) },
+        { 0, this->ActorBlocksBuffer, 0, vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256) },
         // clang-format on
       });
   this->ActorBindGroup.SetLabel("ActorBindGroup");
@@ -802,10 +804,8 @@ void vtkWebGPURenderer::AddComputePipeline(vtkSmartPointer<vtkWebGPUComputePipel
 
   vtkWebGPURenderWindow* wgpuRenderWindow =
     vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  wgpu::Adapter renderWindowAdapter = wgpuRenderWindow->GetAdapter();
-  wgpu::Device renderWindowDevice = wgpuRenderWindow->GetDevice();
 
-  if (renderWindowAdapter.Get() == nullptr || renderWindowDevice.Get() == nullptr)
+  if (wgpuRenderWindow->GetWGPUConfiguration() == nullptr)
   {
     vtkLog(ERROR,
       "Trying to add a compute pipeline to a vtkWebGPURenderer whose vtkWebGPURenderWindow wasn't "
@@ -814,8 +814,7 @@ void vtkWebGPURenderer::AddComputePipeline(vtkSmartPointer<vtkWebGPUComputePipel
     return;
   }
 
-  pipeline->SetAdapter(wgpuRenderWindow->GetAdapter());
-  pipeline->SetDevice(wgpuRenderWindow->GetDevice());
+  pipeline->SetWGPUConfiguration(wgpuRenderWindow->GetWGPUConfiguration());
 }
 
 VTK_ABI_NAMESPACE_END

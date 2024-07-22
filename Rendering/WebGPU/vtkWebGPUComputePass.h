@@ -318,7 +318,7 @@ public:
 
 protected:
   vtkWebGPUComputePass();
-  ~vtkWebGPUComputePass();
+  ~vtkWebGPUComputePass() override;
 
 private:
   vtkWebGPUComputePass(const vtkWebGPUComputePass&) = delete;

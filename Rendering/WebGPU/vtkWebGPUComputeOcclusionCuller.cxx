@@ -134,8 +134,8 @@ void vtkWebGPUComputeOcclusionCuller::SetRenderWindow(vtkWebGPURenderWindow* ren
   this->WebGPURenderWindow->AddObserver(
     vtkCommand::WindowResizeEvent, this->WindowResizedCallbackCommand);
 
-  this->OcclusionCullingPipeline->SetDevice(this->WebGPURenderWindow->GetDevice());
-  this->OcclusionCullingPipeline->SetAdapter(this->WebGPURenderWindow->GetAdapter());
+  this->OcclusionCullingPipeline->SetWGPUConfiguration(
+    this->WebGPURenderWindow->GetWGPUConfiguration());
 
   // Setting everything up so that everything is ready when Cull() will be called
   this->SetupDepthBufferCopyPass();

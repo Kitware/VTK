@@ -10,6 +10,7 @@
 #include "vtkWebGPUComputeBuffer.h"       // for compute buffers
 #include "vtkWebGPUComputePass.h"         // for enum
 #include "vtkWebGPUComputeRenderBuffer.h" // for compute render buffers
+#include "vtkWebGPUConfiguration.h"       // for ivar
 #include "vtk_wgpu.h"                     // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -31,7 +32,7 @@ public:
    *
    * This device must be the one used by the parent compute pass.
    */
-  void SetParentDevice(wgpu::Device device);
+  vtkSetSmartPointerMacro(ParentPassWGPUConfiguration, vtkWebGPUConfiguration);
 
   /**
    * Sets the compute pass that uses the buffers of this storage
@@ -120,7 +121,8 @@ public:
     }
 
     wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
-    this->ParentPassDevice.GetQueue().WriteBuffer(wgpuBuffer, 0, bytes, numBytes);
+    this->ParentPassWGPUConfiguration->GetDevice().GetQueue().WriteBuffer(
+      wgpuBuffer, 0, bytes, numBytes);
   }
 
   void WriteBuffer(
@@ -142,7 +144,8 @@ public:
     }
 
     wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
-    this->ParentPassDevice.GetQueue().WriteBuffer(wgpuBuffer, byteOffset, bytes, numBytes);
+    this->ParentPassWGPUConfiguration->GetDevice().GetQueue().WriteBuffer(
+      wgpuBuffer, byteOffset, bytes, numBytes);
   }
 
   /**
@@ -203,13 +206,17 @@ public:
   static wgpu::BufferBindingType ComputeBufferModeToBufferBindingType(
     vtkWebGPUComputeBuffer::BufferMode mode);
 
+protected:
+  vtkWebGPUComputePassBufferStorageInternals() = default;
+  ~vtkWebGPUComputePassBufferStorageInternals() override = default;
+
 private:
   friend class vtkWebGPUComputePassInternals;
 
   // Compute pass that uses this buffer storage
   vtkWeakPointer<vtkWebGPUComputePass> ParentComputePass;
   // Device of the parent compute pass that is used when creating buffers
-  wgpu::Device ParentPassDevice;
+  vtkSmartPointer<vtkWebGPUConfiguration> ParentPassWGPUConfiguration;
 
   // Compute buffers
   std::vector<vtkSmartPointer<vtkWebGPUComputeBuffer>> Buffers;

@@ -38,17 +38,14 @@ struct InternalMapTextureAsyncData
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputePassTextureStorageInternals::SetParentDevice(wgpu::Device device)
-{
-  this->ParentPassDevice = device;
-}
-
-//------------------------------------------------------------------------------
 void vtkWebGPUComputePassTextureStorageInternals::SetComputePass(
   vtkWeakPointer<vtkWebGPUComputePass> parentComputePass)
 {
   this->ParentComputePass = parentComputePass;
-  this->ParentPassDevice = parentComputePass->Internals->Device;
+  if (parentComputePass)
+  {
+    this->ParentPassWGPUConfiguration = parentComputePass->Internals->WGPUConfiguration;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -185,10 +182,10 @@ bool vtkWebGPUComputePassTextureStorageInternals::CheckParentComputePass(
     return false;
   }
 
-  if (this->ParentPassDevice == nullptr)
+  if (this->ParentPassWGPUConfiguration == nullptr)
   {
     vtkLog(ERROR,
-      "Nullptr ParentPassDevice of ComputePassTextureStorage when "
+      "Nullptr ParentPassWGPUConfiguration of ComputePassTextureStorage when "
       "calling "
         << callerFunctionName);
 
@@ -215,8 +212,9 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateTexture(std::size_t te
 
   wgpu::Extent3D extents = { texture->GetWidth(), texture->GetHeight(), texture->GetDepth() };
 
-  this->WebGPUTextures[textureIndex] = vtkWebGPUTextureInternals::CreateATexture(
-    this->ParentPassDevice, extents, dimension, format, usage, mipLevelCount, textureLabel);
+  this->WebGPUTextures[textureIndex] =
+    vtkWebGPUTextureInternals::CreateATexture(this->ParentPassWGPUConfiguration->GetDevice(),
+      extents, dimension, format, usage, mipLevelCount, textureLabel);
 }
 
 //------------------------------------------------------------------------------
@@ -403,9 +401,9 @@ wgpu::TextureView vtkWebGPUComputePassTextureStorageInternals::CreateWebGPUTextu
   int baseMipLevel = textureView->GetBaseMipLevel();
   int mipLevelCount = textureView->GetMipLevelCount();
 
-  return vtkWebGPUTextureInternals::CreateATextureView(this->ParentPassDevice, wgpuTexture,
-    textureViewDimension, textureViewAspect, textureViewFormat, baseMipLevel, mipLevelCount,
-    textureViewLabel);
+  return vtkWebGPUTextureInternals::CreateATextureView(
+    this->ParentPassWGPUConfiguration->GetDevice(), wgpuTexture, textureViewDimension,
+    textureViewAspect, textureViewFormat, baseMipLevel, mipLevelCount, textureViewLabel);
 }
 
 //------------------------------------------------------------------------------
@@ -463,8 +461,9 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
         texture->GetDimension());
     int mipLevelCount = texture->GetMipLevelCount();
 
-    wgpuTexture = vtkWebGPUTextureInternals::CreateATexture(this->ParentPassDevice, textureExtents,
-      dimension, format, textureUsage, mipLevelCount, textureLabel.c_str());
+    wgpuTexture =
+      vtkWebGPUTextureInternals::CreateATexture(this->ParentPassWGPUConfiguration->GetDevice(),
+        textureExtents, dimension, format, textureUsage, mipLevelCount, textureLabel.c_str());
 
     texture->SetByteSize(textureExtents.width * textureExtents.height *
       textureExtents.depthOrArrayLayers * texture->GetBytesPerPixel());
@@ -480,8 +479,8 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
       {
         if (texture->GetDataPointer() != nullptr)
         {
-          vtkWebGPUTextureInternals::Upload(this->ParentPassDevice, wgpuTexture,
-            texture->GetBytesPerPixel() * textureExtents.width, texture->GetByteSize(),
+          vtkWebGPUTextureInternals::Upload(this->ParentPassWGPUConfiguration->GetDevice(),
+            wgpuTexture, texture->GetBytesPerPixel() * textureExtents.width, texture->GetByteSize(),
             texture->GetDataPointer());
         }
         else if (textureReadOnly)
@@ -501,7 +500,8 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
       {
         if (texture->GetDataArray() != nullptr)
         {
-          vtkWebGPUTextureInternals::UploadFromDataArray(this->ParentPassDevice, wgpuTexture,
+          vtkWebGPUTextureInternals::UploadFromDataArray(
+            this->ParentPassWGPUConfiguration->GetDevice(), wgpuTexture,
             texture->GetBytesPerPixel() * textureExtents.width, texture->GetDataArray());
         }
         else if (textureReadOnly)
@@ -848,7 +848,8 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   bufferDescriptor.size = bytesPerRow * texture->GetHeight();
   bufferDescriptor.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead;
 
-  wgpu::Buffer buffer = this->ParentPassDevice.CreateBuffer(&bufferDescriptor);
+  wgpu::Buffer buffer =
+    this->ParentPassWGPUConfiguration->GetDevice().CreateBuffer(&bufferDescriptor);
 
   // Parameters for copying the texture
   wgpu::ImageCopyTexture imageCopyTexture;
@@ -873,7 +874,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
 
   // Submitting the comand
   wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
-  this->ParentPassDevice.GetQueue().Submit(1, &commandBuffer);
+  this->ParentPassWGPUConfiguration->GetDevice().GetQueue().Submit(1, &commandBuffer);
 
   auto bufferMapCallback = [](WGPUBufferMapAsyncStatus status, void* userdata) {
     InternalMapTextureAsyncData* mapData = reinterpret_cast<InternalMapTextureAsyncData*>(userdata);
