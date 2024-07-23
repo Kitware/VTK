@@ -11,7 +11,7 @@ vtk_module_third_party(
       "Copyright (C) 1999-2007  Brian Paul."
       "Copyright (c) 2007 The Khronos Group Inc."
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/glew.git@for/vtk-20230328-2.2.0"
+      "git+https://gitlab.kitware.com/third-party/glew.git@for/vtk-20240722-2.2.0"
     VERSION
       "2.2.0"
     STANDARD_INCLUDE_DIRS
