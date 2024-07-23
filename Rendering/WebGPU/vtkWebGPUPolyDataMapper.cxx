@@ -19,6 +19,7 @@
 #include "vtkWGPUContext.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
+#include "vtkWebGPUComputeRenderBuffer.h"
 #include "vtkWebGPUInternalsBindGroup.h"
 #include "vtkWebGPUInternalsBindGroupLayout.h"
 #include "vtkWebGPUInternalsBuffer.h"

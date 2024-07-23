@@ -7,6 +7,7 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"               // for smart pointers
 #include "vtkWeakPointer.h"                // for the weak pointer of the parent compute pass
+#include "vtkWebGPUComputePass.h"          // for enum
 #include "vtkWebGPUComputeRenderTexture.h" // for compute render textures
 #include "vtkWebGPUComputeTexture.h"       // for compute textures
 #include "vtkWebGPUComputeTextureView.h"   // for compute texture views
@@ -31,27 +32,6 @@ class vtkWebGPUInternalsComputePassTextureStorage : public vtkObject
 public:
   static vtkWebGPUInternalsComputePassTextureStorage* New();
   vtkTypeMacro(vtkWebGPUInternalsComputePassTextureStorage, vtkObject);
-
-  /*
-   * Callback called when the asynchronous mapping of a texture is done
-   * and data is ready to be copied.
-   * This callback takes three parameters:
-   *
-   * - A void pointer to the data mapped from the GPU ready to be copied.
-   *
-   * - An integer representing how many bytes per row the mapped data contains. This is
-   * useful because some padding has probably be done on the buffer to satisfy WebGPU size
-   * constraints. At the time of writing, buffers for texture mapping need a number of bytes per row
-   * that is a multiple of 256 bytes. This means that for a texture of 300x300 RGBA (300 * 4 = 1200
-   * bytes per row), there will be 80 bytes of additional padding to achieve 1280 bytes per row
-   * which is a multiple of 256. In this case, the integer argument of the callback will contain the
-   * value '1280' and it is then the responsibility of the user to only read relevant data (i.e. the
-   * 1200 first bytes of each row since the 80 last bytes are irrelevant padding).
-   *
-   * - A second void pointer pointing to user data, which can essentially be anything
-   *      needed by the callback to copy the data to the CPU
-   */
-  using TextureMapAsyncCallback = std::function<void(const void*, int, void*)>;
 
   /**
    * Sets the device that will be used by this texture storage when creating textures / texture
@@ -217,13 +197,12 @@ public:
    * in a buffer (std::vector<>, vtkDataArray, ...) passed in via the userdata pointer for example
    */
   void ReadTextureFromGPU(std::size_t textureIndex, int mipLevel,
-    vtkWebGPUInternalsComputePassTextureStorage::TextureMapAsyncCallback callback, void* userdata);
+    vtkWebGPUComputePass::TextureMapAsyncCallback callback, void* userdata);
 
   /**
    * Uploads the given data to the texture starting at pixel (0, 0)
    */
-  template <typename T>
-  void UpdateTextureData(std::size_t textureIndex, const std::vector<T>& data)
+  void WriteTexture(std::size_t textureIndex, const void* bytes, std::size_t numBytes)
   {
     if (!CheckTextureIndex(textureIndex, "UpdateTextureData"))
     {
@@ -235,7 +214,7 @@ public:
     wgpuTexture = this->WebGPUTextures[textureIndex];
     texture = this->Textures[textureIndex];
 
-    if (data.size() * sizeof(T) > texture->GetByteSize())
+    if (numBytes > static_cast<std::size_t>(texture->GetByteSize()))
     {
       vtkLog(ERROR,
         "The given data is larger than what the texture \""
@@ -261,7 +240,7 @@ public:
 
     // Uploading from std::vector or vtkDataArray if one of the two is present
     this->ParentPassDevice.GetQueue().WriteTexture(
-      &copyTexture, data.data(), data.size() * sizeof(T), &textureDataLayout, &textureExtents);
+      &copyTexture, bytes, numBytes, &textureDataLayout, &textureExtents);
   }
 
   /**

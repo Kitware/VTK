@@ -8,6 +8,7 @@
 #include "vtkSmartPointer.h"              // for smart pointers
 #include "vtkWeakPointer.h"               // for weak pointers
 #include "vtkWebGPUComputeBuffer.h"       // for compute buffers
+#include "vtkWebGPUComputePass.h"         // for enum
 #include "vtkWebGPUComputeRenderBuffer.h" // for compute render buffers
 #include "vtk_wgpu.h"                     // for webgpu
 
@@ -24,17 +25,6 @@ class vtkWebGPUInternalsComputePassBufferStorage : public vtkObject
 public:
   static vtkWebGPUInternalsComputePassBufferStorage* New();
   vtkTypeMacro(vtkWebGPUInternalsComputePassBufferStorage, vtkObject);
-
-  /*
-   * Callback called when the asynchronous mapping of a buffer is done
-   * and data is ready to be copied.
-   * This callback takes three parameters:
-   *
-   * - A first void pointer to the data mapped from the GPU ready to be copied
-   * - A second void pointer pointing to user data, which can essentially be anything
-   *      needed by the callback to copy the data to the CPU
-   */
-  using BufferMapAsyncCallback = std::function<void(const void*, void*)>;
 
   /**
    * Sets the device that will be used by this buffer storage when creating buffers.
@@ -90,8 +80,8 @@ public:
    * The buffer data can then be read from the callback and stored
    * in a buffer (std::vector<>, vtkDataArray, ...) passed in via the userdata pointer for example
    */
-  void ReadBufferFromGPU(std::size_t bufferIndex,
-    vtkWebGPUInternalsComputePassBufferStorage::BufferMapAsyncCallback callback, void* userdata);
+  void ReadBufferFromGPU(
+    std::size_t bufferIndex, vtkWebGPUComputePass::BufferMapAsyncCallback callback, void* userdata);
 
   /**
    * Updates the wgpu::Buffer reference that a compute buffer is associated to. Useful when a
@@ -112,22 +102,16 @@ public:
    * data and the given data can safely be destroyed directly after calling this function.
    *
    */
-  template <typename T>
-  void UpdateBufferData(std::size_t bufferIndex, const std::vector<T>& newData)
+  void WriteBuffer(std::size_t bufferIndex, const void* bytes, std::size_t numBytes)
   {
-    if (!CheckBufferIndex(bufferIndex, std::string("UpdataBufferData")))
-    {
-      return;
-    }
-
     vtkWebGPUComputeBuffer* buffer = this->Buffers[bufferIndex];
     vtkIdType byteSize = buffer->GetByteSize();
-    vtkIdType givenSize = newData.size() * sizeof(T);
+    vtkIdType givenSize = numBytes;
 
     if (givenSize > byteSize)
     {
       vtkLog(ERROR,
-        "std::vector data given to UpdateBufferData with index "
+        "void* data given to UpdateBufferData with index "
           << bufferIndex << " is too big. " << givenSize
           << "bytes were given but the buffer is only " << byteSize
           << " bytes long. No data was updated by this call.");
@@ -136,31 +120,20 @@ public:
     }
 
     wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
-    this->ParentPassDevice.GetQueue().WriteBuffer(
-      wgpuBuffer, 0, newData.data(), newData.size() * sizeof(T));
+    this->ParentPassDevice.GetQueue().WriteBuffer(wgpuBuffer, 0, bytes, numBytes);
   }
 
-  /**
-   * Similar to the overload without offset of this function.
-   * The offset is used to determine where in the buffer to reupload data.
-   * Useful when only a portion of the buffer needs to be reuploaded.
-   */
-  template <typename T>
-  void UpdateBufferData(std::size_t bufferIndex, vtkIdType byteOffset, const std::vector<T>& data)
+  void WriteBuffer(
+    std::size_t bufferIndex, vtkIdType byteOffset, const void* bytes, std::size_t numBytes)
   {
-    if (!CheckBufferIndex(bufferIndex, std::string("UpdataBufferData with offset")))
-    {
-      return;
-    }
-
     vtkWebGPUComputeBuffer* buffer = this->Buffers[bufferIndex];
     vtkIdType byteSize = buffer->GetByteSize();
-    vtkIdType givenSize = data.size() * sizeof(T);
+    vtkIdType givenSize = numBytes;
 
     if (givenSize + byteOffset > byteSize)
     {
       vtkLog(ERROR,
-        "std::vector data given to UpdateBufferData with index "
+        "void* data given to WriteBuffer with index "
           << bufferIndex << " and offset " << byteOffset << " is too big. " << givenSize
           << "bytes and offset " << byteOffset << " were given but the buffer is only " << byteSize
           << " bytes long. No data was updated by this call.");
@@ -169,8 +142,7 @@ public:
     }
 
     wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
-    this->ParentPassDevice.GetQueue().WriteBuffer(
-      wgpuBuffer, byteOffset, data.data(), data.size() * sizeof(T));
+    this->ParentPassDevice.GetQueue().WriteBuffer(wgpuBuffer, byteOffset, bytes, numBytes);
   }
 
   /**
