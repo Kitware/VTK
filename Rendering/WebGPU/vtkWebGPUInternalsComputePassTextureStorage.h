@@ -94,8 +94,18 @@ public:
   vtkSmartPointer<vtkWebGPUComputeTexture> GetComputeTexture(std::size_t textureIndex);
 
   /**
+   * Retrieves the texture view associated with the given texture view index
+   *
+   * @warning The texture view will need to be recreated by calling RecreateTextureView() for all
+   * the changes done to this texture view to take effect
+   */
+  vtkSmartPointer<vtkWebGPUComputeTextureView> GetTextureView(std::size_t textureViewIndex);
+
+  /**
    * Recreates a compute texture. Must be called if the compute texture has been modified (after a
    * call to GetComputeTexure for example) for the  changes to take effect.
+   *
+   * This function also recreate the texture views that existed on the texture.
    */
   void RecreateComputeTexture(std::size_t textureIndex);
 
@@ -107,6 +117,12 @@ public:
    * recreated.
    */
   void RecreateTextureViews(std::size_t textureIndex);
+
+  /**
+   * Recreates a compute texture view. Must be called if the compute texture view has been modified
+   * (after a call to GetTextureView for example) for the  changes to take effect.
+   */
+  void RecreateTextureView(std::size_t textureViewIndex);
 
   /**
    * Utilitary method to create a wgpu::TextureView from a ComputeTextureView and the texture this

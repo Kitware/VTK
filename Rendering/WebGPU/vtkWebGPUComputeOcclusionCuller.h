@@ -250,6 +250,8 @@ private:
   // Pass that does the culling of the actors against the hierarchial z-buffer
   vtkSmartPointer<vtkWebGPUComputePass> CullingPass;
 
+  // Index of the hierarchical z buffer texture view in the culling pass
+  int CullingPassHierarchicalZBufferView = -1;
   // Index of the bounds buffer in the culling pass
   int CullingPassBoundsBufferIndex = -1;
   // Index of the buffer that contains the indices of the props that passed the culling test in the

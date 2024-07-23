@@ -232,6 +232,18 @@ vtkWebGPUInternalsComputePassTextureStorage::GetComputeTexture(std::size_t textu
 }
 
 //------------------------------------------------------------------------------
+vtkSmartPointer<vtkWebGPUComputeTextureView>
+vtkWebGPUInternalsComputePassTextureStorage::GetTextureView(std::size_t textureViewIndex)
+{
+  if (!this->CheckTextureViewIndex(textureViewIndex, "GetTextureView"))
+  {
+    return nullptr;
+  }
+
+  return this->TextureViews[textureViewIndex];
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputePassTextureStorage::UpdateComputeTextureAndViews(
   vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture newWgpuTexture)
 {
@@ -356,6 +368,24 @@ void vtkWebGPUInternalsComputePassTextureStorage::RecreateTextureViews(std::size
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUInternalsComputePassTextureStorage::RecreateTextureView(std::size_t textureViewIndex)
+{
+  if (!this->CheckTextureViewIndex(textureViewIndex, "RecreateTextureView"))
+  {
+    return;
+  }
+
+  vtkSmartPointer<vtkWebGPUComputeTextureView> textureView = this->TextureViews[textureViewIndex];
+  int associatedTextureIndex = textureView->GetAssociatedTextureIndex();
+
+  wgpu::Texture wgpuTexture = this->WebGPUTextures[associatedTextureIndex];
+  wgpu::TextureView newWgpuTextureView = CreateWebGPUTextureView(textureView, wgpuTexture);
+
+  this->TextureViewsToWebGPUTextureViews[textureView] = newWgpuTextureView;
+  this->ParentComputePass->Internals->RecreateTextureBindGroup(associatedTextureIndex);
+}
+
+//------------------------------------------------------------------------------
 wgpu::TextureView vtkWebGPUInternalsComputePassTextureStorage::CreateWebGPUTextureView(
   vtkSmartPointer<vtkWebGPUComputeTextureView> textureView, wgpu::Texture wgpuTexture)
 {
@@ -410,7 +440,7 @@ int vtkWebGPUInternalsComputePassTextureStorage::AddTexture(
   wgpu::Extent3D textureExtents = { texture->GetWidth(), texture->GetHeight(),
     texture->GetDepth() };
 
-  if (!CheckTextureCorrectness(texture))
+  if (!this->CheckTextureCorrectness(texture))
   {
     return -1;
   }
@@ -554,7 +584,7 @@ int vtkWebGPUInternalsComputePassTextureStorage::AddTextureView(
 vtkSmartPointer<vtkWebGPUComputeTextureView>
 vtkWebGPUInternalsComputePassTextureStorage::CreateTextureView(std::size_t textureIndex)
 {
-  if (!CheckTextureIndex(textureIndex, "CreateTextureView"))
+  if (!this->CheckTextureIndex(textureIndex, "CreateTextureView"))
   {
     return nullptr;
   }
@@ -798,7 +828,7 @@ void vtkWebGPUInternalsComputePassTextureStorage::RebindTextureView(
 void vtkWebGPUInternalsComputePassTextureStorage::ReadTextureFromGPU(std::size_t textureIndex,
   int mipLevel, vtkWebGPUComputePass::TextureMapAsyncCallback callback, void* userdata)
 {
-  if (!CheckTextureIndex(textureIndex, "ReadTextureFromGPU"))
+  if (!this->CheckTextureIndex(textureIndex, "ReadTextureFromGPU"))
   {
     return;
   }

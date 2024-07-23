@@ -300,12 +300,16 @@ int vtkWebGPUComputeOcclusionCuller::ComputeMipLevelsSizes(int width, int height
   int mipWidth = width;
   int mipHeight = height;
   // We're going to stop when the X or Y dimension (whichever is the smallest) reaches 2 pixel
-  while (mipWidth >= 2 && mipHeight >= 2)
+  while (mipWidth > 0 || mipHeight > 0)
   {
+    // Clamping at 1 to avoid zero dimension mips (will happen if the texture isn't square)
+    mipWidth = std::max(1, mipWidth);
+    mipHeight = std::max(1, mipHeight);
+
     this->MipmapWidths.push_back(mipWidth);
     this->MipmapHeights.push_back(mipHeight);
-
     numMipLevels++;
+
     mipWidth = std::floor(mipWidth / 2.0f);
     mipHeight = std::floor(mipHeight / 2.0f);
   }
@@ -319,13 +323,20 @@ void vtkWebGPUComputeOcclusionCuller::ResizeHierarchicalZBuffer(
 {
   this->HierarchicalZBufferMipmapCount = this->ComputeMipLevelsSizes(newWidth, newHeight);
 
+  // Updating the extents and the number of mip levels of the texture
   vtkSmartPointer<vtkWebGPUComputeTexture> texture =
     this->CullingPass->GetComputeTexture(this->HierarchicalZBufferTextureIndexCullingPass);
   texture->SetWidth(newWidth);
   texture->SetHeight(newHeight);
   texture->SetMipLevelCount(this->HierarchicalZBufferMipmapCount);
 
+  // Update the number of mip levels of the texture view of the hierarchical z buffer
+  vtkSmartPointer<vtkWebGPUComputeTextureView> hierarchicalZBufferView =
+    this->CullingPass->GetTextureView(this->CullingPassHierarchicalZBufferView);
+  hierarchicalZBufferView->SetMipLevelCount(this->HierarchicalZBufferMipmapCount);
+
   this->CullingPass->RecreateComputeTexture(this->HierarchicalZBufferTextureIndexCullingPass);
+  this->CullingPass->RecreateTextureView(this->CullingPassHierarchicalZBufferView);
   // Because the size of the window has changed, we may have more or less mipmaps
   this->ResizeHierarchicalZBufferMipmapsChain(newWidth, newHeight);
 }
@@ -474,7 +485,7 @@ void vtkWebGPUComputeOcclusionCuller::FinishSetupCullingPass()
   this->CullingPassOutputIndicesCulledCountBufferIndex =
     this->CullingPass->AddBuffer(outputIndicesCulledCountBuffer);
   this->CullingPassBoundsCountBufferIndex = this->CullingPass->AddBuffer(boundsCountBuffer);
-  this->CullingPass->AddTextureView(hiZBufferView);
+  this->CullingPassHierarchicalZBufferView = this->CullingPass->AddTextureView(hiZBufferView);
 }
 
 //------------------------------------------------------------------------------

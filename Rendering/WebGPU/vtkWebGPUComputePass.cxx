@@ -143,9 +143,22 @@ vtkSmartPointer<vtkWebGPUComputeTexture> vtkWebGPUComputePass::GetComputeTexture
 }
 
 //------------------------------------------------------------------------------
+vtkSmartPointer<vtkWebGPUComputeTextureView> vtkWebGPUComputePass::GetTextureView(
+  int textureViewIndex)
+{
+  return this->Internals->TextureStorage->GetTextureView(textureViewIndex);
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUComputePass::RecreateComputeTexture(int textureIndex)
 {
   this->Internals->TextureStorage->RecreateComputeTexture(textureIndex);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePass::RecreateTextureView(int textureIndex)
+{
+  this->Internals->TextureStorage->RecreateTextureView(textureIndex);
 }
 
 //------------------------------------------------------------------------------
