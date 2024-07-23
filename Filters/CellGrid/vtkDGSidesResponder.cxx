@@ -355,21 +355,35 @@ bool vtkDGSidesResponder::GenerateSideSets(vtkCellGridSidesQuery* query, vtkDGCe
     }
   }
 
+  // Sort the entries by descending shape.
+  // Although there is no requirement they be arranged this way, it simplifies
+  // debugging, testing, and user expectations. This can be relaxed if it ever
+  // causes performance problems.
+  std::map<vtkDGCell::Shape, vtkSmartPointer<vtkIdTypeArray>> orderedSideSets;
+  for (const auto& sideSetArray : sideSetArrays)
+  {
+    auto sideShape = vtkDGCell::GetShapeEnum(sideSetArray.SideShape);
+    orderedSideSets[sideShape] = sideSetArray.Sides;
+  }
+
   // Now add new side sets as computed in the first pass.
   offset = (sideSpecs.empty() || sideSpecs.back().Blanked)
     ? offset
     : sideSpecs.back().Offset + sideSpecs.back().Connectivity->GetNumberOfTuples();
-  for (const auto& sideSetArray : sideSetArrays)
+  for (auto sideSetEntry = orderedSideSets.rbegin(); sideSetEntry != orderedSideSets.rend();
+       ++sideSetEntry)
   {
     std::ostringstream groupName;
-    groupName << sideSetArray.SideShape.Data() << " sides of " << sideSetArray.CellType.Data();
+    auto sideShape = sideSetEntry->first;
+    auto sideArray = sideSetEntry->second;
+    auto sideShapeName = vtkDGCell::GetShapeName(sideShape);
+    groupName << sideShapeName.Data() << " sides of " << cellType->GetClassName();
     vtkStringToken groupToken(groupName.str());
     auto* sideGroup = grid->GetAttributes(groupToken.GetId());
-    auto sideShape = vtkDGCell::GetShapeEnum(sideSetArray.SideShape);
     int sideType = cellType->GetSideTypeForShape(sideShape);
-    sideGroup->AddArray(sideSetArray.Sides);
-    sideGroup->SetScalars(sideSetArray.Sides);
-    sideSpecs.emplace_back(sideSetArray.Sides, offset, /*blank*/ false, sideShape, sideType);
+    sideGroup->AddArray(sideArray);
+    sideGroup->SetScalars(sideArray);
+    sideSpecs.emplace_back(sideArray, offset, /*blank*/ false, sideShape, sideType);
     // Store which shapes should be selected upon user picking in the side-specification
     // so it will be available during rendering/processing:
     sideSpecs.back().SelectionType =
@@ -379,7 +393,7 @@ bool vtkDGSidesResponder::GenerateSideSets(vtkCellGridSidesQuery* query, vtkDGCe
     // Copy the parent cell's nodal ghost markings (if any).
     sideSpecs.back().NodalGhostMarks = cellSpec.NodalGhostMarks;
     // Properly offset any subsequent side-specs:
-    offset += sideSetArray.Sides->GetNumberOfTuples();
+    offset += sideArray->GetNumberOfTuples();
   }
 
   return true;

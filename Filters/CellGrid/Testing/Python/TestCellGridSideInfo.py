@@ -224,6 +224,8 @@ class TestCellGridSideInfo(Testing.vtkTest):
         rdr.Update()
         cg2 = rdr.GetOutputDataObject(0)
 
+        # Format for the expected value dictionary passed to checkSideRoundTrip:
+        #    sideSpecIndex: (number of cells, shape enum, offset, blanking)
         self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgHexahedra.dg', 'vtkDGHex', {
             -1: ( 2, 5,  0, True),
              0: (10, 3,  0, False),
@@ -236,14 +238,14 @@ class TestCellGridSideInfo(Testing.vtkTest):
              2: (5, 0, 15, False)})
         self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgWedges.dg', 'vtkDGWdg', {
             -1: ( 2, 6,  0, True),
-             0: ( 4, 2,  0, False),
-             1: ( 4, 3,  4, False),
+             0: ( 4, 3,  0, False),
+             1: ( 4, 2,  4, False),
              2: (14, 1,  8, False),
              3: ( 8, 0, 22, False)})
         self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgPyramids.dg', 'vtkDGPyr', {
             -1: ( 2, 7,  0, True),
-             0: ( 6, 2,  0, False),
-             1: ( 2, 3,  6, False),
+             0: ( 2, 3,  0, False),
+             1: ( 6, 2,  2, False),
              2: (13, 1,  8, False),
              3: ( 7, 0, 21, False)})
         self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgQuadrilateral.dg', 'vtkDGQuad', {
