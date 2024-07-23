@@ -596,8 +596,18 @@ vtkTransform* vtkWebGPURenderer::GetUserLightTransform()
 void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture*, bool vtkNotUsed(isSRGB) /*=false*/) {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* vtkNotUsed(w))
+void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
 {
+  this->Superclass::ReleaseGraphicsResources(w);
+  this->WGPURenderEncoder = nullptr;
+  this->SceneTransformBuffer = nullptr;
+  this->SceneLightsBuffer = nullptr;
+  this->ActorBlocksBuffer = nullptr;
+  this->SceneBindGroup = nullptr;
+  this->SceneBindGroupLayout = nullptr;
+  this->ActorBindGroup = nullptr;
+  this->ActorBindGroupLayout = nullptr;
+  this->ShaderCache.clear();
   this->PropWGPUItems.clear();
   this->Bundles.clear();
 }

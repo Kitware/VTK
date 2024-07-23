@@ -777,7 +777,8 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
     this->CurrentInput->GetPointData()->GetMTime() > this->PointCellAttributesBuildTimestamp ||
     this->CurrentInput->GetCellData()->GetMTime() > this->PointCellAttributesBuildTimestamp ||
     this->LastScalarVisibility != this->ScalarVisibility ||
-    this->LastScalarMode != this->ScalarMode || this->LastColors != this->Colors;
+    this->LastScalarMode != this->ScalarMode || this->LastColors != this->Colors ||
+    !this->UpdatedGeometryBuffers;
 
   if (!updateGeometry)
   {
@@ -1020,6 +1021,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
     }
   }
 
+  this->UpdatedGeometryBuffers = true;
   {
 
     this->AttributeDescriptorBuffer =
@@ -1046,7 +1048,8 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
 //------------------------------------------------------------------------------
 bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
 {
-  bool updateIndices = this->CurrentInput->GetMeshMTime() > this->Primitive2CellIDsBuildTimestamp;
+  bool updateIndices = this->CurrentInput->GetMeshMTime() > this->Primitive2CellIDsBuildTimestamp ||
+    !this->UpdatedPrimitiveBuffers;
   if (!updateIndices)
   {
     return false;
@@ -1178,6 +1181,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
   vtkDebugMacro(<< "[Triangles] "
                 << "-- " << sizes[2] << " bytes ");
   this->Primitive2CellIDsBuildTimestamp.Modified();
+  this->UpdatedPrimitiveBuffers = true;
   vtkDebugMacro(<< __func__ << " bufferModifiedTime=" << this->Primitive2CellIDsBuildTimestamp);
   return true;
 }
@@ -1247,7 +1251,30 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow*) {}
+void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
+{
+  this->Superclass::ReleaseGraphicsResources(w);
+  this->PipelineLayout = nullptr;
+  this->Shader = nullptr;
+  this->MeshSSBO.Point.Buffer = nullptr;
+  this->MeshSSBO.Cell.Buffer = nullptr;
+  this->AttributeDescriptorBuffer = nullptr;
+  this->MeshAttributeBindGroup = nullptr;
+  this->MeshAttributeBindGroupLayout = nullptr;
+  this->PrimitiveBindGroupLayout = nullptr;
+  for (auto* bgInfo :
+    { &this->PointPrimitiveBGInfo, &this->LinePrimitiveBGInfo, &this->TrianglePrimitiveBGInfo })
+  {
+    bgInfo->PrimitiveSizeBuffer = nullptr;
+    bgInfo->Buffer = nullptr;
+    bgInfo->BindGroup = nullptr;
+    bgInfo->Pipeline = nullptr;
+  }
+  this->InitializedPipeline = false;
+  this->UpdatedGeometryBuffers = false;
+  this->UpdatedPrimitiveSizes = false;
+  this->UpdatedPrimitiveBuffers = false;
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ShallowCopy(vtkAbstractMapper*) {}
