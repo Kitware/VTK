@@ -5,8 +5,11 @@
 #include "vtkActor.h"
 #include "vtkAdaptiveDataSetSurfaceFilter.h"
 #include "vtkCamera.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataSetRange.h"
+#include "vtkCompositePolyDataMapper.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeRange.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGroupDataSetsFilter.h"
 #include "vtkHyperTreeGrid.h"
@@ -36,27 +39,6 @@ vtkSmartPointer<vtkCompositeDataSet> EnsureComposite(vtkDataObject* dobj)
   auto cds = vtkSmartPointer<vtkCompositeDataSet>::Take(outCds->NewInstance());
   cds->CompositeShallowCopy(outCds);
   return cds;
-}
-
-void GetBoundsComposite(vtkCompositeDataSet* cd, double bounds[6])
-{
-  vtkBoundingBox globalBounds;
-  for (auto block : vtk::Range(cd))
-  {
-    if (auto ds = vtkDataSet::SafeDownCast(block))
-    {
-      double localBounds[6];
-      ds->GetBounds(localBounds);
-      globalBounds.AddBounds(localBounds);
-    }
-    else if (auto htg = vtkHyperTreeGrid::SafeDownCast(block))
-    {
-      double localBounds[6];
-      htg->GetBounds(localBounds);
-      globalBounds.AddBounds(localBounds);
-    }
-  }
-  globalBounds.GetBounds(bounds);
 }
 }
 
@@ -89,6 +71,12 @@ void vtkHyperTreeGridMapper::Render(vtkRenderer* ren, vtkActor* act)
   }
 
   this->Mapper->SetInputDataObject(adaptedHtgs);
+
+  // Forward visibility property to the composite mapper.
+  // This needs to be done after HTGs have been decimated because block selection is done using data
+  // object pointers in the composite mapper.
+  this->ApplyBlockVisibilities();
+
   this->Mapper->Render(ren, act);
 }
 
@@ -118,12 +106,137 @@ void vtkHyperTreeGridMapper::GetBounds(double bounds[6])
 {
   if (this->Input)
   {
-    ::GetBoundsComposite(this->Input, bounds);
+    this->GetBoundsComposite(bounds);
   }
   else
   {
     vtkMath::UninitializeBounds(bounds);
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::GetBoundsComposite(double bounds[6])
+{
+  vtkBoundingBox globalBounds;
+
+  // Input should always be a composite Multiblock because of EnsureComposite
+  auto dtree = vtkDataObjectTree::SafeDownCast(this->Input);
+  if (!dtree)
+  {
+    vtkErrorMacro("Expected a composite input structure");
+    return;
+  }
+  for (const auto& ref : vtk::Range(dtree,
+         vtk::DataObjectTreeOptions::TraverseSubTree | vtk::DataObjectTreeOptions::SkipEmptyNodes))
+  {
+    auto ds = vtkDataSet::SafeDownCast(ref.GetDataObject());
+    auto htg = vtkHyperTreeGrid::SafeDownCast(ref.GetDataObject());
+    bool visible = this->GetBlockVisibility(ref.GetFlatIndex());
+    // When block is hidden, don't count it into bounds
+    if (ds && visible)
+    {
+      double localBounds[6];
+      ds->GetBounds(localBounds);
+      globalBounds.AddBounds(localBounds);
+    }
+    else if (htg && visible)
+    {
+      double localBounds[6];
+      htg->GetBounds(localBounds);
+      globalBounds.AddBounds(localBounds);
+    }
+  }
+
+  globalBounds.GetBounds(bounds);
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::ApplyBlockVisibilities()
+{
+  auto compositeMapper = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper);
+  if (compositeMapper)
+  {
+    for (auto idx : this->BlocksShown)
+    {
+      compositeMapper->SetBlockVisibility(idx, true);
+    }
+    for (auto idx : this->BlocksHidden)
+    {
+      compositeMapper->SetBlockVisibility(idx, false);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::SetBlockVisibility(unsigned int index, bool visible)
+{
+  if (visible)
+  {
+    this->BlocksShown.insert(index);
+    this->BlocksHidden.erase(index);
+  }
+  else
+  {
+    this->BlocksHidden.insert(index);
+    this->BlocksShown.erase(index);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridMapper::GetBlockVisibility(unsigned int index)
+{
+  // Due to the Set logic, a block can't be in both sets at the same time
+  if (this->BlocksShown.find(index) != this->BlocksShown.end())
+  {
+    return true;
+  }
+  else if (this->BlocksHidden.find(index) != this->BlocksHidden.end())
+  {
+    return false;
+  }
+  return true; // Visibility unset: block is visible
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::RemoveBlockVisibility(unsigned int index)
+{
+  size_t removed = this->BlocksShown.erase(index);
+  removed += this->BlocksHidden.erase(index);
+  if (removed > 0)
+  {
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::RemoveBlockVisibilities()
+{
+  this->BlocksShown.clear();
+  this->BlocksHidden.clear();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::SetCompositeDataDisplayAttributes(
+  vtkCompositeDataDisplayAttributes* attributes)
+{
+  auto compositeMapper = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper);
+  if (compositeMapper)
+  {
+    compositeMapper->SetCompositeDataDisplayAttributes(attributes);
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkCompositeDataDisplayAttributes* vtkHyperTreeGridMapper::GetCompositeDataDisplayAttributes()
+{
+  auto compositeMapper = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper);
+  if (compositeMapper)
+  {
+    return compositeMapper->GetCompositeDataDisplayAttributes();
+  }
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------

@@ -11,7 +11,7 @@
 
  * By default, this class use an Adaptive GeometryFilter that extract only
  * the part of the geometry to render. Be careful as this implies that new
- * render my trigger an update of the pipeline to get the new part of the
+ * render may trigger an update of the pipeline to get the new part of the
  * geometry to render.
 
  * Note: this class has its own module to avoid cyclic dependency between Rendering Core
@@ -29,9 +29,12 @@
 
 #include "vtkRenderingHyperTreeGridModule.h" // For export macro
 
+#include <set> // For std::set
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
 class vtkCompositeDataSet;
+class vtkCompositeDataDisplayAttributes;
 class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkRenderWindow;
@@ -66,9 +69,11 @@ public:
    * For this mapper, the bounds correspond to the output for the
    * internal surface filter which may be restricted to the Camera frustum
    * if UseCameraFrustum is on.
+   * Bounds take block visibility into account for composite inputs.
    */
   double* GetBounds() override;
   void GetBounds(double bounds[6]) override;
+  void GetBoundsComposite(double bounds[6]);
   ///@}
 
   ///@{
@@ -80,6 +85,27 @@ public:
   vtkGetMacro(UseAdaptiveDecimation, bool);
   vtkSetMacro(UseAdaptiveDecimation, bool);
   vtkBooleanMacro(UseAdaptiveDecimation, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set/get the composite data set attributes.
+   * This is forwarded to the internal composite polydata mapper if we're using one.
+   */
+  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes* attributes);
+  vtkCompositeDataDisplayAttributes* GetCompositeDataDisplayAttributes();
+  ///@}
+
+  ///@{
+  /**
+   * Set/get the visibility for a block given its flat index.
+   * Only works for subclasses whose mapper is composite.
+   * CompositeDataDisplayAttributes needs to be set for visibilities to be applied.
+   */
+  void SetBlockVisibility(unsigned int index, bool visible);
+  bool GetBlockVisibility(unsigned int index);
+  void RemoveBlockVisibility(unsigned int index);
+  void RemoveBlockVisibilities();
   ///@}
 
   /**
@@ -107,7 +133,7 @@ protected:
   vtkSmartPointer<vtkCompositeDataSet> UpdateWithDecimation(
     vtkCompositeDataSet* htg, vtkRenderer* ren);
 
-  // In 2D mode, these variables control the mapper oprimisations
+  // In 2D mode, these variables control the mapper optimisations
   bool UseAdaptiveDecimation = false;
 
   // render the extracted surface,
@@ -120,6 +146,14 @@ protected:
 private:
   vtkHyperTreeGridMapper(const vtkHyperTreeGridMapper&) = delete;
   void operator=(const vtkHyperTreeGridMapper&) = delete;
+
+  std::set<unsigned int> BlocksShown;
+  std::set<unsigned int> BlocksHidden;
+
+  /**
+   * Apply internally-stored block visibility settings to the composite mapper, if any.
+   */
+  void ApplyBlockVisibilities();
 };
 
 VTK_ABI_NAMESPACE_END
