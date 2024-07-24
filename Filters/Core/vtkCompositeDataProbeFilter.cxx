@@ -178,6 +178,7 @@ int vtkCompositeDataProbeFilter::RequestData(
           if (!(*globIt) && (*locIt))
           {
             addPoints->InsertNextId(index);
+            *globIt = *locIt; // Mark the global point as valid
           }
         }
         vtkIdType nArrays = sourceHTG->GetCellData()->GetNumberOfArrays();
