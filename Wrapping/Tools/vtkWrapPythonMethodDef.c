@@ -430,7 +430,7 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
   {
     fprintf(fp,
       "  {\n"
-      "  \"update\",(PyCFunction)(void*)static_cast<PyCFunctionWithKeywords>(\n"
+      "  \"update\",(PyCFunction)static_cast<PyCFunctionWithKeywords>(\n"
       "  [](PyObject* self, PyObject* args, PyObject* kwargs) -> PyObject*\n"
       "  {\n"
       "    vtkPythonArgs ap(self, args, \"update\");\n"
