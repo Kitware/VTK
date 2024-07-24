@@ -265,8 +265,8 @@ public:
    * @warning Masked subtrees of the input are ignored, so the topology of the
    * output tree can differ from the input depending on that.
    */
-  virtual void ComputeBreadthFirstOrderDescriptor(const unsigned int depthLimiter,
-    vtkBitArray* inputMask, vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
+  virtual void ComputeBreadthFirstOrderDescriptor(unsigned int depthLimiter, vtkBitArray* inputMask,
+    vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
     vtkIdList* breadthFirstIdMap) = 0;
 
   VTK_DEPRECATED_IN_9_4_0(
