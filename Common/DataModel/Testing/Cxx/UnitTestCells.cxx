@@ -23,6 +23,18 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
+#include "vtkBiQuadraticQuad.h"
+#include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkBiQuadraticTriangle.h"
+#include "vtkCellArray.h"
+#include "vtkCubicLine.h"
+#include "vtkIdTypeArray.h"
+#include "vtkLogger.h"
+#include "vtkMath.h"
+#include "vtkMathUtilities.h"
+#include "vtkMinimalStandardRandomSequence.h"
+#include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticLinearQuad.h"
@@ -33,21 +45,9 @@
 #include "vtkQuadraticTetra.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
-
-#include "vtkBiQuadraticQuad.h"
-#include "vtkBiQuadraticQuadraticHexahedron.h"
-#include "vtkBiQuadraticQuadraticWedge.h"
-#include "vtkBiQuadraticTriangle.h"
 #include "vtkTriQuadraticHexahedron.h"
 #include "vtkTriQuadraticPyramid.h"
 
-#include "vtkCubicLine.h"
-
-#include "vtkCellArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkMath.h"
-#include "vtkMathUtilities.h"
-#include "vtkPoints.h"
 #include <map>
 #include <sstream>
 #include <string>
@@ -74,21 +74,27 @@ static vtkSmartPointer<vtkPolyhedron> MakeCube();
 static vtkSmartPointer<vtkPolyhedron> MakeDodecahedron();
 
 static vtkSmartPointer<vtkQuadraticEdge> MakeQuadraticEdge();
-static vtkSmartPointer<vtkQuadraticHexahedron> MakeQuadraticHexahedron();
+static vtkSmartPointer<vtkQuadraticHexahedron> MakeQuadraticHexahedron(
+  vtkMinimalStandardRandomSequence* randomSequence);
 static vtkSmartPointer<vtkQuadraticPolygon> MakeQuadraticPolygon();
 static vtkSmartPointer<vtkQuadraticLinearQuad> MakeQuadraticLinearQuad();
 static vtkSmartPointer<vtkQuadraticLinearWedge> MakeQuadraticLinearWedge();
 static vtkSmartPointer<vtkQuadraticPyramid> MakeQuadraticPyramid();
-static vtkSmartPointer<vtkQuadraticQuad> MakeQuadraticQuad();
-static vtkSmartPointer<vtkQuadraticTetra> MakeQuadraticTetra();
+static vtkSmartPointer<vtkQuadraticQuad> MakeQuadraticQuad(
+  vtkMinimalStandardRandomSequence* randomSequence);
+static vtkSmartPointer<vtkQuadraticTetra> MakeQuadraticTetra(
+  vtkMinimalStandardRandomSequence* randomSequence);
 static vtkSmartPointer<vtkQuadraticTriangle> MakeQuadraticTriangle();
 static vtkSmartPointer<vtkQuadraticWedge> MakeQuadraticWedge();
 
-static vtkSmartPointer<vtkBiQuadraticQuad> MakeBiQuadraticQuad();
-static vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron> MakeBiQuadraticQuadraticHexahedron();
+static vtkSmartPointer<vtkBiQuadraticQuad> MakeBiQuadraticQuad(
+  vtkMinimalStandardRandomSequence* randomSequence);
+static vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron> MakeBiQuadraticQuadraticHexahedron(
+  vtkMinimalStandardRandomSequence* randomSequence);
 static vtkSmartPointer<vtkBiQuadraticQuadraticWedge> MakeBiQuadraticQuadraticWedge();
 static vtkSmartPointer<vtkBiQuadraticTriangle> MakeBiQuadraticTriangle();
-static vtkSmartPointer<vtkTriQuadraticHexahedron> MakeTriQuadraticHexahedron();
+static vtkSmartPointer<vtkTriQuadraticHexahedron> MakeTriQuadraticHexahedron(
+  vtkMinimalStandardRandomSequence* randomSequence);
 static vtkSmartPointer<vtkTriQuadraticPyramid> MakeTriQuadraticPyramid();
 static vtkSmartPointer<vtkCubicLine> MakeCubicLine();
 
@@ -98,6 +104,11 @@ int TestOneCell(VTKCellType cellType, vtkSmartPointer<T> cell, int linear = 1);
 int UnitTestCells(int, char*[])
 {
   std::map<std::string, int> results;
+  vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
+  int seed = 1; // Use a fixed seed to avoid the test being flaky.
+  randomSequence->SetSeed(seed);
+
+  vtkLogF(INFO, "Seed value: %i", seed);
 
   results["EmptyCell"] = TestOneCell<vtkEmptyCell>(VTK_EMPTY_CELL, MakeEmptyCell());
   results["Vertex"] = TestOneCell<vtkVertex>(VTK_VERTEX, MakeVertex());
@@ -124,8 +135,8 @@ int UnitTestCells(int, char*[])
 
   results["QuadraticEdge"] =
     TestOneCell<vtkQuadraticEdge>(VTK_QUADRATIC_EDGE, MakeQuadraticEdge(), 0);
-  results["QuadraticHexahedron"] =
-    TestOneCell<vtkQuadraticHexahedron>(VTK_QUADRATIC_HEXAHEDRON, MakeQuadraticHexahedron(), 0);
+  results["QuadraticHexahedron"] = TestOneCell<vtkQuadraticHexahedron>(
+    VTK_QUADRATIC_HEXAHEDRON, MakeQuadraticHexahedron(randomSequence), 0);
   results["QuadraticPolygon"] =
     TestOneCell<vtkQuadraticPolygon>(VTK_QUADRATIC_POLYGON, MakeQuadraticPolygon(), 0);
   results["QuadraticLinearQuad"] =
@@ -135,18 +146,18 @@ int UnitTestCells(int, char*[])
   results["QuadraticPyramid"] =
     TestOneCell<vtkQuadraticPyramid>(VTK_QUADRATIC_PYRAMID, MakeQuadraticPyramid(), 0);
   results["QuadraticQuad"] =
-    TestOneCell<vtkQuadraticQuad>(VTK_QUADRATIC_QUAD, MakeQuadraticQuad(), 0);
+    TestOneCell<vtkQuadraticQuad>(VTK_QUADRATIC_QUAD, MakeQuadraticQuad(randomSequence), 0);
   results["QuadraticTetra"] =
-    TestOneCell<vtkQuadraticTetra>(VTK_QUADRATIC_TETRA, MakeQuadraticTetra(), 0);
+    TestOneCell<vtkQuadraticTetra>(VTK_QUADRATIC_TETRA, MakeQuadraticTetra(randomSequence), 0);
   results["QuadraticTrangle"] =
     TestOneCell<vtkQuadraticTriangle>(VTK_QUADRATIC_TRIANGLE, MakeQuadraticTriangle(), 0);
   results["QuadraticWedge"] =
     TestOneCell<vtkQuadraticWedge>(VTK_QUADRATIC_WEDGE, MakeQuadraticWedge(), 0);
 
   results["BiQuadraticQuad"] =
-    TestOneCell<vtkBiQuadraticQuad>(VTK_BIQUADRATIC_QUAD, MakeBiQuadraticQuad(), 0);
+    TestOneCell<vtkBiQuadraticQuad>(VTK_BIQUADRATIC_QUAD, MakeBiQuadraticQuad(randomSequence), 0);
   results["BiQuadraticQuadraticHexahedron"] = TestOneCell<vtkBiQuadraticQuadraticHexahedron>(
-    VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, MakeBiQuadraticQuadraticHexahedron(), 0);
+    VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, MakeBiQuadraticQuadraticHexahedron(randomSequence), 0);
   results["BiQuadraticQuadraticWedge"] = TestOneCell<vtkBiQuadraticQuadraticWedge>(
     VTK_BIQUADRATIC_QUADRATIC_WEDGE, MakeBiQuadraticQuadraticWedge(), 0);
   results["BiQuadraticTrangle"] =
@@ -154,7 +165,7 @@ int UnitTestCells(int, char*[])
   results["CubicLine"] = TestOneCell<vtkCubicLine>(VTK_CUBIC_LINE, MakeCubicLine(), 0);
 
   results["TriQuadraticHexahedron"] = TestOneCell<vtkTriQuadraticHexahedron>(
-    VTK_TRIQUADRATIC_HEXAHEDRON, MakeTriQuadraticHexahedron(), 0);
+    VTK_TRIQUADRATIC_HEXAHEDRON, MakeTriQuadraticHexahedron(randomSequence), 0);
   results["TriQuadraticPyramid"] =
     TestOneCell<vtkTriQuadraticPyramid>(VTK_TRIQUADRATIC_PYRAMID, MakeTriQuadraticPyramid(), 0);
 
@@ -464,7 +475,8 @@ vtkSmartPointer<vtkQuadraticEdge> MakeQuadraticEdge()
   return anEdge;
 }
 
-vtkSmartPointer<vtkQuadraticHexahedron> MakeQuadraticHexahedron()
+vtkSmartPointer<vtkQuadraticHexahedron> MakeQuadraticHexahedron(
+  vtkMinimalStandardRandomSequence* randomSequence)
 {
   auto aHexahedron = vtkSmartPointer<vtkQuadraticHexahedron>::New();
 
@@ -472,15 +484,17 @@ vtkSmartPointer<vtkQuadraticHexahedron> MakeQuadraticHexahedron()
   for (int i = 0; i < aHexahedron->GetNumberOfPoints(); ++i)
   {
     aHexahedron->GetPointIds()->SetId(i, i);
-    aHexahedron->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
-      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
-      *(pcoords + 3 * i + 2) + vtkMath::Random(-.1, .1));
+    aHexahedron->GetPoints()->SetPoint(i,
+      *(pcoords + 3 * i) + randomSequence->GetNextRangeValue(-.1, .1),
+      *(pcoords + 3 * i + 1) + randomSequence->GetNextRangeValue(-.1, .1),
+      *(pcoords + 3 * i + 2) + randomSequence->GetNextRangeValue(-.1, .1));
   }
 
   return aHexahedron;
 }
 
-vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron> MakeBiQuadraticQuadraticHexahedron()
+vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron> MakeBiQuadraticQuadraticHexahedron(
+  vtkMinimalStandardRandomSequence* randomSequence)
 {
   auto aHexahedron = vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron>::New();
 
@@ -488,15 +502,17 @@ vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron> MakeBiQuadraticQuadraticHexah
   for (int i = 0; i < aHexahedron->GetNumberOfPoints(); ++i)
   {
     aHexahedron->GetPointIds()->SetId(i, i);
-    aHexahedron->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
-      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
-      *(pcoords + 3 * i + 2) + vtkMath::Random(-.1, .1));
+    aHexahedron->GetPoints()->SetPoint(i,
+      *(pcoords + 3 * i) + randomSequence->GetNextRangeValue(-.1, .1),
+      *(pcoords + 3 * i + 1) + randomSequence->GetNextRangeValue(-.1, .1),
+      *(pcoords + 3 * i + 2) + randomSequence->GetNextRangeValue(-.1, .1));
   }
 
   return aHexahedron;
 }
 
-vtkSmartPointer<vtkTriQuadraticHexahedron> MakeTriQuadraticHexahedron()
+vtkSmartPointer<vtkTriQuadraticHexahedron> MakeTriQuadraticHexahedron(
+  vtkMinimalStandardRandomSequence* randomSequence)
 {
   auto aHexahedron = vtkSmartPointer<vtkTriQuadraticHexahedron>::New();
 
@@ -504,9 +520,10 @@ vtkSmartPointer<vtkTriQuadraticHexahedron> MakeTriQuadraticHexahedron()
   for (int i = 0; i < aHexahedron->GetNumberOfPoints(); ++i)
   {
     aHexahedron->GetPointIds()->SetId(i, i);
-    aHexahedron->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
-      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
-      *(pcoords + 3 * i + 2) + vtkMath::Random(-.1, .1));
+    aHexahedron->GetPoints()->SetPoint(i,
+      *(pcoords + 3 * i) + randomSequence->GetNextRangeValue(-.1, .1),
+      *(pcoords + 3 * i + 1) + randomSequence->GetNextRangeValue(-.1, .1),
+      *(pcoords + 3 * i + 2) + randomSequence->GetNextRangeValue(-.1, .1));
   }
 
   return aHexahedron;
@@ -570,7 +587,8 @@ vtkSmartPointer<vtkQuadraticLinearWedge> MakeQuadraticLinearWedge()
   return aLinearWedge;
 }
 
-vtkSmartPointer<vtkQuadraticQuad> MakeQuadraticQuad()
+vtkSmartPointer<vtkQuadraticQuad> MakeQuadraticQuad(
+  vtkMinimalStandardRandomSequence* randomSequence)
 {
   auto aQuad = vtkSmartPointer<vtkQuadraticQuad>::New();
 
@@ -578,14 +596,15 @@ vtkSmartPointer<vtkQuadraticQuad> MakeQuadraticQuad()
   for (int i = 0; i < 8; ++i)
   {
     aQuad->GetPointIds()->SetId(i, i);
-    aQuad->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
-      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1), *(pcoords + 3 * i + 2));
+    aQuad->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + randomSequence->GetNextRangeValue(-.1, .1),
+      *(pcoords + 3 * i + 1) + randomSequence->GetNextRangeValue(-.1, .1), *(pcoords + 3 * i + 2));
   }
 
   return aQuad;
 }
 
-vtkSmartPointer<vtkQuadraticTetra> MakeQuadraticTetra()
+vtkSmartPointer<vtkQuadraticTetra> MakeQuadraticTetra(
+  vtkMinimalStandardRandomSequence* randomSequence)
 {
   auto aTetra = vtkSmartPointer<vtkQuadraticTetra>::New();
 
@@ -593,9 +612,10 @@ vtkSmartPointer<vtkQuadraticTetra> MakeQuadraticTetra()
   for (int i = 0; i < 10; ++i)
   {
     aTetra->GetPointIds()->SetId(i, i);
-    aTetra->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
-      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
-      *(pcoords + 3 * i + 2) + vtkMath::Random(-.1, .1));
+    aTetra->GetPoints()->SetPoint(i,
+      *(pcoords + 3 * i) + randomSequence->GetNextRangeValue(-.1, .1),
+      *(pcoords + 3 * i + 1) + randomSequence->GetNextRangeValue(-.1, .1),
+      *(pcoords + 3 * i + 2) + randomSequence->GetNextRangeValue(-.1, .1));
   }
 
   return aTetra;
@@ -631,7 +651,8 @@ vtkSmartPointer<vtkBiQuadraticTriangle> MakeBiQuadraticTriangle()
   return aTriangle;
 }
 
-vtkSmartPointer<vtkBiQuadraticQuad> MakeBiQuadraticQuad()
+vtkSmartPointer<vtkBiQuadraticQuad> MakeBiQuadraticQuad(
+  vtkMinimalStandardRandomSequence* randomSequence)
 {
   auto aQuad = vtkSmartPointer<vtkBiQuadraticQuad>::New();
 
@@ -639,8 +660,8 @@ vtkSmartPointer<vtkBiQuadraticQuad> MakeBiQuadraticQuad()
   for (int i = 0; i < aQuad->GetNumberOfPoints(); ++i)
   {
     aQuad->GetPointIds()->SetId(i, i);
-    aQuad->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
-      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1), *(pcoords + 3 * i + 2));
+    aQuad->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + randomSequence->GetNextRangeValue(-.1, .1),
+      *(pcoords + 3 * i + 1) + randomSequence->GetNextRangeValue(-.1, .1), *(pcoords + 3 * i + 2));
   }
 
   return aQuad;
