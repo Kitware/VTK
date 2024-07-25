@@ -185,7 +185,7 @@ public:
         std::make_pair(vtkStringToken(vtk::TypeName<CellType>()).GetId(), metadata));
       if (ok.second)
       {
-        result = ok.first.GetPointer();
+        result = dynamic_cast<CellType*>(ok.first->second.GetPointer());
       }
     }
     return result;
@@ -247,7 +247,7 @@ public:
     {
       return nullptr;
     }
-    return static_cast<const CellType*>(it->second);
+    return static_cast<const CellType*>(it->second.GetPointer());
   }
   template <typename CellType>
   CellType* GetCellsOfType()
@@ -257,7 +257,7 @@ public:
     {
       return nullptr;
     }
-    return static_cast<CellType*>(it->second);
+    return static_cast<CellType*>(it->second.GetPointer());
   }
   ///@}
 

@@ -11,6 +11,8 @@ set(classes
   vtkGenericDataObjectWriter
   vtkGraphReader
   vtkGraphWriter
+  vtkLegacyCellGridReader
+  vtkLegacyCellGridWriter
   vtkPixelExtentIO
   vtkPolyDataReader
   vtkPolyDataWriter

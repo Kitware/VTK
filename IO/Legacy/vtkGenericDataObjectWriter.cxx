@@ -10,6 +10,7 @@
 #include "vtkGraphWriter.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkLegacyCellGridWriter.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataWriter.h"
@@ -53,6 +54,9 @@ void vtkGenericDataObjectWriter::WriteData()
     case VTK_COMPOSITE_DATA_SET:
       vtkErrorMacro(<< "Cannot write composite data set");
       return;
+    case VTK_CELL_GRID:
+      writer = CreateWriter<vtkLegacyCellGridWriter>(input);
+      break;
     case VTK_DATA_OBJECT:
       vtkErrorMacro(<< "Cannot write data object");
       return;

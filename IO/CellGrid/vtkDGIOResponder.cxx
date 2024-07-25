@@ -97,6 +97,10 @@ nlohmann::json CellSourceToJSON(const vtkDGCell::Source& spec,
   {
     result["blanked"] = true;
   }
+  if (spec.SideType >= 0)
+  {
+    result["side-type"] = spec.SideType;
+  }
   if (spec.SelectionType != -1)
   {
     result["selection-type"] = spec.SelectionType;
@@ -127,6 +131,12 @@ vtkDGCell::Source JSONToCellSource(const nlohmann::json& jSpec, vtkCellGrid* gri
   if (jBlank != jSpec.end())
   {
     result.Blanked = jBlank->get<bool>();
+  }
+
+  auto jSideType = jSpec.find("side-type");
+  if (jSideType != jSpec.end())
+  {
+    result.SideType = jSideType->get<int>();
   }
 
   auto jSelnType = jSpec.find("selection-type");

@@ -21,6 +21,11 @@
 #include "vtkNew.h"              // For New
 #include "vtkSmartPointer.h"     // For SmartPointer
 
+// clang-format off
+#include <vtk_nlohmannjson.h>        // For API.
+#include VTK_NLOHMANN_JSON(json.hpp) // For API.
+// clang-format on
+
 #include <string> // For std::string
 #include <vector> // For std::vector
 
@@ -41,6 +46,9 @@ public:
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
   ///@}
+
+  /// Read directly from \a jj into \a grid.
+  bool FromJSON(const nlohmann::json& jj, vtkCellGrid* grid);
 
 protected:
   vtkCellGridReader();

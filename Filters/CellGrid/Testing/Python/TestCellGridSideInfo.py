@@ -129,6 +129,8 @@ class TestCellGridSideInfo(Testing.vtkTest):
 
 
     def testSideOffsets(self):
+        """Test that offsets into lists of sides of a given type are correct.
+           Test that shapes of cell-sides are correct."""
         print('Testing side type/numbering consistency.')
         self.sideOffsetCheck(fc.vtkDGEdge(), [(0, 2), (-1, 0), (0, 2)])
         self.sideOffsetCheck(fc.vtkDGHex(), [(0, 26), (-1, 0), (0, 6), (6, 18), (18, 26)])
@@ -162,6 +164,101 @@ class TestCellGridSideInfo(Testing.vtkTest):
             print(cell.GetClassName(), '\n'.join([str(x) for x in allCellSides]))
             for parent in range(-1, len(allCellSides) - 1):
                 self.assertEqual(cell.GetSidesOfSide(parent), tuple(allCellSides[parent + 1]))
+
+    def checkSideRoundTrip(self, pipeline, rdr, cg1, cg2, filename, cellType, expected):
+        """Check that the 'expected' cell-/side-sources are preserved in an I/O round trip."""
+        fullFilename = os.path.join(Testing.VTK_DATA_ROOT, 'Data', filename)
+        pipeline.first.SetFileName(fullFilename)
+        pipeline.update()
+        print('  Testing cells of type', cellType)
+        rdr.Modified()
+        rdr.Update()
+        ihex = cg1.GetCellType(cellType)
+        ohex = cg2.GetCellType(cellType)
+        self.assertTrue(ihex != None, 'No input cells of type ' + cellType)
+        self.assertTrue(ohex != None, 'No output cells of type ' + cellType)
+        self.assertEqual(ihex.GetNumberOfCellSources() + 1, len(expected),
+                         'Number of cell sources is unexpected.')
+        self.assertEqual(ihex.GetNumberOfCellSources(), ohex.GetNumberOfCellSources(),
+                         'Should have the same number of cell/side types.')
+        for sourceIdx in range(-1, ihex.GetNumberOfCellSources()):
+            print('    Source', sourceIdx)
+            self.assertTrue(sourceIdx in expected, 'Unexpected source index')
+            self.assertEqual(ihex.GetCellSourceConnectivity(sourceIdx).GetNumberOfTuples(),
+                             expected[sourceIdx][0], 'Unexpected number of cells/sides.')
+            self.assertEqual(ihex.GetCellSourceShape(sourceIdx), expected[sourceIdx][1],
+                             'Unexpected side shape.')
+            self.assertEqual(ihex.GetCellSourceOffset(sourceIdx), expected[sourceIdx][2],
+                             'Unexpected offsets.')
+            self.assertEqual(ihex.GetCellSourceIsBlanked(sourceIdx), expected[sourceIdx][3],
+                             'Unexpected blanking.')
+            self.assertEqual(ihex.GetCellSourceShape(sourceIdx), ohex.GetCellSourceShape(sourceIdx),
+                             'Should have the same shape.')
+            self.assertEqual(ihex.GetCellSourceSideType(sourceIdx), ohex.GetCellSourceSideType(sourceIdx),
+                             'Should have the same side-type.')
+            self.assertEqual(ihex.GetCellSourceOffset(sourceIdx), ohex.GetCellSourceOffset(sourceIdx),
+                             'Should have the same offset.')
+            self.assertEqual(ihex.GetCellSourceIsBlanked(sourceIdx), ohex.GetCellSourceIsBlanked(sourceIdx),
+                             'Should have the same blanking.')
+            self.assertEqual(
+                ihex.GetCellSourceConnectivity(sourceIdx).GetNumberOfTuples(),
+                ohex.GetCellSourceConnectivity(sourceIdx).GetNumberOfTuples(),
+                'Should have the same number of cells.')
+
+    def testSideRoundTrip(self):
+        """Test that side-cells are properly round-tripped by the reader and writer."""
+        print('Testing that sides are preserved in an I/O round trip.')
+        inputGeometry = os.path.join(Testing.VTK_DATA_ROOT, 'Data', 'dgHexahedra.dg')
+        outputGeometry = os.path.join(Testing.VTK_TEMP_DIR, 'testAllSides.dg')
+        ini = io.vtkCellGridReader(file_name=inputGeometry)
+        sid = fc.vtkCellGridComputeSides(
+                output_dimension_control=dm.vtkCellGridSidesQuery.AllSides,
+                preserve_renderable_inputs=False,
+                omit_sides_for_renderable_inputs=False)
+        wri = io.vtkCellGridWriter(file_name=outputGeometry)
+        sidePass = ini >> sid >> wri
+        sidePass.update()
+        cg1 = sid.GetOutputDataObject(0)
+
+        rdr = io.vtkCellGridReader(file_name=outputGeometry)
+        rdr.Update()
+        cg2 = rdr.GetOutputDataObject(0)
+
+        # Format for the expected value dictionary passed to checkSideRoundTrip:
+        #    sideSpecIndex: (number of cells, shape enum, offset, blanking)
+        self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgHexahedra.dg', 'vtkDGHex', {
+            -1: ( 2, 5,  0, True),
+             0: (10, 3,  0, False),
+             1: (20, 1, 10, False),
+             2: (12, 0, 30, False)})
+        self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgTetrahedra.dg', 'vtkDGTet', {
+            -1: (2, 4,  0, True),
+             0: (6, 2,  0, False),
+             1: (9, 1,  6, False),
+             2: (5, 0, 15, False)})
+        self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgWedges.dg', 'vtkDGWdg', {
+            -1: ( 2, 6,  0, True),
+             0: ( 4, 3,  0, False),
+             1: ( 4, 2,  4, False),
+             2: (14, 1,  8, False),
+             3: ( 8, 0, 22, False)})
+        self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgPyramids.dg', 'vtkDGPyr', {
+            -1: ( 2, 7,  0, True),
+             0: ( 2, 3,  0, False),
+             1: ( 6, 2,  2, False),
+             2: (13, 1,  8, False),
+             3: ( 7, 0, 21, False)})
+        self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgQuadrilateral.dg', 'vtkDGQuad', {
+            -1: ( 2, 3,  0, True),
+             0: ( 6, 1,  0, False),
+             1: ( 6, 0,  6, False)})
+        self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgTriangle.dg', 'vtkDGTri', {
+            -1: ( 2, 2,  0, True),
+             0: ( 4, 1,  0, False),
+             1: ( 4, 0,  4, False)})
+        self.checkSideRoundTrip(sidePass, rdr, cg1, cg2, 'dgEdges.dg', 'vtkDGEdge', {
+            -1: ( 5, 1,  0, True),
+             0: ( 2, 0,  0, False)})
 
 if __name__ == "__main__":
     Testing.main([(TestCellGridSideInfo, 'test')])
