@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <map>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -132,12 +133,24 @@ int vtkTemporalShiftScale::RequestDataObject(
 //------------------------------------------------------------------------------
 double vtkTemporalShiftScale::ForwardConvert(double T0)
 {
-  return (T0 + this->PreShift) * this->Scale + this->PostShift;
+  double outputTime = (T0 + this->PreShift) * this->Scale + this->PostShift;
+  this->OutputToInputTimes[outputTime] = T0;
+  return outputTime;
 }
 //------------------------------------------------------------------------------
 double vtkTemporalShiftScale::BackwardConvert(double T1)
 {
-  return (T1 - this->PostShift) / this->Scale - this->PreShift;
+  // the fallback in case we can't find the output time in our map
+  double inputTime = (T1 - this->PostShift) / this->Scale - this->PreShift;
+  // we want the backward converted time to match a time in our input.
+  // doing a forwardconvert and then a backwardconvert may introduce
+  // round off error so see if we can find the original input time
+  if (this->OutputToInputTimes.find(T1) != this->OutputToInputTimes.end())
+  {
+    inputTime = this->OutputToInputTimes[T1];
+  }
+
+  return inputTime;
 }
 //------------------------------------------------------------------------------
 // Change the information
@@ -150,7 +163,8 @@ int vtkTemporalShiftScale::RequestInformation(vtkInformation* vtkNotUsed(request
 
   this->InRange[0] = 0.0;
   this->InRange[1] = 0.0;
-  //
+  this->OutputToInputTimes.clear();
+
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_RANGE()))
   {
     inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), this->InRange);
