@@ -731,7 +731,7 @@
         - .gitlab/ci/cmake.sh latest
         - export PATH=$PWD/.gitlab/cmake/bin:$PATH
         - cmake --version
-        - .gitlab/ci/node.sh
+        - cmake -P .gitlab/ci/download_node.cmake
         - export PATH=$PWD/.gitlab/node/bin:$PATH
         - node --version
         - .gitlab/ci/create_webassembly_archive.sh $WASM_WORDSIZE
