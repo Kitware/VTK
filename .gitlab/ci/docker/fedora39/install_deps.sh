@@ -81,4 +81,8 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf install -y --setopt=install_weak_deps=False \
     mesa-vulkan-drivers
 
+# Emscripten SDK dependencies
+dnf install -y --setopt=install_weak_deps=False \
+    xz
+
 dnf clean all
