@@ -18,9 +18,11 @@ uniform samplerBuffer shape_vals;
 
 patch in int cellIdTCSOutput;
 patch in int sideIdTCSOutput;
+patch in int instanceIdTCSOutput;
 in vec3 pcoordTCSOutput[];
 
 flat out int cellIdTESOutput;
+flat out int instanceIdTESOutput;
 #if {UsesGeometryShaders}
 smooth out vec3 patchDistanceTESOutput;
 #endif
@@ -118,6 +120,7 @@ void main()
   // MCDCMatrix = ModelToWorld X WorldToView X ViewToDisplay
   gl_Position = MCDCMatrix * position;
   cellIdTESOutput = cellIdTCSOutput;
+  instanceIdTESOutput = instanceIdTCSOutput;
   vertexVCTESOutput = MCVCMatrix * position;
   normalVCTESOutput = vertexNormalVC;
 #if {UsesGeometryShaders}

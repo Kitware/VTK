@@ -14,6 +14,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
+#include "vtkSmartPointerBase.h"
 
 #include <cassert>
 #include <map>
@@ -47,9 +48,17 @@ public:
     {
       return a.PropID < b.PropID;
     }
+    if (a.CellGridCellTypeID != b.CellGridCellTypeID)
+    {
+      return a.CellGridCellTypeID < b.CellGridCellTypeID;
+    }
+    if (a.CellGridSourceSpecID != b.CellGridSourceSpecID)
+    {
+      return a.CellGridSourceSpecID < b.CellGridSourceSpecID;
+    }
     return a.CompositeID < b.CompositeID;
 
-    // We don't consider AttributeID in this comparison
+    // We don't consider AttributeID and CellGridTupleID in this comparison
   }
 };
 }
@@ -69,6 +78,29 @@ public:
 
   typedef std::map<PixelInformation, std::set<vtkIdType>, PixelInformationComparator>
     MapOfAttributeIds;
+
+  struct CellGridPickResult
+  {
+    vtkIdType CellGridCellTypeID;
+    vtkIdType CellGridSourceSpecID;
+    vtkIdType CellGridTupleID;
+
+    bool operator<(const CellGridPickResult& other) const
+    {
+      if (this->CellGridCellTypeID != other.CellGridCellTypeID)
+      {
+        return this->CellGridCellTypeID < other.CellGridCellTypeID;
+      }
+      if (this->CellGridSourceSpecID != other.CellGridSourceSpecID)
+      {
+        return this->CellGridSourceSpecID < other.CellGridSourceSpecID;
+      }
+      return this->CellGridTupleID < other.CellGridTupleID;
+    }
+  };
+
+  typedef std::map<PixelInformation, std::set<CellGridPickResult>, PixelInformationComparator>
+    MapOfCellGridPickResults;
 
   typedef std::map<PixelInformation, vtkIdType, PixelInformationComparator> PixelCountType;
 
@@ -133,6 +165,71 @@ public:
   }
 
   //-----------------------------------------------------------------------------
+  vtkSelection* ConvertSelection(int fieldassociation, const MapOfCellGridPickResults& dataMap,
+    const PixelCountType& pixelCounts)
+  {
+    vtkSelection* sel = vtkSelection::New();
+
+    MapOfCellGridPickResults::const_iterator iter;
+    for (iter = dataMap.begin(); iter != dataMap.end(); ++iter)
+    {
+      const PixelInformation& key = iter->first;
+      const std::set<CellGridPickResult>& pick_results = iter->second;
+      vtkSelectionNode* child = vtkSelectionNode::New();
+      child->SetContentType(vtkSelectionNode::INDICES);
+      switch (fieldassociation)
+      {
+        case vtkDataObject::FIELD_ASSOCIATION_CELLS:
+          child->SetFieldType(vtkSelectionNode::CELL);
+          break;
+
+        case vtkDataObject::FIELD_ASSOCIATION_POINTS:
+          child->SetFieldType(vtkSelectionNode::POINT);
+          break;
+      }
+      child->GetProperties()->Set(vtkSelectionNode::PROP_ID(), key.PropID);
+      child->GetProperties()->Set(vtkSelectionNode::PROP(), key.Prop);
+      child->GetProperties()->Set(
+        vtkSelectionNode::CELLGRID_CELL_TYPE_INDEX(), key.CellGridCellTypeID);
+      child->GetProperties()->Set(
+        vtkSelectionNode::CELLGRID_SOURCE_SPECIFICATION_INDEX(), key.CellGridSourceSpecID);
+
+      if (this->ZValues.find(key.PropID) != this->ZValues.end())
+      {
+        child->GetProperties()->Set(vtkSelectionNode::ZBUFFER_VALUE(), this->ZValues[key.PropID]);
+      }
+
+      PixelCountType::const_iterator pit = pixelCounts.find(key);
+      child->GetProperties()->Set(vtkSelectionNode::PIXEL_COUNT(), pit->second);
+      if (key.ProcessID >= 0)
+      {
+        child->GetProperties()->Set(vtkSelectionNode::PROCESS_ID(), key.ProcessID);
+      }
+
+      child->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(), key.CompositeID);
+
+      vtkIdTypeArray* ids = vtkIdTypeArray::New();
+      ids->SetName("SelectedIds");
+      ids->SetNumberOfComponents(1);
+      ids->SetNumberOfTuples(static_cast<vtkIdType>(iter->second.size()));
+      vtkIdType* ptr = ids->GetPointer(0);
+      MapOfCellGridPickResults::value_type::second_type::const_iterator pickResultIter;
+      vtkIdType cc = 0;
+      for (pickResultIter = pick_results.begin(); pickResultIter != pick_results.end();
+           ++pickResultIter, ++cc)
+      {
+        ptr[cc] = pickResultIter->CellGridTupleID;
+      }
+      child->SetSelectionList(ids);
+      ids->FastDelete();
+      sel->AddNode(child);
+      child->FastDelete();
+    }
+
+    return sel;
+  }
+
+  //-----------------------------------------------------------------------------
   bool PixelInsidePolygon(float x, float y, int* polygonPoints, vtkIdType count)
   {
     // http://en.wikipedia.org/wiki/Point_in_polygon
@@ -179,7 +276,8 @@ vtkHardwareSelector::vtkHardwareSelector()
   this->FieldAssociation = vtkDataObject::FIELD_ASSOCIATION_CELLS;
   this->MaximumPointId = 0;
   this->MaximumCellId = 0;
-  for (int cc = 0; cc < 10; cc++)
+  this->MaximumCellGridTupleId = 0;
+  for (int cc = 0; cc < 11; cc++)
   {
     this->RawPixBuffer[cc] = nullptr;
     this->PixBuffer[cc] = nullptr;
@@ -204,7 +302,7 @@ vtkHardwareSelector::~vtkHardwareSelector()
 //------------------------------------------------------------------------------
 void vtkHardwareSelector::ReleasePixBuffers()
 {
-  for (int cc = 0; cc < 10; cc++)
+  for (int cc = 0; cc < 11; cc++)
   {
     delete[] this->PixBuffer[cc];
     this->PixBuffer[cc] = nullptr;
@@ -219,6 +317,7 @@ void vtkHardwareSelector::BeginSelection()
 {
   this->MaximumPointId = 0;
   this->MaximumCellId = 0;
+  this->MaximumCellGridTupleId = 0;
   this->Renderer->SetSelector(this);
   this->Internals->HitProps.clear();
   this->Internals->ZValues.clear();
@@ -334,6 +433,11 @@ bool vtkHardwareSelector::HasHighCellIds()
   return this->MaximumCellId >= 0xffffff;
 }
 
+bool vtkHardwareSelector::HasHighCellGridTupleIds()
+{
+  return this->MaximumCellGridTupleId >= 0xffffff;
+}
+
 //------------------------------------------------------------------------------
 bool vtkHardwareSelector::PassRequired(int pass)
 {
@@ -363,6 +467,17 @@ bool vtkHardwareSelector::PassRequired(int pass)
 
     case CELL_ID_HIGH24:
       return (this->MaximumCellId >= 0xffffff && this->Iteration == 0);
+
+    case CELLGRID_CELL_TYPE_INDEX_PASS:
+    case CELLGRID_SOURCE_INDEX_PASS:
+      // only on the first iteration
+      return (this->Iteration == 0);
+
+    case CELLGRID_TUPLE_ID_LOW24:
+      return (this->MaximumCellGridTupleId >= 0xffffff || this->Iteration == 0);
+
+    case CELLGRID_TUPLE_ID_HIGH24:
+      return (this->MaximumCellGridTupleId >= 0xffffff && this->Iteration == 0);
   }
 
   return true;
@@ -512,6 +627,20 @@ void vtkHardwareSelector::UpdateMaximumPointId(vtkIdType attribid)
 }
 
 //------------------------------------------------------------------------------
+void vtkHardwareSelector::UpdateMaximumCellGridTupleId(vtkIdType attribid)
+{
+  if (attribid < 0)
+  {
+    // negative attribid is valid. It happens when rendering higher order
+    // elements where new points are added for rendering smooth surfaces.
+    return;
+  }
+
+  this->MaximumCellGridTupleId =
+    (attribid > this->MaximumCellGridTupleId) ? attribid : this->MaximumCellGridTupleId;
+}
+
+//------------------------------------------------------------------------------
 void vtkHardwareSelector::UpdateMaximumCellId(vtkIdType attribid)
 {
   if (attribid < 0)
@@ -637,6 +766,14 @@ std::string vtkHardwareSelector::PassTypeToString(PassTypes type)
       return "CELL_ID_LOW24_PASS";
     case vtkHardwareSelector::CELL_ID_HIGH24:
       return "CELL_ID_HIGH24_PASS";
+    case vtkHardwareSelector::CELLGRID_CELL_TYPE_INDEX_PASS:
+      return "CELLGRID_CELL_TYPE_INDEX_PASS";
+    case vtkHardwareSelector::CELLGRID_SOURCE_INDEX_PASS:
+      return "CELLGRID_SOURCE_INDEX_PASS";
+    case vtkHardwareSelector::CELLGRID_TUPLE_ID_LOW24:
+      return "CELLGRID_TUPLE_ID_LOW24";
+    case vtkHardwareSelector::CELLGRID_TUPLE_ID_HIGH24:
+      return "CELLGRID_TUPLE_ID_HIGH24";
     default:
       return "Invalid Enum";
   }
@@ -703,6 +840,17 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
     {
       low24 = this->Convert(display_position, this->PixBuffer[POINT_ID_LOW24]);
       high24 = this->Convert(display_position, this->PixBuffer[POINT_ID_HIGH24]);
+    }
+    // if there is a pixel buffer for cellgrid's celltype index pass,
+    // populate the attributes picked in the cell grid.
+    if (auto* pixBuffer = this->PixBuffer[CELLGRID_CELL_TYPE_INDEX_PASS])
+    {
+      info.CellGridCellTypeID = this->Convert(display_position[0], display_position[1], pixBuffer);
+      info.CellGridSourceSpecID = this->Convert(
+        display_position[0], display_position[1], this->PixBuffer[CELLGRID_SOURCE_INDEX_PASS]);
+      low24 = this->Convert(display_position, this->PixBuffer[CELLGRID_TUPLE_ID_LOW24]);
+      high24 = this->Convert(display_position, this->PixBuffer[CELLGRID_TUPLE_ID_HIGH24]);
+      info.CellGridTupleID = this->GetID(low24, high24, 0);
     }
 
     info.AttributeID = this->GetID(low24, high24, 0);
@@ -780,6 +928,7 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
   unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2)
 {
   vtkInternals::MapOfAttributeIds dataMap;
+  vtkInternals::MapOfCellGridPickResults dataMapForCellGrids;
   vtkInternals::PixelCountType pixelCounts;
 
   for (unsigned int yy = y1; yy <= y2; yy++)
@@ -790,10 +939,31 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
       PixelInformation info = this->GetPixelInformation(pos, 0);
       if (info.Valid)
       {
-        dataMap[info].insert(info.AttributeID);
+        if (info.CellGridCellTypeID >= 0)
+        {
+          vtkInternals::CellGridPickResult result;
+          result.CellGridCellTypeID = info.CellGridCellTypeID;
+          result.CellGridSourceSpecID = info.CellGridSourceSpecID;
+          result.CellGridTupleID = info.CellGridTupleID;
+          vtkDebugMacro(<< result.CellGridCellTypeID << "," << result.CellGridSourceSpecID << ","
+                        << result.CellGridTupleID);
+          dataMapForCellGrids[info].insert(result);
+        }
+        else
+        {
+          dataMap[info].insert(info.AttributeID);
+        }
         pixelCounts[info]++;
       }
     }
+  }
+  if (!dataMapForCellGrids.empty())
+  {
+    // TODO: Because of this decision, either only cell grids or only polydata can be selected.
+    //       A possible solution is to merge selection nodes of cellgrids with selection nodes of
+    //       polydata.
+    return this->Internals->ConvertSelection(
+      this->FieldAssociation, dataMapForCellGrids, pixelCounts);
   }
   return this->Internals->ConvertSelection(this->FieldAssociation, dataMap, pixelCounts);
 }

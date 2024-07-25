@@ -10,7 +10,7 @@
 
 #include "vtkCellGridMapper.h"
 #include "vtkRenderingCellGridModule.h" // For export macro
-//#include "vtkCellGridRenderRequest.h" // For RenderQuery ivar
+// #include "vtkCellGridRenderRequest.h" // For RenderQuery ivar
 #include <memory> // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -39,7 +39,7 @@ public:
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
    */
-  bool GetSupportsSelection() override { return false; }
+  bool GetSupportsSelection() override { return true; }
 
   /**
    * Make a shallow copy of this mapper.

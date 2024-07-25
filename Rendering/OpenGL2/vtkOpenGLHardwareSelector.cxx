@@ -208,6 +208,9 @@ void vtkOpenGLHardwareSelector::SavePixelBuffer(int passNo)
   pw->SetInputConnection(ii->GetOutputPort());
   pw->SetFileName(fname.c_str());
   pw->Write();
+  std::cout << passNo << ":" << int(this->PixBuffer[passNo][0]) << ","
+            << int(this->PixBuffer[passNo][1]) << "," << int(this->PixBuffer[passNo][2]) << ","
+            << '\n';
   std::cout << "=====vtkOpenGLHardwareSelector wrote " << fname << "\n";
 #endif
 }

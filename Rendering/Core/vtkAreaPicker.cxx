@@ -6,6 +6,7 @@
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkActor.h"
 #include "vtkAssemblyPath.h"
+#include "vtkCellGridMapper.h"
 #include "vtkCommand.h"
 #include "vtkExtractSelectedFrustum.h"
 #include "vtkImageData.h"
@@ -63,6 +64,8 @@ void vtkAreaPicker::Initialize()
   this->vtkAbstractPropPicker::Initialize();
   this->Prop3Ds->RemoveAllItems();
   this->Mapper = nullptr;
+  this->DataSet = nullptr;
+  this->DataObject = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -261,21 +264,25 @@ int vtkAreaPicker::PickProps(vtkRenderer* renderer)
                 if ((map1 = vtkMapper::SafeDownCast(mapper)) != nullptr)
                 {
                   this->DataSet = map1->GetInput();
+                  this->DataObject = map1->GetInputDataObject(0, 0);
                   this->Mapper = map1;
                 }
                 else if ((vmap = vtkAbstractVolumeMapper::SafeDownCast(mapper)) != nullptr)
                 {
                   this->DataSet = vmap->GetDataSetInput();
+                  this->DataObject = this->DataSet;
                   this->Mapper = vmap;
                 }
                 else if ((imap = vtkImageMapper3D::SafeDownCast(mapper)) != nullptr)
                 {
                   this->DataSet = imap->GetDataSetInput();
+                  this->DataObject = this->DataSet;
                   this->Mapper = imap;
                 }
                 else
                 {
                   this->DataSet = nullptr;
+                  this->DataObject = nullptr;
                 }
               }
             }
@@ -410,5 +417,6 @@ void vtkAreaPicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ClipPoints: " << this->ClipPoints << "\n";
   os << indent << "Mapper: " << this->Mapper << "\n";
   os << indent << "DataSet: " << this->DataSet << "\n";
+  os << indent << "DataObject: " << this->DataObject << "\n";
 }
 VTK_ABI_NAMESPACE_END

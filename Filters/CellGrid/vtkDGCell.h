@@ -22,6 +22,7 @@
 #include "vtkCellGridResponders.h" // For vtkCellGridResponders::TagSet.
 #include "vtkCellMetadata.h"
 #include "vtkDGOperatorEntry.h" // For GetOperatorEntry API.
+#include "vtkDataArray.h"       // for vtkDataArray::PrintValues
 #include "vtkStringToken.h"     // For vtkStringToken::Hash.
 #include "vtkVector.h"          // For IsInside, GetParametricCenterOfSide APIs.
 
@@ -92,6 +93,20 @@ public:
     Source& operator=(const Source&) = default;
     /// Override the destructor to de-reference Connectivity, NodalGhostMarks.
     virtual ~Source() = default;
+
+    friend ostream& operator<<(ostream& os, const Source& source)
+    {
+      os << "vtkDGCell::Source(" << &source << ")\n";
+      source.Connectivity->PrintValues(os);
+      os << "Connectivity: " << source.Connectivity << '\n';
+      os << "NodalGhostMarks: " << source.NodalGhostMarks << '\n';
+      os << "Offset: " << source.Offset << '\n';
+      os << "Blanked: " << (source.Blanked ? "T\n" : "F\n");
+      os << "SourceShape: " << source.SourceShape << '\n';
+      os << "SideType: " << source.SideType << '\n';
+      os << "SelectionType: " << source.SelectionType << '\n';
+      return os;
+    }
 
     /// An array holding cell connectivity or (cell-id, side-id) tuples.
     ///

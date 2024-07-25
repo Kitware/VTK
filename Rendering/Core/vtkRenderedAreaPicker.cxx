@@ -7,6 +7,7 @@
 #include "vtkActor.h"
 #include "vtkAssemblyPath.h"
 #include "vtkCommand.h"
+#include "vtkDataSet.h"
 #include "vtkImageMapper3D.h"
 #include "vtkLODProp3D.h"
 #include "vtkMapper.h"
@@ -83,20 +84,24 @@ int vtkRenderedAreaPicker::AreaPick(
         if ((map1 = vtkMapper::SafeDownCast(mapper)) != nullptr)
         {
           this->DataSet = map1->GetInput();
+          this->DataObject = map1->GetInputDataObject(0, 0);
           this->Mapper = map1;
         }
         else if ((vmap = vtkAbstractVolumeMapper::SafeDownCast(mapper)) != nullptr)
         {
           this->DataSet = vmap->GetDataSetInput();
+          this->DataObject = this->DataSet;
           this->Mapper = vmap;
         }
         else if ((imap = vtkImageMapper3D::SafeDownCast(mapper)) != nullptr)
         {
           this->DataSet = imap->GetDataSetInput();
+          this->DataObject = this->DataSet;
           this->Mapper = imap;
         }
         else
         {
+          this->DataObject = nullptr;
           this->DataSet = nullptr;
         }
       } // mapper

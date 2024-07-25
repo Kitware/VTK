@@ -12,10 +12,11 @@
 
 #include "vtkCellGridRenderRequest.h"
 
-#include "vtkCellGridResponder.h"       // For API.
-#include "vtkDGCell.h"                  // For API.
-#include "vtkDrawTexturedElements.h"    // For CacheEntry.
-#include "vtkInformation.h"             // For CacheEntry.
+#include "vtkCellGridResponder.h"    // For API.
+#include "vtkDGCell.h"               // For API.
+#include "vtkDrawTexturedElements.h" // For CacheEntry.
+#include "vtkInformation.h"          // For CacheEntry.
+#include "vtkOpenGLHardwareSelector.h"
 #include "vtkRenderingCellGridModule.h" // For Export macro
 
 #include <string>
@@ -75,8 +76,8 @@ protected:
   bool DrawCells(vtkCellGridRenderRequest* request, vtkCellMetadata* metadata);
   bool ReleaseResources(vtkCellGridRenderRequest* request, vtkCellMetadata* metadata);
 
-  bool DrawShapes(
-    vtkCellGridRenderRequest* request, vtkDGCell* metadata, const vtkDGCell::Source& cellSource);
+  bool DrawShapes(vtkCellGridRenderRequest* request, vtkDGCell* metadata,
+    const vtkDGCell::Source& cellSource, int cellTypeIdx, std::size_t specIdx);
   // std::pair<GLenum, std::vector<GLubyte>> ShapeToPrimitiveInfo(int shapeId);
 
   /// Entries for a cache of render-helpers.

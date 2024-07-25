@@ -58,6 +58,8 @@ vtkInformationKeyMacro(vtkSelectionNode, PROCESS_ID, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, COMPOSITE_INDEX, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, HIERARCHICAL_LEVEL, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, HIERARCHICAL_INDEX, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, CELLGRID_CELL_TYPE_INDEX, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, CELLGRID_SOURCE_SPECIFICATION_INDEX, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, FIELD_TYPE, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, EPSILON, Double);
 vtkInformationKeyMacro(vtkSelectionNode, ZBUFFER_VALUE, Double);
