@@ -16,9 +16,6 @@
 #include "vtkOptions.h"
 #include "vtkVariant.h"
 
-#include "vtk_nlohmannjson.h"
-#include VTK_NLOHMANN_JSON(json.hpp)
-
 #include <fstream>
 #include <sstream>
 
@@ -160,28 +157,8 @@ std::string dataTypeToString(int dataType)
   return "unhandled";
 }
 
-void vtkCellGridWriter::WriteData()
+bool vtkCellGridWriter::ToJSON(nlohmann::json& data, vtkCellGrid* grid)
 {
-  if (!this->FileName || !this->FileName[0])
-  {
-    vtkErrorMacro("No filename set.");
-    return;
-  }
-
-  auto* grid = this->GetInput();
-  if (!grid)
-  {
-    vtkErrorMacro("No input dataset to write to \"" << this->FileName << "\"");
-    return;
-  }
-
-  std::ofstream output(this->FileName);
-  if (!output.good())
-  {
-    vtkErrorMacro("Could not open \"" << this->FileName << "\" for writing.");
-    return;
-  }
-
   // Iterate all the vtkDataSetAttributes held by the grid.
   // As we go, store a map from each array in each vtkDataSetAttributes
   // to a "location" for the array so we can refer to the arrays later
@@ -302,7 +279,7 @@ void vtkCellGridWriter::WriteData()
   if (!grid->Query(query))
   {
     vtkErrorMacro("Could not prepare cell metadata.");
-    return;
+    return false;
   }
 
   auto schemaName = grid->GetSchemaName();
@@ -311,7 +288,7 @@ void vtkCellGridWriter::WriteData()
     schemaName = "dg leaf";
   }
   // clang-format off
-  nlohmann::json data = {
+  data = {
     { "data-type", "cell-grid" }, { "arrays", arrayGroups }, { "attributes", attributes },
     { "cell-types", cellTypes },
     { "format-version", 1 }, // A version number for the file format (i.e.., JSON)
@@ -321,8 +298,42 @@ void vtkCellGridWriter::WriteData()
   };
   // clang-format on
 
-  output << data;
-  output.close();
+  return true;
+}
+
+void vtkCellGridWriter::WriteData()
+{
+  if (!this->FileName || !this->FileName[0])
+  {
+    vtkErrorMacro("No filename set.");
+    return;
+  }
+
+  auto* grid = this->GetInput();
+  if (!grid)
+  {
+    vtkErrorMacro("No input dataset to write to \"" << this->FileName << "\"");
+    return;
+  }
+
+  std::ofstream output(this->FileName);
+  if (!output.good())
+  {
+    vtkErrorMacro("Could not open \"" << this->FileName << "\" for writing.");
+    return;
+  }
+
+  nlohmann::json data;
+  if (this->ToJSON(data, grid))
+  {
+    output << data;
+    output.close();
+  }
+  else
+  {
+    vtkErrorMacro("Could not write JSON to \"" << this->FileName << "\".");
+    return; /* 0 */
+  }
 }
 
 VTK_ABI_NAMESPACE_END

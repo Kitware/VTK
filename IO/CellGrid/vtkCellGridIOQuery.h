@@ -44,7 +44,7 @@ public:
    * alive for the duration of the query's execution; the query only references
    * them (rather than copying them).
    */
-  void PrepareToDeserialize(nlohmann::json& sourceData, nlohmann::json& attributeData,
+  void PrepareToDeserialize(const nlohmann::json& sourceData, const nlohmann::json& attributeData,
     std::vector<vtkCellAttribute*>& attributeList);
   ///@}
 

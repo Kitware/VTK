@@ -220,7 +220,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataS
   *fp << "CHILDREN " << pd->GetNumberOfPartitions() << "\n";
   for (unsigned int cc = 0; cc < pd->GetNumberOfPartitions(); cc++)
   {
-    vtkDataSet* partition = pd->GetPartition(cc);
+    auto* partition = pd->GetPartitionAsDataObject(cc);
     *fp << "CHILD " << (partition ? partition->GetDataObjectType() : -1);
     if (pd->HasMetaData(cc) && pd->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
     {

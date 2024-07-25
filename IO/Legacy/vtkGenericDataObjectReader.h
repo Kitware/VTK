@@ -27,6 +27,7 @@
 #include "vtkIOLegacyModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkCellGrid;
 class vtkDataObject;
 class vtkGraph;
 class vtkMolecule;
@@ -61,6 +62,7 @@ public:
    * returned.  (You must also set the filename of the object prior to
    * getting the output.)
    */
+  vtkCellGrid* GetCellGridOutput();
   vtkGraph* GetGraphOutput();
   vtkMolecule* GetMoleculeOutput();
   vtkPolyData* GetPolyDataOutput();

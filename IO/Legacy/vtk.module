@@ -15,9 +15,13 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::IOCore
+  VTK::IOCellGrid
+  VTK::nlohmannjson
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::vtksys
+TEST_OPTIONAL_DEPENDS
+  VTK::IOCellGrid
 TEST_DEPENDS
   VTK::FiltersAMR
   VTK::FiltersGeometry

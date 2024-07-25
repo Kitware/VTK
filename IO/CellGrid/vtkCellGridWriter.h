@@ -13,6 +13,11 @@
 #include "vtkIOCellGridModule.h" // For export macro.
 #include "vtkWriter.h"
 
+// clang-format off
+#include <vtk_nlohmannjson.h>        // For API.
+#include VTK_NLOHMANN_JSON(json.hpp) // For API.
+// clang-format on
+
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkCellGrid;
@@ -29,6 +34,8 @@ public:
 
   vtkCellGrid* GetInput();
   vtkCellGrid* GetInput(int port);
+
+  bool ToJSON(nlohmann::json& data, vtkCellGrid* grid);
 
 protected:
   vtkCellGridWriter();

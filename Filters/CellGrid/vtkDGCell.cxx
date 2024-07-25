@@ -113,6 +113,55 @@ void vtkDGCell::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
+const vtkDGCell::Source& vtkDGCell::GetCellSource(int sideType) const
+{
+  if (sideType < 0)
+  {
+    return this->CellSpec;
+  }
+  else if (sideType < static_cast<int>(this->SideSpecs.size()))
+  {
+    return this->SideSpecs[sideType];
+  }
+  static Source dummy;
+  return dummy;
+}
+
+vtkDataArray* vtkDGCell::GetCellSourceConnectivity(int sideType) const
+{
+  return this->GetCellSource(sideType).Connectivity;
+}
+
+vtkDataArray* vtkDGCell::GetCellSourceNodalGhostMarks(int sideType) const
+{
+  return this->GetCellSource(sideType).NodalGhostMarks;
+}
+
+vtkIdType vtkDGCell::GetCellSourceOffset(int sideType) const
+{
+  return this->GetCellSource(sideType).Offset;
+}
+
+bool vtkDGCell::GetCellSourceIsBlanked(int sideType) const
+{
+  return this->GetCellSource(sideType).Blanked;
+}
+
+vtkDGCell::Shape vtkDGCell::GetCellSourceShape(int sideType) const
+{
+  return this->GetCellSource(sideType).SourceShape;
+}
+
+int vtkDGCell::GetCellSourceSideType(int sideType) const
+{
+  return this->GetCellSource(sideType).SideType;
+}
+
+int vtkDGCell::GetCellSourceSelectionType(int sideType) const
+{
+  return this->GetCellSource(sideType).SelectionType;
+}
+
 vtkIdType vtkDGCell::GetNumberOfCells()
 {
   vtkIdType count = 0;
