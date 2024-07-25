@@ -348,6 +348,37 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
   def testSOSReader(self):
     self.basicPipeline("mandelbrot.sos", "TestEnSightGoldCombinedReader_18.png", var="Iterations", arrRange=[1.9,100])
 
+  def checkTimeStep(self, reader, time, img_file, var, pos):
+    outInfo = reader.GetOutputInformation(0)
+    outInfo.Set(vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), time)
+    reader.Update()
+
+    geom = self.geomPipeline(reader)
+    mapper = self.setupMapper(geom, var)
+    self.renderAndCompare(mapper, img_file, pos)
+
+  def testTimeWithTimeSets(self):
+    reader = self.setupReader("blow2_ascii.case")
+    reader.UpdateInformation()
+
+    outInfo = reader.GetOutputInformation(0)
+    numSteps = outInfo.Length(vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+    self.assertEqual(numSteps, 2)
+
+    self.checkTimeStep(reader, 0.0, "TestEnSightGoldCombinedReader_3.png", var="displacement", pos=[99.3932,17.6571,-22.6071])
+    self.checkTimeStep(reader, 0.1, "TestEnSightGoldCombinedReader_19.png", var="displacement", pos=[99.3932,17.6571,-22.6071])
+
+  def testTimeWithFileSets(self):
+    reader = self.setupReader("blow1_ascii.case")
+    reader.UpdateInformation()
+
+    outInfo = reader.GetOutputInformation(0)
+    numSteps = outInfo.Length(vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+    self.assertEqual(numSteps, 2)
+
+    self.checkTimeStep(reader, 0.0, "TestEnSightGoldCombinedReader_3.png", var="displacement", pos=[99.3932,17.6571,-22.6071])
+    self.checkTimeStep(reader, 0.1, "TestEnSightGoldCombinedReader_19.png", var="displacement", pos=[99.3932,17.6571,-22.6071])
+
 
 if __name__ == "__main__":
     Testing.main([(TestEnSightGoldCombinedReader, 'test')])
