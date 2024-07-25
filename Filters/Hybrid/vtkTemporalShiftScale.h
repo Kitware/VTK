@@ -24,6 +24,8 @@
 #include "vtkAlgorithm.h"
 #include "vtkFiltersHybridModule.h" // For export macro
 
+#include <map> // for std::map
+
 VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYBRID_EXPORT vtkTemporalShiftScale : public vtkAlgorithm
 {
@@ -142,6 +144,8 @@ protected:
 private:
   vtkTemporalShiftScale(const vtkTemporalShiftScale&) = delete;
   void operator=(const vtkTemporalShiftScale&) = delete;
+
+  std::map<double, double> OutputToInputTimes;
 };
 
 VTK_ABI_NAMESPACE_END
