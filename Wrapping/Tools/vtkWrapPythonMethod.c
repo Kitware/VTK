@@ -1219,12 +1219,24 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
       /* Use vtkPythonArgs to convert python args to C args */
       if (is_vtkobject && !theOccurrence->IsStatic)
       {
-        fprintf(fp,
-          "  vtkPythonArgs ap(self, args, \"%s\");\n"
-          "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
-          "  %s *op = static_cast<%s *>(vp);\n"
-          "\n",
-          theOccurrence->Name, data->Name, data->Name);
+        if (strcmp(data->Name, "vtkObjectBase") == 0)
+        {
+          fprintf(fp,
+            "  vtkPythonArgs ap(self, args, \"%s\");\n"
+            "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
+            "  vtkObjectBase *op = vp;\n"
+            "\n",
+            theOccurrence->Name);
+        }
+        else
+        {
+          fprintf(fp,
+            "  vtkPythonArgs ap(self, args, \"%s\");\n"
+            "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
+            "  %s *op = static_cast<%s *>(vp);\n"
+            "\n",
+            theOccurrence->Name, data->Name, data->Name);
+        }
       }
       else if (!theOccurrence->IsStatic && !do_constructors)
       {
