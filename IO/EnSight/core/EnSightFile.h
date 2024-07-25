@@ -103,6 +103,13 @@ struct EnSightFile
   bool SetTimeStepToRead(double ts);
 
   /**
+   * Checks if this file has multiple time steps or not. If there's a wildcard in the
+   * FileNamePattern, return true, otherwise it will check for the existence of the BEGIN TIME STEP
+   * line.
+   */
+  bool CheckForMultipleTimeSteps();
+
+  /**
    * Checks for a BEGIN TIME STEP line and ensures the file is at the correct position
    * to continue reading.
    */

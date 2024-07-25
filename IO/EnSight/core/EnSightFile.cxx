@@ -106,6 +106,17 @@ int getFileSetIndex(int tsIdx, std::shared_ptr<FileSetInfo> info)
   return -1;
 }
 
+bool hasWildcards(const std::string& pattern)
+{
+  std::regex exp("\\*+");
+  std::smatch sm;
+  if (std::regex_search(pattern, sm, exp))
+  {
+    return true;
+  }
+  return false;
+}
+
 std::string replaceWildcards(const std::string& pattern, int num)
 {
   std::regex exp("\\*+");
@@ -283,6 +294,31 @@ bool EnSightFile::SetTimeStepToRead(double ts)
   else
   {
     vtkGenericWarningMacro("Time sets aren't being used, but file sets are, which is invalid");
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool EnSightFile::CheckForMultipleTimeSteps()
+{
+  // if there's wildcards in the name then we have multiple time steps
+  if (hasWildcards(this->FileNamePattern))
+  {
+    return true;
+  }
+
+  // we have to check if there's a BEGIN TIME STEP line to see if there's multiple time steps
+  if (!this->OpenFile())
+  {
+    vtkGenericWarningMacro("the file " << this->FileNamePattern << " could not be opened");
+    return false;
+  }
+
+  auto result = this->ReadNextLine();
+  this->ResetFile();
+  if (result.second.find("BEGIN TIME STEP") == std::string::npos)
+  {
     return false;
   }
   return true;
