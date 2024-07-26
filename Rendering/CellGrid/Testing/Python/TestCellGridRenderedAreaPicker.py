@@ -18,7 +18,7 @@ from pathlib import Path
 import re
 import sys
 
-# Register render responder for DG cells:
+# Register render responder for DG cells
 vtkRenderingCellGrid.RegisterCellsAndResponders()
 
 events = """# StreamVersion 1.2
