@@ -58,6 +58,7 @@
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkShader.h"                       // For methods
 #include "vtkSmartPointer.h"                 // For smartptr
+#include "vtkWrappingHints.h"                // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericOpenGLResourceFreeCallback;
@@ -74,7 +75,7 @@ class vtkVolumeInputHelper;
 class vtkVolumeTexture;
 class vtkOpenGLShaderProperty;
 
-class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLGPUVolumeRayCastMapper
   : public vtkGPUVolumeRayCastMapper
 {
 public:
