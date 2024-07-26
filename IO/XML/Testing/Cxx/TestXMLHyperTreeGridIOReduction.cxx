@@ -180,9 +180,10 @@ int TestXMLHyperTreeGridIOReduction(int argc, char* argv[])
   writer->Write();
 
   // Read the written HTG and check the effective cell number reduction
-  reader->SetFileName(fname.c_str());
-  reader->Update();
-  htgRead = vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0));
+  vtkNew<vtkXMLHyperTreeGridReader> reader2;
+  reader2->SetFileName(fname.c_str());
+  reader2->Update();
+  htgRead = vtkHyperTreeGrid::SafeDownCast(reader2->GetOutputDataObject(0));
   // WARNING The correct behavior of the write filter is only available in
   //         data set major version 2.
   //         In data set major version 1, it is as if the application of the
@@ -210,8 +211,8 @@ int TestXMLHyperTreeGridIOReduction(int argc, char* argv[])
   writer->Write();
 
   // Read the written HTG and check the cell number coherence
-  reader->Update();
-  htgRead = vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0));
+  reader2->Update();
+  htgRead = vtkHyperTreeGrid::SafeDownCast(reader2->GetOutputDataObject(0));
   if (htgRead->GetNumberOfCells() - 689)
   {
     std::cout << "Got E cells##" << htgRead->GetNumberOfCells() << " instead of 689" << std::endl;

@@ -651,7 +651,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
     vtkTypeInt64Array* nbVerticesByLevel = vtkTypeInt64Array::New();
     vtkBitArray* descriptor = vtkBitArray::New();
     vtkIdList* ids = vtkIdList::New();
-    tree->ComputeBreadthFirstOrderDescriptor(std::numeric_limits<unsigned int>::infinity(),
+    tree->ComputeBreadthFirstOrderDescriptor(std::numeric_limits<unsigned int>::max(),
       input->GetMask(), nbVerticesByLevel, descriptor, ids);
 
     // squeezing last zeros of last row out of descriptor

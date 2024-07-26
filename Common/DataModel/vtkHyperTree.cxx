@@ -558,9 +558,9 @@ protected:
     vtkIdType idg = this->GetGlobalIndexFromLocal(index);
     bool mask = inputMask ? inputMask->GetValue(idg) : false;
     breadthFirstOrderIdMapPerDepth[depth].emplace_back(idg);
+    assert("pre: depth valid" && depth < std::numeric_limits<unsigned int>::max());
     if (!this->IsLeaf(index) && !mask && depth < depthLimiter)
     {
-      assert("pre: depth valid" && depth < std::numeric_limits<unsigned int>::max());
       descriptorPerDepth[depth].push_back(true);
       for (int iChild = 0; iChild < this->NumberOfChildren; ++iChild)
       {
