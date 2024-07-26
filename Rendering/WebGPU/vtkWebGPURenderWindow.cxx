@@ -30,6 +30,30 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+#define vtkWebGPUCheckUnconfiguredWithReturn(renderWindow, retVal)                                 \
+  do                                                                                               \
+  {                                                                                                \
+    if (renderWindow->WGPUConfiguration == nullptr)                                                \
+    {                                                                                              \
+      vtkErrorWithObjectMacro(                                                                     \
+        renderWindow, << "This render window is not configured to use webgpu. Please call "        \
+                         "vtkWebGPURenderWindow::SetWGPUConfiguration().");                        \
+      return retVal;                                                                               \
+    }                                                                                              \
+  } while (0)
+
+#define vtkWebGPUCheckUnconfigured(renderWindow)                                                   \
+  do                                                                                               \
+  {                                                                                                \
+    if (renderWindow->WGPUConfiguration == nullptr)                                                \
+    {                                                                                              \
+      vtkErrorWithObjectMacro(                                                                     \
+        renderWindow, << "This render window is not configured to use webgpu. Please call "        \
+                         "vtkWebGPURenderWindow::SetWGPUConfiguration().");                        \
+      return;                                                                                      \
+    }                                                                                              \
+  } while (0)
+
 namespace
 {
 struct PixelReadDescriptor
@@ -100,6 +124,7 @@ void vtkWebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 bool vtkWebGPURenderWindow::WGPUInit()
 {
   vtkDebugMacro(<< __func__ << " Initialized=" << this->Initialized);
+  vtkWebGPUCheckUnconfiguredWithReturn(this, false);
   if (!this->WGPUConfiguration->Initialize())
   {
     return false;
@@ -134,6 +159,7 @@ void vtkWebGPURenderWindow::Initialize()
 void vtkWebGPURenderWindow::WGPUFinalize()
 {
   vtkDebugMacro(<< __func__ << " Initialized=" << this->Initialized);
+  vtkWebGPUCheckUnconfigured(this);
   if (!this->Initialized)
   {
     return;
@@ -154,14 +180,31 @@ void vtkWebGPURenderWindow::Render()
 //------------------------------------------------------------------------------
 wgpu::RenderPassEncoder vtkWebGPURenderWindow::NewRenderPass(wgpu::RenderPassDescriptor& descriptor)
 {
-  return this->CommandEncoder.BeginRenderPass(&descriptor);
+  if (this->CommandEncoder)
+  {
+    return this->CommandEncoder.BeginRenderPass(&descriptor);
+  }
+  else
+  {
+    vtkErrorMacro(<< "Cannot create a new render pass because CommandEncoder is null!");
+    return nullptr;
+  }
 }
 
 //------------------------------------------------------------------------------
 wgpu::RenderBundleEncoder vtkWebGPURenderWindow::NewRenderBundleEncoder(
   wgpu::RenderBundleEncoderDescriptor& descriptor)
 {
-  return this->WGPUConfiguration->GetDevice().CreateRenderBundleEncoder(&descriptor);
+  vtkWebGPUCheckUnconfiguredWithReturn(this, nullptr);
+  if (auto device = this->WGPUConfiguration->GetDevice())
+  {
+    return device.CreateRenderBundleEncoder(&descriptor);
+  }
+  else
+  {
+    vtkErrorMacro(<< "Cannot create a render bundle encoder because WebGPU device is not ready!");
+    return nullptr;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -197,12 +240,14 @@ bool vtkWebGPURenderWindow::HasStencil()
 //------------------------------------------------------------------------------
 wgpu::Device vtkWebGPURenderWindow::GetDevice()
 {
+  vtkWebGPUCheckUnconfiguredWithReturn(this, nullptr);
   return this->WGPUConfiguration->GetDevice();
 }
 
 //------------------------------------------------------------------------------
 wgpu::Adapter vtkWebGPURenderWindow::GetAdapter()
 {
+  vtkWebGPUCheckUnconfiguredWithReturn(this, nullptr);
   return this->WGPUConfiguration->GetAdapter();
 }
 
@@ -249,10 +294,19 @@ vtkWebGPURenderWindow::AcquireDepthBufferRenderTexture()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::CreateCommandEncoder()
 {
+  vtkWebGPUCheckUnconfigured(this);
   wgpu::CommandEncoderDescriptor encDesc = {};
   std::stringstream label;
   encDesc.label = "vtkWebGPURenderWindow::CommandEncoder";
-  this->CommandEncoder = this->WGPUConfiguration->GetDevice().CreateCommandEncoder(&encDesc);
+  if (auto device = this->WGPUConfiguration->GetDevice())
+  {
+    this->CommandEncoder = device.CreateCommandEncoder(&encDesc);
+  }
+  else
+  {
+    vtkErrorMacro(
+      << "Cannot create a command encoder because a WebGPU device has not been initialized!");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -283,6 +337,7 @@ void vtkWebGPURenderWindow::SubmitCommandBuffer(int count, wgpu::CommandBuffer* 
 void vtkWebGPURenderWindow::CreateSwapChain()
 {
   vtkDebugMacro(<< __func__ << '(' << this->Size[0] << ',' << this->Size[1] << ')');
+  vtkWebGPUCheckUnconfigured(this);
 
   this->SwapChain.Width = this->Size[0];
   this->SwapChain.Height = this->Size[1];
@@ -295,8 +350,15 @@ void vtkWebGPURenderWindow::CreateSwapChain()
   swapChainDescriptor.presentMode = wgpu::PresentMode::Fifo;
 
   this->SwapChain.TexFormat = swapChainDescriptor.format;
-  this->SwapChain.Instance =
-    this->WGPUConfiguration->GetDevice().CreateSwapChain(this->Surface, &swapChainDescriptor);
+  if (auto device = this->GetDevice())
+  {
+    this->SwapChain.Instance = device.CreateSwapChain(this->Surface, &swapChainDescriptor);
+  }
+  else
+  {
+    vtkErrorMacro(
+      << "Cannot create a command encoder because a WebGPU device has not been initialized!");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -311,6 +373,13 @@ void vtkWebGPURenderWindow::CreateDepthStencilTexture()
 {
   vtkDebugMacro(<< __func__ << '(' << this->SwapChain.Width << ',' << this->SwapChain.Height
                 << ')');
+  vtkWebGPUCheckUnconfigured(this);
+  auto device = this->WGPUConfiguration->GetDevice();
+  if (device == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot create a depth stencil texture because WebGPU device is not ready!");
+    return;
+  }
   // TODO:
   // setup basic depth attachment
   // todo: verify device supports this depth and stencil format in feature set
@@ -339,9 +408,25 @@ void vtkWebGPURenderWindow::CreateDepthStencilTexture()
   // To be able to access the depth part of the depth-stencil buffer in a compute pipeline
   textureViewDesc.aspect = wgpu::TextureAspect::All;
 
-  this->DepthStencil.Texture = this->WGPUConfiguration->GetDevice().CreateTexture(&textureDesc);
-  this->DepthStencil.View = this->DepthStencil.Texture.CreateView(&textureViewDesc);
-  this->DepthStencil.Format = textureDesc.format;
+  if (auto texture = device.CreateTexture(&textureDesc))
+  {
+    this->DepthStencil.Texture = texture;
+    if (auto view = texture.CreateView(&textureViewDesc))
+    {
+      this->DepthStencil.View = view;
+      this->DepthStencil.Format = textureDesc.format;
+    }
+    else
+    {
+      vtkErrorMacro(<< "Failed to create a texture view for depth stencil attachment using texture "
+                    << texture.Get());
+    }
+  }
+  else
+  {
+    vtkErrorMacro(<< "Failed to create a texture for depth stencil attachment using device "
+                  << device.Get());
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -355,6 +440,14 @@ void vtkWebGPURenderWindow::DestroyDepthStencilTexture()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
 {
+  vtkWebGPUCheckUnconfigured(this);
+  auto device = this->WGPUConfiguration->GetDevice();
+  if (device == nullptr)
+  {
+    vtkErrorMacro(
+      << "Cannot create offscreen color attachments because WebGPU device is not ready!");
+    return;
+  }
   // must match swapchain's dimensions as we'll eventually sample from this.
   wgpu::Extent3D textureExtent;
   textureExtent.depthOrArrayLayers = 1;
@@ -373,8 +466,6 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
   textureDesc.viewFormatCount = 0;
   textureDesc.viewFormats = nullptr;
 
-  this->ColorAttachment.Texture = this->WGPUConfiguration->GetDevice().CreateTexture(&textureDesc);
-
   // view
   wgpu::TextureViewDescriptor textureViewDesc;
   textureViewDesc.dimension = wgpu::TextureViewDimension::e2D;
@@ -384,20 +475,45 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
   textureViewDesc.baseArrayLayer = 0;
   textureViewDesc.arrayLayerCount = 1;
 
-  this->ColorAttachment.View = this->ColorAttachment.Texture.CreateView(&textureViewDesc);
-  this->ColorAttachment.Format = textureDesc.format;
+  if (auto texture = device.CreateTexture(&textureDesc))
+  {
+    this->ColorAttachment.Texture = texture;
+    if (auto view = texture.CreateView(&textureViewDesc))
+    {
+      this->ColorAttachment.View = view;
+      this->ColorAttachment.Format = textureDesc.format;
 
-  const auto alignedWidth =
-    vtkWebGPUConfiguration::Align(4 * this->ColorAttachment.Texture.GetWidth(), 256);
-
-  wgpu::BufferDescriptor buffDesc;
-  buffDesc.label = "Offscreen buffer";
-  buffDesc.mappedAtCreation = false;
-  buffDesc.size = this->ColorAttachment.Texture.GetHeight() * alignedWidth;
-  buffDesc.usage = wgpu::BufferUsage::MapRead | wgpu::BufferUsage::CopyDst;
-
-  this->ColorAttachment.OffscreenBuffer =
-    this->WGPUConfiguration->GetDevice().CreateBuffer(&buffDesc);
+      // color attachment texture can be read into this buffer and then mapped into a CPU side
+      // buffer.
+      const auto alignedWidth =
+        vtkWebGPUConfiguration::Align(4 * this->ColorAttachment.Texture.GetWidth(), 256);
+      wgpu::BufferDescriptor buffDesc;
+      buffDesc.label = "Offscreen buffer";
+      buffDesc.mappedAtCreation = false;
+      buffDesc.size = this->ColorAttachment.Texture.GetHeight() * alignedWidth;
+      buffDesc.usage = wgpu::BufferUsage::MapRead | wgpu::BufferUsage::CopyDst;
+      if (auto buffer = device.CreateBuffer(&buffDesc))
+      {
+        this->ColorAttachment.OffscreenBuffer = buffer;
+      }
+      else
+      {
+        vtkErrorMacro(<< "Failed to create a buffer for offscreen color attachment using device "
+                      << device.Get());
+      }
+    }
+    else
+    {
+      vtkErrorMacro(<< "Failed to create a texture view for color attachment using texture "
+                    << texture.Get());
+    }
+  }
+  else
+  {
+    vtkErrorMacro(<< "Failed to create a texture for color attachment using device "
+                  << device.Get());
+    return;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -415,29 +531,34 @@ void vtkWebGPURenderWindow::DestroyOffscreenColorAttachments()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
 {
-  wgpu::BindGroupLayout bgl =
-    vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(this->WGPUConfiguration->GetDevice(),
-      {
-        // clang-format off
+  vtkWebGPUCheckUnconfigured(this);
+  auto device = this->WGPUConfiguration->GetDevice();
+  if (device == nullptr)
+  {
+    vtkErrorMacro(
+      << "Cannot create full-screen-quad graphics pipeline because WebGPU device is not ready!");
+    return;
+  }
+  wgpu::BindGroupLayout bgl = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
+    {
+      // clang-format off
       { 0, wgpu::ShaderStage::Fragment, wgpu::TextureSampleType::Float, wgpu::TextureViewDimension::e2D, /*multiSampled=*/false }
-        // clang-format on
-      });
+      // clang-format on
+    });
   bgl.SetLabel("FSQ bind group layout");
 
-  wgpu::PipelineLayout pipelineLayout = vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(
-    this->WGPUConfiguration->GetDevice(), &bgl);
+  wgpu::PipelineLayout pipelineLayout =
+    vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(device, &bgl);
   pipelineLayout.SetLabel("FSQ graphics pipeline layout");
 
-  this->FSQ.BindGroup =
-    vtkWebGPUBindGroupInternals::MakeBindGroup(this->WGPUConfiguration->GetDevice(), bgl,
-      {
-        // clang-formt off
-        { 0, this->ColorAttachment.View }
-        // clang-format on
-      });
+  this->FSQ.BindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(device, bgl,
+    {
+      // clang-formt off
+      { 0, this->ColorAttachment.View }
+      // clang-format on
+    });
 
-  wgpu::ShaderModule shaderModule =
-    vtkWebGPUShaderModuleInternals::CreateFromWGSL(this->WGPUConfiguration->GetDevice(), R"(
+  wgpu::ShaderModule shaderModule = vtkWebGPUShaderModuleInternals::CreateFromWGSL(device, R"(
     struct VertexOutput {
       @builtin(position) position: vec4<f32>,
       @location(0) uv: vec2<f32>
@@ -472,6 +593,11 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
       return vec4<f32>(color);
     }
   )");
+  if (shaderModule == nullptr)
+  {
+    vtkErrorMacro(<< "Failed to create shader module for full-screen-quad graphics pipeline.");
+    return;
+  }
 
   vtkWebGPURenderPipelineDescriptorInternals pipelineDesc;
   pipelineDesc.label = "FSQ Graphics pipeline description";
@@ -485,12 +611,20 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
   pipelineDesc.DisableDepthStencil();
   pipelineDesc.primitive.topology = wgpu::PrimitiveTopology::TriangleStrip;
 
-  this->FSQ.Pipeline = this->WGPUConfiguration->GetDevice().CreateRenderPipeline(&pipelineDesc);
+  if (auto pipeline = device.CreateRenderPipeline(&pipelineDesc))
+  {
+    this->FSQ.Pipeline = pipeline;
+  }
+  else
+  {
+    vtkErrorMacro(<< "Failed to create the full-screen-quad render pipeline.");
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::RecreateComputeRenderTextures()
 {
+  vtkWebGPUCheckUnconfigured(this);
   for (const auto& renderTexture : this->ComputeRenderTextures)
   {
     int* dims = this->GetSize();
@@ -539,6 +673,35 @@ void vtkWebGPURenderWindow::DestroyFSQGraphicsPipeline()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::RenderOffscreenTexture()
 {
+  vtkWebGPUCheckUnconfigured(this);
+  if (this->SwapChain.Instance == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot render offscreen texture because swapchain is null!");
+    return;
+  }
+  if (this->ColorAttachment.Texture == nullptr)
+  {
+    vtkErrorMacro(
+      << "Cannot render offscreen texture because the source color attachment texture is null!");
+    return;
+  }
+  if (this->FSQ.Pipeline == nullptr)
+  {
+    vtkErrorMacro(
+      << "Cannot render offscreen texture because the full-screen-quad render pipeline is null!");
+    return;
+  }
+  if (this->FSQ.BindGroup == nullptr)
+  {
+    vtkErrorMacro(
+      << "Cannot render offscreen texture because the full-screen-quad render bind group is null!");
+    return;
+  }
+  if (this->CommandEncoder == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot render offscreen texture because the command encoder is null!");
+    return;
+  }
   // prepare the offscreen texture for presentation.
   this->SwapChain.Framebuffer = this->SwapChain.Instance.GetCurrentTextureView();
 
@@ -552,24 +715,42 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
     colorAttachment.clearValue.b = 0.0;
     colorAttachment.clearValue.a = 1.0f;
   }
-  auto encoder = this->NewRenderPass(renderPassDescriptor);
-  encoder.SetLabel("Encode offscreen texture render commands");
-  encoder.SetViewport(0, 0, this->SwapChain.Width, this->SwapChain.Height, 0.0, 1.0);
-  encoder.SetScissorRect(0, 0, this->SwapChain.Width, this->SwapChain.Height);
-  // set fsq pipeline
+  if (auto encoder = this->NewRenderPass(renderPassDescriptor))
+  {
+    encoder.SetLabel("Encode offscreen texture render commands");
+    encoder.SetViewport(0, 0, this->SwapChain.Width, this->SwapChain.Height, 0.0, 1.0);
+    encoder.SetScissorRect(0, 0, this->SwapChain.Width, this->SwapChain.Height);
+    // set fsq pipeline
 #ifndef NDEBUG
-  encoder.PushDebugGroup("FSQ Render");
+    encoder.PushDebugGroup("FSQ Render");
 #endif
-  encoder.SetPipeline(this->FSQ.Pipeline);
-  // bind fsq group
-  encoder.SetBindGroup(0, this->FSQ.BindGroup);
-  // draw triangle strip
-  encoder.Draw(4);
+    encoder.SetPipeline(this->FSQ.Pipeline);
+    // bind fsq group
+    encoder.SetBindGroup(0, this->FSQ.BindGroup);
+    // draw triangle strip
+    encoder.Draw(4);
 #ifndef NDEBUG
-  encoder.PopDebugGroup();
+    encoder.PopDebugGroup();
 #endif
-  encoder.End();
+    encoder.End();
+  }
+  else
+  {
+    vtkErrorMacro(<< "Cannot render swapchain contents into offscreen texture because this render "
+                     "window failed to build a new render pass!");
+    return;
+  }
 
+  if (this->ColorAttachment.OffscreenBuffer == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot copy offscreen texture into offscreen buffer because the destination "
+                     "buffer is null!");
+    return;
+  }
+  // Now copy the contents of the color attachment texture into the offscreen buffer.
+  // Both source and destination are on the GPU.
+  // Later, when we really need the pixels on the CPU, the `ReadPixels` method will map
+  // the contents of the offscreen buffer into CPU memory.
   wgpu::Origin3D srcOrigin;
   srcOrigin.x = 0;
   srcOrigin.y = 0;
@@ -609,8 +790,30 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
 void vtkWebGPURenderWindow::FlushCommandBuffers(vtkTypeUInt32 count, wgpu::CommandBuffer* buffers)
 {
   vtkDebugMacro(<< __func__ << "count=" << count);
-  wgpu::Queue queue = this->WGPUConfiguration->GetDevice().GetQueue();
-  queue.Submit(count, buffers);
+  vtkWebGPUCheckUnconfigured(this);
+  auto device = this->WGPUConfiguration->GetDevice();
+  if (device == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot flush command buffers because WebGPU device is not ready!");
+    return;
+  }
+  if (count > 0 && buffers == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot flush command buffers because buffers is null even though count ("
+                  << count << ") > 0");
+    return;
+  }
+  if (auto queue = device.GetQueue())
+  {
+    queue.Submit(count, buffers);
+  }
+  else
+  {
+    vtkErrorMacro(<< "Cannot flush command buffers because this render window failed to obtain a "
+                     "queue from device "
+                  << device.Get());
+    return;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -650,6 +853,17 @@ void vtkWebGPURenderWindow::Start()
 void vtkWebGPURenderWindow::Frame()
 {
   vtkDebugMacro(<< __func__);
+  vtkWebGPUCheckUnconfigured(this);
+  if (this->CommandEncoder == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot render frame because the command encoder is null!");
+    return;
+  }
+  if (this->SwapChain.Instance == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot render frame because the swapchain is null!");
+    return;
+  }
   this->Superclass::Frame();
 
   this->RenderOffscreenTexture();
@@ -684,10 +898,17 @@ void vtkWebGPURenderWindow::Frame()
 void vtkWebGPURenderWindow::End()
 {
   vtkDebugMacro(<< __func__);
+  vtkWebGPUCheckUnconfigured(this);
 
   // If user called SetPixelData or it's variant, source our offscreen texture from that data.
   if (this->StagingPixelData.Buffer.Get() != nullptr)
   {
+    if (this->CommandEncoder == nullptr)
+    {
+      vtkErrorMacro(<< "Cannot copy staging RGBA pixel buffer provided by SetPixelData into "
+                       "texture because the command encoder is null!");
+      return;
+    }
     // copy data to texture.
     wgpu::ImageCopyTexture destination;
     destination.texture = this->ColorAttachment.Texture;
@@ -722,6 +943,13 @@ const char* vtkWebGPURenderWindow::GetRenderingBackend()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::ReadPixels()
 {
+  vtkWebGPUCheckUnconfigured(this);
+  if (this->ColorAttachment.OffscreenBuffer == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot read pixels from texture because the color attachment's offscreen "
+                     "buffer is null!");
+    return;
+  }
   if (this->CachedPixelBytes->GetNumberOfValues() > 0)
   {
     // use cache
@@ -734,6 +962,32 @@ void vtkWebGPURenderWindow::ReadPixels()
 
   auto onBufferMapped = [](WGPUBufferMapAsyncStatus status, void* userdata) {
     auto ctx = reinterpret_cast<MappingContext*>(userdata);
+    if (ctx == nullptr)
+    {
+      vtkErrorWithObjectMacro(nullptr,
+        << "Unexpected user data from buffer mapped callback in vtkWebGPURenderWindow::ReadPixels");
+      return;
+    }
+    if (!ctx->window)
+    {
+      vtkErrorWithObjectMacro(nullptr,
+        << "Mapping context in vtkWebGPURenderWindow::ReadPixels is missing render window!");
+      return;
+    }
+    if (!ctx->dst)
+    {
+      vtkErrorWithObjectMacro(
+        ctx->window, << "Mapping context in vtkWebGPURenderWindow::ReadPixels is missing "
+                        "destination vtkDataArray object!");
+      return;
+    }
+    if (!ctx->src)
+    {
+      vtkErrorWithObjectMacro(
+        ctx->window, << "Mapping context in vtkWebGPURenderWindow::ReadPixels is missing "
+                        "source WGPUbuffer object!");
+      return;
+    }
     switch (status)
     {
       case WGPUBufferMapAsyncStatus_ValidationError:
@@ -765,11 +1019,18 @@ void vtkWebGPURenderWindow::ReadPixels()
         // acquire a const mapped range since OffscreenBuffer is assigned a `MapRead` usage.
         auto mapped =
           reinterpret_cast<const vtkTypeUInt8*>(ctx->src.GetConstMappedRange(0, ctx->size));
-        assert(mapped != nullptr);
-        // allocate sufficient space on host.
-        ctx->dst->SetNumberOfValues(ctx->size);
-        // These are plain bytes. GetABCDPixelData() functions know how to interpret them.
-        std::copy(mapped, mapped + ctx->size, ctx->dst->GetPointer(0));
+        if (mapped == nullptr)
+        {
+          vtkErrorWithObjectMacro(ctx->window, << "Mapped range returned null!");
+          break;
+        }
+        else
+        {
+          // allocate sufficient space on host.
+          ctx->dst->SetNumberOfValues(ctx->size);
+          // These are plain bytes. GetABCDPixelData() functions know how to interpret them.
+          std::copy(mapped, mapped + ctx->size, ctx->dst->GetPointer(0));
+        }
       }
       break;
       default:
@@ -844,6 +1105,13 @@ int vtkWebGPURenderWindow::GetPixelData(
 int vtkWebGPURenderWindow::SetPixelData(
   int x, int y, int x2, int y2, unsigned char* data, int front, int right)
 {
+  vtkWebGPUCheckUnconfiguredWithReturn(this, 0);
+  auto device = this->WGPUConfiguration->GetDevice();
+  if (device == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot set pixel data because WebGPU device is not ready!");
+    return 0;
+  }
   (void)front;
   (void)right;
   const int nComp = 3;
@@ -858,10 +1126,20 @@ int vtkWebGPURenderWindow::SetPixelData(
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = this->WGPUConfiguration->GetDevice().CreateBuffer(&desc);
+  this->StagingPixelData.Buffer = device.CreateBuffer(&desc);
+  if (this->StagingPixelData.Buffer == nullptr)
+  {
+    vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "
+                  << device.Get());
+    return 0;
+  }
   auto mapped =
     reinterpret_cast<unsigned char*>(this->StagingPixelData.Buffer.GetMappedRange(0, size));
-  assert(mapped != nullptr);
+  if (mapped == nullptr)
+  {
+    vtkErrorMacro(<< "Failed to map staging pixel data!");
+    return 0;
+  }
   unsigned long dstIdx = 0;
   unsigned long srcIdx = 0;
   const unsigned long nPad = bytesPerRow - width * nComp;
@@ -979,6 +1257,13 @@ int vtkWebGPURenderWindow::GetRGBAPixelData(
 int vtkWebGPURenderWindow::SetRGBAPixelData(
   int x, int y, int x2, int y2, float* data, int front, int blend /*=0*/, int right /*=0*/)
 {
+  vtkWebGPUCheckUnconfiguredWithReturn(this, 0);
+  auto device = this->WGPUConfiguration->GetDevice();
+  if (device == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot set RGBA pixel data because WebGPU device is not ready!");
+    return 0;
+  }
   (void)front;
   (void)blend;
   (void)right;
@@ -994,10 +1279,20 @@ int vtkWebGPURenderWindow::SetRGBAPixelData(
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = this->WGPUConfiguration->GetDevice().CreateBuffer(&desc);
+  this->StagingPixelData.Buffer = device.CreateBuffer(&desc);
+  if (this->StagingPixelData.Buffer == nullptr)
+  {
+    vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "
+                  << device.Get());
+    return 0;
+  }
   auto mapped =
     reinterpret_cast<unsigned char*>(this->StagingPixelData.Buffer.GetMappedRange(0, size));
-  assert(mapped != nullptr);
+  if (mapped == nullptr)
+  {
+    vtkErrorMacro(<< "Failed to map staging pixel data!");
+    return 0;
+  }
   unsigned long dstIdx = 0;
   unsigned long srcIdx = 0;
   const unsigned long nPad = bytesPerRow - width * nComp;
@@ -1126,6 +1421,13 @@ int vtkWebGPURenderWindow::GetRGBACharPixelData(
 int vtkWebGPURenderWindow::SetRGBACharPixelData(
   int x, int y, int x2, int y2, unsigned char* data, int front, int blend /*=0*/, int right /*=0*/)
 {
+  vtkWebGPUCheckUnconfiguredWithReturn(this, 0);
+  auto device = this->WGPUConfiguration->GetDevice();
+  if (device == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot set RGBA char pixel data because WebGPU device is not ready!");
+    return 0;
+  }
   (void)front;
   (void)blend;
   (void)right;
@@ -1141,10 +1443,20 @@ int vtkWebGPURenderWindow::SetRGBACharPixelData(
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = this->WGPUConfiguration->GetDevice().CreateBuffer(&desc);
+  this->StagingPixelData.Buffer = device.CreateBuffer(&desc);
+  if (this->StagingPixelData.Buffer == nullptr)
+  {
+    vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "
+                  << device.Get());
+    return 0;
+  }
   auto mapped =
     reinterpret_cast<unsigned char*>(this->StagingPixelData.Buffer.GetMappedRange(0, size));
-  assert(mapped != nullptr);
+  if (mapped == nullptr)
+  {
+    vtkErrorMacro(<< "Failed to map staging pixel data!");
+    return 0;
+  }
   unsigned long dstIdx = 0;
   unsigned long srcIdx = 0;
   const unsigned long nPad = bytesPerRow - width * nComp;
@@ -1250,19 +1562,36 @@ int vtkWebGPURenderWindow::GetColorBufferSizes(int* rgba)
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::WaitForCompletion()
 {
+  vtkWebGPUCheckUnconfigured(this);
+  auto device = this->WGPUConfiguration->GetDevice();
+  if (device == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot wait for completion because WebGPU device is not ready!");
+    return;
+  }
   bool done = false;
-  this->WGPUConfiguration->GetDevice().GetQueue().OnSubmittedWorkDone(
+  if (auto queue = device.GetQueue())
+  {
+    device.GetQueue().OnSubmittedWorkDone(
 #if defined(__EMSCRIPTEN__) &&                                                                     \
   ((__EMSCRIPTEN_major__ < 3) || ((__EMSCRIPTEN_major__ <= 3) && (__EMSCRIPTEN_minor__ < 1)) ||    \
     ((__EMSCRIPTEN_major__ <= 3) && (__EMSCRIPTEN_minor__ <= 1) && (__EMSCRIPTEN_tiny__ < 54)))
-    // https://github.com/emscripten-core/emscripten/commit/6daa18bc5ab19730421d2d63b69ddf41f11f1e85
-    // removed unused signalValue argument from 3.1.54 onwards.
-    0u,
+      // https://github.com/emscripten-core/emscripten/commit/6daa18bc5ab19730421d2d63b69ddf41f11f1e85
+      // removed unused signalValue argument from 3.1.54 onwards.
+      0u,
 #endif
-    [](WGPUQueueWorkDoneStatus, void* userdata) { *static_cast<bool*>(userdata) = true; }, &done);
-  while (!done)
+      [](WGPUQueueWorkDoneStatus, void* userdata) { *static_cast<bool*>(userdata) = true; }, &done);
+    while (!done)
+    {
+      this->WGPUConfiguration->ProcessEvents();
+    }
+  }
+  else
   {
-    this->WGPUConfiguration->ProcessEvents();
+    vtkErrorMacro(<< "Cannot wait for completion because this render window failed to obtain a "
+                     "queue from device "
+                  << device.Get());
+    return;
   }
 }
 
@@ -1289,7 +1618,7 @@ bool vtkWebGPURenderWindow::InitializeFromCurrentContext()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
 {
-  if (w != this)
+  if (w != this || !this->Renderers)
   {
     return;
   }
