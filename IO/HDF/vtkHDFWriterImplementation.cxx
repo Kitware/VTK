@@ -69,6 +69,7 @@ bool vtkHDFWriter::Implementation::WriteHeader(hid_t group, const char* hdfType)
     return false;
   }
 
+  this->HdfType = hdfType;
   return true;
 }
 
@@ -543,6 +544,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
 bool vtkHDFWriter::Implementation::AddArrayToDataset(
   hid_t dataset, vtkAbstractArray* dataArray, int trim)
 {
+
   // Create dataspace from array
   vtkHDF::ScopedH5SHandle dataspace = this->CreateDataspaceFromArray(dataArray);
   if (dataspace == H5I_INVALID_HID)
@@ -720,6 +722,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   hsize_t mappingOffset = 0;
   std::vector<hsize_t> sourceOffsets(this->Subfiles.size(), 0);
 
+  // Find if dataset is indexed on points, cells, or connectivity
   bool indexedOnPoints = false;
   if (this->GetGroupName(group) == std::string("/VTKHDF/PointData") ||
     name == std::string("Points"))
@@ -729,9 +732,11 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
       this->Writer, << name << " is indexed on points in group " << this->GetGroupName(group));
   }
   bool indexedOnCells = false;
+  bool isCellData = this->GetGroupName(group) == std::string("/VTKHDF/CellData");
   if (this->GetGroupName(group) == std::string("/VTKHDF/CellData") ||
     name == std::string("Offsets"))
   {
+
     indexedOnCells = true;
     vtkDebugWithObjectMacro(
       this->Writer, << name << " is indexed on cells in group " << this->GetGroupName(group));
@@ -744,15 +749,37 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
       << name << " is indexed on connectivity in group " << this->GetGroupName(group));
   }
 
+  // Find primitive for PolyData
+  const std::array<std::string, 4> primitives{ "Vertices", "Lines", "Polygons", "Strips" };
+  char primitive = 0;
+  bool isPolyData = HdfType == "PolyData";
+  if (isPolyData)
+  {
+    std::string groupName = this->GetGroupName(group);
+    for (const auto& primitiveName : primitives)
+    {
+      if (groupName == "/VTKHDF/" + primitiveName)
+      {
+        break;
+      }
+      primitive++;
+    }
+    vtkDebugWithObjectMacro(
+      nullptr, "Primitive for group " << groupName << ": " << (int)(primitive));
+  }
+
   int totalSteps = 1;
+
   if (this->Writer->IsTemporal &&
     (single || indexedOnPoints || indexedOnCells || indexedOnConnectivity)) // FIXME
   {
     totalSteps = this->Writer->NumberOfTimeSteps;
   }
 
+  // Store source offsets
   std::vector<hsize_t> prevPointOffsets(this->Subfiles.size(), -1);
   std::vector<hsize_t> prevCellOffsets(this->Subfiles.size(), -1);
+  std::vector<hsize_t> prevPrimitiveCellOffsets(this->Subfiles.size() * primitives.size(), -1);
   std::vector<hsize_t> prevConnectivityOffsets(this->Subfiles.size(), -1);
 
   for (int step = 0; step < totalSteps; step++)
@@ -791,16 +818,19 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
 
           // Find NumberOfPoints in source file
           hsize_t partNbPoints = this->GetSubfileNumberOf("/VTKHDF/NumberOfPoints", part, step);
-          hsize_t partPointsOffset =
-            this->GetSubfileNumberOf("/VTKHDF/Steps/PointOffsets", part, step);
 
-          if (name == std::string("Points") && prevPointOffsets[part] == partPointsOffset)
+          if (name == std::string("Points"))
           {
-            vtkDebugWithObjectMacro(
-              nullptr, << "Static mesh, not writing points virtual dataset again");
-            continue;
+            hsize_t partPointsOffset =
+              this->GetSubfileNumberOf("/VTKHDF/Steps/PointOffsets", part, step);
+            if (prevPointOffsets[part] == partPointsOffset)
+            {
+              vtkDebugWithObjectMacro(
+                nullptr, << "Static mesh, not writing points virtual dataset again");
+              continue;
+            }
+            prevPointOffsets[part] = partPointsOffset;
           }
-          prevPointOffsets[part] = partPointsOffset;
 
           // sourceOffset[0] += partNbPoints;
           mappingSize[0] = partNbPoints;
@@ -810,46 +840,74 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
           vtkDebugWithObjectMacro(this->Writer, << "Is Indexed on cells");
 
           // Find NumberOfCells in source file
-          hsize_t partNbCells = this->GetSubfileNumberOf("/VTKHDF/NumberOfCells", part, step);
-          hsize_t partCellOffset =
-            this->GetSubfileNumberOf("/VTKHDF/Steps/CellOffsets", part, step);
-
-          if (name == std::string("Offsets") && prevCellOffsets[part] == partCellOffset)
+          hsize_t partNbCells = 0;
+          if (isPolyData && isCellData)
           {
-            vtkDebugWithObjectMacro(
-              this->Writer, << "Static mesh, not writing virtual offsets again");
-            continue;
+            // Sum up the number of cells for each primitive type
+            partNbCells = 0;
+            for (const auto& primitiveName : primitives)
+            {
+              partNbCells +=
+                this->GetSubfileNumberOf("/VTKHDF/" + primitiveName + "/NumberOfCells", part, step);
+              vtkDebugWithObjectMacro(nullptr,
+                "With primitive " << primitiveName + " we now have " << partNbCells << " cells.");
+            }
+          }
+          else if (isPolyData)
+          {
+            partNbCells =
+              this->GetSubfileNumberOf(this->GetGroupName(group) + "/NumberOfCells", part, step);
+          }
+          else
+          {
+            partNbCells = this->GetSubfileNumberOf("/VTKHDF/NumberOfCells", part, step);
+          }
+
+          // Handle static mesh: don't write offsets if cells have not changed
+          if (name == std::string("Offsets"))
+          {
+            hsize_t partCellOffset =
+              this->GetSubfileNumberOf("/VTKHDF/Steps/CellOffsets", part, step, primitive);
+            if (prevCellOffsets[part] == partCellOffset)
+            {
+              vtkDebugWithObjectMacro(
+                this->Writer, << "Static mesh, not writing virtual offsets again");
+              continue;
+            }
+            prevCellOffsets[part] = partCellOffset;
           }
 
           // sourceOffset[0] += partNbCells;
           mappingSize[0] = partNbCells;
 
-          // For N cells, we have N+1 offsets
+          // Special case: for N cells, we have N+1 offsets
           if (isOffset)
           {
             mappingSize[0]++;
             // partCellOffset++;
           }
-          prevCellOffsets[part] = partCellOffset;
         }
         else if (indexedOnConnectivity)
         {
-          vtkDebugWithObjectMacro(this->Writer, << "Is Indexed on conn");
+          vtkDebugWithObjectMacro(this->Writer, << "Is Indexed on connectivity");
 
           // Find NumberOfCells in source file
-          hsize_t partNbCells =
-            this->GetSubfileNumberOf("/VTKHDF/NumberOfConnectivityIds", part, step);
-          hsize_t partConnOffset =
-            this->GetSubfileNumberOf("/VTKHDF/Steps/ConnectivityIdOffsets", part, step);
+          hsize_t partNbCells = this->GetSubfileNumberOf(
+            this->GetGroupName(group) + "/NumberOfConnectivityIds", part, step);
 
-          if (name == std::string("Connectivity") &&
-            prevConnectivityOffsets[part] == partConnOffset)
+          // Handle static mesh
+          if (name == std::string("Connectivity"))
           {
-            vtkDebugWithObjectMacro(
-              nullptr, << "Static mesh, not writing virtual connectivity Ids again");
-            continue;
+            hsize_t partConnOffset = this->GetSubfileNumberOf(
+              "/VTKHDF/Steps/ConnectivityIdOffsets", part, step, primitive);
+            if (prevConnectivityOffsets[part] == partConnOffset)
+            {
+              vtkDebugWithObjectMacro(
+                nullptr, << "Static mesh, not writing virtual connectivity Ids again");
+              continue;
+            }
+            prevConnectivityOffsets[part] = partConnOffset;
           }
-          prevConnectivityOffsets[part] = partConnOffset;
 
           // sourceOffset[0] += part;
           mappingSize[0] = partNbCells;
@@ -911,6 +969,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::WriteSumSteps(
   vtkDebugWithObjectMacro(
     this->Writer, "Creating steps sum " << name << " in " << this->GetGroupName(group));
 
+  // Unused?
   int size = this->Writer->NumberOfTimeSteps * this->Writer->NbProcs;
 
   const std::string datasetPath = this->GetGroupName(group) + "/" + name;
@@ -925,6 +984,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::WriteSumSteps(
   //   startStep = 0;
   // }
 
+  // Outdated
   // Start at 1 because timestep 0 is already 0-initialized
 
   for (int step = 0; step < this->Writer->NumberOfTimeSteps; step++)
@@ -957,21 +1017,72 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::WriteSumSteps(
   return dataset;
 }
 
-hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
-  const std::string& qualifier, std::size_t subfileId, int part)
+vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::WriteSumStepsPolyData(
+  hid_t group, const char* name, hid_t type)
 {
   vtkDebugWithObjectMacro(
-    nullptr, << "Fetching " << qualifier << " for subfile " << subfileId << " for part " << part);
+    this->Writer, "Creating polydata steps sum " << name << " in " << this->GetGroupName(group));
+
+  const std::string datasetPath = this->GetGroupName(group) + "/" + name;
+  vtkHDF::ScopedH5DHandle dataset = this->OpenDataset(group, name);
+
+  const std::array<std::string, 4> primitives{ "Vertices", "Lines", "Polygons", "Strips" };
+
+  vtkNew<vtkIntArray> totalsArray;
+  totalsArray->SetNumberOfComponents(primitives.size());
+  totalsArray->SetNumberOfTuples(this->Writer->NumberOfTimeSteps);
+
+  for (int step = 0; step < this->Writer->NumberOfTimeSteps; step++)
+  {
+    totalsArray->SetTuple4(step, 0, 0, 0, 0);
+    vtkDebugWithObjectMacro(this->Writer, "timestep " << step);
+    for (int prim = 0; prim < primitives.size(); prim++)
+    {
+      vtkDebugWithObjectMacro(this->Writer, "primitive " << prim);
+      // Collect size for the current time step in each subfile for each primitive
+      for (std::size_t part = 0; part < this->Subfiles.size(); part++)
+      {
+        auto current = totalsArray->GetComponent(step, prim);
+        vtkDebugWithObjectMacro(this->Writer, "part " << part << " value " << current);
+        totalsArray->SetComponent(
+          step, prim, current + this->GetSubfileNumberOf(datasetPath, part, step, prim));
+      }
+    }
+  }
+
+  if (!this->AddArrayToDataset(dataset, totalsArray))
+  {
+    return H5I_INVALID_HID;
+  }
+
+  return dataset;
+  // return H5I_INVALID_HID;
+}
+
+hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
+  const std::string& qualifier, std::size_t subfileId, int part, char primitive)
+{
+  vtkDebugWithObjectMacro(nullptr, << "Fetching " << qualifier << " for subfile " << subfileId
+                                   << " for part " << part << " with primitive "
+                                   << (int)(primitive));
+
   // TODO: Error handling
-  vtkHDF::ScopedH5DHandle sourceNumPoints =
+  vtkHDF::ScopedH5DHandle sourceDataset =
     H5Dopen(this->Subfiles[subfileId], qualifier.c_str(), H5P_DEFAULT);
-  std::array<hsize_t, 1> start{ static_cast<unsigned long>(part) }, count{ 1 }, numPoints{ 0 };
-  vtkHDF::ScopedH5SHandle dataspace = H5Dget_space(sourceNumPoints);
-  vtkHDF::ScopedH5SHandle destSpace = H5Screate_simple(1, count.data(), nullptr);
-  H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
-  H5Dread(sourceNumPoints, H5T_NATIVE_INT, destSpace, dataspace, H5P_DEFAULT, numPoints.data());
-  vtkDebugWithObjectMacro(this->Writer, << "Fetched " << qualifier << ": " << numPoints[0]);
-  return numPoints[0];
+  std::vector<hsize_t> start{ static_cast<unsigned long>(part) }, count{ 1 }, result{ 0 };
+  int dimension = 1;
+  if (this->HdfType == "PolyData" && primitive != -1)
+  {
+    start.emplace_back(primitive);
+    count.emplace_back(1);
+    dimension++;
+  }
+  vtkHDF::ScopedH5SHandle sourceSpace = H5Dget_space(sourceDataset);
+  vtkHDF::ScopedH5SHandle destSpace = H5Screate_simple(dimension, count.data(), nullptr);
+  H5Sselect_hyperslab(sourceSpace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
+  H5Dread(sourceDataset, H5T_NATIVE_INT, destSpace, sourceSpace, H5P_DEFAULT, result.data());
+  vtkDebugWithObjectMacro(this->Writer, << "Fetched " << qualifier << ": " << result[0]);
+  return result[0];
 }
 
 //------------------------------------------------------------------------------

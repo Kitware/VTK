@@ -192,11 +192,13 @@ public:
    *
    */
   vtkHDF::ScopedH5DHandle WriteSumSteps(hid_t group, const char* name, hid_t type);
+  vtkHDF::ScopedH5DHandle WriteSumStepsPolyData(hid_t group, const char* name, hid_t type);
 
   /**
    *
    */
-  hsize_t GetSubfileNumberOf(const std::string& qualifier, std::size_t subfileId, int part);
+  hsize_t GetSubfileNumberOf(
+    const std::string& qualifier, std::size_t subfileId, int part, char primitive = -1);
 
   /**
    * Create a chunked dataset in the given group from a dataspace.
@@ -278,6 +280,7 @@ private:
   vtkHDF::ScopedH5GHandle StepsGroup;
   std::vector<vtkHDF::ScopedH5FHandle> Subfiles;
   std::vector<std::string> SubfileNames;
+  std::string HdfType;
   bool SubFilesReady = false;
 };
 

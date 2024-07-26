@@ -178,16 +178,33 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
     readerPart->SetStep(time);
     readerPart->Update();
 
-    vtkUnstructuredGrid* readPiece =
-      vtkUnstructuredGrid::SafeDownCast(reader->GetOutputDataObject(0));
-    vtkUnstructuredGrid* readPart =
-      vtkUnstructuredGrid::SafeDownCast(readerPart->GetOutputDataObject(0));
-
-    if (readPiece == nullptr || readPart == nullptr)
+    if (usePolyData)
     {
-      vtkLog(ERROR, "Piece should not be null");
-      return false;
+      vtkPolyData* readPiece = vtkPolyData::SafeDownCast(reader->GetOutputDataObject(0));
+      vtkPolyData* readPart = vtkPolyData::SafeDownCast(readerPart->GetOutputDataObject(0));
+
+      if (readPiece == nullptr || readPart == nullptr)
+      {
+        vtkLog(ERROR, "Piece should not be null");
+        return false;
+      }
     }
+    else
+    {
+      vtkUnstructuredGrid* readPiece =
+        vtkUnstructuredGrid::SafeDownCast(reader->GetOutputDataObject(0));
+      vtkUnstructuredGrid* readPart =
+        vtkUnstructuredGrid::SafeDownCast(readerPart->GetOutputDataObject(0));
+
+      if (readPiece == nullptr || readPart == nullptr)
+      {
+        vtkLog(ERROR, "Piece should not be null");
+        return false;
+      }
+    }
+
+    vtkDataObject* readPiece = reader->GetOutputDataObject(0);
+    vtkDataObject* readPart = readerPart->GetOutputDataObject(0);
 
     if (!vtkTestUtilities::CompareDataObjects(readPiece, readPart))
     {
@@ -262,7 +279,7 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
   res &= ::TestDistributedUnstructuredGridTemporal(controller, tempDir, dataRoot);
   // res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
+  res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
   // res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
   controller->Finalize();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;

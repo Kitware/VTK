@@ -630,6 +630,14 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
     return false;
   }
 
+  // Special code path when writing meta-file
+  if (this->Impl->GetSubFilesReady())
+  {
+    this->Impl->WriteSumStepsPolyData(stepsGroup, "ConnectivityIdOffsets", H5T_NATIVE_INT);
+    this->Impl->WriteSumStepsPolyData(stepsGroup, "CellOffsets", H5T_NATIVE_INT);
+    return true;
+  }
+
   // Update connectivity and cell offsets for primitive types
   vtkHDF::ScopedH5DHandle connectivityOffsetsHandle =
     this->Impl->OpenDataset(stepsGroup, "ConnectivityIdOffsets");
@@ -728,11 +736,11 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid()
   initResult &= this->Impl->InitDynamicDataset(
     stepsGroup, "PointOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
   initResult &= this->Impl->InitDynamicDataset(
+    stepsGroup, "PartOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+  initResult &= this->Impl->InitDynamicDataset(
     stepsGroup, "CellOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
   initResult &= this->Impl->InitDynamicDataset(
     stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "PartOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
 
   // Add an initial 0 value in the offset arrays, only when not writing the meta file
   if (!this->Impl->GetSubFilesReady())
@@ -775,8 +783,13 @@ bool vtkHDFWriter::InitializeTemporalPolyData()
     stepsGroup, "PointOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
   initResult &= this->Impl->InitDynamicDataset(
     stepsGroup, "PartOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PointOffsets", 0);
-  initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PartOffsets", 0);
+
+  // Add an initial 0 value in the offset arrays, only when not writing the meta file
+  if (!this->Impl->GetSubFilesReady())
+  {
+    initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PointOffsets", 0);
+    initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PartOffsets", 0);
+  }
 
   // Initialize datasets for primitive cells and connectivity. Fill with an empty 1*4 vector.
   initResult &= this->Impl->InitDynamicDataset(
@@ -796,17 +809,20 @@ bool vtkHDFWriter::InitializeTemporalPolyData()
   vtkHDF::ScopedH5DHandle connectivityOffsetsHandle =
     this->Impl->OpenDataset(stepsGroup, "ConnectivityIdOffsets");
 
-  vtkNew<vtkIntArray> emptyPrimitiveArray;
-  emptyPrimitiveArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
-  int emptyArray[] = { 0, 0, 0, 0 };
-  emptyPrimitiveArray->SetArray(emptyArray, NUM_POLY_DATA_TOPOS, 1);
-  initResult &= this->Impl->AddArrayToDataset(cellOffsetsHandle, emptyPrimitiveArray);
-  initResult &= this->Impl->AddArrayToDataset(connectivityOffsetsHandle, emptyPrimitiveArray);
-  if (!initResult)
+  if (!this->Impl->GetSubFilesReady())
   {
-    vtkWarningMacro(<< "Could not initialize steps offset arrays when creating: "
-                    << this->FileName);
-    return false;
+    vtkNew<vtkIntArray> emptyPrimitiveArray;
+    emptyPrimitiveArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
+    int emptyArray[] = { 0, 0, 0, 0 };
+    emptyPrimitiveArray->SetArray(emptyArray, NUM_POLY_DATA_TOPOS, 1);
+    initResult &= this->Impl->AddArrayToDataset(cellOffsetsHandle, emptyPrimitiveArray);
+    initResult &= this->Impl->AddArrayToDataset(connectivityOffsetsHandle, emptyPrimitiveArray);
+    if (!initResult)
+    {
+      vtkWarningMacro(<< "Could not initialize steps offset arrays when creating: "
+                      << this->FileName);
+      return false;
+    }
   }
 
   return true;
