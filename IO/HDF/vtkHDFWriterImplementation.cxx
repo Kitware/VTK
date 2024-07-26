@@ -124,9 +124,9 @@ void vtkHDFWriter::Implementation::CloseFile()
   vtkDebugWithObjectMacro(this->Writer,
     "Closing current file " << this->File << this->Writer->FileName << " on rank "
                             << this->Writer->Rank);
-  // Setting to H5I_INVALID_HID closes the group/file using RAII
 
-  // TODO: close steps group too
+  // Setting to H5I_INVALID_HID closes the group/file using RAII
+  this->StepsGroup = H5I_INVALID_HID;
   this->Root = H5I_INVALID_HID;
   this->File = H5I_INVALID_HID;
 }
@@ -657,34 +657,6 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(
 }
 
 //------------------------------------------------------------------------------
-vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CopyAndInterlace(
-  hid_t group, const char* name, hid_t type)
-{
-  std::string dsName = this->GetGroupName(group) + "/" + name;
-
-  vtkDebugWithObjectMacro(this->Writer, "Copy and interlace " << dsName);
-  std::vector<vtkIdType> values; // TODO: reserve
-  vtkIdType nbSteps = this->Writer->NumberOfTimeSteps;
-  vtkIdType nbParts = this->Subfiles.size();
-  values.reserve(nbSteps * nbParts);
-
-  for (int step = 0; step < nbSteps; step++)
-  {
-    for (std::size_t part = 0; part < nbParts; part++)
-    {
-      // Retrieve source datasets
-      values.emplace_back(this->GetSubfileNumberOf(dsName, part, step));
-    }
-  }
-
-  // Create dataset from array
-  const hsize_t dimensions[] = { values.size() };
-  vtkHDF::ScopedH5SHandle dataspace = this->CreateSimpleDataspace(1, dimensions);
-  vtkHDF::ScopedH5DHandle dataset = this->CreateHdfDataset(group, name, type, dataspace);
-  return H5Dwrite(dataset, type, H5S_ALL, dataspace, H5P_DEFAULT, values.data());
-}
-
-//------------------------------------------------------------------------------
 vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   hid_t group, const char* name, hid_t type, int numComp)
 {
@@ -699,10 +671,6 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   const std::vector<std::string> singles{ "NumberOfPoints", "NumberOfCells",
     "NumberOfConnectivityIds" };
   bool single = std::find(singles.begin(), singles.end(), name) != singles.end();
-  if (single)
-  {
-    return this->CopyAndInterlace(group, name, type);
-  }
 
   bool isOffset = false;
   if (name == std::string("Offsets"))
@@ -777,7 +745,8 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   }
 
   int totalSteps = 1;
-  if (single || indexedOnPoints || indexedOnCells || indexedOnConnectivity) // FIXME
+  if (this->Writer->IsTemporal &&
+    (single || indexedOnPoints || indexedOnCells || indexedOnConnectivity)) // FIXME
   {
     totalSteps = this->Writer->NumberOfTimeSteps;
   }
@@ -885,18 +854,13 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
           // sourceOffset[0] += part;
           mappingSize[0] = partNbCells;
         }
+      }
 
-        // Select hyperslab in source space of size 1
-        if (numDim == 2)
-        {
-          sourceOffset.emplace_back(0);
-          mappingSize.emplace_back(sourceDims[1]); // All components
-        }
-        // if (H5Sselect_hyperslab(sourceDataSpace, H5S_SELECT_SET, sourceOffset.data(), nullptr,
-        //       mappingSize.data(), nullptr) < 0)
-        // {
-        //   return H5I_INVALID_HID;
-        // }
+      // Select hyperslab in source space of size 1
+      if (numDim == 2)
+      {
+        sourceOffset.emplace_back(0);
+        mappingSize.emplace_back(sourceDims[1]); // All components
       }
 
       // Select hyperslab in destination space
@@ -996,6 +960,8 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::WriteSumSteps(
 hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
   const std::string& qualifier, std::size_t subfileId, int part)
 {
+  vtkDebugWithObjectMacro(
+    nullptr, << "Fetching " << qualifier << " for subfile " << subfileId << " for part " << part);
   // TODO: Error handling
   vtkHDF::ScopedH5DHandle sourceNumPoints =
     H5Dopen(this->Subfiles[subfileId], qualifier.c_str(), H5P_DEFAULT);

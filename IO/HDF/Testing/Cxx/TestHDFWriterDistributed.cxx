@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkAlgorithmOutput.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenerateTimeSteps.h"
 #include "vtkHDFReader.h"
@@ -10,6 +13,7 @@
 #include "vtkMPIController.h"
 #include "vtkNew.h"
 #include "vtkPassArrays.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkSpatioTemporalHarmonicsAttribute.h"
@@ -18,11 +22,14 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkXMLPUnstructuredGridReader.h"
 #include "vtkXMLPolyDataReader.h"
-
+#include "vtkXMLUnstructuredGridReader.h"
+#include "vtkXMLUnstructuredGridWriter.h"
 namespace
 {
-bool TestParallelUnstrucutredGrid(vtkMPIController* controller, const std::string& tempDir)
+bool TestDistributedObject(
+  vtkMPIController* controller, const std::string& tempDir, bool usePolyData)
 {
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
@@ -37,13 +44,19 @@ bool TestParallelUnstrucutredGrid(vtkMPIController* controller, const std::strin
   redistribute->SetGenerateGlobalCellIds(false);
   redistribute->SetInputConnection(sphere->GetOutputPort());
 
+  // Extract surface to get a poly data again
+  vtkNew<vtkDataSetSurfaceFilter> surface;
+  surface->SetInputConnection(redistribute->GetOutputPort());
+
   // Write it to disk
-  std::string filePath = tempDir + "/parallel_sphere.vtkhdf";
-  std::string filePathPart = tempDir + "/parallel_sphere_part" + std::to_string(myRank) + ".vtkhdf";
+  std::string prefix = tempDir + "/parallel_sphere_" + (usePolyData ? "PD" : "UG");
+  std::string filePath = prefix + ".vtkhdf";
+  std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
 
   {
     vtkNew<vtkHDFWriter> writer;
-    writer->SetInputConnection(redistribute->GetOutputPort());
+    writer->SetInputConnection(
+      usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
     writer->SetFileName(filePath.c_str());
     writer->SetDebug(true);
     writer->Write();
@@ -61,18 +74,10 @@ bool TestParallelUnstrucutredGrid(vtkMPIController* controller, const std::strin
   readerPart->SetFileName(filePathPart.c_str());
   readerPart->Update();
 
-  vtkUnstructuredGrid* readPiece =
-    vtkUnstructuredGrid::SafeDownCast(reader->GetOutputDataObject(0));
-  vtkUnstructuredGrid* originalPiece =
-    vtkUnstructuredGrid::SafeDownCast(redistribute->GetOutputDataObject(0));
-  vtkUnstructuredGrid* readPart =
-    vtkUnstructuredGrid::SafeDownCast(readerPart->GetOutputDataObject(0));
-
-  if (readPiece == nullptr || originalPiece == nullptr || readPart == nullptr)
-  {
-    vtkLog(ERROR, "Piece should not be null");
-    return false;
-  }
+  vtkDataObject* readPiece = reader->GetOutputDataObject(0);
+  vtkDataObject* originalPiece =
+    usePolyData ? surface->GetOutputDataObject(0) : redistribute->GetOutputDataObject(0);
+  vtkDataObject* readPart = readerPart->GetOutputDataObject(0);
 
   if (!vtkTestUtilities::CompareDataObjects(readPiece, originalPiece))
   {
@@ -89,8 +94,8 @@ bool TestParallelUnstrucutredGrid(vtkMPIController* controller, const std::strin
   return true;
 }
 
-bool TestParallelTemporalPolyData(
-  vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
+bool TestDistributedTemporal(vtkMPIController* controller, const std::string& tempDir,
+  const std::string& dataRoot, bool usePolyData, bool staticMesh)
 {
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
@@ -107,9 +112,11 @@ bool TestParallelTemporalPolyData(
   // redistribute->SetInputConnection(baseReader->GetOutputPort());
   redistribute->SetInputConnection(sphere->GetOutputPort());
 
+  // TODO: warp by vector if not static
+
   // Extract surface to get a poly data again
-  // vtkNew<vtkDataSetSurfaceFilter> surface;
-  // surface->SetInputConnection(redistribute->GetOutputPort());
+  vtkNew<vtkDataSetSurfaceFilter> surface;
+  surface->SetInputConnection(redistribute->GetOutputPort());
 
   // Generate several time steps
   vtkNew<vtkGenerateTimeSteps> generateTimeSteps;
@@ -118,8 +125,8 @@ bool TestParallelTemporalPolyData(
   {
     generateTimeSteps->AddTimeStepValue(value);
   }
-  // generateTimeSteps->SetInputConnection(surface->GetOutputPort());
-  generateTimeSteps->SetInputConnection(redistribute->GetOutputPort());
+  generateTimeSteps->SetInputConnection(
+    usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
 
   // Generate a time-varying point field
   vtkNew<vtkSpatioTemporalHarmonicsAttribute> harmonics;
@@ -133,12 +140,14 @@ bool TestParallelTemporalPolyData(
   vtkNew<vtkPassArrays> pass;
   pass->SetRemoveArrays(true);
   pass->AddArray(vtkDataObject::CELL, "vtkOriginalCellIds");
+  pass->AddArray(vtkDataObject::CELL, "vtkOriginalPointIds");
   pass->SetInputConnection(harmonics->GetOutputPort());
 
   // Write data in parallel to disk
-  std::string filePath = tempDir + "/parallel_time_cow.vtkhdf";
-  std::string filePathPart =
-    tempDir + "/parallel_time_cow_part" + std::to_string(myRank) + ".vtkhdf";
+  std::string prefix =
+    tempDir + "/parallel_time_cow" + (usePolyData ? "_PD" : "_UG") + (staticMesh ? "_static" : "");
+  std::string filePath = prefix + ".vtkhdf";
+  std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
 
   {
     vtkNew<vtkHDFWriter> writer;
@@ -163,58 +172,60 @@ bool TestParallelTemporalPolyData(
   for (int time = 0; time < timeValues.size(); time++)
   {
     vtkDebugWithObjectMacro(nullptr, << "Comparing timestep " << time);
+
     reader->SetStep(time);
     reader->UpdatePiece(myRank, nbRanks, 0);
     readerPart->SetStep(time);
     readerPart->Update();
-    pass->UpdateTimeStep(time, myRank, nbRanks);
-    pass->Update();
 
     vtkUnstructuredGrid* readPiece =
       vtkUnstructuredGrid::SafeDownCast(reader->GetOutputDataObject(0));
-    vtkNew<vtkPassArrays> pass2;
-    pass2->SetRemoveArrays(true);
-    pass2->AddArray(vtkDataObject::FIELD, "Time");
-    pass2->SetInputDataObject(readPiece);
-    pass2->Update();
-    readPiece = vtkUnstructuredGrid::SafeDownCast(pass2->GetOutputDataObject(0));
-    vtkUnstructuredGrid* originalPiece =
-      vtkUnstructuredGrid::SafeDownCast(pass->GetOutputDataObject(0));
     vtkUnstructuredGrid* readPart =
       vtkUnstructuredGrid::SafeDownCast(readerPart->GetOutputDataObject(0));
-    vtkNew<vtkPassArrays> pass3;
-    pass3->SetRemoveArrays(true);
-    pass3->AddArray(vtkDataObject::FIELD, "Time");
-    pass3->SetInputDataObject(readPart);
-    pass3->Update();
-    readPart = vtkUnstructuredGrid::SafeDownCast(pass3->GetOutputDataObject(0));
 
-    if (readPiece == nullptr || originalPiece == nullptr || readPart == nullptr)
+    if (readPiece == nullptr || readPart == nullptr)
     {
       vtkLog(ERROR, "Piece should not be null");
       return false;
     }
 
-    if (!vtkTestUtilities::CompareDataObjects(readPart, readPiece))
+    if (!vtkTestUtilities::CompareDataObjects(readPiece, readPart))
     {
-      vtkLog(ERROR, "Original and read piece do not match");
+      vtkLog(ERROR, "Read piece and read part do not match");
       return false;
     }
-
-    // if (!vtkTestUtilities::CompareDataObjects(readPiece, originalPiece))
-    // {
-    //   vtkLog(ERROR, "Original and read piece do not match");
-    //   return false;
-    // }
-
-    // if (!vtkTestUtilities::CompareDataObjects(readPiece, readPart))
-    // {
-    //   vtkLog(ERROR, "Read piece and read part do not match");
-    //   return false;
-    // }
   }
 
   return true;
+}
+
+bool TestDistributedPolyData(vtkMPIController* controller, const std::string& tempDir)
+{
+  return TestDistributedObject(controller, tempDir, true);
+}
+bool TestDistributedUnstructuredGrid(vtkMPIController* controller, const std::string& tempDir)
+{
+  return TestDistributedObject(controller, tempDir, false);
+}
+bool TestDistributedUnstructuredGridTemporal(
+  vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
+{
+  return TestDistributedTemporal(controller, tempDir, dataRoot, false, false);
+}
+bool TestDistributedUnstructuredGridTemporalStatic(
+  vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
+{
+  return TestDistributedTemporal(controller, tempDir, dataRoot, false, true);
+}
+bool TestDistributedPolyDataTemporal(
+  vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
+{
+  return TestDistributedTemporal(controller, tempDir, dataRoot, true, false);
+}
+bool TestDistributedPolyDataTemporalStatic(
+  vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
+{
+  return TestDistributedTemporal(controller, tempDir, dataRoot, true, true);
 }
 
 }
@@ -225,6 +236,10 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   vtkNew<vtkMPIController> controller;
   controller->Initialize(&argc, &argv);
   vtkMultiProcessController::SetGlobalController(controller);
+
+  std::string threadName = "rank #";
+  threadName += std::to_string(controller->GetLocalProcessId());
+  vtkLogger::SetThreadName(threadName);
 
   // Retrieve temporary testing directory
   char* tempDirCStr =
@@ -242,8 +257,13 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   }
   std::string dataRoot = testHelper->GetDataRoot();
 
-  // bool res = ::TestParallelUnstrucutredGrid(controller, tempDir);
-  bool res = ::TestParallelTemporalPolyData(controller, tempDir, dataRoot);
+  bool res = true;
+  res &= ::TestDistributedPolyData(controller, tempDir);
+  res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
+  res &= ::TestDistributedUnstructuredGridTemporal(controller, tempDir, dataRoot);
+  // res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
+  // res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
+  // res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
   controller->Finalize();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }

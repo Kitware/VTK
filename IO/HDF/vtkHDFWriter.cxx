@@ -306,16 +306,18 @@ void vtkHDFWriter::WriteData()
 //------------------------------------------------------------------------------
 void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
 {
+
   // Only relevant on the last time step
   if (this->IsTemporal && this->CurrentTimeIndex != this->NumberOfTimeSteps - 1)
   {
     return;
   }
 
+  this->Impl->CloseFile();
+
   vtkDebugMacro("Writing meta file name " << this->FileName << " for rank " << this->Rank);
 
   // Make sure all processes have written and closed their associated subfile
-  this->Impl->CloseFile();
   this->Controller->Barrier();
 
   // Write main file in rank 0
