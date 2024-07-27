@@ -236,7 +236,7 @@ public:
    * By default (and if a InterpolationPrototype is not set), a point locator
    * is used.
    */
-  void SetInterpolatorTypeToDataSetPointLocator();
+  void SetInterpolatorTypeToDataSetPointLocator(bool amrData = false);
 
   /**
    * Set the velocity field interpolator type to one that uses a cell locator
@@ -244,7 +244,7 @@ public:
    * the correct results, but it can be much slower that point locator-based
    * searches.
    */
-  void SetInterpolatorTypeToCellLocator();
+  void SetInterpolatorTypeToCellLocator(bool amrData = false);
 
   ///@{
   /**
@@ -330,7 +330,6 @@ public:
   ///@{
   /**
    * Specify whether streamlines should be computed on a surface.
-   * The input should contains only 2D planar cells for this option to work as expected.
    */
   vtkGetMacro(SurfaceStreamlines, bool);
   vtkSetMacro(SurfaceStreamlines, bool);
@@ -404,7 +403,7 @@ public:
    * vtkPointSet::FindCell() coupled with vtkPointLocator). However the former
    * can be much faster and produce adequate results.
    */
-  void SetInterpolatorType(int interpType);
+  void SetInterpolatorType(int interpType, bool amrData = false);
 
   ///@{
   /**

@@ -21,7 +21,6 @@
 #include <vtkUniformGridAMR.h>
 
 //----------------------------------------------------------------------------
-VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStreamSurface);
 
 //----------------------------------------------------------------------------
@@ -35,9 +34,6 @@ vtkStreamSurface::vtkStreamSurface()
   // by default process active point vectors
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
-
-  this->RuledSurface->SetContainerAlgorithm(this);
-  this->StreamTracer->SetContainerAlgorithm(this);
 }
 
 //----------------------------------------------------------------------------
@@ -68,6 +64,7 @@ int vtkStreamSurface::AdvectIterative(
   if (field->IsA("vtkDataSet"))
   {
     dataset = vtkDataSet::SafeDownCast(field);
+
     if (this->IntegrationStepUnit == CELL_LENGTH_UNIT)
     {
       distThreshold *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
@@ -83,6 +80,9 @@ int vtkStreamSurface::AdvectIterative(
     }
   }
 
+  int vecType(0);
+  vtkDataArray* vectors = this->GetInputArrayToProcess(0, dataset, vecType);
+
   vtkNew<vtkPolyData> currentSeeds;
   currentSeeds->ShallowCopy(seeds);
   vtkNew<vtkDoubleArray> seedIntegrationTimeArray;
@@ -90,15 +90,9 @@ int vtkStreamSurface::AdvectIterative(
   seedIntegrationTimeArray->SetNumberOfTuples(currentSeeds->GetNumberOfPoints());
   seedIntegrationTimeArray->Fill(0.0);
   currentSeeds->GetPointData()->AddArray(seedIntegrationTimeArray);
-  int vecType(0);
-  vtkDataArray* vectors = this->GetInputArrayToProcess(0, field, vecType);
 
   for (int currentIteration = 0; currentIteration < this->MaximumNumberOfSteps; currentIteration++)
   {
-    if (this->CheckAbort())
-    {
-      break;
-    }
     // advect currentSeeds
     // the output will be ordered: 0, advect(0), 1, advect(1), 2...
     // but if a point reaches the boundary, its advected point is just missing
@@ -307,6 +301,20 @@ int vtkStreamSurface::AdvectIterative(
 //----------------------------------------------------------------------------
 int vtkStreamSurface::AdvectSimple(vtkDataObject* field, vtkPolyData* seeds, vtkPolyData* output)
 {
+  vtkDataSet* dataset = nullptr;
+  if (field->IsA("vtkDataSet"))
+  {
+    dataset = vtkDataSet::SafeDownCast(field);
+  }
+  else if (field->IsA("vtkUniformGridAMR"))
+  {
+    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
+    dataset = data->GetDataSet(0, 0);
+  }
+
+  int vecType(0);
+  vtkDataArray* vectors = this->GetInputArrayToProcess(0, dataset, vecType);
+
   //  this is for comparison with the standard ruled surface
   this->StreamTracer->SetInputData(field);
   this->StreamTracer->SetSourceData(seeds);
@@ -317,8 +325,6 @@ int vtkStreamSurface::AdvectSimple(vtkDataObject* field, vtkPolyData* seeds, vtk
   this->StreamTracer->SetInitialIntegrationStep(this->InitialIntegrationStep);
   this->StreamTracer->SetIntegrationDirection(this->IntegrationDirection);
   this->StreamTracer->SetMaximumNumberOfSteps(this->MaximumNumberOfSteps);
-  int vecType(0);
-  vtkDataArray* vectors = this->GetInputArrayToProcess(0, field, vecType);
   this->StreamTracer->SetInputArrayToProcess(0, 0, 0, vecType, vectors->GetName());
   this->RuledSurface->SetResolution(this->MaximumNumberOfSteps, 1);
   this->RuledSurface->Update();
@@ -454,4 +460,3 @@ int vtkStreamSurface::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return finishedSuccessfully;
 }
-VTK_ABI_NAMESPACE_END

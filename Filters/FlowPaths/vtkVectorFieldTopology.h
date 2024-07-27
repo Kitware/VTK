@@ -80,7 +80,7 @@ public:
 
   ///@{
   /**
-   * Specify/see if the separating surfaces (separatrices in 3D) are computed or not
+   * Specify/see if the separatring surfaces (separatrices in 3D) are computed or not
    */
   vtkSetMacro(ComputeSurfaces, bool);
   vtkGetMacro(ComputeSurfaces, bool);
@@ -134,7 +134,8 @@ public:
 
   /**
    * Set the type of the velocity field interpolator to determine whether
-   * INTERPOLATOR_WITH_DATASET_POINT_LOCATOR or INTERPOLATOR_WITH_CELL_LOCATOR is employed for
+   * vtkInterpolatedVelocityField (INTERPOLATOR_WITH_DATASET_POINT_LOCATOR) or
+   * vtkCellLocatorInterpolatedVelocityField (INTERPOLATOR_WITH_CELL_LOCATOR) is employed for
    * locating cells during streamline integration.
    */
   void SetInterpolatorType(int interpType);
@@ -239,6 +240,7 @@ private:
    * @param boundarySwitchPoints: list of the locations of boundaries where the directions of the
    * flow change
    * @param separatrices: inegration lines
+   * @param field: input data object that contains the information of the type of dataset
    * @param dataset: input vector field
    * @param interestPoints: a set of points that includes both critical points and boundary switch
    * points
@@ -246,11 +248,12 @@ private:
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps
+   * @param numberOfSeparatingLines: number of separating lines
    * @return 1 if successfully terminated
    */
   int ComputeSeparatricesBoundarySwitchPoints(vtkPolyData* boundarySwitchPoints,
-    vtkPolyData* separatrices, vtkDataSet* dataset, vtkPoints* interestPoints,
-    int integrationStepUnit, double dist, int maxNumSteps);
+    vtkPolyData* separatrices, vtkDataObject* field, vtkDataSet* dataset, vtkPoints* interestPoints,
+    int integrationStepUnit, double dist, int maxNumSteps, int& numberOfSeparatingLines);
 
   /**
    * This function computes boundary switch lines from boundaries that surfaces.
@@ -259,19 +262,20 @@ private:
    * @param boundarySwitchLines: list of the locations of boundaries where the directions of the
    * flow change
    * @param separatrices: inegration surfaces
+   * @param field: input data object that contains the information of the type of dataset
    * @param dataset: input vector field
    * @param integrationStepUnit: whether the sizes are expressed in coordinate scale or cell scale
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps
-   * @param computeSurfaces: depending on this boolean the separating surfaces are computed or not
-   * @param useIterativeSeeding: depending on this boolean the separating surfaces are computed
+   * @param computeSurfaces: depending on this boolean the separatring surfaces are computed or not
+   * @param useIterativeSeeding: depending on this boolean the separatring surfaces  are computed
    * either good or fast
    * @return 1 if successfully terminated
    */
   int ComputeSeparatricesBoundarySwitchLines(vtkPolyData* boundarySwitchLines,
-    vtkPolyData* separatrices, vtkDataSet* dataset, int integrationStepUnit, double dist,
-    int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding);
+    vtkPolyData* separatrices, vtkDataObject* field, vtkDataSet* dataset, int integrationStepUnit,
+    double dist, int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding);
 
   /**
    * we classify the critical points based on the eigenvalues of the jacobian
@@ -279,6 +283,7 @@ private:
    * @param criticalPoints: list of the locations where the vf is zero
    * @param separatrices: inegration lines starting at saddles
    * @param surfaces: inegration surfaces starting at saddles
+   * @param field: input data object that contains the information of the type of dataset
    * @param dataset: input vector field
    * @param interestPoints: a set of points that includes both critical points and boundary switch
    * points
@@ -286,14 +291,17 @@ private:
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps
-   * @param computeSurfaces: depending on this boolean the separating surfaces are computed or not
-   * @param useIterativeSeeding: depending on this boolean the separating surfaces are computed
+   * @param computeSurfaces: depending on this boolean the separatring surfaces are computed or not
+   * @param useIterativeSeeding: depending on this boolean the separatring surfaces  are computed
    * either good or fast
+   * @param numberOfSeparatingLines: the number of separating lines
+   * @param numberOfSeparatingSurfaces: the number of separating surfaces
    * @return 1 if successfully terminated
    */
   int ComputeSeparatrices(vtkPolyData* criticalPoints, vtkPolyData* separatrices,
-    vtkPolyData* surfaces, vtkDataSet* dataset, vtkPoints* interestPoints, int integrationStepUnit,
-    double dist, double stepSize, int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding);
+    vtkPolyData* surfaces, vtkDataObject* field, vtkDataSet* dataset, vtkPoints* interestPoints,
+    int integrationStepUnit, double dist, double stepSize, int maxNumSteps, bool computeSurfaces,
+    bool useIterativeSeeding, int& numberOfSeparatingLines, int& numberOfSeparatingSurfaces);
 
   /**
    * this method computes streamsurfaces
@@ -302,18 +310,20 @@ private:
    * @param normal: direction along the one eigenvector with opposite sign
    * @param zeroPos: location of the saddle
    * @param streamSurfaces: surfaces that have so far been computed
+   * @param field: input data object that contains the information of the type of dataset
    * @param dataset: the vector field in which we advect
    * @param integrationStepUnit: whether the sizes are expressed in coordinate scale or cell scale
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps
-   * @param useIterativeSeeding: depending on this boolean the separating surfaces are computed
+   * @param useIterativeSeeding: depending on this boolean the separatring surfaces  are computed
    * either good or fast
    * @return 1 if successful, 0 if empty
    */
   int ComputeSurface(int numberOfSeparatingSurfaces, bool isBackward, double normal[3],
-    double zeroPos[3], vtkPolyData* streamSurfaces, vtkDataSet* dataset, int integrationStepUnit,
-    double dist, double stepSize, int maxNumSteps, bool useIterativeSeeding);
+    double zeroPos[3], vtkPolyData* streamSurfaces, vtkDataObject* field, vtkDataSet* dataset,
+    int integrationStepUnit, double dist, double stepSize, int maxNumSteps,
+    bool useIterativeSeeding);
 
   /**
    * simple type that corresponds to the number of positive eigenvalues
@@ -415,6 +425,16 @@ private:
   static int ClassifyDetailed3D(int countComplex, int countPos, int countNeg);
 
   /**
+   * This function copies the arrays of a vtkDataSet source to target. The number of tuples is 0.
+   * This function is used for 3D data because the vtkGeometryFilter -> vtkDataSetSurfaceFilter ->
+   * vtkCellDataToPointData -> vtkContourFilter pipeline in the
+   * ComputeSeparatricesBoundarySwitchLines function copies those arrays.
+   * @param source: A source is the input to filter whose datatype equls to vtkDataSet
+   * @param target: A target is BoundarySwitchLines whose datatype equls to vtkPolyData
+   */
+  static void CopyBoundarySwitchLinesArray(vtkDataSet* source, vtkPolyData* target);
+
+  /**
    * number of iterations in this class and in vtkStreamTracer
    */
   int MaxNumSteps = 100;
@@ -435,7 +455,7 @@ private:
   bool UseIterativeSeeding = false;
 
   /**
-   * depending on this boolean the separating surfaces (separatrices in 3D) are computed or not
+   * depending on this boolean the separatring surfaces (separatrices in 3D) are computed or not
    */
   bool ComputeSurfaces = false;
 

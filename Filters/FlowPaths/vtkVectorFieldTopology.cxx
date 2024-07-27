@@ -9,14 +9,15 @@
 #include <vtkCellDataToPointData.h>
 #include <vtkCellLocator.h>
 #include <vtkCellTypes.h>
+#include <vtkCompositeDataIterator.h>
 #include <vtkContourFilter.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkDataSetTriangleFilter.h>
 #include <vtkDoubleArray.h>
 #include <vtkFeatureEdges.h>
-#include <vtkGenerateIds.h>
 #include <vtkGeometryFilter.h>
+#include <vtkIdFilter.h>
 #include <vtkImageData.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
@@ -25,7 +26,9 @@
 #include <vtkMath.h>
 #include <vtkMatrix3x3.h>
 #include <vtkNew.h>
+#include <vtkNonOverlappingAMR.h>
 #include <vtkObjectFactory.h>
+#include <vtkPartitionedDataSetCollection.h>
 #include <vtkPointData.h>
 #include <vtkPointLocator.h>
 #include <vtkPoints.h>
@@ -41,6 +44,7 @@
 #include <vtkStreamTracer.h>
 #include <vtkTetra.h>
 #include <vtkTriangle.h>
+#include <vtkUniformGrid.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVector.h>
 #include <vtkVertex.h>
@@ -55,7 +59,6 @@
 #define epsilon (1e-10)
 
 //----------------------------------------------------------------------------
-VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVectorFieldTopology);
 
 //----------------------------------------------------------------------------
@@ -67,8 +70,6 @@ vtkVectorFieldTopology::vtkVectorFieldTopology()
   // by default process active point vectors
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
-
-  this->StreamSurface->SetContainerAlgorithm(this);
 }
 
 //----------------------------------------------------------------------------
@@ -94,7 +95,7 @@ int vtkVectorFieldTopology::FillInputPortInformation(int port, vtkInformation* i
 {
   if (port == 0)
   {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   }
   return 1;
 }
@@ -324,10 +325,6 @@ int vtkVectorFieldTopology::ComputeCriticalPoints2D(
 {
   for (int cellId = 0; cellId < tridataset->GetNumberOfCells(); cellId++)
   {
-    if (this->CheckAbort())
-    {
-      break;
-    }
     auto cell = tridataset->GetCell(cellId);
     if (cell->GetCellType() != VTK_TRIANGLE)
     {
@@ -421,10 +418,6 @@ int vtkVectorFieldTopology::ComputeCriticalPoints3D(
 {
   for (int cellId = 0; cellId < tridataset->GetNumberOfCells(); cellId++)
   {
-    if (this->CheckAbort())
-    {
-      break;
-    }
     auto cell = tridataset->GetCell(cellId);
     if (cell->GetCellType() != VTK_TETRA)
     {
@@ -548,12 +541,10 @@ int vtkVectorFieldTopology::ComputeBoundarySwitchPoints(
 
   vtkNew<vtkGeometryFilter> geometry;
   geometry->SetInputData(tridataset);
-  geometry->SetContainerAlgorithm(this);
   geometry->Update();
 
   vtkNew<vtkFeatureEdges> surface;
   surface->SetInputData(geometry->GetOutput());
-  surface->SetContainerAlgorithm(this);
   surface->Update();
 
   vtkNew<vtkCellLocator> cellLocator;
@@ -566,10 +557,7 @@ int vtkVectorFieldTopology::ComputeBoundarySwitchPoints(
   // main loop
   for (int i = 0; i < surface->GetOutput()->GetNumberOfCells(); i++)
   {
-    if (this->CheckAbort())
-    {
-      break;
-    }
+
     // compute tangent and line normal of the line in the ith cell
     vtkCell* cell = surface->GetOutput()->GetCell(i);
 
@@ -590,7 +578,7 @@ int vtkVectorFieldTopology::ComputeBoundarySwitchPoints(
     tangent[1] = p1[1] - p0[1];
     tangent[2] = 0;
 
-    // makes sure that the line normal points inward
+    // makse sure that the line normal points inward
     double offset[3], shiftedPoint[3];
     vtkMath::Assign(normal, offset);
     vtkMath::MultiplyScalar(offset, 0.1);
@@ -697,9 +685,9 @@ int vtkVectorFieldTopology::ComputeBoundarySwitchPoints(
 
 //----------------------------------------------------------------------------
 int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool isBackward,
-  double normal[3], double zeroPos[3], vtkPolyData* streamSurfaces, vtkDataSet* dataset,
-  int vtkNotUsed(integrationStepUnit), double dist, double vtkNotUsed(stepSize), int maxNumSteps,
-  bool useIterativeSeeding)
+  double normal[3], double zeroPos[3], vtkPolyData* streamSurfaces, vtkDataObject* field,
+  vtkDataSet* dataset, int vtkNotUsed(integrationStepUnit), double dist,
+  double vtkNotUsed(stepSize), int maxNumSteps, bool useIterativeSeeding)
 {
   // generate circle and add first point again in the back to avoid gap
   vtkNew<vtkRegularPolygonSource> circle;
@@ -708,7 +696,6 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
   circle->SetRadius(dist);
   circle->SetCenter(zeroPos);
   circle->SetNormal(normal);
-  circle->SetContainerAlgorithm(this);
   circle->Update();
 
   // close circle exactly with a point instead of an edge to correctly treat points exiting the
@@ -722,7 +709,17 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
   integrationTimeArray->SetNumberOfTuples(currentCircle->GetNumberOfPoints());
   integrationTimeArray->Fill(0.0);
 
-  this->StreamSurface->SetInputData(0, dataset);
+  if (field->IsA("vtkDataSet"))
+  {
+    this->StreamSurface->SetInputData(0, dataset);
+  }
+  else if (field->IsA("vtkUniformGridAMR"))
+  {
+    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
+    this->StreamSurface->SetInputData(0, data);
+  }
+
+  // this->StreamSurface->SetInputData(0, dataset);
   this->StreamSurface->SetInputData(1, currentCircle);
   this->StreamSurface->SetUseIterativeSeeding(useIterativeSeeding);
   this->StreamSurface->SetIntegratorTypeToRungeKutta4();
@@ -747,7 +744,6 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
   vtkNew<vtkAppendPolyData> appendSurfaces;
   appendSurfaces->AddInputData(this->StreamSurface->GetOutput());
   appendSurfaces->AddInputData(streamSurfaces);
-  appendSurfaces->SetContainerAlgorithm(this);
   appendSurfaces->Update();
   streamSurfaces->DeepCopy(appendSurfaces->GetOutput());
   this->StreamSurface->SetInputData(0, nullptr);
@@ -758,8 +754,9 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
 
 //----------------------------------------------------------------------------
 int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
-  vtkPolyData* boundarySwitchPoints, vtkPolyData* separatrices, vtkDataSet* dataset,
-  vtkPoints* interestPoints, int integrationStepUnit, double dist, int maxNumSteps)
+  vtkPolyData* boundarySwitchPoints, vtkPolyData* separatrices, vtkDataObject* field,
+  vtkDataSet* dataset, vtkPoints* interestPoints, int integrationStepUnit, double dist,
+  int maxNumSteps, int& numberOfSeparatingLines)
 {
   double offsetAwayFromBoundary = this->OffsetAwayFromBoundary;
   if (integrationStepUnit == vtkStreamTracer::CELL_LENGTH_UNIT)
@@ -769,7 +766,17 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
   }
 
   vtkNew<vtkStreamTracer> streamTracer;
-  streamTracer->SetInputData(dataset);
+  if (field->IsA("vtkDataSet"))
+  {
+    streamTracer->SetInputData(dataset);
+    streamTracer->SetInterpolatorType(this->InterpolatorType);
+  }
+  else if (field->IsA("vtkUniformGridAMR"))
+  {
+    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
+    streamTracer->SetInputData(data);
+    streamTracer->SetInterpolatorType(this->InterpolatorType, true);
+  }
   streamTracer->SetIntegratorTypeToRungeKutta4();
   streamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
   streamTracer->SetInitialIntegrationStep(this->IntegrationStepSize);
@@ -779,17 +786,9 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
   streamTracer->SetTerminalSpeed(epsilon);
   streamTracer->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, this->NameOfVectorArray);
-  streamTracer->SetInterpolatorType(this->InterpolatorType);
-  streamTracer->SetContainerAlgorithm(this);
-
-  int numberOfSeparatingLines = 0;
 
   for (int i = 0; i < boundarySwitchPoints->GetNumberOfPoints(); i++)
   {
-    if (this->CheckAbort())
-    {
-      break;
-    }
     if (boundarySwitchPoints->GetPointData()->GetArray("BoundarySwitchType")->GetTuple1(i) == 1)
       continue;
 
@@ -940,7 +939,6 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
 
         // combine lines of this separatrix with existing ones
         vtkNew<vtkAppendPolyData> appendFilter;
-        appendFilter->SetContainerAlgorithm(this);
         appendFilter->AddInputData(separatrices);
         appendFilter->AddInputData(streamTracer->GetOutput());
         appendFilter->Update();
@@ -954,8 +952,8 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
 }
 
 int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* boundarySwitchLines,
-  vtkPolyData* separatrices, vtkDataSet* dataset, int integrationStepUnit, double dist,
-  int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding)
+  vtkPolyData* separatrices, vtkDataObject* field, vtkDataSet* dataset, int integrationStepUnit,
+  double dist, int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding)
 {
   double offsetAwayFromBoundary = this->OffsetAwayFromBoundary;
   if (integrationStepUnit == vtkStreamTracer::CELL_LENGTH_UNIT)
@@ -968,12 +966,10 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
 
   vtkNew<vtkGeometryFilter> geometry;
   geometry->SetInputData(dataset);
-  geometry->SetContainerAlgorithm(this);
   geometry->Update();
 
   vtkNew<vtkDataSetSurfaceFilter> surface;
   surface->SetInputData(geometry->GetOutput());
-  surface->SetContainerAlgorithm(this);
   surface->Update();
 
   vtkNew<vtkDoubleArray> normals;
@@ -1018,7 +1014,6 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
   // and compute the dot product between vector and surface normal
   vtkNew<vtkCellDataToPointData> cell2point;
   cell2point->SetInputData(surface->GetOutput());
-  cell2point->SetContainerAlgorithm(this);
   cell2point->Update();
 
   for (int i = 0; i < surface->GetOutput()->GetNumberOfPoints(); i++)
@@ -1040,14 +1035,13 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
   contourFilter->SetValue(0, 0);
   // (id=0 for first array, port=0, connection=0, pointData=0 and cellData=1, name)
   contourFilter->SetInputArrayToProcess(0, 0, 0, 0, "ScalarProduct");
-  contourFilter->SetContainerAlgorithm(this);
   contourFilter->Update();
 
   if (contourFilter->GetOutput()->GetNumberOfCells() == 0)
     return 1;
 
   // copy celldata to boundarySwitchLines
-  // delete the temporary arrays "Normals" and "ScalarProduct"
+  // delete the temporay arrays "Normals" and "ScalarProduct"
   // keep the vector array and the output
   boundarySwitchLines->DeepCopy(contourFilter->GetOutput());
   boundarySwitchLines->GetPointData()->RemoveArray("Normals");
@@ -1185,7 +1179,6 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
   vtkNew<vtkProbeFilter> probe;
   probe->SetInputData(offsetPoints);
   probe->SetSourceData(dataset);
-  probe->SetContainerAlgorithm(this);
   probe->Update();
 
   vtkNew<vtkPointLocator> pointLocator;
@@ -1195,7 +1188,17 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
 
   // streamSurface filter for computing surface
   vtkNew<vtkStreamSurface> streamSurface;
-  streamSurface->SetInputData(dataset);
+  if (field->IsA("vtkDataSet"))
+  {
+    streamSurface->SetInputData(dataset);
+    streamSurface->SetInterpolatorTypeToCellLocator();
+  }
+  else if (field->IsA("vtkUniformGridAMR"))
+  {
+    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
+    streamSurface->SetInputData(data);
+    streamSurface->SetInterpolatorTypeToCellLocator(true);
+  }
   streamSurface->SetIntegratorTypeToRungeKutta4();
   streamSurface->SetIntegrationStepUnit(IntegrationStepUnit);
   streamSurface->SetInitialIntegrationStep(IntegrationStepSize);
@@ -1204,8 +1207,6 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
   streamSurface->SetMaximumPropagation(dist * maxNumSteps);
   streamSurface->SetTerminalSpeed(epsilon);
   streamSurface->SetUseIterativeSeeding(useIterativeSeeding);
-  streamSurface->SetInterpolatorTypeToCellLocator();
-  streamSurface->SetContainerAlgorithm(this);
 
   vtkNew<vtkPolyData> seeds;
 
@@ -1213,10 +1214,6 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
   // lines.
   for (int i = 0; i < contourFilter->GetOutput()->GetNumberOfCells(); i++)
   {
-    if (this->CheckAbort())
-    {
-      break;
-    }
     vtkCell* cell = contourFilter->GetOutput()->GetCell(i);
     double p0[3], p1[3], tangent[3], center[3];
 
@@ -1352,10 +1349,12 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
               streamSurface->SetSourceData(seeds);
               streamSurface->Update();
 
+              // cout << BoundarySwitchTypeArray->GetTuple1(cell->GetPointId(0)) << ": "
+              //      << streamSurface->GetOutput()->GetNumberOfPoints() << "    "
+              //      << streamSurface->GetOutput()->GetNumberOfCells() << endl;
               vtkNew<vtkAppendPolyData> appendFilter;
               appendFilter->AddInputData(separatrices);
               appendFilter->AddInputData(streamSurface->GetOutput());
-              appendFilter->SetContainerAlgorithm(this);
               appendFilter->Update();
 
               separatrices->DeepCopy(appendFilter->GetOutput());
@@ -1379,9 +1378,10 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
 
 //----------------------------------------------------------------------------
 int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
-  vtkPolyData* separatrices, vtkPolyData* surfaces, vtkDataSet* dataset, vtkPoints* interestPoints,
-  int integrationStepUnit, double dist, double stepSize, int maxNumSteps, bool computeSurfaces,
-  bool useIterativeSeeding)
+  vtkPolyData* separatrices, vtkPolyData* surfaces, vtkDataObject* field, vtkDataSet* dataset,
+  vtkPoints* interestPoints, int integrationStepUnit, double dist, double stepSize, int maxNumSteps,
+  bool computeSurfaces, bool useIterativeSeeding, int& numberOfSeparatingLines,
+  int& numberOfSeparatingSurfaces)
 {
   // adapt dist if cell unit was selected
   if (integrationStepUnit == vtkStreamTracer::CELL_LENGTH_UNIT)
@@ -1403,7 +1403,17 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
   // this prevents that vtkPStreamTracer is called, which is necessary to prevent deadlocks
   vtkObjectFactory::SetAllEnableFlags(false, "vtkStreamTracer"); // this will need to be discussed
   vtkNew<vtkStreamTracer> streamTracer;
-  streamTracer->SetInputData(dataset);
+  if (field->IsA("vtkDataSet"))
+  {
+    streamTracer->SetInputData(dataset);
+    streamTracer->SetInterpolatorType(this->InterpolatorType);
+  }
+  else if (field->IsA("vtkUniformGridAMR"))
+  {
+    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
+    streamTracer->SetInputData(data);
+    streamTracer->SetInterpolatorType(this->InterpolatorType, true);
+  }
   streamTracer->SetIntegratorTypeToRungeKutta4();
   streamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
   streamTracer->SetInitialIntegrationStep(this->IntegrationStepSize);
@@ -1413,18 +1423,12 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
   streamTracer->SetTerminalSpeed(epsilon);
   streamTracer->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, this->NameOfVectorArray);
-  streamTracer->SetInterpolatorType(this->InterpolatorType);
-  streamTracer->SetContainerAlgorithm(this);
 
-  int numberOfSeparatingLines = 0;
-  int numberOfSeparatingSurfaces = 0;
+  // int numberOfSeparatingLines = 0;
+  // int numberOfSeparatingSurfaces = 0;
 
   for (int pointId = 0; pointId < criticalPoints->GetNumberOfPoints(); pointId++)
   {
-    if (this->CheckAbort())
-    {
-      break;
-    }
     // classification
     Eigen::Matrix<double, 3, 3> eigenMatrix;
     int flatIdx = 0;
@@ -1450,12 +1454,11 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
         countComplex++;
       }
 
-      // compare against epsilon for spiraling critical points only, otherwise compare to zero
-      if (real(eigenS.eigenvalues()[i]) < -this->EpsilonCriticalPoint * countComplex / 2)
+      if (real(eigenS.eigenvalues()[i]) < -this->EpsilonCriticalPoint)
       {
         countNeg++;
       }
-      else if (real(eigenS.eigenvalues()[i]) > this->EpsilonCriticalPoint * countComplex / 2)
+      else if (real(eigenS.eigenvalues()[i]) > this->EpsilonCriticalPoint)
       {
         countPos++;
       }
@@ -1484,7 +1487,6 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
     {
       for (int i = 0; i < this->Dimension; i++)
       {
-
         double normal[] = { real(eigenS.eigenvectors().col(i)[0]),
           real(eigenS.eigenvectors().col(i)[1]), real(eigenS.eigenvectors().col(i)[2]) };
 
@@ -1508,10 +1510,10 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
                 criticalPoints->GetPoint(pointId)[1],
               pow(-1, k) * dist * real(eigenS.eigenvectors().col(i)[2]) +
                 criticalPoints->GetPoint(pointId)[2]);
+
             vtkNew<vtkVertex> vertex;
             vertex->GetPointIds()->SetId(0, seedPoints->GetNumberOfPoints() - 1);
             seedCells->InsertNextCell(vertex);
-
             // integrate
             streamTracer->SetIntegrationDirection(isBackward);
             streamTracer->SetSourceData(seeds);
@@ -1611,6 +1613,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
               indexArray->SetName("index");
               indexArray->SetNumberOfTuples(streamTracer->GetOutput()->GetNumberOfPoints());
               streamTracer->GetOutput()->GetPointData()->AddArray(indexArray);
+
               for (int j = 0; j < streamTracer->GetOutput()->GetNumberOfPoints(); j++)
               {
                 iterationArray->SetTuple1(j, j + 1);
@@ -1628,7 +1631,6 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
               vtkNew<vtkAppendPolyData> appendFilter;
               appendFilter->AddInputData(separatrices);
               appendFilter->AddInputData(streamTracer->GetOutput());
-              appendFilter->SetContainerAlgorithm(this);
               appendFilter->Update();
               separatrices->DeepCopy(appendFilter->GetOutput());
               numberOfSeparatingLines++;
@@ -1637,8 +1639,8 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
           if (computeSurfaces && this->Dimension == 3)
           {
             ComputeSurface(numberOfSeparatingSurfaces++, isForward, normal,
-              criticalPoints->GetPoint(pointId), surfaces, dataset, integrationStepUnit, dist,
-              stepSize, maxNumSteps, useIterativeSeeding);
+              criticalPoints->GetPoint(pointId), surfaces, field, dataset, integrationStepUnit,
+              dist, stepSize, maxNumSteps, useIterativeSeeding);
           }
         }
       }
@@ -1652,7 +1654,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
 int vtkVectorFieldTopology::RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> tridataset)
 {
   // assign id to each point
-  vtkNew<vtkGenerateIds> idFilter;
+  vtkNew<vtkIdFilter> idFilter;
   idFilter->SetInputData(tridataset);
   idFilter->SetPointIdsArrayName("ids");
   idFilter->Update();
@@ -1663,12 +1665,10 @@ int vtkVectorFieldTopology::RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> 
   {
     vtkNew<vtkGeometryFilter> geometryFilter;
     geometryFilter->SetInputData(idFilter->GetOutput());
-    geometryFilter->SetContainerAlgorithm(this);
     geometryFilter->Update();
 
     vtkNew<vtkFeatureEdges> surfaceFilter;
     surfaceFilter->SetInputData(geometryFilter->GetOutput());
-    surfaceFilter->SetContainerAlgorithm(this);
     surfaceFilter->Update();
     boundary = surfaceFilter->GetOutput();
   }
@@ -1676,7 +1676,6 @@ int vtkVectorFieldTopology::RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> 
   {
     vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
     surfaceFilter->SetInputData(idFilter->GetOutput());
-    surfaceFilter->SetContainerAlgorithm(this);
     surfaceFilter->Update();
     boundary = surfaceFilter->GetOutput();
   }
@@ -1692,10 +1691,6 @@ int vtkVectorFieldTopology::RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> 
   }
   for (int ptId = 0; ptId < boundary->GetNumberOfPoints(); ptId++)
   {
-    // The point data is `double`, but it stores ids and the value of
-    // `isBoundary` is treated as a boolean, so while the types may appear as
-    // if these are swapped, they are not.
-    // NOLINTNEXTLINE(bugprone-swapped-arguments)
     isBoundary->SetTuple1(boundary->GetPointData()->GetArray("ids")->GetTuple1(ptId), 1);
   }
 
@@ -1763,7 +1758,6 @@ int vtkVectorFieldTopology::ImageDataPrepare(
   // Triangulate the input data
   vtkNew<vtkDataSetTriangleFilter> triangulateFilter;
   triangulateFilter->SetInputData(dataset);
-  triangulateFilter->SetContainerAlgorithm(this);
   triangulateFilter->Update();
   tridataset->DeepCopy(triangulateFilter->GetOutput());
 
@@ -1782,7 +1776,7 @@ int vtkVectorFieldTopology::UnstructuredGridPrepare(
     return 1;
   }
 
-  // find out dimension from cell types
+  // find out domension from cell types
   for (int cellId = 0; cellId < dataset->GetNumberOfCells(); cellId++)
   {
     if (dataset->GetCell(cellId)->GetCellType() >= VTK_TETRA)
@@ -1809,12 +1803,30 @@ int vtkVectorFieldTopology::UnstructuredGridPrepare(
     // Triangulate the input data
     vtkNew<vtkDataSetTriangleFilter> triangulateFilter;
     triangulateFilter->SetInputData(dataset);
-    triangulateFilter->SetContainerAlgorithm(this);
     triangulateFilter->Update();
     tridataset->DeepCopy(triangulateFilter->GetOutput());
   }
 
   return 1;
+}
+//----------------------------------------------------------------------------
+void vtkVectorFieldTopology::CopyBoundarySwitchLinesArray(vtkDataSet* source, vtkPolyData* target)
+{
+  // copy only pointDataArray
+  for (int i = 0; i < source->GetPointData()->GetNumberOfArrays(); i++)
+  {
+    vtkNew<vtkDoubleArray> array;
+    array->SetNumberOfComponents(source->GetPointData()->GetArray(i)->GetNumberOfComponents());
+    array->SetName(source->GetPointData()->GetArray(i)->GetName());
+    target->GetPointData()->AddArray(array);
+  }
+  // for (int i = 0; i < source->GetCellData()->GetNumberOfArrays(); i++)
+  //   {
+  //     vtkNew<vtkDoubleArray> array;
+  //     array->SetNumberOfComponents(source->GetCellData()->GetArray(i)->GetNumberOfComponents());
+  //     array->SetName(source->GetCellData()->GetArray(i)->GetName());
+  //     target->GetCellData()->AddArray(array);
+  //   }
 }
 
 //----------------------------------------------------------------------------
@@ -1834,7 +1846,20 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo4 = outputVector->GetInformationObject(4);
 
   // get the input and make sure the input data has vector-valued data
-  vtkDataSet* dataset = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject* field = vtkDataObject::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* dataset = nullptr;
+
+  if (field->IsA("vtkDataSet"))
+  {
+    dataset = vtkDataSet::SafeDownCast(field);
+  }
+  else if (field->IsA("vtkUniformGridAMR"))
+  {
+    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
+    dataset = data->GetDataSet(0, 0);
+    this->Dimension = vtkImageData::SafeDownCast(dataset)->GetDataDimension();
+  }
+
   int vecType(0);
   vtkSmartPointer<vtkDataArray> vectors = this->GetInputArrayToProcess(0, dataset, vecType);
 
@@ -1868,16 +1893,21 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
   }
+  else
+  {
+    // Users might set the name that belongs to an existing array that is not a
+    // vector array.
+
+    if (dataset->GetPointData()->GetArray(vectors->GetName())->GetNumberOfComponents() != 3)
+    {
+      vtkErrorMacro("The array that corresponds to the name of vector array "
+                    "is not a vector array.");
+      return 0;
+    }
+  }
 
   // save the name so that it does not need to call GetInputArrayToProcess many times
   this->NameOfVectorArray = vectors->GetName();
-
-  // Users might set the name that belongs to an existing array that is not a vector array.
-  if (dataset->GetPointData()->GetArray(this->NameOfVectorArray)->GetNumberOfComponents() != 3)
-  {
-    vtkErrorMacro("The array that corresponds to the name of vector array is not a vector array.");
-    return 0;
-  }
 
   // make output
   vtkPolyData* criticalPoints =
@@ -1891,101 +1921,261 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* boundarySwitchSeparatrix =
     vtkPolyData::SafeDownCast(outInfo4->Get(vtkDataObject::DATA_OBJECT()));
 
-  // run appropriate function for input data type
-  vtkNew<vtkUnstructuredGrid> tridataset;
-  bool success;
-  switch (dataset->GetDataObjectType())
+  bool success = true;
+  if (field->IsA("vtkDataSet"))
   {
-    case VTK_IMAGE_DATA:
+    // run appropriate function for input data type
+    vtkNew<vtkUnstructuredGrid> tridataset;
+    switch (dataset->GetDataObjectType())
     {
-      success = this->ImageDataPrepare(dataset, tridataset);
-      break;
-    }
-    case VTK_UNSTRUCTURED_GRID:
-    {
-      success = this->UnstructuredGridPrepare(dataset, tridataset);
-      break;
-    }
-    default:
-    {
-      vtkErrorMacro("The input field must be vtkImageData or vtkUnstructuredGrid.");
-      success = false;
-    }
-  }
-
-  // remove boundary cells
-  if (this->ExcludeBoundary)
-  {
-    this->RemoveBoundary(tridataset);
-  }
-
-  // Compute critical points
-  vtkNew<vtkPoints> criticalPointsPoints;
-  vtkNew<vtkCellArray> criticalPointsCells;
-  vtkNew<vtkDoubleArray> criticalPointsGradients;
-  criticalPointsGradients->SetName("gradient");
-  criticalPointsGradients->SetNumberOfComponents(9);
-  criticalPoints->SetPoints(criticalPointsPoints);
-  criticalPoints->SetVerts(criticalPointsCells);
-  criticalPoints->GetPointData()->AddArray(criticalPointsGradients);
-  if (this->Dimension == 2)
-  {
-    this->ComputeCriticalPoints2D(criticalPoints, tridataset);
-  }
-  else
-  {
-    this->ComputeCriticalPoints3D(criticalPoints, tridataset);
-  }
-
-  vtkNew<vtkPoints> interestPoints;
-
-  if (this->Dimension == 2)
-  {
-    for (int i = 0; i < criticalPoints->GetNumberOfPoints(); i++)
-      interestPoints->InsertNextPoint(criticalPoints->GetPoint(i));
-
-    if (this->UseBoundarySwitchPoints)
-    {
-      vtkNew<vtkPoints> boundarySwitchPointsPoints;
-      vtkNew<vtkCellArray> boundarySwitchPointsCells;
-      boundarySwitchPoints->SetPoints(boundarySwitchPointsPoints);
-      boundarySwitchPoints->SetVerts(boundarySwitchPointsCells);
-
-      ComputeBoundarySwitchPoints(boundarySwitchPoints, tridataset);
-
-      for (int i = 0; i < boundarySwitchPointsPoints->GetNumberOfPoints(); i++)
+      case VTK_IMAGE_DATA:
       {
-        interestPoints->InsertNextPoint(boundarySwitchPointsPoints->GetPoint(i));
+        success = this->ImageDataPrepare(dataset, tridataset);
+        break;
+      }
+      case VTK_UNSTRUCTURED_GRID:
+      {
+        success = this->UnstructuredGridPrepare(dataset, tridataset);
+        break;
       }
 
-      ComputeSeparatricesBoundarySwitchPoints(boundarySwitchPoints, boundarySwitchSeparatrix,
-        tridataset, interestPoints, this->IntegrationStepUnit, this->SeparatrixDistance,
-        this->MaxNumSteps);
+      default:
+      {
+        vtkErrorMacro("The input field must be vtkImageData or vtkUnstructuredGrid.");
+        success = false;
+      }
+    }
+
+    // remove boundary cells
+    if (this->ExcludeBoundary)
+    {
+      this->RemoveBoundary(tridataset);
+    }
+
+    // Compute critical points
+    vtkNew<vtkPoints> criticalPointsPoints;
+    vtkNew<vtkCellArray> criticalPointsCells;
+    vtkNew<vtkDoubleArray> criticalPointsGradients;
+    criticalPointsGradients->SetName("gradient");
+    criticalPointsGradients->SetNumberOfComponents(9);
+    criticalPoints->SetPoints(criticalPointsPoints);
+    criticalPoints->SetVerts(criticalPointsCells);
+    criticalPoints->GetPointData()->AddArray(criticalPointsGradients);
+    if (this->Dimension == 2)
+    {
+      this->ComputeCriticalPoints2D(criticalPoints, tridataset);
+    }
+    else
+    {
+      this->ComputeCriticalPoints3D(criticalPoints, tridataset);
+    }
+
+    // if (criticalPoints->GetNumberOfPoints() > 0)
+    //   cout << "# of critical points: " << criticalPoints->GetNumberOfPoints() << endl;
+
+    vtkNew<vtkPoints> interestPoints;
+
+    if (this->Dimension == 2)
+    {
+      for (int i = 0; i < criticalPoints->GetNumberOfPoints(); i++)
+        interestPoints->InsertNextPoint(criticalPoints->GetPoint(i));
+
+      if (this->UseBoundarySwitchPoints)
+      {
+        vtkNew<vtkPoints> boundarySwitchPointsPoints;
+        vtkNew<vtkCellArray> boundarySwitchPointsCells;
+        boundarySwitchPoints->SetPoints(boundarySwitchPointsPoints);
+        boundarySwitchPoints->SetVerts(boundarySwitchPointsCells);
+        ComputeBoundarySwitchPoints(boundarySwitchPoints, tridataset);
+
+        for (int i = 0; i < boundarySwitchPointsPoints->GetNumberOfPoints(); i++)
+        {
+          interestPoints->InsertNextPoint(boundarySwitchPointsPoints->GetPoint(i));
+        }
+
+        int numberOfSeparatingLines = 0;
+        ComputeSeparatricesBoundarySwitchPoints(boundarySwitchPoints, boundarySwitchSeparatrix,
+          field, tridataset, interestPoints, this->IntegrationStepUnit, this->SeparatrixDistance,
+          this->MaxNumSteps, numberOfSeparatingLines);
+      }
+    }
+    else if (this->Dimension == 3)
+    {
+      for (int i = 0; i < criticalPoints->GetNumberOfPoints(); i++)
+        interestPoints->InsertNextPoint(criticalPoints->GetPoint(i));
+    }
+    else
+    {
+      vtkErrorMacro("Dimention has to be either 2 or 3.\n");
+      return 0;
+    }
+
+    // classify critical points and compute separatrices
+    int numberOfSeparatingLines = 0;
+    int numberOfSeparatingSurfaces = 0;
+    this->ComputeSeparatrices(criticalPoints, separatingLines, separatingSurfaces, field,
+      tridataset, interestPoints, this->IntegrationStepUnit, this->SeparatrixDistance,
+      this->IntegrationStepSize, this->MaxNumSteps, this->ComputeSurfaces,
+      this->UseIterativeSeeding, numberOfSeparatingLines, numberOfSeparatingSurfaces);
+
+    if (this->UseBoundarySwitchPoints && this->Dimension == 3)
+    {
+      ComputeSeparatricesBoundarySwitchLines(boundarySwitchPoints, boundarySwitchSeparatrix, field,
+        tridataset, this->IntegrationStepUnit, this->SeparatrixDistance, this->MaxNumSteps,
+        this->ComputeSurfaces, this->UseIterativeSeeding);
     }
   }
-  else if (this->Dimension == 3)
+  else if (field->IsA("vtkUniformGridAMR"))
   {
-    for (int i = 0; i < criticalPoints->GetNumberOfPoints(); i++)
-      interestPoints->InsertNextPoint(criticalPoints->GetPoint(i));
-  }
-  else
-  {
-    vtkErrorMacro("Dimension has to be either 2 or 3.\n");
-    return 0;
-  }
+    if (this->UseBoundarySwitchPoints)
+    {
+      vtkErrorMacro(
+        "The feature about computing boundary switch point/line of AMR data is not supported.");
+      return 0;
+    }
 
-  // classify critical points and compute separatrices
-  this->ComputeSeparatrices(criticalPoints, separatingLines, separatingSurfaces, tridataset,
-    interestPoints, this->IntegrationStepUnit, this->SeparatrixDistance, this->IntegrationStepSize,
-    this->MaxNumSteps, this->ComputeSurfaces, this->UseIterativeSeeding);
+    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
+    vtkCompositeDataIterator* iter = data->NewIterator();
 
-  if (this->UseBoundarySwitchPoints && this->Dimension == 3)
-  {
-    ComputeSeparatricesBoundarySwitchLines(boundarySwitchPoints, boundarySwitchSeparatrix,
-      tridataset, this->IntegrationStepUnit, this->SeparatrixDistance, this->MaxNumSteps,
-      this->ComputeSurfaces, this->UseIterativeSeeding);
+    // cout << "GetNumberOfLevels = "
+    //      << data->GetNumberOfLevels()
+    //      // << "\nGetNumberOfDataSets = " << data->GetNumberOfDataSets()
+    //      << "\nGetTotalNumberOfBlocks = " << data->GetTotalNumberOfBlocks() << endl;
+
+    // initialize critical points data structure
+    vtkNew<vtkPoints> criticalPointsPoints;
+    vtkNew<vtkCellArray> criticalPointsCells;
+    vtkNew<vtkDoubleArray> criticalPointsGradients;
+    criticalPointsGradients->SetName("gradient");
+    criticalPointsGradients->SetNumberOfComponents(9);
+    criticalPoints->SetPoints(criticalPointsPoints);
+    criticalPoints->SetVerts(criticalPointsCells);
+    criticalPoints->GetPointData()->AddArray(criticalPointsGradients);
+    vtkNew<vtkDoubleArray> criticalPointsTypes;
+    criticalPointsTypes->SetNumberOfTuples(criticalPoints->GetNumberOfPoints());
+    criticalPointsTypes->SetName("type");
+    criticalPoints->GetPointData()->AddArray(criticalPointsTypes);
+
+    vtkNew<vtkDoubleArray> criticalPointsTypesDetailed;
+    criticalPointsTypesDetailed->SetNumberOfTuples(criticalPoints->GetNumberOfPoints());
+    criticalPointsTypesDetailed->SetName("typeDetailed");
+    criticalPoints->GetPointData()->AddArray(criticalPointsTypesDetailed);
+
+    int numberOfSeparatingLines = 0;
+    int numberOfSeparatingSurfaces = 0;
+
+    for (iter->InitTraversal(); iter->IsDoneWithTraversal() == 0; iter->GoToNextItem())
+    {
+      dataset = vtkDataSet::SafeDownCast(data->GetDataSet(iter));
+      vtkNew<vtkUnstructuredGrid> tridataset;
+      success = this->ImageDataPrepare(dataset, tridataset);
+
+      vtkNew<vtkPolyData> criticalPointsTemporary;
+      vtkNew<vtkPoints> criticalPointsPointsTemporary;
+      vtkNew<vtkCellArray> criticalPointsCellsTemporary;
+      vtkNew<vtkDoubleArray> criticalPointsGradientsTemporary;
+      criticalPointsGradientsTemporary->SetName("gradient");
+      criticalPointsGradientsTemporary->SetNumberOfComponents(9);
+      criticalPointsTemporary->SetPoints(criticalPointsPointsTemporary);
+      criticalPointsTemporary->SetVerts(criticalPointsCellsTemporary);
+      criticalPointsTemporary->GetPointData()->AddArray(criticalPointsGradientsTemporary);
+
+      // remove boundary cells
+      if (this->ExcludeBoundary)
+      {
+        this->RemoveBoundary(tridataset);
+      }
+
+      // Compute critical points
+      if (this->Dimension == 2)
+      {
+        this->ComputeCriticalPoints2D(criticalPointsTemporary, tridataset);
+      }
+      else
+      {
+        this->ComputeCriticalPoints3D(criticalPointsTemporary, tridataset);
+      }
+
+      // if (criticalPointsTemporary->GetNumberOfPoints())
+      //   cout << "# of critical points: " << criticalPointsTemporary->GetNumberOfPoints() << endl;
+
+      vtkNew<vtkPoints> interestPoints;
+
+      if (this->Dimension == 2)
+      {
+        for (int i = 0; i < criticalPointsTemporary->GetNumberOfPoints(); i++)
+        {
+          interestPoints->InsertNextPoint(criticalPointsTemporary->GetPoint(i));
+        }
+      }
+      else if (this->Dimension == 3)
+      {
+        for (int i = 0; i < criticalPointsTemporary->GetNumberOfPoints(); i++)
+        {
+          interestPoints->InsertNextPoint(criticalPointsTemporary->GetPoint(i));
+        }
+      }
+      else
+      {
+        vtkErrorMacro("Dimention has to be either 2 or 3.\n");
+        return 0;
+      }
+
+      // classify critical points and compute separatrices
+      this->ComputeSeparatrices(criticalPointsTemporary, separatingLines, separatingSurfaces, field,
+        tridataset, interestPoints, this->IntegrationStepUnit, this->SeparatrixDistance,
+        this->IntegrationStepSize, this->MaxNumSteps, this->ComputeSurfaces,
+        this->UseIterativeSeeding, numberOfSeparatingLines, numberOfSeparatingSurfaces);
+
+      // copy temporary criticalPoints
+
+      for (int pointId = 0; pointId < criticalPointsTemporary->GetNumberOfPoints(); pointId++)
+      {
+        bool appendFlag = true;
+
+        for (int i = 0; i < criticalPoints->GetNumberOfPoints(); i++)
+        {
+          double* p0 = criticalPointsTemporary->GetPoints()->GetPoint(pointId);
+          double type0 =
+            criticalPointsTemporary->GetPointData()->GetArray("type")->GetTuple1(pointId);
+          double* pi = criticalPoints->GetPoints()->GetPoint(i);
+          double typei = criticalPoints->GetPointData()->GetArray("type")->GetTuple1(i);
+
+          // cout << "type0 = " << type0 << " typei = " << typei << endl
+          //      << "distance: " << vtkMath::Distance2BetweenPoints(p0, pi) << endl;
+          if (type0 == typei && vtkMath::Distance2BetweenPoints(p0, pi) < epsilon)
+          {
+            appendFlag = false;
+            break;
+          }
+        }
+
+        if (!appendFlag)
+          continue;
+
+        criticalPoints->GetPoints()->InsertNextPoint(
+          criticalPointsTemporary->GetPoints()->GetPoint(pointId));
+        vtkNew<vtkVertex> vertex;
+        vertex->GetPointIds()->SetId(0, criticalPoints->GetNumberOfPoints() - 1);
+        criticalPoints->GetVerts()->InsertNextCell(vertex);
+
+        criticalPoints->GetPointData()
+          ->GetArray("gradient")
+          ->InsertNextTuple(
+            criticalPointsTemporary->GetPointData()->GetArray("gradient")->GetTuple(pointId));
+
+        criticalPoints->GetPointData()->GetArray("type")->InsertNextTuple(
+          criticalPointsTemporary->GetPointData()->GetArray("type")->GetTuple(pointId));
+
+        criticalPoints->GetPointData()
+          ->GetArray("typeDetailed")
+          ->InsertNextTuple(
+            criticalPointsTemporary->GetPointData()->GetArray("typeDetailed")->GetTuple(pointId));
+      }
+    }
+
+    iter->Delete();
   }
 
   return success;
 }
-VTK_ABI_NAMESPACE_END
