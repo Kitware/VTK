@@ -33,7 +33,6 @@ TEST_DEPENDS
   VTK::ImagingCore
   VTK::IOGeometry
   VTK::IOXML
-  VTK::IOParallelXML
   VTK::TestingCore
   VTK::TestingRendering
 TEST_OPTIONAL_DEPENDS

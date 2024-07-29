@@ -22,6 +22,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkWarpScalar.h"
 #include "vtkXMLPUnstructuredGridReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
@@ -58,7 +59,6 @@ bool TestDistributedObject(
     writer->SetInputConnection(
       usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
     writer->SetFileName(filePath.c_str());
-    writer->SetDebug(true);
     writer->Write();
   }
 
@@ -94,6 +94,11 @@ bool TestDistributedObject(
   return true;
 }
 
+/**
+ * Pipeline used for this test:
+ * Sphere > Redistribute > (usePolyData ? SurfaceFilter ) > Generate Time steps > Harmonics >
+ * (!staticMesh ? warp by scalar) > Pass arrays > VTKHDF Writer > Read whole/part
+ */
 bool TestDistributedTemporal(vtkMPIController* controller, const std::string& tempDir,
   const std::string& dataRoot, bool usePolyData, bool staticMesh)
 {
@@ -111,8 +116,6 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   redistribute->SetGenerateGlobalCellIds(true);
   // redistribute->SetInputConnection(baseReader->GetOutputPort());
   redistribute->SetInputConnection(sphere->GetOutputPort());
-
-  // TODO: warp by vector if not static
 
   // Extract surface to get a poly data again
   vtkNew<vtkDataSetSurfaceFilter> surface;
@@ -136,12 +139,16 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   harmonics->AddHarmonic(1.0, 3.0, 0.0, 0.0, 0.6283, 4.7124);
   harmonics->SetInputConnection(generateTimeSteps->GetOutputPort());
 
+  // Warp by scalar
+  vtkNew<vtkWarpScalar> warp;
+  warp->SetInputConnection(harmonics->GetOutputPort());
+
   // Original cell ids is not present on every rank
   vtkNew<vtkPassArrays> pass;
   pass->SetRemoveArrays(true);
   pass->AddArray(vtkDataObject::CELL, "vtkOriginalCellIds");
   pass->AddArray(vtkDataObject::CELL, "vtkOriginalPointIds");
-  pass->SetInputConnection(harmonics->GetOutputPort());
+  pass->SetInputConnection(staticMesh ? harmonics->GetOutputPort() : warp->GetOutputPort());
 
   // Write data in parallel to disk
   std::string prefix =
@@ -151,7 +158,6 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
 
   {
     vtkNew<vtkHDFWriter> writer;
-    writer->SetDebug(true);
     writer->SetInputConnection(pass->GetOutputPort());
     writer->SetWriteAllTimeSteps(true);
     writer->SetFileName(filePath.c_str());
@@ -278,9 +284,9 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   res &= ::TestDistributedPolyData(controller, tempDir);
   res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
   res &= ::TestDistributedUnstructuredGridTemporal(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
+  res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
   res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
+  res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
   controller->Finalize();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }

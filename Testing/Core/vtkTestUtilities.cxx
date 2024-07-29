@@ -729,7 +729,6 @@ struct PointMatchingWorker
       }
       if (vtkAbstractArray* targetArray = targetPD->GetAbstractArray(queryArray->GetName()))
       {
-
         if (!ArrayErrorHandler(queryArray, targetArray, numberOfPoints))
         {
           vtkLog(ERROR, "Array matching failure");
@@ -1237,7 +1236,6 @@ bool TestFieldData(vtkFieldData* fd1, vtkFieldData* fd2, ArrayMapperT&& mapper,
 
     vtkAbstractArray* array2 = array1 ? fd2->GetAbstractArray(array1->GetName()) : nullptr;
 
-    vtkLog(INFO, "Processing " << array1->GetName() << " " << array1 << " " << array2);
     if (!ArrayErrorHandler(array1, array2))
     {
       vtkLog(ERROR, "Cannot process arrays.");

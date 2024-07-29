@@ -9,7 +9,6 @@
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
-#include "vtkPassArrays.h"
 #include "vtkPolyData.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
@@ -352,9 +351,6 @@ bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::str
   return true;
 }
 
-#include "vtkHDF5ScopedHandle.h"
-#include <array>
-
 //----------------------------------------------------------------------------
 int TestHDFWriter(int argc, char* argv[])
 {
@@ -365,178 +361,25 @@ int TestHDFWriter(int argc, char* argv[])
   delete[] tempDirCStr;
 
   // Get data directory
-  // vtkNew<vtkTesting> testHelper;
-  // testHelper->AddArguments(argc, argv);
-  // if (!testHelper->IsFlagSpecified("-D"))
-  // {
-  //   std::cerr << "Error: -D /path/to/data was not specified." << std::endl;
-  //   return EXIT_FAILURE;
-  // }
-  // std::string dataRoot = testHelper->GetDataRoot();
-
-  // // Run tests
-  // bool testPasses = true;
-  // testPasses &= TestEmptyPolyData(tempDir);
-  // testPasses &= TestSpherePolyData(tempDir);
-  // testPasses &= TestComplexPolyData(tempDir, dataRoot);
-  // testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
-  // testPasses &= TestPartitionedUnstructuredGrid(tempDir, dataRoot);
-  // testPasses &= TestPartitionedPolyData(tempDir, dataRoot);
-  // testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
-  // testPasses &= TestMultiBlock(tempDir, dataRoot);
-
-  // {
-  //   // Create subfile
-  //   std::string filename = "test_0.hdf";
-  //   vtkHDF::ScopedH5FHandle file =
-  //     H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-
-  //   // Create a 60*3 chunked dataset in subfile
-  //   vtkHDF::ScopedH5PHandle plist = H5Pcreate(H5P_DATASET_CREATE);
-  //   H5Pset_layout(plist, H5D_CHUNKED);
-  //   hsize_t SMALL_CHUNK[] = { 1, 1 };
-  //   H5Pset_chunk(plist, 2, SMALL_CHUNK);
-  //   std::vector<hsize_t> dims{ 60, 3 };
-  //   std::vector<hsize_t> max_dims{ H5S_UNLIMITED, 3 };
-  //   vtkHDF::ScopedH5SHandle dataspace{ H5Screate_simple(2, dims.data(), max_dims.data()) };
-  //   vtkHDF::ScopedH5DHandle dataset =
-  //     H5Dcreate(file, "data", H5T_IEEE_F32LE, dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
-  //   std::vector<float> data(60 * 3, 2.0f);
-  //   data[0] = 5.0f;
-  //   data[120] = 3.0f;
-  //   data[121] = 4.0f;
-  //   H5Dwrite(dataset, H5T_IEEE_F32LE, H5S_ALL, dataspace, H5P_DEFAULT, data.data());
-
-  //   /***********/
-
-  //   // Create a new file referencing the one we just created through a virtual dataset
-  //   std::string mainFilename = "test.hdf";
-  //   vtkHDF::ScopedH5FHandle mainFile =
-  //     H5Fcreate(mainFilename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-
-  //   // This will contain the mappings
-  //   vtkHDF::ScopedH5PHandle virtualSourceP = H5Pcreate(H5P_DATASET_CREATE);
-
-  //   // Create destination space
-  //   std::vector<hsize_t> dspaceDims{ 40, 3 };
-  //   vtkHDF::ScopedH5SHandle destSpace = H5Screate_simple(2, dspaceDims.data(), nullptr);
-
-  //   // Create mapping dataspace
-  //   std::vector<hsize_t> mappingDims{ 20, 3 };
-  //   vtkHDF::ScopedH5SHandle mappedDataSpace = H5Screate_simple(2, dims.data(), nullptr);
-
-  //   // Select source & destination hyperslab, build mapping
-  //   std::vector<hsize_t> offsetSource{ 0, 0 };
-  //   std::vector<hsize_t> offsetDestination{ 0, 0 };
-  //   H5Sselect_hyperslab(
-  //     destSpace, H5S_SELECT_SET, offsetSource.data(), nullptr, mappingDims.data(), nullptr);
-  //   H5Sselect_hyperslab(mappedDataSpace, H5S_SELECT_SET, offsetDestination.data(), nullptr,
-  //     mappingDims.data(), nullptr);
-  //   H5Pset_virtual(virtualSourceP, destSpace, "test_0.hdf", "data", mappedDataSpace);
-
-  //   // Create a second mapping
-  //   offsetSource[0] = 20;
-  //   offsetDestination[0] = 40;
-  //   H5Sselect_hyperslab(
-  //     destSpace, H5S_SELECT_SET, offsetSource.data(), nullptr, mappingDims.data(), nullptr);
-  //   H5Sselect_hyperslab(mappedDataSpace, H5S_SELECT_SET, offsetDestination.data(), nullptr,
-  //     mappingDims.data(), nullptr);
-  //   H5Pset_virtual(virtualSourceP, destSpace, "test_0.hdf", "data", mappedDataSpace);
-
-  //   // Create dataset
-  //   vtkHDF::ScopedH5DHandle vdset = H5Dcreate(
-  //     mainFile, "composite", H5T_IEEE_F32LE, destSpace, H5P_DEFAULT, virtualSourceP,
-  //     H5P_DEFAULT);
-  // }
-
-  // {
-  //   std::string filename = "test.hdf";
-
-  //   // Open Testing/Temporary/parallel_time_cow.vtkhdf
-  //   vtkHDF::ScopedH5FHandle fileID = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-
-  //   // Open dataset PointData/Normals
-  //   vtkHDF::ScopedH5DHandle dataset = H5Dopen(fileID, "composite", H5P_DEFAULT);
-  //   hid_t nativeType = H5Dget_type(dataset);
-
-  //   // Select 20x3 hyperslab in source dataspace
-  //   std::vector<hsize_t> count{ 20, 3 };
-  //   std::vector<hsize_t> offset{ 0, 0 };
-  //   vtkHDF::ScopedH5SHandle dataspace = H5Dget_space(dataset);
-  //   H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.data(), nullptr, count.data(),
-  //   nullptr);
-
-  //   // Create destination memory space
-  //   vtkHDF::ScopedH5SHandle memspace =
-  //     H5Screate_simple(static_cast<int>(count.size()), count.data(), nullptr);
-
-  //   // Select hyperslab in destination space
-  //   H5Sselect_hyperslab(memspace, H5S_SELECT_SET, offset.data(), nullptr, count.data(), nullptr);
-
-  //   // Read the hyperslab
-  //   std::array<std::array<float, 3>, 20> data;
-  //   H5Dread(dataset, nativeType, memspace, dataspace, H5P_DEFAULT, data.data());
-  // }
-
-  int nbRanks = 3;
-  for (int myRank = 0; myRank < 3; myRank++)
+  vtkNew<vtkTesting> testHelper;
+  testHelper->AddArguments(argc, argv);
+  if (!testHelper->IsFlagSpecified("-D"))
   {
-    std::string filePath = tempDir + "/parallel_time_cow.vtkhdf";
-    std::string filePathPart =
-      tempDir + "/parallel_time_cow_part" + std::to_string(myRank) + ".vtkhdf";
-
-    vtkNew<vtkHDFReader> reader;
-    reader->SetFileName(filePath.c_str());
-    reader->UpdatePiece(myRank, nbRanks, 0);
-
-    vtkNew<vtkHDFReader> readerPart;
-    readerPart->SetFileName(filePathPart.c_str());
-    readerPart->Update();
-
-    const std::vector<double> timeValues{ 1.0, 3.0, 5.0 };
-    for (int time = 0; time < timeValues.size(); time++)
-    {
-      vtkDebugWithObjectMacro(nullptr, << "Comparing timestep " << time);
-      reader->SetStep(time);
-      reader->UpdatePiece(myRank, nbRanks, 0);
-      readerPart->SetStep(time);
-      readerPart->Update();
-      // pass->UpdateTimeStep(time);
-      // pass->Update();
-
-      vtkUnstructuredGrid* readPiece =
-        vtkUnstructuredGrid::SafeDownCast(reader->GetOutputDataObject(0));
-      vtkNew<vtkPassArrays> pass2;
-      pass2->SetRemoveArrays(true);
-      pass2->AddArray(vtkDataObject::FIELD, "Time");
-      pass2->SetInputDataObject(readPiece);
-      pass2->Update();
-      readPiece = vtkUnstructuredGrid::SafeDownCast(pass2->GetOutputDataObject(0));
-      // vtkUnstructuredGrid* originalPiece =
-      //   vtkUnstructuredGrid::SafeDownCast(pass->GetOutputDataObject(0));
-      vtkUnstructuredGrid* readPart =
-        vtkUnstructuredGrid::SafeDownCast(readerPart->GetOutputDataObject(0));
-
-      // if (readPiece == nullptr || originalPiece == nullptr || readPart == nullptr)
-      // {
-      //   vtkLog(ERROR, "Piece should not be null");
-      //   return false;
-      // }
-
-      // if (!vtkTestUtilities::CompareDataObjects(readPiece, originalPiece))
-      // {
-      //   vtkLog(ERROR, "Original and read piece do not match");
-      //   return false;
-      // }
-
-      if (!vtkTestUtilities::CompareDataObjects(readPiece, readPart))
-      {
-        vtkLog(ERROR, "Read piece and read part do not match");
-        return false;
-      }
-    }
+    std::cerr << "Error: -D /path/to/data was not specified." << std::endl;
+    return EXIT_FAILURE;
   }
+  std::string dataRoot = testHelper->GetDataRoot();
 
-  return EXIT_SUCCESS;
-  // return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
+  // Run tests
+  bool testPasses = true;
+  testPasses &= TestEmptyPolyData(tempDir);
+  testPasses &= TestSpherePolyData(tempDir);
+  testPasses &= TestComplexPolyData(tempDir, dataRoot);
+  testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
+  testPasses &= TestPartitionedUnstructuredGrid(tempDir, dataRoot);
+  testPasses &= TestPartitionedPolyData(tempDir, dataRoot);
+  testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
+  testPasses &= TestMultiBlock(tempDir, dataRoot);
+
+  return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
 }
