@@ -518,7 +518,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
 {
   // Assume that when subfiles are set, we don't need to write data unless
   // SubFilesReady is set, which means all subfiles have been written.
-  if (!this->Subfiles.empty())
+  if (!this->Subfiles.empty() && group != this->StepsGroup)
   {
     if (this->SubFilesReady)
     {
@@ -771,7 +771,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
 
   int totalSteps = 1;
 
-  if (this->Writer->IsTemporal &&
+  if (this->Writer->IsTemporal && this->Writer->NbProcs != 1 &&
     (single || indexedOnPoints || indexedOnCells || indexedOnConnectivity)) // FIXME
   {
     totalSteps = this->Writer->NumberOfTimeSteps;
@@ -820,7 +820,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
           // Find NumberOfPoints in source file
           hsize_t partNbPoints = this->GetSubfileNumberOf("/VTKHDF/NumberOfPoints", part, step);
 
-          if (name == std::string("Points"))
+          if (name == std::string("Points") && totalSteps > 1)
           {
             hsize_t partPointsOffset =
               this->GetSubfileNumberOf("/VTKHDF/Steps/PointOffsets", part, step);
@@ -864,7 +864,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
           }
 
           // Handle static mesh: don't write offsets if cells have not changed
-          if (name == std::string("Offsets"))
+          if (name == std::string("Offsets") && totalSteps > 1)
           {
             hsize_t partCellOffset =
               this->GetSubfileNumberOf("/VTKHDF/Steps/CellOffsets", part, step, primitive);
@@ -894,7 +894,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
             this->GetGroupName(group) + "/NumberOfConnectivityIds", part, step);
 
           // Handle static mesh
-          if (name == std::string("Connectivity"))
+          if (name == std::string("Connectivity") && totalSteps > 1)
           {
             hsize_t partConnOffset = this->GetSubfileNumberOf(
               "/VTKHDF/Steps/ConnectivityIdOffsets", part, step, primitive);

@@ -49,6 +49,7 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
   std::string tempPath = tempDir + "/HDFWriter_";
   tempPath += baseName + ".vtkhdf" + config.FileNameSuffix;
   HDFWriter->SetFileName(tempPath.c_str());
+  HDFWriter->SetDebug(true);
   HDFWriter->SetUseExternalTimeSteps(config.UseExternalTimeSteps);
   HDFWriter->SetUseExternalPartitions(config.UseExternalPartitions);
   HDFWriter->SetWriteAllTimeSteps(true);
