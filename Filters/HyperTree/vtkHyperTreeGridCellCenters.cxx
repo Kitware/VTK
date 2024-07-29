@@ -207,6 +207,12 @@ void vtkHyperTreeGridCellCenters::ProcessTrees()
 void vtkHyperTreeGridCellCenters::RecursivelyProcessTree(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
+  // Skip masked cells
+  if (cursor->IsMasked())
+  {
+    return;
+  }
+
   // Create cell center if cursor is at leaf
   if (cursor->IsLeaf())
   {
