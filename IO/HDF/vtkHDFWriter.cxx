@@ -297,9 +297,7 @@ void vtkHDFWriter::WriteData()
   this->UpdatePreviousStepMeshMTime(input);
 
   // Write the metafile for distributed datasets, gathering information from all timesteps
-  if (this->NbProcs > 1 &&
-    (!this->IsTemporal ||
-      (this->IsTemporal && this->CurrentTimeIndex == this->NumberOfTimeSteps - 1)))
+  if (this->NbProcs > 1)
   {
     this->WriteDistributedMetafile(input);
   }
@@ -308,6 +306,12 @@ void vtkHDFWriter::WriteData()
 //------------------------------------------------------------------------------
 void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
 {
+
+  // Only relevant on the last time step
+  if (this->IsTemporal && this->CurrentTimeIndex != this->NumberOfTimeSteps - 1)
+  {
+    return;
+  }
 
   this->Impl->CloseFile();
 
@@ -328,6 +332,7 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
       this->Impl->OpenSubfile(subFilePath);
     }
     this->Impl->SetSubFilesReady(true);
+    this->CurrentTimeIndex = 0; // Reset time so that datasets are initialized properly
 
     // TODO: Put somewhere else?
     this->DispatchDataObject(this->Impl->GetRoot(), input);
@@ -339,6 +344,7 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
   // Fill steps group
 
   vtkDebugMacro("Done meta file name " << this->FileName << " for rank " << this->Rank);
+  this->CurrentTimeIndex = this->NumberOfTimeSteps - 1;
 }
 
 //------------------------------------------------------------------------------
@@ -442,16 +448,11 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
     vtkErrorMacro(<< "Dataset initialization failed for Unstructured grid " << this->FileName);
     return false;
   }
-  if (this->CurrentTimeIndex == 0 && !this->InitializeTemporalUnstructuredGrid())
+
+  if ((this->CurrentTimeIndex == 0 || (this->Impl->GetSubFilesReady() && this->NbProcs > 1)) &&
+    !this->InitializeTemporalUnstructuredGrid())
   {
     vtkErrorMacro(<< "Temporal initialization failed for Unstructured grid " << this->FileName);
-    return false;
-  }
-
-  if (!this->UpdateStepsGroup(input))
-  {
-    vtkErrorMacro(<< "Failed to update steps group for timestep " << this->CurrentTimeIndex
-                  << " for file " << this->FileName);
     return false;
   }
 
@@ -473,6 +474,13 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
     writeSuccess &= this->AppendOffsets(group, cells);
   }
   writeSuccess &= this->AppendDataArrays(group, input, partId);
+
+  if (!this->UpdateStepsGroup(input))
+  {
+    vtkErrorMacro(<< "Failed to update steps group for timestep " << this->CurrentTimeIndex
+                  << " for file " << this->FileName);
+    return false;
+  }
 
   return writeSuccess;
 }
@@ -624,12 +632,12 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
   }
 
   // Special code path when writing meta-file
-  // if (this->Impl->GetSubFilesReady())
-  // {
-  //   this->Impl->WriteSumStepsPolyData(stepsGroup, "ConnectivityIdOffsets", H5T_NATIVE_INT);
-  //   this->Impl->WriteSumStepsPolyData(stepsGroup, "CellOffsets", H5T_NATIVE_INT);
-  //   return true;
-  // }
+  if (this->Impl->GetSubFilesReady() && this->NbProcs > 1)
+  {
+    this->Impl->WriteSumStepsPolyData(stepsGroup, "ConnectivityIdOffsets", H5T_NATIVE_INT);
+    this->Impl->WriteSumStepsPolyData(stepsGroup, "CellOffsets", H5T_NATIVE_INT);
+    return true;
+  }
 
   // Update connectivity and cell offsets for primitive types
   vtkHDF::ScopedH5DHandle connectivityOffsetsHandle =
@@ -736,7 +744,7 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid()
     stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
 
   // Add an initial 0 value in the offset arrays, only when not writing the meta file
-  // if (!this->Impl->GetSubFilesReady())
+  if (!this->Impl->GetSubFilesReady())
   {
     initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PointOffsets", 0);
     initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "CellOffsets", 0);
@@ -778,7 +786,7 @@ bool vtkHDFWriter::InitializeTemporalPolyData()
     stepsGroup, "PartOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
 
   // Add an initial 0 value in the offset arrays, only when not writing the meta file
-  // if (!this->Impl->GetSubFilesReady())
+  if (!this->Impl->GetSubFilesReady())
   {
     initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PointOffsets", 0);
     initResult &= this->Impl->AddOrCreateSingleValueDataset(stepsGroup, "PartOffsets", 0);
@@ -802,7 +810,7 @@ bool vtkHDFWriter::InitializeTemporalPolyData()
   vtkHDF::ScopedH5DHandle connectivityOffsetsHandle =
     this->Impl->OpenDataset(stepsGroup, "ConnectivityIdOffsets");
 
-  // if (!this->Impl->GetSubFilesReady())
+  if (!this->Impl->GetSubFilesReady())
   {
     vtkNew<vtkIntArray> emptyPrimitiveArray;
     emptyPrimitiveArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
@@ -1318,9 +1326,9 @@ bool vtkHDFWriter::AppendDataArrayOffset(
 {
   std::string datasetName{ std::string(offsetsGroupName) + "/" + std::string(arrayName) };
 
-  if (this->CurrentTimeIndex == 0)
+  if (this->CurrentTimeIndex == 0 || (this->Impl->GetSubFilesReady() && this->NbProcs > 1))
   {
-    //  t offsets array
+    // Initialize offsets array
     hsize_t ChunkSize1D[] = { static_cast<hsize_t>(this->ChunkSize), 1 };
     if (!this->Impl->InitDynamicDataset(
           this->Impl->GetStepsGroup(), datasetName.c_str(), H5T_STD_I64LE, 1, ChunkSize1D))

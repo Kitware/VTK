@@ -518,7 +518,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
 {
   // Assume that when subfiles are set, we don't need to write data unless
   // SubFilesReady is set, which means all subfiles have been written.
-  if (!this->Subfiles.empty() && group != this->StepsGroup)
+  if (!this->Subfiles.empty() && (group != this->StepsGroup || this->Writer->NbProcs > 1))
   {
     if (this->SubFilesReady)
     {

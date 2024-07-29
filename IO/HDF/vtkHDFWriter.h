@@ -374,7 +374,7 @@ private:
   double* timeSteps = nullptr;
   bool IsTemporal = false;
   int CurrentTimeIndex = 0;
-  int NumberOfTimeSteps = 0;
+  int NumberOfTimeSteps = 1;
   vtkMTimeType PreviousStepMeshMTime = 0;
 
   // Distributed-related variables
