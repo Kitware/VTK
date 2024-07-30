@@ -4,6 +4,7 @@
 
 #include "vtkDataArray.h"
 #include "vtkEndian.h"
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -248,6 +249,7 @@ void vtkPNGReader::ExecuteInformation()
     if (!impl->CheckBufferHeader(memBuffer, this->GetMemoryBufferLength()))
     {
       vtkErrorMacro("Invalid MemoryBuffer header: not a PNG file");
+      this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
       return;
     }
   }
@@ -258,18 +260,21 @@ void vtkPNGReader::ExecuteInformation()
     if (this->InternalFileName == nullptr)
     {
       vtkErrorMacro("A filename must be specified");
+      this->SetErrorCode(vtkErrorCode::NoFileNameError);
       return;
     }
     fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
     if (!fp)
     {
       vtkErrorMacro("Unable to open file " << this->InternalFileName);
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return;
     }
     if (!impl->CheckFileHeader(fp))
     {
       vtkErrorMacro("Invalid file header: not a PNG file");
       fclose(fp);
+      this->SetErrorCode(vtkErrorCode::FileFormatError);
       return;
     }
   }
@@ -378,6 +383,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(OT* outPtr, int* outExt, vtkIdType* outIn
     if (!impl->CheckBufferHeader(memBuffer, this->GetMemoryBufferLength()))
     {
       vtkErrorMacro("Invalid MemoryBuffer header: not a PNG file");
+      this->SetErrorCode(vtkErrorCode::FileFormatError);
       return;
     }
   }
@@ -388,12 +394,14 @@ void vtkPNGReader::vtkPNGReaderUpdate2(OT* outPtr, int* outExt, vtkIdType* outIn
     if (!fp)
     {
       vtkErrorMacro("Unable to open file " << this->InternalFileName);
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return;
     }
     if (!impl->CheckFileHeader(fp))
     {
       vtkErrorMacro("Invalid file header: not a PNG file");
       fclose(fp);
+      this->SetErrorCode(vtkErrorCode::FileFormatError);
       return;
     }
   }
@@ -524,6 +532,7 @@ void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
   if (!this->GetMemoryBuffer() && this->InternalFileName == nullptr)
   {
     vtkErrorMacro(<< "Either a FileName, FilePrefix or MemoryBuffer must be specified.");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
   }
 
@@ -541,6 +550,7 @@ void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
     vtkTemplateMacro(this->vtkPNGReaderUpdate(data, (VTK_TT*)(outPtr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
+      this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
   }
 }
 
