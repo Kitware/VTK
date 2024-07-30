@@ -56,6 +56,7 @@ bool TestDistributedObject(
 
   {
     vtkNew<vtkHDFWriter> writer;
+    writer->SetDebug(true);
     writer->SetInputConnection(
       usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
     writer->SetFileName(filePath.c_str());

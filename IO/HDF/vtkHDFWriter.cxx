@@ -634,8 +634,8 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
   // Special code path when writing meta-file
   if (this->Impl->GetSubFilesReady() && this->NbProcs > 1)
   {
-    this->Impl->WriteSumStepsPolyData(stepsGroup, "ConnectivityIdOffsets", H5T_NATIVE_INT);
-    this->Impl->WriteSumStepsPolyData(stepsGroup, "CellOffsets", H5T_NATIVE_INT);
+    this->Impl->WriteSumStepsPolyData(stepsGroup, "ConnectivityIdOffsets");
+    this->Impl->WriteSumStepsPolyData(stepsGroup, "CellOffsets");
     return true;
   }
 

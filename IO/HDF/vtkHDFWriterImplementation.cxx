@@ -667,7 +667,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
 
   if (group == this->StepsGroup)
   {
-    return this->WriteSumSteps(group, name, type);
+    return this->WriteSumSteps(group, name);
   }
 
   const std::vector<std::string> singles{ "NumberOfPoints", "NumberOfCells",
@@ -691,22 +691,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
 
   // Collect total dataset size
   const std::string datasetPath = this->GetGroupName(group) + "/" + name;
-  hsize_t totalSize = 0;
-  int count = 0;
-  for (auto& fileRoot : this->Subfiles)
-  {
-    vtkDebugWithObjectMacro(
-      this->Writer, "Opening dataset " << datasetPath << " in " << this->SubfileNames[count++]);
-    vtkHDF::ScopedH5DHandle sourceDataset = H5Dopen(fileRoot, datasetPath.c_str(), H5P_DEFAULT);
-    if (sourceDataset == H5I_INVALID_HID)
-    {
-      return H5I_INVALID_HID;
-    }
-    vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
-    std::vector<hsize_t> sourceDims(3);
-    H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr);
-    totalSize += sourceDims[0];
-  }
+  hsize_t totalSize = this->GetSubFilesDatasetSize(datasetPath);
 
   // Create destination dataspace with the final size
   std::vector<hsize_t> dspaceDims{ totalSize };
@@ -961,21 +946,24 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   return vdset;
 }
 
-vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::WriteSumSteps(
-  hid_t group, const char* name, hid_t type)
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
 {
   vtkDebugWithObjectMacro(
     this->Writer, "Creating steps sum " << name << " in " << this->GetGroupName(group));
 
   const std::string datasetPath = this->GetGroupName(group) + "/" + name;
   vtkHDF::ScopedH5DHandle dataset = this->OpenDataset(group, name);
+  if (dataset == H5I_INVALID_HID)
+  {
+    return false;
+  }
 
+  // For each timestep, collect the sum of values in subfiles,
+  // and append it to the meta-file array.
   for (int step = 0; step < this->Writer->NumberOfTimeSteps; step++)
   {
-    vtkDebugWithObjectMacro(this->Writer, "timestep " << step);
     int totalForTimeStep = 0;
-    // TODO: foreach subfiles
-    // Collect size for the current time step in each subfile
     for (std::size_t part = 0; part < this->Subfiles.size(); part++)
     {
       totalForTimeStep += this->GetSubfileNumberOf(datasetPath, part, step);
@@ -983,28 +971,34 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::WriteSumSteps(
 
     if (!this->AddSingleValueToDataset(dataset, totalForTimeStep, false, false))
     {
-      return H5I_INVALID_HID;
+      return false;
     }
   }
 
-  return dataset;
+  return true;
 }
 
-vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::WriteSumStepsPolyData(
-  hid_t group, const char* name, hid_t type)
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::WriteSumStepsPolyData(hid_t group, const char* name)
 {
   vtkDebugWithObjectMacro(
     this->Writer, "Creating polydata steps sum " << name << " in " << this->GetGroupName(group));
 
   const std::string datasetPath = this->GetGroupName(group) + "/" + name;
   vtkHDF::ScopedH5DHandle dataset = this->OpenDataset(group, name);
+  if (dataset == H5I_INVALID_HID)
+  {
+    return false;
+  }
 
   const std::array<std::string, 4> primitives{ "Vertices", "Lines", "Polygons", "Strips" };
 
+  // Create VTK Array of size nbPrimitives * nbTimeSteps
   vtkNew<vtkIntArray> totalsArray;
   totalsArray->SetNumberOfComponents(primitives.size());
   totalsArray->SetNumberOfTuples(this->Writer->NumberOfTimeSteps);
 
+  // For each timestep, sum each primitive from all pieces
   for (int step = 0; step < this->Writer->NumberOfTimeSteps; step++)
   {
     totalsArray->SetTuple4(step, 0, 0, 0, 0);
@@ -1025,12 +1019,13 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::WriteSumStepsPolyData(
 
   if (!this->AddArrayToDataset(dataset, totalsArray))
   {
-    return H5I_INVALID_HID;
+    return false;
   }
 
-  return dataset;
+  return true;
 }
 
+//------------------------------------------------------------------------------
 hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
   const std::string& qualifier, std::size_t subfileId, int part, char primitive)
 {
@@ -1038,9 +1033,13 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
                                         << " for part " << part << " with primitive "
                                         << (int)(primitive));
 
-  // TODO: Error handling
   vtkHDF::ScopedH5DHandle sourceDataset =
     H5Dopen(this->Subfiles[subfileId], qualifier.c_str(), H5P_DEFAULT);
+  if (sourceDataset == H5I_INVALID_HID)
+  {
+    return 0;
+  }
+
   std::vector<hsize_t> start{ static_cast<unsigned long>(part) }, count{ 1 }, result{ 0 };
   int dimension = 1;
   if (this->HdfType == "PolyData" && primitive != -1)
@@ -1049,12 +1048,46 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
     count.emplace_back(1);
     dimension++;
   }
+
   vtkHDF::ScopedH5SHandle sourceSpace = H5Dget_space(sourceDataset);
   vtkHDF::ScopedH5SHandle destSpace = H5Screate_simple(dimension, count.data(), nullptr);
-  H5Sselect_hyperslab(sourceSpace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
-  H5Dread(sourceDataset, H5T_NATIVE_INT, destSpace, sourceSpace, H5P_DEFAULT, result.data());
-  vtkDebugWithObjectMacro(this->Writer, << "Fetched " << qualifier << ": " << result[0]);
+  if (sourceSpace == H5I_INVALID_HID || sourceSpace == H5I_INVALID_HID)
+  {
+    return 0;
+  }
+
+  if (H5Sselect_hyperslab(
+        sourceSpace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr) < 0)
+  {
+    return 0;
+  }
+
+  if (H5Dread(sourceDataset, H5T_NATIVE_INT, destSpace, sourceSpace, H5P_DEFAULT, result.data()) <
+    0)
+  {
+    return 0;
+  }
+
   return result[0];
+}
+
+//------------------------------------------------------------------------------
+hsize_t vtkHDFWriter::Implementation::GetSubFilesDatasetSize(const std::string& datasetPath)
+{
+  hsize_t totalSize = 0;
+  for (auto& fileRoot : this->Subfiles)
+  {
+    vtkHDF::ScopedH5DHandle sourceDataset = H5Dopen(fileRoot, datasetPath.c_str(), H5P_DEFAULT);
+    if (sourceDataset == H5I_INVALID_HID)
+    {
+      return H5I_INVALID_HID;
+    }
+    vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
+    std::vector<hsize_t> sourceDims(3);
+    H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr);
+    totalSize += sourceDims[0];
+  }
+  return totalSize;
 }
 
 //------------------------------------------------------------------------------

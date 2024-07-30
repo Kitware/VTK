@@ -50,6 +50,8 @@ public:
 
   /**
    * Close currently handled file, open using CreateFile or OpenFile.
+   * This does only need to be called when we want to close the file early; the file and open groups
+   * are closed automatically on object destruction.
    */
   void CloseFile();
 
@@ -64,6 +66,7 @@ public:
   /**
    * Inform the implementation that all the data has been written in subfiles,
    * and that the virtual datasets can now be created from them.
+   * This mechanism is used when writing a meta-file for temporal and/or multi-piece data.
    */
   void SetSubFilesReady(bool status) { this->SubFilesReady = status; }
   bool GetSubFilesReady() { return this->SubFilesReady; }
@@ -183,22 +186,32 @@ public:
   vtkHDF::ScopedH5DHandle CreateVirtualDataset(
     hid_t group, const char* name, hid_t type, int numComp);
 
+  ///@{
   /**
-   *
+   * For temporal multi-piece meta-files, write the dataset `name` in group `group`,
+   * which must be the "steps" group or a child of it as the running sum of all registered sub-files
+   * datasets in the same location.
+   * The `PolyData` version does the same operation in 2 dimensions, for offsets array of size
+   * nbTimeSteps*nbPrimitives.
    */
-  vtkHDF::ScopedH5DHandle CopyAndInterlace(hid_t group, const char* name, hid_t type);
+  bool WriteSumSteps(hid_t group, const char* name);
+  bool WriteSumStepsPolyData(hid_t group, const char* name);
+  ///@}
 
   /**
-   *
-   */
-  vtkHDF::ScopedH5DHandle WriteSumSteps(hid_t group, const char* name, hid_t type);
-  vtkHDF::ScopedH5DHandle WriteSumStepsPolyData(hid_t group, const char* name, hid_t type);
-
-  /**
-   *
+   * Retrieve a single value from the 1-dimensional (usually meta-data)
+   * group `name` in a given subfile `subfileId`.
+   * `part` indicates the line (dimension 0) offset to read in the group.
+   * `primitive` is the column offset to use when reading into a 2-D meta-data array for Poly Data.
+   * Unless `primiitive` is specified, assume that the array is 1-D.
    */
   hsize_t GetSubfileNumberOf(
-    const std::string& qualifier, std::size_t subfileId, int part, char primitive = -1);
+    const std::string& name, std::size_t subfileId, int part, char primitive = -1);
+
+  /**
+   * Return the sum of the subfiles dataset's size given a path to the dataset.
+   */
+  hsize_t GetSubFilesDatasetSize(const std::string& datasetPath);
 
   /**
    * Create a chunked dataset in the given group from a dataspace.
