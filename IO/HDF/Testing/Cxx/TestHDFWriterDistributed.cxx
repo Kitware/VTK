@@ -136,12 +136,6 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   vtkNew<vtkWarpScalar> warp;
   warp->SetInputConnection(harmonics->GetOutputPort());
 
-  // Original cell ids is not present on every rank
-  vtkNew<vtkPassArrays> pass;
-  pass->SetRemoveArrays(true);
-  pass->AddArray(vtkDataObject::CELL, "vtkOriginalCellIds");
-  pass->SetInputConnection(staticMesh ? harmonics->GetOutputPort() : warp->GetOutputPort());
-
   // Write data in parallel to disk
   std::string prefix =
     tempDir + "/parallel_time_cow" + (usePolyData ? "_PD" : "_UG") + (staticMesh ? "_static" : "");
@@ -150,7 +144,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
 
   {
     vtkNew<vtkHDFWriter> writer;
-    writer->SetInputConnection(pass->GetOutputPort());
+    writer->SetInputConnection(staticMesh ? harmonics->GetOutputPort() : warp->GetOutputPort());
     writer->SetWriteAllTimeSteps(true);
     writer->SetFileName(filePath.c_str());
     writer->Write();
@@ -173,6 +167,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
 
     reader->SetStep(time);
     reader->UpdatePiece(myRank, nbRanks, 0);
+
     readerPart->SetStep(time);
     readerPart->Update();
 

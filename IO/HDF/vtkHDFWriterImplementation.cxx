@@ -536,6 +536,10 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
   {
     // Append the value to an existing dataset
     vtkHDF::ScopedH5DHandle dataset = H5Dopen(group, name, H5P_DEFAULT);
+    if (dataset == H5I_INVALID_HID)
+    {
+      return false;
+    }
     return this->AddSingleValueToDataset(dataset, value, offset, trim);
   }
 }
