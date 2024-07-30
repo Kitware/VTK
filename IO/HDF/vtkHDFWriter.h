@@ -209,7 +209,7 @@ private:
   void DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId = 0);
 
   /**
-   * For distributed datasets, write the meta-file
+   * For distributed datasets, write the meta-file referencing sub-files using Virtual Datasets.
    */
   void WriteDistributedMetafile(vtkDataObject* input);
 
@@ -379,8 +379,8 @@ private:
 
   // Distributed-related variables
   vtkMultiProcessController* Controller = nullptr;
-  int NbProcs = 1;
-  int Rank = 0;
+  int NbPieces = 1;
+  int CurrentPiece = 0;
   bool UsesDummyController = false;
   std::vector<vtkIdType> PointOffsets;
   std::vector<vtkIdType> CellOffsets;

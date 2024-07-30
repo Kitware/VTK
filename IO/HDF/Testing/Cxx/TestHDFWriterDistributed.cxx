@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkAlgorithmOutput.h"
-#include "vtkCellData.h"
-#include "vtkDataArray.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenerateTimeSteps.h"
 #include "vtkHDFReader.h"
@@ -13,7 +10,6 @@
 #include "vtkMPIController.h"
 #include "vtkNew.h"
 #include "vtkPassArrays.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkSpatioTemporalHarmonicsAttribute.h"
@@ -23,10 +19,8 @@
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWarpScalar.h"
-#include "vtkXMLPUnstructuredGridReader.h"
 #include "vtkXMLPolyDataReader.h"
-#include "vtkXMLUnstructuredGridReader.h"
-#include "vtkXMLUnstructuredGridWriter.h"
+
 namespace
 {
 bool TestDistributedObject(
@@ -96,8 +90,10 @@ bool TestDistributedObject(
 
 /**
  * Pipeline used for this test:
- * Sphere > Redistribute > (usePolyData ? SurfaceFilter ) > Generate Time steps > Harmonics >
+ * Cow > Redistribute > (usePolyData ? SurfaceFilter ) > Generate Time steps > Harmonics >
  * (!staticMesh ? warp by scalar) > Pass arrays > VTKHDF Writer > Read whole/part
+ *
+ * No animals were harmed in the making of this test.
  */
 bool TestDistributedTemporal(vtkMPIController* controller, const std::string& tempDir,
   const std::string& dataRoot, bool usePolyData, bool staticMesh)
@@ -105,17 +101,14 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
-  // const std::string basePath = dataRoot + "/Data/cow.vtp";
-  // vtkNew<vtkXMLPolyDataReader> baseReader;
-  // baseReader->SetFileName(basePath.c_str());
-
-  vtkNew<vtkSphereSource> sphere;
+  const std::string basePath = dataRoot + "/Data/cow.vtp";
+  vtkNew<vtkXMLPolyDataReader> baseReader;
+  baseReader->SetFileName(basePath.c_str());
 
   // Redistribute cow
   vtkNew<vtkRedistributeDataSetFilter> redistribute;
   redistribute->SetGenerateGlobalCellIds(true);
-  // redistribute->SetInputConnection(baseReader->GetOutputPort());
-  redistribute->SetInputConnection(sphere->GetOutputPort());
+  redistribute->SetInputConnection(baseReader->GetOutputPort());
 
   // Extract surface to get a poly data again
   vtkNew<vtkDataSetSurfaceFilter> surface;
@@ -131,7 +124,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   generateTimeSteps->SetInputConnection(
     usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
 
-  // Generate a time-varying point field
+  // Generate a time-varying point field: use default ParaView weights
   vtkNew<vtkSpatioTemporalHarmonicsAttribute> harmonics;
   harmonics->AddHarmonic(1.0, 1.0, 0.6283, 0.6283, 0.6283, 0.0);
   harmonics->AddHarmonic(3.0, 1.0, 0.6283, 0.0, 0.0, 1.5708);
@@ -147,7 +140,6 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   vtkNew<vtkPassArrays> pass;
   pass->SetRemoveArrays(true);
   pass->AddArray(vtkDataObject::CELL, "vtkOriginalCellIds");
-  pass->AddArray(vtkDataObject::CELL, "vtkOriginalPointIds");
   pass->SetInputConnection(staticMesh ? harmonics->GetOutputPort() : warp->GetOutputPort());
 
   // Write data in parallel to disk
@@ -158,14 +150,13 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
 
   {
     vtkNew<vtkHDFWriter> writer;
-    writer->SetDebug(true);
     writer->SetInputConnection(pass->GetOutputPort());
     writer->SetWriteAllTimeSteps(true);
     writer->SetFileName(filePath.c_str());
     writer->Write();
   }
 
-  // All processes write their pieces to disk
+  // All processes have written their pieces to disk
   controller->Barrier();
 
   vtkNew<vtkHDFReader> reader;

@@ -206,7 +206,7 @@ public:
    * Unless `primiitive` is specified, assume that the array is 1-D.
    */
   hsize_t GetSubfileNumberOf(
-    const std::string& name, std::size_t subfileId, int part, char primitive = -1);
+    const std::string& name, std::size_t subfileId, hsize_t part, char primitive = -1);
 
   /**
    * Return the sum of the subfiles dataset's size given a path to the dataset.
@@ -218,7 +218,7 @@ public:
     Points,
     Cells,
     Connectivity,
-    Single,
+    MetaData,
     Undefined
   };
 
@@ -313,6 +313,8 @@ private:
   std::vector<std::string> SubfileNames;
   std::string HdfType;
   bool SubFilesReady = false;
+
+  const std::array<std::string, 4> PrimitiveNames{ "Vertices", "Lines", "Polygons", "Strips" };
 };
 
 VTK_ABI_NAMESPACE_END

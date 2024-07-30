@@ -91,8 +91,8 @@ vtkHDFWriter::vtkHDFWriter()
     this->SetController(vtkDummyController::New());
   }
 
-  this->NbProcs = this->Controller->GetNumberOfProcesses();
-  this->Rank = this->Controller->GetLocalProcessId();
+  this->NbPieces = this->Controller->GetNumberOfProcesses();
+  this->CurrentPiece = this->Controller->GetLocalProcessId();
 }
 
 //------------------------------------------------------------------------------
@@ -154,8 +154,8 @@ int vtkHDFWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   if (this->Controller)
   {
     vtkInformation* info = inputVector[0]->GetInformationObject(0);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), this->Rank);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), this->NbProcs);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), this->CurrentPiece);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), this->NbPieces);
   }
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -232,15 +232,11 @@ void vtkHDFWriter::WriteData()
   this->Impl->SetSubFilesReady(false);
 
   // Root file group only needs to be opened for the first timestep
-  vtkDebugMacro(<< "Writing rank " << this->Rank << "/" << this->NbProcs << " file "
-                << this->FileName);
-
   if (this->CurrentTimeIndex == 0)
   {
-    if (this->NbProcs > 1)
+    if (this->NbPieces > 1)
     {
-      // TODO: Check it's only UG/PD
-      const std::string partitionSuffix = "part" + std::to_string(this->Rank);
+      const std::string partitionSuffix = "part" + std::to_string(this->CurrentPiece);
       const std::string filePath =
         ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
       this->Impl->CreateFile(this->Overwrite, filePath);
@@ -260,7 +256,7 @@ void vtkHDFWriter::WriteData()
 
   vtkDataObject* input = vtkDataObject::SafeDownCast(this->GetInput());
 
-  if (this->NbProcs == 1 && this->IsTemporal && this->UseExternalTimeSteps)
+  if (this->NbPieces == 1 && this->IsTemporal && this->UseExternalTimeSteps)
   {
     // Write the time step data in an external file
     const std::string timestepSuffix = std::to_string(this->CurrentTimeIndex);
@@ -297,7 +293,7 @@ void vtkHDFWriter::WriteData()
   this->UpdatePreviousStepMeshMTime(input);
 
   // Write the metafile for distributed datasets, gathering information from all timesteps
-  if (this->NbProcs > 1)
+  if (this->NbPieces > 1)
   {
     this->WriteDistributedMetafile(input);
   }
@@ -315,16 +311,14 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
 
   this->Impl->CloseFile();
 
-  vtkDebugMacro("Writing meta file name " << this->FileName << " for rank " << this->Rank);
-
   // Make sure all processes have written and closed their associated subfile
   this->Controller->Barrier();
 
-  // Write main file in rank 0
-  if (this->Rank == 0)
+  // Write main file only when processing piece 0
+  if (this->CurrentPiece == 0)
   {
     this->Impl->CreateFile(this->Overwrite, this->FileName);
-    for (int i = 0; i < this->NbProcs; i++)
+    for (int i = 0; i < this->NbPieces; i++)
     {
       const std::string partitionSuffix = "part" + std::to_string(i);
       const std::string subFilePath =
@@ -334,16 +328,9 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
     this->Impl->SetSubFilesReady(true);
     this->CurrentTimeIndex = 0; // Reset time so that datasets are initialized properly
 
-    // TODO: Put somewhere else?
     this->DispatchDataObject(this->Impl->GetRoot(), input);
   }
 
-  vtkDebugMacro(
-    "Done writing virtual datasets for " << this->FileName << " for rank " << this->Rank);
-
-  // Fill steps group
-
-  vtkDebugMacro("Done meta file name " << this->FileName << " for rank " << this->Rank);
   this->CurrentTimeIndex = this->NumberOfTimeSteps - 1;
 }
 
@@ -449,7 +436,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
     return false;
   }
 
-  if ((this->CurrentTimeIndex == 0 || (this->Impl->GetSubFilesReady() && this->NbProcs > 1)) &&
+  if ((this->CurrentTimeIndex == 0 || (this->Impl->GetSubFilesReady() && this->NbPieces > 1)) &&
     !this->InitializeTemporalUnstructuredGrid())
   {
     vtkErrorMacro(<< "Temporal initialization failed for Unstructured grid " << this->FileName);
@@ -632,11 +619,11 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
   }
 
   // Special code path when writing meta-file
-  if (this->Impl->GetSubFilesReady() && this->NbProcs > 1)
+  if (this->Impl->GetSubFilesReady() && this->NbPieces > 1)
   {
-    this->Impl->WriteSumStepsPolyData(stepsGroup, "ConnectivityIdOffsets");
-    this->Impl->WriteSumStepsPolyData(stepsGroup, "CellOffsets");
-    return true;
+    result &= this->Impl->WriteSumStepsPolyData(stepsGroup, "ConnectivityIdOffsets");
+    result &= this->Impl->WriteSumStepsPolyData(stepsGroup, "CellOffsets");
+    return result;
   }
 
   // Update connectivity and cell offsets for primitive types
@@ -1326,7 +1313,7 @@ bool vtkHDFWriter::AppendDataArrayOffset(
 {
   std::string datasetName{ std::string(offsetsGroupName) + "/" + std::string(arrayName) };
 
-  if (this->CurrentTimeIndex == 0 || (this->Impl->GetSubFilesReady() && this->NbProcs > 1))
+  if (this->CurrentTimeIndex == 0 || (this->Impl->GetSubFilesReady() && this->NbPieces > 1))
   {
     // Initialize offsets array
     hsize_t ChunkSize1D[] = { static_cast<hsize_t>(this->ChunkSize), 1 };
