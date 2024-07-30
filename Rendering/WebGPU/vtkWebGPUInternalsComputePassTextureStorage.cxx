@@ -172,6 +172,33 @@ bool vtkWebGPUInternalsComputePassTextureStorage::CheckTextureViewCorrectness(
 }
 
 //------------------------------------------------------------------------------
+bool vtkWebGPUInternalsComputePassTextureStorage::CheckParentComputePass(
+  const std::string& callerFunctionName)
+{
+  if (this->ParentComputePass == nullptr)
+  {
+    vtkLog(ERROR,
+      "Nullptr ParentComputePass of ComputePassTextureStorage when "
+      "calling "
+        << callerFunctionName);
+
+    return false;
+  }
+
+  if (this->ParentPassDevice == nullptr)
+  {
+    vtkLog(ERROR,
+      "Nullptr ParentPassDevice of ComputePassTextureStorage when "
+      "calling "
+        << callerFunctionName);
+
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputePassTextureStorage::RecreateTexture(std::size_t textureIndex)
 {
   vtkSmartPointer<vtkWebGPUComputeTexture> texture = this->Textures[textureIndex];
@@ -352,12 +379,28 @@ wgpu::TextureView vtkWebGPUInternalsComputePassTextureStorage::CreateWebGPUTextu
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputePassTextureStorage::AddRenderTexture(
+int vtkWebGPUInternalsComputePassTextureStorage::AddRenderTexture(
   vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture)
 {
+  if (renderTexture == nullptr || renderTexture->GetWebGPUTexture().Get() == nullptr)
+  {
+    vtkLog(ERROR,
+      "Render texture with label \""
+        << renderTexture->GetLabel()
+        << "\" does not have an associated WebGPUTexture while being added to the compute pass. "
+           "This is an internal error and is probably due to "
+           "vtkWebGPURenderWindow::AcquireXXXRenderTexture not returning "
+           "a properly configured texture.");
+
+    return -1;
+  }
+
   renderTexture->SetAssociatedComputePass(this->ParentComputePass);
 
-  this->RenderTextures.push_back(renderTexture);
+  this->Textures.push_back(renderTexture);
+  this->WebGPUTextures.push_back(renderTexture->GetWebGPUTexture());
+
+  return this->Textures.size() - 1;
 }
 
 //------------------------------------------------------------------------------
@@ -529,43 +572,8 @@ vtkWebGPUInternalsComputePassTextureStorage::CreateTextureView(std::size_t textu
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputePassTextureStorage::SetupRenderTexture(
-  vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture,
-  wgpu::TextureViewDimension textureViewDimension, wgpu::TextureView textureView)
-{
-  if (renderTexture->GetWebGPUTexture() == nullptr)
-  {
-    vtkLog(ERROR,
-      "The given render texture with label \""
-        << renderTexture->GetLabel()
-        << "\" does not have an assigned WebGPUTexture meaning that it will not reuse an "
-           "existing "
-           "texture of the render pipeline. The issue probably is that SetWebGPUTexture() wasn't "
-           "called.");
-
-    return;
-  }
-
-  // Creating the entries for this existing render texture
-  uint32_t group = renderTexture->GetGroup();
-  uint32_t binding = renderTexture->GetBinding();
-  wgpu::BindGroupLayoutEntry bglEntry;
-  wgpu::BindGroupEntry bgEntry;
-  bglEntry = this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(
-    binding, renderTexture, textureViewDimension);
-  bgEntry = this->ParentComputePass->Internals->CreateBindGroupEntry(binding, textureView);
-
-  this->ParentComputePass->Internals->BindGroupLayoutEntries[group].push_back(bglEntry);
-  this->ParentComputePass->Internals->BindGroupEntries[group].push_back(bgEntry);
-  this->ParentComputePass->Internals->BindGroupOrLayoutsInvalidated = true;
-
-  this->RenderTexturesToWebGPUTexture[renderTexture] = renderTexture->GetWebGPUTexture();
-}
-
-//------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputePassTextureStorage::RecreateRenderTexture(
-  vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture,
-  wgpu::TextureViewDimension textureViewDimension, wgpu::TextureView textureView)
+  vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture)
 {
   if (renderTexture->GetWebGPUTexture() == nullptr)
   {
@@ -580,46 +588,76 @@ void vtkWebGPUInternalsComputePassTextureStorage::RecreateRenderTexture(
     return;
   }
 
-  // Creating the entries for this existing render texture
-  uint32_t group = renderTexture->GetGroup();
-  uint32_t binding = renderTexture->GetBinding();
-
-  // Finding the index of the bind group layout / bind group entry that corresponds to the
-  // previously created render texture
-  std::size_t entryIndex = 0;
-  for (wgpu::BindGroupLayoutEntry& existingBglEntry :
-    this->ParentComputePass->Internals->BindGroupLayoutEntries[group])
+  if (!this->CheckParentComputePass("RecreateRenderTexture"))
   {
-    if (existingBglEntry.binding == renderTexture->GetBinding())
+    vtkLog(ERROR,
+      "The InternalsComputePassTextureStorage storage didn't have an assigned ParentComputePass. "
+      "This is an internal error.");
+
+    return;
+  }
+
+  std::unordered_set<vtkSmartPointer<vtkWebGPUComputeTextureView>> textureViews =
+    this->ComputeTextureToViews[renderTexture];
+
+  // Recreating all the texture views of this new render texture so that they all have the right
+  // size (if the render texture was resized) and so that they all use the proper wgpu::Texture
+  // (because the renderTexture probably has been re-created and now points to a new wgpu::Texture)
+  for (const auto& textureView : textureViews)
+  {
+    // Creating the entries for this existing render texture
+    uint32_t group = textureView->GetGroup();
+    uint32_t binding = textureView->GetBinding();
+
+    // Finding the index of the bind group layout / bind group entry that corresponds to the
+    // previously created render texture
+    std::size_t entryIndex = 0;
+    for (const auto& existingBglEntry :
+      this->ParentComputePass->Internals->BindGroupLayoutEntries[group])
     {
-      break;
+      if (existingBglEntry.binding == binding)
+      {
+        break;
+      }
+
+      // Incrementing the index to know which bind group / bind group layout entry we're going to
+      // override
+      entryIndex++;
     }
 
-    // Incrementing the index to know which bind group / bind group layout entry we're going to
-    // override
-    entryIndex++;
+    if (entryIndex == this->ParentComputePass->Internals->BindGroupLayoutEntries[group].size())
+    {
+      // We couldn't find the entry
+      vtkLog(ERROR,
+        "Couldn't find the bind group layout entry of the render texture with label \""
+          << renderTexture->GetLabel()
+          << "\". Did you forget to call SetupRenderTexture() before trying to recreate the "
+             "texture?");
+
+      return;
+    }
+
+    // Getting some variables
+    wgpu::TextureView wgpuTextureView =
+      CreateWebGPUTextureView(textureView, renderTexture->GetWebGPUTexture());
+    wgpu::TextureViewDimension textureViewDimension =
+      vtkWebGPUInternalsComputePassTextureStorage::ComputeTextureDimensionToViewDimension(
+        textureView->GetDimension());
+
+    // Recreating the bind group layout entry + bind group entry
+    wgpu::BindGroupLayoutEntry bglEntry =
+      this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(
+        binding, renderTexture, textureViewDimension);
+    wgpu::BindGroupEntry bgEntry =
+      this->ParentComputePass->Internals->CreateBindGroupEntry(binding, wgpuTextureView);
+
+    // Updating the "registry" of bind group/bind group layouts entries
+    this->ParentComputePass->Internals->BindGroupLayoutEntries[group][entryIndex] = bglEntry;
+    this->ParentComputePass->Internals->BindGroupEntries[group][entryIndex] = bgEntry;
+
+    // Layouts have been invalidated, they be recreated on a ComputePass::Dispatch()
+    this->ParentComputePass->Internals->BindGroupOrLayoutsInvalidated = true;
   }
-
-  if (entryIndex == this->ParentComputePass->Internals->BindGroupLayoutEntries[group].size())
-  {
-    // We couldn't find the entry
-    vtkLog(ERROR,
-      "Couldn't find the bind group layout entry of the render texture with label \""
-        << renderTexture->GetLabel()
-        << "\". Did you forget to call SetupRenderTexture() before trying to recreate the "
-           "texture?");
-
-    return;
-  }
-
-  wgpu::BindGroupLayoutEntry bglEntry =
-    this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(
-      binding, renderTexture, textureViewDimension);
-  wgpu::BindGroupEntry bgEntry =
-    this->ParentComputePass->Internals->CreateBindGroupEntry(binding, textureView);
-  this->ParentComputePass->Internals->BindGroupLayoutEntries[group][entryIndex] = bglEntry;
-  this->ParentComputePass->Internals->BindGroupEntries[group][entryIndex] = bgEntry;
-  this->ParentComputePass->Internals->BindGroupOrLayoutsInvalidated = true;
 
   this->RenderTexturesToWebGPUTexture[renderTexture] = renderTexture->GetWebGPUTexture();
 }
@@ -855,6 +893,9 @@ wgpu::TextureFormat vtkWebGPUInternalsComputePassTextureStorage::ComputeTextureF
 
     case vtkWebGPUComputeTexture::TextureFormat::R32_FLOAT:
       return wgpu::TextureFormat::R32Float;
+
+    case vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS:
+      return wgpu::TextureFormat::Depth24Plus;
 
     default:
       vtkLog(ERROR, "Unhandled texture format in ComputeTextureFormatToWebGPU: " << format);

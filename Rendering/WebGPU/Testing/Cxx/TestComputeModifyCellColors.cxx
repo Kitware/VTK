@@ -34,6 +34,13 @@ int TestComputeModifyCellColors(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetWindowName(__func__);
   renWin->SetMultiSamples(0);
+  // Initialize() call necessary when a WebGPU compute class is going to use resources from the
+  // render window/renderer/mapper.
+  //
+  // The modify cell colors pipeline uses the render buffer of the WebGPUMapper. The pipeline is
+  // then added to the renderer (which is a renderer which uses the resources of the render window).
+  // Initialize() is thus necessary.
+  renWin->Initialize();
 
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer);
@@ -104,7 +111,7 @@ int TestComputeModifyCellColors(int argc, char* argv[])
 
   // Screenshot taken by the regression testing isn't flipped.
   // This isn't an issue for testing but that may be something to look into
-  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
+  int retVal = vtkRegressionTestImage(renWin);
 
   return !retVal;
 }

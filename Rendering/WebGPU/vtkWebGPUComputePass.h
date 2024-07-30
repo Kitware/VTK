@@ -106,7 +106,7 @@ public:
    * Adds a render texture to the pass. A render texture can be obtained from
    * vtkWebGPURenderWindow::AcquireDepthBufferRenderTexture() and analogous methods.
    */
-  void AddRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture);
+  int AddRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture);
 
   /**
    * Adds a texture to the pass and upload its data to the device
@@ -171,7 +171,8 @@ public:
 
   /**
    * Recreates a compute texture. Must be called if the compute texture has been modified (after a
-   * call to GetComputeTexure for example) for the  changes to take effect.
+   * call to GetComputeTexure() + modifications of the parameters for example) for the  changes to
+   * take effect.
    */
   void RecreateComputeTexture(int textureIndex);
 

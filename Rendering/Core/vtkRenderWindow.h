@@ -156,6 +156,20 @@ public:
   virtual void End() {}
 
   /**
+   * Initializes the rendering process.
+   * The responsibility to set the Initialized boolean to true is
+   * left to the subclass.
+   */
+  virtual void Initialize() {}
+
+  ///@{
+  /**
+   * Get/set whether or not the window has been initilized yet.
+   */
+  vtkGetMacro(Initialized, bool);
+  ///@}
+
+  /**
    * Finalize the rendering process.
    */
   virtual void Finalize() {}
@@ -865,6 +879,8 @@ protected:
   double PhysicalScale = 1.0;
 
   bool EnableTranslucentSurface = false;
+
+  bool Initialized = false;
 
 private:
   vtkRenderWindow(const vtkRenderWindow&) = delete;

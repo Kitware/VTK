@@ -117,6 +117,10 @@ int TestComputeOcclusionCulling(int, char*[])
   renWin->SetWindowName(__func__);
   renWin->SetMultiSamples(0);
   renWin->SetSize(1280, 720);
+  // Initialize() call necessary when a WebGPU compute class is going to use the render window.
+  // Here, the OcclusionCuller internally uses the resources of the render window so Initialize()
+  // must be called
+  renWin->Initialize();
 
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 

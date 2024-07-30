@@ -87,10 +87,10 @@ void vtkWebGPUComputePass::AddRenderBuffer(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputePass::AddRenderTexture(
+int vtkWebGPUComputePass::AddRenderTexture(
   vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture)
 {
-  this->Internals->TextureStorage->AddRenderTexture(renderTexture);
+  return this->Internals->TextureStorage->AddRenderTexture(renderTexture);
 }
 
 //------------------------------------------------------------------------------

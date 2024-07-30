@@ -78,7 +78,7 @@ bool vtkWebAssemblyWebGPURenderWindow::Initialize()
 //------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::Finalize()
 {
-  if (this->WGPUInitialized)
+  if (this->Initialized)
   {
     this->WGPUFinalize();
   }

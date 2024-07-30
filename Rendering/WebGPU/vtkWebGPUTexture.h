@@ -28,7 +28,8 @@ public:
   enum TextureFormat
   {
     RGBA8_UNORM = 0,
-    R32_FLOAT
+    R32_FLOAT,
+    DEPTH_24_PLUS
   };
 
   /**

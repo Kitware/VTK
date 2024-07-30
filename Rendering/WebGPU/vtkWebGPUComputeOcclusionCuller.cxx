@@ -107,6 +107,25 @@ void vtkWebGPUComputeOcclusionCuller::PrintSelf(ostream& os, vtkIndent indent)
 void vtkWebGPUComputeOcclusionCuller::SetRenderWindow(vtkWebGPURenderWindow* renderWindow)
 {
   this->WebGPURenderWindow = renderWindow;
+  if (this->WebGPURenderWindow == nullptr)
+  {
+    vtkLog(ERROR,
+      "Calling vtkWebGPUComputeOcclusionCuller::SetRenderWindow with a nullptr renderWindow "
+      "parameter.");
+
+    return;
+  }
+
+  if (!renderWindow->GetInitialized())
+  {
+    // Check for the user in case they forgot to call RenderWindow::Initialize before setting up the
+    // render window on the occlusion culler
+    vtkLog(ERROR,
+      "You must call RenderWindow::Initialize() before setting the RenderWindow on the "
+      "vtkWebGPUOcclusionCuller.");
+
+    return;
+  }
 
   this->WindowResizedCallbackCommand = vtkSmartPointer<vtkCallbackCommand>::New();
   this->WindowResizedCallbackCommand->SetCallback(
@@ -114,6 +133,9 @@ void vtkWebGPUComputeOcclusionCuller::SetRenderWindow(vtkWebGPURenderWindow* ren
   this->WindowResizedCallbackCommand->SetClientData(this);
   this->WebGPURenderWindow->AddObserver(
     vtkCommand::WindowResizeEvent, this->WindowResizedCallbackCommand);
+
+  this->OcclusionCullingPipeline->SetDevice(this->WebGPURenderWindow->GetDevice());
+  this->OcclusionCullingPipeline->SetAdapter(this->WebGPURenderWindow->GetAdapter());
 
   // Setting everything up so that everything is ready when Cull() will be called
   this->SetupDepthBufferCopyPass();
@@ -124,13 +146,29 @@ void vtkWebGPUComputeOcclusionCuller::SetRenderWindow(vtkWebGPURenderWindow* ren
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeOcclusionCuller::SetupDepthBufferCopyPass()
 {
+  if (this->WebGPURenderWindow == nullptr)
+  {
+    return;
+  }
+
   vtkSmartPointer<vtkWebGPUComputeRenderTexture> depthTexture;
-  depthTexture = this->WebGPURenderWindow->AcquireDepthBufferRenderTexture(0, 0);
+  depthTexture = this->WebGPURenderWindow->AcquireDepthBufferRenderTexture();
   depthTexture->SetLabel("Depth buffer texture for depth buffer copy pass");
 
   this->DepthBufferCopyPass->SetShaderSource(OcclusionCullingCopyDepthBuffer);
   this->DepthBufferCopyPass->SetShaderEntryPoint("computeMain");
-  this->DepthBufferCopyPass->AddRenderTexture(depthTexture);
+
+  const int index = this->DepthBufferCopyPass->AddRenderTexture(depthTexture);
+
+  auto depthTextureView = this->DepthBufferCopyPass->CreateTextureView(index);
+  depthTextureView->SetGroup(0);
+  depthTextureView->SetBinding(0);
+  depthTextureView->SetLabel("Depth buffer texture depth buffer copy pass");
+  depthTextureView->SetMode(vtkWebGPUTextureView::TextureViewMode::READ_ONLY);
+  depthTextureView->SetAspect(vtkWebGPUTextureView::TextureViewAspect::ASPECT_DEPTH);
+  depthTextureView->SetFormat(vtkWebGPUTexture::TextureFormat::DEPTH_24_PLUS);
+  this->DepthBufferCopyPass->AddTextureView(depthTextureView);
+
   this->DepthBufferCopyPass->SetLabel("Depth buffer copy compute pass");
 }
 
@@ -215,18 +253,16 @@ void vtkWebGPUComputeOcclusionCuller::AddOcclusionCullingPipelineToRenderer(vtkR
   }
 
   wgpuRenderer->AddComputePipeline(this->OcclusionCullingPipeline);
-  // We're manually configuring the compute pipelines here because otherwise, it would only be
-  // done when Render() is called on the renderer. However, we need the pipeline to be configured
-  // right now because we're going to create a bunch of textures / buffers for the pipeline in the
-  // initialization stuff that follows and we want all of that to be created with the device of
-  // the vtkWebGPURenderWindow of the renderer (which is setup when 'ConfigureComputePipelines' is
-  // called)
-  wgpuRenderer->ConfigureComputePipelines();
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeOcclusionCuller::CreateHierarchicalZBuffer()
 {
+  if (this->WebGPURenderWindow == nullptr)
+  {
+    return;
+  }
+
   int* renderWindowSize = this->WebGPURenderWindow->GetSize();
   int width = renderWindowSize[0];
   int height = renderWindowSize[1];
@@ -455,6 +491,16 @@ void vtkWebGPUComputeOcclusionCuller::FirstPassRender(
     return;
   }
 
+  vtkWebGPURenderWindow* wgpuRenderWindow;
+  wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(wgpuRenderer->GetRenderWindow());
+  if (wgpuRenderWindow == nullptr)
+  {
+    vtkErrorWithObjectMacro(
+      this, << "The render window of the renderer used by this occlusion culler is null.");
+
+    return;
+  }
+
   // Building the list of actors that will need to be rendered in this first pass. We want the
   // actors that were rendered last frame but also the actors that passed the potential previous
   // culling passes hence why we compute the intersection of the two lists
@@ -485,17 +531,20 @@ void vtkWebGPUComputeOcclusionCuller::FirstPassRender(
   // Creating and submitting the draw command to the render window so that the props of the last
   // frame are rendered and the depth buffer is filled
   wgpu::CommandBuffer commandBuffer;
-  vtkWebGPURenderWindow* wgpuRenderWindow;
 
   commandBuffer = wgpuRenderer->EncodePropListRenderCommand(
     propsToRenderFirstPass.data(), propsToRenderFirstPass.size());
-  wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(wgpuRenderer->GetRenderWindow());
   wgpuRenderWindow->SubmitCommandBuffer(1, &commandBuffer);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeOcclusionCuller::CopyDepthBuffer()
 {
+  if (this->WebGPURenderWindow == nullptr)
+  {
+    return;
+  }
+
   int* renderWindowSize = this->WebGPURenderWindow->GetSize();
   int nbGroupsX = std::ceil(renderWindowSize[0] / 8.0f);
   int nbGroupsY = std::ceil(renderWindowSize[1] / 8.0f);

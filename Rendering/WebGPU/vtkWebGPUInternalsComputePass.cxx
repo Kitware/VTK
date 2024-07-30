@@ -473,19 +473,10 @@ void vtkWebGPUInternalsComputePass::SetupRenderBuffer(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputePass::SetupRenderTexture(
-  vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture,
-  wgpu::TextureViewDimension textureViewDimension, wgpu::TextureView textureView)
-{
-  this->TextureStorage->SetupRenderTexture(renderTexture, textureViewDimension, textureView);
-}
-
-//------------------------------------------------------------------------------
 void vtkWebGPUInternalsComputePass::RecreateRenderTexture(
-  vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture,
-  wgpu::TextureViewDimension textureViewDimension, wgpu::TextureView textureView)
+  vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture)
 {
-  this->TextureStorage->RecreateRenderTexture(renderTexture, textureViewDimension, textureView);
+  this->TextureStorage->RecreateRenderTexture(renderTexture);
 }
 
 //------------------------------------------------------------------------------

@@ -423,7 +423,7 @@ void vtkXWebGPURenderWindow::WindowInitialize()
 
 //------------------------------------------------------------------------------------------------
 // Initialize the rendering window.
-bool vtkXWebGPURenderWindow::Initialize()
+bool vtkXWebGPURenderWindow::WindowSetup()
 {
   if (!this->WindowId || !this->DisplayId)
   {
@@ -445,7 +445,7 @@ bool vtkXWebGPURenderWindow::Initialize()
 //------------------------------------------------------------------------------------------------
 void vtkXWebGPURenderWindow::Finalize()
 {
-  if (this->WGPUInitialized)
+  if (this->Initialized)
   {
     this->WGPUFinalize();
   }
