@@ -213,6 +213,24 @@ public:
    */
   hsize_t GetSubFilesDatasetSize(const std::string& datasetPath);
 
+  enum class IndexedOn
+  {
+    Points,
+    Cells,
+    Connectivity,
+    Single,
+    Undefined
+  };
+
+  /**
+   * Return the indexation mode of the given dataset: when the dataset adds 1 component for every
+   * new time step or part, return `Single`. If we add a number of values equivalent to the number
+   * of points of the dataset every step/part, return `Points`. The same goes for `Cells` and
+   * `Connectivity`. This is used when creating virtual datasets from different parts, to know how
+   * to interleave virtual mappings.
+   */
+  IndexedOn GetDatasetIndexationMode(hid_t group, const char* name);
+
   /**
    * Create a chunked dataset in the given group from a dataspace.
    * Chunked datasets are used to append data iteratively
