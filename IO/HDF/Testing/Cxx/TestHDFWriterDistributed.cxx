@@ -56,7 +56,6 @@ bool TestDistributedObject(
 
   {
     vtkNew<vtkHDFWriter> writer;
-    writer->SetDebug(true);
     writer->SetInputConnection(
       usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
     writer->SetFileName(filePath.c_str());
@@ -159,6 +158,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
 
   {
     vtkNew<vtkHDFWriter> writer;
+    writer->SetDebug(true);
     writer->SetInputConnection(pass->GetOutputPort());
     writer->SetWriteAllTimeSteps(true);
     writer->SetFileName(filePath.c_str());
