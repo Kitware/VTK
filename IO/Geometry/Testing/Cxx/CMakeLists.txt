@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   UnstructuredGridFastGradients.cxx
   UnstructuredGridGradients.cxx
   TestFLUENTReader.cxx
+  TestGLTFReaderMalformed.cxx,NO_VALID
   TestOBJReaderDouble.cxx
   TestOBJPolyDataWriter.cxx
   TestOBJReaderComments.cxx,NO_VALID
@@ -37,6 +38,8 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 # Certain test are expected failure with specific outputs
 set_tests_properties(VTK::IOGeometryCxx-TestOBJReaderMalformed PROPERTIES PASS_REGULAR_EXPRESSION "Unexpected point index value")
 set_tests_properties(VTK::IOGeometryCxx-TestOBJReaderMalformed PROPERTIES FAIL_REGULAR_EXPRESSION "")
+set_tests_properties(VTK::IOGeometryCxx-TestGLTFReaderMalformed PROPERTIES PASS_REGULAR_EXPRESSION "Failed to read an image")
+set_tests_properties(VTK::IOGeometryCxx-TestGLTFReaderMalformed PROPERTIES FAIL_REGULAR_EXPRESSION "")
 
 LIST(APPEND tecplotFiles
     3dgeom.dat
