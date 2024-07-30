@@ -203,15 +203,17 @@ public:
    * group `name` in a given subfile `subfileId`.
    * `part` indicates the line (dimension 0) offset to read in the group.
    * `primitive` is the column offset to use when reading into a 2-D meta-data array for Poly Data.
-   * Unless `primiitive` is specified, assume that the array is 1-D.
+   * Unless `primitive` is specified, assume that the array is 1-D.
    */
   hsize_t GetSubfileNumberOf(
     const std::string& name, std::size_t subfileId, hsize_t part, char primitive = -1);
 
   /**
    * Return the sum of the subfiles dataset's size given a path to the dataset.
+   * Return -1 on failure (dataset does not exist)
    */
-  hsize_t GetSubFilesDatasetSize(const std::string& datasetPath);
+  hsize_t GetSubFilesDatasetSize(
+    const std::string& datasetPath, const char* groupName, const char* name);
 
   enum class IndexedOn
   {

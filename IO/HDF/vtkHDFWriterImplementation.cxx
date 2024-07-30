@@ -683,7 +683,19 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
 
   // Collect total dataset size
   const std::string datasetPath = this->GetGroupName(group) + "/" + name;
-  hsize_t totalSize = this->GetSubFilesDatasetSize(datasetPath);
+  hsize_t totalSize =
+    this->GetSubFilesDatasetSize(datasetPath, this->GetGroupName(group).c_str(), name);
+  if (totalSize == -1)
+  {
+    vtkDebugWithObjectMacro(
+      this->Writer, << "Ignoring dataset " << datasetPath << " not present in every sub-file.");
+    if (this->GetGroupName(group) == "/VTKHDF/CellData" ||
+      this->GetGroupName(group) == "/VTKHDF/PointData")
+    {
+      return group; // Partial field, no error
+    }
+    return H5I_INVALID_HID;
+  }
   vtkDebugWithObjectMacro(
     this->Writer, "Total Virtual Dataset Size: " << totalSize << "x" << numComp);
 
@@ -1041,19 +1053,28 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
 }
 
 //------------------------------------------------------------------------------
-hsize_t vtkHDFWriter::Implementation::GetSubFilesDatasetSize(const std::string& datasetPath)
+hsize_t vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
+  const std::string& datasetPath, const char* groupName, const char* name)
 {
   hsize_t totalSize = 0;
   for (auto& fileRoot : this->Subfiles)
   {
-    vtkHDF::ScopedH5DHandle sourceDataset = H5Dopen(fileRoot, datasetPath.c_str(), H5P_DEFAULT);
-    if (sourceDataset == H5I_INVALID_HID)
+    if (!H5Lexists(fileRoot, groupName, H5P_DEFAULT))
     {
-      return H5I_INVALID_HID;
+      return -1;
     }
+    if (!H5Lexists(fileRoot, datasetPath.c_str(), H5P_DEFAULT))
+    {
+      return -1;
+    }
+    vtkHDF::ScopedH5DHandle sourceDataset = H5Dopen(fileRoot, datasetPath.c_str(), H5P_DEFAULT);
     vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
     std::vector<hsize_t> sourceDims(3);
-    H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr);
+    if (H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr) < 0)
+    {
+      return -1;
+    }
+
     totalSize += sourceDims[0];
   }
   return totalSize;

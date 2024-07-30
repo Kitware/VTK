@@ -210,6 +210,7 @@ private:
 
   /**
    * For distributed datasets, write the meta-file referencing sub-files using Virtual Datasets.
+   * This file is written only on process/piece 0
    */
   void WriteDistributedMetafile(vtkDataObject* input);
 

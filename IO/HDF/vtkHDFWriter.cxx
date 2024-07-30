@@ -314,7 +314,6 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
   // Make sure all processes have written and closed their associated subfile
   this->Controller->Barrier();
 
-  // Write main file only when processing piece 0
   if (this->CurrentPiece == 0)
   {
     this->Impl->CreateFile(this->Overwrite, this->FileName);
@@ -331,6 +330,7 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
     this->DispatchDataObject(this->Impl->GetRoot(), input);
   }
 
+  // Set the time value back to where it was, to stop executing
   this->CurrentTimeIndex = this->NumberOfTimeSteps - 1;
 }
 
