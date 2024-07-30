@@ -1070,11 +1070,6 @@ bool EnSightDataSet::ReadGeometry(vtkPartitionedDataSetCollection* output,
     }
 
     vtkSmartPointer<vtkDataSet> grid = nullptr;
-    if (static_cast<unsigned int>(partInfo.PDCIndex) < output->GetNumberOfPartitionedDataSets())
-    {
-      grid = output->GetPartitionedDataSet(partInfo.PDCIndex)->GetPartition(0);
-      addToPDC = false;
-    }
 
     result = this->GeometryFile.ReadNextLine();
     auto opts = getGridOptions(result.second);
