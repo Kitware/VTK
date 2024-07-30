@@ -487,6 +487,19 @@ public:
   static vtkInformationIntegerKey* HIERARCHICAL_INDEX();
   ///@}
 
+  ///@{
+  /**
+   * Used to identify a cell type and whether picked entity is a side in a vtkCellGrid.
+   * 1. `CELLGRID_CELL_TYPE_INDEX` is an offset into vtkCellGrid::GetCellTypesArray()
+   * 2. For cell spec, `CELLGRID_SOURCE_SPECIFICATION_INDEX` will be 0,
+   * 3. For all other side specs, `CELLGRID_SOURCE_SPECIFICATION_INDEX` will take on values starting
+   * from 1. NOTE: The cell/side spec correspond to `vtkDGCell::Source` objects found in
+   * `vtkDGCell::GetCellSpec()` and `vtkDGCell::GetSideSpecs()`
+   */
+  static vtkInformationIntegerKey* CELLGRID_CELL_TYPE_INDEX();
+  static vtkInformationIntegerKey* CELLGRID_SOURCE_SPECIFICATION_INDEX();
+  ///@}
+
   /**
    * Merges the selection list between self and the other. Assumes that both has
    * identical properties.

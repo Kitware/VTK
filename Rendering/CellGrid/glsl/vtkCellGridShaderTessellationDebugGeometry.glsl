@@ -6,12 +6,14 @@ layout({GSInputPrimitive}) in;
 layout({GSOutputPrimitive}, max_vertices = {GSOutputMaxVertices}) out;
 
 flat in int cellIdTESOutput[{GSOutputMaxVertices}];
+flat in int instanceIdTESOutput[{GSOutputMaxVertices}];
 smooth in vec3 patchDistanceTESOutput[{GSOutputMaxVertices}];
 smooth in vec3 normalVCTESOutput[{GSOutputMaxVertices}];
 smooth in vec4 vertexVCTESOutput[{GSOutputMaxVertices}];
 smooth in vec3 pcoordTESOutput[{GSOutputMaxVertices}];
 
 flat out int cellIdGSOutput;
+flat out int instanceIdGSOutput;
 smooth out vec3 patchDistanceGSOutput;
 smooth out vec3 normalVCGSOutput;
 smooth out vec4 vertexVCGSOutput;
@@ -22,6 +24,7 @@ void main()
 {{
 #if {GSOutputMaxVertices} == 3
     cellIdGSOutput = cellIdTESOutput[0];
+    instanceIdGSOutput = instanceIdTESOutput[0];
     patchDistanceGSOutput = patchDistanceTESOutput[0];
     normalVCGSOutput = normalVCTESOutput[0];
     vertexVCGSOutput = vertexVCTESOutput[0];
@@ -31,6 +34,7 @@ void main()
     EmitVertex();
 
     cellIdGSOutput = cellIdTESOutput[1];
+    instanceIdGSOutput = instanceIdTESOutput[1];
     patchDistanceGSOutput = patchDistanceTESOutput[1];
     normalVCGSOutput = normalVCTESOutput[1];
     vertexVCGSOutput = vertexVCTESOutput[1];
@@ -40,6 +44,7 @@ void main()
     EmitVertex();
 
     cellIdGSOutput = cellIdTESOutput[2];
+    instanceIdGSOutput = instanceIdTESOutput[2];
     patchDistanceGSOutput = patchDistanceTESOutput[2];
     normalVCGSOutput = normalVCTESOutput[2];
     vertexVCGSOutput = vertexVCTESOutput[2];
@@ -51,6 +56,7 @@ void main()
     EndPrimitive();
 #elif {GSOutputMaxVertices} == 2
     cellIdGSOutput = cellIdTESOutput[0];
+    instanceIdGSOutput = instanceIdTESOutput[0];
     patchDistanceGSOutput = patchDistanceTESOutput[0];
     normalVCGSOutput = normalVCTESOutput[1];
     vertexVCGSOutput = vertexVCTESOutput[1];
@@ -60,6 +66,7 @@ void main()
     EmitVertex();
 
     cellIdGSOutput = cellIdTESOutput[1];
+    instanceIdGSOutput = instanceIdTESOutput[1];
     patchDistanceGSOutput = patchDistanceTESOutput[1];
     normalVCGSOutput = normalVCTESOutput[1];
     vertexVCGSOutput = vertexVCTESOutput[1];

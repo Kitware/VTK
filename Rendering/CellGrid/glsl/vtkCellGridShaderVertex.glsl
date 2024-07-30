@@ -19,6 +19,7 @@ uniform samplerBuffer shape_vals;
 
 flat out int cellIdVSOutput;
 flat out int sideIdVSOutput;
+flat out int instanceIdVSOutput;
 
 {commonDefs}
 {cellEval}
@@ -56,6 +57,7 @@ void main()
      cellIdVSOutput = cellAndSide.s;
      sideIdVSOutput = cellAndSide.t;
   }}
+  instanceIdVSOutput = gl_InstanceID;
 
   // Fetch the offset into the (ragged) side_local table:
   int sideRaggedOffset = texelFetchBuffer(side_offsets, {ShapeIndex}).s;

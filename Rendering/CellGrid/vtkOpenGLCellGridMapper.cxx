@@ -9,6 +9,7 @@
 #include "vtkCellGridMapper.h"
 #include "vtkCellGridRenderRequest.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
