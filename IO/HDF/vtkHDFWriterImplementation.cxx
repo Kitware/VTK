@@ -691,6 +691,10 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
     dspaceDims.emplace_back(numComp);
   }
   vtkHDF::ScopedH5SHandle destSpace = H5Screate_simple(numDim, dspaceDims.data(), nullptr);
+  if (virtualSourceP == H5I_INVALID_HID)
+  {
+    return H5I_INVALID_HID;
+  }
 
   // Find if dataset is indexed on points, cells, or connectivity, or is a meta-data array
   IndexedOn indexMode = this->GetDatasetIndexationMode(group, name);
@@ -734,9 +738,20 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
       // Open source dataset/dataspace
       vtkHDF::ScopedH5DHandle sourceDataset =
         H5Dopen(this->Subfiles[part], datasetPath.c_str(), H5P_DEFAULT);
+      if (sourceDataset == H5I_INVALID_HID)
+      {
+        return H5I_INVALID_HID;
+      }
       vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
+      if (sourceDataSpace == H5I_INVALID_HID)
+      {
+        return H5I_INVALID_HID;
+      }
       std::vector<hsize_t> sourceDims(3);
-      H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr);
+      if (H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr) < 0)
+      {
+        return H5I_INVALID_HID;
+      }
 
       std::vector<hsize_t> mappingSize{
         sourceDims[0]
@@ -870,8 +885,15 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
       // Create mapping H5S and select Hyperslab
       vtkHDF::ScopedH5SHandle mappedDataSpace =
         H5Screate_simple(numDim, mappingSize.data(), nullptr);
-      H5Sselect_hyperslab(
-        mappedDataSpace, H5S_SELECT_SET, sourceOffset.data(), nullptr, mappingSize.data(), nullptr);
+      if (mappedDataSpace == H5I_INVALID_HID)
+      {
+        return H5I_INVALID_HID;
+      }
+      if (H5Sselect_hyperslab(mappedDataSpace, H5S_SELECT_SET, sourceOffset.data(), nullptr,
+            mappingSize.data(), nullptr) < 0)
+      {
+        return H5I_INVALID_HID;
+      }
 
       // Build the mapping
       if (H5Pset_virtual(virtualSourceP, destSpace, this->SubfileNames[part].c_str(),
