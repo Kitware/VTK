@@ -3,6 +3,7 @@
 #include "vtkCellMetadata.h"
 
 #include "vtkCellGrid.h"
+#include "vtkDebugLeaks.h"
 
 #include <token/Singletons.h>
 
@@ -66,7 +67,14 @@ bool vtkCellMetadata::Query(vtkCellGridQuery* query)
 
 vtkCellGridResponders* vtkCellMetadata::GetResponders()
 {
-  static vtkNew<vtkCellGridResponders> responders;
+  auto& responders = token_NAMESPACE::singletons().get<vtkSmartPointer<vtkCellGridResponders>>();
+  if (!responders)
+  {
+    responders = vtkSmartPointer<vtkCellGridResponders>::New();
+    vtkDebugLeaks::AddFinalizer([]() {
+      token_NAMESPACE::singletons().get<vtkSmartPointer<vtkCellGridResponders>>() = nullptr;
+    });
+  }
   return responders;
 }
 
