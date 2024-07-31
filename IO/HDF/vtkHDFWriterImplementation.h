@@ -199,41 +199,6 @@ public:
   ///@}
 
   /**
-   * Retrieve a single value from the 1-dimensional (usually meta-data)
-   * group `name` in a given subfile `subfileId`.
-   * `part` indicates the line (dimension 0) offset to read in the group.
-   * `primitive` is the column offset to use when reading into a 2-D meta-data array for Poly Data.
-   * Unless `primitive` is specified, assume that the array is 1-D.
-   */
-  hsize_t GetSubfileNumberOf(
-    const std::string& name, std::size_t subfileId, hsize_t part, char primitive = -1);
-
-  /**
-   * Return the sum of the subfiles dataset's size given a path to the dataset.
-   * Return -1 on failure (dataset does not exist)
-   */
-  hsize_t GetSubFilesDatasetSize(
-    const std::string& datasetPath, const char* groupName, const char* name);
-
-  enum class IndexedOn
-  {
-    Points,
-    Cells,
-    Connectivity,
-    MetaData,
-    Undefined
-  };
-
-  /**
-   * Return the indexation mode of the given dataset: when the dataset adds 1 component for every
-   * new time step or part, return `Single`. If we add a number of values equivalent to the number
-   * of points of the dataset every step/part, return `Points`. The same goes for `Cells` and
-   * `Connectivity`. This is used when creating virtual datasets from different parts, to know how
-   * to interleave virtual mappings.
-   */
-  IndexedOn GetDatasetIndexationMode(hid_t group, const char* name);
-
-  /**
    * Create a chunked dataset in the given group from a dataspace.
    * Chunked datasets are used to append data iteratively
    * Returned scoped handle may be invalid
@@ -317,6 +282,56 @@ private:
   bool SubFilesReady = false;
 
   const std::array<std::string, 4> PrimitiveNames{ "Vertices", "Lines", "Polygons", "Strips" };
+
+  /**
+   * Look into subfile `subfileId` and return the number of cells in part `part`.
+   * Supports UnstructuredGrid and PolyData subfiles.
+   */
+  hsize_t GetNumberOfCellsSubfile(
+    std::size_t subfileId, hsize_t part, bool isPolyData, const std::string& groupName);
+
+  /**
+   * Return the digit between 0 and 4 in the order of `PrimitiveNames`,
+   * representing the primitive associated to `group`.
+   * Return -1 if group is not a polydata primitive group.
+   */
+  char GetPrimitive(hid_t group);
+
+  /**
+   * Retrieve a single value from the 1-dimensional (usually meta-data)
+   * group `name` in a given subfile `subfileId`.
+   * `part` indicates the line (dimension 0) offset to read in the group.
+   * `primitive` is the column offset to use when reading into a 2-D meta-data array for Poly Data.
+   * Unless `primitive` is specified, assume that the array is 1-D.
+   */
+  hsize_t GetSubfileNumberOf(
+    const std::string& name, std::size_t subfileId, hsize_t part, char primitive = -1);
+
+  /**
+   * Return the sum of the subfiles dataset's size given a path to the dataset.
+   * Return -1 on failure (dataset does not exist)
+   */
+  hsize_t GetSubFilesDatasetSize(
+    const std::string& datasetPath, const char* groupName, const char* name);
+
+  // Possible indexation mode of VTKHDF datasets. See `GetDatasetIndexationMode`
+  enum class IndexedOn
+  {
+    Points,
+    Cells,
+    Connectivity,
+    MetaData,
+    Undefined
+  };
+
+  /**
+   * Return the indexation mode of the given dataset: when the dataset adds 1 component for every
+   * new time step or part, return `Single`. If we add a number of values equivalent to the number
+   * of points of the dataset every step/part, return `Points`. The same goes for `Cells` and
+   * `Connectivity`. This is used when creating virtual datasets from different parts, to know how
+   * to interleave virtual mappings.
+   */
+  IndexedOn GetDatasetIndexationMode(hid_t group, const char* name);
 };
 
 VTK_ABI_NAMESPACE_END

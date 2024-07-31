@@ -8,6 +8,7 @@
 #include "vtk_hdf5.h"
 
 #include <algorithm>
+#include <numeric>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -716,22 +717,8 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   IndexedOn indexMode = this->GetDatasetIndexationMode(group, name);
 
   // Find primitive for PolyData
-  char primitive = 0;
   bool isPolyData = this->HdfType == "PolyData";
-  if (isPolyData)
-  {
-    std::string groupName = this->GetGroupName(group);
-    for (const auto& primitiveName : this->PrimitiveNames)
-    {
-      if (groupName == "/VTKHDF/" + primitiveName)
-      {
-        break;
-      }
-      primitive++;
-    }
-    vtkDebugWithObjectMacro(
-      this->Writer, "Primitive for group " << groupName << ": " << (int)(primitive));
-  }
+  char primitive = isPolyData ? this->GetPrimitive(group) : 0;
 
   hsize_t totalSteps = 1;
   if (this->Writer->IsTemporal && this->Writer->NbPieces != 1)
@@ -803,28 +790,8 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
         case IndexedOn::Cells:
         {
           vtkDebugWithObjectMacro(this->Writer, << "Is Indexed on cells");
-
-          // Find NumberOfCells in source file
-          hsize_t partNbCells = 0;
-          if (isPolyData && this->GetGroupName(group) == std::string("/VTKHDF/CellData"))
-          {
-            // Sum up the number of cells for each primitive type
-            partNbCells = 0;
-            for (const auto& primitiveName : this->PrimitiveNames)
-            {
-              partNbCells +=
-                this->GetSubfileNumberOf("/VTKHDF/" + primitiveName + "/NumberOfCells", part, step);
-            }
-          }
-          else if (isPolyData)
-          {
-            partNbCells =
-              this->GetSubfileNumberOf(this->GetGroupName(group) + "/NumberOfCells", part, step);
-          }
-          else
-          {
-            partNbCells = this->GetSubfileNumberOf("/VTKHDF/NumberOfCells", part, step);
-          }
+          hsize_t partNbCells =
+            this->GetNumberOfCellsSubfile(part, step, isPolyData, this->GetGroupName(group));
 
           // Handle static mesh: don't write offsets if cells have not changed
           if ((name == std::string("Offsets") || name == std::string("Types")) && totalSteps > 1)
@@ -929,6 +896,45 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   return vdset;
 }
 
+//------------------------------------------------------------------------------
+hsize_t vtkHDFWriter::Implementation::GetNumberOfCellsSubfile(
+  std::size_t subfileId, hsize_t part, bool isPolyData, const std::string& groupName)
+{
+  if (!isPolyData)
+  {
+    return this->GetSubfileNumberOf("/VTKHDF/NumberOfCells", subfileId, part);
+  }
+
+  if (isPolyData && groupName == std::string("/VTKHDF/CellData"))
+  {
+    // Sum up the number of cells for each primitive type
+    return std::accumulate(PrimitiveNames.begin(), PrimitiveNames.end(), 0,
+      [this, subfileId, part](int sum, std::string prim) {
+        return sum +
+          this->GetSubfileNumberOf("/VTKHDF/" + prim + "/NumberOfCells", subfileId, part);
+      });
+  }
+  else
+  {
+    return this->GetSubfileNumberOf(groupName + "/NumberOfCells", subfileId, part);
+  }
+}
+
+//------------------------------------------------------------------------------
+char vtkHDFWriter::Implementation::GetPrimitive(hid_t group)
+{
+  char primitive = 0;
+  std::string groupName = this->GetGroupName(group);
+  for (const auto& primitiveName : this->PrimitiveNames)
+  {
+    if (groupName == "/VTKHDF/" + primitiveName)
+    {
+      return primitive;
+    }
+    primitive++;
+  }
+  return -1;
+}
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
 {

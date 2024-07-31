@@ -1116,7 +1116,7 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
       }
 
       // Create dynamic resizable dataset
-      if ((this->CurrentTimeIndex == 0 && partId == 0))
+      if (this->CurrentTimeIndex == 0 && partId == 0)
       {
         // Initialize empty dataset
         hsize_t ChunkSizeComponent[] = { static_cast<hsize_t>(this->ChunkSize),
