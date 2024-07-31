@@ -760,30 +760,14 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
         this->LevelDescriptors.push_back(descriptor.str());
         this->LevelMasks.push_back(mask.str());
 
-        // Check whether cursor is still at rool level
-        if (rootLevel)
+        if (!this->IsLevelDescriptorConsistent(
+              rootLevel, nRefined, nLeaves, nTotal, nNextLevel, descriptor))
         {
-          rootLevel = false;
+          return 0;
+        }
 
-          // Verify that total number of root cells is consistent with descriptor
-          if (nRefined + nLeaves != nTotal)
-          {
-            vtkErrorMacro(<< "String " << this->Descriptor << " describes " << nRefined + nLeaves
-                          << " root cells != " << nTotal);
-            return 0;
-          }
-        } // if (rootLevel)
-        else
-        {
-          // Verify that level descriptor cardinality matches expected value
-          if (descriptor.str().size() != nNextLevel)
-          {
-            vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
-                          << descriptor.str().size() << " which is not expected value of "
-                          << nNextLevel);
-            return 0;
-          }
-        } // else
+        // Changing level means we're not are root level
+        rootLevel = false;
 
         // Predict next level descriptor cardinality
         nNextLevel = nRefined * this->BlockSize;
@@ -864,10 +848,9 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   }   // char loop
 
   // Verify and append last level string
-  if (descriptor.str().size() != nNextLevel)
+  if (!this->IsLevelDescriptorConsistent(
+        rootLevel, nRefined, nLeaves, nTotal, nNextLevel, descriptor))
   {
-    vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
-                  << descriptor.str().size() << " which is not expected value of " << nNextLevel);
     return 0;
   }
 
@@ -906,6 +889,35 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   this->LevelBitsIndexCnt = this->LevelBitsIndex;
 
   return 1;
+}
+
+bool vtkHyperTreeGridSource::IsLevelDescriptorConsistent(bool isRootLevel, unsigned int nRefined,
+  unsigned int nLeaves, unsigned int nTotal, unsigned int nNextLevel,
+  const std::ostringstream& descriptor)
+{
+  // Check whether cursor is still at rool level
+  if (isRootLevel)
+  {
+    // Verify that total number of root cells is consistent with descriptor
+    if (nRefined + nLeaves != nTotal)
+    {
+      vtkErrorMacro(<< "String " << this->Descriptor << " describes " << nRefined + nLeaves
+                    << " root cells != " << nTotal);
+      return false;
+    }
+  } // if (rootLevel)
+  else
+  {
+    // Verify that level descriptor cardinality matches expected value
+    if (descriptor.str().size() != nNextLevel)
+    {
+      vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
+                    << descriptor.str().size() << " which is not expected value of " << nNextLevel);
+      return false;
+    }
+  }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
