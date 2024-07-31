@@ -395,10 +395,12 @@ int vtkHyperTreeGridSource::RequestData(
 
     if (!this->DescriptorBits && !this->InitializeFromStringDescriptor())
     {
+      vtkErrorMacro(<< "Could not initialize string descriptor.");
       return 0;
     }
     else if (this->DescriptorBits && !this->InitializeFromBitsDescriptor())
     {
+      vtkErrorMacro(<< "Could not initialize bits descriptor.");
       return 0;
     }
   } // if this->UseDescriptor
@@ -704,7 +706,6 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   {
     vtkErrorMacro(<< "Material mask is used but has length " << strlen(this->Mask)
                   << " != " << descLen << " which is the length of the grid descriptor.");
-
     return 0;
   }
 
@@ -780,8 +781,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
             vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
                           << descriptor.str().size() << " which is not expected value of "
                           << nNextLevel);
-
-            return 1;
+            return 0;
           }
         } // else
 
@@ -868,8 +868,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   {
     vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
                   << descriptor.str().size() << " which is not expected value of " << nNextLevel);
-
-    return 1;
+    return 0;
   }
 
   // Push per-level descriptor and material mask if used
