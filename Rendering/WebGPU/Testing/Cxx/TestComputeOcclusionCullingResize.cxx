@@ -174,6 +174,7 @@ int TestComputeOcclusionCullingResize(int, char*[])
 
   renWin->Render();
   renderedPropCounts.push_back(renderer->GetNumberOfPropsRendered());
+
   CheckRenderCount(renderedPropCounts, renderedPropCountsReference);
 
   return EXIT_SUCCESS;
