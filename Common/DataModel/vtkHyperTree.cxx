@@ -29,9 +29,9 @@ void vtkHyperTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Dimension: " << this->Dimension << "\n";
-  os << indent << "BranchFactor: " << this->BranchFactor << "\n";
-  os << indent << "NumberOfChildren: " << this->NumberOfChildren << "\n";
+  os << indent << "Dimension: " << static_cast<int>(this->Dimension) << "\n";
+  os << indent << "BranchFactor: " << static_cast<int>(this->BranchFactor) << "\n";
+  os << indent << "NumberOfChildren: " << static_cast<vtkIdType>(this->NumberOfChildren) << "\n";
 
   os << indent << "NumberOfLevels: " << this->Datas->NumberOfLevels << "\n";
   os << indent << "NumberOfVertices (coarse and leaves): " << this->Datas->NumberOfVertices << "\n";

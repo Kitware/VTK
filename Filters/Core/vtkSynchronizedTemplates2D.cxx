@@ -67,7 +67,8 @@ vtkMTimeType vtkSynchronizedTemplates2D::GetMTime()
 //
 template <class T>
 void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* newPts,
-  vtkDataArray* newScalars, vtkCellArray* lines, vtkImageData* input, int* updateExt)
+  vtkDataArray* newScalars, vtkCellArray* lines, vtkImageData* input, int* updateExt,
+  vtkIdType increments[3])
 {
   double* values = self->GetValues();
   vtkIdType numContours = self->GetNumberOfContours();
@@ -89,8 +90,6 @@ void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* ne
   // The only problem with using the update extent is that one or two
   // sources enlarge the update extent.  This behavior is slated to be
   // eliminated.
-  vtkIdType incs[3];
-  input->GetIncrements(incs);
   int* ext = input->GetExtent();
   int axis0, axis1;
   int min0, max0, dim0;
@@ -103,11 +102,11 @@ void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* ne
     axis0 = 0;
     min0 = updateExt[0];
     max0 = updateExt[1];
-    inc0 = incs[0];
+    inc0 = increments[0];
     axis1 = 1;
     min1 = updateExt[2];
     max1 = updateExt[3];
-    inc1 = incs[1];
+    inc1 = increments[1];
     x[2] = origin[2] + (updateExt[4] * spacing[2]);
   }
   else if (updateExt[2] == updateExt[3])
@@ -115,11 +114,11 @@ void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* ne
     axis0 = 0;
     min0 = updateExt[0];
     max0 = updateExt[1];
-    inc0 = incs[0];
+    inc0 = increments[0];
     axis1 = 2;
     min1 = updateExt[4];
     max1 = updateExt[5];
-    inc1 = incs[2];
+    inc1 = increments[2];
     x[1] = origin[1] + (updateExt[2] * spacing[1]);
   }
   else if (updateExt[0] == updateExt[1])
@@ -127,11 +126,11 @@ void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* ne
     axis0 = 1;
     min0 = updateExt[2];
     max0 = updateExt[3];
-    inc0 = incs[1];
+    inc0 = increments[1];
     axis1 = 2;
     min1 = updateExt[4];
     max1 = updateExt[5];
-    inc1 = incs[2];
+    inc1 = increments[2];
     x[0] = origin[0] + (updateExt[0] * spacing[0]);
   }
   else
@@ -179,8 +178,8 @@ void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* ne
 
   // Compute the staring location.  We may be operating
   // on a part of the image.
-  scalars += incs[0] * (updateExt[0] - ext[0]) + incs[1] * (updateExt[2] - ext[2]) +
-    incs[2] * (updateExt[4] - ext[4]) + self->GetArrayComponent();
+  scalars += increments[0] * (updateExt[0] - ext[0]) + increments[1] * (updateExt[2] - ext[2]) +
+    increments[2] * (updateExt[4] - ext[4]) + self->GetArrayComponent();
 
   int checkAbortInterval = std::min(numContours / 10 + 1, (vtkIdType)1000);
 
@@ -457,10 +456,14 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
     newScalars->SetName(inScalars->GetName());
     newScalars->Allocate(5000, 25000);
   }
+
+  vtkIdType incs[3];
+  input->GetIncrements(inScalars, incs);
+
   switch (inScalars->GetDataType())
   {
     vtkTemplateMacro(
-      vtkContourImage(this, (VTK_TT*)scalars, newPts, newScalars, newLines, input, ext));
+      vtkContourImage(this, (VTK_TT*)scalars, newPts, newScalars, newLines, input, ext, incs));
   } // switch
 
   // Lets set the name of the scalars here.

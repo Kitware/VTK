@@ -95,6 +95,7 @@ void vtkOpenGLLowMemoryBatchedPolyDataMapper::AddBatchElement(
   if (found == this->VTKPolyDataToGLBatchElement.end())
   {
     GLBatchElement glBatchElement;
+    glBatchElement.CellGroupId = 0;
     glBatchElement.Parent = std::move(element);
     glBatchElement.Parent.Marked = true;
     this->VTKPolyDataToGLBatchElement[address] =
@@ -931,4 +932,15 @@ int vtkOpenGLLowMemoryBatchedPolyDataMapper::CanUseTextureMapForColoring(vtkData
   return 1;
 }
 
+vtkMTimeType vtkOpenGLLowMemoryBatchedPolyDataMapper::GetMTime()
+{
+  if (this->Parent)
+  {
+    return std::max(this->Superclass::GetMTime(), this->Parent->GetMTime());
+  }
+  else
+  {
+    return this->Superclass::GetMTime();
+  }
+}
 VTK_ABI_NAMESPACE_END

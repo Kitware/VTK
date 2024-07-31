@@ -430,7 +430,7 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
   {
     fprintf(fp,
       "  {\n"
-      "  \"update\",(PyCFunction)(void*)static_cast<PyCFunctionWithKeywords>(\n"
+      "  \"update\",(PyCFunction)static_cast<PyCFunctionWithKeywords>(\n"
       "  [](PyObject* self, PyObject* args, PyObject* kwargs) -> PyObject*\n"
       "  {\n"
       "    vtkPythonArgs ap(self, args, \"update\");\n"
@@ -969,8 +969,7 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
       "Py%s_GetAddressAsString(PyObject *self, PyObject *args)\n"
       "{\n"
       "  vtkPythonArgs ap(self, args, \"GetAddressAsString\");\n"
-      "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
-      "  %s *op = static_cast<%s *>(vp);\n"
+      "  vtkObjectBase *op = ap.GetSelfPointer(self, args);\n"
       "\n"
       "  const char *temp0;\n"
       "  char tempr[256];\n"
@@ -987,7 +986,7 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
       "  return result;\n"
       "}\n"
       "\n",
-      classname, data->Name, data->Name);
+      classname);
 
     /* Override the Register method to check whether to ignore Register */
     fprintf(fp,
@@ -995,8 +994,7 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
       "Py%s_Register(PyObject *self, PyObject *args)\n"
       "{\n"
       "  vtkPythonArgs ap(self, args, \"Register\");\n"
-      "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
-      "  %s *op = static_cast<%s *>(vp);\n"
+      "  vtkObjectBase *op = ap.GetSelfPointer(self, args);\n"
       "\n"
       "  vtkObjectBase *temp0 = nullptr;\n"
       "  PyObject *result = nullptr;\n"
@@ -1013,7 +1011,7 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
       "      }\n"
       "      else\n"
       "      {\n"
-      "        op->%s::Register(temp0);\n"
+      "        op->vtkObjectBase::Register(temp0);\n"
       "      }\n"
       "    }\n"
       "\n"
@@ -1026,7 +1024,7 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
       "  return result;\n"
       "}\n"
       "\n",
-      classname, data->Name, data->Name, data->Name);
+      classname);
 
     /* Override the UnRegister method to check whether to ignore UnRegister */
     fprintf(fp,
@@ -1034,8 +1032,7 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
       "Py%s_UnRegister(PyObject *self, PyObject *args)\n"
       "{\n"
       "  vtkPythonArgs ap(self, args, \"UnRegister\");\n"
-      "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
-      "  %s *op = static_cast<%s *>(vp);\n"
+      "  vtkObjectBase *op = ap.GetSelfPointer(self, args);\n"
       "\n"
       "  vtkObjectBase *temp0 = nullptr;\n"
       "  PyObject *result = nullptr;\n"
@@ -1052,7 +1049,7 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
       "      }\n"
       "      else\n"
       "      {\n"
-      "        op->%s::UnRegister(temp0);\n"
+      "        op->vtkObjectBase::UnRegister(temp0);\n"
       "      }\n"
       "    }\n"
       "\n"
@@ -1065,7 +1062,7 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
       "  return result;\n"
       "}\n"
       "\n",
-      classname, data->Name, data->Name, data->Name);
+      classname);
   }
 }
 
