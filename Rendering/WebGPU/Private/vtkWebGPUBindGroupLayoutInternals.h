@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef vtkWebGPUInternalsBindGroupLayout_h
-#define vtkWebGPUInternalsBindGroupLayout_h
+#ifndef vtkWebGPUBindGroupLayoutInternals_h
+#define vtkWebGPUBindGroupLayoutInternals_h
 
 #include "vtkRenderingWebGPUModule.h"
 #include "vtk_wgpu.h"
@@ -9,12 +9,12 @@
 #include <initializer_list>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsBindGroupLayout
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUBindGroupLayoutInternals
 {
 public:
   // Helpers to make creating bind group layouts look nicer:
   //
-  //   vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device, {
+  //   vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, {
   //       {0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::Uniform},
   //       {1, wgpu::ShaderStage::Fragment, wgpu::SamplerBindingType::Filtering},
   //       {3, wgpu::ShaderStage::Fragment, wgpu::TextureSampleType::Float}
@@ -56,4 +56,4 @@ public:
 VTK_ABI_NAMESPACE_END
 
 #endif
-// VTK-HeaderTest-Exclude: vtkWebGPUInternalsBindGroupLayout.h
+// VTK-HeaderTest-Exclude: vtkWebGPUBindGroupLayoutInternals.h

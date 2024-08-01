@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkWebGPUInternalsPipelineLayout.h"
+#include "Private/vtkWebGPUPipelineLayoutInternals.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-wgpu::PipelineLayout vtkWebGPUInternalsPipelineLayout::MakeBasicPipelineLayout(
+wgpu::PipelineLayout vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(
   const wgpu::Device& device, const wgpu::BindGroupLayout* bindGroupLayout)
 {
   wgpu::PipelineLayoutDescriptor descriptor;
@@ -22,7 +22,7 @@ wgpu::PipelineLayout vtkWebGPUInternalsPipelineLayout::MakeBasicPipelineLayout(
 }
 
 //------------------------------------------------------------------------------
-wgpu::PipelineLayout vtkWebGPUInternalsPipelineLayout::MakePipelineLayout(
+wgpu::PipelineLayout vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
   const wgpu::Device& device, std::vector<wgpu::BindGroupLayout> bgls)
 {
   wgpu::PipelineLayoutDescriptor descriptor;

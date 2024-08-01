@@ -3,11 +3,11 @@
 
 #include "vtkWebGPUHelpers.h"
 
+#include "Private/vtkWebGPUComputePassInternals.h"
 #include "vtkImageData.h"
 #include "vtkPNGWriter.h"
 #include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputePass.h"
-#include "vtkWebGPUInternalsComputePass.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 

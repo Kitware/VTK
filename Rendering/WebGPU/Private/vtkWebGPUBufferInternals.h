@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef vtkWebGPUInternalsBuffer_h
-#define vtkWebGPUInternalsBuffer_h
+#ifndef vtkWebGPUBufferInternals_h
+#define vtkWebGPUBufferInternals_h
 
 #include "vtkRenderingWebGPUModule.h"
 #include "vtk_wgpu.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsBuffer
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUBufferInternals
 {
 public:
   static wgpu::Buffer Upload(const wgpu::Device& device, unsigned long offset, void* data,
@@ -19,4 +19,4 @@ public:
 VTK_ABI_NAMESPACE_END
 
 #endif
-// VTK-HeaderTest-Exclude: vtkWebGPUInternalsBuffer.h
+// VTK-HeaderTest-Exclude: vtkWebGPUBufferInternals.h

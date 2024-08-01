@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#ifndef vtkWebGPUInternalsComputePassBufferStorage_h
-#define vtkWebGPUInternalsComputePassBufferStorage_h
+#ifndef vtkWebGPUComputePassBufferStorageInternals_h
+#define vtkWebGPUComputePassBufferStorageInternals_h
 
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"              // for smart pointers
@@ -20,11 +20,11 @@ VTK_ABI_NAMESPACE_BEGIN
  *
  * A compute pass delegates calls that want to modify buffers to this class
  */
-class vtkWebGPUInternalsComputePassBufferStorage : public vtkObject
+class vtkWebGPUComputePassBufferStorageInternals : public vtkObject
 {
 public:
-  static vtkWebGPUInternalsComputePassBufferStorage* New();
-  vtkTypeMacro(vtkWebGPUInternalsComputePassBufferStorage, vtkObject);
+  static vtkWebGPUComputePassBufferStorageInternals* New();
+  vtkTypeMacro(vtkWebGPUComputePassBufferStorageInternals, vtkObject);
 
   /**
    * Sets the device that will be used by this buffer storage when creating buffers.
@@ -204,7 +204,7 @@ public:
     vtkWebGPUComputeBuffer::BufferMode mode);
 
 private:
-  friend class vtkWebGPUInternalsComputePass;
+  friend class vtkWebGPUComputePassInternals;
 
   // Compute pass that uses this buffer storage
   vtkWeakPointer<vtkWebGPUComputePass> ParentComputePass;

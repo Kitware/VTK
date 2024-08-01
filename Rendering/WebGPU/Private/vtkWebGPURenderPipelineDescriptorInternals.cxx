@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkWebGPUInternalsRenderPipelineDescriptor.h"
+#include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-vtkWebGPUInternalsRenderPipelineDescriptor::vtkWebGPUInternalsRenderPipelineDescriptor()
+vtkWebGPURenderPipelineDescriptorInternals::vtkWebGPURenderPipelineDescriptorInternals()
 {
   wgpu::RenderPipelineDescriptor* descriptor = this;
 
@@ -101,7 +101,7 @@ vtkWebGPUInternalsRenderPipelineDescriptor::vtkWebGPUInternalsRenderPipelineDesc
 }
 
 //------------------------------------------------------------------------------
-wgpu::DepthStencilState* vtkWebGPUInternalsRenderPipelineDescriptor::EnableDepthStencil(
+wgpu::DepthStencilState* vtkWebGPURenderPipelineDescriptorInternals::EnableDepthStencil(
   wgpu::TextureFormat format)
 {
   this->depthStencil = &cDepthStencil;
@@ -110,7 +110,7 @@ wgpu::DepthStencilState* vtkWebGPUInternalsRenderPipelineDescriptor::EnableDepth
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsRenderPipelineDescriptor::DisableDepthStencil()
+void vtkWebGPURenderPipelineDescriptorInternals::DisableDepthStencil()
 {
   this->depthStencil = nullptr;
 }

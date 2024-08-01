@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef vtkWebGPUInternalsPipelineLayout_h
-#define vtkWebGPUInternalsPipelineLayout_h
+#ifndef vtkWebGPUPipelineLayoutInternals_h
+#define vtkWebGPUPipelineLayoutInternals_h
 
 #include "vtkRenderingWebGPUModule.h"
 #include "vtk_wgpu.h"
@@ -9,7 +9,7 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsPipelineLayout
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPipelineLayoutInternals
 {
 public:
   static wgpu::PipelineLayout MakeBasicPipelineLayout(
@@ -21,4 +21,4 @@ public:
 VTK_ABI_NAMESPACE_END
 
 #endif
-// VTK-HeaderTest-Exclude: vtkWebGPUInternalsPipelineLayout.h
+// VTK-HeaderTest-Exclude: vtkWebGPUPipelineLayoutInternals.h

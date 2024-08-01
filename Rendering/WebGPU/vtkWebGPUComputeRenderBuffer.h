@@ -27,7 +27,7 @@ public:
 
 private:
   friend class vtkWebGPUComputePass;
-  friend class vtkWebGPUInternalsComputePassBufferStorage;
+  friend class vtkWebGPUComputePassBufferStorageInternals;
   friend class vtkWebGPUPolyDataMapper;
   friend class vtkWebGPURenderer;
 

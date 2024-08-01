@@ -19,9 +19,9 @@ class vtkWebGPUComputeRenderBuffer;
 class vtkWebGPUComputeRenderTexture;
 class vtkWebGPUComputeTexture;
 class vtkWebGPUComputeTextureView;
-class vtkWebGPUInternalsComputePass;
-class vtkWebGPUInternalsComputePassBufferStorage;
-class vtkWebGPUInternalsComputePassTextureStorage;
+class vtkWebGPUComputePassInternals;
+class vtkWebGPUComputePassBufferStorageInternals;
+class vtkWebGPUComputePassTextureStorageInternals;
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -331,9 +331,9 @@ private:
 
   friend class vtkWebGPUComputePipeline;
   friend class vtkWebGPUHelpers;
-  friend class vtkWebGPUInternalsComputePass;
-  friend class vtkWebGPUInternalsComputePassTextureStorage;
-  friend class vtkWebGPUInternalsComputePassBufferStorage;
+  friend class vtkWebGPUComputePassInternals;
+  friend class vtkWebGPUComputePassTextureStorageInternals;
+  friend class vtkWebGPUComputePassBufferStorageInternals;
   friend class vtkWebGPURenderWindow;
   friend class vtkWebGPURenderer;
 
@@ -351,7 +351,7 @@ private:
   std::string WGPUComputePipelineLabel = "WebGPU pipeline \"" + this->Label + "\"";
 
   // Internal implementation of the compute pass
-  vtkSmartPointer<vtkWebGPUInternalsComputePass> Internals;
+  vtkSmartPointer<vtkWebGPUComputePassInternals> Internals;
 };
 
 VTK_ABI_NAMESPACE_END

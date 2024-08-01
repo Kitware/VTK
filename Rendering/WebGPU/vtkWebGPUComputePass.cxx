@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUComputePass.h"
+#include "Private/vtkWebGPUComputePassBufferStorageInternals.h"
+#include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPUComputePassTextureStorageInternals.h"
 #include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
 #include "vtkWebGPUComputeTexture.h"
 #include "vtkWebGPUComputeTextureView.h"
-#include "vtkWebGPUInternalsComputePass.h"
-#include "vtkWebGPUInternalsComputePassBufferStorage.h"
-#include "vtkWebGPUInternalsComputePassTextureStorage.h"
 #include "vtksys/FStream.hxx"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -20,15 +20,15 @@ vtkStandardNewMacro(vtkWebGPUComputePass);
 //------------------------------------------------------------------------------
 vtkWebGPUComputePass::vtkWebGPUComputePass()
 {
-  this->Internals = vtkSmartPointer<vtkWebGPUInternalsComputePass>::New();
+  this->Internals = vtkSmartPointer<vtkWebGPUComputePassInternals>::New();
   this->Internals->SetParentPass(this);
 
   this->Internals->TextureStorage =
-    vtkSmartPointer<vtkWebGPUInternalsComputePassTextureStorage>::New();
+    vtkSmartPointer<vtkWebGPUComputePassTextureStorageInternals>::New();
   this->Internals->TextureStorage->SetComputePass(this);
 
   this->Internals->BufferStorage =
-    vtkSmartPointer<vtkWebGPUInternalsComputePassBufferStorage>::New();
+    vtkSmartPointer<vtkWebGPUComputePassBufferStorageInternals>::New();
   this->Internals->BufferStorage->SetComputePass(this);
 }
 

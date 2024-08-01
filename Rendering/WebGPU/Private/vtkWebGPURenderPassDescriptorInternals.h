@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef vtkWebGPUInternalsRenderPassDescriptor_h
-#define vtkWebGPUInternalsRenderPassDescriptor_h
+#ifndef vtkWebGPURenderPassDescriptorInternals_h
+#define vtkWebGPURenderPassDescriptorInternals_h
 
 #include "vtkRenderingWebGPUModule.h"
 #include "vtk_wgpu.h"
@@ -10,19 +10,19 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsRenderPassDescriptor
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPURenderPassDescriptorInternals
   : public wgpu::RenderPassDescriptor
 {
 public:
   static constexpr int kMaxColorAttachments = 8u;
-  vtkWebGPUInternalsRenderPassDescriptor(const std::vector<wgpu::TextureView>& colorAttachmentInfo,
+  vtkWebGPURenderPassDescriptorInternals(const std::vector<wgpu::TextureView>& colorAttachmentInfo,
     wgpu::TextureView depthStencil = wgpu::TextureView(), bool doClear = true);
-  ~vtkWebGPUInternalsRenderPassDescriptor();
+  ~vtkWebGPURenderPassDescriptorInternals();
 
-  vtkWebGPUInternalsRenderPassDescriptor(
-    const vtkWebGPUInternalsRenderPassDescriptor& otherRenderPass);
-  const vtkWebGPUInternalsRenderPassDescriptor& operator=(
-    const vtkWebGPUInternalsRenderPassDescriptor& otherRenderPass);
+  vtkWebGPURenderPassDescriptorInternals(
+    const vtkWebGPURenderPassDescriptorInternals& otherRenderPass);
+  const vtkWebGPURenderPassDescriptorInternals& operator=(
+    const vtkWebGPURenderPassDescriptorInternals& otherRenderPass);
 
   void UnsetDepthStencilLoadStoreOpsForFormat(wgpu::TextureFormat format);
 
@@ -32,4 +32,4 @@ public:
 VTK_ABI_NAMESPACE_END
 
 #endif
-// VTK-HeaderTest-Exclude: vtkWebGPUInternalsRenderPassDescriptor.h
+// VTK-HeaderTest-Exclude: vtkWebGPURenderPassDescriptorInternals.h

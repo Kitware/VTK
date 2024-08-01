@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef vtkWebGPUInternalsComputeBuffer_h
-#define vtkWebGPUInternalsComputeBuffer_h
+#ifndef vtkWebGPUComputeBufferInternals_h
+#define vtkWebGPUComputeBufferInternals_h
 
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
@@ -13,7 +13,7 @@ VTK_ABI_NAMESPACE_BEGIN
 /**
  * Internal utility class for manipulating vtkWebGPUComputeBuffers
  */
-class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsComputeBuffer
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUComputeBufferInternals
 {
 public:
   /**

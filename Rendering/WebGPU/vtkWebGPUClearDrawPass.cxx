@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUClearDrawPass.h"
+#include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkWebGPUInternalsRenderPassDescriptor.h"
 #include "vtkWebGPURenderWindow.h"
 #include <chrono>
 
@@ -37,7 +37,7 @@ wgpu::RenderPassEncoder vtkWebGPUClearDrawPass::Begin(const vtkRenderState* stat
   };
   wgpu::TextureView depthStencilView = wgpuRenWin->GetDepthStencilView();
 
-  vtkWebGPUInternalsRenderPassDescriptor renderPassDescriptor(
+  vtkWebGPURenderPassDescriptorInternals renderPassDescriptor(
     backBufferViews, depthStencilView, this->DoClear);
   renderPassDescriptor.label = "vtkWebGPUClearDrawPass::Begin";
 
