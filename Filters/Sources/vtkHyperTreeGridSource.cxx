@@ -614,6 +614,9 @@ int vtkHyperTreeGridSource::ProcessTrees(vtkHyperTreeGrid*, vtkDataObject* outpu
     return 0;
   }
 
+  // Reset process counter
+  this->CurrentTreeProcess = 0;
+
   // Iterate over all hyper trees
   vtkIdType nbTrees;
   if (this->LevelZeroMaterialIndex)
