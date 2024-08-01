@@ -714,7 +714,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   }
 
   // Find if dataset is indexed on points, cells, or connectivity, or is a meta-data array
-  IndexedOn indexMode = this->GetDatasetIndexationMode(group, name);
+  IndexingMode indexMode = this->GetDatasetIndexationMode(group, name);
 
   // Find primitive for PolyData
   bool isPolyData = this->HdfType == "PolyData";
@@ -762,13 +762,13 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
 
       switch (indexMode)
       {
-        case IndexedOn::MetaData:
+        case IndexingMode::MetaData:
         {
           // Select only one value in the source dataspace
           mappingSize[0] = 1;
           break;
         }
-        case IndexedOn::Points:
+        case IndexingMode::Points:
         {
           // Handle static mesh
           if (name == std::string("Points") && totalSteps > 1)
@@ -787,7 +787,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
           mappingSize[0] = this->GetSubfileNumberOf("/VTKHDF/NumberOfPoints", part, step);
           break;
         }
-        case IndexedOn::Cells:
+        case IndexingMode::Cells:
         {
           vtkDebugWithObjectMacro(this->Writer, << "Is Indexed on cells");
           hsize_t partNbCells =
@@ -816,7 +816,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
           }
           break;
         }
-        case IndexedOn::Connectivity:
+        case IndexingMode::Connectivity:
         {
           // Handle static mesh
           if (name == std::string("Connectivity") && totalSteps > 1)
@@ -1018,7 +1018,7 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
 {
   vtkDebugWithObjectMacro(this->Writer, << "Fetching " << qualifier << " for subfile " << subfileId
                                         << " for part " << part << " with primitive "
-                                        << (int)(primitive));
+                                        << static_cast<int>(primitive));
 
   vtkHDF::ScopedH5DHandle sourceDataset =
     H5Dopen(this->Subfiles[subfileId], qualifier.c_str(), H5P_DEFAULT);
@@ -1087,7 +1087,7 @@ hsize_t vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
 }
 
 //------------------------------------------------------------------------------
-vtkHDFWriter::Implementation::IndexedOn vtkHDFWriter::Implementation::GetDatasetIndexationMode(
+vtkHDFWriter::Implementation::IndexingMode vtkHDFWriter::Implementation::GetDatasetIndexationMode(
   hid_t group, const char* name)
 {
   const std::string datasetPath = this->GetGroupName(group) + "/" + name;
@@ -1095,23 +1095,23 @@ vtkHDFWriter::Implementation::IndexedOn vtkHDFWriter::Implementation::GetDataset
     "NumberOfConnectivityIds" };
   if (std::find(singles.begin(), singles.end(), name) != singles.end())
   {
-    return IndexedOn::MetaData;
+    return IndexingMode::MetaData;
   }
   if (this->GetGroupName(group) == std::string("/VTKHDF/PointData") ||
     name == std::string("Points"))
   {
-    return IndexedOn::Points;
+    return IndexingMode::Points;
   }
   if (this->GetGroupName(group) == std::string("/VTKHDF/CellData") ||
     name == std::string("Offsets") || datasetPath == "/VTKHDF/Types")
   {
-    return IndexedOn::Cells;
+    return IndexingMode::Cells;
   }
   if (name == std::string("Connectivity"))
   {
-    return IndexedOn::Connectivity;
+    return IndexingMode::Connectivity;
   }
-  return IndexedOn::Undefined;
+  return IndexingMode::Undefined;
 }
 
 //------------------------------------------------------------------------------

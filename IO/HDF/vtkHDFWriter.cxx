@@ -274,7 +274,10 @@ void vtkHDFWriter::WriteData()
       vtkErrorMacro(<< "Could not write timestep file " << subFilePath);
       return;
     }
-    this->Impl->OpenSubfile(subFilePath);
+    if (!this->Impl->OpenSubfile(subFilePath))
+    {
+      vtkErrorMacro(<< "Could not open subfile" << subFilePath);
+    }
     if (this->CurrentTimeIndex == this->NumberOfTimeSteps - 1)
     {
       // On the last timestep, the implementation creates virtual datasets referencing all
@@ -322,7 +325,10 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
       const std::string partitionSuffix = "part" + std::to_string(i);
       const std::string subFilePath =
         ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
-      this->Impl->OpenSubfile(subFilePath);
+      if (!this->Impl->OpenSubfile(subFilePath))
+      {
+        vtkErrorMacro(<< "Could not open subfile" << subFilePath);
+      }
     }
     this->Impl->SetSubFilesReady(true);
     this->CurrentTimeIndex = 0; // Reset time so that datasets are initialized properly
@@ -493,7 +499,10 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
         vtkErrorMacro(<< "Could not write partition file " << subFilePath);
         return false;
       }
-      this->Impl->OpenSubfile(subFilePath);
+      if (!this->Impl->OpenSubfile(subFilePath))
+      {
+        vtkErrorMacro(<< "Could not open subfile" << subFilePath);
+      }
 
       if (partIndex == input->GetNumberOfPartitions() - 1)
       {
@@ -801,8 +810,9 @@ bool vtkHDFWriter::InitializeTemporalPolyData()
   {
     vtkNew<vtkIntArray> emptyPrimitiveArray;
     emptyPrimitiveArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
-    int emptyArray[] = { 0, 0, 0, 0 };
-    emptyPrimitiveArray->SetArray(emptyArray, NUM_POLY_DATA_TOPOS, 1);
+    std::array<int, NUM_POLY_DATA_TOPOS> emptyArray;
+    emptyArray.fill(0);
+    emptyPrimitiveArray->SetArray(emptyArray.data(), NUM_POLY_DATA_TOPOS, 1);
     initResult &= this->Impl->AddArrayToDataset(cellOffsetsHandle, emptyPrimitiveArray);
     initResult &= this->Impl->AddArrayToDataset(connectivityOffsetsHandle, emptyPrimitiveArray);
     if (!initResult)

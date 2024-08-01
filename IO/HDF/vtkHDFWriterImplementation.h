@@ -40,7 +40,7 @@ public:
    * Returns true if the operation was successful
    * If the operation fails, the file may have been created
    */
-  bool CreateFile(bool overwrite, const std::string& file);
+  bool CreateFile(bool overwrite, const std::string& filename);
 
   /**
    * Open existing VTKHDF file and set Root and File members.
@@ -314,8 +314,8 @@ private:
   hsize_t GetSubFilesDatasetSize(
     const std::string& datasetPath, const char* groupName, const char* name);
 
-  // Possible indexation mode of VTKHDF datasets. See `GetDatasetIndexationMode`
-  enum class IndexedOn
+  // Possible indexing mode of VTKHDF datasets. See `GetDatasetIndexationMode`
+  enum class IndexingMode
   {
     Points,
     Cells,
@@ -331,7 +331,7 @@ private:
    * `Connectivity`. This is used when creating virtual datasets from different parts, to know how
    * to interleave virtual mappings.
    */
-  IndexedOn GetDatasetIndexationMode(hid_t group, const char* name);
+  IndexingMode GetDatasetIndexationMode(hid_t group, const char* name);
 };
 
 VTK_ABI_NAMESPACE_END
