@@ -38,6 +38,9 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
 /* modify vtkCollection to be more Pythonic */
 static void vtkWrapPython_CollectionMethods(FILE* fp, const char* classname, const ClassInfo* data);
 
+/* modify vtkAlgorithm to be more Pythonic */
+static void vtkWrapPython_AlgorithmMethods(FILE* fp, const char* classname, const ClassInfo* data);
+
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
 
@@ -441,7 +444,7 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
       classname, classname);
   }
 
-  /* Adds a new 'execute' method on vtkAlgorithm */
+  /* Adds a new 'update' method on vtkAlgorithm */
   else if (strcmp("vtkAlgorithm", data->Name) == 0)
   {
     fprintf(fp,
@@ -455,52 +458,12 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
       "  #pragma clang diagnostic ignored \"-Wcast-function-type\"\n"
       "  #endif\n"
       "  #endif\n"
-      "  \"update\",(PyCFunction)static_cast<PyCFunctionWithKeywords>(\n"
+      "  \"update\", (PyCFunction)PyvtkAlgorithm_update, METH_VARARGS|METH_KEYWORDS,\n"
       "  #if defined(__clang__) && defined(__has_warning)\n"
       "  #if __has_warning(\"-Wcast-function-type\")\n"
       "  #pragma clang diagnostic pop\n"
       "  #endif\n"
       "  #endif\n"
-      "  [](PyObject* self, PyObject* args, PyObject* kwargs) -> PyObject*\n"
-      "  {\n"
-      "    vtkPythonArgs ap(self, args, \"update\");\n"
-      "    PyObject *output = nullptr;\n"
-      "    if (ap.CheckArgCount(0))\n"
-      "    {\n"
-      "      PyObject *moduleName = "
-      "PyUnicode_DecodeFSDefault(\"vtkmodules.util.execution_model\");\n"
-      "      PyObject *internalModule = PyImport_Import(moduleName);\n"
-      "      Py_DECREF(moduleName);\n"
-      "      if (internalModule != nullptr)\n"
-      "      {\n"
-      "        // Get the class from the module\n"
-      "        PyObject *outputClass = PyObject_GetAttrString(internalModule, \"Output\");\n"
-      "        if (outputClass != nullptr)\n"
-      "        {\n"
-      "          // Create an instance of the class\n"
-      "          auto* self_arg = PyTuple_Pack(1, self);\n"
-      "          output = PyObject_Call(outputClass, self_arg, kwargs);\n"
-      "          Py_XDECREF(self_arg);\n"
-      "          if (output == nullptr)\n"
-      "          {\n"
-      "            return nullptr;\n"
-      "          }\n"
-      "          Py_DECREF(outputClass);\n"
-      "        }\n"
-      "        else\n"
-      "        {\n"
-      "           return nullptr;\n"
-      "        }\n"
-      "        Py_DECREF(internalModule);\n"
-      "      }\n"
-      "      else\n"
-      "      {\n"
-      "        return nullptr;\n"
-      "      }\n"
-      "    }\n"
-      "    return output;\n"
-      "  }),\n"
-      "  METH_VARARGS|METH_KEYWORDS,\n"
       "  \"This method updates the pipeline connected to this algorithm\\n\"\n"
       "  \"and returns an Output object with an output property. This property\\n\"\n"
       "  \"provides either a single data object (for algorithms with single output\\n\"\n"
@@ -727,6 +690,9 @@ static void vtkWrapPython_CustomMethods(
 
     /* Make collection iterator into a Python iterator */
     vtkWrapPython_CollectionMethods(fp, classname, data);
+
+    /* Add Python-specific update() to algorithm classes */
+    vtkWrapPython_AlgorithmMethods(fp, classname, data);
   }
 }
 
@@ -1157,5 +1123,55 @@ static void vtkWrapPython_CollectionMethods(FILE* fp, const char* classname, con
       "  return self;\n"
       "}\n",
       data->Name, data->Name);
+  }
+}
+
+/* -------------------------------------------------------------------- */
+/* generate custom methods needed for vtkCollection */
+static void vtkWrapPython_AlgorithmMethods(FILE* fp, const char* classname, const ClassInfo* data)
+{
+  if (strcmp("vtkAlgorithm", classname) == 0)
+  {
+    fprintf(fp,
+      "static PyObject *\n"
+      "Py%s_update(PyObject* self, PyObject* args, PyObject* kwargs)\n"
+      "{\n"
+      "  vtkPythonArgs ap(self, args, \"update\");\n"
+      "  PyObject *output = nullptr;\n"
+      "  if (ap.CheckArgCount(0))\n"
+      "  {\n"
+      "    PyObject *moduleName = PyUnicode_DecodeFSDefault(\"vtkmodules.util.execution_model\");\n"
+      "    PyObject *internalModule = PyImport_Import(moduleName);\n"
+      "    Py_DECREF(moduleName);\n"
+      "    if (internalModule != nullptr)\n"
+      "    {\n"
+      "      // Get the class from the module\n"
+      "      PyObject *outputClass = PyObject_GetAttrString(internalModule, \"Output\");\n"
+      "      if (outputClass != nullptr)\n"
+      "      {\n"
+      "        // Create an instance of the class\n"
+      "        auto* self_arg = PyTuple_Pack(1, self);\n"
+      "        output = PyObject_Call(outputClass, self_arg, kwargs);\n"
+      "        Py_XDECREF(self_arg);\n"
+      "        if (output == nullptr)\n"
+      "        {\n"
+      "          return nullptr;\n"
+      "        }\n"
+      "        Py_DECREF(outputClass);\n"
+      "      }\n"
+      "      else\n"
+      "      {\n"
+      "         return nullptr;\n"
+      "      }\n"
+      "      Py_DECREF(internalModule);\n"
+      "    }\n"
+      "    else\n"
+      "    {\n"
+      "      return nullptr;\n"
+      "    }\n"
+      "  }\n"
+      "  return output;\n"
+      "}\n",
+      data->Name);
   }
 }
