@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkWebGPUInternalsShaderModule.h"
+#include "Private/vtkWebGPUShaderModuleInternals.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-wgpu::ShaderModule vtkWebGPUInternalsShaderModule::CreateFromWGSL(
+wgpu::ShaderModule vtkWebGPUShaderModuleInternals::CreateFromWGSL(
   const wgpu::Device& device, const std::string& source)
 {
   wgpu::ShaderModuleWGSLDescriptor wgslDesc;
@@ -17,7 +17,7 @@ wgpu::ShaderModule vtkWebGPUInternalsShaderModule::CreateFromWGSL(
 }
 
 //------------------------------------------------------------------------------
-wgpu::ShaderModule vtkWebGPUInternalsShaderModule::CreateFromSPIRV(
+wgpu::ShaderModule vtkWebGPUShaderModuleInternals::CreateFromSPIRV(
   const wgpu::Device& device, const uint32_t* code)
 {
   wgpu::ShaderModuleSPIRVDescriptor sprivDescriptor;

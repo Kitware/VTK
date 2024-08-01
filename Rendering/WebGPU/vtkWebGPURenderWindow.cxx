@@ -1,6 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPURenderWindow.h"
+#include "Private/vtkWebGPUBindGroupInternals.h"
+#include "Private/vtkWebGPUBindGroupLayoutInternals.h"
+#include "Private/vtkWebGPUCallbacksInternals.h"
+#include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPUPipelineLayoutInternals.h"
+#include "Private/vtkWebGPURenderPassCreateInfoInternals.h"
+#include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
+#include "Private/vtkWebGPUShaderModuleInternals.h"
 #include "vtkCamera.h"
 #include "vtkFloatArray.h"
 #include "vtkObject.h"
@@ -11,14 +19,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWGPUContext.h"
 #include "vtkWebGPUClearDrawPass.h"
-#include "vtkWebGPUInternalsBindGroup.h"
-#include "vtkWebGPUInternalsBindGroupLayout.h"
-#include "vtkWebGPUInternalsCallbacks.h"
-#include "vtkWebGPUInternalsComputePass.h"
-#include "vtkWebGPUInternalsPipelineLayout.h"
-#include "vtkWebGPUInternalsRenderPassCreateInfo.h"
-#include "vtkWebGPUInternalsRenderPipelineDescriptor.h"
-#include "vtkWebGPUInternalsShaderModule.h"
 #include "vtkWebGPURenderer.h"
 
 #include <exception>
@@ -185,7 +185,7 @@ bool vtkWebGPURenderWindow::WGPUInit()
 
   wgpu::DeviceDescriptor deviceDescriptor = {};
   deviceDescriptor.label = "vtkWebGPURenderWindow::WGPUInit";
-  deviceDescriptor.deviceLostCallback = &vtkWebGPUInternalsCallbacks::DeviceLostCallback;
+  deviceDescriptor.deviceLostCallback = &vtkWebGPUCallbacksInternals::DeviceLostCallback;
   deviceDescriptor.deviceLostUserdata = this;
 
   ///@{ TODO: Populate feature requests
@@ -201,7 +201,7 @@ bool vtkWebGPURenderWindow::WGPUInit()
     return false;
   }
   // install error handler
-  this->Device.SetUncapturedErrorCallback(vtkWebGPUInternalsCallbacks::PrintWGPUError, this);
+  this->Device.SetUncapturedErrorCallback(vtkWebGPUCallbacksInternals::PrintWGPUError, this);
   ///@}
   // change the window name if it's the default "Visualization Toolkit"
   // to "Visualization Toolkit " + " Backend name"
@@ -455,7 +455,7 @@ void vtkWebGPURenderWindow::DestroyOffscreenColorAttachments()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
 {
-  wgpu::BindGroupLayout bgl = vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(this->Device,
+  wgpu::BindGroupLayout bgl = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(this->Device,
     {
       // clang-format off
       { 0, wgpu::ShaderStage::Fragment, wgpu::TextureSampleType::Float, wgpu::TextureViewDimension::e2D, /*multiSampled=*/false }
@@ -464,17 +464,17 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
   bgl.SetLabel("FSQ bind group layout");
 
   wgpu::PipelineLayout pipelineLayout =
-    vtkWebGPUInternalsPipelineLayout::MakeBasicPipelineLayout(this->Device, &bgl);
+    vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(this->Device, &bgl);
   pipelineLayout.SetLabel("FSQ graphics pipeline layout");
 
-  this->FSQ.BindGroup = vtkWebGPUInternalsBindGroup::MakeBindGroup(this->Device, bgl,
+  this->FSQ.BindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(this->Device, bgl,
     {
       // clang-formt off
       { 0, this->ColorAttachment.View }
       // clang-format on
     });
 
-  wgpu::ShaderModule shaderModule = vtkWebGPUInternalsShaderModule::CreateFromWGSL(this->Device, R"(
+  wgpu::ShaderModule shaderModule = vtkWebGPUShaderModuleInternals::CreateFromWGSL(this->Device, R"(
     struct VertexOutput {
       @builtin(position) position: vec4<f32>,
       @location(0) uv: vec2<f32>
@@ -510,7 +510,7 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
     }
   )");
 
-  vtkWebGPUInternalsRenderPipelineDescriptor pipelineDesc;
+  vtkWebGPURenderPipelineDescriptorInternals pipelineDesc;
   pipelineDesc.label = "FSQ Graphics pipeline description";
   pipelineDesc.layout = pipelineLayout;
   pipelineDesc.vertex.module = shaderModule;
@@ -579,7 +579,7 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
   // prepare the offscreen texture for presentation.
   this->SwapChain.Framebuffer = this->SwapChain.Instance.GetCurrentTextureView();
 
-  vtkWebGPUInternalsRenderPassDescriptor renderPassDescriptor({ this->SwapChain.Framebuffer });
+  vtkWebGPURenderPassDescriptorInternals renderPassDescriptor({ this->SwapChain.Framebuffer });
   renderPassDescriptor.label = "Render offscreen texture";
 
   for (auto& colorAttachment : renderPassDescriptor.ColorAttachments)

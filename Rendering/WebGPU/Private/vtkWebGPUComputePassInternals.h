@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#ifndef vtkWebGPUInternalsComputePass_h
-#define vtkWebGPUInternalsComputePass_h
+#ifndef vtkWebGPUComputePassInternals_h
+#define vtkWebGPUComputePassInternals_h
 
+#include "Private/vtkWebGPUComputePassBufferStorageInternals.h"
+#include "Private/vtkWebGPUComputePassTextureStorageInternals.h"
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"
-#include "vtkWebGPUInternalsComputePassBufferStorage.h"
-#include "vtkWebGPUInternalsComputePassTextureStorage.h"
 #include "vtk_wgpu.h" // for webgpu
 
 #include <unordered_map>
@@ -22,11 +22,11 @@ VTK_ABI_NAMESPACE_BEGIN
  * bind group and bind group layouts. This is also the class that maintains the state of a compute
  * pass (Texture and Buffer storages)
  */
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUInternalsComputePass : public vtkObject
+class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputePassInternals : public vtkObject
 {
 public:
-  static vtkWebGPUInternalsComputePass* New();
-  vtkTypeMacro(vtkWebGPUInternalsComputePass, vtkObject);
+  static vtkWebGPUComputePassInternals* New();
+  vtkTypeMacro(vtkWebGPUComputePassInternals, vtkObject);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -296,8 +296,8 @@ protected:
 private:
   friend class vtkWebGPUComputePass;
   friend class vtkWebGPUComputePipeline;
-  friend class vtkWebGPUInternalsComputePassBufferStorage;
-  friend class vtkWebGPUInternalsComputePassTextureStorage;
+  friend class vtkWebGPUComputePassBufferStorageInternals;
+  friend class vtkWebGPUComputePassTextureStorageInternals;
 
   /**
    * Whether or not the shader module, binds groups, layouts and the wgpu::ComputePipeline have
@@ -330,10 +330,10 @@ private:
 
   // Object responsible for the management (creation, re-creatioin, deletion, ...) of textures and
   // their texture views
-  vtkSmartPointer<vtkWebGPUInternalsComputePassTextureStorage> TextureStorage;
+  vtkSmartPointer<vtkWebGPUComputePassTextureStorageInternals> TextureStorage;
 
   // Object responsible for the management (creation, re-creatioin, deletion, ...) of buffers
-  vtkSmartPointer<vtkWebGPUInternalsComputePassBufferStorage> BufferStorage;
+  vtkSmartPointer<vtkWebGPUComputePassBufferStorageInternals> BufferStorage;
 };
 
 VTK_ABI_NAMESPACE_END

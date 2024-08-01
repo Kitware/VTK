@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkWebGPUInternalsCallbacks.h"
+#include "Private/vtkWebGPUCallbacksInternals.h"
 #include "vtkLogger.h"
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsCallbacks::DeviceLostCallback(
+void vtkWebGPUCallbacksInternals::DeviceLostCallback(
   WGPUDeviceLostReason reason, char const* message, void* userdata)
 {
   std::string reasonStr;
@@ -39,14 +39,14 @@ void vtkWebGPUInternalsCallbacks::DeviceLostCallback(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsCallbacks::UncapturedErrorCallback(
+void vtkWebGPUCallbacksInternals::UncapturedErrorCallback(
   WGPUErrorType type, char const* message, void* userdata)
 {
-  vtkWebGPUInternalsCallbacks::PrintWGPUError(type, message, userdata);
+  vtkWebGPUCallbacksInternals::PrintWGPUError(type, message, userdata);
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsCallbacks::PrintWGPUError(
+void vtkWebGPUCallbacksInternals::PrintWGPUError(
   WGPUErrorType type, const char* message, void* userdata)
 {
   std::string typeStr = "";

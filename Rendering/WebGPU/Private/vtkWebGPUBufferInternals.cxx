@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkWebGPUInternalsBuffer.h"
+#include "Private/vtkWebGPUBufferInternals.h"
 
 //------------------------------------------------------------------------------
-wgpu::Buffer vtkWebGPUInternalsBuffer::Upload(const wgpu::Device& device, unsigned long offset,
+wgpu::Buffer vtkWebGPUBufferInternals::Upload(const wgpu::Device& device, unsigned long offset,
   void* data, unsigned long sizeBytes, wgpu::BufferUsage usage, const char* label /*=nullptr*/)
 {
   wgpu::BufferDescriptor descriptor;
@@ -16,7 +16,7 @@ wgpu::Buffer vtkWebGPUInternalsBuffer::Upload(const wgpu::Device& device, unsign
   return buffer;
 }
 
-wgpu::Buffer vtkWebGPUInternalsBuffer::CreateABuffer(const wgpu::Device& device,
+wgpu::Buffer vtkWebGPUBufferInternals::CreateABuffer(const wgpu::Device& device,
   unsigned long sizeBytes, wgpu::BufferUsage usage, bool mappedAtCreation /*=false*/,
   const char* label /*=nullptr*/)
 {

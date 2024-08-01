@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#ifndef vtkWebGPUInternalsTexture_h
-#define vtkWebGPUInternalsTexture_h
+#ifndef vtkWebGPUTextureInternals_h
+#define vtkWebGPUTextureInternals_h
 
 #include "vtkDataArray.h"
 #include "vtkRenderingWebGPUModule.h"
@@ -10,7 +10,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsTexture
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUTextureInternals
 {
 public:
   /**

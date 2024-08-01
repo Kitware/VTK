@@ -1,6 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPURenderer.h"
+#include "Private/vtkWebGPUBindGroupInternals.h"
+#include "Private/vtkWebGPUBindGroupLayoutInternals.h"
+#include "Private/vtkWebGPUBufferInternals.h"
+#include "Private/vtkWebGPUComputePassInternals.h"
 #include "vtkAbstractMapper.h"
 #include "vtkHardwareSelector.h"
 #include "vtkLight.h"
@@ -18,10 +22,6 @@
 #include "vtkWebGPUClearDrawPass.h"
 #include "vtkWebGPUComputePass.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
-#include "vtkWebGPUInternalsBindGroup.h"
-#include "vtkWebGPUInternalsBindGroupLayout.h"
-#include "vtkWebGPUInternalsBuffer.h"
-#include "vtkWebGPUInternalsComputePass.h"
 #include "vtkWebGPULight.h"
 #include "vtkWebGPUPolyDataMapper.h"
 #include "vtkWebGPURenderWindow.h"
@@ -146,7 +146,7 @@ void vtkWebGPURenderer::CreateBuffers()
     {
       this->SceneTransformBuffer.Destroy();
     }
-    this->SceneTransformBuffer = vtkWebGPUInternalsBuffer::CreateABuffer(device,
+    this->SceneTransformBuffer = vtkWebGPUBufferInternals::CreateABuffer(device,
       transformSizePadded, wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false,
       "Transform uniform buffer for vtkRenderer");
     createSceneBindGroup = true;
@@ -159,7 +159,7 @@ void vtkWebGPURenderer::CreateBuffers()
     {
       this->SceneLightsBuffer.Destroy();
     }
-    this->SceneLightsBuffer = vtkWebGPUInternalsBuffer::CreateABuffer(device, lightSizePadded,
+    this->SceneLightsBuffer = vtkWebGPUBufferInternals::CreateABuffer(device, lightSizePadded,
       wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false,
       "Lights uniform buffer for vtkRenderer");
     createSceneBindGroup = true;
@@ -172,7 +172,7 @@ void vtkWebGPURenderer::CreateBuffers()
     {
       this->ActorBlocksBuffer.Destroy();
     }
-    this->ActorBlocksBuffer = vtkWebGPUInternalsBuffer::CreateABuffer(device, actorBlkSize,
+    this->ActorBlocksBuffer = vtkWebGPUBufferInternals::CreateABuffer(device, actorBlkSize,
       wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false,
       "Uniform buffer for all vtkActors in vtkRenderer");
     createActorBindGroup = true;
@@ -711,7 +711,7 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
   wgpu::Device device = wgpuRenWin->GetDevice();
   if (this->SceneBindGroupLayout.Get() == nullptr)
   {
-    this->SceneBindGroupLayout = vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device,
+    this->SceneBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
       {
         // clang-format off
       // SceneTransforms
@@ -726,7 +726,7 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
 
   if (this->ActorBindGroupLayout.Get() == nullptr)
   {
-    this->ActorBindGroupLayout = vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device,
+    this->ActorBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
       {
         // clang-format off
       // ActorBlocks
@@ -745,7 +745,7 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   wgpu::Device device = wgpuRenWin->GetDevice();
 
   this->SceneBindGroup =
-    vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->SceneBindGroupLayout,
+    vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->SceneBindGroupLayout,
       {
         // clang-format off
         { 0, this->SceneTransformBuffer },
@@ -761,7 +761,7 @@ void vtkWebGPURenderer::SetupActorBindGroup()
   auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   wgpu::Device device = wgpuRenWin->GetDevice();
   this->ActorBindGroup =
-    vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->ActorBindGroupLayout,
+    vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->ActorBindGroupLayout,
       {
         // clang-format off
         { 0, this->ActorBlocksBuffer, 0, vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256) },

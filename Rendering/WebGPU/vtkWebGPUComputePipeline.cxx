@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUComputePipeline.h"
+#include "Private/vtkWebGPUCallbacksInternals.h"
+#include "Private/vtkWebGPUComputePassInternals.h"
 #include "vtkObjectFactory.h"
-#include "vtkWebGPUInternalsCallbacks.h"
-#include "vtkWebGPUInternalsComputePass.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -177,11 +177,11 @@ void vtkWebGPUComputePipeline::CreateDevice()
 
   wgpu::DeviceDescriptor deviceDescriptor;
   deviceDescriptor.nextInChain = nullptr;
-  deviceDescriptor.deviceLostCallback = &vtkWebGPUInternalsCallbacks::DeviceLostCallback;
+  deviceDescriptor.deviceLostCallback = &vtkWebGPUCallbacksInternals::DeviceLostCallback;
   deviceDescriptor.label = this->Label.c_str();
   this->Device = vtkWGPUContext::RequestDevice(this->Adapter, deviceDescriptor);
   this->Device.SetUncapturedErrorCallback(
-    &vtkWebGPUInternalsCallbacks::UncapturedErrorCallback, nullptr);
+    &vtkWebGPUCallbacksInternals::UncapturedErrorCallback, nullptr);
 }
 
 //------------------------------------------------------------------------------

@@ -84,7 +84,7 @@ public:
   void Update();
 
 private:
-  friend class vtkWebGPUInternalsComputePass;
+  friend class vtkWebGPUComputePassInternals;
   friend class vtkWebGPURenderWindow;
   friend class vtkWebGPURenderer;
 

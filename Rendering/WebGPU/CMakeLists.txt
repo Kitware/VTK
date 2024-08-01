@@ -17,6 +17,7 @@ set(classes
   vtkWebGPUComputeRenderTexture
   vtkWebGPUComputeTexture
   vtkWebGPUComputeTextureView
+  vtkWGPUContext
   vtkWebGPUHardwareSelector
   vtkWebGPUHelpers
   vtkWebGPULight
@@ -28,21 +29,37 @@ set(classes
   vtkWebGPUTexture
   vtkWebGPUTextureView)
 
-set(private_classes
-  vtkWebGPUInternalsBindGroup
-  vtkWebGPUInternalsBindGroupLayout
-  vtkWebGPUInternalsBuffer
-  vtkWebGPUInternalsCallbacks
-  vtkWebGPUInternalsComputeBuffer
-  vtkWebGPUInternalsComputePass
-  vtkWebGPUInternalsComputePassTextureStorage
-  vtkWebGPUInternalsComputePassBufferStorage
-  vtkWebGPUInternalsPipelineLayout
-  vtkWebGPUInternalsRenderPassCreateInfo
-  vtkWebGPUInternalsRenderPassDescriptor
-  vtkWebGPUInternalsRenderPipelineDescriptor
-  vtkWebGPUInternalsShaderModule
-  vtkWebGPUInternalsTexture)
+set(private_headers
+  "Private/vtkWebGPUBindGroupInternals.h"
+  "Private/vtkWebGPUBindGroupLayoutInternals.h"
+  "Private/vtkWebGPUBufferInternals.h"
+  "Private/vtkWebGPUCallbacksInternals.h"
+  "Private/vtkWebGPUComputeBufferInternals.h"
+  "Private/vtkWebGPUComputePassInternals.h"
+  "Private/vtkWebGPUComputePassTextureStorageInternals.h"
+  "Private/vtkWebGPUComputePassBufferStorageInternals.h"
+  "Private/vtkWebGPUPipelineLayoutInternals.h"
+  "Private/vtkWebGPURenderPassCreateInfoInternals.h"
+  "Private/vtkWebGPURenderPassDescriptorInternals.h"
+  "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
+  "Private/vtkWebGPUShaderModuleInternals.h"
+  "Private/vtkWebGPUTextureInternals.h")
+
+set(private_sources
+  "Private/vtkWebGPUBindGroupInternals.cxx"
+  "Private/vtkWebGPUBindGroupLayoutInternals.cxx"
+  "Private/vtkWebGPUBufferInternals.cxx"
+  "Private/vtkWebGPUCallbacksInternals.cxx"
+  "Private/vtkWebGPUComputeBufferInternals.cxx"
+  "Private/vtkWebGPUComputePassInternals.cxx"
+  "Private/vtkWebGPUComputePassTextureStorageInternals.cxx"
+  "Private/vtkWebGPUComputePassBufferStorageInternals.cxx"
+  "Private/vtkWebGPUPipelineLayoutInternals.cxx"
+  "Private/vtkWebGPURenderPassCreateInfoInternals.cxx"
+  "Private/vtkWebGPURenderPassDescriptorInternals.cxx"
+  "Private/vtkWebGPURenderPipelineDescriptorInternals.cxx"
+  "Private/vtkWebGPUShaderModuleInternals.cxx"
+  "Private/vtkWebGPUTextureInternals.cxx")
 
 # setup factory overrides
 # NI - Not Implemented
@@ -126,11 +143,10 @@ foreach (webgpu_override IN LISTS webgpu_overrides)
     OVERRIDE "vtkWebGPU${webgpu_override}")
 endforeach ()
 
-set(headers
-  vtkWGPUContext.h)
-
 set(generated_headers
   vtk_wgpu.h)
+
+set(headers)
 
 foreach (generated_header IN LISTS generated_headers)
   configure_file(
@@ -140,9 +156,6 @@ foreach (generated_header IN LISTS generated_headers)
   list(APPEND headers
     "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
 endforeach ()
-
-set(sources
-  vtkWGPUContext.cxx)
 
 # Setup factory overrides and add window system specific render windows.
 # FIXME: I've only brought the X render window from https://gitlab.kitware.com/vtk/vtk/-/merge_requests/10239/commits.
@@ -199,11 +212,10 @@ vtk_object_factory_configure(
 
 vtk_module_add_module(VTK::RenderingWebGPU
   CLASSES ${classes}
-  PRIVATE_CLASSES ${private_classes}
-  SOURCES ${vtk_object_factory_source} ${sources} ${wgsl_shader_sources}
+  SOURCES ${vtk_object_factory_source} ${wgsl_shader_sources} ${private_sources}
   HEADERS ${headers}
   NOWRAP_HEADERS ${public_wgsl_shader_headers}
-  PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${private_wgsl_shader_headers})
+  PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${private_wgsl_shader_headers} ${private_headers})
 
 vtk_module_compile_features(VTK::RenderingWebGPU
   PUBLIC

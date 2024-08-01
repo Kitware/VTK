@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#ifndef vtkWebGPUInternalsComputePassTextureStorage_h
-#define vtkWebGPUInternalsComputePassTextureStorage_h
+#ifndef vtkWebGPUComputePassTextureStorageInternals_h
+#define vtkWebGPUComputePassTextureStorageInternals_h
 
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"               // for smart pointers
@@ -27,11 +27,11 @@ class vtkWebGPUComputePass;
  *
  * A compute pass delegates calls that want to modify textures to this class.
  */
-class vtkWebGPUInternalsComputePassTextureStorage : public vtkObject
+class vtkWebGPUComputePassTextureStorageInternals : public vtkObject
 {
 public:
-  static vtkWebGPUInternalsComputePassTextureStorage* New();
-  vtkTypeMacro(vtkWebGPUInternalsComputePassTextureStorage, vtkObject);
+  static vtkWebGPUComputePassTextureStorageInternals* New();
+  vtkTypeMacro(vtkWebGPUComputePassTextureStorageInternals, vtkObject);
 
   /**
    * Sets the device that will be used by this texture storage when creating textures / texture
@@ -328,7 +328,7 @@ public:
     vtkWebGPUComputeTextureView::TextureViewAspect aspect);
 
 private:
-  friend class vtkWebGPUInternalsComputePass;
+  friend class vtkWebGPUComputePassInternals;
 
   // Compute pass that uses this texture storage
   vtkWeakPointer<vtkWebGPUComputePass> ParentComputePass = nullptr;

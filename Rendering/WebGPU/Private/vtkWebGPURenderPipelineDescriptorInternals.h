@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef vtkWebGPUInternalsRenderPipelineDescriptor_h
-#define vtkWebGPUInternalsRenderPipelineDescriptor_h
+#ifndef vtkWebGPURenderPipelineDescriptorInternals_h
+#define vtkWebGPURenderPipelineDescriptorInternals_h
 
 #include "vtkRenderingWebGPUModule.h"
 #include "vtk_wgpu.h"
@@ -9,7 +9,7 @@
 #include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUInternalsRenderPipelineDescriptor
+class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPURenderPipelineDescriptorInternals
   : public wgpu::RenderPipelineDescriptor
 {
 public:
@@ -17,15 +17,15 @@ public:
   static constexpr int kMaxVertexAttributes = 16u;
   static constexpr int kMaxColorAttachments = 8u;
 
-  vtkWebGPUInternalsRenderPipelineDescriptor();
+  vtkWebGPURenderPipelineDescriptorInternals();
 
-  vtkWebGPUInternalsRenderPipelineDescriptor(
-    const vtkWebGPUInternalsRenderPipelineDescriptor&) = delete;
-  vtkWebGPUInternalsRenderPipelineDescriptor& operator=(
-    const vtkWebGPUInternalsRenderPipelineDescriptor&) = delete;
-  vtkWebGPUInternalsRenderPipelineDescriptor(vtkWebGPUInternalsRenderPipelineDescriptor&&) = delete;
-  vtkWebGPUInternalsRenderPipelineDescriptor& operator=(
-    vtkWebGPUInternalsRenderPipelineDescriptor&&) = delete;
+  vtkWebGPURenderPipelineDescriptorInternals(
+    const vtkWebGPURenderPipelineDescriptorInternals&) = delete;
+  vtkWebGPURenderPipelineDescriptorInternals& operator=(
+    const vtkWebGPURenderPipelineDescriptorInternals&) = delete;
+  vtkWebGPURenderPipelineDescriptorInternals(vtkWebGPURenderPipelineDescriptorInternals&&) = delete;
+  vtkWebGPURenderPipelineDescriptorInternals& operator=(
+    vtkWebGPURenderPipelineDescriptorInternals&&) = delete;
 
   wgpu::DepthStencilState* EnableDepthStencil(
     wgpu::TextureFormat format = wgpu::TextureFormat::Depth24PlusStencil8);
@@ -42,4 +42,4 @@ public:
 VTK_ABI_NAMESPACE_END
 
 #endif
-// VTK-HeaderTest-Exclude: vtkWebGPUInternalsRenderPipelineDescriptor.h
+// VTK-HeaderTest-Exclude: vtkWebGPURenderPipelineDescriptorInternals.h

@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkWebGPUInternalsBindGroupLayout.h"
+#include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
+vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
   uint32_t entryBinding, wgpu::ShaderStage entryVisibility, wgpu::BufferBindingType bufferType,
   bool bufferHasDynamicOffset, uint64_t bufferMinBindingSize)
 {
@@ -18,7 +18,7 @@ vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper::LayoutEntryI
 }
 
 //------------------------------------------------------------------------------
-vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
+vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
   uint32_t entryBinding, wgpu::ShaderStage entryVisibility, wgpu::SamplerBindingType samplerType)
 {
   binding = entryBinding;
@@ -27,7 +27,7 @@ vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper::LayoutEntryI
 }
 
 //------------------------------------------------------------------------------
-vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
+vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
   uint32_t entryBinding, wgpu::ShaderStage entryVisibility,
   wgpu::TextureSampleType textureSampleType, wgpu::TextureViewDimension textureViewDimension,
   bool textureMultisampled)
@@ -40,7 +40,7 @@ vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper::LayoutEntryI
 }
 
 //------------------------------------------------------------------------------
-vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
+vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
   uint32_t entryBinding, wgpu::ShaderStage entryVisibility,
   wgpu::StorageTextureAccess storageTextureAccess, wgpu::TextureFormat format,
   wgpu::TextureViewDimension textureViewDimension)
@@ -53,14 +53,14 @@ vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper::LayoutEntryI
 }
 
 //------------------------------------------------------------------------------
-vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
+vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
   const wgpu::BindGroupLayoutEntry& entry)
   : wgpu::BindGroupLayoutEntry(entry)
 {
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupLayout vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(
+wgpu::BindGroupLayout vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
   const wgpu::Device& device, const std::vector<wgpu::BindGroupLayoutEntry>& entries)
 {
   wgpu::BindGroupLayoutDescriptor descriptor;
@@ -70,13 +70,13 @@ wgpu::BindGroupLayout vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupLayout vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(
+wgpu::BindGroupLayout vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
   const wgpu::Device& device,
-  std::initializer_list<vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper>
+  std::initializer_list<vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper>
     entriesInitializer)
 {
   std::vector<wgpu::BindGroupLayoutEntry> entries;
-  for (const vtkWebGPUInternalsBindGroupLayout::LayoutEntryInitializationHelper& entry :
+  for (const vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper& entry :
     entriesInitializer)
   {
     entries.push_back(entry);

@@ -26,7 +26,7 @@ protected:
 
 private:
   friend class vtkWebGPUComputePass;
-  friend class vtkWebGPUInternalsComputePassTextureStorage;
+  friend class vtkWebGPUComputePassTextureStorageInternals;
 
   ///@{
   /**

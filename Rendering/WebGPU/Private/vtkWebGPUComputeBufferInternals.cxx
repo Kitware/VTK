@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkWebGPUInternalsComputeBuffer.h"
+#include "Private/vtkWebGPUComputeBufferInternals.h"
 #include "vtkArrayDispatch.h"
 
 namespace
@@ -42,14 +42,14 @@ private:
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputeBuffer::UploadFromDataArray(
+void vtkWebGPUComputeBufferInternals::UploadFromDataArray(
   wgpu::Device device, wgpu::Buffer buffer, vtkDataArray* dataArray)
 {
   UploadFromDataArray(device, buffer, 0, dataArray);
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsComputeBuffer::UploadFromDataArray(
+void vtkWebGPUComputeBufferInternals::UploadFromDataArray(
   wgpu::Device device, wgpu::Buffer buffer, vtkIdType byteOffset, vtkDataArray* dataArray)
 {
   using DispatchAllTypes = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;

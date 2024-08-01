@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkWebGPUInternalsTexture.h"
+#include "Private/vtkWebGPUTextureInternals.h"
 #include "vtkArrayDispatch.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -47,7 +47,7 @@ private:
 }
 
 //------------------------------------------------------------------------------
-wgpu::Texture vtkWebGPUInternalsTexture::CreateATexture(const wgpu::Device& device,
+wgpu::Texture vtkWebGPUTextureInternals::CreateATexture(const wgpu::Device& device,
   wgpu::Extent3D extents, wgpu::TextureDimension dimension, wgpu::TextureFormat format,
   wgpu::TextureUsage usage, int mipLevelCount, std::string label)
 {
@@ -69,7 +69,7 @@ wgpu::Texture vtkWebGPUInternalsTexture::CreateATexture(const wgpu::Device& devi
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureView vtkWebGPUInternalsTexture::CreateATextureView(
+wgpu::TextureView vtkWebGPUTextureInternals::CreateATextureView(
   const wgpu::Device& vtkNotUsed(device), wgpu::Texture texture,
   wgpu::TextureViewDimension dimension, wgpu::TextureAspect aspect, wgpu::TextureFormat format,
   int baseMipLevel, int mipLevelCount, std::string label)
@@ -91,13 +91,13 @@ wgpu::TextureView vtkWebGPUInternalsTexture::CreateATextureView(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsTexture::Upload(const wgpu::Device& device, wgpu::Texture texture,
+void vtkWebGPUTextureInternals::Upload(const wgpu::Device& device, wgpu::Texture texture,
   uint32_t bytesPerRow, uint32_t byteSize, const void* data)
 {
-  wgpu::ImageCopyTexture copyTexture = vtkWebGPUInternalsTexture::GetImageCopyTexture(texture);
+  wgpu::ImageCopyTexture copyTexture = vtkWebGPUTextureInternals::GetImageCopyTexture(texture);
 
   wgpu::TextureDataLayout textureDataLayout =
-    vtkWebGPUInternalsTexture::GetDataLayout(texture, bytesPerRow);
+    vtkWebGPUTextureInternals::GetDataLayout(texture, bytesPerRow);
 
   wgpu::Extent3D textureExtents = { texture.GetWidth(), texture.GetHeight(),
     texture.GetDepthOrArrayLayers() };
@@ -106,14 +106,14 @@ void vtkWebGPUInternalsTexture::Upload(const wgpu::Device& device, wgpu::Texture
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUInternalsTexture::UploadFromDataArray(
+void vtkWebGPUTextureInternals::UploadFromDataArray(
   const wgpu::Device& device, wgpu::Texture texture, uint32_t bytesPerRow, vtkDataArray* dataArray)
 {
   using DispatchAllTypes = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
 
-  wgpu::ImageCopyTexture imageCopyTexture = vtkWebGPUInternalsTexture::GetImageCopyTexture(texture);
+  wgpu::ImageCopyTexture imageCopyTexture = vtkWebGPUTextureInternals::GetImageCopyTexture(texture);
   wgpu::TextureDataLayout dataLayout =
-    vtkWebGPUInternalsTexture::GetDataLayout(texture, bytesPerRow);
+    vtkWebGPUTextureInternals::GetDataLayout(texture, bytesPerRow);
 
   wgpu::Extent3D extents = { texture.GetWidth(), texture.GetHeight(),
     texture.GetDepthOrArrayLayers() };
@@ -127,7 +127,7 @@ void vtkWebGPUInternalsTexture::UploadFromDataArray(
 }
 
 //------------------------------------------------------------------------------
-wgpu::ImageCopyTexture vtkWebGPUInternalsTexture::GetImageCopyTexture(wgpu::Texture texture)
+wgpu::ImageCopyTexture vtkWebGPUTextureInternals::GetImageCopyTexture(wgpu::Texture texture)
 {
   wgpu::ImageCopyTexture copyTexture;
   copyTexture.aspect = wgpu::TextureAspect::All;
@@ -138,7 +138,7 @@ wgpu::ImageCopyTexture vtkWebGPUInternalsTexture::GetImageCopyTexture(wgpu::Text
   return copyTexture;
 }
 //------------------------------------------------------------------------------
-wgpu::TextureDataLayout vtkWebGPUInternalsTexture::GetDataLayout(
+wgpu::TextureDataLayout vtkWebGPUTextureInternals::GetDataLayout(
   wgpu::Texture texture, uint32_t bytesPerRow)
 {
   wgpu::TextureDataLayout textureDataLayout;
