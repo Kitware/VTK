@@ -311,8 +311,7 @@ private:
    * Return the sum of the subfiles dataset's size given a path to the dataset.
    * Return -1 on failure (dataset does not exist)
    */
-  hsize_t GetSubFilesDatasetSize(
-    const std::string& datasetPath, const char* groupName, const char* name);
+  hsize_t GetSubFilesDatasetSize(const char* datasetPath, const char* groupName, const char* name);
 
   // Possible indexing mode of VTKHDF datasets. See `GetDatasetIndexationMode`
   enum class IndexingMode
