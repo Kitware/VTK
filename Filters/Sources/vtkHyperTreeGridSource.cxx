@@ -395,10 +395,12 @@ int vtkHyperTreeGridSource::RequestData(
 
     if (!this->DescriptorBits && !this->InitializeFromStringDescriptor())
     {
+      vtkErrorMacro(<< "Could not initialize string descriptor.");
       return 0;
     }
     else if (this->DescriptorBits && !this->InitializeFromBitsDescriptor())
     {
+      vtkErrorMacro(<< "Could not initialize bits descriptor.");
       return 0;
     }
   } // if this->UseDescriptor
@@ -612,6 +614,9 @@ int vtkHyperTreeGridSource::ProcessTrees(vtkHyperTreeGrid*, vtkDataObject* outpu
     return 0;
   }
 
+  // Reset process counter
+  this->CurrentTreeProcess = 0;
+
   // Iterate over all hyper trees
   vtkIdType nbTrees;
   if (this->LevelZeroMaterialIndex)
@@ -704,7 +709,6 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   {
     vtkErrorMacro(<< "Material mask is used but has length " << strlen(this->Mask)
                   << " != " << descLen << " which is the length of the grid descriptor.");
-
     return 0;
   }
 
@@ -759,31 +763,14 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
         this->LevelDescriptors.push_back(descriptor.str());
         this->LevelMasks.push_back(mask.str());
 
-        // Check whether cursor is still at rool level
-        if (rootLevel)
+        if (!this->IsLevelDescriptorConsistent(
+              rootLevel, nRefined, nLeaves, nTotal, nNextLevel, descriptor))
         {
-          rootLevel = false;
+          return 0;
+        }
 
-          // Verify that total number of root cells is consistent with descriptor
-          if (nRefined + nLeaves != nTotal)
-          {
-            vtkErrorMacro(<< "String " << this->Descriptor << " describes " << nRefined + nLeaves
-                          << " root cells != " << nTotal);
-            return 0;
-          }
-        } // if (rootLevel)
-        else
-        {
-          // Verify that level descriptor cardinality matches expected value
-          if (descriptor.str().size() != nNextLevel)
-          {
-            vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
-                          << descriptor.str().size() << " which is not expected value of "
-                          << nNextLevel);
-
-            return 1;
-          }
-        } // else
+        // Changing level means we're not are root level
+        rootLevel = false;
 
         // Predict next level descriptor cardinality
         nNextLevel = nRefined * this->BlockSize;
@@ -864,12 +851,10 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   }   // char loop
 
   // Verify and append last level string
-  if (descriptor.str().size() != nNextLevel)
+  if (!this->IsLevelDescriptorConsistent(
+        rootLevel, nRefined, nLeaves, nTotal, nNextLevel, descriptor))
   {
-    vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
-                  << descriptor.str().size() << " which is not expected value of " << nNextLevel);
-
-    return 1;
+    return 0;
   }
 
   // Push per-level descriptor and material mask if used
@@ -907,6 +892,35 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   this->LevelBitsIndexCnt = this->LevelBitsIndex;
 
   return 1;
+}
+
+bool vtkHyperTreeGridSource::IsLevelDescriptorConsistent(bool isRootLevel, unsigned int nRefined,
+  unsigned int nLeaves, unsigned int nTotal, unsigned int nNextLevel,
+  const std::ostringstream& descriptor)
+{
+  // Check whether cursor is still at rool level
+  if (isRootLevel)
+  {
+    // Verify that total number of root cells is consistent with descriptor
+    if (nRefined + nLeaves != nTotal)
+    {
+      vtkErrorMacro(<< "String " << this->Descriptor << " describes " << nRefined + nLeaves
+                    << " root cells != " << nTotal);
+      return false;
+    }
+  } // if (rootLevel)
+  else
+  {
+    // Verify that level descriptor cardinality matches expected value
+    if (descriptor.str().size() != nNextLevel)
+    {
+      vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
+                    << descriptor.str().size() << " which is not expected value of " << nNextLevel);
+      return false;
+    }
+  }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------

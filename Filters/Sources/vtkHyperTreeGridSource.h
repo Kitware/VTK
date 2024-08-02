@@ -335,6 +335,14 @@ private:
   int Piece = 0;
   int NumPieces = 1;
   int CurrentTreeProcess = 0; // Track the process where next root trees should go
+
+  /**
+   * Return true if current level size is consistent: at root level, nTotal == nLeaves+nRefined,
+   * and on lower levels, descriptor size matching nNextLevel predicted number of cells.
+   * Logs error messages on failure.
+   */
+  bool IsLevelDescriptorConsistent(bool isRootLevel, unsigned int nRefined, unsigned int nLeaves,
+    unsigned int nTotal, unsigned int nNextLevel, const std::ostringstream& descriptor);
 };
 
 VTK_ABI_NAMESPACE_END
