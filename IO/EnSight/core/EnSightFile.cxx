@@ -3,6 +3,7 @@
 
 #include "EnSightFile.h"
 
+#include <cctype> // for std::tolower
 #include <regex>
 
 #include <vtk_fmt.h>
