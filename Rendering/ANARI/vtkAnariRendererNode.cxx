@@ -592,7 +592,7 @@ void vtkAnariRendererNode::InitAnariWorld()
 void vtkAnariRendererNode::UpdateAnariFrameSize()
 {
   const uvec2 frameSize = { static_cast<uint>(this->Size[0]), static_cast<uint>(this->Size[1]) };
-  if (this->Internal->ImageX == frameSize[0] && this->Internal->ImageY == frameSize[1])
+  if ((uint)this->Internal->ImageX == frameSize[0] && (uint)this->Internal->ImageY == frameSize[1])
   {
     return;
   }

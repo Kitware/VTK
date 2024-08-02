@@ -94,6 +94,13 @@ else ()
   set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "")
 endif ()
 
+# anari/helide
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "helide")
+  set(VTK_MODULE_ENABLE_VTK_RenderingAnari YES CACHE STRING "")
+else ()
+  set(VTK_MODULE_ENABLE_VTK_RenderingAnari NO CACHE STRING "")
+endif ()
+
 # Mangling
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "mangling")
   set(VTK_ABI_NAMESPACE_NAME "vtk_mangle_test" CACHE STRING "")
