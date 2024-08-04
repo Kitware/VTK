@@ -56,10 +56,10 @@ public:
   int GetEstimatedDefaultNumberOfThreads();
 
   //--------------------------------------------------------------------------------
-  void SetNestedParallelism(bool isNested) { this->NestedActivated = isNested; }
+  void SetNestedParallelism(bool isNested);
 
   //--------------------------------------------------------------------------------
-  bool GetNestedParallelism() { return this->NestedActivated; }
+  bool GetNestedParallelism();
 
   //--------------------------------------------------------------------------------
   bool IsParallelScope();
@@ -117,6 +117,18 @@ private:
   bool NestedActivated = false;
   std::atomic<bool> IsParallel{ false };
 };
+
+template <BackendType Backend>
+void vtkSMPToolsImpl<Backend>::SetNestedParallelism(bool isNested)
+{
+  this->NestedActivated = isNested;
+}
+
+template <BackendType Backend>
+bool vtkSMPToolsImpl<Backend>::GetNestedParallelism()
+{
+  return this->NestedActivated;
+}
 
 template <BackendType Backend>
 bool vtkSMPToolsImpl<Backend>::IsParallelScope()
