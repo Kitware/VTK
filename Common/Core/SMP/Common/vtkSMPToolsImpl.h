@@ -43,7 +43,7 @@ const BackendType DefaultBackend = BackendType::OpenMP;
 #endif
 
 template <BackendType Backend>
-class VTKCOMMONCORE_EXPORT vtkSMPToolsImpl
+class vtkSMPToolsImpl
 {
 public:
   //--------------------------------------------------------------------------------

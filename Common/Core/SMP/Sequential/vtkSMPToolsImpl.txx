@@ -95,15 +95,15 @@ void vtkSMPToolsImpl<BackendType::Sequential>::Sort(
 
 //--------------------------------------------------------------------------------
 template <>
-void vtkSMPToolsImpl<BackendType::Sequential>::Initialize(int);
+VTKCOMMONCORE_EXPORT void vtkSMPToolsImpl<BackendType::Sequential>::Initialize(int);
 
 //--------------------------------------------------------------------------------
 template <>
-int vtkSMPToolsImpl<BackendType::Sequential>::GetEstimatedNumberOfThreads();
+VTKCOMMONCORE_EXPORT int vtkSMPToolsImpl<BackendType::Sequential>::GetEstimatedNumberOfThreads();
 
 //--------------------------------------------------------------------------------
 template <>
-bool vtkSMPToolsImpl<BackendType::Sequential>::GetSingleThread();
+VTKCOMMONCORE_EXPORT bool vtkSMPToolsImpl<BackendType::Sequential>::GetSingleThread();
 
 VTK_ABI_NAMESPACE_END
 } // namespace smp
