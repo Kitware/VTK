@@ -93,25 +93,13 @@ public:
   void Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp);
 
   //--------------------------------------------------------------------------------
-  vtkSMPToolsImpl()
-    : NestedActivated(true)
-    , IsParallel(false)
-  {
-  }
+  vtkSMPToolsImpl();
 
   //--------------------------------------------------------------------------------
-  vtkSMPToolsImpl(const vtkSMPToolsImpl& other)
-    : NestedActivated(other.NestedActivated)
-    , IsParallel(other.IsParallel.load())
-  {
-  }
+  vtkSMPToolsImpl(const vtkSMPToolsImpl& other);
 
   //--------------------------------------------------------------------------------
-  void operator=(const vtkSMPToolsImpl& other)
-  {
-    this->NestedActivated = other.NestedActivated;
-    this->IsParallel = other.IsParallel.load();
-  }
+  void operator=(const vtkSMPToolsImpl& other);
 
 private:
   bool NestedActivated = false;
@@ -134,6 +122,27 @@ template <BackendType Backend>
 bool vtkSMPToolsImpl<Backend>::IsParallelScope()
 {
   return this->IsParallel;
+}
+
+template <BackendType Backend>
+vtkSMPToolsImpl<Backend>::vtkSMPToolsImpl()
+  : NestedActivated(true)
+  , IsParallel(false)
+{
+}
+
+template <BackendType Backend>
+vtkSMPToolsImpl<Backend>::vtkSMPToolsImpl(const vtkSMPToolsImpl& other)
+  : NestedActivated(other.NestedActivated)
+  , IsParallel(other.IsParallel.load())
+{
+}
+
+template <BackendType Backend>
+void vtkSMPToolsImpl<Backend>::operator=(const vtkSMPToolsImpl& other)
+{
+  this->NestedActivated = other.NestedActivated;
+  this->IsParallel = other.IsParallel.load();
 }
 
 using ExecuteFunctorPtrType = void (*)(void*, vtkIdType, vtkIdType, vtkIdType);
