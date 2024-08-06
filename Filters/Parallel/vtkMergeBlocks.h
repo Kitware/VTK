@@ -20,7 +20,8 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 
-class vtkUnstructuredGrid;
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKFILTERSPARALLEL_EXPORT vtkMergeBlocks : public vtkDataObjectAlgorithm
 {
 public:
@@ -110,4 +111,5 @@ private:
   void operator=(const vtkMergeBlocks&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

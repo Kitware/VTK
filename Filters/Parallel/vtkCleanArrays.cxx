@@ -20,6 +20,7 @@
 #include <set>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 inline bool vtkSkipAttributeType(int attr)
 {
   return (attr == vtkDataObject::POINT_THEN_CELL);
@@ -440,3 +441,4 @@ void vtkCleanArrays::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FillPartialArrays: " << this->FillPartialArrays << endl;
   os << indent << "Controller: " << this->Controller << endl;
 }
+VTK_ABI_NAMESPACE_END

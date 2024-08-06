@@ -24,6 +24,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiProcessControllerHelper);
 //----------------------------------------------------------------------------
 vtkMultiProcessControllerHelper::vtkMultiProcessControllerHelper() = default;
@@ -201,3 +202,4 @@ void vtkMultiProcessControllerHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

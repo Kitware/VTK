@@ -18,6 +18,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 vtkSmartPointer<vtkDataSet> CreateOutput(vtkMergeBlocks* self)
@@ -256,3 +257,4 @@ void vtkMergeBlocks::PrintSelf(ostream& os, vtkIndent indent)
      << "OutputDataSetType: " << vtkDataObjectTypes::GetClassNameFromTypeId(this->OutputDataSetType)
      << endl;
 }
+VTK_ABI_NAMESPACE_END

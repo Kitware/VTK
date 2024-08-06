@@ -18,6 +18,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class VTKFILTERSPARALLEL_EXPORT vtkCleanArrays : public vtkPassInputTypeAlgorithm
 {
@@ -77,4 +78,5 @@ public:
   class vtkArraySet;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

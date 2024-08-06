@@ -18,6 +18,7 @@
 
 #include <vector> // needed for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkMultiProcessController;
 class vtkMultiProcessStream;
@@ -59,5 +60,5 @@ private:
   vtkMultiProcessControllerHelper(const vtkMultiProcessControllerHelper&) = delete;
   void operator=(const vtkMultiProcessControllerHelper&) = delete;
 };
-
+VTK_ABI_NAMESPACE_END
 #endif
