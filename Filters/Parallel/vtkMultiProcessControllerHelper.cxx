@@ -48,7 +48,7 @@ int vtkMultiProcessControllerHelper::ReduceToAll(vtkMultiProcessController* cont
 
   std::vector<vtkIdType> counts(numProcs);
   const auto my_count = static_cast<vtkIdType>(raw_data.size());
-  controller->AllGather(&my_count, &counts[0], 1);
+  controller->AllGather(&my_count, counts.data(), 1);
 
   std::vector<vtkIdType> offsets(numProcs, 0);
   for (int cc = 1; cc < numProcs; ++cc)
@@ -58,10 +58,10 @@ int vtkMultiProcessControllerHelper::ReduceToAll(vtkMultiProcessController* cont
 
   std::vector<unsigned char> buffer(offsets.back() + counts.back());
 
-  controller->AllGatherV(&raw_data[0], &buffer[0], my_count, &counts[0], &offsets[0]);
+  controller->AllGatherV(raw_data.data(), buffer.data(), my_count, counts.data(), offsets.data());
 
   // now perform pair-wise reduction operation locally.
-  data.SetRawData(&buffer[0], static_cast<unsigned int>(counts[0]));
+  data.SetRawData(buffer.data(), static_cast<unsigned int>(counts[0]));
   for (int cc = 1; cc < numProcs; ++cc)
   {
     vtkMultiProcessStream other;
