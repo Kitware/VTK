@@ -264,7 +264,8 @@ bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram* program, vtkAbstrac
   float transform[16];
   std::ostringstream toString;
 
-  program->SetUniformf("depthC", 11.0);
+  // We have to use the same exponential constant that was used when baking.
+  program->SetUniformf("depthC", this->ShadowMapBakerPass->GetExponentialConstant());
   for (size_t i = 0; i < numLights; i++)
   {
     if (this->ShadowTextureUnits[i] >= 0)
