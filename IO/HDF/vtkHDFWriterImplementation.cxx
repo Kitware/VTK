@@ -12,24 +12,24 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-namespace
+namespace PATH
 {
 // VTKHDF Group & Dataset paths definitions, used to create virtual datasets properly in meta-files.
-const std::string POINTS_DATASET{ "Points" };
-const std::string OFFSETS_DATASET{ "Offsets" };
-const std::string TYPES_DATASET{ "Types" };
-const std::string CONNECTIVITY_DATASET{ "Connectivity" };
+const std::string POINTS{ "Points" };
+const std::string OFFSETS{ "Offsets" };
+const std::string TYPES{ "Types" };
+const std::string CONNECTIVITY{ "Connectivity" };
 
-const std::string NUMBER_POINTS_DATASET{ "/VTKHDF/NumberOfPoints" };
-const std::string NUMBER_CELL_DATASET{ "/VTKHDF/NumberOfCells" };
-const std::string CELLDATA_GROUP{ "/VTKHDF/CellData" };
-const std::string POINTDATA_GROUP{ "/VTKHDF/PointData" };
+const std::string NUMBER_OF_POINTS{ "/VTKHDF/NumberOfPoints" };
+const std::string NUMBER_OF_CELLS{ "/VTKHDF/NumberOfCells" };
+const std::string CELL_DATA{ "/VTKHDF/CellData" };
+const std::string POINT_DATA{ "/VTKHDF/PointData" };
 
-const std::string STEPS_POINTOFFSETS_DATASET{ "/VTKHDF/Steps/PointOffsets" };
-const std::string STEPS_CELLOFFSETS_DATASET{ "/VTKHDF/Steps/CellOffsets" };
-const std::string STEPS_CONNIDOFFSETS_DATASET{ "/VTKHDF/Steps/ConnectivityIdOffsets" };
+const std::string STEPS_POINT_OFFSETS{ "/VTKHDF/Steps/PointOffsets" };
+const std::string STEPS_CELL_OFFSETS{ "/VTKHDF/Steps/CellOffsets" };
+const std::string STEPS_CONNECTIVITY_ID_OFFSETS{ "/VTKHDF/Steps/ConnectivityIdOffsets" };
 
-const std::array<std::string, 3> SINGLE_VALUE_DATASETS{ "NumberOfPoints", "NumberOfCells",
+const std::array<std::string, 3> SINGLE_VALUES{ "NumberOfPoints", "NumberOfCells",
   "NumberOfConnectivityIds" };
 }
 
@@ -711,7 +711,8 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   {
     vtkDebugWithObjectMacro(
       this->Writer, << "Ignoring dataset " << datasetPath << " not present in every sub-file.");
-    if (this->GetGroupName(group) == CELLDATA_GROUP || this->GetGroupName(group) == POINTDATA_GROUP)
+    if (this->GetGroupName(group) == PATH::CELL_DATA ||
+      this->GetGroupName(group) == PATH::POINT_DATA)
     {
       return group; // Partial field, no error
     }
@@ -791,10 +792,10 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
         case IndexingMode::Points:
         {
           // Handle static mesh
-          if (name == POINTS_DATASET && totalSteps > 1)
+          if (name == PATH::POINTS && totalSteps > 1)
           {
             hsize_t partPointsOffset =
-              this->GetSubfileNumberOf(STEPS_POINTOFFSETS_DATASET, part, step);
+              this->GetSubfileNumberOf(PATH::STEPS_POINT_OFFSETS, part, step);
             if (prevOffsets[part] == partPointsOffset)
             {
               vtkDebugWithObjectMacro(
@@ -804,7 +805,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
             prevOffsets[part] = partPointsOffset;
           }
 
-          mappingSize[0] = this->GetSubfileNumberOf(NUMBER_POINTS_DATASET, part, step);
+          mappingSize[0] = this->GetSubfileNumberOf(PATH::NUMBER_OF_POINTS, part, step);
           break;
         }
         case IndexingMode::Cells:
@@ -814,10 +815,10 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
             this->GetNumberOfCellsSubfile(part, step, isPolyData, this->GetGroupName(group));
 
           // Handle static mesh: don't write offsets if cells have not changed
-          if ((name == OFFSETS_DATASET || name == TYPES_DATASET) && totalSteps > 1)
+          if ((name == PATH::OFFSETS || name == PATH::TYPES) && totalSteps > 1)
           {
             hsize_t partCellOffset =
-              this->GetSubfileNumberOf(STEPS_CELLOFFSETS_DATASET, part, step, primitive);
+              this->GetSubfileNumberOf(PATH::STEPS_CELL_OFFSETS, part, step, primitive);
             if (prevOffsets[part] == partCellOffset)
             {
               vtkDebugWithObjectMacro(
@@ -830,7 +831,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
           mappingSize[0] = partNbCells;
 
           // For N cells, store N+1 cell offsets
-          if (name == OFFSETS_DATASET)
+          if (name == PATH::OFFSETS)
           {
             mappingSize[0]++;
           }
@@ -839,10 +840,10 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
         case IndexingMode::Connectivity:
         {
           // Handle static mesh
-          if (name == CONNECTIVITY_DATASET && totalSteps > 1)
+          if (name == PATH::CONNECTIVITY && totalSteps > 1)
           {
             hsize_t partConnOffset =
-              this->GetSubfileNumberOf(STEPS_CONNIDOFFSETS_DATASET, part, step, primitive);
+              this->GetSubfileNumberOf(PATH::STEPS_CONNECTIVITY_ID_OFFSETS, part, step, primitive);
             if (prevOffsets[part] == partConnOffset)
             {
               vtkDebugWithObjectMacro(
@@ -922,10 +923,10 @@ hsize_t vtkHDFWriter::Implementation::GetNumberOfCellsSubfile(
 {
   if (!isPolyData)
   {
-    return this->GetSubfileNumberOf(NUMBER_CELL_DATASET, subfileId, part);
+    return this->GetSubfileNumberOf(PATH::NUMBER_OF_CELLS, subfileId, part);
   }
 
-  if (isPolyData && groupName == CELLDATA_GROUP)
+  if (isPolyData && groupName == PATH::CELL_DATA)
   {
     // Sum up the number of cells for each primitive type
     return std::accumulate(PrimitiveNames.begin(), PrimitiveNames.end(), 0,
@@ -1112,21 +1113,20 @@ vtkHDFWriter::Implementation::IndexingMode vtkHDFWriter::Implementation::GetData
 {
   const std::string datasetPath = this->GetGroupName(group) + "/" + name;
 
-  if (std::find(SINGLE_VALUE_DATASETS.begin(), SINGLE_VALUE_DATASETS.end(), name) !=
-    SINGLE_VALUE_DATASETS.end())
+  if (std::find(PATH::SINGLE_VALUES.begin(), PATH::SINGLE_VALUES.end(), name) !=
+    PATH::SINGLE_VALUES.end())
   {
     return IndexingMode::MetaData;
   }
-  if (this->GetGroupName(group) == POINTDATA_GROUP || name == POINTS_DATASET)
+  if (this->GetGroupName(group) == PATH::POINT_DATA || name == PATH::POINTS)
   {
     return IndexingMode::Points;
   }
-  if (this->GetGroupName(group) == CELLDATA_GROUP || name == OFFSETS_DATASET ||
-    name == TYPES_DATASET)
+  if (this->GetGroupName(group) == PATH::CELL_DATA || name == PATH::OFFSETS || name == PATH::TYPES)
   {
     return IndexingMode::Cells;
   }
-  if (name == CONNECTIVITY_DATASET)
+  if (name == PATH::CONNECTIVITY)
   {
     return IndexingMode::Connectivity;
   }
