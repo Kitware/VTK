@@ -8,7 +8,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
-void vtkWebGPUCallbacksInternals::DeviceLostCallback(
+void vtkWebGPUCallbacksInternals::DeviceLostCallback(const WGPUDevice* vtkNotUsed(device),
   WGPUDeviceLostReason reason, char const* message, void* userdata)
 {
   std::string reasonStr;

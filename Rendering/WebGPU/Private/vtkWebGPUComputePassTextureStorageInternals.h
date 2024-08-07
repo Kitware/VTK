@@ -11,6 +11,7 @@
 #include "vtkWebGPUComputeRenderTexture.h" // for compute render textures
 #include "vtkWebGPUComputeTexture.h"       // for compute textures
 #include "vtkWebGPUComputeTextureView.h"   // for compute texture views
+#include "vtkWebGPUConfiguration.h"        // for ivar
 #include "vtk_wgpu.h"                      // for webgpu
 
 #include <cstddef>
@@ -39,7 +40,7 @@ public:
    *
    * This device must be the one used by the parent compute pass.
    */
-  void SetParentDevice(wgpu::Device device);
+  vtkSetSmartPointerMacro(ParentPassWGPUConfiguration, vtkWebGPUConfiguration);
 
   /**
    * Sets the compute pass that uses the textures and texture views used by this storage
@@ -258,7 +259,7 @@ public:
     textureDataLayout.rowsPerImage = textureExtents.height;
 
     // Uploading from std::vector or vtkDataArray if one of the two is present
-    this->ParentPassDevice.GetQueue().WriteTexture(
+    this->ParentPassWGPUConfiguration->GetDevice().GetQueue().WriteTexture(
       &copyTexture, bytes, numBytes, &textureDataLayout, &textureExtents);
   }
 
@@ -327,13 +328,17 @@ public:
   static wgpu::TextureAspect ComputeTextureViewAspectToWebGPU(
     vtkWebGPUComputeTextureView::TextureViewAspect aspect);
 
+protected:
+  vtkWebGPUComputePassTextureStorageInternals() = default;
+  ~vtkWebGPUComputePassTextureStorageInternals() override = default;
+
 private:
   friend class vtkWebGPUComputePassInternals;
 
   // Compute pass that uses this texture storage
   vtkWeakPointer<vtkWebGPUComputePass> ParentComputePass = nullptr;
   // Device of the parent compute pass that is used when creating textures and texture views
-  wgpu::Device ParentPassDevice = nullptr;
+  vtkSmartPointer<vtkWebGPUConfiguration> ParentPassWGPUConfiguration;
 
   // Compute textures of the storage
   std::vector<vtkSmartPointer<vtkWebGPUComputeTexture>> Textures;

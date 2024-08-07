@@ -149,8 +149,8 @@ void vtkWebGPURenderer::DeviceRender()
 
 4) Now that the mapper data buffer has been created, it is possible to completely setup the render buffer
 (previously added to a list held by the mapper) and add it to the pipeline. This is done by `UpdateComputePipelines()`.
-This function loops over all the pipelines that have yet to be configured and sets their `wgpu::Device` and
-`wgpu::Adapter` to be the same as the one from the `vtkWebGPURenderWindow`. This is necessary because if we
+This function loops over all the pipelines that have yet to be configured and sets their `vtkWebGPUConfiguration`
+to be the same as the one from the `vtkWebGPURenderWindow`. This is necessary because if we
 want our compute pipeline to use buffers that have been created by the `wgpu::Device` of the render window,
 the compute pipeline is going to have to use the same `wgpu::Device` (and adapter). If a compute pipeline
 was set up (which means that it wasn't set up before), we also loop through all the actors of the renderer.
@@ -164,8 +164,7 @@ void vtkWebGPURenderer::UpdateComputePipelines()
 {
   for (vtkSmartPointer<vtkWebGPUComputePipeline> computePipeline : this->NotSetupComputePipelines)
   {
-    computePipeline->SetAdapter(webGPURenderWindow->GetAdapter());
-    computePipeline->SetDevice(webGPURenderWindow->GetDevice());
+    computePipeline->SetWGPUConfiguration(webGPURenderWindow->GetWGPUConfiguration());
 
     this->UpdateComputeBuffers(computePipeline);
   }

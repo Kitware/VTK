@@ -33,17 +33,14 @@ struct InternalMapBufferAsyncData
 };
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputePassBufferStorageInternals::SetParentDevice(wgpu::Device device)
-{
-  this->ParentPassDevice = device;
-}
-
-//------------------------------------------------------------------------------
 void vtkWebGPUComputePassBufferStorageInternals::SetComputePass(
   vtkWeakPointer<vtkWebGPUComputePass> parentComputePass)
 {
   this->ParentComputePass = parentComputePass;
-  this->ParentPassDevice = parentComputePass->Internals->Device;
+  if (parentComputePass)
+  {
+    this->ParentPassWGPUConfiguration = parentComputePass->Internals->WGPUConfiguration;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -75,8 +72,9 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
       vtkWebGPUComputePassBufferStorageInternals::ComputeBufferModeToBufferUsage(mode);
     vtkIdType byteSize = buffer->GetByteSize();
 
-    wgpuBuffer = vtkWebGPUBufferInternals::CreateABuffer(
-      this->ParentPassDevice, byteSize, bufferUsage, false, bufferLabelCStr);
+    wgpuBuffer =
+      vtkWebGPUBufferInternals::CreateABuffer(this->ParentPassWGPUConfiguration->GetDevice(),
+        byteSize, bufferUsage, false, bufferLabelCStr);
 
     // The buffer is read only by the shader if it doesn't have CopySrc (meaning that we would be
     // mapping the buffer from the GPU to read its results on the CPU meaning that the shader writes
@@ -88,7 +86,7 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
       case vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR:
         if (buffer->GetDataPointer() != nullptr)
         {
-          this->ParentPassDevice.GetQueue().WriteBuffer(
+          this->ParentPassWGPUConfiguration->GetDevice().GetQueue().WriteBuffer(
             wgpuBuffer, 0, buffer->GetDataPointer(), buffer->GetByteSize());
         }
         else if (bufferReadOnly)
@@ -106,7 +104,7 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
         if (buffer->GetDataArray() != nullptr)
         {
           vtkWebGPUComputeBufferInternals::UploadFromDataArray(
-            this->ParentPassDevice, wgpuBuffer, buffer->GetDataArray());
+            this->ParentPassWGPUConfiguration->GetDevice(), wgpuBuffer, buffer->GetDataArray());
         }
         else if (bufferReadOnly)
         {
@@ -201,7 +199,7 @@ void vtkWebGPUComputePassBufferStorageInternals::RecreateBuffer(
   std::string label = buffer->GetLabel();
   const char* bufferLabel = label.c_str();
   this->WebGPUBuffers[bufferIndex] = vtkWebGPUBufferInternals::CreateABuffer(
-    this->ParentPassDevice, newByteSize, bufferUsage, false, bufferLabel);
+    this->ParentPassWGPUConfiguration->GetDevice(), newByteSize, bufferUsage, false, bufferLabel);
 }
 
 //------------------------------------------------------------------------------
@@ -220,8 +218,9 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
   // that is not a Storage buffer, copy the storage buffer that we actually want to this new buffer
   // (that has the MapRead usage flag) and then map this buffer to the CPU.
   vtkIdType byteSize = this->Buffers[bufferIndex]->GetByteSize();
-  wgpu::Buffer mappedBuffer = vtkWebGPUBufferInternals::CreateABuffer(this->ParentPassDevice,
-    byteSize, wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead, false, nullptr);
+  wgpu::Buffer mappedBuffer =
+    vtkWebGPUBufferInternals::CreateABuffer(this->ParentPassWGPUConfiguration->GetDevice(),
+      byteSize, wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead, false, nullptr);
 
   // If we were to allocate this callbackData locally on the stack, it would be destroyed when going
   // out of scope (at the end of this function). The callback, called asynchronously would then be
@@ -307,7 +306,8 @@ void vtkWebGPUComputePassBufferStorageInternals::UpdateBufferData(
 
   wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
 
-  vtkWebGPUComputeBufferInternals::UploadFromDataArray(this->ParentPassDevice, wgpuBuffer, newData);
+  vtkWebGPUComputeBufferInternals::UploadFromDataArray(
+    this->ParentPassWGPUConfiguration->GetDevice(), wgpuBuffer, newData);
 }
 
 //------------------------------------------------------------------------------
@@ -337,7 +337,7 @@ void vtkWebGPUComputePassBufferStorageInternals::UpdateBufferData(
   wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
 
   vtkWebGPUComputeBufferInternals::UploadFromDataArray(
-    this->ParentPassDevice, wgpuBuffer, byteOffset, newData);
+    this->ParentPassWGPUConfiguration->GetDevice(), wgpuBuffer, byteOffset, newData);
 }
 
 //------------------------------------------------------------------------------

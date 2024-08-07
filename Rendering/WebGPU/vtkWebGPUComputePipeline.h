@@ -5,11 +5,10 @@
 #define vtkWebGPUComputePipeline_h
 
 #include "vtkObject.h"
-#include "vtkWGPUContext.h"       // for requesting device / adapter
-#include "vtkWebGPUComputePass.h" // for the list of compute passes held by this pipeline
-#include "vtk_wgpu.h"             // for webgpu
+#include "vtkWebGPUComputePass.h"   // for the list of compute passes held by this pipeline
+#include "vtkWebGPUConfiguration.h" // for requesting device / adapter
+#include "vtk_wgpu.h"               // for webgpu
 
-#include <memory>
 #include <unordered_map> // for the registered buffers / textures
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -33,18 +32,6 @@ class vtkWebGPURenderer;
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputePipeline : public vtkObject
 {
 public:
-  /**
-   * Sets the adapter. Useful to reuse an already existing adapter.
-   */
-  void SetAdapter(wgpu::Adapter adapter) { this->Adapter = adapter; };
-
-  /**
-   * Sets the device. Useful to reuse an already existing device.
-   *
-   * This function also sets the given device to all the compute passes of this compute pipeline
-   */
-  void SetDevice(wgpu::Device device);
-
   vtkTypeMacro(vtkWebGPUComputePipeline, vtkObject);
   static vtkWebGPUComputePipeline* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -58,6 +45,9 @@ public:
   vtkGetMacro(Label, std::string&);
   vtkSetMacro(Label, std::string);
   ///@}
+
+  void SetWGPUConfiguration(vtkWebGPUConfiguration* config);
+  vtkGetSmartPointerMacro(WGPUConfiguration, vtkWebGPUConfiguration);
 
   /**
    * Adds a compute pass to this pipeline
@@ -92,18 +82,9 @@ private:
    * Constructor that initializes the device and adapter
    */
   vtkWebGPUComputePipeline();
+  ~vtkWebGPUComputePipeline() override;
   vtkWebGPUComputePipeline(const vtkWebGPUComputePipeline&) = delete;
   void operator=(const vtkWebGPUComputePipeline&) = delete;
-
-  /**
-   * Initializes the adapter of the compute pipeline
-   */
-  void CreateAdapter();
-
-  /**
-   * Initializes the device of the compute pipeline
-   */
-  void CreateDevice();
 
   /**
    * Registers a new buffer created for a compute pass in this pipeline so that it can be reused by
@@ -136,8 +117,7 @@ private:
    * WebGPU adapter and device used by this pipeline (and all the compute passes contained in this
    * pipeline)
    */
-  wgpu::Adapter Adapter = nullptr;
-  wgpu::Device Device = nullptr;
+  vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
 
   /**
    * List of all the passes contained in this pipeline

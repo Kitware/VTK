@@ -263,6 +263,8 @@ protected:
 
   bool InitializedPipeline = false;
   bool UpdatedPrimitiveSizes = false;
+  bool UpdatedGeometryBuffers = false;
+  bool UpdatedPrimitiveBuffers = false;
   bool HasPointColors = false;
   bool HasPointNormals = false;
   bool HasPointTangents = false;

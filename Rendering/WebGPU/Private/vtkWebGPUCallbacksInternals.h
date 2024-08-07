@@ -17,8 +17,8 @@ public:
   /**
    * Callback called when the WGPU device is lost
    */
-  static void DeviceLostCallback(
-    WGPUDeviceLostReason reason, char const* message, void* userdata = nullptr);
+  static void DeviceLostCallback(const WGPUDevice* device, WGPUDeviceLostReason reason,
+    char const* message, void* userdata = nullptr);
 
   /**
    * Callback called when an error occured in the manipulation of WGPU

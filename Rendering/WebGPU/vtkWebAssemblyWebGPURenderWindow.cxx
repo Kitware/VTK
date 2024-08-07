@@ -53,7 +53,15 @@ void vtkWebAssemblyWebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------------------------
 std::string vtkWebAssemblyWebGPURenderWindow::MakeDefaultWindowNameWithBackend()
 {
-  return std::string("Visualization Toolkit - ") + "Emscripten " + this->GetBackendTypeAsString();
+  if (this->WGPUConfiguration)
+  {
+    return std::string("Visualization Toolkit - ") + "Emscripten " +
+      this->WGPUConfiguration->GetBackendInUseAsString();
+  }
+  else
+  {
+    return "Visualization Toolkit - Emscripten undefined backend";
+  }
 }
 
 //------------------------------------------------------------------------------

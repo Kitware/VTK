@@ -5,8 +5,8 @@
 #include "vtkImageData.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
-#include "vtkWGPUContext.h"
-#include "vtkWebGPURenderer.h"
+#include "vtkWebGPUConfiguration.h"
+#include "vtkWebGPURenderWindow.h"
 #include "vtkXWebGPURenderWindow.h"
 
 // STL includes
@@ -60,6 +60,7 @@ vtkXWebGPURenderWindow::~vtkXWebGPURenderWindow()
   this->Renderers->InitTraversal(rit);
   while ((ren = this->Renderers->GetNextRenderer(rit)))
   {
+    ren->ReleaseGraphicsResources(this);
     ren->SetRenderWindow(nullptr);
   }
   this->Renderers->RemoveAllItems();
@@ -99,7 +100,12 @@ bool vtkXWebGPURenderWindow::InitializeFromCurrentContext()
 //------------------------------------------------------------------------------------------------
 void vtkXWebGPURenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 {
-  if (!this->Device)
+  if (!this->WGPUConfiguration)
+  {
+    vtkErrorMacro(
+      << "vtkWebGPUConfiguration is null! Please provide one with SetWGPUConfiguration");
+  }
+  if (!this->WGPUConfiguration->GetDevice().Get())
   {
     this->Superclass::SetStereoCapableWindow(capable);
   }
@@ -168,7 +174,15 @@ void vtkXWebGPURenderWindow::SetShowWindow(bool val)
 //------------------------------------------------------------------------------------------------
 std::string vtkXWebGPURenderWindow::MakeDefaultWindowNameWithBackend()
 {
-  return std::string("Visualization Toolkit - ") + "X11 " + this->GetBackendTypeAsString();
+  if (this->WGPUConfiguration)
+  {
+    return std::string("Visualization Toolkit - ") + "X11 " +
+      this->WGPUConfiguration->GetBackendInUseAsString();
+  }
+  else
+  {
+    return "Visualization Toolkit - X11 undefined backend";
+  }
 }
 
 //------------------------------------------------------------------------------------------------
@@ -425,6 +439,12 @@ void vtkXWebGPURenderWindow::WindowInitialize()
 // Initialize the rendering window.
 bool vtkXWebGPURenderWindow::WindowSetup()
 {
+  if (!this->WGPUConfiguration)
+  {
+    vtkErrorMacro(
+      << "vtkWebGPUConfiguration is null! Please provide one with SetWGPUConfiguration");
+    return false;
+  }
   if (!this->WindowId || !this->DisplayId)
   {
     // initialize the window
@@ -433,10 +453,13 @@ bool vtkXWebGPURenderWindow::WindowSetup()
 
   if (this->WGPUInit())
   {
-    wgpu::SurfaceDescriptorFromXlibWindow x11SurfDesc;
+    wgpu::SurfaceDescriptorFromXlibWindow x11SurfDesc = {};
     x11SurfDesc.display = this->GetDisplayId();
     x11SurfDesc.window = this->GetWindowId();
-    this->Surface = vtkWGPUContext::CreateSurface(x11SurfDesc);
+    wgpu::SurfaceDescriptor surfDesc = {};
+    surfDesc.label = "VTK X11 surface";
+    surfDesc.nextInChain = &x11SurfDesc;
+    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
     return true;
   }
   return false;

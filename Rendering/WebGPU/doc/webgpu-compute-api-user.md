@@ -1,5 +1,6 @@
 ### Description
 
+The new WebGPU compute API allows offloading computations from the CPU to the GPU using WebGPU compute shaders
 through the new `vtkWebGPUComputePass` and `vtkWebGPUComputePipeline` classes.
 
 A `vtkWebGPUComputePass` is used to set the inputs and outputs to the compute shader, execute it and get the
@@ -44,7 +45,7 @@ You also need to indicate what data to use for input buffers using `SetData()`.
 Note that the data isn't uploaded (copied to the GPU) until the buffer is actually added to the compute pass
 by `vtkWebGPUComputePass::AddBuffer()` so the data needs to stay valid (i.e. not destroyed) on the CPU until `AddBuffer()` is called.
 Because you can give either `std::vector` data or `vtkDataArray` data to the buffer but only one of two is going to be used when
-sending data to the GPU, you must precise which one to use by calling `vtkWebGPUComputeBuffer::SetBufferDataType()`.
+sending data to the GPU, you must specify which one to use by calling `vtkWebGPUComputeBuffer::SetBufferDataType()`.
 
 For buffers used as outputs of the compute shader, you only need to specify their size using `SetByteSize()`.
 The size of input buffers is automatically determined when `SetData()` is called. `SetByteSize()` should not be called on input buffers.
@@ -476,3 +477,29 @@ calling `AcquireDepthBufferRenderTexture()` because it is the `Initialize()` met
 Render textures are used as regular textures. Add them to a compute pass with `vtkWebGPUComputePass::AddRenderTexture()`. Store the
 index of the texture returned by that call. Use that texture index to create a texture view with `vtkWebGPUComputePass::CreateTextureView()`.
 Configure the texture view, add it to the compute pass and you're done. Your render texture is ready to be used in one of your shaders.
+
+### Using a dedicated GPU device
+
+`vtkWebGPUComputePipeline` automatically initializes a webgpu Device to execute the compute passes.
+You can specify a different device by using the `SetWGPUConfiguration` method with a `vtkWebGPUConfiguration`
+object. In fact, this capability allows a `vtkWebGPUComputePipeline` to integrate in an existing rendering
+pipeline. If you recall from the previous section, we added a compute pipeline to a `vtkWebGPURenderer`.
+Under the covers, VTK shares the `vtkWebGPUConfiguration` instance of the `vtkWebGPURenderWindow` with the
+compute pipeline.
+
+Here's how you can build a compute pipeline to run on a device with low power consumption and a Vulkan
+backend assuming that Vulkan is available on the platform.
+
+```c++
+// Creating a vtkWebGPUConfiguration
+vtkNew<vtkWebGPUConfiguration> wgpuConfig;
+wgpuConfig->SetBackend(vtkWebGPUConfiguration::BackendType::Vulkan);
+wgpuConfig->SetPowerPreference(vtkWebGPUConfiguration::PowerPreferenceType::LowPower);
+
+// Creating a vtkWebGPUComputePipeline to use custom device
+vtkNew<vtkWebGPUComputePipeline> computePipeline;
+computePipeline->SetWGPUConfiguration(wgpuConfig);
+```
+
+The `vtkWebGPUComputePipeline` automatically initializes it's own `wgpu::Device` in the constructor. This
+may cause a hang. You can specify the default timeout by calling the static method `vtkWebGPUConfiguration::SetDefaultTimeout(double timeout)` with a lower timeout value in milliseconds.

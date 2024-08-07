@@ -8,6 +8,7 @@
 #include "Private/vtkWebGPUComputePassTextureStorageInternals.h"
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"
+#include "vtkWebGPUConfiguration.h"
 #include "vtk_wgpu.h" // for webgpu
 
 #include <unordered_map>
@@ -28,7 +29,7 @@ public:
   static vtkWebGPUComputePassInternals* New();
   vtkTypeMacro(vtkWebGPUComputePassInternals, vtkObject);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Sets the parent pass of this internals class
@@ -40,8 +41,8 @@ public:
    * Get/set the device used by this compute pass (usually the device of the compute pipeline
    * holding this compute pass)
    */
-  wgpu::Device GetDevice();
-  void SetDevice(wgpu::Device device);
+  void SetWGPUConfiguration(vtkWebGPUConfiguration* config);
+  vtkGetSmartPointerMacro(WGPUConfiguration, vtkWebGPUConfiguration);
   ///@}
 
   ///@{
@@ -293,6 +294,9 @@ public:
   vtkWeakPointer<vtkWebGPUComputePass> ParentPass;
 
 protected:
+  vtkWebGPUComputePassInternals() = default;
+  ~vtkWebGPUComputePassInternals() override = default;
+
 private:
   friend class vtkWebGPUComputePass;
   friend class vtkWebGPUComputePipeline;
@@ -310,7 +314,7 @@ private:
   bool BindGroupOrLayoutsInvalidated = true;
 
   // Device of the compute pipeline this pass belongs to. Used to submit commands.
-  wgpu::Device Device = nullptr;
+  vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
 
   // The compute pipeline this compute pass belongs to.
   vtkWeakPointer<vtkWebGPUComputePipeline> AssociatedPipeline;
