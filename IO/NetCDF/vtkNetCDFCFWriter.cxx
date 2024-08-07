@@ -33,7 +33,6 @@
 #include <sstream>
 #include <vector>
 
-#include "vtk_libproj.h"
 #include "vtk_netcdf.h"
 
 VTK_ABI_NAMESPACE_BEGIN
