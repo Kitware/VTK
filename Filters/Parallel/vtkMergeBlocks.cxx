@@ -42,7 +42,7 @@ void Merge(vtkDataObject* input, vtkDataSet* output, vtkMergeBlocks* self)
   else if (auto ds = vtkDataSet::SafeDownCast(input))
   {
     vtkNew<vtkAppendDataSets> appender;
-    appender->SetMergePoints(self->GetMergePoints() ? 1 : 0);
+    appender->SetMergePoints(self->GetMergePoints() ? true : false);
     appender->SetOutputDataSetType(self->GetOutputDataSetType());
     appender->SetTolerance(self->GetTolerance());
     appender->SetToleranceIsAbsolute(self->GetToleranceIsAbsolute());
@@ -53,7 +53,7 @@ void Merge(vtkDataObject* input, vtkDataSet* output, vtkMergeBlocks* self)
   else if (auto tree = vtkDataObjectTree::SafeDownCast(input))
   {
     vtkNew<vtkAppendDataSets> appender;
-    appender->SetMergePoints(self->GetMergePoints() ? 1 : 0);
+    appender->SetMergePoints(self->GetMergePoints() ? true : false);
     appender->SetOutputDataSetType(self->GetOutputDataSetType());
     appender->SetTolerance(self->GetTolerance());
     appender->SetToleranceIsAbsolute(self->GetToleranceIsAbsolute());

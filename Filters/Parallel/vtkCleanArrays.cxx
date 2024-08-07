@@ -216,7 +216,7 @@ public:
         else
         {
           myself.erase(mda);
-          partial_flags.push_back(std::make_pair(std::string(array->GetName()), true));
+          partial_flags.emplace_back(std::string(array->GetName()), true);
         }
       }
     }
@@ -228,7 +228,7 @@ public:
       {
         dsa->AddArray(array);
         array->FastDelete();
-        partial_flags.push_back(std::make_pair(std::string(array->GetName()), false));
+        partial_flags.emplace_back(std::string(array->GetName()), false);
       }
     }
 
