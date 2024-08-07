@@ -231,9 +231,28 @@ void vtkWin32OutputWindow::PromptText(const char* someText)
   char* vtkmsg = new char[vtkmsgsize];
   snprintf(vtkmsg, vtkmsgsize, "%s\nPress Cancel to suppress any further messages.", someText);
   std::wstring wmsg = vtksys::Encoding::ToWide(vtkmsg);
-  if (MessageBoxW(nullptr, wmsg.c_str(), L"Error", MB_ICONERROR | MB_OKCANCEL) == IDCANCEL)
+  const auto messageType = this->GetCurrentMessageType();
+  if (messageType == MESSAGE_TYPE_ERROR)
   {
-    vtkObject::GlobalWarningDisplayOff();
+    if (MessageBoxW(nullptr, wmsg.c_str(), L"Error", MB_ICONERROR | MB_OKCANCEL) == IDCANCEL)
+    {
+      vtkObject::GlobalWarningDisplayOff();
+    }
+  }
+  else if (messageType == MESSAGE_TYPE_TEXT || messageType == MESSAGE_TYPE_DEBUG)
+  {
+    if (MessageBoxW(nullptr, wmsg.c_str(), L"Information", MB_ICONINFORMATION | MB_OKCANCEL) ==
+      IDCANCEL)
+    {
+      vtkObject::GlobalWarningDisplayOff();
+    }
+  }
+  else if (messageType == MESSAGE_TYPE_GENERIC_WARNING || messageType == MESSAGE_TYPE_WARNING)
+  {
+    if (MessageBoxW(nullptr, wmsg.c_str(), L"Warning", MB_ICONWARNING | MB_OKCANCEL) == IDCANCEL)
+    {
+      vtkObject::GlobalWarningDisplayOff();
+    }
   }
   delete[] vtkmsg;
 }
