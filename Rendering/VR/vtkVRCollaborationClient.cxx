@@ -215,9 +215,16 @@ void vtkVRCollaborationClient::Disconnect()
   }
   this->AvatarUpdateTime.clear();
 
-  if (this->MoveObserver >= 0 && this->RenderWindow && this->RenderWindow->GetInteractor())
+  if (this->MoveObserver >= 0)
   {
-    this->RenderWindow->GetInteractor()->RemoveObserver(this->MoveObserver);
+    if (this->Internal->MoveEventSource)
+    {
+      this->Internal->MoveEventSource->RemoveObserver(this->MoveObserver);
+    }
+    else if (this->RenderWindow && this->RenderWindow->GetInteractor())
+    {
+      this->RenderWindow->GetInteractor()->RemoveObserver(this->MoveObserver);
+    }
     this->MoveObserver = -1;
   }
   this->Connected = false;
@@ -794,6 +801,24 @@ void vtkVRCollaborationClient::HandleBroadcastMessage(
     if (!avatarName.empty() && otherID != this->CollabID)
     {
       this->GetAvatar(otherID)->SetLabel(avatarName.c_str());
+    }
+  }
+  else if (type == "AUV")
+  {
+    std::vector<Argument> args = this->GetMessageArguments();
+    std::vector<double> newUpVector;
+    if (args.size() != 1 || !args[0].GetDoubleVector(newUpVector))
+    {
+      mvLog(vtkLogger::VERBOSITY_ERROR,
+        "Incorrect arguments for AUV (avatar up vector) collaboration message" << std::endl);
+      return;
+    }
+
+    // Set avatars up vector
+    if (otherID != this->CollabID || this->DisplayOwnAvatar)
+    {
+      double* avatarUpVector = newUpVector.data();
+      this->GetAvatar(otherID)->SetUpVector(avatarUpVector);
     }
   }
 }
