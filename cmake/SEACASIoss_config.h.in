@@ -11,6 +11,8 @@
 
 #cmakedefine SEACAS_HAVE_EXODUS
 
+#cmakedefine SEACAS_HAVE_EXONULL
+
 #cmakedefine SEACAS_HAVE_CGNS
 
 #cmakedefine SEACAS_HAVE_PAMGEN

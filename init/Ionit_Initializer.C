@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2023, 2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -10,7 +10,9 @@
 
 #if defined(SEACAS_HAVE_EXODUS)
 #include "exodus/Ioex_IOFactory.h"
+#if defined(SECAS_HAVE_EXONULL)
 #include "exonull/Ioexnl_IOFactory.h"
+#endif
 #endif
 
 #include "gen_struc/Iogs_DatabaseIO.h"
@@ -74,7 +76,9 @@ namespace Init {
 
 #if defined(SEACAS_HAVE_EXODUS)
     Ioex::IOFactory::factory(); // Exodus
+#if defined(SECAS_HAVE_EXONULL)
     Ioexnl::IOFactory::factory();
+#endif
 #endif
 #if defined(SEACAS_HAVE_PAMGEN)
     Iopg::IOFactory::factory(); // Pamgen
