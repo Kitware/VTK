@@ -147,6 +147,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
     writer->SetInputConnection(staticMesh ? harmonics->GetOutputPort() : warp->GetOutputPort());
     writer->SetWriteAllTimeSteps(true);
     writer->SetFileName(filePath.c_str());
+    writer->SetDebug(true);
     writer->Write();
   }
 
@@ -161,7 +162,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   readerPart->SetFileName(filePathPart.c_str());
   readerPart->Update();
 
-  for (int time = 0; time < timeValues.size(); time++)
+  for (int time = 0; time < static_cast<int>(timeValues.size()); time++)
   {
     vtkDebugWithObjectMacro(nullptr, << "Comparing timestep " << time);
 

@@ -16,6 +16,9 @@
 #include "vtkHDFUtilities.h"
 #include "vtkHDFWriter.h"
 
+#include <array>
+#include <string>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkHDFWriter::Implementation
@@ -281,7 +284,8 @@ private:
   std::string HdfType;
   bool SubFilesReady = false;
 
-  const std::array<std::string, 4> PrimitiveNames{ "Vertices", "Lines", "Polygons", "Strips" };
+  const std::array<std::string, 4> PrimitiveNames = { { "Vertices", "Lines", "Polygons",
+    "Strips" } };
 
   /**
    * Look into subfile `subfileId` and return the number of cells in part `part`.
@@ -308,10 +312,11 @@ private:
     const std::string& name, std::size_t subfileId, hsize_t part, char primitive = -1);
 
   /**
-   * Return the sum of the subfiles dataset's size given a path to the dataset.
-   * Return -1 on failure (dataset does not exist)
+   * Set `totalSize` as the the sum of the subfiles dataset's size given a path to the dataset.
+   * Return false on failure (dataset does not exist on every subfile). `totalSize` value should not
+   * be used in this case.
    */
-  hsize_t GetSubFilesDatasetSize(const char* datasetPath, const char* groupName, const char* name);
+  bool GetSubFilesDatasetSize(const char* datasetPath, const char* groupName, hsize_t& totalSize);
 
   // Possible indexing mode of VTKHDF datasets. See `GetDatasetIndexationMode`
   enum class IndexingMode

@@ -29,7 +29,7 @@ const std::string STEPS_POINT_OFFSETS{ "/VTKHDF/Steps/PointOffsets" };
 const std::string STEPS_CELL_OFFSETS{ "/VTKHDF/Steps/CellOffsets" };
 const std::string STEPS_CONNECTIVITY_ID_OFFSETS{ "/VTKHDF/Steps/ConnectivityIdOffsets" };
 
-const std::array<std::string, 3> SINGLE_VALUES{ "NumberOfPoints", "NumberOfCells",
+const std::array<std::string, 3> SINGLE_VALUES = { "NumberOfPoints", "NumberOfCells",
   "NumberOfConnectivityIds" };
 }
 
@@ -705,9 +705,9 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
 
   // Collect total dataset size
   const std::string datasetPath = this->GetGroupName(group) + "/" + name;
-  hsize_t totalSize =
-    this->GetSubFilesDatasetSize(datasetPath.c_str(), this->GetGroupName(group).c_str(), name);
-  if (totalSize == -1)
+  hsize_t totalSize = 0;
+  if (!this->GetSubFilesDatasetSize(
+        datasetPath.c_str(), this->GetGroupName(group).c_str(), totalSize))
   {
     vtkDebugWithObjectMacro(
       this->Writer, << "Ignoring dataset " << datasetPath << " not present in every sub-file.");
@@ -752,7 +752,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
   std::vector<hsize_t> sourceOffsets(this->Subfiles.size(), 0);
 
   // Store previous source offsets to handle static meshes
-  std::vector<hsize_t> prevOffsets(this->Subfiles.size(), -1);
+  std::vector<hsize_t> prevOffsets(this->Subfiles.size(), 0);
 
   // Build virtual dataset mappings from sub-files, based on time steps and parts
   for (hsize_t step = 0; step < totalSteps; step++)
@@ -796,7 +796,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
           {
             hsize_t partPointsOffset =
               this->GetSubfileNumberOf(PATH::STEPS_POINT_OFFSETS, part, step);
-            if (prevOffsets[part] == partPointsOffset)
+            if (step > 0 && prevOffsets[part] == partPointsOffset)
             {
               vtkDebugWithObjectMacro(
                 this->Writer, << "Static mesh, not writing points virtual dataset again");
@@ -819,7 +819,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
           {
             hsize_t partCellOffset =
               this->GetSubfileNumberOf(PATH::STEPS_CELL_OFFSETS, part, step, primitive);
-            if (prevOffsets[part] == partCellOffset)
+            if (step > 0 && prevOffsets[part] == partCellOffset)
             {
               vtkDebugWithObjectMacro(
                 this->Writer, << "Static mesh, not writing virtual offsets again");
@@ -844,7 +844,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateVirtualDataset(
           {
             hsize_t partConnOffset =
               this->GetSubfileNumberOf(PATH::STEPS_CONNECTIVITY_ID_OFFSETS, part, step, primitive);
-            if (prevOffsets[part] == partConnOffset)
+            if (step > 0 && prevOffsets[part] == partConnOffset)
             {
               vtkDebugWithObjectMacro(
                 this->Writer, << "Static mesh, not writing virtual connectivity Ids again");
@@ -1002,8 +1002,8 @@ bool vtkHDFWriter::Implementation::WriteSumStepsPolyData(hid_t group, const char
   }
 
   // Create VTK Array of size nbPrimitives * nbTimeSteps
-  vtkNew<vtkIntArray> totalsArray;
-  totalsArray->SetNumberOfComponents(this->PrimitiveNames.size());
+  vtkNew<vtkIdTypeArray> totalsArray;
+  totalsArray->SetNumberOfComponents(static_cast<int>(this->PrimitiveNames.size()));
   totalsArray->SetNumberOfTuples(this->Writer->NumberOfTimeSteps);
 
   // For each timestep, sum each primitive from all pieces
@@ -1011,7 +1011,7 @@ bool vtkHDFWriter::Implementation::WriteSumStepsPolyData(hid_t group, const char
   {
     totalsArray->SetTuple4(step, 0, 0, 0, 0);
     vtkDebugWithObjectMacro(this->Writer, "timestep " << step);
-    for (int prim = 0; prim < this->PrimitiveNames.size(); prim++)
+    for (int prim = 0; prim < static_cast<int>(this->PrimitiveNames.size()); prim++)
     {
       vtkDebugWithObjectMacro(this->Writer, "primitive " << prim);
       // Collect size for the current time step in each subfile for each primitive
@@ -1080,31 +1080,31 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
 }
 
 //------------------------------------------------------------------------------
-hsize_t vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
-  const char* datasetPath, const char* groupName, const char* name)
+bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
+  const char* datasetPath, const char* groupName, hsize_t& totalSize)
 {
-  hsize_t totalSize = 0;
+  totalSize = 0;
   for (auto& fileRoot : this->Subfiles)
   {
     if (!H5Lexists(fileRoot, groupName, H5P_DEFAULT))
     {
-      return -1;
+      return false;
     }
     if (!H5Lexists(fileRoot, datasetPath, H5P_DEFAULT))
     {
-      return -1;
+      return false;
     }
     vtkHDF::ScopedH5DHandle sourceDataset = H5Dopen(fileRoot, datasetPath, H5P_DEFAULT);
     vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
     std::vector<hsize_t> sourceDims(3);
     if (H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr) < 0)
     {
-      return -1;
+      return false;
     }
 
     totalSize += sourceDims[0];
   }
-  return totalSize;
+  return true;
 }
 
 //------------------------------------------------------------------------------
