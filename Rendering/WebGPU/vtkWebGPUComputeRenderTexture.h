@@ -6,12 +6,11 @@
 
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkWeakPointer.h"           // for weak pointer on the associated compute pass
+#include "vtkWebGPUComputePass.h"     // For compute pass
 #include "vtkWebGPUComputeTexture.h"
 #include "vtkWebGPUComputeTextureView.h" // For the texture view aspect attribute
 
 VTK_ABI_NAMESPACE_BEGIN
-
-class vtkWebGPUComputePass;
 
 /**
  * Render textures are returned by calls to
