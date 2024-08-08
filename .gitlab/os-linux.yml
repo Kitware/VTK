@@ -804,3 +804,22 @@
         - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWasm
 
     interruptible: true
+
+.java_upload_linux:
+    stage: upload
+    script:
+        - *before_script_java_linux
+        - cp .gitlab/maven/conf/settings.xml "$HOME/.m2/settings.xml"
+        - xmlstarlet ed -O -L
+            -d '/_:settings/_:servers'
+            -s '/_:settings' -t elem -n servers -v ""
+            -s '/_:settings/servers' -t elem -n server -v ""
+            -s '/_:settings/servers/server' -t elem -n id -v "github"
+            -s '/_:settings/servers/server' -t elem -n username -v '${env.MAVEN_USERNAME}'
+            -s '/_:settings/servers/server' -t elem -n password -v '${env.MAVEN_PASSWORD}'
+            "$HOME/.m2/settings.xml"
+        - cd build/install
+        - mvn deploy -Dvtk.snapshots.repo=https://maven.pkg.github.com/kitware/vtk -Dvtk.snapshots.repo.id=github
+
+    environment:
+        name: maven-upload
