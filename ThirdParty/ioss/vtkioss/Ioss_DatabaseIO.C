@@ -1640,7 +1640,7 @@ namespace {
       else {
         char sep = (util.parallel_size() > 1) ? ':' : ' ';
         for (auto &p_time : all_times) {
-          fmt::print(strm, "{:8d}{}", p_time, sep);
+          fmt::print(strm, "{:8}{}", p_time, sep);
         }
       }
       if (util.parallel_size() > 1) {

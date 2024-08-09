@@ -21,6 +21,7 @@ endif ()
 
 set(SEACAS_HAVE_EXODUS ON)
 set(SEACAS_HAVE_CGNS ON)
+set(SEACAS_HAVE_EXONULL OFF)
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/SEACASIoss_config.h.in"
@@ -81,12 +82,6 @@ set(classes
   Ioss_ZoneConnectivity
 
   tokenize
-
-  cgns/Iocgns_DatabaseIO
-  cgns/Iocgns_Utils
-  cgns/Iocgns_Initializer
-  cgns/Iocgns_StructuredZoneData
-  cgns/Iocgns_IOFactory
 
   elements/Ioss_Beam2
   elements/Ioss_Beam3
@@ -155,19 +150,6 @@ set(classes
   elements/Ioss_Wedge24
   elements/Ioss_Wedge52
 
-  exodus/Ioex_BaseDatabaseIO
-  exodus/Ioex_DatabaseIO
-  exodus/Ioex_Internals
-  exodus/Ioex_IOFactory
-  exodus/Ioex_SuperElement
-  exodus/Ioex_Utils
-
-  exonull/Ioexnl_BaseDatabaseIO
-  exonull/Ioexnl_DatabaseIO
-  exonull/Ioexnl_Internals
-  exonull/Ioexnl_IOFactory
-  exonull/Ioexnl_Utils
-
   gen_struc/Iogs_DatabaseIO
   gen_struc/Iogs_GeneratedMesh
 
@@ -192,18 +174,6 @@ set(classes
   transform/Iotr_Tensor
   transform/Iotr_VectorMagnitude)
 
-if (SEACAS_HAVE_MPI)
-  list(APPEND classes
-    Ioss_Decomposition
-    Ioss_DecompositionUtils
-    cgns/Iocgns_DecompositionData
-    cgns/Iocgns_ParallelDatabaseIO
-    exodus/Ioex_DecompositionData
-    exodus/Ioex_ParallelDatabaseIO
-    exonull/Ioexnl_DecompositionData
-    exonull/Ioexnl_ParallelDatabaseIO)
-endif ()
-
 if (SEACAS_HAVE_CATALYST2)
   list(APPEND classes
     catalyst/Iocatalyst_CatalystLogging
@@ -211,6 +181,55 @@ if (SEACAS_HAVE_CATALYST2)
     catalyst/Iocatalyst_DatabaseIO
     catalyst/Iocatalyst_Initializer
     catalyst/Iocatalyst_IOFactory)
+endif ()
+
+if (SEACAS_HAVE_CGNS)
+  list(APPEND classes
+    cgns/Iocgns_DatabaseIO
+    cgns/Iocgns_Utils
+    cgns/Iocgns_Initializer
+    cgns/Iocgns_StructuredZoneData
+    cgns/Iocgns_IOFactory)
+endif ()
+
+if (SEACAS_HAVE_EXODUS)
+  list(APPEND classes
+    exodus/Ioex_BaseDatabaseIO
+    exodus/Ioex_DatabaseIO
+    exodus/Ioex_Internals
+    exodus/Ioex_IOFactory
+    exodus/Ioex_SuperElement
+    exodus/Ioex_Utils)
+endif ()
+
+if (SEACAS_HAVE_EXONULL)
+  list(APPEND classes
+    exonull/Ioexnl_BaseDatabaseIO
+    exonull/Ioexnl_DatabaseIO
+    exonull/Ioexnl_Internals
+    exonull/Ioexnl_IOFactory
+    exonull/Ioexnl_Utils)
+endif ()
+
+if (SEACAS_HAVE_MPI)
+  list(APPEND classes
+    Ioss_Decomposition
+    Ioss_DecompositionUtils)
+  if (SEACAS_HAVE_CGNS)
+    list(APPEND classes
+      cgns/Iocgns_DecompositionData
+      cgns/Iocgns_ParallelDatabaseIO)
+  endif ()
+  if (SEACAS_HAVE_EXODUS)
+    list(APPEND classes
+      exodus/Ioex_DecompositionData
+      exodus/Ioex_ParallelDatabaseIO)
+  endif ()
+  if (SEACAS_HAVE_EXONULL)
+    list(APPEND classes
+      exonull/Ioexnl_DecompositionData
+      exonull/Ioexnl_ParallelDatabaseIO)
+  endif ()
 endif ()
 
 set(sources)
