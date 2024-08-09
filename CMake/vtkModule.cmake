@@ -5042,25 +5042,25 @@ function (_vtk_module_apply_properties target)
     string(APPEND _vtk_add_module_output_name "-${_vtk_build_LIBRARY_NAME_SUFFIX}")
   endif ()
 
-  set_target_properties("${target}"
-    PROPERTIES
+  set_property(TARGET "${target}"
+    PROPERTY
       OUTPUT_NAME "${_vtk_add_module_output_name}")
 
   if (_vtk_build_VERSION AND NOT _vtk_add_module_type STREQUAL "EXECUTABLE")
-    set_target_properties("${target}"
-      PROPERTIES
+    set_property(TARGET "${target}"
+      PROPERTY
         VERSION "${_vtk_build_VERSION}")
   endif ()
 
   if (_vtk_build_SOVERSION)
-    set_target_properties("${target}"
-      PROPERTIES
+    set_property(TARGET "${target}"
+      PROPERTY
         SOVERSION "${_vtk_build_SOVERSION}")
   endif ()
 
   if (WIN32 AND NOT DEFINED CMAKE_DEBUG_POSTFIX)
-    set_target_properties("${target}"
-      PROPERTIES
+    set_property(TARGET "${target}"
+      PROPERTY
         DEBUG_POSTFIX "d")
   endif ()
 
