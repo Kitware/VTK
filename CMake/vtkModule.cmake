@@ -2963,6 +2963,11 @@ function (vtk_module_build)
         CONTENT "void vtk_module_kit_${_vtk_build_target_name}(void);\nvoid vtk_module_kit_${_vtk_build_target_name}(void) {}\n")
       add_library("${_vtk_build_target_name}"
         "${_vtk_kit_source_file}")
+      get_property(_vtk_build_export_name GLOBAL
+        PROPERTY  "_vtk_kit_${_vtk_build_kit}_target_name")
+      set_property(TARGET "${_vtk_build_target_name}"
+        PROPERTY
+          EXPORT_NAME "${_vtk_build_export_name}")
       get_property(_vtk_build_namespace GLOBAL
         PROPERTY  "_vtk_kit_${_vtk_build_kit}_namespace")
       if (_vtk_build_TARGET_NAMESPACE STREQUAL "<AUTO>")
@@ -5022,6 +5027,16 @@ function (_vtk_module_apply_properties target)
     set(_vtk_apply_properties_BASENAME "${target}")
   endif ()
 
+  get_property(_vtk_add_module_module_library_name GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_library_name")
+  if (target STREQUAL _vtk_add_module_module_library_name)
+    get_property(_vtk_add_module_target_name GLOBAL
+      PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
+    set_property(TARGET "${target}"
+      PROPERTY
+        EXPORT_NAME "${_vtk_add_module_target_name}")
+  endif ()
+
   get_property(_vtk_add_module_type
     TARGET    "${target}"
     PROPERTY  TYPE)
@@ -5031,8 +5046,6 @@ function (_vtk_module_apply_properties target)
   endif ()
 
   set(_vtk_add_module_library_name "${_vtk_apply_properties_BASENAME}")
-  get_property(_vtk_add_module_target_name GLOBAL
-    PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
   if (_vtk_add_module_target_name STREQUAL "${target}")
     get_property(_vtk_add_module_library_name GLOBAL
       PROPERTY "_vtk_module_${_vtk_build_module}_library_name")
@@ -6150,11 +6163,11 @@ function (vtk_module_third_party_external)
   endif ()
 
   add_library("${_vtk_third_party_external_real_target_name}" INTERFACE)
-  if (_vtk_third_party_external_using_mangled_name)
-    set_property(TARGET "${_vtk_third_party_external_real_target_name}"
-      PROPERTY
-        EXPORT_NAME "${_vtk_third_party_external_target_name}")
-  endif ()
+  get_property(_vtk_third_party_external_export_name GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
+  set_property(TARGET "${_vtk_third_party_external_real_target_name}"
+    PROPERTY
+      EXPORT_NAME "${_vtk_third_party_external_export_name}")
   if (NOT _vtk_build_module STREQUAL _vtk_third_party_external_target_name)
     add_library("${_vtk_build_module}" ALIAS
       "${_vtk_third_party_external_real_target_name}")
